@@ -22,7 +22,7 @@ using MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilterFie
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodTranslators
 {
-    public static class AnyWithContainsInPredicateMethodToFilterTranslator
+    internal static class AnyWithContainsInPredicateMethodToFilterTranslator
     {
         public static bool CanTranslate(MethodCallExpression expression, out Expression arrayFieldExpression, out ConstantExpression arrayConstantExpression)
         {

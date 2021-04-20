@@ -24,7 +24,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Serializers
 {
-    public class IGroupingSerializer<TKey, TElement> : SerializerBase<IGrouping<TKey, TElement>>, IBsonArraySerializer, IBsonDocumentSerializer, IWrappedEnumerableSerializer
+    internal class IGroupingSerializer<TKey, TElement> : SerializerBase<IGrouping<TKey, TElement>>, IBsonArraySerializer, IBsonDocumentSerializer, IWrappedEnumerableSerializer
     {
         // private fields
         private readonly IBsonSerializer<TElement> _elementSerializer;
@@ -99,7 +99,7 @@ namespace MongoDB.Driver.Linq3.Serializers
         }
     }
 
-    public static class IGroupingSerializer
+    internal static class IGroupingSerializer
     {
         public static IBsonSerializer Create(IBsonSerializer keySerializer, IBsonSerializer elementSerializer)
         {
@@ -109,12 +109,12 @@ namespace MongoDB.Driver.Linq3.Serializers
         }
     }
 
-    public abstract class IGroupingSerializerFactory
+    internal abstract class IGroupingSerializerFactory
     {
         public abstract IBsonSerializer Create(IBsonSerializer keySerializer, IBsonSerializer elementSerializer);
     }
 
-    public class IGroupingSerializerFactory<TKey, TElement> : IGroupingSerializerFactory
+    internal class IGroupingSerializerFactory<TKey, TElement> : IGroupingSerializerFactory
     {
         public override IBsonSerializer Create(IBsonSerializer keySerializer, IBsonSerializer elementSerializer)
         {

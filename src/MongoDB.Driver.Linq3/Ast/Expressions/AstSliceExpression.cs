@@ -19,7 +19,7 @@ using System;
 
 namespace MongoDB.Driver.Linq3.Ast.Expressions
 {
-    public sealed class AstSliceExpression : AstExpression
+    internal sealed class AstSliceExpression : AstExpression
     {
         private readonly AstExpression _array;
         private readonly AstExpression _n;

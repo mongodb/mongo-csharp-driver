@@ -19,7 +19,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Filters
 {
-    public sealed class AstElemMatchFilterOperation : AstFilterOperation
+    internal sealed class AstElemMatchFilterOperation : AstFilterOperation
     {
         private readonly AstFilter _filter; // note: using "$elem" to represent the implied element values
 

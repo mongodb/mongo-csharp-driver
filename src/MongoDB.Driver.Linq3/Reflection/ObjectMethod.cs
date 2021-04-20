@@ -17,7 +17,7 @@ using System.Reflection;
 
 namespace MongoDB.Driver.Linq3.Reflection
 {
-    public static class ObjectMethod
+    internal static class ObjectMethod
     {
         // private static fields
         private static readonly MethodInfo __equals;

@@ -17,7 +17,7 @@ using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver.Linq3.Serializers
 {
-    public interface IWrappedEnumerableSerializer
+    internal interface IWrappedEnumerableSerializer
     {
         string EnumerableFieldName { get; }
         IBsonSerializer EnumerableElementSerializer { get; }

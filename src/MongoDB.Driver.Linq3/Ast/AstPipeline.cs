@@ -22,7 +22,7 @@ using System.Linq;
 
 namespace MongoDB.Driver.Linq3.Ast
 {
-    public sealed class AstPipeline : AstNode
+    internal sealed class AstPipeline : AstNode
     {
         #region static
         public static AstPipeline Empty(IBsonSerializer outputSerializer)

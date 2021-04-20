@@ -19,7 +19,7 @@ using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver.Linq3.ExtensionMethods
 {
-    public static class ExpressionExtensions
+    internal static class ExpressionExtensions
     {
         public static (string CollectionName, IBsonSerializer DocumentSerializer) GetCollectionInfo(this Expression innerExpression, Expression containerExpression)
         {

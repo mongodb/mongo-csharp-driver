@@ -31,7 +31,7 @@ using MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslators
 {
-    public static class AverageMethodToExecutableQueryTranslator<TOutput>
+    internal static class AverageMethodToExecutableQueryTranslator<TOutput>
     {
         // private static fields
         private static readonly MethodInfo[] __averageMethods;

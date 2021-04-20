@@ -20,7 +20,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Filters
 {
-    public sealed class AstOrFilter : AstFilter
+    internal sealed class AstOrFilter : AstFilter
     {
         private readonly IReadOnlyList<AstFilter> _filters;
 

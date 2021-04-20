@@ -18,7 +18,7 @@ using System.Reflection;
 
 namespace MongoDB.Driver.Linq3.Reflection
 {
-    public static class DateTimeMethod
+    internal static class DateTimeMethod
     {
         // private static fields
         private static readonly MethodInfo __parse;

@@ -25,7 +25,7 @@ using MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilterFie
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators
 {
-    public static class ExpressionToFilterTranslator
+    internal static class ExpressionToFilterTranslator
     {
         // public methods
         public static AstFilter Translate(TranslationContext context, Expression expression, bool exprOk = true)

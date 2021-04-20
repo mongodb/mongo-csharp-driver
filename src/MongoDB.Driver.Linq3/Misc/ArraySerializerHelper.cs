@@ -18,7 +18,7 @@ using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver.Linq3.Misc
 {
-    public static class ArraySerializerHelper
+    internal static class ArraySerializerHelper
     {
         public static IBsonSerializer GetItemSerializer(IBsonSerializer serializer)
         {

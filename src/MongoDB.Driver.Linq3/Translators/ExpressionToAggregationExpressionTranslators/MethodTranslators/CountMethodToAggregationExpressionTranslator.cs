@@ -24,7 +24,7 @@ using MongoDB.Driver.Linq3.Reflection;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
-    public static class CountMethodToAggregationExpressionTranslator
+    internal static class CountMethodToAggregationExpressionTranslator
     {
         private static MethodInfo[] __countMethods;
         private static MethodInfo[] __countWithPredicateMethods;

@@ -19,7 +19,7 @@ using MongoDB.Driver.Linq3.Misc;
 
 namespace MongoDB.Driver.Linq3.Translators
 {
-    public class TranslationContext
+    internal class TranslationContext
     {
         // private fields
         private readonly SymbolTable _symbolTable;

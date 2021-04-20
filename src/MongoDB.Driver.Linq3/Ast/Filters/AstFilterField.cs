@@ -19,7 +19,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Filters
 {
-    public sealed class AstFilterField : AstNode
+    internal sealed class AstFilterField : AstNode
     {
         private string _path;
         private IBsonSerializer _serializer;

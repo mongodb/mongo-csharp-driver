@@ -21,7 +21,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Filters
 {
-    public sealed class AstTypeFilterOperation : AstFilterOperation
+    internal sealed class AstTypeFilterOperation : AstFilterOperation
     {
         private readonly IReadOnlyList<BsonType> _types;
 

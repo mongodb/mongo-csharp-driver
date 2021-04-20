@@ -20,12 +20,12 @@ using System.Linq;
 
 namespace MongoDB.Driver.Linq3.Ast.Stages
 {
-    public abstract class AstLookupStageMatch
+    internal abstract class AstLookupStageMatch
     {
         public abstract IEnumerable<BsonElement> Render();
     }
 
-    public sealed class AstLookupStageEqualityMatch : AstLookupStageMatch
+    internal sealed class AstLookupStageEqualityMatch : AstLookupStageMatch
     {
         private readonly string _foreignField;
         private readonly string _localField;
@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Linq3.Ast.Stages
         }
     }
 
-    public sealed class AstLookupStageUncorrelatedMatch : AstLookupStageMatch
+    internal sealed class AstLookupStageUncorrelatedMatch : AstLookupStageMatch
     {
         private readonly IReadOnlyList<AstComputedField> _let;
         private readonly AstPipeline _pipeline;
@@ -70,7 +70,7 @@ namespace MongoDB.Driver.Linq3.Ast.Stages
         }
     }
 
-    public sealed class AstLookupStage : AstStage
+    internal sealed class AstLookupStage : AstStage
     {
         private readonly string _as;
         private readonly string _from;

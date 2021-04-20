@@ -18,7 +18,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Expressions
 {
-    public sealed class AstReplaceAllExpression : AstExpression
+    internal sealed class AstReplaceAllExpression : AstExpression
     {
         private readonly AstExpression _find;
         private readonly AstExpression _input;

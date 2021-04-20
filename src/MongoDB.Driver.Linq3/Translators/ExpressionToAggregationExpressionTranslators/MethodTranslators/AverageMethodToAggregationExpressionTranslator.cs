@@ -22,7 +22,7 @@ using MongoDB.Driver.Linq3.Reflection;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
-    public static class AverageMethodToAggregationExpressionTranslator
+    internal static class AverageMethodToAggregationExpressionTranslator
     {
         private static MethodInfo[] __averageMethods =
         {

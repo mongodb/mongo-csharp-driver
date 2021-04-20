@@ -20,7 +20,7 @@ using MongoDB.Driver.Linq3.Misc;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilterFieldTranslators
 {
-    public static class ArrayIndexExpressionToFilterFieldTranslator
+    internal static class ArrayIndexExpressionToFilterFieldTranslator
     {
         public static AstFilterField Translate(TranslationContext context, BinaryExpression expression)
         {

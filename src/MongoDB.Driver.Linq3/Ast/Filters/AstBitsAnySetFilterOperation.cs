@@ -18,7 +18,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Filters
 {
-    public sealed class AstBitsAnySetFilterOperation : AstFilterOperation
+    internal sealed class AstBitsAnySetFilterOperation : AstFilterOperation
     {
         private readonly BsonValue _bitmask;
 

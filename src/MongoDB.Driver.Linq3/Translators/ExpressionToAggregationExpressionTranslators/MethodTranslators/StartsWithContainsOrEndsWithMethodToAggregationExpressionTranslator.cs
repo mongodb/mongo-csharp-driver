@@ -26,7 +26,7 @@ using MongoDB.Driver.Linq3.Misc;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
-    public static class StartsWithContainsOrEndsWithMethodToAggregationExpressionTranslator
+    internal static class StartsWithContainsOrEndsWithMethodToAggregationExpressionTranslator
     {
         private static MethodInfo[] __startsWithContainsOrEndWithMethods;
         private static MethodInfo[] __withComparisonTypeMethods;

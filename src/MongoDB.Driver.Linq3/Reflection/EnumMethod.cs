@@ -18,7 +18,7 @@ using System.Reflection;
 
 namespace MongoDB.Driver.Linq3.Reflection
 {
-    public static class EnumMethod
+    internal static class EnumMethod
     {
         // private static fields
         private static readonly MethodInfo __hasFlag;

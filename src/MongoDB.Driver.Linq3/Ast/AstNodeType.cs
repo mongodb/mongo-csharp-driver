@@ -15,7 +15,7 @@
 
 namespace MongoDB.Driver.Linq3.Ast
 {
-    public enum AstNodeType
+    internal enum AstNodeType
     {
         AddFieldsStage,
         AllFilterOperation,

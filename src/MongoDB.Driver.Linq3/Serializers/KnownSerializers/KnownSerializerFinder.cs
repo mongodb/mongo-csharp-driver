@@ -18,7 +18,7 @@ using ExpressionVisitor = System.Linq.Expressions.ExpressionVisitor;
 
 namespace MongoDB.Driver.Linq3.Serializers.KnownSerializers
 {
-    public class KnownSerializerFinder : ExpressionVisitor
+    internal class KnownSerializerFinder : ExpressionVisitor
     {
         #region static
         // public static methods

@@ -17,7 +17,7 @@ using System;
 
 namespace MongoDB.Driver.Linq3.Ast.Expressions
 {
-    public enum AstBinaryOperator
+    internal enum AstBinaryOperator
     {
         ArrayElemAt,
         ATan2,
@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
         Trunc
     }
 
-    public static class AstBinaryOperatorExtensions
+    internal static class AstBinaryOperatorExtensions
     {
         public static string Render(this AstBinaryOperator @operator)
         {

@@ -18,7 +18,7 @@ using MongoDB.Driver.Linq3.Ast.Filters;
 
 namespace MongoDB.Driver.Linq3.Ast.Stages
 {
-    public sealed class AstMatchStage : AstStage
+    internal sealed class AstMatchStage : AstStage
     {
         private readonly AstFilter _filter;
 

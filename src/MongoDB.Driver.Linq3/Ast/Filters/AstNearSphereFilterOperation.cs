@@ -18,7 +18,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Filters
 {
-    public sealed class AstNearSphereFilterOperation : AstFilterOperation
+    internal sealed class AstNearSphereFilterOperation : AstFilterOperation
     {
         private readonly BsonDocument _geometry;
         private readonly BsonValue _maxDistance;

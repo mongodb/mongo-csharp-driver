@@ -17,7 +17,7 @@ using System;
 
 namespace MongoDB.Driver.Linq3.Ast.Expressions
 {
-    public enum AstUnaryOperator
+    internal enum AstUnaryOperator
     {
         Abs,
         ACos,
@@ -78,7 +78,7 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
         Type
     }
 
-    public static class AstUnaryOperatorExtensions
+    internal static class AstUnaryOperatorExtensions
     {
         public static string Render(this AstUnaryOperator @operator)
         {

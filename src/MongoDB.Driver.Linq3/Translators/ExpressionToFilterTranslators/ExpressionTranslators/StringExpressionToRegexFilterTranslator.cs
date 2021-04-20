@@ -29,7 +29,7 @@ using MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilterFie
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodTranslators
 {
-    public static class StringExpressionToRegexFilterTranslator
+    internal static class StringExpressionToRegexFilterTranslator
     {
         // private static fields
         private static MethodInfo[] __indexOfAnyMethods;

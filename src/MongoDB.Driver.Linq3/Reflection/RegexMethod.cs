@@ -18,7 +18,7 @@ using System.Text.RegularExpressions;
 
 namespace MongoDB.Driver.Linq3.Reflection
 {
-    public static class RegexMethod
+    internal static class RegexMethod
     {
         // private static fields
         private static readonly MethodInfo __isMatch;

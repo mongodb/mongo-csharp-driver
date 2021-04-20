@@ -18,7 +18,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Filters
 {
-    public sealed class AstSizeFilterOperation : AstFilterOperation
+    internal sealed class AstSizeFilterOperation : AstFilterOperation
     {
         private readonly BsonValue _size;
 

@@ -20,7 +20,7 @@ using System.Linq;
 
 namespace MongoDB.Driver.Linq3.Ast.Expressions
 {
-    public sealed class AstLetExpression : AstExpression
+    internal sealed class AstLetExpression : AstExpression
     {
         private readonly AstExpression _in;
         private readonly IReadOnlyList<AstVar> _vars;

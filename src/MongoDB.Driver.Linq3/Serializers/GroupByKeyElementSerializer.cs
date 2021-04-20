@@ -22,13 +22,13 @@ using MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators;
 
 namespace MongoDB.Driver.Linq3.Serializers
 {
-    public interface IGroupByKeyElementSerializer : IBsonSerializer
+    internal interface IGroupByKeyElementSerializer : IBsonSerializer
     {
         IBsonSerializer KeySerializer { get; }
         IBsonSerializer ElementSerializer { get; }
     }
 
-    public static class GroupByKeyElementSerializer
+    internal static class GroupByKeyElementSerializer
     {
         public static IGroupByKeyElementSerializer Create(IBsonSerializer keySerializer, IBsonSerializer elementSerializer)
         {
@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Linq3.Serializers
         }
     }
 
-    public class GroupByKeyElementSerializer<TKey, TElement> : SerializerBase<GroupByKeyElement<TKey, TElement>>, IGroupByKeyElementSerializer, IBsonDocumentSerializer
+    internal class GroupByKeyElementSerializer<TKey, TElement> : SerializerBase<GroupByKeyElement<TKey, TElement>>, IGroupByKeyElementSerializer, IBsonDocumentSerializer
     {
         // private fields
         private readonly IBsonSerializer<TKey> _keySerializer;

@@ -22,7 +22,7 @@ using MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
 {
-    public static class WhereMethodToPipelineTranslator
+    internal static class WhereMethodToPipelineTranslator
     {
         // public static methods
         public static AstPipeline Translate(TranslationContext context, MethodCallExpression expression)

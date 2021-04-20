@@ -18,7 +18,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Filters
 {
-    public sealed class AstExistsFilterOperation : AstFilterOperation
+    internal sealed class AstExistsFilterOperation : AstFilterOperation
     {
         private readonly bool _exists;
 

@@ -23,7 +23,7 @@ using MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilterFie
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ExpressionTranslators
 {
-    public static class CountComparisonExpressionToFilterTranslator
+    internal static class CountComparisonExpressionToFilterTranslator
     {
         public static bool CanTranslate(Expression leftExpression, Expression rightExpression, out Expression enumerableExpression, out Expression sizeExpression)
         {

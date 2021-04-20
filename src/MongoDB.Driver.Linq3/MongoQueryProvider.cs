@@ -23,7 +23,7 @@ using MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslators;
 
 namespace MongoDB.Driver.Linq3
 {
-    public abstract class MongoQueryProvider : IQueryProvider
+    internal abstract class MongoQueryProvider : IQueryProvider
     {
         // protected fields
         protected readonly CancellationToken _cancellationToken;
@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Linq3
         protected abstract MongoQueryProvider WithSessionGeneric(IClientSessionHandle session);
     }
 
-    public sealed class MongoQueryProvider<TDocument> : MongoQueryProvider
+    internal sealed class MongoQueryProvider<TDocument> : MongoQueryProvider
     {
         // private fields
         private readonly IMongoCollection<TDocument> _collection;

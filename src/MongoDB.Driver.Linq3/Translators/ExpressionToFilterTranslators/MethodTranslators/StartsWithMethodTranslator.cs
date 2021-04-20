@@ -18,7 +18,7 @@ using MongoDB.Driver.Linq3.Ast.Filters;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodTranslators
 {
-    public static class StartsWithMethodToFilterTranslator
+    internal static class StartsWithMethodToFilterTranslator
     {
         // public static methods
         public static AstFilter Translate(TranslationContext context, MethodCallExpression expression)

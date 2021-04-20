@@ -21,7 +21,7 @@ using MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslators
 {
-    public static class ExpressionToExecutableQueryTranslator
+    internal static class ExpressionToExecutableQueryTranslator
     {
         // public static methods
         public static ExecutableQuery<TDocument, IAsyncCursor<TOutput>> Translate<TDocument, TOutput>(MongoQueryProvider<TDocument> provider, Expression expression)

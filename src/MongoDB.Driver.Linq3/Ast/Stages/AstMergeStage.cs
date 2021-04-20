@@ -21,7 +21,7 @@ using System.Linq;
 
 namespace MongoDB.Driver.Linq3.Ast.Stages
 {
-    public enum AstMergeStageWhenMatched
+    internal enum AstMergeStageWhenMatched
     {
         Replace,
         KeepExisting,
@@ -30,14 +30,14 @@ namespace MongoDB.Driver.Linq3.Ast.Stages
         Pipeline
     }
 
-    public enum AstMergeStageWhenNotMatched
+    internal enum AstMergeStageWhenNotMatched
     {
         Insert,
         Discard,
         Fail
     }
 
-    public sealed class AstMergeStage : AstStage
+    internal sealed class AstMergeStage : AstStage
     {
         private readonly string _intoCollection;
         private readonly string _intoDatabase;

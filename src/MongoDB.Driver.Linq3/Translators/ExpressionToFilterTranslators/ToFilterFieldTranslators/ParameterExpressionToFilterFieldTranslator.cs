@@ -20,7 +20,7 @@ using MongoDB.Driver.Linq3.Serializers;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilterFieldTranslators
 {
-    public static class ParameterExpressionToFilterFieldTranslator
+    internal static class ParameterExpressionToFilterFieldTranslator
     {
         public static AstFilterField Translate(TranslationContext context, ParameterExpression expression)
         {

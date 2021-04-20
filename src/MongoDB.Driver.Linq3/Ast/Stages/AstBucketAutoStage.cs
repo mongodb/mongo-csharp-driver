@@ -21,7 +21,7 @@ using System.Linq;
 
 namespace MongoDB.Driver.Linq3.Ast.Stages
 {
-    public sealed class AstBucketAutoStage : AstStage
+    internal sealed class AstBucketAutoStage : AstStage
     {
         private readonly int _buckets;
         private readonly string _granularity;

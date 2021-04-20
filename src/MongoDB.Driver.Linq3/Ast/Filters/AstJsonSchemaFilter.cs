@@ -18,7 +18,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Filters
 {
-    public sealed class AstJsonSchemaFilter : AstFilter
+    internal sealed class AstJsonSchemaFilter : AstFilter
     {
         private readonly BsonDocument _schema;
 

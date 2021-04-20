@@ -24,7 +24,7 @@ using MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTranslat
 
 namespace MongoDB.Driver.Linq3.Misc
 {
-    public static class ProjectionHelper
+    internal static class ProjectionHelper
     {
         // public static methods
         public static (AstProjectStage, IBsonSerializer) CreateProjectStage(AggregationExpression expression)

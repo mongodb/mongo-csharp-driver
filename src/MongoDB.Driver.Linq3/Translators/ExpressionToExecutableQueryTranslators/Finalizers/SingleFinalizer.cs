@@ -20,7 +20,7 @@ using MongoDB.Driver;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslators.Finalizers
 {
-    public class SingleFinalizer<TOutput> : IExecutableQueryFinalizer<TOutput, TOutput>
+    internal class SingleFinalizer<TOutput> : IExecutableQueryFinalizer<TOutput, TOutput>
     {
         public TOutput Finalize(IAsyncCursor<TOutput> cursor, CancellationToken cancellationToken)
         {

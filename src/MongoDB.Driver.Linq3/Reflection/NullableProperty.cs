@@ -17,7 +17,7 @@ using System.Reflection;
 
 namespace MongoDB.Driver.Linq3.Reflection
 {
-    public static class NullableProperty
+    internal static class NullableProperty
     {
         // private static fields
         private static readonly PropertyInfo __hasValue;

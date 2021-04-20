@@ -27,7 +27,7 @@ using MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslators
 {
-    public static class CountMethodToExecutableQueryTranslator
+    internal static class CountMethodToExecutableQueryTranslator
     {
         // private static fields
         private static readonly MethodInfo[] __countMethods;

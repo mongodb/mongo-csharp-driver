@@ -18,7 +18,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Stages
 {
-    public sealed class AstOutStage : AstStage
+    internal sealed class AstOutStage : AstStage
     {
         private readonly string _outputCollection;
         private readonly string _outputDatabase;

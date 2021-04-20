@@ -18,7 +18,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Misc
 {
-    public class FieldInfo
+    internal class FieldInfo
     {
         // private fields
         private readonly string _elementName;

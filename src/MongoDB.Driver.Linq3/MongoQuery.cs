@@ -24,13 +24,13 @@ using MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslators;
 
 namespace MongoDB.Driver.Linq3
 {
-    public abstract class MongoQuery<TOutput>
+    internal abstract class MongoQuery<TOutput>
     {
         public abstract IAsyncCursor<TOutput> Execute();
         public abstract Task<IAsyncCursor<TOutput>> ExecuteAsync();
     }
 
-    public class MongoQuery<TDocument, TOutput> : MongoQuery<TOutput>, IMongoQueryable<TOutput>
+    internal class MongoQuery<TDocument, TOutput> : MongoQuery<TOutput>, IMongoQueryable<TOutput>
     {
         // private fields
         private readonly Expression _expression;

@@ -19,7 +19,7 @@ using MongoDB.Driver.Linq3.Ast.Filters;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ExpressionTranslators
 {
-    public static class ParameterExpressionToFilterTranslator
+    internal static class ParameterExpressionToFilterTranslator
     {
         public static AstFilter Translate(TranslationContext context, ParameterExpression expression)
         {

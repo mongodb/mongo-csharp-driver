@@ -19,7 +19,7 @@ using System;
 
 namespace MongoDB.Driver.Linq3.Ast.Expressions
 {
-    public sealed class AstDateFromPartsExpression : AstExpression
+    internal sealed class AstDateFromPartsExpression : AstExpression
     {
         private readonly AstExpression _day;
         private readonly AstExpression _hour;

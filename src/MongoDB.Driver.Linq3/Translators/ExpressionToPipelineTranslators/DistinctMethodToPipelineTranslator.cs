@@ -23,7 +23,7 @@ using MongoDB.Driver.Linq3.Reflection;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
 {
-    public static class DistinctMethodToPipelineTranslator
+    internal static class DistinctMethodToPipelineTranslator
     {
         // public static methods
         public static AstPipeline Translate(TranslationContext context, MethodCallExpression expression)

@@ -26,7 +26,7 @@ using MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilterFie
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodTranslators
 {
-    public static class AllOrAnyMethodToFilterTranslator
+    internal static class AllOrAnyMethodToFilterTranslator
     {
         public static AstFilter Translate(TranslationContext context, MethodCallExpression expression)
         {
@@ -82,7 +82,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
         }
     }
 
-    public static class FilteredEnumerableFilterFieldTranslator
+    internal static class FilteredEnumerableFilterFieldTranslator
     {
         public static (AstFilterField, AstFilter) Translate(TranslationContext context, Expression sourceExpression)
         {

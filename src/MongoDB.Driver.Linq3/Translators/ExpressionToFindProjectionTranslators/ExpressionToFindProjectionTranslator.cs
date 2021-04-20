@@ -19,7 +19,7 @@ using MongoDB.Driver.Linq3.Ast;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToFindProjectionTranslators
 {
-    public static class ExpressionToFindProjectionTranslator
+    internal static class ExpressionToFindProjectionTranslator
     {
         public static AstFindProjection<TProjection> Translate<TProjection>(TranslationContext context, Expression expression)
         {

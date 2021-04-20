@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslators
 {
-    public interface IExecutableQueryFinalizer<TOutput, TResult>
+    internal interface IExecutableQueryFinalizer<TOutput, TResult>
     {
         TResult Finalize(IAsyncCursor<TOutput> cursor, CancellationToken cancellationToken);
         Task<TResult> FinalizeAsync(IAsyncCursor<TOutput> cursor, CancellationToken cancellationToken);

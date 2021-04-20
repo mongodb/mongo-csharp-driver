@@ -24,7 +24,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast
 {
-    public class AstFindProjection<TProjection> : AstNode
+    internal class AstFindProjection<TProjection> : AstNode
     {
         private readonly IReadOnlyList<AstFindProjectionField> _fields;
         private readonly IBsonSerializer<TProjection> _projectionSerializer;
@@ -47,12 +47,12 @@ namespace MongoDB.Driver.Linq3.Ast
         }
     }
 
-    public abstract class AstFindProjectionField
+    internal abstract class AstFindProjectionField
     {
         public abstract BsonElement Render();
     }
 
-    public class AstFindProjectionExcludeField : AstFindProjectionField
+    internal class AstFindProjectionExcludeField : AstFindProjectionField
     {
         private readonly string _path;
 
@@ -67,7 +67,7 @@ namespace MongoDB.Driver.Linq3.Ast
         }
     }
 
-    public class AstFindProjectionIncludeField : AstFindProjectionField
+    internal class AstFindProjectionIncludeField : AstFindProjectionField
     {
         private readonly string _path;
 
@@ -82,7 +82,7 @@ namespace MongoDB.Driver.Linq3.Ast
         }
     }
 
-    public class AstFindProjectionSerializer<TOutput, TProjection> : SerializerBase<TProjection>
+    internal class AstFindProjectionSerializer<TOutput, TProjection> : SerializerBase<TProjection>
     {
         private readonly Expression<Func<TOutput, TProjection>> _clientSideProjectorExpression;
         private readonly Func<TOutput, TProjection> _clientSideProjectorFunc;

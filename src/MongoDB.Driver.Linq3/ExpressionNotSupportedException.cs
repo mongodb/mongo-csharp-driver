@@ -18,7 +18,7 @@ using System.Linq.Expressions;
 
 namespace MongoDB.Driver.Linq3
 {
-    public class ExpressionNotSupportedException : NotSupportedException
+    internal class ExpressionNotSupportedException : NotSupportedException
     {
         #region static
         private static string FormatMessage(Expression expression)

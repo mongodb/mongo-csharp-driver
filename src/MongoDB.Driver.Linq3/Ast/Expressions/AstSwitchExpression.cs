@@ -20,7 +20,7 @@ using System.Linq;
 
 namespace MongoDB.Driver.Linq3.Ast.Expressions
 {
-    public sealed class AstSwitchExpressionBranch
+    internal sealed class AstSwitchExpressionBranch
     {
         private readonly AstExpression _case;
         private readonly AstExpression _then;
@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
         }
     }
 
-    public sealed class AstSwitchExpression : AstExpression
+    internal sealed class AstSwitchExpression : AstExpression
     {
         private IReadOnlyList<AstSwitchExpressionBranch> _branches;
         private AstExpression _default;

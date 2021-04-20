@@ -20,7 +20,7 @@ using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver.Linq3.Misc
 {
-    public static class SerializationHelper
+    internal static class SerializationHelper
     {
         public static BsonValue SerializeValue(IBsonSerializer serializer, object value)
         {

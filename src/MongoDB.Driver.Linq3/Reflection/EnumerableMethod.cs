@@ -21,7 +21,7 @@ using System.Reflection;
 
 namespace MongoDB.Driver.Linq3.Reflection
 {
-    public static class EnumerableMethod
+    internal static class EnumerableMethod
     {
         // private static fields
         private static readonly MethodInfo __aggregate;

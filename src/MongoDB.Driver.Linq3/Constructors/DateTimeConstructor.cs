@@ -19,7 +19,7 @@ using MongoDB.Driver.Linq3.Reflection;
 
 namespace MongoDB.Driver.Linq3.Constructors
 {
-    public static class DateTimeConstructor
+    internal static class DateTimeConstructor
     {
         private static readonly ConstructorInfo __withYearMonthDay;
         private static readonly ConstructorInfo __withYearMonthDayHourMinuteSecond;

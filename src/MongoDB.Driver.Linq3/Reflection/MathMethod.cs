@@ -18,7 +18,7 @@ using System.Reflection;
 
 namespace MongoDB.Driver.Linq3.Reflection
 {
-    public static class MathMethod
+    internal static class MathMethod
     {
         // private static fields
         private static readonly MethodInfo __absDecimal;

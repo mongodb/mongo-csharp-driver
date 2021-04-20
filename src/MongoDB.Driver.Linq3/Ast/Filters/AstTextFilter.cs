@@ -18,7 +18,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Filters
 {
-    public sealed class AstTextFilter : AstFilter
+    internal sealed class AstTextFilter : AstFilter
     {
         private readonly bool? _caseSensitive;
         private readonly bool? _diacriticSensitive;

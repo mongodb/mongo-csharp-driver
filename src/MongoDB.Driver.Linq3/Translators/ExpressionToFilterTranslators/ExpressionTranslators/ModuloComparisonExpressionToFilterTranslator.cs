@@ -21,7 +21,7 @@ using MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilterFie
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ExpressionTranslators
 {
-    public static class ModuloComparisonExpressionToFilterTranslator
+    internal static class ModuloComparisonExpressionToFilterTranslator
     {
         public static bool CanTranslate(Expression leftExpression, Expression rightExpression, out BinaryExpression moduloExpression, out Expression remainderExpression)
         {

@@ -18,7 +18,7 @@ using System.Collections.Generic;
 
 namespace MongoDB.Driver.Linq3.Misc
 {
-    public static class TypeExtensions
+    internal static class TypeExtensions
     {
         public static Type GetIEnumerableGenericInterface(this Type enumerableType)
         {

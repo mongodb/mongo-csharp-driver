@@ -20,7 +20,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Misc
 {
-    public class SymbolTable : IEnumerable<KeyValuePair<ParameterExpression, Symbol>>
+    internal class SymbolTable : IEnumerable<KeyValuePair<ParameterExpression, Symbol>>
     {
         // private fields
         private Symbol _current;

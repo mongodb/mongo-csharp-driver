@@ -18,7 +18,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Expressions
 {
-    public sealed class AstDatePartExpression : AstExpression
+    internal sealed class AstDatePartExpression : AstExpression
     {
         private readonly AstExpression _date;
         private readonly AstDatePart _part;

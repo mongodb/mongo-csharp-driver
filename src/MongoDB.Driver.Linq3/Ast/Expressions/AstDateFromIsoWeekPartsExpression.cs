@@ -18,7 +18,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Expressions
 {
-    public sealed class AstDateFromIsoWeekPartsExpression : AstExpression
+    internal sealed class AstDateFromIsoWeekPartsExpression : AstExpression
     {
         private readonly AstExpression _hour;
         private readonly AstExpression _isoDayOfWeek;

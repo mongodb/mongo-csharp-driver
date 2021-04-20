@@ -18,7 +18,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Filters
 {
-    public sealed class AstGeoWithinBoxFilterOperation : AstFilterOperation
+    internal sealed class AstGeoWithinBoxFilterOperation : AstFilterOperation
     {
         private readonly BsonArray _bottomLeftCoordinates;
         private readonly BsonArray _upperRightCoordinates;

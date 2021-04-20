@@ -18,7 +18,7 @@ using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver.Linq3.Misc
 {
-    public static class DocumentSerializerHelper
+    internal static class DocumentSerializerHelper
     {
         public static FieldInfo GetFieldInfo(IBsonSerializer serializer, string memberName)
         {
