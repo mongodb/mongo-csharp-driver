@@ -18,7 +18,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Filters
 {
-    public sealed class AstGeoWithinCenterSphereFilterOperation : AstFilterOperation
+    internal sealed class AstGeoWithinCenterSphereFilterOperation : AstFilterOperation
     {
         private readonly BsonValue _radius;
         private readonly BsonValue _x;

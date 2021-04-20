@@ -17,7 +17,7 @@ using System;
 
 namespace MongoDB.Driver.Linq3.Ast.Expressions
 {
-    public enum AstDatePart
+    internal enum AstDatePart
     {
         DayOfMonth,
         DayOfWeek,
@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
         Year
     }
 
-    public static class AstDatePartExtensions
+    internal static class AstDatePartExtensions
     {
         public static string Render(this AstDatePart part)
         {

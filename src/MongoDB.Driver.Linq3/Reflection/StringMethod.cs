@@ -20,7 +20,7 @@ using MongoDB.Driver.Linq3.Reflection;
 
 namespace MongoDB.Driver.Linq3.Misc
 {
-    public static class StringMethod
+    internal static class StringMethod
     {
         // private static fields
         private static readonly MethodInfo __contains;

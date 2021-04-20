@@ -22,7 +22,7 @@ using MongoDB.Driver.Linq3.Misc;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTranslators
 {
-    public static class NewDateTimeExpressionToAggregationExpressionTranslator
+    internal static class NewDateTimeExpressionToAggregationExpressionTranslator
     {
         private static readonly ConstructorInfo[] __dateTimeConstructors =
         {

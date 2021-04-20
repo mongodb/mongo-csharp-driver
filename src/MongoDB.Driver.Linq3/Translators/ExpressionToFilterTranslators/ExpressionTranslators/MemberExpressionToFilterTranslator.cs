@@ -23,7 +23,7 @@ using MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilterFie
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ExpressionTranslators
 {
-    public static class MemberExpressionToFilterTranslator
+    internal static class MemberExpressionToFilterTranslator
     {
         public static AstFilter Translate(TranslationContext context, MemberExpression expression)
         {

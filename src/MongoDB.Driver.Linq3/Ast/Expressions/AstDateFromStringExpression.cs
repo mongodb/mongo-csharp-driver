@@ -18,7 +18,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Expressions
 {
-    public sealed class AstDateFromStringExpression : AstExpression
+    internal sealed class AstDateFromStringExpression : AstExpression
     {
         private readonly AstExpression _dateString;
         private readonly AstExpression _format;

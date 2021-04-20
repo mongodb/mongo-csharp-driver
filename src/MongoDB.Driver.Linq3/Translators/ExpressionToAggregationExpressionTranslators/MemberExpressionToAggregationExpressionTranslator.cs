@@ -28,7 +28,7 @@ using MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTranslat
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTranslators
 {
-    public static class MemberExpressionToAggregationExpressionTranslator
+    internal static class MemberExpressionToAggregationExpressionTranslator
     {
         public static AggregationExpression Translate(TranslationContext context, MemberExpression expression)
         {

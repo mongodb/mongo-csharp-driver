@@ -17,7 +17,7 @@ using MongoDB.Bson;
 
 namespace MongoDB.Driver.Linq3.Ast.Filters
 {
-    public sealed class AstMatchesNothingFilter : AstFilter
+    internal sealed class AstMatchesNothingFilter : AstFilter
     {
         public override AstNodeType NodeType => AstNodeType.MatchesNothingFilter;
 

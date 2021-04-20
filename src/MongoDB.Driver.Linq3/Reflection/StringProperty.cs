@@ -17,7 +17,7 @@ using System.Reflection;
 
 namespace MongoDB.Driver.Linq3.Reflection
 {
-    public static class StringProperty
+    internal static class StringProperty
     {
         // private static fields
         private static readonly PropertyInfo __Length;

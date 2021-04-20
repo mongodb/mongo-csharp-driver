@@ -26,7 +26,7 @@ using MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTranslat
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
 {
-    public static class JoinMethodToPipelineTranslator
+    internal static class JoinMethodToPipelineTranslator
     {
         // public static methods
         public static AstPipeline Translate(TranslationContext context, MethodCallExpression expression)

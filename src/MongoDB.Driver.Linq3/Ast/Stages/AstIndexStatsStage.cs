@@ -17,7 +17,7 @@ using MongoDB.Bson;
 
 namespace MongoDB.Driver.Linq3.Ast.Stages
 {
-    public sealed class AstIndexStatsStage : AstStage
+    internal sealed class AstIndexStatsStage : AstStage
     {
         public override AstNodeType NodeType => AstNodeType.IndexStatsStage;
 

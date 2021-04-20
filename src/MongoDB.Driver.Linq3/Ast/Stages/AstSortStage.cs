@@ -20,7 +20,7 @@ using System.Linq;
 
 namespace MongoDB.Driver.Linq3.Ast.Stages
 {
-    public static class AstSort
+    internal static class AstSort
     {
         public static AstSortField Field(string path, AstSortOrder order)
         {
@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Linq3.Ast.Stages
         }
     }
 
-    public sealed class AstSortField
+    internal sealed class AstSortField
     {
         private readonly string _path;
         private readonly AstSortOrder _order;
@@ -48,7 +48,7 @@ namespace MongoDB.Driver.Linq3.Ast.Stages
         }
     }
 
-    public abstract class AstSortOrder
+    internal abstract class AstSortOrder
     {
         private readonly static AstSortOrder __ascending = new AstAscendingSortOrder();
         private readonly static AstSortOrder __descending = new AstDescendingSortOrder();
@@ -61,22 +61,22 @@ namespace MongoDB.Driver.Linq3.Ast.Stages
         public abstract BsonValue Render();
     }
 
-    public sealed class AstAscendingSortOrder : AstSortOrder
+    internal sealed class AstAscendingSortOrder : AstSortOrder
     {
         public override BsonValue Render() => 1;
     }
 
-    public sealed class AstDescendingSortOrder : AstSortOrder
+    internal sealed class AstDescendingSortOrder : AstSortOrder
     {
         public override BsonValue Render() => -1;
     }
 
-    public sealed class AstMetaTextScoreSortOrder : AstSortOrder
+    internal sealed class AstMetaTextScoreSortOrder : AstSortOrder
     {
         public override BsonValue Render() => new BsonDocument("$meta", "textScore");
     }
 
-    public sealed class AstSortStage : AstStage
+    internal sealed class AstSortStage : AstStage
     {
         private readonly IReadOnlyList<AstSortField> _fields;
 

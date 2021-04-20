@@ -21,7 +21,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Expressions
 {
-    public abstract class AstExpression : AstNode
+    internal abstract class AstExpression : AstNode
     {
         // public implicit conversions
         public static implicit operator AstExpression(BsonValue value)

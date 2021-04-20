@@ -20,7 +20,7 @@ using MongoDB.Driver.Linq3.Ast.Stages;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
 {
-    public static class ExpressionToPipelineTranslator
+    internal static class ExpressionToPipelineTranslator
     {
         // public static methods
         public static AstPipeline Translate(TranslationContext context, Expression expression)

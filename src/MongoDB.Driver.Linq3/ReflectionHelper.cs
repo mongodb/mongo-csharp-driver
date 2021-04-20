@@ -18,7 +18,7 @@ using System.Collections.Generic;
 
 namespace MongoDB.Driver.Linq3
 {
-    public static class ReflectionHelper
+    internal static class ReflectionHelper
     {
         public static Type GetCollectionElementType(Type enumerableType)
         {

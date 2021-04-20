@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 
 namespace MongoDB.Driver.Linq3
 {
-    public interface IMongoQueryable<TOutput> : IOrderedQueryable<TOutput>
+    internal interface IMongoQueryable<TOutput> : IOrderedQueryable<TOutput>
     {
         IAsyncCursor<TOutput> Execute();
         Task<IAsyncCursor<TOutput>> ExecuteAsync();

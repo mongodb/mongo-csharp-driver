@@ -17,12 +17,12 @@ using MongoDB.Bson;
 
 namespace MongoDB.Driver.Linq3.Ast.Stages
 {
-    public sealed class AstCollStatsStageCount
+    internal sealed class AstCollStatsStageCount
     {
         public BsonDocument Render() => new BsonDocument();
     }
 
-    public sealed class AstCollStatsStageLatencyStats
+    internal sealed class AstCollStatsStageLatencyStats
     {
         private readonly bool? _histograms;
 
@@ -43,12 +43,12 @@ namespace MongoDB.Driver.Linq3.Ast.Stages
         }
     }
 
-    public sealed class AstCollStatsStageQueryExecStats
+    internal sealed class AstCollStatsStageQueryExecStats
     {
         public BsonDocument Render() => new BsonDocument();
     }
 
-    public sealed class AstCollStatsStageStorageStats
+    internal sealed class AstCollStatsStageStorageStats
     {
         private readonly int? _scale;
 
@@ -69,7 +69,7 @@ namespace MongoDB.Driver.Linq3.Ast.Stages
         }
     }
 
-    public sealed class AstCollStatsStage : AstStage
+    internal sealed class AstCollStatsStage : AstStage
     {
         private readonly AstCollStatsStageCount _count;
         private readonly AstCollStatsStageLatencyStats _latencyStats;

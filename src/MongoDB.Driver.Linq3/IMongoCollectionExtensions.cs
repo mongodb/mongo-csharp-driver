@@ -18,7 +18,7 @@ using System.Threading;
 
 namespace MongoDB.Driver.Linq3
 {
-    public static class IMongoCollectionExtensions
+    internal static class IMongoCollectionExtensions
     {
         public static IQueryable<TDocument> AsQueryable3<TDocument>(
             this IMongoCollection<TDocument> collection,

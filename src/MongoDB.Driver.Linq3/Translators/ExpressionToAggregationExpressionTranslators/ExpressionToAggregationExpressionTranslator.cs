@@ -25,7 +25,7 @@ using MongoDB.Driver.Linq3.Serializers;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTranslators
 {
-    public static class ExpressionToAggregationExpressionTranslator
+    internal static class ExpressionToAggregationExpressionTranslator
     {
         // public static methods
         public static AggregationExpression Translate(TranslationContext context, Expression expression)

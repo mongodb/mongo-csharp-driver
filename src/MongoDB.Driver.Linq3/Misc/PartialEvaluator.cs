@@ -23,7 +23,7 @@ namespace MongoDB.Driver.Linq3.Misc
     // adapted from a Microsoft article entitled "Walkthrough: Creating an IQueryable LINQ Provider"
     // https://msdn.microsoft.com/en-us/library/bb546158.aspx
 
-    public static class PartialEvaluator
+    internal static class PartialEvaluator
     {
         #region static
         public static Expression EvaluatePartially(Expression expression)

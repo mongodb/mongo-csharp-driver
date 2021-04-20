@@ -15,7 +15,7 @@
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
 {
-    public class GroupByKeyElement<TKey, TElement>
+    internal class GroupByKeyElement<TKey, TElement>
     {
         // private fields
         private readonly TKey _key;

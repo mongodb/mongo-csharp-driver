@@ -18,7 +18,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Misc
 {
-    public static class ExpressionHelper
+    internal static class ExpressionHelper
     {
         public static LambdaExpression UnquoteLambda(Expression expression)
         {

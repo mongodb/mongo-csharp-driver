@@ -22,7 +22,7 @@ using MongoDB.Driver.Linq3.Ast.Expressions;
 
 namespace MongoDB.Driver.Linq3.Ast.Filters
 {
-    public abstract class AstFilter : AstNode
+    internal abstract class AstFilter : AstNode
     {
         #region static
         // public static methods

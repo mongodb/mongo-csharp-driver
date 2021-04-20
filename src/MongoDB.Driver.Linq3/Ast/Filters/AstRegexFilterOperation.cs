@@ -18,7 +18,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Filters
 {
-    public sealed class AstRegexFilterOperation : AstFilterOperation
+    internal sealed class AstRegexFilterOperation : AstFilterOperation
     {
         private readonly string _options;
         private readonly string _pattern;

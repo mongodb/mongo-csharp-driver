@@ -21,7 +21,7 @@ using System.Linq;
 
 namespace MongoDB.Driver.Linq3.Ast.Stages
 {
-    public static class AstProject
+    internal static class AstProject
     {
         public static AstProjectStageSpecification Exclude(string path)
         {
@@ -44,12 +44,12 @@ namespace MongoDB.Driver.Linq3.Ast.Stages
         }
     }
 
-    public abstract class AstProjectStageSpecification
+    internal abstract class AstProjectStageSpecification
     {
         public abstract BsonElement Render();
     }
 
-    public sealed class AstProjectStageExcludeFieldSpecification : AstProjectStageSpecification
+    internal sealed class AstProjectStageExcludeFieldSpecification : AstProjectStageSpecification
     {
         private readonly string _path;
 
@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Linq3.Ast.Stages
         }
     }
 
-    public sealed class AstProjectStageIncludeFieldSpecification : AstProjectStageSpecification
+    internal sealed class AstProjectStageIncludeFieldSpecification : AstProjectStageSpecification
     {
         private readonly string _path;
 
@@ -83,7 +83,7 @@ namespace MongoDB.Driver.Linq3.Ast.Stages
         }
     }
 
-    public sealed class AstProjectStageSetFieldSpecification : AstProjectStageSpecification
+    internal sealed class AstProjectStageSetFieldSpecification : AstProjectStageSpecification
     {
         private readonly string _path;
         private readonly AstExpression _value;
@@ -100,7 +100,7 @@ namespace MongoDB.Driver.Linq3.Ast.Stages
         }
     }
 
-    public sealed class AstProjectStage : AstStage
+    internal sealed class AstProjectStage : AstStage
     {
         private readonly IReadOnlyList<AstProjectStageSpecification> _specifications;
 

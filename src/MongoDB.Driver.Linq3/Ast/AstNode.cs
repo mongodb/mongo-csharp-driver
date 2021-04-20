@@ -18,7 +18,7 @@ using MongoDB.Bson.IO;
 
 namespace MongoDB.Driver.Linq3.Ast
 {
-    public abstract class AstNode
+    internal abstract class AstNode
     {
         public abstract AstNodeType NodeType { get; }
 

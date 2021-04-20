@@ -20,7 +20,7 @@ using MongoDB.Driver.Linq3.Ast.Filters;
 
 namespace MongoDB.Driver.Linq3.Ast.Stages
 {
-    public abstract class AstStage : AstNode
+    internal abstract class AstStage : AstNode
     {
         public static AstStage AddFields(IEnumerable<AstComputedField> fields)
         {

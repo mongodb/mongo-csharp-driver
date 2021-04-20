@@ -20,7 +20,7 @@ using MongoDB.Driver.Linq3.Misc;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
-    public static class IsSubsetOfMethodToAggregationExpressionTranslator
+    internal static class IsSubsetOfMethodToAggregationExpressionTranslator
     {
         public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
         {

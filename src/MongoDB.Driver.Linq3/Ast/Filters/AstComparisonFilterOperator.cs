@@ -17,7 +17,7 @@ using System;
 
 namespace MongoDB.Driver.Linq3.Ast.Filters
 {
-    public enum AstComparisonFilterOperator
+    internal enum AstComparisonFilterOperator
     {
         Eq,
         Gt,
@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Linq3.Ast.Filters
         Ne
     }
 
-    public static class AstComparisonFilterOperatorExtensions
+    internal static class AstComparisonFilterOperatorExtensions
     {
         public static string Render(this AstComparisonFilterOperator @operator)
         {

@@ -20,7 +20,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3
 {
-    public static class IQueryableExtensions
+    internal static class IQueryableExtensions
     {
         public static IQueryable<T> WithCancellationToken<T>(this IQueryable<T> queryable, CancellationToken cancellationToken)
         {

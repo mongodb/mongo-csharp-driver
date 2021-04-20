@@ -18,7 +18,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Filters
 {
-    public sealed class AstGeoWithinFilterOperation : AstFilterOperation
+    internal sealed class AstGeoWithinFilterOperation : AstFilterOperation
     {
         private readonly BsonDocument _geometry;
 

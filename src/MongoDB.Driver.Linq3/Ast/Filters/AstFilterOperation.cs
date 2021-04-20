@@ -15,7 +15,7 @@
 
 namespace MongoDB.Driver.Linq3.Ast.Filters
 {
-    public abstract class AstFilterOperation : AstNode
+    internal abstract class AstFilterOperation : AstNode
     {
     }
 }

@@ -20,7 +20,7 @@ using System.Linq;
 
 namespace MongoDB.Driver.Linq3.Ast.Stages
 {
-    public sealed class AstAddFieldsStage : AstStage
+    internal sealed class AstAddFieldsStage : AstStage
     {
         private readonly IReadOnlyList<AstComputedField> _fields;
 

@@ -21,7 +21,7 @@ using System.Threading;
 
 namespace MongoDB.Driver.Linq3.Reflection
 {
-    public static class MongoQueryableMethod
+    internal static class MongoQueryableMethod
     {
         // private static fields
         private static readonly MethodInfo __anyAsync;

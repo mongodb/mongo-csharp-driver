@@ -22,7 +22,7 @@ using MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilterFie
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ExpressionTranslators
 {
-    public static class BitMaskComparisonExpressionToFilterTranslator
+    internal static class BitMaskComparisonExpressionToFilterTranslator
     {
         public static bool CanTranslate(Expression leftExpression)
         {

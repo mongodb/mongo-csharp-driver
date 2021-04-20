@@ -21,7 +21,7 @@ using MongoDB.Driver.Linq3.Misc;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTranslators
 {
-    public static class MultiplyExpressionToAggregationExpressionTranslator
+    internal static class MultiplyExpressionToAggregationExpressionTranslator
     {
         public static AggregationExpression Translate(TranslationContext context, BinaryExpression expression)
         {

@@ -17,14 +17,14 @@ using System;
 
 namespace MongoDB.Driver.Linq3.Ast.Expressions
 {
-    public enum AstRegexOperator
+    internal enum AstRegexOperator
     {
         Find,
         FindAll,
         Match
     }
 
-    public static class AstRegexOperatorExtensions
+    internal static class AstRegexOperatorExtensions
     {
         public static string Render(this AstRegexOperator @operator)
         {

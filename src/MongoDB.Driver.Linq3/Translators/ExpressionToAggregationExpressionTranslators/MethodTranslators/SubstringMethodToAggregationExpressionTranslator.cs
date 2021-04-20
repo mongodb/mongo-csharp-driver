@@ -22,7 +22,7 @@ using MongoDB.Driver.Linq3.Reflection;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
-    public static class SubstringMethodToAggregationExpressionTranslator
+    internal static class SubstringMethodToAggregationExpressionTranslator
     {
         public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
         {

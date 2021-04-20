@@ -19,7 +19,7 @@ using MongoDB.Driver.Linq3.Ast.Expressions;
 
 namespace MongoDB.Driver.Linq3.Ast.Stages
 {
-    public sealed class AstReplaceWithStage : AstStage
+    internal sealed class AstReplaceWithStage : AstStage
     {
         private readonly AstExpression _expression;
 

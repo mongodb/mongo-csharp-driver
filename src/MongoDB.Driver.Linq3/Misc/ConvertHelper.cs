@@ -18,7 +18,7 @@ using System.Linq.Expressions;
 
 namespace MongoDB.Driver.Linq3.Misc
 {
-    public static class ConvertHelper
+    internal static class ConvertHelper
     {
         public static Expression RemoveWideningConvert(Expression expression)
         {

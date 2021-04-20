@@ -20,7 +20,7 @@ using MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ToFilterFie
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.ExpressionTranslators
 {
-    public static class ArrayLengthComparisonExpressionToFilterTranslator
+    internal static class ArrayLengthComparisonExpressionToFilterTranslator
     {
         public static bool CanTranslate(Expression leftExpression, Expression rightExpression, out UnaryExpression arrayLengthExpression, out Expression sizeExpression)
         {

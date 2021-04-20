@@ -23,7 +23,7 @@ using System.Threading.Tasks;
 
 namespace MongoDB.Driver.Linq3.Ast.Stages
 {
-    public sealed class AstFacetStageFacet
+    internal sealed class AstFacetStageFacet
     {
         private readonly string _outputField;
         private readonly AstPipeline _pipeline;
@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Linq3.Ast.Stages
         }
     }
 
-    public sealed class AstFacetStage : AstStage
+    internal sealed class AstFacetStage : AstStage
     {
         private readonly IReadOnlyList<AstFacetStageFacet> _facets;
 

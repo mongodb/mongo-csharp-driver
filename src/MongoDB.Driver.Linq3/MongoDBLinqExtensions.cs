@@ -17,7 +17,7 @@ using System;
 
 namespace MongoDB.Driver.Linq3
 {
-    public static class MongoDBLinqExtensions
+    internal static class MongoDBLinqExtensions
     {
         public static int IndexOfBytes(this string s, string value)
         {

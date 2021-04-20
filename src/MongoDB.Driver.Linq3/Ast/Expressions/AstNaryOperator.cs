@@ -17,7 +17,7 @@ using System;
 
 namespace MongoDB.Driver.Linq3.Ast.Expressions
 {
-    public enum AstNaryOperator
+    internal enum AstNaryOperator
     {
         Add,
         Avg,
@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Linq3.Ast.Expressions
         Sum
     }
 
-    public static class AstNaryOperatorExtensions
+    internal static class AstNaryOperatorExtensions
     {
         public static string Render(this AstNaryOperator @operator)
         {

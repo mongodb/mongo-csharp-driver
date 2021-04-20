@@ -18,7 +18,7 @@ using MongoDB.Driver.Linq3.Ast.Expressions;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTranslators
 {
-    public static class UnaryExpressionToAggregationExpressionTranslator
+    internal static class UnaryExpressionToAggregationExpressionTranslator
     {
         public static AggregationExpression Translate(TranslationContext context, UnaryExpression expression)
         {

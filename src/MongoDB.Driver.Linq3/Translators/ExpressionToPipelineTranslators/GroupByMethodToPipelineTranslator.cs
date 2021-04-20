@@ -27,7 +27,7 @@ using MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTranslat
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
 {
-    public static class GroupByMethodToPipelineTranslator
+    internal static class GroupByMethodToPipelineTranslator
     {
         // private static fields
         private static readonly MethodInfo[] __groupByMethods;

@@ -24,7 +24,7 @@ using System.Threading.Tasks;
 namespace MongoDB.Driver.Linq3
 {
     // this class is analogous to .NET's Queryable class and contains MongoDB specific extension methods for IQueryable
-    public static class MongoQueryable
+    internal static class MongoQueryable
     {
         public static Task<bool> AnyAsync<TSource>(this IQueryable<TSource> source, CancellationToken cancellationToken = default)
         {

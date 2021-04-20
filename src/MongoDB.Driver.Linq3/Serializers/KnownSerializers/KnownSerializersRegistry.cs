@@ -20,7 +20,7 @@ using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver.Linq3.Serializers.KnownSerializers
 {
-    public class KnownSerializersRegistry
+    internal class KnownSerializersRegistry
     {
         // private fields
         private readonly Dictionary<Expression, KnownSerializersNode> _registry = new Dictionary<Expression, KnownSerializersNode>();

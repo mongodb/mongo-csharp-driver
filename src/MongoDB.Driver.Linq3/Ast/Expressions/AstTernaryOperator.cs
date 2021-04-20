@@ -17,14 +17,14 @@ using System;
 
 namespace MongoDB.Driver.Linq3.Ast.Expressions
 {
-    public enum AstTernaryOperator
+    internal enum AstTernaryOperator
     {
         Substr,
         SubstrBytes,
         SubstrCP
     }
 
-    public static class AstTernaryOperatorExtensions
+    internal static class AstTernaryOperatorExtensions
     {
         public static string Render(this AstTernaryOperator @operator)
         {

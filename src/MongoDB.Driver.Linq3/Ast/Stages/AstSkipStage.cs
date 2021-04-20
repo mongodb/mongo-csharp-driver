@@ -18,7 +18,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Stages
 {
-    public sealed class AstSkipStage : AstStage
+    internal sealed class AstSkipStage : AstStage
     {
         private readonly long _skip;
 

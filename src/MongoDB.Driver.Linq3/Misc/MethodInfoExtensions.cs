@@ -17,7 +17,7 @@ using System.Reflection;
 
 namespace MongoDB.Driver.Linq3.Misc
 {
-    public static class MethodInfoExtensions
+    internal static class MethodInfoExtensions
     {
         public static bool Is(this MethodInfo method, MethodInfo comparand)
         {

@@ -29,7 +29,7 @@ using MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslators
 {
-    public static class AllMethodToExecutableQueryTranslator
+    internal static class AllMethodToExecutableQueryTranslator
     {
         // private static fields
         private static readonly AllFinalizer __finalizer = new AllFinalizer();

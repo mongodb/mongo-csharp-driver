@@ -17,7 +17,7 @@ using MongoDB.Bson;
 
 namespace MongoDB.Driver.Linq3.Ast.Expressions
 {
-    public sealed class AstConstantExpression : AstExpression
+    internal sealed class AstConstantExpression : AstExpression
     {
         private readonly BsonValue _value;
 

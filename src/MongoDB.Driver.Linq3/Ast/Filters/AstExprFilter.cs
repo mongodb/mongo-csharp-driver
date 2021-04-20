@@ -19,7 +19,7 @@ using MongoDB.Driver.Linq3.Ast.Expressions;
 
 namespace MongoDB.Driver.Linq3.Ast.Filters
 {
-    public sealed class AstExprFilter : AstFilter
+    internal sealed class AstExprFilter : AstFilter
     {
         private readonly AstExpression _expression;
 

@@ -21,13 +21,13 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Serializers
 {
-    public interface IWrappedValueSerializer : IBsonSerializer
+    internal interface IWrappedValueSerializer : IBsonSerializer
     {
         string FieldName { get; }
         IBsonSerializer ValueSerializer { get; }
     }
 
-    public class WrappedValueSerializer<TValue> : SerializerBase<TValue>, IWrappedValueSerializer, IBsonArraySerializer, IBsonDocumentSerializer
+    internal class WrappedValueSerializer<TValue> : SerializerBase<TValue>, IWrappedValueSerializer, IBsonArraySerializer, IBsonDocumentSerializer
     {
         // private fields
         private readonly string _fieldName;
@@ -100,7 +100,7 @@ namespace MongoDB.Driver.Linq3.Serializers
         }
     }
 
-    public static class WrappedValueSerializer
+    internal static class WrappedValueSerializer
     {
         public static IWrappedValueSerializer Create(IBsonSerializer valueSerializer)
         {

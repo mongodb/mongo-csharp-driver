@@ -20,7 +20,7 @@ using System.Linq;
 
 namespace MongoDB.Driver.Linq3.Ast.Expressions
 {
-    public sealed class AstCustomAccumulatorExpression : AstExpression
+    internal sealed class AstCustomAccumulatorExpression : AstExpression
     {
         private readonly string _accumulate;
         private readonly IReadOnlyList<AstExpression> _accumulateArgs;

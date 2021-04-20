@@ -18,7 +18,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Expressions
 {
-    public sealed class AstRegexExpression : AstExpression
+    internal sealed class AstRegexExpression : AstExpression
     {
         private readonly AstExpression _input;
         private readonly AstRegexOperator _operator;

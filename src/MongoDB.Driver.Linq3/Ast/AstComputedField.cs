@@ -19,7 +19,7 @@ using MongoDB.Driver.Linq3.Ast.Expressions;
 
 namespace MongoDB.Driver.Linq3.Ast
 {
-    public sealed class AstComputedField
+    internal sealed class AstComputedField
     {
         private readonly string _path;
         private readonly AstExpression _value;

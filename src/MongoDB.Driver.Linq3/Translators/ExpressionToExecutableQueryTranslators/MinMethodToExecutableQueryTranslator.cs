@@ -28,7 +28,7 @@ using MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslators
 {
-    public static class MinMethodToExecutableQueryTranslator<TOutput>
+    internal static class MinMethodToExecutableQueryTranslator<TOutput>
     {
         // private static fields
         private static readonly IExecutableQueryFinalizer<TOutput, TOutput> __finalizer = new SingleFinalizer<TOutput>();

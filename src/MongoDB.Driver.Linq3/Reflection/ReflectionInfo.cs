@@ -19,7 +19,7 @@ using System.Reflection;
 
 namespace MongoDB.Driver.Linq3.Reflection
 {
-    public static class ReflectionInfo
+    internal static class ReflectionInfo
     {
         public static ConstructorInfo Constructor<TObject>(Expression<Func<TObject>> lambda)
         {

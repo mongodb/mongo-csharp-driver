@@ -18,7 +18,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Filters
 {
-    public sealed class AstModFilterOperation : AstFilterOperation
+    internal sealed class AstModFilterOperation : AstFilterOperation
     {
         private readonly BsonValue _divisor;
         private readonly BsonValue _remainder;

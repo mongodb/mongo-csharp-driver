@@ -21,7 +21,7 @@ using MongoDB.Driver.Linq3.Misc;
 
 namespace MongoDB.Driver.Linq3.Serializers.KnownSerializers
 {
-    public class KnownSerializersNode
+    internal class KnownSerializersNode
     {
         // private fields
         private readonly Dictionary<Type, HashSet<IBsonSerializer>> _knownSerializers = new Dictionary<Type, HashSet<IBsonSerializer>>();

@@ -22,7 +22,7 @@ using System.Threading.Tasks;
 
 namespace MongoDB.Driver.Linq3.Ast.Stages
 {
-    public sealed class AstCurrentOpStage : AstStage
+    internal sealed class AstCurrentOpStage : AstStage
     {
         private bool? _allUsers;
         private bool? _idleConnections;

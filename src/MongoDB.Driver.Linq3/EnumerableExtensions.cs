@@ -19,7 +19,7 @@ using System.Text;
 
 namespace MongoDB.Driver.Linq3
 {
-    public static class EnumerableExtensions
+    internal static class EnumerableExtensions
     {
         public static decimal StandardDeviationPopulation(this IEnumerable<decimal> source)
         {

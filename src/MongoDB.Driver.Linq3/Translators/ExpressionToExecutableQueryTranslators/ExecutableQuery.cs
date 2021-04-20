@@ -23,7 +23,7 @@ using MongoDB.Driver.Linq3.Ast.PipelineOptimizer;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslators
 {
-    public static class ExecutableQueryExtensions
+    internal static class ExecutableQueryExtensions
     {
         public static ExecutableQuery<TDocument, TResult> AsExecutableQuery<TDocument, TResult>(this ExecutableQuery<TDocument> executableQuery)
         {
@@ -31,11 +31,11 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
         }
     }
 
-    public abstract class ExecutableQuery<TDocument>
+    internal abstract class ExecutableQuery<TDocument>
     {
     }
 
-    public abstract class ExecutableQuery<TDocument, TResult> : ExecutableQuery<TDocument>
+    internal abstract class ExecutableQuery<TDocument, TResult> : ExecutableQuery<TDocument>
     {
         public abstract AstPipeline Pipeline { get; }
         public abstract AstPipeline UnoptimizedPipeline { get; }
@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
         public abstract Task<TResult> ExecuteAsync(IClientSessionHandle session, CancellationToken cancellation);
     }
 
-    public class ExecutableQuery<TDocument, TOutput, TResult> : ExecutableQuery<TDocument, TResult>
+    internal class ExecutableQuery<TDocument, TOutput, TResult> : ExecutableQuery<TDocument, TResult>
     {
         // private fields
         private readonly IMongoCollection<TDocument> _collection;

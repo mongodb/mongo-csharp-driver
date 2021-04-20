@@ -21,7 +21,7 @@ using MongoDB.Driver.Linq3.Reflection;
 
 namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
-    public static class AbsMethodToAggregationExpressionTranslator
+    internal static class AbsMethodToAggregationExpressionTranslator
     {
         private static MethodInfo[] __absMethods =
         {

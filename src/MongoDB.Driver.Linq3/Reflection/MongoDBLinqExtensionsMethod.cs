@@ -17,7 +17,7 @@ using System.Reflection;
 
 namespace MongoDB.Driver.Linq3.Reflection
 {
-    public static class MongoDBLinqExtensionsMethod
+    internal static class MongoDBLinqExtensionsMethod
     {
         // private static fields
         private static readonly MethodInfo __indexOfBytesWithValue;

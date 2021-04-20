@@ -19,7 +19,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Ast.Expressions
 {
-    public sealed class AstConvertExpression : AstExpression
+    internal sealed class AstConvertExpression : AstExpression
     {
         private readonly AstExpression _input;
         private readonly AstExpression _onError;

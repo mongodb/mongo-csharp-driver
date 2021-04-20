@@ -21,7 +21,7 @@ using System.Linq;
 
 namespace MongoDB.Driver.Linq3.Ast.Stages
 {
-    public sealed class AstGroupStage : AstStage
+    internal sealed class AstGroupStage : AstStage
     {
         private readonly IReadOnlyList<AstComputedField> _fields;
         private readonly AstExpression _id;

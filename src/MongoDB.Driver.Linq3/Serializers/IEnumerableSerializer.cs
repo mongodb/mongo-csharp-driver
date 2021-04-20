@@ -21,7 +21,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Serializers
 {
-    public class IEnumerableSerializer<TItem> : SerializerBase<IEnumerable<TItem>>, IBsonArraySerializer
+    internal class IEnumerableSerializer<TItem> : SerializerBase<IEnumerable<TItem>>, IBsonArraySerializer
     {
         // private fields
         private readonly IBsonSerializer<TItem> _itemSerializer;
@@ -65,7 +65,7 @@ namespace MongoDB.Driver.Linq3.Serializers
         }
     }
 
-    public static class IEnumerableSerializer
+    internal static class IEnumerableSerializer
     {
         public static IBsonSerializer Create(IBsonSerializer itemSerializer)
         {
@@ -76,12 +76,12 @@ namespace MongoDB.Driver.Linq3.Serializers
         }
     }
 
-    public abstract class IEnumerableSerializerFactory
+    internal abstract class IEnumerableSerializerFactory
     {
         public abstract IBsonSerializer Create(IBsonSerializer itemSerializer);
     }
 
-    public class IEnumerableSerializerFactory<TItem> : IEnumerableSerializerFactory
+    internal class IEnumerableSerializerFactory<TItem> : IEnumerableSerializerFactory
     {
         public override IBsonSerializer Create(IBsonSerializer itemSerializer)
         {

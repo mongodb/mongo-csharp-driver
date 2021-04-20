@@ -20,7 +20,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq3.Serializers
 {
-    public class EnumAsUnderlyingTypeSerializer<TEnum, TEnumUnderlyingType> : StructSerializerBase<TEnumUnderlyingType> 
+    internal class EnumAsUnderlyingTypeSerializer<TEnum, TEnumUnderlyingType> : StructSerializerBase<TEnumUnderlyingType> 
         where TEnum : Enum 
         where TEnumUnderlyingType : struct
     {
@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Linq3.Serializers
         }
     }
 
-    public static class EnumAsUnderlyingTypeSerializer
+    internal static class EnumAsUnderlyingTypeSerializer
     {
         public static IBsonSerializer Create(IBsonSerializer enumSerializer)
         {
@@ -59,12 +59,12 @@ namespace MongoDB.Driver.Linq3.Serializers
         }
     }
 
-    public abstract class EnumAsUnderlyingTypeSerializerFactory
+    internal abstract class EnumAsUnderlyingTypeSerializerFactory
     {
         public abstract IBsonSerializer Create(IBsonSerializer enumSerializer);
     }
 
-    public class EnumAsUnderlyingTypeSerializerFactory<TEnum, TEnumUnderlyingType> : EnumAsUnderlyingTypeSerializerFactory
+    internal class EnumAsUnderlyingTypeSerializerFactory<TEnum, TEnumUnderlyingType> : EnumAsUnderlyingTypeSerializerFactory
         where TEnum : Enum
         where TEnumUnderlyingType : struct
     {
