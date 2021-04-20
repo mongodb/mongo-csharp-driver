@@ -35,10 +35,10 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
 
             if (method.Is(QueryableMethod.OfType))
             {
-                var source = arguments[0];
-                var pipeline = ExpressionToPipelineTranslator.Translate(context, source);
+                var sourceExpression = arguments[0];
+                var pipeline = ExpressionToPipelineTranslator.Translate(context, sourceExpression);
 
-                var sourceType = source.Type;
+                var sourceType = sourceExpression.Type;
                 var nominalType = sourceType.GetGenericArguments()[0];
                 var actualType = method.GetGenericArguments()[0];
                 var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(nominalType);

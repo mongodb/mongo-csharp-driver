@@ -16,6 +16,7 @@
 using System.Linq.Expressions;
 using MongoDB.Driver.Linq3.Ast;
 using MongoDB.Driver.Linq3.Ast.Stages;
+using MongoDB.Driver.Linq3.ExtensionMethods;
 using MongoDB.Driver.Linq3.Misc;
 using MongoDB.Driver.Linq3.Reflection;
 
@@ -31,21 +32,18 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToPipelineTranslators
 
             if (method.Is(QueryableMethod.Skip))
             {
-                var source = arguments[0];
-                var pipeline = ExpressionToPipelineTranslator.Translate(context, source);
+                var sourceExpression = arguments[0];
+                var pipeline = ExpressionToPipelineTranslator.Translate(context, sourceExpression);
 
                 var countExpression = arguments[1];
-                if (countExpression.NodeType == ExpressionType.Constant)
-                {
-                    var count = (int)((ConstantExpression)countExpression).Value;
+                var count = countExpression.GetConstantValue<int>(containingExpression: expression);
 
-                    pipeline = pipeline.AddStages(
-                        pipeline.OutputSerializer,
-                        //new BsonDocument("$skip", countValue));
-                        AstStage.Skip(count));
+                pipeline = pipeline.AddStages(
+                    pipeline.OutputSerializer,
+                    //new BsonDocument("$skip", countValue));
+                    AstStage.Skip(count));
 
-                    return pipeline;
-                }
+                return pipeline;
             }
 
             throw new ExpressionNotSupportedException(expression);
