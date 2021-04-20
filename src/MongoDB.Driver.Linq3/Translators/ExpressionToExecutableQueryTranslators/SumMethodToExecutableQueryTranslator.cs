@@ -141,21 +141,21 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
 
             if (method.IsOneOf(__sumMethods))
             { 
-                var source = arguments[0];
-                var pipeline = ExpressionToPipelineTranslator.Translate(context, source);
+                var sourceExression = arguments[0];
+                var pipeline = ExpressionToPipelineTranslator.Translate(context, sourceExression);
                 var sourceSerializer = pipeline.OutputSerializer;
 
-                AstExpression arg;
+                AstExpression valueAst;
                 if (method.IsOneOf(__sumWithSelectorMethods))
                 {
                     var selectorLambda = ExpressionHelper.UnquoteLambda(arguments[1]);
                     var selectorTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, selectorLambda, sourceSerializer, asCurrentSymbol: true);
-                    arg = selectorTranslation.Ast;
+                    valueAst = selectorTranslation.Ast;
                 }
                 else
                 {
                     Ensure.That(sourceSerializer is IWrappedValueSerializer, "Expected sourceSerializer to be an IWrappedValueSerializer.", nameof(sourceSerializer));
-                    arg = AstExpression.Field("_v");
+                    valueAst = AstExpression.Field("_v");
                 }
 
                 var outputValueType = method.IsOneOf(__sumAsyncMethods) ? expression.Type.GetGenericArguments()[0] : expression.Type;
@@ -166,7 +166,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
                     outputWrappedValueSerializer,
                     AstStage.Group(
                         id: BsonNull.Value,
-                        fields: AstExpression.ComputedField("_v", AstExpression.Sum(arg))),
+                        fields: AstExpression.ComputedField("_v", AstExpression.Sum(valueAst))),
                     AstStage.Project(AstProject.ExcludeId()));
 
                 return new ExecutableQuery<TDocument, TOutput, TOutput>(

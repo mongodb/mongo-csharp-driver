@@ -24,6 +24,7 @@ using MongoDB.Driver;
 using MongoDB.Driver.Linq3.Ast.Expressions;
 using MongoDB.Driver.Linq3.Ast.Filters;
 using MongoDB.Driver.Linq3.Ast.Stages;
+using MongoDB.Driver.Linq3.ExtensionMethods;
 using MongoDB.Driver.Linq3.Misc;
 using MongoDB.Driver.Linq3.Reflection;
 using MongoDB.Driver.Linq3.Serializers;
@@ -45,8 +46,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
 
             if (method.Is(QueryableMethod.Contains))
             {
-                var source = arguments[0];
-                var pipeline = ExpressionToPipelineTranslator.Translate(context, source);
+                var sourceExpression = arguments[0];
+                var pipeline = ExpressionToPipelineTranslator.Translate(context, sourceExpression);
 
                 IBsonSerializer valueSerializer;
                 if (pipeline.OutputSerializer is IWrappedValueSerializer wrappedValueSerializer)
@@ -64,8 +65,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
                             AstProject.Set("_v", AstExpression.Field("$ROOT"))));
                 }
 
-                var item = arguments[1];
-                var itemValue = ((ConstantExpression)item).Value;
+                var itemExpression = arguments[1];
+                var itemValue = itemExpression.GetConstantValue<object>(containingExpression: expression);
                 var serializedValue = SerializationHelper.SerializeValue(pipeline.OutputSerializer, itemValue);
 
                 AstFilter filter = AstFilter.Eq(AstFilter.Field("_v", valueSerializer), serializedValue);
