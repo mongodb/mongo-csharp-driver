@@ -73,22 +73,12 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             if (method.IsOneOf(__splitMethods))
             {
                 var stringExpression = expression.Object;
-                var separatorsExpression = arguments[0];
-                Expression countExpression = null;
-                if (method.IsOneOf(__splitWithCountMethods))
-                {
-                    countExpression = arguments[1];
-                }
-                Expression optionsExpression = null;
-                if (method.IsOneOf(__splitWithOptionsMethods))
-                {
-                    optionsExpression = arguments.Last();
-                }
-
                 var stringTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, stringExpression);
+
                 string delimiter;
                 if (method.IsOneOf(__splitWithCharsMethods))
                 {
+                    var separatorsExpression = arguments[0];
                     var separatorChars = separatorsExpression.GetConstantValue<char[]>(containingExpression: expression);
                     if (separatorChars.Length != 1)
                     {
@@ -98,6 +88,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 }
                 else if (method.IsOneOf(__splitWithStringsMethods))
                 {
+                    var separatorsExpression = arguments[0];
                     var separatorStrings = separatorsExpression.GetConstantValue<string[]>(containingExpression: expression);
                     if (separatorStrings.Length != 1)
                     {
@@ -109,10 +100,13 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 {
                     goto notSupported;
                 }
+
                 var ast = AstExpression.Split(stringTranslation.Ast, delimiter);
+
                 var options = StringSplitOptions.None;
-                if (optionsExpression != null)
+                if (method.IsOneOf(__splitWithOptionsMethods))
                 {
+                    var optionsExpression = arguments.Last();
                     options = optionsExpression.GetConstantValue<StringSplitOptions>(containingExpression: expression);
                 }
                 if (options == StringSplitOptions.RemoveEmptyEntries)
@@ -122,13 +116,15 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                         cond: AstExpression.Ne(AstExpression.Field("$item"), ""),
                         @as: "item");
                 }
-                if (countExpression != null)
+
+                if (method.IsOneOf(__splitWithCountMethods))
                 {
+                    var countExpression = arguments[1];
                     var countTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, countExpression);
                     ast = AstExpression.Slice(ast, countTranslation.Ast);
                 }
-                var serializer = new ArraySerializer<string>(new StringSerializer());
 
+                var serializer = new ArraySerializer<string>(new StringSerializer());
                 return new AggregationExpression(expression, ast, serializer);
             }
 

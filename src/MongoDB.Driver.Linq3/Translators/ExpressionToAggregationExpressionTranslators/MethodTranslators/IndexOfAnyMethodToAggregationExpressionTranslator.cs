@@ -42,11 +42,11 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
 
             if (method.IsOneOf(__indexOfAnyMethods))
             {
-                var (stringVar, stringSimpleAst) = TranslateObject(expression.Object);
+                var (stringVar, stringAst) = TranslateObject(expression.Object);
                 var anyOf = TranslateAnyOf(arguments);
-                var (startIndexVar, startIndexSimpleAst) = TranslateStartIndex(arguments);
-                var (countVar, countSimpleAst) = TranslateCount(arguments);
-                var (endVar, endSimpleAst) = ComputeEnd(startIndexSimpleAst, countSimpleAst);
+                var (startIndexVar, startIndexAst) = TranslateStartIndex(arguments);
+                var (countVar, countAst) = TranslateCount(arguments);
+                var (endVar, endAst) = ComputeEnd(startIndexAst, countAst);
 
                 AstExpression ast;
                 if (anyOf.Length == 0)
@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 {
                     // indexOfChar => { $indexOfCP : ['$$string', { $substrCP : [<anyOf>, '$$anyOfIndex', 1] }, '$$startIndex', '$$end' }
                     var charAst = AstExpression.SubstrCP(anyOf, AstExpression.Field("$anyOfIndex"), 1);
-                    ast = AstExpression.IndexOfCP(stringSimpleAst, charAst, startIndexSimpleAst, endSimpleAst);
+                    ast = AstExpression.IndexOfCP(stringAst, charAst, startIndexAst, endAst);
 
                     // computeIndexes => { $map : { input : { $range : [0, anyOf.Length] }, as : 'anyOfIndex', in : <indexOfChar> } }
                     ast = AstExpression.Map(
@@ -74,7 +74,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
 
                     // topLevel => { $cond : [{ $eq : ['$$string', null] }, null, { $ifNull : [<minResult>, -1] }] }
                     ast = AstExpression.Cond(
-                        @if: AstExpression.Eq(stringSimpleAst, BsonNull.Value),
+                        @if: AstExpression.Eq(stringAst, BsonNull.Value),
                         then: BsonNull.Value,
                         @else: AstExpression.IfNull(ast, -1));
 

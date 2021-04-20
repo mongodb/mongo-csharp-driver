@@ -24,11 +24,9 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
         public static AggregationExpression Translate(TranslationContext context, UnaryExpression expression)
         {
             var arrayExpression = expression.Operand;
-
             var arrayTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, arrayExpression);
             var ast = AstExpression.Size(arrayTranslation.Ast);
             var serializer = BsonSerializer.LookupSerializer(expression.Type);
-
             return new AggregationExpression(expression, ast, serializer);
         }
     }

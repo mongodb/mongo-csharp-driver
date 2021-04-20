@@ -57,9 +57,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
         private static AggregationExpression TranslateStringConcatenation(TranslationContext context, BinaryExpression expression)
         {
             var leftExpression = expression.Left;
-            var rightExpression = expression.Right;
-
             var leftTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, leftExpression);
+            var rightExpression = expression.Right;
             var rightTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, rightExpression);
             AstExpression ast;
             if (leftTranslation.Ast is AstNaryExpression naryExpression && naryExpression.Operator == AstNaryOperator.Concat)

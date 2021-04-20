@@ -25,15 +25,14 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
         public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
+
             if (method.IsOneOf(StringMethod.ToLower, StringMethod.ToLowerInvariant, StringMethod.ToUpper, StringMethod.ToUpperInvariant))
             {
                 var stringExpression = expression.Object;
-
                 var stringTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, stringExpression);
                 var ast = method.IsOneOf(StringMethod.ToLower, StringMethod.ToLowerInvariant) ?
                     AstExpression.ToLower(stringTranslation.Ast) :
                     AstExpression.ToUpper(stringTranslation.Ast);
-
                 return new AggregationExpression(expression, ast, new StringSerializer());
             }
 

@@ -30,12 +30,12 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
 
             if (method.Is(EnumerableMethod.Union))
             {
-                var sourceExpression = arguments[0];
-                var sourceTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, sourceExpression);
+                var firstExpression = arguments[0];
+                var firstTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, firstExpression);
                 var secondExpression = arguments[1];
                 var secondTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, secondExpression);
-                var ast = AstExpression.SetUnion(sourceTranslation.Ast, secondTranslation.Ast);
-                var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
+                var ast = AstExpression.SetUnion(firstTranslation.Ast, secondTranslation.Ast);
+                var itemSerializer = ArraySerializerHelper.GetItemSerializer(firstTranslation.Serializer);
                 var serializer = IEnumerableSerializer.Create(itemSerializer);
                 return new AggregationExpression(expression, ast, serializer);
             }

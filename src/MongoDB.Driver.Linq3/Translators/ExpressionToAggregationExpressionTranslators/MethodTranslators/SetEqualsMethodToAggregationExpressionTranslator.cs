@@ -32,7 +32,6 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
 
                 return new AggregationExpression(expression, ast, new BooleanSerializer());
             }
-
             throw new ExpressionNotSupportedException(expression);
         }
 
@@ -48,7 +47,6 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             {
                 objectExpression = expression.Object;
                 otherExpression = arguments[0];
-
                 if (objectExpression.Type.TryGetIEnumerableGenericInterface(out var objectEnumerableInterface) &&
                     otherExpression.Type.TryGetIEnumerableGenericInterface(out var otherEnumerableInterface))
                 {

@@ -27,43 +27,41 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
     {
         public static AggregationExpression Translate(TranslationContext context, MemberInitExpression expression)
         {
-            if (!(BsonSerializer.LookupSerializer(expression.Type) is IBsonDocumentSerializer instanceSerializer))
+            var classSerializer = BsonSerializer.LookupSerializer(expression.Type);
+            if (classSerializer is IBsonDocumentSerializer documentSerializer)
             {
-                goto notSupported;
-            }
-            var computedFields = new List<AstComputedField>();
+                var computedFields = new List<AstComputedField>();
 
-            var newExpression = expression.NewExpression;
-            var constructorParameters = newExpression.Constructor.GetParameters();
-            var constructorArguments = newExpression.Arguments;
-            for (var i = 0; i < constructorArguments.Count; i++)
-            {
-                var constructorParameter = constructorParameters[i];
-                var argumentExpression = constructorArguments[i];
-
-                var fieldName = GetFieldName(constructorParameter);
-                var argumentTanslation = ExpressionToAggregationExpressionTranslator.Translate(context, argumentExpression);
-                computedFields.Add(AstExpression.ComputedField(fieldName, argumentTanslation.Ast));
-            }
-
-            foreach (var binding in expression.Bindings)
-            {
-                var memberAssignment = (MemberAssignment)binding;
-                var member = memberAssignment.Member;
-                if (!(instanceSerializer.TryGetMemberSerializationInfo(member.Name, out var memberSerializationInfo)))
+                var newExpression = expression.NewExpression;
+                var constructorParameters = newExpression.Constructor.GetParameters();
+                var constructorArguments = newExpression.Arguments;
+                for (var i = 0; i < constructorParameters.Length; i++)
                 {
-                    goto notSupported;
+                    var constructorParameter = constructorParameters[i];
+                    var argumentExpression = constructorArguments[i];
+                    var fieldName = GetFieldName(constructorParameter);
+                    var argumentTanslation = ExpressionToAggregationExpressionTranslator.Translate(context, argumentExpression);
+                    computedFields.Add(AstExpression.ComputedField(fieldName, argumentTanslation.Ast));
                 }
-                var elementName = memberSerializationInfo.ElementName;
-                var valueExpression = memberAssignment.Expression;
-                var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
-                computedFields.Add(AstExpression.ComputedField(elementName, valueTranslation.Ast));
+
+                foreach (var binding in expression.Bindings)
+                {
+                    var memberAssignment = (MemberAssignment)binding;
+                    var member = memberAssignment.Member;
+                    if (!(documentSerializer.TryGetMemberSerializationInfo(member.Name, out var memberSerializationInfo)))
+                    {
+                        goto notSupported;
+                    }
+                    var elementName = memberSerializationInfo.ElementName;
+                    var valueExpression = memberAssignment.Expression;
+                    var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
+                    computedFields.Add(AstExpression.ComputedField(elementName, valueTranslation.Ast));
+                }
+
+                var ast = AstExpression.ComputedDocument(computedFields);
+                var serializer = BsonSerializer.LookupSerializer(expression.Type); // TODO: generate serializer?
+                return new AggregationExpression(expression, ast, serializer);
             }
-
-            var ast = AstExpression.ComputedDocument(computedFields);
-            var serializer = BsonSerializer.LookupSerializer(expression.Type);
-
-            return new AggregationExpression(expression, ast, serializer);
 
         notSupported:
             throw new ExpressionNotSupportedException(expression);

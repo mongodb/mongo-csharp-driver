@@ -33,7 +33,6 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
                 var indexTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, indexExpression);
                 var ast = AstExpression.ArrayElemAt(sourceTranslation.Ast, indexTranslation.Ast);
                 var serializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
-
                 return new AggregationExpression(expression, ast, serializer);
             }
 
@@ -41,7 +40,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             {
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, sourceExpression);
                 var key = keyExpression.GetConstantValue<string>(containingExpression: expression);
-                var ast = AstExpression.SubField(sourceTranslation.Ast, key);
+                var ast = AstExpression.SubField(sourceTranslation.Ast, key); // TODO: verify that dictionary is using Document representation
                 var valueSerializer = GetDictionaryValueSerializer(sourceTranslation.Serializer);
                 return new AggregationExpression(expression, ast, valueSerializer);
             }

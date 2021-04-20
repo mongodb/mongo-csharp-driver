@@ -56,7 +56,6 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
 
             var fieldInfo = DocumentSerializerHelper.GetFieldInfo(containerTranslation.Serializer, member.Name);
             var ast = AstExpression.SubField(containerTranslation.Ast, fieldInfo.ElementName);
-
             return new AggregationExpression(expression, ast, fieldInfo.Serializer);
         }
 

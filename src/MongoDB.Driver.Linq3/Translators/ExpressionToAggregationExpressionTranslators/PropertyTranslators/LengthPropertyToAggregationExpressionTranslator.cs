@@ -27,10 +27,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
             if (IsStringLengthProperty(expression))
             {
                 var stringExpression = expression.Expression;
-
                 var stringTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, stringExpression);
                 var ast = AstExpression.StrLenCP(stringTranslation.Ast);
-
                 return new AggregationExpression(expression, ast, new Int32Serializer());
             }
 
@@ -40,10 +38,10 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
         private static bool IsStringLengthProperty(MemberExpression expression)
         {
             return
-                expression.Member is PropertyInfo propertyMember &&
-                propertyMember.DeclaringType == typeof(string) &&
-                propertyMember.PropertyType == typeof(int) &&
-                propertyMember.Name == "Length";
+                expression.Member is PropertyInfo propertyInfo &&
+                propertyInfo.DeclaringType == typeof(string) &&
+                propertyInfo.PropertyType == typeof(int) &&
+                propertyInfo.Name == "Length";
         }
     }
 }
