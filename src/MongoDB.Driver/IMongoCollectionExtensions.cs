@@ -21,6 +21,7 @@ using System.Threading.Tasks;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.Linq2;
 
 namespace MongoDB.Driver
 {

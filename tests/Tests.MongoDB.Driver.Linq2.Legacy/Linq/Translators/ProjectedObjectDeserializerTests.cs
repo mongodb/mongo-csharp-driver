@@ -20,7 +20,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 using FluentAssertions;
-using MongoDB.Driver.Linq.Translators;
+using MongoDB.Driver.Linq2.Translators;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;

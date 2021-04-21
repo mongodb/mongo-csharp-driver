@@ -22,7 +22,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Driver.Linq.Translators;
+using MongoDB.Driver.Linq2.Translators;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Translators

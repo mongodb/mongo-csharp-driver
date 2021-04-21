@@ -24,7 +24,7 @@ using MongoDB.Driver;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
-using MongoDB.Driver.Linq.Translators;
+using MongoDB.Driver.Linq2.Translators;
 using Xunit;
 
 namespace Tests.MongoDB.Driver.Linq2.Legacy.Translators
