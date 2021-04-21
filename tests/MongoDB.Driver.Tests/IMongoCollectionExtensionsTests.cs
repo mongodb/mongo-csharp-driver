@@ -20,6 +20,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.Linq2;
 using MongoDB.Driver.Tests.Linq;
 using Moq;
 using Xunit;

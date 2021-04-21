@@ -14,17 +14,14 @@
 */
 
 using System;
-using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Linq.Translators;
-using FluentAssertions;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
 
 namespace MongoDB.Driver.Tests
 {

@@ -20,6 +20,7 @@ using System.Linq.Expressions;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.Linq2;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Translators

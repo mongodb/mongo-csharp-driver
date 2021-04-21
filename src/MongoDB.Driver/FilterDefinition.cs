@@ -18,10 +18,7 @@ using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Linq;
-using MongoDB.Driver.Linq.Expressions;
-using MongoDB.Driver.Linq.Processors;
-using MongoDB.Driver.Linq.Translators;
+using MongoDB.Driver.Linq2.Translators;
 
 namespace MongoDB.Driver
 {

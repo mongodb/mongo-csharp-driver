@@ -23,7 +23,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
-using MongoDB.Driver.Linq.Translators;
+using MongoDB.Driver.Linq2.Translators;
 using MongoDB.Driver.Tests;
 using Xunit;
 

@@ -19,9 +19,9 @@ using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Linq;
-using MongoDB.Driver.Linq.Expressions;
-using MongoDB.Driver.Linq.Processors;
+using MongoDB.Driver.Linq2;
+using MongoDB.Driver.Linq2.Expressions;
+using MongoDB.Driver.Linq2.Processors;
 
 namespace MongoDB.Driver
 {
@@ -323,7 +323,7 @@ namespace MongoDB.Driver
             var bound = bindingContext.Bind(lambda.Body);
             bound = FieldExpressionFlattener.FlattenFields(bound);
             IFieldExpression field;
-            if (!Linq.ExpressionHelper.TryGetExpression(bound, out field))
+            if (!Linq2.ExpressionHelper.TryGetExpression(bound, out field))
             {
                 var message = string.Format("Unable to determine the serialization information for {0}.", _expression);
                 throw new InvalidOperationException(message);

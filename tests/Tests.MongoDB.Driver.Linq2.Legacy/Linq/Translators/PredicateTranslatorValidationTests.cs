@@ -21,6 +21,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.Linq2;
 using Xunit;
 
 namespace Tests.MongoDB.Driver.Linq2.Legacy.Translators

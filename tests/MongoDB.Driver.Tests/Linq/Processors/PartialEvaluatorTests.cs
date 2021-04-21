@@ -16,7 +16,7 @@
 using System;
 using System.Linq.Expressions;
 using FluentAssertions;
-using MongoDB.Driver.Linq.Processors;
+using MongoDB.Driver.Linq2.Processors;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Processors

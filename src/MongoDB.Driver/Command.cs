@@ -14,11 +14,9 @@
 */
 
 using System;
-using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Linq.Translators;
 
 namespace MongoDB.Driver
 {
