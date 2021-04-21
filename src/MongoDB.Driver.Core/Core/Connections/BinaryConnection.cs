@@ -371,7 +371,6 @@ namespace MongoDB.Driver.Core.Connections
                         catch (Exception ex)
                         {
                             _dropbox.AddException(ex);
-                            throw;
                         }
 
                         if (messageTask.IsCompleted)
@@ -442,7 +441,6 @@ namespace MongoDB.Driver.Core.Connections
                         catch (Exception ex)
                         {
                             _dropbox.AddException(ex);
-                            throw;
                         }
 
                         if (messageTask.IsCompleted)
@@ -786,7 +784,6 @@ namespace MongoDB.Driver.Core.Connections
             {
                 foreach (var taskCompletionSource in _messages.Values)
                 {
-                    taskCompletionSource.Task.IgnoreExceptions();
                     taskCompletionSource.TrySetException(exception); // has no effect on already completed tasks
                 }
             }
