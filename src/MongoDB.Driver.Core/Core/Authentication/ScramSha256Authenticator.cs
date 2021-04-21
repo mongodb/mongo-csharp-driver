@@ -15,7 +15,9 @@
 
 using System;
 using System.Runtime.InteropServices;
+#if NETSTANDARD1_5
 using System.Security;
+#endif
 using System.Security.Cryptography;
 using System.Text;
 using MongoDB.Bson.IO;
@@ -89,10 +91,10 @@ namespace MongoDB.Driver.Core.Authentication
 
         private static byte[] Hi256(UsernamePasswordCredential credential, byte[] salt, int iterations)
         {
-#if NET452
-            var passwordIntPtr = Marshal.SecureStringToGlobalAllocUnicode(credential.SaslPreppedPassword);
-#else
+#if NETSTANDARD1_5
             var passwordIntPtr = SecureStringMarshal.SecureStringToGlobalAllocUnicode(credential.SaslPreppedPassword);
+#else
+            var passwordIntPtr = Marshal.SecureStringToGlobalAllocUnicode(credential.SaslPreppedPassword);
 #endif
             try
             {
