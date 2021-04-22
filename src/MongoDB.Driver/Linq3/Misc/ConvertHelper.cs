@@ -15,11 +15,28 @@
 
 using System;
 using System.Linq.Expressions;
+using MongoDB.Driver.Linq;
 
 namespace MongoDB.Driver.Linq3.Misc
 {
     internal static class ConvertHelper
     {
+        public static Expression RemoveConvertToMongoQueryable(Expression expression)
+        {
+            if (expression.NodeType == ExpressionType.Convert)
+            {
+                var convertExpression = (UnaryExpression)expression;
+                var convertToType = convertExpression.Type;
+                if (convertToType.IsGenericType() &&
+                    convertToType.GetGenericTypeDefinition() == typeof(IMongoQueryable<>))
+                {
+                    return convertExpression.Operand;
+                }
+            }
+
+            throw new ExpressionNotSupportedException(expression);
+        }
+
         public static Expression RemoveWideningConvert(Expression expression)
         {
             if (expression.NodeType == ExpressionType.Convert)
