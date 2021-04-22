@@ -16,6 +16,7 @@
 using System.Linq.Expressions;
 using System.Reflection;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq3.Ast.Expressions;
 using MongoDB.Driver.Linq3.Misc;
 
@@ -61,7 +62,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToAggregationExpressionTran
 
         private static bool IsStandardDeviationMethod(MethodInfo methodInfo, out AstUnaryOperator stddevOperator)
         {
-            if (methodInfo.DeclaringType == typeof(EnumerableExtensions))
+            if (methodInfo.DeclaringType == typeof(MongoEnumerable))
             {
                 switch (methodInfo.Name)
                 {
