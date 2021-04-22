@@ -311,7 +311,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
 
             if (method.IsOneOf(__standardDeviationMethods))
             {
-                var sourceExpression = arguments[0];
+                var sourceExpression = ConvertHelper.RemoveConvertToMongoQueryable(arguments[0]);
                 var pipeline = ExpressionToPipelineTranslator.Translate(context, sourceExpression);
                 var sourceSerializer = pipeline.OutputSerializer;
 
@@ -340,7 +340,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
 
                 var finalizer = method.IsOneOf(__standardDeviationNullableMethods) ? __singleOrDefaultFinalizer : __singleFinalizer;
 
-                return new ExecutableQuery<TDocument, TOutput, TOutput>(
+                return ExecutableQuery.Create(
                     provider.Collection,
                     provider.Options,
                     pipeline,

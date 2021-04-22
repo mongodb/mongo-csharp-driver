@@ -95,7 +95,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
                         fields: AstExpression.ComputedField("_min", AstExpression.Min(valueAst))),
                     AstStage.ReplaceRoot(AstExpression.Field("_min")));
 
-                return new ExecutableQuery<TDocument, TOutput, TOutput>(
+                return ExecutableQuery.Create(
                     provider.Collection,
                     provider.Options,
                     pipeline,

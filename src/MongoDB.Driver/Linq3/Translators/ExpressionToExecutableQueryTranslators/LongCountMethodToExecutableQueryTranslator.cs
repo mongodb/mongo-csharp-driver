@@ -77,7 +77,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
                     __wrappedInt64Serializer,
                     AstStage.Count("_v"));
 
-                return new ExecutableQuery<TDocument, long, long>(
+                return ExecutableQuery.Create(
                     provider.Collection,
                     provider.Options,
                     pipeline,
