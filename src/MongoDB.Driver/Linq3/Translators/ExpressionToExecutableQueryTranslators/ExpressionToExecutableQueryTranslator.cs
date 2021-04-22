@@ -31,8 +31,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
             var context = new TranslationContext();
             var pipeline = ExpressionToPipelineTranslator.Translate(context, expression);
 
-            return new ExecutableQuery<TDocument, TOutput, IAsyncCursor<TOutput>>(
-                provider.Collection,
+            return ExecutableQuery.Create(
+            provider.Collection,
                 provider.Options,
                 pipeline,
                 IdentityFinalizer<TOutput>.Instance);

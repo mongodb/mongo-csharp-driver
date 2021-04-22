@@ -91,7 +91,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
 
                 var finalizer = method.IsOneOf(__singleOrDefaultMethods) ? __singleOrDefaultFinalizer : __singleFinalizer;
 
-                return new ExecutableQuery<TDocument, TOutput, TOutput>(
+                return ExecutableQuery.Create(
                     provider.Collection,
                     provider.Options,
                     pipeline,

@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
                     AstStage.Skip(indexValue),
                     AstStage.Limit(1));
 
-                return new ExecutableQuery<TDocument, TOutput, TOutput>(
+                return ExecutableQuery.Create(
                     provider.Collection,
                     provider.Options,
                     pipeline,

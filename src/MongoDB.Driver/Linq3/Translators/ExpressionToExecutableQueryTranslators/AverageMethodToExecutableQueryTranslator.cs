@@ -146,7 +146,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
                         fields: AstExpression.ComputedField("_v", AstUnaryExpression.Avg(valueExpression))),
                     AstStage.Project(AstProject.ExcludeId()));
 
-                return new ExecutableQuery<TDocument, TOutput, TOutput>(
+                return ExecutableQuery.Create(
                     provider.Collection,
                     provider.Options,
                     pipeline,

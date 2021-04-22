@@ -82,7 +82,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
 
                 var finalizer = method.Name == "FirstOrDefault" ? __firstOrDefaultFinalizer : __firstFinalizer;
 
-                return new ExecutableQuery<TDocument, TOutput, TOutput>(
+                return ExecutableQuery.Create(
                     provider.Collection,
                     provider.Options,
                     pipeline,

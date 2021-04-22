@@ -31,6 +31,19 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
         }
     }
 
+    internal static class ExecutableQuery
+    {
+        public static ExecutableQuery<TDocument, TOutput, TResult> Create<TDocument, TOutput, TResult>(
+            IMongoCollection<TDocument> collection,
+            AggregateOptions options,
+            AstPipeline unoptimizedPipeline,
+            IExecutableQueryFinalizer<TOutput, TResult> finalizer)
+        {
+            var pipeline = AstPipelineOptimizer.Optimize(unoptimizedPipeline);
+            return new ExecutableQuery<TDocument, TOutput, TResult>(collection, options, unoptimizedPipeline, pipeline, finalizer);
+        }
+    }
+
     internal abstract class ExecutableQuery<TDocument>
     {
     }
@@ -42,6 +55,8 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
 
         public abstract TResult Execute(IClientSessionHandle session, CancellationToken cancellation);
         public abstract Task<TResult> ExecuteAsync(IClientSessionHandle session, CancellationToken cancellation);
+        public abstract ExecutableQuery<TDocument, TResult> WithCollection(IMongoCollection<TDocument> collection);
+        public abstract ExecutableQuery<TDocument, TResult> WithOptions(AggregateOptions options);
     }
 
     internal class ExecutableQuery<TDocument, TOutput, TResult> : ExecutableQuery<TDocument, TResult>
@@ -58,12 +73,13 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
             IMongoCollection<TDocument> collection,
             AggregateOptions options,
             AstPipeline unoptimizedPipeline,
+            AstPipeline pipeline,
             IExecutableQueryFinalizer<TOutput, TResult> finalizer)
         {
             _collection = collection;
             _options = options;
             _unoptimizedPipeline = unoptimizedPipeline;
-            _pipeline = AstPipelineOptimizer.Optimize(unoptimizedPipeline);
+            _pipeline = pipeline;
             _finalizer = finalizer;
         }
 
@@ -105,6 +121,16 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
         public override string ToString()
         {
             return $"{_collection.CollectionNamespace}.Aggregate({_pipeline})";
+        }
+
+        public override ExecutableQuery<TDocument, TResult> WithCollection(IMongoCollection<TDocument> collection)
+        {
+            return new ExecutableQuery<TDocument, TOutput, TResult>(collection, _options, _unoptimizedPipeline, _pipeline, _finalizer);
+        }
+
+        public override ExecutableQuery<TDocument, TResult> WithOptions(AggregateOptions options)
+        {
+            return new ExecutableQuery<TDocument, TOutput, TResult>(_collection, options, _unoptimizedPipeline, _pipeline, _finalizer);
         }
 
         // private methods

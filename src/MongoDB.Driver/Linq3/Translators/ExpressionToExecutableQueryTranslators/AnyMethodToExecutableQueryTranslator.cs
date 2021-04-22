@@ -87,7 +87,7 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslator
                         AstProject.ExcludeId(),
                         AstProject.Set("_v", BsonNull.Value)));
 
-                return new ExecutableQuery<TDocument, BsonNull, bool>(
+                return ExecutableQuery.Create(
                     provider.Collection,
                     provider.Options,
                     pipeline,
