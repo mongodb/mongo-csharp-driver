@@ -13,14 +13,14 @@
 * limitations under the License.
 */
 
-using System.Linq;
 using System.Threading;
+using MongoDB.Driver.Linq;
 
 namespace MongoDB.Driver.Linq3
 {
     internal static class IMongoCollectionExtensions
     {
-        public static IQueryable<TDocument> AsQueryable3<TDocument>(
+        public static IMongoQueryable<TDocument> AsQueryable3<TDocument>(
             this IMongoCollection<TDocument> collection,
             IClientSessionHandle session = null,
             AggregateOptions options = null,
