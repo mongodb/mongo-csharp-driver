@@ -24,6 +24,7 @@ using MongoDB.Driver;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq3;
 using MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslators;
 using MongoDB.Driver.Tests;
@@ -585,8 +586,9 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
         public void GroupJoin_syntax_with_select_many()
         {
             RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
+            var otherCollection = __otherCollection.AsQueryable3();
             var query = from p in CreateQuery()
-                        join o in __otherCollection on p.Id equals o.Id into joined
+                        join o in otherCollection on p.Id equals o.Id into joined
                         from subo in joined
                         select new { A = p.A, CEF = subo.CEF };
 
@@ -603,8 +605,9 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
         public void GroupJoin_syntax_with_select_many_and_DefaultIfEmpty()
         {
             RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
+            var otherCollection = __otherCollection.AsQueryable3();
             var query = from p in CreateQuery()
-                        join o in __otherCollection on p.Id equals o.Id into joined
+                        join o in otherCollection on p.Id equals o.Id into joined
                         from subo in joined // TODO: .DefaultIfEmpty()
                         select new { A = p.A, CEF = (int?)subo.CEF ?? null };
 
@@ -1810,7 +1813,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
             }
         }
 
-        private List<T> Assert<T>(IQueryable<T> queryable, int resultCount, params string[] expectedStages)
+        private List<T> Assert<T>(IMongoQueryable<T> queryable, int resultCount, params string[] expectedStages)
         {
             var provider = (MongoQueryProvider<Root>)queryable.Provider;
             var executableQuery = ExpressionToExecutableQueryTranslator.Translate<Root, T>(provider, queryable.Expression);
@@ -1829,17 +1832,17 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy
             return results;
         }
 
-        private IQueryable<Root> CreateQuery()
+        private IMongoQueryable<Root> CreateQuery()
         {
             return __collection.AsQueryable3();
         }
 
-        private IQueryable<Root> CreateQuery(IClientSessionHandle session)
+        private IMongoQueryable<Root> CreateQuery(IClientSessionHandle session)
         {
             return __collection.AsQueryable3(session);
         }
 
-        private IQueryable<Other> CreateOtherQuery()
+        private IMongoQueryable<Other> CreateOtherQuery()
         {
             return __otherCollection.AsQueryable3();
         }
