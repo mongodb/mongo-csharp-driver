@@ -267,7 +267,6 @@ functions:
             OS=${OS} \
             COMPRESSOR=${COMPRESSOR} \
             CLIENT_PEM=${DRIVERS_TOOLS}/.evergreen/x509gen/client.pem \
-            CAFILE=${DRIVERS_TOOLS}/.evergreen/x509gen/ca.pem \
             FRAMEWORK=${FRAMEWORK} \
             evergreen/run-tests.sh
           echo "Skipping certificate removal..."
@@ -1280,7 +1279,8 @@ buildvariants:
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
   tasks:
-     # - name: test-netstandard15: auth tests fail on macos with test-netstandard15, so skip them
+     # - name: test-netstandard15: auth tests fail on macos with test-netstandard15 due to the fact that this TF uses openssl that is missed on the current boxes
+     # Starting in .NET Core 2.0, .NET Core switched to using the default Apple Security Framework on macOS.
      - name: test-netstandard20
      - name: test-netstandard21
 

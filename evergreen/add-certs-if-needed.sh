@@ -27,11 +27,13 @@ function make_trusted() {
     # note: .crt is the equivalent format as .pem, but we need to make this renaming because update-ca-certificates supports only .crt
     sudo cp -f $1 /usr/local/share/ca-certificates/ca.crt
     sudo update-ca-certificates
-  else
+  elif [[ "$OS" =~ macos ]]; then
     # mac OS, the same trick as for above ubuntu step
     sudo cp -f $1 ~/ca.crt
     sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain ~/ca.crt
-    #sudo security delete-certificate -c "<name of existing certificate>"
+  else
+    echo "Unsupported OS:${OS}" 1>&2 # write to stderr
+    exit 1
   fi
 }
 

@@ -65,12 +65,8 @@ namespace MongoDB.Driver.Tests
                 .ClusterType(ClusterType.Sharded);
             RequireMultipleShardRouters();
 
-            // temporary disable the test on Win Auth topologies, due to operations timings irregularities
-            if (CoreTestConfiguration.ConnectionString.Tls == true &&
-                RequirePlatform.GetCurrentOperatingSystem() == SupportedOperatingSystem.Windows)
-            {
-                throw new SkipException("Win Auth topologies temporary not supported due to timings irregularities.");
-            }
+            // temporary disable the test on Auth envs due to operations timings irregularities
+            RequireServer.Check().Authentication(false);
 
             const string applicationName = "loadBalancingTest";
             const int threadsCount = 10;
