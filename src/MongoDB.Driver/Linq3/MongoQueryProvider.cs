@@ -19,11 +19,12 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslators;
 
 namespace MongoDB.Driver.Linq3
 {
-    internal abstract class MongoQueryProvider : IQueryProvider
+    internal abstract class MongoQueryProvider : IMongoQueryProvider
     {
         // protected fields
         protected readonly CancellationToken _cancellationToken;
@@ -43,14 +44,15 @@ namespace MongoDB.Driver.Linq3
 
         // public properties
         public CancellationToken CancellationToken => _cancellationToken;
-        public abstract string CollectionName { get; }
-        public abstract IBsonSerializer DocumentSerializer { get; }
+        public abstract IBsonSerializer CollectionDocumentSerializer { get; }
+        public abstract CollectionNamespace CollectionNamespace { get; }
         public AggregateOptions Options => _options;
         public IClientSessionHandle Session => _session;
 
         // public methods
         public abstract IQueryable CreateQuery(Expression expression);
         public abstract IQueryable<TElement> CreateQuery<TElement>(Expression expression);
+        public abstract QueryableExecutionModel GetExecutionModel(Expression expression);
         public abstract object Execute(Expression expression);
         public abstract TResult Execute<TResult>(Expression expression);
         public abstract Task<TResult> ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken);
@@ -82,8 +84,8 @@ namespace MongoDB.Driver.Linq3
 
         // public properties
         public IMongoCollection<TDocument> Collection => _collection;
-        public override string CollectionName => _collection.CollectionNamespace.CollectionName;
-        public override IBsonSerializer DocumentSerializer => _collection.DocumentSerializer;
+        public override CollectionNamespace CollectionNamespace => _collection.CollectionNamespace;
+        public override IBsonSerializer CollectionDocumentSerializer => _collection.DocumentSerializer;
 
         // public methods
         public override IQueryable CreateQuery(Expression expression)
@@ -94,6 +96,11 @@ namespace MongoDB.Driver.Linq3
         public override IQueryable<TOutput> CreateQuery<TOutput>(Expression expression)
         {
             return new MongoQuery<TDocument, TOutput>(this, expression);
+        }
+
+        public override QueryableExecutionModel GetExecutionModel(Expression expression)
+        {
+            throw new NotImplementedException(); // TODO: does this need to be implemented?
         }
 
         public override object Execute(Expression expression)
