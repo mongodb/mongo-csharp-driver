@@ -17,12 +17,13 @@ using System;
 using System.Linq;
 using System.Threading;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Linq;
 
 namespace MongoDB.Driver.Linq3
 {
     internal static class IQueryableExtensions
     {
-        public static IQueryable<T> WithCancellationToken<T>(this IQueryable<T> queryable, CancellationToken cancellationToken)
+        public static IMongoQueryable<T> WithCancellationToken<T>(this IMongoQueryable<T> queryable, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(queryable, nameof(queryable));
 
@@ -32,10 +33,10 @@ namespace MongoDB.Driver.Linq3
             }
 
             provider = provider.WithCancellationToken(cancellationToken);
-            return provider.CreateQuery<T>(queryable.Expression);
+            return (IMongoQueryable<T>)provider.CreateQuery<T>(queryable.Expression);
         }
 
-        public static IQueryable<T> WithOptions<T>(this IQueryable<T> queryable, AggregateOptions options)
+        public static IMongoQueryable<T> WithOptions<T>(this IMongoQueryable<T> queryable, AggregateOptions options)
         {
             Ensure.IsNotNull(queryable, nameof(queryable));
 
@@ -45,10 +46,10 @@ namespace MongoDB.Driver.Linq3
             }
 
             provider = provider.WithOptions(options);
-            return provider.CreateQuery<T>(queryable.Expression);
+            return (IMongoQueryable<T>)provider.CreateQuery<T>(queryable.Expression);
         }
 
-        public static IQueryable<T> WithSession<T>(this IQueryable<T> queryable, IClientSessionHandle session)
+        public static IMongoQueryable<T> WithSession<T>(this IMongoQueryable<T> queryable, IClientSessionHandle session)
         {
             Ensure.IsNotNull(queryable, nameof(queryable));
 
@@ -58,7 +59,7 @@ namespace MongoDB.Driver.Linq3
             }
 
             provider = provider.WithSession(session);
-            return provider.CreateQuery<T>(queryable.Expression);
+            return (IMongoQueryable<T>)provider.CreateQuery<T>(queryable.Expression);
         }
     }
 }
