@@ -34,9 +34,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         private readonly Dictionary<string, DisposableMongoClient> _clients;
         private readonly Dictionary<string, IMongoCollection<BsonDocument>> _collections;
         private readonly Dictionary<string, IMongoDatabase> _databases;
-        private readonly Dictionary<string, BsonArray> _errorDocumentsMap;
+        private readonly Dictionary<string, BsonArray> _errorDocuments;
         private bool _disposed;
-        private readonly Dictionary<string, BsonArray> _failureDocumentsMap;
+        private readonly Dictionary<string, BsonArray> _failureDocuments;
         private readonly Dictionary<string, long> _iterationCounts;
         private readonly Dictionary<string, BsonValue> _results;
         private readonly Dictionary<string, IClientSessionHandle> _sessions;
@@ -51,8 +51,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             Dictionary<string, DisposableMongoClient> clients,
             Dictionary<string, IMongoCollection<BsonDocument>> collections,
             Dictionary<string, IMongoDatabase> databases,
-            Dictionary<string, BsonArray> errorDocumentsMap,
-            Dictionary<string, BsonArray> failureDocumentsMap,
+            Dictionary<string, BsonArray> errorDocuments,
+            Dictionary<string, BsonArray> failureDocuments,
             Dictionary<string, long> iterationCounts,
             Dictionary<string, BsonValue> results,
             Dictionary<string, IClientSessionHandle> sessions,
@@ -65,8 +65,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             _clients = clients;
             _collections = collections;
             _databases = databases;
-            _errorDocumentsMap = errorDocumentsMap;
-            _failureDocumentsMap = failureDocumentsMap;
+            _errorDocuments = errorDocuments;
+            _failureDocuments = failureDocuments;
             _iterationCounts = iterationCounts;
             _results = results;
             _sessions = sessions;
@@ -75,12 +75,12 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         }
 
         // public properties
-        public Dictionary<string, BsonArray> ErrorDocumentsMap
+        public Dictionary<string, BsonArray> ErrorDocuments
         {
             get
             {
                 ThrowIfDisposed();
-                return _errorDocumentsMap;
+                return _errorDocuments;
             }
         }
         public Dictionary<string, EventCapturer> EventCapturers
@@ -92,12 +92,12 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             }
         }
 
-        public Dictionary<string, BsonArray> FailureDocumentsMap
+        public Dictionary<string, BsonArray> FailureDocuments
         {
             get
             {
                 ThrowIfDisposed();
-                return _failureDocumentsMap;
+                return _failureDocuments;
             }
         }
 

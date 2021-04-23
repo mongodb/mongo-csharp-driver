@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Tests.Specifications.unified_test_format
         {
             _allowKillSessions = allowKillSessions;
             _additionalArgs = additionalArgs; // can be null
-            _eventFormatters = eventFormatters;
+            _eventFormatters = eventFormatters; // can be null
         }
 
         // public properties

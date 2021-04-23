@@ -77,17 +77,18 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
         private void Execute(Action<BsonDocument, bool, CancellationToken> createAndRunOperationCallback, bool async, CancellationToken cancellationToken)
         {
-            int iterationsCount = 0;
-            int successfulOperationsCount = 0;
+            int iterationCount = 0;
+            int successCount = 0;
             while (!_loopCancellationToken.IsCancellationRequested)
             {
-                foreach (var operation in _loopOperations.Select(o => o.DeepClone().AsBsonDocument))  // the further operations can mutate the passed input documents
-                                                                                                      // due to auto adding _id from the server response
+                // Use DeepClone because further operations can mutate the passed input documents
+                // due to auto adding _id from the server response
+                foreach (var operation in _loopOperations.Select(o => o.DeepClone().AsBsonDocument))
                 {
                     try
                     {
                         createAndRunOperationCallback(operation, async, cancellationToken);
-                        successfulOperationsCount++;
+                        successCount++;
                     }
                     catch (Exception ex)
                     {
@@ -98,32 +99,32 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         break;
                     }
                 }
-                iterationsCount++;
+                iterationCount++;
             }
 
-            HandleResults(iterationsCount, successfulOperationsCount);
+            HandleResults(iterationCount, successCount);
         }
 
-        private void HandleResults(long iterationsCount, long successfulOperationsCount)
+        private void HandleResults(long iterationCount, long successCount)
         {
             if (_storeSuccessesAsEntity != null)
             {
-                _entityMap.SuccessCounts.Add(_storeSuccessesAsEntity, successfulOperationsCount);
+                _entityMap.SuccessCounts.Add(_storeSuccessesAsEntity, successCount);
             }
 
             if (_storeIterationsAsEntity != null)
             {
-                _entityMap.IterationCounts.Add(_storeIterationsAsEntity, iterationsCount);
+                _entityMap.IterationCounts.Add(_storeIterationsAsEntity, iterationCount);
             }
 
             if (_storeFailuresAsEntity != null)
             {
-                _entityMap.FailureDocumentsMap.Add(_storeFailuresAsEntity, _failureDescriptionDocuments);
+                _entityMap.FailureDocuments.Add(_storeFailuresAsEntity, _failureDescriptionDocuments);
             }
 
             if (_storeErrorsAsEntity != null)
             {
-                _entityMap.ErrorDocumentsMap.Add(_storeErrorsAsEntity, _errorDescriptionDocuments);
+                _entityMap.ErrorDocuments.Add(_storeErrorsAsEntity, _errorDescriptionDocuments);
             }
         }
 
@@ -172,7 +173,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         public UnifiedLoopOperationBuilder(UnifiedEntityMap entityMap, Dictionary<string, object> additionalArgs)
         {
             _entityMap = entityMap;
-            _loopCancellationToken = (CancellationToken)Ensure.IsNotNull(additionalArgs, nameof(additionalArgs))["UnifiedLoopOperationLoopCancellationToken"];
+            _loopCancellationToken = (CancellationToken)Ensure.IsNotNull(additionalArgs, nameof(additionalArgs))["UnifiedLoopOperationCancellationToken"];
         }
 
         public UnifiedLoopOperation Build(BsonDocument arguments)

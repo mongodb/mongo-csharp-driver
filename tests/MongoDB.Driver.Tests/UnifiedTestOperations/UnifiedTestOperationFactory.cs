@@ -15,7 +15,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using MongoDB.Bson;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations

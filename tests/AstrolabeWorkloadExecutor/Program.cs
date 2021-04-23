@@ -66,6 +66,14 @@ namespace WorkloadExecutor
             Console.Out.Flush();
         }
 
+        // private methods
+        private static void CancelWorkloadTask(CancellationTokenSource astrolabeCancellationTokenSource)
+        {
+            Console.Write("dotnet cancel workload> Canceling the workload task...");
+            astrolabeCancellationTokenSource.Cancel();
+            Console.WriteLine("Done.");
+        }
+
         private static (string EventsJson, string ResultsJson) CreateWorkloadResult(UnifiedEntityMap entityMap)
         {
             Ensure.IsNotNull(entityMap, nameof(entityMap));
@@ -73,9 +81,9 @@ namespace WorkloadExecutor
             var iterationsCount = GetValueOrDefault(entityMap.IterationCounts, "iterations", @default: -1);
             var successesCount = GetValueOrDefault(entityMap.SuccessCounts, "successes", @default: -1);
 
-            var errorDocuments = GetValueOrDefault(entityMap.ErrorDocumentsMap, "errors", @default: new BsonArray());
+            var errorDocuments = GetValueOrDefault(entityMap.ErrorDocuments, "errors", @default: new BsonArray());
             var errorCount  = errorDocuments.Count;
-            var failuresDocuments = GetValueOrDefault(entityMap.FailureDocumentsMap, "failures", @default: new BsonArray());
+            var failuresDocuments = GetValueOrDefault(entityMap.FailureDocuments, "failures", @default: new BsonArray());
             var failuresCount = failuresDocuments.Count;
 
             string eventsJson = "[]";
@@ -99,7 +107,7 @@ namespace WorkloadExecutor
 
             var additionalArgs = new Dictionary<string, object>()
             {
-                { "UnifiedLoopOperationLoopCancellationToken", astrolabeCancellationToken }
+                { "UnifiedLoopOperationCancellationToken", astrolabeCancellationToken }
             };
             var eventFormatters = new Dictionary<string, IEventFormatter>()
             {
@@ -118,13 +126,6 @@ namespace WorkloadExecutor
             }
         }
 
-        private static void CancelWorkloadTask(CancellationTokenSource astrolabeCancellationTokenSource)
-        {
-            Console.Write("dotnet cancel workload> Canceling the workload task...");
-            astrolabeCancellationTokenSource.Cancel();
-            Console.WriteLine("Done.");
-        }
-
         private static void HandleCancel(
             ConsoleCancelEventArgs args,
             CancellationTokenSource astrolabeCancellationTokenSource)
@@ -134,6 +135,7 @@ namespace WorkloadExecutor
             CancelWorkloadTask(astrolabeCancellationTokenSource);
         }
 
+        // nested types
         internal class TestCaseFactory : JsonDrivenTestCaseFactory
         {
             public JsonDrivenTestCase CreateTestCase(BsonDocument driverWorkload, bool async)
