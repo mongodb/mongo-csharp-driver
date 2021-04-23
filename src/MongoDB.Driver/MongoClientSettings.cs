@@ -23,6 +23,7 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Encryption;
+using MongoDB.Driver.Linq;
 using MongoDB.Shared;
 
 namespace MongoDB.Driver
@@ -49,6 +50,7 @@ namespace MongoDB.Driver
         private TimeSpan _heartbeatInterval;
         private TimeSpan _heartbeatTimeout;
         private bool _ipv6;
+        private LinqProvider _linqProvider;
         private TimeSpan _localThreshold;
         private TimeSpan _maxConnectionIdleTime;
         private TimeSpan _maxConnectionLifeTime;
@@ -104,6 +106,7 @@ namespace MongoDB.Driver
             _heartbeatInterval = ServerSettings.DefaultHeartbeatInterval;
             _heartbeatTimeout = ServerSettings.DefaultHeartbeatTimeout;
             _ipv6 = false;
+            _linqProvider = LinqProvider.V2;
             _localThreshold = MongoDefaults.LocalThreshold;
             _maxConnectionIdleTime = MongoDefaults.MaxConnectionIdleTime;
             _maxConnectionLifeTime = MongoDefaults.MaxConnectionLifeTime;
@@ -397,6 +400,19 @@ namespace MongoDB.Driver
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
                 _ipv6 = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the LINQ provider.
+        /// </summary>
+        public LinqProvider LinqProvider
+        {
+            get { return _linqProvider; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
+                _linqProvider = Ensure.IsNotNull(value, nameof(value));
             }
         }
 
@@ -869,6 +885,7 @@ namespace MongoDB.Driver
             clientSettings.HeartbeatInterval = url.HeartbeatInterval;
             clientSettings.HeartbeatTimeout = url.HeartbeatTimeout;
             clientSettings.IPv6 = url.IPv6;
+            clientSettings.LinqProvider = LinqProvider.V2;
             clientSettings.MaxConnectionIdleTime = url.MaxConnectionIdleTime;
             clientSettings.MaxConnectionLifeTime = url.MaxConnectionLifeTime;
             clientSettings.MaxConnectionPoolSize = url.MaxConnectionPoolSize;
@@ -921,6 +938,7 @@ namespace MongoDB.Driver
             clone._heartbeatInterval = _heartbeatInterval;
             clone._heartbeatTimeout = _heartbeatTimeout;
             clone._ipv6 = _ipv6;
+            clone._linqProvider = _linqProvider;
             clone._maxConnectionIdleTime = _maxConnectionIdleTime;
             clone._maxConnectionLifeTime = _maxConnectionLifeTime;
             clone._maxConnectionPoolSize = _maxConnectionPoolSize;
@@ -985,6 +1003,7 @@ namespace MongoDB.Driver
                 _heartbeatInterval == rhs._heartbeatInterval &&
                 _heartbeatTimeout == rhs._heartbeatTimeout &&
                 _ipv6 == rhs._ipv6 &&
+                _linqProvider == rhs._linqProvider &&
                 _maxConnectionIdleTime == rhs._maxConnectionIdleTime &&
                 _maxConnectionLifeTime == rhs._maxConnectionLifeTime &&
                 _maxConnectionPoolSize == rhs._maxConnectionPoolSize &&
@@ -1131,6 +1150,7 @@ namespace MongoDB.Driver
             sb.AppendFormat("HeartbeatInterval={0};", _heartbeatInterval);
             sb.AppendFormat("HeartbeatTimeout={0};", _heartbeatTimeout);
             sb.AppendFormat("IPv6={0};", _ipv6);
+            sb.AppendFormat("LinqProvider={0};", _linqProvider);
             sb.AppendFormat("MaxConnectionIdleTime={0};", _maxConnectionIdleTime);
             sb.AppendFormat("MaxConnectionLifeTime={0};", _maxConnectionLifeTime);
             sb.AppendFormat("MaxConnectionPoolSize={0};", _maxConnectionPoolSize);

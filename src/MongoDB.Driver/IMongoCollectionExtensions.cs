@@ -14,14 +14,11 @@
 */
 
 using System;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Linq;
-using MongoDB.Driver.Linq2;
 
 namespace MongoDB.Driver
 {
@@ -2328,9 +2325,9 @@ namespace MongoDB.Driver
         // private static methods
         private static IMongoQueryable<TDocument> AsQueryableHelper<TDocument>(IMongoCollection<TDocument> collection, IClientSessionHandle session, AggregateOptions aggregateOptions)
         {
+            var linqProvider = collection.Database.Client.Settings.LinqProvider;
             aggregateOptions = aggregateOptions ?? new AggregateOptions();
-            var provider = new MongoQueryProviderImpl<TDocument>(collection, session, aggregateOptions);
-            return new MongoQueryableImpl<TDocument, TDocument>(provider);
+            return linqProvider.AsQueryable(collection, session, aggregateOptions, CancellationToken.None);
         }
     }
 }
