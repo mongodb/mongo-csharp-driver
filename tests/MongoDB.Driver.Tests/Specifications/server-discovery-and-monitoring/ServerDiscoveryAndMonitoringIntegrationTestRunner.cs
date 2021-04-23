@@ -40,12 +40,14 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
         // public methods
         public void ConfigureFailPoint(IServer server, ICoreSessionHandle session, BsonDocument failCommand)
         {
+            ConfigureFailPointCommand(failCommand);
             var failPoint = FailPoint.Configure(server, session, failCommand);
             AddDisposable(failPoint);
         }
 
         public async Task ConfigureFailPointAsync(IServer server, ICoreSessionHandle session, BsonDocument failCommand)
         {
+            ConfigureFailPointCommand(failCommand);
             var failPoint = await Task.Run(() => FailPoint.Configure(server, session, failCommand)).ConfigureAwait(false);
             AddDisposable(failPoint);
         }

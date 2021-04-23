@@ -37,6 +37,7 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
     public abstract class MongoClientJsonDrivenTestRunnerBase
     {
         // private fields
+        private bool _async;
         private readonly string _collectionNameKey = "collection_name";
         private readonly string _databaseNameKey = "database_name";
         private readonly string _dataKey = "data";
@@ -321,7 +322,7 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
                     break;
 
                 case "appname":
-                    settings.ApplicationName = option.Value.ToString();
+                    settings.ApplicationName = $"{option.Value}_async_{_async}";
                     break;
 
                 case "connectTimeoutMS":
@@ -375,10 +376,24 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
             }
         }
 
+        protected void ConfigureFailPointCommand(BsonDocument failPointCommand)
+        {
+            if (failPointCommand.TryGetValue("data", out var dataBsonValue))
+            {
+                var dataDocument = dataBsonValue.AsBsonDocument;
+                if (dataDocument.TryGetValue("appName", out var appName))
+                {
+                    dataDocument["appName"] = $"{appName}_async_{_async}";
+                }
+            }
+        }
+
         protected FailPoint ConfigureFailPoint(BsonDocument test, IMongoClient client)
         {
             if (test.TryGetValue(FailPointKey, out var failPoint))
             {
+                ConfigureFailPointCommand(failPoint.AsBsonDocument);
+
                 var cluster = client.Cluster;
                 var server = cluster.SelectServer(WritableServerSelector.Instance, CancellationToken.None);
                 var session = NoCoreSession.NewHandle();
@@ -477,6 +492,7 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
             Ensure.IsNotNullOrEmpty(DatabaseNameKey, nameof(DatabaseNameKey));
             Ensure.IsNotNullOrEmpty(CollectionNameKey, nameof(CollectionNameKey));
 
+            _async = test["async"].AsBoolean;
             CustomDataValidation(shared, test);
 
             DatabaseName = GetDatabaseName(shared);
