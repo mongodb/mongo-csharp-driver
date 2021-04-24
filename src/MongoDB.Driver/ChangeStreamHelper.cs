@@ -18,6 +18,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
+using MongoDB.Driver.Linq;
 
 namespace MongoDB.Driver
 {
@@ -31,7 +32,18 @@ namespace MongoDB.Driver
             MessageEncoderSettings messageEncoderSettings,
             bool retryRequested)
         {
-            var renderedPipeline = RenderPipeline(pipeline, BsonDocumentSerializer.Instance);
+            return CreateChangeStreamOperation(pipeline, LinqProvider.V2, options, readConcern, messageEncoderSettings, retryRequested);
+        }
+
+        public static ChangeStreamOperation<TResult> CreateChangeStreamOperation<TResult>(
+            PipelineDefinition<ChangeStreamDocument<BsonDocument>, TResult> pipeline,
+            LinqProvider linqProvider,
+            ChangeStreamOptions options,
+            ReadConcern readConcern,
+            MessageEncoderSettings messageEncoderSettings,
+            bool retryRequested)
+        {
+            var renderedPipeline = RenderPipeline(pipeline, BsonDocumentSerializer.Instance, linqProvider);
 
             var operation = new ChangeStreamOperation<TResult>(
                 renderedPipeline.Documents,
@@ -53,7 +65,19 @@ namespace MongoDB.Driver
             MessageEncoderSettings messageEncoderSettings,
             bool retryRequested)
         {
-            var renderedPipeline = RenderPipeline(pipeline, BsonDocumentSerializer.Instance);
+            return CreateChangeStreamOperation(database, pipeline, LinqProvider.V2, options, readConcern, messageEncoderSettings, retryRequested);
+        }
+
+        public static ChangeStreamOperation<TResult> CreateChangeStreamOperation<TResult>(
+            IMongoDatabase database,
+            PipelineDefinition<ChangeStreamDocument<BsonDocument>, TResult> pipeline,
+            LinqProvider linqProvider,
+            ChangeStreamOptions options,
+            ReadConcern readConcern,
+            MessageEncoderSettings messageEncoderSettings,
+            bool retryRequested)
+        {
+            var renderedPipeline = RenderPipeline(pipeline, BsonDocumentSerializer.Instance, linqProvider);
 
             var operation = new ChangeStreamOperation<TResult>(
                 database.DatabaseNamespace,
@@ -77,7 +101,20 @@ namespace MongoDB.Driver
             MessageEncoderSettings messageEncoderSettings,
             bool retryRequested)
         {
-            var renderedPipeline = RenderPipeline(pipeline, documentSerializer);
+            return CreateChangeStreamOperation(collection, pipeline, documentSerializer, LinqProvider.V2, options, readConcern, messageEncoderSettings, retryRequested);
+        }
+
+        public static ChangeStreamOperation<TResult> CreateChangeStreamOperation<TResult, TDocument>(
+            IMongoCollection<TDocument> collection,
+            PipelineDefinition<ChangeStreamDocument<TDocument>, TResult> pipeline,
+            IBsonSerializer<TDocument> documentSerializer,
+            LinqProvider linqProvider,
+            ChangeStreamOptions options,
+            ReadConcern readConcern,
+            MessageEncoderSettings messageEncoderSettings,
+            bool retryRequested)
+        {
+            var renderedPipeline = RenderPipeline(pipeline, documentSerializer, linqProvider);
 
             var operation = new ChangeStreamOperation<TResult>(
                 collection.CollectionNamespace,
@@ -95,11 +132,12 @@ namespace MongoDB.Driver
         // private static methods
         private static RenderedPipelineDefinition<TResult> RenderPipeline<TResult, TDocument>(
             PipelineDefinition<ChangeStreamDocument<TDocument>, TResult> pipeline,
-            IBsonSerializer<TDocument> documentSerializer)
+            IBsonSerializer<TDocument> documentSerializer,
+            LinqProvider linqProvider)
         {
             var changeStreamDocumentSerializer = new ChangeStreamDocumentSerializer<TDocument>(documentSerializer);
             var serializerRegistry = BsonSerializer.SerializerRegistry;
-            return pipeline.Render(changeStreamDocumentSerializer, serializerRegistry);
+            return pipeline.Render(changeStreamDocumentSerializer, serializerRegistry, linqProvider);
         }
 
         private static void SetOperationOptions<TResult>(

@@ -21,6 +21,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Linq;
 
 namespace MongoDB.Driver
 {
@@ -193,13 +194,13 @@ namespace MongoDB.Driver
             _sorts = Ensure.IsNotNull(sorts, nameof(sorts)).ToList();
         }
 
-        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
             var document = new BsonDocument();
 
             foreach (var sort in _sorts)
             {
-                var renderedSort = sort.Render(documentSerializer, serializerRegistry);
+                var renderedSort = sort.Render(documentSerializer, serializerRegistry, linqProvider);
 
                 foreach (var element in renderedSort.Elements)
                 {
@@ -224,9 +225,9 @@ namespace MongoDB.Driver
             _direction = direction;
         }
 
-        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
-            var renderedField = _field.Render(documentSerializer, serializerRegistry);
+            var renderedField = _field.Render(documentSerializer, serializerRegistry, linqProvider);
 
             BsonValue value;
             switch (_direction)

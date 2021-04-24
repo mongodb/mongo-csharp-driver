@@ -21,6 +21,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Linq;
 
 namespace MongoDB.Driver
 {
@@ -1342,9 +1343,9 @@ namespace MongoDB.Driver
             _values = Ensure.IsNotNull(values, nameof(values)).ToList();
         }
 
-        public override BsonValue Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        public override BsonValue Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
-            var renderedField = _field.Render(documentSerializer, serializerRegistry);
+            var renderedField = _field.Render(documentSerializer, serializerRegistry, linqProvider);
 
             IBsonSerializer itemSerializer;
             if (renderedField.FieldSerializer != null)
@@ -1404,13 +1405,13 @@ namespace MongoDB.Driver
             _updates = Ensure.IsNotNull(updates, nameof(updates)).ToList();
         }
 
-        public override BsonValue Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        public override BsonValue Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
             var document = new BsonDocument();
 
             foreach (var update in _updates)
             {
-                var renderedUpdate = update.Render(documentSerializer, serializerRegistry).AsBsonDocument;
+                var renderedUpdate = update.Render(documentSerializer, serializerRegistry, linqProvider).AsBsonDocument;
 
                 foreach (var element in renderedUpdate.Elements)
                 {
@@ -1444,9 +1445,9 @@ namespace MongoDB.Driver
             _value = value;
         }
 
-        public override BsonValue Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        public override BsonValue Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
-            var renderedField = _field.Render(documentSerializer, serializerRegistry);
+            var renderedField = _field.Render(documentSerializer, serializerRegistry, linqProvider);
 
             var document = new BsonDocument();
             using (var bsonWriter = new BsonDocumentWriter(document))
@@ -1481,9 +1482,9 @@ namespace MongoDB.Driver
             _value = value;
         }
 
-        public override BsonValue Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        public override BsonValue Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
-            var renderedField = _field.Render(documentSerializer, serializerRegistry);
+            var renderedField = _field.Render(documentSerializer, serializerRegistry, linqProvider);
             return new BsonDocument(_operatorName, new BsonDocument(renderedField.FieldName, _value));
         }
     }
@@ -1501,9 +1502,9 @@ namespace MongoDB.Driver
             _value = value;
         }
 
-        public override BsonValue Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        public override BsonValue Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
-            var renderedField = _field.Render(documentSerializer, serializerRegistry);
+            var renderedField = _field.Render(documentSerializer, serializerRegistry, linqProvider);
 
             var document = new BsonDocument();
             using (var bsonWriter = new BsonDocumentWriter(document))
@@ -1540,9 +1541,9 @@ namespace MongoDB.Driver
             _values = Ensure.IsNotNull(values, nameof(values)).ToList();
         }
 
-        public override BsonValue Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        public override BsonValue Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
-            var renderedField = _field.Render(documentSerializer, serializerRegistry);
+            var renderedField = _field.Render(documentSerializer, serializerRegistry, linqProvider);
 
             IBsonSerializer itemSerializer;
             if (renderedField.FieldSerializer != null)
@@ -1563,7 +1564,7 @@ namespace MongoDB.Driver
 
             if (_filter != null)
             {
-                var renderedFilter = _filter.Render((IBsonSerializer<TItem>)itemSerializer, serializerRegistry);
+                var renderedFilter = _filter.Render((IBsonSerializer<TItem>)itemSerializer, serializerRegistry, linqProvider);
                 return new BsonDocument("$pull", new BsonDocument(renderedField.FieldName, renderedFilter));
             }
             else
@@ -1614,9 +1615,9 @@ namespace MongoDB.Driver
             _sort = sort;
         }
 
-        public override BsonValue Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        public override BsonValue Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
-            var renderedField = _field.Render(documentSerializer, serializerRegistry);
+            var renderedField = _field.Render(documentSerializer, serializerRegistry, linqProvider);
 
             IBsonSerializer itemSerializer;
             if (renderedField.FieldSerializer != null)
@@ -1675,7 +1676,7 @@ namespace MongoDB.Driver
 
             if (_sort != null)
             {
-                document["$push"][renderedField.FieldName]["$sort"] = _sort.Render((IBsonSerializer<TItem>)itemSerializer, serializerRegistry);
+                document["$push"][renderedField.FieldName]["$sort"] = _sort.Render((IBsonSerializer<TItem>)itemSerializer, serializerRegistry, linqProvider);
             }
 
             return document;
