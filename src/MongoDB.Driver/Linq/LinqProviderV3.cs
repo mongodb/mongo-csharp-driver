@@ -13,18 +13,98 @@
 * limitations under the License.
 */
 
+using System;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver.Linq
 {
     internal sealed class LinqProviderV3 : LinqProvider
     {
-        internal override IMongoQueryable<TDocument> AsQueryable<TDocument>(IMongoCollection<TDocument> collection, IClientSessionHandle session, AggregateOptions options, CancellationToken cancellationToken)
+        internal override IMongoQueryable<TDocument> AsQueryable<TDocument>(
+            IMongoCollection<TDocument> collection,
+            IClientSessionHandle session,
+            AggregateOptions options,
+            CancellationToken cancellationToken)
         {
             var queryProvider = new Linq3.MongoQueryProvider<TDocument>(collection, session, options, cancellationToken);
             return new Linq3.MongoQuery<TDocument, TDocument>(queryProvider);
         }
 
         public override string ToString() => "V3";
+
+        internal override BsonValue TranslateExpressionToAggregateExpression<TSource, TResult>(
+            Expression<Func<TSource, TResult>> expression,
+            IBsonSerializer<TSource> sourceSerializer,
+            IBsonSerializerRegistry serializerRegistry,
+            ExpressionTranslationOptions translationOptions)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal override RenderedProjectionDefinition<TOutput> TranslateExpressionToBucketOutputProjection<TInput, TValue, TOutput>(
+            Expression<Func<TInput, TValue>> valueExpression,
+            Expression<Func<IGrouping<TValue, TInput>, TOutput>> outputExpression,
+            IBsonSerializer<TInput> documentSerializer,
+            IBsonSerializerRegistry serializerRegistry,
+            ExpressionTranslationOptions translationOptions)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal override RenderedFieldDefinition TranslateExpressionToField<TDocument>(
+            LambdaExpression expression,
+            IBsonSerializer<TDocument> documentSerializer,
+            IBsonSerializerRegistry serializerRegistry)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal override RenderedFieldDefinition<TField> TranslateExpressionToField<TDocument, TField>(
+            Expression<Func<TDocument, TField>> expression,
+            IBsonSerializer<TDocument> documentSerializer,
+            IBsonSerializerRegistry serializerRegistry,
+            bool allowScalarValueForArrayField)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal override BsonDocument TranslateExpressionToFilter<TDocument>(
+            Expression<Func<TDocument, bool>> expression,
+            IBsonSerializer<TDocument> documentSerializer,
+            IBsonSerializerRegistry serializerRegistry)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal override RenderedProjectionDefinition<TProjection> TranslateExpressionToFindProjection<TSource, TProjection>(
+            Expression<Func<TSource, TProjection>> expression,
+            IBsonSerializer<TSource> sourceSerializer,
+            IBsonSerializerRegistry serializerRegistry)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal override RenderedProjectionDefinition<TOutput> TranslateExpressionToGroupProjection<TInput, TKey, TOutput>(
+            Expression<Func<TInput, TKey>> idExpression,
+            Expression<Func<IGrouping<TKey, TInput>, TOutput>> groupExpression,
+            IBsonSerializer<TInput> documentSerializer,
+            IBsonSerializerRegistry serializerRegistry,
+            ExpressionTranslationOptions translationOptions)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal override RenderedProjectionDefinition<TOutput> TranslateExpressionToProjection<TInput, TOutput>(
+            Expression<Func<TInput, TOutput>> expression,
+            IBsonSerializer<TInput> inputSerializer,
+            IBsonSerializerRegistry serializerRegistry,
+            ExpressionTranslationOptions translationOptions)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

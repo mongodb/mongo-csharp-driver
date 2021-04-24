@@ -13,7 +13,12 @@
 * limitations under the License.
 */
 
+using System;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver.Linq
 {
@@ -36,6 +41,57 @@ namespace MongoDB.Driver.Linq
         #endregion
 
         // internal methods
-        internal abstract IMongoQueryable<TDocument> AsQueryable<TDocument>(IMongoCollection<TDocument> collection, IClientSessionHandle session, AggregateOptions options, CancellationToken cancellationToken);
+        internal abstract IMongoQueryable<TDocument> AsQueryable<TDocument>(
+            IMongoCollection<TDocument> collection,
+            IClientSessionHandle session,
+            AggregateOptions options,
+            CancellationToken cancellationToken);
+
+        internal abstract BsonValue TranslateExpressionToAggregateExpression<TSource, TResult>(
+            Expression<Func<TSource, TResult>> expression,
+            IBsonSerializer<TSource> sourceSerializer,
+            IBsonSerializerRegistry serializerRegistry,
+            ExpressionTranslationOptions translationOptions);
+
+        internal abstract RenderedProjectionDefinition<TOutput> TranslateExpressionToBucketOutputProjection<TInput, TValue, TOutput>(
+            Expression<Func<TInput, TValue>> valueExpression,
+            Expression<Func<IGrouping<TValue, TInput>, TOutput>> outputExpression,
+            IBsonSerializer<TInput> documentSerializer,
+            IBsonSerializerRegistry serializerRegistry,
+            ExpressionTranslationOptions translationOptions);
+
+        internal abstract RenderedFieldDefinition TranslateExpressionToField<TDocument>(
+            LambdaExpression expression,
+            IBsonSerializer<TDocument> documentSerializer,
+            IBsonSerializerRegistry serializerRegistry);
+
+        internal abstract RenderedFieldDefinition<TField> TranslateExpressionToField<TDocument, TField>(
+            Expression<Func<TDocument, TField>> expression,
+            IBsonSerializer<TDocument> documentSerializer,
+            IBsonSerializerRegistry serializerRegistry,
+            bool allowScalarValueForArrayField);
+
+        internal abstract BsonDocument TranslateExpressionToFilter<TDocument>(
+            Expression<Func<TDocument, bool>> expression,
+            IBsonSerializer<TDocument> documentSerializer,
+            IBsonSerializerRegistry serializerRegistry);
+
+        internal abstract RenderedProjectionDefinition<TProjection> TranslateExpressionToFindProjection<TSource, TProjection>(
+            Expression<Func<TSource, TProjection>> expression,
+            IBsonSerializer<TSource> sourceSerializer,
+            IBsonSerializerRegistry serializerRegistry);
+
+        internal abstract RenderedProjectionDefinition<TOutput> TranslateExpressionToGroupProjection<TInput, TKey, TOutput>(
+            Expression<Func<TInput, TKey>> idExpression,
+            Expression<Func<IGrouping<TKey, TInput>, TOutput>> groupExpression,
+            IBsonSerializer<TInput> documentSerializer,
+            IBsonSerializerRegistry serializerRegistry,
+            ExpressionTranslationOptions translationOptions);
+
+        internal abstract RenderedProjectionDefinition<TOutput> TranslateExpressionToProjection<TInput, TOutput>(
+            Expression<Func<TInput, TOutput>> expression,
+            IBsonSerializer<TInput> inputSerializer,
+            IBsonSerializerRegistry serializerRegistry,
+            ExpressionTranslationOptions translationOptions);
     }
 }

@@ -19,7 +19,6 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq;
-using MongoDB.Driver.Linq2.Translators;
 
 namespace MongoDB.Driver
 {
@@ -302,7 +301,7 @@ namespace MongoDB.Driver
         /// <inheritdoc />
         public override RenderedProjectionDefinition<TProjection> Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
-            return FindProjectionTranslator.Translate<TSource, TProjection>(_expression, sourceSerializer, serializerRegistry);
+            return linqProvider.TranslateExpressionToFindProjection(_expression, sourceSerializer, serializerRegistry);
         }
     }
 

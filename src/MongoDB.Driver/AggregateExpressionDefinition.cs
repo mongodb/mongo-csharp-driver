@@ -19,7 +19,6 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq;
-using MongoDB.Driver.Linq2.Translators;
 
 namespace MongoDB.Driver
 {
@@ -133,7 +132,7 @@ namespace MongoDB.Driver
         /// <inheritdoc/>
         public override BsonValue Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
-            return AggregateExpressionTranslator.Translate(_expression, sourceSerializer, serializerRegistry, _translationOptions);
+            return linqProvider.TranslateExpressionToAggregateExpression(_expression, sourceSerializer, serializerRegistry, _translationOptions);
         }
     }
 }

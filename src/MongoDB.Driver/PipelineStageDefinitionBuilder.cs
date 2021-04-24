@@ -22,7 +22,6 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq;
-using MongoDB.Driver.Linq2.Translators;
 
 namespace MongoDB.Driver
 {
@@ -1477,10 +1476,7 @@ namespace MongoDB.Driver
 
         public override RenderedProjectionDefinition<TOutput> Render(IBsonSerializer<TInput> documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
-            var renderedOutput = AggregateGroupTranslator.Translate<TValue, TInput, TOutput>(_valueExpression, _outputExpression, documentSerializer, serializerRegistry, _translationOptions);
-            var document = renderedOutput.Document;
-            document.Remove("_id");
-            return new RenderedProjectionDefinition<TOutput>(document, renderedOutput.ProjectionSerializer);
+            return linqProvider.TranslateExpressionToBucketOutputProjection(_valueExpression, _outputExpression, documentSerializer, serializerRegistry, _translationOptions);
         }
     }
 
@@ -1509,7 +1505,7 @@ namespace MongoDB.Driver
 
         public override RenderedProjectionDefinition<TOutput> Render(IBsonSerializer<TInput> documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
-            return AggregateGroupTranslator.Translate<TKey, TInput, TOutput>(_idExpression, _groupExpression, documentSerializer, serializerRegistry, _translationOptions);
+            return linqProvider.TranslateExpressionToGroupProjection(_idExpression, _groupExpression, documentSerializer, serializerRegistry, _translationOptions);
         }
     }
 
@@ -1531,7 +1527,7 @@ namespace MongoDB.Driver
 
         public override RenderedProjectionDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
-            return AggregateProjectTranslator.Translate<TInput, TOutput>(_expression, inputSerializer, serializerRegistry, _translationOptions);
+            return linqProvider.TranslateExpressionToProjection(_expression, inputSerializer, serializerRegistry, _translationOptions);
         }
     }
 

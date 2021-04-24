@@ -19,7 +19,6 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq;
-using MongoDB.Driver.Linq2.Translators;
 
 namespace MongoDB.Driver
 {
@@ -218,7 +217,7 @@ namespace MongoDB.Driver
         /// <inheritdoc />
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
-            return PredicateTranslator.Translate<TDocument>(_expression, documentSerializer, serializerRegistry);
+            return linqProvider.TranslateExpressionToFilter(_expression, documentSerializer, serializerRegistry);
         }
     }
 
