@@ -20,6 +20,7 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Linq;
 
 namespace MongoDB.Driver
 {
@@ -296,9 +297,10 @@ namespace MongoDB.Driver
             };
         }
 
-        private TRendered Render<TRendered>(Func<IBsonSerializer<TDocument>, IBsonSerializerRegistry, TRendered> renderer)
+        private TRendered Render<TRendered>(Func<IBsonSerializer<TDocument>, IBsonSerializerRegistry, LinqProvider, TRendered> renderer)
         {
-            return renderer(_collection.DocumentSerializer, _collection.Settings.SerializerRegistry);
+            var linqProvider = _collection.Database.Client.Settings.LinqProvider;
+            return renderer(_collection.DocumentSerializer, _collection.Settings.SerializerRegistry, linqProvider);
         }
     }
 }

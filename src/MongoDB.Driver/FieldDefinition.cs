@@ -19,6 +19,7 @@ using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq2;
 using MongoDB.Driver.Linq2.Expressions;
 using MongoDB.Driver.Linq2.Processors;
@@ -143,7 +144,19 @@ namespace MongoDB.Driver
         /// <param name="documentSerializer">The document serializer.</param>
         /// <param name="serializerRegistry">The serializer registry.</param>
         /// <returns>A <see cref="String"/>.</returns>
-        public abstract RenderedFieldDefinition Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry);
+        public virtual RenderedFieldDefinition Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        {
+            return Render(documentSerializer, serializerRegistry, LinqProvider.V2);
+        }
+
+        /// <summary>
+        /// Renders the field to a <see cref="String"/>.
+        /// </summary>
+        /// <param name="documentSerializer">The document serializer.</param>
+        /// <param name="serializerRegistry">The serializer registry.</param>
+        /// <param name="linqProvider">The LINQ provider.</param>
+        /// <returns>A <see cref="String"/>.</returns>
+        public abstract RenderedFieldDefinition Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider);
 
         /// <summary>
         /// Performs an implicit conversion from <see cref="System.String"/> to <see cref="FieldDefinition{TDocument}"/>.
@@ -176,7 +189,10 @@ namespace MongoDB.Driver
         /// <param name="documentSerializer">The document serializer.</param>
         /// <param name="serializerRegistry">The serializer registry.</param>
         /// <returns>A <see cref="RenderedFieldDefinition{TField}"/>.</returns>
-        public abstract RenderedFieldDefinition<TField> Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry);
+        public virtual RenderedFieldDefinition<TField> Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        {
+            return Render(documentSerializer, serializerRegistry, LinqProvider.V2);
+        }
 
         /// <summary>
         /// Renders the field to a <see cref="RenderedFieldDefinition{TField}"/>.
@@ -190,8 +206,34 @@ namespace MongoDB.Driver
             IBsonSerializerRegistry serializerRegistry,
             bool allowScalarValueForArrayField)
         {
-            return Render(documentSerializer, serializerRegistry); // ignore allowScalarValueForArrayField if not overridden by subclass
+            return Render(documentSerializer, serializerRegistry, LinqProvider.V2, allowScalarValueForArrayField);
         }
+
+        /// <summary>
+        /// Renders the field to a <see cref="RenderedFieldDefinition{TField}"/>.
+        /// </summary>
+        /// <param name="documentSerializer">The document serializer.</param>
+        /// <param name="serializerRegistry">The serializer registry.</param>
+        /// <param name="linqProvider">The LINQ provider.</param>
+        /// <param name="allowScalarValueForArrayField">Whether a scalar value is allowed for an array field.</param>
+        /// <returns>A <see cref="RenderedFieldDefinition{TField}"/>.</returns>
+        public virtual RenderedFieldDefinition<TField> Render(
+            IBsonSerializer<TDocument> documentSerializer,
+            IBsonSerializerRegistry serializerRegistry,
+            LinqProvider linqProvider,
+            bool allowScalarValueForArrayField)
+        {
+            return Render(documentSerializer, serializerRegistry, linqProvider); // ignore allowScalarValueForArrayField if not overridden by subclass
+        }
+
+        /// <summary>
+        /// Renders the field to a <see cref="RenderedFieldDefinition{TField}"/>.
+        /// </summary>
+        /// <param name="documentSerializer">The document serializer.</param>
+        /// <param name="serializerRegistry">The serializer registry.</param>
+        /// <param name="linqProvider">The LINQ provider.</param>
+        /// <returns>A <see cref="RenderedFieldDefinition{TField}"/>.</returns>
+        public abstract RenderedFieldDefinition<TField> Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider);
 
         /// <summary>
         /// Performs an implicit conversion from <see cref="System.String" /> to <see cref="FieldDefinition{TDocument, TField}" />.
@@ -259,7 +301,7 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public override RenderedFieldDefinition Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        public override RenderedFieldDefinition Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
             var bindingContext = new PipelineBindingContext(serializerRegistry);
             var lambda = ExpressionHelper.GetLambda(PartialEvaluator.Evaluate(_expression));
@@ -305,15 +347,16 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public override RenderedFieldDefinition<TField> Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        public override RenderedFieldDefinition<TField> Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
-            return Render(documentSerializer, serializerRegistry, allowScalarValueForArrayField: false);
+            return Render(documentSerializer, serializerRegistry, linqProvider, allowScalarValueForArrayField: false);
         }
 
         /// <inheritdoc />
         public override RenderedFieldDefinition<TField> Render(
             IBsonSerializer<TDocument> documentSerializer,
             IBsonSerializerRegistry serializerRegistry,
+            LinqProvider linqProvider,
             bool allowScalarValueForArrayField)
         {
             var lambda = (LambdaExpression)PartialEvaluator.Evaluate(_expression);
@@ -355,7 +398,7 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public override RenderedFieldDefinition Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        public override RenderedFieldDefinition Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
             string resolvedName;
             IBsonSerializer resolvedSerializer;
@@ -387,15 +430,16 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public override RenderedFieldDefinition<TField> Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        public override RenderedFieldDefinition<TField> Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
-            return Render(documentSerializer, serializerRegistry, allowScalarValueForArrayField: false);
+            return Render(documentSerializer, serializerRegistry, linqProvider, allowScalarValueForArrayField: false);
         }
 
         /// <inheritdoc />
         public override RenderedFieldDefinition<TField> Render(
             IBsonSerializer<TDocument> documentSerializer,
             IBsonSerializerRegistry serializerRegistry,
+            LinqProvider linqProvider,
             bool allowScalarValueForArrayField)
         {
             string resolvedName;
@@ -515,9 +559,9 @@ namespace MongoDB.Driver
             _adaptee = Ensure.IsNotNull(adaptee, nameof(adaptee));
         }
 
-        public override RenderedFieldDefinition Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        public override RenderedFieldDefinition Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
-            var rendered = _adaptee.Render(documentSerializer, serializerRegistry);
+            var rendered = _adaptee.Render(documentSerializer, serializerRegistry, linqProvider);
             return new RenderedFieldDefinition(rendered.FieldName, rendered.UnderlyingSerializer);
         }
     }

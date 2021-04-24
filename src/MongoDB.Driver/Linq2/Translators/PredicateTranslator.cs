@@ -23,6 +23,7 @@ using System.Text.RegularExpressions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Options;
+using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq2.Expressions;
 using MongoDB.Driver.Linq2.Expressions.ResultOperators;
 using MongoDB.Driver.Linq2.Processors;
@@ -55,7 +56,7 @@ namespace MongoDB.Driver.Linq2.Translators
             var translator = new PredicateTranslator(serializerRegistry);
             node = FieldExpressionFlattener.FlattenFields(node);
             return translator.Translate(node)
-                .Render(serializerRegistry.GetSerializer<BsonDocument>(), serializerRegistry);
+                .Render(serializerRegistry.GetSerializer<BsonDocument>(), serializerRegistry, LinqProvider.V2);
         }
         #endregion
 

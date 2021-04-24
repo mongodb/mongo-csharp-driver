@@ -17,6 +17,7 @@ using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Linq;
 
 namespace MongoDB.Driver
 {
@@ -76,8 +77,9 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="inputSerializer">The input serializer.</param>
         /// <param name="serializerRegistry">The serializer registry.</param>
+        /// <param name="linqProvider">The LINQ provider.</param>
         /// <returns>The rendered pipeline.</returns>
-        public abstract BsonArray RenderPipeline(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry);
+        public abstract BsonArray RenderPipeline(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider);
     }
 
     /// <summary>
@@ -110,9 +112,9 @@ namespace MongoDB.Driver
         public PipelineDefinition<TInput, TOutput> Pipeline { get; private set; }
 
         /// <inheritdoc/>
-        public override BsonArray RenderPipeline(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry)
+        public override BsonArray RenderPipeline(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
-            var renderedPipeline = Pipeline.Render(inputSerializer, serializerRegistry);
+            var renderedPipeline = Pipeline.Render(inputSerializer, serializerRegistry, linqProvider);
             return new BsonArray(renderedPipeline.Documents);
         }
     }

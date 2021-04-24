@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using MongoDB.Bson;
@@ -369,7 +370,7 @@ namespace MongoDB.Driver.Linq2.Processors
                     var serializer = _bindingContext.GetSerializer(node.Method.GetGenericArguments()[0], arg);
                     var renderedFilter = (BsonDocument)typeof(FilterDefinition<>).MakeGenericType(docType)
                         .GetTypeInfo()
-                        .GetMethod("Render")
+                        .GetMethods().Single(m => m.Name == "Render" && m.GetParameters().Length == 2)
                         .Invoke(arg.Value, new object[] { serializer, _bindingContext.SerializerRegistry });
 
                     return new InjectedFilterExpression(renderedFilter);

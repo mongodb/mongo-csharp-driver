@@ -30,6 +30,7 @@ using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using MongoDB.Driver.Encryption;
+using MongoDB.Driver.Linq;
 
 namespace MongoDB.Driver
 {
@@ -56,6 +57,7 @@ namespace MongoDB.Driver
         // private fields
         private readonly ICluster _cluster;
         private readonly AutoEncryptionLibMongoCryptController _libMongoCryptController;
+        private readonly LinqProvider _linqProvider;
         private readonly IOperationExecutor _operationExecutor;
         private readonly MongoClientSettings _settings;
 
@@ -79,6 +81,7 @@ namespace MongoDB.Driver
         public MongoClient(MongoClientSettings settings)
         {
             _settings = Ensure.IsNotNull(settings, nameof(settings)).FrozenCopy();
+            _linqProvider = _settings.LinqProvider;
             _cluster = ClusterRegistry.Instance.GetOrCreateCluster(_settings.ToClusterKey());
             _operationExecutor = new OperationExecutor(this);
             if (settings.AutoEncryptionOptions != null)
@@ -513,7 +516,7 @@ namespace MongoDB.Driver
             return new ListDatabasesOperation(messageEncoderSettings)
             {
                 AuthorizedDatabases = options.AuthorizedDatabases,
-                Filter = options.Filter?.Render(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry),
+                Filter = options.Filter?.Render(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry, _linqProvider),
                 NameOnly = options.NameOnly,
                 RetryRequested = _settings.RetryReads
             };
@@ -555,6 +558,7 @@ namespace MongoDB.Driver
         {
             return ChangeStreamHelper.CreateChangeStreamOperation(
                 pipeline,
+                _linqProvider,
                 options,
                 _settings.ReadConcern,
                 GetMessageEncoderSettings(),
