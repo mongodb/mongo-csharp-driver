@@ -20,9 +20,6 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq;
-using MongoDB.Driver.Linq2;
-using MongoDB.Driver.Linq2.Expressions;
-using MongoDB.Driver.Linq2.Processors;
 
 namespace MongoDB.Driver
 {
@@ -303,20 +300,7 @@ namespace MongoDB.Driver
         /// <inheritdoc />
         public override RenderedFieldDefinition Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
-            var bindingContext = new PipelineBindingContext(serializerRegistry);
-            var lambda = ExpressionHelper.GetLambda(PartialEvaluator.Evaluate(_expression));
-            var parameterExpression = new DocumentExpression(documentSerializer);
-            bindingContext.AddExpressionMapping(lambda.Parameters[0], parameterExpression);
-            var bound = bindingContext.Bind(lambda.Body);
-            bound = FieldExpressionFlattener.FlattenFields(bound);
-            IFieldExpression field;
-            if (!ExpressionHelper.TryGetExpression(bound, out field))
-            {
-                var message = string.Format("Unable to determine the serialization information for {0}.", _expression);
-                throw new InvalidOperationException(message);
-            }
-
-            return new RenderedFieldDefinition(field.FieldName, field.Serializer);
+            return linqProvider.TranslateExpressionToField(_expression, documentSerializer, serializerRegistry);
         }
     }
 
@@ -359,24 +343,7 @@ namespace MongoDB.Driver
             LinqProvider linqProvider,
             bool allowScalarValueForArrayField)
         {
-            var lambda = (LambdaExpression)PartialEvaluator.Evaluate(_expression);
-            var bindingContext = new PipelineBindingContext(serializerRegistry);
-            var parameterExpression = new DocumentExpression(documentSerializer);
-            bindingContext.AddExpressionMapping(lambda.Parameters[0], parameterExpression);
-            var bound = bindingContext.Bind(lambda.Body);
-            bound = FieldExpressionFlattener.FlattenFields(bound);
-            IFieldExpression field;
-            if (!Linq2.ExpressionHelper.TryGetExpression(bound, out field))
-            {
-                var message = string.Format("Unable to determine the serialization information for {0}.", _expression);
-                throw new InvalidOperationException(message);
-            }
-
-            var underlyingSerializer = field.Serializer;
-            var fieldSerializer = underlyingSerializer as IBsonSerializer<TField>;
-            var valueSerializer = (IBsonSerializer<TField>)FieldValueSerializerHelper.GetSerializerForValueType(underlyingSerializer, serializerRegistry, typeof(TField), allowScalarValueForArrayField);
-
-            return new RenderedFieldDefinition<TField>(field.FieldName, fieldSerializer, valueSerializer, underlyingSerializer);
+            return linqProvider.TranslateExpressionToField(_expression, documentSerializer, serializerRegistry, allowScalarValueForArrayField);
         }
     }
 
