@@ -1,4 +1,4 @@
-﻿/* Copyright 2021-present MongoDB Inc.
+﻿/* Copyright 2020-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,22 +14,24 @@
 */
 
 using System.Collections.Generic;
+using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Tests.UnifiedTestOperations;
 using Xunit;
 
-namespace MongoDB.Driver.Tests.Specifications.versioned_api
+namespace MongoDB.Driver.Tests.Specifications.unified_test_format
 {
-    public sealed class VersionedApiUnifiedTestRunner
+    public sealed class UnifiedTestFormatValidFailTestRunner
     {
-        [SkippableTheory]
+        [Theory]
         [ClassData(typeof(TestCaseFactory))]
         public void Run(JsonDrivenTestCase testCase)
         {
             using (var runner = new UnifiedTestRunner())
             {
-                runner.Run(testCase);
+                var exception = Record.Exception(() => runner.Run(testCase));
+                exception.Should().NotBeNull();
             }
         }
 
@@ -37,7 +39,7 @@ namespace MongoDB.Driver.Tests.Specifications.versioned_api
         public class TestCaseFactory : JsonDrivenTestCaseFactory
         {
             // protected properties
-            protected override string PathPrefix => "MongoDB.Driver.Tests.Specifications.versioned_api.tests.";
+            protected override string PathPrefix => "MongoDB.Driver.Tests.Specifications.unified_test_format.tests.valid_fail.";
 
             // protected methods
             protected override IEnumerable<JsonDrivenTestCase> CreateTestCases(BsonDocument document)

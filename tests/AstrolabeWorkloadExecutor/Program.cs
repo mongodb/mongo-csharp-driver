@@ -24,7 +24,6 @@ using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Tests.Specifications.unified_test_format;
 using MongoDB.Driver.Tests.UnifiedTestOperations;
 
 namespace WorkloadExecutor
@@ -113,16 +112,16 @@ namespace WorkloadExecutor
             {
                 { "events", new AstrolabeEventFormatter() } // "events" matches to the "storeEventsAsEntities.id" in the driverWorkload document
             };
-            using (var testRunner = new UnifiedTestFormatTestRunner(
+            using (var runner = new UnifiedTestRunner(
                 allowKillSessions: false,
                 additionalArgs: additionalArgs,
                 eventFormatters: eventFormatters))
             {
                 var factory = new TestCaseFactory();
                 var testCase = factory.CreateTestCase(driverWorkload, async);
-                testRunner.Run(testCase);
+                runner.Run(testCase);
                 Console.WriteLine("dotnet ExecuteWorkload> Returning...");
-                return CreateWorkloadResult(entityMap: testRunner.EntityMap);
+                return CreateWorkloadResult(entityMap: runner.EntityMap);
             }
         }
 

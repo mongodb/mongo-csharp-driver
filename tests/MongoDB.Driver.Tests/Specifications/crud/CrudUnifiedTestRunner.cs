@@ -16,7 +16,7 @@
 using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
-using MongoDB.Driver.Tests.Specifications.unified_test_format;
+using MongoDB.Driver.Tests.UnifiedTestOperations;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Specifications.crud
@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud
         [ClassData(typeof(TestCaseFactory))]
         public void Run(JsonDrivenTestCase testCase)
         {
-            using (var runner = new UnifiedTestFormatTestRunner())
+            using (var runner = new UnifiedTestRunner())
             {
                 runner.Run(testCase);
             }

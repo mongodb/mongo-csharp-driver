@@ -1,4 +1,4 @@
-﻿/* Copyright 2020-present MongoDB Inc.
+﻿/* Copyright 2021-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -25,12 +25,12 @@ using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Tests.UnifiedTestOperations;
+using MongoDB.Driver.Tests.UnifiedTestOperations.Matchers;
 using Xunit;
 
-namespace MongoDB.Driver.Tests.Specifications.unified_test_format
+namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
-    public sealed class UnifiedTestFormatTestRunner : IDisposable
+    public sealed class UnifiedTestRunner : IDisposable
     {
         private readonly bool _allowKillSessions;
         private UnifiedEntityMap _entityMap;
@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Tests.Specifications.unified_test_format
         private readonly Dictionary<string, IEventFormatter> _eventFormatters;
         private bool _runHasBeenCalled;
 
-        public UnifiedTestFormatTestRunner(
+        public UnifiedTestRunner(
             bool allowKillSessions = true, // TODO: should be removed after SERVER-54216 
             Dictionary<string, object> additionalArgs = null,
             Dictionary<string, IEventFormatter> eventFormatters = null)
@@ -52,8 +52,6 @@ namespace MongoDB.Driver.Tests.Specifications.unified_test_format
         // public properties
         public UnifiedEntityMap EntityMap => _entityMap;
 
-        [SkippableTheory]
-        [ClassData(typeof(TestCaseFactory))]
         public void Run(JsonDrivenTestCase testCase)
         {
             // Top-level fields
@@ -321,35 +319,6 @@ namespace MongoDB.Driver.Tests.Specifications.unified_test_format
                     exception.Code == (int)ServerErrorCode.Interrupted)
                 {
                     // Ignored because of SERVER-38297
-                }
-            }
-        }
-
-        // nested types
-        public class TestCaseFactory : JsonDrivenTestCaseFactory
-        {
-            #region static
-            private static readonly string[] __ignoredTestNames =
-            {
-                "poc-retryable-writes.json:InsertOne fails after multiple retryable writeConcernErrors" // CSHARP-3269
-            };
-            #endregion
-
-            // protected properties
-            protected override string PathPrefix => "MongoDB.Driver.Tests.Specifications.unified_test_format.tests.valid_pass.";
-
-            // protected methods
-            protected override IEnumerable<JsonDrivenTestCase> CreateTestCases(BsonDocument document)
-            {
-                var testCases = base.CreateTestCases(document).Where(test => !__ignoredTestNames.Any(ignoredName => test.Name.EndsWith(ignoredName)));
-                foreach (var testCase in testCases)
-                {
-                    foreach (var async in new[] { false, true })
-                    {
-                        var name = $"{testCase.Name.Replace(PathPrefix, "")}:async={async}";
-                        var test = testCase.Test.DeepClone().AsBsonDocument.Add("async", async);
-                        yield return new JsonDrivenTestCase(name, testCase.Shared, test);
-                    }
                 }
             }
         }
