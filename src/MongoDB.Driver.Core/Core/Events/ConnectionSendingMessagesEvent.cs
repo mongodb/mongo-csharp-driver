@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
@@ -28,6 +29,7 @@ namespace MongoDB.Driver.Core.Events
         private readonly ConnectionId _connectionId;
         private readonly long? _operationId;
         private readonly IReadOnlyList<int> _requestIds;
+        private readonly DateTime _timestamp;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ConnectionSendingMessagesEvent" /> struct.
@@ -40,6 +42,7 @@ namespace MongoDB.Driver.Core.Events
             _connectionId = connectionId;
             _requestIds = requestIds;
             _operationId = operationId;
+            _timestamp = DateTime.UtcNow;
         }
 
         /// <summary>
@@ -80,6 +83,14 @@ namespace MongoDB.Driver.Core.Events
         public ServerId ServerId
         {
             get { return _connectionId.ServerId; }
+        }
+
+        /// <summary>
+        /// Gets the timestamp.
+        /// </summary>
+        public DateTime Timestamp
+        {
+            get { return _timestamp; }
         }
     }
 }

@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 
@@ -26,6 +27,7 @@ namespace MongoDB.Driver.Core.Events
         private readonly ClusterDescription _clusterDescription;
         private readonly long? _operationId;
         private readonly IServerSelector _serverSelector;
+        private readonly DateTime _timestamp;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ClusterSelectingServerEvent" /> struct.
@@ -38,6 +40,7 @@ namespace MongoDB.Driver.Core.Events
             _clusterDescription = clusterDescription;
             _serverSelector = serverSelector;
             _operationId = operationId;
+            _timestamp = DateTime.UtcNow;
         }
 
         /// <summary>
@@ -70,6 +73,14 @@ namespace MongoDB.Driver.Core.Events
         public IServerSelector ServerSelector
         {
             get { return _serverSelector; }
+        }
+
+        /// <summary>
+        /// Gets the timestamp.
+        /// </summary>
+        public DateTime Timestamp
+        {
+            get { return _timestamp; }
         }
     }
 }

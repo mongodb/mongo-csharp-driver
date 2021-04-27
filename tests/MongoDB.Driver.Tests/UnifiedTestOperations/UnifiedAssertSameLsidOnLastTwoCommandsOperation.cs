@@ -61,7 +61,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 switch (argument.Name)
                 {
                     case "client":
-                        eventCapturer = _entityMap.GetEventCapturer(argument.Value.AsString);
+                        eventCapturer = _entityMap.EventCapturers[argument.Value.AsString];
                         break;
                     default:
                         throw new FormatException($"Invalid AssertSameLsidOnLastTwoCommandsOperation argument name: '{argument.Name}'.");

@@ -25,6 +25,7 @@ namespace MongoDB.Driver.Core.Events
     {
         private readonly ClusterId _clusterId;
         private readonly TimeSpan _duration;
+        private readonly DateTime _timestamp;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ClusterClosedEvent"/> struct.
@@ -35,6 +36,7 @@ namespace MongoDB.Driver.Core.Events
         {
             _clusterId = clusterId;
             _duration = duration;
+            _timestamp = DateTime.UtcNow;
         }
 
         /// <summary>
@@ -51,6 +53,14 @@ namespace MongoDB.Driver.Core.Events
         public TimeSpan Duration
         {
             get { return _duration; }
+        }
+
+        /// <summary>
+        /// Gets the timestamp.
+        /// </summary>
+        public DateTime Timestamp
+        {
+            get { return _timestamp; }
         }
     }
 }

@@ -25,9 +25,10 @@ namespace MongoDB.Driver.Core.Events
     public struct ClusterSelectingServerFailedEvent
     {
         private readonly ClusterDescription _clusterDescription;
+        private readonly Exception _exception;
         private readonly long? _operationId;
         private readonly IServerSelector _serverSelector;
-        private readonly Exception _exception;
+        private readonly DateTime _timestamp;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ClusterSelectingServerFailedEvent" /> struct.
@@ -42,6 +43,7 @@ namespace MongoDB.Driver.Core.Events
             _serverSelector = serverSelector;
             _exception = exception;
             _operationId = operationId;
+            _timestamp = DateTime.UtcNow;
         }
 
         /// <summary>
@@ -82,6 +84,14 @@ namespace MongoDB.Driver.Core.Events
         public IServerSelector ServerSelector
         {
             get { return _serverSelector; }
+        }
+
+        /// <summary>
+        /// Gets the timestamp.
+        /// </summary>
+        public DateTime Timestamp
+        {
+            get { return _timestamp; }
         }
     }
 }

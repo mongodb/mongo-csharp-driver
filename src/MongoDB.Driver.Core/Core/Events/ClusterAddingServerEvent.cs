@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Net;
 using MongoDB.Driver.Core.Clusters;
 
@@ -25,6 +26,7 @@ namespace MongoDB.Driver.Core.Events
     {
         private readonly ClusterId _clusterId;
         private readonly EndPoint _endPoint;
+        private readonly DateTime _timestamp;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ClusterAddingServerEvent"/> struct.
@@ -35,6 +37,7 @@ namespace MongoDB.Driver.Core.Events
         {
             _clusterId = clusterId;
             _endPoint = endPoint;
+            _timestamp = DateTime.UtcNow;
         }
 
         /// <summary>
@@ -51,6 +54,14 @@ namespace MongoDB.Driver.Core.Events
         public EndPoint EndPoint
         {
             get { return _endPoint; }
+        }
+
+        /// <summary>
+        /// Gets the timestamp.
+        /// </summary>
+        public DateTime Timestamp
+        {
+            get { return _timestamp; }
         }
     }
 }

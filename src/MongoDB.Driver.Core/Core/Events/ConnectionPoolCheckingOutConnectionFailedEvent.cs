@@ -28,6 +28,7 @@ namespace MongoDB.Driver.Core.Events
         private readonly ServerId _serverId;
         private readonly Exception _exception;
         private readonly long? _operationId;
+        private readonly DateTime _timestamp;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ConnectionPoolCheckingOutConnectionFailedEvent" /> struct.
@@ -46,6 +47,7 @@ namespace MongoDB.Driver.Core.Events
             _exception = exception;
             _operationId = operationId;
             _reason = reason;
+            _timestamp = DateTime.UtcNow;
         }
 
         /// <summary>
@@ -86,6 +88,14 @@ namespace MongoDB.Driver.Core.Events
         public ServerId ServerId
         {
             get { return _serverId; }
+        }
+
+        /// <summary>
+        /// Gets the timestamp.
+        /// </summary>
+        public DateTime Timestamp
+        {
+            get { return _timestamp; }
         }
     }
 }

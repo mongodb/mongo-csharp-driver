@@ -25,6 +25,7 @@ namespace MongoDB.Driver.Core.Events
     {
         private readonly ClusterDescription _oldDescription;
         private readonly ClusterDescription _newDescription;
+        private readonly DateTime _timestamp;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ClusterDescriptionChangedEvent"/> struct.
@@ -35,6 +36,7 @@ namespace MongoDB.Driver.Core.Events
         {
             _oldDescription = oldDescription;
             _newDescription = newDescription;
+            _timestamp = DateTime.UtcNow;
         }
 
         /// <summary>
@@ -59,6 +61,14 @@ namespace MongoDB.Driver.Core.Events
         public ClusterDescription NewDescription
         {
             get { return _newDescription; }
+        }
+
+        /// <summary>
+        /// Gets the timestamp.
+        /// </summary>
+        public DateTime Timestamp
+        {
+            get { return _timestamp; }
         }
     }
 }

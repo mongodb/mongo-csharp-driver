@@ -160,11 +160,22 @@ namespace MongoDB.Bson
         /// Converts a DateTime to number of milliseconds since Unix epoch.
         /// </summary>
         /// <param name="dateTime">A DateTime.</param>
-        /// <returns>Number of seconds since Unix epoch.</returns>
+        /// <returns>Number of milliseconds since Unix epoch.</returns>
         public static long ToMillisecondsSinceEpoch(DateTime dateTime)
         {
             var utcDateTime = ToUniversalTime(dateTime);
             return (utcDateTime - BsonConstants.UnixEpoch).Ticks / 10000;
+        }
+
+        /// <summary>
+        /// Converts a DateTime to number of seconds since Unix epoch.
+        /// </summary>
+        /// <param name="dateTime">A DateTime.</param>
+        /// <returns>Number of seconds since Unix epoch.</returns>
+        public static long ToSecondsSinceEpoch(DateTime dateTime)
+        {
+            var utcDateTime = ToUniversalTime(dateTime);
+            return (utcDateTime - BsonConstants.UnixEpoch).Ticks / TimeSpan.TicksPerSecond;
         }
 
         /// <summary>

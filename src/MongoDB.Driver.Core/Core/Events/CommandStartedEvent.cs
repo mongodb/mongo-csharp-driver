@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
@@ -30,6 +31,7 @@ namespace MongoDB.Driver.Core.Events
         private readonly DatabaseNamespace _databaseNamespace;
         private readonly long? _operationId;
         private readonly int _requestId;
+        private readonly DateTime _timestamp;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CommandStartedEvent" /> class.
@@ -48,6 +50,7 @@ namespace MongoDB.Driver.Core.Events
             _connectionId = Ensure.IsNotNull(connectionId, "connectionId");
             _operationId = operationId;
             _requestId = requestId;
+            _timestamp = DateTime.UtcNow;
         }
 
         /// <summary>
@@ -96,6 +99,14 @@ namespace MongoDB.Driver.Core.Events
         public int RequestId
         {
             get { return _requestId; }
+        }
+
+        /// <summary>
+        /// Gets the timestamp.
+        /// </summary>
+        public DateTime Timestamp
+        {
+            get { return _timestamp; }
         }
     }
 }

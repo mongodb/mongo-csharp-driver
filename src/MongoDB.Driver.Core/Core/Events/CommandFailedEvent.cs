@@ -31,6 +31,7 @@ namespace MongoDB.Driver.Core.Events
         private readonly Exception _exception;
         private readonly long? _operationId;
         private readonly int _requestId;
+        private readonly DateTime _timestamp;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CommandFailedEvent" /> struct.
@@ -49,6 +50,7 @@ namespace MongoDB.Driver.Core.Events
             _operationId = operationId;
             _requestId = requestId;
             _duration = duration;
+            _timestamp = DateTime.UtcNow;
         }
 
         /// <summary>
@@ -97,6 +99,14 @@ namespace MongoDB.Driver.Core.Events
         public int RequestId
         {
             get { return _requestId; }
+        }
+
+        /// <summary>
+        /// Gets the timestamp.
+        /// </summary>
+        public DateTime Timestamp
+        {
+            get { return _timestamp; }
         }
     }
 }

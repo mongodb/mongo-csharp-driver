@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Servers;
@@ -24,8 +25,9 @@ namespace MongoDB.Driver.Core.Events
     /// </summary>
     public struct ConnectionPoolOpenedEvent
     {
-        private readonly ServerId _serverId;
         private readonly ConnectionPoolSettings _connectionPoolSettings;
+        private readonly ServerId _serverId;
+        private readonly DateTime _timestamp;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ConnectionPoolOpenedEvent"/> struct.
@@ -36,6 +38,7 @@ namespace MongoDB.Driver.Core.Events
         {
             _serverId = serverId;
             _connectionPoolSettings = connectionPoolSettings;
+            _timestamp = DateTime.UtcNow;
         }
 
         /// <summary>
@@ -60,6 +63,14 @@ namespace MongoDB.Driver.Core.Events
         public ServerId ServerId
         {
             get { return _serverId; }
+        }
+
+        /// <summary>
+        /// Gets the timestamp.
+        /// </summary>
+        public DateTime Timestamp
+        {
+            get { return _timestamp; }
         }
     }
 }

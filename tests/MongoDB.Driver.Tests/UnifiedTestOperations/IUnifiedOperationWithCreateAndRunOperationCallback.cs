@@ -20,9 +20,9 @@ using MongoDB.Bson;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
-    public interface IUnifiedWithTransactionOperation : IUnifiedTestOperation
+    public interface IUnifiedOperationWithCreateAndRunOperationCallback : IUnifiedTestOperation
     {
-        void Execute(Action<BsonDocument, bool, CancellationToken> assertOperationCallback, CancellationToken cancellationToken);
-        Task ExecuteAsync(Action<BsonDocument, bool, CancellationToken> assertOperationCallback, CancellationToken cancellationToken);
+        void Execute(Action<BsonDocument, bool, CancellationToken> createAndRunOperationCallback, CancellationToken cancellationToken);
+        Task ExecuteAsync(Action<BsonDocument, bool, CancellationToken> createAndRunOperationCallback, CancellationToken cancellationToken);
     }
 }

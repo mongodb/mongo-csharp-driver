@@ -26,6 +26,7 @@ namespace MongoDB.Driver.Core.Events
     {
         private readonly ServerDescription _oldDescription;
         private readonly ServerDescription _newDescription;
+        private readonly DateTime _timestamp;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ServerDescriptionChangedEvent"/> struct.
@@ -36,6 +37,7 @@ namespace MongoDB.Driver.Core.Events
         {
             _oldDescription = oldDescription;
             _newDescription = newDescription;
+            _timestamp = DateTime.UtcNow;
         }
 
         /// <summary>
@@ -68,6 +70,14 @@ namespace MongoDB.Driver.Core.Events
         public ServerId ServerId
         {
             get { return _newDescription.ServerId; }
+        }
+
+        /// <summary>
+        /// Gets the timestamp.
+        /// </summary>
+        public DateTime Timestamp
+        {
+            get { return _timestamp; }
         }
     }
 }
