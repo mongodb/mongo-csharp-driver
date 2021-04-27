@@ -111,7 +111,13 @@ namespace MongoDB.Driver.Tests.Linq
 
             var exception = Record.Exception(() => MethodHelper.GetMethodDefinition(methodInfo));
 
+#if NETCOREAPP1_1
+            // We are aware that netstandard 1.5 target path does not distinguish these methods.
+            // This will go away when netstandard 1.5 target is dropped.
+            exception.Should().BeOfType<InvalidOperationException>();
+#else
             exception.Should().BeNull();
+#endif
         }
 
         private class TestClass<T1, T2>
