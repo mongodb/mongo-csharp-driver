@@ -86,10 +86,10 @@ namespace MongoDB.Driver.Core.Authentication
         {
             var passwordDigest = AuthenticationHelper.MongoPasswordDigest(credential.Username, credential.Password);
 
-            using (var rfc2898 = new Rfc2898DeriveBytes(passwordDigest, salt, iterations, HashAlgorithmName.SHA1))
+            using (var deriveBytes = new Rfc2898DeriveBytes(passwordDigest, salt, iterations, HashAlgorithmName.SHA1))
             {
                 // 20 is the length of output of a sha-1 hmac
-                return rfc2898.GetBytes(20);
+                return deriveBytes.GetBytes(20);
             }
         }
 

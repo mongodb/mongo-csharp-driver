@@ -130,10 +130,10 @@ namespace MongoDB.Driver.Core.Authentication
             {
                 Utf8Encodings.Strict.GetBytes(passwordChars, 0, passwordChars.Length, passwordBytes, 0);
 
-                using (var rfc2898 = new Rfc2898DeriveBytes(passwordBytes, salt, iterations, HashAlgorithmName.SHA256))
+                using (var deriveBytes = new Rfc2898DeriveBytes(passwordBytes, salt, iterations, HashAlgorithmName.SHA256))
                 {
                     // 32 is the length of output of a sha-256 hmac
-                    return rfc2898.GetBytes(32);
+                    return deriveBytes.GetBytes(32);
                 }
             }
             finally
