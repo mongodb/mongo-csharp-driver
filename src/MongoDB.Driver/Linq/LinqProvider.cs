@@ -32,12 +32,12 @@ namespace MongoDB.Driver.Linq
         /// <summary>
         /// The LINQ provider that was first shipped with version 2.0 of the driver,
         /// </summary>
-        public static readonly LinqProvider V2 = new LinqProviderV2();
+        public static readonly LinqProvider V2 = new Linq2.LinqProviderV2();
 
         /// <summary>
         /// The LINQ provider that is planned to be the default in version 3.0 of the driver and can be optionally used before that.
         /// </summary>
-        public static readonly LinqProvider V3 = new LinqProviderV3();
+        public static readonly LinqProvider V3 = new Linq3.LinqProviderV3();
         #endregion
 
         // internal methods
