@@ -26,7 +26,7 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 
-namespace MongoDB.Driver.Tests.Linq.Translators
+namespace MongoDB.Driver.Tests.Linq2.Translators
 {
     public class ProjectedObjectDeserializerTests
     {

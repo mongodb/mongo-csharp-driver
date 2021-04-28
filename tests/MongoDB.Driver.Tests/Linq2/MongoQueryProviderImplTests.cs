@@ -24,7 +24,7 @@ using MongoDB.Driver.Linq2;
 using Moq;
 using Xunit;
 
-namespace MongoDB.Driver.Tests.Linq
+namespace MongoDB.Driver.Tests.Linq2
 {
     public class MongoQueryProviderImplTests
     {

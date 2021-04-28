@@ -20,7 +20,7 @@ using FluentAssertions;
 using MongoDB.Driver.TestHelpers;
 using Xunit;
 
-namespace MongoDB.Driver.Tests.Linq
+namespace MongoDB.Driver.Tests.Linq2
 {
     public class MongoQueryableWithDotNotationTests
     {

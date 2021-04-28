@@ -19,7 +19,7 @@ using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace MongoDB.Driver.Tests.Linq
+namespace MongoDB.Driver.Tests.Linq2
 {
     public abstract class IntegrationTestBase
     {
