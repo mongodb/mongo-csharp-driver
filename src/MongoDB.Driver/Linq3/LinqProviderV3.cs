@@ -19,14 +19,11 @@ using System.Linq.Expressions;
 using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Linq2;
-using MongoDB.Driver.Linq2.Expressions;
-using MongoDB.Driver.Linq2.Processors;
-using MongoDB.Driver.Linq2.Translators;
+using MongoDB.Driver.Linq;
 
-namespace MongoDB.Driver.Linq
+namespace MongoDB.Driver.Linq3
 {
-    internal sealed class LinqProviderV2 : LinqProvider
+    internal sealed class LinqProviderV3 : LinqProvider
     {
         internal override IMongoQueryable<TDocument> AsQueryable<TDocument>(
             IMongoCollection<TDocument> collection,
@@ -34,11 +31,11 @@ namespace MongoDB.Driver.Linq
             AggregateOptions options,
             CancellationToken cancellationToken)
         {
-            var queryProvider = new Linq2.MongoQueryProviderImpl<TDocument>(collection, session, options);
-            return new Linq2.MongoQueryableImpl<TDocument, TDocument>(queryProvider);
+            var queryProvider = new Linq3.MongoQueryProvider<TDocument>(collection, session, options, cancellationToken);
+            return new Linq3.MongoQuery<TDocument, TDocument>(queryProvider);
         }
 
-        public override string ToString() => "V2";
+        public override string ToString() => "V3";
 
         internal override BsonValue TranslateExpressionToAggregateExpression<TSource, TResult>(
             Expression<Func<TSource, TResult>> expression,
@@ -46,7 +43,7 @@ namespace MongoDB.Driver.Linq
             IBsonSerializerRegistry serializerRegistry,
             ExpressionTranslationOptions translationOptions)
         {
-            return AggregateExpressionTranslator.Translate(expression, sourceSerializer, serializerRegistry, translationOptions);
+            throw new NotImplementedException();
         }
 
         internal override RenderedProjectionDefinition<TOutput> TranslateExpressionToBucketOutputProjection<TInput, TValue, TOutput>(
@@ -56,10 +53,7 @@ namespace MongoDB.Driver.Linq
             IBsonSerializerRegistry serializerRegistry,
             ExpressionTranslationOptions translationOptions)
         {
-            var renderedOutput = AggregateGroupTranslator.Translate<TValue, TInput, TOutput>(valueExpression, outputExpression, documentSerializer, serializerRegistry, translationOptions);
-            var document = renderedOutput.Document;
-            document.Remove("_id");
-            return new RenderedProjectionDefinition<TOutput>(document, renderedOutput.ProjectionSerializer);
+            throw new NotImplementedException();
         }
 
         internal override RenderedFieldDefinition TranslateExpressionToField<TDocument>(
@@ -67,20 +61,7 @@ namespace MongoDB.Driver.Linq
             IBsonSerializer<TDocument> documentSerializer,
             IBsonSerializerRegistry serializerRegistry)
         {
-            var bindingContext = new PipelineBindingContext(serializerRegistry);
-            var lambda = ExpressionHelper.GetLambda(PartialEvaluator.Evaluate(expression));
-            var parameterExpression = new DocumentExpression(documentSerializer);
-            bindingContext.AddExpressionMapping(lambda.Parameters[0], parameterExpression);
-            var bound = bindingContext.Bind(lambda.Body);
-            bound = FieldExpressionFlattener.FlattenFields(bound);
-            IFieldExpression field;
-            if (!ExpressionHelper.TryGetExpression(bound, out field))
-            {
-                var message = string.Format("Unable to determine the serialization information for {0}.", expression);
-                throw new InvalidOperationException(message);
-            }
-
-            return new RenderedFieldDefinition(field.FieldName, field.Serializer);
+            throw new NotImplementedException();
         }
 
         internal override RenderedFieldDefinition<TField> TranslateExpressionToField<TDocument, TField>(
@@ -89,24 +70,7 @@ namespace MongoDB.Driver.Linq
             IBsonSerializerRegistry serializerRegistry,
             bool allowScalarValueForArrayField)
         {
-            var lambda = (LambdaExpression)PartialEvaluator.Evaluate(expression);
-            var bindingContext = new PipelineBindingContext(serializerRegistry);
-            var parameterExpression = new DocumentExpression(documentSerializer);
-            bindingContext.AddExpressionMapping(lambda.Parameters[0], parameterExpression);
-            var bound = bindingContext.Bind(lambda.Body);
-            bound = FieldExpressionFlattener.FlattenFields(bound);
-            IFieldExpression field;
-            if (!Linq2.ExpressionHelper.TryGetExpression(bound, out field))
-            {
-                var message = string.Format("Unable to determine the serialization information for {0}.", expression);
-                throw new InvalidOperationException(message);
-            }
-
-            var underlyingSerializer = field.Serializer;
-            var fieldSerializer = underlyingSerializer as IBsonSerializer<TField>;
-            var valueSerializer = (IBsonSerializer<TField>)FieldValueSerializerHelper.GetSerializerForValueType(underlyingSerializer, serializerRegistry, typeof(TField), allowScalarValueForArrayField);
-
-            return new RenderedFieldDefinition<TField>(field.FieldName, fieldSerializer, valueSerializer, underlyingSerializer);
+            throw new NotImplementedException();
         }
 
         internal override BsonDocument TranslateExpressionToFilter<TDocument>(
@@ -114,7 +78,7 @@ namespace MongoDB.Driver.Linq
             IBsonSerializer<TDocument> documentSerializer,
             IBsonSerializerRegistry serializerRegistry)
         {
-            return PredicateTranslator.Translate<TDocument>(expression, documentSerializer, serializerRegistry);
+            throw new NotImplementedException();
         }
 
         internal override RenderedProjectionDefinition<TProjection> TranslateExpressionToFindProjection<TSource, TProjection>(
@@ -122,7 +86,7 @@ namespace MongoDB.Driver.Linq
             IBsonSerializer<TSource> sourceSerializer,
             IBsonSerializerRegistry serializerRegistry)
         {
-            return FindProjectionTranslator.Translate<TSource, TProjection>(expression, sourceSerializer, serializerRegistry);
+            throw new NotImplementedException();
         }
 
         internal override RenderedProjectionDefinition<TOutput> TranslateExpressionToGroupProjection<TInput, TKey, TOutput>(
@@ -132,7 +96,7 @@ namespace MongoDB.Driver.Linq
             IBsonSerializerRegistry serializerRegistry,
             ExpressionTranslationOptions translationOptions)
         {
-            return AggregateGroupTranslator.Translate<TKey, TInput, TOutput>(idExpression, groupExpression, documentSerializer, serializerRegistry, translationOptions);
+            throw new NotImplementedException();
         }
 
         internal override RenderedProjectionDefinition<TOutput> TranslateExpressionToProjection<TInput, TOutput>(
@@ -141,7 +105,7 @@ namespace MongoDB.Driver.Linq
             IBsonSerializerRegistry serializerRegistry,
             ExpressionTranslationOptions translationOptions)
         {
-            return AggregateProjectTranslator.Translate<TInput, TOutput>(expression, inputSerializer, serializerRegistry, translationOptions);
+            throw new NotImplementedException();
         }
     }
 }
