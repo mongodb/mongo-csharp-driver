@@ -24,12 +24,11 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
-using MongoDB.Driver.Linq2;
 using MongoDB.Driver.Tests;
-using MongoDB.Driver.Tests.Linq;
+using MongoDB.Driver.Tests.Linq2;
 using Xunit;
 
-namespace Tests.MongoDB.Driver.Linq
+namespace Tests.MongoDB.Driver.Linq2
 {
     public class MongoQueryableTests : IntegrationTestBase
     {

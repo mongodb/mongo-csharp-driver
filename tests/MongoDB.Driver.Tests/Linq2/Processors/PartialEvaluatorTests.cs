@@ -19,7 +19,7 @@ using FluentAssertions;
 using MongoDB.Driver.Linq2.Processors;
 using Xunit;
 
-namespace MongoDB.Driver.Tests.Linq.Processors
+namespace MongoDB.Driver.Tests.Linq2.Processors
 {
     public class PartialEvaluatorTests
     {

@@ -25,7 +25,7 @@ using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq2.Translators;
 using Xunit;
 
-namespace MongoDB.Driver.Tests.Linq.Translators
+namespace MongoDB.Driver.Tests.Linq2.Translators
 {
     public class AggregateGroupTranslatorTests : IntegrationTestBase
     {

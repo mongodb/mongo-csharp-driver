@@ -18,7 +18,7 @@ using System.Linq;
 using FluentAssertions;
 using Xunit;
 
-namespace MongoDB.Driver.Tests.Linq
+namespace MongoDB.Driver.Tests.Linq2
 {
     public class MongoQueryableIntArrayComparedToEnumerableIntTests
     {
