@@ -25,7 +25,7 @@ namespace MongoDB.Shared
 #if NET452
             return new IncrementalMD5Net45();
 #else
-            return new IncrementalMD5NetStandard16();
+            return new IncrementalMD5NetStandard();
 #endif
         }
 
@@ -35,6 +35,7 @@ namespace MongoDB.Shared
     }
 
 #if NET452
+    // Required for .NET 4.5.2 only.
     internal class IncrementalMD5Net45 : IncrementalMD5
     {
         private static readonly byte[] __emptyByteArray = new byte[0];
@@ -72,11 +73,12 @@ namespace MongoDB.Shared
         }
     }
 #else
-    internal class IncrementalMD5NetStandard16 : IncrementalMD5
+    // Works in .NET Standard 1.3 and higher.
+    internal class IncrementalMD5NetStandard : IncrementalMD5
     {
         private readonly IncrementalHash _incrementalHash;
 
-        public IncrementalMD5NetStandard16()
+        public IncrementalMD5NetStandard()
         {
             _incrementalHash = IncrementalHash.CreateHash(HashAlgorithmName.MD5);
         }
