@@ -26,9 +26,13 @@ using MongoDB.Driver.Core.Authentication.Vendored;
 #endif
 using MongoDB.Driver.Core.Misc;
 
-// use our vendored version of Rfc2898DeriveBytes because .NET Standard 1.5 and .NET Framework 4.5 do not support
-// a version of Rfc2898DeriveBytes that allows us to specify to hash algorithm to be used
+// Use our vendored version of Rfc2898DeriveBytes for .NET Standard 1.5, .NET Standard 2.0 and .NET Framework 4.5.2
+// because these targets do not support a version of Rfc2898DeriveBytes that allows to specify the hash algorithm
+#if NETSTANDARD2_1
+using Rfc2898DeriveBytes = System.Security.Cryptography.Rfc2898DeriveBytes;
+#else
 using Rfc2898DeriveBytes = MongoDB.Driver.Core.Authentication.Vendored.Rfc2898DeriveBytes;
+#endif
 
 namespace MongoDB.Driver.Core.Authentication
 {
@@ -121,12 +125,16 @@ namespace MongoDB.Driver.Core.Authentication
         {
             var passwordBytes = new byte[Utf8Encodings.Strict.GetByteCount(passwordChars)];
             var passwordBytesHandle = GCHandle.Alloc(passwordBytes, GCHandleType.Pinned);
+
             try
             {
                 Utf8Encodings.Strict.GetBytes(passwordChars, 0, passwordChars.Length, passwordBytes, 0);
 
-                // 32 is the length of output of a sha-256 hmac
-                return new Rfc2898DeriveBytes(passwordBytes, salt, iterations, HashAlgorithmName.SHA256).GetBytes(32);
+                using (var rfc2898 = new Rfc2898DeriveBytes(passwordBytes, salt, iterations, HashAlgorithmName.SHA256))
+                {
+                    // 32 is the length of output of a sha-256 hmac
+                    return rfc2898.GetBytes(32);
+                }
             }
             finally
             {
