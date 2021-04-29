@@ -18,10 +18,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Driver;
-using MongoDB.Driver.Tests;
 
-namespace Tests.MongoDB.Driver.Linq3.Legacy
+namespace MongoDB.Driver.Tests.Linq2TestsOnLinq3
 {
     public abstract class IntegrationTestBase
     {

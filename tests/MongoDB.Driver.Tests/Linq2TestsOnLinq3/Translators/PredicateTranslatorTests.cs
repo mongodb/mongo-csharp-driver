@@ -29,7 +29,7 @@ using MongoDB.Driver.Linq3.Translators;
 using MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators;
 using Xunit;
 
-namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
+namespace MongoDB.Driver.Tests.Linq2TestsOnLinq3.Translators
 {
     public class PredicateTranslatorTests : IntegrationTestBase
     {
