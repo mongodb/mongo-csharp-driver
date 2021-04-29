@@ -117,6 +117,8 @@ namespace MongoDB.Driver.Linq.Translators
                                 return TranslateArrayIndex((ArrayIndexExpression)node);
                             case ExtensionExpressionType.Concat:
                                 return TranslateConcat((ConcatExpression)node);
+                            case ExtensionExpressionType.Document:
+                                return TranslateDocument((DocumentExpression)node);
                             case ExtensionExpressionType.Except:
                                 return TranslateExcept((ExceptExpression)node);
                             case ExtensionExpressionType.FieldAsDocument:
@@ -254,6 +256,11 @@ namespace MongoDB.Driver.Linq.Translators
         private BsonValue TranslateDocumentWrappedField(FieldAsDocumentExpression expression)
         {
             return new BsonDocument(expression.FieldName, TranslateValue(expression.Expression));
+        }
+
+        private BsonValue TranslateDocument(DocumentExpression expression)
+        {
+            return BsonValue.Create("$$CURRENT");
         }
 
         private BsonValue TranslateExcept(ExceptExpression node)

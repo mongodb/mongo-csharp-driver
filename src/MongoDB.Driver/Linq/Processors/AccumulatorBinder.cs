@@ -15,6 +15,7 @@
 
 using System;
 using System.Linq.Expressions;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq.Expressions;
 using MongoDB.Driver.Linq.Expressions.ResultOperators;
@@ -228,6 +229,12 @@ namespace MongoDB.Driver.Linq.Processors
             if (select != null)
             {
                 return select.Selector;
+            }
+
+            var document = node as DocumentExpression;
+            if (document != null)
+            {
+                return new DocumentExpression(document.Serializer);
             }
 
             throw new NotSupportedException();

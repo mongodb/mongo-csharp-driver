@@ -368,6 +368,38 @@ namespace MongoDB.Driver.Tests.Linq.Translators
         }
 
         [Fact]
+        public void Should_translate_first_with_selected_root()
+        {
+            var result = Group(x => x.A, g => new { Result = g.Select(x => x).First() });
+
+            result.Projection.Should().Be("{ _id: \"$A\", Result: { \"$first\": \"$$CURRENT\" } }");
+        }
+
+        [Fact]
+        public void Should_translate_first_with_embedded_root()
+        {
+            var result = Group(x => x.A, g => new { Result = g.First() });
+
+            result.Projection.Should().Be("{ _id: \"$A\", Result: { \"$first\": \"$$CURRENT\" } }");
+        }
+
+        [Fact]
+        public void Should_translate_last_with_selected_root()
+        {
+            var result = Group(x => x.A, g => new { Result = g.Select(x => x).Last() });
+
+            result.Projection.Should().Be("{ _id: \"$A\", Result: { \"$last\": \"$$CURRENT\" } }");
+        }
+
+        [Fact]
+        public void Should_translate_last_with_embedded_root()
+        {
+            var result = Group(x => x.A, g => new { Result = g.Last() });
+
+            result.Projection.Should().Be("{ _id: \"$A\", Result: { \"$last\": \"$$CURRENT\" } }");
+        }
+
+        [Fact]
         public void Should_translate_complex_selector()
         {
             var result = Group(x => x.A, g => new
