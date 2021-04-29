@@ -27,7 +27,7 @@ using MongoDB.Driver.Linq3.Translators;
 using MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators;
 using Xunit;
 
-namespace Tests.MongoDB.Driver.Linq3.Legacy.Jira
+namespace MongoDB.Driver.Tests.Linq3.Jira
 {
     public class CSharp1585Tests
     {

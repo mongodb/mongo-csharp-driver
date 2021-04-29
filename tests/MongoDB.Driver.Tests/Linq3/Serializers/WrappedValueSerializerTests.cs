@@ -14,24 +14,24 @@
 */
 
 using FluentAssertions;
-using MongoDB.Bson;
-using MongoDB.Driver.Linq3.Ast;
-using MongoDB.Driver.Linq3.Ast.Expressions;
+using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Linq3.Serializers;
+using Moq;
 using Xunit;
 
-namespace Tests.MongoDB.Driver.Linq3.Ast.Expressions
+namespace MongoDB.Driver.Tests.Linq3.Serializers
 {
-    public class AstConstantExpressionTests
+    public class WrappedValueSerializerTests
     {
         [Fact]
-        public void constructor_should_return_expected_result()
+        public void constructor_should_initialize_instance()
         {
-            var value = new BsonInt32(0);
+            var valueSerializer = Mock.Of<IBsonSerializer<int>>();
 
-            var subject = new AstConstantExpression(value);
+            var subject = new WrappedValueSerializer<int>(valueSerializer);
 
-            subject.NodeType.Should().Be(AstNodeType.ConstantExpression);
-            subject.Value.Should().BeSameAs(value);
+            subject.ValueSerializer.Should().BeSameAs(valueSerializer);
+            subject.ValueType.Should().BeSameAs(typeof(int));
         }
     }
 }
