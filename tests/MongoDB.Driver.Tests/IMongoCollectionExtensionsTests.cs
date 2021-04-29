@@ -20,8 +20,8 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
-using MongoDB.Driver.Linq2;
 using MongoDB.Driver.Tests.Linq2;
+using MongoDB.Driver.Tests.Linq3;
 using Moq;
 using Xunit;
 
@@ -58,9 +58,10 @@ namespace MongoDB.Driver.Tests
         [Theory]
         [ParameterAttributeData]
         public void AsQueryable_should_return_expected_result(
-            [Values(false, true)] bool withSession)
+            [Values(false, true)] bool withSession,
+            [Values(2, 3)] int linqVersion)
         {
-            var collection = CreateMockCollection().Object;
+            var collection = CreateMockCollection(linqVersion).Object;
             var session = withSession ? Mock.Of<IClientSessionHandle>() : null;
             var options = new AggregateOptions();
 
@@ -74,11 +75,23 @@ namespace MongoDB.Driver.Tests
                 result = collection.AsQueryable(options);
             }
 
-            var queryable = result.Should().BeOfType<MongoQueryableImpl<Person, Person>>().Subject;
-            var provider = queryable.Provider.Should().BeOfType<MongoQueryProviderImpl<Person>>().Subject;
-            provider._collection().Should().BeSameAs(collection);
-            provider._options().Should().BeSameAs(options);
-            provider._session().Should().BeSameAs(session);
+            if (linqVersion == 2)
+            {
+                var queryable = result.Should().BeOfType<Driver.Linq2.MongoQueryableImpl<Person, Person>>().Subject;
+                var provider = queryable.Provider.Should().BeOfType<Driver.Linq2.MongoQueryProviderImpl<Person>>().Subject;
+                provider._collection().Should().BeSameAs(collection);
+                provider._options().Should().BeSameAs(options);
+                provider._session().Should().BeSameAs(session);
+            }
+
+            if (linqVersion == 3)
+            {
+                var queryable = result.Should().BeOfType<Driver.Linq3.MongoQuery<Person, Person>>().Subject;
+                var provider = queryable.Provider.Should().BeOfType<Driver.Linq3.MongoQueryProvider<Person>>().Subject;
+                provider._collection().Should().BeSameAs(collection);
+                provider._options().Should().BeSameAs(options);
+                provider._session().Should().BeSameAs(session);
+            }
         }
 
         [Theory]
@@ -1208,12 +1221,27 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        private Mock<IMongoCollection<Person>> CreateMockCollection()
+        private Mock<IMongoCollection<Person>> CreateMockCollection(int linqVersion = 2)
         {
-            var settings = new MongoCollectionSettings();
+            var mockClient = new Mock<IMongoClient>();
+            var linqProvider = linqVersion switch
+            {
+                2 => LinqProvider.V2,
+                3 => LinqProvider.V3,
+                _ => throw new ArgumentException($"Invalid linqVersion: {linqVersion}.", nameof(linqVersion))
+            };
+            var clientSettings = new MongoClientSettings { LinqProvider = linqProvider };
+            mockClient.SetupGet(c => c.Settings).Returns(clientSettings);
+
+            var mockDatabase = new Mock<IMongoDatabase>();
+            mockDatabase.SetupGet(d => d.Client).Returns(mockClient.Object);
+
             var mockCollection = new Mock<IMongoCollection<Person>> { DefaultValue = DefaultValue.Mock };
-            mockCollection.SetupGet(s => s.DocumentSerializer).Returns(settings.SerializerRegistry.GetSerializer<Person>());
-            mockCollection.SetupGet(s => s.Settings).Returns(settings);
+            mockCollection.SetupGet(c => c.Database).Returns(mockDatabase.Object);
+            var collectionSettings = new MongoCollectionSettings();
+            mockCollection.SetupGet(s => s.DocumentSerializer).Returns(collectionSettings.SerializerRegistry.GetSerializer<Person>());
+            mockCollection.SetupGet(s => s.Settings).Returns(collectionSettings);
+
             return mockCollection;
         }
 
