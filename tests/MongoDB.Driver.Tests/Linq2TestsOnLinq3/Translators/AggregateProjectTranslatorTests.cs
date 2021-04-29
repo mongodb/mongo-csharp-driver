@@ -27,7 +27,7 @@ using MongoDB.Driver.Linq3;
 using MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslators;
 using Xunit;
 
-namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
+namespace MongoDB.Driver.Tests.Linq2TestsOnLinq3.Translators
 {
     public class AggregateProjectTranslatorTests : IntegrationTestBase
     {
@@ -1433,7 +1433,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
         {
             RequireServer.Check().VersionGreaterThanOrEqualTo("3.3.6");
 
-#if !NETCOREAPP2_1
+#if NET452 || NETCOREAPP1_1 
             /* for implementations that don't support omitted optional parameters in expression trees
              * skip to next test */
             var result1 = Project(x => new { Result = x.A.Split('e') });
@@ -1532,17 +1532,17 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
             result.Value.Result.Should().BeTrue();
         }
 
-        [Theory]
 #if NET452
+        [Theory]
         [InlineData(StringComparison.InvariantCulture)]
         [InlineData(StringComparison.InvariantCultureIgnoreCase)]
-#endif
         public void Should_throw_for_a_not_supported_string_comparison_type(StringComparison comparison)
         {
             Action act = () => Project(x => new { Result = x.B.Equals("balloon", comparison) });
 
             act.ShouldThrow<NotSupportedException>();
         }
+#endif
 
         [Fact]
         public void Should_translate_string_is_null_or_empty()
@@ -1770,7 +1770,7 @@ namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
             var provider = (MongoQueryProvider<Root>)query.Provider;
             var executableQuery = ExpressionToExecutableQueryTranslator.Translate<Root, TResult>(provider, query.Expression);
             var projection = executableQuery.Pipeline.Stages.First().Render()["$project"].AsBsonDocument;
-            var value = query.FirstOrDefault();
+            var value = query.Take(1).FirstOrDefault();
 
             return new ProjectedResult<TResult>
             {

@@ -24,7 +24,7 @@ using MongoDB.Driver.Linq3;
 using MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslators;
 using Xunit;
 
-namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
+namespace MongoDB.Driver.Tests.Linq2TestsOnLinq3.Translators
 {
     public class PredicateTranslatorValidationTests
     {

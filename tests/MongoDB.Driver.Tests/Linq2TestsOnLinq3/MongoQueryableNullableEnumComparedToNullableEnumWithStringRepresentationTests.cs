@@ -17,95 +17,101 @@ using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Driver;
 using MongoDB.Driver.Linq3;
 using MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslators;
-using MongoDB.Driver.Tests;
 using Xunit;
 
-namespace Tests.MongoDB.Driver.Linq3.Legacy
+namespace MongoDB.Driver.Tests.Linq2TestsOnLinq3
 {
-    public class MongoQueryableIntComparedToDoubleWithStringRepresentationTests
+    public class MongoQueryableNullableEnumComparedToNullableEnumWithStringRepresentationTests
     {
         private static readonly IMongoClient __client;
         private static readonly IMongoCollection<C> __collection;
         private static readonly IMongoDatabase __database;
 
-        static MongoQueryableIntComparedToDoubleWithStringRepresentationTests()
+        static MongoQueryableNullableEnumComparedToNullableEnumWithStringRepresentationTests()
         {
             __client = DriverTestConfiguration.Client;
             __database = __client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
             __collection = __database.GetCollection<C>(DriverTestConfiguration.CollectionNamespace.CollectionName);
         }
 
+        public enum E { A, B };
+
         public class C
         {
             [BsonRepresentation(BsonType.String)]
-            public int I { get; set; }
+            public E? E { get; set; }
         }
 
         [Theory]
-        [InlineData(1.5, "{ \"I\" : \"1.5\" }")]
-        public void Where_operator_equal_should_render_correctly(double value, string expectedFilter)
+        [InlineData(E.A, "{ \"E\" : \"A\" }")]
+        [InlineData(null, "{ \"E\" : null }")]
+        public void Where_operator_equal_should_render_correctly(E? value, string expectedFilter)
         {
             var subject = __collection.AsQueryable3();
 
-            var queryable = subject.Where(x => x.I == value);
+            var queryable = subject.Where(x => x.E == value);
 
             AssertFilter(queryable, expectedFilter);
         }
 
         [Theory]
-        [InlineData(1.5, "{ \"I\" : { \"$gt\" : \"1.5\" } }")]
-        public void Where_operator_greater_than_should_render_correctly(double value, string expectedFilter)
+        [InlineData(E.A, "{ \"E\" : { \"$gt\" : \"A\" } }")]
+        [InlineData(null, "{ \"E\" : { \"$gt\" : null } }")]
+        public void Where_operator_greater_than_should_render_correctly(E? value, string expectedFilter)
         {
             var subject = __collection.AsQueryable3();
 
-            var queryable = subject.Where(x => x.I > value);
+            var queryable = subject.Where(x => x.E > value);
 
             AssertFilter(queryable, expectedFilter);
         }
 
         [Theory]
-        [InlineData(1.5, "{ \"I\" : { \"$gte\" : \"1.5\" } }")]
-        public void Where_operator_greater_than_or_equal_should_render_correctly(double value, string expectedFilter)
+        [InlineData(E.A, "{ \"E\" : { \"$gte\" : \"A\" } }")]
+        [InlineData(null, "{ \"E\" : { \"$gte\" : null } }")]
+        public void Where_operator_greater_than_or_equal_should_render_correctly(E? value, string expectedFilter)
         {
             var subject = __collection.AsQueryable3();
 
-            var queryable = subject.Where(x => x.I >= value);
+            var queryable = subject.Where(x => x.E >= value);
 
             AssertFilter(queryable, expectedFilter);
         }
 
         [Theory]
-        [InlineData(1.5, "{ \"I\" : { \"$lt\" : \"1.5\" } }")]
-        public void Where_operator_less_than_should_render_correctly(double value, string expectedFilter)
+        [InlineData(E.A, "{ \"E\" : { \"$lt\" : \"A\" } }")]
+        [InlineData(null, "{ \"E\" : { \"$lt\" : null } }")]
+        public void Where_operator_less_than_should_render_correctly(E? value, string expectedFilter)
         {
             var subject = __collection.AsQueryable3();
 
-            var queryable = subject.Where(x => x.I < value);
+            var queryable = subject.Where(x => x.E < value);
 
             AssertFilter(queryable, expectedFilter);
         }
 
         [Theory]
-        [InlineData(1.5, "{ \"I\" : { \"$lte\" : \"1.5\" } }")]
-        public void Where_operator_less_than_or_equal_should_render_correctly(double value, string expectedFilter)
+        [InlineData(E.A, "{ \"E\" : { \"$lte\" : \"A\" } }")]
+        [InlineData(null, "{ \"E\" : { \"$lte\" : null } }")]
+        public void Where_operator_less_than_or_equal_should_render_correctly(E? value, string expectedFilter)
         {
             var subject = __collection.AsQueryable3();
 
-            var queryable = subject.Where(x => x.I <= value);
+            var queryable = subject.Where(x => x.E <= value);
 
             AssertFilter(queryable, expectedFilter);
         }
 
         [Theory]
-        [InlineData(1.5, "{ \"I\" : { \"$ne\" : \"1.5\" } }")]
-        public void Where_operator_not_equal_should_render_correctly(double value, string expectedFilter)
+        [InlineData(E.A, "{ \"E\" : { \"$ne\" : \"A\" } }")]
+        [InlineData(null, "{ \"E\" : { \"$ne\" : null } }")]
+        public void Where_operator_not_equal_should_render_correctly(E? value, string expectedFilter)
         {
             var subject = __collection.AsQueryable3();
 
-            var queryable = subject.Where(x => x.I != value);
+            var queryable = subject.Where(x => x.E != value);
 
             AssertFilter(queryable, expectedFilter);
         }

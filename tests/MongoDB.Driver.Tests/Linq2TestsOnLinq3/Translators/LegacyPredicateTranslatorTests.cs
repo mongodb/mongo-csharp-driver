@@ -26,10 +26,9 @@ using MongoDB.Driver;
 using MongoDB.Driver.Linq3.Misc;
 using MongoDB.Driver.Linq3.Translators;
 using MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators;
-using MongoDB.Driver.Tests;
 using Xunit;
 
-namespace Tests.MongoDB.Driver.Linq3.Legacy.Translators
+namespace MongoDB.Driver.Tests.Linq2TestsOnLinq3.Translators
 {
     public class LegacyPredicateTranslatorTests
     {

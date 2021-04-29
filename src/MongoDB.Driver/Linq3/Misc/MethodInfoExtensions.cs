@@ -21,15 +21,18 @@ namespace MongoDB.Driver.Linq3.Misc
     {
         public static bool Is(this MethodInfo method, MethodInfo comparand)
         {
-            if (method == comparand)
+            if (comparand != null)
             {
-                return true;
-            }
+                if (method == comparand)
+                {
+                    return true;
+                }
 
-            if (method.IsGenericMethod && comparand.IsGenericMethodDefinition)
-            {
-                var methodDefinition = method.GetGenericMethodDefinition();
-                return methodDefinition == comparand;
+                if (method.IsGenericMethod && comparand.IsGenericMethodDefinition)
+                {
+                    var methodDefinition = method.GetGenericMethodDefinition();
+                    return methodDefinition == comparand;
+                }
             }
 
             return false;

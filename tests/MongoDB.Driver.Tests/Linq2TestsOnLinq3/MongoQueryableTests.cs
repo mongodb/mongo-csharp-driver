@@ -16,7 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -27,10 +26,9 @@ using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq3;
 using MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslators;
-using MongoDB.Driver.Tests;
 using Xunit;
 
-namespace Tests.MongoDB.Driver.Linq3.Legacy
+namespace MongoDB.Driver.Tests.Linq2TestsOnLinq3
 {
     public class MongoQueryableTests : IntegrationTestBase
     {
