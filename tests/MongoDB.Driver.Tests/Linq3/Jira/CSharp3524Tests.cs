@@ -23,7 +23,7 @@ using MongoDB.Driver.Linq3.Translators.ExpressionToExecutableQueryTranslators;
 using MongoDB.Driver.Tests;
 using Xunit;
 
-namespace Tests.MongoDB.Driver.Linq3.Legacy.Jira
+namespace MongoDB.Driver.Tests.Linq3.Jira
 {
     public class CSharp3524Tests
     {
