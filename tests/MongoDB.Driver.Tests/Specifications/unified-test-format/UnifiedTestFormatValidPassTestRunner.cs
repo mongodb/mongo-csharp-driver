@@ -13,43 +13,38 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
-using FluentAssertions;
+using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
+using MongoDB.Driver.Tests.UnifiedTestOperations;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Specifications.unified_test_format
 {
-    public sealed class UnifiedTestFormatNegativeTestRunner : IDisposable
+    public sealed class UnifiedTestFormatValidPassTestRunner
     {
-        private readonly UnifiedTestFormatTestRunner _unifiedTestFormatTestRunner = new UnifiedTestFormatTestRunner();
-
-        public void Dispose()
-        {
-            _unifiedTestFormatTestRunner.Dispose();
-        }
-
-        [Theory]
+        [SkippableTheory]
         [ClassData(typeof(TestCaseFactory))]
         public void Run(JsonDrivenTestCase testCase)
         {
-            var exception = Record.Exception(() => _unifiedTestFormatTestRunner.Run(testCase));
-
-            exception.Should().NotBeNull();
+            using (var runner = new UnifiedTestRunner())
+            {
+                runner.Run(testCase);
+            }
         }
 
         // nested types
         public class TestCaseFactory : JsonDrivenTestCaseFactory
         {
             // protected properties
-            protected override string PathPrefix => "MongoDB.Driver.Tests.Specifications.unified_test_format.tests.valid_fail.";
+            protected override string PathPrefix => "MongoDB.Driver.Tests.Specifications.unified_test_format.tests.valid_pass.";
 
             // protected methods
             protected override IEnumerable<JsonDrivenTestCase> CreateTestCases(BsonDocument document)
             {
-                foreach (var testCase in base.CreateTestCases(document))
+                var testCases = base.CreateTestCases(document);
+                foreach (var testCase in testCases)
                 {
                     foreach (var async in new[] { false, true })
                     {

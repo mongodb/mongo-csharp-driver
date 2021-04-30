@@ -20,10 +20,10 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Tests.UnifiedTestOperations;
+using MongoDB.Driver;
 using Xunit.Sdk;
 
-namespace MongoDB.Driver.Tests.Specifications.unified_test_format
+namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
 {
     public class UnifiedValueMatcher
     {
