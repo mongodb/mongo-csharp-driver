@@ -610,7 +610,11 @@ namespace MongoDB.Driver.Linq3.Translators.ExpressionToFilterTranslators.MethodT
                     pattern += $"(?!.{{0,{noEarlyMatchCount}}}{escapedValue})"; // verify there are no earlier matches
                 }
                 var advanceToComparandCount = comparand - startIndex;
-                pattern += $".{{{advanceToComparandCount}}}{escapedValue}.*"; // advance to comparand and verify presence of value at comparand
+                if (advanceToComparandCount > 0)
+                {
+                    pattern += $".{{{advanceToComparandCount}}}"; // advance to comparand
+                }
+                pattern += $"{escapedValue}.*"; // verify presence of value at comparand
 
                 return CreateFilter(expression, field, modifiers, comparisonOperator, pattern);
             }
