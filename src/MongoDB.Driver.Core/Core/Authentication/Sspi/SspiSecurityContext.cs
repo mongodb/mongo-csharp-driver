@@ -360,18 +360,10 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
                 }
 
                 var current = new IntPtr(array.ToInt64());
-#if NET452
-                var size = Marshal.SizeOf(typeof(SecurityPackageInfo));
-#else
                 var size = Marshal.SizeOf<SecurityPackageInfo>();
-#endif
                 for (int i = 0; i < count; i++)
                 {
-#if NET452
-                    var package = (SecurityPackageInfo)Marshal.PtrToStructure(current, typeof(SecurityPackageInfo));
-#else
                     var package = Marshal.PtrToStructure<SecurityPackageInfo>(current);
-#endif
                     if (package.Name != null && package.Name.Equals(SspiPackage.Kerberos.ToString(), StringComparison.OrdinalIgnoreCase))
                     {
                         return (int)package.MaxTokenSize;
