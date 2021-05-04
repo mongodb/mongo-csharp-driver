@@ -26,7 +26,7 @@ using MongoDB.Driver.Linq3.Translators;
 using MongoDB.Driver.Linq3.Translators.ExpressionToFindProjectionTranslators;
 using Xunit;
 
-namespace Tests.MongoDB.Driver.Linq2.Legacy.Translators
+namespace MongoDB.Driver.Tests.Linq2TestsOnLinq3.Translators
 {
     public class FindProjectionTranslatorTests
     {
