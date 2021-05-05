@@ -48,10 +48,12 @@ namespace MongoDB.Driver.Core.Connections
         // methods
         public Stream CreateStream(EndPoint endPoint, CancellationToken cancellationToken)
         {
-#if NETSTANDARD1_5 || NETSTANDARD2_0 || NETSTANDARD2_1
-            // ugh... I know... but there isn't a non-async version of dns resolution
-            // in .NET Core
-            var resolved = ResolveEndPointsAsync(endPoint).GetAwaiter().GetResult();
+#if NET452
+            var socket = CreateSocket(endPoint);
+            Connect(socket, endPoint, cancellationToken);
+            return CreateNetworkStream(socket);
+#else
+            var resolved = ResolveEndPoints(endPoint);
             for (int i = 0; i < resolved.Length; i++)
             {
                 try
@@ -73,16 +75,16 @@ namespace MongoDB.Driver.Core.Connections
 
             // we should never get here...
             throw new InvalidOperationException("Unabled to resolve endpoint.");
-#else
-            var socket = CreateSocket(endPoint);
-            Connect(socket, endPoint, cancellationToken);
-            return CreateNetworkStream(socket);
 #endif
         }
 
         public async Task<Stream> CreateStreamAsync(EndPoint endPoint, CancellationToken cancellationToken)
         {
-#if NETSTANDARD1_5 || NETSTANDARD2_0 || NETSTANDARD2_1
+#if NET452
+            var socket = CreateSocket(endPoint);
+            await ConnectAsync(socket, endPoint, cancellationToken).ConfigureAwait(false);
+            return CreateNetworkStream(socket);
+#else
             var resolved = await ResolveEndPointsAsync(endPoint).ConfigureAwait(false);
             for (int i = 0; i < resolved.Length; i++)
             {
@@ -105,10 +107,6 @@ namespace MongoDB.Driver.Core.Connections
 
             // we should never get here...
             throw new InvalidOperationException("Unabled to resolve endpoint.");
-#else
-            var socket = CreateSocket(endPoint);
-            await ConnectAsync(socket, endPoint, cancellationToken).ConfigureAwait(false);
-            return CreateNetworkStream(socket);
 #endif
         }
 
@@ -286,6 +284,37 @@ namespace MongoDB.Driver.Core.Connections
             }
 
             return socket;
+        }
+
+        private EndPoint[] ResolveEndPoints(EndPoint initial)
+        {
+            var dnsInitial = initial as DnsEndPoint;
+            if (dnsInitial == null)
+            {
+                return new[] { initial };
+            }
+
+            IPAddress address;
+            if (IPAddress.TryParse(dnsInitial.Host, out address))
+            {
+                return new[] { new IPEndPoint(address, dnsInitial.Port) };
+            }
+
+            var preferred = initial.AddressFamily;
+            if (preferred == AddressFamily.Unspecified || preferred == AddressFamily.Unknown)
+            {
+                preferred = _settings.AddressFamily;
+            }
+
+#if NETSTANDARD1_5
+            var hostAddresses = Dns.GetHostAddressesAsync(dnsInitial.Host).GetAwaiter().GetResult();
+#else
+            var hostAddresses = Dns.GetHostAddresses(dnsInitial.Host);
+#endif
+            return hostAddresses
+                .Select(x => new IPEndPoint(x, dnsInitial.Port))
+                .OrderBy(x => x, new PreferredAddressFamilyComparer(preferred))
+                .ToArray();
         }
 
         private async Task<EndPoint[]> ResolveEndPointsAsync(EndPoint initial)
