@@ -84,7 +84,7 @@ namespace MongoDB.Driver.Core.Connections
             string architecture;
             string osVersion;
 
-#if NET452
+#if !NETSTANDARD1_5
             if (Type.GetType("Mono.Runtime") != null)
             {
                 switch (Environment.OSVersion.Platform)
