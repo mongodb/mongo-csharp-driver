@@ -26,9 +26,6 @@ namespace MongoDB.Driver.Core.Authentication
     /// </summary>
     public class SaslPrepHelperTests
     {
-        // Currently, we only support SaslPrep in .NET Framework due to a lack of a string normalization function in
-        // .NET Standard
-#if NET452
         [Fact]
         public void SaslPrepQuery_accepts_undefined_codepoint()
         {     
@@ -52,6 +49,8 @@ namespace MongoDB.Driver.Core.Authentication
             SaslPrepHelper.SaslPrepStored(input).Should().Be(expected);
         }
 
+#if !NETCOREAPP1_1
+// Normalization is not supported in netstandard 1.5 due to a lack of a string normalization function.
         [Theory]
         [ParameterAttributeData]
         [InlineData("IX", "\u2168")] // "IX", Roman numeral nine
@@ -62,6 +61,7 @@ namespace MongoDB.Driver.Core.Authentication
         {
             SaslPrepHelper.SaslPrepStored(nonNormalizedStr).Should().Be(expected);
         }
+#endif
 
         [Theory]
         [ParameterAttributeData]
@@ -80,8 +80,11 @@ namespace MongoDB.Driver.Core.Authentication
         [InlineData("user", "user")]
         [InlineData("user=", "user=")]
         [InlineData("USER", "USER")]
+#if !NETCOREAPP1_1
+// Normalization is not supported in netstandard 1.5 due to a lack of a string normalization function.
         [InlineData("a", "\u00AA")]
         [InlineData("IX", "\u2168")]
+#endif
         public void SaslPrepStored_returns_expected_output_when_passed_Rfc4013_examples(string expected, string input)
         {
             SaslPrepHelper.SaslPrepStored(input).Should().Be(expected);
@@ -117,7 +120,6 @@ namespace MongoDB.Driver.Core.Authentication
             exception.Should().BeOfType<ArgumentException>();
             exception.Message.Should().Be("Character at position 3 is unassigned");
         }
-#endif
 
         private static readonly Lazy<int> _unassignedCodePoint = new Lazy<int>(FindUnassignedCodePoint);
 
