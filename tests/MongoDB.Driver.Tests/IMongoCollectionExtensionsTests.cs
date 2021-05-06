@@ -20,8 +20,8 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
-using MongoDB.Driver.Tests.Linq2;
-using MongoDB.Driver.Tests.Linq3;
+using MongoDB.Driver.Tests.Linq.Linq2ImplementationTests;
+using MongoDB.Driver.Tests.Linq.Linq3ImplementationTests;
 using Moq;
 using Xunit;
 
@@ -77,8 +77,8 @@ namespace MongoDB.Driver.Tests
 
             if (linqVersion == 2)
             {
-                var queryable = result.Should().BeOfType<Driver.Linq2.MongoQueryableImpl<Person, Person>>().Subject;
-                var provider = queryable.Provider.Should().BeOfType<Driver.Linq2.MongoQueryProviderImpl<Person>>().Subject;
+                var queryable = result.Should().BeOfType<Driver.Linq.Linq2Implementation.MongoQueryableImpl<Person, Person>>().Subject;
+                var provider = queryable.Provider.Should().BeOfType<Driver.Linq.Linq2Implementation.MongoQueryProviderImpl<Person>>().Subject;
                 provider._collection().Should().BeSameAs(collection);
                 provider._options().Should().BeSameAs(options);
                 provider._session().Should().BeSameAs(session);
@@ -86,8 +86,8 @@ namespace MongoDB.Driver.Tests
 
             if (linqVersion == 3)
             {
-                var queryable = result.Should().BeOfType<Driver.Linq3.MongoQuery<Person, Person>>().Subject;
-                var provider = queryable.Provider.Should().BeOfType<Driver.Linq3.MongoQueryProvider<Person>>().Subject;
+                var queryable = result.Should().BeOfType<Driver.Linq.Linq3Implementation.MongoQuery<Person, Person>>().Subject;
+                var provider = queryable.Provider.Should().BeOfType<Driver.Linq.Linq3Implementation.MongoQueryProvider<Person>>().Subject;
                 provider._collection().Should().BeSameAs(collection);
                 provider._options().Should().BeSameAs(options);
                 provider._session().Should().BeSameAs(session);
