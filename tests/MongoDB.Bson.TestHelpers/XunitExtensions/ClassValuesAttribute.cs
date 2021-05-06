@@ -29,7 +29,7 @@ namespace MongoDB.Bson.TestHelpers.XunitExtensions
 
         public object[] GenerateValues()
         {
-            var generator = (IValueGenerator)Activator.CreateInstance(_classType) as IValueGenerator;
+            var generator = Activator.CreateInstance(_classType) as IValueGenerator;
             if (generator == null)
             {
                 throw new ArgumentException($"The type {_classType} must implement the {nameof(IValueGenerator)} interface.");

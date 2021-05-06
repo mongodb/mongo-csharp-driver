@@ -19,6 +19,7 @@ using System.Text;
 using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.TestHelpers;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Bson.Tests.IO
@@ -81,14 +82,15 @@ namespace MongoDB.Bson.Tests.IO
             }
         }
 
-        [Fact]
-        public void GetBytesUsingThreadStaticBuffer_should_return_expected_result_when_multiple_threads_are_used()
+        [Theory]
+        [ParameterAttributeData]
+        public void GetBytesUsingThreadStaticBuffer_should_return_expected_result_when_multiple_threads_are_used([RandomSeed] int seed)
         {
             const int threadsCount = 10;
             const int iterationsCount = 10;
             const int maxSize = 1024;
 
-            var random = new Random();
+            var random = new Random(seed);
             var encoding = Utf8Encodings.Strict;
 
             ThreadingUtilities.ExecuteOnNewThreads(threadsCount, _ =>

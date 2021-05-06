@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -177,6 +178,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             private readonly IConnection _connection;
             private readonly ExclusiveConnectionPool _connectionPool;
             private readonly int _generation;
+            private bool _disposed;
 
             public PooledConnection(ExclusiveConnectionPool connectionPool, IConnection connection)
             {
@@ -205,9 +207,14 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 get { return _generation; }
             }
 
+            public bool IsDisposed
+            {
+                get { return _disposed; }
+            }
+
             public bool IsExpired
             {
-                get { return _generation < _connectionPool.Generation || _connection.IsExpired; }
+                get { return _disposed || _generation < _connectionPool.Generation || _connection.IsExpired; }
             }
 
             public ConnectionSettings Settings
@@ -217,7 +224,11 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             public void Dispose()
             {
-                _connection.Dispose();
+                if (!_disposed)
+                {
+                    _connection.Dispose();
+                    _disposed = true;
+                }
             }
 
             public void Open(CancellationToken cancellationToken)
@@ -468,43 +479,54 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             public void Prune()
             {
+                PooledConnection[] expiredConnections;
                 lock (_lock)
                 {
-                    for (int i = 0; i < _connections.Count; i++)
-                    {
-                        if (_connections[i].IsExpired)
-                        {
-                            RemoveConnection(_connections[i]);
-                            _connections.RemoveAt(i);
-                            break;
-                        }
-                    }
+                    expiredConnections = _connections.Where(c => c.IsExpired).ToArray();
+                }
 
-                    SignalOrReset();
+                foreach (var connection in expiredConnections)
+                {
+                    lock (_lock)
+                    {
+                        // At this point connection is always expired and might be disposed
+                        // If connection is already disposed the removal logic was already executed
+                        if (connection.IsDisposed)
+                        {
+                            continue;
+                        }
+
+                        RemoveConnection(connection);
+                        _connections.Remove(connection);
+                        SignalOrReset();
+                    }
                 }
             }
 
             public PooledConnection Acquire()
             {
+                PooledConnection result = null;
+
                 lock (_lock)
                 {
-                    if (_connections.Count > 0)
+                    while (_connections.Count > 0 && result == null)
                     {
-                        var connection = _connections[_connections.Count - 1];
-                        _connections.RemoveAt(_connections.Count - 1);
+                        var lastIndex = _connections.Count - 1;
+                        var connection = _connections[lastIndex];
+                        _connections.RemoveAt(lastIndex);
                         if (connection.IsExpired)
                         {
                             RemoveConnection(connection);
                         }
                         else
                         {
-                            return connection;
+                            result = connection;
                         }
                     }
 
                     SignalOrReset();
                 }
-                return null;
+                return result;
             }
 
             public void Return(PooledConnection connection)
