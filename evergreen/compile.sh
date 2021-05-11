@@ -14,10 +14,10 @@ if [ "Windows_NT" = "$OS" ]; then # Magic variable in cygwin
     setx $var z:\\data\\tmp
     export $var=z:\\data\\tmp
   done
-  powershell.exe .\\build.ps1 -target Build -Verbosity Diagnostic
+  powershell.exe .\\build.ps1 --target Build --Verbosity Diagnostic
 else
   for var in TMP TEMP NUGET_PACKAGES NUGET_HTTP_CACHE_PATH APPDATA; do
     export $var=/data/tmp;
   done
-  ./build.sh -target=Build -verbosity=Diagnostic
+  ./build.sh --target=Build --Verbosity Diagnostic
 fi

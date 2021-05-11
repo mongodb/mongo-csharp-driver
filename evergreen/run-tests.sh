@@ -118,19 +118,19 @@ fi
 if [[ "$OS" =~ Windows|windows ]]; then
   export DRIVERS_TOOLS=$(cygpath -m $DRIVERS_TOOLS)
   if [[ -z "$MONGO_X509_CLIENT_CERTIFICATE_PATH" && -z "$MONGO_X509_CLIENT_CERTIFICATE_PASSWORD" ]]; then
-    powershell.exe '.\build.ps1 -target' $TARGET
+    powershell.exe '.\build.ps1 --target' $TARGET
   else
     powershell.exe \
       '$env:MONGO_X509_CLIENT_CERTIFICATE_PATH="${MONGO_X509_CLIENT_CERTIFICATE_PATH}";'\
       '$env:MONGO_X509_CLIENT_CERTIFICATE_PASSWORD="${MONGO_X509_CLIENT_CERTIFICATE_PASSWORD}";'\
-      '.\build.ps1 -target' $TARGET
+      '.\build.ps1 --target' $TARGET
   fi
 else
   if [[ -z "$MONGO_X509_CLIENT_CERTIFICATE_PATH" && -z "$MONGO_X509_CLIENT_CERTIFICATE_PASSWORD" ]]; then
-    ./build.sh -target=$TARGET
+    ./build.sh --target=$TARGET
   else
     MONGO_X509_CLIENT_CERTIFICATE_PATH="${MONGO_X509_CLIENT_CERTIFICATE_PATH}" \
     MONGO_X509_CLIENT_CERTIFICATE_PASSWORD="${MONGO_X509_CLIENT_CERTIFICATE_PASSWORD}" \
-    ./build.sh -target=$TARGET
+    ./build.sh --target=$TARGET
   fi
 fi
