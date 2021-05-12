@@ -324,12 +324,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     // SERVER-54216
                     return true;
                 }
-                if (!Feature.KillAllSessions.IsSupported(serverVersion) && ex.Code == (int)ServerErrorCode.CommandNotFound)
-                {
-                    // if the command is executed on a pre-3.6 server
-                    // NOTE: this is not the case for the c# driver, but left it here just to make full sync with the spec
-                    return true;
-                }
+                // the spec also mentions CommandNotFound code, but it's not the case for c#
+                // since we don't call killAllSessions for servers less than 3.6
 
                 return false;
             }
