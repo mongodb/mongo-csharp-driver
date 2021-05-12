@@ -368,6 +368,20 @@ namespace MongoDB.Bson.Tests.IO
             mockWrapped.Verify(m => m.WriteBytes(value), Times.Once);
         }
 
+
+        [Fact]
+        public void WriteBytesPars_should_call_wrapped()
+        {
+            Mock<IBsonWriter> mockWrapped;
+            var subject = CreateSubject(out mockWrapped);
+            const int size = 0;
+            var value = new byte[0];
+
+            subject.WriteBytes(value, size);
+
+            mockWrapped.Verify(m => m.WriteBytes(value, size), Times.Once);
+        }
+
         [Fact]
         public void WriteBytes_should_throw_when_disposed()
         {

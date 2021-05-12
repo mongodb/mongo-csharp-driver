@@ -168,6 +168,13 @@ namespace MongoDB.Bson.IO
             _wrapped.WriteBytes(bytes);
         }
 
+		/// <inheritdoc />
+		public virtual void WriteBytes(byte[] bytes, int size)
+		{
+			ThrowIfDisposed();
+			_wrapped.WriteBytes(bytes, size);
+		}
+
         /// <inheritdoc />
         public virtual void WriteDateTime(long value)
         {

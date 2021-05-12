@@ -133,6 +133,21 @@ namespace MongoDB.Bson.IO
             State = GetNextState();
         }
 
+		/// <summary>
+		/// Writes BSON binary data to the writer.
+		/// </summary>
+		/// <param name="bytes">The bytes.</param>
+		/// <param name="size"> The count of bytes used in the bytes[] </param>
+		public override void WriteBytes(byte[] bytes, int size) {
+			if (bytes.Length != size) {
+				// TODO: Better use a buffer manager here or Provide size in BsonBinaryData
+				var copy = new byte[size];
+				Buffer.BlockCopy(bytes, 0, copy, 0, size);
+				WriteBytes(copy);
+			} else 
+				WriteBytes(bytes);
+		}
+
         /// <summary>
         /// Writes a BSON DateTime to the writer.
         /// </summary>
