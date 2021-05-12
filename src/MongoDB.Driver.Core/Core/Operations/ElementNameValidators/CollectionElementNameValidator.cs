@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-using System.Collections.Generic;
+using System;
 using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Misc;
 
@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Core.Operations.ElementNameValidators
     public class CollectionElementNameValidator : IElementNameValidator
     {
         // private static fields
-        private static readonly List<string> __exceptions = new List<string> { "$db", "$ref", "$id", "$code", "$scope" };
+        private static readonly string[] __exceptions = new[] { "$db", "$ref", "$id", "$code", "$scope" };
         private static readonly CollectionElementNameValidator __instance = new CollectionElementNameValidator();
 
         // public static fields
@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Core.Operations.ElementNameValidators
                 return false;
             }
 
-            if (elementName[0] == '$' && !__exceptions.Contains(elementName))
+            if (elementName[0] == '$' && Array.IndexOf(__exceptions, elementName) == -1)
             {
                 return false;
             }
