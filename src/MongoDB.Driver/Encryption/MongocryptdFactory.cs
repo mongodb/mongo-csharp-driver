@@ -76,9 +76,7 @@ namespace MongoDB.Driver.Encryption
         // public methods
         public IMongoClient CreateMongocryptdClient()
         {
-            var connectionString = CreateMongocryptdConnectionString();
-            var clientSettings = MongoClientSettings.FromConnectionString(connectionString);
-            clientSettings.ServerSelectionTimeout = TimeSpan.FromMilliseconds(1000);
+            var clientSettings = CreateMongocryptdClientSettings();
             return new MongoClient(clientSettings);
         }
 
@@ -91,6 +89,14 @@ namespace MongoDB.Driver.Encryption
         }
 
         // private methods
+        private MongoClientSettings CreateMongocryptdClientSettings()
+        {
+            var connectionString = CreateMongocryptdConnectionString();
+            var clientSettings = MongoClientSettings.FromConnectionString(connectionString);
+            clientSettings.ServerSelectionTimeout = TimeSpan.FromSeconds(10);
+            return clientSettings;
+        }
+
         private string CreateMongocryptdConnectionString()
         {
             if (_extraOptions.TryGetValue("mongocryptdURI", out var connectionString))

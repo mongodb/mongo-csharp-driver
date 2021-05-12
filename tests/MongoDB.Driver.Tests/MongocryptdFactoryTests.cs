@@ -17,6 +17,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Encryption;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
@@ -25,6 +26,14 @@ namespace MongoDB.Driver.Tests
 {
     public class MongocryptdFactoryTests
     {
+        [Fact]
+        public void CreateMongocryptdClientSettings_should_set_correct_serverSelectionTimeout()
+        {
+            var subject = new MongocryptdFactory(null);
+            var clientSettings = subject.CreateMongocryptdClientSettings();
+            clientSettings.ServerSelectionTimeout.Should().Be(TimeSpan.FromSeconds(10));
+        }
+
         [Theory]
         [InlineData("mongocryptdURI", "mongodb://localhost:11111", "mongodb://localhost:11111")]
         [InlineData(null, null, "mongodb://localhost:27020")]
@@ -116,6 +125,11 @@ namespace MongoDB.Driver.Tests
 
     internal static class MongocryptdFactoryReflector
     {
+        public static MongoClientSettings CreateMongocryptdClientSettings(this MongocryptdFactory mongocryptdHelper)
+        {
+            return (MongoClientSettings)Reflector.Invoke(mongocryptdHelper, nameof(CreateMongocryptdClientSettings));
+        }
+
         public static string CreateMongocryptdConnectionString(this MongocryptdFactory mongocryptdHelper)
         {
             return (string)Reflector.Invoke(mongocryptdHelper, nameof(CreateMongocryptdConnectionString));
