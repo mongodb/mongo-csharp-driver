@@ -143,7 +143,7 @@ namespace MongoDB.Driver.Encryption
             BsonValue value,
             Guid? keyId,
             string alternateKeyName,
-            EncryptionAlgorithm encryptionAlgorithm,
+            string encryptionAlgorithm,
             CancellationToken cancellationToken)
         {
             try
@@ -188,7 +188,7 @@ namespace MongoDB.Driver.Encryption
             BsonValue value,
             Guid? keyId,
             string alternateKeyName,
-            EncryptionAlgorithm encryptionAlgorithm,
+            string encryptionAlgorithm,
             CancellationToken cancellationToken)
         {
             try

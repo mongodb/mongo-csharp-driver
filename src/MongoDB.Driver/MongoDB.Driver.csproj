@@ -50,7 +50,6 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.2" PrivateAssets="All" />
-    <PackageReference Include="MongoDB.Libmongocrypt" Version="1.2.1" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.5'">
@@ -59,6 +58,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\libmongocrypt\bindings\cs\MongoDB.Libmongocrypt\MongoDB.Libmongocrypt.csproj" />
     <ProjectReference Include="..\MongoDB.Bson\MongoDB.Bson.csproj" />
     <ProjectReference Include="..\MongoDB.Driver.Core\MongoDB.Driver.Core.csproj" />
   </ItemGroup>
