@@ -1209,21 +1209,6 @@ namespace MongoDB.Driver.Tests
         }
 
         [Theory]
-        [InlineData("mongodb://localhost/?slaveOk=true", ReadPreferenceMode.SecondaryPreferred)]
-        [InlineData("mongodb://localhost/?slaveOk=false", ReadPreferenceMode.Primary)]
-        public void TestSlaveOk(string url, ReadPreferenceMode mode)
-        {
-            var builder = new MongoUrlBuilder(url);
-            Assert.Equal(mode, builder.ReadPreference.ReadPreferenceMode);
-        }
-
-        [Fact]
-        public void TestSlaveOk_AfterReadPreference()
-        {
-            Assert.Throws<MongoConfigurationException>(() => new MongoUrlBuilder("mongodb://localhost/?readPreference=primary&slaveOk=true"));
-        }
-
-        [Theory]
         [InlineData(null, "mongodb://localhost", new[] { "" })]
         [InlineData(500, "mongodb://localhost/?serverSelectionTimeout{0}", new[] { "=500ms", "=0.5", "=0.5s", "=00:00:00.5", "MS=500" })]
         [InlineData(20000, "mongodb://localhost/?serverSelectionTimeout{0}", new[] { "=20s", "=20000ms", "=20", "=00:00:20", "MS=20000" })]
