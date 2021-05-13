@@ -47,6 +47,10 @@ namespace MongoDB.Driver
         /// <summary>
         /// A drop operation type.
         /// </summary>
-        Drop
+        Drop,        
+        /// <summary>
+        /// A create operation type.
+        /// </summary>
+        Create
     }
 }
