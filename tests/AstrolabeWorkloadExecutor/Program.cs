@@ -113,7 +113,6 @@ namespace WorkloadExecutor
                 { "events", new AstrolabeEventFormatter() } // "events" matches to the "storeEventsAsEntities.id" in the driverWorkload document
             };
             using (var runner = new UnifiedTestRunner(
-                allowKillSessions: false,
                 additionalArgs: additionalArgs,
                 eventFormatters: eventFormatters))
             {

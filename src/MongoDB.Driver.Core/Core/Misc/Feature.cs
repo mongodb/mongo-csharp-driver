@@ -75,6 +75,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly HintForUpdateAndReplaceOperationsFeature __hintForUpdateAndReplaceOperations = new HintForUpdateAndReplaceOperationsFeature("HintForUpdateAndReplaceOperations", new SemanticVersion(4, 2, 0));
         private static readonly Feature __keepConnectionPoolWhenNotMasterConnectionException = new Feature("KeepConnectionPoolWhenNotMasterConnectionException", new SemanticVersion(4, 1, 10));
         private static readonly Feature __keepConnectionPoolWhenReplSetStepDown = new Feature("KeepConnectionPoolWhenReplSetStepDown", new SemanticVersion(4, 1, 10));
+        private static readonly Feature __killAllSessions = new Feature("KillAllSessions", new SemanticVersion(3, 6, 0));
         private static readonly Feature __killCursorsCommand = new Feature("KillCursorsCommand", new SemanticVersion(3, 2, 0));
         private static readonly Feature __listCollectionsCommand = new Feature("ListCollectionsCommand", new SemanticVersion(3, 0, 0));
         private static readonly Feature __listDatabasesAuthorizedDatabases = new Feature("ListDatabasesAuthorizedDatabases", new SemanticVersion(4, 0, 5));
@@ -363,6 +364,11 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the keep connection pool when replSetStepDown feature.
         /// </summary>
         public static Feature KeepConnectionPoolWhenReplSetStepDown => __keepConnectionPoolWhenReplSetStepDown;
+
+        /// <summary>
+        /// Get the killAllSessions feature.
+        /// </summary>
+        public static Feature KillAllSessions => __killAllSessions;
 
         /// <summary>
         /// Get the killCursors command feature.

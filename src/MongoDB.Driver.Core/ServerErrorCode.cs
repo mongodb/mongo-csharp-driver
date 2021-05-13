@@ -20,6 +20,7 @@ namespace MongoDB.Driver
         // this is not a complete list, more will be added as needed
         // see: https://github.com/mongodb/mongo/blob/master/src/mongo/base/error_codes.yml
         CappedPositionLost = 136,
+        CommandNotFound = 59,
         CursorKilled = 237,
         CursorNotFound = 43,
         ElectionInProgress = 216,
@@ -44,6 +45,7 @@ namespace MongoDB.Driver
         StaleConfig = 13388,
         StaleEpoch = 150,
         StaleShardVersion = 63,
+        Unauthorized = 13,
         UnknownReplWriteConcern = 79,
         UnsatisfiableWriteConcern = 100,
         WriteConcernFailed = 64

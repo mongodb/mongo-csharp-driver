@@ -32,7 +32,6 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
     public sealed class UnifiedTestRunner : IDisposable
     {
-        private readonly bool _allowKillSessions;
         private UnifiedEntityMap _entityMap;
         private readonly List<FailPoint> _failPoints = new List<FailPoint>();
         private readonly Dictionary<string, object> _additionalArgs;
@@ -40,11 +39,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         private bool _runHasBeenCalled;
 
         public UnifiedTestRunner(
-            bool allowKillSessions = true, // TODO: should be removed after SERVER-54216 
             Dictionary<string, object> additionalArgs = null,
             Dictionary<string, IEventFormatter> eventFormatters = null)
         {
-            _allowKillSessions = allowKillSessions;
             _additionalArgs = additionalArgs; // can be null
             _eventFormatters = eventFormatters; // can be null
         }
@@ -107,10 +104,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 throw new SkipException($"Test skipped because '{skipReason}'.");
             }
 
-            if (_allowKillSessions)
-            {
-                KillOpenTransactions(DriverTestConfiguration.Client);
-            }
+            KillOpenTransactions(DriverTestConfiguration.Client);
 
             _entityMap = new UnifiedEntityMapBuilder(_eventFormatters).Build(entities);
 
@@ -146,10 +140,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             }
             try
             {
-                if (_allowKillSessions)
-                {
-                    KillOpenTransactions(DriverTestConfiguration.Client);
-                }
+                KillOpenTransactions(DriverTestConfiguration.Client);
             }
             catch
             {
@@ -305,21 +296,38 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
         private void KillOpenTransactions(IMongoClient client)
         {
-            if (CoreTestConfiguration.ServerVersion >= new SemanticVersion(3, 6, 0))
+            var serverVersion = CoreTestConfiguration.ServerVersion;
+            if (Feature.KillAllSessions.IsSupported(serverVersion))
             {
                 var command = new BsonDocument("killAllSessions", new BsonArray());
-                var adminDatabase = client.GetDatabase("admin");
+                var adminDatabase = client.GetDatabase(DatabaseNamespace.Admin.DatabaseName);
 
                 try
                 {
                     adminDatabase.RunCommand<BsonDocument>(command);
                 }
-                catch (MongoCommandException exception) when (
-                    CoreTestConfiguration.ServerVersion < new SemanticVersion(4, 1, 9) &&
-                    exception.Code == (int)ServerErrorCode.Interrupted)
+                catch (MongoCommandException ex) when (ShouldIgnoreError(ex))
                 {
-                    // Ignored because of SERVER-38297
+                    // ignore errors
                 }
+            }
+
+            bool ShouldIgnoreError(MongoCommandException ex)
+            {
+                if (serverVersion < new SemanticVersion(4, 1, 9) && ex.Code == (int)ServerErrorCode.Interrupted)
+                {
+                    // SERVER-38335
+                    return true;
+                }
+                if (ex.Code == (int)ServerErrorCode.Unauthorized)
+                {
+                    // SERVER-54216
+                    return true;
+                }
+                // the spec also mentions CommandNotFound code, but it's not the case for c#
+                // since we don't call killAllSessions for servers less than 3.6
+
+                return false;
             }
         }
     }
