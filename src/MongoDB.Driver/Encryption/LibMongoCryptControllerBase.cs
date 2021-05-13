@@ -269,14 +269,14 @@ namespace MongoDB.Driver.Encryption
         {
             var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             ParseKmsEndPoint(request.Endpoint, out var host, out var port);
-#if NETSTANDARD1_5
+#if NET452
+            await Task.Factory.FromAsync(socket.BeginConnect(host, port, null, null), socket.EndConnect).ConfigureAwait(false);
+#else
             // the way we use this method doesn't work on Linux with .netstandard1.5,
             // to make it work on that platform, we need to resolve the host and use the IP address.
             // Since that platform is not supported on libmongocrypt level anyway, instead of fixing it,
             // we rely on throwing a PlatformNotSupported exception in the previous steps
             await socket.ConnectAsync(host, port).ConfigureAwait(false);
-#else
-            await Task.Factory.FromAsync(socket.BeginConnect(host, port, null, null), socket.EndConnect).ConfigureAwait(false);
 #endif
 
             using (var networkStream = new NetworkStream(socket, ownsSocket: true))
