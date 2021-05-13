@@ -53,6 +53,7 @@ namespace MongoDB.Driver
                 case "update": return ChangeStreamOperationType.Update;
                 case "rename": return ChangeStreamOperationType.Rename;
                 case "drop": return ChangeStreamOperationType.Drop;
+                case "create": return ChangeStreamOperationType.Create;
                 default: throw new FormatException($"Invalid ChangeStreamOperationType: \"{stringValue}\".");
             }
         }
@@ -71,6 +72,7 @@ namespace MongoDB.Driver
                 case ChangeStreamOperationType.Update: writer.WriteString("update"); break;
                 case ChangeStreamOperationType.Rename: writer.WriteString("rename"); break;
                 case ChangeStreamOperationType.Drop: writer.WriteString("drop"); break;
+                case ChangeStreamOperationType.Create: writer.WriteString("create"); break;                
                 default: throw new ArgumentException($"Invalid ChangeStreamOperationType: {value}.", nameof(value));
             }
         }
