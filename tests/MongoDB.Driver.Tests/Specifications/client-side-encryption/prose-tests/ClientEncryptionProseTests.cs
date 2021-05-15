@@ -252,7 +252,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             var extraOptions = new Dictionary<string, object>
             {
                 { "mongocryptdBypassSpawn", true },
-                { "mongocryptdURI", "mongodb://localhost:27021/db?serverSelectionTimeoutMS=1000" },
+                { "mongocryptdURI", "mongodb://localhost:27021/db?serverSelectionTimeoutMS=10000" },
                 { "mongocryptdSpawnArgs", new [] { "--pidfilepath=bypass-spawning-mongocryptd.pid", "--port=27021" } },
             };
             var clientEncryptedSchema = new BsonDocument("db.coll", JsonFileReader.Instance.Documents["external.external-schema.json"]);
@@ -270,7 +270,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 var exception = Record.Exception(() => Insert(coll, async, new BsonDocument("encrypted", "test")));
 
                 exception.Should().BeOfType<MongoEncryptionException>();
-                exception.Message.Should().Contain("A timeout occurred after 1000ms selecting a server");
+                exception.Message.Should().Contain("A timeout occurred after 10000ms selecting a server");
             }
         }
 
@@ -289,7 +289,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             {
                 { "mongocryptdSpawnArgs", new [] { "--pidfilepath=bypass-spawning-mongocryptd.pid", "--port=27021" } },
             };
-            using (var mongocryptdClient = new DisposableMongoClient(new MongoClient("mongodb://localhost:27021/?serverSelectionTimeoutMS=1000")))
+            using (var mongocryptdClient = new DisposableMongoClient(new MongoClient("mongodb://localhost:27021/?serverSelectionTimeoutMS=10000")))
             using (var clientEncrypted = ConfigureClientEncrypted(
                 kmsProviderFilter: "local",
                 bypassAutoEncryption: true,
@@ -303,7 +303,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 var exception = Record.Exception(() => adminDatabase.RunCommand<BsonDocument>(isMasterCommand));
 
                 exception.Should().BeOfType<TimeoutException>();
-                exception.Message.Should().Contain("A timeout occurred after 1000ms selecting a server");
+                exception.Message.Should().Contain("A timeout occurred after 10000ms selecting a server");
             }
         }
 
