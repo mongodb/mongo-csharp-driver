@@ -1,9 +1,7 @@
-#module nuget:?package=Cake.DotNetTool.Module&version=0.4.0
-#addin nuget:?package=Cake.FileHelpers&version=3.3.0
-#addin nuget:?package=Cake.Git&version=0.22.0
-#addin nuget:?package=Cake.Incubator&version=5.1.0
-#tool dotnet:?package=GitVersion.Tool&version=5.3.7
-#tool nuget:?package=xunit.runner.console
+#addin nuget:?package=Cake.FileHelpers&version=4.0.1
+#addin nuget:?package=Cake.Git&version=1.0.1
+#addin nuget:?package=Cake.Incubator&version=6.0.0
+#tool dotnet:?package=GitVersion.Tool&version=5.6.9
 
 using System;
 using System.Text.RegularExpressions;

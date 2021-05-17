@@ -36,4 +36,4 @@ export AWS_TESTS_ENABLED=true
 # show test output
 set -x
 
-powershell.exe .\\build.ps1 -target TestAwsAuthentication
+powershell.exe .\\build.ps1 --target TestAwsAuthentication

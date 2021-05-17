@@ -21,7 +21,7 @@ export PLAIN_AUTH_TESTS_ENABLED=true
 
 if [[ "$OS" =~ Windows|windows ]]; then
   powershell.exe \
-    '.\build.ps1 -target TestPlainAuthentication'
+    '.\build.ps1 --target TestPlainAuthentication'
 else
-  ./build.sh -target=TestPlainAuthentication
+  ./build.sh --target=TestPlainAuthentication
 fi

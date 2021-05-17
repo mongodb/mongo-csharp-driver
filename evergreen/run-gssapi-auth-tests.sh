@@ -31,7 +31,7 @@ if [ "Windows_NT" = "$OS" ]; then
     export $var=z:\\data\\tmp
   done
 
-  powershell.exe .\\build.ps1 -target $TARGET
+  powershell.exe .\\build.ps1 --target $TARGET
 else
   echo "Setting krb5 config file"
   touch ${PROJECT_DIRECTORY}/evergreen/krb5.conf.empty
@@ -41,5 +41,5 @@ else
     export $var=/data/tmp;
   done
 
-  ./build.sh -target=$TARGET
+  ./build.sh --target=$TARGET
 fi;
