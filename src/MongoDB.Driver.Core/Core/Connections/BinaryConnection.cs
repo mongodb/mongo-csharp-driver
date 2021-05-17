@@ -357,7 +357,7 @@ namespace MongoDB.Driver.Core.Connections
                     Task.WaitAny(messageTask, receiveLockRequest.Task);
                     if (messageTask.IsCompleted)
                     {
-                        return _dropbox.RemoveMessage(responseTo);
+                        return _dropbox.RemoveMessage(responseTo); // also propagates exception if any
                     }
 
                     receiveLockRequest.Task.GetAwaiter().GetResult(); // propagate exceptions
@@ -371,12 +371,11 @@ namespace MongoDB.Driver.Core.Connections
                         catch (Exception ex)
                         {
                             _dropbox.AddException(ex);
-                            throw;
                         }
 
                         if (messageTask.IsCompleted)
                         {
-                            return _dropbox.RemoveMessage(responseTo);
+                            return _dropbox.RemoveMessage(responseTo); // also propagates exception if any
                         }
 
                         cancellationToken.ThrowIfCancellationRequested();
@@ -428,7 +427,7 @@ namespace MongoDB.Driver.Core.Connections
                     await Task.WhenAny(messageTask, receiveLockRequest.Task).ConfigureAwait(false);
                     if (messageTask.IsCompleted)
                     {
-                        return _dropbox.RemoveMessage(responseTo);
+                        return _dropbox.RemoveMessage(responseTo); // also propagates exception if any
                     }
 
                     receiveLockRequest.Task.GetAwaiter().GetResult(); // propagate exceptions
@@ -442,12 +441,11 @@ namespace MongoDB.Driver.Core.Connections
                         catch (Exception ex)
                         {
                             _dropbox.AddException(ex);
-                            throw;
                         }
 
                         if (messageTask.IsCompleted)
                         {
-                            return _dropbox.RemoveMessage(responseTo);
+                            return _dropbox.RemoveMessage(responseTo); // also propagates exception if any
                         }
 
                         cancellationToken.ThrowIfCancellationRequested();

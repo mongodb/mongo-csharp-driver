@@ -470,6 +470,66 @@ namespace MongoDB.Driver.Core.Connections
 
         [Theory]
         [ParameterAttributeData]
+        public void ReceiveMessage_should_not_produce_unobserved_task_exceptions_on_fail(
+            [Values(false, true)] bool async)
+        {
+            var unobservedTaskExceptionRaised = false;
+            var mockStream = new Mock<Stream>();
+            EventHandler<UnobservedTaskExceptionEventArgs> eventHandler = (s, args) =>
+            {
+                unobservedTaskExceptionRaised = true;
+                args.SetObserved();
+            };
+
+            try
+            {
+                TaskScheduler.UnobservedTaskException += eventHandler;
+                var encoderSelector = new ReplyMessageEncoderSelector<BsonDocument>(BsonDocumentSerializer.Instance);
+
+                _mockStreamFactory
+                    .Setup(f => f.CreateStream(_endPoint, CancellationToken.None))
+                    .Returns(mockStream.Object);
+
+                if (async)
+                {
+                    mockStream
+                        .Setup(s => s.ReadAsync(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+                        .Throws(new SocketException());
+                }
+                else
+                {
+                    mockStream
+                        .Setup(s => s.Read(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>()))
+                        .Throws(new SocketException());
+                }
+
+                _subject.Open(CancellationToken.None);
+
+                Exception exception;
+                if (async)
+                {
+                    exception = Record.Exception(() => _subject.ReceiveMessageAsync(1, encoderSelector, _messageEncoderSettings, CancellationToken.None).GetAwaiter().GetResult());
+                }
+                else
+                {
+                    exception = Record.Exception(() => _subject.ReceiveMessage(1, encoderSelector, _messageEncoderSettings, CancellationToken.None));
+                }
+                exception.Should().BeOfType<MongoConnectionException>();
+
+                GC.Collect(); // Collects the unobserved tasks
+                GC.WaitForPendingFinalizers(); // Assures finilizers are executed
+
+                unobservedTaskExceptionRaised.Should().BeFalse();
+            }
+            finally
+            {
+                TaskScheduler.UnobservedTaskException -= eventHandler;
+                mockStream.Object?.Dispose();
+            }
+        }
+
+        [Theory]
+        [ParameterAttributeData]
         public void ReceiveMessage_should_throw_network_exception_to_all_awaiters(
             [Values(false, true)]
             bool async1,
