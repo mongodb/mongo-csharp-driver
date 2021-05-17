@@ -477,10 +477,8 @@ namespace MongoDB.Driver.Core.Connections
             var mockStream = new Mock<Stream>();
             EventHandler<UnobservedTaskExceptionEventArgs> eventHandler = (s, args) =>
             {
-                if (args.Exception.InnerException is MongoConnectionException)
-                {
-                    unobservedTaskExceptionRaised = true;
-                }
+                unobservedTaskExceptionRaised = true;
+                args.SetObserved();
             };
 
             try
@@ -518,8 +516,8 @@ namespace MongoDB.Driver.Core.Connections
                 }
                 exception.Should().BeOfType<MongoConnectionException>();
 
-                GC.Collect();
-                GC.WaitForPendingFinalizers();
+                GC.Collect(); // Collects the unobserved tasks
+                GC.WaitForPendingFinalizers(); // Assures finilizers are executed
 
                 unobservedTaskExceptionRaised.Should().BeFalse();
             }
