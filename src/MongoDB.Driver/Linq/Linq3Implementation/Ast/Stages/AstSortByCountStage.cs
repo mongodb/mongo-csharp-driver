@@ -15,24 +15,25 @@
 
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Stages
 {
-    internal sealed class AstListLocalSessionsStage : AstStage
+    internal sealed class AstSortByCountStage : AstStage
     {
-        private readonly BsonDocument _options;
+        private readonly AstExpression _expression;
 
-        public AstListLocalSessionsStage(BsonDocument options)
+        public AstSortByCountStage(AstExpression expression)
         {
-            _options = Ensure.IsNotNull(options, nameof(options));
+            _expression = Ensure.IsNotNull(expression, nameof(expression));
         }
 
-        public override AstNodeType NodeType => AstNodeType.ListLocalSessionsStage;
-        public BsonDocument Options => _options;
+        public AstExpression Expression => _expression;
+        public override AstNodeType NodeType => AstNodeType.SortStage;
 
         public override BsonValue Render()
         {
-            return new BsonDocument("$listLocalSessions", _options);
+            return new BsonDocument("$sortByCount", _expression.Render());
         }
     }
 }
