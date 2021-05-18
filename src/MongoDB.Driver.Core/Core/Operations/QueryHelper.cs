@@ -52,16 +52,16 @@ namespace MongoDB.Driver.Core.Operations
             return firstBatchSize;
         }
 
-        public static BsonDocument CreateReadPreferenceDocument(ServerType serverType, ReadPreference readPreference, out bool slaveOk)
+        public static BsonDocument CreateReadPreferenceDocument(ServerType serverType, ReadPreference readPreference, out bool secondaryOk)
         {
-            slaveOk = readPreference != null && readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary;
+            secondaryOk = readPreference != null && readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary;
 
             if (serverType != ServerType.ShardRouter || readPreference == null)
             {
                 return null;
             }
 
-            // simple ReadPreferences of Primary and SecondaryPreferred are encoded in the slaveOk bit
+            // simple ReadPreferences of Primary and SecondaryPreferred are encoded in the secondaryOk bit
             switch (readPreference.ReadPreferenceMode)
             {
                 case ReadPreferenceMode.Primary:

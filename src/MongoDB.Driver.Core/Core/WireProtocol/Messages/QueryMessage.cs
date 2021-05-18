@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         private readonly IElementNameValidator _queryValidator;
         private CommandResponseHandling _responseHandling = CommandResponseHandling.Return;
         private readonly int _skip;
-        private readonly bool _slaveOk;
+        private readonly bool _secondaryOk;
         private readonly bool _tailableCursor;
 
         // constructors
@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         /// <param name="queryValidator">The query validator.</param>
         /// <param name="skip">The number of documents to skip.</param>
         /// <param name="batchSize">The size of a batch.</param>
-        /// <param name="slaveOk">if set to <c>true</c> it is OK if the server is not the primary.</param>
+        /// <param name="secondaryOk">if set to <c>true</c> it is OK if the server is not the primary.</param>
         /// <param name="partialOk">if set to <c>true</c> the server is allowed to return partial results if any shards are unavailable.</param>
         /// <param name="noCursorTimeout">if set to <c>true</c> the server should not timeout the cursor.</param>
         /// <param name="tailableCursor">if set to <c>true</c> the query should return a tailable cursor.</param>
@@ -68,7 +68,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             IElementNameValidator queryValidator,
             int skip,
             int batchSize,
-            bool slaveOk,
+            bool secondaryOk,
             bool partialOk,
             bool noCursorTimeout,
             bool tailableCursor,
@@ -83,7 +83,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
                   queryValidator,
                   skip,
                   batchSize,
-                  slaveOk,
+                  secondaryOk,
                   partialOk,
                   noCursorTimeout,
                   oplogReplay: false,
@@ -104,7 +104,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         /// <param name="queryValidator">The query validator.</param>
         /// <param name="skip">The number of documents to skip.</param>
         /// <param name="batchSize">The size of a batch.</param>
-        /// <param name="slaveOk">if set to <c>true</c> it is OK if the server is not the primary.</param>
+        /// <param name="secondaryOk">if set to <c>true</c> it is OK if the server is not the primary.</param>
         /// <param name="partialOk">if set to <c>true</c> the server is allowed to return partial results if any shards are unavailable.</param>
         /// <param name="noCursorTimeout">if set to <c>true</c> the server should not timeout the cursor.</param>
         /// <param name="oplogReplay">if set to <c>true</c> the OplogReplay bit will be set.</param>
@@ -120,7 +120,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             IElementNameValidator queryValidator,
             int skip,
             int batchSize,
-            bool slaveOk,
+            bool secondaryOk,
             bool partialOk,
             bool noCursorTimeout,
             bool oplogReplay, // obsolete: OplogReplay is ignored by server versions 4.4.0 and newer
@@ -135,7 +135,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             _queryValidator = Ensure.IsNotNull(queryValidator, nameof(queryValidator));
             _skip = Ensure.IsGreaterThanOrEqualToZero(skip, nameof(skip));
             _batchSize = batchSize; // can be negative
-            _slaveOk = slaveOk;
+            _secondaryOk = secondaryOk;
             _partialOk = partialOk;
             _noCursorTimeout = noCursorTimeout;
             _oplogReplay = oplogReplay;
@@ -270,7 +270,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         /// </summary>
         public bool SlaveOk
         {
-            get { return _slaveOk; }
+            get { return _secondaryOk; }
         }
 
         /// <summary>

@@ -74,11 +74,11 @@ namespace MongoDB.Driver.Core.Operations
                 ServerErrorCode.ExceededTimeLimit,
                 ServerErrorCode.SocketException,
                 ServerErrorCode.LegacyNotPrimary,
-                ServerErrorCode.NotMaster,
+                ServerErrorCode.NotWritablePrimary,
                 ServerErrorCode.InterruptedAtShutdown,
                 ServerErrorCode.InterruptedDueToReplStateChange,
-                ServerErrorCode.NotMasterNoSlaveOk,
-                ServerErrorCode.NotMasterOrSecondary,
+                ServerErrorCode.NotPrimaryNoSecondaryOk,
+                ServerErrorCode.NotPrimaryOrSecondary,
                 ServerErrorCode.StaleShardVersion,
                 ServerErrorCode.StaleEpoch,
                 ServerErrorCode.StaleConfig,
@@ -210,9 +210,9 @@ namespace MongoDB.Driver.Core.Operations
                         case ServerErrorCode.InterruptedAtShutdown:
                         case ServerErrorCode.InterruptedDueToReplStateChange:
                         case ServerErrorCode.LegacyNotPrimary:
-                        case ServerErrorCode.NotMaster:
-                        case ServerErrorCode.NotMasterNoSlaveOk:
-                        case ServerErrorCode.NotMasterOrSecondary:
+                        case ServerErrorCode.NotWritablePrimary:
+                        case ServerErrorCode.NotPrimaryNoSecondaryOk:
+                        case ServerErrorCode.NotPrimaryOrSecondary:
                         case ServerErrorCode.PrimarySteppedDown:
                         case ServerErrorCode.ShutdownInProgress:
                         case ServerErrorCode.HostNotFound:

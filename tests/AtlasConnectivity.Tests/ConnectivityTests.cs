@@ -44,8 +44,8 @@ namespace AtlasConnectivity.Tests
             {
                 // test that a command that doesn't require auth completes normally
                 var adminDatabase = client.GetDatabase("admin");
-                var isMasterCommand = new BsonDocument("ismaster", 1);
-                var isMasterResult = adminDatabase.RunCommand<BsonDocument>(isMasterCommand);
+                var pingCommand = new BsonDocument("ping", 1);
+                var pingResult = adminDatabase.RunCommand<BsonDocument>(pingCommand);
 
                 // test that a command that does require auth completes normally
                 var database = client.GetDatabase("test");

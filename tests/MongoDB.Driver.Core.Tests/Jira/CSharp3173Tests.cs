@@ -58,7 +58,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
         {
             var eventCapturer = new EventCapturer().Capture<ServerDescriptionChangedEvent>();
 
-            // ensure that isMaster check response is finished only after network error
+            // ensure that hello or legacy hello check response is finished only after network error
             var hasNetworkErrorBeenTriggered = new TaskCompletionSource<bool>();
             // ensure that there are no unexpected events between test ending and cluster disposing
             var hasClusterBeenDisposed = new TaskCompletionSource<bool>();
@@ -69,17 +69,17 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 ForceClusterId(cluster, __clusterId);
 
                 // 0. Initial heartbeat via `connection.Open`
-                // The next isMaster response will be delayed because the Task.WaitAny in the mock.Returns
+                // The next hello or legacy hello response will be delayed because the Task.WaitAny in the mock.Returns
                 cluster.Initialize();
 
                 var selectedServer = cluster.SelectServer(CreateWritableServerAndEndPointSelector(__endPoint1), CancellationToken.None);
                 initialSelectedEndpoint = selectedServer.EndPoint;
                 initialSelectedEndpoint.Should().Be(__endPoint1);
 
-                // make sure the next isMaster check has been called
+                // make sure the next hello or legacy hello check has been called
                 Thread.Sleep(__heartbeatInterval + TimeSpan.FromMilliseconds(50));
 
-                // 1. Trigger the command network error BEFORE handshake. At this time isMaster response is alreaady delayed until `hasNetworkErrorBeenTriggered.SetResult`
+                // 1. Trigger the command network error BEFORE handshake. At this time hello or legacy hello response is already delayed until `hasNetworkErrorBeenTriggered.SetResult`
                 Exception exception;
                 if (async)
                 {
@@ -93,10 +93,10 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 var e = exception.Should().BeOfType<MongoConnectionException>().Subject;
                 e.Message.Should().Be("DnsException");
 
-                // 2. Waiting for the isMaster check
-                hasNetworkErrorBeenTriggered.SetResult(true); // unlock the in-progress isMaster response
+                // 2. Waiting for the hello or legacy hello check
+                hasNetworkErrorBeenTriggered.SetResult(true); // unlock the in-progress hello or legacy hello response
 
-                Thread.Sleep(100); // make sure the delayed isMaster check had time to change description if there is a bug
+                Thread.Sleep(100); // make sure the delayed hello or legacy hello check had time to change description if there is a bug
                 var knownServers = cluster.Description.Servers.Where(s => s.Type != ServerType.Unknown);
                 if (knownServers.Select(s => s.EndPoint).Contains(initialSelectedEndpoint))
                 {
@@ -109,7 +109,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 // ensure that the selected server is not the same as the initial
                 selectedServer.EndPoint.Should().Be(__endPoint2);
 
-                // the 4th event is MongoConnectionException which will trigger the next isMaster check immediately
+                // the 4th event is MongoConnectionException which will trigger the next hello or legacy hello check immediately
                 eventCapturer.WaitForOrThrowIfTimeout(events => events.Count() >= 4, TimeSpan.FromSeconds(5));
             }
             hasClusterBeenDisposed.SetCanceled(); // Cut off not related events. Stop waiting in the latest mock.Returns for OpenAsync
@@ -321,7 +321,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 // sync path is not used in serverMonitor
                 mockFaultyConnection
                     .SetupSequence(c => c.OpenAsync(It.IsAny<CancellationToken>()))
-                    .Returns(Task.FromResult(true)) // the first isMaster configuration passes
+                    .Returns(Task.FromResult(true)) // the first hello or legacy hello configuration passes
                     .Returns(Task.FromResult(true)) // RTT
                     .Throws(CreateDnsException(mockConnection.Object.ConnectionId)) // the dns exception. Should be triggered after Invalidate
                     .Returns(async () =>

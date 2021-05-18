@@ -22,7 +22,6 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
@@ -50,7 +49,6 @@ namespace MongoDB.Driver.Tests
         // private static methods
         private static bool CreateTestData()
         {
-            // see: https://docs.mongodb.com/master/release-notes/3.4-reference/#pipe._S_facet
             var documents = new[]
             {
                 BsonDocument.Parse("{ _id: 1, title: \"The Pillars of Society\", artist : \"Grosz\", year: 1926, tags: [ \"painting\", \"satire\", \"Expressionism\", \"caricature\" ] }"),

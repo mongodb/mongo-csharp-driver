@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading;
@@ -260,13 +259,13 @@ namespace MongoDB.Driver.Core.Servers
 
         [Theory]
         [ParameterAttributeData]
-        public void InitializeIsMasterProtocol_should_use_streaming_protocol_when_available([Values(false, true)] bool isStreamable)
+        public void InitializeHelloProtocol_should_use_streaming_protocol_when_available([Values(false, true)] bool isStreamable)
         {
             var subject = CreateSubject(out var mockConnection, out _, out _);
             SetupHeartbeatConnection(mockConnection, isStreamable, autoFillStreamingResponses: true);
 
             mockConnection.WasReadTimeoutChanged.Should().Be(null);
-            var resultProtocol = subject.InitializeIsMasterProtocol(mockConnection);
+            var resultProtocol = subject.InitializeHelloProtocol(mockConnection);
             if (isStreamable)
             {
                 mockConnection.WasReadTimeoutChanged.Should().BeTrue();
@@ -432,9 +431,9 @@ namespace MongoDB.Driver.Core.Servers
             return (IConnection)Reflector.GetFieldValue(serverMonitor, nameof(_connection));
         }
 
-        public static CommandWireProtocol<BsonDocument> InitializeIsMasterProtocol(this ServerMonitor serverMonitor, IConnection connection)
+        public static CommandWireProtocol<BsonDocument> InitializeHelloProtocol(this ServerMonitor serverMonitor, IConnection connection)
         {
-            return (CommandWireProtocol<BsonDocument>)Reflector.Invoke(serverMonitor, nameof(InitializeIsMasterProtocol), connection);
+            return (CommandWireProtocol<BsonDocument>)Reflector.Invoke(serverMonitor, nameof(InitializeHelloProtocol), connection);
         }
     }
 }

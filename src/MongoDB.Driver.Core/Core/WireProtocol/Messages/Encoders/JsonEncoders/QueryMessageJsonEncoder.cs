@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             var fields = (BsonDocument)messageDocument.GetValue("fields", null);
             var skip = messageDocument.GetValue("skip", 0).ToInt32();
             var batchSize = messageDocument.GetValue("batchSize", 0).ToInt32();
-            var slaveOk = messageDocument.GetValue("slaveOk", false).ToBoolean();
+            var secondaryOk = messageDocument.GetValue("slaveOk", false).ToBoolean();
             var partialOk = messageDocument.GetValue("partialOk", false).ToBoolean();
             var noCursorTimeout = messageDocument.GetValue("noCursorTimeout", false).ToBoolean();
             var oplogReplay = messageDocument.GetValue("oplogReplay", false).ToBoolean();
@@ -80,7 +80,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
                 NoOpElementNameValidator.Instance,
                 skip,
                 batchSize,
-                slaveOk,
+                secondaryOk,
                 partialOk,
                 noCursorTimeout,
                 oplogReplay,

@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Core.WireProtocol
         private readonly IElementNameValidator _queryValidator;
         private readonly IBsonSerializer<TDocument> _serializer;
         private readonly int _skip;
-        private readonly bool _slaveOk;
+        private readonly bool _secondaryOk;
         private readonly bool _tailableCursor;
 
         // constructors
@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             IElementNameValidator queryValidator,
             int skip,
             int batchSize,
-            bool slaveOk,
+            bool secondaryOk,
             bool partialOk,
             bool noCursorTimeout,
             bool tailableCursor,
@@ -67,7 +67,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                   queryValidator,
                   skip,
                   batchSize,
-                  slaveOk,
+                  secondaryOk,
                   partialOk,
                   noCursorTimeout,
                   oplogReplay: false,
@@ -87,7 +87,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             IElementNameValidator queryValidator,
             int skip,
             int batchSize,
-            bool slaveOk,
+            bool secondaryOk,
             bool partialOk,
             bool noCursorTimeout,
             bool oplogReplay, // obsolete: OplogReplay is ignored by server versions 4.4.0 and newer
@@ -102,7 +102,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             _queryValidator = Ensure.IsNotNull(queryValidator, nameof(queryValidator));
             _skip = Ensure.IsGreaterThanOrEqualToZero(skip, nameof(skip));
             _batchSize = batchSize; // can be negative
-            _slaveOk = slaveOk;
+            _secondaryOk = secondaryOk;
             _partialOk = partialOk;
             _noCursorTimeout = noCursorTimeout;
             _oplogReplay = oplogReplay;
@@ -127,7 +127,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 _queryValidator,
                 _skip,
                 _batchSize,
-                _slaveOk,
+                _secondaryOk,
                 _partialOk,
                 _noCursorTimeout,
                 _oplogReplay,

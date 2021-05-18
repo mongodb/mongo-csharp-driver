@@ -127,7 +127,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
             step.Average.Should().Be(default);
             step.RttConnection.Should().BeNull();
 
-            // isMaster call
+            // legacy hello call
             steps.TryDequeue(out step).Should().BeTrue();
             step.Average.Should().NotBe(default);
             step.RttConnection.Should().NotBeNull();
@@ -137,7 +137,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
             step.Average.Should().NotBe(default);
             step.RttConnection.Should().BeNull();
 
-            // isMaster call
+            // legacy hello call
             steps.TryDequeue(out step).Should().BeTrue();
             step.Average.Should().NotBe(default);
             step.RttConnection.Should().NotBeNull();

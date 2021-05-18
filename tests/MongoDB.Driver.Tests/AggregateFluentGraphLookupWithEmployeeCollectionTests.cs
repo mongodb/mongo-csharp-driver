@@ -22,7 +22,6 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.EqualityComparers;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
@@ -51,8 +50,6 @@ namespace MongoDB.Driver.Tests
         // private static methods
         private static bool CreateTestData()
         {
-            // test data is from: https://docs.mongodb.com/master/release-notes/3.4-reference/#pipe._S_graphLookup
-
             __database.DropCollection(__employeesCollection.CollectionNamespace.CollectionName);
 
             __dev = new Employee { Id = 1, Name = "Dev", ReportsTo = null };

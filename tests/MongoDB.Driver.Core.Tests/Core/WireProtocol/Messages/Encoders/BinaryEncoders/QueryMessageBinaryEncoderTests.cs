@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         private static readonly IElementNameValidator __queryValidator = NoOpElementNameValidator.Instance;
         private static readonly int __requestId = 1;
         private static readonly int __skip = 2;
-        private static readonly bool __slaveOk = true;
+        private static readonly bool __secondaryOk = true;
         private static readonly bool __tailableCursor = true;
         private static readonly QueryMessage __testMessage;
         private static readonly byte[] __testMessageBytes;
@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         static QueryMessageBinaryEncoderTests()
         {
 #pragma warning disable 618
-            __testMessage = new QueryMessage(__requestId, __collectionNamespace, __query, __fields, __queryValidator, __skip, __batchSize, __slaveOk, __partialOk, __noCursorTimeout, __oplogReplay, __tailableCursor, __awaitData);
+            __testMessage = new QueryMessage(__requestId, __collectionNamespace, __query, __fields, __queryValidator, __skip, __batchSize, __secondaryOk, __partialOk, __noCursorTimeout, __oplogReplay, __tailableCursor, __awaitData);
 #pragma warning restore 618
 
             __testMessageBytes = new byte[]
@@ -95,7 +95,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         [InlineData(8, false, false, false, true, false, false)]
         [InlineData(32, false, false, false, false, true, false)]
         [InlineData(128, false, false, false, false, false, true)]
-        public void ReadMessage_should_decode_flags_correctly(int flags, bool tailableCursor, bool slaveOk, bool noCursorTimeout, bool oplogReplay, bool awaitData, bool partialOk)
+        public void ReadMessage_should_decode_flags_correctly(int flags, bool tailableCursor, bool secondaryOk, bool noCursorTimeout, bool oplogReplay, bool awaitData, bool partialOk)
         {
             var bytes = (byte[])__testMessageBytes.Clone();
             bytes[__flagsOffset] = (byte)flags;
@@ -105,7 +105,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 var subject = new QueryMessageBinaryEncoder(stream, __messageEncoderSettings);
                 var message = subject.ReadMessage();
                 message.TailableCursor.Should().Be(tailableCursor);
-                message.SlaveOk.Should().Be(slaveOk);
+                message.SlaveOk.Should().Be(secondaryOk);
                 message.NoCursorTimeout.Should().Be(noCursorTimeout);
 #pragma warning disable 618
                 message.OplogReplay.Should().Be(oplogReplay);
@@ -134,7 +134,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 message.Query.Should().Be(__query);
                 message.RequestId.Should().Be(__requestId);
                 message.Skip.Should().Be(__skip);
-                message.SlaveOk.Should().Be(__slaveOk);
+                message.SlaveOk.Should().Be(__secondaryOk);
                 message.TailableCursor.Should().Be(__tailableCursor);
             }
         }
@@ -162,10 +162,10 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         [InlineData(8, false, false, false, true, false, false)]
         [InlineData(32, false, false, false, false, true, false)]
         [InlineData(128, false, false, false, false, false, true)]
-        public void WriteMessage_should_encode_flags_correctly(int flags, bool tailableCursor, bool slaveOk, bool noCursorTimeout, bool oplogReplay, bool awaitData, bool partialOk)
+        public void WriteMessage_should_encode_flags_correctly(int flags, bool tailableCursor, bool secondaryOk, bool noCursorTimeout, bool oplogReplay, bool awaitData, bool partialOk)
         {
 #pragma warning disable 618
-            var message = new QueryMessage(__requestId, __collectionNamespace, __query, __fields, __queryValidator, __skip, __batchSize, slaveOk, partialOk, noCursorTimeout, oplogReplay, tailableCursor, awaitData);
+            var message = new QueryMessage(__requestId, __collectionNamespace, __query, __fields, __queryValidator, __skip, __batchSize, secondaryOk, partialOk, noCursorTimeout, oplogReplay, tailableCursor, awaitData);
 #pragma warning restore 618
 
             using (var stream = new MemoryStream())

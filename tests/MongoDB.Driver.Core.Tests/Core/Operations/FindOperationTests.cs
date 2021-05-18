@@ -24,7 +24,6 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Core.Tests;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using Xunit;
 
@@ -522,7 +521,7 @@ namespace MongoDB.Driver.Core.Operations
             EnsureTestData();
             var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
-            var cursor = ExecuteOperation(subject, ReadPreference.PrimaryPreferred, async); // note: SecondaryPreferred doesn't test $readPreference because it is encoded as slaveOk = true
+            var cursor = ExecuteOperation(subject, ReadPreference.PrimaryPreferred, async); // note: SecondaryPreferred doesn't test $readPreference because it is encoded as secondaryOk = true
             var result = ReadCursorToEnd(cursor, async);
 
             result.Should().HaveCount(5);
