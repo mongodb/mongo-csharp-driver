@@ -356,7 +356,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                     }
                 }
             }
-            if (!_session.IsInTransaction && _serverApi != null)
+            if (_serverApi != null)
             {
                 extraElements.Add(new BsonElement("apiVersion", _serverApi.Version.ToString()));
                 if (_serverApi.Strict.HasValue)

@@ -40,6 +40,13 @@ namespace MongoDB.Driver.Core.WireProtocol
 {
     public class CommandWriteProtocolTests
     {
+        private static readonly ClusterId __clusterId = new ClusterId();
+        private static readonly ServerId __serverId = new ServerId(__clusterId, new DnsEndPoint("localhost", 27017));
+        private static readonly ConnectionDescription __connectionDescription = new ConnectionDescription(
+            new ConnectionId(__serverId),
+            new IsMasterResult(new BsonDocument("ok", 1).Add("ismaster", 1)),
+            new BuildInfoResult(new BsonDocument("version", "4.9.0")));
+
         [Theory]
         [ParameterAttributeData]
         public void Execute_should_use_cached_IWireProtocol_if_available([Values(false, true)] bool withSameConnection)
@@ -118,6 +125,106 @@ namespace MongoDB.Driver.Core.WireProtocol
                             new IsMasterResult(new BsonDocument("ok", 1)),
                             new BuildInfoResult(new BsonDocument("version", "4.4"))));
                 return id;
+            }
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Execute_should_use_serverApi_with_getMoreCommand(
+            [Values(false, true)] bool useServerApi,
+            [Values(false, true)] bool async)
+        {
+            var serverApi = useServerApi ? new ServerApi(ServerApiVersion.V1, true, true) : null;
+
+            var connection = new MockConnection();
+            connection.Description = __connectionDescription;
+            var commandResponse = MessageHelper.BuildCommandResponse(CreateRawBsonDocument(new BsonDocument("ok", 1)));
+            connection.EnqueueCommandResponseMessage(commandResponse);
+            var subject = new CommandWireProtocol<BsonDocument>(
+                NoCoreSession.Instance,
+                ReadPreference.Primary,
+                new DatabaseNamespace("test"),
+                new BsonDocument("getMore", 1),
+                commandPayloads: null,
+                NoOpElementNameValidator.Instance,
+                additionalOptions: null,
+                postWriteAction: null,
+                CommandResponseHandling.Return,
+                BsonDocumentSerializer.Instance,
+                new MessageEncoderSettings(),
+                serverApi);
+
+            if (async)
+            {
+                subject.ExecuteAsync(connection, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.Execute(connection, CancellationToken.None);
+            }
+
+            SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(4)).Should().BeTrue();
+
+            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
+            sentMessages.Count.Should().Be(1);
+            var actualRequestId = sentMessages[0]["requestId"].AsInt32;
+            var expectedServerApiString = useServerApi ? ", apiVersion : \"1\", apiStrict : true, apiDeprecationErrors : true" : "";
+            sentMessages[0].Should().Be($"{{ opcode : \"opmsg\", requestId : {actualRequestId}, responseTo : 0, sections : [ {{ payloadType : 0, document : {{ getMore : 1, $db : \"test\"{expectedServerApiString} }} }} ] }}");
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Execute_should_use_serverApi_in_transaction(
+            [Values(false, true)] bool useServerApi,
+            [Values(false, true)] bool async)
+        {
+            var serverApi = useServerApi ? new ServerApi(ServerApiVersion.V1, true, true) : null;
+
+            var connection = new MockConnection();
+            connection.Description = __connectionDescription;
+            var commandResponse = MessageHelper.BuildCommandResponse(CreateRawBsonDocument(new BsonDocument("ok", 1)));
+            connection.EnqueueCommandResponseMessage(commandResponse);
+            var subject = new CommandWireProtocol<BsonDocument>(
+                CreateMockSessionInTransaction(),
+                ReadPreference.Primary,
+                new DatabaseNamespace("test"),
+                new BsonDocument("moreGet", 1),
+                commandPayloads: null,
+                NoOpElementNameValidator.Instance,
+                additionalOptions: null,
+                postWriteAction: null,
+                CommandResponseHandling.Return,
+                BsonDocumentSerializer.Instance,
+                new MessageEncoderSettings(),
+                serverApi);
+
+            if (async)
+            {
+                subject.ExecuteAsync(connection, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                subject.Execute(connection, CancellationToken.None);
+            }
+
+            SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(4)).Should().BeTrue();
+
+            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
+            sentMessages.Count.Should().Be(1);
+            var actualRequestId = sentMessages[0]["requestId"].AsInt32;
+            var expectedServerApiString = useServerApi ? ", apiVersion : \"1\", apiStrict : true, apiDeprecationErrors : true" : "";
+            sentMessages[0].Should().Be($"{{ opcode : \"opmsg\", requestId : {actualRequestId}, responseTo : 0, sections : [ {{ payloadType : 0, document : {{ moreGet : 1, $db : \"test\", txnNumber : NumberLong(1), autocommit : false{expectedServerApiString} }} }} ] }}");
+
+            ICoreSession CreateMockSessionInTransaction()
+            {
+                var transaction = new CoreTransaction(1, new TransactionOptions());
+                transaction.SetState(CoreTransactionState.InProgress);
+
+                var mockSession = new Mock<ICoreSession>();
+                mockSession.SetupGet(m => m.CurrentTransaction).Returns(transaction);
+                mockSession.SetupGet(m => m.IsInTransaction).Returns(true);
+
+                return mockSession.Object;
             }
         }
 
