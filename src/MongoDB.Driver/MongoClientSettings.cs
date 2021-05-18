@@ -49,6 +49,7 @@ namespace MongoDB.Driver
         private TimeSpan _heartbeatInterval;
         private TimeSpan _heartbeatTimeout;
         private bool _ipv6;
+        private bool _loadBalanced;
         private TimeSpan _localThreshold;
         private TimeSpan _maxConnectionIdleTime;
         private TimeSpan _maxConnectionLifeTime;
@@ -104,6 +105,7 @@ namespace MongoDB.Driver
             _heartbeatInterval = ServerSettings.DefaultHeartbeatInterval;
             _heartbeatTimeout = ServerSettings.DefaultHeartbeatTimeout;
             _ipv6 = false;
+            _loadBalanced = false;
             _localThreshold = MongoDefaults.LocalThreshold;
             _maxConnectionIdleTime = MongoDefaults.MaxConnectionIdleTime;
             _maxConnectionLifeTime = MongoDefaults.MaxConnectionLifeTime;
@@ -397,6 +399,19 @@ namespace MongoDB.Driver
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
                 _ipv6 = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets whether to use load balanced.
+        /// </summary>
+        public bool LoadBalanced
+        {
+            get { return _loadBalanced; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
+                _loadBalanced = value;
             }
         }
 
@@ -879,6 +894,7 @@ namespace MongoDB.Driver
             clientSettings.ReplicaSetName = url.ReplicaSetName;
             clientSettings.RetryReads = url.RetryReads.GetValueOrDefault(true);
             clientSettings.RetryWrites = url.RetryWrites.GetValueOrDefault(true);
+            clientSettings.LoadBalanced = url.LoadBalanced;
             clientSettings.LocalThreshold = url.LocalThreshold;
             clientSettings.Scheme = url.Scheme;
             clientSettings.Servers = new List<MongoServerAddress>(url.Servers);
@@ -931,6 +947,7 @@ namespace MongoDB.Driver
             clone._replicaSetName = _replicaSetName;
             clone._retryReads = _retryReads;
             clone._retryWrites = _retryWrites;
+            clone._loadBalanced = _loadBalanced;
             clone._localThreshold = _localThreshold;
             clone._scheme = _scheme;
             clone._sdamLogFilename = _sdamLogFilename;
@@ -985,6 +1002,7 @@ namespace MongoDB.Driver
                 _heartbeatInterval == rhs._heartbeatInterval &&
                 _heartbeatTimeout == rhs._heartbeatTimeout &&
                 _ipv6 == rhs._ipv6 &&
+                _loadBalanced == rhs._loadBalanced &&
                 _maxConnectionIdleTime == rhs._maxConnectionIdleTime &&
                 _maxConnectionLifeTime == rhs._maxConnectionLifeTime &&
                 _maxConnectionPoolSize == rhs._maxConnectionPoolSize &&
@@ -1067,6 +1085,7 @@ namespace MongoDB.Driver
                 .Hash(_heartbeatInterval)
                 .Hash(_heartbeatTimeout)
                 .Hash(_ipv6)
+                .Hash(_loadBalanced)
                 .Hash(_maxConnectionIdleTime)
                 .Hash(_maxConnectionLifeTime)
                 .Hash(_maxConnectionPoolSize)
@@ -1131,6 +1150,7 @@ namespace MongoDB.Driver
             sb.AppendFormat("HeartbeatInterval={0};", _heartbeatInterval);
             sb.AppendFormat("HeartbeatTimeout={0};", _heartbeatTimeout);
             sb.AppendFormat("IPv6={0};", _ipv6);
+            sb.AppendFormat("LoadBalanced={0};", _loadBalanced);
             sb.AppendFormat("MaxConnectionIdleTime={0};", _maxConnectionIdleTime);
             sb.AppendFormat("MaxConnectionLifeTime={0};", _maxConnectionLifeTime);
             sb.AppendFormat("MaxConnectionPoolSize={0};", _maxConnectionPoolSize);
@@ -1193,6 +1213,7 @@ namespace MongoDB.Driver
                 _heartbeatTimeout,
                 _ipv6,
                 _autoEncryptionOptions?.KmsProviders,
+                _loadBalanced,
                 _localThreshold,
                 _maxConnectionIdleTime,
                 _maxConnectionLifeTime,
@@ -1233,6 +1254,24 @@ namespace MongoDB.Driver
                 if (_servers.Count > 1)
                 {
                     throw new InvalidOperationException($"Multiple host names cannot be used with direct connections.");
+                }
+            }
+
+            if (_loadBalanced)
+            {
+                if (_servers.Count > 1)
+                {
+                    throw new InvalidOperationException("Load balanced cannot be used with multiple host names.");
+                }
+
+                if (_replicaSetName != null)
+                {
+                    throw new InvalidOperationException("ReplicaSetName cannot be used with load balanced.");
+                }
+
+                if (IsDirectConnection())
+                {
+                    throw new InvalidOperationException("Load balanced cannot be used with direct connection.");
                 }
             }
 

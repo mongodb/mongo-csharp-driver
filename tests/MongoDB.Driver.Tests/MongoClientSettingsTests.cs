@@ -82,7 +82,7 @@ namespace MongoDB.Driver.Tests
             // set everything to non default values to test that all settings are cloned
             var connectionString =
                 "mongodb://user1:password1@somehost/?appname=app;" +
-                "connect=direct;connectTimeout=123;ipv6=true;heartbeatInterval=1m;heartbeatTimeout=2m;localThreshold=128;" +
+                "connect=direct;connectTimeout=123;ipv6=true;heartbeatInterval=1m;heartbeatTimeout=2m;localThreshold=128;loadBalanced=true;" +
                 "maxIdleTime=124;maxLifeTime=125;maxPoolSize=126;minPoolSize=127;readConcernLevel=majority;" +
                 "readPreference=secondary;readPreferenceTags=a:1,b:2;readPreferenceTags=c:3,d:4;socketTimeout=129;" +
                 "serverSelectionTimeout=20s;ssl=true;sslVerifyCertificate=false;waitqueuesize=130;waitQueueTimeout=131;" +
@@ -543,30 +543,53 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestFreezeInvalid()
         {
-            var settings = new MongoClientSettings();
-            settings.AllowInsecureTls = true;
-            settings.SslSettings.CheckCertificateRevocation = true;
+            AssertOptions(settings =>
+            {
+                settings.AllowInsecureTls = true;
+                settings.SslSettings.CheckCertificateRevocation = true;
+            });
 
-            var exception = Record.Exception(() => settings.Freeze());
+            AssertOptions(settings =>
+            {
+                settings.DirectConnection = true;
+                settings.Scheme = ConnectionStringScheme.MongoDBPlusSrv;
+            });
 
-            exception.Should().BeOfType<InvalidOperationException>();
+            AssertOptions(settings =>
+            {
+                settings.DirectConnection = true;
+                var endpoint = "test5.test.build.10gen.cc:53";
+                settings.Servers = new[] { MongoServerAddress.Parse(endpoint), MongoServerAddress.Parse(endpoint) };
+            });
 
-            settings = new MongoClientSettings();
-            settings.DirectConnection = true;
-            settings.Scheme = ConnectionStringScheme.MongoDBPlusSrv;
+            AssertOptions(settings =>
+            {
+                settings.LoadBalanced = true;
+                var endpoint = "test5.test.build.10gen.cc:53";
+                settings.Servers = new[] { MongoServerAddress.Parse(endpoint), MongoServerAddress.Parse(endpoint) };
+            });
 
-            exception = Record.Exception(() => settings.Freeze());
+            AssertOptions(settings =>
+            {
+                settings.LoadBalanced = true;
+                settings.DirectConnection = true;
+            });
 
-            exception.Should().BeOfType<InvalidOperationException>();
+            AssertOptions(settings =>
+            {
+                settings.LoadBalanced = true;
+                settings.ReplicaSetName = "test";
+            });
 
-            settings = new MongoClientSettings();
-            settings.DirectConnection = true;
-            var endpoint = "test5.test.build.10gen.cc:53";
-            settings.Servers = new[] { MongoServerAddress.Parse(endpoint), MongoServerAddress.Parse(endpoint) };
+            void AssertOptions(Action<MongoClientSettings> setAction)
+            {
+                var settings = new MongoClientSettings();
 
-            exception = Record.Exception(() => settings.Freeze());
+                setAction(settings);
 
-            exception.Should().BeOfType<InvalidOperationException>();
+                var exception = Record.Exception(() => settings.Freeze());
+                exception.Should().BeOfType<InvalidOperationException>();
+            }
         }
 
         [Fact]
@@ -577,7 +600,7 @@ namespace MongoDB.Driver.Tests
             // not allowed in a connection string
             var connectionString =
                 "mongodb://user1:password1@somehost/?appname=app1;authSource=db;authMechanismProperties=CANONICALIZE_HOST_NAME:true;" +
-                "compressors=zlib,snappy;zlibCompressionLevel=9;connect=direct;connectTimeout=123;ipv6=true;heartbeatInterval=1m;heartbeatTimeout=2m;localThreshold=128;" +
+                "compressors=zlib,snappy;zlibCompressionLevel=9;connect=direct;connectTimeout=123;ipv6=true;heartbeatInterval=1m;heartbeatTimeout=2m;loadBalanced=true;localThreshold=128;" +
                 "maxIdleTime=124;maxLifeTime=125;maxPoolSize=126;minPoolSize=127;readConcernLevel=majority;" +
                 "readPreference=secondary;readPreferenceTags=a:1,b:2;readPreferenceTags=c:3,d:4;retryReads=false;retryWrites=true;socketTimeout=129;" +
                 "serverSelectionTimeout=20s;tls=true;sslVerifyCertificate=false;waitqueuesize=130;waitQueueTimeout=131;" +
@@ -617,6 +640,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(url.HeartbeatInterval, settings.HeartbeatInterval);
             Assert.Equal(url.HeartbeatTimeout, settings.HeartbeatTimeout);
             Assert.Equal(url.IPv6, settings.IPv6);
+            Assert.Equal(url.LoadBalanced, settings.LoadBalanced);
             Assert.Equal(url.LocalThreshold, settings.LocalThreshold);
             Assert.Equal(url.MaxConnectionIdleTime, settings.MaxConnectionIdleTime);
             Assert.Equal(url.MaxConnectionLifeTime, settings.MaxConnectionLifeTime);

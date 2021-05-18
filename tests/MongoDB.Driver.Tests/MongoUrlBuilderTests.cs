@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
@@ -166,6 +167,7 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(TimeSpan.FromMinutes(2), builder.HeartbeatTimeout);
                 Assert.Equal(true, builder.IPv6);
                 Assert.Equal(true, builder.Journal);
+                Assert.Equal(false, builder.LoadBalanced);
                 Assert.Equal(TimeSpan.FromSeconds(2), builder.MaxConnectionIdleTime);
                 Assert.Equal(TimeSpan.FromSeconds(3), builder.MaxConnectionLifeTime);
                 Assert.Equal(4, builder.MaxConnectionPoolSize);
@@ -475,6 +477,7 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(ServerSettings.DefaultHeartbeatTimeout, builder.HeartbeatTimeout);
                 Assert.Equal(false, builder.IPv6);
                 Assert.Equal(null, builder.Journal);
+                Assert.Equal(false, builder.LoadBalanced);
                 Assert.Equal(MongoDefaults.MaxConnectionIdleTime, builder.MaxConnectionIdleTime);
                 Assert.Equal(MongoDefaults.MaxConnectionLifeTime, builder.MaxConnectionLifeTime);
                 Assert.Equal(MongoDefaults.MaxConnectionPoolSize, builder.MaxConnectionPoolSize);
@@ -1116,6 +1119,15 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(w, builder.W);
                 Assert.Equal(canonicalConnectionString, builder.ToString());
             }
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void TestLoadBalanced([Values(false, true)] bool value)
+        {
+            var subject = new MongoUrlBuilder { LoadBalanced = value };
+
+            subject.LoadBalanced = value;
         }
 
         [Theory]

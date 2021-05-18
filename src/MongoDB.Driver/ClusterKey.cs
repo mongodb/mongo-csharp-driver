@@ -43,6 +43,7 @@ namespace MongoDB.Driver
         private readonly TimeSpan _heartbeatTimeout;
         private readonly bool _ipv6;
         private readonly IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> _kmsProviders;
+        private readonly bool _loadBalanced;
         private readonly TimeSpan _localThreshold;
         private readonly TimeSpan _maxConnectionIdleTime;
         private readonly TimeSpan _maxConnectionLifeTime;
@@ -80,6 +81,7 @@ namespace MongoDB.Driver
             TimeSpan heartbeatTimeout,
             bool ipv6,
             IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> kmsProviders,
+            bool loadBalanced,
             TimeSpan localThreshold,
             TimeSpan maxConnectionIdleTime,
             TimeSpan maxConnectionLifeTime,
@@ -115,6 +117,7 @@ namespace MongoDB.Driver
             _heartbeatTimeout = heartbeatTimeout;
             _ipv6 = ipv6;
             _kmsProviders = kmsProviders;
+            _loadBalanced = loadBalanced;
             _localThreshold = localThreshold;
             _maxConnectionIdleTime = maxConnectionIdleTime;
             _maxConnectionLifeTime = maxConnectionLifeTime;
@@ -176,6 +179,7 @@ namespace MongoDB.Driver
         public TimeSpan HeartbeatTimeout { get { return _heartbeatTimeout; } }
         public bool IPv6 { get { return _ipv6; } }
         public IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> KmsProviders { get { return _kmsProviders; } }
+        public bool LoadBalanced => _loadBalanced;
         public TimeSpan LocalThreshold { get { return _localThreshold; } }
         public TimeSpan MaxConnectionIdleTime { get { return _maxConnectionIdleTime; } }
         public TimeSpan MaxConnectionLifeTime { get { return _maxConnectionLifeTime; } }
@@ -228,6 +232,7 @@ namespace MongoDB.Driver
                 _heartbeatTimeout == rhs._heartbeatTimeout &&
                 _ipv6 == rhs._ipv6 &&
                 KmsProvidersHelper.Equals(_kmsProviders, rhs.KmsProviders) &&
+                _loadBalanced == rhs._loadBalanced &&
                 _localThreshold == rhs._localThreshold &&
                 _maxConnectionIdleTime == rhs._maxConnectionIdleTime &&
                 _maxConnectionLifeTime == rhs._maxConnectionLifeTime &&

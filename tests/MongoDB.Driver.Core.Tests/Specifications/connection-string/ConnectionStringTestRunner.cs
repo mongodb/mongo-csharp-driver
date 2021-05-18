@@ -107,6 +107,9 @@ namespace MongoDB.Driver.Specifications.connection_string
                         case "journal":
                             AssertBoolean(connectionString.Journal, expectedOption.Value);
                             break;
+                        case "loadbalanced":
+                            AssertBoolean(connectionString.LoadBalanced, expectedOption.Value);
+                            break;
                         case "localthresholdms":
                             AssertTimeSpan(connectionString.LocalThreshold, expectedOption.Value);
                             break;

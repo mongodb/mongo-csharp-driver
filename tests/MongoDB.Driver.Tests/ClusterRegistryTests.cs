@@ -79,6 +79,7 @@ namespace MongoDB.Driver.Tests
                 heartbeatTimeout: TimeSpan.FromSeconds(3),
                 ipv6: true,
                 kmsProviders: kmsProviders,
+                loadBalanced: false,
                 localThreshold: TimeSpan.FromSeconds(4),
                 maxConnectionIdleTime: TimeSpan.FromSeconds(5),
                 maxConnectionLifeTime: TimeSpan.FromSeconds(6),

@@ -1202,6 +1202,7 @@ namespace MongoDB.Driver
                 _heartbeatTimeout,
                 _ipv6,
                 kmsProviders: null, // not supported for legacy
+                loadBalanced: false, // not supported for legacy, so turn it off
                 _localThreshold,
                 _maxConnectionIdleTime,
                 _maxConnectionLifeTime,

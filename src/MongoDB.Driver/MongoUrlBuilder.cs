@@ -56,6 +56,7 @@ namespace MongoDB.Driver
         private TimeSpan _heartbeatTimeout;
         private bool _ipv6;
         private bool? _journal;
+        private bool _loadBalanced;
         private TimeSpan _localThreshold;
         private TimeSpan _maxConnectionIdleTime;
         private TimeSpan _maxConnectionLifeTime;
@@ -120,6 +121,7 @@ namespace MongoDB.Driver
             _replicaSetName = null;
             _retryReads = null;
             _retryWrites = null;
+            _loadBalanced = false;
             _localThreshold = MongoDefaults.LocalThreshold;
             _scheme = ConnectionStringScheme.MongoDB;
             _servers = new[] { new MongoServerAddress("localhost", 27017) };
@@ -401,6 +403,18 @@ namespace MongoDB.Driver
             set
             {
                 _journal = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets whether to use load balanced.
+        /// </summary>
+        public bool LoadBalanced
+        {
+            get { return _loadBalanced; }
+            set
+            {
+                _loadBalanced = value;
             }
         }
 
@@ -832,6 +846,7 @@ namespace MongoDB.Driver
             _replicaSetName = connectionString.ReplicaSet;
             _retryReads = connectionString.RetryReads;
             _retryWrites = connectionString.RetryWrites;
+            _loadBalanced = connectionString.LoadBalanced;
             _localThreshold = connectionString.LocalThreshold.GetValueOrDefault(MongoDefaults.LocalThreshold);
             _scheme = connectionString.Scheme;
             _servers = connectionString.Hosts.Select(endPoint =>
@@ -1076,6 +1091,10 @@ namespace MongoDB.Driver
             if (_minConnectionPoolSize != MongoDefaults.MinConnectionPoolSize)
             {
                 query.AppendFormat("minPoolSize={0};", _minConnectionPoolSize);
+            }
+            if (_loadBalanced)
+            {
+                query.AppendFormat("loadBalanced={0};", JsonConvert.ToString(_loadBalanced));
             }
             if (_localThreshold != MongoDefaults.LocalThreshold)
             {
