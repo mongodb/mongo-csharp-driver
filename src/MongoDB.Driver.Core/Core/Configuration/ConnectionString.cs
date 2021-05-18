@@ -1034,15 +1034,6 @@ namespace MongoDB.Driver.Core.Configuration
                 case "secondaryacceptablelatencyms":
                     _localThreshold = ParseTimeSpan(name, value);
                     break;
-                case "slaveok":
-                    if (_readPreference != null)
-                    {
-                        throw new MongoConfigurationException("ReadPreference has already been configured.");
-                    }
-                    _readPreference = ParseBoolean(name, value) ?
-                        ReadPreferenceMode.SecondaryPreferred :
-                        ReadPreferenceMode.Primary;
-                    break;
                 case "serverselectiontimeout":
                 case "serverselectiontimeoutms":
                     _serverSelectionTimeout = ParseTimeSpan(name, value);
