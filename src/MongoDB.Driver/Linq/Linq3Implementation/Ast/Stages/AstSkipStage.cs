@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Stages
             _skip = Ensure.IsGreaterThanOrEqualToZero(skip, nameof(skip));
         }
 
-        public override AstNodeType NodeType => AstNodeType.LimitStage;
+        public override AstNodeType NodeType => AstNodeType.SkipStage;
         public new long Skip => _skip;
 
         public override BsonValue Render()

@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Stages
             _size = Ensure.IsGreaterThanZero(size, nameof(size));
         }
 
-        public override AstNodeType NodeType => AstNodeType.RedactStage;
+        public override AstNodeType NodeType => AstNodeType.SampleStage;
         public long SampleSize => _size;
 
         public override BsonValue Render()

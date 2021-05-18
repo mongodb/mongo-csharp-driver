@@ -77,7 +77,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Stages
                 { "$merge", new BsonDocument
                     {
                         { "into", RenderInto() },
-                        { "one", () => RenderOn(), _on != null },
+                        { "on", () => RenderOn(), _on != null },
                         { "let", () => RenderLet(), _let != null },
                         { "whenMatched", () => RenderWhenMatched(), _whenMatched != null },
                         { "whenNotMatched", () => RenderWhenNotMatched(), _whenNotMatched != null }

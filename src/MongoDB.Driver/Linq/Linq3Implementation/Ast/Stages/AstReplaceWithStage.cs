@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Stages
         }
 
         public AstExpression Expression => _expression;
-        public override AstNodeType NodeType => AstNodeType.RedactStage;
+        public override AstNodeType NodeType => AstNodeType.ReplaceWithStage;
 
         public override BsonValue Render()
         {
