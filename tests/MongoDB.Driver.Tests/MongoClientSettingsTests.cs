@@ -671,6 +671,20 @@ namespace MongoDB.Driver.Tests
             settings.AllowInsecureTls.Should().Be(url.AllowInsecureTls);
         }
 
+        [Theory]
+        [InlineData(0, int.MaxValue)]
+        [InlineData(126, 126)]
+        public void TestFromUrlWithMaxPoolSize(int inputValue, int expectedValue)
+        {
+            var connectionString = $"mongodb://the-next-generation/?maxPoolSize={inputValue}";
+            var builder = new MongoUrlBuilder(connectionString);
+            var url = builder.ToMongoUrl();
+
+            var settings = MongoClientSettings.FromUrl(url);
+
+            settings.MaxConnectionPoolSize.Should().Be(expectedValue);
+        }
+
         [Fact]
         public void TestFromUrlWithMongoDBX509()
         {
