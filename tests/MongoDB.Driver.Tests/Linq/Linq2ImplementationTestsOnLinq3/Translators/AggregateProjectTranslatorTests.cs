@@ -96,7 +96,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
 
             var result = Project(x => new { Result = x.G.All(g => g.E.F > 30) });
 
-            result.Projection.Should().Be("{ Result: { \"$allElementsTrue\" : [{ \"$map\": { input: \"$G\", as: \"g\", in: { \"$gt\": [\"$$g.E.F\", 30 ] } } }] }, _id: 0 }");
+            result.Projection.Should().Be("{ Result: { \"$allElementsTrue\" : { \"$map\": { input: \"$G\", as: \"g\", in: { \"$gt\": [\"$$g.E.F\", 30 ] } } } }, _id: 0 }");
 
             result.Value.Result.Should().BeTrue();
         }
@@ -120,7 +120,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
 
             var result = Project(x => new { Result = x.G.Any(g => g.E.F > 40) });
 
-            result.Projection.Should().Be("{ Result : { $anyElementTrue : [{ $map : { input : '$G', as : 'g', in : { $gt : ['$$g.E.F', 40] } } }] }, _id : 0 }");
+            result.Projection.Should().Be("{ Result : { $anyElementTrue : { $map : { input : '$G', as : 'g', in : { $gt : ['$$g.E.F', 40] } } } }, _id : 0 }");
 
             result.Value.Result.Should().BeTrue();
         }
@@ -897,7 +897,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
         {
             var result = Project(x => new { Result = !x.K });
 
-            result.Projection.Should().Be("{ Result: { \"$not\": [\"$K\"] }, _id: 0 }");
+            result.Projection.Should().Be("{ Result: { \"$not\": \"$K\" }, _id: 0 }");
 
             result.Value.Result.Should().BeFalse();
         }
@@ -907,7 +907,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
         {
             var result = Project(x => new { Result = !(x.C.E.F < 3) });
 
-            result.Projection.Should().Be("{ Result: { \"$not\": [{ \"$lt\": [\"$C.E.F\", 3] }] }, _id: 0 }");
+            result.Projection.Should().Be("{ Result: { \"$not\": { \"$lt\": [\"$C.E.F\", 3] } }, _id: 0 }");
 
             result.Value.Result.Should().BeTrue();
         }

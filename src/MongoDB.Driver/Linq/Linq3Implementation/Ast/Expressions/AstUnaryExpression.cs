@@ -41,26 +41,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
         private BsonValue RenderArg()
         {
             var rendered = _arg.Render();
-            if (ArgShouldBeWrappedInArray())
+            if (rendered.IsBsonArray)
             {
                 rendered = new BsonArray { rendered };
             }
             return rendered;
-
-            bool ArgShouldBeWrappedInArray()
-            {
-                switch (_operator)
-                {
-                    case AstUnaryOperator.AllElementsTrue:
-                    case AstUnaryOperator.AnyElementTrue:
-                    case AstUnaryOperator.Not:
-                    case AstUnaryOperator.Round:
-                        return true;
-
-                    default:
-                        return false;
-                }
-            }
         }
     }
 }

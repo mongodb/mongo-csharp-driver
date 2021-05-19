@@ -1003,7 +1003,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3
 
             Assert(query,
                 2,
-                "{ $project : { _v : { $anyElementTrue : [ { $map : { input : '$G', as : 'g', 'in' : { $eq: ['$$g.D', \"Don't\"] } } } ] }, _id: 0 } }");
+                "{ $project : { _v : { $anyElementTrue : { $map : { input : '$G', as : 'g', 'in' : { $eq: ['$$g.D', \"Don't\"] } } } }, _id: 0 } }");
         }
 
         [Fact]
