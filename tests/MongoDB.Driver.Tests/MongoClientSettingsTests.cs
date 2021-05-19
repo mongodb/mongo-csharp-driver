@@ -885,7 +885,13 @@ namespace MongoDB.Driver.Tests
             var settings = new MongoClientSettings();
             Assert.Equal(MongoDefaults.MaxConnectionPoolSize, settings.MaxConnectionPoolSize);
 
-            var maxConnectionPoolSize = 123;
+            var maxConnectionPoolSize = -1;
+            Assert.Throws<ArgumentOutOfRangeException>(() => settings.MaxConnectionPoolSize = maxConnectionPoolSize);
+
+            maxConnectionPoolSize = 0;
+            Assert.Throws<ArgumentOutOfRangeException>(() => settings.MaxConnectionPoolSize = maxConnectionPoolSize);
+
+            maxConnectionPoolSize = 123;
             settings.MaxConnectionPoolSize = maxConnectionPoolSize;
             Assert.Equal(maxConnectionPoolSize, settings.MaxConnectionPoolSize);
 
