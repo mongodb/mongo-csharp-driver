@@ -227,7 +227,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
 
             Expression<Func<TestObject, bool>> expr = (a) => a.Collection1.Any(b => b.Collection1.Any(c => a.Value1 == 2));
 
-            AssertWhere(expr, "{ $match : { $expr : { $anyElementTrue : [{ $map : { input : '$Collection1', as : 'b', in : { $anyElementTrue : [{ $map : { input : '$$b.Collection1', as : 'c', in : { $eq : ['$Value1', 2] } } }] } } }] } } }");
+            AssertWhere(expr, "{ $match : { $expr : { $anyElementTrue : { $map : { input : '$Collection1', as : 'b', in : { $anyElementTrue : { $map : { input : '$$b.Collection1', as : 'c', in : { $eq : ['$Value1', 2] } } } } } } } } }");
         }
 
         [Fact]
@@ -236,13 +236,13 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
             Setup();
 
             Expression<Func<TestObject, bool>> expr = (a) => a.Collection1.Any(b => a.Value1 == 2);
-            AssertWhere(expr, "{ $match : { $expr : { $anyElementTrue : [{ $map : { input : '$Collection1', as : 'b', in : { $eq : ['$Value1', 2] } } }] } } }");
+            AssertWhere(expr, "{ $match : { $expr : { $anyElementTrue : { $map : { input : '$Collection1', as : 'b', in : { $eq : ['$Value1', 2] } } } } } }");
 
             expr = (a) => a.Collection1.Any(b => b.Value1 == 2 && a.Value1 == 3);
-            AssertWhere(expr, "{ $match : { $expr : { $anyElementTrue : [{ $map : { input : '$Collection1', as : 'b', in : { $and : [{ $eq : ['$$b.Value1', 2] }, { $eq : ['$Value1', 3] }] } } }] } } }");
+            AssertWhere(expr, "{ $match : { $expr : { $anyElementTrue : { $map : { input : '$Collection1', as : 'b', in : { $and : [{ $eq : ['$$b.Value1', 2] }, { $eq : ['$Value1', 3] }] } } } } } }");
 
             expr = (a) => a.Collection3.Any(b => a.Value2);
-            AssertWhere(expr, "{ $match : { $expr : { $anyElementTrue : [{ $map : { input : '$Collection3', as : 'b', in : '$Value2' } }] } } }");
+            AssertWhere(expr, "{ $match : { $expr : { $anyElementTrue : { $map : { input : '$Collection3', as : 'b', in : '$Value2' } } } } }");
 
             expr = (a) => a.Collection1.Where(b => a.Value1 == 2).Any();
             AssertWhere(expr, "{ $match : { $expr : { $gt : [{ $size : { $filter : { input : '$Collection1', as : 'b', cond : { $eq : ['$Value1', 2] } } } }, 0] } } }");
@@ -257,13 +257,13 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
                 (a) =>
                     a.Collection1.Any(c => c.Value1 == 3) &&
                     a.Collection1.Any(d => a.Value1 != 4);
-            AssertWhere(expr, "{ $match : { $and : [{ Collection1 : { $elemMatch : { 'Value1' : 3 } } }, { $expr : { $anyElementTrue : [{ $map : { input : '$Collection1', as : 'd', in : { $ne : ['$Value1', 4] } } }] } }] } }");
+            AssertWhere(expr, "{ $match : { $and : [{ Collection1 : { $elemMatch : { 'Value1' : 3 } } }, { $expr : { $anyElementTrue : { $map : { input : '$Collection1', as : 'd', in : { $ne : ['$Value1', 4] } } } } }] } }");
 
             expr =
                 (a) => a.Collection1
                     .Any(
                         c => c.Value1 != 3 && c.Collection1.Any(d => a.Value1 != 5));
-            AssertWhere(expr, "{ $match : { $expr : { $anyElementTrue : [{ $map : { input : '$Collection1', as : 'c', in : { $and : [{ $ne : ['$$c.Value1', 3] }, { $anyElementTrue : [{ $map : { input : '$$c.Collection1', as : 'd', in : { $ne : ['$Value1', 5] } } }] }] } } }] }  } }");
+            AssertWhere(expr, "{ $match : { $expr : { $anyElementTrue : { $map : { input : '$Collection1', as : 'c', in : { $and : [{ $ne : ['$$c.Value1', 3] }, { $anyElementTrue : { $map : { input : '$$c.Collection1', as : 'd', in : { $ne : ['$Value1', 5] } } } }] } } } }  } }");
         }
 
         // private methods
