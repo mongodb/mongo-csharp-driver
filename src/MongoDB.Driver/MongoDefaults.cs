@@ -18,6 +18,7 @@ using System.Text;
 using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
 {
@@ -150,7 +151,7 @@ namespace MongoDB.Driver
         public static int MaxConnectionPoolSize
         {
             get { return __maxConnectionPoolSize; }
-            set { __maxConnectionPoolSize = value; }
+            set { __maxConnectionPoolSize = Ensure.IsGreaterThanZero(value, nameof(MaxConnectionPoolSize)); }
         }
 
         /// <summary>
