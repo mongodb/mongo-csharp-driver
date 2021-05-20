@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Stages
             return
                 new BsonDocument
                 {
-                    { "histograms", _histograms ?? false, _histograms.HasValue }
+                    { "histograms", () => _histograms.Value, _histograms.HasValue }
                 };
         }
     }
@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Stages
             return
                 new BsonDocument
                 {
-                    { "scale", _scale ?? 0, _scale.HasValue }
+                    { "scale", () => _scale.Value, _scale.HasValue }
                 };
         }
     }

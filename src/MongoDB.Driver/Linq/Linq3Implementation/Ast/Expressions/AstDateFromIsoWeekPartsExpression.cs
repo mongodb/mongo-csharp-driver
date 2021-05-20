@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
         public AstDateFromIsoWeekPartsExpression(
             AstExpression isoWeekYear,
             AstExpression isoWeek = null,
-            AstExpression isoDayOfWSeek = null,
+            AstExpression isoDayOfWeek = null,
             AstExpression hour = null,
             AstExpression minute = null,
             AstExpression second = null,
@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
         {
             _isoWeekYear = Ensure.IsNotNull(isoWeekYear, nameof(isoWeekYear));
             _isoWeek = isoWeek;
-            _isoDayOfWeek = isoDayOfWSeek;
+            _isoDayOfWeek = isoDayOfWeek;
             _hour = hour;
             _minute = minute;
             _second = second;

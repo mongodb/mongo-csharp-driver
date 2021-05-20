@@ -14,7 +14,6 @@
 */
 
 using MongoDB.Bson;
-using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters
 {

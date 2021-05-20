@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
@@ -21,17 +22,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters
 {
     internal sealed class AstNorFilter : AstFilter
     {
-        private readonly AstFilter[] _filters;
+        private readonly IReadOnlyList<AstFilter> _filters;
 
-        public AstNorFilter(params AstFilter[] filters)
+        public AstNorFilter(IEnumerable<AstFilter> filters)
         {
-            Ensure.IsNotNull(filters, nameof(filters));
-            Ensure.That(filters.Length > 0, "filter cannot be empty.", nameof(filters));
-            Ensure.That(!filters.Contains(null), "filters cannot contain null.", nameof(filters));
-            _filters = filters;
+            _filters = Ensure.IsNotNull(filters, nameof(filters)).ToList().AsReadOnly();
+            Ensure.That(_filters.Count > 0, "filter cannot be empty.", nameof(filters));
+            Ensure.That(!_filters.Contains(null), "filters cannot contain null.", nameof(filters));
         }
 
-        public AstFilter[] Filters => _filters;
+        public IReadOnlyList<AstFilter> Filters => _filters;
         public override AstNodeType NodeType => AstNodeType.NorFilter;
         public override bool UsesExpr => _filters.Any(f => f.UsesExpr);
 

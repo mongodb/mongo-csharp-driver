@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 
