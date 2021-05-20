@@ -1071,7 +1071,8 @@ namespace MongoDB.Driver
             }
             if (_maxConnectionPoolSize != MongoDefaults.MaxConnectionPoolSize)
             {
-                query.AppendFormat("maxPoolSize={0};", _maxConnectionPoolSize);
+                var poolSize = _maxConnectionPoolSize == int.MaxValue ? 0 : _maxConnectionPoolSize;
+                query.AppendFormat("maxPoolSize={0};", poolSize);
             }
             if (_minConnectionPoolSize != MongoDefaults.MinConnectionPoolSize)
             {
