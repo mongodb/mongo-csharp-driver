@@ -83,7 +83,16 @@ namespace MongoDB.Driver
                 }
                 else
                 {
-                    return (int)(__waitQueueMultiple * __maxConnectionPoolSize);
+                    var computedWaitQueueSize = __waitQueueMultiple * __maxConnectionPoolSize;
+                    if (computedWaitQueueSize > int.MaxValue)
+                    {
+                        // cut to int since it's effictively max value that we can use here
+                        return int.MaxValue;
+                    }
+                    else
+                    {
+                        return (int)computedWaitQueueSize;
+                    }
                 }
             }
         }

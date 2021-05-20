@@ -182,7 +182,7 @@ namespace MongoDB.Driver.Core.Configuration
             // Connection Pool
             if (connectionString.MaxPoolSize != null)
             {
-                builder = builder.ConfigureConnectionPool(s => s.With(maxConnections: GetEffectiveConnectionStringMaxPoolSize(connectionString.MaxPoolSize.Value).Value));
+                builder = builder.ConfigureConnectionPool(s => s.With(maxConnections: connectionString.GetEffectiveMaxPoolSize().Value));
             }
             if (connectionString.MinPoolSize != null)
             {
@@ -195,9 +195,7 @@ namespace MongoDB.Driver.Core.Configuration
             }
             else if (connectionString.WaitQueueMultiple != null)
             {
-                var maxConnections =
-                    GetEffectiveConnectionStringMaxPoolSize(connectionString.MaxPoolSize)
-                    ?? new ConnectionPoolSettings().MaxConnections;
+                var maxConnections = connectionString.GetEffectiveMaxPoolSize() ?? new ConnectionPoolSettings().MaxConnections;
                 var waitQueueSize = (int)Math.Round(maxConnections * connectionString.WaitQueueMultiple.Value);
                 builder = builder.ConfigureConnectionPool(s => s.With(waitQueueSize: waitQueueSize));
             }
@@ -230,21 +228,6 @@ namespace MongoDB.Driver.Core.Configuration
             }
 
             return builder;
-
-            int? GetEffectiveConnectionStringMaxPoolSize(int? maxPoolSize)
-            {
-                // maxPoolSize means no limit according to the spec, but in our driver we use a different convention to handle 0,
-                // so we want to limit the spec convention only for the connectionString level and emulate no limit via setting
-                // an effective unreachable pool size value
-                if (maxPoolSize.HasValue)
-                {
-                    return maxPoolSize == 0 ? int.MaxValue : maxPoolSize;
-                }
-                else
-                {
-                    return null;
-                }
-            }
         }
 
         private static bool AcceptAnySslCertificate(

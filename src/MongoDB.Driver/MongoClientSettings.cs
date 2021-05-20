@@ -871,10 +871,7 @@ namespace MongoDB.Driver
             clientSettings.IPv6 = url.IPv6;
             clientSettings.MaxConnectionIdleTime = url.MaxConnectionIdleTime;
             clientSettings.MaxConnectionLifeTime = url.MaxConnectionLifeTime;
-            // maxPoolSize means no limit according to the spec, but in our driver we use a different convention to handle 0,
-            // so we want to limit the spec convention only for the connectionString level and emulate no limit via setting
-            // an effective unreachable pool size value
-            clientSettings.MaxConnectionPoolSize = url.MaxConnectionPoolSize == 0 ? int.MaxValue : url.MaxConnectionPoolSize;
+            clientSettings.MaxConnectionPoolSize = url.MaxConnectionPoolSize;
             clientSettings.MinConnectionPoolSize = url.MinConnectionPoolSize;
             clientSettings.ReadConcern = new ReadConcern(url.ReadConcernLevel);
             clientSettings.ReadEncoding = null; // ReadEncoding must be provided in code
