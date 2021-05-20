@@ -167,7 +167,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters
                 return new AstFieldOperationFilter(fieldOperationFilter.Field, new AstNotFilterOperation(fieldOperationFilter.Operation));
             }
 
-            if (filter is AstNorFilter norFilter && norFilter.Filters.Length == 1)
+            if (filter is AstNorFilter norFilter && norFilter.Filters.Count == 1)
             {
                 return norFilter.Filters[0];
             }
@@ -182,7 +182,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters
                 return AstFilter.MatchesEverything();
             }
 
-            return new AstNorFilter(filter);
+            return new AstNorFilter(new[] { filter });
         }
 
         public static AstFilter Or(params AstFilter[] filters)

@@ -181,7 +181,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
 
         public static AstExpression Concat(params AstExpression[] args)
         {
-            return new AstNaryExpression(AstNaryOperator.Concat, args);
+            return AstExpression.Concat((IEnumerable<AstExpression>)args);
         }
 
         public static AstExpression ConcatArrays(params AstExpression[] arrays)
@@ -220,7 +220,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
                 _ => throw new ArgumentException($"Invalid toType: {toType.FullName}.", nameof(toType))
             };
 
-            return new AstConvertExpression(input, to, onError, onNull);
+            return AstExpression.Convert(input, to, onError, onNull);
         }
 
         public static AstExpression DateFromParts(
@@ -329,7 +329,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             }
             else
             {
-                return new AstLetExpression(new[] { var }, @in);
+                return AstExpression.Let(new[] { var }, @in);
             }
         }
 
@@ -344,7 +344,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
                 var vars = new List<AstVar>(2);
                 if (var1 != null) { vars.Add(var1); }
                 if (var2 != null) { vars.Add(var2); }
-                return new AstLetExpression(vars, @in);
+                return AstExpression.Let(vars, @in);
             }
         }
 
@@ -360,7 +360,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
                 if (var1 != null) { vars.Add(var1); }
                 if (var2 != null) { vars.Add(var2); }
                 if (var3 != null) { vars.Add(var3); }
-                return new AstLetExpression(vars, @in);
+                return AstExpression.Let(vars, @in);
             }
         }
 

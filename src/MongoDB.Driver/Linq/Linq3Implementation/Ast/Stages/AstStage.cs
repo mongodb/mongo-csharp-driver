@@ -113,7 +113,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Stages
             AstExpression id,
             params AstComputedField[] fields)
         {
-            return new AstGroupStage(id, fields);
+            return AstStage.Group(id, (IEnumerable<AstComputedField>)fields);
         }
 
         public static AstStage IndexStats()
@@ -174,7 +174,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Stages
 
         public static AstProjectStage Project(params AstProjectStageSpecification[] specifications)
         {
-            return new AstProjectStage(specifications);
+            return AstStage.Project((IEnumerable<AstProjectStageSpecification>)specifications);
         }
 
         public static AstStage Redact(AstExpression expression)
@@ -214,7 +214,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Stages
 
         public static AstSortStage Sort(params AstSortField[] fields)
         {
-            return new AstSortStage(fields);
+            return AstStage.Sort((IEnumerable<AstSortField>)fields);
         }
 
         public static AstStage UnionWith(string collection, AstPipeline pipeline)

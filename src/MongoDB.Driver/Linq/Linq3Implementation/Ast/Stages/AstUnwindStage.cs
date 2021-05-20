@@ -20,8 +20,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Stages
 {
     internal sealed class AstUnwindStage : AstStage
     {
-        private readonly string _path;
         private readonly string _includeArrayIndex;
+        private readonly string _path;
         private readonly bool? _preserveNullAndEmptyArrays;
 
         public AstUnwindStage(

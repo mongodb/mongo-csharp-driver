@@ -31,11 +31,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             Ensure.That(!_args.Contains(null), "args cannot contain null.", nameof(args));
         }
 
-        public AstOrExpression(params AstExpression[] args)
-            : this((IEnumerable<AstExpression>)args)
-        {
-        }
-
         public IReadOnlyList<AstExpression> Args => _args;
         public override AstNodeType NodeType => AstNodeType.OrExpression;
 
