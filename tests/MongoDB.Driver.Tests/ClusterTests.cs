@@ -70,7 +70,8 @@ namespace MongoDB.Driver.Tests
 
             const string applicationName = "loadBalancingTest";
             const int threadsCount = 10;
-            const int commandsPerThreadCount = 10;
+            const int commandsFailPointPerThreadCount = 10;
+            const int commandsPerThreadCount = 100;
             const double maxCommandsOnSlowServerRatio = 0.3; // temporary set slow server load to 30% from 25% until find timings are investigated
             const double operationsCountTolerance = 0.10;
 
@@ -102,12 +103,12 @@ namespace MongoDB.Driver.Tests
                     channel.Dispose();
                 }
 
-                var (allCount, eventsOnSlowServerCount) = ExecuteFindOperations(collection, slowServer.ServerId);
+                var (allCount, eventsOnSlowServerCount) = ExecuteFindOperations(collection, slowServer.ServerId, commandsFailPointPerThreadCount);
                 eventsOnSlowServerCount.Should().BeLessThan((int)(allCount * maxCommandsOnSlowServerRatio));
 
                 failPoint.Dispose();
 
-                (allCount, eventsOnSlowServerCount) = ExecuteFindOperations(collection, slowServer.ServerId);
+                (allCount, eventsOnSlowServerCount) = ExecuteFindOperations(collection, slowServer.ServerId, commandsPerThreadCount);
 
                 var singleServerOperationsPortion = allCount / 2;
                 var singleServerOperationsRange = (int)Math.Ceiling(allCount * operationsCountTolerance);
@@ -115,13 +116,13 @@ namespace MongoDB.Driver.Tests
                 eventsOnSlowServerCount.Should().BeInRange(singleServerOperationsPortion - singleServerOperationsRange, singleServerOperationsPortion + singleServerOperationsRange);
             }
 
-            (int allCount, int slowServerCount) ExecuteFindOperations(IMongoCollection<BsonDocument> collection, ServerId serverId)
+            (int allCount, int slowServerCount) ExecuteFindOperations(IMongoCollection<BsonDocument> collection, ServerId serverId, int operationsCount)
             {
                 eventCapturer.Clear();
 
                 ThreadingUtilities.ExecuteOnNewThreads(threadsCount, __ =>
                 {
-                    for (int i = 0; i < commandsPerThreadCount; i++)
+                    for (int i = 0; i < operationsCount; i++)
                     {
                         if (async)
                         {
