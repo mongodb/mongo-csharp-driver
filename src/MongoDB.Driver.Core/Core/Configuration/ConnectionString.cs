@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Core.Configuration
         {
             if (connectionString.MaxPoolSize.HasValue)
             {
-                // maxPoolSize means no limit according to the spec, but in our driver we use a different convention to handle 0,
+                // maxPoolSize 0 means no limit according to the spec, but in our driver we use a different convention to handle 0,
                 // so we want to limit the spec convention only for the connectionString level and emulate no limit via setting
                 // an effective unreachable pool size value
                 var maxPoolSize = connectionString.MaxPoolSize.Value;

@@ -223,7 +223,22 @@ namespace MongoDB.Driver
                 }
                 else
                 {
-                    return (int)(_waitQueueMultiple * _maxConnectionPoolSize);
+                    if (_maxConnectionPoolSize == 0)
+                    {
+                        return int.MaxValue;
+                    }
+                    else
+                    {
+                        var waitQueueSize = _waitQueueMultiple * _maxConnectionPoolSize;
+                        if (waitQueueSize > int.MaxValue)
+                        {
+                            return int.MaxValue;
+                        }
+                        else
+                        {
+                            return (int)waitQueueSize;
+                        }
+                    }
                 }
             }
         }
@@ -460,9 +475,9 @@ namespace MongoDB.Driver
             get { return _maxConnectionPoolSize; }
             set
             {
-                if (value <= 0)
+                if (value < 0)
                 {
-                    throw new ArgumentOutOfRangeException("value", "MaxConnectionPoolSize must be greater than zero.");
+                    throw new ArgumentOutOfRangeException("value", "MaxConnectionPoolSize must be greater than or equal to zero.");
                 }
                 _maxConnectionPoolSize = value;
             }
@@ -817,7 +832,7 @@ namespace MongoDB.Driver
             _journal = connectionString.Journal;
             _maxConnectionIdleTime = connectionString.MaxIdleTime.GetValueOrDefault(MongoDefaults.MaxConnectionIdleTime);
             _maxConnectionLifeTime = connectionString.MaxLifeTime.GetValueOrDefault(MongoDefaults.MaxConnectionLifeTime);
-            _maxConnectionPoolSize = connectionString.GetEffectiveMaxPoolSize().GetValueOrDefault(MongoDefaults.MaxConnectionPoolSize);
+            _maxConnectionPoolSize = connectionString.MaxPoolSize.GetValueOrDefault(MongoDefaults.MaxConnectionPoolSize);
             _minConnectionPoolSize = connectionString.MinPoolSize.GetValueOrDefault(MongoDefaults.MinConnectionPoolSize);
             _password = connectionString.Password;
             _readConcernLevel = connectionString.ReadConcernLevel;
@@ -1071,8 +1086,7 @@ namespace MongoDB.Driver
             }
             if (_maxConnectionPoolSize != MongoDefaults.MaxConnectionPoolSize)
             {
-                var poolSize = _maxConnectionPoolSize == int.MaxValue ? 0 : _maxConnectionPoolSize;
-                query.AppendFormat("maxPoolSize={0};", poolSize);
+                query.AppendFormat("maxPoolSize={0};", _maxConnectionPoolSize);
             }
             if (_minConnectionPoolSize != MongoDefaults.MinConnectionPoolSize)
             {

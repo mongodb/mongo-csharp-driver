@@ -31,6 +31,26 @@ namespace MongoDB.Driver.Tests
         private MongoServerAddress _localhost = new MongoServerAddress("localhost");
 
         [Fact]
+        public void MaxPoolSize_zero_should_be_handled_correctly()
+        {
+            var subject = new MongoUrlBuilder("mongodb://localhost/?maxPoolSize=0");
+
+            var result = subject.MaxConnectionPoolSize;
+
+            result.Should().Be(0);
+        }
+
+        [Fact]
+        public void MaxPoolSize_missing_should_be_handled_correctly()
+        {
+            var subject = new MongoUrlBuilder("mongodb://localhost");
+
+            var result = subject.MaxConnectionPoolSize;
+
+            result.Should().Be(MongoDefaults.MaxConnectionPoolSize);
+        }
+
+        [Fact]
         public void TestAll()
         {
             var readPreference = new ReadPreference(ReadPreferenceMode.Secondary, new[] { new TagSet(new[] { new Tag("dc", "1") }) }, TimeSpan.FromSeconds(11));
@@ -899,7 +919,6 @@ namespace MongoDB.Driver.Tests
         {
             var builder = new MongoUrlBuilder { Server = _localhost };
             Assert.Throws<ArgumentOutOfRangeException>(() => { builder.MaxConnectionPoolSize = -1; });
-            Assert.Throws<ArgumentOutOfRangeException>(() => { builder.MaxConnectionPoolSize = 0; });
             builder.MaxConnectionPoolSize = 1;
         }
 

@@ -887,7 +887,7 @@ namespace MongoDB.Driver
             serverSettings.IPv6 = url.IPv6;
             serverSettings.MaxConnectionIdleTime = url.MaxConnectionIdleTime;
             serverSettings.MaxConnectionLifeTime = url.MaxConnectionLifeTime;
-            serverSettings.MaxConnectionPoolSize = url.MaxConnectionPoolSize;
+            serverSettings.MaxConnectionPoolSize = url.GetEffectiveMaxConnectionPoolSize();
             serverSettings.MinConnectionPoolSize = url.MinConnectionPoolSize;
             serverSettings.ReadConcern = new ReadConcern(url.ReadConcernLevel);
             serverSettings.ReadEncoding = null; // ReadEncoding must be provided in code

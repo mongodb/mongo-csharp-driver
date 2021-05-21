@@ -25,6 +25,26 @@ using MongoDB.Driver.Core.Configuration;
 namespace MongoDB.Driver
 {
     /// <summary>
+    /// Extensions for MongoUrl.
+    /// </summary>
+    public static class MongoUrlExtensions
+    {
+        /// <summary>
+        /// Get the effective maxPoolSize that must be used inside the driver.
+        /// </summary>
+        /// <param name="mongoUrl">The MongoUrl.</param>
+        /// <returns>An effective max pool size value.</returns>
+        public static int GetEffectiveMaxConnectionPoolSize(this MongoUrl mongoUrl)
+        {
+            // maxPoolSize 0 means no limit according to the spec, but in our driver we use a different convention to handle 0,
+            // so we want to limit the spec convention only for the connectionString level and emulate no limit via setting
+            // an effective unreachable pool size value
+            var maxPoolSize = mongoUrl.MaxConnectionPoolSize;
+            return maxPoolSize == 0 ? int.MaxValue : maxPoolSize;
+        }
+    }
+
+    /// <summary>
     /// Represents an immutable URL style connection string. See also MongoUrlBuilder.
     /// </summary>
 #if !NETSTANDARD1_5
@@ -225,7 +245,22 @@ namespace MongoDB.Driver
                 }
                 else
                 {
-                    return (int)(_waitQueueMultiple * _maxConnectionPoolSize);
+                    if (_maxConnectionPoolSize == 0)
+                    {
+                        return int.MaxValue;
+                    }
+                    else
+                    {
+                        var waitQueueSize = _waitQueueMultiple * _maxConnectionPoolSize;
+                        if (waitQueueSize > int.MaxValue)
+                        {
+                            return int.MaxValue;
+                        }
+                        else
+                        {
+                            return (int)waitQueueSize;
+                        }
+                    }
                 }
             }
         }
