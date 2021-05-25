@@ -125,13 +125,13 @@ namespace MongoDB.Driver.Core.Misc
                 switch (code)
                 {
                     case ServerErrorCode.LegacyNotPrimary:
-                    case ServerErrorCode.NotMaster:
-                    case ServerErrorCode.NotMasterNoSlaveOk:
+                    case ServerErrorCode.NotWritablePrimary:
+                    case ServerErrorCode.NotPrimaryNoSecondaryOk:
                         return new MongoNotPrimaryException(connectionId, command, response);
 
                     case ServerErrorCode.InterruptedAtShutdown:
                     case ServerErrorCode.InterruptedDueToReplStateChange:
-                    case ServerErrorCode.NotMasterOrSecondary:
+                    case ServerErrorCode.NotPrimaryOrSecondary:
                     case ServerErrorCode.PrimarySteppedDown:
                     case ServerErrorCode.ShutdownInProgress:
                         return new MongoNodeIsRecoveringException(connectionId, command, response);

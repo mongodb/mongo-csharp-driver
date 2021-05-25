@@ -266,7 +266,7 @@ namespace MongoDB.Driver.Core.Servers
             var currentDescription = Interlocked.CompareExchange(ref _currentDescription, value: null, comparand: null);
 
             var heartbeatException = e.NewServerDescription.HeartbeatException;
-            // The heartbeat commands are isMaster + buildInfo. These commands will throw a MongoCommandException on
+            // The heartbeat commands are hello/isMaster + buildInfo. These commands will throw a MongoCommandException on
             // {ok: 0}, but a reply (with a potential topologyVersion) will still have been received.
             // Not receiving a reply to the heartbeat commands implies a network error or a "HeartbeatFailed" type
             // exception (i.e. ServerDescription.WithHeartbeatException was called), in which case we should immediately
@@ -386,15 +386,15 @@ namespace MongoDB.Driver.Core.Servers
             RequestHeartbeat();
         }
 
-        private bool IsNotMaster(ServerErrorCode? code, string message)
+        private bool IsNotWritablePrimary(ServerErrorCode? code, string message)
         {
             if (code.HasValue)
             {
                 switch (code.Value)
                 {
                     case ServerErrorCode.LegacyNotPrimary: // 10058
-                    case ServerErrorCode.NotMaster: // 10107
-                    case ServerErrorCode.NotMasterNoSlaveOk: // 13435
+                    case ServerErrorCode.NotWritablePrimary: // 10107
+                    case ServerErrorCode.NotPrimaryNoSecondaryOk: // 13435
                         return true;
                 }
             }
@@ -410,16 +410,16 @@ namespace MongoDB.Driver.Core.Servers
             return false;
         }
 
-        private bool IsNotMasterErrorException(Exception exception)
+        private bool IsNotWritablePrimaryErrorException(Exception exception)
         {
             return
                 exception is MongoCommandException commandException &&
-                IsNotMaster((ServerErrorCode)commandException.Code, commandException.ErrorMessage);
+                IsNotWritablePrimary((ServerErrorCode)commandException.Code, commandException.ErrorMessage);
         }
 
         private bool IsStateChangeError(ServerErrorCode? code, string message)
         {
-            return IsNotMaster(code, message) || IsRecovering(code, message);
+            return IsNotWritablePrimary(code, message) || IsRecovering(code, message);
         }
 
         private bool IsShutdownError(ServerErrorCode errorCode)
@@ -447,7 +447,7 @@ namespace MongoDB.Driver.Core.Servers
                 {
                     case ServerErrorCode.InterruptedAtShutdown: // 11600
                     case ServerErrorCode.InterruptedDueToReplStateChange: // 11602
-                    case ServerErrorCode.NotMasterOrSecondary: // 13436
+                    case ServerErrorCode.NotPrimaryOrSecondary: // 13436
                     case ServerErrorCode.PrimarySteppedDown: // 189
                     case ServerErrorCode.ShutdownInProgress: // 91
                         return true;
@@ -484,7 +484,7 @@ namespace MongoDB.Driver.Core.Servers
             {
                 return true;
             }
-            if (IsNotMasterErrorException(ex) || IsRecoveringErrorException(ex))
+            if (IsNotWritablePrimaryErrorException(ex) || IsRecoveringErrorException(ex))
             {
                 return
                     IsShutdownErrorException(ex) ||
@@ -623,12 +623,12 @@ namespace MongoDB.Driver.Core.Servers
                 BsonDocument command,
                 IElementNameValidator commandValidator,
                 Func<CommandResponseHandling> responseHandling,
-                bool slaveOk,
+                bool secondaryOk,
                 IBsonSerializer<TResult> resultSerializer,
                 MessageEncoderSettings messageEncoderSettings,
                 CancellationToken cancellationToken)
             {
-                var readPreference = GetEffectiveReadPreference(slaveOk, null);
+                var readPreference = GetEffectiveReadPreference(secondaryOk, null);
                 var result = Command(
                     NoCoreSession.Instance,
                     readPreference,
@@ -660,12 +660,12 @@ namespace MongoDB.Driver.Core.Servers
                 IElementNameValidator commandValidator,
                 BsonDocument additionalOptions,
                 Func<CommandResponseHandling> responseHandling,
-                bool slaveOk,
+                bool secondaryOk,
                 IBsonSerializer<TResult> resultSerializer,
                 MessageEncoderSettings messageEncoderSettings,
                 CancellationToken cancellationToken)
             {
-                readPreference = GetEffectiveReadPreference(slaveOk, readPreference);
+                readPreference = GetEffectiveReadPreference(secondaryOk, readPreference);
                 var result = Command(
                     session,
                     readPreference,
@@ -725,12 +725,12 @@ namespace MongoDB.Driver.Core.Servers
                 BsonDocument command,
                 IElementNameValidator commandValidator,
                 Func<CommandResponseHandling> responseHandling,
-                bool slaveOk,
+                bool secondaryOk,
                 IBsonSerializer<TResult> resultSerializer,
                 MessageEncoderSettings messageEncoderSettings,
                 CancellationToken cancellationToken)
             {
-                var readPreference = GetEffectiveReadPreference(slaveOk, null);
+                var readPreference = GetEffectiveReadPreference(secondaryOk, null);
                 var result = CommandAsync(
                     NoCoreSession.Instance,
                     readPreference,
@@ -762,12 +762,12 @@ namespace MongoDB.Driver.Core.Servers
                 IElementNameValidator commandValidator,
                 BsonDocument additionalOptions,
                 Func<CommandResponseHandling> responseHandling,
-                bool slaveOk,
+                bool secondaryOk,
                 IBsonSerializer<TResult> resultSerializer,
                 MessageEncoderSettings messageEncoderSettings,
                 CancellationToken cancellationToken)
             {
-                readPreference = GetEffectiveReadPreference(slaveOk, readPreference);
+                readPreference = GetEffectiveReadPreference(secondaryOk, readPreference);
                 var result = CommandAsync(
                     session,
                     readPreference,
@@ -993,7 +993,7 @@ namespace MongoDB.Driver.Core.Servers
                 IElementNameValidator queryValidator,
                 int skip,
                 int batchSize,
-                bool slaveOk,
+                bool secondaryOk,
                 bool partialOk,
                 bool noCursorTimeout,
                 bool tailableCursor,
@@ -1010,7 +1010,7 @@ namespace MongoDB.Driver.Core.Servers
                     queryValidator,
                     skip,
                     batchSize,
-                    slaveOk,
+                    secondaryOk,
                     partialOk,
                     noCursorTimeout,
                     oplogReplay: false,
@@ -1030,7 +1030,7 @@ namespace MongoDB.Driver.Core.Servers
                 IElementNameValidator queryValidator,
                 int skip,
                 int batchSize,
-                bool slaveOk,
+                bool secondaryOk,
                 bool partialOk,
                 bool noCursorTimeout,
                 bool oplogReplay,
@@ -1040,7 +1040,7 @@ namespace MongoDB.Driver.Core.Servers
                 MessageEncoderSettings messageEncoderSettings,
                 CancellationToken cancellationToken)
             {
-                slaveOk = GetEffectiveSlaveOk(slaveOk);
+                secondaryOk = GetEffectiveSecondaryOk(secondaryOk);
 #pragma warning disable 618
                 var protocol = new QueryWireProtocol<TDocument>(
                     collectionNamespace,
@@ -1049,7 +1049,7 @@ namespace MongoDB.Driver.Core.Servers
                     queryValidator,
                     skip,
                     batchSize,
-                    slaveOk,
+                    secondaryOk,
                     partialOk,
                     noCursorTimeout,
                     oplogReplay,
@@ -1069,7 +1069,7 @@ namespace MongoDB.Driver.Core.Servers
                 IElementNameValidator queryValidator,
                 int skip,
                 int batchSize,
-                bool slaveOk,
+                bool secondaryOk,
                 bool partialOk,
                 bool noCursorTimeout,
                 bool tailableCursor,
@@ -1086,7 +1086,7 @@ namespace MongoDB.Driver.Core.Servers
                     queryValidator,
                     skip,
                     batchSize,
-                    slaveOk,
+                    secondaryOk,
                     partialOk,
                     noCursorTimeout,
                     oplogReplay: false,
@@ -1106,7 +1106,7 @@ namespace MongoDB.Driver.Core.Servers
                 IElementNameValidator queryValidator,
                 int skip,
                 int batchSize,
-                bool slaveOk,
+                bool secondaryOk,
                 bool partialOk,
                 bool noCursorTimeout,
                 bool oplogReplay,
@@ -1116,7 +1116,7 @@ namespace MongoDB.Driver.Core.Servers
                 MessageEncoderSettings messageEncoderSettings,
                 CancellationToken cancellationToken)
             {
-                slaveOk = GetEffectiveSlaveOk(slaveOk);
+                secondaryOk = GetEffectiveSecondaryOk(secondaryOk);
 #pragma warning disable 618
                 var protocol = new QueryWireProtocol<TDocument>(
                     collectionNamespace,
@@ -1125,7 +1125,7 @@ namespace MongoDB.Driver.Core.Servers
                     queryValidator,
                     skip,
                     batchSize,
-                    slaveOk,
+                    secondaryOk,
                     partialOk,
                     noCursorTimeout,
                     oplogReplay,
@@ -1278,7 +1278,7 @@ namespace MongoDB.Driver.Core.Servers
                 return new ServerChannel(_server, _connection.Fork(), false);
             }
 
-            private ReadPreference GetEffectiveReadPreference(bool slaveOk, ReadPreference readPreference)
+            private ReadPreference GetEffectiveReadPreference(bool secondaryOk, ReadPreference readPreference)
             {
                 if (IsDirectConnection() && _server.Description.Type != ServerType.ShardRouter)
                 {
@@ -1287,26 +1287,26 @@ namespace MongoDB.Driver.Core.Servers
 
                 if (readPreference == null)
                 {
-                    return slaveOk ? ReadPreference.SecondaryPreferred : ReadPreference.Primary;
+                    return secondaryOk ? ReadPreference.SecondaryPreferred : ReadPreference.Primary;
                 }
 
-                var impliedSlaveOk = readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary;
-                if (slaveOk != impliedSlaveOk)
+                var impliedSecondaryOk = readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary;
+                if (secondaryOk != impliedSecondaryOk)
                 {
-                    throw new ArgumentException($"slaveOk {slaveOk} is inconsistent with read preference mode: {readPreference.ReadPreferenceMode}.");
+                    throw new ArgumentException($"secondaryOk {secondaryOk} is inconsistent with read preference mode: {readPreference.ReadPreferenceMode}.");
                 }
 
                 return readPreference;
             }
 
-            private bool GetEffectiveSlaveOk(bool slaveOk)
+            private bool GetEffectiveSecondaryOk(bool secondaryOk)
             {
                 if (IsDirectConnection() && _server.Description.Type != ServerType.ShardRouter)
                 {
                     return true;
                 }
 
-                return slaveOk;
+                return secondaryOk;
             }
 
             private bool IsDirectConnection()

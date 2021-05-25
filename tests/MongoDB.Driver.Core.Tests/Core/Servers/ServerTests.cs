@@ -410,7 +410,7 @@ namespace MongoDB.Driver.Core.Servers
             subject.Description.Type.Should().Be(ServerType.Unknown);
             subject.Description.ReasonChanged.Should().Contain("ChannelException during handshake");
         }
- 
+
         [Theory]
         [InlineData(nameof(MongoConnectionException), true)]
         [InlineData("MongoConnectionExceptionWithSocketTimeout", false)]
@@ -522,14 +522,14 @@ namespace MongoDB.Driver.Core.Servers
         [InlineData(null, false)]
         [InlineData((ServerErrorCode)1, false)]
         [InlineData(ServerErrorCode.LegacyNotPrimary, true)]
-        [InlineData(ServerErrorCode.NotMaster, true)]
-        [InlineData(ServerErrorCode.NotMasterNoSlaveOk, true)]
-        [InlineData(ServerErrorCode.NotMasterOrSecondary, false)]
-        internal void IsNotMaster_should_return_expected_result_for_code(ServerErrorCode? code, bool expectedResult)
+        [InlineData(ServerErrorCode.NotWritablePrimary, true)]
+        [InlineData(ServerErrorCode.NotPrimaryNoSecondaryOk, true)]
+        [InlineData(ServerErrorCode.NotPrimaryOrSecondary, false)]
+        internal void IsNotWritablePrimary_should_return_expected_result_for_code(ServerErrorCode? code, bool expectedResult)
         {
             _subject.Initialize();
 
-            var result = _subject.IsNotMaster(code, null);
+            var result = _subject.IsNotWritablePrimary(code, null);
 
             result.Should().Be(expectedResult);
             if (result)
@@ -539,28 +539,28 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         [Fact]
-        internal void IsNotMaster_should_return_expected_result_for_code_with_conflicting_message()
+        internal void IsNotWritablePrimary_should_return_expected_result_for_code_with_conflicting_message()
         {
             var code = (ServerErrorCode)1;
             var message = "not master";
 
             _subject.Initialize();
 
-            var result = _subject.IsNotMaster(code, message);
+            var result = _subject.IsNotWritablePrimary(code, message);
 
             result.Should().BeFalse();
         }
-        
+
         [Theory]
         [InlineData(null, false)]
         [InlineData("abc", false)]
         [InlineData("not master", true)]
         [InlineData("not master or secondary", false)]
-        internal void IsNotMaster_should_return_expected_result_for_message(string message, bool expectedResult)
+        internal void IsNotWritablePrimary_should_return_expected_result_for_message(string message, bool expectedResult)
         {
             _subject.Initialize();
 
-            var result = _subject.IsNotMaster(null, message);
+            var result = _subject.IsNotWritablePrimary(null, message);
 
             result.Should().Be(expectedResult);
             if (result)
@@ -572,7 +572,7 @@ namespace MongoDB.Driver.Core.Servers
         [Theory]
         [InlineData(null, false)]
         [InlineData((ServerErrorCode)1, false)]
-        [InlineData(ServerErrorCode.NotMaster, true)]
+        [InlineData(ServerErrorCode.NotWritablePrimary, true)]
         [InlineData(ServerErrorCode.InterruptedAtShutdown, true)]
         internal void IsStateChangeError_should_return_expected_result(ServerErrorCode? code, bool expectedResult)
         {
@@ -588,7 +588,7 @@ namespace MongoDB.Driver.Core.Servers
         [InlineData((ServerErrorCode)1, false)]
         [InlineData(ServerErrorCode.InterruptedAtShutdown, true)]
         [InlineData(ServerErrorCode.InterruptedDueToReplStateChange, true)]
-        [InlineData(ServerErrorCode.NotMasterOrSecondary, true)]
+        [InlineData(ServerErrorCode.NotPrimaryOrSecondary, true)]
         [InlineData(ServerErrorCode.PrimarySteppedDown, true)]
         [InlineData(ServerErrorCode.ShutdownInProgress, true)]
         internal void IsRecovering_should_return_expected_result_for_code(ServerErrorCode? code, bool expectedResult)
@@ -600,7 +600,7 @@ namespace MongoDB.Driver.Core.Servers
             result.Should().Be(expectedResult);
             if (result)
             {
-                _subject.IsNotMaster(code, null).Should().BeFalse();
+                _subject.IsNotWritablePrimary(code, null).Should().BeFalse();
             }
         }
 
@@ -631,7 +631,7 @@ namespace MongoDB.Driver.Core.Servers
             result.Should().Be(expectedResult);
             if (result)
             {
-                _subject.IsNotMaster(null, message).Should().BeFalse();
+                _subject.IsNotWritablePrimary(null, message).Should().BeFalse();
             }
         }
 
@@ -654,7 +654,7 @@ namespace MongoDB.Driver.Core.Servers
             var serverId = new ServerId(clusterId, new DnsEndPoint("localhost", 27017));
             var connectionId = new ConnectionId(serverId);
             var command = new BsonDocument("command", 1);
-            var notMasterResult = new BsonDocument { { "code", ServerErrorCode.NotMaster } };
+            var notWritablePrimaryResult = new BsonDocument { { "code", ServerErrorCode.NotWritablePrimary } };
             var nodeIsRecoveringResult = new BsonDocument("code", ServerErrorCode.InterruptedAtShutdown);
 
             switch (exceptionTypeName)
@@ -663,7 +663,7 @@ namespace MongoDB.Driver.Core.Servers
                 case nameof(Exception): exception = new Exception(); break;
                 case nameof(IOException): exception = new IOException(); break;
                 case nameof(MongoConnectionException): exception = new MongoConnectionException(connectionId, "message"); break;
-                case nameof(MongoNodeIsRecoveringException): exception = new MongoNodeIsRecoveringException(connectionId, command, notMasterResult); break;
+                case nameof(MongoNodeIsRecoveringException): exception = new MongoNodeIsRecoveringException(connectionId, command, notWritablePrimaryResult); break;
                 case nameof(MongoNotPrimaryException): exception = new MongoNotPrimaryException(connectionId, command, nodeIsRecoveringResult); break;
                 case nameof(SocketException): exception = new SocketException(); break;
                 case "MongoConnectionExceptionWithSocketTimeout":
@@ -684,7 +684,7 @@ namespace MongoDB.Driver.Core.Servers
         [Theory]
         [InlineData(null, null, false)]
         [InlineData((ServerErrorCode)1, null, false)]
-        [InlineData(ServerErrorCode.NotMaster, null, true)]
+        [InlineData(ServerErrorCode.NotWritablePrimary, null, true)]
         [InlineData(ServerErrorCode.InterruptedAtShutdown, null, true)]
         [InlineData(null, "abc", false)]
         [InlineData(null, "not master", true)]
@@ -714,7 +714,7 @@ namespace MongoDB.Driver.Core.Servers
         [Theory]
         [InlineData(null, null, false)]
         [InlineData((ServerErrorCode)1, null, false)]
-        [InlineData(ServerErrorCode.NotMaster, null, true)]
+        [InlineData(ServerErrorCode.NotWritablePrimary, null, true)]
         [InlineData(ServerErrorCode.InterruptedAtShutdown, null, true)]
         [InlineData(null, "abc", false)]
         [InlineData(null, "not master", true)]
@@ -974,9 +974,9 @@ namespace MongoDB.Driver.Core.Servers
             Reflector.Invoke(server, nameof(HandleChannelException), connection, ex);
         }
 
-        public static bool IsNotMaster(this Server server, ServerErrorCode? code, string message)
+        public static bool IsNotWritablePrimary(this Server server, ServerErrorCode? code, string message)
         {
-            return (bool)Reflector.Invoke(server, nameof(IsNotMaster), code, message);
+            return (bool)Reflector.Invoke(server, nameof(IsNotWritablePrimary), code, message);
         }
 
         public static bool IsStateChangeError(this Server server, ServerErrorCode? code, string message)

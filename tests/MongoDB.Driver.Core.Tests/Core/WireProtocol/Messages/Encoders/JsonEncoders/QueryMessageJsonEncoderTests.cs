@@ -18,8 +18,6 @@ using System.IO;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
-using MongoDB.Driver.Core.WireProtocol.Messages;
-using MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders;
 using Xunit;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
@@ -40,7 +38,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         private static readonly IElementNameValidator __queryValidator = NoOpElementNameValidator.Instance;
         private static readonly int __requestId = 1;
         private static readonly int __skip = 2;
-        private static readonly bool __slaveOk = true;
+        private static readonly bool __secondaryOk = true;
         private static readonly bool __tailableCursor = true;
         private static readonly QueryMessage __testMessage;
         private static readonly string __testMessageJson;
@@ -49,7 +47,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         static QueryMessageJsonEncoderTests()
         {
 #pragma warning disable 618
-            __testMessage = new QueryMessage(__requestId, __collectionNamespace, __query, __fields, __queryValidator, __skip, __batchSize, __slaveOk, __partialOk, __noCursorTimeout, __oplogReplay, __tailableCursor, __awaitData);
+            __testMessage = new QueryMessage(__requestId, __collectionNamespace, __query, __fields, __queryValidator, __skip, __batchSize, __secondaryOk, __partialOk, __noCursorTimeout, __oplogReplay, __tailableCursor, __awaitData);
 #pragma warning restore 618
 
             __testMessageJson =
@@ -129,7 +127,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
                 message.Query.Should().Be(__query);
                 message.RequestId.Should().Be(__requestId);
                 message.Skip.Should().Be(__skip);
-                message.SlaveOk.Should().Be(__slaveOk);
+                message.SlaveOk.Should().Be(__secondaryOk);
                 message.TailableCursor.Should().Be(__tailableCursor);
             }
         }

@@ -51,14 +51,14 @@ namespace MongoDB.Driver.Core.WireProtocol
         public CommandWireProtocol(
             DatabaseNamespace databaseNamespace,
             BsonDocument command,
-            bool slaveOk,
+            bool secondaryOk,
             IBsonSerializer<TCommandResult> resultSerializer,
             MessageEncoderSettings messageEncoderSettings,
             ServerApi serverApi)
             : this(
                 databaseNamespace,
                 command,
-                slaveOk,
+                secondaryOk,
                 CommandResponseHandling.Return,
                 resultSerializer,
                 messageEncoderSettings,
@@ -69,14 +69,14 @@ namespace MongoDB.Driver.Core.WireProtocol
         public CommandWireProtocol(
             DatabaseNamespace databaseNamespace,
             BsonDocument command,
-            bool slaveOk,
+            bool secondaryOk,
             CommandResponseHandling commandResponseHandling,
             IBsonSerializer<TCommandResult> resultSerializer,
             MessageEncoderSettings messageEncoderSettings,
             ServerApi serverApi)
             : this(
                 NoCoreSession.Instance,
-                slaveOk ? ReadPreference.PrimaryPreferred : ReadPreference.Primary,
+                secondaryOk ? ReadPreference.PrimaryPreferred : ReadPreference.Primary,
                 databaseNamespace,
                 command,
                 null, // commandPayloads

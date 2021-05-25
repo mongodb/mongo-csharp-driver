@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Core.Bindings
         /// <param name="command">The command.</param>
         /// <param name="commandValidator">The command validator.</param>
         /// <param name="responseHandling">The response handling.</param>
-        /// <param name="slaveOk">if set to <c>true</c> sets the SlaveOk bit to true in the command message sent to the server.</param>
+        /// <param name="secondaryOk">if set to <c>true</c> sets the SecondaryOk bit to true in the command message sent to the server.</param>
         /// <param name="resultSerializer">The result serializer.</param>
         /// <param name="messageEncoderSettings">The message encoder settings.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Core.Bindings
             BsonDocument command,
             IElementNameValidator commandValidator,
             Func<CommandResponseHandling> responseHandling,
-            bool slaveOk,
+            bool secondaryOk,
             IBsonSerializer<TResult> resultSerializer,
             MessageEncoderSettings messageEncoderSettings,
             CancellationToken cancellationToken);
@@ -76,7 +76,7 @@ namespace MongoDB.Driver.Core.Bindings
         /// <param name="commandValidator">The command validator.</param>
         /// <param name="additionalOptions">The additional options.</param>
         /// <param name="responseHandling">The response handling.</param>
-        /// <param name="slaveOk">if set to <c>true</c> sets the SlaveOk bit to true in the command message sent to the server.</param>
+        /// <param name="secondaryOk">if set to <c>true</c> sets the SecondaryOk bit to true in the command message sent to the server.</param>
         /// <param name="resultSerializer">The result serializer.</param>
         /// <param name="messageEncoderSettings">The message encoder settings.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
@@ -92,7 +92,7 @@ namespace MongoDB.Driver.Core.Bindings
             IElementNameValidator commandValidator,
             BsonDocument additionalOptions,
             Func<CommandResponseHandling> responseHandling,
-            bool slaveOk,
+            bool secondaryOk,
             IBsonSerializer<TResult> resultSerializer,
             MessageEncoderSettings messageEncoderSettings,
             CancellationToken cancellationToken);
@@ -138,7 +138,7 @@ namespace MongoDB.Driver.Core.Bindings
         /// <param name="command">The command.</param>
         /// <param name="commandValidator">The command validator.</param>
         /// <param name="responseHandling">The response handling.</param>
-        /// <param name="slaveOk">if set to <c>true</c> sets the SlaveOk bit to true in the command message sent to the server.</param>
+        /// <param name="secondaryOk">if set to <c>true</c> sets the SecondaryOk bit to true in the command message sent to the server.</param>
         /// <param name="resultSerializer">The result serializer.</param>
         /// <param name="messageEncoderSettings">The message encoder settings.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
@@ -149,7 +149,7 @@ namespace MongoDB.Driver.Core.Bindings
             BsonDocument command,
             IElementNameValidator commandValidator,
             Func<CommandResponseHandling> responseHandling,
-            bool slaveOk,
+            bool secondaryOk,
             IBsonSerializer<TResult> resultSerializer,
             MessageEncoderSettings messageEncoderSettings,
             CancellationToken cancellationToken);
@@ -165,7 +165,7 @@ namespace MongoDB.Driver.Core.Bindings
         /// <param name="commandValidator">The command validator.</param>
         /// <param name="additionalOptions">The additional options.</param>
         /// <param name="responseHandling">The response handling.</param>
-        /// <param name="slaveOk">if set to <c>true</c> sets the SlaveOk bit to true in the command message sent to the server.</param>
+        /// <param name="secondaryOk">if set to <c>true</c> sets the SecondaryOk bit to true in the command message sent to the server.</param>
         /// <param name="resultSerializer">The result serializer.</param>
         /// <param name="messageEncoderSettings">The message encoder settings.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
@@ -181,7 +181,7 @@ namespace MongoDB.Driver.Core.Bindings
             IElementNameValidator commandValidator,
             BsonDocument additionalOptions,
             Func<CommandResponseHandling> responseHandling,
-            bool slaveOk,
+            bool secondaryOk,
             IBsonSerializer<TResult> resultSerializer,
             MessageEncoderSettings messageEncoderSettings,
             CancellationToken cancellationToken);
@@ -384,7 +384,7 @@ namespace MongoDB.Driver.Core.Bindings
         /// <param name="queryValidator">The query validator.</param>
         /// <param name="skip">The number of documents to skip.</param>
         /// <param name="batchSize">The size of a batch.</param>
-        /// <param name="slaveOk">if set to <c>true</c> sets the SlaveOk bit to true in the query message sent to the server.</param>
+        /// <param name="secondaryOk">if set to <c>true</c> sets the SecondaryOk bit to true in the query message sent to the server.</param>
         /// <param name="partialOk">if set to <c>true</c> the server is allowed to return partial results if any shards are unavailable.</param>
         /// <param name="noCursorTimeout">if set to <c>true</c> the server will not timeout the cursor.</param>
         /// <param name="tailableCursor">if set to <c>true</c> the query should return a tailable cursor.</param>
@@ -400,7 +400,7 @@ namespace MongoDB.Driver.Core.Bindings
             IElementNameValidator queryValidator,
             int skip,
             int batchSize,
-            bool slaveOk,
+            bool secondaryOk,
             bool partialOk,
             bool noCursorTimeout,
             bool tailableCursor,
@@ -419,7 +419,7 @@ namespace MongoDB.Driver.Core.Bindings
         /// <param name="queryValidator">The query validator.</param>
         /// <param name="skip">The number of documents to skip.</param>
         /// <param name="batchSize">The size of a batch.</param>
-        /// <param name="slaveOk">if set to <c>true</c> sets the SlaveOk bit to true in the query message sent to the server.</param>
+        /// <param name="secondaryOk">if set to <c>true</c> sets the SecondaryOk bit to true in the query message sent to the server.</param>
         /// <param name="partialOk">if set to <c>true</c> the server is allowed to return partial results if any shards are unavailable.</param>
         /// <param name="noCursorTimeout">if set to <c>true</c> the server will not timeout the cursor.</param>
         /// <param name="oplogReplay">if set to <c>true</c> the OplogReplay bit will be set.</param>
@@ -437,7 +437,7 @@ namespace MongoDB.Driver.Core.Bindings
             IElementNameValidator queryValidator,
             int skip,
             int batchSize,
-            bool slaveOk,
+            bool secondaryOk,
             bool partialOk,
             bool noCursorTimeout,
             bool oplogReplay, // obsolete: OplogReplay is ignored by server versions 4.4.0 and newer
@@ -457,7 +457,7 @@ namespace MongoDB.Driver.Core.Bindings
         /// <param name="queryValidator">The query validator.</param>
         /// <param name="skip">The number of documents to skip.</param>
         /// <param name="batchSize">The size of a batch.</param>
-        /// <param name="slaveOk">if set to <c>true</c> sets the SlaveOk bit to true in the query message sent to the server.</param>
+        /// <param name="secondaryOk">if set to <c>true</c> sets the SecondaryOk bit to true in the query message sent to the server.</param>
         /// <param name="partialOk">if set to <c>true</c> the server is allowed to return partial results if any shards are unavailable.</param>
         /// <param name="noCursorTimeout">if set to <c>true</c> the server will not timeout the cursor.</param>
         /// <param name="tailableCursor">if set to <c>true</c> the query should return a tailable cursor.</param>
@@ -473,7 +473,7 @@ namespace MongoDB.Driver.Core.Bindings
             IElementNameValidator queryValidator,
             int skip,
             int batchSize,
-            bool slaveOk,
+            bool secondaryOk,
             bool partialOk,
             bool noCursorTimeout,
             bool tailableCursor,
@@ -492,7 +492,7 @@ namespace MongoDB.Driver.Core.Bindings
         /// <param name="queryValidator">The query validator.</param>
         /// <param name="skip">The number of documents to skip.</param>
         /// <param name="batchSize">The size of a batch.</param>
-        /// <param name="slaveOk">if set to <c>true</c> sets the SlaveOk bit to true in the query message sent to the server.</param>
+        /// <param name="secondaryOk">if set to <c>true</c> sets the SecondaryOk bit to true in the query message sent to the server.</param>
         /// <param name="partialOk">if set to <c>true</c> the server is allowed to return partial results if any shards are unavailable.</param>
         /// <param name="noCursorTimeout">if set to <c>true</c> the server will not timeout the cursor.</param>
         /// <param name="oplogReplay">if set to <c>true</c> the OplogReplay bit will be set.</param>
@@ -510,7 +510,7 @@ namespace MongoDB.Driver.Core.Bindings
             IElementNameValidator queryValidator,
             int skip,
             int batchSize,
-            bool slaveOk,
+            bool secondaryOk,
             bool partialOk,
             bool noCursorTimeout,
             bool oplogReplay, // obsolete: OplogReplay is ignored by server versions 4.4.0 and newer

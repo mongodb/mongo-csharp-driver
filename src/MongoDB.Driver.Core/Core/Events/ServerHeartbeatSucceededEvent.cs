@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Core.Events
         }
 
         /// <summary>
-        /// Determines if this heartbeat event is for an awaitable isMaster.
+        /// Determines if this heartbeat event is for an awaitable hello.
         /// </summary>
         public bool Awaited => _awaited;
 

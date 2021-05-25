@@ -794,8 +794,6 @@ namespace MongoDB.Driver
             return true;
         }
 
-        // TODO: mongo shell has IsMaster at database level?
-
         /// <summary>
         /// Removes a user from this database.
         /// </summary>

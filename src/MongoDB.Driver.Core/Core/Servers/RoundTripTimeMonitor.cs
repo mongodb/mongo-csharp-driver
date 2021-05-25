@@ -97,11 +97,11 @@ namespace MongoDB.Driver.Core.Servers
                     }
                     else
                     {
-                        var isMasterCommand = IsMasterHelper.CreateCommand();
-                        var isMasterProtocol = IsMasterHelper.CreateProtocol(isMasterCommand, _serverApi);
+                        var helloCommand = HelloHelper.CreateCommand();
+                        var helloProtocol = HelloHelper.CreateProtocol(helloCommand, _serverApi);
 
                         var stopwatch = Stopwatch.StartNew();
-                        var isMasterResult = await IsMasterHelper.GetResultAsync(_roundTripTimeConnection, isMasterProtocol, _cancellationToken).ConfigureAwait(false);
+                        var helloResult = await HelloHelper.GetResultAsync(_roundTripTimeConnection, helloProtocol, _cancellationToken).ConfigureAwait(false);
                         stopwatch.Stop();
                         AddSample(stopwatch.Elapsed);
                     }

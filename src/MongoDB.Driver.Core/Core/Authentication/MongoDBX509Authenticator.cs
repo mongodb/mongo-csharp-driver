@@ -147,7 +147,7 @@ namespace MongoDB.Driver.Core.Authentication
             var protocol = new CommandWireProtocol<BsonDocument>(
                 databaseNamespace: new DatabaseNamespace("$external"),
                 command: command,
-                slaveOk: true,
+                secondaryOk: true,
                 resultSerializer: BsonDocumentSerializer.Instance,
                 messageEncoderSettings: null,
                 serverApi: _serverApi);

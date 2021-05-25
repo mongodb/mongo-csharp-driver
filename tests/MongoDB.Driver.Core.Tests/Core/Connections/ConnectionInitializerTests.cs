@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Core.Connections
 
         [Theory]
         [ParameterAttributeData]
-        public void CreateInitialIsMaster_should_return_isMaster_with_speculativeAuthenticate(
+        public void CreateInitialLegacyHello_should_return_legacy_hello_with_speculativeAuthenticate(
             [Values("default", "SCRAM-SHA-256", "SCRAM-SHA-1")] string authenticatorType,
             [Values(false, true)] bool async)
         {
@@ -54,10 +54,10 @@ namespace MongoDB.Driver.Core.Connections
             var authenticator = CreateAuthenticator(authenticatorType, credentials);
             var connectionSettings = new ConnectionSettings(new[] { new AuthenticatorFactory(() => authenticator) });
 
-            var isMasterDocument = _subject.CreateInitialIsMasterCommand(new[] { authenticator });
+            var helloDocument = _subject.CreateInitialHelloCommand(new[] { authenticator });
 
-            isMasterDocument.Should().Contain("speculativeAuthenticate");
-            var speculativeAuthenticateDocument = isMasterDocument["speculativeAuthenticate"].AsBsonDocument;
+            helloDocument.Should().Contain("speculativeAuthenticate");
+            var speculativeAuthenticateDocument = helloDocument["speculativeAuthenticate"].AsBsonDocument;
             speculativeAuthenticateDocument.Should().Contain("mechanism");
             var expectedMechanism = new BsonString(
                 authenticatorType == "default" ? "SCRAM-SHA-256" : authenticatorType);
@@ -67,15 +67,15 @@ namespace MongoDB.Driver.Core.Connections
 
         [Theory]
         [ParameterAttributeData]
-        public void InitializeConnection_should_acquire_connectionId_from_isMaster_response([Values(false, true)] bool async)
+        public void InitializeConnection_should_acquire_connectionId_from_legacy_hello_response([Values(false, true)] bool async)
         {
-            var isMasterReply = MessageHelper.BuildReply(
+            var legacyHelloReply = MessageHelper.BuildReply(
                 RawBsonDocumentHelper.FromJson("{ ok : 1, connectionId : 1 }"));
             var buildInfoReply = MessageHelper.BuildReply(
                 RawBsonDocumentHelper.FromJson("{ ok : 1, version : \"4.2.0\" }"));
 
             var connection = new MockConnection(__serverId);
-            connection.EnqueueReplyMessage(isMasterReply);
+            connection.EnqueueReplyMessage(legacyHelloReply);
             connection.EnqueueReplyMessage(buildInfoReply);
 
             ConnectionDescription result;
@@ -99,7 +99,7 @@ namespace MongoDB.Driver.Core.Connections
             [Values("default", "SCRAM-SHA-256", "SCRAM-SHA-1")] string authenticatorType,
             [Values(false, true)] bool async)
         {
-            var isMasterReply = MessageHelper.BuildReply(
+            var legacyHelloReply = MessageHelper.BuildReply(
                 RawBsonDocumentHelper.FromJson("{ ok : 1, connectionId : 1 }"));
             var buildInfoReply = MessageHelper.BuildReply(
                 RawBsonDocumentHelper.FromJson("{ ok : 1, version : \"4.2.0\" }"));
@@ -108,7 +108,7 @@ namespace MongoDB.Driver.Core.Connections
             var authenticator = CreateAuthenticator(authenticatorType, credentials);
             var connectionSettings = new ConnectionSettings(new[] { new AuthenticatorFactory(() => authenticator) });
             var connection = new MockConnection(__serverId, connectionSettings, eventSubscriber: null);
-            connection.EnqueueReplyMessage(isMasterReply);
+            connection.EnqueueReplyMessage(legacyHelloReply);
             connection.EnqueueReplyMessage(buildInfoReply);
 
             // We expect authentication to fail since we have not enqueued the expected authentication replies
@@ -129,10 +129,10 @@ namespace MongoDB.Driver.Core.Connections
             }
 
             var sentMessages = connection.GetSentMessages();
-            var isMasterQuery = (QueryMessage)sentMessages[0];
-            var isMasterDocument = isMasterQuery.Query;
-            isMasterDocument.Should().Contain("speculativeAuthenticate");
-            var speculativeAuthenticateDocument = isMasterDocument["speculativeAuthenticate"].AsBsonDocument;
+            var legacyHelloQuery = (QueryMessage)sentMessages[0];
+            var legacyHelloDocument = legacyHelloQuery.Query;
+            legacyHelloDocument.Should().Contain("speculativeAuthenticate");
+            var speculativeAuthenticateDocument = legacyHelloDocument["speculativeAuthenticate"].AsBsonDocument;
             speculativeAuthenticateDocument.Should().Contain("mechanism");
             var expectedMechanism = new BsonString(
                 authenticatorType == "default" ? "SCRAM-SHA-256" : authenticatorType);
@@ -161,17 +161,17 @@ namespace MongoDB.Driver.Core.Connections
 
         [Theory]
         [ParameterAttributeData]
-        public void InitializeConnection_should_send_serverApi_in_isMaster_and_buildInfo(
+        public void InitializeConnection_should_send_serverApi_in_legacy_hello_and_buildInfo(
             [Values(false, true)] bool useServerApi,
             [Values(false, true)] bool async)
         {
             var serverApi = useServerApi ? new ServerApi(ServerApiVersion.V1, true, true) : null;
 
-            var isMasterReply = MessageHelper.BuildReply(RawBsonDocumentHelper.FromJson("{ ok : 1, connectionId : 1 }"));
+            var legacyHelloReply = MessageHelper.BuildReply(RawBsonDocumentHelper.FromJson("{ ok : 1, connectionId : 1 }"));
             var buildInfoReply = MessageHelper.BuildReply(RawBsonDocumentHelper.FromJson("{ ok : 1, version : \"4.2.0\" }"));
 
             var connection = new MockConnection(__serverId);
-            connection.EnqueueReplyMessage(isMasterReply);
+            connection.EnqueueReplyMessage(legacyHelloReply);
             connection.EnqueueReplyMessage(buildInfoReply);
 
             var subject = new ConnectionInitializer("test", new[] { new CompressorConfiguration(CompressorType.Zlib) }, serverApi);
@@ -219,7 +219,7 @@ namespace MongoDB.Driver.Core.Connections
             [Values("noop", "zlib", "snappy", "zstd")] string compressorType,
             [Values(false, true)] bool async)
         {
-            var isMasterReply = MessageHelper.BuildReply<RawBsonDocument>(
+            var legacyHelloReply = MessageHelper.BuildReply<RawBsonDocument>(
                 RawBsonDocumentHelper.FromJson($"{{ ok: 1, compression: ['{compressorType}'] }}"));
             var buildInfoReply = MessageHelper.BuildReply<RawBsonDocument>(
                 RawBsonDocumentHelper.FromJson("{ ok: 1, version: \"2.6.3\" }"));
@@ -227,7 +227,7 @@ namespace MongoDB.Driver.Core.Connections
                 RawBsonDocumentHelper.FromJson("{ ok: 1, connectionId: 10 }"));
 
             var connection = new MockConnection(__serverId);
-            connection.EnqueueReplyMessage(isMasterReply);
+            connection.EnqueueReplyMessage(legacyHelloReply);
             connection.EnqueueReplyMessage(buildInfoReply);
             connection.EnqueueReplyMessage(gleReply);
 
@@ -278,9 +278,9 @@ namespace MongoDB.Driver.Core.Connections
 
     internal static class ConnectionInitializerReflector
     {
-        public static BsonDocument CreateInitialIsMasterCommand(
+        public static BsonDocument CreateInitialHelloCommand(
             this ConnectionInitializer initializer,
             IReadOnlyList<IAuthenticator> authenticators) =>
-                (BsonDocument)Reflector.Invoke(initializer, nameof(CreateInitialIsMasterCommand), authenticators);
+                (BsonDocument)Reflector.Invoke(initializer, nameof(CreateInitialHelloCommand), authenticators);
     }
 }

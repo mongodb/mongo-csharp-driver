@@ -278,7 +278,7 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         /// <summary>
-        /// Gets the last write timestamp (from the lastWrite field of the isMaster result).
+        /// Gets the last write timestamp (from the lastWrite field of the hello or legacy hello result).
         /// </summary>
         /// <value>
         /// The last write timestamp.

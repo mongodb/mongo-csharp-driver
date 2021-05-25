@@ -155,8 +155,8 @@ namespace MongoDB.Driver.Core.Clusters
 
         [Theory]
         [ParameterAttributeData]
-        public void ServerDescription_type_should_be_replaced_with_Unknown_when_isMaster_setName_is_different(
-            [Values(null, "wrong")] string isMasterSetName)
+        public void ServerDescription_type_should_be_replaced_with_Unknown_when_legacy_hello_setName_is_different(
+            [Values(null, "wrong")] string legacyHelloSetName)
         {
             _settings = _settings.With(
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -169,7 +169,7 @@ namespace MongoDB.Driver.Core.Clusters
             subject.Initialize();
             _capturedEvents.Clear();
 
-            var replicaSetConfig = new ReplicaSetConfig(new[] { _endPoint }, name: isMasterSetName, _endPoint, 1);
+            var replicaSetConfig = new ReplicaSetConfig(new[] { _endPoint }, name: legacyHelloSetName, _endPoint, 1);
             PublishDescription(_endPoint, ServerType.Standalone, replicaSetConfig);
 
             subject.Description.Type.Should().Be(ClusterType.Unknown);

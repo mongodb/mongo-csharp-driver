@@ -19,7 +19,6 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
-using MongoDB.Driver;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
@@ -32,7 +31,6 @@ namespace MongoDB.Driver.Tests
         private static MongoServer __server;
         private static MongoDatabase __database;
         private static MongoCollection<BsonDocument> __collection;
-        private static bool __isMasterSlavePair;
         private static bool __isReplicaSet;
         private static Lazy<bool> __lazyOneTimeSetup = new Lazy<bool>(OneTimeSetup);
 
@@ -47,12 +45,6 @@ namespace MongoDB.Driver.Tests
             __database = LegacyTestConfiguration.Database;
             __collection = LegacyTestConfiguration.Collection;
             __isReplicaSet = LegacyTestConfiguration.IsReplicaSet;
-
-            var adminDatabase = __server.GetDatabase("admin");
-            var commandResult = adminDatabase.RunCommand("getCmdLineOpts");
-            var argv = commandResult.Response["argv"].AsBsonArray;
-            __isMasterSlavePair = argv.Contains("--master") || argv.Contains("--slave");
-
             return true;
         }
 
@@ -99,36 +91,30 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestDatabaseExists()
         {
-            if (!__isMasterSlavePair)
-            {
-                var databaseNamespace = CoreTestConfiguration.GetDatabaseNamespaceForTestClass(typeof(MongoServerTests));
-                var database = __server.GetDatabase(databaseNamespace.DatabaseName);
-                var collection = database.GetCollection("test");
+            var databaseNamespace = CoreTestConfiguration.GetDatabaseNamespaceForTestClass(typeof(MongoServerTests));
+            var database = __server.GetDatabase(databaseNamespace.DatabaseName);
+            var collection = database.GetCollection("test");
 
-                database.Drop();
-                Assert.False(__server.DatabaseExists(database.Name));
-                collection.Insert(new BsonDocument("x", 1));
-                Assert.True(__server.DatabaseExists(database.Name));
-            }
+            database.Drop();
+            Assert.False(__server.DatabaseExists(database.Name));
+            collection.Insert(new BsonDocument("x", 1));
+            Assert.True(__server.DatabaseExists(database.Name));
         }
 
         [Fact]
         public void TestDropDatabase()
         {
-            if (!__isMasterSlavePair)
-            {
-                var databaseNamespace = CoreTestConfiguration.GetDatabaseNamespaceForTestClass(typeof(MongoServerTests));
-                var database = __server.GetDatabase(databaseNamespace.DatabaseName);
-                var collection = database.GetCollection("test");
+            var databaseNamespace = CoreTestConfiguration.GetDatabaseNamespaceForTestClass(typeof(MongoServerTests));
+            var database = __server.GetDatabase(databaseNamespace.DatabaseName);
+            var collection = database.GetCollection("test");
 
-                collection.Insert(new BsonDocument());
-                var databaseNames = __server.GetDatabaseNames();
-                Assert.True(databaseNames.Contains(database.Name));
+            collection.Insert(new BsonDocument());
+            var databaseNames = __server.GetDatabaseNames();
+            Assert.True(databaseNames.Contains(database.Name));
 
-                __server.DropDatabase(database.Name);
-                databaseNames = __server.GetDatabaseNames();
-                Assert.False(databaseNames.Contains(database.Name));
-            }
+            __server.DropDatabase(database.Name);
+            databaseNames = __server.GetDatabaseNames();
+            Assert.False(databaseNames.Contains(database.Name));
         }
 
         [SkippableFact]

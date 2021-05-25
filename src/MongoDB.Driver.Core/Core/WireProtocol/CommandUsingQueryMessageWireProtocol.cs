@@ -92,7 +92,7 @@ namespace MongoDB.Driver.Core.WireProtocol
         private QueryMessage CreateMessage(ConnectionDescription connectionDescription, out bool messageContainsSessionId)
         {
             var commandWithPayloads = CombineCommandWithPayloads(connectionDescription);
-            var wrappedCommand = WrapCommandForQueryMessage(commandWithPayloads, connectionDescription, out messageContainsSessionId, out var slaveOk);
+            var wrappedCommand = WrapCommandForQueryMessage(commandWithPayloads, connectionDescription, out messageContainsSessionId, out var secondaryOk);
 
 #pragma warning disable 618
             return new QueryMessage(
@@ -103,7 +103,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 _commandValidator,
                 0,
                 -1,
-                slaveOk,
+                secondaryOk,
                 false,
                 false,
                 false,
@@ -335,7 +335,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             }
         }
 
-        private BsonDocument WrapCommandForQueryMessage(BsonDocument command, ConnectionDescription connectionDescription, out bool messageContainsSessionId, out bool slaveOk)
+        private BsonDocument WrapCommandForQueryMessage(BsonDocument command, ConnectionDescription connectionDescription, out bool messageContainsSessionId, out bool secondaryOk)
         {
             messageContainsSessionId = false;
             var extraElements = new List<BsonElement>();
@@ -384,7 +384,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             var commandWithExtraElements = new BsonDocumentWrapper(command, appendExtraElementsSerializer);
 
             var serverType = connectionDescription != null ? connectionDescription.IsMasterResult.ServerType : ServerType.Unknown;
-            var readPreferenceDocument = QueryHelper.CreateReadPreferenceDocument(serverType, _readPreference, out slaveOk);
+            var readPreferenceDocument = QueryHelper.CreateReadPreferenceDocument(serverType, _readPreference, out secondaryOk);
 
             var wrappedCommand = new BsonDocument
             {

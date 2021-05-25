@@ -358,7 +358,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        private CursorBatch<TDocument> ExecuteProtocol(IChannelHandle channel, BsonDocument wrappedQuery, bool slaveOk, CancellationToken cancellationToken)
+        private CursorBatch<TDocument> ExecuteProtocol(IChannelHandle channel, BsonDocument wrappedQuery, bool secondaryOk, CancellationToken cancellationToken)
         {
             var firstBatchSize = QueryHelper.CalculateFirstBatchSize(_limit, _firstBatchSize ?? _batchSize);
 
@@ -370,7 +370,7 @@ namespace MongoDB.Driver.Core.Operations
                 NoOpElementNameValidator.Instance,
                 _skip ?? 0,
                 firstBatchSize,
-                slaveOk,
+                secondaryOk,
                 _allowPartialResults ?? false,
                 _noCursorTimeout ?? false,
                 _oplogReplay ?? false,
@@ -382,7 +382,7 @@ namespace MongoDB.Driver.Core.Operations
 #pragma warning restore 618
         }
 
-        private Task<CursorBatch<TDocument>> ExecuteProtocolAsync(IChannelHandle channel, BsonDocument wrappedQuery, bool slaveOk, CancellationToken cancellationToken)
+        private Task<CursorBatch<TDocument>> ExecuteProtocolAsync(IChannelHandle channel, BsonDocument wrappedQuery, bool secondaryOk, CancellationToken cancellationToken)
         {
             var firstBatchSize = QueryHelper.CalculateFirstBatchSize(_limit, _firstBatchSize ?? _batchSize);
 
@@ -394,7 +394,7 @@ namespace MongoDB.Driver.Core.Operations
                 NoOpElementNameValidator.Instance,
                 _skip ?? 0,
                 firstBatchSize,
-                slaveOk,
+                secondaryOk,
                 _allowPartialResults ?? false,
                 _noCursorTimeout ?? false,
                 _oplogReplay ?? false,
@@ -406,9 +406,9 @@ namespace MongoDB.Driver.Core.Operations
 #pragma warning restore 618
         }
 
-        internal BsonDocument CreateWrappedQuery(ServerType serverType, ReadPreference readPreference, out bool slaveOk)
+        internal BsonDocument CreateWrappedQuery(ServerType serverType, ReadPreference readPreference, out bool secondaryOk)
         {
-            var readPreferenceDocument = QueryHelper.CreateReadPreferenceDocument(serverType, readPreference, out slaveOk);
+            var readPreferenceDocument = QueryHelper.CreateReadPreferenceDocument(serverType, readPreference, out secondaryOk);
 
             var wrappedQuery = new BsonDocument
             {
@@ -463,9 +463,9 @@ namespace MongoDB.Driver.Core.Operations
             {
                 var readPreference = context.Binding.ReadPreference;
                 var serverDescription = context.ChannelSource.ServerDescription;
-                var wrappedQuery = CreateWrappedQuery(serverDescription.Type, readPreference, out var slaveOk);
+                var wrappedQuery = CreateWrappedQuery(serverDescription.Type, readPreference, out var secondaryOk);
 
-                var batch = ExecuteProtocol(context.Channel, wrappedQuery, slaveOk, cancellationToken);
+                var batch = ExecuteProtocol(context.Channel, wrappedQuery, secondaryOk, cancellationToken);
                 return CreateCursor(context.ChannelSource, wrappedQuery, batch);
             }
         }
@@ -491,9 +491,9 @@ namespace MongoDB.Driver.Core.Operations
             {
                 var readPreference = context.Binding.ReadPreference;
                 var serverDescription = context.ChannelSource.ServerDescription;
-                var wrappedQuery = CreateWrappedQuery(serverDescription.Type, readPreference, out var slaveOk);
+                var wrappedQuery = CreateWrappedQuery(serverDescription.Type, readPreference, out var secondaryOk);
 
-                var batch = await ExecuteProtocolAsync(context.Channel, wrappedQuery, slaveOk, cancellationToken).ConfigureAwait(false);
+                var batch = await ExecuteProtocolAsync(context.Channel, wrappedQuery, secondaryOk, cancellationToken).ConfigureAwait(false);
                 return CreateCursor(context.ChannelSource, wrappedQuery, batch);
             }
         }

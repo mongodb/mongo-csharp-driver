@@ -29,7 +29,7 @@ using MongoDB.Driver.Core.WireProtocol;
 
 namespace MongoDB.Driver.Core.Connections
 {
-    internal static class IsMasterHelper
+    internal static class HelloHelper
     {
         internal static BsonDocument AddClientDocumentToCommand(BsonDocument command, BsonDocument clientDocument)
         {
@@ -64,14 +64,14 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         internal static CommandWireProtocol<BsonDocument> CreateProtocol(
-            BsonDocument isMasterCommand,
+            BsonDocument helloCommand,
             ServerApi serverApi,
             CommandResponseHandling commandResponseHandling = CommandResponseHandling.Return)
         {
             return new CommandWireProtocol<BsonDocument>(
                 databaseNamespace: DatabaseNamespace.Admin,
-                command: isMasterCommand,
-                slaveOk: true,
+                command: helloCommand,
+                secondaryOk: true,
                 commandResponseHandling: commandResponseHandling,
                 resultSerializer: BsonDocumentSerializer.Instance,
                 messageEncoderSettings: null,
@@ -80,17 +80,17 @@ namespace MongoDB.Driver.Core.Connections
 
         internal static IsMasterResult GetResult(
             IConnection connection,
-            CommandWireProtocol<BsonDocument> isMasterProtocol,
+            CommandWireProtocol<BsonDocument> helloProtocol,
             CancellationToken cancellationToken)
         {
             try
             {
-                var isMasterResultDocument = isMasterProtocol.Execute(connection, cancellationToken);
-                return new IsMasterResult(isMasterResultDocument);
+                var helloResultDocument = helloProtocol.Execute(connection, cancellationToken);
+                return new IsMasterResult(helloResultDocument);
             }
             catch (MongoCommandException ex) when (ex.Code == 11)
             {
-                // If the isMaster command fails with error code 11 (UserNotFound), drivers must consider authentication
+                // If the hello or legacy hello command fails with error code 11 (UserNotFound), drivers must consider authentication
                 // to have failed.In such a case, drivers MUST raise an error that is equivalent to what they would have
                 // raised if the authentication mechanism were specified and the server responded the same way.
                 throw new MongoAuthenticationException(connection.ConnectionId, "User not found.", ex);
@@ -99,17 +99,17 @@ namespace MongoDB.Driver.Core.Connections
 
         internal static async Task<IsMasterResult> GetResultAsync(
             IConnection connection,
-            CommandWireProtocol<BsonDocument> isMasterProtocol,
+            CommandWireProtocol<BsonDocument> helloProtocol,
             CancellationToken cancellationToken)
         {
             try
             {
-                var isMasterResultDocument = await isMasterProtocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
-                return new IsMasterResult(isMasterResultDocument);
+                var helloResultDocument = await helloProtocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
+                return new IsMasterResult(helloResultDocument);
             }
             catch (MongoCommandException ex) when (ex.Code == 11)
             {
-                // If the isMaster command fails with error code 11 (UserNotFound), drivers must consider authentication
+                // If the hello or legacy hello command fails with error code 11 (UserNotFound), drivers must consider authentication
                 // to have failed.In such a case, drivers MUST raise an error that is equivalent to what they would have
                 // raised if the authentication mechanism were specified and the server responded the same way.
                 throw new MongoAuthenticationException(connection.ConnectionId, "User not found.", ex);

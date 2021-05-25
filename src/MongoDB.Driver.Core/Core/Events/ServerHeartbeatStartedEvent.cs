@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Core.Events
     {
         private readonly bool _awaited;
         private readonly ConnectionId _connectionId;
-        private readonly DateTime _timestamp; 
+        private readonly DateTime _timestamp;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ServerHeartbeatStartedEvent"/> struct.
@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Core.Events
         }
 
         /// <summary>
-        /// Determines if this heartbeat event is for an awaitable isMaster.
+        /// Determines if this heartbeat event is for an awaitable hello.
         /// </summary>
         public bool Awaited => _awaited;
 

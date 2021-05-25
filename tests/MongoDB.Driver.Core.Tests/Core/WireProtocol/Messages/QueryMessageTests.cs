@@ -42,10 +42,10 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         [InlineData(false, false, false, true, false, false)]
         [InlineData(false, false, false, false, true, false)]
         [InlineData(false, false, false, false, false, true)]
-        public void Constructor_should_initialize_instance(bool awaitData, bool noCursorTimeout, bool oplogReplay, bool partialOk, bool slaveOk, bool tailableCursor)
+        public void Constructor_should_initialize_instance(bool awaitData, bool noCursorTimeout, bool oplogReplay, bool partialOk, bool secondaryOk, bool tailableCursor)
         {
 #pragma warning disable 618
-            var subject = new QueryMessage(_requestId, _collectionNamespace, _query, _fields, _queryValidator, _skip, _batchSize, slaveOk, partialOk, noCursorTimeout, oplogReplay, tailableCursor, awaitData);
+            var subject = new QueryMessage(_requestId, _collectionNamespace, _query, _fields, _queryValidator, _skip, _batchSize, secondaryOk, partialOk, noCursorTimeout, oplogReplay, tailableCursor, awaitData);
 #pragma warning restore 618
             subject.AwaitData.Should().Be(awaitData);
             subject.BatchSize.Should().Be(_batchSize);
@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             subject.Query.Should().Be(_query);
             subject.RequestId.Should().Be(_requestId);
             subject.ResponseHandling.Should().Be(CommandResponseHandling.Return);
-            subject.SlaveOk.Should().Be(slaveOk);
+            subject.SlaveOk.Should().Be(secondaryOk);
             subject.TailableCursor.Should().Be(tailableCursor);
         }
 

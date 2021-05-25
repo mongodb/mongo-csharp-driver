@@ -175,7 +175,7 @@ namespace MongoDB.Driver.Core.Authentication
             return new CommandWireProtocol<BsonDocument>(
                 databaseNamespace: new DatabaseNamespace(DatabaseName),
                 command: command,
-                slaveOk: true,
+                secondaryOk: true,
                 resultSerializer: BsonDocumentSerializer.Instance,
                 messageEncoderSettings: null,
                 serverApi: _serverApi);

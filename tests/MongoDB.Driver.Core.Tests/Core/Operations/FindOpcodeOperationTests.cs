@@ -21,7 +21,6 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
@@ -193,11 +192,11 @@ namespace MongoDB.Driver.Core.Operations
             };
 
 
-            var result = subject.CreateWrappedQuery(ServerType.ReplicaSetArbiter, ReadPreference.Secondary, out var slaveOk);
+            var result = subject.CreateWrappedQuery(ServerType.ReplicaSetArbiter, ReadPreference.Secondary, out var secondaryOk);
 
             result.Should().Be(expectedResult);
             result["$maxTimeMS"].BsonType.Should().Be(BsonType.Int32);
-            slaveOk.Should().BeTrue();
+            secondaryOk.Should().BeTrue();
         }
 
         [Theory]
@@ -229,11 +228,11 @@ namespace MongoDB.Driver.Core.Operations
                 { "$snapshot", true }
             };
 
-            var result = subject.CreateWrappedQuery(ServerType.ShardRouter, ReadPreference.Secondary, out var slaveOk);
+            var result = subject.CreateWrappedQuery(ServerType.ShardRouter, ReadPreference.Secondary, out var secondaryOk);
 
             result.Should().Be(expectedResult);
             result["$maxTimeMS"].BsonType.Should().Be(BsonType.Int32);
-            slaveOk.Should().BeTrue();
+            secondaryOk.Should().BeTrue();
         }
 
         [Theory]

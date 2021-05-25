@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             }
             if (message.SlaveOk)
             {
-                flags |= QueryFlags.SlaveOk;
+                flags |= QueryFlags.SecondaryOk;
             }
             if (message.TailableCursor)
             {
@@ -106,7 +106,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             }
 
             var awaitData = (flags & QueryFlags.AwaitData) == QueryFlags.AwaitData;
-            var slaveOk = (flags & QueryFlags.SlaveOk) == QueryFlags.SlaveOk;
+            var secondaryOk = (flags & QueryFlags.SecondaryOk) == QueryFlags.SecondaryOk;
             var partialOk = (flags & QueryFlags.Partial) == QueryFlags.Partial;
             var noCursorTimeout = (flags & QueryFlags.NoCursorTimeout) == QueryFlags.NoCursorTimeout;
 #pragma warning disable 618
@@ -123,7 +123,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 NoOpElementNameValidator.Instance,
                 skip,
                 batchSize,
-                slaveOk,
+                secondaryOk,
                 partialOk,
                 noCursorTimeout,
                 oplogReplay,
@@ -302,7 +302,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         {
             None = 0,
             TailableCursor = 2,
-            SlaveOk = 4,
+            SecondaryOk = 4,
             [Obsolete("OplogReplay is ignored by server versions 4.4.0 and newer.")]
             OplogReplay = 8,
             NoCursorTimeout = 16,
