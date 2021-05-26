@@ -23,6 +23,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Events;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders;
@@ -1095,25 +1096,27 @@ namespace MongoDB.Driver.Core.Connections
         private static bool ShouldRedactCommand(BsonDocument command)
         {
             var commandName = command.GetElement(0).Name;
-            switch (commandName.ToLowerInvariant())
+            var lowerCaseCommandName = commandName.ToLowerInvariant();
+            if (lowerCaseCommandName is "authenticate"
+                                     or "saslstart"
+                                     or "saslcontinue"
+                                     or "getnonce"
+                                     or "createuser"
+                                     or "updateuser"
+                                     or "copydbgetnonce"
+                                     or "copydbsaslstart"
+                                     or "copydb")
             {
-                // string constants MUST all be lowercase for the case-insensitive comparison to work
-                case "authenticate":
-                case "saslstart":
-                case "saslcontinue":
-                case "getnonce":
-                case "createuser":
-                case "updateuser":
-                case "copydbgetnonce":
-                case "copydbsaslstart":
-                case "copydb":
-                    return true;
-
-                case "ismaster":
-                    return command.Names.Any(n => n.ToLowerInvariant() == "speculativeauthenticate");
-
-                default:
-                    return false;
+                return true;
+            }
+            else if (lowerCaseCommandName == HelloCommand.Modern.ToLowerInvariant()
+                     || lowerCaseCommandName == HelloCommand.Legacy.ToLowerInvariant())
+            {
+                return command.Names.Any(n => n.ToLowerInvariant() == "speculativeauthenticate");
+            }
+            else
+            {
+                return false;
             }
         }
 
