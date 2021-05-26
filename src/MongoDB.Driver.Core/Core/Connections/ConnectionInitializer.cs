@@ -160,7 +160,7 @@ namespace MongoDB.Driver.Core.Connections
 
         private BsonDocument CreateInitialHelloCommand(IReadOnlyList<IAuthenticator> authenticators)
         {
-            var command = HelloHelper.CreateCommand();
+            var command = HelloHelper.CreateCommand(_serverApi);
             HelloHelper.AddClientDocumentToCommand(command, _clientDocument);
             HelloHelper.AddCompressorsToCommand(command, _compressors);
             return HelloHelper.CustomizeCommand(command, authenticators);

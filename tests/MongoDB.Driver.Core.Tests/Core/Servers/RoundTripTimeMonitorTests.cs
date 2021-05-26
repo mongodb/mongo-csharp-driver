@@ -180,7 +180,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
             sentMessages.Count.Should().Be(1);
 
             var requestId = sentMessages[0]["requestId"].AsInt32;
-            sentMessages[0].Should().Be($"{{ opcode : \"query\", requestId : {requestId}, database : \"admin\", collection : \"$cmd\", batchSize : -1, slaveOk : true, query : {{ isMaster : 1, apiVersion : \"1\" }} }}");
+            sentMessages[0].Should().Be($"{{ opcode : \"query\", requestId : {requestId}, database : \"admin\", collection : \"$cmd\", batchSize : -1, slaveOk : true, query : {{ hello : 1, apiVersion : \"1\" }} }}");
         }
 
         // private methods

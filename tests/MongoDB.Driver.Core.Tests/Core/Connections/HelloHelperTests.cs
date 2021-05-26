@@ -24,8 +24,22 @@ using MongoDB.Driver.Core.Configuration;
 
 namespace MongoDB.Driver.Core.Connections
 {
-    public class IsMasterHelperTests
+    public class HelloHelperTests
     {
+        [Fact]
+        public void CreateCommand_with_ServerApi_should_return_hello_command()
+        {
+            var command = HelloHelper.CreateCommand(new ServerApi(ServerApiVersion.V1));
+            command.Should().Be($"{{ hello : 1 }}");
+        }
+
+        [Fact]
+        public void CreateCommand_without_ServerApi_should_return_legacy_hello_command()
+        {
+            var command = HelloHelper.CreateCommand(null);
+            command.Should().Be($"{{ isMaster : 1 }}");
+        }
+
         [Theory]
         [ParameterAttributeData]
         public void AddClientDocumentToCommand_with_custom_document_should_return_expected_result(
@@ -33,7 +47,7 @@ namespace MongoDB.Driver.Core.Connections
             string clientDocumentString)
         {
             var clientDocument = BsonDocument.Parse(clientDocumentString);
-            var command = HelloHelper.CreateCommand();
+            var command = HelloHelper.CreateCommand(null);
             var result = HelloHelper.AddClientDocumentToCommand(command, clientDocument);
 
             result.Should().Be($"{{ isMaster : 1, client : {clientDocumentString} }}");
@@ -42,7 +56,7 @@ namespace MongoDB.Driver.Core.Connections
         [Fact]
         public void AddClientDocumentToCommand_with_ConnectionInitializer_client_document_should_return_expected_result()
         {
-            var command = HelloHelper.CreateCommand();
+            var command = HelloHelper.CreateCommand(null);
             var connectionInitializer = new ConnectionInitializer("test", new CompressorConfiguration[0], serverApi: null);
             var subjectClientDocument = (BsonDocument)Reflector.GetFieldValue(connectionInitializer, "_clientDocument");
             var result = HelloHelper.AddClientDocumentToCommand(command, subjectClientDocument);
@@ -75,7 +89,7 @@ namespace MongoDB.Driver.Core.Connections
                 new [] { CompressorType.ZStandard, CompressorType.Snappy })]
             CompressorType[] compressorsParameters)
         {
-            var command = HelloHelper.CreateCommand();
+            var command = HelloHelper.CreateCommand(null);
             var compressors =
                 compressorsParameters
                     .Select(c => new CompressorConfiguration(c))
