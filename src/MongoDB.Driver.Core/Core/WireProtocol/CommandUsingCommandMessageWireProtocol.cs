@@ -376,16 +376,20 @@ namespace MongoDB.Driver.Core.WireProtocol
                     {
                         AddIfNotAlreadyAdded("readConcern", readConcern);
                     }
-                    if (_serverApi != null)
-                    {
-                        AddServerApiElementsIfNecessaryAndNotAlreadyAdded();
-                    }
                 }
                 AddIfNotAlreadyAdded("autocommit", false);
             }
-            else if (_serverApi != null)
+            if (_serverApi != null)
             {
-                AddServerApiElementsIfNecessaryAndNotAlreadyAdded();
+                AddIfNotAlreadyAdded("apiVersion", _serverApi.Version.ToString());
+                if (_serverApi.Strict.HasValue)
+                {
+                    AddIfNotAlreadyAdded("apiStrict", _serverApi.Strict.Value);
+                }
+                if (_serverApi.DeprecationErrors.HasValue)
+                {
+                    AddIfNotAlreadyAdded("apiDeprecationErrors", _serverApi.DeprecationErrors.Value);
+                }
             }
 
             var elementAppendingSerializer = new ElementAppendingSerializer<BsonDocument>(BsonDocumentSerializer.Instance, extraElements, writerSettingsConfigurator);
@@ -409,25 +413,6 @@ namespace MongoDB.Driver.Core.WireProtocol
                 else
                 {
                     return true;
-                }
-            }
-
-            void AddServerApiElementsIfNecessaryAndNotAlreadyAdded()
-            {
-                var commandName = _command.GetElement(0).Name;
-                if (commandName == "getMore")
-                {
-                    return;
-                }
-
-                AddIfNotAlreadyAdded("apiVersion", _serverApi.Version.ToString());
-                if (_serverApi.Strict.HasValue)
-                {
-                    AddIfNotAlreadyAdded("apiStrict", _serverApi.Strict.Value);
-                }
-                if (_serverApi.DeprecationErrors.HasValue)
-                {
-                    AddIfNotAlreadyAdded("apiDeprecationErrors", _serverApi.DeprecationErrors.Value);
                 }
             }
         }
