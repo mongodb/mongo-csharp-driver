@@ -63,7 +63,7 @@ namespace MongoDB.Shared
         /// <returns>The effective max connections (or null if maxConnections is null).</returns>
         public static int? GetEffectiveMaxConnections(int? maxConnections)
         {
-            return maxConnections.HasValue ? GetEffectiveMaxConnections(maxConnections.Value) : null;
+            return maxConnections.HasValue ? GetEffectiveMaxConnections(maxConnections.Value) : (int?)null;
         }
     }
 }
