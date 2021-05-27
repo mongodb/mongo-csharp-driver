@@ -18,7 +18,6 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 using FluentAssertions;
-using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core.Clusters;
