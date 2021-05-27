@@ -171,10 +171,20 @@ namespace MongoDB.Driver.Core.Authentication
             var subject = new ScramSha256Authenticator(__credential, randomStringGenerator, serverApi);
 
             var connection = new MockConnection(__serverId);
-            var saslStartReply = MessageHelper.BuildReply(RawBsonDocumentHelper.FromJson($"{{ conversationId : 1, payload : BinData(0,'{ToUtf8Base64(__serverResponse1)}'), done : false, ok : 1 }}"));
-            connection.EnqueueReplyMessage(saslStartReply);
-            var saslContinueReply = MessageHelper.BuildReply(RawBsonDocumentHelper.FromJson($"{{ conversationId : 1, payload : BinData(0,'{ToUtf8Base64(__serverResponse2)}'), done : true, ok : 1}}"));
-            connection.EnqueueReplyMessage(saslContinueReply);
+            var saslStartReply = RawBsonDocumentHelper.FromJson($"{{ conversationId : 1, payload : BinData(0,'{ToUtf8Base64(__serverResponse1)}'), done : false, ok : 1 }}");
+            var saslContinueReply = RawBsonDocumentHelper.FromJson($"{{ conversationId : 1, payload : BinData(0,'{ToUtf8Base64(__serverResponse2)}'), done : true, ok : 1}}");
+
+            if (useServerApi)
+            {
+                connection.EnqueueCommandResponseMessage(MessageHelper.BuildCommandResponse(saslStartReply));
+                connection.EnqueueCommandResponseMessage(MessageHelper.BuildCommandResponse(saslContinueReply));
+            }
+            else
+            {
+                connection.EnqueueReplyMessage(MessageHelper.BuildReply(saslStartReply));
+                connection.EnqueueReplyMessage(MessageHelper.BuildReply(saslContinueReply));
+            }
+
             connection.Description = __descriptionQueryWireProtocol;
 
             if (async)
@@ -193,9 +203,17 @@ namespace MongoDB.Driver.Core.Authentication
 
             var actualRequestId0 = sentMessages[0]["requestId"].AsInt32;
             var actualRequestId1 = sentMessages[1]["requestId"].AsInt32;
-            var expectedServerApiString = useServerApi ? ", apiVersion : \"1\", apiStrict : true, apiDeprecationErrors : true" : "";
-            sentMessages[0].Should().Be($"{{ opcode : \"query\", requestId : {actualRequestId0}, database : \"source\", collection : \"$cmd\", batchSize : -1, slaveOk : true, query : {{ saslStart : 1, mechanism : \"SCRAM-SHA-256\", payload : new BinData(0, \"{ToUtf8Base64(__clientRequest1)}\"), options : {{ \"skipEmptyExchange\" : true }}{expectedServerApiString} }} }}");
-            sentMessages[1].Should().Be($"{{ opcode : \"query\", requestId : {actualRequestId1}, database : \"source\", collection : \"$cmd\", batchSize : -1, slaveOk : true, query : {{ saslContinue : 1, conversationId : 1, payload : new BinData(0, \"{ToUtf8Base64(__clientRequest2)}\"){expectedServerApiString} }} }}");
+
+            if (useServerApi)
+            {
+                sentMessages[0].Should().Be($"{{opcode : \"opmsg\", requestId : {actualRequestId0}, responseTo : 0, sections : [{{ payloadType : 0, document : {{ saslStart : 1, mechanism : \"SCRAM-SHA-256\", payload : new BinData(0, \"biwsbj11c2VyLHI9ck9wck5HZndFYmVSV2diTkVrcU8=\"), options : {{ skipEmptyExchange : true }}, \"$db\" : \"source\", apiVersion : \"1\", apiStrict : true, apiDeprecationErrors : true }} }}]}}");
+                sentMessages[1].Should().Be($"{{opcode : \"opmsg\", requestId : {actualRequestId1}, responseTo : 0, sections : [{{ payloadType : 0, document : {{ saslContinue : 1, conversationId : 1, payload : new BinData(0, \"Yz1iaXdzLHI9ck9wck5HZndFYmVSV2diTkVrcU8laHZZRHBXVWEyUmFUQ0FmdXhGSWxqKWhObEYkazAscD1kSHpiWmFwV0lrNGpVaE4rVXRlOXl0YWc5empmTUhnc3FtbWl6N0FuZFZRPQ==\"), \"$db\" : \"source\", apiVersion : \"1\", apiStrict : true, apiDeprecationErrors : true }} }}]}}");
+            }
+            else
+            {
+                sentMessages[0].Should().Be($"{{ opcode : \"query\", requestId : {actualRequestId0}, database : \"source\", collection : \"$cmd\", batchSize : -1, slaveOk : true, query : {{ saslStart : 1, mechanism : \"SCRAM-SHA-256\", payload : new BinData(0, \"{ToUtf8Base64(__clientRequest1)}\"), options : {{ \"skipEmptyExchange\" : true }} }} }}");
+                sentMessages[1].Should().Be($"{{ opcode : \"query\", requestId : {actualRequestId1}, database : \"source\", collection : \"$cmd\", batchSize : -1, slaveOk : true, query : {{ saslContinue : 1, conversationId : 1, payload : new BinData(0, \"{ToUtf8Base64(__clientRequest2)}\") }} }}");
+            }
         }
 
         [Theory]

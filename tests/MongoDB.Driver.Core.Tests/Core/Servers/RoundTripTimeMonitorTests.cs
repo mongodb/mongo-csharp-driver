@@ -153,10 +153,6 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
         public void RunAsync_should_use_serverApi()
         {
             var serverApi = new ServerApi(ServerApiVersion.V1);
-            var eventCapturer = new EventCapturer();
-            var streamFactory = new TcpStreamFactory();
-            var mockEventSubscriber = new Mock<IEventSubscriber>().Object;
-
             var connection = new MockConnection(__serverId);
 
             var mockConnectionFactory = new Mock<IConnectionFactory>();
@@ -180,7 +176,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
             sentMessages.Count.Should().Be(1);
 
             var requestId = sentMessages[0]["requestId"].AsInt32;
-            sentMessages[0].Should().Be($"{{ opcode : \"query\", requestId : {requestId}, database : \"admin\", collection : \"$cmd\", batchSize : -1, slaveOk : true, query : {{ hello : 1, apiVersion : \"1\" }} }}");
+            sentMessages[0].Should().Be($"{{ \"opcode\" : \"opmsg\", \"requestId\" : {requestId}, \"responseTo\" : 0, \"sections\" : [{{ \"payloadType\" : 0, \"document\" : {{ \"hello\" : 1, \"$db\" : \"admin\", \"$readPreference\" : {{ \"mode\" : \"primaryPreferred\" }}, \"apiVersion\" : \"1\" }} }}] }}");
         }
 
         // private methods

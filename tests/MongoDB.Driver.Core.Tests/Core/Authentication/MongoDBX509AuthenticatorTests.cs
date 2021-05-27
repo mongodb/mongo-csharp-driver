@@ -91,7 +91,7 @@ namespace MongoDB.Driver.Core.Authentication
 
         [Theory]
         [ParameterAttributeData]
-        public void Authenticate_should_send_serverApi_with_query_wire_protocol(
+        public void Authenticate_should_send_serverApi_with_wire_protocol(
             [Values(false, true)] bool useServerApi,
             [Values(false, true)] bool async)
         {
@@ -100,8 +100,16 @@ namespace MongoDB.Driver.Core.Authentication
             var subject = new MongoDBX509Authenticator("CN=client,OU=kerneluser,O=10Gen,L=New York City,ST=New York,C=US", serverApi);
 
             var connection = new MockConnection(__serverId);
-            var reply = MessageHelper.BuildReply(RawBsonDocumentHelper.FromJson("{ok: 1}"));
-            connection.EnqueueReplyMessage(reply);
+            if (useServerApi)
+            {
+                var reply = MessageHelper.BuildCommandResponse(RawBsonDocumentHelper.FromJson("{ok: 1}"));
+                connection.EnqueueCommandResponseMessage(reply);
+            }
+            else
+            {
+                var reply = MessageHelper.BuildReply(RawBsonDocumentHelper.FromJson("{ok: 1}"));
+                connection.EnqueueReplyMessage(reply);
+            }
             connection.Description = __descriptionQueryWireProtocol;
 
             var expectedRequestId = RequestMessage.CurrentGlobalRequestId + 1;
@@ -123,8 +131,14 @@ namespace MongoDB.Driver.Core.Authentication
             var actualRequestId = sentMessages[0]["requestId"].AsInt32;
             actualRequestId.Should().BeInRange(expectedRequestId, expectedRequestId + 10);
 
-            var expectedServerApiString = useServerApi ? ", apiVersion : \"1\", apiStrict : true, apiDeprecationErrors : true" : "";
-            sentMessages[0].Should().Be($"{{ opcode : \"query\", requestId : {actualRequestId}, database : \"$external\", collection : \"$cmd\", batchSize : -1, slaveOk : true, query : {{ authenticate : 1, mechanism : \"MONGODB-X509\", user : \"CN=client,OU=kerneluser,O=10Gen,L=New York City,ST=New York,C=US\"{expectedServerApiString} }} }}");
+            if (useServerApi)
+            {
+                sentMessages[0].Should().Be($"{{ \"opcode\" : \"opmsg\", \"requestId\" : {actualRequestId}, \"responseTo\" : 0, \"sections\" : [{{ \"payloadType\" : 0, \"document\" : {{ \"authenticate\" : 1, \"mechanism\" : \"MONGODB-X509\", \"user\" : \"CN=client,OU=kerneluser,O=10Gen,L=New York City,ST=New York,C=US\", \"$db\" : \"$external\", \"apiVersion\" : \"1\", \"apiStrict\" : true, \"apiDeprecationErrors\" : true }} }}] }}");
+            }
+            else
+            {
+                sentMessages[0].Should().Be($"{{ opcode : \"query\", requestId : {actualRequestId}, database : \"$external\", collection : \"$cmd\", batchSize : -1, slaveOk : true, query : {{ authenticate : 1, mechanism : \"MONGODB-X509\", user : \"CN=client,OU=kerneluser,O=10Gen,L=New York City,ST=New York,C=US\" }} }}");
+            }
         }
 
         [Theory]

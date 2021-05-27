@@ -147,7 +147,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             }
             catch (Exception exception)
             {
-                AddErrorLabelIfRequired(exception, connection.Description.ServerVersion);
+                AddErrorLabelIfRequired(exception, connection.Description?.ServerVersion);
 
                 TransactionHelper.UnpinServerIfNeededOnCommandException(_session, exception);
                 throw;
@@ -201,7 +201,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             }
             catch (Exception exception)
             {
-                AddErrorLabelIfRequired(exception, connection.Description.ServerVersion);
+                AddErrorLabelIfRequired(exception, connection.Description?.ServerVersion);
 
                 TransactionHelper.UnpinServerIfNeededOnCommandException(_session, exception);
                 throw;
@@ -324,7 +324,7 @@ namespace MongoDB.Driver.Core.WireProtocol
 
             AddIfNotAlreadyAdded("$db", _databaseNamespace.DatabaseName);
 
-            if (connectionDescription.IsMasterResult.ServerType != ServerType.Standalone
+            if (connectionDescription?.IsMasterResult.ServerType != ServerType.Standalone
                 && _readPreference != null
                 && _readPreference != ReadPreference.Primary)
             {

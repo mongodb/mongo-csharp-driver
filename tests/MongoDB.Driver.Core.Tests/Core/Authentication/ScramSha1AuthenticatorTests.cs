@@ -93,7 +93,7 @@ namespace MongoDB.Driver.Core.Authentication
 
         [Theory]
         [ParameterAttributeData]
-        public void Authenticate_should_send_serverApi_with_query_wire_protocol(
+        public void Authenticate_should_send_serverApi_with_wire_protocol(
             [Values(false, true)] bool useServerApi,
             [Values(false, true)] bool async)
         {
@@ -103,10 +103,19 @@ namespace MongoDB.Driver.Core.Authentication
             var subject = new ScramSha1Authenticator(__credential, randomStringGenerator, serverApi);
 
             var connection = new MockConnection(__serverId);
-            var saslStartReply = MessageHelper.BuildReply(RawBsonDocumentHelper.FromJson("{ conversationId : 1, payload : BinData(0,'cj1meWtvK2QybGJiRmdPTlJ2OXFreGRhd0xIbytWZ2s3cXZVT0tVd3VXTElXZzRsLzlTcmFHTUhFRSxzPXJROVpZM01udEJldVAzRTFURFZDNHc9PSxpPTEwMDAw'), done : false, ok : 1 }"));
-            connection.EnqueueReplyMessage(saslStartReply);
-            var saslContinueReply = MessageHelper.BuildReply(RawBsonDocumentHelper.FromJson("{ conversationId : 1, payload : BinData(0,'dj1VTVdlSTI1SkQxeU5ZWlJNcFo0Vkh2aFo5ZTA9'), done : true, ok : 1}"));
-            connection.EnqueueReplyMessage(saslContinueReply);
+            var saslStartReply = RawBsonDocumentHelper.FromJson("{ conversationId : 1, payload : BinData(0,'cj1meWtvK2QybGJiRmdPTlJ2OXFreGRhd0xIbytWZ2s3cXZVT0tVd3VXTElXZzRsLzlTcmFHTUhFRSxzPXJROVpZM01udEJldVAzRTFURFZDNHc9PSxpPTEwMDAw'), done : false, ok : 1 }");
+            var saslContinueReply = RawBsonDocumentHelper.FromJson("{ conversationId : 1, payload : BinData(0,'dj1VTVdlSTI1SkQxeU5ZWlJNcFo0Vkh2aFo5ZTA9'), done : true, ok : 1}");
+            if (useServerApi)
+            {
+                connection.EnqueueCommandResponseMessage(MessageHelper.BuildCommandResponse(saslStartReply));
+                connection.EnqueueCommandResponseMessage(MessageHelper.BuildCommandResponse(saslContinueReply));
+            }
+            else
+            {
+                connection.EnqueueReplyMessage(MessageHelper.BuildReply(saslStartReply));
+                connection.EnqueueReplyMessage(MessageHelper.BuildReply(saslContinueReply));
+            }
+
             connection.Description = __descriptionQueryWireProtocol;
 
             if (async)
@@ -125,9 +134,17 @@ namespace MongoDB.Driver.Core.Authentication
 
             var actualRequestId0 = sentMessages[0]["requestId"].AsInt32;
             var actualRequestId1 = sentMessages[1]["requestId"].AsInt32;
-            var expectedServerApiString = useServerApi ? ", apiVersion : \"1\", apiStrict : true, apiDeprecationErrors : true" : "";
-            sentMessages[0].Should().Be($"{{ opcode : \"query\", requestId : {actualRequestId0}, database : \"source\", collection : \"$cmd\", batchSize : -1, slaveOk : true, query : {{ saslStart : 1, mechanism : \"SCRAM-SHA-1\", payload : new BinData(0, \"biwsbj11c2VyLHI9ZnlrbytkMmxiYkZnT05Sdjlxa3hkYXdM\"), options : {{ \"skipEmptyExchange\" : true }}{expectedServerApiString} }} }}");
-            sentMessages[1].Should().Be($"{{ opcode : \"query\", requestId : {actualRequestId1}, database : \"source\", collection : \"$cmd\", batchSize : -1, slaveOk : true, query : {{ saslContinue : 1, conversationId : 1, payload : new BinData(0, \"Yz1iaXdzLHI9ZnlrbytkMmxiYkZnT05Sdjlxa3hkYXdMSG8rVmdrN3F2VU9LVXd1V0xJV2c0bC85U3JhR01IRUUscD1NQzJUOEJ2Ym1XUmNrRHc4b1dsNUlWZ2h3Q1k9\"){expectedServerApiString} }} }}");
+
+            if (useServerApi)
+            {
+                sentMessages[0].Should().Be($"{{opcode : \"opmsg\", requestId : {actualRequestId0}, responseTo : 0, sections : [{{ payloadType : 0, document : {{ saslStart : 1, mechanism : \"SCRAM-SHA-1\", payload : new BinData(0, \"biwsbj11c2VyLHI9ZnlrbytkMmxiYkZnT05Sdjlxa3hkYXdM\"), options : {{ skipEmptyExchange : true }}, \"$db\" : \"source\", apiVersion : \"1\", apiStrict : true, apiDeprecationErrors : true }} }}]}}");
+                sentMessages[1].Should().Be($"{{opcode : \"opmsg\", requestId : {actualRequestId1}, responseTo : 0, sections : [{{ payloadType : 0, document : {{ saslContinue : 1, conversationId : 1, payload : new BinData(0, \"Yz1iaXdzLHI9ZnlrbytkMmxiYkZnT05Sdjlxa3hkYXdMSG8rVmdrN3F2VU9LVXd1V0xJV2c0bC85U3JhR01IRUUscD1NQzJUOEJ2Ym1XUmNrRHc4b1dsNUlWZ2h3Q1k9\"), \"$db\" : \"source\", apiVersion : \"1\", apiStrict : true, apiDeprecationErrors : true }} }}]}}");
+            }
+            else
+            {
+                sentMessages[0].Should().Be($"{{ opcode : \"query\", requestId : {actualRequestId0}, database : \"source\", collection : \"$cmd\", batchSize : -1, slaveOk : true, query : {{ saslStart : 1, mechanism : \"SCRAM-SHA-1\", payload : new BinData(0, \"biwsbj11c2VyLHI9ZnlrbytkMmxiYkZnT05Sdjlxa3hkYXdM\"), options : {{ \"skipEmptyExchange\" : true }} }} }}");
+                sentMessages[1].Should().Be($"{{ opcode : \"query\", requestId : {actualRequestId1}, database : \"source\", collection : \"$cmd\", batchSize : -1, slaveOk : true, query : {{ saslContinue : 1, conversationId : 1, payload : new BinData(0, \"Yz1iaXdzLHI9ZnlrbytkMmxiYkZnT05Sdjlxa3hkYXdMSG8rVmdrN3F2VU9LVXd1V0xJV2c0bC85U3JhR01IRUUscD1NQzJUOEJ2Ym1XUmNrRHc4b1dsNUlWZ2h3Q1k9\") }} }}");
+            }
         }
 
         [Theory]

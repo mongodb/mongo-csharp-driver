@@ -153,7 +153,7 @@ namespace MongoDB.Driver.Core.Authentication
 
         [Theory]
         [ParameterAttributeData]
-        public void Authenticate_should_send_serverApi_with_query_wire_protocol(
+        public void Authenticate_should_send_serverApi_with_wire_protocol(
             [Values(false, true)] bool useServerApi,
             [Values(false, true)] bool async)
         {
@@ -162,8 +162,16 @@ namespace MongoDB.Driver.Core.Authentication
             var subject = new PlainAuthenticator(__credential, serverApi);
 
             var connection = new MockConnection(__serverId);
-            var saslStartReply = MessageHelper.BuildReply(RawBsonDocumentHelper.FromJson("{ conversationId : 0, payload : BinData(0,\"\"), done : true, ok : 1 }"));
-            connection.EnqueueReplyMessage(saslStartReply);
+            var saslStartReply = RawBsonDocumentHelper.FromJson("{ conversationId : 0, payload : BinData(0,\"\"), done : true, ok : 1 }");
+            if (useServerApi)
+            {
+                connection.EnqueueCommandResponseMessage(MessageHelper.BuildCommandResponse(saslStartReply));
+            }
+            else
+            {
+                connection.EnqueueReplyMessage(MessageHelper.BuildReply(saslStartReply));
+            }
+
             connection.Description = __descriptionQueryWireProtocol;
 
             var expectedRequestId = RequestMessage.CurrentGlobalRequestId + 1;
@@ -185,8 +193,14 @@ namespace MongoDB.Driver.Core.Authentication
             var actualRequestId = sentMessages[0]["requestId"].AsInt32;
             actualRequestId.Should().BeInRange(expectedRequestId, expectedRequestId + 10);
 
-            var expectedServerApiString = useServerApi ? ", apiVersion : \"1\", apiStrict : true, apiDeprecationErrors : true" : "";
-            sentMessages[0].Should().Be($"{{ opcode : \"query\", requestId : {actualRequestId}, database : \"source\", collection : \"$cmd\", batchSize : -1, slaveOk : true, query : {{ saslStart : 1, mechanism : \"PLAIN\", payload : new BinData(0, \"AHVzZXIAcGVuY2ls\"){expectedServerApiString} }} }}");
+            if (useServerApi)
+            {
+                sentMessages[0].Should().Be($"{{ opcode : \"opmsg\", requestId : {actualRequestId}, responseTo : 0, sections : [{{ payloadType : 0, document : {{ saslStart : 1, mechanism : \"PLAIN\", payload : new BinData(0, \"AHVzZXIAcGVuY2ls\"), \"$db\" : \"source\", apiVersion : \"1\", apiStrict : true, apiDeprecationErrors : true }} }}] }}");
+            }
+            else
+            {
+                sentMessages[0].Should().Be($"{{ opcode : \"query\", requestId : {actualRequestId}, database : \"source\", collection : \"$cmd\", batchSize : -1, slaveOk : true, query : {{ saslStart : 1, mechanism : \"PLAIN\", payload : new BinData(0, \"AHVzZXIAcGVuY2ls\") }} }}");
+            }
         }
     }
 }

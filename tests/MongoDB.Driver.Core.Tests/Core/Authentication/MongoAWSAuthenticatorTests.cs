@@ -210,11 +210,8 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication
             var actualRequestId1 = sentMessages[1]["requestId"].AsInt32;
 
             var expectedServerApiString = useServerApi ? ", apiVersion : \"1\", apiStrict : true, apiDeprecationErrors : true" : "";
-            string expectedFirstMessage = GetExpectedSaslStartCommandMessage(actualRequestId0, expectedClientFirstMessage, expectedServerApiString);
-            string expectedSecondMessage = GetExpectedSaslContinueCommandMessage(actualRequestId1, expectedClientSecondMessage, expectedServerApiString);
-
-            sentMessages[0].Should().Be(expectedFirstMessage);
-            sentMessages[1].Should().Be(expectedSecondMessage);
+            sentMessages[0].Should().Be(GetExpectedSaslStartCommandMessage(actualRequestId0, expectedClientFirstMessage, expectedServerApiString));
+            sentMessages[1].Should().Be(GetExpectedSaslContinueCommandMessage(actualRequestId1, expectedClientSecondMessage, expectedServerApiString));
         }
 
         [Theory]
@@ -268,10 +265,19 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication
             var subject = new MongoAWSAuthenticator(credential, null, mockRandomByteGenerator.Object, mockClock.Object, serverApi);
 
             var connection = new MockConnection(__serverId);
-            var saslStartReply = MessageHelper.BuildReply(RawBsonDocumentHelper.FromJson(saslStartReplyString));
-            var saslContinueReply = MessageHelper.BuildReply(RawBsonDocumentHelper.FromJson(saslContinueReplyString));
-            connection.EnqueueReplyMessage(saslStartReply);
-            connection.EnqueueReplyMessage(saslContinueReply);
+            var saslStartReply = RawBsonDocumentHelper.FromJson(saslStartReplyString);
+            var saslContinueReply = RawBsonDocumentHelper.FromJson(saslContinueReplyString);
+            if (useServerApi)
+            {
+                connection.EnqueueCommandResponseMessage(MessageHelper.BuildCommandResponse(saslStartReply));
+                connection.EnqueueCommandResponseMessage(MessageHelper.BuildCommandResponse(saslContinueReply));
+            }
+            else
+            {
+                connection.EnqueueReplyMessage(MessageHelper.BuildReply(saslStartReply));
+                connection.EnqueueReplyMessage(MessageHelper.BuildReply(saslContinueReply));
+            }
+
             connection.Description = __descriptionQueryWireProtocol;
 
             if (async)
@@ -291,12 +297,17 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication
             var actualRequestId0 = sentMessages[0]["requestId"].AsInt32;
             var actualRequestId1 = sentMessages[1]["requestId"].AsInt32;
 
-            var expectedServerApiString = useServerApi ? ", apiVersion : \"1\", apiStrict : true, apiDeprecationErrors : true" : "";
-            string expectedFirstMessage = GetExpectedSaslStartQueryMessage(actualRequestId0, expectedClientFirstMessage, expectedServerApiString);
-            string expectedSecondMessage = GetExpectedSaslContinueQueryMessage(actualRequestId1, expectedClientSecondMessage, expectedServerApiString);
-
-            sentMessages[0].Should().Be(expectedFirstMessage);
-            sentMessages[1].Should().Be(expectedSecondMessage);
+            if (useServerApi)
+            {
+                const string expectedServerApiString = ", apiVersion : \"1\", apiStrict : true, apiDeprecationErrors : true";
+                sentMessages[0].Should().Be(GetExpectedSaslStartCommandMessage(actualRequestId0, expectedClientFirstMessage, expectedServerApiString));
+                sentMessages[1].Should().Be(GetExpectedSaslContinueCommandMessage(actualRequestId1, expectedClientSecondMessage, expectedServerApiString));
+            }
+            else
+            {
+                sentMessages[0].Should().Be(GetExpectedSaslStartQueryMessage(actualRequestId0, expectedClientFirstMessage));
+                sentMessages[1].Should().Be(GetExpectedSaslContinueQueryMessage(actualRequestId1, expectedClientSecondMessage));
+            }
         }
 
         [Theory]
@@ -584,7 +595,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication
                 "}";
         }
 
-        private static string GetExpectedSaslContinueQueryMessage(int requestId, BsonDocument clientMessage, string expectedServerApiString = null)
+        private static string GetExpectedSaslContinueQueryMessage(int requestId, BsonDocument clientMessage)
         {
             return
                 "{" +
@@ -599,29 +610,27 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication
                         "\"saslContinue\" : 1, " +
                         "\"conversationId\" : 1, " +
                         $"\"payload\" : new BinData(0, \"{ToBase64(clientMessage.ToBson())}\") " +
-                        expectedServerApiString +
                     "}" +
                 "}";
         }
 
-        private static string GetExpectedSaslStartQueryMessage(int requestId, BsonDocument clientMessage, string expectedServerApiString = null)
+        private static string GetExpectedSaslStartQueryMessage(int requestId, BsonDocument clientMessage)
         {
-            return
-                "{" +
-                    "opcode : \"query\", " +
-                    $"requestId : {requestId}, " +
-                    "database : \"$external\", " +
-                    "collection : \"$cmd\", " +
-                    "batchSize : -1, " +
-                    "slaveOk : true, " +
-                    "query : " +
+                return
                     "{" +
-                        "\"saslStart\" : 1, " +
-                        "\"mechanism\" : \"MONGODB-AWS\", " +
-                        $"\"payload\" : new BinData(0, \"{ToBase64(clientMessage.ToBson())}\")" +
-                        expectedServerApiString +
-                    "}" +
-                "}";
+                        "opcode : \"query\", " +
+                        $"requestId : {requestId}, " +
+                        "database : \"$external\", " +
+                        "collection : \"$cmd\", " +
+                        "batchSize : -1, " +
+                        "slaveOk : true, " +
+                        "query : " +
+                        "{" +
+                            "\"saslStart\" : 1, " +
+                            "\"mechanism\" : \"MONGODB-AWS\", " +
+                            $"\"payload\" : new BinData(0, \"{ToBase64(clientMessage.ToBson())}\")" +
+                        "}" +
+                    "}";
         }
 
         private static byte[] Combine(byte[] first, byte[] second)
