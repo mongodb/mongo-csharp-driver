@@ -65,6 +65,7 @@
 
   <ItemGroup>
     <Compile Include="..\MongoDB.Shared\ApplicationNameHelper.cs" Link="ApplicationNameHelper.cs" />
+    <Compile Include="..\MongoDB.Shared\ConnectionStringConversions.cs" Link="Support\ConnectionStringConversions.cs" />
     <Compile Include="..\MongoDB.Shared\Hasher.cs" Link="Support\Hasher.cs" />
     <Compile Include="..\MongoDB.Shared\OperatingSystemHelper.cs" Link="Support\OperatingSystemHelper.cs" />
     <Compile Include="..\MongoDB.Shared\SecureStringHelper.cs" Link="Support\SecureStringHelper.cs" />

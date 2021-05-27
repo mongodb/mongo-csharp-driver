@@ -223,22 +223,8 @@ namespace MongoDB.Driver
                 }
                 else
                 {
-                    if (_maxConnectionPoolSize == 0)
-                    {
-                        return int.MaxValue;
-                    }
-                    else
-                    {
-                        var waitQueueSize = _waitQueueMultiple * _maxConnectionPoolSize;
-                        if (waitQueueSize > int.MaxValue)
-                        {
-                            return int.MaxValue;
-                        }
-                        else
-                        {
-                            return (int)waitQueueSize;
-                        }
-                    }
+                    var effectiveMaxConnections = ConnectionStringConversions.GetEffectiveMaxConnections(_maxConnectionPoolSize);
+                    return ConnectionStringConversions.GetComputedWaitQueueSize(effectiveMaxConnections, _waitQueueMultiple);
                 }
             }
         }

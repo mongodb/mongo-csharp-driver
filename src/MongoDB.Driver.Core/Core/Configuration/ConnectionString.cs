@@ -31,33 +31,6 @@ using MongoDB.Shared;
 namespace MongoDB.Driver.Core.Configuration
 {
     /// <summary>
-    /// Extensions for connection string.
-    /// </summary>
-    public static class ConnectionStringExtensions
-    {
-        /// <summary>
-        /// Get the effective maxPoolSize that must be used inside the driver.
-        /// </summary>
-        /// <param name="connectionString">The connection string.</param>
-        /// <returns>An effective max pool size value.</returns>
-        public static int? GetEffectiveMaxPoolSize(this ConnectionString connectionString)
-        {
-            if (connectionString.MaxPoolSize.HasValue)
-            {
-                // maxPoolSize 0 means no limit according to the spec, but in our driver we use a different convention to handle 0,
-                // so we want to limit the spec convention only for the connectionString level and emulate no limit via setting
-                // an effective unreachable pool size value
-                var maxPoolSize = connectionString.MaxPoolSize.Value;
-                return maxPoolSize == 0 ? int.MaxValue : maxPoolSize;
-            }
-            else
-            {
-                return null;
-            }
-        }
-    }
-
-    /// <summary>
     ///  Represents the scheme used to construct the connection string.
     /// </summary>
     public enum ConnectionStringScheme
@@ -375,7 +348,6 @@ namespace MongoDB.Driver.Core.Configuration
         /// </summary>
         public int? MaxPoolSize
         {
-            // use GetEffectiveMaxPoolSize instead. This property can be used only in tests
             get { return _maxPoolSize; }
         }
 

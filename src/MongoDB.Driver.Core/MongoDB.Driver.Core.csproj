@@ -154,6 +154,7 @@
 
   <ItemGroup>
     <Compile Include="..\MongoDB.Shared\ApplicationNameHelper.cs" Link="Core\Configuration\ApplicationNameHelper.cs" />
+    <Compile Include="..\MongoDB.Shared\ConnectionStringConversions.cs" Link="Core\Misc\ConnectionStringConversions.cs" />
     <Compile Include="..\MongoDB.Shared\Hasher.cs" Link="Core\Misc\Hasher.cs" />
     <Compile Include="..\MongoDB.Shared\MaxTimeHelper.cs" Link="Core\Operations\MaxTimeHelper.cs" />
     <Compile Include="..\MongoDB.Shared\OperatingSystemHelper.cs" Link="Core\Misc\OperatingSystemHelper.cs" />

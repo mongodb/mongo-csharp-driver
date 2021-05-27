@@ -19,6 +19,7 @@ using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Shared;
 
 namespace MongoDB.Driver
 {
@@ -83,16 +84,7 @@ namespace MongoDB.Driver
                 }
                 else
                 {
-                    var computedWaitQueueSize = __waitQueueMultiple * __maxConnectionPoolSize;
-                    if (computedWaitQueueSize > int.MaxValue)
-                    {
-                        // cut to int since it's effictively max value that we can use here
-                        return int.MaxValue;
-                    }
-                    else
-                    {
-                        return (int)computedWaitQueueSize;
-                    }
+                    return ConnectionStringConversions.GetComputedWaitQueueSize(__maxConnectionPoolSize, __waitQueueMultiple);
                 }
             }
         }

@@ -328,7 +328,6 @@ namespace MongoDB.Driver.Core.Configuration
             subject.MaxIdleTime.Should().Be(null);
             subject.MaxLifeTime.Should().Be(null);
             subject.MaxPoolSize.Should().Be(null);
-            subject.GetEffectiveMaxPoolSize().Should().Be(null);
             subject.MinPoolSize.Should().Be(null);
             subject.Password.Should().BeNull();
             subject.ReadConcernLevel.Should().BeNull();
@@ -416,7 +415,6 @@ namespace MongoDB.Driver.Core.Configuration
             subject.MaxIdleTime.Should().Be(TimeSpan.FromMilliseconds(10));
             subject.MaxLifeTime.Should().Be(TimeSpan.FromMilliseconds(5));
             subject.MaxPoolSize.Should().Be(20);
-            subject.GetEffectiveMaxPoolSize().Should().Be(20);
             subject.MinPoolSize.Should().Be(15);
             subject.Password.Should().Be("pass");
             subject.ReadConcernLevel.Should().Be(ReadConcernLevel.Majority);
@@ -763,16 +761,15 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         [Theory]
-        [InlineData("mongodb://localhost?maxPoolSize=-1", -1, -1)]
-        [InlineData("mongodb://localhost?maxPoolSize=0", 0, int.MaxValue)]
-        [InlineData("mongodb://localhost?maxPoolSize=1", 1, 1)]
-        [InlineData("mongodb://localhost?maxPoolSize=20", 20, 20)]
-        public void When_maxPoolSize_is_specified(string connectionString, int maxPoolSize, int effectiveMaxPoolSize)
+        [InlineData("mongodb://localhost?maxPoolSize=-1", -1)]
+        [InlineData("mongodb://localhost?maxPoolSize=0", 0)]
+        [InlineData("mongodb://localhost?maxPoolSize=1", 1)]
+        [InlineData("mongodb://localhost?maxPoolSize=20", 20)]
+        public void When_maxPoolSize_is_specified(string connectionString, int maxPoolSize)
         {
             var subject = new ConnectionString(connectionString);
 
             subject.MaxPoolSize.Should().Be(maxPoolSize);
-            subject.GetEffectiveMaxPoolSize().Should().Be(effectiveMaxPoolSize);
         }
 
         [Theory]
