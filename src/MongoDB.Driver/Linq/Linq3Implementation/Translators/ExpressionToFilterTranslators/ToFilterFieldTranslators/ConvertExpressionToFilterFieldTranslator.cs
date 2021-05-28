@@ -41,8 +41,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                     var enumUnderlyingType = enumType.GetEnumUnderlyingType();
                     if (targetType == enumUnderlyingType)
                     {
-                        var enumAsUnderlyingTypeSerializer = EnumAsUnderlyingTypeSerializer.Create(fieldSerializer);
-                        return AstFilter.Field(field.Path, enumAsUnderlyingTypeSerializer);
+                        var enumUnderlyingTypeSerializer = EnumUnderlyingTypeSerializer.Create(fieldSerializer);
+                        return AstFilter.Field(field.Path, enumUnderlyingTypeSerializer);
                     }
                 }
 
@@ -91,9 +91,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                                     fieldSerializerType.GetGenericTypeDefinition() == typeof(NullableSerializer<>))
                                 {
                                     var enumSerializer = ((IChildSerializerConfigurable)fieldSerializer).ChildSerializer;
-                                    var enumAsUnderlyingTypeSerializer = EnumAsUnderlyingTypeSerializer.Create(enumSerializer);
+                                    var enumUnderlyingTypeSerializer = EnumUnderlyingTypeSerializer.Create(enumSerializer);
                                     var nullableSerializerType = typeof(NullableSerializer<>).MakeGenericType(nullableValueType);
-                                    var nullableSerializer = (IBsonSerializer)Activator.CreateInstance(nullableSerializerType, enumAsUnderlyingTypeSerializer);
+                                    var nullableSerializer = (IBsonSerializer)Activator.CreateInstance(nullableSerializerType, enumUnderlyingTypeSerializer);
                                     return AstFilter.Field(field.Path, nullableSerializer);
                                 }
                             }

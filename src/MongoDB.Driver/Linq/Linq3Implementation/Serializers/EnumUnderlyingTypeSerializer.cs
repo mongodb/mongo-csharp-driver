@@ -21,7 +21,7 @@ using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers
 {
-    internal class EnumAsUnderlyingTypeSerializer<TEnum, TEnumUnderlyingType> : StructSerializerBase<TEnumUnderlyingType> 
+    internal class EnumUnderlyingTypeSerializer<TEnum, TEnumUnderlyingType> : StructSerializerBase<TEnumUnderlyingType> 
         where TEnum : Enum 
         where TEnumUnderlyingType : struct
     {
@@ -29,8 +29,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers
         private readonly IBsonSerializer<TEnum> _enumSerializer;
 
         // constructors
-        public EnumAsUnderlyingTypeSerializer(IBsonSerializer<TEnum> enumSerializer)
+        public EnumUnderlyingTypeSerializer(IBsonSerializer<TEnum> enumSerializer)
         {
+            if (typeof(TEnumUnderlyingType) != Enum.GetUnderlyingType(typeof(TEnum)))
+            {
+                throw new ArgumentException($"{typeof(TEnumUnderlyingType).FullName} is not the underlying type of {typeof(TEnum).FullName}.");
+            }
             _enumSerializer = Ensure.IsNotNull(enumSerializer, nameof(enumSerializer));
         }
 
@@ -48,30 +52,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers
         }
     }
 
-    internal static class EnumAsUnderlyingTypeSerializer
+    internal static class EnumUnderlyingTypeSerializer
     {
         public static IBsonSerializer Create(IBsonSerializer enumSerializer)
         {
             var enumType = enumSerializer.ValueType;
             var enumUnderlyingType = enumType.GetEnumUnderlyingType();
-            var factoryType = typeof(EnumAsUnderlyingTypeSerializerFactory<,>).MakeGenericType(enumType, enumUnderlyingType);
-            var factory = (EnumAsUnderlyingTypeSerializerFactory)Activator.CreateInstance(factoryType);
-            return factory.Create(enumSerializer);
-        }
-    }
-
-    internal abstract class EnumAsUnderlyingTypeSerializerFactory
-    {
-        public abstract IBsonSerializer Create(IBsonSerializer enumSerializer);
-    }
-
-    internal class EnumAsUnderlyingTypeSerializerFactory<TEnum, TEnumUnderlyingType> : EnumAsUnderlyingTypeSerializerFactory
-        where TEnum : Enum
-        where TEnumUnderlyingType : struct
-    {
-        public override IBsonSerializer Create(IBsonSerializer enumSerializer)
-        {
-            return new EnumAsUnderlyingTypeSerializer<TEnum, TEnumUnderlyingType>((IBsonSerializer<TEnum>)enumSerializer);
+            var serializerType = typeof(EnumUnderlyingTypeSerializer<,>).MakeGenericType(enumType, enumUnderlyingType);
+            return (IBsonSerializer)Activator.CreateInstance(serializerType, enumSerializer);
         }
     }
 }

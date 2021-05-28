@@ -87,14 +87,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers
 
         public bool TryGetMemberSerializationInfo(string memberName, out BsonSerializationInfo serializationInfo)
         {
-            serializationInfo = null;
-
             if (memberName == "Key")
             {
                 serializationInfo = new BsonSerializationInfo("_id", _keySerializer, typeof(TKey));
                 return true;
             }
 
+            serializationInfo = null;
             return false;
         }
     }
@@ -103,22 +102,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers
     {
         public static IBsonSerializer Create(IBsonSerializer keySerializer, IBsonSerializer elementSerializer)
         {
-            var factoryType = typeof(IGroupingSerializerFactory<,>).MakeGenericType(keySerializer.ValueType, elementSerializer.ValueType);
-            var factory = (IGroupingSerializerFactory)Activator.CreateInstance(factoryType);
-            return factory.Create(keySerializer, elementSerializer);
-        }
-    }
-
-    internal abstract class IGroupingSerializerFactory
-    {
-        public abstract IBsonSerializer Create(IBsonSerializer keySerializer, IBsonSerializer elementSerializer);
-    }
-
-    internal class IGroupingSerializerFactory<TKey, TElement> : IGroupingSerializerFactory
-    {
-        public override IBsonSerializer Create(IBsonSerializer keySerializer, IBsonSerializer elementSerializer)
-        {
-            return new IGroupingSerializer<TKey, TElement>((IBsonSerializer<TKey>)keySerializer, (IBsonSerializer<TElement>)elementSerializer);
+            var keyType = keySerializer.ValueType;
+            var elementType = elementSerializer.ValueType;
+            var serializerType = typeof(IGroupingSerializer<,>).MakeGenericType(keyType, elementType);
+            return (IBsonSerializer)Activator.CreateInstance(serializerType, keySerializer, elementSerializer);
         }
     }
 }

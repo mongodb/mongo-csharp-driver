@@ -53,7 +53,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers
             writer.WriteStartArray();
             foreach (var item in value)
             {
-                _itemSerializer.Serialize(context, value);
+                _itemSerializer.Serialize(context, item);
             }
             writer.WriteEndArray();
         }
@@ -70,22 +70,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers
         public static IBsonSerializer Create(IBsonSerializer itemSerializer)
         {
             var itemType = itemSerializer.ValueType;
-            var factoryType = typeof(IEnumerableSerializerFactory<>).MakeGenericType(itemType);
-            var factory = (IEnumerableSerializerFactory)Activator.CreateInstance(factoryType);
-            return factory.Create(itemSerializer);
-        }
-    }
-
-    internal abstract class IEnumerableSerializerFactory
-    {
-        public abstract IBsonSerializer Create(IBsonSerializer itemSerializer);
-    }
-
-    internal class IEnumerableSerializerFactory<TItem> : IEnumerableSerializerFactory
-    {
-        public override IBsonSerializer Create(IBsonSerializer itemSerializer)
-        {
-            return new IEnumerableSerializer<TItem>((IBsonSerializer<TItem>) itemSerializer);
+            var serializerType = typeof(IEnumerableSerializer<>).MakeGenericType(itemType);
+            return (IBsonSerializer)Activator.CreateInstance(serializerType, itemSerializer);
         }
     }
 }
