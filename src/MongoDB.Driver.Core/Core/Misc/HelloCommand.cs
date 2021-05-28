@@ -19,5 +19,7 @@ namespace MongoDB.Driver.Core.Misc
     {
         public static string Modern => "hello";
         public static string Legacy => "isMaster";
+
+        public static string LegacyResponseIsWritablePrimary => "ismaster";
     }
 }
