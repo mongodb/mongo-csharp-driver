@@ -32,9 +32,10 @@ namespace MongoDB.Driver.Core.Tests.Core.NativeLibraryLoader
         [InlineData("&mongo$csharp@driver%", "&mongo$csharp@driver%")]
         public void GetLibraryBasePath_should_get_correct_paths(string rootTestFolder, string expectedRootTestFolder)
         {
-            string testAssemblyCodeBaseUri = null; // use a default one for null
+            string testAssemblyCodeBaseUri = null; // use assembly-based CodeBase for null
             if (rootTestFolder != null)
             {
+                // mock assembly-based CodeBase path
                 var assemblyPath = Path.Combine(
                     RequirePlatform.GetCurrentOperatingSystem() == SupportedOperatingSystem.Windows ? "C:/" : @"\\data",
                     rootTestFolder,
