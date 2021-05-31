@@ -184,6 +184,12 @@ namespace MongoDB.Driver.Tests
             }
         }
 
+        [Fact]
+        public void Mongocrypt_native_library_should_have_expected_version()
+        {
+            Library.Version.Should().Be("1.2.1");
+        }
+
         // private methods
         private object CreateInstance(Type type)
         {
