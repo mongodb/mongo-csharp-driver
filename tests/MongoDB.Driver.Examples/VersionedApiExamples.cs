@@ -23,7 +23,7 @@ namespace MongoDB.Driver.Examples
             var connectionString = "mongodb://localhost";
             var serverApi = new ServerApi(ServerApiVersion.V1);
             var mongoClientSettings = MongoClientSettings.FromConnectionString(connectionString);
-            mongoClientSettings.ServerApi = serverApi; // ServerApi is not available as a connection string option and should be configured on the settings object
+            mongoClientSettings.ServerApi = serverApi;
             var mongoClient = new MongoClient(mongoClientSettings);
             // End Versioned API Example 1
         }
@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Examples
         {
             // Start Versioned API Example 3
             var connectionString = "mongodb://localhost";
-            var serverApi = new ServerApi(ServerApiVersion.V1, strict: false); // Current server default is false, but it can be specified explicitly
+            var serverApi = new ServerApi(ServerApiVersion.V1, strict: false);
             var mongoClientSettings = MongoClientSettings.FromConnectionString(connectionString);
             mongoClientSettings.ServerApi = serverApi;
             var mongoClient = new MongoClient(mongoClientSettings);
