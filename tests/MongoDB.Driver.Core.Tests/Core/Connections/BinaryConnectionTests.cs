@@ -477,8 +477,10 @@ namespace MongoDB.Driver.Core.Connections
             var mockStream = new Mock<Stream>();
             EventHandler<UnobservedTaskExceptionEventArgs> eventHandler = (s, args) =>
             {
-                unobservedTaskExceptionRaised = true;
-                args.SetObserved();
+                if (args.Exception.InnerException is MongoConnectionException)
+                {
+                    unobservedTaskExceptionRaised = true;
+                }
             };
 
             try
