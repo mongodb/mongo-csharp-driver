@@ -159,6 +159,9 @@ namespace MongoDB.Driver.Core.Bindings
             finally
             {
                 _currentTransaction.SetState(CoreTransactionState.Aborted);
+                // The transaction is aborted.The session MUST be unpinned regardless
+                // of whether or the abortTransaction command succeeds or fails
+                _currentTransaction.PinnedServer = null;
             }
         }
 
@@ -202,6 +205,9 @@ namespace MongoDB.Driver.Core.Bindings
             finally
             {
                 _currentTransaction.SetState(CoreTransactionState.Aborted);
+                // The transaction is aborted.The session MUST be unpinned regardless
+                // of whether or the abortTransaction command succeeds or fails
+                _currentTransaction.PinnedServer = null;
             }
         }
 

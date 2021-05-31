@@ -29,6 +29,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
         }
 
+        public static OperationResult Empty() => new OperationResult();
+
         public static OperationResult FromChangeStream(IEnumerator<ChangeStreamDocument<BsonDocument>> changeStream)
         {
             return new OperationResult
