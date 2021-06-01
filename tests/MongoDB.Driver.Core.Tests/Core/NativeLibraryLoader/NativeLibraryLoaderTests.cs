@@ -25,30 +25,33 @@ namespace MongoDB.Driver.Core.Tests.Core.NativeLibraryLoader
 {
     public class NativeLibraryLoaderTests
     {
+        [Fact]
+        public void GetLibraryBasePath_should_get_correct_paths_for_assembly_based_path()
+        {
+            var subject = new TestRelativeLibraryLocator(mockedAssemblyUri: null);
+
+            var result = subject.GetLibraryBasePath();
+
+            // Ideally the root folder for expectedResult should be mongo-csharp-driver,
+            // but since it's not mocked logic it limits us where we can run our tests from. Avoid it by
+            // making a test assertation less straight
+            var expectedResult = GetCommonTestAssemblyFolderEnding();
+            result.Should().EndWith(expectedResult);
+        }
+
         [Theory]
         [InlineData("mongo-csharp-driver", "mongo-csharp-driver")]
         [InlineData("mongo csharp driver", "mongo csharp driver")]
         [InlineData("&mongo$csharp@driver%", "&mongo$csharp@driver%")]
-
-        // the default assembly-based logic. Ideally expectedRootTestFolder should be mongo-csharp-driver,
-        // but since it's not mocked logic, it limits us where we can run our tests from. Avoid it by
-        // making a test assertation less strict
-        [InlineData(null, "")]
-        public void GetLibraryBasePath_should_get_correct_paths(string rootTestFolder, string expectedRootTestFolder)
+        public void GetLibraryBasePath_should_get_correct_paths_with_mocking(string rootTestFolder, string expectedRootTestFolder)
         {
-            string testAssemblyCodeBaseUri = null; // use assembly-based CodeBase for null
-            if (rootTestFolder != null)
-            {
-                // mock assembly-based CodeBase path
-                var assemblyPath = Path.Combine(
-                    RequirePlatform.GetCurrentOperatingSystem() == SupportedOperatingSystem.Windows ? "C:/" : @"\\data",
-                    rootTestFolder,
-                    GetCommonTestAssemblyFolderEnding(),
-                    "MongoDB.Driver.Core.dll");
-                testAssemblyCodeBaseUri = new Uri(assemblyPath).ToString();
-            }
-
-            var subject = new TestRelativeLibraryLocator(testAssemblyCodeBaseUri);
+            var assemblyCodeBase = Path.Combine(
+                RequirePlatform.GetCurrentOperatingSystem() == SupportedOperatingSystem.Windows ? "C:/" : @"\\data",
+                rootTestFolder,
+                GetCommonTestAssemblyFolderEnding(),
+                "MongoDB.Driver.Core.dll");
+            var testAssemblyCodeBaseUri = new Uri(assemblyCodeBase).ToString();
+            var subject = new TestRelativeLibraryLocator(mockedAssemblyUri: testAssemblyCodeBaseUri);
 
             var result = subject.GetLibraryBasePath();
 
@@ -86,15 +89,16 @@ namespace MongoDB.Driver.Core.Tests.Core.NativeLibraryLoader
         // nested types
         private class TestRelativeLibraryLocator : RelativeLibraryLocatorBase
         {
-            private readonly string _testAssemblyUri;
+            private readonly string _mockedAssemblyUri;
 
-            public TestRelativeLibraryLocator(string testAssemblyUri)
+            public TestRelativeLibraryLocator(string mockedAssemblyUri)
             {
-                _testAssemblyUri = testAssemblyUri; // can be null
+                _mockedAssemblyUri = mockedAssemblyUri; // can be null
             }
 
-            public override string GetBaseAssemblyUri() => _testAssemblyUri ??  base.GetBaseAssemblyUri();
+            public override string GetBaseAssemblyUri() => _mockedAssemblyUri ?? base.GetBaseAssemblyUri();
 
+            // not required for these tests yet
             public override string GetLibraryRelativePath(OperatingSystemPlatform currentPlatform) => throw new NotImplementedException();
         }
     }
