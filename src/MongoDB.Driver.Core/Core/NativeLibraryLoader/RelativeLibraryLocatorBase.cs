@@ -26,24 +26,25 @@ namespace MongoDB.Driver.Core.NativeLibraryLoader
         public virtual bool IsX32ModeSupported => false;
 
         // public methods
+        public virtual string GetBaseAssemblyUri() => typeof(RelativeLibraryLocatorBase).GetTypeInfo().Assembly.CodeBase;
+
         public string GetLibraryAbsolutePath(OperatingSystemPlatform currentPlatform)
         {
             var relativePath = GetLibraryRelativePath(currentPlatform);
             return GetAbsolutePath(relativePath);
         }
 
-        public virtual Assembly GetLibraryBaseAssembly()
+        public virtual string GetLibraryBaseAssemblyPath()
         {
-            return typeof(RelativeLibraryLocatorBase).GetTypeInfo().Assembly;
+            var baseAssemblyPathUri = GetBaseAssemblyUri();
+            var uri = new Uri(baseAssemblyPathUri);
+            return Uri.UnescapeDataString(uri.AbsolutePath);
         }
 
         public virtual string GetLibraryBasePath()
         {
-            var assembly = GetLibraryBaseAssembly();
-            var codeBase = assembly.CodeBase;
-            var uri = new Uri(codeBase);
-            var absolutePath = uri.AbsolutePath;
-            return Path.GetDirectoryName(absolutePath);
+            var absoluteAssemblyPath = GetLibraryBaseAssemblyPath();
+            return Path.GetDirectoryName(absoluteAssemblyPath);
         }
 
         public abstract string GetLibraryRelativePath(OperatingSystemPlatform currentPlatform);
