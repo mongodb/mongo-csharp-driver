@@ -30,7 +30,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
         public void Execute()
         {
-            _session.WrappedCoreSession.CurrentTransaction.PinnedServer.Should().BeNull();
+            // CurrentTransaction can be null for non-transaction operation
+            _session.WrappedCoreSession.CurrentTransaction?.PinnedServer.Should().BeNull();
         }
     }
 

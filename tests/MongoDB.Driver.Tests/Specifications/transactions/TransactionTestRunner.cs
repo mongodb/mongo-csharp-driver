@@ -523,13 +523,7 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
         public class TestCaseFactory : JsonDrivenTestCaseFactory
         {
             // protected properties
-            protected override string PathPrefix
-            {
-                get
-                {
-                    return "MongoDB.Driver.Tests.Specifications.transactions.tests.";
-                }
-            }
+            protected override string PathPrefix => "MongoDB.Driver.Tests.Specifications.transactions.tests.legacy";
 
             // protected methods
             protected override IEnumerable<JsonDrivenTestCase> CreateTestCases(BsonDocument document)

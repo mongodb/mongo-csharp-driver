@@ -139,6 +139,9 @@ namespace MongoDB.Driver.Core.Bindings
                 }
                 catch (Exception exception) when (ShouldRetryEndTransactionException(exception))
                 {
+                    // unpin if retryable error
+                    _currentTransaction.PinnedServer = null;
+
                     // ignore exception and retry
                 }
                 catch
@@ -159,6 +162,9 @@ namespace MongoDB.Driver.Core.Bindings
             finally
             {
                 _currentTransaction.SetState(CoreTransactionState.Aborted);
+                // The transaction is aborted.The session MUST be unpinned regardless
+                // of whether the abortTransaction command succeeds or fails
+                _currentTransaction.PinnedServer = null;
             }
         }
 
@@ -182,6 +188,9 @@ namespace MongoDB.Driver.Core.Bindings
                 }
                 catch (Exception exception) when (ShouldRetryEndTransactionException(exception))
                 {
+                    // unpin if retryable error
+                    _currentTransaction.PinnedServer = null;
+
                     // ignore exception and retry
                 }
                 catch
@@ -202,6 +211,9 @@ namespace MongoDB.Driver.Core.Bindings
             finally
             {
                 _currentTransaction.SetState(CoreTransactionState.Aborted);
+                // The transaction is aborted.The session MUST be unpinned regardless
+                // of whether the abortTransaction command succeeds or fails
+                _currentTransaction.PinnedServer = null;
             }
         }
 
