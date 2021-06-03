@@ -15,11 +15,9 @@
 
 namespace MongoDB.Driver.Core.Misc
 {
-    internal static class HelloCommand
+    internal static class OppressiveLanguageConstants
     {
-        public static string Modern => "hello";
-        public static string Legacy => "isMaster";
-
-        public static string LegacyResponseIsWritablePrimary => "ismaster";
+        public const string LegacyHelloCommandName = "isMaster";
+        public const string LegacyHelloResponseIsWritablePrimaryFieldName = "ismaster";
     }
 }

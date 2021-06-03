@@ -31,8 +31,8 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         // static
         private static readonly HashSet<string> __messagesNotToBeCompressed = new HashSet<string>
         {
-            HelloCommand.Modern,
-            HelloCommand.Legacy,
+            "hello",
+            OppressiveLanguageConstants.LegacyHelloCommandName,
             "saslStart",
             "saslContinue",
             "getnonce",

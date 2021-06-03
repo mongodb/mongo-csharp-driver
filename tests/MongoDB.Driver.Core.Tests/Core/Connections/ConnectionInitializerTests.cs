@@ -242,7 +242,7 @@ namespace MongoDB.Driver.Core.Connections
 
             sentMessages[0]["opcode"].AsString.Should().Be("opmsg");
             var helloRequestDocument = sentMessages[0]["sections"][0]["document"];
-            helloRequestDocument[HelloCommand.Modern].AsInt32.Should().Be(1);
+            helloRequestDocument["hello"].AsInt32.Should().Be(1);
             helloRequestDocument["apiVersion"].AsString.Should().Be("1");
             helloRequestDocument["apiStrict"].AsBoolean.Should().Be(true);
             helloRequestDocument["apiDeprecationErrors"].AsBoolean.Should().Be(true);
@@ -282,7 +282,7 @@ namespace MongoDB.Driver.Core.Connections
             var actualRequestId1 = sentMessages[1]["requestId"].AsInt32;
 
             sentMessages[0]["opcode"].AsString.Should().Be("query");
-            sentMessages[0]["query"][HelloCommand.Legacy].AsInt32.Should().Be(1);
+            sentMessages[0]["query"][OppressiveLanguageConstants.LegacyHelloCommandName].AsInt32.Should().Be(1);
             sentMessages[0]["query"].AsBsonDocument.TryGetElement("apiVersion", out _).Should().BeFalse();
             sentMessages[0]["query"].AsBsonDocument.TryGetElement("apiStrict", out _).Should().BeFalse();
             sentMessages[0]["query"].AsBsonDocument.TryGetElement("apiDeprecationErrors", out _).Should().BeFalse();

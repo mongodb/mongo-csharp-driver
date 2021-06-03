@@ -50,10 +50,10 @@ namespace MongoDB.Driver.Core.Connections
                 (topologyVersion != null && maxAwaitTime.HasValue),
                 $"Both {nameof(topologyVersion)} and {nameof(maxAwaitTime)} must be filled or null.");
 
-            var helloCommand = serverApi != null ? HelloCommand.Modern : HelloCommand.Legacy;
+            var helloCommandName = serverApi != null ? "hello" : OppressiveLanguageConstants.LegacyHelloCommandName;
             return new BsonDocument
             {
-                { helloCommand, 1 },
+                { helloCommandName, 1 },
                 { "topologyVersion", () => topologyVersion.ToBsonDocument(), topologyVersion != null },
                 { "maxAwaitTimeMS", () => (long)maxAwaitTime.Value.TotalMilliseconds, maxAwaitTime.HasValue }
             };
