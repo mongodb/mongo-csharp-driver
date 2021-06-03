@@ -18,6 +18,7 @@ using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
 using Xunit;
 
@@ -249,32 +250,31 @@ namespace MongoDB.Driver.Tests.Linq
             Assert.Equal(1, Consume(query));
         }
 
-        [Fact]
+        [SkippableFact]
         public void TestWhereBTypeEqualsB()
         {
-            if (__server.BuildInfo.Version >= new Version(2, 0, 0))
-            {
-                var query =
-                    from b in __collection.AsQueryable<B>()
-                    where b.GetType() == typeof(B)
-                    select b;
+            RequireServer.Check().VersionGreaterThanOrEqualTo("2.0.0").VersionLessThan("5.0.0-");
 
-                var translatedQuery = MongoQueryTranslator.Translate(query);
-                Assert.IsType<SelectQuery>(translatedQuery);
-                Assert.Same(__collection, translatedQuery.Collection);
-                Assert.Same(typeof(B), translatedQuery.DocumentType);
+            var query =
+                from b in __collection.AsQueryable<B>()
+                where b.GetType() == typeof(B)
+                select b;
 
-                var selectQuery = (SelectQuery)translatedQuery;
-                Assert.Equal("(B b) => (b.GetType() == typeof(B))", ExpressionFormatter.ToString(selectQuery.Where));
-                Assert.Equal(null, selectQuery.OfType); // OfType ignored because <T> was the same as <TDocument>
-                Assert.Null(selectQuery.OrderBy);
-                Assert.Null(selectQuery.Projection);
-                Assert.Null(selectQuery.Skip);
-                Assert.Null(selectQuery.Take);
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsType<SelectQuery>(translatedQuery);
+            Assert.Same(__collection, translatedQuery.Collection);
+            Assert.Same(typeof(B), translatedQuery.DocumentType);
 
-                Assert.Equal("{ \"_t.0\" : { \"$exists\" : false }, \"_t\" : \"B\" }", selectQuery.BuildQuery().ToJson());
-                Assert.Equal(1, Consume(query));
-            }
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.Equal("(B b) => (b.GetType() == typeof(B))", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.Equal(null, selectQuery.OfType); // OfType ignored because <T> was the same as <TDocument>
+            Assert.Null(selectQuery.OrderBy);
+            Assert.Null(selectQuery.Projection);
+            Assert.Null(selectQuery.Skip);
+            Assert.Null(selectQuery.Take);
+
+            Assert.Equal("{ \"_t.0\" : { \"$exists\" : false }, \"_t\" : \"B\" }", selectQuery.BuildQuery().ToJson());
+            Assert.Equal(1, Consume(query));
         }
 
         [Fact]

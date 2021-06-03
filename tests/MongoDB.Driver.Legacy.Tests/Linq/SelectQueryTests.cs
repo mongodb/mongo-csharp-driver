@@ -22,6 +22,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
 using Xunit;
 
@@ -4474,30 +4475,29 @@ namespace MongoDB.Driver.Tests.Linq
             }
         }
 
-        [Fact]
+        [SkippableFact]
         public void TestWhereSASub0ContainsONot()
         {
-            if (__server.BuildInfo.Version >= new Version(1, 8, 0))
-            {
-                var query = from c in __collection.AsQueryable<C>()
-                            where !c.SA[0].Contains("o")
-                            select c;
+            RequireServer.Check().VersionGreaterThanOrEqualTo("1.8.0").VersionLessThan("5.0.0-");
 
-                var translatedQuery = MongoQueryTranslator.Translate(query);
-                Assert.IsType<SelectQuery>(translatedQuery);
-                Assert.Same(__collection, translatedQuery.Collection);
-                Assert.Same(typeof(C), translatedQuery.DocumentType);
+            var query = from c in __collection.AsQueryable<C>()
+                        where !c.SA[0].Contains("o")
+                        select c;
 
-                var selectQuery = (SelectQuery)translatedQuery;
-                Assert.Equal("(C c) => !c.SA[0].Contains(\"o\")", ExpressionFormatter.ToString(selectQuery.Where));
-                Assert.Null(selectQuery.OrderBy);
-                Assert.Null(selectQuery.Projection);
-                Assert.Null(selectQuery.Skip);
-                Assert.Null(selectQuery.Take);
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsType<SelectQuery>(translatedQuery);
+            Assert.Same(__collection, translatedQuery.Collection);
+            Assert.Same(typeof(C), translatedQuery.DocumentType);
 
-                Assert.Equal("{ \"sa.0\" : { \"$not\" : /o/s } }", selectQuery.BuildQuery().ToJson());
-                Assert.Equal(4, Consume(query));
-            }
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.Equal("(C c) => !c.SA[0].Contains(\"o\")", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.Null(selectQuery.OrderBy);
+            Assert.Null(selectQuery.Projection);
+            Assert.Null(selectQuery.Skip);
+            Assert.Null(selectQuery.Take);
+
+            Assert.Equal("{ \"sa.0\" : { \"$not\" : /o/s } }", selectQuery.BuildQuery().ToJson());
+            Assert.Equal(4, Consume(query));
         }
 
         [Fact]
@@ -4526,30 +4526,29 @@ namespace MongoDB.Driver.Tests.Linq
             }
         }
 
-        [Fact]
+        [SkippableFact]
         public void TestWhereSASub0EndsWithMNot()
         {
-            if (__server.BuildInfo.Version >= new Version(1, 8, 0))
-            {
-                var query = from c in __collection.AsQueryable<C>()
-                            where !c.SA[0].EndsWith("m")
-                            select c;
+            RequireServer.Check().VersionGreaterThanOrEqualTo("1.8.0").VersionLessThan("5.0.0-");
 
-                var translatedQuery = MongoQueryTranslator.Translate(query);
-                Assert.IsType<SelectQuery>(translatedQuery);
-                Assert.Same(__collection, translatedQuery.Collection);
-                Assert.Same(typeof(C), translatedQuery.DocumentType);
+            var query = from c in __collection.AsQueryable<C>()
+                        where !c.SA[0].EndsWith("m")
+                        select c;
 
-                var selectQuery = (SelectQuery)translatedQuery;
-                Assert.Equal("(C c) => !c.SA[0].EndsWith(\"m\")", ExpressionFormatter.ToString(selectQuery.Where));
-                Assert.Null(selectQuery.OrderBy);
-                Assert.Null(selectQuery.Projection);
-                Assert.Null(selectQuery.Skip);
-                Assert.Null(selectQuery.Take);
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsType<SelectQuery>(translatedQuery);
+            Assert.Same(__collection, translatedQuery.Collection);
+            Assert.Same(typeof(C), translatedQuery.DocumentType);
 
-                Assert.Equal("{ \"sa.0\" : { \"$not\" : /m$/s } }", selectQuery.BuildQuery().ToJson());
-                Assert.Equal(4, Consume(query));
-            }
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.Equal("(C c) => !c.SA[0].EndsWith(\"m\")", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.Null(selectQuery.OrderBy);
+            Assert.Null(selectQuery.Projection);
+            Assert.Null(selectQuery.Skip);
+            Assert.Null(selectQuery.Take);
+
+            Assert.Equal("{ \"sa.0\" : { \"$not\" : /m$/s } }", selectQuery.BuildQuery().ToJson());
+            Assert.Equal(4, Consume(query));
         }
 
         [Fact]
@@ -4579,31 +4578,30 @@ namespace MongoDB.Driver.Tests.Linq
             }
         }
 
-        [Fact]
+        [SkippableFact]
         public void TestWhereSASub0IsMatchNot()
         {
-            if (__server.BuildInfo.Version >= new Version(1, 8, 0))
-            {
-                var regex = new Regex(@"^T");
-                var query = from c in __collection.AsQueryable<C>()
-                            where !regex.IsMatch(c.SA[0])
-                            select c;
+            RequireServer.Check().VersionGreaterThanOrEqualTo("1.8.0").VersionLessThan("5.0.0-");
 
-                var translatedQuery = MongoQueryTranslator.Translate(query);
-                Assert.IsType<SelectQuery>(translatedQuery);
-                Assert.Same(__collection, translatedQuery.Collection);
-                Assert.Same(typeof(C), translatedQuery.DocumentType);
+            var regex = new Regex(@"^T");
+            var query = from c in __collection.AsQueryable<C>()
+                        where !regex.IsMatch(c.SA[0])
+                        select c;
 
-                var selectQuery = (SelectQuery)translatedQuery;
-                Assert.Equal("(C c) => !Regex:(@\"^T\").IsMatch(c.SA[0])", ExpressionFormatter.ToString(selectQuery.Where));
-                Assert.Null(selectQuery.OrderBy);
-                Assert.Null(selectQuery.Projection);
-                Assert.Null(selectQuery.Skip);
-                Assert.Null(selectQuery.Take);
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsType<SelectQuery>(translatedQuery);
+            Assert.Same(__collection, translatedQuery.Collection);
+            Assert.Same(typeof(C), translatedQuery.DocumentType);
 
-                Assert.Equal("{ \"sa.0\" : { \"$not\" : /^T/ } }", selectQuery.BuildQuery().ToJson());
-                Assert.Equal(4, Consume(query));
-            }
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.Equal("(C c) => !Regex:(@\"^T\").IsMatch(c.SA[0])", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.Null(selectQuery.OrderBy);
+            Assert.Null(selectQuery.Projection);
+            Assert.Null(selectQuery.Skip);
+            Assert.Null(selectQuery.Take);
+
+            Assert.Equal("{ \"sa.0\" : { \"$not\" : /^T/ } }", selectQuery.BuildQuery().ToJson());
+            Assert.Equal(4, Consume(query));
         }
 
         [Fact]
@@ -4632,30 +4630,29 @@ namespace MongoDB.Driver.Tests.Linq
             }
         }
 
-        [Fact]
+        [SkippableFact]
         public void TestWhereSASub0IsMatchStaticNot()
         {
-            if (__server.BuildInfo.Version >= new Version(1, 8, 0))
-            {
-                var query = from c in __collection.AsQueryable<C>()
-                            where !Regex.IsMatch(c.SA[0], "^T")
-                            select c;
+            RequireServer.Check().VersionGreaterThanOrEqualTo("1.8.0").VersionLessThan("5.0.0-");
 
-                var translatedQuery = MongoQueryTranslator.Translate(query);
-                Assert.IsType<SelectQuery>(translatedQuery);
-                Assert.Same(__collection, translatedQuery.Collection);
-                Assert.Same(typeof(C), translatedQuery.DocumentType);
+            var query = from c in __collection.AsQueryable<C>()
+                        where !Regex.IsMatch(c.SA[0], "^T")
+                        select c;
 
-                var selectQuery = (SelectQuery)translatedQuery;
-                Assert.Equal("(C c) => !Regex.IsMatch(c.SA[0], \"^T\")", ExpressionFormatter.ToString(selectQuery.Where));
-                Assert.Null(selectQuery.OrderBy);
-                Assert.Null(selectQuery.Projection);
-                Assert.Null(selectQuery.Skip);
-                Assert.Null(selectQuery.Take);
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsType<SelectQuery>(translatedQuery);
+            Assert.Same(__collection, translatedQuery.Collection);
+            Assert.Same(typeof(C), translatedQuery.DocumentType);
 
-                Assert.Equal("{ \"sa.0\" : { \"$not\" : /^T/ } }", selectQuery.BuildQuery().ToJson());
-                Assert.Equal(4, Consume(query));
-            }
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.Equal("(C c) => !Regex.IsMatch(c.SA[0], \"^T\")", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.Null(selectQuery.OrderBy);
+            Assert.Null(selectQuery.Projection);
+            Assert.Null(selectQuery.Skip);
+            Assert.Null(selectQuery.Take);
+
+            Assert.Equal("{ \"sa.0\" : { \"$not\" : /^T/ } }", selectQuery.BuildQuery().ToJson());
+            Assert.Equal(4, Consume(query));
         }
 
         [Fact]
@@ -4710,30 +4707,29 @@ namespace MongoDB.Driver.Tests.Linq
             }
         }
 
-        [Fact]
+        [SkippableFact]
         public void TestWhereSASub0StartsWithTNot()
         {
-            if (__server.BuildInfo.Version >= new Version(1, 8, 0))
-            {
-                var query = from c in __collection.AsQueryable<C>()
-                            where !c.SA[0].StartsWith("T")
-                            select c;
+            RequireServer.Check().VersionGreaterThanOrEqualTo("1.8.0").VersionLessThan("5.0.0-");
 
-                var translatedQuery = MongoQueryTranslator.Translate(query);
-                Assert.IsType<SelectQuery>(translatedQuery);
-                Assert.Same(__collection, translatedQuery.Collection);
-                Assert.Same(typeof(C), translatedQuery.DocumentType);
+            var query = from c in __collection.AsQueryable<C>()
+                        where !c.SA[0].StartsWith("T")
+                        select c;
 
-                var selectQuery = (SelectQuery)translatedQuery;
-                Assert.Equal("(C c) => !c.SA[0].StartsWith(\"T\")", ExpressionFormatter.ToString(selectQuery.Where));
-                Assert.Null(selectQuery.OrderBy);
-                Assert.Null(selectQuery.Projection);
-                Assert.Null(selectQuery.Skip);
-                Assert.Null(selectQuery.Take);
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsType<SelectQuery>(translatedQuery);
+            Assert.Same(__collection, translatedQuery.Collection);
+            Assert.Same(typeof(C), translatedQuery.DocumentType);
 
-                Assert.Equal("{ \"sa.0\" : { \"$not\" : /^T/s } }", selectQuery.BuildQuery().ToJson());
-                Assert.Equal(4, Consume(query));
-            }
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.Equal("(C c) => !c.SA[0].StartsWith(\"T\")", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.Null(selectQuery.OrderBy);
+            Assert.Null(selectQuery.Projection);
+            Assert.Null(selectQuery.Skip);
+            Assert.Null(selectQuery.Take);
+
+            Assert.Equal("{ \"sa.0\" : { \"$not\" : /^T/s } }", selectQuery.BuildQuery().ToJson());
+            Assert.Equal(4, Consume(query));
         }
 
         [Fact]
