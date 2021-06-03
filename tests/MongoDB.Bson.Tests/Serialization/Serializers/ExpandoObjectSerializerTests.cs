@@ -51,6 +51,40 @@ namespace MongoDB.Bson.Tests.Serialization
             Assert.True(bson.SequenceEqual((rehydrated).ToBson()));
         }
 
+        [Fact]
+        public void TestNestedExpandoRoundTrip()
+        {
+            var document = new NestedExpando {Id = ObjectId.GenerateNewId(), ExtraData = new ExpandoObject()};
+
+            var json = document.ToJson();
+            var expected = $"{{ \"_id\" : ObjectId(\"{document.Id}\"), \"ExtraData\" : {{ }} }}";
+            Assert.Equal(expected, json);
+
+            var bson = document.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<NestedExpando>(bson);
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        [Fact]
+        public void TestNullNestedExpandoRoundTrip()
+        {
+            var document = new NestedExpando {Id = ObjectId.GenerateNewId(), ExtraData = null};
+
+            var json = document.ToJson();
+            var expected = $"{{ \"_id\" : ObjectId(\"{document.Id}\"), \"ExtraData\" : null }}";
+            Assert.Equal(expected, json);
+
+            var bson = document.ToBson();
+            var rehydrated = BsonSerializer.Deserialize<NestedExpando>(bson);
+            Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
+        }
+
+        class NestedExpando
+        {
+            public ObjectId Id { get; set; }
+            public ExpandoObject ExtraData { get; set; }
+        }
+
 #if NET452
         [Fact]
         public void TestDeserializingDiscriminatedVersion()
