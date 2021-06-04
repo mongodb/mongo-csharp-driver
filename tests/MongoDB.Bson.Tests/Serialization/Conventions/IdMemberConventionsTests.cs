@@ -44,6 +44,14 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             public ObjectId _id { get; set; }
         }
 
+        private class TestClassNoIdGetter
+        {
+            public Object Id
+            {
+                set { }
+            }
+        }
+
         [Fact]
         public void TestNamedIdMemberConventionWithTestClassA()
         {
@@ -81,6 +89,15 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             convention.Apply(classMap);
             Assert.NotNull(classMap.IdMemberMap);
             Assert.Equal("_id", classMap.IdMemberMap.MemberName);
+        }
+
+        [Fact]
+        public void TestNamedIdMemberConventionWillNotReturnIdWithoutGetter()
+        {
+            var convention = new NamedIdMemberConvention("Id", "id", "_id");
+            var classMap = new BsonClassMap<TestClassNoIdGetter>();
+            convention.Apply(classMap);
+            Assert.Null(classMap.IdMemberMap);
         }
     }
 }

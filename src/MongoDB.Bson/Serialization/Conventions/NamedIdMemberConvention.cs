@@ -112,7 +112,9 @@ namespace MongoDB.Bson.Serialization.Conventions
             if (member is PropertyInfo)
             {
                 var getMethodInfo = ((PropertyInfo)member).GetMethod;
-                if (getMethodInfo.IsVirtual && getMethodInfo.GetBaseDefinition().DeclaringType != classMap.ClassType)
+                if (getMethodInfo == null ||
+                    getMethodInfo.IsVirtual &&
+                    getMethodInfo.GetBaseDefinition().DeclaringType != classMap.ClassType)
                 {
                     return false;
                 }
