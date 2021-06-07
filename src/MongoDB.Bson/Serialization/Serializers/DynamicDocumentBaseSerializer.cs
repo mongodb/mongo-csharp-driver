@@ -15,7 +15,6 @@
 
 using System;
 using System.Dynamic;
-using System.IO;
 using System.Linq.Expressions;
 using MongoDB.Bson.IO;
 
@@ -25,7 +24,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// Base serializer for dynamic types.
     /// </summary>
     /// <typeparam name="T">The dynamic type.</typeparam>
-    public abstract class DynamicDocumentBaseSerializer<T> : SerializerBase<T> where T : IDynamicMetaObjectProvider
+    public abstract class DynamicDocumentBaseSerializer<T> : SerializerBase<T> where T : class, IDynamicMetaObjectProvider
     {
         // private static fields
         private static readonly IBsonSerializer<object> _objectSerializer = BsonSerializer.LookupSerializer<object>();
@@ -65,6 +64,10 @@ namespace MongoDB.Bson.Serialization.Serializers
                     bsonReader.ReadEndDocument();
                     return document;
 
+                case BsonType.Null:
+                    bsonReader.ReadNull();
+                    return null;
+
                 default:
                     message = string.Format("Cannot deserialize a '{0}' from BsonType '{1}'.", BsonUtils.GetFriendlyTypeName(typeof(T)), bsonType);
                     throw new FormatException(message);
@@ -80,6 +83,12 @@ namespace MongoDB.Bson.Serialization.Serializers
         public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, T value)
         {
             var bsonWriter = context.Writer;
+
+            if (value == null)
+            {
+                bsonWriter.WriteNull();
+                return;
+            }
 
             var metaObject = value.GetMetaObject(Expression.Constant(value));
             var memberNames = metaObject.GetDynamicMemberNames();
