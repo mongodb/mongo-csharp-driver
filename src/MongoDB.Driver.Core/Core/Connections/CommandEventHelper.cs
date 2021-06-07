@@ -1111,7 +1111,7 @@ namespace MongoDB.Driver.Core.Connections
                     return true;
 
                 case "hello":
-                case string when commandName.Equals(OppressiveLanguageConstants.LegacyHelloCommandName, StringComparison.OrdinalIgnoreCase):
+                case OppressiveLanguageConstants.LegacyHelloCommandNameLowerCase:
                     return command.Names.Any(n => n.ToLowerInvariant() == "speculativeauthenticate");
 
                 default:

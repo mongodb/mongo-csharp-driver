@@ -18,6 +18,9 @@ namespace MongoDB.Driver.Core.Misc
     internal static class OppressiveLanguageConstants
     {
         public const string LegacyHelloCommandName = "isMaster";
+        public const string LegacyHelloCommandNameLowerCase = "ismaster";
+        // Note: The isMaster command response contains a boolean field ismaster (all lowercase)
+        //       to indicate whether the current node is the primary.
         public const string LegacyHelloResponseIsWritablePrimaryFieldName = "ismaster";
     }
 }
