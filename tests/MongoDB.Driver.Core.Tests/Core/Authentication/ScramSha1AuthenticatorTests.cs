@@ -93,7 +93,7 @@ namespace MongoDB.Driver.Core.Authentication
 
         [Theory]
         [ParameterAttributeData]
-        public void Authenticate_should_send_serverApi_with_wire_protocol(
+        public void Authenticate_should_send_serverApi_with_command_wire_protocol_if_serverApi_is_provided(
             [Values(false, true)] bool useServerApi,
             [Values(false, true)] bool async)
         {
