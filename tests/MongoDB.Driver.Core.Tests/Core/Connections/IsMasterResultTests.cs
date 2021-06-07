@@ -207,6 +207,7 @@ namespace MongoDB.Driver.Core.Connections
         [Theory]
         [InlineData("{ ok: 1, isreplicaset: true, setName: \"awesome\", ismaster: true }", ServerType.ReplicaSetGhost)]
         [InlineData("{ ok: 1, setName: \"awesome\", ismaster: true }", ServerType.ReplicaSetPrimary)]
+        [InlineData("{ ok: 1, setName: \"awesome\", isWritablePrimary: true }", ServerType.ReplicaSetPrimary)]
         [InlineData("{ ok: 1, setName: \"awesome\", ismaster: true, secondary: true }", ServerType.ReplicaSetPrimary)]
         [InlineData("{ ok: 1, setName: \"awesome\", secondary: true }", ServerType.ReplicaSetSecondary)]
         [InlineData("{ ok: 1, setName: \"awesome\", secondary: true, passive: true }", ServerType.ReplicaSetSecondary)]

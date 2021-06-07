@@ -23,6 +23,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Events;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders;
@@ -1109,7 +1110,8 @@ namespace MongoDB.Driver.Core.Connections
                 case "copydb":
                     return true;
 
-                case "ismaster":
+                case "hello":
+                case OppressiveLanguageConstants.LegacyHelloCommandNameLowerCase:
                     return command.Names.Any(n => n.ToLowerInvariant() == "speculativeauthenticate");
 
                 default:

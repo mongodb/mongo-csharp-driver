@@ -172,7 +172,7 @@ namespace MongoDB.Driver.Core.Authentication
 
         [Theory]
         [ParameterAttributeData]
-        public void Authenticate_should_send_serverApi_with_query_wire_protocol(
+        public void Authenticate_should_send_serverApi_with_command_wire_protocol_if_serverApi_is_provided(
             [Values(false, true)] bool useServerApi,
             [Values(false, true)] bool async)
         {
@@ -183,10 +183,19 @@ namespace MongoDB.Driver.Core.Authentication
 #pragma warning restore 618
 
             var connection = new MockConnection(__serverId);
-            var getNonceReply = MessageHelper.BuildReply(RawBsonDocumentHelper.FromJson("{nonce: \"2375531c32080ae8\", ok: 1}"));
-            var authenticateReply = MessageHelper.BuildReply(RawBsonDocumentHelper.FromJson("{ok: 1}"));
-            connection.EnqueueReplyMessage(getNonceReply);
-            connection.EnqueueReplyMessage(authenticateReply);
+            var getNonceReply = RawBsonDocumentHelper.FromJson("{nonce: \"2375531c32080ae8\", ok: 1}");
+            var authenticateReply = RawBsonDocumentHelper.FromJson("{ok: 1}");
+            if (useServerApi)
+            {
+                connection.EnqueueCommandResponseMessage(MessageHelper.BuildCommandResponse(getNonceReply));
+                connection.EnqueueCommandResponseMessage(MessageHelper.BuildCommandResponse(authenticateReply));
+            }
+            else
+            {
+                connection.EnqueueReplyMessage(MessageHelper.BuildReply(getNonceReply));
+                connection.EnqueueReplyMessage(MessageHelper.BuildReply(authenticateReply));
+            }
+
             connection.Description = __descriptionQueryWireProtocol;
 
             var expectedRequestId = RequestMessage.CurrentGlobalRequestId + 1;
@@ -210,9 +219,16 @@ namespace MongoDB.Driver.Core.Authentication
             actualRequestId0.Should().BeInRange(expectedRequestId, expectedRequestId + 10);
             actualRequestId1.Should().BeInRange(actualRequestId0 + 1, actualRequestId0 + 11);
 
-            var expectedServerApiString = useServerApi ? ", apiVersion : \"1\", apiStrict : true, apiDeprecationErrors : true" : "";
-            sentMessages[0].Should().Be($"{{ opcode : \"query\", requestId : {actualRequestId0}, database : \"source\", collection : \"$cmd\", batchSize : -1, slaveOk : true, query : {{ getnonce : 1{expectedServerApiString} }} }}");
-            sentMessages[1].Should().Be($"{{ opcode : \"query\", requestId : {actualRequestId1}, database : \"source\", collection : \"$cmd\", batchSize : -1, slaveOk : true, query : {{ authenticate : 1, user : \"user\", nonce : \"2375531c32080ae8\", key : \"21742f26431831d5cfca035a08c5bdf6\"{expectedServerApiString} }} }}");
+            if (useServerApi)
+            {
+                sentMessages[0].Should().Be($"{{opcode : \"opmsg\", requestId : {actualRequestId0}, responseTo : 0, sections : [{{ \"payloadType\" : 0, \"document\" : {{ \"getnonce\" : 1, \"$db\" : \"source\", \"apiVersion\" : \"1\", \"apiStrict\" : true, \"apiDeprecationErrors\" : true }} }}]}}");
+                sentMessages[1].Should().Be($"{{opcode : \"opmsg\", requestId : {actualRequestId1}, responseTo : 0, sections : [{{ \"payloadType\" : 0, \"document\" : {{ \"authenticate\" : 1, \"user\" : \"user\", \"nonce\" : \"2375531c32080ae8\", \"key\" : \"21742f26431831d5cfca035a08c5bdf6\", \"$db\" : \"source\", \"apiVersion\" : \"1\", \"apiStrict\" : true, \"apiDeprecationErrors\" : true }} }}]}}");
+            }
+            else
+            {
+                sentMessages[0].Should().Be($"{{ opcode : \"query\", requestId : {actualRequestId0}, database : \"source\", collection : \"$cmd\", batchSize : -1, slaveOk : true, query : {{ getnonce : 1 }} }}");
+                sentMessages[1].Should().Be($"{{ opcode : \"query\", requestId : {actualRequestId1}, database : \"source\", collection : \"$cmd\", batchSize : -1, slaveOk : true, query : {{ authenticate : 1, user : \"user\", nonce : \"2375531c32080ae8\", key : \"21742f26431831d5cfca035a08c5bdf6\" }} }}");
+            }
         }
     }
 }

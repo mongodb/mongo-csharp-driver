@@ -341,7 +341,7 @@ namespace MongoDB.Driver.Core.Servers
             sentMessages.Count.Should().Be(1);
 
             var requestId = sentMessages[0]["requestId"].AsInt32;
-            sentMessages[0].Should().Be($"{{ opcode : \"opmsg\", requestId : {requestId}, responseTo : 0, exhaustAllowed : true, sections : [ {{ payloadType : 0, document : {{ isMaster : 1, topologyVersion : {{ processId : ObjectId(\"000000000000000000000000\"), counter : NumberLong(0) }}, maxAwaitTimeMS : NumberLong(86400000), $db : \"admin\", apiVersion : \"1\" }} }} ] }}");
+            sentMessages[0].Should().Be($"{{ opcode : \"opmsg\", requestId : {requestId}, responseTo : 0, exhaustAllowed : true, sections : [ {{ payloadType : 0, document : {{ hello : 1, topologyVersion : {{ processId : ObjectId(\"000000000000000000000000\"), counter : NumberLong(0) }}, maxAwaitTimeMS : NumberLong(86400000), $db : \"admin\", apiVersion : \"1\" }} }} ] }}");
         }
 
         // private methods

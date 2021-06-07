@@ -97,7 +97,7 @@ namespace MongoDB.Driver.Core.Servers
                     }
                     else
                     {
-                        var helloCommand = HelloHelper.CreateCommand();
+                        var helloCommand = HelloHelper.CreateCommand(_serverApi);
                         var helloProtocol = HelloHelper.CreateProtocol(helloCommand, _serverApi);
 
                         var stopwatch = Stopwatch.StartNew();

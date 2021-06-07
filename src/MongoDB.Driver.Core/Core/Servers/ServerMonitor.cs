@@ -178,11 +178,11 @@ namespace MongoDB.Driver.Core.Servers
 
                 var veryLargeHeartbeatInterval = TimeSpan.FromDays(1); // the server doesn't support Infinite value, so we set just a big enough value
                 var maxAwaitTime = _serverMonitorSettings.HeartbeatInterval == Timeout.InfiniteTimeSpan ? veryLargeHeartbeatInterval : _serverMonitorSettings.HeartbeatInterval;
-                helloCommand = HelloHelper.CreateCommand(connection.Description.IsMasterResult.TopologyVersion, maxAwaitTime);
+                helloCommand = HelloHelper.CreateCommand(_serverApi, connection.Description.IsMasterResult.TopologyVersion, maxAwaitTime);
             }
             else
             {
-                helloCommand = HelloHelper.CreateCommand();
+                helloCommand = HelloHelper.CreateCommand(_serverApi);
             }
 
             return HelloHelper.CreateProtocol(helloCommand, _serverApi, commandResponseHandling);

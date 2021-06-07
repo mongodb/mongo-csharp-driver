@@ -87,7 +87,7 @@ namespace MongoDB.Driver.Core.Authentication
             if (!description.IsMasterResult.HasSaslSupportedMechs
                 && Feature.ScramSha256Authentication.IsSupported(description.ServerVersion))
             {
-                var command = CustomizeInitialIsMasterCommand(HelloHelper.CreateCommand());
+                var command = CustomizeInitialIsMasterCommand(HelloHelper.CreateCommand(_serverApi));
                 var helloProtocol = HelloHelper.CreateProtocol(command, _serverApi);
                 var helloResult = HelloHelper.GetResult(connection, helloProtocol, cancellationToken);
                 var mergedHelloResult = new IsMasterResult(description.IsMasterResult.Wrapped.Merge(helloResult.Wrapped));
@@ -113,7 +113,7 @@ namespace MongoDB.Driver.Core.Authentication
             if (!description.IsMasterResult.HasSaslSupportedMechs
                 && Feature.ScramSha256Authentication.IsSupported(description.ServerVersion))
             {
-                var command = CustomizeInitialIsMasterCommand(HelloHelper.CreateCommand());
+                var command = CustomizeInitialIsMasterCommand(HelloHelper.CreateCommand(_serverApi));
                 var helloProtocol = HelloHelper.CreateProtocol(command, _serverApi);
                 var helloResult = await HelloHelper.GetResultAsync(connection, helloProtocol, cancellationToken).ConfigureAwait(false);
                 var mergedHelloResult = new IsMasterResult(description.IsMasterResult.Wrapped.Merge(helloResult.Wrapped));

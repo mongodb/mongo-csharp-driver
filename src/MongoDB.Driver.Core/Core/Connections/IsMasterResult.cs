@@ -293,7 +293,8 @@ namespace MongoDB.Driver.Core.Connections
 
                 if (_wrapped.Contains("setName"))
                 {
-                    if (_wrapped.GetValue("ismaster", false).ToBoolean())
+                    if (_wrapped.GetValue("isWritablePrimary", false).ToBoolean() ||
+                        _wrapped.GetValue(OppressiveLanguageConstants.LegacyHelloResponseIsWritablePrimaryFieldName, false).ToBoolean())
                     {
                         return ServerType.ReplicaSetPrimary;
                     }

@@ -188,7 +188,14 @@ namespace MongoDB.Driver.Core.WireProtocol
             {
                 _cachedConnectionId = connection.ConnectionId;
                 var serverVersion = connection.Description?.ServerVersion;
-                if (serverVersion != null && Feature.CommandMessage.IsSupported(serverVersion))
+                // If server API versioning has been requested, then we SHOULD send the initial hello command
+                // using OP_MSG. Since this is the first message and buildInfo hasn't been sent yet,
+                // connection.Description will be null and we can't rely on the semver check to determine if
+                // the server supports OP_MSG.
+                // As well since server API versioning is supported on MongoDB 5.0+, we also know that
+                // OP_MSG will be supported regardless and can skip the semver checks for other messages.
+                if (_serverApi != null ||
+                    (serverVersion != null && Feature.CommandMessage.IsSupported(serverVersion)))
                 {
                     return _cachedWireProtocol = CreateCommandUsingCommandMessageWireProtocol();
                 }
