@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -70,12 +71,11 @@ namespace MongoDB.Bson.TestHelpers
             }
         }
 
-        public static object Invoke<T1, T2>(object obj, string name, T1 arg1, T2 arg2)
+        public static object Invoke<T1, T2>(object obj, string name, T1 arg1, T2 arg2, BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance, bool checkBaseClass = false)
         {
             var parameterTypes = new[] { typeof(T1), typeof(T2) };
-            var methodInfo = obj.GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
-                .Where(m => m.Name == name && m.GetParameters().Select(p => p.ParameterType).SequenceEqual(parameterTypes))
-                .Single();
+           
+            var methodInfo = GetDeclaredOrInheritedMethod(obj.GetType(), name, flags, parameterTypes, checkBaseClass);
             try
             {
                 return methodInfo.Invoke(obj, new object[] { arg1, arg2 });
@@ -106,6 +106,32 @@ namespace MongoDB.Bson.TestHelpers
                 var result = methodInfo.Invoke(obj, arguments);
                 arg1 = (T1)arguments[0];
                 arg2 = (T2)arguments[1];
+                return result;
+            }
+            catch (TargetInvocationException exception)
+            {
+                throw exception.InnerException;
+            }
+        }
+
+        public static object Invoke<T1, T2, T3, T4>(object obj, string name, T1 arg1, T2 arg2, T3 arg3, out T4 arg4)
+        {
+            arg4 = default;
+            var parameterTypes = new[] { typeof(T1), typeof(T2), typeof(T3), typeof(T4) }.Select(t => t.FullName);
+            var methodInfo = obj
+                .GetType()
+                .GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
+                .Where(m =>
+                    m.Name == name &&
+                    m.GetParameters()
+                        .Select(p => p.ParameterType.FullName.TrimEnd('&'))
+                        .SequenceEqual(parameterTypes))
+                .Single();
+            try
+            {
+                var arguments = new object[] { arg1, arg2, arg3, arg4 };
+                var result = methodInfo.Invoke(obj, arguments);
+                arg4 = (T4)arguments[3];
                 return result;
             }
             catch (TargetInvocationException exception)
@@ -228,6 +254,24 @@ namespace MongoDB.Bson.TestHelpers
                 type == null ?
                     null :
                     type.GetField(name, bindingFlags) ?? GetDeclaredOrInheritedField(type.GetTypeInfo().BaseType, name, bindingFlags);
+        }
+
+        private static MethodInfo GetDeclaredOrInheritedMethod(Type type, string name, BindingFlags bindingFlags, Type[] parameterTypes, bool checkBaseClass = false)
+        {
+            if (type == null)
+            {
+               throw new InvalidFilterCriteriaException($"The method name {name} has not been found in {type.Name}.");
+            }
+
+            var methodInfo = GetMethods(type).SingleOrDefault();
+            return methodInfo == null && checkBaseClass
+                ? GetDeclaredOrInheritedMethod(type.GetTypeInfo().BaseType, name, bindingFlags, parameterTypes, checkBaseClass)
+                : methodInfo;
+
+            IEnumerable<MethodInfo> GetMethods(Type type) =>
+                type
+                    .GetMethods(bindingFlags)
+                    .Where(m => m.Name == name && m.GetParameters().Select(p => p.ParameterType).SequenceEqual(parameterTypes));
         }
     }
 }

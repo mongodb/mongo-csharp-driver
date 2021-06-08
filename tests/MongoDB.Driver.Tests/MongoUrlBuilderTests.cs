@@ -1130,6 +1130,7 @@ namespace MongoDB.Driver.Tests
             subject.LoadBalanced = value;
         }
 
+
         [Theory]
         [InlineData(null, "mongodb://localhost", new[] { "" })]
         [InlineData(500, "mongodb://localhost/?localThreshold{0}", new[] { "=500ms", "=0.5", "=0.5s", "=00:00:00.5", "MS=500" })]

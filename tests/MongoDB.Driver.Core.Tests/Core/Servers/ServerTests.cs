@@ -18,7 +18,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -50,6 +49,7 @@ namespace MongoDB.Driver.Core.Servers
         private ClusterId _clusterId;
 #pragma warning disable CS0618 // Type or member is obsolete
         private ClusterConnectionMode _clusterConnectionMode;
+        private ConnectionId _connectionId;
         private ConnectionModeSwitch _connectionModeSwitch;
 #pragma warning restore CS0618 // Type or member is obsolete
         private bool? _directConnection;
@@ -61,7 +61,7 @@ namespace MongoDB.Driver.Core.Servers
         private Mock<IServerMonitorFactory> _mockServerMonitorFactory;
         private ServerApi _serverApi;
         private ServerSettings _settings;
-        private Server _subject;
+        private DefaultServer _subject;
 
         public ServerTests()
         {
@@ -90,7 +90,8 @@ namespace MongoDB.Driver.Core.Servers
             _serverApi = new ServerApi(ServerApiVersion.V1, true, true);
             _settings = new ServerSettings(heartbeatInterval: Timeout.InfiniteTimeSpan);
 
-            _subject = new Server(_clusterId, _clusterClock, _clusterConnectionMode, _connectionModeSwitch, _directConnection, _settings, _endPoint, _mockConnectionPoolFactory.Object, _mockServerMonitorFactory.Object, _capturedEvents, _serverApi);
+            _subject = new DefaultServer(_clusterId, _clusterClock, _clusterConnectionMode, _connectionModeSwitch, _directConnection, _settings, _endPoint, _mockConnectionPoolFactory.Object, _mockServerMonitorFactory.Object, _capturedEvents, _serverApi);
+            _connectionId = new ConnectionId(_subject.ServerId);
         }
 
         [Theory]
@@ -118,7 +119,7 @@ namespace MongoDB.Driver.Core.Servers
         [Fact]
         public void Constructor_should_not_throw_when_serverApi_is_null()
         {
-            Action act = () => new Server(_clusterId, _clusterClock, _clusterConnectionMode, _connectionModeSwitch, _directConnection, _settings, _endPoint, _mockConnectionPoolFactory.Object, _mockServerMonitorFactory.Object, _capturedEvents, null);
+            Action act = () => new DefaultServer(_clusterId, _clusterClock, _clusterConnectionMode, _connectionModeSwitch, _directConnection, _settings, _endPoint, _mockConnectionPoolFactory.Object, _mockServerMonitorFactory.Object, _capturedEvents, null);
 
             act.ShouldNotThrow();
         }
@@ -126,7 +127,7 @@ namespace MongoDB.Driver.Core.Servers
         [Fact]
         public void Constructor_should_throw_when_settings_is_null()
         {
-            Action act = () => new Server(_clusterId, _clusterClock, _clusterConnectionMode, _connectionModeSwitch, _directConnection, null, _endPoint, _mockConnectionPoolFactory.Object, _mockServerMonitorFactory.Object, _capturedEvents, _serverApi);
+            Action act = () => new DefaultServer(_clusterId, _clusterClock, _clusterConnectionMode, _connectionModeSwitch, _directConnection, null, _endPoint, _mockConnectionPoolFactory.Object, _mockServerMonitorFactory.Object, _capturedEvents, _serverApi);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -134,7 +135,7 @@ namespace MongoDB.Driver.Core.Servers
         [Fact]
         public void Constructor_should_throw_when_clusterId_is_null()
         {
-            Action act = () => new Server(null, _clusterClock, _clusterConnectionMode, _connectionModeSwitch, _directConnection, _settings, _endPoint, _mockConnectionPoolFactory.Object, _mockServerMonitorFactory.Object, _capturedEvents, _serverApi);
+            Action act = () => new DefaultServer(null, _clusterClock, _clusterConnectionMode, _connectionModeSwitch, _directConnection, _settings, _endPoint, _mockConnectionPoolFactory.Object, _mockServerMonitorFactory.Object, _capturedEvents, _serverApi);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -142,7 +143,7 @@ namespace MongoDB.Driver.Core.Servers
         [Fact]
         public void Constructor_should_throw_when_clusterClock_is_null()
         {
-            Action act = () => new Server(_clusterId, null, _clusterConnectionMode, _connectionModeSwitch, _directConnection, _settings, _endPoint, _mockConnectionPoolFactory.Object, _mockServerMonitorFactory.Object, _capturedEvents, _serverApi);
+            Action act = () => new DefaultServer(_clusterId, null, _clusterConnectionMode, _connectionModeSwitch, _directConnection, _settings, _endPoint, _mockConnectionPoolFactory.Object, _mockServerMonitorFactory.Object, _capturedEvents, _serverApi);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -150,7 +151,7 @@ namespace MongoDB.Driver.Core.Servers
         [Fact]
         public void Constructor_should_throw_when_endPoint_is_null()
         {
-            Action act = () => new Server(_clusterId, _clusterClock, _clusterConnectionMode, _connectionModeSwitch, _directConnection, _settings, null, _mockConnectionPoolFactory.Object, _mockServerMonitorFactory.Object, _capturedEvents, _serverApi);
+            Action act = () => new DefaultServer(_clusterId, _clusterClock, _clusterConnectionMode, _connectionModeSwitch, _directConnection, _settings, null, _mockConnectionPoolFactory.Object, _mockServerMonitorFactory.Object, _capturedEvents, _serverApi);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -158,7 +159,7 @@ namespace MongoDB.Driver.Core.Servers
         [Fact]
         public void Constructor_should_throw_when_connectionPoolFactory_is_null()
         {
-            Action act = () => new Server(_clusterId, _clusterClock, _clusterConnectionMode, _connectionModeSwitch, _directConnection, _settings, _endPoint, null, _mockServerMonitorFactory.Object, _capturedEvents, _serverApi);
+            Action act = () => new DefaultServer(_clusterId, _clusterClock, _clusterConnectionMode, _connectionModeSwitch, _directConnection, _settings, _endPoint, null, _mockServerMonitorFactory.Object, _capturedEvents, _serverApi);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -166,7 +167,7 @@ namespace MongoDB.Driver.Core.Servers
         [Fact]
         public void Constructor_should_throw_when_serverMonitorFactory_is_null()
         {
-            Action act = () => new Server(_clusterId, _clusterClock, _clusterConnectionMode, _connectionModeSwitch, _directConnection, _settings, _endPoint, _mockConnectionPoolFactory.Object, null, _capturedEvents, _serverApi);
+            Action act = () => new DefaultServer(_clusterId, _clusterClock, _clusterConnectionMode, _connectionModeSwitch, _directConnection, _settings, _endPoint, _mockConnectionPoolFactory.Object, null, _capturedEvents, _serverApi);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -174,7 +175,7 @@ namespace MongoDB.Driver.Core.Servers
         [Fact]
         public void Constructor_should_throw_when_eventSubscriber_is_null()
         {
-            Action act = () => new Server(_clusterId, _clusterClock, _clusterConnectionMode, _connectionModeSwitch, _directConnection, _settings, _endPoint, _mockConnectionPoolFactory.Object, _mockServerMonitorFactory.Object, null, _serverApi);
+            Action act = () => new DefaultServer(_clusterId, _clusterClock, _clusterConnectionMode, _connectionModeSwitch, _directConnection, _settings, _endPoint, _mockConnectionPoolFactory.Object, _mockServerMonitorFactory.Object, null, _serverApi);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -216,7 +217,7 @@ namespace MongoDB.Driver.Core.Servers
                 .Setup(f => f.CreateConnectionPool(It.IsAny<ServerId>(), _endPoint))
                 .Returns(mockConnectionPool.Object);
 
-            var server = new Server(
+            var server = new DefaultServer(
                 _clusterId,
                 _clusterClock,
                 _clusterConnectionMode,
@@ -391,7 +392,7 @@ namespace MongoDB.Driver.Core.Servers
             var mockServerMonitorFactory = new Mock<IServerMonitorFactory>();
             mockServerMonitorFactory.Setup(f => f.Create(It.IsAny<ServerId>(), _endPoint)).Returns(mockServerMonitor.Object);
 
-            var subject = new Server(_clusterId, _clusterClock, _clusterConnectionMode, _connectionModeSwitch, _directConnection, _settings, _endPoint, mockConnectionPoolFactory.Object, mockServerMonitorFactory.Object, _capturedEvents, _serverApi);
+            var subject = new DefaultServer(_clusterId, _clusterClock, _clusterConnectionMode, _connectionModeSwitch, _directConnection, _settings, _endPoint, mockConnectionPoolFactory.Object, mockServerMonitorFactory.Object, _capturedEvents, _serverApi);
             subject.Initialize();
 
             IChannelHandle channel = null;
@@ -452,7 +453,7 @@ namespace MongoDB.Driver.Core.Servers
             mockServerMonitor.SetupGet(m => m.Lock).Returns(new object());
             var mockServerMonitorFactory = new Mock<IServerMonitorFactory>();
             mockServerMonitorFactory.Setup(f => f.Create(It.IsAny<ServerId>(), _endPoint)).Returns(mockServerMonitor.Object);
-            var subject = new Server(_clusterId, _clusterClock, _clusterConnectionMode, _connectionModeSwitch, _directConnection, _settings, _endPoint, mockConnectionPoolFactory.Object, mockServerMonitorFactory.Object, _capturedEvents, _serverApi);
+            var subject = new DefaultServer (_clusterId, _clusterClock, _clusterConnectionMode, _connectionModeSwitch, _directConnection, _settings, _endPoint, mockConnectionPoolFactory.Object, mockServerMonitorFactory.Object, _capturedEvents, _serverApi);
             subject.Initialize();
             var heartbeatDescription = mockMonitorServerInitialDescription.With(reasonChanged: "Heartbeat", type: ServerType.Standalone);
             mockServerMonitor.Setup(m => m.Description).Returns(heartbeatDescription);
@@ -519,22 +520,29 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         [Theory]
-        [InlineData(null, false)]
-        [InlineData((ServerErrorCode)1, false)]
-        [InlineData(ServerErrorCode.LegacyNotPrimary, true)]
-        [InlineData(ServerErrorCode.NotMaster, true)]
-        [InlineData(ServerErrorCode.NotMasterNoSlaveOk, true)]
-        [InlineData(ServerErrorCode.NotMasterOrSecondary, false)]
-        internal void IsNotMaster_should_return_expected_result_for_code(ServerErrorCode? code, bool expectedResult)
+        [InlineData(null, false, null)]
+        [InlineData((ServerErrorCode)1, false, null)]
+        [InlineData(ServerErrorCode.LegacyNotPrimary, true, typeof(MongoNotPrimaryException))]
+        [InlineData(ServerErrorCode.NotMaster, true, typeof(MongoNotPrimaryException))]
+        [InlineData(ServerErrorCode.NotMasterNoSlaveOk, true, typeof(MongoNotPrimaryException))]
+        [InlineData(ServerErrorCode.NotMasterOrSecondary, false, typeof(MongoNodeIsRecoveringException))]
+        internal void IsNotMaster_should_return_expected_result_for_code(ServerErrorCode? code, bool expectedResult, Type expectedExceptionType)
         {
-            _subject.Initialize();
-
-            var result = _subject.IsNotMaster(code, null);
-
-            result.Should().Be(expectedResult);
-            if (result)
+            var commandResult = new BsonDocument
             {
-                _subject.IsRecovering(code, null).Should().BeFalse();
+                { "ok", 0 },
+                { "code", code, code != null }
+            };
+
+            var exception = ExceptionMapper.MapNotPrimaryOrNodeIsRecovering(_connectionId, new BsonDocument(), commandResult, "errmsg");
+
+            if (expectedExceptionType != null)
+            {
+                exception.Should().BeOfType(expectedExceptionType);
+            }
+            else
+            {
+                exception.Should().BeNull();
             }
         }
 
@@ -544,28 +552,39 @@ namespace MongoDB.Driver.Core.Servers
             var code = (ServerErrorCode)1;
             var message = "not master";
 
-            _subject.Initialize();
+            var commandResult = new BsonDocument
+            {
+                { "ok", 0 },
+                { "code", code }, // code takes precedence over errmsg
+                { "errmsg", message }
+            };
+            var exception = ExceptionMapper.MapNotPrimaryOrNodeIsRecovering(_connectionId, new BsonDocument(), commandResult, "errmsg");
 
-            var result = _subject.IsNotMaster(code, message);
-
-            result.Should().BeFalse();
+            exception.Should().BeNull();
         }
         
         [Theory]
-        [InlineData(null, false)]
-        [InlineData("abc", false)]
-        [InlineData("not master", true)]
-        [InlineData("not master or secondary", false)]
-        internal void IsNotMaster_should_return_expected_result_for_message(string message, bool expectedResult)
+        [InlineData(null, false, null)]
+        [InlineData("abc", false, null)]
+        [InlineData("not master", true, typeof(MongoNotPrimaryException))]
+        [InlineData("not master or secondary", false, typeof(MongoNodeIsRecoveringException))]
+        internal void IsNotMaster_should_return_expected_result_for_message(string message, bool expectedResult, Type expectedException)
         {
-            _subject.Initialize();
-
-            var result = _subject.IsNotMaster(null, message);
-
-            result.Should().Be(expectedResult);
-            if (result)
+            var commandResult = new BsonDocument
             {
-                _subject.IsRecovering(null, message).Should().BeFalse();
+                { "ok", 0 },
+                { "errmsg", message, message != null }
+            };
+
+            var exception = ExceptionMapper.MapNotPrimaryOrNodeIsRecovering(_connectionId, new BsonDocument(), commandResult, "errmsg");
+
+            if (expectedException != null)
+            {
+                exception.Should().BeOfType(expectedException);
+            }
+            else
+            {
+                exception.Should().BeNull();
             }
         }
 
@@ -574,11 +593,13 @@ namespace MongoDB.Driver.Core.Servers
         [InlineData((ServerErrorCode)1, false)]
         [InlineData(ServerErrorCode.NotMaster, true)]
         [InlineData(ServerErrorCode.InterruptedAtShutdown, true)]
-        internal void IsStateChangeError_should_return_expected_result(ServerErrorCode? code, bool expectedResult)
+        internal void IsStateChangeException_should_return_expected_result(ServerErrorCode? code, bool expectedResult)
         {
             _subject.Initialize();
 
-            var result = _subject.IsStateChangeError(code, null);
+            var mappedException = ExceptionMapper.MapNotPrimaryOrNodeIsRecovering(_connectionId, new BsonDocument(), new BsonDocument("code", code), "dummy");
+
+            var result = _subject.IsStateChangeException(mappedException);
 
             result.Should().Be(expectedResult);
         }
@@ -593,14 +614,21 @@ namespace MongoDB.Driver.Core.Servers
         [InlineData(ServerErrorCode.ShutdownInProgress, true)]
         internal void IsRecovering_should_return_expected_result_for_code(ServerErrorCode? code, bool expectedResult)
         {
-            _subject.Initialize();
-
-            var result = _subject.IsRecovering(code, null);
-
-            result.Should().Be(expectedResult);
-            if (result)
+            var commandResult = new BsonDocument
             {
-                _subject.IsNotMaster(code, null).Should().BeFalse();
+                { "ok", 0 },
+                { "code", code }
+            };
+
+            var exception = ExceptionMapper.MapNotPrimaryOrNodeIsRecovering(_connectionId, new BsonDocument(), commandResult, "errmsg");
+
+            if (expectedResult)
+            {
+                exception.Should().BeOfType<MongoNodeIsRecoveringException>();
+            }
+            else
+            {
+                exception.Should().BeNull();
             }
         }
 
@@ -610,11 +638,15 @@ namespace MongoDB.Driver.Core.Servers
             var code = (ServerErrorCode)1;
             var message = "not master or secondary";
 
-            _subject.Initialize();
+            var commandResult = new BsonDocument
+            {
+                { "ok", 0 },
+                { "code", code }, // code takes precedence over errmsg
+                { "errmsg", message }
+            };
+            var exception = ExceptionMapper.MapNotPrimaryOrNodeIsRecovering(_connectionId, new BsonDocument(), commandResult, "errmsg");
 
-            var result = _subject.IsRecovering(code, message);
-
-            result.Should().BeFalse();
+            exception.Should().BeNull();
         }
 
         [Theory]
@@ -624,14 +656,20 @@ namespace MongoDB.Driver.Core.Servers
         [InlineData("not master or secondary", true)]
         internal void IsRecovering_should_return_expected_result_for_message(string message, bool expectedResult)
         {
-            _subject.Initialize();
-
-            var result = _subject.IsRecovering(null, message);
-
-            result.Should().Be(expectedResult);
-            if (result)
+            var commandResult = new BsonDocument
             {
-                _subject.IsNotMaster(null, message).Should().BeFalse();
+                { "ok", 0 },
+                { "errmsg", message, message != null }
+            };
+            var exception = ExceptionMapper.MapNotPrimaryOrNodeIsRecovering(_connectionId, new BsonDocument(), commandResult, "errmsg");
+
+            if (expectedResult)
+            {
+                exception.Should().BeOfType<MongoNodeIsRecoveringException>();
+            }
+            else
+            {
+                exception.Should().BeNull();
             }
         }
 
@@ -676,7 +714,7 @@ namespace MongoDB.Driver.Core.Servers
                 default: throw new Exception($"Invalid exceptionTypeName: {exceptionTypeName}.");
             }
 
-            var result = _subject.ShouldInvalidateServer(new Mock<IConnectionHandle>().Object, exception, new ServerDescription(_subject.ServerId, _subject.EndPoint), out _);
+            var result = _subject.ShouldInvalidateServer(Mock.Of<IConnection>(), exception, new ServerDescription(_subject.ServerId, _subject.EndPoint), out _);
 
             result.Should().Be(expectedResult);
         }
@@ -704,9 +742,11 @@ namespace MongoDB.Driver.Core.Servers
                 { "code", () => (int)code.Value, code.HasValue },
                 { "errmsg", message, message != null }
             };
-            var exception = new MongoCommandException(connectionId, "message", command, commandResult);
+            var exception =
+                ExceptionMapper.MapNotPrimaryOrNodeIsRecovering(connectionId, command, commandResult, "errmsg") ??
+                new MongoCommandException(connectionId, "message", command, commandResult); // this needs for cases when we have just a random exception
 
-            var result = _subject.ShouldInvalidateServer(new Mock<IConnectionHandle>().Object, exception, new ServerDescription(_subject.ServerId, _subject.EndPoint), out _);
+            var result = _subject.ShouldInvalidateServer(Mock.Of<IConnection>(), exception, new ServerDescription(_subject.ServerId, _subject.EndPoint), out _);
 
             result.Should().Be(expectedResult);
         }
@@ -741,7 +781,7 @@ namespace MongoDB.Driver.Core.Servers
             var writeConcernResult = new WriteConcernResult(commandResult);
             var exception = new MongoWriteConcernException(connectionId, "message", writeConcernResult);
 
-            var result = _subject.ShouldInvalidateServer(new Mock<IConnectionHandle>().Object, exception, new ServerDescription(_subject.ServerId, _subject.EndPoint), out _);
+            var result = _subject.ShouldInvalidateServer(Mock.Of<IConnection>(), exception, new ServerDescription(_subject.ServerId, _subject.EndPoint), out _);
 
             result.Should().Be(expectedResult);
         }
@@ -793,7 +833,7 @@ namespace MongoDB.Driver.Core.Servers
                 .Setup(f => f.CreateConnectionPool(It.IsAny<ServerId>(), _endPoint))
                 .Returns(mockConnectionPool.Object);
 
-            var server = new Server(
+            var server = new DefaultServer(
                 _clusterId,
                 _clusterClock,
                 _clusterConnectionMode,
@@ -969,38 +1009,23 @@ namespace MongoDB.Driver.Core.Servers
 
     internal static class ServerReflector
     {
-        public static void HandleChannelException(this Server server, IConnection connection, Exception ex)
+        public static void HandleChannelException(this DefaultServer server, IConnection connection, Exception ex)
         {
-            Reflector.Invoke(server, nameof(HandleChannelException), connection, ex);
+            Reflector.Invoke(server, nameof(HandleChannelException), connection, ex, checkBaseClass: true);
         }
 
-        public static bool IsNotMaster(this Server server, ServerErrorCode? code, string message)
+        public static bool IsStateChangeException(this DefaultServer server, Exception exception)
         {
-            return (bool)Reflector.Invoke(server, nameof(IsNotMaster), code, message);
+            return (bool)Reflector.Invoke(server, nameof(IsStateChangeException), exception);
         }
 
-        public static bool IsStateChangeError(this Server server, ServerErrorCode? code, string message)
-        {
-            return (bool)Reflector.Invoke(server, nameof(IsStateChangeError), code, message);
-        }
-
-        public static bool IsRecovering(this Server server, ServerErrorCode? code, string message)
-        {
-            return (bool)Reflector.Invoke(server, nameof(IsRecovering), code, message);
-        }
-
-        public static bool ShouldInvalidateServer(this Server server,
-            IConnectionHandle connection,
+        public static bool ShouldInvalidateServer(this DefaultServer server,
+            IConnection connection,
             Exception exception,
             ServerDescription description,
             out TopologyVersion responseTopologyVersion)
         {
-            var methodInfo = typeof(Server).GetMethod(nameof(ShouldInvalidateServer), BindingFlags.NonPublic | BindingFlags.Instance);
-            var parameters = new object[] { connection, exception, description, null };
-            int outParameterIndex = Array.IndexOf(parameters, null);
-            var shouldInvalidate = (bool)methodInfo.Invoke(server, parameters);
-            responseTopologyVersion = (TopologyVersion)parameters[outParameterIndex];
-            return shouldInvalidate;
+            return (bool)Reflector.Invoke(server, nameof(ShouldInvalidateServer), connection, exception, description, out responseTopologyVersion);
         }
     }
 }

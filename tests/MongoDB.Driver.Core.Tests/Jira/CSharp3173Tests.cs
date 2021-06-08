@@ -263,7 +263,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
         private void ForceClusterId(MultiServerCluster cluster, ClusterId clusterId)
         {
             Reflector.SetFieldValue(cluster, "_clusterId", clusterId);
-            Reflector.SetFieldValue(cluster, "_description", ClusterDescription.CreateInitial(clusterId, __clusterConnectionMode, __connectionModeSwitch, __directConnection));
+            Reflector.SetFieldValue(cluster, "_description", ClusterDescription.CreateInitial(clusterId, __clusterConnectionMode, __connectionModeSwitch, __directConnection, loadBalanced: false));
         }
 
         private void SetupServerMonitorConnection(

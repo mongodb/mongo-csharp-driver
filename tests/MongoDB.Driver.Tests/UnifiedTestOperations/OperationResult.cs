@@ -21,38 +21,35 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
     public class OperationResult
     {
-        private IEnumerator<ChangeStreamDocument<BsonDocument>> _changeStream;
-        private Exception _exception;
-        private BsonValue _result;
+        private readonly IEnumerator<ChangeStreamDocument<BsonDocument>> _changeStream;
+        private readonly IEnumerator<BsonDocument> _cursor;
+        private readonly Exception _exception;
+        private readonly BsonValue _result;
 
-        private OperationResult()
+        private OperationResult(
+            IEnumerator<ChangeStreamDocument<BsonDocument>> changeStream = null,
+            IEnumerator<BsonDocument> cursor = null,
+            Exception exception = null,
+            BsonValue result = null)
         {
+            _changeStream = changeStream;
+            _cursor = cursor;
+            _exception = exception;
+            _result = result;
         }
 
-        public static OperationResult FromChangeStream(IEnumerator<ChangeStreamDocument<BsonDocument>> changeStream)
-        {
-            return new OperationResult
-            {
-                _changeStream = changeStream
-            };
-        }
+        public static OperationResult Empty() => new OperationResult();
 
-        public static OperationResult FromException(Exception exception)
-        {
-            return new OperationResult
-            {
-                _exception = exception
-            };
-        }
+        public static OperationResult FromChangeStream(IEnumerator<ChangeStreamDocument<BsonDocument>> changeStream) =>
+            new OperationResult(changeStream: changeStream);
 
-        public static OperationResult FromResult(BsonValue result)
-        {
-            return new OperationResult
-            {
-                _result = result
-            };
-        }
+        public static OperationResult FromCursor(IEnumerator<BsonDocument> cursor) => new OperationResult(cursor: cursor);
 
+        public static OperationResult FromException(Exception exception) => new OperationResult(exception: exception);
+
+        public static OperationResult FromResult(BsonValue result) => new OperationResult(result: result);
+
+        public IEnumerator<BsonDocument> Cursor => _cursor;
         public IEnumerator<ChangeStreamDocument<BsonDocument>> ChangeStream => _changeStream;
         public Exception Exception => _exception;
         public BsonValue Result => _result;

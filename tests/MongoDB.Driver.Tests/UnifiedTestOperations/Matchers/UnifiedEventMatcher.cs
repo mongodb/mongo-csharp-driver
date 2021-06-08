@@ -156,7 +156,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                         actualEventsDocuments.Add(new BsonDocument("commandFailedEvent", commandFailedDocument));
                         break;
                     default:
-                        throw new FormatException($"Unrecognized event type: '{actualEvent.GetType()}'.");
+                        actualEventsDocuments.Add(new BsonDocument(actualEvent.GetType().Name, actualEvent.ToString()));
+                        break;
                 }
             }
 

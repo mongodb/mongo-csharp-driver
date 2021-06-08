@@ -89,6 +89,7 @@ namespace MongoDB.Driver.Core.Clusters
             _settings = Ensure.IsNotNull(settings, nameof(settings));
             _serverFactory = Ensure.IsNotNull(serverFactory, nameof(serverFactory));
             Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
+            Ensure.That(!_settings.LoadBalanced, "LoadBalanced mode is not supported.");
             _state = new InterlockedInt32(State.Initial);
             _rapidHeartbeatTimerCallbackState = new InterlockedInt32(RapidHeartbeatTimerCallbackState.NotRunning);
 
@@ -112,7 +113,12 @@ namespace MongoDB.Driver.Core.Clusters
                 var connectionModeSwitch = _settings.ConnectionModeSwitch;
                 var clusterConnectionMode = connectionModeSwitch == ConnectionModeSwitch.UseConnectionMode ? _settings.ConnectionMode : default;
                 var directConnection = connectionModeSwitch == ConnectionModeSwitch.UseDirectConnection ? _settings.DirectConnection : default;
-                return ClusterDescription.CreateInitial(_clusterId, clusterConnectionMode, _settings.ConnectionModeSwitch, directConnection);
+                return ClusterDescription.CreateInitial(
+                    _clusterId,
+                    clusterConnectionMode,
+                    _settings.ConnectionModeSwitch,
+                    directConnection,
+                    _settings.LoadBalanced);
 #pragma warning restore CS0618 // Type or member is obsolete
             }
         }
@@ -155,7 +161,7 @@ namespace MongoDB.Driver.Core.Clusters
 
         protected IClusterableServer CreateServer(EndPoint endPoint)
         {
-            return _serverFactory.CreateServer(_clusterId, _clusterClock, endPoint);
+            return _serverFactory.CreateServer(_settings.GetInitialClusterType(), _clusterId, _clusterClock, endPoint);
         }
 
         public void Dispose()
@@ -178,6 +184,7 @@ namespace MongoDB.Driver.Core.Clusters
                     connectionMode,
                     connectionModeSwitch,
                     directConnection,
+                    _settings.LoadBalanced,
                     dnsMonitorException: null,
                     ClusterType.Unknown,
                     Enumerable.Empty<ServerDescription>());

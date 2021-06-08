@@ -55,10 +55,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
                 return servers;
             }
 
-            return servers.Where(x =>
-                x.Type == ServerType.ReplicaSetPrimary ||
-                x.Type == ServerType.ShardRouter ||
-                x.Type == ServerType.Standalone);
+            return servers.Where(x => x.Type.IsWritable());
         }
 
         /// <inheritdoc/>

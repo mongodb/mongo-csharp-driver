@@ -13,16 +13,15 @@
 * limitations under the License.
 */
 
-#if !NETCOREAPP1_1
-using System.IO;
-#endif
+using System;
 using System.Net;
 #if !NETCOREAPP1_1
+using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using MongoDB.Bson.TestHelpers.EqualityComparers;
 #endif
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers.EqualityComparers;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Servers;
@@ -47,6 +46,52 @@ namespace MongoDB.Driver
             subject.Message.Should().BeSameAs(_message);
             subject.Result.Should().Be(_writeConcernResult.Response);
             subject.WriteConcernResult.Should().Be(_writeConcernResult);
+        }
+
+        [Theory]
+        [InlineData(ServerErrorCode.LegacyNotPrimary, typeof(MongoNotPrimaryException))]
+        [InlineData(ServerErrorCode.NotMaster, typeof(MongoNotPrimaryException))]
+        [InlineData(ServerErrorCode.NotMasterNoSlaveOk, typeof(MongoNotPrimaryException))]
+        [InlineData("not master", typeof(MongoNotPrimaryException))]
+        [InlineData(ServerErrorCode.InterruptedAtShutdown, typeof(MongoNodeIsRecoveringException))] // IsShutdownError
+        [InlineData(ServerErrorCode.ShutdownInProgress, typeof(MongoNodeIsRecoveringException))] // IsShutdownError
+        [InlineData(ServerErrorCode.InterruptedDueToReplStateChange, typeof(MongoNodeIsRecoveringException))]
+        [InlineData(ServerErrorCode.NotMasterOrSecondary, typeof(MongoNodeIsRecoveringException))]
+        [InlineData(ServerErrorCode.PrimarySteppedDown, typeof(MongoNodeIsRecoveringException))]
+        [InlineData("not master or secondary", typeof(MongoNodeIsRecoveringException))]
+        [InlineData("node is recovering", typeof(MongoNodeIsRecoveringException))]
+        [InlineData(ServerErrorCode.MaxTimeMSExpired, typeof(MongoExecutionTimeoutException))]
+        [InlineData(13475, typeof(MongoExecutionTimeoutException))]
+        [InlineData(16986, typeof(MongoExecutionTimeoutException))]
+        [InlineData(16712, typeof(MongoExecutionTimeoutException))]
+        [InlineData("exceeded time limit", typeof(MongoExecutionTimeoutException))]
+        [InlineData("execution terminated", typeof(MongoExecutionTimeoutException))]
+        [InlineData(-1, null)]
+        [InlineData("test", null)]
+        public void constructor_should_should_map_writeConcernResult(object exceptionInfo, Type expectedExceptionType)
+        {
+            var response = new BsonDocument
+            {
+                {
+                    "writeConcernError",
+                    Enum.TryParse<ServerErrorCode>(exceptionInfo.ToString(), out var errorCode)
+                        ? new BsonDocument("code", (int)errorCode)
+                        : new BsonDocument("errmsg", exceptionInfo.ToString())
+                }
+            };
+            var writeConcernResult = new WriteConcernResult(response);
+            var writeConcernException = new MongoWriteConcernException(_connectionId, "dummy", writeConcernResult);
+
+            var result = writeConcernException.MappedWriteConcernResultException;
+
+            if (expectedExceptionType != null)
+            {
+                result.GetType().Should().Be(expectedExceptionType);
+            }
+            else
+            {
+                result.Should().BeNull();
+            }
         }
 
 #if !NETCOREAPP1_1

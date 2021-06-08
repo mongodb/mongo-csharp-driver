@@ -47,18 +47,23 @@ namespace MongoDB.Driver
             result.Result.Should().BeSameAs(_serverResult);
         }
 
-        [Fact]
-        public void constructor_should_initialize_subject_when_result_contains_code()
+        [Theory]
+        [InlineData(ServerErrorCode.InterruptedAtShutdown, true)]
+        [InlineData(ServerErrorCode.ShutdownInProgress, true)]
+        [InlineData(ServerErrorCode.NotMasterOrSecondary, false)]
+        [InlineData(ServerErrorCode.NotMaster, false)]
+        public void constructor_should_initialize_subject_when_result_contains_code(int code, bool isShutdownException)
         {
-            var serverResult = BsonDocument.Parse("{ ok : 0, code : 1234 }");
+            var serverResult = BsonDocument.Parse($"{{ ok : 0, code : {code} }}");
 
             var result = new MongoNodeIsRecoveringException(_connectionId, _command, serverResult);
 
             result.ConnectionId.Should().BeSameAs(_connectionId);
             result.InnerException.Should().BeNull();
-            result.Message.Should().Be("Server returned node is recovering error (code = 1234).");
+            result.Message.Should().Be($"Server returned node is recovering error (code = {code}).");
             result.Command.Should().BeSameAs(_command);
             result.Result.Should().BeSameAs(serverResult);
+            result.IsShutdownError.Should().Be(isShutdownException);
         }
 
         [Fact]

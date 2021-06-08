@@ -79,7 +79,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
 
             var serverFactoryMock = new Mock<IClusterableServerFactory>();
             serverFactoryMock
-                .Setup(f => f.CreateServer(It.IsAny<ClusterId>(), It.IsAny<IClusterClock>(), It.IsAny<EndPoint>()))
+                .Setup(f => f.CreateServer(It.IsAny<ClusterType>(), It.IsAny<ClusterId>(), It.IsAny<IClusterClock>(), It.IsAny<EndPoint>()))
                 .Returns(serverMock.Object);
 
             using (var cluster = new MultiServerCluster(clusterSettings, serverFactoryMock.Object, new EventCapturer()))
@@ -268,7 +268,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
         private void ForceClusterId(MultiServerCluster cluster, ClusterId clusterId)
         {
             Reflector.SetFieldValue(cluster, "_clusterId", clusterId);
-            Reflector.SetFieldValue(cluster, "_description", ClusterDescription.CreateInitial(clusterId, __clusterConnectionMode, __connectionModeSwitch, __directConnection));
+            Reflector.SetFieldValue(cluster, "_description", ClusterDescription.CreateInitial(clusterId, __clusterConnectionMode, __connectionModeSwitch, __directConnection, loadBalanced: false));
         }
 
         private void SetupServerMonitorConnection(

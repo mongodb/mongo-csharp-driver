@@ -15,7 +15,6 @@
 
 using System;
 using System.Collections.Generic;
-using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Servers;
@@ -36,6 +35,13 @@ namespace MongoDB.Driver.Core.TestHelpers
                 connectionModeSwitch = ConnectionModeSwitch.UseConnectionMode;
                 connectionMode = (ClusterConnectionMode)Enum.Parse(typeof(ClusterConnectionMode), connectionModeBson.AsString);
             }
+
+            bool loadBalanced = false;
+            if (args.TryGetValue("loadBalanced", out var loadBalancedBson))
+            {
+                loadBalanced = loadBalancedBson.ToBoolean();
+            }
+
             bool? directConnection = null;
             if (args.TryGetValue("directConnection", out var directConnectionBson))
             {
@@ -74,6 +80,7 @@ namespace MongoDB.Driver.Core.TestHelpers
                 connectionMode,
                 connectionModeSwitch,
                 directConnection,
+                loadBalanced,
                 dnsMonitorException: null,
                 clusterType,
                 servers);

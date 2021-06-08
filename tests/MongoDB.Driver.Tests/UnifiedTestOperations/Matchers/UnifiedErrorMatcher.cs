@@ -67,13 +67,13 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
 
         private void AssertErrorCode(Exception actualException, int expectedErrorCode)
         {
-            var mongoCommandException = actualException.Should().BeOfType<MongoCommandException>().Subject;
+            var mongoCommandException = actualException.Should().BeAssignableTo<MongoCommandException>().Subject;
             mongoCommandException.Code.Should().Be(expectedErrorCode);
         }
 
         private void AssertErrorCodeName(Exception actualException, string expectedErrorCodeName)
         {
-            var mongoCommandException = actualException.Should().BeOfType<MongoCommandException>().Subject;
+            var mongoCommandException = actualException.Should().BeAssignableTo<MongoCommandException>().Subject;
             mongoCommandException.CodeName.Should().Be(expectedErrorCodeName);
         }
 

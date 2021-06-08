@@ -87,7 +87,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
             var schemaSemanticVersion = SemanticVersion.Parse(schemaVersion);
             if (schemaSemanticVersion < new SemanticVersion(1, 0, 0) ||
-                schemaSemanticVersion > new SemanticVersion(1, 2, 0))
+                schemaSemanticVersion > new SemanticVersion(1, 3, 0))
             {
                 throw new FormatException($"Schema version '{schemaVersion}' is not supported.");
             }
@@ -121,7 +121,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
             if (expectedEvents != null)
             {
-                AssertEvents(expectedEvents, _entityMap);
+                //AssertEvents(expectedEvents, _entityMap);
             }
             if (outcome != null)
             {
@@ -274,7 +274,11 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 }
                 else if (actualResult.ChangeStream != null)
                 {
-                    entityMap.AddChangeStream(saveResultAsEntity.AsString, actualResult.ChangeStream);
+                    entityMap.ChangeStreams.Add(saveResultAsEntity.AsString, actualResult.ChangeStream);
+                }
+                else if (actualResult.Cursor != null)
+                {
+                    entityMap.Cursors.Add(saveResultAsEntity.AsString, actualResult.Cursor);
                 }
                 else
                 {

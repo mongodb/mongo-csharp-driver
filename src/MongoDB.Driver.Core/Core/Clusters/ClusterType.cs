@@ -13,12 +13,6 @@
 * limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace MongoDB.Driver.Core.Clusters
 {
     /// <summary>
@@ -44,6 +38,11 @@ namespace MongoDB.Driver.Core.Clusters
         /// <summary>
         /// The cluster is a sharded cluster.
         /// </summary>
-        Sharded
+        Sharded,
+
+        /// <summary>
+        /// The cluster is under load balancing.
+        /// </summary>
+        LoadBalanced
     }
 }

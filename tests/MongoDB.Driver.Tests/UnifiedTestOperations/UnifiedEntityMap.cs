@@ -33,6 +33,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         private readonly Dictionary<string, EventCapturer> _clientEventCapturers;
         private readonly Dictionary<string, DisposableMongoClient> _clients;
         private readonly Dictionary<string, IMongoCollection<BsonDocument>> _collections;
+        private readonly Dictionary<string, IEnumerator<BsonDocument>> _cursors;
         private readonly Dictionary<string, IMongoDatabase> _databases;
         private readonly Dictionary<string, BsonArray> _errorDocuments;
         private bool _disposed;
@@ -50,6 +51,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             Dictionary<string, EventCapturer> clientEventCapturers,
             Dictionary<string, DisposableMongoClient> clients,
             Dictionary<string, IMongoCollection<BsonDocument>> collections,
+            Dictionary<string, IEnumerator<BsonDocument>> cursors,
             Dictionary<string, IMongoDatabase> databases,
             Dictionary<string, BsonArray> errorDocuments,
             Dictionary<string, BsonArray> failureDocuments,
@@ -64,6 +66,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             _clientEventCapturers = clientEventCapturers;
             _clients = clients;
             _collections = collections;
+            _cursors = cursors;
             _databases = databases;
             _errorDocuments = errorDocuments;
             _failureDocuments = failureDocuments;
@@ -75,6 +78,24 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         }
 
         // public properties
+        public Dictionary<string, IEnumerator<ChangeStreamDocument<BsonDocument>>> ChangeStreams
+        {
+            get
+            {
+                ThrowIfDisposed();
+                return _changeStreams;
+            }
+        }
+
+        public Dictionary<string, IEnumerator<BsonDocument>> Cursors
+        {
+            get
+            {
+                ThrowIfDisposed();
+                return _cursors;
+            }
+        }
+
         public Dictionary<string, BsonArray> ErrorDocuments
         {
             get
@@ -120,12 +141,6 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         }
 
         // public methods
-        public void AddChangeStream(string changeStreamId, IEnumerator<ChangeStreamDocument<BsonDocument>> changeStream)
-        {
-            ThrowIfDisposed();
-            _changeStreams.Add(changeStreamId, changeStream);
-        }
-
         public void AddResult(string resultId, BsonValue value)
         {
             ThrowIfDisposed();
@@ -168,12 +183,6 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             return _buckets[bucketId];
         }
 
-        public IEnumerator<ChangeStreamDocument<BsonDocument>> GetChangeStream(string changeStreamId)
-        {
-            ThrowIfDisposed();
-            return _changeStreams[changeStreamId];
-        }
-
         public IMongoClient GetClient(string clientId)
         {
             ThrowIfDisposed();
@@ -214,12 +223,6 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             ThrowIfDisposed();
             return _buckets.ContainsKey(bucketId);
-        }
-
-        public bool HasChangeStream(string changeStreamId)
-        {
-            ThrowIfDisposed();
-            return _changeStreams.ContainsKey(changeStreamId);
         }
 
         public bool HasClient(string clientId)
@@ -272,6 +275,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             var clientEventCapturers = new Dictionary<string, EventCapturer>();
             var clients = new Dictionary<string, DisposableMongoClient>();
             var collections = new Dictionary<string, IMongoCollection<BsonDocument>>();
+            var cursors = new Dictionary<string, IEnumerator<BsonDocument>>();
             var databases = new Dictionary<string, IMongoDatabase>();
             var errorDocumentsMap = new Dictionary<string, BsonArray>();
             var failureDocumentsMap = new Dictionary<string, BsonArray>();
@@ -353,6 +357,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 clientEventCapturers,
                 clients,
                 collections,
+                cursors,
                 databases,
                 errorDocumentsMap,
                 failureDocumentsMap,
@@ -389,6 +394,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
         private (DisposableMongoClient Client, Dictionary<string, EventCapturer> ClientEventCapturers) CreateClient(BsonDocument entity)
         {
+            string appName = null;
             var clientEventCapturers = new Dictionary<string, EventCapturer>();
             string clientId = null;
             var commandNamesToSkipInEvents = new List<string>();
@@ -412,6 +418,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         {
                             switch (option.Name)
                             {
+                                case "appname":
+                                    appName = option.Value.ToString();
+                                    break;
                                 case "retryWrites":
                                     retryWrites = option.Value.AsBoolean;
                                     break;
@@ -519,6 +528,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             var client = DriverTestConfiguration.CreateDisposableClient(
                 settings =>
                 {
+                    settings.ApplicationName = appName;
                     settings.RetryReads = retryReads;
                     settings.RetryWrites = retryWrites;
                     settings.ReadConcern = readConcern;
@@ -569,6 +579,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                             {
                                 case "readConcern":
                                     settings.ReadConcern = ReadConcern.FromBsonDocument(option.Value.AsBsonDocument);
+                                    break;
+                                case "readPreference":
+                                    settings.ReadPreference = ReadPreference.FromBsonDocument(option.Value.AsBsonDocument);
                                     break;
                                 default:
                                     throw new FormatException($"Unrecognized collection option field: '{option.Name}'.");

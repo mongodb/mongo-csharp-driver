@@ -30,69 +30,76 @@ namespace MongoDB.Driver.Core.TestHelpers
         {
             switch (errorType)
             {
-
                 // Exception Types first:
                 case "IOException":
                     return new IOException("Fake IOException.");
 
+                case "AuthException":
+                    {
+                        var clusterId = new ClusterId(1);
+                        var serverId = new ServerId(clusterId, new DnsEndPoint("localhost", 27017));
+                        var connectionId = new ConnectionId(serverId, 1);
+                        return new MongoAuthenticationException(connectionId, "auth failed.");
+                    }
+
                 case "MongoConnectionException":
-                {
+                    {
                         var clusterId = new ClusterId(1);
                         var serverId = new ServerId(clusterId, new DnsEndPoint("localhost", 27017));
                         var connectionId = new ConnectionId(serverId, 1);
                         var message = "Fake MongoConnectionException";
                         var innerException = new Exception();
                         return new MongoConnectionException(connectionId, message, innerException);
-                }
+                    }
 
                 case "MongoConnectionClosedException":
-                {
+                    {
                         var clusterId = new ClusterId(1);
                         var serverId = new ServerId(clusterId, new DnsEndPoint("localhost", 27017));
                         var connectionId = new ConnectionId(serverId, 1);
                         return new MongoConnectionClosedException(connectionId);
-                }
+                    }
 
                 case "MongoCursorNotFoundException":
-                {
+                    {
                         var clusterId = new ClusterId(1);
                         var serverId = new ServerId(clusterId, new DnsEndPoint("localhost", 27017));
                         var connectionId = new ConnectionId(serverId, 1);
                         var cursorId = 1L;
                         var query = new BsonDocument();
                         return new MongoCursorNotFoundException(connectionId, cursorId, query);
-                }
+                    }
 
                 case "MongoNodeIsRecoveringException":
-                {
+                    {
                         var clusterId = new ClusterId(1);
                         var serverId = new ServerId(clusterId, new DnsEndPoint("localhost", 27017));
                         var connectionId = new ConnectionId(serverId, 1);
                         var result = new BsonDocument();
                         return new MongoNodeIsRecoveringException(connectionId, null, result);
-                }
+                    }
 
                 case "MongoNotPrimaryException":
-                {
+                    {
                         var clusterId = new ClusterId(1);
                         var serverId = new ServerId(clusterId, new DnsEndPoint("localhost", 27017));
                         var connectionId = new ConnectionId(serverId, 1);
                         var result = new BsonDocument();
                         return new MongoNotPrimaryException(connectionId, null, result);
-                }
+                    }
 
                 // custom errors next:
                 case "IOExceptionWithNetworkUnreachableSocketException":
-                {
-                    var innerException = CreateException("NetworkUnreachableSocketException");
-                    return new IOException("IoExceptionWithNetworkUnreachableException", innerException);
-                }
+                    {
+                        var innerException = CreateException("NetworkUnreachableSocketException");
+                        return new IOException("IoExceptionWithNetworkUnreachableException", innerException);
+                    }
 
                 case "IOExceptionWithTimedOutSocketException":
-                {
-                    var innerException = CreateException("TimedOutSocketException");
-                    return new IOException("IOExceptionWithTimedOutSocketException", innerException);
-                }
+                    {
+                        var innerException = CreateException("TimedOutSocketException");
+                        return new IOException("IOExceptionWithTimedOutSocketException", innerException);
+                    }
 
                 case "NetworkUnreachableSocketException":
                     return new SocketException((int)SocketError.NetworkUnreachable);
@@ -147,6 +154,5 @@ namespace MongoDB.Driver.Core.TestHelpers
 
             return writeConcernException;
         }
-
     }
 }

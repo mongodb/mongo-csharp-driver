@@ -14,10 +14,6 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using MongoDB.Driver.Core.Clusters;
 
 namespace MongoDB.Driver.Core.Servers
@@ -71,7 +67,12 @@ namespace MongoDB.Driver.Core.Servers
         /// <summary>
         /// The server is a replica set ghost member.
         /// </summary>
-        ReplicaSetGhost
+        ReplicaSetGhost,
+
+        /// <summary>
+        /// The server is under load balancing.
+        /// </summary>
+        LoadBalanced
     }
 
     /// <summary>
@@ -101,6 +102,7 @@ namespace MongoDB.Driver.Core.Servers
                 case ServerType.ReplicaSetPrimary:
                 case ServerType.ShardRouter:
                 case ServerType.Standalone:
+                case ServerType.LoadBalanced:
                     return true;
 
                 default:
@@ -129,6 +131,8 @@ namespace MongoDB.Driver.Core.Servers
                     return ClusterType.Standalone;
                 case ServerType.Unknown:
                     return ClusterType.Unknown;
+                case ServerType.LoadBalanced:
+                    return ClusterType.LoadBalanced;
                 default:
                     var message = string.Format("Invalid server type: {0}.", serverType);
                     throw new ArgumentException(message, "serverType");

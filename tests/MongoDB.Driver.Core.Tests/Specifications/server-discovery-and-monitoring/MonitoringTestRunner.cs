@@ -14,11 +14,8 @@
 */
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -65,7 +62,7 @@ namespace MongoDB.Driver.Specifications.sdam_monitoring
         {
             JsonDrivenHelper.EnsureAllFieldsAreValid(phase, "outcome", "responses");
 
-            var responses = phase["responses"].AsBsonArray;
+            var responses = phase.GetValue("responses", new BsonArray()).AsBsonArray;
             foreach (BsonArray response in responses)
             {
                 ApplyResponse(response);
@@ -244,6 +241,9 @@ namespace MongoDB.Driver.Specifications.sdam_monitoring
                 case "Unknown":
                     actualDescription.Type.Should().Be(ClusterType.Unknown);
                     break;
+                case "LoadBalanced":
+                    actualDescription.Type.Should().Be(ClusterType.LoadBalanced);
+                    break;
                 default:
                     throw new FormatException($"Invalid topology type: \"{expectedType}\".");
             }
@@ -276,6 +276,9 @@ namespace MongoDB.Driver.Specifications.sdam_monitoring
                     break;
                 case "Standalone":
                     actualDescription.Type.Should().Be(ServerType.Standalone);
+                    break;
+                case "LoadBalancer":
+                    actualDescription.Type.Should().Be(ServerType.LoadBalanced);
                     break;
                 default:
                     actualDescription.Type.Should().Be(ServerType.Unknown);
@@ -329,7 +332,8 @@ namespace MongoDB.Driver.Specifications.sdam_monitoring
                 connectionModeSwitch: connectionString.ConnectionModeSwitch,
 #pragma warning restore CS0618
                 endPoints: Optional.Enumerable(connectionString.Hosts),
-                replicaSetName: connectionString.ReplicaSet);
+                replicaSetName: connectionString.ReplicaSet,
+                loadBalanced: connectionString.LoadBalanced);
 #pragma warning disable CS0618
             if (connectionString.ConnectionModeSwitch == ConnectionModeSwitch.UseDirectConnection)
             {

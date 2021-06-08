@@ -158,9 +158,9 @@ namespace MongoDB.Driver.Core.Connections
             return getLastErrorProtocol;
         }
 
-        private BsonDocument CreateInitialIsMasterCommand(IReadOnlyList<IAuthenticator> authenticators)
+        private BsonDocument CreateInitialIsMasterCommand(IReadOnlyList<IAuthenticator> authenticators, bool loadBalanced = false)
         {
-            var command = IsMasterHelper.CreateCommand();
+            var command = IsMasterHelper.CreateCommand(loadBalanced: loadBalanced);
             IsMasterHelper.AddClientDocumentToCommand(command, _clientDocument);
             IsMasterHelper.AddCompressorsToCommand(command, _compressors);
             return IsMasterHelper.CustomizeCommand(command, authenticators);

@@ -14,27 +14,22 @@
 */
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Authentication;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Configuration;
-using MongoDB.Driver.Core.Events.Diagnostics;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
-using Xunit;
 
 namespace MongoDB.Driver
 {
@@ -84,7 +79,8 @@ namespace MongoDB.Driver
                 var version = server.Description.Version;
                 if (version == null)
                 {
-                    throw new InvalidOperationException("ServerDescription.Version is unexpectedly null.");
+                    version = new SemanticVersion(0, 0, 0); // TODO: call buildInfo
+                    //throw new InvalidOperationException("ServerDescription.Version is unexpectedly null.");
                 }
                 return version;
             }

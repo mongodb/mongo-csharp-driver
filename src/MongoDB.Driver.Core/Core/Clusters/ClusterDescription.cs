@@ -31,7 +31,12 @@ namespace MongoDB.Driver.Core.Clusters
         #region static
         // internal static methods
 #pragma warning disable CS0618 // Type or member is obsolete
-        internal static ClusterDescription CreateInitial(ClusterId clusterId, ClusterConnectionMode connectionMode, ConnectionModeSwitch connectionModeSwitch, bool? directConnection)
+        internal static ClusterDescription CreateInitial(
+            ClusterId clusterId,
+            ClusterConnectionMode connectionMode,
+            ConnectionModeSwitch connectionModeSwitch,
+            bool? directConnection,
+            bool loadBalanced)
         {
             return new ClusterDescription(
                 clusterId,
@@ -39,6 +44,7 @@ namespace MongoDB.Driver.Core.Clusters
                 connectionModeSwitch,
                 directConnection,
                 dnsMonitorException: null,
+                loadBalanced: loadBalanced,
                 type: ClusterType.Unknown,
                 servers: Enumerable.Empty<ServerDescription>());
         }
@@ -87,6 +93,7 @@ namespace MongoDB.Driver.Core.Clusters
 #pragma warning restore CS0618 // Type or member is obsolete
         private readonly bool? _directConnection;
         private readonly Exception _dnsMonitorException;
+        private readonly bool _loadBalanced;
         private readonly TimeSpan? _logicalSessionTimeout;
         private readonly IReadOnlyList<ServerDescription> _servers;
         private readonly ClusterType _type;
@@ -124,7 +131,7 @@ namespace MongoDB.Driver.Core.Clusters
             Exception dnsMonitorException,
             ClusterType type,
             IEnumerable<ServerDescription> servers)
-            : this(clusterId, connectionMode, ConnectionModeSwitch.UseConnectionMode, directConnection: null, dnsMonitorException, type, servers)
+            : this(clusterId, connectionMode, ConnectionModeSwitch.UseConnectionMode, directConnection: null, loadBalanced: false, dnsMonitorException, type, servers)
         {
         }
 
@@ -142,7 +149,27 @@ namespace MongoDB.Driver.Core.Clusters
             Exception dnsMonitorException,
             ClusterType type,
             IEnumerable<ServerDescription> servers)
-            : this(clusterId, connectionMode: default, ConnectionModeSwitch.UseDirectConnection, directConnection, dnsMonitorException, type, servers)
+            : this(clusterId, connectionMode: default, ConnectionModeSwitch.UseDirectConnection, directConnection, loadBalanced: false, dnsMonitorException, type, servers)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ClusterDescription" /> class.
+        /// </summary>
+        /// <param name="clusterId">The cluster identifier.</param>
+        /// <param name="directConnection">Whether to make a direct connection.</param>
+        /// <param name="loadBalanced">Whether the load balancing mode is configured.</param>
+        /// <param name="dnsMonitorException">The last DNS monitor exception (null if there was none).</param>
+        /// <param name="type">The type.</param>
+        /// <param name="servers">The servers.</param>
+        public ClusterDescription(
+            ClusterId clusterId,
+            bool? directConnection,
+            bool loadBalanced,
+            Exception dnsMonitorException,
+            ClusterType type,
+            IEnumerable<ServerDescription> servers)
+            : this(clusterId, connectionMode: default, ConnectionModeSwitch.UseDirectConnection, directConnection, loadBalanced, dnsMonitorException, type, servers)
         {
         }
 
@@ -152,6 +179,7 @@ namespace MongoDB.Driver.Core.Clusters
             ClusterConnectionMode connectionMode,
             ConnectionModeSwitch connectionModeSwitch,
             bool? directConnection,
+            bool loadBalanced,
             Exception dnsMonitorException,
             ClusterType type,
             IEnumerable<ServerDescription> servers)
@@ -163,6 +191,7 @@ namespace MongoDB.Driver.Core.Clusters
             _connectionModeSwitch = connectionModeSwitch;
             _directConnection = directConnection;
             _dnsMonitorException = dnsMonitorException; // can be null
+            _loadBalanced = loadBalanced;
             _type = type;
             _servers = (servers ?? new ServerDescription[0]).OrderBy(n => n.EndPoint, new ToStringComparer<EndPoint>()).ToList();
             _logicalSessionTimeout = CalculateLogicalSessionTimeout(this, _servers);
@@ -306,6 +335,7 @@ namespace MongoDB.Driver.Core.Clusters
                 _connectionMode == other._connectionMode &&
                 _connectionModeSwitch == other._connectionModeSwitch &&
                 _directConnection.Equals(other._directConnection) &&
+                _loadBalanced.Equals(other._loadBalanced) &&
                 object.Equals(_dnsMonitorException, other._dnsMonitorException) &&
                 _servers.SequenceEqual(other._servers) &&
                 _type == other._type;
@@ -381,6 +411,7 @@ namespace MongoDB.Driver.Core.Clusters
                     _connectionMode,
                     _connectionModeSwitch,
                     _directConnection,
+                    _loadBalanced,
                     value,
                     _type,
                     _servers);
@@ -420,6 +451,7 @@ namespace MongoDB.Driver.Core.Clusters
                 _connectionMode,
                 _connectionModeSwitch,
                 _directConnection,
+                _loadBalanced,
                 _dnsMonitorException,
                 _type,
                 replacementServers);
@@ -443,6 +475,7 @@ namespace MongoDB.Driver.Core.Clusters
                 _connectionMode,
                 _connectionModeSwitch,
                 _directConnection,
+                _loadBalanced,
                 _dnsMonitorException,
                 _type,
                 _servers.Where(s => !EndPointHelper.Equals(s.EndPoint, endPoint)));
@@ -455,7 +488,7 @@ namespace MongoDB.Driver.Core.Clusters
         /// <returns>A ClusterDescription.</returns>
         public ClusterDescription WithType(ClusterType value)
         {
-            return _type == value ? this : new ClusterDescription(_clusterId, _connectionMode, _connectionModeSwitch, _directConnection, _dnsMonitorException, value, _servers);
+            return _type == value ? this : new ClusterDescription(_clusterId, _connectionMode, _connectionModeSwitch, _directConnection, _loadBalanced, _dnsMonitorException, value, _servers);
         }
     }
 }

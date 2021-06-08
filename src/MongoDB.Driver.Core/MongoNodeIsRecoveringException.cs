@@ -71,5 +71,24 @@ namespace MongoDB.Driver
         {
         }
 #endif
+
+        /// <summary>
+        /// Gets whether it caused by shutdown or no.
+        /// </summary>
+        public bool IsShutdownError
+        {
+            get
+            {
+                var errorCode = (ServerErrorCode)Code;
+                switch (errorCode)
+                {
+                    case ServerErrorCode.InterruptedAtShutdown: // 1160
+                    case ServerErrorCode.ShutdownInProgress: // 91
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+        }
     }
 }

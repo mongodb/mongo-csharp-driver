@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Core.Connections
             return command.Add("compression", compressorsArray);
         }
 
-        internal static BsonDocument CreateCommand(TopologyVersion topologyVersion = null, TimeSpan? maxAwaitTime = null)
+        internal static BsonDocument CreateCommand(TopologyVersion topologyVersion = null, TimeSpan? maxAwaitTime = null, bool loadBalanced = false)
         {
             Ensure.That(
                 (topologyVersion == null && !maxAwaitTime.HasValue) ||
@@ -54,7 +54,8 @@ namespace MongoDB.Driver.Core.Connections
             {
                 { "isMaster", 1 },
                 { "topologyVersion", () => topologyVersion.ToBsonDocument(), topologyVersion != null },
-                { "maxAwaitTimeMS", () => (long)maxAwaitTime.Value.TotalMilliseconds, maxAwaitTime.HasValue }
+                { "maxAwaitTimeMS", () => (long)maxAwaitTime.Value.TotalMilliseconds, maxAwaitTime.HasValue },
+                { "loadBalanced", 1, loadBalanced }
             };
         }
 

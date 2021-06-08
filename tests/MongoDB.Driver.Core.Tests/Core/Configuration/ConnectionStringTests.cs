@@ -361,6 +361,7 @@ namespace MongoDB.Driver.Core.Configuration
                 "replicaSet=funny;" +
                 "retryReads=false;" +
                 "retryWrites=true;" +
+                "loadBalanced=false;" +
                 "localThreshold=50ms;" +
                 "socketTimeout=40ms;" +
                 "ssl=false;" +

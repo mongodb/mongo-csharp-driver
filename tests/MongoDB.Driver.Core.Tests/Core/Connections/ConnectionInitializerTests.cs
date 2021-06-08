@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Core.Connections
             var authenticator = CreateAuthenticator(authenticatorType, credentials);
             var connectionSettings = new ConnectionSettings(new[] { new AuthenticatorFactory(() => authenticator) });
 
-            var isMasterDocument = _subject.CreateInitialIsMasterCommand(new[] { authenticator });
+            var isMasterDocument = _subject.CreateInitialIsMasterCommand(new[] { authenticator }, false);
 
             isMasterDocument.Should().Contain("speculativeAuthenticate");
             var speculativeAuthenticateDocument = isMasterDocument["speculativeAuthenticate"].AsBsonDocument;
@@ -280,7 +280,8 @@ namespace MongoDB.Driver.Core.Connections
     {
         public static BsonDocument CreateInitialIsMasterCommand(
             this ConnectionInitializer initializer,
-            IReadOnlyList<IAuthenticator> authenticators) =>
-                (BsonDocument)Reflector.Invoke(initializer, nameof(CreateInitialIsMasterCommand), authenticators);
+            IReadOnlyList<IAuthenticator> authenticators,
+            bool loadBalanced) =>
+                (BsonDocument)Reflector.Invoke(initializer, nameof(CreateInitialIsMasterCommand), authenticators, loadBalanced);
     }
 }

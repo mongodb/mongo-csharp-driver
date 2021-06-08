@@ -14,9 +14,9 @@
 */
 
 #if !NETSTANDARD1_5
-using System;
 using System.Runtime.Serialization;
 #endif
+using System;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 
@@ -43,9 +43,29 @@ namespace MongoDB.Driver
                 }
             }
         }
+
+        private static bool TryMapWriteConcernResultToException(ConnectionId connectionId, WriteConcernResult writeConcernResult, out Exception mappedException)
+        {
+            mappedException = null;
+            var responseDocument = writeConcernResult?.Response;
+            if (responseDocument != null && responseDocument.TryGetValue("writeConcernError", out var writeConcernError))
+            {
+                if (writeConcernError.IsBsonDocument)
+                {
+                    var writeConcernErrorDocument = writeConcernError.AsBsonDocument;
+                    mappedException =
+                        ExceptionMapper.MapNotPrimaryOrNodeIsRecovering(connectionId, command: null, writeConcernErrorDocument, "errmsg") ??
+                        ExceptionMapper.Map(connectionId, writeConcernErrorDocument);
+                    return true;
+                }
+            }
+
+            return false;
+        }
         #endregion
 
         // fields
+        private readonly Exception _writeConcernResultException;
         private readonly WriteConcernResult _writeConcernResult;
 
         // constructors
@@ -59,7 +79,7 @@ namespace MongoDB.Driver
             : base(connectionId, message, null, writeConcernResult.Response)
         {
             _writeConcernResult = Ensure.IsNotNull(writeConcernResult, nameof(writeConcernResult));
-
+            _ = TryMapWriteConcernResultToException(ConnectionId, _writeConcernResult, out _writeConcernResultException);
             AddErrorLabelsFromWriteConcernResult(this, _writeConcernResult);
         }
 
@@ -73,12 +93,20 @@ namespace MongoDB.Driver
             : base(info, context)
         {
             _writeConcernResult = (WriteConcernResult)info.GetValue("_writeConcernResult", typeof(WriteConcernResult));
-
+            _ = TryMapWriteConcernResultToException(ConnectionId, _writeConcernResult, out _writeConcernResultException);
             AddErrorLabelsFromWriteConcernResult(this, _writeConcernResult);
         }
 #endif
 
         // properties
+        /// <summary>
+        /// Gets the mapped write concern result exception.
+        /// </summary>
+        public Exception MappedWriteConcernResultException
+        {
+            get { return _writeConcernResultException; }
+        }
+
         /// <summary>
         /// Gets the write concern result.
         /// </summary>

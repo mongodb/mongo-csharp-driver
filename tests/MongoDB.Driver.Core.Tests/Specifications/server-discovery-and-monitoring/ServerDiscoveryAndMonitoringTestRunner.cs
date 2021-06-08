@@ -281,6 +281,11 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
                 case "Unknown":
                     cluster.Description.Type.Should().Be(ClusterType.Unknown);
                     break;
+                case "LoadBalanced":
+                    cluster.Should().BeOfType<LoadBalancedCluster>();
+                    cluster.Description.Type.Should().Be(ClusterType.LoadBalanced);
+                    cluster.Description.Servers.Should().ContainSingle(c => c.Type == ServerType.LoadBalanced);
+                    break;
                 default:
                     throw new FormatException($"Invalid topology type: \"{expectedType}\".");
             }
@@ -324,30 +329,44 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
             }
             if (outcome.TryGetValue("maxSetVersion", out var maxSetVersion))
             {
-                if (_cluster is MultiServerCluster multiServerCluster)
+                switch (_cluster)
                 {
-                    multiServerCluster._maxElectionInfo_setVersion().Should().Be(maxSetVersion.AsInt32);
-                }
-                else
-                {
-                    throw new Exception($"Expected MultiServerCluster but got {_cluster.GetType()}");
+                    case MultiServerCluster multiServerCluster:
+                        multiServerCluster._maxElectionInfo_setVersion().Should().Be(maxSetVersion.AsInt32);
+                        break;
+                    case LoadBalancedCluster:
+                        // LoadBalancedCluster doesn't support maxSetVersion, so assert that there is no expected value
+                        maxSetVersion.Should().BeOfType<BsonNull>();
+                        break;
+                    default:
+                        throw new Exception($"Unsupported cluster type {_cluster.GetType()}.");
                 }
             }
             if (outcome.TryGetValue("maxElectionId", out var maxElectionId))
             {
-                if (_cluster is MultiServerCluster multiServerCluster)
+                switch (_cluster)
                 {
-                    multiServerCluster._maxElectionInfo_electionId().Should().Be(new ElectionId((ObjectId)maxElectionId));
-                }
-                else
-                {
-                    throw new Exception($"Expected MultiServerCluster but got {_cluster.GetType()}");
+                    case MultiServerCluster multiServerCluster:
+                        multiServerCluster._maxElectionInfo_electionId().Should().Be(new ElectionId((ObjectId)maxElectionId));
+                        break;
+                    case LoadBalancedCluster:
+                        // LoadBalancedCluster doesn't support maxElectionId, so assert that there is no expected value
+                        maxElectionId.Should().BeOfType<BsonNull>();
+                        break;
+                    default:
+                        throw new Exception($"Unsupported cluster type {_cluster.GetType()}.");
                 }
             }
 
-            if (outcome.Contains("setName"))
+            if (outcome.TryGetValue("setName", out var setName))
             {
-                // TODO: assert something against setName
+                // TODO: assert something against setName for non LoadBalancedCluster
+
+                if (_cluster is LoadBalancedCluster)
+                {
+                    // LoadBalancedCluster doesn't support setName, so assert that there is no expected value
+                    setName.Should().BeOfType<BsonNull>();
+                }
             }
 
             if (outcome.Contains("logicalSessionTimeoutMinutes"))
@@ -377,7 +396,7 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
 
         private void VerifyServerDescription(ServerDescription actualDescription, BsonDocument expectedDescription, string phaseDescription)
         {
-            JsonDrivenHelper.EnsureAllFieldsAreValid(expectedDescription, "electionId", "pool", "setName", "setVersion", "topologyVersion", "type");
+            JsonDrivenHelper.EnsureAllFieldsAreValid(expectedDescription, "electionId", "pool", "setName", "setVersion", "topologyVersion", "type", "logicalSessionTimeoutMinutes", "minWireVersion", "maxWireVersion");
 
             var expectedType = (string)expectedDescription["type"];
             switch (expectedType)
@@ -402,6 +421,9 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
                     break;
                 case "Standalone":
                     actualDescription.Type.Should().Be(ServerType.Standalone);
+                    break;
+                case "LoadBalancer":
+                    actualDescription.Type.Should().Be(ServerType.LoadBalanced);
                     break;
                 default:
                     actualDescription.Type.Should().Be(ServerType.Unknown);
@@ -465,6 +487,42 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
                     default: throw new FormatException($"Invalid topologyVersion BSON type: {topologyVersionValue.BsonType}.");
                 }
             }
+
+            if (expectedDescription.TryGetValue("logicalSessionTimeoutMinutes", out var logicalSessionTimeoutMinutes))
+            {
+                if (logicalSessionTimeoutMinutes is BsonNull)
+                {
+                    actualDescription.LogicalSessionTimeout.Should().NotHaveValue();
+                }
+                else
+                {
+                    actualDescription.LogicalSessionTimeout.Should().Be(TimeSpan.FromMinutes(logicalSessionTimeoutMinutes.ToInt32()));
+                }
+            }
+
+            if (expectedDescription.TryGetValue("minWireVersion", out var minWireVersion))
+            {
+                if (minWireVersion is BsonNull)
+                {
+                    actualDescription.WireVersionRange.Should().BeNull();
+                }
+                else
+                {
+                    actualDescription.WireVersionRange.Min.Should().Be(minWireVersion.ToInt32());
+                }
+            }
+
+            if (expectedDescription.TryGetValue("maxWireVersion", out var maxWireVersion))
+            {
+                if (maxWireVersion is BsonNull)
+                {
+                    actualDescription.WireVersionRange.Should().BeNull();
+                }
+                else
+                {
+                    actualDescription.WireVersionRange.Max.Should().Be(maxWireVersion.ToInt32());
+                }
+            }
         }
 
         private void VerifyServerPropertiesNotInServerDescription(IClusterableServer actualServer, BsonDocument expectedServer, string phaseDescription)
@@ -505,7 +563,8 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
 #pragma warning disable CS0618 // Type or member is obsolete
                 connectionModeSwitch: connectionString.ConnectionModeSwitch,
                 endPoints: Optional.Enumerable(connectionString.Hosts),
-                replicaSetName: connectionString.ReplicaSet);
+                replicaSetName: connectionString.ReplicaSet,
+                loadBalanced: connectionString.LoadBalanced);
 
             if (settings.ConnectionModeSwitch == ConnectionModeSwitch.UseDirectConnection)
 #pragma warning restore CS0618
@@ -580,7 +639,7 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
 
         public static void HandleChannelException(this Server server, IConnection connection, Exception ex)
         {
-            Reflector.Invoke(server, nameof(HandleChannelException), connection, ex);
+            Reflector.Invoke(server, nameof(HandleChannelException), connection, ex, checkBaseClass: true);
         }
     }
 }

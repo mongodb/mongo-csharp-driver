@@ -61,7 +61,7 @@ namespace MongoDB.Driver.Core.Clusters
         [InlineData(ConnectionModeSwitch.UseDirectConnection, ClusterConnectionMode.Automatic, true)]
         public void CreateInitial_should_return_initial_description(ConnectionModeSwitch connectionModeSwitch, ClusterConnectionMode connectionMode, bool? directConnection)
         {
-            var subject = ClusterDescription.CreateInitial(__clusterId, connectionMode, connectionModeSwitch, directConnection);
+            var subject = ClusterDescription.CreateInitial(__clusterId, connectionMode, connectionModeSwitch, directConnection, false);
 
             subject.ClusterId.Should().Be(__clusterId);
             subject.ConnectionModeSwitch.Should().Be(connectionModeSwitch);
@@ -95,6 +95,7 @@ namespace MongoDB.Driver.Core.Clusters
                 connectionMode,
                 connectionModeSwitch,
                 directConnection,
+                loadBalanced: false,
                 dnsMonitorException,
                 ClusterType.ReplicaSet,
                 new[] { __serverDescription1, __serverDescription2 });
@@ -160,7 +161,7 @@ namespace MongoDB.Driver.Core.Clusters
 #pragma warning disable CS0618
             var connectionMode = ClusterConnectionMode.Automatic;
             var connectionModeSwitch = ConnectionModeSwitch.NotSet;
-            var subject = ClusterDescription.CreateInitial(clusterId, connectionMode, connectionModeSwitch, directConnection: null);
+            var subject = ClusterDescription.CreateInitial(clusterId, connectionMode, connectionModeSwitch, directConnection: null, loadBalanced: false);
 #pragma warning restore CS0618
             for (var i = 0; i < wireRanges.Length; i++)
             {
@@ -197,7 +198,7 @@ namespace MongoDB.Driver.Core.Clusters
 #pragma warning disable CS0618 // Type or member is obsolete
             var connectionMode = ClusterConnectionMode.Automatic;
             var connectionModeSwitch = ConnectionModeSwitch.NotSet;
-            var subject = ClusterDescription.CreateInitial(clusterId, connectionMode, connectionModeSwitch, directConnection: null);
+            var subject = ClusterDescription.CreateInitial(clusterId, connectionMode, connectionModeSwitch, directConnection: null, loadBalanced: false);
 #pragma warning restore CS0618 // Type or member is obsolete
             for (var i = 0; i < wireRanges.Length; i++)
             {
@@ -342,7 +343,7 @@ namespace MongoDB.Driver.Core.Clusters
             bool? directConnection = null;
 #pragma warning disable CS0618 // Type or member is obsolete
             var connectionModeSwitch = ConnectionModeSwitch.UseConnectionMode;
-            var subject = new ClusterDescription(new ClusterId(1), ClusterConnectionMode.Standalone, connectionModeSwitch, directConnection, dnsMonitorException, ClusterType.Standalone, new[] { __serverDescription1 });
+            var subject = new ClusterDescription(new ClusterId(1), ClusterConnectionMode.Standalone, connectionModeSwitch, directConnection, loadBalanced: false, dnsMonitorException, ClusterType.Standalone, new[] { __serverDescription1 });
 #pragma warning restore CS0618 // Type or member is obsolete
             var expected = string.Format(
                 "{{ ClusterId : \"1\", ConnectionMode : \"Standalone\", Type : \"Standalone\", State : \"Disconnected\", Servers : [{0}], DnsMonitorException : \"{1}\" }}",
@@ -448,7 +449,7 @@ namespace MongoDB.Driver.Core.Clusters
             var type = ClusterType.ReplicaSet;
             var servers = new[] { __serverDescription1, __serverDescription2 };
 
-            return new ClusterDescription(clusterId, connectionMode, connectionModeSwitch, directConnection, dnsMonitorException, type, servers);
+            return new ClusterDescription(clusterId, connectionMode, connectionModeSwitch, directConnection, loadBalanced: false, dnsMonitorException, type, servers);
         }
 
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -471,12 +472,14 @@ namespace MongoDB.Driver.Core.Clusters
                         {
                             connectionModeSwitch = ConnectionModeSwitch.UseConnectionMode;
                             connectionMode = ClusterConnectionMode.Standalone;
-                        } break;
+                        }
+                        break;
                     case "DirectConnection":
                         {
                             connectionModeSwitch = ConnectionModeSwitch.UseDirectConnection;
                             directConnection = true;
-                        } break;
+                        }
+                        break;
                     case "DnsMonitorException": dnsMonitorException = new Exception(); break;
                     case "Type": type = ClusterType.Unknown; break;
                     case "Servers": servers = new[] { __serverDescription1 }; break;
@@ -484,7 +487,7 @@ namespace MongoDB.Driver.Core.Clusters
                 }
             }
 
-            return new ClusterDescription(clusterId, connectionMode, connectionModeSwitch, directConnection, dnsMonitorException, type, servers);
+            return new ClusterDescription(clusterId, connectionMode, connectionModeSwitch, directConnection, loadBalanced: false, dnsMonitorException, type, servers);
         }
 #pragma warning restore CS0618 // Type or member is obsolete
     }

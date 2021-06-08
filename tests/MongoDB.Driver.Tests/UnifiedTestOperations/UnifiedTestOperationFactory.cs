@@ -82,11 +82,13 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                             throw new FormatException($"Invalid method name: '{operationName}'.");
                     }
 
-                case var _ when _entityMap.HasChangeStream(targetEntityId):
+                case var _ when _entityMap.ChangeStreams.ContainsKey(targetEntityId) || _entityMap.Cursors.ContainsKey(targetEntityId):
                     switch (operationName)
                     {
                         case "iterateUntilDocumentOrError":
                             return new UnifiedIterateUntilDocumentOrErrorOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
+                        case "close":
+                            return new UnifiedCloseCursorOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
                         default:
                             throw new FormatException($"Invalid method name: '{operationName}'.");
                     }
@@ -113,6 +115,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                             return new UnifiedCountDocumentsOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
                         case "createChangeStream":
                             return new UnifiedCreateChangeStreamOnCollectionOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
+                        case "createFindCursor":
+                            return new UnifiedcreateFindCursorOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
                         case "createIndex":
                             return new UnifiedCreateIndexOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
                         case "deleteMany":

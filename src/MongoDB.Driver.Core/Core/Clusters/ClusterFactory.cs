@@ -40,7 +40,9 @@ namespace MongoDB.Driver.Core.Clusters
         {
             var settings = _settings;
 
+            bool createLoadBalancedCluster = settings.LoadBalanced;
             bool createSingleServerCluster;
+
 #pragma warning disable CS0618 // Type or member is obsolete
             if (settings.ConnectionModeSwitch == ConnectionModeSwitch.UseDirectConnection)
             {
@@ -69,7 +71,11 @@ namespace MongoDB.Driver.Core.Clusters
             }
 #pragma warning restore CS0618 // Type or member is obsolete
 
-            if (createSingleServerCluster)
+            if (createLoadBalancedCluster)
+            {
+                return CreateLoadBalancedCluster(settings);
+            }
+            else if (createSingleServerCluster)
             {
                 return CreateSingleServerCluster(settings);
             }
@@ -87,6 +93,11 @@ namespace MongoDB.Driver.Core.Clusters
         private SingleServerCluster CreateSingleServerCluster(ClusterSettings settings)
         {
             return new SingleServerCluster(settings, _serverFactory, _eventSubscriber);
+        }
+
+        private LoadBalancedCluster CreateLoadBalancedCluster(ClusterSettings setting)
+        {
+            return new LoadBalancedCluster(setting, _serverFactory, _eventSubscriber);
         }
     }
 }

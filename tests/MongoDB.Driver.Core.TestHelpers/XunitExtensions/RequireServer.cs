@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
 
         public RequireServer Authentication(bool authentication)
         {
-            var actualAuthentication = CoreTestConfiguration.ConnectionString.Username != null;
+            var actualAuthentication = IsAuthenticated();
             if (actualAuthentication == authentication)
             {
                 return this;
@@ -222,6 +222,10 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
             {
                 switch (item.Name)
                 {
+                    case "auth":
+                        {
+                            return IsAuthenticated() == item.Value.ToBoolean();
+                        }
                     case "minServerVersion":
                         {
                             var actualVersion = CoreTestConfiguration.ServerVersion;
@@ -273,6 +277,8 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
             return true;
         }
 
+        private bool IsAuthenticated() => CoreTestConfiguration.ConnectionString.Username != null;
+
         private ClusterType MapTopologyToClusterType(string topology)
         {
             switch (topology)
@@ -281,6 +287,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
                 case "replicaset": return Clusters.ClusterType.ReplicaSet;
                 case "sharded-replicaset":
                 case "sharded": return Clusters.ClusterType.Sharded;
+                case "load-balanced": return Clusters.ClusterType.LoadBalanced;
                 default: throw new ArgumentException($"Invalid topology: \"{topology}\".", nameof(topology));
             }
         }
