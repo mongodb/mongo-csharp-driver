@@ -222,6 +222,11 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
             {
                 switch (item.Name)
                 {
+                    case "authEnabled":
+                        {
+                            var actualAuthentication = CoreTestConfiguration.ConnectionString.Username != null;
+                            return actualAuthentication == item.Value.AsBoolean;
+                        }
                     case "minServerVersion":
                         {
                             var actualVersion = CoreTestConfiguration.ServerVersion;
@@ -277,6 +282,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
         {
             switch (topology)
             {
+                case "load-balanced": throw new SkipException("Topology load-balanced has not been implemented yet.");
                 case "single": return Clusters.ClusterType.Standalone;
                 case "replicaset": return Clusters.ClusterType.ReplicaSet;
                 case "sharded-replicaset":

@@ -21,6 +21,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Events;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.TestHelpers;
@@ -34,7 +35,8 @@ namespace MongoDB.Driver.Tests.Specifications.crud
         private static readonly HashSet<string> __commandsToNotCapture = new HashSet<string>
         {
             "configureFailPoint",
-            "isMaster",
+            "hello",
+            OppressiveLanguageConstants.LegacyHelloCommandName,
             "buildInfo",
             "getLastError",
             "authenticate",

@@ -25,6 +25,7 @@ using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Events;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
@@ -91,7 +92,8 @@ namespace MongoDB.Driver.Tests.Specifications.change_streams
                 }
             }
 
-            if (test.Contains("expectations") && actualEvents != null)
+            // expectations == null indicates that expectations should not be asserted.
+            if (test.Contains("expectations") && !test["expectations"].IsBsonNull && actualEvents != null)
             {
                 var expectedEvents = test["expectations"].AsBsonArray.Cast<BsonDocument>().ToList();
                 AssertEvents(actualEvents, expectedEvents);
@@ -174,7 +176,8 @@ namespace MongoDB.Driver.Tests.Specifications.change_streams
         {
             var commandsToNotCapture = new HashSet<string>
             {
-                "isMaster",
+                "hello",
+                OppressiveLanguageConstants.LegacyHelloCommandName,
                 "buildInfo",
                 "getLastError",
                 "authenticate",

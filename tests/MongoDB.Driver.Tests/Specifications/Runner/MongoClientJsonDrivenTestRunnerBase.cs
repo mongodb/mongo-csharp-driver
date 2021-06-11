@@ -49,7 +49,8 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
         private readonly string _skipReasonKey = "skipReason";
         private readonly HashSet<string> _defaultCommandsToNotCapture = new HashSet<string>
         {
-            "isMaster",
+            "hello",
+            OppressiveLanguageConstants.LegacyHelloCommandName,
             "buildInfo",
             "getLastError",
             "authenticate",
@@ -329,12 +330,28 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
                     settings.ConnectTimeout = TimeSpan.FromMilliseconds(option.Value.ToInt32());
                     break;
 
+                case "directConnection":
+                    settings.DirectConnection = option.Value.ToBoolean();
+                    break;
+
                 case "heartbeatFrequencyMS":
                     settings.HeartbeatInterval = TimeSpan.FromMilliseconds(option.Value.ToInt32());
                     break;
 
+                case "maxPoolSize":
+                    settings.MaxConnectionPoolSize = option.Value.ToInt32();
+                    break;
+
+                case "minPoolSize":
+                    settings.MinConnectionPoolSize = option.Value.ToInt32();
+                    break;
+
                 case "serverSelectionTimeoutMS":
                     settings.ServerSelectionTimeout = TimeSpan.FromMilliseconds(option.Value.ToInt32());
+                    break;
+
+                case "socketTimeoutMS":
+                    settings.SocketTimeout = TimeSpan.FromMilliseconds(option.Value.ToInt32());
                     break;
 
                 default:

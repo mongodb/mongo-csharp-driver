@@ -27,6 +27,7 @@ using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Events;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.JsonDrivenTests;
@@ -43,7 +44,8 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
         private static readonly HashSet<string> __commandsToNotCapture = new HashSet<string>
         {
             "configureFailPoint",
-            "isMaster",
+            "hello",
+            OppressiveLanguageConstants.LegacyHelloCommandName,
             "buildInfo",
             "getLastError",
             "authenticate",

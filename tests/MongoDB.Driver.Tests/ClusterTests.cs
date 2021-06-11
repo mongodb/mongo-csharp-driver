@@ -40,7 +40,8 @@ namespace MongoDB.Driver.Tests
     {
         private static readonly HashSet<string> __commandsToNotCapture = new HashSet<string>
         {
-            "isMaster",
+            "hello",
+            OppressiveLanguageConstants.LegacyHelloCommandName,
             "buildInfo",
             "getLastError",
             "authenticate",

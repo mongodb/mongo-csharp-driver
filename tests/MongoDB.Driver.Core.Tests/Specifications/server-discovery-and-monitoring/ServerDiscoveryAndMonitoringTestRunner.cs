@@ -121,7 +121,7 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
                     mongoConnectionException.Generation = generation;
                 }
             }
-            
+
             mockConnection.SetupGet(c => c.Generation).Returns(generation);
             mockConnection
                 .SetupGet(c => c.Generation)
@@ -186,7 +186,8 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
                 "electionId",
                 "hidden",
                 "hosts",
-                "ismaster",
+                "isWritablePrimary",
+                OppressiveLanguageConstants.LegacyHelloResponseIsWritablePrimaryFieldName,
                 "isreplicaset",
                 "logicalSessionTimeoutMinutes",
                 "maxWireVersion",
@@ -529,7 +530,8 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
         private class TestCaseFactory : JsonDrivenTestCaseFactory
         {
             // private constants
-            private const string MonitoringPrefix = "MongoDB.Driver.Core.Tests.Specifications.server_discovery_and_monitoring.tests.monitoring.";
+            private readonly string[] MonitoringPrefixes = {"MongoDB.Driver.Core.Tests.Specifications.server_discovery_and_monitoring.tests.monitoring.",
+                                                            "MongoDB.Driver.Core.Tests.Specifications.server_discovery_and_monitoring.tests.legacy_hello.monitoring."};
 
             protected override string PathPrefix => "MongoDB.Driver.Core.Tests.Specifications.server_discovery_and_monitoring.tests.";
 
@@ -541,7 +543,9 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
 
             protected override bool ShouldReadJsonDocument(string path)
             {
-                return base.ShouldReadJsonDocument(path) && !path.StartsWith(MonitoringPrefix);
+                return base.ShouldReadJsonDocument(path) &&
+                       !MonitoringPrefixes.Any(prefix => path.StartsWith(prefix)) &&
+                       !path.EndsWith("discover_load_balancer.json");  // load balancer support not yet implemented
             }
         }
     }

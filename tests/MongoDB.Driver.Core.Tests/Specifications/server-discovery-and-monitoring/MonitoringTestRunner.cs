@@ -84,7 +84,7 @@ namespace MongoDB.Driver.Specifications.sdam_monitoring
 
             var address = response[0].AsString;
             var isMasterDocument = response[1].AsBsonDocument;
-            JsonDrivenHelper.EnsureAllFieldsAreValid(isMasterDocument, "hosts", "ismaster", "maxWireVersion", "minWireVersion", "ok", "primary", "secondary", "setName", "setVersion");
+            JsonDrivenHelper.EnsureAllFieldsAreValid(isMasterDocument, "hosts", "isWritablePrimary", OppressiveLanguageConstants.LegacyHelloResponseIsWritablePrimaryFieldName, "maxWireVersion", "minWireVersion", "ok", "primary", "secondary", "setName", "setVersion");
 
             var endPoint = EndPointHelper.Parse(address);
             var isMasterResult = new IsMasterResult(isMasterDocument);
@@ -361,6 +361,12 @@ namespace MongoDB.Driver.Specifications.sdam_monitoring
             {
                 var name = GetTestCaseName(document, document, 0);
                 yield return new JsonDrivenTestCase(name, document, document);
+            }
+
+            protected override bool ShouldReadJsonDocument(string path)
+            {
+                // load balancer support not yet implemented
+                return base.ShouldReadJsonDocument(path) && !path.EndsWith("load_balancer.json");
             }
         }
     }
