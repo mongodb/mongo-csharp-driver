@@ -134,6 +134,11 @@ namespace MongoDB.Driver.Tests.Linq
                 if (winningPlan.Contains("shards"))
                 {
                     winningPlan = winningPlan["shards"][0]["winningPlan"].AsBsonDocument;
+                    // MongoDB 5.0 changes the explain plan output to nest the shard's winningPlan 1 level deeper
+                    if (winningPlan.Contains("queryPlan"))
+                    {
+                        winningPlan = winningPlan["queryPlan"].AsBsonDocument;
+                    }
                 }
                 var inputStage = winningPlan["inputStage"].AsBsonDocument;
                 var stage = inputStage["stage"].AsString;
@@ -221,6 +226,11 @@ namespace MongoDB.Driver.Tests.Linq
                 if (winningPlan.Contains("shards"))
                 {
                     winningPlan = winningPlan["shards"][0]["winningPlan"].AsBsonDocument;
+                    // MongoDB 5.0 changes the explain plan output to nest the shard's winningPlan 1 level deeper
+                    if (winningPlan.Contains("queryPlan"))
+                    {
+                        winningPlan = winningPlan["queryPlan"].AsBsonDocument;
+                    }
                 }
                 var inputStage = winningPlan["inputStage"].AsBsonDocument;
                 var stage = inputStage["stage"].AsString;
