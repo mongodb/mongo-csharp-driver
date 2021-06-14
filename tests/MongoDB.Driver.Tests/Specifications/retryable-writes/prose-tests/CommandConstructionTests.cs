@@ -435,7 +435,8 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
         {
             var commandsToNotCapture = new HashSet<string>
             {
-                "isMaster",
+                "hello",
+                OppressiveLanguageConstants.LegacyHelloCommandName,
                 "buildInfo",
                 "getLastError",
                 "authenticate",

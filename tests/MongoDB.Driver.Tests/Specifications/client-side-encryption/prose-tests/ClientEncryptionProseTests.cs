@@ -1497,7 +1497,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         {
             var defaultCommandsToNotCapture = new HashSet<string>
             {
-                "isMaster",
+                "hello",
+                OppressiveLanguageConstants.LegacyHelloCommandName,
                 "buildInfo",
                 "getLastError",
                 "authenticate",

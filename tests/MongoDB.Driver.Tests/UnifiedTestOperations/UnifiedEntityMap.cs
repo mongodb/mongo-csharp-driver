@@ -501,7 +501,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     "configureFailPoint",
                     "getLastError",
                     "getnonce",
-                    "isMaster",
+                    "hello",
+                    OppressiveLanguageConstants.LegacyHelloCommandName,
                     "saslContinue",
                     "saslStart"
                 };
