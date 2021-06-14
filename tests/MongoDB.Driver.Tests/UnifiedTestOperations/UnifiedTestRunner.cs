@@ -51,11 +51,6 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
         public void Run(JsonDrivenTestCase testCase)
         {
-            if (testCase.Name.Contains("mongos-unpin.json"))
-            {
-                throw new SkipException("Load balancer support not yet implemented.");
-            }
-
             // Top-level fields
             var schemaVersion = testCase.Shared["schemaVersion"].AsString; // cannot be null
             var testSetRunOnRequirements = testCase.Shared.GetValue("runOnRequirements", null)?.AsBsonArray;
