@@ -17,7 +17,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
@@ -34,19 +33,25 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             IClientSessionHandle session,
             FindOptions<BsonDocument> options)
         {
-            _collection = Ensure.IsNotNull(collection, nameof(collection));
-            _filter = Ensure.IsNotNull(filter, nameof(filter));
-            _options = options; // can be null
-            _session = session; // can be null
+            _collection = collection;
+            _filter = filter;
+            _options = options;
+            _session = session;
         }
 
         public OperationResult Execute(CancellationToken cancellationToken)
         {
             try
             {
-                var cursor = _session == null
-                    ? _collection.FindSync(_filter, _options, cancellationToken)
-                    : _collection.FindSync(_session, _filter, _options, cancellationToken);
+                IAsyncCursor<BsonDocument> cursor;
+                if (_session == null)
+                {
+                    cursor = _collection.FindSync(_filter, _options, cancellationToken);
+                }
+                else
+                {
+                    cursor = _collection.FindSync(_session, _filter, _options, cancellationToken);
+                } 
                 var result = cursor.ToList();
 
                 return OperationResult.FromResult(new BsonArray(result));
@@ -61,9 +66,15 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             try
             {
-                var cursor = _session == null
-                    ? await _collection.FindAsync(_filter, _options, cancellationToken).ConfigureAwait(false)
-                    : await _collection.FindAsync(_session, _filter, _options, cancellationToken).ConfigureAwait(false);
+                IAsyncCursor<BsonDocument> cursor;
+                if (_session == null)
+                {
+                    cursor = await _collection.FindAsync(_filter, _options, cancellationToken);
+                }
+                else
+                {
+                    cursor = await _collection.FindAsync(_session, _filter, _options, cancellationToken);
+                }
                 var result = await cursor.ToListAsync();
 
                 return OperationResult.FromResult(new BsonArray(result));
@@ -96,22 +107,26 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             {
                 switch (argument.Name)
                 {
+                    case "allowDiskUse":
+                        options ??= new FindOptions<BsonDocument>();
+                        options.AllowDiskUse = argument.Value.AsBoolean;
+                        break;
                     case "batchSize":
-                        options = options ?? new FindOptions<BsonDocument>();
+                        options ??= new FindOptions<BsonDocument>();
                         options.BatchSize = argument.Value.AsInt32;
                         break;
                     case "filter":
                         filter = new BsonDocumentFilterDefinition<BsonDocument>(argument.Value.AsBsonDocument);
                         break;
                     case "limit":
-                        options = options ?? new FindOptions<BsonDocument>();
+                        options ??= new FindOptions<BsonDocument>();
                         options.Limit = argument.Value.AsInt32;
                         break;
                     case "session":
                         session = _entityMap.GetSession(argument.Value.AsString);
                         break;
                     case "sort":
-                        options = options ?? new FindOptions<BsonDocument>();
+                        options ??= new FindOptions<BsonDocument>();
                         options.Sort = new BsonDocumentSortDefinition<BsonDocument>(argument.Value.AsBsonDocument);
                         break;
                     default:

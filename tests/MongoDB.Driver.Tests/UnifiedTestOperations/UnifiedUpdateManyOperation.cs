@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -57,7 +58,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     result = _collection.UpdateMany(_session, _filter, _update, _options, cancellationToken);
                 }
 
-                return OperationResult.FromResult(null);
+                return new UnifiedUpdateManyOperationResultConverter().Convert(result);
             }
             catch (Exception exception)
             {
@@ -80,7 +81,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     result = await _collection.UpdateManyAsync(_session, _filter, _update, _options, cancellationToken);
                 }
 
-                return OperationResult.FromResult(null);
+                return new UnifiedUpdateManyOperationResultConverter().Convert(result);
             }
             catch (Exception exception)
             {
@@ -114,11 +115,25 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     case "filter":
                         filter = argument.Value.AsBsonDocument;
                         break;
+                    case "hint":
+                        options ??= new UpdateOptions();
+                        options.Hint = argument.Value;
+                        break;
                     case "session":
                         session = _entityMap.GetSession(argument.Value.AsString);
                         break;
                     case "update":
-                        update = argument.Value.AsBsonDocument;
+                        switch (argument.Value)
+                        {
+                            case BsonDocument:
+                                update = argument.Value.AsBsonDocument;
+                                break;
+                            case BsonArray:
+                                update = PipelineDefinition<BsonDocument, BsonDocument>.Create(argument.Value.AsBsonArray.Cast<BsonDocument>());
+                                break;
+                            default:
+                                throw new FormatException($"Invalid BulkWrite Update model update argument: '{argument.Value}'.");
+                        }
                         break;
                     default:
                         throw new FormatException($"Invalid UpdateManyOperation argument name: '{argument.Name}'.");
@@ -133,7 +148,14 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
     {
         public OperationResult Convert(UpdateResult result)
         {
-            throw new NotImplementedException("Specification requirements are not clear on result format.");
+            var document = new BsonDocument
+            {
+                { "matchedCount", result.MatchedCount },
+                { "modifiedCount", result.ModifiedCount },
+                { "upsertedCount", result.UpsertedId == null ? 0 : 1 },
+            };
+
+            return OperationResult.FromResult(document);
         }
     }
 }

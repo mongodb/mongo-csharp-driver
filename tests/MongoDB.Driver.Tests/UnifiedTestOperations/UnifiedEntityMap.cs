@@ -342,7 +342,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                             sessionIds.Add(id, sessionId);
                             break;
                         default:
-                            throw new FormatException($"Unrecognized entity type: '{entityType}'.");
+                            throw new FormatException($"Invalid entity type: '{entityType}'.");
                     }
                 }
             }
@@ -380,7 +380,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         database = databases[databaseId];
                         break;
                     default:
-                        throw new FormatException($"Unrecognized bucket entity field: '{element.Name}'.");
+                        throw new FormatException($"Invalid bucket argument name: '{element.Name}'.");
                 }
             }
 
@@ -427,7 +427,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                                     writeConcern = new WriteConcern(option.Value.AsInt32);
                                     break;
                                 default:
-                                    throw new FormatException($"Unrecognized client uriOption name: '{option.Name}'.");
+                                    throw new FormatException($"Invalid client uriOption argument name: '{option.Name}'.");
                             }
                         }
                         break;
@@ -460,7 +460,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                                             serverApiVersion = ServerApiVersion.V1;
                                             break;
                                         default:
-                                            throw new FormatException($"Unrecognized serverApi version: '{serverApiVersionString}'.");
+                                            throw new FormatException($"Invalid serverApi version: '{serverApiVersionString}'.");
                                     }
                                     break;
                                 case "strict":
@@ -470,7 +470,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                                     serverApiDeprecationErrors = option.Value.AsBoolean;
                                     break;
                                 default:
-                                    throw new FormatException($"Unrecognized client serverApi option name: '{option.Name}'.");
+                                    throw new FormatException($"Invalid client serverApi argument name: '{option.Name}'.");
                             }
                         }
                         if (serverApiVersion != null)
@@ -488,7 +488,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         }
                         break;
                     default:
-                        throw new FormatException($"Unrecognized client entity field: '{element.Name}'.");
+                        throw new FormatException($"Invalid client argument name: '{element.Name}'.");
                 }
             }
 
@@ -571,13 +571,16 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                                 case "readConcern":
                                     settings.ReadConcern = ReadConcern.FromBsonDocument(option.Value.AsBsonDocument);
                                     break;
+                                case "writeConcern":
+                                    settings.WriteConcern = WriteConcern.FromBsonDocument(option.Value.AsBsonDocument);
+                                    break;
                                 default:
-                                    throw new FormatException($"Unrecognized collection option field: '{option.Name}'.");
+                                    throw new FormatException($"Invalid collection option argument name: '{option.Name}'.");
                             }
                         }
                         break;
                     default:
-                        throw new FormatException($"Unrecognized collection entity field: '{element.Name}'.");
+                        throw new FormatException($"Invalid collection argument name: '{element.Name}'.");
                 }
             }
 
@@ -604,7 +607,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         databaseName = element.Value.AsString;
                         break;
                     default:
-                        throw new FormatException($"Unrecognized database entity field: '{element.Name}'.");
+                        throw new FormatException($"Invalid database argument name: '{element.Name}'.");
                 }
             }
 
@@ -718,12 +721,12 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                                     options.DefaultTransactionOptions = new TransactionOptions(readConcern, readPreference, writeConcern);
                                     break;
                                 default:
-                                    throw new FormatException($"Unrecognized session option: '{option.Name}'.");
+                                    throw new FormatException($"Invalid session option argument name: '{option.Name}'.");
                             }
                         }
                         break;
                     default:
-                        throw new FormatException($"Unrecognized database entity field: '{element.Name}'.");
+                        throw new FormatException($"Invalid session argument name: '{element.Name}'.");
                 }
             }
 

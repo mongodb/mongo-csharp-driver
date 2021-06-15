@@ -92,11 +92,15 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     case "filter":
                         filter = new BsonDocumentFilterDefinition<BsonDocument>(argument.Value.AsBsonDocument);
                         break;
+                    case "hint":
+                        options ??= new ReplaceOptions();
+                        options.Hint = argument.Value;
+                        break;
                     case "replacement":
                         replacement = argument.Value.AsBsonDocument;
                         break;
                     case "upsert":
-                        options = options ?? new ReplaceOptions();
+                        options ??= new ReplaceOptions();
                         options.IsUpsert = argument.Value.AsBoolean;
                         break;
                     default:
@@ -114,9 +118,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             var document = new BsonDocument
             {
-                { "acknowledged", result.IsAcknowledged },
                 { "matchedCount", result.MatchedCount },
-                { "modifiedCount", result.ModifiedCount }
+                { "modifiedCount", result.ModifiedCount },
+                { "upsertedCount", result.UpsertedId == null ? 0 : 1 },
             };
 
             return OperationResult.FromResult(document);

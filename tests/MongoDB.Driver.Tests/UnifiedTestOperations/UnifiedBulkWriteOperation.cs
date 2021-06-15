@@ -19,7 +19,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
@@ -109,11 +108,11 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 switch (argument.Name)
                 {
                     case "ordered":
-                        options = options ?? new BulkWriteOptions();
+                        options ??= new BulkWriteOptions();
                         options.IsOrdered = argument.Value.AsBoolean;
                         break;
                     case "requests":
-                        requests = ParseWriteModels(argument.Value.AsBsonArray.Cast<BsonDocument>());
+                        requests = argument.Value.AsBsonArray.Cast<BsonDocument>().Select(ParseWriteModel).ToList();
                         break;
                     case "session":
                         session = _entityMap.GetSession(argument.Value.AsString);
@@ -126,73 +125,136 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             return new UnifiedBulkWriteOperation(session, collection, requests, options);
         }
 
-        private DeleteManyModel<BsonDocument> ParseDeleteManyModel(BsonDocument model)
+        // private methods
+        private void ParseDeleteModel(
+            BsonDocument model,
+            out FilterDefinition<BsonDocument> filter,
+            out BsonValue hint)
         {
-            JsonDrivenHelper.EnsureAllFieldsAreValid(model, "filter");
+            filter = null;
+            hint = null;
 
-            var filter = new BsonDocumentFilterDefinition<BsonDocument>(model["filter"].AsBsonDocument);
-
-            return new DeleteManyModel<BsonDocument>(filter);
-        }
-
-        private DeleteOneModel<BsonDocument> ParseDeleteOneModel(BsonDocument model)
-        {
-            JsonDrivenHelper.EnsureAllFieldsAreValid(model, "filter");
-
-            var filter = new BsonDocumentFilterDefinition<BsonDocument>(model["filter"].AsBsonDocument);
-
-            return new DeleteOneModel<BsonDocument>(filter);
-        }
-
-        private InsertOneModel<BsonDocument> ParseInsertOneModel(BsonDocument model)
-        {
-            JsonDrivenHelper.EnsureAllFieldsAreValid(model, "document");
-
-            var document = model["document"].AsBsonDocument;
-
-            return new InsertOneModel<BsonDocument>(document);
-        }
-
-        private ReplaceOneModel<BsonDocument> ParseReplaceOneModel(BsonDocument model)
-        {
-            JsonDrivenHelper.EnsureAllFieldsAreValid(model, "filter", "replacement", "upsert");
-
-            var filter = new BsonDocumentFilterDefinition<BsonDocument>(model["filter"].AsBsonDocument);
-            var replacement = model["replacement"].AsBsonDocument;
-            var isUpsert = model.GetValue("upsert", false).ToBoolean();
-
-            return new ReplaceOneModel<BsonDocument>(filter, replacement)
+            foreach (BsonElement argument in model.Elements)
             {
-                IsUpsert = isUpsert
-            };
+                switch (argument.Name)
+                {
+                    case "hint":
+                        hint = argument.Value;
+                        break;
+                    case "filter":
+                        filter = new BsonDocumentFilterDefinition<BsonDocument>(argument.Value.AsBsonDocument);
+                        break;
+                    default:
+                        throw new FormatException($"Invalid BulkWrite Delete model argument name: '{argument.Name}'.");
+                }
+            }
         }
 
-        private UpdateManyModel<BsonDocument> ParseUpdateManyModel(BsonDocument model)
+        private void ParseInsertModel(
+            BsonDocument model,
+            out BsonDocument document)
         {
-            JsonDrivenHelper.EnsureAllFieldsAreValid(model, "filter", "update", "upsert");
+            document = null;
 
-            var filter = new BsonDocumentFilterDefinition<BsonDocument>(model["filter"].AsBsonDocument);
-            var update = new BsonDocumentUpdateDefinition<BsonDocument>(model["update"].AsBsonDocument);
-            var isUpsert = model.GetValue("upsert", false).ToBoolean();
-
-            return new UpdateManyModel<BsonDocument>(filter, update)
+            foreach (BsonElement argument in model.Elements)
             {
-                IsUpsert = isUpsert
-            };
+                switch (argument.Name)
+                {
+                    case "document":
+                        document = argument.Value.AsBsonDocument;
+                        break;
+                    default:
+                        throw new FormatException($"Invalid BulkWrite Insert model argument name: '{argument.Name}'.");
+                }
+            }
         }
 
-        private UpdateOneModel<BsonDocument> ParseUpdateOneModel(BsonDocument model)
+        private void ParseReplaceModel(
+            BsonDocument model,
+            out FilterDefinition<BsonDocument> filter,
+            out BsonDocument replacement,
+            out BsonValue hint,
+            out bool isUpsert)
         {
-            JsonDrivenHelper.EnsureAllFieldsAreValid(model, "filter", "update", "upsert");
+            filter = null;
+            replacement = null;
+            hint = null;
+            isUpsert = false;
 
-            var filter = new BsonDocumentFilterDefinition<BsonDocument>(model["filter"].AsBsonDocument);
-            var update = new BsonDocumentUpdateDefinition<BsonDocument>(model["update"].AsBsonDocument);
-            var isUpsert = model.GetValue("upsert", false).ToBoolean();
-
-            return new UpdateOneModel<BsonDocument>(filter, update)
+            foreach (BsonElement argument in model.Elements)
             {
-                IsUpsert = isUpsert
-            };
+                switch (argument.Name)
+                {
+                    case "filter":
+                        filter = new BsonDocumentFilterDefinition<BsonDocument>(argument.Value.AsBsonDocument);
+                        break;
+                    case "hint":
+                        hint = argument.Value;
+                        break;
+                    case "replacement":
+                        replacement = argument.Value.AsBsonDocument;
+                        break;
+                    case "upsert":
+                        isUpsert = argument.Value.ToBoolean();
+                        break;
+                    default:
+                        throw new FormatException($"Invalid BulkWrite Replace model argument name: '{argument.Name}'.");
+                }
+            }
+        }
+
+        private void ParseUpdateModel(
+            BsonDocument model,
+            out FilterDefinition<BsonDocument> filter,
+            out UpdateDefinition<BsonDocument> update,
+            out List<ArrayFilterDefinition> arrayFilters,
+            out BsonValue hint,
+            out bool isUpsert)
+        {
+            arrayFilters = null;
+            filter = null;
+            update = null;
+            hint = null;
+            isUpsert = false;
+
+            foreach (BsonElement argument in model.Elements)
+            {
+                switch (argument.Name)
+                {
+                    case "arrayFilters":
+                        arrayFilters = argument
+                            .Value
+                            .AsBsonArray
+                            .Cast<BsonDocument>()
+                            .Select(x => new BsonDocumentArrayFilterDefinition<BsonValue>(x))
+                            .ToList<ArrayFilterDefinition>();
+                        break;
+                    case "filter":
+                        filter = new BsonDocumentFilterDefinition<BsonDocument>(argument.Value.AsBsonDocument);
+                        break;
+                    case "hint":
+                        hint = argument.Value;
+                        break;
+                    case "update":
+                        switch (argument.Value)
+                        {
+                            case BsonDocument:
+                                update = argument.Value.AsBsonDocument;
+                                break;
+                            case BsonArray:
+                                update = PipelineDefinition<BsonDocument, BsonDocument>.Create(argument.Value.AsBsonArray.Cast<BsonDocument>());
+                                break;
+                            default:
+                                throw new FormatException($"Invalid BulkWrite Update model update argument: '{argument.Value}'.");
+                        }
+                        break;
+                    case "upsert":
+                        isUpsert = argument.Value.ToBoolean();
+                        break;
+                    default:
+                        throw new FormatException($"Invalid BulkWrite Update model argument name: '{argument.Name}'.");
+                }
+            }
         }
 
         private WriteModel<BsonDocument> ParseWriteModel(BsonDocument modelItem)
@@ -207,31 +269,64 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             switch (modelName)
             {
                 case "deleteMany":
-                    return ParseDeleteManyModel(model);
+                    {
+                        ParseDeleteModel(model, out var filter, out var hint);
+
+                        return new DeleteManyModel<BsonDocument>(filter)
+                        {
+                            Hint = hint
+                        };
+                    }
                 case "deleteOne":
-                    return ParseDeleteOneModel(model);
+                    {
+                        ParseDeleteModel(model, out var filter, out var hint);
+
+                        return new DeleteOneModel<BsonDocument>(filter)
+                        {
+                            Hint = hint
+                        };
+                    }
                 case "insertOne":
-                    return ParseInsertOneModel(model);
+                    {
+                        ParseInsertModel(model, out var document);
+
+                        return new InsertOneModel<BsonDocument>(document);
+                    }
                 case "replaceOne":
-                    return ParseReplaceOneModel(model);
+                    {
+                        ParseReplaceModel(model, out var filter, out var replacement, out var hint, out bool isUpsert);
+
+                        return new ReplaceOneModel<BsonDocument>(filter, replacement)
+                        {
+                            Hint = hint,
+                            IsUpsert = isUpsert
+                        };
+                    }
                 case "updateMany":
-                    return ParseUpdateManyModel(model);
+                    {
+                        ParseUpdateModel(model, out var filter, out var update, out var arrayFilters, out var hint, out var isUpsert);
+
+                        return new UpdateManyModel<BsonDocument>(filter, update)
+                        {
+                            ArrayFilters = arrayFilters,
+                            Hint = hint,
+                            IsUpsert = isUpsert
+                        };
+                    }
                 case "updateOne":
-                    return ParseUpdateOneModel(model);
+                    {
+                        ParseUpdateModel(model, out var filter, out var update, out var arrayFilters, out var hint, out var isUpsert);
+
+                        return new UpdateOneModel<BsonDocument>(filter, update)
+                        {
+                            ArrayFilters = arrayFilters,
+                            Hint = hint,
+                            IsUpsert = isUpsert
+                        };
+                    }
                 default:
-                    throw new FormatException($"Invalid write model name: '{modelName}'.");
+                    throw new FormatException($"Invalid BulkWrite model name: '{modelName}'.");
             }
-        }
-
-        private List<WriteModel<BsonDocument>> ParseWriteModels(IEnumerable<BsonDocument> models)
-        {
-            var result = new List<WriteModel<BsonDocument>>();
-            foreach (var model in models)
-            {
-                result.Add(ParseWriteModel(model));
-            }
-
-            return result;
         }
     }
 
