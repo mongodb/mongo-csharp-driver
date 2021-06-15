@@ -17,16 +17,26 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    internal class AsyncCursorEnumerator<TDocument> : IEnumerator<TDocument>
+    internal class AsyncCursorEnumerator<TDocument> :
+#if NETSTANDARD2_1_OR_GREATER
+        IAsyncEnumerator<TDocument>,
+#endif
+        IEnumerator<TDocument>
     {
         // private fields
         private IEnumerator<TDocument> _batchEnumerator;
         private readonly CancellationToken _cancellationToken;
+#if NETSTANDARD2_1_OR_GREATER
+        private IAsyncCursor<TDocument> _cursor;
+        private readonly Task<IAsyncCursor<TDocument>> _cursorTask;
+#else
         private readonly IAsyncCursor<TDocument> _cursor;
+#endif
         private bool _disposed;
         private bool _finished;
         private bool _started;
@@ -37,6 +47,14 @@ namespace MongoDB.Driver.Core.Operations
             _cursor = Ensure.IsNotNull(cursor, nameof(cursor));
             _cancellationToken = cancellationToken;
         }
+
+#if NETSTANDARD2_1_OR_GREATER
+        public AsyncCursorEnumerator(Task<IAsyncCursor<TDocument>> cursorTask, CancellationToken cancellationToken)
+        {
+            _cursorTask = Ensure.IsNotNull(cursorTask, nameof(cursorTask));
+            _cancellationToken = cancellationToken;
+        }
+#endif
 
         // public properties
         public TDocument Current
@@ -68,9 +86,24 @@ namespace MongoDB.Driver.Core.Operations
             {
                 _disposed = true;
                 _batchEnumerator?.Dispose();
-                _cursor.Dispose();
+                _cursor?.Dispose();
             }
         }
+
+#if NETSTANDARD2_1_OR_GREATER
+        public async ValueTask DisposeAsync()
+        {
+            if (!_disposed)
+            {
+                if (_cursor == null)
+                {
+                    _cursor = await _cursorTask.ConfigureAwait(false);
+                }
+                _cursorTask?.Dispose();
+                Dispose();
+            }
+        }
+#endif
 
         public bool MoveNext()
         {
@@ -101,6 +134,43 @@ namespace MongoDB.Driver.Core.Operations
                 }
             }
         }
+
+#if NETSTANDARD2_1_OR_GREATER
+        public async ValueTask<bool> MoveNextAsync()
+        {
+            ThrowIfDisposed();
+            _started = true;
+
+            if (_batchEnumerator != null && _batchEnumerator.MoveNext())
+            {
+                return true;
+            }
+
+            if (_cursor == null)
+            {
+                _cursor = await _cursorTask.ConfigureAwait(false);
+            }
+
+            while (true)
+            {
+                if (await _cursor.MoveNextAsync(_cancellationToken).ConfigureAwait(false))
+                {
+                    _batchEnumerator?.Dispose();
+                    _batchEnumerator = _cursor.Current.GetEnumerator();
+                    if (_batchEnumerator.MoveNext())
+                    {
+                        return true;
+                    }
+                }
+                else
+                {
+                    _batchEnumerator = null;
+                    _finished = true;
+                    return false;
+                }
+            }
+        }
+#endif
 
         public void Reset()
         {

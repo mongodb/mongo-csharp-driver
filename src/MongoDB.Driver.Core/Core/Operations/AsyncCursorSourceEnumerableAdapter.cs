@@ -21,7 +21,11 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    internal class AsyncCursorSourceEnumerableAdapter<TDocument> : IEnumerable<TDocument>
+    internal class AsyncCursorSourceEnumerableAdapter<TDocument> :
+#if NETSTANDARD2_1_OR_GREATER
+        IAsyncEnumerable<TDocument>,
+#endif
+        IEnumerable<TDocument>
     {
         // private fields
         private readonly CancellationToken _cancellationToken;
@@ -40,6 +44,14 @@ namespace MongoDB.Driver.Core.Operations
             var cursor = _source.ToCursor(_cancellationToken);
             return new AsyncCursorEnumerator<TDocument>(cursor, _cancellationToken);
         }
+
+#if NETSTANDARD2_1_OR_GREATER
+        public IAsyncEnumerator<TDocument> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+        {
+            var cursor = _source.ToCursorAsync(cancellationToken);
+            return new AsyncCursorEnumerator<TDocument>(cursor, cancellationToken);
+        }
+#endif
 
         IEnumerator IEnumerable.GetEnumerator()
         {

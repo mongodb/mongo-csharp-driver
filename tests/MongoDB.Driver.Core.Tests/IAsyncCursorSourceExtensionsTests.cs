@@ -203,6 +203,54 @@ namespace MongoDB.Driver
             action.ShouldThrow<InvalidOperationException>();
         }
 
+#if NETCOREAPP3_0_OR_GREATER
+        [Theory]
+        [ParameterAttributeData]
+        public async Task ToAsyncEnumerable_result_should_be_enumerable_multiple_times(
+            [Values(1, 2)] int times)
+        {
+            var source = CreateCursorSource(2);
+            var expectedDocuments = new[]
+            {
+                new BsonDocument("_id", 0),
+                new BsonDocument("_id", 1)
+            };
+
+            IAsyncEnumerable<BsonDocument> result = null;
+            for (var i = 0; i < times; i++)
+            {
+                result = source.ToAsyncEnumerable();
+                var list = new List<BsonDocument>();
+                await foreach (var item in result)
+                {
+                    list.Add(item);
+                }
+
+                list.Should().Equal(expectedDocuments);
+            }
+        }
+
+        [Fact]
+        public async Task ToAsyncEnumerable_should_return_expected_result()
+        {
+            var source = CreateCursorSource(2);
+            var expectedDocuments = new[]
+            {
+                new BsonDocument("_id", 0),
+                new BsonDocument("_id", 1)
+            };
+
+            var result = source.ToAsyncEnumerable();
+            var list = new List<BsonDocument>();
+            await foreach (var item in result)
+            {
+                list.Add(item);
+            }
+
+            list.Should().Equal(expectedDocuments);
+        }
+#endif
+
         [Theory]
         [ParameterAttributeData]
         public void ToEnumerable_result_should_be_enumerable_multiple_times(

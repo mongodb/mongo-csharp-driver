@@ -274,6 +274,19 @@ namespace MongoDB.Driver
             }
         }
 
+#if NETSTANDARD2_1_OR_GREATER
+        /// <summary>
+        /// Wraps a cursor source in an IAsyncEnumerable. Each time GetAsyncEnumerator is called a new cursor is fetched from the cursor source.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <returns>An IAsyncEnumerable.</returns>
+        public static IAsyncEnumerable<TDocument> ToAsyncEnumerable<TDocument>(this IAsyncCursorSource<TDocument> source)
+        {
+            return new AsyncCursorSourceEnumerableAdapter<TDocument>(source, default(CancellationToken));
+        }
+#endif
+
         /// <summary>
         /// Wraps a cursor source in an IEnumerable. Each time GetEnumerator is called a new cursor is fetched from the cursor source.
         /// </summary>
