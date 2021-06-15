@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters
         {
             Ensure.IsNotNull(subFieldName, nameof(subFieldName));
 
-            if (_path == "$CURRENT")
+            if (_path == "@<current>")
             {
                 return new AstFilterField(subFieldName, subFieldSerializer);
             }

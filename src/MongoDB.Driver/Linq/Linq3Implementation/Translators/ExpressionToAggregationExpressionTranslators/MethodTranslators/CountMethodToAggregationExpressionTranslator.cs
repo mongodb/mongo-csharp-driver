@@ -26,8 +26,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class CountMethodToAggregationExpressionTranslator
     {
-        private static MethodInfo[] __countMethods;
-        private static MethodInfo[] __countWithPredicateMethods;
+        private static readonly MethodInfo[] __countMethods;
+        private static readonly MethodInfo[] __countWithPredicateMethods;
 
         static CountMethodToAggregationExpressionTranslator()
         {

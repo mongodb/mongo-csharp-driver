@@ -23,6 +23,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
 {
     internal static class ModuloComparisonExpressionToFilterTranslator
     {
+        // caller is responsible for ensuring constant is on the right
         public static bool CanTranslate(Expression leftExpression, Expression rightExpression, out BinaryExpression moduloExpression, out Expression remainderExpression)
         {
             if (leftExpression.NodeType == ExpressionType.Modulo)
@@ -45,7 +46,22 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             var divisorExpression = moduloExpression.Right;
             BsonValue divisor;
             BsonValue remainder;
-            if (divisorExpression.Type == typeof(int) && remainderExpression.Type == typeof(int))
+            if (divisorExpression.Type == typeof(decimal) && remainderExpression.Type == typeof(decimal))
+            {
+                divisor = divisorExpression.GetConstantValue<decimal>(containingExpression: moduloExpression);
+                remainder = remainderExpression.GetConstantValue<decimal>(containingExpression: expression);
+            }
+            else if (divisorExpression.Type == typeof(double) && remainderExpression.Type == typeof(double))
+            {
+                divisor = divisorExpression.GetConstantValue<double>(containingExpression: moduloExpression);
+                remainder = remainderExpression.GetConstantValue<double>(containingExpression: expression);
+            }
+            else if (divisorExpression.Type == typeof(float) && remainderExpression.Type == typeof(float))
+            {
+                divisor = divisorExpression.GetConstantValue<float>(containingExpression: moduloExpression);
+                remainder = remainderExpression.GetConstantValue<float>(containingExpression: expression);
+            }
+            else if (divisorExpression.Type == typeof(int) && remainderExpression.Type == typeof(int))
             {
                 divisor = divisorExpression.GetConstantValue<int>(containingExpression: moduloExpression);
                 remainder = remainderExpression.GetConstantValue<int>(containingExpression: expression);
@@ -54,6 +70,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             {
                 divisor = divisorExpression.GetConstantValue<long>(containingExpression: moduloExpression);
                 remainder = remainderExpression.GetConstantValue<long>(containingExpression: expression);
+            }
+            else if (divisorExpression.Type == typeof(uint) && remainderExpression.Type == typeof(uint))
+            {
+                divisor = divisorExpression.GetConstantValue<uint>(containingExpression: moduloExpression);
+                remainder = remainderExpression.GetConstantValue<uint>(containingExpression: expression);
+            }
+            else if (divisorExpression.Type == typeof(ulong) && remainderExpression.Type == typeof(ulong))
+            {
+                divisor = (long)divisorExpression.GetConstantValue<ulong>(containingExpression: moduloExpression);
+                remainder = (long)remainderExpression.GetConstantValue<ulong>(containingExpression: expression);
             }
             else
             {

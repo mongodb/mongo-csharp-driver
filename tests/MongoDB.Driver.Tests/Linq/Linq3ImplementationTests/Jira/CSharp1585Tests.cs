@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             var parameter = expression.Parameters[0];
             var serializerRegistry = BsonSerializer.SerializerRegistry;
             var documentSerializer = serializerRegistry.GetSerializer<Document>();
-            var symbol = new Symbol("$CURRENT", documentSerializer);
+            var symbol = new Symbol("@<current>", documentSerializer);
             var symbolTable = new SymbolTable().WithSymbolAsCurrent(parameter, symbol);
             var context = new TranslationContext(symbolTable);
             var filter = ExpressionToFilterTranslator.Translate(context, expression.Body, exprOk: false);
@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             var ast = AstFilter.ElemMatch(
                 new AstFilterField("Details.A", BsonValueSerializer.Instance),
                 AstFilter.ElemMatch(
-                    new AstFilterField("$elem", BsonValueSerializer.Instance),
+                    new AstFilterField("@<elem>", BsonValueSerializer.Instance),
                     AstFilter.Regex(new AstFilterField("DeviceName", BsonValueSerializer.Instance), ".Name0.", "")));
 
             var rendered = ast.Render();

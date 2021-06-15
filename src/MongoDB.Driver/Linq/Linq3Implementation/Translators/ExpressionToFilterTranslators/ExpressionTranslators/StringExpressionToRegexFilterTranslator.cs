@@ -32,15 +32,15 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
     internal static class StringExpressionToRegexFilterTranslator
     {
         // private static fields
-        private static MethodInfo[] __indexOfAnyMethods;
-        private static MethodInfo[] __indexOfMethods;
-        private static MethodInfo[] __indexOfWithCharMethods;
-        private static MethodInfo[] __indexOfWithComparisonTypeMethods;
-        private static MethodInfo[] __indexOfWithCountMethods;
-        private static MethodInfo[] __indexOfWithStartIndexMethods;
-        private static MethodInfo[] __indexOfWithStringMethods;
-        private static MethodInfo[] __modifierMethods;
-        private static MethodInfo[] __translatableMethods;
+        private static readonly MethodInfo[] __indexOfAnyMethods;
+        private static readonly MethodInfo[] __indexOfMethods;
+        private static readonly MethodInfo[] __indexOfWithCharMethods;
+        private static readonly MethodInfo[] __indexOfWithComparisonTypeMethods;
+        private static readonly MethodInfo[] __indexOfWithCountMethods;
+        private static readonly MethodInfo[] __indexOfWithStartIndexMethods;
+        private static readonly MethodInfo[] __indexOfWithStringMethods;
+        private static readonly MethodInfo[] __modifierMethods;
+        private static readonly MethodInfo[] __translatableMethods;
 
         // static constructor
         static StringExpressionToRegexFilterTranslator()
@@ -135,7 +135,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
         }
 
         // public static methods
-        public static bool  CanTranslate(Expression expression)
+        public static bool CanTranslate(Expression expression)
         {
             if (expression is MethodCallExpression methodCallExpression)
             {
@@ -145,6 +145,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             return false;
         }
 
+        // caller is responsible for ensuring constant is on the right
         public static bool CanTranslateComparisonExpression(Expression leftExpression, AstComparisonFilterOperator comparisonOperator, Expression rightExpression)
         {
             // (int)document.S[i] == c
@@ -193,6 +194,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             throw new ExpressionNotSupportedException(expression);
         }
 
+        // caller is responsible for ensuring constant is on the right
         public static AstFilter TranslateComparisonExpression(TranslationContext context, Expression expression, Expression leftExpression, AstComparisonFilterOperator comparisonOperator, Expression rightExpression)
         {
             if (IsGetCharsComparison(leftExpression))
@@ -568,7 +570,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 var noEarlyMatchCount = comparand - startIndex;
                 if (noEarlyMatchCount > 0)
                 {
-                    pattern += $"[^{escapedSet}]{{{noEarlyMatchCount}}}"; // advance to comparand while verifing there are no earlier matches
+                    pattern += $"[^{escapedSet}]{{{noEarlyMatchCount}}}"; // advance to comparand while verifying there are no earlier matches
                 }
                 if (anyOf.Length == 1)
                 {

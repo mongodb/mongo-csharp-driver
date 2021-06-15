@@ -53,8 +53,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                     var predicateLambda = (LambdaExpression)arguments[1];
                     var parameterExpression = predicateLambda.Parameters.Single();
                     var elementSerializer = ArraySerializerHelper.GetItemSerializer(field.Serializer);
-                    var parameterSymbol = new Symbol("$elem", elementSerializer);
-                    var predicateSymbolTable = new SymbolTable(parameterExpression, parameterSymbol); // $elem is the only symbol visible inside an $elemMatch
+                    var parameterSymbol = new Symbol("@<elem>", elementSerializer); // @<elem> represents the implied element 
+                    var predicateSymbolTable = new SymbolTable(parameterExpression, parameterSymbol); // @<elem> is the only symbol visible inside an $elemMatch
                     var predicateContext = new TranslationContext(predicateSymbolTable);
                     var predicateFilter = ExpressionToFilterTranslator.Translate(predicateContext, predicateLambda.Body, exprOk: false);
 
@@ -118,10 +118,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                     var predicateLambda = (LambdaExpression)arguments[1];
                     var parameterExpression = predicateLambda.Parameters.Single();
                     var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceField.Serializer);
-                    var parameterSymbol = new Symbol("$elem", itemSerializer);
-                    var predicateSymbolTable = new SymbolTable(parameterExpression, parameterSymbol); // $elem is the only symbol visible inside an $elemMatch
+                    var parameterSymbol = new Symbol("@<elem>", itemSerializer); // @<elem> represents the implied element 
+                    var predicateSymbolTable = new SymbolTable(parameterExpression, parameterSymbol); // @<elem> is the only symbol visible inside an $elemMatch
                     var predicateContext = new TranslationContext(predicateSymbolTable);
-                    var whereFilter = ExpressionToFilterTranslator.Translate(predicateContext, predicateLambda.Body, exprOk : false);
+                    var whereFilter = ExpressionToFilterTranslator.Translate(predicateContext, predicateLambda.Body, exprOk: false);
                     var combinedFilter = AstFilter.Combine(sourceFilter, whereFilter);
 
                     return (sourceField, combinedFilter);

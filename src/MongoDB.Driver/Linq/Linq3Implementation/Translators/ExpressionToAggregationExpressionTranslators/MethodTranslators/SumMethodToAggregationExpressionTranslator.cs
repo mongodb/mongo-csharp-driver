@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class SumMethodToAggregationExpressionTranslator
     {
-        private static MethodInfo[] __sumMethods =
+        private static readonly MethodInfo[] __sumMethods =
         {
             EnumerableMethod.SumDecimal,
             EnumerableMethod.SumDecimalWithSelector,

@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
 
                 if (IsContainsParameterExpression(predicateLambda.Body, predicateParameter, out var innerSourceExpression))
                 {
-                    // f.Any(i => a.Contains(i)) where f is an array field and as is an array constant
+                    // f.Any(i => a.Contains(i)) where f is an array field and a is an array constant
                     if (innerSourceExpression is ConstantExpression innerArrayConstantExpression)
                     {
                         arrayFieldExpression = outerSourceExpression;
@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                         return true;
                     }
 
-                    // a.Any(i => f.Contains(i)) where f is an array field and as is an array constant
+                    // a.Any(i => f.Contains(i)) where f is an array field and a is an array constant
                     if (outerSourceExpression is ConstantExpression outerArrayConstantExpression)
                     {
                         arrayFieldExpression = innerSourceExpression;

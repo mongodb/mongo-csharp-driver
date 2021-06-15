@@ -36,13 +36,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters
         public override BsonValue Render()
         {
             var fieldPath = _field.Path;
-            if (fieldPath == "$elem")
+            if (fieldPath == "@<elem>")
             {
                 return _operation.Render();
             }
-            if (fieldPath.StartsWith("$elem."))
+            if (fieldPath.StartsWith("@<elem>."))
             {
-                fieldPath = fieldPath.Substring(6);
+                fieldPath = fieldPath.Substring(8);
             }
 
             if (_operation is AstComparisonFilterOperation comparisonOperation &&
@@ -55,7 +55,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters
             if (
                 _operation is AstElemMatchFilterOperation elemMatchOperation &&
                 elemMatchOperation.Filter is AstFieldOperationFilter fieldOperationFilter &&
-                fieldOperationFilter.Field.Path == "$elem")
+                fieldOperationFilter.Field.Path == "@<elem>")
             {
                 if (fieldOperationFilter.Operation is AstComparisonFilterOperation elemMatchComparisonOperation &&
                     elemMatchComparisonOperation.Operator == AstComparisonFilterOperator.Eq &&

@@ -28,9 +28,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class StartsWithContainsOrEndsWithMethodToAggregationExpressionTranslator
     {
-        private static MethodInfo[] __startsWithContainsOrEndWithMethods;
-        private static MethodInfo[] __withComparisonTypeMethods;
-        private static MethodInfo[] __withIgnoreCaseAndCultureMethods;
+        private static readonly MethodInfo[] __startsWithContainsOrEndWithMethods;
+        private static readonly MethodInfo[] __withComparisonTypeMethods;
+        private static readonly MethodInfo[] __withIgnoreCaseAndCultureMethods;
 
         static StartsWithContainsOrEndsWithMethodToAggregationExpressionTranslator()
         {

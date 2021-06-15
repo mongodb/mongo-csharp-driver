@@ -22,6 +22,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
 {
     internal static class ArrayLengthComparisonExpressionToFilterTranslator
     {
+        // caller is responsible for ensuring constant is on the right
         public static bool CanTranslate(Expression leftExpression, Expression rightExpression, out UnaryExpression arrayLengthExpression, out Expression sizeExpression)
         {
             if (leftExpression.NodeType == ExpressionType.ArrayLength)

@@ -31,6 +31,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 leftBinaryExpression.NodeType == ExpressionType.And;
         }
 
+        // caller is responsible for ensuring constant is on the right
         public static AstFilter Translate(
             TranslationContext context,
             Expression expression,

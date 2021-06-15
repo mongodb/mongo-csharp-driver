@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System.Collections.ObjectModel;
 using System.Linq.Expressions;
 using System.Reflection;
 using MongoDB.Bson.Serialization;

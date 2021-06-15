@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             var symbolTable = context.SymbolTable;
             if (symbolTable.TryGetSymbol(expression, out Symbol symbol))
             {
-                var fieldName = symbol == symbolTable.Current ? "$CURRENT" : symbol.Name;
+                var fieldName = symbol == symbolTable.Current ? "@<current>" : symbol.Name;
                 var fieldSerializer = symbol.Serializer;
                 var field = AstFilter.Field(fieldName, fieldSerializer);
 

@@ -23,7 +23,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class AbsMethodToAggregationExpressionTranslator
     {
-        private static MethodInfo[] __absMethods =
+        private static readonly MethodInfo[] __absMethods =
         {
             MathMethod.AbsDecimal,
             MathMethod.AbsDouble,

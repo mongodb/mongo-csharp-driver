@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class TrimMethodToAggregationExpressionTranslator
     {
-        private static MethodInfo[] __trimMethods;
+        private static readonly MethodInfo[] __trimMethods;
 
         static TrimMethodToAggregationExpressionTranslator()
         {

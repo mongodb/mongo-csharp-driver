@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.Name == "Equals" & method.ReturnType == typeof(bool))
+            if (method.Name == "Equals" && method.ReturnType == typeof(bool))
             {
                 if (method.IsStatic)
                 {

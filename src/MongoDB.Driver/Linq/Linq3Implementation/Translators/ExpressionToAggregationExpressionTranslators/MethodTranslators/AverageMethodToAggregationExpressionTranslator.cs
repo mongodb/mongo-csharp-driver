@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class AverageMethodToAggregationExpressionTranslator
     {
-        private static MethodInfo[] __averageMethods =
+        private static readonly MethodInfo[] __averageMethods =
         {
             EnumerableMethod.AverageDecimal,
             EnumerableMethod.AverageDecimalWithSelector,
@@ -48,7 +48,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             EnumerableMethod.AverageSingleWithSelector
         };
 
-        private static MethodInfo[] __averageWithSelectorMethods =
+        private static readonly MethodInfo[] __averageWithSelectorMethods =
         {
             EnumerableMethod.AverageDecimalWithSelector,
             EnumerableMethod.AverageDoubleWithSelector,

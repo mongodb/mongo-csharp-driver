@@ -72,7 +72,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters
                 var fieldPath = renderedFilter.GetElement(0).Name;
                 if (fieldPath.StartsWith("$"))
                 {
-                    // this case occurs when { $elem : { $op : args } } is rendered as { $op : args } inside an $elemMatch
+                    // this case occurs when { @<elem> : { $op : args } } is rendered as { $op : args } inside an $elemMatch, so fieldPath is an operator
                     if (renderedAsImplicitAnd.Contains(fieldPath))
                     {
                         return false;

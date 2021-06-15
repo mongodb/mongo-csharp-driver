@@ -21,7 +21,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters
 {
     internal sealed class AstElemMatchFilterOperation : AstFilterOperation
     {
-        private readonly AstFilter _filter; // note: using "$elem" to represent the implied element values
+        private readonly AstFilter _filter; // note: using "@<elem>" to represent the implied element values
 
         public AstElemMatchFilterOperation(AstFilter filter)
         {
