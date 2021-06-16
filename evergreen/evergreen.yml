@@ -13,8 +13,8 @@ stepback: true
 command_type: system
 
 # Protect ourself against rogue test case, or curl gone wild, that runs forever
-# 12 minutes is the longest we'll ever run
-exec_timeout_secs: 1800
+# 42 minutes is the average for serverless tests (the longest of all, because of the heavy set up task)
+exec_timeout_secs: 2700
 
 # What to do when evergreen hits the timeout (`post:` tasks are run automatically)
 timeout:
@@ -593,6 +593,23 @@ functions:
             -v \
             --fault revoked
 
+  run-serverless-tests:
+    - command: shell.exec
+      type: test
+      params:
+        working_dir: mongo-csharp-driver
+        script: |
+          # set +o xtrace
+          MONGODB_URI="${MONGODB_URI}" \
+          MONGODB_SRV_URI="${MONGODB_SRV_URI}" \
+          SERVERLESS_ATLAS_USER="${SERVERLESS_ATLAS_USER}" \
+          SERVERLESS_ATLAS_PASSWORD="${SERVERLESS_ATLAS_PASSWORD}" \
+          AUTH=${AUTH} \
+          SSL=${SSL} \
+          COMPRESSOR=${COMPRESSOR} \
+          FRAMEWORK=${FRAMEWORK} \
+            evergreen/run-serverless-tests.sh
+
   publish-snapshot:
     - command: shell.exec
       type: test
@@ -632,13 +649,15 @@ functions:
     - command: shell.exec
       params:
         script: |
-          ${PREPARE_SHELL}
-          for i in $(find ${DRIVERS_TOOLS}/.evergreen ${PROJECT_DIRECTORY}/evergreen -name \*.sh); do
-            cat $i | tr -d '\r' > $i.new
-            mv $i.new $i
-          done
-          # Copy client certificate because symlinks do not work on Windows.
-          cp ${DRIVERS_TOOLS}/.evergreen/x509gen/client.pem ${MONGO_ORCHESTRATION_HOME}/lib/client.pem
+          if [ "Windows_NT" = "$OS" ]; then
+            ${PREPARE_SHELL}
+            for i in $(find ${DRIVERS_TOOLS}/.evergreen ${PROJECT_DIRECTORY}/evergreen -name \*.sh); do
+              cat $i | tr -d '\r' > $i.new
+              mv $i.new $i
+            done
+            # Copy client certificate because symlinks do not work on Windows.
+            cp ${DRIVERS_TOOLS}/.evergreen/x509gen/client.pem ${MONGO_ORCHESTRATION_HOME}/lib/client.pem
+          fi
 
   make-files-executable:
     - command: shell.exec
@@ -656,6 +675,7 @@ functions:
           ${PREPARE_SHELL}
           echo '{"results": [{ "status": "FAIL", "test_file": "Build", "log_raw": "No test-results.json found was created" } ]}' > ${PROJECT_DIRECTORY}/test-results.json
 
+# Note: Task groups do not run "pre" or "post" tasks, thus relevant tasks should be copied to "setup_group" section of the task group
 pre:
   - func: fetch-source
   - func: prepare-resources
@@ -842,6 +862,11 @@ tasks:
           name: test
       commands:
         - func: publish-snapshot
+
+    - name: serverless-tests
+      tags: ["serverless"]
+      commands:
+        - func: run-serverless-tests
 
     - name: test-ocsp-rsa-valid-cert-server-staples-ca-responder
       tags: ["ocsp"]
@@ -1289,6 +1314,67 @@ axes:
         variables:
            COMPRESSOR: "zstandard"
 
+  - id: framework
+    display_name: Framework
+    values:
+      - id: "net452"
+        display_name: .NET 4.5.2
+        variables:
+           FRAMEWORK: "net452"
+      - id: "netstandard15"
+        display_name: .NET Standard 1.5
+        variables:
+           FRAMEWORK: "netstandard15"
+      - id: "netstandard20"
+        display_name: .NET Standard 2.0
+        variables:
+           FRAMEWORK: "netstandard20"
+      - id: "netstandard21"
+        display_name: .NET Standard 2.1
+        variables:
+           FRAMEWORK: "netstandard21"
+
+task_groups:
+  - name: serverless-task-group
+    setup_group_can_fail_task: true
+    setup_group_timeout_secs: 900 # Setup task can take up to 15 minutes
+    setup_group:
+      # Note: "pre" functions do not run for task group tasks. That's why they are duplicated here.
+      - func: fetch-source
+      - func: prepare-resources
+      - func: windows-fix
+      - func: fix-absolute-paths
+      - func: init-test-results
+      - func: make-files-executable
+      - command: shell.exec
+        params:
+          shell: "bash"
+          silent: true
+          script: |
+            ${PREPARE_SHELL}
+            set +o xtrace
+            SERVERLESS_DRIVERS_GROUP=${SERVERLESS_DRIVERS_GROUP} \
+            SERVERLESS_API_PUBLIC_KEY=${SERVERLESS_API_PUBLIC_KEY} \
+            SERVERLESS_API_PRIVATE_KEY=${SERVERLESS_API_PRIVATE_KEY} \
+              bash ${DRIVERS_TOOLS}/.evergreen/serverless/create-instance.sh
+      - command: expansions.update
+        params:
+          file: serverless-expansion.yml
+    teardown_group:
+      - command: shell.exec
+        params:
+          silent: true
+          script: |
+            ${PREPARE_SHELL}
+            set +o xtrace
+            SERVERLESS_DRIVERS_GROUP=${SERVERLESS_DRIVERS_GROUP} \
+            SERVERLESS_API_PUBLIC_KEY=${SERVERLESS_API_PUBLIC_KEY} \
+            SERVERLESS_API_PRIVATE_KEY=${SERVERLESS_API_PRIVATE_KEY} \
+            SERVERLESS_INSTANCE_NAME=${SERVERLESS_INSTANCE_NAME} \
+              bash ${DRIVERS_TOOLS}/.evergreen/serverless/delete-instance.sh
+    tasks:
+      - serverless-tests
+
 buildvariants:
 
 - name: windows-64-compile
@@ -1455,6 +1541,24 @@ buildvariants:
     - name: "test-load-balancer-netstandard15"
     - name: "test-load-balancer-netstandard20"
     - name: "test-load-balancer-netstandard21"
+
+- matrix_name: serverless-tests-windows
+  matrix_spec: { auth: "auth", ssl: "ssl", compressor: "zlib", os: "windows-64", framework: ["net452", "netstandard15", "netstandard20", "netstandard21"] }
+  display_name: "Serverless ${compressor} ${auth} ${ssl} ${os} ${framework}"
+  tasks:
+    - name: serverless-task-group
+
+- matrix_name: serverless-tests-macos
+  matrix_spec: { auth: "auth", ssl: "ssl", compressor: "zlib", os: "macos-1014", framework: ["netstandard20", "netstandard21"] }
+  display_name: "Serverless ${compressor} ${auth} ${ssl} ${os} ${framework}"
+  tasks:
+    - name: serverless-task-group
+
+- matrix_name: serverless-tests-ubuntu
+  matrix_spec: { auth: "auth", ssl: "ssl", compressor: "zlib", os: "ubuntu-1804", framework: ["netstandard20", "netstandard21"] }
+  display_name: "Serverless ${compressor} ${auth} ${ssl} ${os} ${framework}"
+  tasks:
+    - name: serverless-task-group
 
 - name: atlas-connectivity-tests
   display_name: "Atlas Connectivity Tests"

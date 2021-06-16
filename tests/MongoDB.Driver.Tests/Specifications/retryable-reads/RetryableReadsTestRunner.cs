@@ -35,6 +35,7 @@ using Xunit;
 namespace MongoDB.Driver.Tests.Specifications.retryable_reads
 {
     [Trait("Category", "SupportLoadBalancing")]
+    [Trait("Category", "Serverless")]
     public sealed class RetryableReadsTestRunner
     {
         #region static
@@ -416,6 +417,25 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
         // nested types
         public class TestCaseFactory : JsonDrivenTestCaseFactory
         {
+            #region static
+            private static readonly string[] __serverlessIgnoredTestNames =
+            {
+                // https://jira.mongodb.org/browse/CLOUDP-92618
+                "listDatabases.json:ListDatabases succeeds on first attempt",
+                "listDatabases.json:ListDatabases succeeds on second attempt",
+                "listDatabases-serverErrors.json:ListDatabases succeeds after HostNotFound",
+                "listDatabases-serverErrors.json:ListDatabases succeeds after HostUnreachable",
+                "listDatabases-serverErrors.json:ListDatabases succeeds after InterruptedAtShutdown",
+                "listDatabases-serverErrors.json:ListDatabases succeeds after InterruptedDueToReplStateChange",
+                "listDatabases-serverErrors.json:ListDatabases succeeds after NetworkTimeout",
+                "listDatabases-serverErrors.json:ListDatabases succeeds after NotPrimaryNoSecondaryOk",
+                "listDatabases-serverErrors.json:ListDatabases succeeds after NotPrimaryOrSecondary",
+                "listDatabases-serverErrors.json:ListDatabases succeeds after NotWritablePrimary",
+                "listDatabases-serverErrors.json:ListDatabases succeeds after PrimarySteppedDown",
+                "listDatabases-serverErrors.json:ListDatabases succeeds after ShutdownInProgress",
+                "listDatabases-serverErrors.json:ListDatabases succeeds after SocketException"
+            };
+            #endregion
             // protected properties
             // the path is "retryable-reads" but the namespace is "retryable_reads"
             protected override string PathPrefix => "MongoDB.Driver.Tests.Specifications.retryable_reads.tests.";
@@ -423,7 +443,12 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
             // protected methods
             protected override IEnumerable<JsonDrivenTestCase> CreateTestCases(BsonDocument document)
             {
-                foreach (var testCase in base.CreateTestCases(document))
+                var testCases = base.CreateTestCases(document);
+                if (CoreTestConfiguration.Serverless)
+                {
+                    testCases = testCases.Where(test => !__serverlessIgnoredTestNames.Any(ignoredName => test.Name.EndsWith(ignoredName)));
+                }
+                foreach (var testCase in testCases)
                 {
                     foreach (var async in new[] { false, true })
                     {

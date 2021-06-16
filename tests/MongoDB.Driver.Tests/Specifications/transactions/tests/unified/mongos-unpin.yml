@@ -85,7 +85,7 @@ tests:
       - *abortTransaction
       - *assertNoPinnedServer
 
-  - description: unpin after non-transient error on abort
+  - description: unpin after TransientTransactionError error on abort
     runOnRequirements:
         # serverless proxy doesn't append error labels to errors in transactions
         # caused by failpoints (CLOUDP-88216)

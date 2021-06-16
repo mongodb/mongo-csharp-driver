@@ -22,6 +22,7 @@ using Xunit;
 namespace MongoDB.Driver.Tests.Specifications.versioned_api
 {
     [Trait("Category", "SupportLoadBalancing")]
+    [Trait("Category", "Serverless")]
     public sealed class VersionedApiUnifiedTestRunner
     {
         [SkippableTheory]

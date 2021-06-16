@@ -29,6 +29,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Specifications.crud
 {
+    [Trait("Category", "Serverless")]
     public class CrudTestRunner
     {
         #region static

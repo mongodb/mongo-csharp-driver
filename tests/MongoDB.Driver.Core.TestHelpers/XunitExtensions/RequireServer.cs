@@ -127,6 +127,18 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
             throw new SkipException($"Test skipped because cluster does not meet runOn requirements: {requirements}.");
         }
 
+        public RequireServer Serverless(bool require = true)
+        {
+            var isServerless = CoreTestConfiguration.Serverless;
+
+            if (isServerless == require)
+            {
+                return this;
+            }
+
+            throw new SkipException("Test skipped because serverless is " + (require ? "required" : "not required"));
+        }
+
         public RequireServer Supports(Feature feature)
         {
             if (feature.IsSupported(_serverVersion))
@@ -272,6 +284,17 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
                             }
                         }
                         break;
+                    case "serverless":
+                        {
+                            var serverlessValue = item.Value.AsString;
+                            switch (serverlessValue)
+                            {
+                                case "forbid":
+                                    return CoreTestConfiguration.Serverless == false;
+                                default:
+                                    throw new FormatException($"Invalid runOn requirement serverless field value: '{item.Value}'.");
+                            }
+                        }
                     case "serverParameters":
                         {
                             var serverParameters = CoreTestConfiguration.GetServerParameters();
@@ -295,8 +318,6 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
                             }
                         }
                         break;
-                    case "serverless":
-                        return false; // TODO: not implemented yet
                     default:
                         throw new FormatException($"Unrecognized requirement field: '{item.Name}'");
                 }
