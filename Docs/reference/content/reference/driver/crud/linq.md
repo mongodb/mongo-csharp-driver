@@ -353,6 +353,26 @@ var result = collection.AsQueryable().Any(p => p.Age > 21);
     { $limit: 1 }
 ]
 ```
+##### Any With Predicate
+This method is used to test entries in an array. It will generate an `$elemMatch` condition.
+
+```csharp
+var query =
+    from c in collection.AsQueryable<C>()
+    where c.A.Any(a => a.B == 1)
+    select c;
+// or
+var query =
+    collection.AsQueryable<C>()
+    .Where(c => c.A.Any(a => a.B == 1));
+```
+
+This is translated to the following MongoDB query:
+
+```json
+{ A: { $elemMatch: { B: 1 } } }
+```
+
 
 {{% note %}} `Any` has a boolean return type. Since MongoDB doesn't support this, the driver will pull back at most 1 document. If one document was retrieved, then the result is true. Otherwise, it's false.{{% /note %}}
 
