@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -92,16 +93,30 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     case "filter":
                         filter = new BsonDocumentFilterDefinition<BsonDocument>(argument.Value.AsBsonDocument);
                         break;
+                    case "hint":
+                        options ??= new FindOneAndUpdateOptions<BsonDocument>();
+                        options.Hint = argument.Value;
+                        break;
                     case "returnDocument":
-                        options = options ?? new FindOneAndUpdateOptions<BsonDocument>();
+                        options ??= new FindOneAndUpdateOptions<BsonDocument>();
                         options.ReturnDocument = (ReturnDocument)Enum.Parse(typeof(ReturnDocument), argument.Value.AsString);
                         break;
                     case "sort":
-                        options = options ?? new FindOneAndUpdateOptions<BsonDocument>();
+                        options ??= new FindOneAndUpdateOptions<BsonDocument>();
                         options.Sort = new BsonDocumentSortDefinition<BsonDocument>(argument.Value.AsBsonDocument);
                         break;
                     case "update":
-                        update = new BsonDocumentUpdateDefinition<BsonDocument>(argument.Value.AsBsonDocument);
+                        switch (argument.Value)
+                        {
+                            case BsonDocument:
+                                update = argument.Value.AsBsonDocument;
+                                break;
+                            case BsonArray:
+                                update = PipelineDefinition<BsonDocument, BsonDocument>.Create(argument.Value.AsBsonArray.Cast<BsonDocument>());
+                                break;
+                            default:
+                                throw new FormatException($"Invalid FindOneAndUpdateOperation update argument: '{argument.Value}'.");
+                        }
                         break;
                     default:
                         throw new FormatException($"Invalid FindOneAndUpdateOperation argument name: '{argument.Name}'.");

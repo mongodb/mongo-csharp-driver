@@ -88,6 +88,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     case "filter":
                         filter = new BsonDocumentFilterDefinition<BsonDocument>(argument.Value.AsBsonDocument);
                         break;
+                    case "hint":
+                        options ??= new DeleteOptions();
+                        options.Hint = argument.Value;
+                        break;
                     default:
                         throw new FormatException($"Invalid DeleteOneOperation argument name: '{argument.Name}'.");
                 }

@@ -24,20 +24,23 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
     {
         private readonly IMongoCollection<BsonDocument> _collection;
         private readonly FilterDefinition<BsonDocument> _filter;
+        private readonly FindOneAndDeleteOptions<BsonDocument> _options;
 
         public UnifiedFindOneAndDeleteOperation(
             IMongoCollection<BsonDocument> collection,
-            FilterDefinition<BsonDocument> filter)
+            FilterDefinition<BsonDocument> filter,
+            FindOneAndDeleteOptions<BsonDocument> options)
         {
             _collection = collection;
             _filter = filter;
+            _options = options;
         }
 
         public OperationResult Execute(CancellationToken cancellationToken)
         {
             try
             {
-                var result = _collection.FindOneAndDelete(_filter, cancellationToken: cancellationToken);
+                var result = _collection.FindOneAndDelete(_filter, _options, cancellationToken);
 
                 return OperationResult.FromResult(result);
             }
@@ -51,7 +54,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             try
             {
-                var result = await _collection.FindOneAndDeleteAsync(_filter, cancellationToken: cancellationToken);
+                var result = await _collection.FindOneAndDeleteAsync(_filter, _options, cancellationToken);
 
                 return OperationResult.FromResult(result);
             }
@@ -76,6 +79,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             var collection = _entityMap.GetCollection(targetCollectionId);
 
             FilterDefinition<BsonDocument> filter = null;
+            FindOneAndDeleteOptions<BsonDocument> options = null;
 
             foreach (var argument in arguments)
             {
@@ -84,12 +88,16 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     case "filter":
                         filter = new BsonDocumentFilterDefinition<BsonDocument>(argument.Value.AsBsonDocument);
                         break;
+                    case "hint":
+                        options ??= new FindOneAndDeleteOptions<BsonDocument>();
+                        options.Hint = argument.Value;
+                        break;
                     default:
                         throw new FormatException($"Invalid FindOneAndDeleteOperation argument name: '{argument.Name}'.");
                 }
             }
 
-            return new UnifiedFindOneAndDeleteOperation(collection, filter);
+            return new UnifiedFindOneAndDeleteOperation(collection, filter, options);
         }
     }
 }

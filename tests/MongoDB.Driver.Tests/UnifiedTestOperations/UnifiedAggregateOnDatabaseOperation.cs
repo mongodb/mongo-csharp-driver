@@ -88,6 +88,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             {
                 switch (argument.Name)
                 {
+                    case "allowDiskUse":
+                        options ??= new AggregateOptions();
+                        options.AllowDiskUse = argument.Value.AsBoolean;
+                        break;
                     case "pipeline":
                         var stages = argument.Value.AsBsonArray.Cast<BsonDocument>();
                         pipeline = new BsonDocumentStagePipelineDefinition<NoPipelineInput, BsonDocument>(stages);

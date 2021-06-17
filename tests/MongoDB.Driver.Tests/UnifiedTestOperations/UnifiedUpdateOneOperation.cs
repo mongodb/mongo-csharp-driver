@@ -58,7 +58,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     result = _collection.UpdateOne(_session, _filter, _update, _options, cancellationToken);
                 }
 
-                return OperationResult.FromResult(null);
+                return new UnifiedUpdateOneOperationResultConverter().Convert(result);
             }
             catch (Exception exception)
             {
@@ -81,7 +81,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     result = await _collection.UpdateOneAsync(_session, _filter, _update, _options, cancellationToken);
                 }
 
-                return OperationResult.FromResult(null);
+                return new UnifiedUpdateOneOperationResultConverter().Convert(result);
             }
             catch (Exception exception)
             {
@@ -115,11 +115,25 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     case "filter":
                         filter = argument.Value.AsBsonDocument;
                         break;
+                    case "hint":
+                        options ??= new UpdateOptions();
+                        options.Hint = argument.Value;
+                        break;
                     case "session":
                         session = _entityMap.GetSession(argument.Value.AsString);
                         break;
                     case "update":
-                        update = CreateUpdateDefinition(argument.Value);
+                        switch (argument.Value)
+                        {
+                            case BsonDocument:
+                                update = argument.Value.AsBsonDocument;
+                                break;
+                            case BsonArray:
+                                update = PipelineDefinition<BsonDocument, BsonDocument>.Create(argument.Value.AsBsonArray.Cast<BsonDocument>());
+                                break;
+                            default:
+                                throw new FormatException($"Invalid UpdateOneOperation update argument: '{argument.Value}'.");
+                        }
                         break;
                     default:
                         throw new FormatException($"Invalid UpdateOneOperation argument name: '{argument.Name}'.");
@@ -128,22 +142,20 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
             return new UnifiedUpdateOneOperation(session, collection, filter, update, options);
         }
-
-        // private methods
-        private UpdateDefinition<BsonDocument> CreateUpdateDefinition(BsonValue argument) =>
-            argument switch
-            {
-                BsonDocument document => document,
-                BsonArray bsonArray => PipelineDefinition<BsonDocument, BsonDocument>.Create(bsonArray.Values.Cast<BsonDocument>()),
-                _ => throw new FormatException($"Unsupported UpdateDefinition type {argument.GetType().Name}."),
-            };
     }
 
     public class UnifiedUpdateOneOperationResultConverter
     {
         public OperationResult Convert(UpdateResult result)
         {
-            throw new NotImplementedException("Specification requirements are not clear on result format.");
+            var document = new BsonDocument
+            {
+                { "matchedCount", result.MatchedCount },
+                { "modifiedCount", result.ModifiedCount },
+                { "upsertedCount", result.UpsertedId == null ? 0 : 1 },
+            };
+
+            return OperationResult.FromResult(document);
         }
     }
 }
