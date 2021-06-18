@@ -17,6 +17,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
@@ -25,22 +26,27 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         private readonly IMongoCollection<BsonDocument> _collection;
         private readonly FilterDefinition<BsonDocument> _filter;
         private readonly FindOptions<BsonDocument> _options;
+        private readonly IClientSessionHandle _session;
 
         public UnifiedFindOperation(
             IMongoCollection<BsonDocument> collection,
             FilterDefinition<BsonDocument> filter,
+            IClientSessionHandle session,
             FindOptions<BsonDocument> options)
         {
-            _collection = collection;
-            _filter = filter;
-            _options = options;
+            _collection = Ensure.IsNotNull(collection, nameof(collection));
+            _filter = Ensure.IsNotNull(filter, nameof(filter));
+            _options = options; // can be null
+            _session = session; // can be null
         }
 
         public OperationResult Execute(CancellationToken cancellationToken)
         {
             try
             {
-                var cursor = _collection.FindSync(_filter, _options, cancellationToken);
+                var cursor = _session == null
+                    ? _collection.FindSync(_filter, _options, cancellationToken)
+                    : _collection.FindSync(_session, _filter, _options, cancellationToken);
                 var result = cursor.ToList();
 
                 return OperationResult.FromResult(new BsonArray(result));
@@ -55,7 +61,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             try
             {
-                var cursor = await _collection.FindAsync(_filter, _options, cancellationToken);
+                var cursor = _session == null
+                    ? await _collection.FindAsync(_filter, _options, cancellationToken).ConfigureAwait(false)
+                    : await _collection.FindAsync(_session, _filter, _options, cancellationToken).ConfigureAwait(false);
                 var result = await cursor.ToListAsync();
 
                 return OperationResult.FromResult(new BsonArray(result));
@@ -82,6 +90,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
             FilterDefinition<BsonDocument> filter = null;
             FindOptions<BsonDocument> options = null;
+            IClientSessionHandle session = null;
 
             foreach (var argument in arguments)
             {
@@ -98,6 +107,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         options = options ?? new FindOptions<BsonDocument>();
                         options.Limit = argument.Value.AsInt32;
                         break;
+                    case "session":
+                        session = _entityMap.GetSession(argument.Value.AsString);
+                        break;
                     case "sort":
                         options = options ?? new FindOptions<BsonDocument>();
                         options.Sort = new BsonDocumentSortDefinition<BsonDocument>(argument.Value.AsBsonDocument);
@@ -107,7 +119,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 }
             }
 
-            return new UnifiedFindOperation(collection, filter, options);
+            return new UnifiedFindOperation(collection, filter, session, options);
         }
     }
 }
