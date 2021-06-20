@@ -1215,6 +1215,18 @@ namespace Tests.MongoDB.Driver.Linq
         }
 
         [Fact]
+        public void SelectMany_with_collection_selector_method_simple_scalar_defaultIfEmpty_adds_preserveNullAndEmptyArrays()
+        {
+            var query = CreateQuery()
+                .SelectMany(x => x.G.DefaultIfEmpty(), (x, c) => c);
+
+            Assert(query,
+                4,
+                "{ $unwind: { 'path' : '$G', 'preserveNullAndEmptyArrays' : true } }",
+                "{ $project: { G: '$G', _id: 0 } }");
+        }
+
+        [Fact]
         public void SelectMany_with_collection_selector_method_simple_scalar_which_is_called_from_SelectMany()
         {
             var cQuery = CreateQuery()

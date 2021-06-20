@@ -337,8 +337,7 @@ namespace MongoDB.Driver.Linq.Translators
                 unwindValue = $"${field.FieldName}";
             }
 
-            var groupJoin = node.Source as GroupJoinExpression;
-            if (groupJoin != null && isLeftOuterJoin)
+            if (isLeftOuterJoin)
             {
                 unwindValue = new BsonDocument
                 {
