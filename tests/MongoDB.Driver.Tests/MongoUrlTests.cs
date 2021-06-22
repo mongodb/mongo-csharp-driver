@@ -30,6 +30,26 @@ namespace MongoDB.Driver.Tests
     [Trait("Category", "ConnectionString")]
     public class MongoUrlTests
     {
+        [Fact]
+        public void MaxPoolSize_zero_should_be_handled_correctly()
+        {
+            var subject = new MongoUrl("mongodb://localhost/?maxPoolSize=0");
+
+            var result = subject.MaxConnectionPoolSize;
+
+            result.Should().Be(0);
+        }
+
+        [Fact]
+        public void MaxPoolSize_missing_should_be_handled_correctly()
+        {
+            var subject = new MongoUrl("mongodb://localhost");
+
+            var result = subject.MaxConnectionPoolSize;
+
+            result.Should().Be(MongoDefaults.MaxConnectionPoolSize);
+        }
+
         [Theory]
         [InlineData("mongodb://localhost", true)]
         [InlineData("mongodb+srv://localhost", false)]

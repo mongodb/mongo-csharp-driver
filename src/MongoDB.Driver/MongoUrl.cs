@@ -21,6 +21,7 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Shared;
 
 namespace MongoDB.Driver
 {
@@ -225,7 +226,8 @@ namespace MongoDB.Driver
                 }
                 else
                 {
-                    return (int)(_waitQueueMultiple * _maxConnectionPoolSize);
+                    var effectiveMaxConnections = ConnectionStringConversions.GetEffectiveMaxConnections(_maxConnectionPoolSize);
+                    return ConnectionStringConversions.GetComputedWaitQueueSize(effectiveMaxConnections, _waitQueueMultiple);
                 }
             }
         }

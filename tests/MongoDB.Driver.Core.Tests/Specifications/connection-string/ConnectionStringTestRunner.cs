@@ -113,6 +113,12 @@ namespace MongoDB.Driver.Specifications.connection_string
                         case "maxidletimems":
                             AssertTimeSpan(connectionString.MaxIdleTime, expectedOption.Value);
                             break;
+                        case "minpoolsize":
+                            connectionString.MinPoolSize.Should().Be(expectedOption.Value.ToInt32());
+                            break;
+                        case "maxpoolsize":
+                            connectionString.MaxPoolSize.Should().Be(expectedOption.Value.ToInt32());
+                            break;
                         case "maxstalenessseconds":
                             AssertTimeSpan(connectionString.MaxStaleness, expectedOption.Value, false);
                             break;

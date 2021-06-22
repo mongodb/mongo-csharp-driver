@@ -671,6 +671,20 @@ namespace MongoDB.Driver.Tests
             settings.AllowInsecureTls.Should().Be(url.AllowInsecureTls);
         }
 
+        [Theory]
+        [InlineData(0, int.MaxValue)]
+        [InlineData(126, 126)]
+        public void TestFromUrlWithMaxPoolSize(int inputValue, int expectedValue)
+        {
+            var connectionString = $"mongodb://the-next-generation/?maxPoolSize={inputValue}";
+            var builder = new MongoUrlBuilder(connectionString);
+            var url = builder.ToMongoUrl();
+
+            var settings = MongoClientSettings.FromUrl(url);
+
+            settings.MaxConnectionPoolSize.Should().Be(expectedValue);
+        }
+
         [Fact]
         public void TestFromUrlWithMongoDBX509()
         {
@@ -871,7 +885,13 @@ namespace MongoDB.Driver.Tests
             var settings = new MongoClientSettings();
             Assert.Equal(MongoDefaults.MaxConnectionPoolSize, settings.MaxConnectionPoolSize);
 
-            var maxConnectionPoolSize = 123;
+            var maxConnectionPoolSize = -1;
+            Assert.Throws<ArgumentOutOfRangeException>(() => settings.MaxConnectionPoolSize = maxConnectionPoolSize);
+
+            maxConnectionPoolSize = 0;
+            Assert.Throws<ArgumentOutOfRangeException>(() => settings.MaxConnectionPoolSize = maxConnectionPoolSize);
+
+            maxConnectionPoolSize = 123;
             settings.MaxConnectionPoolSize = maxConnectionPoolSize;
             Assert.Equal(maxConnectionPoolSize, settings.MaxConnectionPoolSize);
 

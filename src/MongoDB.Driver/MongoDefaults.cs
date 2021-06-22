@@ -18,6 +18,8 @@ using System.Text;
 using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Shared;
 
 namespace MongoDB.Driver
 {
@@ -82,7 +84,7 @@ namespace MongoDB.Driver
                 }
                 else
                 {
-                    return (int)(__waitQueueMultiple * __maxConnectionPoolSize);
+                    return ConnectionStringConversions.GetComputedWaitQueueSize(__maxConnectionPoolSize, __waitQueueMultiple);
                 }
             }
         }
@@ -150,7 +152,7 @@ namespace MongoDB.Driver
         public static int MaxConnectionPoolSize
         {
             get { return __maxConnectionPoolSize; }
-            set { __maxConnectionPoolSize = value; }
+            set { __maxConnectionPoolSize = Ensure.IsGreaterThanZero(value, nameof(MaxConnectionPoolSize)); }
         }
 
         /// <summary>

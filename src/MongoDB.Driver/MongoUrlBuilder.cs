@@ -223,7 +223,8 @@ namespace MongoDB.Driver
                 }
                 else
                 {
-                    return (int)(_waitQueueMultiple * _maxConnectionPoolSize);
+                    var effectiveMaxConnections = ConnectionStringConversions.GetEffectiveMaxConnections(_maxConnectionPoolSize);
+                    return ConnectionStringConversions.GetComputedWaitQueueSize(effectiveMaxConnections, _waitQueueMultiple);
                 }
             }
         }
@@ -460,9 +461,9 @@ namespace MongoDB.Driver
             get { return _maxConnectionPoolSize; }
             set
             {
-                if (value <= 0)
+                if (value < 0)
                 {
-                    throw new ArgumentOutOfRangeException("value", "MaxConnectionPoolSize must be greater than zero.");
+                    throw new ArgumentOutOfRangeException("value", "MaxConnectionPoolSize must be greater than or equal to zero.");
                 }
                 _maxConnectionPoolSize = value;
             }
