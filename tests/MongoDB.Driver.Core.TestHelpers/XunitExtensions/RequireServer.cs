@@ -73,6 +73,16 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
             throw new SkipException($"Test skipped because cluster type is {actualClusterType} and not one of ({clusterTypesString}).");
         }
 
+        public RequireServer LoadBalancing(bool enabled)
+        {
+            var isLoadBalancing = CoreTestConfiguration.ConnectionString.LoadBalanced;
+            if (isLoadBalancing == enabled)
+            {
+                return this;
+            }
+            throw new SkipException($"Test skipped because load balancing mode is {(isLoadBalancing ? "on" : "off")}.");
+        }
+
         public RequireServer RunOn(BsonArray requirements)
         {
             var cluster = CoreTestConfiguration.Cluster;
@@ -112,7 +122,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
         public RequireServer SupportsSessions()
         {
             var clusterDescription = CoreTestConfiguration.Cluster.Description;
-            if (clusterDescription.LogicalSessionTimeout != null)
+            if (clusterDescription.LogicalSessionTimeout != null || clusterDescription.Type == Clusters.ClusterType.LoadBalanced)
             {
                 return this;
             }
@@ -269,6 +279,8 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
                             }
                         }
                         break;
+                    case "serverless":
+                        return false; // TODO:
                     default:
                         throw new FormatException($"Unrecognized requirement field: '{item.Name}'");
                 }

@@ -4,7 +4,7 @@ runOn:
         topology: ["replicaset"]
     -
         minServerVersion: "4.1.7"
-        topology: ["sharded"]
+        topology: ["sharded", "load-balanced"]
 
 data:
     - { _id: 1, x: 11 }
@@ -56,7 +56,7 @@ tests:
                     - { _id: 1, x: 11 }
                     - { _id: 2, x: 22 }
     -
-        description: "InsertOne succeeds after NotMaster"
+        description: "InsertOne succeeds after NotWritablePrimary"
         failPoint:
             configureFailPoint: failCommand
             mode: { times: 1 }
@@ -78,7 +78,7 @@ tests:
                     - { _id: 2, x: 22 }
                     - { _id: 3, x: 33 }
     -
-        description: "InsertOne succeeds after NotMasterOrSecondary"
+        description: "InsertOne succeeds after NotPrimaryOrSecondary"
         failPoint:
             configureFailPoint: failCommand
             mode: { times: 1 }
@@ -100,7 +100,7 @@ tests:
                     - { _id: 2, x: 22 }
                     - { _id: 3, x: 33 }
     -
-        description: "InsertOne succeeds after NotMasterNoSlaveOk"
+        description: "InsertOne succeeds after NotPrimaryNoSecondaryOk"
         failPoint:
             configureFailPoint: failCommand
             mode: { times: 1 }
@@ -442,6 +442,7 @@ tests:
                 writeConcernError:
                     code: 91
                     errmsg: Replication is being shut down
+                    errorLabels: ["RetryableWriteError"]
         operation:
             name: "insertOne"
             arguments:

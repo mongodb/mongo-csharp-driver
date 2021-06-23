@@ -82,6 +82,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __listDatabasesFilter = new Feature("ListDatabasesFilter", new SemanticVersion(3, 4, 2));
         private static readonly Feature __listDatabasesNameOnlyOption = new Feature("ListDatabasesNameOnlyOption", new SemanticVersion(3, 4, 3));
         private static readonly Feature __listIndexesCommand = new Feature("ListIndexesCommand", new SemanticVersion(3, 0, 0));
+        private static readonly Feature __loadBalancedMode = new Feature("LoadBalancedMode", new SemanticVersion(5, 0, 0));
         private static readonly Feature __indexOptionsDefaults = new Feature("IndexOptionsDefaults", new SemanticVersion(3, 2, 0));
         private static readonly Feature __maxStaleness = new Feature("MaxStaleness", new SemanticVersion(3, 3, 12));
         private static readonly Feature __maxTime = new Feature("MaxTime", new SemanticVersion(2, 6, 0));
@@ -404,6 +405,11 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the list indexes command feature.
         /// </summary>
         public static Feature ListIndexesCommand => __listIndexesCommand;
+
+        /// <summary>
+        /// Gets the load balanced mode feature.
+        /// </summary>
+        public static Feature LoadBalancedMode => __loadBalancedMode;
 
         /// <summary>
         /// Gets the maximum staleness feature.

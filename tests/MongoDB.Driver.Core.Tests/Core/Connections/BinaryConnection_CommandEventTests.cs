@@ -16,15 +16,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
@@ -82,7 +79,12 @@ namespace MongoDB.Driver.Core.Connections
             var serverId = new ServerId(new ClusterId(), _endPoint);
 
             _mockConnectionInitializer = new Mock<IConnectionInitializer>();
-            _mockConnectionInitializer.Setup(i => i.InitializeConnectionAsync(It.IsAny<IConnection>(), CancellationToken.None))
+            _mockConnectionInitializer.Setup(i => i.HandshakeAsync(It.IsAny<IConnection>(), CancellationToken.None))
+                .Returns(() => Task.FromResult(new ConnectionDescription(
+                    new ConnectionId(serverId),
+                    new IsMasterResult(new BsonDocument()),
+                    new BuildInfoResult(new BsonDocument("version", "2.6.3")))));
+            _mockConnectionInitializer.Setup(i => i.ConnectionAuthenticationAsync(It.IsAny<IConnection>(), It.IsAny<ConnectionDescription>(), CancellationToken.None))
                 .Returns(() => Task.FromResult(new ConnectionDescription(
                     new ConnectionId(serverId),
                     new IsMasterResult(new BsonDocument()),

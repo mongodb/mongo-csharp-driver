@@ -15,7 +15,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using MongoDB.Bson;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Shared;
@@ -36,6 +36,7 @@ namespace MongoDB.Driver.Core.Connections
         private readonly int _maxDocumentSize;
         private readonly int _maxMessageSize;
         private readonly SemanticVersion _serverVersion;
+        private readonly ObjectId? _serviceId;
 
         // constructors
         /// <summary>
@@ -54,6 +55,7 @@ namespace MongoDB.Driver.Core.Connections
             _maxBatchCount = isMasterResult.MaxBatchCount;
             _maxDocumentSize = isMasterResult.MaxDocumentSize;
             _maxMessageSize = isMasterResult.MaxMessageSize;
+            _serviceId = isMasterResult.ServiceId;
             _serverVersion = buildInfoResult.ServerVersion;
         }
 
@@ -152,6 +154,17 @@ namespace MongoDB.Driver.Core.Connections
         public SemanticVersion ServerVersion
         {
             get { return _serverVersion; }
+        }
+
+        /// <summary>
+        /// Gets the service identifier.
+        /// </summary>
+        /// <value>
+        /// The service identifier.
+        /// </value>
+        public ObjectId? ServiceId
+        {
+            get { return _serviceId; }
         }
 
         // methods

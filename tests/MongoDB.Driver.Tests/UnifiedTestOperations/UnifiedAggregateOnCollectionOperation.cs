@@ -81,7 +81,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             var collection = _entityMap.GetCollection(targetCollectionId);
 
-            AggregateOptions options = null;
+            var options = new AggregateOptions();
             PipelineDefinition<BsonDocument, BsonDocument> pipeline = null;
 
             foreach (var argument in arguments)
@@ -92,12 +92,15 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         var stages = argument.Value.AsBsonArray.Cast<BsonDocument>();
                         pipeline = new BsonDocumentStagePipelineDefinition<BsonDocument, BsonDocument>(stages);
                         break;
+                    case "batchSize":
+                        options.BatchSize = argument.Value.ToInt32();
+                        break;
                     default:
                         throw new FormatException($"Invalid AggregateOperation argument name: '{argument.Name}'.");
                 }
             }
 
-            if (pipeline.Stages.Last().OperatorName == "$out")
+            if (pipeline.Stages.LastOrDefault()?.OperatorName == "$out")
             {
                 return new UnifiedAggregateToCollectionOperation(collection, pipeline, options);
             }

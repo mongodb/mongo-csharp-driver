@@ -341,7 +341,9 @@ namespace MongoDB.Driver.Core.WireProtocol
             var extraElements = new List<BsonElement>();
             if (_session.Id != null)
             {
-                var areSessionsSupported = connectionDescription.IsMasterResult.LogicalSessionTimeout.HasValue;
+                var areSessionsSupported =
+                    connectionDescription.IsMasterResult.LogicalSessionTimeout.HasValue ||
+                    connectionDescription.IsMasterResult.ServiceId.HasValue;
                 if (areSessionsSupported)
                 {
                     var lsid = new BsonElement("lsid", _session.Id);

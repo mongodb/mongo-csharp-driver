@@ -17,6 +17,7 @@ using System;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Bson;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
@@ -206,6 +207,17 @@ namespace MongoDB.Driver.Core.ConnectionPools
             _clearingEventHandler?.Invoke(new ConnectionPoolClearingEvent(_serverId, _settings));
 
             Interlocked.Increment(ref _generation);
+
+            _clearedEventHandler?.Invoke(new ConnectionPoolClearedEvent(_serverId, _settings));
+        }
+
+        public void Clear(ObjectId serviceId)
+        {
+            ThrowIfNotOpen();
+
+            _clearingEventHandler?.Invoke(new ConnectionPoolClearingEvent(_serverId, _settings));
+
+            // TODO
 
             _clearedEventHandler?.Invoke(new ConnectionPoolClearedEvent(_serverId, _settings));
         }

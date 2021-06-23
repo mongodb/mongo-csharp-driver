@@ -95,15 +95,21 @@ namespace MongoDB.Driver
         private bool IsAboutToExpire(ICoreServerSession session)
         {
             var logicalSessionTimeout = _cluster.Description.LogicalSessionTimeout;
-            if (!session.LastUsedAt.HasValue || !logicalSessionTimeout.HasValue)
+            var clusterType = _cluster.Description.Type;
+
+            if (clusterType == ClusterType.LoadBalanced)
             {
-                return true;
+                return false;  // sessions never expire in load balancing mode
             }
-            else
+            else if (session.LastUsedAt.HasValue && logicalSessionTimeout.HasValue)
             {
                 var expiresAt = session.LastUsedAt.Value + logicalSessionTimeout.Value;
                 var timeRemaining = expiresAt - DateTime.UtcNow;
                 return timeRemaining < TimeSpan.FromMinutes(1);
+            }
+            else
+            {
+                return true;
             }
         }
 

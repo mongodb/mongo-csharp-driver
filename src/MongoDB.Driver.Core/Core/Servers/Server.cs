@@ -330,6 +330,8 @@ namespace MongoDB.Driver.Core.Servers
             }
 
             // properties
+            public IConnectionHandle Connection => _connection;
+
             public ConnectionDescription ConnectionDescription
             {
                 get { return _connection.Description; }

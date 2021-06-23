@@ -286,6 +286,11 @@ namespace MongoDB.Driver.Core.Connections
                     return ServerType.Unknown;
                 }
 
+                if (ServiceId != null)
+                {
+                    return ServerType.LoadBalanced; // TODO: change when Service Id will be supported by server
+                }
+
                 if (_wrapped.GetValue("isreplicaset", false).ToBoolean())
                 {
                     return ServerType.ReplicaSetGhost;
@@ -319,6 +324,21 @@ namespace MongoDB.Driver.Core.Connections
                 }
 
                 return ServerType.Standalone;
+            }
+        }
+
+        /// <summary>
+        /// Gets the service identifier.
+        /// </summary>
+        /// <value>
+        /// The service identifier.
+        /// </value>
+        public ObjectId? ServiceId
+        {
+            get
+            {
+                return TopologyVersion?.ProcessId; // TODO: uncomment the below line when the server will support serviceId
+                    //_wrapped.TryGetValue("serviceId", out var serviceIdBsonValue) ? ObjectId.Parse(serviceIdBsonValue.ToString()) : null;
             }
         }
 

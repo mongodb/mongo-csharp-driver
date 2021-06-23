@@ -66,10 +66,10 @@ namespace MongoDB.Driver.Core.Servers
         {
             // drivers MUST NOT perform SDAM error handling for any errors that occur before the MongoDB Handshake
 
-            if (ex is MongoAuthenticationException)
+            if (ex is MongoAuthenticationException mongoAuthenticationException)
             {
                 // when requiring the connection pool to be cleared, MUST only clear connections for the serviceId.
-                ConnectionPool.Clear(); // TODO: serviceId is not implemented yet
+                ConnectionPool.Clear(mongoAuthenticationException.ServiceId.Value); // TODO: serviceId is not implemented yet
             }
         }
 
@@ -87,7 +87,7 @@ namespace MongoDB.Driver.Core.Servers
                 if (ShouldClearConnectionPoolForChannelException(ex, connection.Description.ServerVersion))
                 {
                     // when requiring the connection pool to be cleared, MUST only clear connections for the serviceId.
-                    ConnectionPool.Clear(); // TODO: serviceId is not implemented yet
+                    ConnectionPool.Clear(connection.Description.ServiceId.Value); // TODO: serviceId is not implemented yet
                 }
             }
         }

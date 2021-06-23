@@ -34,6 +34,14 @@ namespace MongoDB.Driver.Core.Bindings
     public interface IChannel : IDisposable
     {
         /// <summary>
+        /// Gets the connection.
+        /// </summary>
+        /// /// <value>
+        /// The connection.
+        /// </value>
+        IConnectionHandle Connection { get; }
+
+        /// <summary>
         /// Gets the connection description.
         /// </summary>
         /// <value>

@@ -21,6 +21,7 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
@@ -1155,14 +1156,12 @@ namespace MongoDB.Driver
                 throw new InvalidOperationException("Read preference in a transaction must be primary.");
             }
 
-            var binding = new ReadPreferenceBinding(_cluster, readPreference, session.WrappedCoreSession.Fork());
-            return new ReadBindingHandle(binding);
+            return ChannelPinningHelper.CreateEffectiveReadBinding(_cluster, session.WrappedCoreSession.Fork(), readPreference);
         }
 
         private IWriteBindingHandle CreateReadWriteBinding(IClientSessionHandle session)
         {
-            var binding = new WritableServerBinding(_cluster, session.WrappedCoreSession.Fork());
-            return new ReadWriteBindingHandle(binding);
+            return ChannelPinningHelper.CreateEffectiveReadWriteBinding(_cluster, session.WrappedCoreSession.Fork());
         }
 
         private MessageEncoderSettings GetMessageEncoderSettings()
@@ -1526,27 +1525,48 @@ namespace MongoDB.Driver
                 return _collection.ExecuteWriteOperationAsync(session, operation, cancellationToken);
             }
 
+
             public override IAsyncCursor<BsonDocument> List(CancellationToken cancellationToken = default(CancellationToken))
             {
-                return _collection.UsingImplicitSession(session => List(session, cancellationToken), cancellationToken);
+                return _collection.UsingImplicitSession(session => List(session, options: null, cancellationToken), cancellationToken);
             }
 
-            public override IAsyncCursor<BsonDocument> List(IClientSessionHandle session, CancellationToken cancellationToken = default(CancellationToken))
+            public override IAsyncCursor<BsonDocument> List(ListIndexesOptions options, CancellationToken cancellationToken = default(CancellationToken))
+            {
+                return _collection.UsingImplicitSession(session => List(session, options, cancellationToken), cancellationToken);
+            }
+
+            public override IAsyncCursor<BsonDocument> List(IClientSessionHandle session, CancellationToken cancellationToken = default)
+            {
+                return List(session, options: null, cancellationToken);
+            }
+
+            public override IAsyncCursor<BsonDocument> List(IClientSessionHandle session, ListIndexesOptions options, CancellationToken cancellationToken = default(CancellationToken))
             {
                 Ensure.IsNotNull(session, nameof(session));
-                var operation = CreateListIndexesOperation();
+                var operation = CreateListIndexesOperation(options);
                 return _collection.ExecuteReadOperation(session, operation, ReadPreference.Primary, cancellationToken);
             }
 
             public override Task<IAsyncCursor<BsonDocument>> ListAsync(CancellationToken cancellationToken = default(CancellationToken))
             {
-                return _collection.UsingImplicitSessionAsync(session => ListAsync(session, cancellationToken), cancellationToken);
+                return _collection.UsingImplicitSessionAsync(session => ListAsync(session, options: null, cancellationToken), cancellationToken);
             }
 
-            public override Task<IAsyncCursor<BsonDocument>> ListAsync(IClientSessionHandle session, CancellationToken cancellationToken = default(CancellationToken))
+            public override Task<IAsyncCursor<BsonDocument>> ListAsync(ListIndexesOptions options, CancellationToken cancellationToken = default(CancellationToken))
+            {
+                return _collection.UsingImplicitSessionAsync(session => ListAsync(session, options, cancellationToken), cancellationToken);
+            }
+
+            public override Task<IAsyncCursor<BsonDocument>> ListAsync(IClientSessionHandle session, CancellationToken cancellationToken = default)
+            {
+                return ListAsync(session, options: null, cancellationToken);
+            }
+
+            public override Task<IAsyncCursor<BsonDocument>> ListAsync(IClientSessionHandle session, ListIndexesOptions options, CancellationToken cancellationToken = default(CancellationToken))
             {
                 Ensure.IsNotNull(session, nameof(session));
-                var operation = CreateListIndexesOperation();
+                var operation = CreateListIndexesOperation(options);
                 return _collection.ExecuteReadOperationAsync(session, operation, ReadPreference.Primary, cancellationToken);
             }
 
@@ -1616,10 +1636,11 @@ namespace MongoDB.Driver
                 };
             }
 
-            private ListIndexesOperation CreateListIndexesOperation()
+            private ListIndexesOperation CreateListIndexesOperation(ListIndexesOptions options)
             {
                 return new ListIndexesOperation(_collection._collectionNamespace, _collection._messageEncoderSettings)
                 {
+                    BatchSize = options?.BatchSize,
                     RetryRequested = _collection.Database.Client.Settings.RetryReads
                 };
             }

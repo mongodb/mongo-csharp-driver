@@ -35,8 +35,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             var lastTwoLsids = _eventCapturer
                 .Events
-                .Skip(_eventCapturer.Events.Count - 2)
-                .Select(commandStartedEvent => ((CommandStartedEvent)commandStartedEvent).Command["lsid"])
+                .OfType<CommandStartedEvent>()
+                .Reverse()
+                .Take(2)
+                .Select(e => e.Command["lsid"])
                 .ToList();
 
             lastTwoLsids[0].Should().Be(lastTwoLsids[1]);

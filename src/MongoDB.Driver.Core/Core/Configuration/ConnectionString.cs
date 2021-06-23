@@ -1398,7 +1398,7 @@ namespace MongoDB.Driver.Core.Configuration
         private void ValidateResolvedOptions(IEnumerable<string> optionNames)
         {
             var allowedOptionsInTxtRecords = new[] { "authSource", "replicaSet", "loadBalanced" };
-            if (optionNames.Any(o => !allowedOptionsInTxtRecords.Contains(o)))
+            if (optionNames.Any(o => !allowedOptionsInTxtRecords.Contains(o, StringComparer.OrdinalIgnoreCase)))
             {
                 throw new MongoConfigurationException($"Only {string.Join(", ", allowedOptionsInTxtRecords)} are allowed in a TXT record.");
             }

@@ -40,6 +40,7 @@ namespace MongoDB.Driver.Core.Connections
     public class BinaryConnectionTests
     {
         private Mock<IConnectionInitializer> _mockConnectionInitializer;
+        private ConnectionDescription _connectionDescription;
         private DnsEndPoint _endPoint;
         private EventCapturer _capturedEvents;
         private MessageEncoderSettings _messageEncoderSettings = new MessageEncoderSettings();
@@ -56,15 +57,21 @@ namespace MongoDB.Driver.Core.Connections
             var connectionId = new ConnectionId(serverId);
             var isMasterResult = new IsMasterResult(new BsonDocument { { "ok", 1 }, { "maxMessageSizeBytes", 48000000 } });
             var buildInfoResult = new BuildInfoResult(new BsonDocument { { "ok", 1 }, { "version", "2.6.3" } });
-            var connectionDescription = new ConnectionDescription(connectionId, isMasterResult, buildInfoResult);
+            _connectionDescription = new ConnectionDescription(connectionId, isMasterResult, buildInfoResult);
 
             _mockConnectionInitializer = new Mock<IConnectionInitializer>();
             _mockConnectionInitializer
-                .Setup(i => i.InitializeConnection(It.IsAny<IConnection>(), CancellationToken.None))
-                .Returns(connectionDescription);
+                .Setup(i => i.Handshake(It.IsAny<IConnection>(), CancellationToken.None))
+                .Returns(_connectionDescription);
             _mockConnectionInitializer
-                .Setup(i => i.InitializeConnectionAsync(It.IsAny<IConnection>(), CancellationToken.None))
-                .ReturnsAsync(connectionDescription);
+                .Setup(i => i.ConnectionAuthentication(It.IsAny<IConnection>(), It.IsAny<ConnectionDescription>(), CancellationToken.None))
+                .Returns(_connectionDescription);
+            _mockConnectionInitializer
+                .Setup(i => i.HandshakeAsync(It.IsAny<IConnection>(), CancellationToken.None))
+                .ReturnsAsync(_connectionDescription);
+            _mockConnectionInitializer
+                .Setup(i => i.ConnectionAuthenticationAsync(It.IsAny<IConnection>(), It.IsAny<ConnectionDescription>(), CancellationToken.None))
+                .ReturnsAsync(_connectionDescription);
 
             _subject = new BinaryConnection(
                 serverId: serverId,
@@ -83,6 +90,47 @@ namespace MongoDB.Driver.Core.Connections
             _capturedEvents.Next().Should().BeOfType<ConnectionClosingEvent>();
             _capturedEvents.Next().Should().BeOfType<ConnectionClosedEvent>();
             _capturedEvents.Any().Should().BeFalse();
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Open_should_always_create_description_if_handshake_was_successful(
+            [Values(false, true)] bool async)
+        {
+            var serviceId = ObjectId.GenerateNewId();
+            var connectionDescription = new ConnectionDescription(
+                new ConnectionId(new ServerId(new ClusterId(), _endPoint)),
+                new IsMasterResult(new BsonDocument("serviceId", serviceId)),
+                new BuildInfoResult(new BsonDocument("version", "0.0.0")));
+
+            var socketException = new SocketException();
+            _mockConnectionInitializer
+                .Setup(i => i.Handshake(It.IsAny<IConnection>(), CancellationToken.None))
+                .Returns(connectionDescription);
+            _mockConnectionInitializer
+                .Setup(i => i.Handshake(It.IsAny<IConnection>(), CancellationToken.None))
+                .Returns(connectionDescription);
+            _mockConnectionInitializer
+                .Setup(i => i.ConnectionAuthentication(It.IsAny<IConnection>(), It.IsAny<ConnectionDescription>(), CancellationToken.None))
+                .Throws(socketException);
+            _mockConnectionInitializer
+                .Setup(i => i.ConnectionAuthenticationAsync(It.IsAny<IConnection>(), It.IsAny<ConnectionDescription>(), CancellationToken.None))
+                .ThrowsAsync(socketException);
+
+            Exception exception;
+            if (async)
+            {
+                exception = Record.Exception(() => _subject.OpenAsync(CancellationToken.None).GetAwaiter().GetResult());
+            }
+            else
+            {
+                exception = Record.Exception(() => _subject.Open(CancellationToken.None));
+            }
+
+            _subject.Description.Should().Be(connectionDescription);
+            var ex = exception.Should().BeOfType<MongoConnectionException>().Subject;
+            // ex.ServiceId.Should().Be(serviceId); TODO: restrore when server will support serviceId
+            ex.InnerException.Should().BeOfType<SocketException>();
         }
 
         [Theory]
@@ -117,14 +165,14 @@ namespace MongoDB.Driver.Core.Connections
             {
                 var result = new TaskCompletionSource<ConnectionDescription>();
                 result.SetException(new SocketException());
-                _mockConnectionInitializer.Setup(i => i.InitializeConnectionAsync(It.IsAny<IConnection>(), It.IsAny<CancellationToken>()))
+                _mockConnectionInitializer.Setup(i => i.HandshakeAsync(It.IsAny<IConnection>(), It.IsAny<CancellationToken>()))
                     .Returns(result.Task);
 
                 act = () => _subject.OpenAsync(CancellationToken.None).GetAwaiter().GetResult();
             }
             else
             {
-                _mockConnectionInitializer.Setup(i => i.InitializeConnection(It.IsAny<IConnection>(), It.IsAny<CancellationToken>()))
+                _mockConnectionInitializer.Setup(i => i.Handshake(It.IsAny<IConnection>(), It.IsAny<CancellationToken>()))
                     .Throws<SocketException>();
 
                 act = () => _subject.Open(CancellationToken.None);

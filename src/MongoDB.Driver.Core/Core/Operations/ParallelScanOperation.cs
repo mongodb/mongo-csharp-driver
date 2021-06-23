@@ -178,6 +178,7 @@ namespace MongoDB.Driver.Core.Operations
                     })
                         .ToList();
 
+                    // it's not affected by loadbalancing logic since it was deprecated in server version 4.1.
                     var cursor = new AsyncCursor<TDocument>(
                         getMoreChannelSource.Fork(),
                         _collectionNamespace,

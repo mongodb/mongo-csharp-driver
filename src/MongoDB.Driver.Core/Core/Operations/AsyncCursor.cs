@@ -447,7 +447,14 @@ namespace MongoDB.Driver.Core.Operations
                 {
                     if (_cursorId != 0)
                     {
-                        KillCursors(cancellationToken);
+                        try
+                        {
+                            KillCursors(cancellationToken);
+                        }
+                        catch
+                        {
+                            // ignore exceptions
+                        }
                     }
                 }
                 finally
@@ -465,7 +472,14 @@ namespace MongoDB.Driver.Core.Operations
                 {
                     if (_cursorId != 0)
                     {
-                        await KillCursorsAsync(cancellationToken).ConfigureAwait(false);
+                        try
+                        {
+                            await KillCursorsAsync(cancellationToken).ConfigureAwait(false);
+                        }
+                        catch
+                        {
+                            // ignore exceptions
+                        }
                     }
                 }
                 finally
@@ -492,7 +506,7 @@ namespace MongoDB.Driver.Core.Operations
 
         private void DisposeChannelSourceIfNoLongerNeeded()
         {
-            if (_channelSource != null && _cursorId == 0)
+            if (_channelSource != null && _cursorId == 0 && !_channelSource.Session.IsInTransaction) // load balanced mode
             {
                 _channelSource.Dispose();
                 _channelSource = null;
@@ -543,13 +557,16 @@ namespace MongoDB.Driver.Core.Operations
             using (var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
             using (var channel = _channelSource.GetChannel(cancellationTokenSource.Token))
             {
-                if (Feature.KillCursorsCommand.IsSupported(channel.ConnectionDescription.ServerVersion))
+                if (!channel.Connection.IsExpired)
                 {
-                    ExecuteKillCursorsCommand(channel, cancellationToken);
-                }
-                else
-                {
-                    ExecuteKillCursorsProtocol(channel, cancellationToken);
+                    if (Feature.KillCursorsCommand.IsSupported(channel.ConnectionDescription.ServerVersion))
+                    {
+                        ExecuteKillCursorsCommand(channel, cancellationToken);
+                    }
+                    else
+                    {
+                        ExecuteKillCursorsProtocol(channel, cancellationToken);
+                    }
                 }
             }
         }
@@ -561,13 +578,16 @@ namespace MongoDB.Driver.Core.Operations
             using (var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
             using (var channel = await _channelSource.GetChannelAsync(cancellationTokenSource.Token).ConfigureAwait(false))
             {
-                if (Feature.KillCursorsCommand.IsSupported(channel.ConnectionDescription.ServerVersion))
+                if (!channel.Connection.IsExpired)
                 {
-                    await ExecuteKillCursorsCommandAsync(channel, cancellationToken).ConfigureAwait(false);
-                }
-                else
-                {
-                    await ExecuteKillCursorsProtocolAsync(channel, cancellationToken).ConfigureAwait(false);
+                    if (Feature.KillCursorsCommand.IsSupported(channel.ConnectionDescription.ServerVersion))
+                    {
+                        await ExecuteKillCursorsCommandAsync(channel, cancellationToken).ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        await ExecuteKillCursorsProtocolAsync(channel, cancellationToken).ConfigureAwait(false);
+                    }
                 }
             }
         }

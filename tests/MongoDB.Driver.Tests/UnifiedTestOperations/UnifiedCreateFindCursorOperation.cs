@@ -17,27 +17,32 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
     public class UnifiedCreateFindCursorOperation : IUnifiedEntityTestOperation
     {
         private readonly IMongoCollection<BsonDocument> _collection;
-        private BsonDocument _filter;
-        private FindOptions<BsonDocument> _findOptions;
+        private readonly BsonDocument _filter;
+        private readonly FindOptions<BsonDocument> _findOptions;
+        private readonly IClientSessionHandle _session;
 
-        public UnifiedCreateFindCursorOperation(IMongoCollection<BsonDocument> collection, BsonDocument filter, FindOptions<BsonDocument> findOptions)
+        public UnifiedCreateFindCursorOperation(IClientSessionHandle session, IMongoCollection<BsonDocument> collection, BsonDocument filter, FindOptions<BsonDocument> findOptions)
         {
-            _collection = collection;
-            _filter = filter;
-            _findOptions = findOptions;
+            _collection = Ensure.IsNotNull(collection, nameof(collection));
+            _filter = Ensure.IsNotNull(filter, nameof(filter));
+            _findOptions = findOptions; // can be null
+            _session = session; // can be null
         }
 
         public OperationResult Execute(CancellationToken cancellationToken)
         {
             try
             {
-                var cursor = _collection.FindSync(_filter, _findOptions);
+                var cursor = _session != null
+                    ? _collection.FindSync(_session, _filter, _findOptions)
+                    : _collection.FindSync(_filter, _findOptions);
                 var enumerator = cursor.ToEnumerable().GetEnumerator();
 
                 return OperationResult.FromCursor(enumerator);
@@ -52,7 +57,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             try
             {
-                var cursor = await _collection.FindAsync(_filter, _findOptions).ConfigureAwait(false);
+                var cursor = _session != null
+                    ? await _collection.FindAsync(_session, _filter, _findOptions).ConfigureAwait(false)
+                    : await _collection.FindAsync(_filter, _findOptions).ConfigureAwait(false);
                 var enumerator = cursor.ToEnumerable().GetEnumerator();
 
                 return OperationResult.FromCursor(enumerator);
@@ -64,11 +71,11 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         }
     }
 
-    public class UnifiedcreateFindCursorOperationBuilder
+    public class UnifiedCreateFindCursorOperationBuilder
     {
         private readonly UnifiedEntityMap _entityMap;
 
-        public UnifiedcreateFindCursorOperationBuilder(UnifiedEntityMap entityMap)
+        public UnifiedCreateFindCursorOperationBuilder(UnifiedEntityMap entityMap)
         {
             _entityMap = entityMap;
         }
@@ -77,6 +84,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             var collection = _entityMap.GetCollection(targetDatabaseId);
 
+            IClientSessionHandle session = null;
             BsonDocument filter = null;
             var findOptions = new FindOptions<BsonDocument>();
 
@@ -90,12 +98,15 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     case "batchSize":
                         findOptions.BatchSize = argument.Value.AsInt32;
                         break;
+                    case "session":
+                        session = _entityMap.GetSession(argument.Value.ToString());
+                        break;
                     default:
                         throw new FormatException($"Invalid {nameof(UnifiedCreateFindCursorOperation)} argument name: '{argument.Name}'.");
                 }
             }
 
-            return new UnifiedCreateFindCursorOperation(collection, filter, findOptions);
+            return new UnifiedCreateFindCursorOperation(session, collection, filter, findOptions);
         }
     }
 }

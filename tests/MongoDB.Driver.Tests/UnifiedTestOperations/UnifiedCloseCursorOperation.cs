@@ -15,23 +15,48 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Operations;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
-    public class UnifiedCloseCursorOperation<T> : IUnifiedSpecialTestOperation
+    public class UnifiedCloseCursorOperation<T> : IUnifiedEntityTestOperation
     {
-        private readonly IEnumerator<T> _enumeratorToClose;
+        private readonly AsyncCursor<T> _cursor;
 
-        public UnifiedCloseCursorOperation(IEnumerator<T> enumeratorToClose)
+        public UnifiedCloseCursorOperation(AsyncCursor<T> cursor)
         {
-            _enumeratorToClose = Ensure.IsNotNull(enumeratorToClose, nameof(enumeratorToClose));
+            _cursor = Ensure.IsNotNull(cursor, nameof(cursor));
         }
 
-        public void Execute()
+        public OperationResult Execute(CancellationToken cancellationToken)
         {
-            _enumeratorToClose.Dispose();
+            try
+            {
+                _cursor.Close(cancellationToken);
+                return OperationResult.Empty();
+            }
+            catch (Exception ex)
+            {
+                return OperationResult.FromException(ex);
+            }
+        }
+
+        public async Task<OperationResult> ExecuteAsync(CancellationToken cancellationToken)
+        {
+            try
+            {
+                await _cursor.CloseAsync(cancellationToken).ConfigureAwait(false);
+                return OperationResult.Empty();
+            }
+            catch (Exception ex)
+            {
+                return OperationResult.FromException(ex);
+            }
         }
     }
 
@@ -41,20 +66,41 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
         public UnifiedCloseCursorOperationBuilder(UnifiedEntityMap entityMap) => _entityMap = entityMap;
 
-        public IUnifiedSpecialTestOperation Build(string targetEntityId, BsonDocument operationArguments)
+        public IUnifiedEntityTestOperation Build(string targetEntityId, BsonDocument operationArguments)
         {
             if (_entityMap.ChangeStreams.TryGetValue(targetEntityId, out var changeStreamEnumerator))
             {
-                return new UnifiedCloseCursorOperation<ChangeStreamDocument<BsonDocument>>(changeStreamEnumerator);
+                var changeStreamCursor = (ChangeStreamCursor<ChangeStreamDocument<BsonDocument>>)GetCursor(changeStreamEnumerator);
+                var asyncCursor = (AsyncCursor<RawBsonDocument>)changeStreamCursor._cursor();
+                return new UnifiedCloseCursorOperation<RawBsonDocument>(asyncCursor);
             }
             else if (_entityMap.Cursors.TryGetValue(targetEntityId, out var enumerator))
             {
-                return new UnifiedCloseCursorOperation<BsonDocument>(enumerator);
+                var asyncCursor = (AsyncCursor<BsonDocument>)GetCursor(enumerator);
+                return new UnifiedCloseCursorOperation<BsonDocument>(asyncCursor);
             }
             else
             {
                 throw new FormatException("No supported enumerator found.");
             }
+
+            IAsyncCursor<T> GetCursor<T>(IEnumerator<T> enumerator) => ((AsyncCursorEnumerator<T>)enumerator)._cursor();
+        }
+    }
+
+    internal static class AsyncCursorEnumeratorReflector
+    {
+        public static IAsyncCursor<TDocument> _cursor<TDocument>(this AsyncCursorEnumerator<TDocument> enumerator)
+        {
+            return (IAsyncCursor<TDocument>)Reflector.GetFieldValue(enumerator, nameof(_cursor));
+        }
+    }
+
+    internal static class ChangeStreamCursorReflector
+    { 
+        public static IAsyncCursor<RawBsonDocument> _cursor(this ChangeStreamCursor<ChangeStreamDocument<BsonDocument>> cursor)
+        {
+            return (IAsyncCursor<RawBsonDocument>)Reflector.GetFieldValue(cursor, nameof(_cursor));
         }
     }
 }

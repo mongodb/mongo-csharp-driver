@@ -91,6 +91,11 @@ disabled like so::
         mode: "off"
     });
 
+Speeding Up Tests
+=================
+
+See `Speeding Up Tests <../../retryable-reads/tests/README.rst#speeding-up-tests>`_ in the retryable reads spec tests.
+
 Use as Integration Tests
 ========================
 
@@ -154,9 +159,10 @@ Each YAML file has the following keys:
     version.
 
   - ``topology`` (optional): An array of server topologies against which the
-    tests can be run successfully. Valid topologies are "single", "replicaset",
-    and "sharded". If this field is omitted, the default is all topologies (i.e.
-    ``["single", "replicaset", "sharded"]``).
+    tests can be run successfully. Valid topologies are "single",
+    "replicaset", "sharded", and "load-balanced". If this field is omitted,
+    the default is all topologies (i.e. ``["single", "replicaset", "sharded",
+    "load-balanced"]``).
 
 - ``data``: The data that should exist in the collection under test before each
   test run.
@@ -322,10 +328,52 @@ and sharded clusters.
    in use MAY skip this test for sharded clusters, since ``mongos`` does not report
    this information in its ``serverStatus`` response.
 
+#. Test that drivers properly retry after encountering PoolClearedErrors. This
+   test MUST be implemented by any driver that implements the CMAP
+   specification.
+
+   1. Create a client with maxPoolSize=1 and retryWrites=true. If testing
+      against a sharded deployment, be sure to connect to only a single mongos.
+
+   2. Enable the following failpoint::
+
+       {
+           configureFailPoint: "failCommand",
+           mode: { times: 1 },
+           data: {
+               failCommands: ["insert"],
+               errorCode: 91,
+               blockConnection: true,
+               blockTimeMS: 1000
+           }
+       }
+
+   3. Start two threads and attempt to perform an ``insertOne`` simultaneously on both.
+
+   4. Verify that both ``insertOne`` attempts succeed.
+
+   5. Via CMAP monitoring, assert that the first check out succeeds.
+
+   6. Via CMAP monitoring, assert that a PoolClearedEvent is then emitted.
+
+   7. Via CMAP monitoring, assert that the second check out then fails due to a
+      connection error.
+
+   8. Via Command Monitoring, assert that exactly three ``insert``
+      CommandStartedEvents were observed in total.
+
+   9. Disable the failpoint.
+
+
 Changelog
 =========
 
-:2019-10-21: Add ``errorLabelsContain`` and ``errorLabelsContain`` fields to ``result``
+:2021-04-23: Add ``load-balanced`` to test topology requirements.
+
+:2021-03-24: Add prose test verifying ``PoolClearedErrors`` are retried.
+
+:2019-10-21: Add ``errorLabelsContain`` and ``errorLabelsContain`` fields to
+             ``result``
 
 :2019-08-07: Add Prose Tests section
 

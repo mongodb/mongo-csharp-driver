@@ -187,7 +187,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
 
         private IEnumerable<ServerDescription> SelectForLoadBalancedCluster(IEnumerable<ServerDescription> servers)
         {
-            return servers.Where(n => n.Type == ServerType.LoadBalanced); // LoadBalanced servers match any ReadPreference (to facilitate testing)
+            return servers.Where(n => n.Type == ServerType.LoadBalanced);
         }
 
         private List<ServerDescription> SelectPrimary(IEnumerable<ServerDescription> servers)

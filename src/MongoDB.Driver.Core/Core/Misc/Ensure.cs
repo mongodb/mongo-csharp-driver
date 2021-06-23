@@ -225,6 +225,22 @@ namespace MongoDB.Driver.Core.Misc
         }
 
         /// <summary>
+        /// Ensures that the value of a parameter is not null.
+        /// </summary>
+        /// <typeparam name="T">Type type of the value.</typeparam>
+        /// <param name="value">The value of the parameter.</param>
+        /// <param name="paramName">The name of the parameter.</param>
+        /// <returns>The value of the parameter.</returns>
+        public static Nullable<T> HasValue<T>(Nullable<T> value, string paramName) where T : struct
+        {
+            if (!value.HasValue)
+            {
+                throw new ArgumentNullException(paramName, "Value must be assigned.");
+            }
+            return value;
+        }
+
+        /// <summary>
         /// Ensures that the value of a parameter is not null or empty.
         /// </summary>
         /// <param name="value">The value of the parameter.</param>

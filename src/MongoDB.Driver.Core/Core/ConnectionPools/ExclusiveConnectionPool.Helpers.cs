@@ -242,6 +242,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     // TODO temporary workaround for propagating exception generation to server
                     // Will be reconsider after SDAM spec error handling adjustments
                     ex.Generation = Generation;
+                    ex.ServiceId = _connection.Description?.ServiceId; // not null if handshake has been completed in load balanced mode
                     throw;
                 }
             }
@@ -257,6 +258,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     // TODO temporary workaround for propagating exception generation to server
                     // Will be reconsider after SDAM spec error handling adjustments
                     ex.Generation = Generation;
+                    ex.ServiceId = _connection.Description?.ServiceId; // not null if handshake has been completed in load balanced mode
                     throw;
                 }
             }

@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
@@ -26,6 +25,7 @@ using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
@@ -42,6 +42,7 @@ namespace MongoDB.Driver
         private static Lazy<ConnectionString> __connectionStringWithMultipleShardRouters = new Lazy<ConnectionString>(
             GetConnectionStringWithMultipleShardRouters, isThreadSafe: true);
         private static Lazy<DatabaseNamespace> __databaseNamespace = new Lazy<DatabaseNamespace>(GetDatabaseNamespace, isThreadSafe: true);
+        private static Lazy<BuildInfoResult> _buildInfo = new Lazy<BuildInfoResult>(RunBuildInfo, isThreadSafe: true);
         private static MessageEncoderSettings __messageEncoderSettings = new MessageEncoderSettings();
         private static TraceSource __traceSource;
 
@@ -76,11 +77,11 @@ namespace MongoDB.Driver
             get
             {
                 var server = __cluster.Value.SelectServer(WritableServerSelector.Instance, CancellationToken.None);
-                var version = server.Description.Version;
+                var description = server.Description;
+                var version = description.Version ?? (description.Type == ServerType.LoadBalanced ? _buildInfo.Value.ServerVersion : null);
                 if (version == null)
                 {
-                    version = new SemanticVersion(0, 0, 0); // TODO: call buildInfo
-                    //throw new InvalidOperationException("ServerDescription.Version is unexpectedly null.");
+                    throw new InvalidOperationException("ServerDescription.Version is unexpectedly null.");
                 }
                 return version;
             }
@@ -227,15 +228,18 @@ namespace MongoDB.Driver
 
         private static ConnectionString GetConnectionString()
         {
-            var uri = Environment.GetEnvironmentVariable("MONGODB_URI") ?? Environment.GetEnvironmentVariable("MONGO_URI");
-            if (uri == null)
-            {
-                uri = "mongodb://localhost";
-                if (IsReplicaSet(uri))
-                {
-                    uri += "/?connect=replicaSet";
-                }
-            }
+            // TODO: move this to EG config level
+            var uri = "mongodb://localhost:17017?loadBalanced=true";
+            //var uri = "mongodb://localhost17018?loadBalanced=true";
+            //    var uri = Environment.GetEnvironmentVariable("MONGODB_URI") ?? Environment.GetEnvironmentVariable("MONGO_URI");
+            //    if (uri == null)
+            //    {
+            //        uri = "mongodb://localhost";
+            //        if (IsReplicaSet(uri))
+            //        {
+            //            uri += "/?connect=replicaSet";
+            //        }
+            //    }
 
             return new ConnectionString(uri);
         }
@@ -267,7 +271,7 @@ namespace MongoDB.Driver
             return new DatabaseNamespace(databaseName);
         }
 
-        public static IEnumerable<string> GetModules()
+        private static BuildInfoResult RunBuildInfo()
         {
             using (var session = StartSession())
             using (var binding = CreateReadBinding(session))
@@ -275,15 +279,7 @@ namespace MongoDB.Driver
                 var command = new BsonDocument("buildinfo", 1);
                 var operation = new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, __messageEncoderSettings);
                 var response = operation.Execute(binding, CancellationToken.None);
-                BsonValue modules;
-                if (response.TryGetValue("modules", out modules))
-                {
-                    return modules.AsBsonArray.Select(x => x.ToString());
-                }
-                else
-                {
-                    return Enumerable.Empty<string>();
-                }
+                return new BuildInfoResult(response);
             }
         }
 
@@ -390,7 +386,7 @@ namespace MongoDB.Driver
         {
             return
                 clusterDescription.Servers.Any(s => s.State == ServerState.Connected) &&
-                clusterDescription.LogicalSessionTimeout.HasValue;
+                (clusterDescription.LogicalSessionTimeout.HasValue || clusterDescription.Type == ClusterType.LoadBalanced);
         }
 
         private static IReadBindingHandle CreateReadBinding(ICoreSessionHandle session)

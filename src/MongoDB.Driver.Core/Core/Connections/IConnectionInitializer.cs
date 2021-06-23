@@ -13,16 +13,17 @@
 * limitations under the License.
 */
 
-using System;
 using System.Threading;
 using System.Threading.Tasks;
-using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Connections
 {
     internal interface IConnectionInitializer
     {
-        ConnectionDescription InitializeConnection(IConnection connection, CancellationToken cancellationToken);
-        Task<ConnectionDescription> InitializeConnectionAsync(IConnection connection, CancellationToken cancellationToken);
+        ConnectionDescription Handshake(IConnection connection, CancellationToken cancellationToken);
+        ConnectionDescription ConnectionAuthentication(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken);
+
+        Task<ConnectionDescription> HandshakeAsync(IConnection connection, CancellationToken cancellationToken);
+        Task<ConnectionDescription> ConnectionAuthenticationAsync(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken);
     }
 }

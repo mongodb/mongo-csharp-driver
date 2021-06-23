@@ -14,6 +14,7 @@
 */
 
 using MongoDB.Bson;
+
 namespace MongoDB.Driver
 {
     /// <summary>
@@ -22,9 +23,19 @@ namespace MongoDB.Driver
     public sealed class ListCollectionsOptions
     {
         // fields
+        private int? _batchSize;
         private FilterDefinition<BsonDocument> _filter;
 
         // properties
+        /// <summary>
+        /// Gets or sets the batch size.
+        /// </summary>
+        public int? BatchSize
+        {
+            get { return _batchSize; }
+            set { _batchSize = value; }
+        }
+
         /// <summary>
         /// Gets or sets the filter.
         /// </summary>

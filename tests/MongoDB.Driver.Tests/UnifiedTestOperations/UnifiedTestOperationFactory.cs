@@ -47,6 +47,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                             return new UnifiedAssertIndexExistsOperationBuilder().Build(operationArguments);
                         case "assertIndexNotExists":
                             return new UnifiedAssertIndexNotExistsOperationBuilder().Build(operationArguments);
+                        case "assertNumberConnectionsCheckedOut":
+                            return new UnifiedAssertNumberConnectionsCheckedOutOperationBuilder(_entityMap).Build(operationArguments);
                         case "assertSameLsidOnLastTwoCommands":
                             return new UnifiedAssertSameLsidOnLastTwoCommandsOperationBuilder(_entityMap).Build(operationArguments);
                         case "assertSessionDirty":
@@ -116,7 +118,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         case "createChangeStream":
                             return new UnifiedCreateChangeStreamOnCollectionOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
                         case "createFindCursor":
-                            return new UnifiedcreateFindCursorOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
+                            return new UnifiedCreateFindCursorOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
                         case "createIndex":
                             return new UnifiedCreateIndexOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
                         case "deleteMany":
@@ -139,6 +141,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                             return new UnifiedInsertManyOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
                         case "insertOne":
                             return new UnifiedInsertOneOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
+                        case "listIndexes":
+                            return new UnifiedListIndexesOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
                         case "replaceOne":
                             return new UnifiedReplaceOneOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
                         case "updateMany":
@@ -158,6 +162,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                             return new UnifiedCreateCollectionOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
                         case "dropCollection":
                             return new UnifiedDropCollectionOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
+                        case "listCollections":
+                            return new UnifiedListCollectionsOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
                         case "runCommand":
                             return new UnifiedRunCommandOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
                         default:

@@ -30,6 +30,7 @@ using MongoDB.Driver.Core.Authentication;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.WireProtocol.Messages;
+using Moq;
 
 namespace MongoDB.Driver.Core.Connections
 {
@@ -81,11 +82,13 @@ namespace MongoDB.Driver.Core.Connections
             ConnectionDescription result;
             if (async)
             {
-                result = _subject.InitializeConnectionAsync(connection, CancellationToken.None).GetAwaiter().GetResult();
+                result = _subject.HandshakeAsync(connection, CancellationToken.None).GetAwaiter().GetResult();
+                result = _subject.ConnectionAuthenticationAsync(connection, result, CancellationToken.None).GetAwaiter().GetResult();
             }
             else
             {
-                result = _subject.InitializeConnection(connection, CancellationToken.None);
+                result = _subject.Handshake(connection, CancellationToken.None);
+                result = _subject.ConnectionAuthentication(connection, result, CancellationToken.None);
             }
 
             var sentMessages = connection.GetSentMessages();
@@ -116,11 +119,13 @@ namespace MongoDB.Driver.Core.Connections
             {
                 if (async)
                 {
-                    _subject.InitializeConnectionAsync(connection, CancellationToken.None).GetAwaiter().GetResult();
+                    var description =_subject.HandshakeAsync(connection, CancellationToken.None).GetAwaiter().GetResult();
+                    _subject.ConnectionAuthenticationAsync(connection, description, CancellationToken.None).GetAwaiter().GetResult();
                 }
                 else
                 {
-                    _subject.InitializeConnection(connection, CancellationToken.None);
+                    var description = _subject.Handshake(connection, CancellationToken.None);
+                    _subject.ConnectionAuthentication(connection, description, CancellationToken.None);
                 }
             }
             catch (InvalidOperationException ex)
@@ -142,21 +147,39 @@ namespace MongoDB.Driver.Core.Connections
 
         [Theory]
         [ParameterAttributeData]
-        public void InitializeConnection_should_throw_an_ArgumentNullException_if_the_connection_is_null(
+        public void Handshake_should_throw_an_ArgumentNullException_if_the_connection_is_null(
             [Values(false, true)]
             bool async)
         {
             Action act;
             if (async)
             {
-                act = () => _subject.InitializeConnectionAsync(null, CancellationToken.None).GetAwaiter().GetResult();
+                act = () => _subject.HandshakeAsync(null, CancellationToken.None).GetAwaiter().GetResult();
             }
             else
             {
-                act = () => _subject.InitializeConnection(null, CancellationToken.None);
+                act = () => _subject.Handshake(null, CancellationToken.None);
             }
 
             act.ShouldThrow<ArgumentNullException>();
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void ConnectionAuthentication_should_throw_an_ArgumentNullException_if_the_connection_is_null(
+            [Values(false, true)] bool async)
+        {
+            var mockConnectionDescription = new ConnectionDescription(new ConnectionId(__serverId), new IsMasterResult(new BsonDocument()), new BuildInfoResult(new BsonDocument("version", "0.0.0")));
+            if (async)
+            {
+                Record.Exception(() => _subject.ConnectionAuthenticationAsync(null, mockConnectionDescription, CancellationToken.None).GetAwaiter().GetResult()).Should().BeOfType<ArgumentNullException>();
+                Record.Exception(() => _subject.ConnectionAuthenticationAsync(Mock.Of<IConnection>(), null, CancellationToken.None).GetAwaiter().GetResult()).Should().BeOfType<ArgumentNullException>();
+            }
+            else
+            {
+                Record.Exception(() => _subject.ConnectionAuthentication(null, mockConnectionDescription, CancellationToken.None)).Should().BeOfType<ArgumentNullException>();
+                Record.Exception(() => _subject.ConnectionAuthentication(Mock.Of<IConnection>(), null, CancellationToken.None)).Should().BeOfType<ArgumentNullException>();
+            }
         }
 
         [Theory]
@@ -179,11 +202,13 @@ namespace MongoDB.Driver.Core.Connections
             ConnectionDescription result;
             if (async)
             {
-                result = subject.InitializeConnectionAsync(connection, CancellationToken.None).GetAwaiter().GetResult();
+                result = subject.HandshakeAsync(connection, CancellationToken.None).GetAwaiter().GetResult();
+                result = subject.ConnectionAuthenticationAsync(connection, result, CancellationToken.None).GetAwaiter().GetResult();
             }
             else
             {
-                result = subject.InitializeConnection(connection, CancellationToken.None);
+                result = subject.Handshake(connection, CancellationToken.None);
+                result = subject.ConnectionAuthentication(connection, result, CancellationToken.None);
             }
 
             result.ConnectionId.ServerValue.Should().Be(1);
@@ -215,7 +240,7 @@ namespace MongoDB.Driver.Core.Connections
 
         [Theory]
         [ParameterAttributeData]
-        public void InitializeConnectionA_should_build_the_ConnectionDescription_correctly(
+        public void InitializeConnection_should_build_the_ConnectionDescription_correctly(
             [Values("noop", "zlib", "snappy", "zstd")] string compressorType,
             [Values(false, true)] bool async)
         {
@@ -234,11 +259,13 @@ namespace MongoDB.Driver.Core.Connections
             ConnectionDescription result;
             if (async)
             {
-                result = _subject.InitializeConnectionAsync(connection, CancellationToken.None).GetAwaiter().GetResult();
+                result = _subject.HandshakeAsync(connection, CancellationToken.None).GetAwaiter().GetResult();
+                result = _subject.ConnectionAuthenticationAsync(connection, result, CancellationToken.None).GetAwaiter().GetResult();
             }
             else
             {
-                result = _subject.InitializeConnection(connection, CancellationToken.None);
+                result = _subject.Handshake(connection, CancellationToken.None);
+                result = _subject.ConnectionAuthentication(connection, result, CancellationToken.None);
             }
 
             result.ServerVersion.Should().Be(new SemanticVersion(2, 6, 3));

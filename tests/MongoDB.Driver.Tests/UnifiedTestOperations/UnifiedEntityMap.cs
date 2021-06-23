@@ -399,10 +399,13 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             string clientId = null;
             var commandNamesToSkipInEvents = new List<string>();
             List<(string Key, IEnumerable<string> Events, List<string> CommandNotToCapture)> eventTypesToCapture = new ();
+            bool? loadBalanced = null;
+            int? maxPoolSize = null;
             var readConcern = ReadConcern.Default;
             var retryReads = true;
             var retryWrites = true;
             var useMultipleShardRouters = false;
+            TimeSpan? waitQueueTimeout = null;
             var writeConcern = WriteConcern.Acknowledged;
             ServerApi serverApi = null;
 
@@ -421,6 +424,12 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                                 case "appname":
                                     appName = option.Value.ToString();
                                     break;
+                                case "loadBalanced":
+                                    loadBalanced = option.Value.ToBoolean();
+                                    break;
+                                case "maxPoolSize":
+                                    maxPoolSize = option.Value.ToInt32();
+                                    break;
                                 case "retryWrites":
                                     retryWrites = option.Value.AsBoolean;
                                     break;
@@ -434,6 +443,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                                     break;
                                 case "w":
                                     writeConcern = new WriteConcern(option.Value.AsInt32);
+                                    break;
+                                case "waitQueueTimeoutMS":
+                                    waitQueueTimeout = TimeSpan.FromMilliseconds(option.Value.ToInt32());
                                     break;
                                 default:
                                     throw new FormatException($"Unrecognized client uriOption name: '{option.Name}'.");
@@ -529,9 +541,12 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 settings =>
                 {
                     settings.ApplicationName = appName;
+                    settings.LoadBalanced = loadBalanced.GetValueOrDefault(true);//loadBalanced.GetValueOrDefault(settings.LoadBalanced);
+                    settings.MaxConnectionPoolSize = maxPoolSize.GetValueOrDefault(defaultValue: settings.MaxConnectionPoolSize);
                     settings.RetryReads = retryReads;
                     settings.RetryWrites = retryWrites;
                     settings.ReadConcern = readConcern;
+                    settings.WaitQueueTimeout = waitQueueTimeout.GetValueOrDefault(defaultValue: settings.WaitQueueTimeout);
                     settings.WriteConcern = writeConcern;
                     settings.HeartbeatInterval = TimeSpan.FromMilliseconds(5); // the default value for spec tests
                     settings.ServerApi = serverApi;

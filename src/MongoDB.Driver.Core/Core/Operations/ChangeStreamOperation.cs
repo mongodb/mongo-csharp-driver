@@ -297,6 +297,7 @@ namespace MongoDB.Driver.Core.Operations
             BsonTimestamp initialOperationTime;
             using (var context = RetryableReadContext.Create(binding, _retryRequested, cancellationToken))
             {
+                context.PinConnectionIfRequired();
                 cursor = ExecuteAggregateOperation(context, cancellationToken);
                 cursorBatchInfo = (ICursorBatchInfo)cursor;
                 initialOperationTime = GetInitialOperationTimeIfRequired(context, cursorBatchInfo);
@@ -332,6 +333,7 @@ namespace MongoDB.Driver.Core.Operations
             BsonTimestamp initialOperationTime;
             using (var context = await RetryableReadContext.CreateAsync(binding, _retryRequested, cancellationToken).ConfigureAwait(false))
             {
+                context.PinConnectionIfRequired();
                 cursor = await ExecuteAggregateOperationAsync(context, cancellationToken).ConfigureAwait(false);
                 cursorBatchInfo = (ICursorBatchInfo)cursor;
                 initialOperationTime = GetInitialOperationTimeIfRequired(context, cursorBatchInfo);
