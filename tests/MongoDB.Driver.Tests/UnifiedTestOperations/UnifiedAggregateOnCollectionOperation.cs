@@ -26,23 +26,29 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         private readonly IMongoCollection<BsonDocument> _collection;
         private readonly AggregateOptions _options;
         private readonly PipelineDefinition<BsonDocument, BsonDocument> _pipeline;
+        private readonly IClientSessionHandle _session;
 
         public UnifiedAggregateOnCollectionOperation(
             IMongoCollection<BsonDocument> collection,
             PipelineDefinition<BsonDocument, BsonDocument> pipeline,
-            AggregateOptions options)
+            AggregateOptions options,
+            IClientSessionHandle session)
         {
             _collection = collection;
             _pipeline = pipeline;
             _options = options;
+            _session = session;
         }
 
         public OperationResult Execute(CancellationToken cancellationToken)
         {
             try
             {
-                var cursor = _collection.Aggregate(_pipeline, _options, cancellationToken);
-                var result = cursor.ToList();
+                using var cursor = _session == null
+                    ? _collection.Aggregate(_pipeline, _options, cancellationToken)
+                    : _collection.Aggregate(_session, _pipeline, _options, cancellationToken);
+
+                var result = cursor.ToList(cancellationToken);
 
                 return OperationResult.FromResult(new BsonArray(result));
             }
@@ -56,8 +62,11 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             try
             {
-                var cursor = await _collection.AggregateAsync(_pipeline, _options, cancellationToken);
-                var result = await cursor.ToListAsync();
+                using var cursor = _session == null
+                    ? await _collection.AggregateAsync(_pipeline, _options, cancellationToken)
+                    : await _collection.AggregateAsync(_session, _pipeline, _options, cancellationToken);
+
+                var result = await cursor.ToListAsync(cancellationToken);
 
                 return OperationResult.FromResult(new BsonArray(result));
             }
@@ -83,6 +92,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
             var options = new AggregateOptions();
             PipelineDefinition<BsonDocument, BsonDocument> pipeline = null;
+            IClientSessionHandle session = null;
 
             foreach (var argument in arguments)
             {
@@ -94,6 +104,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     case "pipeline":
                         var stages = argument.Value.AsBsonArray.Cast<BsonDocument>();
                         pipeline = new BsonDocumentStagePipelineDefinition<BsonDocument, BsonDocument>(stages);
+                        break;
+                    case "session":
+                        session = _entityMap.GetSession(argument.Value.AsString);
                         break;
                     default:
                         throw new FormatException($"Invalid AggregateOperation argument name: '{argument.Name}'.");
@@ -107,7 +120,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             }
             else
             {
-                return new UnifiedAggregateOnCollectionOperation(collection, pipeline, options);
+                return new UnifiedAggregateOnCollectionOperation(collection, pipeline, options, session);
             }
         }
     }

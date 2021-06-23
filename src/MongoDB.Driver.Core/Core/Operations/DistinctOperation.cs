@@ -14,10 +14,10 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
@@ -172,8 +172,11 @@ namespace MongoDB.Driver.Core.Operations
             using (var context = RetryableReadContext.Create(binding, _retryRequested, cancellationToken))
             {
                 var operation = CreateOperation(context);
-                var values = operation.Execute(context, cancellationToken);
-                return new SingleBatchAsyncCursor<TValue>(values);
+                var result = operation.Execute(context, cancellationToken);
+
+                binding.Session.SetSnapshotTimeIfNeeded(result.AtClusterTime);
+
+                return new SingleBatchAsyncCursor<TValue>(result.Values);
             }
         }
 
@@ -185,8 +188,11 @@ namespace MongoDB.Driver.Core.Operations
             using (var context = await RetryableReadContext.CreateAsync(binding, _retryRequested, cancellationToken).ConfigureAwait(false))
             {
                 var operation = CreateOperation(context);
-                var values = await operation.ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
-                return new SingleBatchAsyncCursor<TValue>(values);
+                var result = await operation.ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
+
+                binding.Session.SetSnapshotTimeIfNeeded(result.AtClusterTime);
+
+                return new SingleBatchAsyncCursor<TValue>(result.Values);
             }
         }
 
@@ -208,15 +214,59 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
-        private ReadCommandOperation<TValue[]> CreateOperation(RetryableReadContext context)
+        private ReadCommandOperation<DistinctResult> CreateOperation(RetryableReadContext context)
         {
             var command = CreateCommand(context.Channel.ConnectionDescription, context.Binding.Session);
-            var valueArraySerializer = new ArraySerializer<TValue>(_valueSerializer);
-            var resultSerializer = new ElementDeserializer<TValue[]>("values", valueArraySerializer);
-            return new ReadCommandOperation<TValue[]>(_collectionNamespace.DatabaseNamespace, command, resultSerializer, _messageEncoderSettings)
+            var serializer = new DistinctResultDeserializer(_valueSerializer);
+
+            return new ReadCommandOperation<DistinctResult>(_collectionNamespace.DatabaseNamespace, command, serializer, _messageEncoderSettings)
             {
                 RetryRequested = _retryRequested // might be overridden by retryable read context
             };
+        }
+
+        private sealed class DistinctResult
+        {
+            public BsonTimestamp AtClusterTime;
+            public TValue[] Values;
+        }
+
+        private sealed class DistinctResultDeserializer : SerializerBase<DistinctResult>
+        {
+            private readonly IBsonSerializer<TValue> _valueSerializer;
+
+            public DistinctResultDeserializer(IBsonSerializer<TValue> valuesSerializer)
+            {
+                _valueSerializer = valuesSerializer;
+            }
+
+            public override DistinctResult Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
+            {
+                var reader = context.Reader;
+                var result = new DistinctResult();
+                reader.ReadStartDocument();
+                while (reader.ReadBsonType() != 0)
+                {
+                    var elementName = reader.ReadName();
+                    switch (elementName)
+                    {
+                        case "atClusterTime":
+                            result.AtClusterTime = BsonTimestampSerializer.Instance.Deserialize(context);
+                            break;
+
+                        case "values":
+                            var arraySerializer = new ArraySerializer<TValue>(_valueSerializer);
+                            result.Values = arraySerializer.Deserialize(context);
+                            break;
+
+                        default:
+                            reader.SkipValue();
+                            break;
+                    }
+                }
+                reader.ReadEndDocument();
+                return result;
+            }
         }
     }
 }

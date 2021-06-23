@@ -36,6 +36,19 @@ namespace MongoDB.Driver.Core.Operations
         private static BsonDocument ToBsonDocument(ICoreSession session, ConnectionDescription connectionDescription, ReadConcern readConcern)
         {
             var sessionsAreSupported = connectionDescription.IsMasterResult.LogicalSessionTimeout != null || connectionDescription.ServiceId.HasValue;
+
+            // snapshot
+            if (sessionsAreSupported && session.IsSnapshot)
+            {
+                var readConcernDocument = ReadConcern.Snapshot.ToBsonDocument();
+                if (session.SnapshotTime != null)
+                {
+                    readConcernDocument.Add("atClusterTime", session.SnapshotTime);
+                }
+                return readConcernDocument;
+            }
+
+            // causal consistency
             var shouldSendAfterClusterTime = sessionsAreSupported && session.IsCausallyConsistent && session.OperationTime != null;
             var shouldSendReadConcern = !readConcern.IsServerDefault || shouldSendAfterClusterTime;
 

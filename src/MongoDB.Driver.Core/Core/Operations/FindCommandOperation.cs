@@ -486,6 +486,11 @@ namespace MongoDB.Driver.Core.Operations
             var collectionNamespace = CollectionNamespace.FromFullName(cursorDocument["ns"].AsString);
             var firstBatch = CreateFirstCursorBatch(cursorDocument);
 
+            if (cursorDocument.TryGetValue("atClusterTime", out var atClusterTime))
+            {
+                channelSource.Session.SetSnapshotTimeIfNeeded(atClusterTime.AsBsonTimestamp);
+            }
+
             return new AsyncCursor<TDocument>(
                 getMoreChannelSource,
                 collectionNamespace,

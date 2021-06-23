@@ -73,6 +73,9 @@ namespace MongoDB.Driver.Core.Bindings
         public bool IsInTransaction => false;
 
         /// <inheritdoc />
+        public bool IsSnapshot => false;
+
+        /// <inheritdoc />
         public BsonTimestamp OperationTime => null;
 
         /// <inheritdoc />
@@ -80,6 +83,9 @@ namespace MongoDB.Driver.Core.Bindings
 
         /// <inheritdoc />
         public ICoreServerSession ServerSession => NoCoreServerSession.Instance;
+
+        /// <inheritdoc />
+        public BsonTimestamp SnapshotTime => null;
 
         // public methods
         /// <inheritdoc />
@@ -141,6 +147,11 @@ namespace MongoDB.Driver.Core.Bindings
         public void StartTransaction(TransactionOptions transactionOptions = null)
         {
             throw new NotSupportedException("NoCoreSession does not support StartTransaction.");
+        }
+
+        /// <inheritdoc />
+        public void SetSnapshotTimeIfNeeded(BsonTimestamp snapshotTime)
+        {
         }
 
         /// <inheritdoc />

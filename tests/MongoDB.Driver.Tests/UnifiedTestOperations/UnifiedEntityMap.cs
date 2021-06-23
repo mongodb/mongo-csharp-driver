@@ -722,6 +722,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         {
                             switch (option.Name)
                             {
+                                case "snapshot":
+                                    options.Snapshot = option.Value.ToBoolean();
+                                    break;
                                 case "causalConsistency":
                                     options.CausalConsistency = option.Value.ToBoolean();
                                     break;

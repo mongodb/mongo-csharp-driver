@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Driver.Core.Bindings;
 
 namespace MongoDB.Driver
@@ -37,12 +38,23 @@ namespace MongoDB.Driver
         /// </value>
         public TransactionOptions DefaultTransactionOptions { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether snapshot reads are requested.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if snapshot reads are requested; otherwise, <c>false</c>.
+        /// </value>
+        public bool Snapshot { get; set;}
+
         // internal methods
         internal CoreSessionOptions ToCore(bool isImplicit = false)
         {
+            var isCausallyConsistent = CausalConsistency ?? !Snapshot;
+
             return new CoreSessionOptions(
-                isCausallyConsistent: CausalConsistency ?? true,
+                isCausallyConsistent: isCausallyConsistent,
                 isImplicit: isImplicit,
+                isSnapshot: Snapshot,
                 defaultTransactionOptions: DefaultTransactionOptions);
         }
     }
