@@ -14,11 +14,8 @@
 */
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -84,7 +81,7 @@ namespace MongoDB.Driver.Specifications.sdam_monitoring
 
             var address = response[0].AsString;
             var isMasterDocument = response[1].AsBsonDocument;
-            JsonDrivenHelper.EnsureAllFieldsAreValid(isMasterDocument, "hosts", "isWritablePrimary", OppressiveLanguageConstants.LegacyHelloResponseIsWritablePrimaryFieldName, "maxWireVersion", "minWireVersion", "ok", "primary", "secondary", "setName", "setVersion");
+            JsonDrivenHelper.EnsureAllFieldsAreValid(isMasterDocument, "hosts", "helloOk", "isWritablePrimary", OppressiveLanguageConstants.LegacyHelloResponseIsWritablePrimaryFieldName, "maxWireVersion", "minWireVersion", "ok", "primary", "secondary", "setName", "setVersion");
 
             var endPoint = EndPointHelper.Parse(address);
             var isMasterResult = new IsMasterResult(isMasterDocument);

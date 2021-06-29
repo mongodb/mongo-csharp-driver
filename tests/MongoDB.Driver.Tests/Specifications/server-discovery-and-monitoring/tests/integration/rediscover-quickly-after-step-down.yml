@@ -1,7 +1,7 @@
 runOn:
     # 4.4 is required for streaming.
     # A replica set is required for replSetStepDown.
-    - minServerVersion: "4.3"
+    - minServerVersion: "4.4"
       topology: ["replicaset"]
 
 database_name: &database_name "sdam-tests"

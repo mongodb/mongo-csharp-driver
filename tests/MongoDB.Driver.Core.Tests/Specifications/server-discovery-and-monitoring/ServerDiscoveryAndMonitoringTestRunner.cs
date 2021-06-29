@@ -187,6 +187,7 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
                 "electionId",
                 "hidden",
                 "hosts",
+                "helloOk",
                 "isWritablePrimary",
                 OppressiveLanguageConstants.LegacyHelloResponseIsWritablePrimaryFieldName,
                 "isreplicaset",
