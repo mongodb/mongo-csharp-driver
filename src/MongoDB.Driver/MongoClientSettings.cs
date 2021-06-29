@@ -884,6 +884,8 @@ namespace MongoDB.Driver
             clientSettings.HeartbeatInterval = url.HeartbeatInterval;
             clientSettings.HeartbeatTimeout = url.HeartbeatTimeout;
             clientSettings.IPv6 = url.IPv6;
+            clientSettings.LoadBalanced = url.LoadBalanced;
+            clientSettings.LocalThreshold = url.LocalThreshold;
             clientSettings.MaxConnectionIdleTime = url.MaxConnectionIdleTime;
             clientSettings.MaxConnectionLifeTime = url.MaxConnectionLifeTime;
             clientSettings.MaxConnectionPoolSize = ConnectionStringConversions.GetEffectiveMaxConnections(url.MaxConnectionPoolSize);
@@ -894,8 +896,6 @@ namespace MongoDB.Driver
             clientSettings.ReplicaSetName = url.ReplicaSetName;
             clientSettings.RetryReads = url.RetryReads.GetValueOrDefault(true);
             clientSettings.RetryWrites = url.RetryWrites.GetValueOrDefault(true);
-            clientSettings.LoadBalanced = url.LoadBalanced;
-            clientSettings.LocalThreshold = url.LocalThreshold;
             clientSettings.Scheme = url.Scheme;
             clientSettings.Servers = new List<MongoServerAddress>(url.Servers);
             clientSettings.ServerSelectionTimeout = url.ServerSelectionTimeout;
@@ -937,6 +937,8 @@ namespace MongoDB.Driver
             clone._heartbeatInterval = _heartbeatInterval;
             clone._heartbeatTimeout = _heartbeatTimeout;
             clone._ipv6 = _ipv6;
+            clone._loadBalanced = _loadBalanced;
+            clone._localThreshold = _localThreshold;
             clone._maxConnectionIdleTime = _maxConnectionIdleTime;
             clone._maxConnectionLifeTime = _maxConnectionLifeTime;
             clone._maxConnectionPoolSize = _maxConnectionPoolSize;
@@ -947,8 +949,6 @@ namespace MongoDB.Driver
             clone._replicaSetName = _replicaSetName;
             clone._retryReads = _retryReads;
             clone._retryWrites = _retryWrites;
-            clone._loadBalanced = _loadBalanced;
-            clone._localThreshold = _localThreshold;
             clone._scheme = _scheme;
             clone._sdamLogFilename = _sdamLogFilename;
             clone._serverApi = _serverApi;
@@ -1003,6 +1003,7 @@ namespace MongoDB.Driver
                 _heartbeatTimeout == rhs._heartbeatTimeout &&
                 _ipv6 == rhs._ipv6 &&
                 _loadBalanced == rhs._loadBalanced &&
+                _localThreshold == rhs._localThreshold &&
                 _maxConnectionIdleTime == rhs._maxConnectionIdleTime &&
                 _maxConnectionLifeTime == rhs._maxConnectionLifeTime &&
                 _maxConnectionPoolSize == rhs._maxConnectionPoolSize &&
@@ -1013,7 +1014,6 @@ namespace MongoDB.Driver
                 _replicaSetName == rhs._replicaSetName &&
                 _retryReads == rhs._retryReads &&
                 _retryWrites == rhs._retryWrites &&
-                _localThreshold == rhs._localThreshold &&
                 _scheme == rhs._scheme &&
                 _sdamLogFilename == rhs._sdamLogFilename &&
                 _serverApi == rhs._serverApi &&
@@ -1086,6 +1086,7 @@ namespace MongoDB.Driver
                 .Hash(_heartbeatTimeout)
                 .Hash(_ipv6)
                 .Hash(_loadBalanced)
+                .Hash(_localThreshold)
                 .Hash(_maxConnectionIdleTime)
                 .Hash(_maxConnectionLifeTime)
                 .Hash(_maxConnectionPoolSize)
@@ -1096,7 +1097,6 @@ namespace MongoDB.Driver
                 .Hash(_replicaSetName)
                 .Hash(_retryReads)
                 .Hash(_retryWrites)
-                .Hash(_localThreshold)
                 .Hash(_scheme)
                 .Hash(_sdamLogFilename)
                 .Hash(_serverApi)
@@ -1154,6 +1154,7 @@ namespace MongoDB.Driver
             {
                 sb.AppendFormat("LoadBalanced={0};", _loadBalanced);
             }
+            sb.AppendFormat("LocalThreshold={0};", _localThreshold);
             sb.AppendFormat("MaxConnectionIdleTime={0};", _maxConnectionIdleTime);
             sb.AppendFormat("MaxConnectionLifeTime={0};", _maxConnectionLifeTime);
             sb.AppendFormat("MaxConnectionPoolSize={0};", _maxConnectionPoolSize);
@@ -1167,7 +1168,6 @@ namespace MongoDB.Driver
             sb.AppendFormat("ReplicaSetName={0};", _replicaSetName);
             sb.AppendFormat("RetryReads={0}", _retryReads);
             sb.AppendFormat("RetryWrites={0}", _retryWrites);
-            sb.AppendFormat("LocalThreshold={0};", _localThreshold);
             if (_scheme != ConnectionStringScheme.MongoDB)
             {
                 sb.AppendFormat("Scheme={0};", _scheme);

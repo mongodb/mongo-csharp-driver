@@ -557,45 +557,45 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestFreezeInvalid()
         {
-            AssertOptions(settings =>
+            AssertException(settings =>
             {
                 settings.AllowInsecureTls = true;
                 settings.SslSettings.CheckCertificateRevocation = true;
             });
 
-            AssertOptions(settings =>
+            AssertException(settings =>
             {
                 settings.DirectConnection = true;
                 settings.Scheme = ConnectionStringScheme.MongoDBPlusSrv;
             });
 
-            AssertOptions(settings =>
+            AssertException(settings =>
             {
                 settings.DirectConnection = true;
                 var endpoint = "test5.test.build.10gen.cc:53";
                 settings.Servers = new[] { MongoServerAddress.Parse(endpoint), MongoServerAddress.Parse(endpoint) };
             });
 
-            AssertOptions(settings =>
+            AssertException(settings =>
             {
                 settings.LoadBalanced = true;
                 var endpoint = "test5.test.build.10gen.cc:53";
                 settings.Servers = new[] { MongoServerAddress.Parse(endpoint), MongoServerAddress.Parse(endpoint) };
             });
 
-            AssertOptions(settings =>
+            AssertException(settings =>
             {
                 settings.LoadBalanced = true;
                 settings.DirectConnection = true;
             });
 
-            AssertOptions(settings =>
+            AssertException(settings =>
             {
                 settings.LoadBalanced = true;
                 settings.ReplicaSetName = "test";
             });
 
-            void AssertOptions(Action<MongoClientSettings> setAction)
+            void AssertException(Action<MongoClientSettings> setAction)
             {
                 var settings = new MongoClientSettings();
 

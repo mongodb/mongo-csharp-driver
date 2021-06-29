@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Compression;
@@ -850,7 +851,7 @@ namespace MongoDB.Driver.Tests
             var subject = new MongoUrlBuilder { LoadBalanced = value };
 
             subject.LoadBalanced.Should().Be(value);
-            var expectedConnectionString = $"mongodb://localhost{(value ? $"/?loadBalanced={value}" : "")}";
+            var expectedConnectionString = $"mongodb://localhost{(value ? $"/?loadBalanced={JsonConvert.ToString(value)}" : "")}";
             subject.ToString().Should().Be(expectedConnectionString);
         }
 
