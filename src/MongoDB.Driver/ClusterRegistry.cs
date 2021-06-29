@@ -91,6 +91,7 @@ namespace MongoDB.Driver
                 directConnection: directConnection,
                 endPoints: Optional.Enumerable(endPoints),
                 kmsProviders: Optional.Create(clusterKey.KmsProviders),
+                loadBalanced: clusterKey.LoadBalanced,
                 localThreshold: clusterKey.LocalThreshold,
                 replicaSetName: clusterKey.ReplicaSetName,
                 maxServerSelectionWaitQueueSize: clusterKey.WaitQueueSize,

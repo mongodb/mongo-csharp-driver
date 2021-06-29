@@ -79,6 +79,7 @@ namespace MongoDB.Driver.Tests
                 heartbeatTimeout: TimeSpan.FromSeconds(3),
                 ipv6: true,
                 kmsProviders: kmsProviders,
+                loadBalanced: false,
                 localThreshold: TimeSpan.FromSeconds(4),
                 maxConnectionIdleTime: TimeSpan.FromSeconds(5),
                 maxConnectionLifeTime: TimeSpan.FromSeconds(6),
@@ -114,6 +115,7 @@ namespace MongoDB.Driver.Tests
 #pragma warning restore CS0618 // Type or member is obsolete
                 cluster.Settings.KmsProviders.Should().BeEquivalentTo(kmsProviders);
                 cluster.Settings.EndPoints.Should().Equal(expectedEndPoints);
+                cluster.Settings.LoadBalanced.Should().Be(clusterKey.LoadBalanced);
                 cluster.Settings.MaxServerSelectionWaitQueueSize.Should().Be(clusterKey.WaitQueueSize);
                 cluster.Settings.ReplicaSetName.Should().Be(clusterKey.ReplicaSetName);
                 cluster.Settings.SchemaMap.Should().BeEquivalentTo(schemaMap);

@@ -82,6 +82,7 @@ namespace MongoDB.Driver.Core.Configuration
         private bool? _ipv6;
         private bool _isResolved;
         private bool? _journal;
+        private bool _loadBalanced;
         private TimeSpan? _localThreshold;
         private TimeSpan? _maxIdleTime;
         private TimeSpan? _maxLifeTime;
@@ -318,6 +319,11 @@ namespace MongoDB.Driver.Core.Configuration
         {
             get { return _journal; }
         }
+
+        /// <summary>
+        /// Gets a value indicating whether load balanced mode is used.
+        /// </summary>
+        public bool LoadBalanced => _loadBalanced;
 
         /// <summary>
         /// Gets the local threshold.
@@ -884,6 +890,24 @@ namespace MongoDB.Driver.Core.Configuration
                 throw new MongoConfigurationException("Direct connect cannot be used with multiple host names.");
             }
 
+            if (_loadBalanced)
+            {
+                if (_hosts.Count > 1)
+                {
+                    throw new MongoConfigurationException("Load balanced mode cannot be used with multiple host names.");
+                }
+
+                if (_replicaSet != null)
+                {
+                    throw new MongoConfigurationException("ReplicaSetName cannot be used with load balanced mode.");
+                }
+
+                if (IsDirectConnection())
+                {
+                    throw new MongoConfigurationException("Load balanced mode cannot be used with direct connection.");
+                }
+            }
+
             bool IsDirectConnection() =>
                 _directConnection.GetValueOrDefault() ||
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -956,6 +980,9 @@ namespace MongoDB.Driver.Core.Configuration
                 case "j":
                 case "journal":
                     _journal = ParseBoolean(name, value);
+                    break;
+                case "loadbalanced":
+                    _loadBalanced = ParseBoolean(name, value);
                     break;
                 case "maxidletime":
                 case "maxidletimems":
@@ -1361,10 +1388,10 @@ namespace MongoDB.Driver.Core.Configuration
 
         private void ValidateResolvedOptions(IEnumerable<string> optionNames)
         {
-            if (optionNames.Any(x => !string.Equals(x, "authSource", StringComparison.OrdinalIgnoreCase)
-                && !string.Equals(x, "replicaSet", StringComparison.OrdinalIgnoreCase)))
+            var allowedOptionsInTxtRecords = new[] { "authSource", "replicaSet", "loadBalanced" };
+            if (optionNames.Any(o => !allowedOptionsInTxtRecords.Contains(o, StringComparer.OrdinalIgnoreCase)))
             {
-                throw new MongoConfigurationException($"Only 'authSource' and 'replicaSet' are allowed in a TXT record.");
+                throw new MongoConfigurationException($"Only {string.Join(", ", allowedOptionsInTxtRecords)} are allowed in a TXT record.");
             }
         }
 
