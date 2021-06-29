@@ -29,6 +29,7 @@ namespace MongoDB.Driver.Core.Operations
     public class ListIndexesOperation : IReadOperation<IAsyncCursor<BsonDocument>>
     {
         // fields
+        private int? _batchSize;
         private readonly CollectionNamespace _collectionNamespace;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private bool _retryRequested;
@@ -48,6 +49,18 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
+        /// <summary>
+        /// Gets or sets the batch size.
+        /// </summary>
+        /// <value>
+        /// The batch size.
+        /// </value>
+        public int? BatchSize
+        {
+            get => _batchSize;
+            set => _batchSize = value;
+        }
+
         /// <summary>
         /// Gets the collection namespace.
         /// </summary>
@@ -116,12 +129,16 @@ namespace MongoDB.Driver.Core.Operations
             {
                 return new ListIndexesUsingCommandOperation(_collectionNamespace, _messageEncoderSettings)
                 {
+                    BatchSize = _batchSize,
                     RetryRequested = _retryRequested // might be overridden by retryable read context
                 };
             }
             else
             {
-                return new ListIndexesUsingQueryOperation(_collectionNamespace, _messageEncoderSettings);
+                return new ListIndexesUsingQueryOperation(_collectionNamespace, _messageEncoderSettings)
+                {
+                    BatchSize = _batchSize
+                };
             }
         }
     }

@@ -33,6 +33,7 @@ namespace MongoDB.Driver.Core.Operations
     public class ListCollectionsUsingQueryOperation : IReadOperation<IAsyncCursor<BsonDocument>>, IExecutableInRetryableReadContext<IAsyncCursor<BsonDocument>>
     {
         // fields
+        private int? _batchSize;
         private BsonDocument _filter;
         private readonly DatabaseNamespace _databaseNamespace;
         private readonly MessageEncoderSettings _messageEncoderSettings;
@@ -53,6 +54,18 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
+        /// <summary>
+        /// Gets or sets the batch size.
+        /// </summary>
+        /// <value>
+        /// The batch size.
+        /// </value>
+        public int? BatchSize
+        {
+            get => _batchSize;
+            set => _batchSize = value;
+        }
+
         /// <summary>
         /// Gets or sets the filter.
         /// </summary>
@@ -166,6 +179,7 @@ namespace MongoDB.Driver.Core.Operations
 
             return new FindOperation<BsonDocument>(_databaseNamespace.SystemNamespacesCollection, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
+                BatchSize = _batchSize,
                 Filter = filter,
                 RetryRequested = _retryRequested
             };

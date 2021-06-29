@@ -81,28 +81,27 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             var collection = _entityMap.GetCollection(targetCollectionId);
 
-            AggregateOptions options = null;
+            var options = new AggregateOptions();
             PipelineDefinition<BsonDocument, BsonDocument> pipeline = null;
 
             foreach (var argument in arguments)
             {
                 switch (argument.Name)
                 {
-                    case "batchSize":
-                        options ??= new AggregateOptions();
-                        options.BatchSize = argument.Value.AsInt32;
-                        break;
                     case "pipeline":
                         var stages = argument.Value.AsBsonArray.Cast<BsonDocument>();
                         pipeline = new BsonDocumentStagePipelineDefinition<BsonDocument, BsonDocument>(stages);
+                        break;
+                    case "batchSize":
+                        options.BatchSize = argument.Value.ToInt32();
                         break;
                     default:
                         throw new FormatException($"Invalid AggregateOperation argument name: '{argument.Name}'.");
                 }
             }
 
-            var lastStageOperatorName = pipeline.Stages.Last().OperatorName;
-            if (lastStageOperatorName == "$out" || lastStageOperatorName == "$merge")
+            var operatorName = pipeline.Stages.LastOrDefault()?.OperatorName;
+            if (operatorName == "$out" || operatorName == "$merge")
             {
                 return new UnifiedAggregateToCollectionOperation(collection, pipeline, options);
             }

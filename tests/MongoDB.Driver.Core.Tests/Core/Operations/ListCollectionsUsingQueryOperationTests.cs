@@ -62,6 +62,18 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Fact]
+        public void BatchSize_get_and_set_should_work()
+        {
+            var subject = new ListCollectionsUsingQueryOperation(_databaseNamespace, _messageEncoderSettings);
+            int batchSize = 2;
+
+            subject.BatchSize = batchSize;
+            var result = subject.BatchSize;
+
+            result.Should().Be(batchSize);
+        }
+
+        [Fact]
         public void Filter_get_and_set_should_work()
         {
             var subject = new ListCollectionsUsingQueryOperation(_databaseNamespace, _messageEncoderSettings);
@@ -102,6 +114,26 @@ namespace MongoDB.Driver.Core.Operations
 
             list.Count.Should().BeGreaterThan(0);
             list.Select(c => c["name"].AsString).Where(n => n != "system.indexes").Should().BeEquivalentTo(expectedNames);
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_should_return_the_expected_result_when_batchSize_is_used([Values(false, true)] bool async)
+        {
+            RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet).StorageEngine("mmapv1").Authentication(authentication: false);
+            EnsureCollectionsExist();
+            int batchSize = 1;
+            var subject = new ListCollectionsUsingQueryOperation(_databaseNamespace, _messageEncoderSettings)
+            {
+                BatchSize = batchSize
+            };
+
+            using (var result = ExecuteOperation(subject, async))
+            {
+                var batchTransformingAsyncCursor = (BatchTransformingAsyncCursor<BsonDocument, BsonDocument>)result;
+                var asyncCursor = (AsyncCursor<BsonDocument>)batchTransformingAsyncCursor._wrapped();
+                asyncCursor._batchSize().Should().Be(batchSize);
+            }
         }
 
         [SkippableTheory]

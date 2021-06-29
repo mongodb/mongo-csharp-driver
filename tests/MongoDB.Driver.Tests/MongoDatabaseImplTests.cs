@@ -914,18 +914,20 @@ namespace MongoDB.Driver
         [ParameterAttributeData]
         public void ListCollections_should_execute_a_ListCollectionsOperation(
             [Values(false, true)] bool usingSession,
-            [Values(false, true)] bool usingOptions,
+            [Values(false, true)] bool usingBatchSize,
+            [Values(false, true)] bool usingFilter,
             [Values(false, true)] bool async)
         {
             var session = CreateSession(usingSession);
             var filterDocument = BsonDocument.Parse("{ name : \"awesome\" }");
             var filterDefinition = (FilterDefinition<BsonDocument>)filterDocument;
             ListCollectionsOptions options = null;
-            if (usingOptions)
+            if (usingFilter || usingBatchSize)
             {
                 options = new ListCollectionsOptions
                 {
-                    Filter = filterDefinition
+                    BatchSize = usingBatchSize ? 10 : (int?)null,
+                    Filter = usingFilter ? filterDefinition : null
                 };
             }
             var cancellationToken = new CancellationTokenSource().Token;
@@ -962,13 +964,13 @@ namespace MongoDB.Driver
             var op = call.Operation.Should().BeOfType<ListCollectionsOperation>().Subject;
             op.DatabaseNamespace.Should().Be(_subject.DatabaseNamespace);
             op.NameOnly.Should().NotHaveValue();
-            if (usingOptions)
+            if (usingFilter || usingBatchSize)
             {
-                op.Filter.Should().Be(filterDocument);
-            }
-            else
-            {
-                op.Filter.Should().BeNull();
+                op.Should().Match<ListCollectionsOperation>(
+                    (o) =>
+                        o.BatchSize == (usingBatchSize ? 10 : (int?)null) &&
+                        o.Filter == (usingFilter ? filterDocument : null)
+                );
             }
             op.RetryRequested.Should().BeTrue();
         }

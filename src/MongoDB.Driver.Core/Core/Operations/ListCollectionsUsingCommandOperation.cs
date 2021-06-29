@@ -31,6 +31,7 @@ namespace MongoDB.Driver.Core.Operations
     public class ListCollectionsUsingCommandOperation : IReadOperation<IAsyncCursor<BsonDocument>>, IExecutableInRetryableReadContext<IAsyncCursor<BsonDocument>>
     {
         // fields
+        private int? _batchSize;
         private BsonDocument _filter;
         private readonly DatabaseNamespace _databaseNamespace;
         private readonly MessageEncoderSettings _messageEncoderSettings;
@@ -52,6 +53,18 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
+        /// <summary>
+        /// Gets or sets the batch size.
+        /// </summary>
+        /// <value>
+        /// The batch size.
+        /// </value>
+        public int? BatchSize
+        {
+            get => _batchSize;
+            set => _batchSize = value;
+        }
+
         /// <summary>
         /// Gets or sets the filter.
         /// </summary>
@@ -166,7 +179,8 @@ namespace MongoDB.Driver.Core.Operations
             {
                 { "listCollections", 1 },
                 { "filter", _filter, _filter != null },
-                { "nameOnly", () => _nameOnly.Value, _nameOnly.HasValue }
+                { "nameOnly", () => _nameOnly.Value, _nameOnly.HasValue },
+                { "cursor", () => new BsonDocument("batchSize", _batchSize.Value), _batchSize.HasValue }
             };
             return new ReadCommandOperation<BsonDocument>(_databaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
@@ -184,7 +198,7 @@ namespace MongoDB.Driver.Core.Operations
                 command,
                 cursorDocument["firstBatch"].AsBsonArray.OfType<BsonDocument>().ToList(),
                 cursorDocument["id"].ToInt64(),
-                0,
+                batchSize: _batchSize ?? 0,
                 0,
                 BsonDocumentSerializer.Instance,
                 _messageEncoderSettings);

@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
@@ -26,6 +27,35 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
 {
     public class UnifiedEventMatcher
     {
+        #region static
+        private static Dictionary<Type, EventType> __eventsMap = new()
+        {
+            { typeof(CommandStartedEvent), EventType.Command },
+            { typeof(CommandSucceededEvent), EventType.Command },
+            { typeof(CommandFailedEvent), EventType.Command },
+
+            { typeof(ConnectionOpenedEvent), EventType.Cmap },  // connectionReadyEvent
+            { typeof(ConnectionCreatedEvent), EventType.Cmap },
+            { typeof(ConnectionPoolCheckedOutConnectionEvent), EventType.Cmap },
+            { typeof(ConnectionPoolCheckedInConnectionEvent), EventType.Cmap },
+            { typeof(ConnectionClosedEvent), EventType.Cmap },
+            { typeof(ConnectionPoolCheckingOutConnectionFailedEvent), EventType.Cmap },
+            { typeof(ConnectionPoolClearedEvent), EventType.Cmap },
+        };
+
+        public static List<object> FilterEventsByType(List<object> incomeEvents, string eventType)
+        {
+            if (!Enum.TryParse<EventType>(eventType, ignoreCase: true, out var eventTypeEnum))
+            {
+                throw new FormatException($"Cannot parse {nameof(eventType)} enum from {eventType}.");
+            }
+
+            return incomeEvents
+                .Where(e => __eventsMap[e.GetType()] == eventTypeEnum)
+                .ToList();
+        }
+        #endregion
+
         private UnifiedValueMatcher _valueMatcher;
 
         public UnifiedEventMatcher(UnifiedValueMatcher valueMatcher)
@@ -80,6 +110,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                                 case "databaseName":
                                     commandStartedEvent.DatabaseNamespace.DatabaseName.Should().Be(element.Value.AsString);
                                     break;
+                                case "hasServiceId":
+                                    // TODO: not implemented yet
+                                    break;
                                 default:
                                     throw new FormatException($"Unexpected commandStartedEvent field: '{element.Name}'.");
                             }
@@ -97,6 +130,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                                 case "commandName":
                                     commandSucceededEvent.CommandName.Should().Be(element.Value.AsString);
                                     break;
+                                case "hasServiceId":
+                                    // TODO: not implemented yet
+                                    break;
                                 default:
                                     throw new FormatException($"Unexpected commandStartedEvent field: '{element.Name}'.");
                             }
@@ -111,8 +147,73 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                                 case "commandName":
                                     commandFailedEvent.CommandName.Should().Be(element.Value.AsString);
                                     break;
+                                case "hasServiceId":
+                                    // TODO: not implemented yet
+                                    break;
                                 default:
                                     throw new FormatException($"Unexpected commandStartedEvent field: '{element.Name}'.");
+                            }
+                        }
+                        break;
+                    case "connectionReadyEvent":
+                        actualEvent.Should().BeOfType<ConnectionOpenedEvent>();
+                        expectedEventValue.ElementCount.Should().Be(0); // empty document
+                        break;
+                    case "connectionCheckedOutEvent":
+                        actualEvent.Should().BeOfType<ConnectionPoolCheckedOutConnectionEvent>();
+                        expectedEventValue.ElementCount.Should().Be(0); // empty document
+                        break;
+                    case "connectionCheckedInEvent":
+                        actualEvent.Should().BeOfType<ConnectionPoolCheckedInConnectionEvent>();
+                        expectedEventValue.ElementCount.Should().Be(0); // empty document
+                        break;
+                    case "connectionClosedEvent":
+                        {
+                            var connectionClosedEvent = actualEvent.Should().BeOfType<ConnectionClosedEvent>().Subject;
+                            foreach (var element in expectedEventValue)
+                            {
+                                switch (element.Name)
+                                {
+                                    case "reason":
+                                        //connectionClosedEvent.Reason.Should().Be(reason); // TODO: should be implemented in the scope of CSHARP-3219
+                                        break;
+                                    default:
+                                        throw new FormatException($"Unexpected {expectedEventType} field: '{element.Name}'.");
+                                }
+                            }
+                        }
+                        break;
+                    case "connectionCreatedEvent":
+                        actualEvent.Should().BeOfType<ConnectionCreatedEvent>();
+                        expectedEventValue.ElementCount.Should().Be(0); // empty document
+                        break;
+                    case "connectionCheckOutFailedEvent":
+                        {
+                            var connectionCheckOutFailedEvent = actualEvent.Should().BeOfType<ConnectionPoolCheckingOutConnectionFailedEvent>().Subject;
+                            foreach (var element in expectedEventValue)
+                            {
+                                switch (element.Name)
+                                {
+                                    case "reason":
+                                        connectionCheckOutFailedEvent.Reason.ToString().ToLower().Should().Be(element.Value.ToString().ToLower());
+                                        break;
+                                    default:
+                                        throw new FormatException($"Unexpected {expectedEventType} field: '{element.Name}'.");
+                                }
+                            }
+                        }
+                        break;
+                    case "poolClearedEvent":
+                        var poolClearedEvent = actualEvent.Should().BeOfType<ConnectionPoolClearedEvent>().Subject;
+                        foreach (var element in expectedEventValue)
+                        {
+                            switch (element.Name)
+                            {
+                                case "hasServiceId":
+                                    // TODO: not implemented yet
+                                    break;
+                                default:
+                                    throw new FormatException($"Unexpected {expectedEventType} field: '{element.Name}'.");
                             }
                         }
                         break;
@@ -156,13 +257,21 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                         actualEventsDocuments.Add(new BsonDocument("commandFailedEvent", commandFailedDocument));
                         break;
                     default:
-                        throw new FormatException($"Unrecognized event type: '{actualEvent.GetType()}'.");
+                        actualEventsDocuments.Add(new BsonDocument(actualEvent.GetType().Name, actualEvent.ToString()));
+                        break;
                 }
             }
 
             return
                 $"Expected events to be: {expectedEventsDocuments.ToJson(jsonWriterSettings)}{Environment.NewLine}" +
                 $"But found: {actualEventsDocuments.ToJson(jsonWriterSettings)}.";
+        }
+
+        // nested types
+        private enum EventType
+        {
+            Command,
+            Cmap
         }
     }
 }

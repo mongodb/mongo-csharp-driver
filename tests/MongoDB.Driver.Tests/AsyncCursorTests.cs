@@ -160,5 +160,7 @@ namespace MongoDB.Driver.Tests
     {
         public static long _cursorId(this AsyncCursor<BsonDocument> obj) =>
             (long)Reflector.GetFieldValue(obj, nameof(_cursorId));
+
+        public static int? _batchSize(this AsyncCursor<BsonDocument> obj) => (int?)Reflector.GetFieldValue(obj, nameof(_batchSize));
     }
 }

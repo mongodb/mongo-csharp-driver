@@ -13,9 +13,6 @@
 * limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -32,6 +29,7 @@ namespace MongoDB.Driver.Core.Operations
     public class ListIndexesUsingQueryOperation : IReadOperation<IAsyncCursor<BsonDocument>>, IExecutableInRetryableReadContext<IAsyncCursor<BsonDocument>>
     {
         // fields
+        private int? _batchSize;
         private readonly CollectionNamespace _collectionNamespace;
         private readonly MessageEncoderSettings _messageEncoderSettings;
 
@@ -50,6 +48,18 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
+        /// <summary>
+        /// Gets or sets the batch size.
+        /// </summary>
+        /// <value>
+        /// The batch size.
+        /// </value>
+        public int? BatchSize
+        {
+            get => _batchSize;
+            set => _batchSize = value;
+        }
+
         /// <summary>
         /// Gets the collection namespace.
         /// </summary>
@@ -120,6 +130,7 @@ namespace MongoDB.Driver.Core.Operations
             var filter = new BsonDocument("ns", _collectionNamespace.FullName);
             return new FindOperation<BsonDocument>(systemIndexesCollection, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
+                BatchSize = _batchSize,
                 Filter = filter,
                 RetryRequested = false
             };

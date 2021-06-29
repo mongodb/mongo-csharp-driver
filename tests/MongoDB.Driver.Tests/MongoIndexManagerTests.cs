@@ -28,6 +28,7 @@ namespace MongoDB.Driver.Tests
         [ParameterAttributeData]
         public void List_should_return_expected_result(
             [Values("{ singleIndex : 1 }", "{ compoundIndex1 : 1, compoundIndex2 : 1 }")] string key,
+            [Values(null, 3)] int? batchSize,
             [Values(false, true)] bool unique,
             [Values(null, false, true)] bool? hidden,
             [Values(false, true)] bool async)
@@ -55,10 +56,18 @@ namespace MongoDB.Driver.Tests
                         indexKeyDocument,
                         indexOptions));
 
+                var listIndexesOptions = batchSize.HasValue ? new ListIndexesOptions { BatchSize = batchSize.Value } : null;
+
                 var indexesCursor =
                     async
-                        ? subject.ListAsync().GetAwaiter().GetResult()
-                        : subject.List();
+                        ? subject.ListAsync(options: listIndexesOptions).GetAwaiter().GetResult()
+                        : subject.List(options: listIndexesOptions);
+                if (batchSize.HasValue)
+                {
+                    var asyncCursor = indexesCursor as AsyncCursor<BsonDocument>;
+                    asyncCursor._batchSize().Should().Be(batchSize.Value);
+                }
+
                 var indexes = indexesCursor.ToList();
 
                 indexes.Count.Should().Be(2);

@@ -1,4 +1,4 @@
-/* Copyright 2010-present MongoDB Inc.
+﻿/* Copyright 2021-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,36 +13,22 @@
 * limitations under the License.
 */
 
-using MongoDB.Bson;
-
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Options for a list collections operation.
+    /// Options for a list indexes operation.
     /// </summary>
-    public sealed class ListCollectionsOptions
+    public sealed class ListIndexesOptions
     {
-        // fields
         private int? _batchSize;
-        private FilterDefinition<BsonDocument> _filter;
 
-        // properties
         /// <summary>
         /// Gets or sets the batch size.
         /// </summary>
         public int? BatchSize
         {
-            get { return _batchSize; }
-            set { _batchSize = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the filter.
-        /// </summary>
-        public FilterDefinition<BsonDocument> Filter
-        {
-            get { return _filter; }
-            set { _filter = value; }
+            get => _batchSize;
+            set => _batchSize = value;
         }
     }
 }

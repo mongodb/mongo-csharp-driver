@@ -67,13 +67,13 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
 
         private void AssertErrorCode(Exception actualException, int expectedErrorCode)
         {
-            var mongoCommandException = actualException.Should().BeOfType<MongoCommandException>().Subject;
+            var mongoCommandException = actualException.Should().BeAssignableTo<MongoCommandException>().Subject;
             mongoCommandException.Code.Should().Be(expectedErrorCode);
         }
 
         private void AssertErrorCodeName(Exception actualException, string expectedErrorCodeName)
         {
-            var mongoCommandException = actualException.Should().BeOfType<MongoCommandException>().Subject;
+            var mongoCommandException = actualException.Should().BeAssignableTo<MongoCommandException>().Subject;
             mongoCommandException.CodeName.Should().Be(expectedErrorCodeName);
         }
 
@@ -113,9 +113,11 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
 
         private void AssertIsClientError(Exception actualException, bool expectedIsClientError)
         {
-            var actualIsClientError =
-                actualException is MongoClientException ||
-                actualException is BsonException;
+            var actualIsClientError = actualException is
+                MongoClientException or
+                BsonException or
+                MongoConnectionException or
+                TimeoutException;
 
             if (actualIsClientError != expectedIsClientError)
             {
