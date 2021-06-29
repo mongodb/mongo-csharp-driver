@@ -1075,6 +1075,10 @@ axes:
         display_name: "latest"
         variables:
            VERSION: "latest"
+      - id: "5.0"
+        display_name: "5.0"
+        variables:
+           VERSION: "5.0"
       - id: "4.4"
         display_name: "4.4"
         variables:
@@ -1225,7 +1229,7 @@ buildvariants:
      - name: test-netstandard21
 
 - matrix_name: "tests-zlib-compression"
-  matrix_spec: { compressor : "zlib", auth: "noauth", ssl: "nossl", version: ["3.6", "4.0", "4.2", "4.4", "latest"], topology: "standalone", os: "windows-64" }
+  matrix_spec: { compressor : "zlib", auth: "noauth", ssl: "nossl", version: ["3.6", "4.0", "4.2", "4.4", "5.0", "latest"], topology: "standalone", os: "windows-64" }
   display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
   tags: ["tests-variant"]
   tasks:
@@ -1235,7 +1239,7 @@ buildvariants:
      - name: test-netstandard21
 
 - matrix_name: "tests-snappy-compression"
-  matrix_spec: { compressor : "snappy", auth: "noauth", ssl: "nossl", version: ["3.6", "4.0", "4.2", "4.4", "latest"], topology: "standalone", os: "windows-64" }
+  matrix_spec: { compressor : "snappy", auth: "noauth", ssl: "nossl", version: ["3.6", "4.0", "4.2", "4.4", "5.0", "latest"], topology: "standalone", os: "windows-64" }
   display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
   tags: ["tests-variant"]
   tasks:
@@ -1245,7 +1249,7 @@ buildvariants:
      - name: test-netstandard21
 
 - matrix_name: "tests-zstandard-compression"
-  matrix_spec: { compressor : "zstandard", auth: "noauth", ssl: "nossl", version: ["3.6", "4.0", "4.2", "4.4", "latest"], topology: "standalone", os: "windows-64" }
+  matrix_spec: { compressor : "zstandard", auth: "noauth", ssl: "nossl", version: ["3.6", "4.0", "4.2", "4.4", "5.0", "latest"], topology: "standalone", os: "windows-64" }
   display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
   tags: ["tests-variant"]
   tasks:
@@ -1256,7 +1260,7 @@ buildvariants:
 
   # ubuntu 18 does not support SSL until 4.0
 - matrix_name: "secure-tests-linux"
-  matrix_spec: { version: ["4.0", "4.2", "4.4", "latest"], topology: "*", auth: "auth", ssl: "ssl", os: "ubuntu-1804" }
+  matrix_spec: { version: ["4.0", "4.2", "4.4", "5.0", "latest"], topology: "*", auth: "auth", ssl: "ssl", os: "ubuntu-1804" }
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
   tasks:
@@ -1275,7 +1279,7 @@ buildvariants:
 
 # macos-1014 does not support SSL until 3.2
 - matrix_name: "secure-tests-macOS"
-  matrix_spec: { version: ["3.2", "3.6", "4.0", "4.2", "4.4", "latest"], topology: "*", auth: "auth", ssl: "ssl", os: "macos-1014" }
+  matrix_spec: { version: ["3.2", "3.6", "4.0", "4.2", "4.4", "5.0", "latest"], topology: "*", auth: "auth", ssl: "ssl", os: "macos-1014" }
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
   tasks:
@@ -1294,7 +1298,7 @@ buildvariants:
      - name: test-netstandard21
 
 - matrix_name: "tests-zlib-compression-posix"
-  matrix_spec: { compressor : "zlib", auth: "noauth", ssl: "nossl", version: ["3.6", "4.0", "4.2", "4.4", "latest"], topology: "standalone", os: "ubuntu-1804" }
+  matrix_spec: { compressor : "zlib", auth: "noauth", ssl: "nossl", version: ["3.6", "4.0", "4.2", "4.4", "5.0", "latest"], topology: "standalone", os: "ubuntu-1804" }
   display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
   tags: ["tests-variant"]
   tasks:
@@ -1303,14 +1307,14 @@ buildvariants:
      - name: test-netstandard21
 
 - matrix_name: "ocsp-tests"
-  matrix_spec: { version: ["4.4", "latest"], auth: "noauth", ssl: "ssl", topology: "standalone", os: "windows-64" } # matrix_spec: { version: ["latest"], os-ssl-32: ["ubuntu1604-64-go-1-12"] }
+  matrix_spec: { version: ["4.4", "5.0", "latest"], auth: "noauth", ssl: "ssl", topology: "standalone", os: "windows-64" } # matrix_spec: { version: ["latest"], os-ssl-32: ["ubuntu1604-64-go-1-12"] }
   display_name: "OCSP ${version} ${os}" #  display_name: "OCSP ${version} ${os-ssl-32}"
   batchtime: 20160 # 14 days
   tasks:
     - name: ".ocsp"
 
 - matrix_name: aws-auth-tests
-  matrix_spec: { version: ["4.4", "latest"], topology: "standalone", os: "windows-64" }
+  matrix_spec: { version: ["4.4", "5.0", "latest"], topology: "standalone", os: "windows-64" }
   display_name: "MONGODB-AWS Auth test ${version} ${os}"
   run_on:
     - windows-64-vs2017-test
