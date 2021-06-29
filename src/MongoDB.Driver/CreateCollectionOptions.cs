@@ -16,6 +16,7 @@
 using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Core.Operations;
 
 namespace MongoDB.Driver
 {
@@ -28,11 +29,13 @@ namespace MongoDB.Driver
         private bool? _autoIndexId;
         private bool? _capped;
         private Collation _collation;
+        private TimeSpan? _expireAfter;
         private IndexOptionDefaults _indexOptionDefaults;
         private long? _maxDocuments;
         private long? _maxSize;
         private bool? _noPadding;
         private BsonDocument _storageEngine;
+        private TimeSeriesOptions _timeSeriesOptions;
         private bool? _usePowerOf2Sizes;
         private IBsonSerializerRegistry _serializerRegistry;
         private DocumentValidationAction? _validationAction;
@@ -65,6 +68,16 @@ namespace MongoDB.Driver
         {
             get { return _capped; }
             set { _capped = value; }
+        }
+
+
+        /// <summary>
+        /// Gets or sets a timespan indicating how long documents in a time series collection should be retained.
+        /// </summary>
+        public TimeSpan? ExpireAfter
+        {
+            get => _expireAfter;
+            set => _expireAfter = value;
         }
 
         /// <summary>
@@ -122,6 +135,15 @@ namespace MongoDB.Driver
         {
             get { return _storageEngine; }
             set { _storageEngine = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the <see cref="TimeSeriesOptions"/> to use when creating a time series collection.
+        /// </summary>
+        public TimeSeriesOptions TimeSeriesOptions
+        {
+            get { return _timeSeriesOptions; }
+            set { _timeSeriesOptions = value; }
         }
 
         /// <summary>
@@ -186,12 +208,14 @@ namespace MongoDB.Driver
                     AutoIndexId = options.AutoIndexId,
                     Capped = options.Capped,
                     Collation = options.Collation,
+                    ExpireAfter = options.ExpireAfter,
                     IndexOptionDefaults = options.IndexOptionDefaults,
                     MaxDocuments = options.MaxDocuments,
                     MaxSize = options.MaxSize,
                     NoPadding = options.NoPadding,
                     SerializerRegistry = options.SerializerRegistry,
                     StorageEngine = options.StorageEngine,
+                    TimeSeriesOptions = options.TimeSeriesOptions,
                     UsePowerOf2Sizes = options.UsePowerOf2Sizes,
                     ValidationAction = options.ValidationAction,
                     ValidationLevel = options.ValidationLevel

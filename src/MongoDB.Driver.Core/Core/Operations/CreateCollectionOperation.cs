@@ -21,7 +21,6 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
@@ -36,6 +35,7 @@ namespace MongoDB.Driver.Core.Operations
         private bool? _capped;
         private Collation _collation;
         private readonly CollectionNamespace _collectionNamespace;
+        private TimeSpan? _expireAfter;
         private BsonDocument _indexOptionDefaults;
         private long? _maxDocuments;
         private long? _maxSize;
@@ -43,6 +43,7 @@ namespace MongoDB.Driver.Core.Operations
         private bool? _noPadding;
         private BsonDocument _storageEngine;
         private bool? _usePowerOf2Sizes;
+        private TimeSeriesOptions _timeSeriesOptions;
         private DocumentValidationAction? _validationAction;
         private DocumentValidationLevel? _validationLevel;
         private BsonDocument _validator;
@@ -109,6 +110,18 @@ namespace MongoDB.Driver.Core.Operations
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
+        }
+
+        /// <summary>
+        /// Gets or sets the expiration timespan for time-series collections.
+        /// </summary>
+        /// <value>
+        /// The timespan after which to expire documents.
+        /// </value>
+        public TimeSpan? ExpireAfter
+        {
+            get { return _expireAfter; }
+            set { _expireAfter = value; }
         }
 
         /// <summary>
@@ -239,6 +252,15 @@ namespace MongoDB.Driver.Core.Operations
             set { _writeConcern = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the <see cref="TimeSeriesOptions"/> to use when creating a time series collection.
+        /// </summary>
+        public TimeSeriesOptions TimeSeriesOptions
+        {
+            get => _timeSeriesOptions;
+            set => _timeSeriesOptions = value;
+        }
+
         // methods
         internal BsonDocument CreateCommand(ICoreSessionHandle session, ConnectionDescription connectionDescription)
         {
@@ -261,7 +283,9 @@ namespace MongoDB.Driver.Core.Operations
                 { "validationAction", () => _validationAction.Value.ToString().ToLowerInvariant(), _validationAction.HasValue },
                 { "validationLevel", () => _validationLevel.Value.ToString().ToLowerInvariant(), _validationLevel.HasValue },
                 { "collation", () => _collation.ToBsonDocument(), _collation != null },
-                { "writeConcern", writeConcern, writeConcern != null }
+                { "writeConcern", writeConcern, writeConcern != null },
+                { "expireAfterSeconds", () => _expireAfter.Value.TotalSeconds, _expireAfter.HasValue },
+                { "timeseries", () => _timeSeriesOptions.ToBsonDocument(), _timeSeriesOptions != null }
             };
         }
 
