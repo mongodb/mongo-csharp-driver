@@ -56,6 +56,7 @@ namespace MongoDB.Driver
         private TimeSpan _heartbeatTimeout;
         private bool _ipv6;
         private bool? _journal;
+        private bool _loadBalanced;
         private TimeSpan _localThreshold;
         private TimeSpan _maxConnectionIdleTime;
         private TimeSpan _maxConnectionLifeTime;
@@ -110,6 +111,8 @@ namespace MongoDB.Driver
             _heartbeatTimeout = ServerSettings.DefaultHeartbeatTimeout;
             _ipv6 = false;
             _journal = null;
+            _loadBalanced = false;
+            _localThreshold = MongoDefaults.LocalThreshold;
             _maxConnectionIdleTime = MongoDefaults.MaxConnectionIdleTime;
             _maxConnectionLifeTime = MongoDefaults.MaxConnectionLifeTime;
             _maxConnectionPoolSize = MongoDefaults.MaxConnectionPoolSize;
@@ -120,7 +123,6 @@ namespace MongoDB.Driver
             _replicaSetName = null;
             _retryReads = null;
             _retryWrites = null;
-            _localThreshold = MongoDefaults.LocalThreshold;
             _scheme = ConnectionStringScheme.MongoDB;
             _servers = new[] { new MongoServerAddress("localhost", 27017) };
             _serverSelectionTimeout = MongoDefaults.ServerSelectionTimeout;
@@ -402,6 +404,18 @@ namespace MongoDB.Driver
             set
             {
                 _journal = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets whether load balanced mode is used.
+        /// </summary>
+        public bool LoadBalanced
+        {
+            get { return _loadBalanced; }
+            set
+            {
+                _loadBalanced = value;
             }
         }
 
@@ -816,6 +830,8 @@ namespace MongoDB.Driver
             _heartbeatTimeout = connectionString.HeartbeatTimeout ?? ServerSettings.DefaultHeartbeatTimeout;
             _ipv6 = connectionString.Ipv6.GetValueOrDefault(false);
             _journal = connectionString.Journal;
+            _loadBalanced = connectionString.LoadBalanced;
+            _localThreshold = connectionString.LocalThreshold.GetValueOrDefault(MongoDefaults.LocalThreshold);
             _maxConnectionIdleTime = connectionString.MaxIdleTime.GetValueOrDefault(MongoDefaults.MaxConnectionIdleTime);
             _maxConnectionLifeTime = connectionString.MaxLifeTime.GetValueOrDefault(MongoDefaults.MaxConnectionLifeTime);
             _maxConnectionPoolSize = connectionString.MaxPoolSize.GetValueOrDefault(MongoDefaults.MaxConnectionPoolSize);
@@ -833,7 +849,6 @@ namespace MongoDB.Driver
             _replicaSetName = connectionString.ReplicaSet;
             _retryReads = connectionString.RetryReads;
             _retryWrites = connectionString.RetryWrites;
-            _localThreshold = connectionString.LocalThreshold.GetValueOrDefault(MongoDefaults.LocalThreshold);
             _scheme = connectionString.Scheme;
             _servers = connectionString.Hosts.Select(endPoint =>
             {
@@ -1062,6 +1077,14 @@ namespace MongoDB.Driver
             {
                 query.AppendFormat("heartbeatTimeout={0};", FormatTimeSpan(_heartbeatTimeout));
             }
+            if (_loadBalanced)
+            {
+                query.AppendFormat("loadBalanced={0};", JsonConvert.ToString(_loadBalanced));
+            }
+            if (_localThreshold != MongoDefaults.LocalThreshold)
+            {
+                query.AppendFormat("localThreshold={0};", FormatTimeSpan(_localThreshold));
+            }
             if (_maxConnectionIdleTime != MongoDefaults.MaxConnectionIdleTime)
             {
                 query.AppendFormat("maxIdleTime={0};", FormatTimeSpan(_maxConnectionIdleTime));
@@ -1077,10 +1100,6 @@ namespace MongoDB.Driver
             if (_minConnectionPoolSize != MongoDefaults.MinConnectionPoolSize)
             {
                 query.AppendFormat("minPoolSize={0};", _minConnectionPoolSize);
-            }
-            if (_localThreshold != MongoDefaults.LocalThreshold)
-            {
-                query.AppendFormat("localThreshold={0};", FormatTimeSpan(_localThreshold));
             }
             if (_serverSelectionTimeout != MongoDefaults.ServerSelectionTimeout)
             {

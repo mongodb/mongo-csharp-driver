@@ -42,6 +42,7 @@ namespace MongoDB.Driver.Core.Configuration
         private readonly bool? _directConnection;
         private readonly IReadOnlyList<EndPoint> _endPoints;
         private readonly IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> _kmsProviders;
+        private readonly bool _loadBalanced;
         private readonly TimeSpan _localThreshold;
         private readonly int _maxServerSelectionWaitQueueSize;
         private readonly string _replicaSetName;
@@ -61,6 +62,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="directConnection">The directConnection.</param>
         /// <param name="endPoints">The end points.</param>
         /// <param name="kmsProviders">The kms providers.</param>
+        /// <param name="loadBalanced">The load balanced.</param>
         /// <param name="localThreshold">The local threshold.</param>
         /// <param name="maxServerSelectionWaitQueueSize">Maximum size of the server selection wait queue.</param>
         /// <param name="replicaSetName">Name of the replica set.</param>
@@ -78,6 +80,7 @@ namespace MongoDB.Driver.Core.Configuration
             Optional<bool?> directConnection = default,
             Optional<IEnumerable<EndPoint>> endPoints = default(Optional<IEnumerable<EndPoint>>),
             Optional<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>>> kmsProviders = default(Optional<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>>>),
+            Optional<bool> loadBalanced = default,
             Optional<TimeSpan> localThreshold = default,
             Optional<int> maxServerSelectionWaitQueueSize = default(Optional<int>),
             Optional<string> replicaSetName = default(Optional<string>),
@@ -95,6 +98,7 @@ namespace MongoDB.Driver.Core.Configuration
             _directConnection = directConnection.WithDefault(null);
             _endPoints = Ensure.IsNotNull(endPoints.WithDefault(__defaultEndPoints), "endPoints").ToList();
             _kmsProviders = kmsProviders.WithDefault(null);
+            _loadBalanced = loadBalanced.WithDefault(false);
             _localThreshold = Ensure.IsGreaterThanOrEqualToZero(localThreshold.WithDefault(TimeSpan.FromMilliseconds(15)), "localThreshold");
             _maxServerSelectionWaitQueueSize = Ensure.IsGreaterThanOrEqualToZero(maxServerSelectionWaitQueueSize.WithDefault(500), "maxServerSelectionWaitQueueSize");
             _replicaSetName = replicaSetName.WithDefault(null);
@@ -174,6 +178,14 @@ namespace MongoDB.Driver.Core.Configuration
         public IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> KmsProviders
         {
             get { return _kmsProviders; }
+        }
+
+        /// <summary>
+        /// Gets whether to use load balanced.
+        /// </summary>
+        public bool LoadBalanced
+        {
+            get { return _loadBalanced; }
         }
 
         /// <summary>
@@ -284,6 +296,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="directConnection">The directConnection.</param>
         /// <param name="endPoints">The end points.</param>
         /// <param name="kmsProviders">The kms providers.</param>
+        /// <param name="loadBalanced">The load balanced.</param>
         /// <param name="localThreshold">The local threshold.</param>
         /// <param name="maxServerSelectionWaitQueueSize">Maximum size of the server selection wait queue.</param>
         /// <param name="replicaSetName">Name of the replica set.</param>
@@ -302,6 +315,7 @@ namespace MongoDB.Driver.Core.Configuration
             Optional<bool?> directConnection = default,
             Optional<IEnumerable<EndPoint>> endPoints = default(Optional<IEnumerable<EndPoint>>),
             Optional<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>>> kmsProviders = default(Optional<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>>>),
+            Optional<bool> loadBalanced = default,
             Optional<TimeSpan> localThreshold = default(Optional<TimeSpan>),
             Optional<int> maxServerSelectionWaitQueueSize = default(Optional<int>),
             Optional<string> replicaSetName = default(Optional<string>),
@@ -318,6 +332,7 @@ namespace MongoDB.Driver.Core.Configuration
                 directConnection: directConnection.WithDefault(_directConnection),
                 endPoints: Optional.Enumerable(endPoints.WithDefault(_endPoints)),
                 kmsProviders: Optional.Create(kmsProviders.WithDefault(_kmsProviders)),
+                loadBalanced: Optional.Create(loadBalanced.WithDefault(_loadBalanced)),
                 localThreshold: localThreshold.WithDefault(_localThreshold),
                 maxServerSelectionWaitQueueSize: maxServerSelectionWaitQueueSize.WithDefault(_maxServerSelectionWaitQueueSize),
                 replicaSetName: replicaSetName.WithDefault(_replicaSetName),
@@ -332,6 +347,11 @@ namespace MongoDB.Driver.Core.Configuration
         // internal methods
         internal ClusterType GetInitialClusterType()
         {
+            if (_loadBalanced)
+            {
+                return ClusterType.LoadBalanced;
+            }
+
 #pragma warning disable CS0618 // Type or member is obsolete
             if (_connectionModeSwitch == ConnectionModeSwitch.UseDirectConnection)
 #pragma warning restore CS0618 // Type or member is obsolete

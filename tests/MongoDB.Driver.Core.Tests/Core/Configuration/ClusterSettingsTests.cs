@@ -38,6 +38,7 @@ namespace MongoDB.Driver.Core.Configuration
 #pragma warning restore CS0618 // Type or member is obsolete
             subject.DirectConnection.Should().Be(null);
             subject.EndPoints.Should().EqualUsing(new[] { new DnsEndPoint("localhost", 27017) }, EndPointHelper.EndPointEqualityComparer);
+            subject.LoadBalanced.Should().BeFalse();
             subject.LocalThreshold.Should().Be(TimeSpan.FromMilliseconds(15));
             subject.MaxServerSelectionWaitQueueSize.Should().Be(500);
             subject.ReplicaSetName.Should().Be(null);
@@ -88,6 +89,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.ConnectionMode.Should().Be(connectionMode);
 #pragma warning restore CS0618 // Type or member is obsolete
             subject.EndPoints.Should().EqualUsing(__defaults.EndPoints, EndPointHelper.EndPointEqualityComparer);
+            subject.LoadBalanced.Should().BeFalse();
             subject.LocalThreshold.Should().Be(__defaults.LocalThreshold);
             subject.MaxServerSelectionWaitQueueSize.Should().Be(__defaults.MaxServerSelectionWaitQueueSize);
             subject.ReplicaSetName.Should().Be(__defaults.ReplicaSetName);
@@ -106,6 +108,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.DirectConnection.Should().Be(directConnection);
 #pragma warning restore CS0618 // Type or member is obsolete
             subject.EndPoints.Should().EqualUsing(__defaults.EndPoints, EndPointHelper.EndPointEqualityComparer);
+            subject.LoadBalanced.Should().BeFalse();
             subject.LocalThreshold.Should().Be(__defaults.LocalThreshold);
             subject.MaxServerSelectionWaitQueueSize.Should().Be(__defaults.MaxServerSelectionWaitQueueSize);
             subject.ReplicaSetName.Should().Be(__defaults.ReplicaSetName);
@@ -124,6 +127,25 @@ namespace MongoDB.Driver.Core.Configuration
             subject.ConnectionMode.Should().Be(__defaults.ConnectionMode);
 #pragma warning restore CS0618 // Type or member is obsolete
             subject.EndPoints.Should().EqualUsing(endPoints, EndPointHelper.EndPointEqualityComparer);
+            subject.LoadBalanced.Should().BeFalse();
+            subject.LocalThreshold.Should().Be(__defaults.LocalThreshold);
+            subject.MaxServerSelectionWaitQueueSize.Should().Be(__defaults.MaxServerSelectionWaitQueueSize);
+            subject.ReplicaSetName.Should().Be(__defaults.ReplicaSetName);
+            subject.Scheme.Should().Be(__defaults.Scheme);
+            subject.ServerSelectionTimeout.Should().Be(__defaults.ServerSelectionTimeout);
+        }
+
+        [Fact]
+        public void constructor_with_locadBalanced_should_initialize_instance()
+        {
+            var loadBalanced = true;
+            var subject = new ClusterSettings(loadBalanced: loadBalanced);
+
+#pragma warning disable CS0618 // Type or member is obsolete
+            subject.ConnectionMode.Should().Be(__defaults.ConnectionMode);
+#pragma warning restore CS0618 // Type or member is obsolete
+            subject.EndPoints.Should().EqualUsing(__defaults.EndPoints, EndPointHelper.EndPointEqualityComparer);
+            subject.LoadBalanced.Should().Be(loadBalanced);
             subject.LocalThreshold.Should().Be(__defaults.LocalThreshold);
             subject.MaxServerSelectionWaitQueueSize.Should().Be(__defaults.MaxServerSelectionWaitQueueSize);
             subject.ReplicaSetName.Should().Be(__defaults.ReplicaSetName);
@@ -141,6 +163,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.ConnectionMode.Should().Be(__defaults.ConnectionMode);
 #pragma warning restore CS0618 // Type or member is obsolete
             subject.EndPoints.Should().EqualUsing(__defaults.EndPoints, EndPointHelper.EndPointEqualityComparer);
+            subject.LoadBalanced.Should().BeFalse();
             subject.LocalThreshold.Should().Be(localThreshold);
             subject.MaxServerSelectionWaitQueueSize.Should().Be(__defaults.MaxServerSelectionWaitQueueSize);
             subject.ReplicaSetName.Should().Be(__defaults.ReplicaSetName);
@@ -159,6 +182,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.ConnectionMode.Should().Be(__defaults.ConnectionMode);
 #pragma warning restore CS0618 // Type or member is obsolete
             subject.EndPoints.Should().EqualUsing(__defaults.EndPoints, EndPointHelper.EndPointEqualityComparer);
+            subject.LoadBalanced.Should().BeFalse();
             subject.LocalThreshold.Should().Be(__defaults.LocalThreshold);
             subject.MaxServerSelectionWaitQueueSize.Should().Be(maxServerSelectionWaitQueueSize);
             subject.ReplicaSetName.Should().Be(__defaults.ReplicaSetName);
@@ -177,6 +201,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.ConnectionMode.Should().Be(__defaults.ConnectionMode);
 #pragma warning restore CS0618 // Type or member is obsolete
             subject.EndPoints.Should().EqualUsing(__defaults.EndPoints, EndPointHelper.EndPointEqualityComparer);
+            subject.LoadBalanced.Should().BeFalse();
             subject.LocalThreshold.Should().Be(__defaults.LocalThreshold);
             subject.MaxServerSelectionWaitQueueSize.Should().Be(__defaults.MaxServerSelectionWaitQueueSize);
             subject.ReplicaSetName.Should().Be(replicaSetName);
@@ -195,6 +220,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.ConnectionMode.Should().Be(__defaults.ConnectionMode);
 #pragma warning restore CS0618 // Type or member is obsolete
             subject.EndPoints.Should().EqualUsing(__defaults.EndPoints, EndPointHelper.EndPointEqualityComparer);
+            subject.LoadBalanced.Should().BeFalse();
             subject.LocalThreshold.Should().Be(__defaults.LocalThreshold);
             subject.MaxServerSelectionWaitQueueSize.Should().Be(__defaults.MaxServerSelectionWaitQueueSize);
             subject.ReplicaSetName.Should().Be(__defaults.ReplicaSetName);
@@ -213,6 +239,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.ConnectionMode.Should().Be(__defaults.ConnectionMode);
 #pragma warning restore CS0618 // Type or member is obsolete
             subject.EndPoints.Should().EqualUsing(__defaults.EndPoints, EndPointHelper.EndPointEqualityComparer);
+            subject.LoadBalanced.Should().BeFalse();
             subject.LocalThreshold.Should().Be(__defaults.LocalThreshold);
             subject.MaxServerSelectionWaitQueueSize.Should().Be(__defaults.MaxServerSelectionWaitQueueSize);
             subject.ReplicaSetName.Should().Be(__defaults.ReplicaSetName);
@@ -232,6 +259,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.ConnectionMode.Should().Be(__defaults.ConnectionMode);
 #pragma warning restore CS0618 // Type or member is obsolete
             subject.EndPoints.Should().EqualUsing(__defaults.EndPoints, EndPointHelper.EndPointEqualityComparer);
+            subject.LoadBalanced.Should().BeFalse();
             subject.LocalThreshold.Should().Be(__defaults.LocalThreshold);
             subject.MaxServerSelectionWaitQueueSize.Should().Be(__defaults.MaxServerSelectionWaitQueueSize);
             subject.ReplicaSetName.Should().Be(__defaults.ReplicaSetName);
@@ -287,6 +315,7 @@ namespace MongoDB.Driver.Core.Configuration
             result.ConnectionMode.Should().Be(newConnectionMode);
 #pragma warning restore CS0618 // Type or member is obsolete
             result.EndPoints.Should().EqualUsing(subject.EndPoints, EndPointHelper.EndPointEqualityComparer);
+            result.LoadBalanced.Should().BeFalse();
             result.LocalThreshold.Should().Be(subject.LocalThreshold);
             result.MaxServerSelectionWaitQueueSize.Should().Be(subject.MaxServerSelectionWaitQueueSize);
             result.ReplicaSetName.Should().Be(subject.ReplicaSetName);
@@ -307,6 +336,28 @@ namespace MongoDB.Driver.Core.Configuration
             result.ConnectionMode.Should().Be(subject.ConnectionMode);
 #pragma warning restore CS0618 // Type or member is obsolete
             result.EndPoints.Should().EqualUsing(newEndPoints, EndPointHelper.EndPointEqualityComparer);
+            result.LoadBalanced.Should().BeFalse();
+            result.LocalThreshold.Should().Be(subject.LocalThreshold);
+            result.MaxServerSelectionWaitQueueSize.Should().Be(subject.MaxServerSelectionWaitQueueSize);
+            result.ReplicaSetName.Should().Be(subject.ReplicaSetName);
+            result.Scheme.Should().Be(subject.Scheme);
+            result.ServerSelectionTimeout.Should().Be(subject.ServerSelectionTimeout);
+        }
+
+        [Fact]
+        public void With_loadBalanced_should_return_expected_result()
+        {
+            var oldLoadBalanced = false;
+            var newLoadBalanced = true;
+            var subject = new ClusterSettings(loadBalanced: oldLoadBalanced);
+
+            var result = subject.With(loadBalanced: newLoadBalanced);
+
+#pragma warning disable CS0618 // Type or member is obsolete
+            result.ConnectionMode.Should().Be(subject.ConnectionMode);
+#pragma warning restore CS0618 // Type or member is obsolete
+            result.EndPoints.Should().EqualUsing(subject.EndPoints, EndPointHelper.EndPointEqualityComparer);
+            result.LoadBalanced.Should().Be(newLoadBalanced);
             result.LocalThreshold.Should().Be(subject.LocalThreshold);
             result.MaxServerSelectionWaitQueueSize.Should().Be(subject.MaxServerSelectionWaitQueueSize);
             result.ReplicaSetName.Should().Be(subject.ReplicaSetName);
@@ -327,6 +378,7 @@ namespace MongoDB.Driver.Core.Configuration
             result.ConnectionMode.Should().Be(subject.ConnectionMode);
 #pragma warning restore CS0618 // Type or member is obsolete
             result.EndPoints.Should().EqualUsing(subject.EndPoints, EndPointHelper.EndPointEqualityComparer);
+            result.LoadBalanced.Should().BeFalse();
             result.LocalThreshold.Should().Be(newLocalThreshold);
             result.MaxServerSelectionWaitQueueSize.Should().Be(subject.MaxServerSelectionWaitQueueSize);
             result.ReplicaSetName.Should().Be(subject.ReplicaSetName);
@@ -347,6 +399,7 @@ namespace MongoDB.Driver.Core.Configuration
             result.ConnectionMode.Should().Be(subject.ConnectionMode);
 #pragma warning restore CS0618 // Type or member is obsolete
             result.EndPoints.Should().EqualUsing(subject.EndPoints, EndPointHelper.EndPointEqualityComparer);
+            result.LoadBalanced.Should().BeFalse();
             result.LocalThreshold.Should().Be(subject.LocalThreshold);
             result.MaxServerSelectionWaitQueueSize.Should().Be(newMaxServerSelectionWaitQueueSize);
             result.ReplicaSetName.Should().Be(subject.ReplicaSetName);
@@ -367,6 +420,7 @@ namespace MongoDB.Driver.Core.Configuration
             result.ConnectionMode.Should().Be(subject.ConnectionMode);
 #pragma warning restore CS0618 // Type or member is obsolete
             result.EndPoints.Should().EqualUsing(subject.EndPoints, EndPointHelper.EndPointEqualityComparer);
+            result.LoadBalanced.Should().BeFalse();
             result.LocalThreshold.Should().Be(subject.LocalThreshold);
             result.MaxServerSelectionWaitQueueSize.Should().Be(subject.MaxServerSelectionWaitQueueSize);
             result.ReplicaSetName.Should().Be(newReplicaSetName);
@@ -387,6 +441,7 @@ namespace MongoDB.Driver.Core.Configuration
             result.ConnectionMode.Should().Be(subject.ConnectionMode);
 #pragma warning restore CS0618 // Type or member is obsolete
             result.EndPoints.Should().EqualUsing(subject.EndPoints, EndPointHelper.EndPointEqualityComparer);
+            result.LoadBalanced.Should().BeFalse();
             result.LocalThreshold.Should().Be(subject.LocalThreshold);
             result.MaxServerSelectionWaitQueueSize.Should().Be(subject.MaxServerSelectionWaitQueueSize);
             result.ReplicaSetName.Should().Be(subject.ReplicaSetName);
@@ -407,6 +462,7 @@ namespace MongoDB.Driver.Core.Configuration
             result.ConnectionMode.Should().Be(subject.ConnectionMode);
 #pragma warning restore CS0618 // Type or member is obsolete
             result.EndPoints.Should().EqualUsing(subject.EndPoints, EndPointHelper.EndPointEqualityComparer);
+            result.LoadBalanced.Should().BeFalse();
             result.LocalThreshold.Should().Be(subject.LocalThreshold);
             result.MaxServerSelectionWaitQueueSize.Should().Be(subject.MaxServerSelectionWaitQueueSize);
             result.ReplicaSetName.Should().Be(subject.ReplicaSetName);
@@ -428,6 +484,7 @@ namespace MongoDB.Driver.Core.Configuration
             result.ConnectionMode.Should().Be(subject.ConnectionMode);
 #pragma warning restore CS0618 // Type or member is obsolete
             result.EndPoints.Should().EqualUsing(subject.EndPoints, EndPointHelper.EndPointEqualityComparer);
+            result.LoadBalanced.Should().BeFalse();
             result.LocalThreshold.Should().Be(subject.LocalThreshold);
             result.MaxServerSelectionWaitQueueSize.Should().Be(subject.MaxServerSelectionWaitQueueSize);
             result.ReplicaSetName.Should().Be(subject.ReplicaSetName);

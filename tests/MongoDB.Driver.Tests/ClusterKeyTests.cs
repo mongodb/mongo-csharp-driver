@@ -61,6 +61,7 @@ namespace MongoDB.Driver.Tests
         [InlineData("MinConnectionPoolSize", true)]
         [InlineData("ReceiveBufferSize", true)]
         [InlineData("ReplicaSetName", true)]
+        [InlineData("LoadBalanced", true)]
         [InlineData("LocalThreshold", true)]
         [InlineData("SchemaMap", true)]
         [InlineData("Scheme", true)]
@@ -182,6 +183,7 @@ namespace MongoDB.Driver.Tests
             var heartbeatTimeout = TimeSpan.FromSeconds(8);
             var ipv6 = false;
             var kmsProviders = new Dictionary<string, IReadOnlyDictionary<string, object>>();
+            var loadBalanced = true;
             var localThreshold = TimeSpan.FromMilliseconds(20);
             var maxConnectionIdleTime = TimeSpan.FromSeconds(2);
             var maxConnectionLifeTime = TimeSpan.FromSeconds(3);
@@ -237,6 +239,7 @@ namespace MongoDB.Driver.Tests
                     case "HeartbeatTimeout": heartbeatTimeout = TimeSpan.FromSeconds(99); break;
                     case "IPv6": ipv6 = !ipv6; break;
                     case "KmsProviders": kmsProviders.Add("local", new Dictionary<string, object>() { { "key", "test" } }); break;
+                    case "LoadBalanced": loadBalanced = false; break;
                     case "LocalThreshold": localThreshold = TimeSpan.FromMilliseconds(99); break;
                     case "MaxConnectionIdleTime": maxConnectionIdleTime = TimeSpan.FromSeconds(99); break;
                     case "MaxConnectionLifeTime": maxConnectionLifeTime = TimeSpan.FromSeconds(99); break;
@@ -274,6 +277,7 @@ namespace MongoDB.Driver.Tests
                 heartbeatTimeout,
                 ipv6,
                 kmsProviders,
+                loadBalanced,
                 localThreshold,
                 maxConnectionIdleTime,
                 maxConnectionLifeTime,
@@ -318,6 +322,7 @@ namespace MongoDB.Driver.Tests
             var heartbeatTimeout = TimeSpan.FromSeconds(8);
             var ipv6 = false;
             var kmsProviders = kmsProvidersValue ?? new Dictionary<string, IReadOnlyDictionary<string, object>>();
+            var loadBalanced = true;
             var localThreshold = TimeSpan.FromMilliseconds(20);
             var maxConnectionIdleTime = TimeSpan.FromSeconds(2);
             var maxConnectionLifeTime = TimeSpan.FromSeconds(3);
@@ -356,6 +361,7 @@ namespace MongoDB.Driver.Tests
                 heartbeatTimeout,
                 ipv6,
                 kmsProviders,
+                loadBalanced,
                 localThreshold,
                 maxConnectionIdleTime,
                 maxConnectionLifeTime,

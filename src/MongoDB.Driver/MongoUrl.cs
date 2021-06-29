@@ -58,6 +58,7 @@ namespace MongoDB.Driver
         private readonly bool _ipv6;
         private readonly bool _isResolved;
         private readonly bool? _journal;
+        private readonly bool _loadBalanced;
         private readonly TimeSpan _maxConnectionIdleTime;
         private readonly TimeSpan _maxConnectionLifeTime;
         private readonly int _maxConnectionPoolSize;
@@ -127,6 +128,7 @@ namespace MongoDB.Driver
             _ipv6 = builder.IPv6;
             _isResolved = builder.Scheme != ConnectionStringScheme.MongoDBPlusSrv;
             _journal = builder.Journal;
+            _loadBalanced = builder.LoadBalanced;
             _localThreshold = builder.LocalThreshold;
             _maxConnectionIdleTime = builder.MaxConnectionIdleTime;
             _maxConnectionLifeTime = builder.MaxConnectionLifeTime;
@@ -366,6 +368,14 @@ namespace MongoDB.Driver
         public bool? Journal
         {
             get { return _journal; }
+        }
+
+        /// <summary>
+        /// Gets or sets whether load balanced mode is used.
+        /// </summary>
+        public bool LoadBalanced
+        {
+            get { return _loadBalanced; }
         }
 
         /// <summary>

@@ -168,6 +168,7 @@ namespace MongoDB.Driver.Tests
                 ReplicaSetName = "name",
                 RetryReads = false,
                 RetryWrites = true,
+                LoadBalanced = false,
                 LocalThreshold = TimeSpan.FromSeconds(6),
                 Server = new MongoServerAddress("host"),
                 ServerSelectionTimeout = TimeSpan.FromSeconds(10),
@@ -209,11 +210,11 @@ namespace MongoDB.Driver.Tests
                 "connectTimeout=1s",
                 "heartbeatInterval=11s",
                 "heartbeatTimeout=12s",
+                "localThreshold=6s",
                 "maxIdleTime=2s",
                 "maxLifeTime=3s",
                 "maxPoolSize=4",
                 "minPoolSize=5",
-                "localThreshold=6s",
                 "serverSelectionTimeout=10s",
                 "socketTimeout=7s",
                 "waitQueueSize=123",
@@ -258,6 +259,7 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(true, url.IPv6);
                 Assert.Equal(true, url.IsResolved);
                 Assert.Equal(true, url.Journal);
+                Assert.Equal(false, url.LoadBalanced);
                 Assert.Equal(TimeSpan.FromSeconds(2), url.MaxConnectionIdleTime);
                 Assert.Equal(TimeSpan.FromSeconds(3), url.MaxConnectionLifeTime);
                 Assert.Equal(4, url.MaxConnectionPoolSize);
@@ -347,6 +349,17 @@ namespace MongoDB.Driver.Tests
             }
         }
 #pragma warning restore CS0618 // Type or member is obsolete
+
+        [Theory]
+        [ParameterAttributeData]
+        public void TestLoadBalanced([Values(false, true)] bool loadBalanced)
+        {
+            var loadBalancedString = $"?loadBalanced={loadBalanced}";
+            var connectionString = $"mongodb://localhost/{loadBalancedString}";
+            var url = new MongoUrl(connectionString);
+
+            url.LoadBalanced.Should().Be(loadBalanced);
+        }
 
         [Theory]
         [InlineData("mongodb://localhost/?readPreference=secondary")]

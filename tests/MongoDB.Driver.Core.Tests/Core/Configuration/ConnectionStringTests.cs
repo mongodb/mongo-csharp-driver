@@ -325,6 +325,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.HeartbeatTimeout.Should().NotHaveValue();
             subject.Ipv6.Should().Be(null);
             subject.Journal.Should().Be(null);
+            subject.LoadBalanced.Should().BeFalse();
             subject.MaxIdleTime.Should().Be(null);
             subject.MaxLifeTime.Should().Be(null);
             subject.MaxPoolSize.Should().Be(null);
@@ -370,6 +371,7 @@ namespace MongoDB.Driver.Core.Configuration
                 "heartbeatTimeout=2m;" +
                 "ipv6=false;" +
                 "j=true;" +
+                "loadBalanced=false;" + 
                 "maxIdleTime=10ms;" +
                 "maxLifeTime=5ms;" +
                 "maxPoolSize=20;" +
@@ -380,6 +382,7 @@ namespace MongoDB.Driver.Core.Configuration
                 "replicaSet=funny;" +
                 "retryReads=false;" +
                 "retryWrites=true;" +
+                "loadBalanced=false;" +
                 "localThreshold=50ms;" +
                 "socketTimeout=40ms;" +
                 "ssl=false;" +
@@ -423,6 +426,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.ReplicaSet.Should().Be("funny");
             subject.RetryReads.Should().BeFalse();
             subject.RetryWrites.Should().BeTrue();
+            subject.LoadBalanced.Should().BeFalse();
             subject.LocalThreshold.Should().Be(TimeSpan.FromMilliseconds(50));
             subject.SocketTimeout.Should().Be(TimeSpan.FromMilliseconds(40));
 #pragma warning disable 618
@@ -730,6 +734,38 @@ namespace MongoDB.Driver.Core.Configuration
             var subject = new ConnectionString(connectionString);
 
             subject.Journal.Should().Be(j);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void When_a_loadBalanced_is_specified([Values(false, true)] bool loadBalanced)
+        {
+            var subject = new ConnectionString($"mongodb://localhost/?loadBalanced={loadBalanced}");
+
+            subject.LoadBalanced.Should().Be(loadBalanced);
+        }
+
+        [Theory]
+        // should fail
+        [InlineData("mongodb://localhost/?loadBalanced=true&directConnection=true", true)]
+        [InlineData("mongodb://localhost/?loadBalanced=true&replicaset=test", true)]
+        [InlineData("mongodb://localhost1,localhost2/?loadBalanced=true", true)]
+        // should pass
+        [InlineData("mongodb://localhost/?loadBalanced=false&directConnection=true", false)]
+        [InlineData("mongodb://localhost/?loadBalanced=false&replicaset=test", false)]
+        [InlineData("mongodb://localhost1,localhost2/?loadBalanced=false", false)]
+        public void When_a_loadBalanced_requires_url_validation(string connectionString, bool shouldFail)
+        {
+            var exception = Record.Exception(() => new ConnectionString(connectionString));
+
+            if (shouldFail)
+            {
+                exception.Should().BeOfType<MongoConfigurationException>();
+            }
+            else
+            {
+                exception.Should().BeNull();
+            }
         }
 
         [Theory]

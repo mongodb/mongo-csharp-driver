@@ -18,6 +18,8 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
@@ -136,11 +138,11 @@ namespace MongoDB.Driver.Tests
                 "connectTimeout=1s",
                 "heartbeatInterval=1m",
                 "heartbeatTimeout=2m",
+                "localThreshold=6s",
                 "maxIdleTime=2s",
                 "maxLifeTime=3s",
                 "maxPoolSize=4",
                 "minPoolSize=5",
-                "localThreshold=6s",
                 "serverSelectionTimeout=10s",
                 "socketTimeout=7s",
                 "waitQueueSize=123",
@@ -186,6 +188,7 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(TimeSpan.FromMinutes(2), builder.HeartbeatTimeout);
                 Assert.Equal(true, builder.IPv6);
                 Assert.Equal(true, builder.Journal);
+                Assert.Equal(false, builder.LoadBalanced);
                 Assert.Equal(TimeSpan.FromSeconds(2), builder.MaxConnectionIdleTime);
                 Assert.Equal(TimeSpan.FromSeconds(3), builder.MaxConnectionLifeTime);
                 Assert.Equal(4, builder.MaxConnectionPoolSize);
@@ -495,6 +498,7 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(ServerSettings.DefaultHeartbeatTimeout, builder.HeartbeatTimeout);
                 Assert.Equal(false, builder.IPv6);
                 Assert.Equal(null, builder.Journal);
+                Assert.Equal(false, builder.LoadBalanced);
                 Assert.Equal(MongoDefaults.MaxConnectionIdleTime, builder.MaxConnectionIdleTime);
                 Assert.Equal(MongoDefaults.MaxConnectionLifeTime, builder.MaxConnectionLifeTime);
                 Assert.Equal(MongoDefaults.MaxConnectionPoolSize, builder.MaxConnectionPoolSize);
@@ -837,6 +841,18 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(journal, builder.Journal);
                 Assert.Equal(canonicalConnectionString, builder.ToString());
             }
+        }
+
+
+        [Theory]
+        [ParameterAttributeData]
+        public void TestLoadBalanced([Values(false, true)] bool value)
+        {
+            var subject = new MongoUrlBuilder { LoadBalanced = value };
+
+            subject.LoadBalanced.Should().Be(value);
+            var expectedConnectionString = $"mongodb://localhost{(value ? $"/?loadBalanced={JsonConvert.ToString(value)}" : "")}";
+            subject.ToString().Should().Be(expectedConnectionString);
         }
 
         [Theory]

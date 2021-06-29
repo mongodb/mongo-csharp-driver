@@ -82,7 +82,7 @@ namespace MongoDB.Driver.Tests
             // set everything to non default values to test that all settings are cloned
             var connectionString =
                 "mongodb://user1:password1@somehost/?appname=app;" +
-                "connect=direct;connectTimeout=123;ipv6=true;heartbeatInterval=1m;heartbeatTimeout=2m;localThreshold=128;" +
+                "connect=direct;connectTimeout=123;ipv6=true;heartbeatInterval=1m;heartbeatTimeout=2m;localThreshold=128;loadBalanced=false;" +
                 "maxIdleTime=124;maxLifeTime=125;maxPoolSize=126;minPoolSize=127;readConcernLevel=majority;" +
                 "readPreference=secondary;readPreferenceTags=a:1,b:2;readPreferenceTags=c:3,d:4;socketTimeout=129;" +
                 "serverSelectionTimeout=20s;ssl=true;sslVerifyCertificate=false;waitqueuesize=130;waitQueueTimeout=131;" +
@@ -124,6 +124,19 @@ namespace MongoDB.Driver.Tests
 
             var cloned = settings.Clone();
             cloned.Should().Be(settings);
+        }
+
+        [Fact]
+        public void TestCloneLoadBalanced()
+        {
+            var connectionString = "mongodb://somehost/?loadBalanced=true";
+            var builder = new MongoUrlBuilder(connectionString);
+            var url = builder.ToMongoUrl();
+            var settings = MongoClientSettings.FromUrl(url);
+
+            var clone = settings.Clone();
+
+            clone.Should().Be(settings);
         }
 
         [Fact]
@@ -233,6 +246,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(ServerSettings.DefaultHeartbeatInterval, settings.HeartbeatInterval);
             Assert.Equal(ServerSettings.DefaultHeartbeatTimeout, settings.HeartbeatTimeout);
             Assert.Equal(false, settings.IPv6);
+            Assert.Equal(false, settings.LoadBalanced);
             Assert.Equal(MongoDefaults.MaxConnectionIdleTime, settings.MaxConnectionIdleTime);
             Assert.Equal(MongoDefaults.MaxConnectionLifeTime, settings.MaxConnectionLifeTime);
             Assert.Equal(MongoDefaults.MaxConnectionPoolSize, settings.MaxConnectionPoolSize);
@@ -543,30 +557,53 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestFreezeInvalid()
         {
-            var settings = new MongoClientSettings();
-            settings.AllowInsecureTls = true;
-            settings.SslSettings.CheckCertificateRevocation = true;
+            AssertException(settings =>
+            {
+                settings.AllowInsecureTls = true;
+                settings.SslSettings.CheckCertificateRevocation = true;
+            });
 
-            var exception = Record.Exception(() => settings.Freeze());
+            AssertException(settings =>
+            {
+                settings.DirectConnection = true;
+                settings.Scheme = ConnectionStringScheme.MongoDBPlusSrv;
+            });
 
-            exception.Should().BeOfType<InvalidOperationException>();
+            AssertException(settings =>
+            {
+                settings.DirectConnection = true;
+                var endpoint = "test5.test.build.10gen.cc:53";
+                settings.Servers = new[] { MongoServerAddress.Parse(endpoint), MongoServerAddress.Parse(endpoint) };
+            });
 
-            settings = new MongoClientSettings();
-            settings.DirectConnection = true;
-            settings.Scheme = ConnectionStringScheme.MongoDBPlusSrv;
+            AssertException(settings =>
+            {
+                settings.LoadBalanced = true;
+                var endpoint = "test5.test.build.10gen.cc:53";
+                settings.Servers = new[] { MongoServerAddress.Parse(endpoint), MongoServerAddress.Parse(endpoint) };
+            });
 
-            exception = Record.Exception(() => settings.Freeze());
+            AssertException(settings =>
+            {
+                settings.LoadBalanced = true;
+                settings.DirectConnection = true;
+            });
 
-            exception.Should().BeOfType<InvalidOperationException>();
+            AssertException(settings =>
+            {
+                settings.LoadBalanced = true;
+                settings.ReplicaSetName = "test";
+            });
 
-            settings = new MongoClientSettings();
-            settings.DirectConnection = true;
-            var endpoint = "test5.test.build.10gen.cc:53";
-            settings.Servers = new[] { MongoServerAddress.Parse(endpoint), MongoServerAddress.Parse(endpoint) };
+            void AssertException(Action<MongoClientSettings> setAction)
+            {
+                var settings = new MongoClientSettings();
 
-            exception = Record.Exception(() => settings.Freeze());
+                setAction(settings);
 
-            exception.Should().BeOfType<InvalidOperationException>();
+                var exception = Record.Exception(() => settings.Freeze());
+                exception.Should().BeOfType<InvalidOperationException>();
+            }
         }
 
         [Fact]
@@ -577,7 +614,7 @@ namespace MongoDB.Driver.Tests
             // not allowed in a connection string
             var connectionString =
                 "mongodb://user1:password1@somehost/?appname=app1;authSource=db;authMechanismProperties=CANONICALIZE_HOST_NAME:true;" +
-                "compressors=zlib,snappy;zlibCompressionLevel=9;connect=direct;connectTimeout=123;ipv6=true;heartbeatInterval=1m;heartbeatTimeout=2m;localThreshold=128;" +
+                "compressors=zlib,snappy;zlibCompressionLevel=9;connect=direct;connectTimeout=123;ipv6=true;heartbeatInterval=1m;heartbeatTimeout=2m;loadBalanced=false;localThreshold=128;" +
                 "maxIdleTime=124;maxLifeTime=125;maxPoolSize=126;minPoolSize=127;readConcernLevel=majority;" +
                 "readPreference=secondary;readPreferenceTags=a:1,b:2;readPreferenceTags=c:3,d:4;retryReads=false;retryWrites=true;socketTimeout=129;" +
                 "serverSelectionTimeout=20s;tls=true;sslVerifyCertificate=false;waitqueuesize=130;waitQueueTimeout=131;" +
@@ -617,6 +654,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(url.HeartbeatInterval, settings.HeartbeatInterval);
             Assert.Equal(url.HeartbeatTimeout, settings.HeartbeatTimeout);
             Assert.Equal(url.IPv6, settings.IPv6);
+            Assert.Equal(url.LoadBalanced, settings.LoadBalanced);
             Assert.Equal(url.LocalThreshold, settings.LocalThreshold);
             Assert.Equal(url.MaxConnectionIdleTime, settings.MaxConnectionIdleTime);
             Assert.Equal(url.MaxConnectionLifeTime, settings.MaxConnectionLifeTime);
@@ -657,6 +695,18 @@ namespace MongoDB.Driver.Tests
             var settings = MongoClientSettings.FromUrl(url);
 
             settings.SslSettings.Should().Be(new SslSettings { CheckCertificateRevocation = !url.TlsDisableCertificateRevocationCheck });
+        }
+
+        [Fact]
+        public void TestFromUrlLoadBalanced()
+        {
+            var connectionString = "mongodb://the-next-generation/?loadBalanced=true";
+            var builder = new MongoUrlBuilder(connectionString);
+            var url = builder.ToMongoUrl();
+
+            var settings = MongoClientSettings.FromUrl(url);
+
+            settings.LoadBalanced.Should().Be(url.LoadBalanced);
         }
 
         [Fact]
@@ -832,6 +882,21 @@ namespace MongoDB.Driver.Tests
             settings.Freeze();
             Assert.Equal(ipv6, settings.IPv6);
             Assert.Throws<InvalidOperationException>(() => { settings.IPv6 = ipv6; });
+        }
+
+        [Fact]
+        public void TestLoadBalanced()
+        {
+            var settings = new MongoClientSettings();
+            settings.LoadBalanced.Should().BeFalse();
+
+            var loadBalanaced = true;
+            settings.LoadBalanced = loadBalanaced;
+            settings.LoadBalanced.Should().Be(loadBalanaced);
+
+            settings.Freeze();
+            settings.LoadBalanced.Should().Be(loadBalanaced);
+            Record.Exception(() => { settings.LoadBalanced= loadBalanaced; }).Should().BeOfType<InvalidOperationException>();
         }
 
         [Fact]
