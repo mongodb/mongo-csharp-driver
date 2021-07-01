@@ -18,75 +18,52 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
     public class UnifiedIterateUntilDocumentOrErrorOperation<TDocument> : IUnifiedEntityTestOperation
     {
-        private readonly IEnumerator<TDocument> _enumerator;
         private readonly UnifiedIterateUntilDocumentOrErrorOperationResultConverter _converter;
-        private readonly TimeSpan _timeout;
+        private readonly IEnumerator<TDocument> _enumerator;
 
         public UnifiedIterateUntilDocumentOrErrorOperation(IEnumerator<TDocument> enumerator)
         {
             _converter = new UnifiedIterateUntilDocumentOrErrorOperationResultConverter();
-            _enumerator = Ensure.IsNotNull(enumerator, nameof(enumerator));
-            _timeout = TimeSpan.FromSeconds(30); // just in case
+            _enumerator = enumerator;
         }
 
         public OperationResult Execute(CancellationToken cancellationToken)
         {
-            using (var timeoutCancelationTokenSource = new CancellationTokenSource(_timeout))
-            using (var linkedCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCancelationTokenSource.Token))
+            try
             {
-                try
-                { 
-                    while (!linkedCancellationTokenSource.IsCancellationRequested)
-                    {
-                        _enumerator.MoveNext(); // if MoveNext took a CancellationToken we would have passed linkedCancellationTokenSource.Token in
-                        var current = _enumerator.Current;
-                        if (current != null)
-                        {
-                            return OperationResult.FromResult(_converter.Convert(current));
-                        }
-                    }
-                }
-                catch (Exception exception)
+                var hasNext = _enumerator.MoveNext();
+                if (hasNext == false)
                 {
-                    return OperationResult.FromException(exception);
+                    throw new InvalidOperationException("Unexpected false return value from MoveNext.");
                 }
+                return OperationResult.FromResult(_converter.Convert(_enumerator.Current));
             }
-
-            cancellationToken.ThrowIfCancellationRequested();
-            throw new InvalidOperationException($"The {nameof(UnifiedIterateUntilDocumentOrErrorOperation<TDocument>)} executing exceed timeout {_timeout.TotalMilliseconds}ms.");
+            catch (Exception exception)
+            {
+                return OperationResult.FromException(exception);
+            }
         }
 
         public Task<OperationResult> ExecuteAsync(CancellationToken cancellationToken)
         {
-            using (var timeoutCancelationTokenSource = new CancellationTokenSource(_timeout))
-            using (var linkedCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCancelationTokenSource.Token))
+            try
             {
-                try
+                var hasNext = _enumerator.MoveNext(); // TODO: Change to async counterpart when async enumeration is implemented
+                if (hasNext == false)
                 {
-                    while (!linkedCancellationTokenSource.IsCancellationRequested)
-                    {
-                        _enumerator.MoveNext(); // TODO: Change to async counterpart when async enumeration is implemented
-                        var current = _enumerator.Current;
-                        if (current != null)
-                        {
-                            return Task.FromResult(OperationResult.FromResult(_converter.Convert(current)));
-                        }
-                    }
+                    throw new InvalidOperationException("Unexpected false return value from MoveNext.");
                 }
-                catch (Exception exception)
-                {
-                    return Task.FromResult(OperationResult.FromException(exception));
-                }
+                return Task.FromResult(OperationResult.FromResult(_converter.Convert(_enumerator.Current)));
             }
-
-            cancellationToken.ThrowIfCancellationRequested();
-            throw new InvalidOperationException($"The {nameof(UnifiedIterateUntilDocumentOrErrorOperation<TDocument>)} executing exceed timeout {_timeout.TotalMilliseconds}ms.");
+            catch (Exception exception)
+            {
+                return Task.FromResult(OperationResult.FromException(exception));
+            }
         }
     }
 
