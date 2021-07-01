@@ -64,6 +64,18 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Fact]
+        public void BatchSize_get_and_set_should_work()
+        {
+            var subject = new ListCollectionsUsingCommandOperation(_databaseNamespace, _messageEncoderSettings);
+            int batchSize = 2;
+
+            subject.BatchSize = batchSize;
+            var result = subject.BatchSize;
+
+            result.Should().Be(batchSize);
+        }
+
+        [Fact]
         public void Filter_get_and_set_should_work()
         {
             var subject = new ListCollectionsUsingCommandOperation(_databaseNamespace, _messageEncoderSettings);
@@ -139,6 +151,24 @@ namespace MongoDB.Driver.Core.Operations
 
             list.Should().HaveCount(1);
             list[0]["name"].AsString.Should().Be(expectedName);
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_should_return_the_expected_result_when_batchSize_is_used([Values(false, true)] bool async)
+        {
+            RequireServer.Check().Supports(Feature.ListCollectionsCommand);
+            EnsureCollectionsExist();
+            int batchSize = 1;
+            var subject = new ListCollectionsUsingCommandOperation(_databaseNamespace, _messageEncoderSettings)
+            {
+                BatchSize = batchSize
+            };
+
+            using (var cursor = ExecuteOperation(subject, async) as AsyncCursor<BsonDocument>)
+            {
+                cursor._batchSize().Should().Be(batchSize);
+            }
         }
 
         [SkippableTheory]

@@ -87,7 +87,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
             var schemaSemanticVersion = SemanticVersion.Parse(schemaVersion);
             if (schemaSemanticVersion < new SemanticVersion(1, 0, 0) ||
-                schemaSemanticVersion > new SemanticVersion(1, 2, 0))
+                schemaSemanticVersion > new SemanticVersion(1, 3, 0))
             {
                 throw new FormatException($"Schema version '{schemaVersion}' is not supported.");
             }
@@ -178,11 +178,12 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         private void AssertEvents(BsonArray eventItems, UnifiedEntityMap entityMap)
         {
             var unifiedEventMatcher = new UnifiedEventMatcher(new UnifiedValueMatcher(entityMap));
-            foreach (var eventItem in eventItems)
+            foreach (var eventItem in eventItems.Cast<BsonDocument>())
             {
                 var clientId = eventItem["client"].AsString;
                 var eventCapturer = entityMap.EventCapturers[clientId];
-                var actualEvents = eventCapturer.Events;
+                var eventType = eventItem.GetValue("eventType", defaultValue: "command").AsString;
+                var actualEvents = UnifiedEventMatcher.FilterEventsByType(eventCapturer.Events, eventType);
 
                 unifiedEventMatcher.AssertEventsMatch(actualEvents, eventItem["events"].AsBsonArray);
             }
@@ -249,6 +250,11 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
         private void AssertResult(OperationResult actualResult, BsonDocument operation, UnifiedEntityMap entityMap)
         {
+            if (operation.GetValue("ignoreResultAndError", defaultValue: false).ToBoolean())
+            {
+                return;
+            }
+
             if (operation.TryGetValue("expectResult", out var expectedResult))
             {
                 actualResult.Exception.Should().BeNull();
@@ -274,7 +280,11 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 }
                 else if (actualResult.ChangeStream != null)
                 {
-                    entityMap.AddChangeStream(saveResultAsEntity.AsString, actualResult.ChangeStream);
+                    entityMap.ChangeStreams.Add(saveResultAsEntity.AsString, actualResult.ChangeStream);
+                }
+                else if (actualResult.Cursor != null)
+                {
+                    entityMap.Cursors.Add(saveResultAsEntity.AsString, actualResult.Cursor);
                 }
                 else
                 {

@@ -2297,32 +2297,63 @@ namespace MongoDB.Driver
         [ParameterAttributeData]
         public void Indexes_List_should_execute_a_ListIndexesOperation(
             [Values(false, true)] bool usingSession,
+            [Values(null, 3)] int? batchSize,
             [Values(false, true)] bool async)
         {
             var subject = CreateSubject<BsonDocument>();
             var session = CreateSession(usingSession);
             var cancellationToken = new CancellationTokenSource().Token;
 
-            if (usingSession)
+            if (batchSize.HasValue)
             {
-                if (async)
+                var listIndexOptions = batchSize.HasValue ? new ListIndexesOptions() { BatchSize = batchSize.Value } : null;
+
+                if (usingSession)
                 {
-                    subject.Indexes.ListAsync(session, cancellationToken).GetAwaiter().GetResult();
+                    if (async)
+                    {
+                        subject.Indexes.ListAsync(session, options: listIndexOptions, cancellationToken).GetAwaiter().GetResult();
+                    }
+                    else
+                    {
+                        subject.Indexes.List(session, options: listIndexOptions, cancellationToken);
+                    }
                 }
                 else
                 {
-                    subject.Indexes.List(session, cancellationToken);
+                    if (async)
+                    {
+                        subject.Indexes.ListAsync(options: listIndexOptions, cancellationToken).GetAwaiter().GetResult();
+                    }
+                    else
+                    {
+                        subject.Indexes.List(options: listIndexOptions, cancellationToken);
+                    }
                 }
             }
             else
             {
-                if (async)
+                if (usingSession)
                 {
-                    subject.Indexes.ListAsync(cancellationToken).GetAwaiter().GetResult();
+                    if (async)
+                    {
+                        subject.Indexes.ListAsync(session, cancellationToken).GetAwaiter().GetResult();
+                    }
+                    else
+                    {
+                        subject.Indexes.List(session, cancellationToken);
+                    }
                 }
                 else
                 {
-                    subject.Indexes.List(cancellationToken);
+                    if (async)
+                    {
+                        subject.Indexes.ListAsync(cancellationToken).GetAwaiter().GetResult();
+                    }
+                    else
+                    {
+                        subject.Indexes.List(cancellationToken);
+                    }
                 }
             }
 
@@ -2330,6 +2361,7 @@ namespace MongoDB.Driver
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
             var operation = call.Operation.Should().BeOfType<ListIndexesOperation>().Subject;
+            operation.BatchSize.Should().Be(batchSize);
             operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
             operation.RetryRequested.Should().BeTrue();
         }

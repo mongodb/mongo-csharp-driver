@@ -20,6 +20,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using Xunit;
 
@@ -204,5 +205,10 @@ namespace MongoDB.Driver
                 _current = null;
             }
         }
+    }
+
+    internal static class BatchTransformingAsyncCursorReflector
+    {
+        public static IAsyncCursor<TIn> _wrapped<TIn, TOut>(this BatchTransformingAsyncCursor<TIn, TOut> obj) => (IAsyncCursor<TIn>)Reflector.GetFieldValue(obj, nameof(_wrapped));
     }
 }

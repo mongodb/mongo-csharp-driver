@@ -47,6 +47,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                             return new UnifiedAssertIndexExistsOperationBuilder().Build(operationArguments);
                         case "assertIndexNotExists":
                             return new UnifiedAssertIndexNotExistsOperationBuilder().Build(operationArguments);
+                        case "assertNumberConnectionsCheckedOut":
+                            return new UnifiedAssertNumberConnectionsCheckedOutOperationBuilder(_entityMap).Build(operationArguments);
                         case "assertSameLsidOnLastTwoCommands":
                             return new UnifiedAssertSameLsidOnLastTwoCommandsOperationBuilder(_entityMap).Build(operationArguments);
                         case "assertSessionDirty":
@@ -82,11 +84,13 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                             throw new FormatException($"Invalid method name: '{operationName}'.");
                     }
 
-                case var _ when _entityMap.HasChangeStream(targetEntityId):
+                case var _ when _entityMap.ChangeStreams.ContainsKey(targetEntityId) || _entityMap.Cursors.ContainsKey(targetEntityId):
                     switch (operationName)
                     {
                         case "iterateUntilDocumentOrError":
                             return new UnifiedIterateUntilDocumentOrErrorOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
+                        case "close":
+                            return new UnifiedCloseCursorOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
                         default:
                             throw new FormatException($"Invalid method name: '{operationName}'.");
                     }
@@ -113,6 +117,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                             return new UnifiedCountDocumentsOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
                         case "createChangeStream":
                             return new UnifiedCreateChangeStreamOnCollectionOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
+                        case "createFindCursor":
+                            return new UnifiedCreateFindCursorOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
                         case "createIndex":
                             return new UnifiedCreateIndexOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
                         case "deleteMany":
@@ -135,6 +141,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                             return new UnifiedInsertManyOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
                         case "insertOne":
                             return new UnifiedInsertOneOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
+                        case "listIndexes":
+                            return new UnifiedListIndexesOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
                         case "replaceOne":
                             return new UnifiedReplaceOneOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
                         case "updateMany":
@@ -154,6 +162,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                             return new UnifiedCreateCollectionOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
                         case "dropCollection":
                             return new UnifiedDropCollectionOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
+                        case "listCollections":
+                            return new UnifiedListCollectionsOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
                         case "runCommand":
                             return new UnifiedRunCommandOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
                         default:

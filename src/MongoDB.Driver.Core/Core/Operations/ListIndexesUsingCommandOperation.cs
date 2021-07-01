@@ -33,6 +33,7 @@ namespace MongoDB.Driver.Core.Operations
     public class ListIndexesUsingCommandOperation : IReadOperation<IAsyncCursor<BsonDocument>>, IExecutableInRetryableReadContext<IAsyncCursor<BsonDocument>>
     {
         // fields
+        private int? _batchSize;
         private readonly CollectionNamespace _collectionNamespace;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private bool _retryRequested;
@@ -52,6 +53,18 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
+        /// <summary>
+        /// Gets or sets the batch size.
+        /// </summary>
+        /// <value>
+        /// The batch size.
+        /// </value>
+        public int? BatchSize
+        {
+            get => _batchSize;
+            set => _batchSize = value;
+        }
+
         /// <summary>
         /// Gets the collection namespace.
         /// </summary>
@@ -153,7 +166,11 @@ namespace MongoDB.Driver.Core.Operations
         private ReadCommandOperation<BsonDocument> CreateOperation()
         {
             var databaseNamespace = _collectionNamespace.DatabaseNamespace;
-            var command = new BsonDocument("listIndexes", _collectionNamespace.CollectionName);
+            var command = new BsonDocument
+            {
+                { "listIndexes", _collectionNamespace.CollectionName },
+                { "cursor", () => new BsonDocument("batchSize", _batchSize.Value), _batchSize.HasValue }
+            };
             return new ReadCommandOperation<BsonDocument>(databaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
                 RetryRequested = _retryRequested // might be overridden by retryable read context
@@ -170,7 +187,7 @@ namespace MongoDB.Driver.Core.Operations
                 command,
                 cursorDocument["firstBatch"].AsBsonArray.OfType<BsonDocument>().ToList(),
                 cursorDocument["id"].ToInt64(),
-                0,
+                batchSize: _batchSize ?? 0,
                 0,
                 BsonDocumentSerializer.Instance,
                 _messageEncoderSettings);

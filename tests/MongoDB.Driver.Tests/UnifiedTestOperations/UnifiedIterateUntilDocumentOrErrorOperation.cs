@@ -21,23 +21,27 @@ using MongoDB.Bson;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
-    public class UnifiedIterateUntilDocumentOrErrorOperation : IUnifiedEntityTestOperation
+    public class UnifiedIterateUntilDocumentOrErrorOperation<TDocument> : IUnifiedEntityTestOperation
     {
-        private readonly IEnumerator<ChangeStreamDocument<BsonDocument>> _changeStream;
+        private readonly UnifiedIterateUntilDocumentOrErrorOperationResultConverter _converter;
+        private readonly IEnumerator<TDocument> _enumerator;
 
-        public UnifiedIterateUntilDocumentOrErrorOperation(IEnumerator<ChangeStreamDocument<BsonDocument>> changeStream)
+        public UnifiedIterateUntilDocumentOrErrorOperation(IEnumerator<TDocument> enumerator)
         {
-            _changeStream = changeStream;
+            _converter = new UnifiedIterateUntilDocumentOrErrorOperationResultConverter();
+            _enumerator = enumerator;
         }
 
         public OperationResult Execute(CancellationToken cancellationToken)
         {
             try
             {
-                _changeStream.MoveNext();
-                var result = _changeStream.Current;
-
-                return new UnifiedIterateUntilDocumentOrErrorOperationResultConverter().Convert(result);
+                var hasNext = _enumerator.MoveNext();
+                if (hasNext == false)
+                {
+                    throw new InvalidOperationException("Unexpected false return value from MoveNext.");
+                }
+                return OperationResult.FromResult(_converter.Convert(_enumerator.Current));
             }
             catch (Exception exception)
             {
@@ -49,10 +53,12 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             try
             {
-                _changeStream.MoveNext(); // TODO: Change to async counterpart when async enumeration is implemented
-                var result = _changeStream.Current;
-
-                return Task.FromResult(new UnifiedIterateUntilDocumentOrErrorOperationResultConverter().Convert(result));
+                var hasNext = _enumerator.MoveNext(); // TODO: Change to async counterpart when async enumeration is implemented
+                if (hasNext == false)
+                {
+                    throw new InvalidOperationException("Unexpected false return value from MoveNext.");
+                }
+                return Task.FromResult(OperationResult.FromResult(_converter.Convert(_enumerator.Current)));
             }
             catch (Exception exception)
             {
@@ -70,33 +76,44 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             _entityMap = entityMap;
         }
 
-        public UnifiedIterateUntilDocumentOrErrorOperation Build(string targetChangeStreamId, BsonDocument arguments)
+        public IUnifiedEntityTestOperation Build(string targetEnumeratorId, BsonDocument arguments)
         {
-            var changeStream = _entityMap.GetChangeStream(targetChangeStreamId);
-
             if (arguments != null)
             {
                 throw new FormatException("IterateUntilDocumentOrErrorOperation is not expected to contain arguments.");
             }
 
-            return new UnifiedIterateUntilDocumentOrErrorOperation(changeStream);
+            if (_entityMap.ChangeStreams.TryGetValue(targetEnumeratorId, out var changeStreamEnumerator))
+            {
+                return new UnifiedIterateUntilDocumentOrErrorOperation<ChangeStreamDocument<BsonDocument>>(changeStreamEnumerator);
+            }
+            else if (_entityMap.Cursors.TryGetValue(targetEnumeratorId, out var enumerator))
+            {
+                return new UnifiedIterateUntilDocumentOrErrorOperation<BsonDocument>(enumerator);
+            }
+            else
+            {
+                throw new FormatException("No supported enumerator found.");
+            }
         }
     }
 
     public class UnifiedIterateUntilDocumentOrErrorOperationResultConverter
     {
-        public OperationResult Convert(ChangeStreamDocument<BsonDocument> result)
-        {
-            var document = new BsonDocument
+        public BsonDocument Convert<T>(T value) =>
+            value switch
             {
-                { "operationType", result.OperationType.ToString().ToLowerInvariant() },
-                { "ns", ConvertNamespace(result.CollectionNamespace) },
-                { "fullDocument", () => result.FullDocument, result.FullDocument != null },
-                { "updateDescription", () => ConvertUpdateDescription(result.UpdateDescription), result.UpdateDescription != null }
+                ChangeStreamDocument<BsonDocument> changeStreamResult =>
+                    new BsonDocument
+                    {
+                        { "operationType", changeStreamResult.OperationType.ToString().ToLowerInvariant() },
+                        { "ns", ConvertNamespace(changeStreamResult.CollectionNamespace) },
+                        { "fullDocument", () => changeStreamResult.FullDocument, changeStreamResult.FullDocument != null },
+                        { "updateDescription", () => ConvertUpdateDescription(changeStreamResult.UpdateDescription), changeStreamResult.UpdateDescription != null }
+                    },
+                BsonDocument bsonDocument => bsonDocument,
+                _ => throw new FormatException($"Unsupported enumerator document {value.GetType().Name}.")
             };
-
-            return OperationResult.FromResult(document);
-        }
 
         private BsonValue ConvertNamespace(CollectionNamespace collectionNamespace)
         {

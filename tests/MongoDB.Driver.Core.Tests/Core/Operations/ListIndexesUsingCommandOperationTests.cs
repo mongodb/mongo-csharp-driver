@@ -15,15 +15,12 @@
 
 using System;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
@@ -59,6 +56,18 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("collectionNamespace");
         }
 
+        [Fact]
+        public void BatchSize_get_and_set_should_work()
+        {
+            var subject = new ListIndexesUsingCommandOperation(_collectionNamespace, _messageEncoderSettings);
+            int batchSize = 2;
+
+            subject.BatchSize = batchSize;
+            var result = subject.BatchSize;
+
+            result.Should().Be(batchSize);
+        }
+
         [SkippableTheory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_result(
@@ -73,6 +82,24 @@ namespace MongoDB.Driver.Core.Operations
             var list = ReadCursorToEnd(result, async);
 
             list.Select(index => index["name"].AsString).Should().BeEquivalentTo("_id_");
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_should_return_the_expected_result_when_batchSize_is_used([Values(false, true)] bool async)
+        {
+            RequireServer.Check().Supports(Feature.ListIndexesCommand);
+            EnsureCollectionExists(async);
+            int batchSize = 3;
+            var subject = new ListIndexesUsingCommandOperation(_collectionNamespace, _messageEncoderSettings)
+            {
+                BatchSize = batchSize
+            };
+
+            using (var result = ExecuteOperation(subject, async) as AsyncCursor<BsonDocument>)
+            {
+                result._batchSize().Should().Be(batchSize);
+            }
         }
 
         [SkippableTheory]

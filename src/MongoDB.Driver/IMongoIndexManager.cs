@@ -408,12 +408,31 @@ namespace MongoDB.Driver
         /// <summary>
         /// Lists the indexes.
         /// </summary>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A cursor.</returns>
+        IAsyncCursor<BsonDocument> List(ListIndexesOptions options, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Lists the indexes.
+        /// </summary>
         /// <param name="session">The session.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
         /// A cursor.
         /// </returns>
         IAsyncCursor<BsonDocument> List(IClientSessionHandle session, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Lists the indexes.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// A cursor.
+        /// </returns>
+        IAsyncCursor<BsonDocument> List(IClientSessionHandle session, ListIndexesOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Lists the indexes.
@@ -425,11 +444,30 @@ namespace MongoDB.Driver
         /// <summary>
         /// Lists the indexes.
         /// </summary>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A Task whose result is a cursor.</returns>
+        Task<IAsyncCursor<BsonDocument>> ListAsync(ListIndexesOptions options, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Lists the indexes.
+        /// </summary>
         /// <param name="session">The session.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>
         /// A Task whose result is a cursor.
         /// </returns>
         Task<IAsyncCursor<BsonDocument>> ListAsync(IClientSessionHandle session, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Lists the indexes.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// A Task whose result is a cursor.
+        /// </returns>
+        Task<IAsyncCursor<BsonDocument>> ListAsync(IClientSessionHandle session, ListIndexesOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
     }
 }
