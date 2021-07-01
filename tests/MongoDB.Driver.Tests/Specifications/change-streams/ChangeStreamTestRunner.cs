@@ -35,6 +35,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Specifications.change_streams
 {
+    [Trait("Category", "SupportLoadBalancing")]
     public class ChangeStreamTestRunner
     {
         // private fields

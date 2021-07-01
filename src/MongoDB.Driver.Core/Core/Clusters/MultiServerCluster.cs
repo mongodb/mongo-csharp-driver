@@ -66,23 +66,15 @@ namespace MongoDB.Driver.Core.Clusters
 #pragma warning disable CS0618 // Type or member is obsolete
             if (settings.ConnectionModeSwitch == ConnectionModeSwitch.UseDirectConnection)
             {
-                if (settings.DirectConnection.GetValueOrDefault())
-                {
-                    throw new ArgumentException("DirectConnection is not supported for a MultiServerCluster.");
-                }
+                Ensure.That(!settings.DirectConnection.GetValueOrDefault(), "DirectConnection is not supported for a MultiServerCluster.");
             }
             else
             {
-                if (settings.ConnectionMode == ClusterConnectionMode.Standalone)
-                {
-                    throw new ArgumentException("ClusterConnectionMode.StandAlone is not supported for a MultiServerCluster.");
-                }
-                if (settings.ConnectionMode == ClusterConnectionMode.Direct)
-                {
-                    throw new ArgumentException("ClusterConnectionMode.Direct is not supported for a MultiServerCluster.");
-                }
+                Ensure.That(settings.ConnectionMode != ClusterConnectionMode.Standalone, $"{nameof(ClusterConnectionMode.Standalone)} is not supported for a {nameof(MultiServerCluster)}.");
+                Ensure.That(settings.ConnectionMode != ClusterConnectionMode.Direct, $"{nameof(ClusterConnectionMode.Direct)} is not supported for a {nameof(MultiServerCluster)}.");
             }
 #pragma warning restore CS0618 // Type or member is obsolete
+            Ensure.That(!settings.LoadBalanced, $"Load balanced mode is not supported for a {nameof(MultiServerCluster)}.");
 
             _dnsMonitorFactory = dnsMonitorFactory ?? new DnsMonitorFactory(eventSubscriber);
             _monitorServersCancellationTokenSource = new CancellationTokenSource();

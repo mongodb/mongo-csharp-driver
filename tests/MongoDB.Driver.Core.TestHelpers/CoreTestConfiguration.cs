@@ -14,27 +14,22 @@
 */
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Authentication;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Configuration;
-using MongoDB.Driver.Core.Events.Diagnostics;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
-using Xunit;
 
 namespace MongoDB.Driver
 {
@@ -47,6 +42,7 @@ namespace MongoDB.Driver
         private static Lazy<ConnectionString> __connectionStringWithMultipleShardRouters = new Lazy<ConnectionString>(
             GetConnectionStringWithMultipleShardRouters, isThreadSafe: true);
         private static Lazy<DatabaseNamespace> __databaseNamespace = new Lazy<DatabaseNamespace>(GetDatabaseNamespace, isThreadSafe: true);
+        private static Lazy<BuildInfoResult> _buildInfo = new Lazy<BuildInfoResult>(RunBuildInfo, isThreadSafe: true);
         private static MessageEncoderSettings __messageEncoderSettings = new MessageEncoderSettings();
         private static TraceSource __traceSource;
 
@@ -81,7 +77,8 @@ namespace MongoDB.Driver
             get
             {
                 var server = __cluster.Value.SelectServer(WritableServerSelector.Instance, CancellationToken.None);
-                var version = server.Description.Version;
+                var description = server.Description;
+                var version = description.Version ?? (description.Type == ServerType.LoadBalanced ? _buildInfo.Value.ServerVersion : null);
                 if (version == null)
                 {
                     throw new InvalidOperationException("ServerDescription.Version is unexpectedly null.");
@@ -271,7 +268,7 @@ namespace MongoDB.Driver
             return new DatabaseNamespace(databaseName);
         }
 
-        public static IEnumerable<string> GetModules()
+        private static BuildInfoResult RunBuildInfo()
         {
             using (var session = StartSession())
             using (var binding = CreateReadBinding(session))
@@ -279,15 +276,7 @@ namespace MongoDB.Driver
                 var command = new BsonDocument("buildinfo", 1);
                 var operation = new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, __messageEncoderSettings);
                 var response = operation.Execute(binding, CancellationToken.None);
-                BsonValue modules;
-                if (response.TryGetValue("modules", out modules))
-                {
-                    return modules.AsBsonArray.Select(x => x.ToString());
-                }
-                else
-                {
-                    return Enumerable.Empty<string>();
-                }
+                return new BuildInfoResult(response);
             }
         }
 

@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -45,22 +46,51 @@ namespace MongoDB.Driver.Core.Connections
             _serverApi = serverApi;
         }
 
-        public ConnectionDescription InitializeConnection(IConnection connection, CancellationToken cancellationToken)
+        public ConnectionDescription Handshake(IConnection connection, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, nameof(connection));
-            var authenticators = connection.Settings.AuthenticatorFactories.Select(f => f.Create()).ToList();
-            var helloCommand = CreateInitialHelloCommand(authenticators);
+            var authenticators = GetAuthenticators(connection.Settings);
+            var helloCommand = CreateInitialHelloCommand(authenticators, connection.Settings.LoadBalanced);
             var helloProtocol = HelloHelper.CreateProtocol(helloCommand, _serverApi);
             var helloResult = HelloHelper.GetResult(connection, helloProtocol, cancellationToken);
+            if (connection.Settings.LoadBalanced && !helloResult.ServiceId.HasValue)
+            {
+                throw new InvalidOperationException("Driver attempted to initialize in load balancing mode, but the server does not support this mode.");
+            }
 
             var buildInfoProtocol = CreateBuildInfoProtocol(_serverApi);
             var buildInfoResult = new BuildInfoResult(buildInfoProtocol.Execute(connection, cancellationToken));
 
-            var description = new ConnectionDescription(connection.ConnectionId, helloResult, buildInfoResult);
+            return new ConnectionDescription(connection.ConnectionId, helloResult, buildInfoResult);
+        }
 
+        public async Task<ConnectionDescription> HandshakeAsync(IConnection connection, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(connection, nameof(connection));
+            var authenticators = GetAuthenticators(connection.Settings);
+            var helloCommand = CreateInitialHelloCommand(authenticators, connection.Settings.LoadBalanced);
+            var helloProtocol = HelloHelper.CreateProtocol(helloCommand, _serverApi);
+            var helloResult = await HelloHelper.GetResultAsync(connection, helloProtocol, cancellationToken).ConfigureAwait(false);
+            if (connection.Settings.LoadBalanced && !helloResult.ServiceId.HasValue)
+            {
+                throw new InvalidOperationException("Driver attempted to initialize in load balancing mode, but the server does not support this mode.");
+            }
+
+            var buildInfoProtocol = CreateBuildInfoProtocol(_serverApi);
+            var buildInfoResult = new BuildInfoResult(await buildInfoProtocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false));
+
+            return new ConnectionDescription(connection.ConnectionId, helloResult, buildInfoResult);
+        }
+
+        public ConnectionDescription ConnectionAuthentication(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(connection, nameof(connection));
+            Ensure.IsNotNull(description, nameof(description));
+
+            var authenticators = GetAuthenticators(connection.Settings);
             AuthenticationHelper.Authenticate(connection, description, authenticators, cancellationToken);
 
-            var connectionIdServerValue = helloResult.ConnectionIdServerValue;
+            var connectionIdServerValue = description.IsMasterResult.ConnectionIdServerValue;
             if (connectionIdServerValue.HasValue)
             {
                 description = UpdateConnectionIdWithServerValue(description, connectionIdServerValue.Value);
@@ -83,22 +113,15 @@ namespace MongoDB.Driver.Core.Connections
             return description;
         }
 
-        public async Task<ConnectionDescription> InitializeConnectionAsync(IConnection connection, CancellationToken cancellationToken)
+        public async Task<ConnectionDescription> ConnectionAuthenticationAsync(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, nameof(connection));
-            var authenticators = connection.Settings.AuthenticatorFactories.Select(f => f.Create()).ToList();
-            var helloCommand = CreateInitialHelloCommand(authenticators);
-            var helloProtocol = HelloHelper.CreateProtocol(helloCommand, _serverApi);
-            var helloResult = await HelloHelper.GetResultAsync(connection, helloProtocol, cancellationToken).ConfigureAwait(false);
+            Ensure.IsNotNull(description, nameof(description));
 
-            var buildInfoProtocol = CreateBuildInfoProtocol(_serverApi);
-            var buildInfoResult = new BuildInfoResult(await buildInfoProtocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false));
-
-            var description = new ConnectionDescription(connection.ConnectionId, helloResult, buildInfoResult);
-
+            var authenticators = GetAuthenticators(connection.Settings);
             await AuthenticationHelper.AuthenticateAsync(connection, description, authenticators, cancellationToken).ConfigureAwait(false);
 
-            var connectionIdServerValue = helloResult.ConnectionIdServerValue;
+            var connectionIdServerValue = description.IsMasterResult.ConnectionIdServerValue;
             if (connectionIdServerValue.HasValue)
             {
                 description = UpdateConnectionIdWithServerValue(description, connectionIdServerValue.Value);
@@ -158,13 +181,15 @@ namespace MongoDB.Driver.Core.Connections
             return getLastErrorProtocol;
         }
 
-        private BsonDocument CreateInitialHelloCommand(IReadOnlyList<IAuthenticator> authenticators)
+        private BsonDocument CreateInitialHelloCommand(IReadOnlyList<IAuthenticator> authenticators, bool loadBalanced = false)
         {
-            var command = HelloHelper.CreateCommand(_serverApi);
+            var command = HelloHelper.CreateCommand(_serverApi, loadBalanced: loadBalanced);
             HelloHelper.AddClientDocumentToCommand(command, _clientDocument);
             HelloHelper.AddCompressorsToCommand(command, _compressors);
             return HelloHelper.CustomizeCommand(command, authenticators);
         }
+
+        private List<IAuthenticator> GetAuthenticators(ConnectionSettings settings) => settings.AuthenticatorFactories.Select(f => f.Create()).ToList();
 
         private ConnectionDescription UpdateConnectionIdWithServerValue(ConnectionDescription description, BsonDocument getLastErrorResult)
         {

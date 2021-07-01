@@ -49,6 +49,8 @@ namespace MongoDB.Driver.Core.Clusters
             Ensure.IsEqualTo(settings.EndPoints.Count, 1, "settings.EndPoints.Count");
             _replicaSetName = settings.ReplicaSetName;  // can be null
 
+            Ensure.That(!settings.LoadBalanced, $"Load balanced mode is not supported for a {nameof(SingleServerCluster)}.");
+
             _state = new InterlockedInt32(State.Initial);
 
             eventSubscriber.TryGetEventHandler(out _closingEventHandler);

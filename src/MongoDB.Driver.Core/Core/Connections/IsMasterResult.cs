@@ -319,7 +319,27 @@ namespace MongoDB.Driver.Core.Connections
                     return ServerType.ShardRouter;
                 }
 
+                if (ServiceId != null)
+                {
+                    return ServerType.LoadBalanced; // TODO: change when Service Id will be supported by server
+                }
+
                 return ServerType.Standalone;
+            }
+        }
+
+        /// <summary>
+        /// Gets the service identifier.
+        /// </summary>
+        /// <value>
+        /// The service identifier.
+        /// </value>
+        public ObjectId? ServiceId
+        {
+            get
+            {
+                return TopologyVersion?.ProcessId; // TODO: uncomment the below line when the server will support serviceId
+                    //_wrapped.TryGetValue("serviceId", out var serviceIdBsonValue) ? ObjectId.Parse(serviceIdBsonValue.ToString()) : null;
             }
         }
 

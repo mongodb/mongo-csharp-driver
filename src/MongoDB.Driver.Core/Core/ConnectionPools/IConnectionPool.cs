@@ -20,6 +20,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Bson;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Servers;
 
@@ -66,6 +67,11 @@ namespace MongoDB.Driver.Core.ConnectionPools
         /// Clears the connection pool.
         /// </summary>
         void Clear();
+
+        /// <summary>
+        /// Clears the connection pool.
+        /// </summary>
+        void Clear(ObjectId serviceId);
 
         /// <summary>
         /// Initializes the connection pool.

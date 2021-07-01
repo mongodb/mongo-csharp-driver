@@ -87,6 +87,7 @@ namespace MongoDB.Driver.Core.Clusters
         protected Cluster(ClusterSettings settings, IClusterableServerFactory serverFactory, IEventSubscriber eventSubscriber)
         {
             _settings = Ensure.IsNotNull(settings, nameof(settings));
+            Ensure.That(!_settings.LoadBalanced, "LoadBalanced mode is not supported.");
             _serverFactory = Ensure.IsNotNull(serverFactory, nameof(serverFactory));
             Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
             _state = new InterlockedInt32(State.Initial);
@@ -155,7 +156,7 @@ namespace MongoDB.Driver.Core.Clusters
 
         protected IClusterableServer CreateServer(EndPoint endPoint)
         {
-            return _serverFactory.CreateServer(_clusterId, _clusterClock, endPoint);
+            return _serverFactory.CreateServer(_settings.GetInitialClusterType(), _clusterId, _clusterClock, endPoint);
         }
 
         public void Dispose()

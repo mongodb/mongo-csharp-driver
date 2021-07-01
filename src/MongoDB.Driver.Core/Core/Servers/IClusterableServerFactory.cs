@@ -27,12 +27,13 @@ namespace MongoDB.Driver.Core.Servers
         /// <summary>
         /// Creates the server.
         /// </summary>
+        /// <param name="clusterType">The cluster type.</param>
         /// <param name="clusterId">The cluster identifier.</param>
         /// <param name="clusterClock">The cluster clock.</param>
         /// <param name="endPoint">The end point.</param>
         /// <returns>
         /// A server.
         /// </returns>
-        IClusterableServer CreateServer(ClusterId clusterId, IClusterClock clusterClock, EndPoint endPoint);
+        IClusterableServer CreateServer(ClusterType clusterType, ClusterId clusterId, IClusterClock clusterClock, EndPoint endPoint);
     }
 }

@@ -31,6 +31,7 @@ using Xunit.Abstractions;
 namespace MongoDB.Driver.Specifications.initial_dns_seedlist_discovery
 {
     [Trait("Category", "ConnectionString")]
+    [Trait("Category", "SupportLoadBalancing")]
     public class InitialDnsSeedlistDiscoveryTestRunner
     {
         [Theory]
