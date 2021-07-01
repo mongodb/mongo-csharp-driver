@@ -1528,7 +1528,7 @@ namespace MongoDB.Driver
 
             public override IAsyncCursor<BsonDocument> List(CancellationToken cancellationToken = default(CancellationToken))
             {
-                return _collection.UsingImplicitSession(session => List(session, options: null, cancellationToken), cancellationToken);
+                return List(options: null, cancellationToken);
             }
 
             public override IAsyncCursor<BsonDocument> List(ListIndexesOptions options, CancellationToken cancellationToken = default(CancellationToken))
@@ -1550,7 +1550,7 @@ namespace MongoDB.Driver
 
             public override Task<IAsyncCursor<BsonDocument>> ListAsync(CancellationToken cancellationToken = default(CancellationToken))
             {
-                return _collection.UsingImplicitSessionAsync(session => ListAsync(session, options: null, cancellationToken), cancellationToken);
+                return ListAsync(options: null, cancellationToken);
             }
 
             public override Task<IAsyncCursor<BsonDocument>> ListAsync(ListIndexesOptions options, CancellationToken cancellationToken = default(CancellationToken))

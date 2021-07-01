@@ -37,13 +37,14 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
         public OperationResult Execute(CancellationToken cancellationToken)
         {
-            try
+            using (var timeoutCancelationTokenSource = new CancellationTokenSource(_timeout))
+            using (var linkedCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCancelationTokenSource.Token))
             {
-                using (var cancelationTokenSource = new CancellationTokenSource(_timeout))
-                {
-                    while (!cancelationTokenSource.IsCancellationRequested)
+                try
+                { 
+                    while (!linkedCancellationTokenSource.IsCancellationRequested)
                     {
-                        _enumerator.MoveNext();
+                        _enumerator.MoveNext(); // if MoveNext took a CancellationToken we would have passed linkedCancellationTokenSource.Token in
                         var current = _enumerator.Current;
                         if (current != null)
                         {
@@ -51,22 +52,24 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         }
                     }
                 }
-            }
-            catch (Exception exception)
-            {
-                return OperationResult.FromException(exception);
+                catch (Exception exception)
+                {
+                    return OperationResult.FromException(exception);
+                }
             }
 
+            cancellationToken.ThrowIfCancellationRequested();
             throw new InvalidOperationException($"The {nameof(UnifiedIterateUntilDocumentOrErrorOperation<TDocument>)} executing exceed timeout {_timeout.TotalMilliseconds}ms.");
         }
 
         public Task<OperationResult> ExecuteAsync(CancellationToken cancellationToken)
         {
-            try
+            using (var timeoutCancelationTokenSource = new CancellationTokenSource(_timeout))
+            using (var linkedCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCancelationTokenSource.Token))
             {
-                using (var cancelationTokenSource = new CancellationTokenSource(_timeout))
+                try
                 {
-                    while (!cancelationTokenSource.IsCancellationRequested)
+                    while (!linkedCancellationTokenSource.IsCancellationRequested)
                     {
                         _enumerator.MoveNext(); // TODO: Change to async counterpart when async enumeration is implemented
                         var current = _enumerator.Current;
@@ -76,12 +79,13 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         }
                     }
                 }
-            }
-            catch (Exception exception)
-            {
-                return Task.FromResult(OperationResult.FromException(exception));
+                catch (Exception exception)
+                {
+                    return Task.FromResult(OperationResult.FromException(exception));
+                }
             }
 
+            cancellationToken.ThrowIfCancellationRequested();
             throw new InvalidOperationException($"The {nameof(UnifiedIterateUntilDocumentOrErrorOperation<TDocument>)} executing exceed timeout {_timeout.TotalMilliseconds}ms.");
         }
     }

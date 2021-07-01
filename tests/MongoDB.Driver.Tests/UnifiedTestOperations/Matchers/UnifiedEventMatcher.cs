@@ -43,14 +43,14 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
             { typeof(ConnectionPoolClearedEvent), EventType.Cmap },
         };
 
-        public static List<object> FilterEventsByType(List<object> incomeEvents, string eventType)
+        public static List<object> FilterEventsByType(List<object> events, string eventType)
         {
             if (!Enum.TryParse<EventType>(eventType, ignoreCase: true, out var eventTypeEnum))
             {
                 throw new FormatException($"Cannot parse {nameof(eventType)} enum from {eventType}.");
             }
 
-            return incomeEvents
+            return events
                 .Where(e => __eventsMap[e.GetType()] == eventTypeEnum)
                 .ToList();
         }

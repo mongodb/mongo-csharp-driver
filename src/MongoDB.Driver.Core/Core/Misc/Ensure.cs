@@ -235,7 +235,7 @@ namespace MongoDB.Driver.Core.Misc
         {
             if (!value.HasValue)
             {
-                throw new ArgumentNullException(paramName, "Value must be assigned.");
+                throw new ArgumentException("The Nullable parameter must have a value.", paramName);
             }
             return value;
         }
