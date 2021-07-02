@@ -205,6 +205,21 @@ namespace MongoDB.Driver.Tests
             }
         }
 
+        [Fact]
+        public void IsAboutToExpire_should_never_expire_in_load_balancing_mode()
+        {
+            var subject = CreateSubject();
+            var mockedCluster = new TestCluster(ClusterType.LoadBalanced);
+            var mockedServerSessionPool = new CoreServerSessionPool(mockedCluster);
+            var mockSession = new Mock<ICoreServerSession>();
+            var lastUsedAt = DateTime.UtcNow.AddSeconds(1741);
+            mockSession.SetupGet(m => m.LastUsedAt).Returns(lastUsedAt);
+
+            var result = mockedServerSessionPool.IsAboutToExpire(mockSession.Object);
+
+            result.Should().BeFalse();
+        }
+
         [Theory]
         [InlineData(null, true)]
         [InlineData(1741, true)]
@@ -219,21 +234,6 @@ namespace MongoDB.Driver.Tests
             var result = subject.IsAboutToExpire(mockSession.Object);
 
             result.Should().Be(expectedResult);
-        }
-
-        [Fact]
-        public void IsAboutToExpire_should_never_expire_in_load_balancing_mode()
-        {
-            var subject = CreateSubject();
-            var mockedCluster = new TestCluster(ClusterType.LoadBalanced);
-            var mockedServerSessionPool = new CoreServerSessionPool(mockedCluster);
-            var mockSession = new Mock<ICoreServerSession>();
-            var lastUsedAt = DateTime.UtcNow.AddSeconds(1741);
-            mockSession.SetupGet(m => m.LastUsedAt).Returns(lastUsedAt);
-
-            var result = mockedServerSessionPool.IsAboutToExpire(mockSession.Object);
-
-            result.Should().BeFalse();
         }
 
         // private methods

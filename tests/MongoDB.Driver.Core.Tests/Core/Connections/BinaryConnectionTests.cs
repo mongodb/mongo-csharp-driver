@@ -108,8 +108,8 @@ namespace MongoDB.Driver.Core.Connections
                 .Setup(i => i.Handshake(It.IsAny<IConnection>(), CancellationToken.None))
                 .Returns(connectionDescription);
             _mockConnectionInitializer
-                .Setup(i => i.Handshake(It.IsAny<IConnection>(), CancellationToken.None))
-                .Returns(connectionDescription);
+                .Setup(i => i.HandshakeAsync(It.IsAny<IConnection>(), CancellationToken.None))
+                .ReturnsAsync(connectionDescription);
             _mockConnectionInitializer
                 .Setup(i => i.ConnectionAuthentication(It.IsAny<IConnection>(), It.IsAny<ConnectionDescription>(), CancellationToken.None))
                 .Throws(socketException);
@@ -129,7 +129,6 @@ namespace MongoDB.Driver.Core.Connections
 
             _subject.Description.Should().Be(connectionDescription);
             var ex = exception.Should().BeOfType<MongoConnectionException>().Subject;
-            // ex.ServiceId.Should().Be(serviceId); TODO: restrore when server will support serviceId
             ex.InnerException.Should().BeOfType<SocketException>();
         }
 

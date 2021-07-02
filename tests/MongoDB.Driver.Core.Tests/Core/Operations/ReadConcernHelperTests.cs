@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Core.Operations
     public class ReadConcernHelperTests
     {
         [Fact]
-        public void GetReadConcernForCommand_should_consider_session_supported_when_logicalSessionTimeoutMinutes_is_null()
+        public void GetReadConcernForCommand_should_consider_session_supported_when_logicalSessionTimeoutMinutes_is_null_and_load_balanced_mode()
         {
             var session = CreateSession(
                 isInTransaction: false,
