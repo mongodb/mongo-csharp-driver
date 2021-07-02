@@ -320,7 +320,7 @@ namespace MongoDB.Driver.Core.Servers
             capturedEvents.Any().Should().BeFalse();
         }
 
-        [Fact(Skip = "Will check this test")]
+        [Fact]
         public void ServerMonitor_should_use_serverApi()
         {
             var serverApi = new ServerApi(ServerApiVersion.V1);

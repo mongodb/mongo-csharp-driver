@@ -20,6 +20,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Authentication;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
@@ -238,13 +239,25 @@ namespace MongoDB.Driver
                 }
             }
 
-            return new ConnectionString(uri);
+            var connectionString = new ConnectionString(uri);
+            if (connectionString.LoadBalanced)
+            {
+                // TODO: temporary solution until server will actually support serviceId
+                ServiceIdHelper.IsServiceIdEmulationEnabled = true;
+            }
+            return connectionString;
         }
 
         private static ConnectionString GetConnectionStringWithMultipleShardRouters()
         {
             var uri = Environment.GetEnvironmentVariable("MONGODB_URI_WITH_MULTIPLE_MONGOSES") ?? "mongodb://localhost,localhost:27018";
-            return new ConnectionString(uri);
+            var connectionString = new ConnectionString(uri);
+            if (connectionString.LoadBalanced)
+            {
+                // TODO: temporary solution until server will actually support serviceId
+                ServiceIdHelper.IsServiceIdEmulationEnabled = true;
+            }
+            return connectionString;
         }
 
         private static DatabaseNamespace GetDatabaseNamespace()

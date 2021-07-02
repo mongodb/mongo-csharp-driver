@@ -283,20 +283,27 @@ namespace MongoDB.Driver.Core.Connections
         private void OpenHelper(CancellationToken cancellationToken)
         {
             var helper = new OpenConnectionHelper(this);
+
+            ConnectionDescription handshakeDescription = null;
             try
             {
                 helper.OpeningConnection();
                 _stream = _streamFactory.CreateStream(_endPoint, cancellationToken);
                 helper.InitializingConnection();
-                _description = _connectionInitializer.Handshake(this, cancellationToken);
+                handshakeDescription = _connectionInitializer.Handshake(this, cancellationToken);
                 // we always need to have access to description after handshake regardless furher errors
-                _description = _connectionInitializer.ConnectionAuthentication(this, _description, cancellationToken);
+                _description = _connectionInitializer.ConnectionAuthentication(this, handshakeDescription, cancellationToken);
                 _sendCompressorType = ChooseSendCompressorTypeIfAny(_description);
 
                 helper.OpenedConnection();
             }
             catch (Exception ex)
             {
+                if (ShouldSetHandshakeDescription(_description, handshakeDescription))
+                {
+                    // if we have successful handshake description, we should propogate it to upper levels
+                    _description = handshakeDescription;
+                }
                 var wrappedException = WrapException(ex, "opening a connection to the server");
                 helper.FailedOpeningConnection(wrappedException);
                 throw wrappedException;
@@ -306,20 +313,27 @@ namespace MongoDB.Driver.Core.Connections
         private async Task OpenHelperAsync(CancellationToken cancellationToken)
         {
             var helper = new OpenConnectionHelper(this);
+
+            ConnectionDescription handshakeDescription = null;
             try
             {
                 helper.OpeningConnection();
                 _stream = await _streamFactory.CreateStreamAsync(_endPoint, cancellationToken).ConfigureAwait(false);
                 helper.InitializingConnection();
-                _description = await _connectionInitializer.HandshakeAsync(this, cancellationToken).ConfigureAwait(false);
+                handshakeDescription = await _connectionInitializer.HandshakeAsync(this, cancellationToken).ConfigureAwait(false);
                 // we always need to have access to description after handshake regardless furher errors
-                _description = await _connectionInitializer.ConnectionAuthenticationAsync(this, _description, cancellationToken).ConfigureAwait(false);
+                _description = await _connectionInitializer.ConnectionAuthenticationAsync(this, handshakeDescription, cancellationToken).ConfigureAwait(false);
                 _sendCompressorType = ChooseSendCompressorTypeIfAny(_description);
 
                 helper.OpenedConnection();
             }
             catch (Exception ex)
             {
+                if (ShouldSetHandshakeDescription(_description, handshakeDescription))
+                {
+                    // if we have successful handshake description, we should propogate it to upper levels
+                    _description = handshakeDescription;
+                }
                 var wrappedException = WrapException(ex, "opening a connection to the server");
                 helper.FailedOpeningConnection(wrappedException);
                 throw wrappedException;
@@ -712,6 +726,9 @@ namespace MongoDB.Driver.Core.Connections
             var compressedMessageEncoder = compressedMessageEncoderFactory.GetCompressedMessageEncoder(null);
             compressedMessageEncoder.WriteMessage(compressedMessage);
         }
+
+        private bool ShouldSetHandshakeDescription(ConnectionDescription connectionDescription, ConnectionDescription handshakeDescription) =>
+            connectionDescription == null && handshakeDescription != null;
 
         private void ThrowIfCancelledOrDisposed(CancellationToken cancellationToken = default)
         {

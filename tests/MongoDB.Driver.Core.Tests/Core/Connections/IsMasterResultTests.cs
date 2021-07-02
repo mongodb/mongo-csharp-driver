@@ -226,6 +226,7 @@ namespace MongoDB.Driver.Core.Connections
         [InlineData("{ ok: 1, isreplicaset: 0 }", ServerType.Standalone)]
         [InlineData("{ ok: 1, msg: \"isdbgrid\" }", ServerType.ShardRouter)]
         [InlineData("{ ok: 1, msg: \"isdbgrid\" }", ServerType.ShardRouter)]
+        [InlineData("{ ok: 1, serviceId: ObjectId('111111111111111111111111') }", ServerType.LoadBalanced)]
         [InlineData("{ ok: 1 }", ServerType.Standalone)]
         [InlineData("{ ok: 0 }", ServerType.Unknown)]
         public void ServerType_should_parse_document_correctly(string json, ServerType expected)
@@ -233,6 +234,20 @@ namespace MongoDB.Driver.Core.Connections
             var subject = new IsMasterResult(BsonDocument.Parse(json));
 
             subject.ServerType.Should().Be(expected);
+        }
+
+        [Theory]
+        [InlineData("{ }", false)]
+        [InlineData("{ serviceId : ObjectId('000000000000000000000000') }", true)]
+        public void ServiceId_should_parse_document_correctly(string json, bool shouldBeParsed)
+        {
+            var subject = new IsMasterResult(BsonDocument.Parse(json));
+
+            subject.ServiceId.HasValue.Should().Be(shouldBeParsed);
+            if (shouldBeParsed)
+            {
+                subject.ServiceId.Should().Be(ObjectId.Empty);
+            }
         }
 
         [Fact]
