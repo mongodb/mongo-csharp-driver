@@ -338,8 +338,9 @@ namespace MongoDB.Driver.Core.Connections
         {
             get
             {
-                return TopologyVersion?.ProcessId; // TODO: uncomment the below line when the server will support serviceId
-                    //_wrapped.TryGetValue("serviceId", out var serviceIdBsonValue) ? ObjectId.Parse(serviceIdBsonValue.ToString()) : null;
+                return _wrapped.TryGetValue("serviceId", out var serviceIdBsonValue)
+                    ? ObjectId.Parse(serviceIdBsonValue.ToString())
+                    : TopologyVersion?.ProcessId; // TODO: should be just null when the server will support serviceId;
             }
         }
 

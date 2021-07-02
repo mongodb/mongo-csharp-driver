@@ -383,7 +383,7 @@ namespace MongoDB.Driver
         {
             return
                 clusterDescription.Servers.Any(s => s.State == ServerState.Connected) &&
-                clusterDescription.LogicalSessionTimeout.HasValue;
+                (clusterDescription.LogicalSessionTimeout.HasValue || clusterDescription.Type == ClusterType.LoadBalanced);
         }
 
         private static IReadBindingHandle CreateReadBinding(ICoreSessionHandle session)
