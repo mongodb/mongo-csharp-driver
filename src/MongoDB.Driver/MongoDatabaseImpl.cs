@@ -626,29 +626,6 @@ namespace MongoDB.Driver
             return ExecuteWriteOperationAsync(session, operation, cancellationToken);
         }
 
-        private CreateCollectionOperation CreateCreateCollectionOperation(string name, CreateCollectionOptions options)
-        {
-            options = options ?? new CreateCollectionOptions();
-            var messageEncoderSettings = GetMessageEncoderSettings();
-
-#pragma warning disable 618
-            return new CreateCollectionOperation(new CollectionNamespace(_databaseNamespace, name), messageEncoderSettings)
-            {
-                AutoIndexId = options.AutoIndexId,
-                Collation = options.Collation,
-                Capped = options.Capped,
-                ExpireAfter = options.ExpireAfter,
-                MaxDocuments = options.MaxDocuments,
-                MaxSize = options.MaxSize,
-                NoPadding = options.NoPadding,
-                StorageEngine = options.StorageEngine,
-                TimeSeriesOptions = options.TimeSeriesOptions,
-                UsePowerOf2Sizes = options.UsePowerOf2Sizes,
-                WriteConcern = _settings.WriteConcern
-            };
-#pragma warning restore
-        }
-
         private CreateCollectionOperation CreateCreateCollectionOperation<TDocument>(string name, CreateCollectionOptions<TDocument> options)
         {
             var messageEncoderSettings = GetMessageEncoderSettings();

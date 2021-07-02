@@ -14,40 +14,31 @@
 */
 
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Misc;
 
-namespace MongoDB.Driver.Core.Operations
+namespace MongoDB.Driver
 {
     /// <summary>
     /// Defines the time series options to use when creating a time-series collection.
     /// </summary>
     public class TimeSeriesOptions
     {
-        private readonly string _timeField;
-        private readonly string _metaField;
         private readonly TimeSeriesGranularity? _granularity;
+        private readonly string _metaField;
+        private readonly string _timeField;
 
         /// <summary>
-        ///
+        /// Initializes a new instance of the <see cref="TimeSeriesOptions"/> class.
         /// </summary>
-        /// <param name="timeField"></param>
-        /// <param name="metaField"></param>
-        /// <param name="granularity"></param>
-        public TimeSeriesOptions(string timeField, string metaField, TimeSeriesGranularity? granularity)
+        /// <param name="timeField">The name of the top-level field to be used for time.</param>
+        /// <param name="metaField">The name of the top-level field describing the series upon which related data will be grouped.</param>
+        /// <param name="granularity">The <see cref="Granularity"/> for the time series.</param>
+        public TimeSeriesOptions(string timeField, Optional<string> metaField = default, Optional<TimeSeriesGranularity?> granularity = default)
         {
-            _timeField = timeField;
-            _metaField = metaField;
-            _granularity = granularity;
+            _timeField = Ensure.IsNotNullOrEmpty(timeField, nameof(timeField));
+            _metaField = metaField.WithDefault(null);
+            _granularity = granularity.WithDefault(null);
         }
-
-        /// <summary>
-        /// The name of the field which contains the date in each time-series document.
-        /// </summary>
-        public string TimeField => _timeField;
-
-        /// <summary>
-        ///  The name of the field which contains metadata in each time-series document.
-        /// </summary>
-        public string MetaField => _metaField;
 
         /// <summary>
         /// The coarse granularity of time-series data.
@@ -55,16 +46,26 @@ namespace MongoDB.Driver.Core.Operations
         public TimeSeriesGranularity? Granularity => _granularity;
 
         /// <summary>
+        ///  The name of the field which contains metadata in each time-series document.
+        /// </summary>
+        public string MetaField => _metaField;
+
+        /// <summary>
+        /// The name of the field which contains the date in each time-series document.
+        /// </summary>
+        public string TimeField => _timeField;
+
+        /// <summary>
         /// The BSON representation of the time-series options.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A BsonDocument.</returns>
         public BsonDocument ToBsonDocument()
         {
             return new BsonDocument
             {
                 { "timeField", _timeField },
                 { "metaField", _metaField, _metaField != null },
-                { "granularity", _granularity.Value.ToString().ToLowerInvariant(), _granularity.HasValue }
+                { "granularity", () => _granularity.Value.ToString().ToLowerInvariant(), _granularity.HasValue }
             };
         }
     }

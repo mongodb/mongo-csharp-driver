@@ -42,8 +42,8 @@ namespace MongoDB.Driver.Core.Operations
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private bool? _noPadding;
         private BsonDocument _storageEngine;
-        private bool? _usePowerOf2Sizes;
         private TimeSeriesOptions _timeSeriesOptions;
+        private bool? _usePowerOf2Sizes;
         private DocumentValidationAction? _validationAction;
         private DocumentValidationLevel? _validationLevel;
         private BsonDocument _validator;
@@ -193,6 +193,15 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <summary>
+        /// Gets or sets the <see cref="TimeSeriesOptions"/> to use when creating a time series collection.
+        /// </summary>
+        public TimeSeriesOptions TimeSeriesOptions
+        {
+            get { return _timeSeriesOptions; }
+            set { _timeSeriesOptions = value; }
+        }
+
+        /// <summary>
         /// Gets or sets a value indicating whether the collection should use power of 2 sizes.
         /// </summary>
         /// <value>
@@ -250,15 +259,6 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _writeConcern; }
             set { _writeConcern = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the <see cref="TimeSeriesOptions"/> to use when creating a time series collection.
-        /// </summary>
-        public TimeSeriesOptions TimeSeriesOptions
-        {
-            get => _timeSeriesOptions;
-            set => _timeSeriesOptions = value;
         }
 
         // methods

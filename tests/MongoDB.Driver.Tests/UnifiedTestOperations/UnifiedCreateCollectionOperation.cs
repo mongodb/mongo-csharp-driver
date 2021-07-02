@@ -24,19 +24,20 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
     public class UnifiedCreateCollectionOperation : IUnifiedEntityTestOperation
     {
         private readonly string _collectionName;
-        private readonly CreateCollectionOptions _createCollectionOptions;
+        private readonly CreateCollectionOptions _options;
         private readonly IMongoDatabase _database;
         private readonly IClientSessionHandle _session;
 
-        public UnifiedCreateCollectionOperation(IClientSessionHandle session,
+        public UnifiedCreateCollectionOperation(
+            IClientSessionHandle session,
             IMongoDatabase database,
             string collectionName,
-            CreateCollectionOptions createCollectionOptions)
+            CreateCollectionOptions options)
         {
             _session = session;
             _database = database;
             _collectionName = collectionName;
-            _createCollectionOptions = createCollectionOptions;
+            _options = options;
         }
 
         public OperationResult Execute(CancellationToken cancellationToken)
@@ -45,11 +46,11 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             {
                 if (_session == null)
                 {
-                    _database.CreateCollection(_collectionName, _createCollectionOptions, cancellationToken: cancellationToken);
+                    _database.CreateCollection(_collectionName, _options, cancellationToken);
                 }
                 else
                 {
-                    _database.CreateCollection(_session, _collectionName, _createCollectionOptions, cancellationToken: cancellationToken);
+                    _database.CreateCollection(_session, _collectionName, _options, cancellationToken);
                 }
 
                 return OperationResult.FromResult(null);
@@ -66,11 +67,11 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             {
                 if (_session == null)
                 {
-                    await _database.CreateCollectionAsync(_collectionName, _createCollectionOptions, cancellationToken: cancellationToken);
+                    await _database.CreateCollectionAsync(_collectionName, _options, cancellationToken);
                 }
                 else
                 {
-                    await _database.CreateCollectionAsync(_session, _collectionName, _createCollectionOptions, cancellationToken: cancellationToken);
+                    await _database.CreateCollectionAsync(_session, _collectionName, _options, cancellationToken);
                 }
 
                 return OperationResult.FromResult(null);

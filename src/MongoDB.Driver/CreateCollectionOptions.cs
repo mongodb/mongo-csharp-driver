@@ -16,7 +16,6 @@
 using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Core.Operations;
 
 namespace MongoDB.Driver
 {
@@ -76,8 +75,8 @@ namespace MongoDB.Driver
         /// </summary>
         public TimeSpan? ExpireAfter
         {
-            get => _expireAfter;
-            set => _expireAfter = value;
+            get { return _expireAfter; }
+            set { _expireAfter = value; }
         }
 
         /// <summary>
