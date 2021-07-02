@@ -81,12 +81,6 @@ namespace MongoDB.Driver.Core.Servers
         public override ServerDescription Description => Interlocked.CompareExchange(ref _currentDescription, value: null, comparand: null);
 
         // public methods
-        public override void Initializing()
-        {
-            _monitor.DescriptionChanged += OnMonitorDescriptionChanged;
-            _monitor.Initialize();
-        }
-
         public override void Invalidate(string reasonInvalidated, bool clearConnectionPool, TopologyVersion topologyVersion)
         {
             if (clearConnectionPool)
@@ -179,6 +173,12 @@ namespace MongoDB.Driver.Core.Servers
                     RequestHeartbeat();
                 }
             }
+        }
+
+        protected override void Initializing()
+        {
+            _monitor.DescriptionChanged += OnMonitorDescriptionChanged;
+            _monitor.Initialize();
         }
 
         // private methods

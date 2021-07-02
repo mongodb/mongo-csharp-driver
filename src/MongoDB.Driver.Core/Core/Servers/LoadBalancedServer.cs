@@ -94,7 +94,7 @@ namespace MongoDB.Driver.Core.Servers
             }
         }
 
-        public override void Initializing()
+        protected override void Initializing()
         {
             // generate initial server description
             var newDescription = _baseDescription

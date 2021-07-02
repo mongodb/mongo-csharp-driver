@@ -31,7 +31,7 @@ using MongoDB.Libmongocrypt;
 namespace MongoDB.Driver.Core.Clusters
 {
     /// <summary>
-    /// Represents the cluster that uses loadbalancing mode.
+    /// Represents the cluster that uses load balanced mode.
     /// </summary>
     internal class LoadBalancedCluster : ICluster, IDnsMonitoringCluster
     {
@@ -196,16 +196,14 @@ namespace MongoDB.Driver.Core.Clusters
         {
             ThrowIfDisposed();
 
-            var timeoutTask = Task.Delay(_settings.ServerSelectionTimeout, cancellationToken);
-            var index = Task.WaitAny(_serverReadyTaskCompletionSource.Task, timeoutTask);
+            var index = Task.WaitAny(new[] { _serverReadyTaskCompletionSource.Task }, (int)_settings.ServerSelectionTimeout.TotalMilliseconds, cancellationToken);
             if (index != 0)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 throw CreateTimeoutException(_description); // _description will contain dnsException
             }
 
-            return
-                _server ??
+            return _server ??
                 throw new InvalidOperationException("The server must be created before usage."); // should not be reached
         }
 
@@ -221,8 +219,7 @@ namespace MongoDB.Driver.Core.Clusters
                 throw CreateTimeoutException(_description); // _description will contain dnsException
             }
 
-            return
-                _server ??
+            return _server ??
                 throw new InvalidOperationException("The server must be created before usage."); // should not be reached
         }
 
@@ -239,6 +236,8 @@ namespace MongoDB.Driver.Core.Clusters
         // private method
         private IClusterableServer CreateInitializedServer(EndPoint endPoint)
         {
+            ThrowIfDisposed();
+
             var server = _serverFactory.CreateServer(_clusterType, _clusterId, _clusterClock, endPoint);
 
             var newClusterDescription = _description
@@ -255,21 +254,18 @@ namespace MongoDB.Driver.Core.Clusters
         private Exception CreateTimeoutException(ClusterDescription description)
         {
             var ms = (int)Math.Round(_settings.ServerSelectionTimeout.TotalMilliseconds);
-            var message = string.Format(
-                "A timeout occurred after {0}ms selecting a server. Client view of cluster state is {1}.",
-                ms.ToString(),
-                description.ToString());
+            var message = $"A timeout occurred after {ms}ms selecting a server. Client view of cluster state is {description}.";
             return new TimeoutException(message);
         }
 
         private void UpdateClusterDescription(ClusterDescription newClusterDescription)
         {
             var oldClusterDescription = Interlocked.CompareExchange(ref _description, newClusterDescription, _description);
-            OnClusterDescriptionChanged(oldClusterDescription, newClusterDescription, true);
+            OnClusterDescriptionChanged(oldClusterDescription, newClusterDescription);
 
-            void OnClusterDescriptionChanged(ClusterDescription oldDescription, ClusterDescription newDescription, bool shouldSdamClusterDescriptionChangedEventBePublished)
+            void OnClusterDescriptionChanged(ClusterDescription oldDescription, ClusterDescription newDescription)
             {
-                if (shouldSdamClusterDescriptionChangedEventBePublished && _descriptionChangedEventHandler != null)
+                if (_descriptionChangedEventHandler != null)
                 {
                     _descriptionChangedEventHandler(new ClusterDescriptionChangedEvent(oldDescription, newDescription));
                 }

@@ -202,8 +202,6 @@ namespace MongoDB.Driver.Core.Servers
             }
         }
 
-        public abstract void Initializing();
-
         [Obsolete("Use Invalidate with TopologyDescription instead.")]
         public void Invalidate(string reasonInvalidated)
         {
@@ -220,6 +218,8 @@ namespace MongoDB.Driver.Core.Servers
         public abstract void RequestHeartbeat();
 
         // protected methods
+        protected abstract void Initializing();
+
         protected bool IsStateChangeException(Exception ex) => ex is MongoNotPrimaryException || ex is MongoNodeIsRecoveringException;
 
         protected bool IsShutdownException(Exception ex) => ex is MongoNodeIsRecoveringException mongoNodeIsRecoveringException && mongoNodeIsRecoveringException.IsShutdownError;
