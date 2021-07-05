@@ -17,23 +17,27 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Operations;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
     public class UnifiedCreateCollectionOperation : IUnifiedEntityTestOperation
     {
         private readonly string _collectionName;
+        private readonly CreateCollectionOptions _options;
         private readonly IMongoDatabase _database;
         private readonly IClientSessionHandle _session;
 
         public UnifiedCreateCollectionOperation(
             IClientSessionHandle session,
             IMongoDatabase database,
-            string collectionName)
+            string collectionName,
+            CreateCollectionOptions options)
         {
             _session = session;
             _database = database;
             _collectionName = collectionName;
+            _options = options;
         }
 
         public OperationResult Execute(CancellationToken cancellationToken)
@@ -42,11 +46,11 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             {
                 if (_session == null)
                 {
-                    _database.CreateCollection(_collectionName, cancellationToken: cancellationToken);
+                    _database.CreateCollection(_collectionName, _options, cancellationToken);
                 }
                 else
                 {
-                    _database.CreateCollection(_session, _collectionName, cancellationToken: cancellationToken);
+                    _database.CreateCollection(_session, _collectionName, _options, cancellationToken);
                 }
 
                 return OperationResult.FromResult(null);
@@ -63,11 +67,11 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             {
                 if (_session == null)
                 {
-                    await _database.CreateCollectionAsync(_collectionName, cancellationToken: cancellationToken);
+                    await _database.CreateCollectionAsync(_collectionName, _options, cancellationToken);
                 }
                 else
                 {
-                    await _database.CreateCollectionAsync(_session, _collectionName, cancellationToken: cancellationToken);
+                    await _database.CreateCollectionAsync(_session, _collectionName, _options, cancellationToken);
                 }
 
                 return OperationResult.FromResult(null);
@@ -93,6 +97,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             var database = _entityMap.GetDatabase(targetDatabaseId);
 
             string collectionName = null;
+            CreateCollectionOptions createCollectionOptions = null;
             IClientSessionHandle session = null;
 
             foreach (var argument in arguments)
@@ -102,16 +107,32 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     case "collection":
                         collectionName = argument.Value.AsString;
                         break;
+                    case "expireAfterSeconds":
+                        createCollectionOptions ??= new CreateCollectionOptions();
+                        createCollectionOptions.ExpireAfter = TimeSpan.FromSeconds(argument.Value.ToInt64());
+                        break;
                     case "session":
                         var sessionId = argument.Value.AsString;
                         session = _entityMap.GetSession(sessionId);
+                        break;
+                    case "timeseries":
+                        var timeseries = argument.Value.AsBsonDocument;
+                        var timeField = timeseries["timeField"].AsString;
+                        var metaField = timeseries.TryGetValue("metaField", out var metaFieldValue) ? metaFieldValue.AsString : null;
+                        TimeSeriesGranularity? granularity = null;
+                        if (timeseries.TryGetValue("granularity", out var granularityValue))
+                        {
+                            granularity = (TimeSeriesGranularity)Enum.Parse(typeof(TimeSeriesGranularity), granularityValue.AsString, true);
+                        }
+                        createCollectionOptions ??= new CreateCollectionOptions();
+                        createCollectionOptions.TimeSeriesOptions = new TimeSeriesOptions(timeField, metaField, granularity);
                         break;
                     default:
                         throw new FormatException($"Invalid CreateCollectionOperation argument name: '{argument.Name}'.");
                 }
             }
 
-            return new UnifiedCreateCollectionOperation(session, database, collectionName);
+            return new UnifiedCreateCollectionOperation(session, database, collectionName, createCollectionOptions);
         }
     }
 }

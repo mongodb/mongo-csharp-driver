@@ -21,7 +21,6 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
@@ -36,12 +35,14 @@ namespace MongoDB.Driver.Core.Operations
         private bool? _capped;
         private Collation _collation;
         private readonly CollectionNamespace _collectionNamespace;
+        private TimeSpan? _expireAfter;
         private BsonDocument _indexOptionDefaults;
         private long? _maxDocuments;
         private long? _maxSize;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private bool? _noPadding;
         private BsonDocument _storageEngine;
+        private TimeSeriesOptions _timeSeriesOptions;
         private bool? _usePowerOf2Sizes;
         private DocumentValidationAction? _validationAction;
         private DocumentValidationLevel? _validationLevel;
@@ -109,6 +110,18 @@ namespace MongoDB.Driver.Core.Operations
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
+        }
+
+        /// <summary>
+        /// Gets or sets the expiration timespan for time-series collections.
+        /// </summary>
+        /// <value>
+        /// The timespan after which to expire documents.
+        /// </value>
+        public TimeSpan? ExpireAfter
+        {
+            get { return _expireAfter; }
+            set { _expireAfter = value; }
         }
 
         /// <summary>
@@ -180,10 +193,22 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <summary>
+        /// Gets or sets the <see cref="TimeSeriesOptions"/> to use when creating a time series collection.
+        /// </summary>
+        /// <value>
+        /// The time series options.
+        /// </value>
+        public TimeSeriesOptions TimeSeriesOptions
+        {
+            get { return _timeSeriesOptions; }
+            set { _timeSeriesOptions = value; }
+        }
+
+        /// <summary>
         /// Gets or sets a value indicating whether the collection should use power of 2 sizes.
         /// </summary>
         /// <value>
-        /// A value indicating whether the collection should use power of 2 sizes..
+        /// A value indicating whether the collection should use power of 2 sizes.
         /// </value>
         public bool? UsePowerOf2Sizes
         {
@@ -261,7 +286,9 @@ namespace MongoDB.Driver.Core.Operations
                 { "validationAction", () => _validationAction.Value.ToString().ToLowerInvariant(), _validationAction.HasValue },
                 { "validationLevel", () => _validationLevel.Value.ToString().ToLowerInvariant(), _validationLevel.HasValue },
                 { "collation", () => _collation.ToBsonDocument(), _collation != null },
-                { "writeConcern", writeConcern, writeConcern != null }
+                { "writeConcern", writeConcern, writeConcern != null },
+                { "expireAfterSeconds", () => _expireAfter.Value.TotalSeconds, _expireAfter.HasValue },
+                { "timeseries", () => _timeSeriesOptions.ToBsonDocument(), _timeSeriesOptions != null }
             };
         }
 
