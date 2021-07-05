@@ -195,6 +195,9 @@ namespace MongoDB.Driver.Core.Operations
         /// <summary>
         /// Gets or sets the <see cref="TimeSeriesOptions"/> to use when creating a time series collection.
         /// </summary>
+        /// <value>
+        /// The time series options.
+        /// </value>
         public TimeSeriesOptions TimeSeriesOptions
         {
             get { return _timeSeriesOptions; }
@@ -205,7 +208,7 @@ namespace MongoDB.Driver.Core.Operations
         /// Gets or sets a value indicating whether the collection should use power of 2 sizes.
         /// </summary>
         /// <value>
-        /// A value indicating whether the collection should use power of 2 sizes..
+        /// A value indicating whether the collection should use power of 2 sizes.
         /// </value>
         public bool? UsePowerOf2Sizes
         {

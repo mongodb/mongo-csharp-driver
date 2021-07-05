@@ -32,7 +32,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="timeField">The name of the top-level field to be used for time.</param>
         /// <param name="metaField">The name of the top-level field describing the series upon which related data will be grouped.</param>
-        /// <param name="granularity">The <see cref="Granularity"/> for the time series.</param>
+        /// <param name="granularity">The <see cref="TimeSeriesGranularity"/> for the time series.</param>
         public TimeSeriesOptions(string timeField, Optional<string> metaField = default, Optional<TimeSeriesGranularity?> granularity = default)
         {
             _timeField = Ensure.IsNotNullOrEmpty(timeField, nameof(timeField));
@@ -46,12 +46,12 @@ namespace MongoDB.Driver
         public TimeSeriesGranularity? Granularity => _granularity;
 
         /// <summary>
-        ///  The name of the field which contains metadata in each time-series document.
+        /// The name of the field which contains metadata in each time-series document.
         /// </summary>
         public string MetaField => _metaField;
 
         /// <summary>
-        /// The name of the field which contains the date in each time-series document.
+        /// The name of the field which contains the date and time in each time-series document.
         /// </summary>
         public string TimeField => _timeField;
 

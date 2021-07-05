@@ -1,4 +1,4 @@
-﻿/* Copyright 2018-present MongoDB Inc.
+﻿/* Copyright 2021-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -36,14 +36,16 @@ namespace MongoDB.Driver
         public void constructor_with_null_timeField_should_throw()
         {
             const string timeField = null;
-            Assert.Throws<ArgumentNullException>(() => new TimeSeriesOptions(timeField));
+            var exception = Record.Exception(() => new TimeSeriesOptions(timeField));
+            exception.Should().BeOfType<ArgumentNullException>();
         }
 
         [Fact]
         public void constructor_with_empty_string_timeField_should_throw()
         {
             const string timeField = "";
-            Assert.Throws<ArgumentException>(() => new TimeSeriesOptions(timeField));
+            var exception = Record.Exception(() => new TimeSeriesOptions(timeField));
+            exception.Should().BeOfType<ArgumentException>();
         }
 
         [Fact]
