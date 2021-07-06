@@ -471,12 +471,14 @@ namespace MongoDB.Driver.Core.Clusters
                         {
                             connectionModeSwitch = ConnectionModeSwitch.UseConnectionMode;
                             connectionMode = ClusterConnectionMode.Standalone;
-                        } break;
+                        }
+                        break;
                     case "DirectConnection":
                         {
                             connectionModeSwitch = ConnectionModeSwitch.UseDirectConnection;
                             directConnection = true;
-                        } break;
+                        }
+                        break;
                     case "DnsMonitorException": dnsMonitorException = new Exception(); break;
                     case "Type": type = ClusterType.Unknown; break;
                     case "Servers": servers = new[] { __serverDescription1 }; break;

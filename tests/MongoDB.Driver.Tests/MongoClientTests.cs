@@ -407,6 +407,7 @@ namespace MongoDB.Driver.Tests
         [InlineData("{ connectionMode : 'Direct', clusterType : 'ReplicaSet', servers : [ { state : 'Connected', type : 'ReplicaSetPrimary', logicalSessionTimeoutMinutes : 30 } ] }", true)]
         [InlineData("{ directConnection : true, clusterType : 'ReplicaSet', servers : [ { state : 'Connected', type : 'ReplicaSetPrimary', logicalSessionTimeoutMinutes : 30 } ] }", true)]
         [InlineData("{ directConnection : false, clusterType : 'ReplicaSet', servers : [ { state : 'Connected', type : 'ReplicaSetPrimary', logicalSessionTimeoutMinutes : 30 } ] }", true)]
+        [InlineData("{ directConnection : false, clusterType : 'LoadBalanced', servers : [ { state : 'Connected', type : 'ReplicaSetPrimary' } ] }", true)]
         public void AreSessionsSupported_should_return_expected_result(string clusterDescriptionJson, bool? expectedResult)
         {
             var subject = new MongoClient("mongodb://localhost");

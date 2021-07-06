@@ -124,9 +124,10 @@ namespace MongoDB.Driver.Tests
             Action<MongoClientSettings> clientSettingsConfigurator = null,
             bool useMultipleShardRouters = false)
         {
-            if (CoreTestConfiguration.Cluster.Description.Type != ClusterType.Sharded)
+            var clusterType = CoreTestConfiguration.Cluster.Description.Type;
+            if (clusterType != ClusterType.Sharded && clusterType != ClusterType.LoadBalanced)
             {
-                // This option has no effect for non-sharded topologies.
+                // This option has no effect for non-sharded/load balanced topologies.
                 useMultipleShardRouters = false;
             }
 

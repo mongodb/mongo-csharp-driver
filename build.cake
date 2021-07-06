@@ -334,6 +334,38 @@ Task("TestGssapiNetStandard15").IsDependentOn("TestGssapi");
 Task("TestGssapiNetStandard20").IsDependentOn("TestGssapi");
 Task("TestGssapiNetStandard21").IsDependentOn("TestGssapi");
 
+Task("TestLoadBalanced")
+    .IsDependentOn("Build")
+    .DoesForEach(
+        GetFiles("./**/*.Tests.csproj"),
+        testProject =>
+     {
+        var settings = new DotNetCoreTestSettings
+        {
+            NoBuild = true,
+            NoRestore = true,
+            Configuration = configuration,
+            ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64"),
+            Filter = "Category=\"SupportLoadBalancing\""
+        };
+
+        switch (target.ToLowerInvariant())
+        {
+            case "testloadbalancednetstandard15": settings.Framework = "netcoreapp1.1"; break;
+            case "testloadbalancednetstandard20": settings.Framework = "netcoreapp2.1"; break;
+            case "testloadbalancednetstandard21": settings.Framework = "netcoreapp3.0"; break;
+        }
+
+        DotNetCoreTest(
+            testProject.FullPath,
+            settings
+        );
+     });
+ 
+Task("TestLoadBalancedNetStandard15").IsDependentOn("TestLoadBalanced");
+Task("TestLoadBalancedNetStandard20").IsDependentOn("TestLoadBalanced");
+Task("TestLoadBalancedNetStandard21").IsDependentOn("TestLoadBalanced");
+
 Task("Docs")
     .IsDependentOn("ApiDocs")
     .IsDependentOn("RefDocs");

@@ -30,12 +30,33 @@ using MongoDB.Driver.Core.Authentication;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.WireProtocol.Messages;
+using Moq;
 
 namespace MongoDB.Driver.Core.Connections
 {
     public class ConnectionInitializerTests
     {
         private static readonly ServerId __serverId = new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27017));
+
+        [Theory]
+        [ParameterAttributeData]
+        public void ConnectionAuthentication_should_throw_an_ArgumentNullException_if_required_arguments_missed(
+            [Values(false, true)] bool async)
+        {
+            var mockConnectionDescription = new ConnectionDescription(new ConnectionId(__serverId), new IsMasterResult(new BsonDocument()), new BuildInfoResult(new BsonDocument("version", "0.0.0")));
+            var subject = CreateSubject();
+            if (async)
+            {
+                Record.Exception(() => subject.AuthenticateAsync(null, mockConnectionDescription, CancellationToken.None).GetAwaiter().GetResult()).Should().BeOfType<ArgumentNullException>();
+                Record.Exception(() => subject.AuthenticateAsync(Mock.Of<IConnection>(), null, CancellationToken.None).GetAwaiter().GetResult()).Should().BeOfType<ArgumentNullException>();
+            }
+            else
+            {
+                Record.Exception(() => subject.Authenticate(null, mockConnectionDescription, CancellationToken.None)).Should().BeOfType<ArgumentNullException>();
+                Record.Exception(() => subject.Authenticate(Mock.Of<IConnection>(), null, CancellationToken.None)).Should().BeOfType<ArgumentNullException>();
+            }
+        }
+
 
         [Theory]
         [ParameterAttributeData]
@@ -47,8 +68,8 @@ namespace MongoDB.Driver.Core.Connections
                 source: "Pathfinder", username: "Barclay", password: "Barclay-Alpha-1-7-Gamma");
             var authenticator = CreateAuthenticator(authenticatorType, credentials);
 
-            var subject = new ConnectionInitializer("test", new[] { new CompressorConfiguration(CompressorType.Zlib) }, serverApi: null);
-            var helloDocument = subject.CreateInitialHelloCommand(new[] { authenticator });
+            var subject = CreateSubject();
+            var helloDocument = subject.CreateInitialHelloCommand(new[] { authenticator }, false);
 
             helloDocument.Should().Contain("isMaster");
             helloDocument.Should().Contain("speculativeAuthenticate");
@@ -71,7 +92,7 @@ namespace MongoDB.Driver.Core.Connections
             var authenticator = CreateAuthenticator(authenticatorType, credentials);
 
             var subject = new ConnectionInitializer("test", new[] { new CompressorConfiguration(CompressorType.Zlib) }, serverApi: new ServerApi(ServerApiVersion.V1));
-            var helloDocument = subject.CreateInitialHelloCommand(new[] { authenticator });
+            var helloDocument = subject.CreateInitialHelloCommand(new[] { authenticator }, false);
 
             helloDocument.Should().Contain("hello");
             helloDocument.Should().Contain("speculativeAuthenticate");
@@ -85,6 +106,18 @@ namespace MongoDB.Driver.Core.Connections
 
         [Theory]
         [ParameterAttributeData]
+        public void Handshake_should_throw_an_ArgumentNullException_if_the_connection_is_null(
+            [Values(false, true)] bool async)
+        {
+            var subject = CreateSubject();
+            var exception = async
+                ? Record.Exception(() => subject.SendHelloAsync(null, CancellationToken.None).GetAwaiter().GetResult())
+                : Record.Exception(() => subject.SendHello(null, CancellationToken.None));
+            exception.Should().BeOfType<ArgumentNullException>();
+        }
+
+        [Theory]
+        [ParameterAttributeData]
         public void InitializeConnection_should_acquire_connectionId_from_hello_response([Values(false, true)] bool async)
         {
             var helloReply = MessageHelper.BuildCommandResponse(RawBsonDocumentHelper.FromJson("{ ok : 1, connectionId : 1 }"));
@@ -94,16 +127,8 @@ namespace MongoDB.Driver.Core.Connections
             connection.EnqueueCommandResponseMessage(helloReply);
             connection.EnqueueCommandResponseMessage(buildInfoReply);
 
-            var subject = new ConnectionInitializer("test", new[] { new CompressorConfiguration(CompressorType.Zlib) }, serverApi: new ServerApi(ServerApiVersion.V1));
-            ConnectionDescription result;
-            if (async)
-            {
-                result = subject.InitializeConnectionAsync(connection, CancellationToken.None).GetAwaiter().GetResult();
-            }
-            else
-            {
-                result = subject.InitializeConnection(connection, CancellationToken.None);
-            }
+            var subject = CreateSubject(withServerApi: true);
+            var result = InitializeConnection(subject, connection, async, CancellationToken.None);
 
             var sentMessages = connection.GetSentMessages();
             sentMessages.Should().HaveCount(2);
@@ -123,16 +148,8 @@ namespace MongoDB.Driver.Core.Connections
             connection.EnqueueReplyMessage(legacyHelloReply);
             connection.EnqueueReplyMessage(buildInfoReply);
 
-            var subject = new ConnectionInitializer("test", new[] { new CompressorConfiguration(CompressorType.Zlib) }, serverApi: null);
-            ConnectionDescription result;
-            if (async)
-            {
-                result = subject.InitializeConnectionAsync(connection, CancellationToken.None).GetAwaiter().GetResult();
-            }
-            else
-            {
-                result = subject.InitializeConnection(connection, CancellationToken.None);
-            }
+            var subject = CreateSubject();
+            var result = InitializeConnection(subject, connection, async, CancellationToken.None);
 
             var sentMessages = connection.GetSentMessages();
             sentMessages.Should().HaveCount(2);
@@ -157,18 +174,11 @@ namespace MongoDB.Driver.Core.Connections
             connection.EnqueueReplyMessage(legacyHelloReply);
             connection.EnqueueReplyMessage(buildInfoReply);
 
-            var subject = new ConnectionInitializer("test", new[] { new CompressorConfiguration(CompressorType.Zlib) }, serverApi: null);
+            var subject = CreateSubject();
             // We expect authentication to fail since we have not enqueued the expected authentication replies
             try
             {
-                if (async)
-                {
-                    subject.InitializeConnectionAsync(connection, CancellationToken.None).GetAwaiter().GetResult();
-                }
-                else
-                {
-                    subject.InitializeConnection(connection, CancellationToken.None);
-                }
+                _ = InitializeConnection(subject, connection, async, CancellationToken.None);
             }
             catch (InvalidOperationException ex)
             {
@@ -187,25 +197,6 @@ namespace MongoDB.Driver.Core.Connections
             speculativeAuthenticateDocument["db"].Should().Be(new BsonString(credentials.Source));
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void InitializeConnection_should_throw_an_ArgumentNullException_if_the_connection_is_null(
-            [Values(false, true)]
-            bool async)
-        {
-            var subject = new ConnectionInitializer("test", new[] { new CompressorConfiguration(CompressorType.Zlib) }, serverApi: null);
-            Action act;
-            if (async)
-            {
-                act = () => subject.InitializeConnectionAsync(null, CancellationToken.None).GetAwaiter().GetResult();
-            }
-            else
-            {
-                act = () => subject.InitializeConnection(null, CancellationToken.None);
-            }
-
-            act.ShouldThrow<ArgumentNullException>();
-        }
 
         [Theory]
         [ParameterAttributeData]
@@ -221,15 +212,7 @@ namespace MongoDB.Driver.Core.Connections
 
             var subject = new ConnectionInitializer("test", new[] { new CompressorConfiguration(CompressorType.Zlib) }, serverApi);
 
-            ConnectionDescription result;
-            if (async)
-            {
-                result = subject.InitializeConnectionAsync(connection, CancellationToken.None).GetAwaiter().GetResult();
-            }
-            else
-            {
-                result = subject.InitializeConnection(connection, CancellationToken.None);
-            }
+            var result = InitializeConnection(subject, connection, async, CancellationToken.None);
 
             result.ConnectionId.ServerValue.Should().Be(1);
 
@@ -260,17 +243,9 @@ namespace MongoDB.Driver.Core.Connections
             var buildInfoReply = RawBsonDocumentHelper.FromJson("{ ok : 1, version : \"4.2.0\" }");
             connection.EnqueueReplyMessage(MessageHelper.BuildReply(buildInfoReply));
 
-            var subject = new ConnectionInitializer("test", new[] { new CompressorConfiguration(CompressorType.Zlib) }, null);
+            var subject = CreateSubject();
 
-            ConnectionDescription result;
-            if (async)
-            {
-                result = subject.InitializeConnectionAsync(connection, CancellationToken.None).GetAwaiter().GetResult();
-            }
-            else
-            {
-                result = subject.InitializeConnection(connection, CancellationToken.None);
-            }
+            var result = InitializeConnection(subject, connection, async, CancellationToken.None);
 
             result.ConnectionId.ServerValue.Should().Be(1);
 
@@ -291,7 +266,7 @@ namespace MongoDB.Driver.Core.Connections
 
         [Theory]
         [ParameterAttributeData]
-        public void InitializeConnectionA_should_build_the_ConnectionDescription_correctly(
+        public void InitializeConnection_should_build_the_ConnectionDescription_correctly(
             [Values("noop", "zlib", "snappy", "zstd")] string compressorType,
             [Values(false, true)] bool async)
         {
@@ -307,16 +282,8 @@ namespace MongoDB.Driver.Core.Connections
             connection.EnqueueReplyMessage(buildInfoReply);
             connection.EnqueueReplyMessage(gleReply);
 
-            var subject = new ConnectionInitializer("test", new[] { new CompressorConfiguration(CompressorType.Zlib) }, serverApi: null);
-            ConnectionDescription result;
-            if (async)
-            {
-                result = subject.InitializeConnectionAsync(connection, CancellationToken.None).GetAwaiter().GetResult();
-            }
-            else
-            {
-                result = subject.InitializeConnection(connection, CancellationToken.None);
-            }
+            var subject = CreateSubject();
+            var result = InitializeConnection(subject, connection, async, CancellationToken.None);
 
             result.ServerVersion.Should().Be(new SemanticVersion(2, 6, 3));
             result.ConnectionId.ServerValue.Should().Be(10);
@@ -337,6 +304,7 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
+        // private methods
         private IAuthenticator CreateAuthenticator(string authenticatorType, UsernamePasswordCredential credentials)
         {
             switch (authenticatorType)
@@ -351,13 +319,32 @@ namespace MongoDB.Driver.Core.Connections
                     throw new Exception("Invalid authenticator type.");
             }
         }
+
+        private ConnectionInitializer CreateSubject(bool withServerApi = false) =>
+            new ConnectionInitializer("test", new[] { new CompressorConfiguration(CompressorType.Zlib) }, serverApi: withServerApi ? new ServerApi(ServerApiVersion.V1) : null);
+
+        private ConnectionDescription InitializeConnection(ConnectionInitializer connectionInitializer, IConnection connection, bool async, CancellationToken cancellationToken)
+        {
+            ConnectionDescription result;
+            if (async)
+            {
+                result = connectionInitializer.SendHelloAsync(connection, cancellationToken).GetAwaiter().GetResult();
+                return connectionInitializer.AuthenticateAsync(connection, result, cancellationToken).GetAwaiter().GetResult();
+            }
+            else
+            {
+                result = connectionInitializer.SendHello(connection, cancellationToken);
+                return connectionInitializer.Authenticate(connection, result, cancellationToken);
+            }
+        }
     }
 
     internal static class ConnectionInitializerReflector
     {
         public static BsonDocument CreateInitialHelloCommand(
             this ConnectionInitializer initializer,
-            IReadOnlyList<IAuthenticator> authenticators) =>
-                (BsonDocument)Reflector.Invoke(initializer, nameof(CreateInitialHelloCommand), authenticators);
+            IReadOnlyList<IAuthenticator> authenticators,
+            bool loadBalanced) =>
+                (BsonDocument)Reflector.Invoke(initializer, nameof(CreateInitialHelloCommand), authenticators, loadBalanced);
     }
 }

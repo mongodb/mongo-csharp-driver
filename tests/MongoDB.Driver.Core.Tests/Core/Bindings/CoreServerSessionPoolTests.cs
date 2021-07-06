@@ -18,10 +18,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Clusters.ServerSelectors;
+using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
+using MongoDB.Libmongocrypt;
 using Moq;
 using Xunit;
 
@@ -199,6 +205,21 @@ namespace MongoDB.Driver.Tests
             }
         }
 
+        [Fact]
+        public void IsAboutToExpire_should_never_expire_in_load_balancing_mode()
+        {
+            var subject = CreateSubject();
+            var mockedCluster = new TestCluster(ClusterType.LoadBalanced);
+            var mockedServerSessionPool = new CoreServerSessionPool(mockedCluster);
+            var mockSession = new Mock<ICoreServerSession>();
+            var lastUsedAt = DateTime.UtcNow.AddSeconds(1741);
+            mockSession.SetupGet(m => m.LastUsedAt).Returns(lastUsedAt);
+
+            var result = mockedServerSessionPool.IsAboutToExpire(mockSession.Object);
+
+            result.Should().BeFalse();
+        }
+
         [Theory]
         [InlineData(null, true)]
         [InlineData(1741, true)]
@@ -262,6 +283,33 @@ namespace MongoDB.Driver.Tests
             mockCluster.SetupGet(m => m.Description).Returns(clusterDescription);
 
             return new CoreServerSessionPool(mockCluster.Object);
+        }
+
+        private class TestCluster : ICluster
+        {
+            public TestCluster(ClusterType clusterType)
+            {
+#pragma warning disable CS0618 // Type or member is obsolete
+                Description = new ClusterDescription(new ClusterId(), ClusterConnectionMode.Automatic, clusterType, Enumerable.Empty<ServerDescription>());
+#pragma warning restore CS0618 // Type or member is obsolete
+            }
+
+            public ClusterId ClusterId => throw new NotImplementedException();
+
+            public ClusterDescription Description { get; }
+
+            public ClusterSettings Settings => throw new NotImplementedException();
+
+            public CryptClient CryptClient => throw new NotImplementedException();
+
+            public event EventHandler<ClusterDescriptionChangedEventArgs> DescriptionChanged;
+
+            public ICoreServerSession AcquireServerSession() => throw new NotImplementedException();
+            public void Dispose() => throw new NotImplementedException();
+            public void Initialize() => DescriptionChanged?.Invoke(this, new ClusterDescriptionChangedEventArgs(Description, Description));
+            public IServer SelectServer(IServerSelector selector, CancellationToken cancellationToken) => throw new NotImplementedException();
+            public Task<IServer> SelectServerAsync(IServerSelector selector, CancellationToken cancellationToken) => throw new NotImplementedException();
+            public ICoreSessionHandle StartSession(CoreSessionOptions options = null) => throw new NotImplementedException();
         }
     }
 

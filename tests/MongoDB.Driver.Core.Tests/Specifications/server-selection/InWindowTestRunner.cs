@@ -103,8 +103,8 @@ namespace MongoDB.Driver.Specifications.server_selection
 
             var mockServerFactory = new Mock<IClusterableServerFactory>();
             mockServerFactory
-                .Setup(s => s.CreateServer(It.IsAny<ClusterId>(), It.IsAny<IClusterClock>(), It.IsAny<EndPoint>()))
-                .Returns<ClusterId, IClusterClock, EndPoint>((_, _, endpoint) =>
+                .Setup(s => s.CreateServer(It.IsAny<ClusterType>(), It.IsAny<ClusterId>(), It.IsAny<IClusterClock>(), It.IsAny<EndPoint>()))
+                .Returns<ClusterType, ClusterId, IClusterClock, EndPoint>((_, _, _, endpoint) =>
                 {
                     var serverDescription = clusterDescription.Servers
                         .Single(s => s.EndPoint == endpoint).

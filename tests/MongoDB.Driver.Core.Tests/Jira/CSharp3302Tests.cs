@@ -79,7 +79,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
 
             var serverFactoryMock = new Mock<IClusterableServerFactory>();
             serverFactoryMock
-                .Setup(f => f.CreateServer(It.IsAny<ClusterId>(), It.IsAny<IClusterClock>(), It.IsAny<EndPoint>()))
+                .Setup(f => f.CreateServer(It.IsAny<ClusterType>(), It.IsAny<ClusterId>(), It.IsAny<IClusterClock>(), It.IsAny<EndPoint>()))
                 .Returns(serverMock.Object);
 
             using (var cluster = new MultiServerCluster(clusterSettings, serverFactoryMock.Object, new EventCapturer()))

@@ -21,6 +21,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Specifications.crud
 {
+    [Trait("Category", "SupportLoadBalancing")]
     public sealed class CrudUnifiedTestRunner
     {
         [SkippableTheory]

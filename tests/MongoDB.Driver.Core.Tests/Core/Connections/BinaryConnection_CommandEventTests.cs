@@ -79,7 +79,12 @@ namespace MongoDB.Driver.Core.Connections
             var serverId = new ServerId(new ClusterId(), _endPoint);
 
             _mockConnectionInitializer = new Mock<IConnectionInitializer>();
-            _mockConnectionInitializer.Setup(i => i.InitializeConnectionAsync(It.IsAny<IConnection>(), CancellationToken.None))
+            _mockConnectionInitializer.Setup(i => i.SendHelloAsync(It.IsAny<IConnection>(), CancellationToken.None))
+                .Returns(() => Task.FromResult(new ConnectionDescription(
+                    new ConnectionId(serverId),
+                    new IsMasterResult(new BsonDocument()),
+                    new BuildInfoResult(new BsonDocument("version", "2.6.3")))));
+            _mockConnectionInitializer.Setup(i => i.AuthenticateAsync(It.IsAny<IConnection>(), It.IsAny<ConnectionDescription>(), CancellationToken.None))
                 .Returns(() => Task.FromResult(new ConnectionDescription(
                     new ConnectionId(serverId),
                     new IsMasterResult(new BsonDocument()),

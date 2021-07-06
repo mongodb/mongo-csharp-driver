@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Core.Operations
         // private static methods
         private static BsonDocument ToBsonDocument(ICoreSession session, ConnectionDescription connectionDescription, ReadConcern readConcern)
         {
-            var sessionsAreSupported = connectionDescription.IsMasterResult.LogicalSessionTimeout != null;
+            var sessionsAreSupported = connectionDescription.IsMasterResult.LogicalSessionTimeout != null || connectionDescription.ServiceId.HasValue;
             var shouldSendAfterClusterTime = sessionsAreSupported && session.IsCausallyConsistent && session.OperationTime != null;
             var shouldSendReadConcern = !readConcern.IsServerDefault || shouldSendAfterClusterTime;
 

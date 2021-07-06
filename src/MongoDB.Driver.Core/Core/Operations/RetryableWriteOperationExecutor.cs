@@ -135,9 +135,10 @@ namespace MongoDB.Driver.Core.Operations
 
         private static bool AreRetryableWritesSupported(ConnectionDescription connectionDescription)
         {
+            var isMasterResult = connectionDescription.IsMasterResult;
             return
-                connectionDescription.IsMasterResult.LogicalSessionTimeout != null &&
-                connectionDescription.IsMasterResult.ServerType != ServerType.Standalone;
+                isMasterResult.ServerType == ServerType.LoadBalanced ||
+                (isMasterResult.LogicalSessionTimeout != null && isMasterResult.ServerType != ServerType.Standalone);
         }
 
         private static bool DoesContextAllowRetries(RetryableWriteContext context)

@@ -45,8 +45,8 @@ namespace MongoDB.Driver.Core.Clusters
         {
             _settings = new ClusterSettings(serverSelectionTimeout: TimeSpan.FromSeconds(2));
             _mockServerFactory = new Mock<IClusterableServerFactory>();
-            _mockServerFactory.Setup(f => f.CreateServer(It.IsAny<ClusterId>(), It.IsAny<IClusterClock>(), It.IsAny<EndPoint>()))
-                .Returns((ClusterId clusterId, IClusterClock clusterClock, EndPoint endPoint) =>
+            _mockServerFactory.Setup(f => f.CreateServer(It.IsAny<ClusterType>(), It.IsAny<ClusterId>(), It.IsAny<IClusterClock>(), It.IsAny<EndPoint>()))
+                .Returns((ClusterType _, ClusterId _, IClusterClock _, EndPoint endPoint) =>
                 {
                     var mockServer = new Mock<IClusterableServer>();
                     mockServer.SetupGet(s => s.EndPoint).Returns(endPoint);
@@ -440,8 +440,8 @@ namespace MongoDB.Driver.Core.Clusters
             [Values(false, true)]
             bool async)
         {
-            _mockServerFactory.Setup(f => f.CreateServer(It.IsAny<ClusterId>(), It.IsAny<IClusterClock>(), It.IsAny<EndPoint>()))
-                .Returns((ClusterId _, IClusterClock clusterClock, EndPoint endPoint) =>
+            _mockServerFactory.Setup(f => f.CreateServer(It.IsAny<ClusterType>(), It.IsAny<ClusterId>(), It.IsAny<IClusterClock>(), It.IsAny<EndPoint>()))
+                .Returns((ClusterType _, ClusterId _, IClusterClock clusterClock, EndPoint endPoint) =>
                 {
                     var mockServer = new Mock<IClusterableServer>();
                     mockServer.SetupGet(s => s.EndPoint).Returns(endPoint);

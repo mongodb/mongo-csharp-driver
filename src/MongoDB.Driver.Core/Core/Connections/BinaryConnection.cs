@@ -283,18 +283,22 @@ namespace MongoDB.Driver.Core.Connections
         private void OpenHelper(CancellationToken cancellationToken)
         {
             var helper = new OpenConnectionHelper(this);
+
+            ConnectionDescription handshakeDescription = null;
             try
             {
                 helper.OpeningConnection();
                 _stream = _streamFactory.CreateStream(_endPoint, cancellationToken);
                 helper.InitializingConnection();
-                _description = _connectionInitializer.InitializeConnection(this, cancellationToken);
+                handshakeDescription = _connectionInitializer.SendHello(this, cancellationToken);
+                _description = _connectionInitializer.Authenticate(this, handshakeDescription, cancellationToken);
                 _sendCompressorType = ChooseSendCompressorTypeIfAny(_description);
 
                 helper.OpenedConnection();
             }
             catch (Exception ex)
             {
+                _description ??= handshakeDescription;
                 var wrappedException = WrapException(ex, "opening a connection to the server");
                 helper.FailedOpeningConnection(wrappedException);
                 throw wrappedException;
@@ -304,18 +308,22 @@ namespace MongoDB.Driver.Core.Connections
         private async Task OpenHelperAsync(CancellationToken cancellationToken)
         {
             var helper = new OpenConnectionHelper(this);
+
+            ConnectionDescription handshakeDescription = null;
             try
             {
                 helper.OpeningConnection();
                 _stream = await _streamFactory.CreateStreamAsync(_endPoint, cancellationToken).ConfigureAwait(false);
                 helper.InitializingConnection();
-                _description = await _connectionInitializer.InitializeConnectionAsync(this, cancellationToken).ConfigureAwait(false);
+                handshakeDescription = await _connectionInitializer.SendHelloAsync(this, cancellationToken).ConfigureAwait(false);
+                _description = await _connectionInitializer.AuthenticateAsync(this, handshakeDescription, cancellationToken).ConfigureAwait(false);
                 _sendCompressorType = ChooseSendCompressorTypeIfAny(_description);
 
                 helper.OpenedConnection();
             }
             catch (Exception ex)
             {
+                _description ??= handshakeDescription;
                 var wrappedException = WrapException(ex, "opening a connection to the server");
                 helper.FailedOpeningConnection(wrappedException);
                 throw wrappedException;

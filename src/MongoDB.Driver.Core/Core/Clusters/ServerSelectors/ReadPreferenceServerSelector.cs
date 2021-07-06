@@ -90,6 +90,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
                 case ClusterType.Sharded: return SelectForShardedCluster(servers);
                 case ClusterType.Standalone: return SelectForStandaloneCluster(servers);
                 case ClusterType.Unknown: return __noServers;
+                case ClusterType.LoadBalanced: return SelectForLoadBalancedCluster(servers);
                 default:
                     var message = string.Format("ReadPreferenceServerSelector is not implemented for cluster of type: {0}.", cluster.Type);
                     throw new NotImplementedException(message);
@@ -182,6 +183,11 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
         private IEnumerable<ServerDescription> SelectForStandaloneCluster(IEnumerable<ServerDescription> servers)
         {
             return servers.Where(n => n.Type == ServerType.Standalone); // standalone servers match any ReadPreference (to facilitate testing)
+        }
+
+        private IEnumerable<ServerDescription> SelectForLoadBalancedCluster(IEnumerable<ServerDescription> servers)
+        {
+            return servers.Where(n => n.Type == ServerType.LoadBalanced);
         }
 
         private List<ServerDescription> SelectPrimary(IEnumerable<ServerDescription> servers)

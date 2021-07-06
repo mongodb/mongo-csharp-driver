@@ -32,7 +32,8 @@ namespace MongoDB.Driver.Specifications.server_selection
             ReplicaSetNoPrimary,
             Sharded,
             Single,
-            Unknown
+            Unknown,
+            LoadBalanced
         }
 
         private enum ServerTypeTest
@@ -44,7 +45,8 @@ namespace MongoDB.Driver.Specifications.server_selection
            RSOther = ServerType.ReplicaSetOther,
            Mongos = ServerType.ShardRouter,
            Standalone = ServerType.Standalone,
-           Unknown = ServerType.Unknown
+           Unknown = ServerType.Unknown,
+           LoadBalancer = ServerType.LoadBalanced
         }
 
         public enum ServerTagTest
@@ -105,6 +107,7 @@ namespace MongoDB.Driver.Specifications.server_selection
                 ClusterTypeTest.Sharded => (ClusterType.Sharded, ClusterConnectionMode.Sharded),
                 ClusterTypeTest.Single => (ClusterType.Standalone, ClusterConnectionMode.Standalone),
                 ClusterTypeTest.Unknown => (ClusterType.Unknown, ClusterConnectionMode.Automatic),
+                ClusterTypeTest.LoadBalanced => (ClusterType.LoadBalanced, ClusterConnectionMode.Automatic),
                 _ => throw new NotSupportedException($"Unknown topology type: {topologyDescription.type}")
             };
 #pragma warning restore CS0618 // Type or member is obsolete

@@ -32,6 +32,16 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
 {
     public class RetryableWriteOperationExecutorTests
     {
+        [Fact]
+        public void AreRetryableWritesSupportedTest()
+        {
+            var connectionDescription = CreateConnectionDescription(withLogicalSessionTimeout: false, serviceId: true);
+
+            var result = RetryableWriteOperationExecutorReflector.AreRetryableWritesSupported(connectionDescription);
+
+            result.Should().BeTrue();
+        }
+
         [Theory]
         [InlineData(false, false, false, false, false)]
         [InlineData(false, false, false, true, false)]
@@ -94,7 +104,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
         private IChannelHandle CreateChannel(bool areRetryableWritesSupported)
         {
             var mockChannel = new Mock<IChannelHandle>();
-            var connectionDescription = CreateConnectionDescription(areRetryableWritesSupported);
+            var connectionDescription = CreateConnectionDescription(withLogicalSessionTimeout: areRetryableWritesSupported);
             mockChannel.SetupGet(m => m.ConnectionDescription).Returns(connectionDescription);
             return mockChannel.Object;
         }
@@ -107,17 +117,21 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
             return mockChannelSource.Object;
         }
 
-        private ConnectionDescription CreateConnectionDescription(bool areRetryableWritesSupported)
+        private ConnectionDescription CreateConnectionDescription(bool withLogicalSessionTimeout, bool? serviceId = null)
         {
             var clusterId = new ClusterId(1);
             var endPoint = new DnsEndPoint("localhost", 27017);
             var serverId = new ServerId(clusterId, endPoint);
             var connectionId = new ConnectionId(serverId, 1);
             var isMasterResultDocument = BsonDocument.Parse("{ ok : 1 }");
-            if (areRetryableWritesSupported)
+            if (withLogicalSessionTimeout)
             {
                 isMasterResultDocument["logicalSessionTimeoutMinutes"] = 1;
                 isMasterResultDocument["msg"] = "isdbgrid"; // mongos
+            }
+            if (serviceId.HasValue)
+            {
+                isMasterResultDocument["serviceId"] = ObjectId.Empty; // load balancing mode
             }
             var isMasterResult = new IsMasterResult(isMasterResultDocument);
             var buildInfoResult = new BuildInfoResult(BsonDocument.Parse("{ ok : 1, version : '4.2.0' }"));
@@ -151,6 +165,11 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
     // nested types
     public static class RetryableWriteOperationExecutorReflector
     {
+        public static bool AreRetryableWritesSupported(ConnectionDescription connectionDescription)
+        {
+            return (bool)Reflector.InvokeStatic(typeof(RetryableWriteOperationExecutor), nameof(AreRetryableWritesSupported), connectionDescription);
+        }
+
         public static bool DoesContextAllowRetries(RetryableWriteContext context) =>
             (bool)Reflector.InvokeStatic(typeof(RetryableWriteOperationExecutor), nameof(DoesContextAllowRetries), context);
 

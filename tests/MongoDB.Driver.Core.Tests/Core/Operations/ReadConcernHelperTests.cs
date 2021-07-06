@@ -27,6 +27,21 @@ namespace MongoDB.Driver.Core.Operations
 {
     public class ReadConcernHelperTests
     {
+        [Fact]
+        public void GetReadConcernForCommand_should_consider_session_supported_when_logicalSessionTimeoutMinutes_is_null_and_load_balanced_mode()
+        {
+            var session = CreateSession(
+                isInTransaction: false,
+                isCausallyConsistent: true,
+                operationTime: new BsonTimestamp(1234));
+            var connectionDescription = CreateConnectionDescription(logicalSessionTimeoutMinutes: false, serviceId: true);
+            var readConcern = ReadConcern.FromBsonDocument(BsonDocument.Parse("{}"));
+
+            var result = ReadConcernHelper.GetReadConcernForCommand(session, connectionDescription, readConcern);
+
+            result.Should().Be(new BsonDocument("afterClusterTime", new BsonTimestamp(1234)));
+        }
+
         [Theory]
         [InlineData(false, false, null, "{ level : 'majority' }", "{ level : 'majority' }")]
         [InlineData(false, false, 1234, "{ level : 'majority' }", "{ level : 'majority' }")]
@@ -47,7 +62,7 @@ namespace MongoDB.Driver.Core.Operations
                 isInTransaction: isInTransaction,
                 isCausallyConsistent: isCausallyConsistent,
                 operationTime: operationTime.HasValue ? new BsonTimestamp(operationTime.Value) : null);
-            var connectionDescription = CreateConnectionDescription(areSessionsSupported: true);
+            var connectionDescription = CreateConnectionDescription(logicalSessionTimeoutMinutes: true);
             var readConcern = ReadConcern.FromBsonDocument(BsonDocument.Parse(readConcernJson));
 
             var result = ReadConcernHelper.GetReadConcernForCommand(session, connectionDescription, readConcern);
@@ -73,7 +88,7 @@ namespace MongoDB.Driver.Core.Operations
                 currentTransaction: transaction,
                 isCausallyConsistent: isCausallyConsistent,
                 operationTime: operationTime.HasValue ? new BsonTimestamp(operationTime.Value) : null);
-            var connectionDescription = CreateConnectionDescription(areSessionsSupported: true);
+            var connectionDescription = CreateConnectionDescription(logicalSessionTimeoutMinutes: true);
 
             var result = ReadConcernHelper.GetReadConcernForFirstCommandInTransaction(session, connectionDescription);
 
@@ -82,7 +97,8 @@ namespace MongoDB.Driver.Core.Operations
 
         // private methods
         private ConnectionDescription CreateConnectionDescription(
-            bool areSessionsSupported = false)
+            bool logicalSessionTimeoutMinutes = false,
+            bool? serviceId  = null)
         {
             var clusterId = new ClusterId(1);
             var endPoint = new DnsEndPoint("localhost", 27017);
@@ -91,12 +107,13 @@ namespace MongoDB.Driver.Core.Operations
             var isMasterResult = new BsonDocument
             {
                 { "ok", 1 },
-                { "logicalSessionTimeoutMinutes", 30, areSessionsSupported }
+                { "logicalSessionTimeoutMinutes", 30, logicalSessionTimeoutMinutes },
+                { "serviceId", ObjectId.GenerateNewId(), serviceId.HasValue }
             };
             var buildInfoResult = new BsonDocument
             {
                 { "ok", 1 },
-                { "version", areSessionsSupported ? "4.0" : "3.6" }
+                { "version", logicalSessionTimeoutMinutes ? "4.0" : "3.6" }
             };
             return new ConnectionDescription(connectionId, new IsMasterResult(isMasterResult), new BuildInfoResult(buildInfoResult));
         }
