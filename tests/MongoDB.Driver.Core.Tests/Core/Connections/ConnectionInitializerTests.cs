@@ -47,13 +47,13 @@ namespace MongoDB.Driver.Core.Connections
             var subject = CreateSubject();
             if (async)
             {
-                Record.Exception(() => subject.ConnectionAuthenticationAsync(null, mockConnectionDescription, CancellationToken.None).GetAwaiter().GetResult()).Should().BeOfType<ArgumentNullException>();
-                Record.Exception(() => subject.ConnectionAuthenticationAsync(Mock.Of<IConnection>(), null, CancellationToken.None).GetAwaiter().GetResult()).Should().BeOfType<ArgumentNullException>();
+                Record.Exception(() => subject.AuthenticateAsync(null, mockConnectionDescription, CancellationToken.None).GetAwaiter().GetResult()).Should().BeOfType<ArgumentNullException>();
+                Record.Exception(() => subject.AuthenticateAsync(Mock.Of<IConnection>(), null, CancellationToken.None).GetAwaiter().GetResult()).Should().BeOfType<ArgumentNullException>();
             }
             else
             {
-                Record.Exception(() => subject.ConnectionAuthentication(null, mockConnectionDescription, CancellationToken.None)).Should().BeOfType<ArgumentNullException>();
-                Record.Exception(() => subject.ConnectionAuthentication(Mock.Of<IConnection>(), null, CancellationToken.None)).Should().BeOfType<ArgumentNullException>();
+                Record.Exception(() => subject.Authenticate(null, mockConnectionDescription, CancellationToken.None)).Should().BeOfType<ArgumentNullException>();
+                Record.Exception(() => subject.Authenticate(Mock.Of<IConnection>(), null, CancellationToken.None)).Should().BeOfType<ArgumentNullException>();
             }
         }
 
@@ -111,8 +111,8 @@ namespace MongoDB.Driver.Core.Connections
         {
             var subject = CreateSubject();
             var exception = async
-                ? Record.Exception(() => subject.HandshakeAsync(null, CancellationToken.None).GetAwaiter().GetResult())
-                : Record.Exception(() => subject.Handshake(null, CancellationToken.None));
+                ? Record.Exception(() => subject.SendHelloAsync(null, CancellationToken.None).GetAwaiter().GetResult())
+                : Record.Exception(() => subject.SendHello(null, CancellationToken.None));
             exception.Should().BeOfType<ArgumentNullException>();
         }
 
@@ -328,13 +328,13 @@ namespace MongoDB.Driver.Core.Connections
             ConnectionDescription result;
             if (async)
             {
-                result = connectionInitializer.HandshakeAsync(connection, cancellationToken).GetAwaiter().GetResult();
-                return connectionInitializer.ConnectionAuthenticationAsync(connection, result, cancellationToken).GetAwaiter().GetResult();
+                result = connectionInitializer.SendHelloAsync(connection, cancellationToken).GetAwaiter().GetResult();
+                return connectionInitializer.AuthenticateAsync(connection, result, cancellationToken).GetAwaiter().GetResult();
             }
             else
             {
-                result = connectionInitializer.Handshake(connection, cancellationToken);
-                return connectionInitializer.ConnectionAuthentication(connection, result, cancellationToken);
+                result = connectionInitializer.SendHello(connection, cancellationToken);
+                return connectionInitializer.Authenticate(connection, result, cancellationToken);
             }
         }
     }

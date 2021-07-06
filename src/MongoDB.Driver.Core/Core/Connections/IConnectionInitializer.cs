@@ -20,10 +20,9 @@ namespace MongoDB.Driver.Core.Connections
 {
     internal interface IConnectionInitializer
     {
-        ConnectionDescription Handshake(IConnection connection, CancellationToken cancellationToken);
-        ConnectionDescription ConnectionAuthentication(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken);
-
-        Task<ConnectionDescription> HandshakeAsync(IConnection connection, CancellationToken cancellationToken);
-        Task<ConnectionDescription> ConnectionAuthenticationAsync(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken);
+        ConnectionDescription Authenticate(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken);
+        Task<ConnectionDescription> AuthenticateAsync(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken);
+        ConnectionDescription SendHello(IConnection connection, CancellationToken cancellationToken);
+        Task<ConnectionDescription> SendHelloAsync(IConnection connection, CancellationToken cancellationToken);
     }
 }

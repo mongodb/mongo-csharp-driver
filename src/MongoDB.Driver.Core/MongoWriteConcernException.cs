@@ -46,7 +46,6 @@ namespace MongoDB.Driver
 
         private static bool TryMapWriteConcernResultToException(ConnectionId connectionId, WriteConcernResult writeConcernResult, out Exception mappedException)
         {
-            mappedException = null;
             var responseDocument = writeConcernResult?.Response;
             if (responseDocument != null && responseDocument.TryGetValue("writeConcernError", out var writeConcernError))
             {
@@ -60,6 +59,7 @@ namespace MongoDB.Driver
                 }
             }
 
+            mappedException = null;
             return false;
         }
         #endregion

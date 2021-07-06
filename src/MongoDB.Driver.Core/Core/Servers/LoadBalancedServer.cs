@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Core.Servers
 
         protected override void Dispose(bool disposing)
         {
-            // no-opt
+            // no-op
         }
 
         protected override void HandleBeforeHandshakeCompletesException(Exception ex)
@@ -94,7 +94,7 @@ namespace MongoDB.Driver.Core.Servers
             }
         }
 
-        protected override void Initializing()
+        protected override void InitializeSubClass()
         {
             // generate initial server description
             var newDescription = _baseDescription
@@ -111,12 +111,12 @@ namespace MongoDB.Driver.Core.Servers
 
         public override void Invalidate(string reasonInvalidated, bool clearConnectionPool, TopologyVersion topologyVersion)
         {
-            // no-opt
+            // no-op
         }
 
         public override void RequestHeartbeat()
         {
-            // no-opt
+            // no-op
         }
     }
 }

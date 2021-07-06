@@ -46,43 +46,7 @@ namespace MongoDB.Driver.Core.Connections
             _serverApi = serverApi;
         }
 
-        public ConnectionDescription Handshake(IConnection connection, CancellationToken cancellationToken)
-        {
-            Ensure.IsNotNull(connection, nameof(connection));
-            var authenticators = GetAuthenticators(connection.Settings);
-            var helloCommand = CreateInitialHelloCommand(authenticators, connection.Settings.LoadBalanced);
-            var helloProtocol = HelloHelper.CreateProtocol(helloCommand, _serverApi);
-            var helloResult = HelloHelper.GetResult(connection, helloProtocol, cancellationToken);
-            if (connection.Settings.LoadBalanced && !helloResult.ServiceId.HasValue)
-            {
-                throw new InvalidOperationException("Driver attempted to initialize in load balancing mode, but the server does not support this mode.");
-            }
-
-            var buildInfoProtocol = CreateBuildInfoProtocol(_serverApi);
-            var buildInfoResult = new BuildInfoResult(buildInfoProtocol.Execute(connection, cancellationToken));
-
-            return new ConnectionDescription(connection.ConnectionId, helloResult, buildInfoResult);
-        }
-
-        public async Task<ConnectionDescription> HandshakeAsync(IConnection connection, CancellationToken cancellationToken)
-        {
-            Ensure.IsNotNull(connection, nameof(connection));
-            var authenticators = GetAuthenticators(connection.Settings);
-            var helloCommand = CreateInitialHelloCommand(authenticators, connection.Settings.LoadBalanced);
-            var helloProtocol = HelloHelper.CreateProtocol(helloCommand, _serverApi);
-            var helloResult = await HelloHelper.GetResultAsync(connection, helloProtocol, cancellationToken).ConfigureAwait(false);
-            if (connection.Settings.LoadBalanced && !helloResult.ServiceId.HasValue)
-            {
-                throw new InvalidOperationException("Driver attempted to initialize in load balancing mode, but the server does not support this mode.");
-            }
-
-            var buildInfoProtocol = CreateBuildInfoProtocol(_serverApi);
-            var buildInfoResult = new BuildInfoResult(await buildInfoProtocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false));
-
-            return new ConnectionDescription(connection.ConnectionId, helloResult, buildInfoResult);
-        }
-
-        public ConnectionDescription ConnectionAuthentication(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
+        public ConnectionDescription Authenticate(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, nameof(connection));
             Ensure.IsNotNull(description, nameof(description));
@@ -113,7 +77,7 @@ namespace MongoDB.Driver.Core.Connections
             return description;
         }
 
-        public async Task<ConnectionDescription> ConnectionAuthenticationAsync(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
+        public async Task<ConnectionDescription> AuthenticateAsync(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, nameof(connection));
             Ensure.IsNotNull(description, nameof(description));
@@ -144,6 +108,42 @@ namespace MongoDB.Driver.Core.Connections
             }
 
             return description;
+        }
+
+        public ConnectionDescription SendHello(IConnection connection, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(connection, nameof(connection));
+            var authenticators = GetAuthenticators(connection.Settings);
+            var helloCommand = CreateInitialHelloCommand(authenticators, connection.Settings.LoadBalanced);
+            var helloProtocol = HelloHelper.CreateProtocol(helloCommand, _serverApi);
+            var helloResult = HelloHelper.GetResult(connection, helloProtocol, cancellationToken);
+            if (connection.Settings.LoadBalanced && !helloResult.ServiceId.HasValue)
+            {
+                throw new InvalidOperationException("Driver attempted to initialize in load balancing mode, but the server does not support this mode.");
+            }
+
+            var buildInfoProtocol = CreateBuildInfoProtocol(_serverApi);
+            var buildInfoResult = new BuildInfoResult(buildInfoProtocol.Execute(connection, cancellationToken));
+
+            return new ConnectionDescription(connection.ConnectionId, helloResult, buildInfoResult);
+        }
+
+        public async Task<ConnectionDescription> SendHelloAsync(IConnection connection, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(connection, nameof(connection));
+            var authenticators = GetAuthenticators(connection.Settings);
+            var helloCommand = CreateInitialHelloCommand(authenticators, connection.Settings.LoadBalanced);
+            var helloProtocol = HelloHelper.CreateProtocol(helloCommand, _serverApi);
+            var helloResult = await HelloHelper.GetResultAsync(connection, helloProtocol, cancellationToken).ConfigureAwait(false);
+            if (connection.Settings.LoadBalanced && !helloResult.ServiceId.HasValue)
+            {
+                throw new InvalidOperationException("Driver attempted to initialize in load balancing mode, but the server does not support this mode.");
+            }
+
+            var buildInfoProtocol = CreateBuildInfoProtocol(_serverApi);
+            var buildInfoResult = new BuildInfoResult(await buildInfoProtocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false));
+
+            return new ConnectionDescription(connection.ConnectionId, helloResult, buildInfoResult);
         }
 
         // private methods

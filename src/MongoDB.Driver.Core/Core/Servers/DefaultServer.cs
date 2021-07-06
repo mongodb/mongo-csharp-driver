@@ -175,7 +175,7 @@ namespace MongoDB.Driver.Core.Servers
             }
         }
 
-        protected override void Initializing()
+        protected override void InitializeSubClass()
         {
             _monitor.DescriptionChanged += OnMonitorDescriptionChanged;
             _monitor.Initialize();

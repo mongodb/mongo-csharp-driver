@@ -290,20 +290,17 @@ namespace MongoDB.Driver.Core.Connections
                 helper.OpeningConnection();
                 _stream = _streamFactory.CreateStream(_endPoint, cancellationToken);
                 helper.InitializingConnection();
-                handshakeDescription = _connectionInitializer.Handshake(this, cancellationToken);
+                handshakeDescription = _connectionInitializer.SendHello(this, cancellationToken);
                 // we always need to have access to description after handshake regardless furher errors
-                _description = _connectionInitializer.ConnectionAuthentication(this, handshakeDescription, cancellationToken);
+                _description = _connectionInitializer.Authenticate(this, handshakeDescription, cancellationToken);
                 _sendCompressorType = ChooseSendCompressorTypeIfAny(_description);
 
                 helper.OpenedConnection();
             }
             catch (Exception ex)
             {
-                if (ShouldSetHandshakeDescription(_description, handshakeDescription))
-                {
-                    // if we have successful handshake description, we should propogate it to upper levels
-                    _description = handshakeDescription;
-                }
+                // if we have successful handshake description, we should propogate it to upper levels
+                _description ??= handshakeDescription;
                 var wrappedException = WrapException(ex, "opening a connection to the server");
                 helper.FailedOpeningConnection(wrappedException);
                 throw wrappedException;
@@ -320,20 +317,17 @@ namespace MongoDB.Driver.Core.Connections
                 helper.OpeningConnection();
                 _stream = await _streamFactory.CreateStreamAsync(_endPoint, cancellationToken).ConfigureAwait(false);
                 helper.InitializingConnection();
-                handshakeDescription = await _connectionInitializer.HandshakeAsync(this, cancellationToken).ConfigureAwait(false);
+                handshakeDescription = await _connectionInitializer.SendHelloAsync(this, cancellationToken).ConfigureAwait(false);
                 // we always need to have access to description after handshake regardless furher errors
-                _description = await _connectionInitializer.ConnectionAuthenticationAsync(this, handshakeDescription, cancellationToken).ConfigureAwait(false);
+                _description = await _connectionInitializer.AuthenticateAsync(this, handshakeDescription, cancellationToken).ConfigureAwait(false);
                 _sendCompressorType = ChooseSendCompressorTypeIfAny(_description);
 
                 helper.OpenedConnection();
             }
             catch (Exception ex)
             {
-                if (ShouldSetHandshakeDescription(_description, handshakeDescription))
-                {
-                    // if we have successful handshake description, we should propogate it to upper levels
-                    _description = handshakeDescription;
-                }
+                // if we have successful handshake description, we should propogate it to upper levels
+                _description = handshakeDescription;
                 var wrappedException = WrapException(ex, "opening a connection to the server");
                 helper.FailedOpeningConnection(wrappedException);
                 throw wrappedException;
@@ -726,9 +720,6 @@ namespace MongoDB.Driver.Core.Connections
             var compressedMessageEncoder = compressedMessageEncoderFactory.GetCompressedMessageEncoder(null);
             compressedMessageEncoder.WriteMessage(compressedMessage);
         }
-
-        private bool ShouldSetHandshakeDescription(ConnectionDescription connectionDescription, ConnectionDescription handshakeDescription) =>
-            connectionDescription == null && handshakeDescription != null;
 
         private void ThrowIfCancelledOrDisposed(CancellationToken cancellationToken = default)
         {

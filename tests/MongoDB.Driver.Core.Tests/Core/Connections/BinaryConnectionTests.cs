@@ -61,16 +61,16 @@ namespace MongoDB.Driver.Core.Connections
 
             _mockConnectionInitializer = new Mock<IConnectionInitializer>();
             _mockConnectionInitializer
-                .Setup(i => i.Handshake(It.IsAny<IConnection>(), CancellationToken.None))
+                .Setup(i => i.SendHello(It.IsAny<IConnection>(), CancellationToken.None))
                 .Returns(_connectionDescription);
             _mockConnectionInitializer
-                .Setup(i => i.ConnectionAuthentication(It.IsAny<IConnection>(), It.IsAny<ConnectionDescription>(), CancellationToken.None))
+                .Setup(i => i.Authenticate(It.IsAny<IConnection>(), It.IsAny<ConnectionDescription>(), CancellationToken.None))
                 .Returns(_connectionDescription);
             _mockConnectionInitializer
-                .Setup(i => i.HandshakeAsync(It.IsAny<IConnection>(), CancellationToken.None))
+                .Setup(i => i.SendHelloAsync(It.IsAny<IConnection>(), CancellationToken.None))
                 .ReturnsAsync(_connectionDescription);
             _mockConnectionInitializer
-                .Setup(i => i.ConnectionAuthenticationAsync(It.IsAny<IConnection>(), It.IsAny<ConnectionDescription>(), CancellationToken.None))
+                .Setup(i => i.AuthenticateAsync(It.IsAny<IConnection>(), It.IsAny<ConnectionDescription>(), CancellationToken.None))
                 .ReturnsAsync(_connectionDescription);
 
             _subject = new BinaryConnection(
@@ -105,16 +105,16 @@ namespace MongoDB.Driver.Core.Connections
 
             var socketException = new SocketException();
             _mockConnectionInitializer
-                .Setup(i => i.Handshake(It.IsAny<IConnection>(), CancellationToken.None))
+                .Setup(i => i.SendHello(It.IsAny<IConnection>(), CancellationToken.None))
                 .Returns(connectionDescription);
             _mockConnectionInitializer
-                .Setup(i => i.HandshakeAsync(It.IsAny<IConnection>(), CancellationToken.None))
+                .Setup(i => i.SendHelloAsync(It.IsAny<IConnection>(), CancellationToken.None))
                 .ReturnsAsync(connectionDescription);
             _mockConnectionInitializer
-                .Setup(i => i.ConnectionAuthentication(It.IsAny<IConnection>(), It.IsAny<ConnectionDescription>(), CancellationToken.None))
+                .Setup(i => i.Authenticate(It.IsAny<IConnection>(), It.IsAny<ConnectionDescription>(), CancellationToken.None))
                 .Throws(socketException);
             _mockConnectionInitializer
-                .Setup(i => i.ConnectionAuthenticationAsync(It.IsAny<IConnection>(), It.IsAny<ConnectionDescription>(), CancellationToken.None))
+                .Setup(i => i.AuthenticateAsync(It.IsAny<IConnection>(), It.IsAny<ConnectionDescription>(), CancellationToken.None))
                 .ThrowsAsync(socketException);
 
             Exception exception;
@@ -164,14 +164,14 @@ namespace MongoDB.Driver.Core.Connections
             {
                 var result = new TaskCompletionSource<ConnectionDescription>();
                 result.SetException(new SocketException());
-                _mockConnectionInitializer.Setup(i => i.HandshakeAsync(It.IsAny<IConnection>(), It.IsAny<CancellationToken>()))
+                _mockConnectionInitializer.Setup(i => i.SendHelloAsync(It.IsAny<IConnection>(), It.IsAny<CancellationToken>()))
                     .Returns(result.Task);
 
                 act = () => _subject.OpenAsync(CancellationToken.None).GetAwaiter().GetResult();
             }
             else
             {
-                _mockConnectionInitializer.Setup(i => i.Handshake(It.IsAny<IConnection>(), It.IsAny<CancellationToken>()))
+                _mockConnectionInitializer.Setup(i => i.SendHello(It.IsAny<IConnection>(), It.IsAny<CancellationToken>()))
                     .Throws<SocketException>();
 
                 act = () => _subject.Open(CancellationToken.None);

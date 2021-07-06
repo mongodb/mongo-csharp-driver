@@ -192,7 +192,7 @@ namespace MongoDB.Driver.Core.Servers
 
                 var stopwatch = Stopwatch.StartNew();
                 _connectionPool.Initialize();
-                Initializing();
+                InitializeSubClass();
                 stopwatch.Stop();
 
                 if (_openedEventHandler != null)
@@ -218,7 +218,7 @@ namespace MongoDB.Driver.Core.Servers
         public abstract void RequestHeartbeat();
 
         // protected methods
-        protected abstract void Initializing();
+        protected abstract void InitializeSubClass();
 
         protected bool IsStateChangeException(Exception ex) => ex is MongoNotPrimaryException || ex is MongoNodeIsRecoveringException;
 
@@ -260,7 +260,7 @@ namespace MongoDB.Driver.Core.Servers
         // private methods
         private void HandleChannelException(IConnection connection, Exception ex)
         {
-            if (!IsOpened() || ShouldIgnoreException(ex))
+            if (!IsOpen() || ShouldIgnoreException(ex))
             {
                 return;
             }
@@ -285,7 +285,7 @@ namespace MongoDB.Driver.Core.Servers
                     : ex;
         }
 
-        private bool IsOpened() => _state.Value == State.Open;
+        private bool IsOpen() => _state.Value == State.Open;
 
         private void ThrowIfDisposed()
         {
@@ -297,7 +297,7 @@ namespace MongoDB.Driver.Core.Servers
 
         private void ThrowIfNotOpen()
         {
-            if (!IsOpened())
+            if (!IsOpen())
             {
                 ThrowIfDisposed();
                 throw new InvalidOperationException("Server must be initialized.");

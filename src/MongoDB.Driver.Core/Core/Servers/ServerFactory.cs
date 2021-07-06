@@ -88,7 +88,7 @@ namespace MongoDB.Driver.Core.Servers
                         _connectionPoolFactory,
                         _serverMonitorFactory,
                         _eventSubscriber,
-                        _serverApi),
+                        _serverApi)
             };
     }
 }
