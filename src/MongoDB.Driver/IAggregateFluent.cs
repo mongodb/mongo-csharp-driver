@@ -386,6 +386,13 @@ namespace MongoDB.Driver
         /// <param name="options">The options.</param>
         /// <returns>The fluent aggregate interface.</returns>
         IAggregateFluent<TNewResult> Unwind<TNewResult>(FieldDefinition<TResult> field, AggregateUnwindOptions<TNewResult> options = null);
+
+        /// <summary>
+        /// Appends a sample stage to the pipeline.
+        /// </summary>
+        /// <param name="size">The sample size.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        IAggregateFluent<TResult> Sample(int size);
     }
 
     /// <summary>

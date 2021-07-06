@@ -235,6 +235,11 @@ namespace MongoDB.Driver
             return WithPipeline(_pipeline.SortByCount(id));
         }
 
+        public override IAggregateFluent<TResult> Sample(int size)
+        {
+            return WithPipeline(_pipeline.Sample(size));
+        }
+
         public override IOrderedAggregateFluent<TResult> ThenBy(SortDefinition<TResult> newSort)
         {
             Ensure.IsNotNull(newSort, nameof(newSort));

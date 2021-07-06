@@ -1250,6 +1250,19 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Creates a $sample stage.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <param name="size">The size.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<TInput, TInput> Sample<TInput>(
+            int size)
+        {
+            Ensure.IsGreaterThanOrEqualToZero(size, nameof(size));
+            return new BsonDocumentPipelineStageDefinition<TInput, TInput>(new BsonDocument("$sample", new BsonDocument("size", size)));
+        }
+
+        /// <summary>
         /// Creates a $sortByCount stage.
         /// </summary>
         /// <typeparam name="TInput">The type of the input documents.</typeparam>
