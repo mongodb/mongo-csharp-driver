@@ -149,6 +149,11 @@ namespace MongoDB.Driver.Core.Helpers
             _replyActions.Enqueue(new ActionQueueItem(replyMessage, delay: delay));
         }
 
+        public void EnqueueReplyMessage(Exception exception)
+        {
+            _replyActions.Enqueue(new ActionQueueItem(message: null, exception: exception));
+        }
+
         public void EnqueueReplyMessage<TDocument>(ReplyMessage<TDocument> replyMessage)
         {
             _replyActions.Enqueue(new ActionQueueItem(replyMessage));

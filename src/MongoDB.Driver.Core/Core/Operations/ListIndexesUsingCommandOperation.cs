@@ -21,6 +21,7 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -107,6 +108,7 @@ namespace MongoDB.Driver.Core.Operations
 
             using (var context = RetryableReadContext.Create(binding, _retryRequested, cancellationToken))
             {
+                context.PinConnectionIfRequired();
                 return Execute(context, cancellationToken);
             }
         }
@@ -138,6 +140,7 @@ namespace MongoDB.Driver.Core.Operations
 
             using (var context = await RetryableReadContext.CreateAsync(binding, _retryRequested, cancellationToken).ConfigureAwait(false))
             {
+                context.PinConnectionIfRequired();
                 return await ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
             }
         }
@@ -179,14 +182,15 @@ namespace MongoDB.Driver.Core.Operations
 
         private IAsyncCursor<BsonDocument> CreateCursor(IChannelSourceHandle channelSource, BsonDocument result, BsonDocument command)
         {
-            var getMoreChannelSource = new ServerChannelSource(channelSource.Server, channelSource.Session.Fork());
             var cursorDocument = result["cursor"].AsBsonDocument;
+            var cursorId = cursorDocument["id"].ToInt64();
+            var getMoreChannelSource = ChannelPinningHelper.CreateEffectiveGetMoreChannelSource(channelSource, cursorId);
             var cursor = new AsyncCursor<BsonDocument>(
                 getMoreChannelSource,
                 CollectionNamespace.FromFullName(cursorDocument["ns"].AsString),
                 command,
                 cursorDocument["firstBatch"].AsBsonArray.OfType<BsonDocument>().ToList(),
-                cursorDocument["id"].ToInt64(),
+                cursorId,
                 batchSize: _batchSize ?? 0,
                 0,
                 BsonDocumentSerializer.Instance,

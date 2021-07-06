@@ -140,7 +140,7 @@ namespace MongoDB.Driver.Core.Bindings
                 catch (Exception exception) when (ShouldRetryEndTransactionException(exception))
                 {
                     // unpin if retryable error
-                    _currentTransaction.PinnedServer = null;
+                    _currentTransaction.UnpinAll();
 
                     // ignore exception and retry
                 }
@@ -164,7 +164,7 @@ namespace MongoDB.Driver.Core.Bindings
                 _currentTransaction.SetState(CoreTransactionState.Aborted);
                 // The transaction is aborted.The session MUST be unpinned regardless
                 // of whether the abortTransaction command succeeds or fails
-                _currentTransaction.PinnedServer = null;
+                _currentTransaction.UnpinAll();
             }
         }
 
@@ -189,7 +189,7 @@ namespace MongoDB.Driver.Core.Bindings
                 catch (Exception exception) when (ShouldRetryEndTransactionException(exception))
                 {
                     // unpin if retryable error
-                    _currentTransaction.PinnedServer = null;
+                    _currentTransaction.UnpinAll();
 
                     // ignore exception and retry
                 }
@@ -213,7 +213,7 @@ namespace MongoDB.Driver.Core.Bindings
                 _currentTransaction.SetState(CoreTransactionState.Aborted);
                 // The transaction is aborted.The session MUST be unpinned regardless
                 // of whether the abortTransaction command succeeds or fails
-                _currentTransaction.PinnedServer = null;
+                _currentTransaction.UnpinAll();
             }
         }
 
@@ -236,6 +236,8 @@ namespace MongoDB.Driver.Core.Bindings
                         // don't set to null when retrying a commit
                         if (!_isCommitTransactionInProgress)
                         {
+                            // Unpin data non-transaction operation uses the commited session
+                            _currentTransaction.UnpinAll();
                             _currentTransaction = null;
                         }
                         return;
@@ -357,6 +359,7 @@ namespace MongoDB.Driver.Core.Bindings
                     }
                 }
 
+                _currentTransaction?.UnpinAll();
                 _serverSession.Dispose();
                 _disposed = true;
             }
@@ -380,6 +383,7 @@ namespace MongoDB.Driver.Core.Bindings
                 throw new InvalidOperationException("Transactions do not support unacknowledged write concerns.");
             }
 
+            _currentTransaction?.UnpinAll(); // unpin data if any when a new transaction is started 
             _currentTransaction = new CoreTransaction(transactionNumber, effectiveTransactionOptions);
         }
 
@@ -481,17 +485,19 @@ namespace MongoDB.Driver.Core.Bindings
             {
                 var serverType = connectedDataBearingServer.Type;
 
-                if (serverType == ServerType.Standalone)
+                switch (serverType)
                 {
-                    throw new NotSupportedException("Standalone servers do not support transactions.");
-                }
-                else if (serverType == ServerType.ShardRouter)
-                {
-                    Feature.ShardedTransactions.ThrowIfNotSupported(connectedDataBearingServer.Version);
-                }
-                else
-                {
-                    Feature.Transactions.ThrowIfNotSupported(connectedDataBearingServer.Version);
+                    case ServerType.Standalone:
+                        throw new NotSupportedException("Standalone servers do not support transactions.");
+                    case ServerType.ShardRouter:
+                        Feature.ShardedTransactions.ThrowIfNotSupported(connectedDataBearingServer.Version);
+                        break;
+                    case ServerType.LoadBalanced:
+                        // do nothing, load balancing always supports transactions
+                        break;
+                    default:
+                        Feature.Transactions.ThrowIfNotSupported(connectedDataBearingServer.Version);
+                        break;
                 }
             }
         }
@@ -499,7 +505,7 @@ namespace MongoDB.Driver.Core.Bindings
         private TResult ExecuteEndTransactionOnPrimary<TResult>(IReadOperation<TResult> operation, CancellationToken cancellationToken)
         {
             using (var sessionHandle = new NonDisposingCoreSessionHandle(this))
-            using (var binding = new WritableServerBinding(_cluster, sessionHandle))
+            using (var binding = ChannelPinningHelper.CreateEffectiveReadWriteBinding(_cluster, sessionHandle))
             {
                 return operation.Execute(binding, cancellationToken);
             }
@@ -508,7 +514,7 @@ namespace MongoDB.Driver.Core.Bindings
         private async Task<TResult> ExecuteEndTransactionOnPrimaryAsync<TResult>(IReadOperation<TResult> operation, CancellationToken cancellationToken)
         {
             using (var sessionHandle = new NonDisposingCoreSessionHandle(this))
-            using (var binding = new WritableServerBinding(_cluster, sessionHandle))
+            using (var binding = ChannelPinningHelper.CreateEffectiveReadWriteBinding(_cluster, sessionHandle))
             {
                 return await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
             }

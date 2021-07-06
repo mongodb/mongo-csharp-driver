@@ -103,7 +103,7 @@ namespace MongoDB.Driver.Core.Authentication
                         var protocol = CreateCommandProtocol(command);
                         result = protocol.Execute(connection, cancellationToken);
                     }
-                    catch (MongoCommandException ex)
+                    catch (MongoException ex)
                     {
                         throw CreateException(connection, ex);
                     }
@@ -142,7 +142,7 @@ namespace MongoDB.Driver.Core.Authentication
                         var protocol = CreateCommandProtocol(command);
                         result = await protocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
                     }
-                    catch (MongoCommandException ex)
+                    catch (MongoException ex)
                     {
                         throw CreateException(connection, ex);
                     }

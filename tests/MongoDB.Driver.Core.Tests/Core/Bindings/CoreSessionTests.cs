@@ -272,6 +272,8 @@ namespace MongoDB.Driver.Core.Bindings
         [InlineData("CP,DU")]
         [InlineData("DU,CR")]
         [InlineData("CR,DU")]
+        [InlineData("DU,CL")]
+        [InlineData("CL,DU")]
         public void EnsureTransactionsAreSupported_should_ignore_disconnected_servers(string scenarios)
         {
             var clusterId = new ClusterId(1);
@@ -283,7 +285,12 @@ namespace MongoDB.Driver.Core.Bindings
                     var serverId = new ServerId(clusterId, endPoint);
                     var state = MapServerStateCode(scenario[0]);
                     var type = MapServerTypeCode(scenario[1]);
-                    var version = type == ServerType.ShardRouter ? Feature.ShardedTransactions.FirstSupportedVersion : Feature.Transactions.FirstSupportedVersion;
+                    var version = type switch
+                    {
+                        ServerType.ShardRouter => Feature.ShardedTransactions.FirstSupportedVersion,
+                        ServerType.LoadBalanced => Feature.LoadBalancedMode.FirstSupportedVersion,
+                        _ => Feature.Transactions.FirstSupportedVersion,
+                    };
                     return CreateServerDescription(serverId, endPoint, state, type, version);
                 })
                 .ToList();
@@ -296,11 +303,14 @@ namespace MongoDB.Driver.Core.Bindings
         [Theory]
         [InlineData("")]
         [InlineData("DU")]
+        [InlineData("DL")]
         [InlineData("CA")]
         [InlineData("DU,DU")]
+        [InlineData("DL,DL")]
         [InlineData("DU,CA")]
         [InlineData("CA,DU")]
         [InlineData("CA,CA")]
+        [InlineData("CA,DL")]
         public void EnsureTransactionsAreSupported_should_throw_when_there_are_no_connected_data_bearing_servers(string scenarios)
         {
             var clusterId = new ClusterId(1);
@@ -458,6 +468,7 @@ namespace MongoDB.Driver.Core.Bindings
                 case 'R': return ServerType.ShardRouter;
                 case 'S': return ServerType.ReplicaSetSecondary;
                 case 'U': return ServerType.Unknown;
+                case 'L': return ServerType.LoadBalanced;
                 default: throw new ArgumentException($"Invalid ServerType code: \"{code}\".", nameof(code));
             }
         }

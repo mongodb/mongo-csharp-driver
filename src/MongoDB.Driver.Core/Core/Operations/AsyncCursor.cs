@@ -54,6 +54,8 @@ namespace MongoDB.Driver.Core.Operations
         private IReadOnlyList<TDocument> _currentBatch;
         private long _cursorId;
         private bool _disposed;
+        private bool _isTerminationRequested;
+        private bool _isInProgress;
         private IReadOnlyList<TDocument> _firstBatch;
         private readonly int? _limit;
         private readonly TimeSpan? _maxTime;
@@ -414,8 +416,11 @@ namespace MongoDB.Driver.Core.Operations
         /// <inheritdoc/>
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            if (!TryTerminationPendingMode())
+            {
+                Dispose(true);
+                GC.SuppressFinalize(this);
+            }
         }
 
         /// <summary>
@@ -441,13 +446,20 @@ namespace MongoDB.Driver.Core.Operations
 
         private void CloseIfNotAlreadyClosed(CancellationToken cancellationToken)
         {
-            if (!_closed)
+            if (!TryTerminationPendingMode() && !_closed)
             {
                 try
                 {
                     if (_cursorId != 0)
                     {
-                        KillCursors(cancellationToken);
+                        try
+                        {
+                            KillCursors(cancellationToken);
+                        }
+                        catch
+                        {
+                            // ignore exceptions
+                        }
                     }
                 }
                 finally
@@ -459,13 +471,20 @@ namespace MongoDB.Driver.Core.Operations
 
         private async Task CloseIfNotAlreadyClosedAsync(CancellationToken cancellationToken)
         {
-            if (!_closed)
+            if (!TryTerminationPendingMode() && !_closed)
             {
                 try
                 {
                     if (_cursorId != 0)
                     {
-                        await KillCursorsAsync(cancellationToken).ConfigureAwait(false);
+                        try
+                        {
+                            await KillCursorsAsync(cancellationToken).ConfigureAwait(false);
+                        }
+                        catch
+                        {
+                            // ignore exceptions
+                        }
                     }
                 }
                 finally
@@ -531,6 +550,16 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
+        private bool TryTerminationPendingMode()
+        {
+            if (_isInProgress)
+            {
+                _isTerminationRequested = true;
+                return true;
+            }
+            return false;
+        }
+
         private bool IsMongoCursorNotFoundException(MongoCommandException exception)
         {
             return exception.Code == (int)ServerErrorCode.CursorNotFound;
@@ -543,13 +572,16 @@ namespace MongoDB.Driver.Core.Operations
             using (var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
             using (var channel = _channelSource.GetChannel(cancellationTokenSource.Token))
             {
-                if (Feature.KillCursorsCommand.IsSupported(channel.ConnectionDescription.ServerVersion))
+                if (!channel.Connection.IsExpired)
                 {
-                    ExecuteKillCursorsCommand(channel, cancellationToken);
-                }
-                else
-                {
-                    ExecuteKillCursorsProtocol(channel, cancellationToken);
+                    if (Feature.KillCursorsCommand.IsSupported(channel.ConnectionDescription.ServerVersion))
+                    {
+                        ExecuteKillCursorsCommand(channel, cancellationToken);
+                    }
+                    else
+                    {
+                        ExecuteKillCursorsProtocol(channel, cancellationToken);
+                    }
                 }
             }
         }
@@ -561,13 +593,16 @@ namespace MongoDB.Driver.Core.Operations
             using (var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
             using (var channel = await _channelSource.GetChannelAsync(cancellationTokenSource.Token).ConfigureAwait(false))
             {
-                if (Feature.KillCursorsCommand.IsSupported(channel.ConnectionDescription.ServerVersion))
+                if (!channel.Connection.IsExpired)
                 {
-                    await ExecuteKillCursorsCommandAsync(channel, cancellationToken).ConfigureAwait(false);
-                }
-                else
-                {
-                    await ExecuteKillCursorsProtocolAsync(channel, cancellationToken).ConfigureAwait(false);
+                    if (Feature.KillCursorsCommand.IsSupported(channel.ConnectionDescription.ServerVersion))
+                    {
+                        await ExecuteKillCursorsCommandAsync(channel, cancellationToken).ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        await ExecuteKillCursorsProtocolAsync(channel, cancellationToken).ConfigureAwait(false);
+                    }
                 }
             }
         }
@@ -578,15 +613,27 @@ namespace MongoDB.Driver.Core.Operations
             ThrowIfDisposed();
             cancellationToken.ThrowIfCancellationRequested();
 
-            bool hasMore;
-            if (TryMoveNext(out hasMore))
+            _isInProgress = true;
+            try
             {
-                return hasMore;
-            }
+                bool hasMore;
+                if (TryMoveNext(out hasMore))
+                {
+                    return hasMore;
+                }
 
-            var batch = GetNextBatch(cancellationToken);
-            SaveBatch(batch);
-            return true;
+                var batch = GetNextBatch(cancellationToken);
+                SaveBatch(batch);
+                return true;
+            }
+            finally
+            {
+                _isInProgress = false;
+                if (_isTerminationRequested)
+                {
+                    Close(CancellationToken.None);
+                }
+            }
         }
 
         /// <inheritdoc/>
@@ -595,15 +642,27 @@ namespace MongoDB.Driver.Core.Operations
             ThrowIfDisposed();
             cancellationToken.ThrowIfCancellationRequested();
 
-            bool hasMore;
-            if (TryMoveNext(out hasMore))
+            _isInProgress = true;
+            try
             {
-                return hasMore;
-            }
+                bool hasMore;
+                if (TryMoveNext(out hasMore))
+                {
+                    return hasMore;
+                }
 
-            var batch = await GetNextBatchAsync(cancellationToken).ConfigureAwait(false);
-            SaveBatch(batch);
-            return true;
+                var batch = await GetNextBatchAsync(cancellationToken).ConfigureAwait(false);
+                SaveBatch(batch);
+                return true;
+            }
+            finally
+            {
+                _isInProgress = false;
+                if (_isTerminationRequested)
+                {
+                    await CloseAsync(CancellationToken.None).ConfigureAwait(false);
+                }
+            }
         }
 
         private void SaveBatch(CursorBatch<TDocument> batch)
@@ -628,7 +687,7 @@ namespace MongoDB.Driver.Core.Operations
 
         private void ThrowIfDisposed()
         {
-            if (_disposed)
+            if (_disposed || _isTerminationRequested)
             {
                 throw new ObjectDisposedException(GetType().Name);
             }

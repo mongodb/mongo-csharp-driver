@@ -14,10 +14,6 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -72,6 +68,13 @@ namespace MongoDB.Driver.Core.ConnectionPools
         /// Clears the connection pool.
         /// </summary>
         void Clear(ObjectId serviceId);
+
+        /// <summary>
+        /// Gets the connection pool generation for the connection.
+        /// </summary>
+        /// <param name="description">The connection pool description.</param>
+        /// <returns>A connection pool generation for the connection.</returns>
+        int GetConnectionPoolGenerationForConnection(ConnectionDescription description);
 
         /// <summary>
         /// Initializes the connection pool.

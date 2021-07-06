@@ -134,6 +134,7 @@ namespace MongoDB.Driver.Core.Operations
             using (EventContext.BeginOperation())
             using (var context = RetryableReadContext.Create(binding, _retryRequested, cancellationToken))
             {
+                context.PinConnectionIfRequired();
                 var operation = CreateOperation(context.Channel);
                 return operation.Execute(context, cancellationToken);
             }
@@ -147,6 +148,7 @@ namespace MongoDB.Driver.Core.Operations
             using (EventContext.BeginOperation())
             using (var context = await RetryableReadContext.CreateAsync(binding, _retryRequested, cancellationToken).ConfigureAwait(false))
             {
+                context.PinConnectionIfRequired();
                 var operation = CreateOperation(context.Channel);
                 return await operation.ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
             }

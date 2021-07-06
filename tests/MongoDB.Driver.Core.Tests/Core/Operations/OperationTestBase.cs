@@ -24,6 +24,7 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Events;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using Xunit;
@@ -287,6 +288,29 @@ namespace MongoDB.Driver.Core.Operations
             var requests = documents.Select(d => new InsertRequest(d));
             var insertOperation = new BulkInsertOperation(_collectionNamespace, requests, _messageEncoderSettings);
             await ExecuteOperationAsync(insertOperation);
+        }
+
+        protected void KillOpenTransactions()
+        {
+            var serverVersion = CoreTestConfiguration.ServerVersion;
+            if (Feature.KillAllSessions.IsSupported(serverVersion))
+            {
+                var command = new BsonDocument("killAllSessions", new BsonArray());
+
+                try
+                {
+                    var runCommandOperation = new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+                    {
+                        RetryRequested = false
+                    };
+
+                    ExecuteOperation(runCommandOperation);
+                }
+                catch (MongoCommandException)
+                {
+                    // ignore errors
+                }
+            }
         }
 
         protected Profiler Profile(DatabaseNamespace databaseNamespace)

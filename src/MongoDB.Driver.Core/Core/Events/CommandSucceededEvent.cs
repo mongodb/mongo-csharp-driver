@@ -31,6 +31,7 @@ namespace MongoDB.Driver.Core.Events
         private readonly long? _operationId;
         private readonly int _requestId;
         private readonly BsonDocument _reply;
+        private readonly ObjectId? _serviceId;
         private readonly DateTime _timestamp;
 
         /// <summary>
@@ -43,6 +44,21 @@ namespace MongoDB.Driver.Core.Events
         /// <param name="connectionId">The connection identifier.</param>
         /// <param name="duration">The duration.</param>
         public CommandSucceededEvent(string commandName, BsonDocument reply, long? operationId, int requestId, ConnectionId connectionId, TimeSpan duration)
+            : this(commandName, reply, operationId, requestId, connectionId, serviceId: null, duration)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CommandSucceededEvent"/> struct.
+        /// </summary>
+        /// <param name="commandName">Name of the command.</param>
+        /// <param name="reply">The reply.</param>
+        /// <param name="operationId">The operation identifier.</param>
+        /// <param name="requestId">The request identifier.</param>
+        /// <param name="connectionId">The connection identifier.</param>
+        /// <param name="duration">The duration.</param>
+        /// <param name="serviceId">The service identifier.</param>
+        public CommandSucceededEvent(string commandName, BsonDocument reply, long? operationId, int requestId, ConnectionId connectionId, ObjectId? serviceId, TimeSpan duration)
         {
             _commandName = Ensure.IsNotNullOrEmpty(commandName, "commandName");
             _reply = Ensure.IsNotNull(reply, "reply");
@@ -50,6 +66,7 @@ namespace MongoDB.Driver.Core.Events
             _operationId = operationId;
             _requestId = requestId;
             _duration = duration;
+            _serviceId = serviceId; // can be null
             _timestamp = DateTime.UtcNow;
         }
 
@@ -99,6 +116,14 @@ namespace MongoDB.Driver.Core.Events
         public int RequestId
         {
             get { return _requestId; }
+        }
+
+        /// <summary>
+        /// Gets the service identifier.
+        /// </summary>
+        public ObjectId? ServiceId
+        {
+            get { return _serviceId; }
         }
 
         /// <summary>

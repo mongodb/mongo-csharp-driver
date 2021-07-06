@@ -23,6 +23,23 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Operations
 {
+    internal static class RetryableWriteContextExtensions
+    {
+        public static void PinConnectionIfRequired(this RetryableWriteContext context)
+        {
+            if (context.Binding.Session.IsInTransaction &&
+                ChannelPinningHelper.TryCreatePinnedChannelSourceAndPinChannel(
+                context.ChannelSource,
+                context.Channel,
+                context.Binding.Session,
+                out var pinnedChannel))
+            {
+                context.ReplaceChannelSource(pinnedChannel.PinnedChannelSource);
+                context.ReplaceChannel(pinnedChannel.Channel);
+            }
+        }
+    }
+
     /// <summary>
     /// Represents a context for retryable writes.
     /// </summary>

@@ -14,8 +14,10 @@
 */
 
 using System;
+using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Events
@@ -26,6 +28,7 @@ namespace MongoDB.Driver.Core.Events
     public struct ConnectionPoolClearingEvent
     {
         private readonly ConnectionPoolSettings _connectionPoolSettings;
+        private readonly ObjectId? _serviceId;
         private readonly ServerId _serverId;
         private readonly DateTime _timestamp;
 
@@ -35,10 +38,22 @@ namespace MongoDB.Driver.Core.Events
         /// <param name="serverId">The server identifier.</param>
         /// <param name="connectionPoolSettings">The connection pool settings.</param>
         public ConnectionPoolClearingEvent(ServerId serverId, ConnectionPoolSettings connectionPoolSettings)
+            : this(serverId, connectionPoolSettings, serviceId: null)
         {
-            _serverId = serverId;
-            _connectionPoolSettings = connectionPoolSettings;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConnectionPoolClearingEvent"/> struct.
+        /// </summary>
+        /// <param name="serverId">The server identifier.</param>
+        /// <param name="connectionPoolSettings">The connection pool settings.</param>
+        /// <param name="serviceId">The service identifier.</param>
+        public ConnectionPoolClearingEvent(ServerId serverId, ConnectionPoolSettings connectionPoolSettings, ObjectId? serviceId)
+        {
+            _serverId = Ensure.IsNotNull(serverId, nameof(serverId));
+            _connectionPoolSettings = connectionPoolSettings; // can be null
             _timestamp = DateTime.UtcNow;
+            _serviceId = serviceId; // can be null
         }
 
         /// <summary>
@@ -55,6 +70,14 @@ namespace MongoDB.Driver.Core.Events
         public ConnectionPoolSettings ConnectionPoolSettings
         {
             get { return _connectionPoolSettings; }
+        }
+
+        /// <summary>
+        /// Gets the service identifier.
+        /// </summary>
+        public ObjectId? ServiceId
+        {
+            get { return _serviceId; }
         }
 
         /// <summary>

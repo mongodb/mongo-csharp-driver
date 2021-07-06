@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Core
         {
             if (session.IsInTransaction && ShouldUnpinServerOnCommandException(exception))
             {
-                session.CurrentTransaction.PinnedServer = null;
+                session.CurrentTransaction.UnpinAll();
             }
         }
 
@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Core
         {
             if (ShouldUnpinServerOnRetryableCommitException(exception))
             {
-                transaction.PinnedServer = null;
+                transaction.UnpinAll();
             }
         }
 

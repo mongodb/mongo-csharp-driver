@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Diagnostics;
 using Xunit;
 
 namespace MongoDB.Bson.TestHelpers.XunitExtensions
@@ -35,6 +36,15 @@ namespace MongoDB.Bson.TestHelpers.XunitExtensions
                 return this;
             }
             throw new SkipException($"Test skipped because environment variable '{name}' {(actualIsDefined ? "is" : "is not")} defined.");
+        }
+
+        public RequireEnvironment ProcessStarted(string processName)
+        {
+            if (Process.GetProcessesByName(processName).Length > 0)
+            {
+                return this;
+            }
+            throw new SkipException($"Test skipped because an OS process {processName} has not been detected.");
         }
     }
 }

@@ -73,9 +73,14 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
             throw new SkipException($"Test skipped because cluster type is {actualClusterType} and not one of ({clusterTypesString}).");
         }
 
-        public RequireServer LoadBalancing(bool enabled)
+        /// <summary>
+        /// Determine whether a load balancing mode is configured.
+        /// </summary>
+        /// <param name="enabled">The expected value.</param>
+        /// <param name="ignorePreviousSetup">Force creating a new connection string and ignore the value assigned by scripts. Use this argument only for local development.</param>
+        public RequireServer LoadBalancing(bool enabled, bool ignorePreviousSetup = false)
         {
-            var isLoadBalancing = CoreTestConfiguration.ConnectionString.LoadBalanced;
+            var isLoadBalancing = (ignorePreviousSetup ? CoreTestConfiguration.CreateConnectionString() : CoreTestConfiguration.ConnectionString).LoadBalanced;
             if (isLoadBalancing == enabled)
             {
                 return this;
@@ -122,7 +127,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
         public RequireServer SupportsSessions()
         {
             var clusterDescription = CoreTestConfiguration.Cluster.Description;
-            if (clusterDescription.LogicalSessionTimeout != null)
+            if (clusterDescription.LogicalSessionTimeout != null || clusterDescription.Type == Clusters.ClusterType.LoadBalanced)
             {
                 return this;
             }

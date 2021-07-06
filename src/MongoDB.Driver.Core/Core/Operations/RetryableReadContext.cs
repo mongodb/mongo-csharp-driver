@@ -14,8 +14,6 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Bindings;
@@ -23,6 +21,22 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Operations
 {
+    internal static class RetryableReadContextExtensions
+    {
+        public static void PinConnectionIfRequired(this RetryableReadContext context)
+        {
+            if (ChannelPinningHelper.TryCreatePinnedChannelSourceAndPinChannel(
+                context.ChannelSource,
+                context.Channel,
+                context.Binding.Session,
+                out var pinnedChannel))
+            {
+                context.ReplaceChannelSource(pinnedChannel.PinnedChannelSource);
+                context.ReplaceChannel(pinnedChannel.Channel);
+            }
+        }
+    }
+
     /// <summary>
     /// Represents a context for retryable reads.
     /// </summary>

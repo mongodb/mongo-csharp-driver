@@ -21,6 +21,7 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
@@ -1155,14 +1156,12 @@ namespace MongoDB.Driver
                 throw new InvalidOperationException("Read preference in a transaction must be primary.");
             }
 
-            var binding = new ReadPreferenceBinding(_cluster, readPreference, session.WrappedCoreSession.Fork());
-            return new ReadBindingHandle(binding);
+            return ChannelPinningHelper.CreateEffectiveReadBinding(_cluster, session.WrappedCoreSession.Fork(), readPreference);
         }
 
         private IWriteBindingHandle CreateReadWriteBinding(IClientSessionHandle session)
         {
-            var binding = new WritableServerBinding(_cluster, session.WrappedCoreSession.Fork());
-            return new ReadWriteBindingHandle(binding);
+            return ChannelPinningHelper.CreateEffectiveReadWriteBinding(_cluster, session.WrappedCoreSession.Fork());
         }
 
         private MessageEncoderSettings GetMessageEncoderSettings()

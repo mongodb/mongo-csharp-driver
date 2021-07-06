@@ -189,7 +189,8 @@ namespace MongoDB.Driver.Core
                     @event.DatabaseNamespace,
                     @event.OperationId,
                     @event.RequestId,
-                    @event.ConnectionId);
+                    @event.ConnectionId,
+                    @event.ServiceId);
                 _parent.Capture(@event);
             }
 
@@ -201,6 +202,7 @@ namespace MongoDB.Driver.Core
                     @event.OperationId,
                     @event.RequestId,
                     @event.ConnectionId,
+                    @event.ServiceId,
                     @event.Duration);
                 _parent.Capture(@event);
             }
@@ -225,6 +227,7 @@ namespace MongoDB.Driver.Core
                     @event.OperationId,
                     @event.RequestId,
                     @event.ConnectionId,
+                    @event.ServiceId,
                     @event.Duration);
                 _parent.Capture(@event);
             }

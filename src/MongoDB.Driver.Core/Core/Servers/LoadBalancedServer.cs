@@ -80,7 +80,7 @@ namespace MongoDB.Driver.Core.Servers
             {
                 if (ex is MongoConnectionException mongoConnectionException &&
                     mongoConnectionException.Generation.HasValue &&
-                    mongoConnectionException.Generation.Value != ConnectionPool.Generation)
+                    mongoConnectionException.Generation.Value != ConnectionPool.GetConnectionPoolGenerationForConnection(connection.Description))
                 {
                     return; // stale generation number
                 }
