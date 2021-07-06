@@ -49,11 +49,11 @@ namespace MongoDB.Driver.Core.Operations.ElementNameValidators
             {
                 if (elementName.Length > 0 && elementName[0] == '$')
                 {
-                    _chosenValidator = UpdateElementNameValidator.Instance; ;
+                    _chosenValidator = UpdateElementNameValidator.Instance;
                 }
                 else
                 {
-                    _chosenValidator = CollectionElementNameValidator.Instance;
+                    _chosenValidator = ReplacementElementNameValidator.Instance;
                 }
             }
             return _chosenValidator.IsValidElementName(elementName);

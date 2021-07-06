@@ -20,6 +20,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.TestHelpers;
 using Xunit;
@@ -289,14 +290,36 @@ namespace MongoDB.Driver.Tests.Operations
         [SkippableTheory]
         [InlineData(false)]
         [InlineData(true)]
-        public void TestInsertKeyValidation(bool ordered)
+        public void TestInsertDollarPrefixedKeyRejectedPre50(bool ordered)
         {
             RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+            RequireServer.Check().VersionLessThan(new SemanticVersion(5, 0, 0, ""));
 
             _collection.Drop();
             var bulk = InitializeBulkOperation(_collection, ordered);
             bulk.Insert(new BsonDocument("$key", 1));
-            Assert.Throws<BsonSerializationException>(() => bulk.Execute());
+            Assert.Throws<MongoBulkWriteException<BsonDocument>>(() => bulk.Execute());
+        }
+
+        [SkippableTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void TestInsertDollarPrefixedKeyAcceptedPost50(bool ordered)
+        {
+            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+            RequireServer.Check().VersionGreaterThanOrEqualTo(new SemanticVersion(5, 0, 0, ""));
+
+            _collection.Drop();
+            var bulk = InitializeBulkOperation(_collection, ordered);
+            var document = new BsonDocument("$key", 1);
+            bulk.Insert(document);
+            var result = bulk.Execute();
+
+            var expectedResult = new ExpectedResult { InsertedCount = 1 };
+            CheckExpectedResult(expectedResult, result);
+
+            var expectedDocuments = new[] { document };
+            _collection.FindAll().Should().BeEquivalentTo(expectedDocuments);
         }
 
         [SkippableTheory]

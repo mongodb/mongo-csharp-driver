@@ -15,12 +15,9 @@
 
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Core.Operations.ElementNameValidators;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira.CSharp624
@@ -37,6 +34,13 @@ namespace MongoDB.Driver.Tests.Jira.CSharp624
         [Theory]
         [InlineData("x")]
         [InlineData("x$")]
+        [InlineData("")]
+        [InlineData("$")]
+        [InlineData("$x")]
+        [InlineData(".")]
+        [InlineData("x.")]
+        [InlineData(".y")]
+        [InlineData("x.y")]
         public void TestValidKeys(string key)
         {
             var c = new C { Id = 1, D = new Hashtable { { key, 2 } }, G = new Dictionary<object, int> { { key, 3 } } };
@@ -53,26 +57,6 @@ namespace MongoDB.Driver.Tests.Jira.CSharp624
             Assert.Equal(1, rehydrated.G.Count);
             Assert.Equal(key, rehydrated.G.Keys.First());
             Assert.Equal(3, rehydrated.G[key]);
-        }
-
-        [Theory]
-        [InlineData("")]
-        [InlineData("$")]
-        [InlineData("$x")]
-        [InlineData(".")]
-        [InlineData("x.")]
-        [InlineData(".y")]
-        [InlineData("x.y")]
-        public void TestInvalidKeys(string key)
-        {
-            var c = new C { Id = 1, D = new Hashtable { { key, 2 } }, G = new Dictionary<object, int> { { key, 3 } } };
-
-            using (var stream = new MemoryStream())
-            using (var bsonWriter = new BsonBinaryWriter(stream, BsonBinaryWriterSettings.Defaults))
-            {
-                bsonWriter.PushElementNameValidator(CollectionElementNameValidator.Instance);
-                Assert.Throws<BsonSerializationException>(() => BsonSerializer.Serialize(bsonWriter, c));
-            }
         }
 
         [Theory]

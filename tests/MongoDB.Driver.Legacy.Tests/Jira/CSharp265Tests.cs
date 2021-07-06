@@ -121,7 +121,12 @@ namespace MongoDB.Driver.Tests.Jira.CSharp265
             var json = d.ToJson();
             Assert.Equal(expected, json);
 
-            Assert.Throws<BsonSerializationException>(() => { __collection.Insert(d); });
+            __collection.RemoveAll();
+            __collection.Insert(d);
+            var r = __collection.FindOne(Query.EQ("_id", d.Id));
+            Assert.Equal(d.Id, r.Id);
+            Assert.Equal(1, r.Data.Count);
+            Assert.Equal(1, r.Data["$a"]);
         }
 
         [Fact]
@@ -132,7 +137,12 @@ namespace MongoDB.Driver.Tests.Jira.CSharp265
             var json = d.ToJson();
             Assert.Equal(expected, json);
 
-            Assert.Throws<BsonSerializationException>(() => { __collection.Insert(d); });
+            __collection.RemoveAll();
+            __collection.Insert(d);
+            var r = __collection.FindOne(Query.EQ("_id", d.Id));
+            Assert.Equal(d.Id, r.Id);
+            Assert.Equal(1, r.Data.Count);
+            Assert.Equal(1, r.Data["a.b"]);
         }
 
         [Fact]
@@ -160,7 +170,11 @@ namespace MongoDB.Driver.Tests.Jira.CSharp265
             Assert.Equal(expected, json);
 
             __collection.RemoveAll();
-            Assert.Throws<BsonSerializationException>(() => __collection.Insert(d));
+            __collection.Insert(d);
+            var r = __collection.FindOne(Query.EQ("_id", d.Id));
+            Assert.Equal(d.Id, r.Id);
+            Assert.Equal(1, r.Data.Count);
+            Assert.Equal(1, r.Data["$a"]);
         }
 
         [Fact]
@@ -172,7 +186,11 @@ namespace MongoDB.Driver.Tests.Jira.CSharp265
             Assert.Equal(expected, json);
 
             __collection.RemoveAll();
-            Assert.Throws<BsonSerializationException>(() => __collection.Insert(d));
+            __collection.Insert(d);
+            var r = __collection.FindOne(Query.EQ("_id", d.Id));
+            Assert.Equal(d.Id, r.Id);
+            Assert.Equal(1, r.Data.Count);
+            Assert.Equal(1, r.Data["a.b"]);
         }
 
         [Fact]
@@ -215,7 +233,12 @@ namespace MongoDB.Driver.Tests.Jira.CSharp265
             var json = d.ToJson();
             Assert.Equal(expected, json);
 
-            Assert.Throws<BsonSerializationException>(() => { __collection.Insert(d); });
+            __collection.RemoveAll();
+            __collection.Insert(d);
+            var r = __collection.FindOne(Query.EQ("_id", d.Id));
+            Assert.Equal(d.Id, r.Id);
+            Assert.Equal(1, r.Data.Count);
+            Assert.Equal(1, r.Data["$a"]);
         }
 
         [Fact]
@@ -226,7 +249,12 @@ namespace MongoDB.Driver.Tests.Jira.CSharp265
             var json = d.ToJson();
             Assert.Equal(expected, json);
 
-            Assert.Throws<BsonSerializationException>(() => { __collection.Insert(d); });
+            __collection.RemoveAll();
+            __collection.Insert(d);
+            var r = __collection.FindOne(Query.EQ("_id", d.Id));
+            Assert.Equal(d.Id, r.Id);
+            Assert.Equal(1, r.Data.Count);
+            Assert.Equal(1, r.Data["a.b"]);
         }
 
         [Fact]
@@ -254,7 +282,11 @@ namespace MongoDB.Driver.Tests.Jira.CSharp265
             Assert.Equal(expected, json);
 
             __collection.RemoveAll();
-            Assert.Throws<BsonSerializationException>(() => __collection.Insert(d));
+            __collection.Insert(d);
+            var r = __collection.FindOne(Query.EQ("_id", d.Id));
+            Assert.Equal(d.Id, r.Id);
+            Assert.Equal(1, r.Data.Count);
+            Assert.Equal(1, r.Data["$a"]);
         }
 
         [Fact]
@@ -266,7 +298,11 @@ namespace MongoDB.Driver.Tests.Jira.CSharp265
             Assert.Equal(expected, json);
 
             __collection.RemoveAll();
-            Assert.Throws<BsonSerializationException>(() => __collection.Insert(d));
+            __collection.Insert(d);
+            var r = __collection.FindOne(Query.EQ("_id", d.Id));
+            Assert.Equal(d.Id, r.Id);
+            Assert.Equal(1, r.Data.Count);
+            Assert.Equal(1, r.Data["a.b"]);
         }
     }
 }

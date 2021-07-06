@@ -19,6 +19,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
 using MongoDB.Driver;
+using MongoDB.Driver.Builders;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira
@@ -26,12 +27,14 @@ namespace MongoDB.Driver.Tests.Jira
     public class CSharp893CheckElementNameTests
     {
         [Fact]
-        public void TestEmptyElementNameNotAllowed()
+        public void TestEmptyElementNameIsAllowed()
         {
             var collection = LegacyTestConfiguration.GetCollection<BsonDocument>();
             collection.Drop();
             var document = new BsonDocument { { "_id", 1 }, { "", 2 } };
-            Assert.Throws<BsonSerializationException>(() => collection.Insert(document));
+            collection.Insert(document);
+            var r = collection.FindOne(Query.EQ("_id", document["_id"]));
+            Assert.Equal(2, r[""]);
         }
     }
 
@@ -102,7 +105,10 @@ namespace MongoDB.Driver.Tests.Jira
         public void TestEmptyKey()
         {
             var c = new C { _id = 1, d = new Dictionary<object, object> { { "", 2 } } };
-            Assert.Throws<BsonSerializationException>(() => TestEmptyKey(c, "{ '_id' : 1, 'd' : { '' : 2 } }"));
+            var rehydrated = TestEmptyKey(c, "{ '_id' : 1, 'd' : { '' : 2 } }");
+            Assert.Equal(1, rehydrated._id);
+            Assert.Equal(1, rehydrated.d.Count);
+            Assert.Equal(2, rehydrated.d[""]);
         }
     }
 
@@ -118,7 +124,10 @@ namespace MongoDB.Driver.Tests.Jira
         public void TestEmptyKey()
         {
             var c = new C { _id = 1, d = new Dictionary<object, object> { { "", 2 } } };
-            Assert.Throws<BsonSerializationException>(() => TestEmptyKey(c, "{ '_id' : 1, 'd' : { '' : 2 } }"));
+            var rehydrated = TestEmptyKey(c, "{ '_id' : 1, 'd' : { '' : 2 } }");
+            Assert.Equal(1, rehydrated._id);
+            Assert.Equal(1, rehydrated.d.Count);
+            Assert.Equal(2, rehydrated.d[""]);
         }
     }
 
@@ -175,7 +184,10 @@ namespace MongoDB.Driver.Tests.Jira
         public void TestEmptyKey()
         {
             var c = new C { _id = 1, d = new Dictionary<string, object> { { "", 2 } } };
-            Assert.Throws<BsonSerializationException>(() => TestEmptyKey(c, "{ '_id' : 1, 'd' : { '' : 2 } }"));
+            var rehydrated = TestEmptyKey(c, "{ '_id' : 1, 'd' : { '' : 2 } }");
+            Assert.Equal(1, rehydrated._id);
+            Assert.Equal(1, rehydrated.d.Count);
+            Assert.Equal(2, rehydrated.d[""]);
         }
     }
 
@@ -191,7 +203,10 @@ namespace MongoDB.Driver.Tests.Jira
         public void TestEmptyKey()
         {
             var c = new C { _id = 1, d = new Dictionary<string, object> { { "", 2 } } };
-            Assert.Throws<BsonSerializationException>(() => TestEmptyKey(c, "{ '_id' : 1, 'd' : { '' : 2 } }"));
+            var rehydrated = TestEmptyKey(c, "{ '_id' : 1, 'd' : { '' : 2 } }");
+            Assert.Equal(1, rehydrated._id);
+            Assert.Equal(1, rehydrated.d.Count);
+            Assert.Equal(2, rehydrated.d[""]);
         }
     }
 
@@ -248,7 +263,10 @@ namespace MongoDB.Driver.Tests.Jira
         public void TestEmptyKey()
         {
             var c = new C { _id = 1, d = new Hashtable { { "", 2 } } };
-            Assert.Throws<BsonSerializationException>(() => TestEmptyKey(c, "{ '_id' : 1, 'd' : { '' : 2 } }"));
+            var rehydrated = TestEmptyKey(c, "{ '_id' : 1, 'd' : { '' : 2 } }");
+            Assert.Equal(1, rehydrated._id);
+            Assert.Equal(1, rehydrated.d.Count);
+            Assert.Equal(2, rehydrated.d[""]);
         }
     }
 
@@ -264,7 +282,10 @@ namespace MongoDB.Driver.Tests.Jira
         public void TestEmptyKey()
         {
             var c = new C { _id = 1, d = new Hashtable { { "", 2 } } };
-            Assert.Throws<BsonSerializationException>(() => TestEmptyKey(c, "{ '_id' : 1, 'd' : { '' : 2 } }"));
+            var rehydrated = TestEmptyKey(c, "{ '_id' : 1, 'd' : { '' : 2 } }");
+            Assert.Equal(1, rehydrated._id);
+            Assert.Equal(1, rehydrated.d.Count);
+            Assert.Equal(2, rehydrated.d[""]);
         }
     }
 }

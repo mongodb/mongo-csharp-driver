@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Core.Operations.ElementNameValidators
             switch (updateType)
             {
                 case UpdateType.Replacement:
-                    return CollectionElementNameValidator.Instance;
+                    return ReplacementElementNameValidator.Instance;
                 case UpdateType.Update:
                     return UpdateElementNameValidator.Instance;
                 default:
