@@ -299,7 +299,6 @@ namespace MongoDB.Driver.Core.Connections
             }
             catch (Exception ex)
             {
-                // if we have successful handshake description, we should propogate it to upper levels
                 _description ??= handshakeDescription;
                 var wrappedException = WrapException(ex, "opening a connection to the server");
                 helper.FailedOpeningConnection(wrappedException);
@@ -326,8 +325,7 @@ namespace MongoDB.Driver.Core.Connections
             }
             catch (Exception ex)
             {
-                // if we have successful handshake description, we should propogate it to upper levels
-                _description = handshakeDescription;
+                _description ??= handshakeDescription;
                 var wrappedException = WrapException(ex, "opening a connection to the server");
                 helper.FailedOpeningConnection(wrappedException);
                 throw wrappedException;
