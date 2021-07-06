@@ -121,6 +121,12 @@ Task("Test")
         .Where(name => !name.ToString().Contains("Atlas")),
         testProject =>
     {
+        if (Environment.GetEnvironmentVariable("MONGODB_API_VERSION") != null &&
+            testProject.ToString().Contains("Legacy"))
+        {
+            return; // Legacy tests are exempt from Version API testing
+        }
+
         var testWithDefaultGuidRepresentationMode = Environment.GetEnvironmentVariable("TEST_WITH_DEFAULT_GUID_REPRESENTATION_MODE");
         if (testWithDefaultGuidRepresentationMode != null)
         {

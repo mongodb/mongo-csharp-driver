@@ -315,6 +315,10 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
 
             massagedCommand.Remove("$clusterTime");
             massagedCommand.Remove("lsid");
+            if (CoreTestConfiguration.RequireApiVersion)
+            {
+                massagedCommand.Remove("apiVersion");
+            }
 
             return massagedCommand;
         }

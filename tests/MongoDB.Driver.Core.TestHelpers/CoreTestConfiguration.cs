@@ -108,7 +108,7 @@ namespace MongoDB.Driver
             }
 
             builder = builder
-                .ConfigureWithConnectionString(__connectionString.Value)
+                .ConfigureWithConnectionString(__connectionString.Value, GetServerApi())
                 .ConfigureCluster(c => c.With(serverSelectionTimeout: TimeSpan.FromMilliseconds(int.Parse(serverSelectionTimeoutString))));
 
             if (__connectionString.Value.Tls.HasValue &&
@@ -293,6 +293,31 @@ namespace MongoDB.Driver
             }
         }
 
+        public static bool RequireApiVersion
+        {
+            get
+            {
+                return Environment.GetEnvironmentVariable("MONGODB_API_VERSION") != null;
+            }
+        }
+
+        public static ServerApi GetServerApi()
+        {
+            var serverApiVersion = Environment.GetEnvironmentVariable("MONGODB_API_VERSION");
+
+            if (serverApiVersion == null)
+            {
+                return null;
+            }
+
+            if (serverApiVersion != "1")
+            {
+                throw new ArgumentException($"Server API version \"{serverApiVersion}\" is not supported");
+            }
+
+            return new ServerApi(ServerApiVersion.V1);
+        }
+
         public static BsonDocument GetServerParameters()
         {
             using (var session = StartSession())
@@ -345,8 +370,7 @@ namespace MongoDB.Driver
 
         private static bool IsReplicaSet(string uri)
         {
-            var clusterBuilder = new ClusterBuilder();
-            clusterBuilder.ConfigureWithConnectionString(uri);
+            var clusterBuilder = new ClusterBuilder().ConfigureWithConnectionString(uri, GetServerApi());
 
             using (var cluster = clusterBuilder.BuildCluster())
             {

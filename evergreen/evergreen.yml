@@ -202,6 +202,7 @@ functions:
       params:
         script: |
           ${PREPARE_SHELL}
+          REQUIRE_API_VERSION=${REQUIRE_API_VERSION} \
           MONGODB_VERSION=${VERSION} \
           TOPOLOGY=${TOPOLOGY} \
           AUTH=${AUTH} \
@@ -290,15 +291,18 @@ functions:
           . ./evergreen/set-virtualenv.sh
           . ./evergreen/set-temp-fle-aws-creds.sh
           ${PREPARE_SHELL}
-          SSL=${SSL} OS=${OS} evergreen/add-certs-if-needed.sh
+          SSL=${SSL} \
+          OS=${OS} \
+            evergreen/add-certs-if-needed.sh
           AUTH=${AUTH} \
-            SSL=${SSL} \
-            MONGODB_URI="${MONGODB_URI}" \
-            TOPOLOGY=${TOPOLOGY} \
-            OS=${OS} \
-            COMPRESSOR=${COMPRESSOR} \
-            CLIENT_PEM=${DRIVERS_TOOLS}/.evergreen/x509gen/client.pem \
-            FRAMEWORK=${FRAMEWORK} \
+          SSL=${SSL} \
+          MONGODB_URI="${MONGODB_URI}" \
+          TOPOLOGY=${TOPOLOGY} \
+          OS=${OS} \
+          COMPRESSOR=${COMPRESSOR} \
+          CLIENT_PEM=${DRIVERS_TOOLS}/.evergreen/x509gen/client.pem \
+          REQUIRE_API_VERSION=${REQUIRE_API_VERSION} \
+          FRAMEWORK=${FRAMEWORK} \
             evergreen/run-tests.sh
           echo "Skipping certificate removal..."
 
@@ -786,6 +790,46 @@ tasks:
         - func: run-aws-auth-test-with-aws-credentials-and-session-token-as-environment-variables
         - func: run-aws-auth-test-with-aws-EC2-credentials
         # ECS test is skipped untill testing on Linux becomes possible
+
+    - name: versioned-api-tests-net452
+      commands:
+        - func: bootstrap-mongo-orchestration
+          vars:
+            REQUIRE_API_VERSION: true
+        - func: run-tests
+          vars:
+            FRAMEWORK: net452
+            REQUIRE_API_VERSION: true
+
+    - name: versioned-api-tests-netstandard15
+      commands:
+        - func: bootstrap-mongo-orchestration
+          vars:
+            REQUIRE_API_VERSION: true
+        - func: run-tests
+          vars:
+            FRAMEWORK: netstandard15
+            REQUIRE_API_VERSION: true
+
+    - name: versioned-api-tests-netstandard20
+      commands:
+        - func: bootstrap-mongo-orchestration
+          vars:
+            REQUIRE_API_VERSION: true
+        - func: run-tests
+          vars:
+            FRAMEWORK: netstandard20
+            REQUIRE_API_VERSION: true
+
+    - name: versioned-api-tests-netstandard21
+      commands:
+        - func: bootstrap-mongo-orchestration
+          vars:
+            REQUIRE_API_VERSION: true
+        - func: run-tests
+          vars:
+            FRAMEWORK: netstandard21
+            REQUIRE_API_VERSION: true
 
     - name: atlas-data-lake-test
       commands:
@@ -1379,6 +1423,17 @@ buildvariants:
   tasks:
     - name: aws-auth-tests
 
+- matrix_name: versioned-api-tests
+  matrix_spec: { version: ["5.0", "latest"], topology: "standalone", auth: "auth", ssl: "nossl", os: "windows-64" }
+  display_name: "Versioned API ${version} ${topology} ${auth} ${ssl} ${os}"
+  run_on:
+    - windows-64-vs2017-test
+  tasks:
+    - name: versioned-api-tests-net452
+    - name: versioned-api-tests-netstandard15
+    - name: versioned-api-tests-netstandard20
+    - name: versioned-api-tests-netstandard21
+
 - matrix_name: plain-auth-tests
   matrix_spec: { os: "*" }
   display_name: "PLAIN (LDAP) Auth Tests"
@@ -1433,4 +1488,3 @@ buildvariants:
     - name: test-gssapi-netstandard15
     - name: test-gssapi-netstandard20
     - name: test-gssapi-netstandard21
-

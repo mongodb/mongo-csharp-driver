@@ -201,7 +201,7 @@ namespace MongoDB.Driver.Tests
         {
             RequireServer.Check().Supports(Feature.AggregateFunction);
 
-            var client = CreateClient();
+            var client = DriverTestConfiguration.Client;
             var databaseName = "test";
             var collectionName = "collection";
             DropCollection(client, databaseName, collectionName);
@@ -267,7 +267,7 @@ namespace MongoDB.Driver.Tests
         {
             RequireServer.Check().Supports(Feature.AggregateAccumulator);
 
-            var client = CreateClient();
+            var client = DriverTestConfiguration.Client;
             var databaseName = "db";
             var collectionName = "collection";
             DropCollection(client, databaseName, collectionName);
@@ -324,7 +324,7 @@ namespace MongoDB.Driver.Tests
             string ordersCollectionName = "orders";
             string warehousesCollectionName = "warehouses";
 
-            var client = CreateClient();
+            var client = DriverTestConfiguration.Client;
             DropCollection(client, databaseName, ordersCollectionName);
             DropCollection(client, databaseName, warehousesCollectionName);
 
@@ -422,7 +422,7 @@ namespace MongoDB.Driver.Tests
             string ordersCollectionName = "orders";
             string warehousesCollectionName = "warehouses";
 
-            var client = CreateClient();
+            var client = DriverTestConfiguration.Client;
             DropCollection(client, databaseName, ordersCollectionName);
             DropCollection(client, databaseName, warehousesCollectionName);
 
@@ -490,7 +490,7 @@ namespace MongoDB.Driver.Tests
             string ordersCollectionName = "orders";
             string warehousesCollectionName = "warehouses";
 
-            var client = CreateClient();
+            var client = DriverTestConfiguration.Client;
             DropCollection(client, databaseName, ordersCollectionName);
             DropCollection(client, databaseName, warehousesCollectionName);
 
@@ -558,7 +558,7 @@ namespace MongoDB.Driver.Tests
             string ordersCollectionName = "orders";
             string warehousesCollectionName = "warehouses";
 
-            var client = CreateClient();
+            var client = DriverTestConfiguration.Client;
             DropCollection(client, databaseName, ordersCollectionName);
             DropCollection(client, databaseName, warehousesCollectionName);
 
@@ -1234,7 +1234,7 @@ namespace MongoDB.Driver.Tests
             var items1CollectionName = "items1";
             var items2CollectionName = "items2";
 
-            var client = CreateClient();
+            var client = DriverTestConfiguration.Client;
             DropCollection(client, databaseName, items1CollectionName);
             DropCollection(client, databaseName, items2CollectionName);
 
@@ -1363,11 +1363,6 @@ namespace MongoDB.Driver.Tests
         public class D : C
         {
             public int Y;
-        }
-
-        private IMongoClient CreateClient()
-        {
-            return new MongoClient(CoreTestConfiguration.ConnectionString.ToString());
         }
 
         private void DropCollection(IMongoClient client, string databaseName, string collectionName)

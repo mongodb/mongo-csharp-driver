@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Tests
 
             string testCollectionName = "test";
             string testDatabaseName = "test";
-            var client = CreateClient();
+            var client = DriverTestConfiguration.Client;
             DropCollection(client, testDatabaseName, testCollectionName);
             var collection = client.GetDatabase(testDatabaseName).GetCollection<BsonDocument>(testCollectionName);
             collection.InsertOne(new BsonDocument("key", "value1"));
@@ -144,12 +144,6 @@ namespace MongoDB.Driver.Tests
         }
 
         //private methods
-        private IMongoClient CreateClient()
-        {
-            var connectionString = CoreTestConfiguration.ConnectionString.ToString();
-            return new MongoClient(connectionString);
-        }
-
         private void DropCollection(IMongoClient client, string databaseName, string collectionName)
         {
             client.GetDatabase(databaseName).DropCollection(collectionName);
