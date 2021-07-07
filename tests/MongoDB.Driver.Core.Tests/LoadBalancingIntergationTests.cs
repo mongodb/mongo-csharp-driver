@@ -664,7 +664,10 @@ namespace MongoDB.Driver.Core.Tests
             RequireEnvironment.Check().ProcessStarted("nginx");
             Environment.SetEnvironmentVariable("MONGODB_URI", "mongodb://localhost:17017?loadBalanced=true");
             Environment.SetEnvironmentVariable("MONGODB_URI_WITH_MULTIPLE_MONGOSES", "mongodb://localhost:17018?loadBalanced=true");
-            RequireServer.Check().LoadBalancing(enabled: true, ignorePreviousSetup: true);
+            RequireServer
+                .Check()
+                .LoadBalancing(enabled: true, ignorePreviousSetup: true)
+                .Authentication(authentication: false); // auth server requires credentials in connection string
 #else
             RequireEnvironment.Check().EnvironmentVariable("SINGLE_MONGOS_LB_URI"); // these env variables are used only on the scripting side
             RequireEnvironment.Check().EnvironmentVariable("MULTI_MONGOS_LB_URI");
