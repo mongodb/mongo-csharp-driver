@@ -1446,41 +1446,22 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [SkippableTheory]
-        [InlineData(new[] { 1 }, new[] { 1 })]
-        [InlineData(new[] { 1, 1 }, new[] { 2 })]
-        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000 }, new[] { 4 })]
-        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000, 7999887 }, new[] { 5 })]
-        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000, 7999888 }, new[] { 4, 1 })]
-        public void Execute_with_multiple_deletes_should_split_batches_as_expected_when_using_write_commands_via_opmessage(int[] requestSizes, int[] expectedBatchCounts)
+        [InlineData(new[] { 1 }, new[] { 1 }, false)]
+        [InlineData(new[] { 1, 1 }, new[] { 2 }, false)]
+        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000 }, new[] { 4 }, false)]
+        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000, 7999887 }, new[] { 5 }, false)]
+        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000, 7999888 }, new[] { 4, 1 }, false)]
+        [InlineData(new[] { 1 }, new[] { 1 }, true)]
+        [InlineData(new[] { 1, 1 }, new[] { 2 }, true)]
+        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000 }, new[] { 4 }, true)]
+        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000, 7999869 }, new[] { 5 }, true)]
+        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000, 7999870 }, new[] { 4, 1 }, true)]
+        public void Execute_with_multiple_deletes_should_split_batches_as_expected_when_using_write_commands_via_opmessage(
+            int[] requestSizes,
+            int[] expectedBatchCounts,
+            bool requireApiVersion)
         {
-            RequireServer.Check().Supports(Feature.CommandMessage).RequireApiVersion(false);
-            DropCollection();
-
-            using (EventContext.BeginOperation())
-            {
-                var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>(e => e.CommandName == "delete" && e.OperationId == EventContext.OperationId);
-                using (var cluster = CoreTestConfiguration.CreateCluster(b => b.Subscribe(eventCapturer)))
-                using (var session = NoCoreSession.NewHandle())
-                using (var binding = new ReadWriteBindingHandle(new WritableServerBinding(cluster, session.Fork())))
-                {
-                    var requests = requestSizes.Select(size => CreateDeleteRequest(size));
-                    var operation = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
-
-                    var result = ExecuteOperation(operation, binding, async: false);
-
-                    var commandStartedEvents = eventCapturer.Events.OfType<CommandStartedEvent>().ToList();
-                    var actualBatchCounts = commandStartedEvents.Select(e => e.Command["deletes"].AsBsonArray.Count).ToList();
-                    actualBatchCounts.Should().Equal(expectedBatchCounts);
-                }
-            }
-        }
-
-        [SkippableTheory]
-        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000, 7999869 }, new[] { 5 })]
-        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000, 7999870 }, new[] { 4, 1 })]
-        public void Execute_with_multiple_deletes_should_split_batches_as_expected_when_using_write_commands_via_opmessage_with_server_api(int[] requestSizes, int[] expectedBatchCounts)
-        {
-            RequireServer.Check().Supports(Feature.CommandMessage).RequireApiVersion();
+            RequireServer.Check().Supports(Feature.CommandMessage).RequireApiVersion(requireApiVersion);
             DropCollection();
 
             using (EventContext.BeginOperation())
@@ -1536,43 +1517,22 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [SkippableTheory]
-        [InlineData(new[] { 1 }, new[] { 1 })]
-        [InlineData(new[] { 1, 1 }, new[] { 2 })]
-        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000 }, new[] { 4 })]
-        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000, 7999885 }, new[] { 5 })]
-        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000, 7999886 }, new[] { 4, 1 })]
-        public void Execute_with_multiple_inserts_should_split_batches_as_expected_when_using_write_commands_via_opmessage(int[] documentSizes, int[] expectedBatchCounts)
+        [InlineData(new[] { 1 }, new[] { 1 }, false)]
+        [InlineData(new[] { 1, 1 }, new[] { 2 }, false)]
+        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000 }, new[] { 4 }, false)]
+        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000, 7999885 }, new[] { 5 }, false)]
+        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000, 7999886 }, new[] { 4, 1 }, false)]
+        [InlineData(new[] { 1 }, new[] { 1 }, true)]
+        [InlineData(new[] { 1, 1 }, new[] { 2 }, true)]
+        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000 }, new[] { 4 }, true)]
+        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000, 7999867 }, new[] { 5 }, true)]
+        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000, 7999868 }, new[] { 4, 1 }, true)]
+        public void Execute_with_multiple_inserts_should_split_batches_as_expected_when_using_write_commands_via_opmessage(
+            int[] documentSizes,
+            int[] expectedBatchCounts,
+            bool requireApiVersion)
         {
-            RequireServer.Check().Supports(Feature.CommandMessage).RequireApiVersion(false);
-            DropCollection();
-
-            using (EventContext.BeginOperation())
-            {
-                var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>(e => e.CommandName == "insert" && e.OperationId == EventContext.OperationId);
-                using (var cluster = CoreTestConfiguration.CreateCluster(b => b.Subscribe(eventCapturer)))
-                using (var session = NoCoreSession.NewHandle())
-                using (var binding = new ReadWriteBindingHandle(new WritableServerBinding(cluster, session.Fork())))
-                {
-                    var documents = documentSizes.Select((size, index) => CreateDocument(index + 1, size)).ToList();
-                    var requests = documents.Select(d => new InsertRequest(d)).ToList();
-                    var operation = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
-
-                    var result = ExecuteOperation(operation, binding, async: false);
-
-                    result.InsertedCount.Should().Be(documents.Count);
-                    var commandStartedEvents = eventCapturer.Events.OfType<CommandStartedEvent>().ToList();
-                    var actualBatchCounts = commandStartedEvents.Select(e => e.Command["documents"].AsBsonArray.Count).ToList();
-                    actualBatchCounts.Should().Equal(expectedBatchCounts);
-                }
-            }
-        }
-
-        [SkippableTheory]
-        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000, 7999867 }, new[] { 5 })]
-        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000, 7999868 }, new[] { 4, 1 })]
-        public void Execute_with_multiple_inserts_should_split_batches_as_expected_when_using_write_commands_via_opmessage_with_server_api(int[] documentSizes, int[] expectedBatchCounts)
-        {
-            RequireServer.Check().Supports(Feature.CommandMessage).RequireApiVersion();
+            RequireServer.Check().Supports(Feature.CommandMessage).RequireApiVersion(requireApiVersion);
             DropCollection();
 
             using (EventContext.BeginOperation())
@@ -1631,41 +1591,22 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [SkippableTheory]
-        [InlineData(new[] { 1 }, new[] { 1 })]
-        [InlineData(new[] { 1, 1 }, new[] { 2 })]
-        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000 }, new[] { 4 })]
-        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000, 7999887 }, new[] { 5 })]
-        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000, 7999888 }, new[] { 4, 1 })]
-        public void Execute_with_multiple_updates_should_split_batches_as_expected_when_using_write_commands_via_opmessage(int[] requestSizes, int[] expectedBatchCounts)
+        [InlineData(new[] { 1 }, new[] { 1 }, false)]
+        [InlineData(new[] { 1, 1 }, new[] { 2 }, false)]
+        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000 }, new[] { 4 }, false)]
+        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000, 7999887 }, new[] { 5 }, false)]
+        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000, 7999888 }, new[] { 4, 1 }, false)]
+        [InlineData(new[] { 1 }, new[] { 1 }, true)]
+        [InlineData(new[] { 1, 1 }, new[] { 2 }, true)]
+        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000 }, new[] { 4 }, true)]
+        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000, 7999869 }, new[] { 5 }, true)]
+        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000, 7999870 }, new[] { 4, 1 }, true)]
+        public void Execute_with_multiple_updates_should_split_batches_as_expected_when_using_write_commands_via_opmessage(
+            int[] requestSizes,
+            int[] expectedBatchCounts,
+            bool requireApiVersion)
         {
-            RequireServer.Check().Supports(Feature.CommandMessage).RequireApiVersion(false);
-            DropCollection();
-
-            using (EventContext.BeginOperation())
-            {
-                var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>(e => e.CommandName == "update" && e.OperationId == EventContext.OperationId);
-                using (var cluster = CoreTestConfiguration.CreateCluster(b => b.Subscribe(eventCapturer)))
-                using (var session = NoCoreSession.NewHandle())
-                using (var binding = new ReadWriteBindingHandle(new WritableServerBinding(cluster, session.Fork())))
-                {
-                    var requests = requestSizes.Select(size => CreateUpdateRequest(size));
-                    var operation = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
-
-                    var result = ExecuteOperation(operation, binding, async: false);
-
-                    var commandStartedEvents = eventCapturer.Events.OfType<CommandStartedEvent>().ToList();
-                    var actualBatchCounts = commandStartedEvents.Select(e => e.Command["updates"].AsBsonArray.Count).ToList();
-                    actualBatchCounts.Should().Equal(expectedBatchCounts);
-                }
-            }
-        }
-
-        [SkippableTheory]
-        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000, 7999869 }, new[] { 5 })]
-        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000, 7999870 }, new[] { 4, 1 })]
-        public void Execute_with_multiple_updates_should_split_batches_as_expected_when_using_write_commands_via_opmessage_with_server_api(int[] requestSizes, int[] expectedBatchCounts)
-        {
-            RequireServer.Check().Supports(Feature.CommandMessage).RequireApiVersion();
+            RequireServer.Check().Supports(Feature.CommandMessage).RequireApiVersion(requireApiVersion);
             DropCollection();
 
             using (EventContext.BeginOperation())

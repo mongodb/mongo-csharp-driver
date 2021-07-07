@@ -135,7 +135,7 @@ namespace MongoDB.Driver.Tests
                 ? CoreTestConfiguration.ConnectionStringWithMultipleShardRouters.ToString()
                 : CoreTestConfiguration.ConnectionString.ToString();
             var clientSettings = MongoClientSettings.FromUrl(new MongoUrl(connectionString));
-            clientSettings.ServerApi = CoreTestConfiguration.GetServerApi();
+            clientSettings.ServerApi = CoreTestConfiguration.ServerApi;
             clientSettingsConfigurator?.Invoke(clientSettings);
 
             return new MongoClient(clientSettings);
@@ -171,7 +171,7 @@ namespace MongoDB.Driver.Tests
             }
             clientSettings.ServerSelectionTimeout = TimeSpan.FromMilliseconds(int.Parse(serverSelectionTimeoutString));
             clientSettings.ClusterConfigurator = cb => CoreTestConfiguration.ConfigureLogging(cb);
-            clientSettings.ServerApi = CoreTestConfiguration.GetServerApi();
+            clientSettings.ServerApi = CoreTestConfiguration.ServerApi;
 
             return clientSettings;
         }

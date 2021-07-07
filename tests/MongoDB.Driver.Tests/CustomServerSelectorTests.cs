@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Tests
                                 s =>
                                     new ClusterSettings(
                                         postServerSelector: customServerSelector,
-                                        serverApi: CoreTestConfiguration.GetServerApi()));
+                                        serverApi: CoreTestConfiguration.ServerApi));
                             c.Subscribe(eventCapturer);
                         }))
             {

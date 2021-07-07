@@ -407,7 +407,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             var useMultipleShardRouters = false;
             TimeSpan? waitQueueTimeout = null;
             var writeConcern = WriteConcern.Acknowledged;
-            var serverApi = CoreTestConfiguration.GetServerApi();
+            var serverApi = CoreTestConfiguration.ServerApi;
 
             foreach (var element in entity)
             {

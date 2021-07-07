@@ -45,6 +45,7 @@ namespace MongoDB.Driver
         private static Lazy<DatabaseNamespace> __databaseNamespace = new Lazy<DatabaseNamespace>(GetDatabaseNamespace, isThreadSafe: true);
         private static Lazy<BuildInfoResult> _buildInfo = new Lazy<BuildInfoResult>(RunBuildInfo, isThreadSafe: true);
         private static MessageEncoderSettings __messageEncoderSettings = new MessageEncoderSettings();
+        private static Lazy<ServerApi> __serverApi = new Lazy<ServerApi>(GetServerApi, isThreadSafe: true);
         private static TraceSource __traceSource;
 
         // static properties
@@ -71,6 +72,16 @@ namespace MongoDB.Driver
         public static MessageEncoderSettings MessageEncoderSettings
         {
             get { return __messageEncoderSettings; }
+        }
+
+        public static bool RequireApiVersion
+        {
+            get { return __serverApi.Value != null; }
+        }
+
+        public static ServerApi ServerApi
+        {
+            get { return __serverApi.Value; }
         }
 
         public static SemanticVersion ServerVersion
@@ -108,7 +119,7 @@ namespace MongoDB.Driver
             }
 
             builder = builder
-                .ConfigureWithConnectionString(__connectionString.Value, GetServerApi())
+                .ConfigureWithConnectionString(__connectionString.Value, __serverApi.Value)
                 .ConfigureCluster(c => c.With(serverSelectionTimeout: TimeSpan.FromMilliseconds(int.Parse(serverSelectionTimeoutString))));
 
             if (__connectionString.Value.Tls.HasValue &&
@@ -271,6 +282,23 @@ namespace MongoDB.Driver
             return new DatabaseNamespace("Tests" + timestamp);
         }
 
+        private static ServerApi GetServerApi()
+        {
+            var serverApiVersion = Environment.GetEnvironmentVariable("MONGODB_API_VERSION");
+
+            if (serverApiVersion == null)
+            {
+                return null;
+            }
+
+            if (serverApiVersion != "1")
+            {
+                throw new ArgumentException($"Server API version \"{serverApiVersion}\" is not supported");
+            }
+
+            return new ServerApi(ServerApiVersion.V1);
+        }
+
         public static DatabaseNamespace GetDatabaseNamespaceForTestClass(Type testClassType)
         {
             var databaseName = TruncateDatabaseNameIfTooLong(__databaseNamespace.Value.DatabaseName + "-" + testClassType.Name);
@@ -291,31 +319,6 @@ namespace MongoDB.Driver
                 var response = operation.Execute(binding, CancellationToken.None);
                 return new BuildInfoResult(response);
             }
-        }
-
-        public static bool RequireApiVersion
-        {
-            get
-            {
-                return Environment.GetEnvironmentVariable("MONGODB_API_VERSION") != null;
-            }
-        }
-
-        public static ServerApi GetServerApi()
-        {
-            var serverApiVersion = Environment.GetEnvironmentVariable("MONGODB_API_VERSION");
-
-            if (serverApiVersion == null)
-            {
-                return null;
-            }
-
-            if (serverApiVersion != "1")
-            {
-                throw new ArgumentException($"Server API version \"{serverApiVersion}\" is not supported");
-            }
-
-            return new ServerApi(ServerApiVersion.V1);
         }
 
         public static BsonDocument GetServerParameters()
@@ -370,7 +373,7 @@ namespace MongoDB.Driver
 
         private static bool IsReplicaSet(string uri)
         {
-            var clusterBuilder = new ClusterBuilder().ConfigureWithConnectionString(uri, GetServerApi());
+            var clusterBuilder = new ClusterBuilder().ConfigureWithConnectionString(uri, __serverApi.Value);
 
             using (var cluster = clusterBuilder.BuildCluster())
             {
