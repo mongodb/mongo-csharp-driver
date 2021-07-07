@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -130,13 +131,272 @@ namespace MongoDB.Driver.Core.Tests
 
                             AssertSessionReferenceCount(session, 1);
                             AssertChannelReferenceCount(readBindingsBundle.RetryableReadContext.Channel, 0);
-                            AssertChannelReferenceCount(asyncCursor, null); // effective channel count is 0, but we cannot asser it anymore
+                            AssertChannelReferenceCount(asyncCursor, null); // effective channel count is 0, but we cannot assert it anymore
                             AssertCommand(eventCapturer, "getMore", onlySingleCommand: false);
                             AssertCheckInOnlyEvents(eventCapturer);
                         }
                     }
                     AssertSessionReferenceCount(session, 0);
                 }
+            }
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Cursor_should_pin_connection_in_transaction_with_new_sessions_as_expected(
+            [Range(1, 3)] int attempts,
+            [Values(false, true)] bool forceCursorClose,
+            [Values(false)] bool async)
+        {
+            SkipIfNotLoadBalancingMode();
+
+            KillOpenTransactions();
+
+            SetupData();
+
+            ServiceIdHelper.IsServiceIdEmulationEnabled = true; // TODO: temporary solution to enable emulating serviceId in a server response
+
+            var eventCapturer = new EventCapturer()
+                .Capture<ConnectionPoolCheckedOutConnectionEvent>()
+                .Capture<ConnectionPoolCheckingOutConnectionEvent>()
+                .Capture<ConnectionPoolCheckedInConnectionEvent>()
+                .Capture<ConnectionPoolCheckingInConnectionEvent>()
+                .Capture<CommandSucceededEvent>();
+
+            using (var cluster = CreateLoadBalancedCluster(eventCapturer))
+            {
+                eventCapturer.Clear();
+
+                for (int i = 1; i <= attempts; i++)
+                {
+                    ICoreSessionHandle session;
+                    DisposableReadBindingBundle readBindingsBundle;
+                    IAsyncCursor<BsonDocument> asyncCursor;
+
+                    using (session = CreateSession(cluster, isImplicit: false, withTransaction: true))
+                    {
+                        AssertSessionReferenceCount(session, 1);
+
+                        eventCapturer.Any().Should().BeFalse();
+                        using (readBindingsBundle = CreateEffectiveReadBindingsAndRetryableReadContext(cluster, session.Fork(), async))
+                        {
+                            AssertSessionReferenceCount(session, 3);
+                            AssertReadBindingReferenceCount(readBindingsBundle.ReadBindingHandle, 1);
+                            AssertChannelReferenceCount(readBindingsBundle.RetryableReadContext.Channel, 1);
+                            AssertCheckOutOnlyEvents(eventCapturer, i);
+
+                            readBindingsBundle.RetryableReadContext.PinConnectionIfRequired();
+
+                            AssertSessionReferenceCount(session, 3);
+                            AssertReadBindingReferenceCount(readBindingsBundle.ReadBindingHandle, 1);
+                            AssertChannelReferenceCount(readBindingsBundle.RetryableReadContext.Channel, 2);
+                            eventCapturer.Any().Should().BeFalse();
+
+                            asyncCursor = CreateAndRunFindOperation(readBindingsBundle.RetryableReadContext, async);
+
+                            AssertSessionReferenceCount(session, 4);
+                            AssertReadBindingReferenceCount(readBindingsBundle.ReadBindingHandle, 1);
+                            AssertChannelReferenceCount(readBindingsBundle.RetryableReadContext.Channel, 3);
+                            AssertChannelReferenceCount(asyncCursor, 3);
+                            AssertCommand(eventCapturer, "find", onlySingleCommand: true);
+                        }
+                        AssertSessionReferenceCount(session, 2); // -2 because bundle consist of two disposable steps
+                        AssertChannelReferenceCount(readBindingsBundle.RetryableReadContext.Channel, 2);
+                        AssertChannelReferenceCount(asyncCursor, 2);
+
+                        var hasNext = asyncCursor.MoveNext(); // no op
+                        hasNext = asyncCursor.MoveNext();
+
+                        AssertSessionReferenceCount(session, 2);
+                        AssertChannelReferenceCount(readBindingsBundle.RetryableReadContext.Channel, 2);
+                        AssertChannelReferenceCount(asyncCursor, 2);
+                        AssertCommand(eventCapturer, "getMore", onlySingleCommand: true);
+
+                        if (forceCursorClose)
+                        {
+                            asyncCursor.Dispose();
+
+                            AssertSessionReferenceCount(session, 1);
+                            AssertChannelReferenceCount(readBindingsBundle.RetryableReadContext.Channel, 1);
+                            AssertChannelSourceReferenceCount(asyncCursor, 0);
+                            AssertChannelReferenceCount(asyncCursor, 1);
+                            AssertCommand(eventCapturer, "killCursors", onlySingleCommand: true);
+                        }
+                        else
+                        {
+                            hasNext = asyncCursor.MoveNext(); // cursorId = 0
+
+                            AssertSessionReferenceCount(session, 1);
+                            AssertChannelReferenceCount(readBindingsBundle.RetryableReadContext.Channel, 1);
+                            AssertChannelSourceReferenceCount(asyncCursor, null);
+                            AssertChannelReferenceCount(asyncCursor, null); // effective channel count is 1, but we cannot assert it anymore
+                            AssertCommand(eventCapturer, "getMore", onlySingleCommand: true);
+                        }
+                    }
+                    AssertCommand(eventCapturer, "abortTransaction", onlySingleCommand: false);
+                    AssertCheckInOnlyEvents(eventCapturer);
+                    AssertSessionReferenceCount(session, 0);
+                    AssertChannelReferenceCount(readBindingsBundle.RetryableReadContext.Channel, 0);
+                }
+            }
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Cursor_should_pin_connection_in_transaction_with_the_same_session_as_expected(
+            [Range(1, 4)] int attempts,
+            [Values(false, true)] bool forceCursorClose,
+            [Values(false)] bool async)
+        {
+            SkipIfNotLoadBalancingMode();
+
+            KillOpenTransactions();
+
+            SetupData();
+
+            ServiceIdHelper.IsServiceIdEmulationEnabled = true; // TODO: temporary solution to enable emulating serviceId in a server response
+
+            var eventCapturer = new EventCapturer()
+                .Capture<ConnectionPoolCheckedOutConnectionEvent>()
+                .Capture<ConnectionPoolCheckingOutConnectionEvent>()
+                .Capture<ConnectionPoolCheckedInConnectionEvent>()
+                .Capture<ConnectionPoolCheckingInConnectionEvent>()
+                .Capture<CommandSucceededEvent>();
+
+            List<IAsyncCursor<BsonDocument>> cursors= new();
+            using (var cluster = CreateLoadBalancedCluster(eventCapturer))
+            {
+                eventCapturer.Clear();
+
+                ICoreSessionHandle session;
+                DisposableReadBindingBundle readBindingsBundle = null;
+
+                using (session = CreateSession(cluster, isImplicit: false, withTransaction: true))
+                {
+                    for (int i = 1; i <= attempts; i++)
+                    {
+                        AssertSessionReferenceCount(session, i); // dynamic value because we don't close cursors in the loop
+
+                        IAsyncCursor<BsonDocument> asyncCursor;
+                        eventCapturer.Any().Should().BeFalse();
+                        using (readBindingsBundle = CreateEffectiveReadBindingsAndRetryableReadContext(cluster, session.Fork(), async))
+                        {
+                            AssertCheckOutOnlyEvents(eventCapturer, i, shouldNextAttemptTriggerCheckout: false);
+
+                            readBindingsBundle.RetryableReadContext.PinConnectionIfRequired();
+
+                            eventCapturer.Any().Should().BeFalse();
+
+                            asyncCursor = CreateAndRunFindOperation(readBindingsBundle.RetryableReadContext, async);
+
+                            AssertCommand(eventCapturer, "find", onlySingleCommand: true);
+                        }
+                        asyncCursor.MoveNext().Should().BeTrue(); // no op
+                        asyncCursor.MoveNext().Should().BeTrue();
+
+                        AssertCommand(eventCapturer, "getMore", onlySingleCommand: true);
+
+                        cursors.Add(asyncCursor);
+                    }
+                }
+
+                for (int i = 0; i < cursors.Count; i++)
+                {
+                    IAsyncCursor<BsonDocument> cursor = cursors[i];
+                    if (forceCursorClose)
+                    {
+                        cursor.Dispose();
+
+                        AssertCommand(eventCapturer, "killCursors", onlySingleCommand: i < cursors.Count - 1);
+                    }
+                    else
+                    {
+                        cursor.MoveNext().Should().BeTrue(); // returns cursorId = 0
+                        cursor.MoveNext().Should().BeFalse();
+
+                        AssertCommand(eventCapturer, "getMore", onlySingleCommand: i < cursors.Count - 1);
+                    }
+                }
+                AssertCommand(eventCapturer, "abortTransaction", onlySingleCommand: false);
+                AssertCheckInOnlyEvents(eventCapturer);
+                AssertSessionReferenceCount(session, 0);
+                AssertChannelReferenceCount(readBindingsBundle.RetryableReadContext.Channel, 0);
+            }
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Cursor_should_unpin_connection_for_operations_under_the_same_transaction_after_abortTransaction_and_cursor_dispose(
+            [Range(1, 3)] int attempts,
+            [Values(false, true)] bool async)
+        {
+            SkipIfNotLoadBalancingMode();
+
+            KillOpenTransactions();
+
+            SetupData();
+
+            ServiceIdHelper.IsServiceIdEmulationEnabled = true; // TODO: temporary solution to enable emulating serviceId in a server response
+
+            var eventCapturer = new EventCapturer()
+                .Capture<ConnectionPoolCheckedOutConnectionEvent>()
+                .Capture<ConnectionPoolCheckingOutConnectionEvent>()
+                .Capture<ConnectionPoolCheckedInConnectionEvent>()
+                .Capture<ConnectionPoolCheckingInConnectionEvent>()
+                .Capture<CommandSucceededEvent>()
+                .Capture<ConnectionFailedEvent>()
+                .Capture<ConnectionClosedEvent>();
+
+            List<IAsyncCursor<BsonDocument>> cursors = new();
+            using (var cluster = CreateLoadBalancedCluster(eventCapturer))
+            {
+                eventCapturer.Clear();
+
+                ICoreSessionHandle session;
+                DisposableReadBindingBundle readBindingsBundle = null;
+
+                using (session = CreateSession(cluster, isImplicit: false, withTransaction: true))
+                {
+                    for (int i = 1; i <= attempts; i++)
+                    {
+                        AssertSessionReferenceCount(session, i); // dynamic value because we don't close cursors in the loop
+
+                        IAsyncCursor<BsonDocument> asyncCursor;
+                        eventCapturer.Any().Should().BeFalse();
+                        using (readBindingsBundle = CreateEffectiveReadBindingsAndRetryableReadContext(cluster, session.Fork(), async))
+                        {
+                            AssertCheckOutOnlyEvents(eventCapturer, i, shouldNextAttemptTriggerCheckout: false);
+
+                            readBindingsBundle.RetryableReadContext.PinConnectionIfRequired();
+
+                            eventCapturer.Any().Should().BeFalse();
+
+                            asyncCursor = CreateAndRunFindOperation(readBindingsBundle.RetryableReadContext, async);
+
+                            AssertCommand(eventCapturer, "find", onlySingleCommand: true);
+                        }
+                        asyncCursor.MoveNext().Should().BeTrue(); // no op
+                        asyncCursor.MoveNext().Should().BeTrue();
+
+                        AssertCommand(eventCapturer, "getMore", onlySingleCommand: true);
+
+                        cursors.Add(asyncCursor);
+                    }
+
+                    AbortTransaction(session, async);
+                    AssertCommand(eventCapturer, "abortTransaction", onlySingleCommand: true);
+                }
+
+                for (int i = 0; i < cursors.Count; i++)
+                {
+                    IAsyncCursor<BsonDocument> cursor = cursors[i];
+                    cursor.Dispose();
+
+                    AssertCommand(eventCapturer, "killCursors", onlySingleCommand: i < cursors.Count - 1);
+                }
+                AssertCheckInOnlyEvents(eventCapturer);
+                AssertSessionReferenceCount(session, 0);
+                AssertChannelReferenceCount(readBindingsBundle.RetryableReadContext.Channel, 0);
             }
         }
 
@@ -244,211 +504,19 @@ namespace MongoDB.Driver.Core.Tests
             }
         }
 
-        [SkippableTheory]
-        [ParameterAttributeData]
-        public void Cursor_should_pin_connection_in_transaction_with_new_sessions_as_expected(
-            [Range(1, 3)] int attempts,
-            [Values(false, true)] bool forceCursorClose,
-            [Values(false)] bool async)
-        {
-            SkipIfNotLoadBalancingMode();
-
-            KillOpenTransactions();
-
-            SetupData();
-
-            ServiceIdHelper.IsServiceIdEmulationEnabled = true; // TODO: temporary solution to enable emulating serviceId in a server response
-
-            var eventCapturer = new EventCapturer()
-                .Capture<ConnectionPoolCheckedOutConnectionEvent>()
-                .Capture<ConnectionPoolCheckingOutConnectionEvent>()
-                .Capture<ConnectionPoolCheckedInConnectionEvent>()
-                .Capture<ConnectionPoolCheckingInConnectionEvent>()
-                .Capture<CommandSucceededEvent>();
-
-            using (var cluster = CreateLoadBalancedCluster(eventCapturer))
-            {
-                eventCapturer.Clear();
-
-                for (int i = 1; i <= attempts; i++)
-                {
-                    ICoreSessionHandle session;
-                    DisposableReadBindingBundle readBindingsBundle;
-                    IAsyncCursor<BsonDocument> asyncCursor;
-
-                    using (session = CreateSession(cluster, isImplicit: false, withTransaction: true))
-                    {
-                        AssertSessionReferenceCount(session, 1);
-
-                        eventCapturer.Any().Should().BeFalse();
-                        using (readBindingsBundle = CreateEffectiveReadBindingsAndRetryableReadContext(cluster, session.Fork(), async))
-                        {
-                            AssertSessionReferenceCount(session, 3);
-                            AssertReadBindingReferenceCount(readBindingsBundle.ReadBindingHandle, 1);
-                            AssertChannelReferenceCount(readBindingsBundle.RetryableReadContext.Channel, 1);
-                            AssertCheckOutOnlyEvents(eventCapturer, i);
-
-                            readBindingsBundle.RetryableReadContext.PinConnectionIfRequired();
-
-                            AssertSessionReferenceCount(session, 3);
-                            AssertReadBindingReferenceCount(readBindingsBundle.ReadBindingHandle, 1);
-                            AssertChannelReferenceCount(readBindingsBundle.RetryableReadContext.Channel, 2);
-                            eventCapturer.Any().Should().BeFalse();
-
-                            asyncCursor = CreateAndRunFindOperation(readBindingsBundle.RetryableReadContext, async);
-
-                            AssertSessionReferenceCount(session, 4);
-                            AssertReadBindingReferenceCount(readBindingsBundle.ReadBindingHandle, 1);
-                            AssertChannelReferenceCount(readBindingsBundle.RetryableReadContext.Channel, 3);
-                            AssertChannelReferenceCount(asyncCursor, 3);
-                            AssertCommand(eventCapturer, "find", onlySingleCommand: true);
-                        }
-                        AssertSessionReferenceCount(session, 2); // -2 because bundle consist of two disposable steps
-                        AssertChannelReferenceCount(readBindingsBundle.RetryableReadContext.Channel, 2);
-                        AssertChannelReferenceCount(asyncCursor, 2);
-
-                        var hasNext = asyncCursor.MoveNext(); // no op
-                        hasNext = asyncCursor.MoveNext();
-
-                        AssertSessionReferenceCount(session, 2);
-                        AssertChannelReferenceCount(readBindingsBundle.RetryableReadContext.Channel, 2);
-                        AssertChannelReferenceCount(asyncCursor, 2);
-                        AssertCommand(eventCapturer, "getMore", onlySingleCommand: true);
-
-                        if (forceCursorClose)
-                        {
-                            asyncCursor.Dispose();
-
-                            AssertSessionReferenceCount(session, 1);
-                            AssertChannelReferenceCount(readBindingsBundle.RetryableReadContext.Channel, 1);
-                            AssertChannelSourceReferenceCount(asyncCursor, 0);
-                            AssertChannelReferenceCount(asyncCursor, 1);
-                            AssertCommand(eventCapturer, "killCursors", onlySingleCommand: true);
-                        }
-                        else
-                        {
-                            hasNext = asyncCursor.MoveNext(); // cursorId = 0
-
-                            AssertSessionReferenceCount(session, 1);
-                            AssertChannelReferenceCount(readBindingsBundle.RetryableReadContext.Channel, 1);
-                            AssertChannelSourceReferenceCount(asyncCursor, null);
-                            AssertChannelReferenceCount(asyncCursor, null); // effective channel count is 1, but we cannot assert it anymore
-                            AssertCommand(eventCapturer, "getMore", onlySingleCommand: true);
-                        }
-                    }
-                    AssertCommand(eventCapturer, "abortTransaction", onlySingleCommand: false);
-                    AssertCheckInOnlyEvents(eventCapturer);
-                    AssertSessionReferenceCount(session, 0);
-                    AssertChannelReferenceCount(readBindingsBundle.RetryableReadContext.Channel, 0);
-                }
-            }
-        }
-
-        [SkippableTheory(Skip = "Investigate")]
-        [ParameterAttributeData]
-        public void Cursor_should_pin_connection_in_transaction_with_the_same_session_as_expected(
-            [Range(1, 3)] int attempts,
-            [Values(false, true)] bool forceCursorClose,
-            [Values(false)] bool async)
-        {
-            SkipIfNotLoadBalancingMode();
-
-            KillOpenTransactions();
-
-            SetupData();
-
-            ServiceIdHelper.IsServiceIdEmulationEnabled = true; // TODO: temporary solution to enable emulating serviceId in a server response
-
-            var eventCapturer = new EventCapturer()
-                .Capture<ConnectionPoolCheckedOutConnectionEvent>()
-                .Capture<ConnectionPoolCheckingOutConnectionEvent>()
-                .Capture<ConnectionPoolCheckedInConnectionEvent>()
-                .Capture<ConnectionPoolCheckingInConnectionEvent>()
-                .Capture<CommandSucceededEvent>();
-
-            using (var cluster = CreateLoadBalancedCluster(eventCapturer))
-            {
-                eventCapturer.Clear();
-
-                ICoreSessionHandle session;
-                DisposableReadBindingBundle readBindingsBundle = null;
-                IAsyncCursor<BsonDocument> asyncCursor;
-
-                using (session = CreateSession(cluster, isImplicit: false, withTransaction: true))
-                {
-                    for (int i = 1; i <= attempts; i++)
-                    {
-                        //AssertSessionReferenceCount(session, 1);
-
-                        eventCapturer.Any().Should().BeFalse();
-                        using (readBindingsBundle = CreateEffectiveReadBindingsAndRetryableReadContext(cluster, session.Fork(), async))
-                        {
-                            //AssertSessionReferenceCount(session, 3);
-                            //AssertReadBindingReferenceCount(readBindingsBundle.ReadBindingHandle, 1);
-                            //AssertChannelReferenceCount(readBindingsBundle.RetryableReadContext.Channel, 1);
-                            AssertCheckOutOnlyEvents(eventCapturer, i, shouldNextAttemptTriggerCheckout: false);
-
-                            readBindingsBundle.RetryableReadContext.PinConnectionIfRequired();
-
-                            //AssertSessionReferenceCount(session, 3);
-                            //AssertReadBindingReferenceCount(readBindingsBundle.ReadBindingHandle, 1);
-                            //AssertChannelReferenceCount(readBindingsBundle.RetryableReadContext.Channel, 2);
-                            eventCapturer.Any().Should().BeFalse();
-
-                            asyncCursor = CreateAndRunFindOperation(readBindingsBundle.RetryableReadContext, async);
-
-                            //AssertSessionReferenceCount(session, 4);
-                            //AssertReadBindingReferenceCount(readBindingsBundle.ReadBindingHandle, 1);
-                            //AssertChannelReferenceCount(readBindingsBundle.RetryableReadContext.Channel, 3);
-                            //AssertChannelReferenceCount(asyncCursor, 3);
-                            AssertCommand(eventCapturer, "find", onlySingleCommand: true);
-                        }
-                        //AssertSessionReferenceCount(session, 2); // -2 because bundle consist of two disposable steps
-                        //AssertChannelReferenceCount(readBindingsBundle.RetryableReadContext.Channel, 2);
-                        //AssertChannelReferenceCount(asyncCursor, 2);
-
-                        asyncCursor.MoveNext().Should().BeTrue(); // no op
-                        asyncCursor.MoveNext().Should().BeTrue();
-
-                        //AssertSessionReferenceCount(session, 2);
-                        //AssertChannelReferenceCount(readBindingsBundle.RetryableReadContext.Channel, 2);
-                        //AssertChannelReferenceCount(asyncCursor, 2);
-                        AssertCommand(eventCapturer, "getMore", onlySingleCommand: true);
-
-                        if (i == attempts) // call abort transaction only on the last attempt
-                        {
-                            if (forceCursorClose)
-                            {
-                                asyncCursor.Dispose();
-
-                                //AssertSessionReferenceCount(session, 1);
-                                //AssertChannelReferenceCount(readBindingsBundle.RetryableReadContext.Channel, 1);
-                                //AssertChannelSourceReferenceCount(asyncCursor, 0);
-                                //AssertChannelReferenceCount(asyncCursor, 1);
-                                AssertCommand(eventCapturer, "killCursors", onlySingleCommand: true);
-                            }
-                            else
-                            {
-                                asyncCursor.MoveNext().Should().BeTrue(); // returns cursorId = 0
-                                asyncCursor.MoveNext().Should().BeFalse();
-
-                                //AssertSessionReferenceCount(session, 1);
-                                //AssertChannelReferenceCount(readBindingsBundle.RetryableReadContext.Channel, 1);
-                                //AssertChannelSourceReferenceCount(asyncCursor, null);
-                                //AssertChannelReferenceCount(asyncCursor, null); // effectiv channel count is 1, but we cannot assert it anymore
-                                AssertCommand(eventCapturer, "getMore", onlySingleCommand: true);
-                            }
-                        }
-                    }
-                }
-                AssertCommand(eventCapturer, "abortTransaction", onlySingleCommand: false);
-                AssertCheckInOnlyEvents(eventCapturer);
-                //AssertSessionReferenceCount(session, 0);
-                //AssertChannelReferenceCount(readBindingsBundle.RetryableReadContext.Channel, 0);
-            }
-        }
-
         // private methods
+        private void AbortTransaction(ICoreSessionHandle session, bool async)
+        {
+            if (async)
+            {
+                session.AbortTransactionAsync().GetAwaiter().GetResult();
+            }
+            else
+            {
+                session.AbortTransaction();
+            }
+        }
+
         private void AssertChannelReferenceCount(IChannelHandle channelHandle, int expectedValue)
         {
             channelHandle.Connection._reference_referenceCount().Should().Be(expectedValue);

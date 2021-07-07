@@ -78,23 +78,9 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         /// <summary>
-        /// Gets the pinned channel.
-        /// </summary>
-        public IChannelHandle PinnedChannel
-        {
-            get
-            {
-                lock (_lock)
-                {
-                    return _pinnedChannel;
-                }
-            }
-        }
-
-        /// <summary>
         /// Gets whether the channel is pinned.
         /// </summary>
-        public bool IsConnectionPinned => PinnedChannel != null && !PinnedChannel.Connection.IsExpired;
+        public bool IsConnectionPinned => _pinnedChannel != null && !_pinnedChannel.Connection.IsExpired;
 
         /// <summary>
         /// Gets the transaction number.
@@ -125,6 +111,14 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         // internal methods
+        internal IChannelHandle NewPinnedChannelHandleIfConfigured()
+        {
+            lock (_lock)
+            {
+                return _pinnedChannel?.Fork();
+            }
+        }
+
         internal void PinConnection(IChannelHandle channel)
         {
             lock (_lock)

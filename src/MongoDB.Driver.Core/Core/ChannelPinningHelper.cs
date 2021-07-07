@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Core
             {
                 readBinding = new ChannelReadWriteBinding(
                     session.CurrentTransaction.PinnedServer,
-                    session.CurrentTransaction.PinnedChannel,
+                    session.CurrentTransaction.NewPinnedChannelHandleIfConfigured(),
                     session);
             }
             else
@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Core
         /// </summary>
         /// <param name="cluster">The cluster.</param>
         /// <param name="session">The session.</param>
-        /// <returns></returns>
+        /// <returns>An effective read write binging.</returns>
         public static IReadWriteBindingHandle CreateEffectiveReadWriteBinding(ICluster cluster, ICoreSessionHandle session)
         {
             IReadWriteBinding readWriteBinding;
@@ -74,7 +74,7 @@ namespace MongoDB.Driver.Core
             {
                 readWriteBinding = new ChannelReadWriteBinding(
                     session.CurrentTransaction.PinnedServer,
-                    session.CurrentTransaction.PinnedChannel,
+                    session.CurrentTransaction.NewPinnedChannelHandleIfConfigured(),
                     session);
             }
             else
@@ -127,12 +127,13 @@ namespace MongoDB.Driver.Core
                 var pinnedChannelSource = new ChannelSourceHandle(
                     new ChannelChannelSource(
                         server,
-                        forkedChannel, 
+                        forkedChannel,
                         forkedSession));
 
-                if (session.IsInTransaction)
+                if (session.IsInTransaction && !IsConnectionPinned(session.CurrentTransaction))
                 {
-                    PinToTheSession(forkedChannel.Fork(), server, session);
+                    session.CurrentTransaction.PinConnection(forkedChannel.Fork());
+                    session.CurrentTransaction.PinnedServer = server;
                 }
 
                 pinnedChannel = (pinnedChannelSource, forkedChannel);
@@ -145,30 +146,10 @@ namespace MongoDB.Driver.Core
             }
         }
 
-        /// <summary>
-        /// Pin the channel and the server to the session if required.
-        /// </summary>
-        /// <param name="getChannelFunc">The protected channel getter.</param>
-        /// <param name="server">The server.</param>
-        /// <param name="session">The session.</param>
-        internal static void PinToTheSessionIfAlreadyNotUnpinned(Func<IChannelHandle> getChannelFunc, IServer server, ICoreSessionHandle session)
-        {
-            if (IsInLoadBalancedMode(server.Description) && IsConnectionPinned(session.CurrentTransaction))
-            {
-                PinToTheSession(getChannelFunc(), server, session);
-            }
-        }
-
         // private methods
         private static bool IsInLoadBalancedMode(ConnectionDescription connectionDescription) => connectionDescription?.ServiceId.HasValue ?? false;
         private static bool IsInLoadBalancedMode(ServerDescription serverDescription) => serverDescription?.Type == ServerType.LoadBalanced;
         private static bool IsInLoadBalancedMode(ClusterDescription clusterDescription) => clusterDescription?.Type == ClusterType.LoadBalanced;
         private static bool IsConnectionPinned(CoreTransaction coreTransaction) => coreTransaction?.IsConnectionPinned ?? false;
-
-        private static void PinToTheSession(IChannelHandle channel, IServer server, ICoreSessionHandle session)
-        {
-            session.CurrentTransaction.PinConnection(channel);
-            session.CurrentTransaction.PinnedServer = server;
-        }
     }
 }

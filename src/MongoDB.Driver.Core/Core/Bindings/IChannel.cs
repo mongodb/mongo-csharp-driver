@@ -36,7 +36,7 @@ namespace MongoDB.Driver.Core.Bindings
         /// <summary>
         /// Gets the connection.
         /// </summary>
-        /// /// <value>
+        /// <value>
         /// The connection.
         /// </value>
         IConnectionHandle Connection { get; }
