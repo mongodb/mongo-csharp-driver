@@ -9,6 +9,7 @@ set -o errexit  # Exit the script with error if any of the commands fail
 #   MONGODB_URI                     Set the suggested connection MONGODB_URI (including credentials and topology info)
 #   TOPOLOGY                        Allows you to modify variables and the MONGODB_URI based on test topology
 #                                   Supported values: "server", "replica_set", "sharded_cluster"
+#   REQUIRE_API_VERSION             Flag to require API version. Values: "true" / nil (default)
 #   CLIENT_PEM                      Path to mongo-orchestration's client.pem
 #   OCSP_TLS_SHOULD_SUCCEED         Set to test OCSP. Values are true/false/nil
 #   MONGODB_X509_CLIENT_P12_PATH    Absolute path to client certificate in p12 format
@@ -19,6 +20,7 @@ set -o errexit  # Exit the script with error if any of the commands fail
 # Environment variables produced as output:
 #   MONGODB_X509_CLIENT_P12_PATH            Absolute path to client certificate in p12 format
 #   MONGO_X509_CLIENT_CERTIFICATE_PASSWORD  Password for client certificate
+#   MONGODB_API_VERSION                     Server API version to use in every client
 
 AUTH=${AUTH:-noauth}
 SSL=${SSL:-nossl}
@@ -90,6 +92,11 @@ if [ "$COMPRESSOR" != "none" ]; then
 fi
 
 echo "Running $AUTH tests over $SSL for $TOPOLOGY with $COMPRESSOR compressor and connecting to $MONGODB_URI"
+
+if [ ! -z "$REQUIRE_API_VERSION" ]; then
+  export MONGODB_API_VERSION="1"
+  echo "Server API version is set to $MONGODB_API_VERSION"
+fi
 
 export TARGET="Test${FRAMEWORK}"
 if [[ "$OS" =~ Windows|windows ]]; then

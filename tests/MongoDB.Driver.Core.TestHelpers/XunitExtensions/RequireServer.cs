@@ -73,6 +73,24 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
             throw new SkipException($"Test skipped because cluster type is {actualClusterType} and not one of ({clusterTypesString}).");
         }
 
+        public RequireServer DoesNotSupport(Feature feature)
+        {
+            if (!feature.IsSupported(_serverVersion))
+            {
+                return this;
+            }
+            throw new SkipException($"Test skipped because server version {_serverVersion} does support the {feature.Name} feature.");
+        }
+
+        public RequireServer DoesNotSupport(params Feature[] features)
+        {
+            foreach (var feature in features)
+            {
+                DoesNotSupport(feature);
+            }
+            return this;
+        }
+
         public RequireServer LoadBalancing(bool enabled)
         {
             var isLoadBalancing = CoreTestConfiguration.ConnectionString.LoadBalanced;
@@ -81,6 +99,16 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
                 return this;
             }
             throw new SkipException($"Test skipped because load balancing mode is {(isLoadBalancing ? "on" : "off")}.");
+        }
+
+        public RequireServer RequireApiVersion(bool require = true)
+        {
+            if (CoreTestConfiguration.RequireApiVersion == require)
+            {
+                return this;
+            }
+
+            throw new SkipException("Test skipped because API version is " + (require ? "required" : "not required") + ".");
         }
 
         public RequireServer RunOn(BsonArray requirements)
@@ -127,24 +155,6 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
                 return this;
             }
             throw new SkipException($"Test skipped because the cluster does not support sessions.");
-        }
-
-        public RequireServer DoesNotSupport(Feature feature)
-        {
-            if (!feature.IsSupported(_serverVersion))
-            {
-                return this;
-            }
-            throw new SkipException($"Test skipped because server version {_serverVersion} does support the {feature.Name} feature.");
-        }
-
-        public RequireServer DoesNotSupport(params Feature[] features)
-        {
-            foreach (var feature in features)
-            {
-                DoesNotSupport(feature);
-            }
-            return this;
         }
 
         public RequireServer StorageEngine(string storageEngine)

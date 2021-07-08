@@ -359,6 +359,11 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
             // https://jira.mongodb.org/browse/SPEC-1403
             "maxWireVersion.json:operation fails with maxWireVersion < 8"
         };
+        private static readonly string[] __versionedApiIgnoredTestNames =
+        {
+            // https://jira.mongodb.org/browse/SERVER-58293
+            "explain.json:Explain a find with deterministic encryption"
+        };
         #endregion
 
         // protected properties
@@ -368,6 +373,10 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
         protected override IEnumerable<JsonDrivenTestCase> CreateTestCases(BsonDocument document)
         {
             var testCases = base.CreateTestCases(document).Where(test => !__ignoredTestNames.Any(ignoredName => test.Name.EndsWith(ignoredName)));
+            if (CoreTestConfiguration.RequireApiVersion)
+            {
+                testCases = testCases.Where(test => !__versionedApiIgnoredTestNames.Any(ignoredName => test.Name.EndsWith(ignoredName)));
+            }
             foreach (var testCase in testCases)
             {
                 foreach (var async in new[] { false, true })

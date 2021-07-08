@@ -10,7 +10,7 @@ failPoint:
   # high amount to ensure not interfered with by monitor checks.
   mode: { times: 50 }
   data:
-    failCommands: ["isMaster"]
+    failCommands: ["isMaster","hello"]
     closeConnection: false
     blockConnection: true
     blockTimeMS: 750

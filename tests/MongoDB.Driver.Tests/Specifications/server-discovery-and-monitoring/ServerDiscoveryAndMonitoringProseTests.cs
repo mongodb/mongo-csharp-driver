@@ -90,7 +90,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
                     mode : {{ 'times' : 5 }},
                     data :
                     {{
-                        failCommands : [ 'isMaster' ],
+                        failCommands : [ 'isMaster', 'hello' ],
                         errorCode : 1234,
                         appName : '{appName}'
                     }}
@@ -152,7 +152,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
                         mode : { times : 1000 },
                         data :
                         {
-                            failCommands : [ 'isMaster' ],
+                            failCommands : [ 'isMaster', 'hello' ],
                             blockConnection : true,
                             blockTimeMS : 500,
                             appName : 'streamingRttTest'

@@ -235,6 +235,10 @@ namespace MongoDB.Driver.Core.Configuration
             {
                 builder = builder.ConfigureCluster(s => s.With(serverSelectionTimeout: connectionString.ServerSelectionTimeout.Value));
             }
+            if (serverApi != null)
+            {
+                builder = builder.ConfigureCluster(s => s.With(serverApi: serverApi));
+            }
 
             return builder;
         }

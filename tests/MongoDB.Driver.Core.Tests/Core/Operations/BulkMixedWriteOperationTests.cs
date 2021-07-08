@@ -1446,14 +1446,22 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [SkippableTheory]
-        [InlineData(new[] { 1 }, new[] { 1 })]
-        [InlineData(new[] { 1, 1 }, new[] { 2 })]
-        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000 }, new[] { 4 })]
-        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000, 7999887 }, new[] { 5 })]
-        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000, 7999888 }, new[] { 4, 1 })]
-        public void Execute_with_multiple_deletes_should_split_batches_as_expected_when_using_write_commands_via_opmessage(int[] requestSizes, int[] expectedBatchCounts)
+        [InlineData(new[] { 1 }, new[] { 1 }, false)]
+        [InlineData(new[] { 1, 1 }, new[] { 2 }, false)]
+        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000 }, new[] { 4 }, false)]
+        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000, 7999887 }, new[] { 5 }, false)]
+        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000, 7999888 }, new[] { 4, 1 }, false)]
+        [InlineData(new[] { 1 }, new[] { 1 }, true)]
+        [InlineData(new[] { 1, 1 }, new[] { 2 }, true)]
+        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000 }, new[] { 4 }, true)]
+        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000, 7999869 }, new[] { 5 }, true)]
+        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000, 7999870 }, new[] { 4, 1 }, true)]
+        public void Execute_with_multiple_deletes_should_split_batches_as_expected_when_using_write_commands_via_opmessage(
+            int[] requestSizes,
+            int[] expectedBatchCounts,
+            bool requireApiVersion)
         {
-            RequireServer.Check().Supports(Feature.CommandMessage);
+            RequireServer.Check().Supports(Feature.CommandMessage).RequireApiVersion(requireApiVersion);
             DropCollection();
 
             using (EventContext.BeginOperation())
@@ -1509,14 +1517,22 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [SkippableTheory]
-        [InlineData(new[] { 1 }, new[] { 1 })]
-        [InlineData(new[] { 1, 1 }, new[] { 2 })]
-        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000 }, new[] { 4 })]
-        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000, 7999885 }, new[] { 5 })]
-        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000, 7999886 }, new[] { 4, 1 })]
-        public void Execute_with_multiple_inserts_should_split_batches_as_expected_when_using_write_commands_via_opmessage(int[] documentSizes, int[] expectedBatchCounts)
+        [InlineData(new[] { 1 }, new[] { 1 }, false)]
+        [InlineData(new[] { 1, 1 }, new[] { 2 }, false)]
+        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000 }, new[] { 4 }, false)]
+        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000, 7999885 }, new[] { 5 }, false)]
+        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000, 7999886 }, new[] { 4, 1 }, false)]
+        [InlineData(new[] { 1 }, new[] { 1 }, true)]
+        [InlineData(new[] { 1, 1 }, new[] { 2 }, true)]
+        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000 }, new[] { 4 }, true)]
+        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000, 7999867 }, new[] { 5 }, true)]
+        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000, 7999868 }, new[] { 4, 1 }, true)]
+        public void Execute_with_multiple_inserts_should_split_batches_as_expected_when_using_write_commands_via_opmessage(
+            int[] documentSizes,
+            int[] expectedBatchCounts,
+            bool requireApiVersion)
         {
-            RequireServer.Check().Supports(Feature.CommandMessage);
+            RequireServer.Check().Supports(Feature.CommandMessage).RequireApiVersion(requireApiVersion);
             DropCollection();
 
             using (EventContext.BeginOperation())
@@ -1575,14 +1591,22 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [SkippableTheory]
-        [InlineData(new[] { 1 }, new[] { 1 })]
-        [InlineData(new[] { 1, 1 }, new[] { 2 })]
-        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000 }, new[] { 4 })]
-        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000, 7999887 }, new[] { 5 })]
-        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000, 7999888 }, new[] { 4, 1 })]
-        public void Execute_with_multiple_updates_should_split_batches_as_expected_when_using_write_commands_via_opmessage(int[] requestSizes, int[] expectedBatchCounts)
+        [InlineData(new[] { 1 }, new[] { 1 }, false)]
+        [InlineData(new[] { 1, 1 }, new[] { 2 }, false)]
+        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000 }, new[] { 4 }, false)]
+        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000, 7999887 }, new[] { 5 }, false)]
+        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000, 7999888 }, new[] { 4, 1 }, false)]
+        [InlineData(new[] { 1 }, new[] { 1 }, true)]
+        [InlineData(new[] { 1, 1 }, new[] { 2 }, true)]
+        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000 }, new[] { 4 }, true)]
+        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000, 7999869 }, new[] { 5 }, true)]
+        [InlineData(new[] { 10000000, 10000000, 10000000, 10000000, 7999870 }, new[] { 4, 1 }, true)]
+        public void Execute_with_multiple_updates_should_split_batches_as_expected_when_using_write_commands_via_opmessage(
+            int[] requestSizes,
+            int[] expectedBatchCounts,
+            bool requireApiVersion)
         {
-            RequireServer.Check().Supports(Feature.CommandMessage);
+            RequireServer.Check().Supports(Feature.CommandMessage).RequireApiVersion(requireApiVersion);
             DropCollection();
 
             using (EventContext.BeginOperation())
