@@ -548,9 +548,9 @@ namespace MongoDB.Bson.Serialization
                         {
                             var memberMap = _allMemberMaps[memberIndex];
                             int conflictingMemberIndex;
-                            if (!_elementTrie.TryGetValue(memberMap.MemberName, out conflictingMemberIndex))
+                            if (!_elementTrie.TryGetValue(memberMap.ElementName, out conflictingMemberIndex))
                             {
-                                _elementTrie.Add(memberMap.MemberName, memberIndex);
+                                _elementTrie.Add(memberMap.ElementName, memberIndex);
                             }
                             else
                             {
