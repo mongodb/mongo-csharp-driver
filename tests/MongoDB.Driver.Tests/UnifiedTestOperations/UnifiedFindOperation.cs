@@ -43,16 +43,11 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             try
             {
-                IAsyncCursor<BsonDocument> cursor;
-                if (_session == null)
-                {
-                    cursor = _collection.FindSync(_filter, _options, cancellationToken);
-                }
-                else
-                {
-                    cursor = _collection.FindSync(_session, _filter, _options, cancellationToken);
-                } 
-                var result = cursor.ToList();
+                using var cursor = _session == null
+                    ? _collection.FindSync(_filter, _options, cancellationToken)
+                    : _collection.FindSync(_session, _filter, _options, cancellationToken);
+
+                var result = cursor.ToList(cancellationToken);
 
                 return OperationResult.FromResult(new BsonArray(result));
             }
@@ -66,16 +61,11 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             try
             {
-                IAsyncCursor<BsonDocument> cursor;
-                if (_session == null)
-                {
-                    cursor = await _collection.FindAsync(_filter, _options, cancellationToken);
-                }
-                else
-                {
-                    cursor = await _collection.FindAsync(_session, _filter, _options, cancellationToken);
-                }
-                var result = await cursor.ToListAsync();
+                using var cursor = _session == null
+                   ? await _collection.FindAsync(_filter, _options, cancellationToken)
+                   : await _collection.FindAsync(_session, _filter, _options, cancellationToken);
+
+                var result = await cursor.ToListAsync(cancellationToken);
 
                 return OperationResult.FromResult(new BsonArray(result));
             }

@@ -83,6 +83,14 @@ namespace MongoDB.Driver.Core.Bindings
         bool IsInTransaction { get; }
 
         /// <summary>
+        /// Gets a value indicate whether this instance is a snapshot session.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if the session is a snapshot session.
+        /// </value>
+        bool IsSnapshot { get; }
+
+        /// <summary>
         /// Gets the operation time.
         /// </summary>
         /// <value>
@@ -105,6 +113,14 @@ namespace MongoDB.Driver.Core.Bindings
         /// The server session.
         /// </value>
         ICoreServerSession ServerSession { get; }
+
+        /// <summary>
+        /// Gets the snapshot time.
+        /// </summary>
+        /// <value>
+        /// The snapshot time.
+        /// </value>
+        BsonTimestamp SnapshotTime { get; }
 
         // methods
         /// <summary>
@@ -166,6 +182,12 @@ namespace MongoDB.Driver.Core.Bindings
         /// </summary>
         /// <param name="transactionOptions">The transaction options.</param>
         void StartTransaction(TransactionOptions transactionOptions = null);
+
+        /// <summary>
+        /// Sets the snapshot time if not set.
+        /// </summary>
+        /// <param name="snapshotTime">The snapshot time.</param>
+        void SetSnapshotTimeIfNeeded(BsonTimestamp snapshotTime);
 
         /// <summary>
         /// Called by the driver when the session is used (i.e. sent to the server).

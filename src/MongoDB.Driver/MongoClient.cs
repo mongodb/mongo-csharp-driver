@@ -614,7 +614,7 @@ namespace MongoDB.Driver
 
         private IClientSessionHandle StartImplicitSession(bool areSessionsSupported)
         {
-            var options = new ClientSessionOptions { CausalConsistency = false };
+            var options = new ClientSessionOptions { CausalConsistency = false, Snapshot = false };
 
             ICoreSessionHandle coreSession;
 #pragma warning disable 618
@@ -637,6 +637,11 @@ namespace MongoDB.Driver
             if (!areSessionsSupported)
             {
                 throw new NotSupportedException("Sessions are not supported by this version of the server.");
+            }
+
+            if (options != null && options.Snapshot && options.CausalConsistency == true)
+            {
+                throw new MongoClientException("Combining both causal consistency and snapshot options is not supported.");
             }
 
             options = options ?? new ClientSessionOptions();

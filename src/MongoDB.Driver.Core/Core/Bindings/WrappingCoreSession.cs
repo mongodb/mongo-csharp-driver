@@ -116,6 +116,16 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         /// <inheritdoc />
+        public bool IsSnapshot
+        {
+            get
+            {
+                ThrowIfDisposed();
+                return _wrapped.IsSnapshot;
+            }
+        }
+
+        /// <inheritdoc />
         public virtual BsonTimestamp OperationTime
         {
             get
@@ -142,6 +152,16 @@ namespace MongoDB.Driver.Core.Bindings
             {
                 ThrowIfDisposed();
                 return _wrapped.ServerSession;
+            }
+        }
+
+        /// <inheritdoc />
+        public BsonTimestamp SnapshotTime
+        {
+            get
+            {
+                ThrowIfDisposed();
+                return _wrapped.SnapshotTime;
             }
         }
 
@@ -235,6 +255,13 @@ namespace MongoDB.Driver.Core.Bindings
         {
             ThrowIfDisposed();
             _wrapped.StartTransaction(transactionOptions);
+        }
+
+        /// <inheritdoc />
+        public void SetSnapshotTimeIfNeeded(BsonTimestamp snapshotTime)
+        {
+            ThrowIfDisposed();
+            _wrapped.SetSnapshotTimeIfNeeded(snapshotTime);
         }
 
         /// <inheritdoc />

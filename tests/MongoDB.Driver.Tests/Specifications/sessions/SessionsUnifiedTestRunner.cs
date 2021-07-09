@@ -1,4 +1,4 @@
-﻿/* Copyright 2019-present MongoDB Inc.
+﻿/* Copyright 2021-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,44 +13,31 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
-using MongoDB.Driver.Core;
-using MongoDB.Driver.Tests.Specifications.Runner;
-using System.Collections.Generic;
+using MongoDB.Driver.Tests.UnifiedTestOperations;
 using Xunit;
 
-namespace MongoDB.Driver.Tests.Specifications.sessions
+namespace MongoDB.Driver.Tests.Specifications.transactions
 {
-    public class SessionsTestRunner : MongoClientJsonDrivenSessionsTestRunner
+    public sealed class SessionsUnifiedTestRunner
     {
-        protected override string[] ExpectedTestColumns => new string[] { "async", "clientOptions", "failPoint", "description", "operations", "expectations", "outcome" };
-
         [SkippableTheory]
         [ClassData(typeof(TestCaseFactory))]
-        public void RunTestDefinition(JsonDrivenTestCase testCase)
+        public void Run(JsonDrivenTestCase testCase)
         {
-            SetupAndRunTest(testCase);
-        }
-
-        protected override void RunTest(BsonDocument shared, BsonDocument test, EventCapturer eventCapturer)
-        {
-            using (var client = CreateDisposableClient(test, eventCapturer))
-            using (var session0 = StartSession(client, test, "session0"))
+            using (var runner = new UnifiedTestRunner())
             {
-                var objectMap = new Dictionary<string, object>
-                {
-                    { "session0", session0 },
-                };
-
-                ExecuteOperations(client, objectMap, test, eventCapturer);
+                runner.Run(testCase);
             }
         }
 
         // nested types
-        private class TestCaseFactory : JsonDrivenTestCaseFactory
+        public class TestCaseFactory : JsonDrivenTestCaseFactory
         {
-            protected override string PathPrefix => "MongoDB.Driver.Tests.Specifications.sessions.tests.legacy";
+            // protected properties
+            protected override string PathPrefix => "MongoDB.Driver.Tests.Specifications.sessions.tests.unified.";
 
             // protected methods
             protected override IEnumerable<JsonDrivenTestCase> CreateTestCases(BsonDocument document)

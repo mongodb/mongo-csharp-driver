@@ -25,23 +25,29 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         private readonly IMongoCollection<BsonDocument> _collection;
         private readonly string _fieldName;
         private readonly FilterDefinition<BsonDocument> _filter;
+        private readonly IClientSessionHandle _session = null;
 
         public UnifiedDistinctOperation(
             IMongoCollection<BsonDocument> collection,
             string fieldName,
-            FilterDefinition<BsonDocument> filter)
+            FilterDefinition<BsonDocument> filter,
+            IClientSessionHandle session)
         {
             _collection = collection;
             _fieldName = fieldName;
             _filter = filter;
+            _session = session;
         }
 
         public OperationResult Execute(CancellationToken cancellationToken)
         {
             try
             {
-                var cursor = _collection.Distinct<BsonValue>(_fieldName, _filter, cancellationToken: cancellationToken);
-                var result = cursor.ToList();
+                using var cursor = _session == null
+                  ? _collection.Distinct<BsonValue>(_fieldName, _filter, cancellationToken: cancellationToken)
+                  : _collection.Distinct<BsonValue>(_session, _fieldName, _filter, cancellationToken: cancellationToken);
+
+                var result = cursor.ToList(cancellationToken);
 
                 return OperationResult.FromResult(new BsonArray(result));
             }
@@ -55,8 +61,11 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             try
             {
-                var cursor = await _collection.DistinctAsync<BsonValue>(_fieldName, _filter, cancellationToken: cancellationToken);
-                var result = cursor.ToList();
+                using var cursor = _session == null
+                  ? await _collection.DistinctAsync<BsonValue>(_fieldName, _filter, cancellationToken: cancellationToken)
+                  : await _collection.DistinctAsync<BsonValue>(_session, _fieldName, _filter, cancellationToken: cancellationToken);
+
+                var result = await cursor.ToListAsync(cancellationToken);
 
                 return OperationResult.FromResult(new BsonArray(result));
             }
@@ -82,6 +91,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
             string fieldName = null;
             FilterDefinition<BsonDocument> filter = null;
+            IClientSessionHandle session = null;
 
             foreach (var argument in arguments)
             {
@@ -93,12 +103,15 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     case "filter":
                         filter = argument.Value.AsBsonDocument;
                         break;
+                    case "session":
+                        session = _entityMap.GetSession(argument.Value.AsString);
+                        break;
                     default:
                         throw new FormatException($"Invalid DistinctOperation argument name: '{argument.Name}'.");
                 }
             }
 
-            return new UnifiedDistinctOperation(collection, fieldName, filter);
+            return new UnifiedDistinctOperation(collection, fieldName, filter, session);
         }
     }
 }

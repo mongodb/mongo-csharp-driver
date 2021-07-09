@@ -14,11 +14,13 @@
 */
 
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using MongoDB.Bson;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
-    public class UnifiedStartTransactionOperation : IUnifiedSpecialTestOperation
+    public class UnifiedStartTransactionOperation : IUnifiedEntityTestOperation
     {
         private readonly IClientSessionHandle _session;
 
@@ -27,9 +29,23 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             _session = session;
         }
 
-        public void Execute()
+        public OperationResult Execute(CancellationToken cancellationToken)
         {
-            _session.StartTransaction();
+            try
+            {
+                _session.StartTransaction();
+
+                return OperationResult.Empty();
+            }
+            catch (Exception exception)
+            {
+                return OperationResult.FromException(exception);
+            }
+        }
+
+        public Task<OperationResult> ExecuteAsync(CancellationToken cancellationToken)
+        {
+            return Task.FromResult(Execute(cancellationToken));
         }
     }
 

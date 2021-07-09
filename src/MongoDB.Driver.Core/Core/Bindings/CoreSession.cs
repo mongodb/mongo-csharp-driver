@@ -40,6 +40,7 @@ namespace MongoDB.Driver.Core.Bindings
         private readonly IOperationClock _operationClock = new OperationClock();
         private readonly CoreSessionOptions _options;
         private readonly ICoreServerSession _serverSession;
+        private BsonTimestamp _snapshotTime;
 
         // constructors
         /// <summary>
@@ -110,6 +111,9 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         /// <inheritdoc />
+        public bool IsSnapshot => _options.IsSnapshot;
+
+        /// <inheritdoc />
         public BsonTimestamp OperationTime => _operationClock.OperationTime;
 
         /// <inheritdoc />
@@ -117,6 +121,9 @@ namespace MongoDB.Driver.Core.Bindings
 
         /// <inheritdoc />
         public ICoreServerSession ServerSession => _serverSession;
+
+        /// <inheritdoc />
+        public BsonTimestamp SnapshotTime => _snapshotTime;
 
         // public methods
         /// <inheritdoc />
@@ -384,6 +391,15 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         /// <inheritdoc />
+        public void SetSnapshotTimeIfNeeded(BsonTimestamp snapshotTime)
+        {
+            if (IsSnapshot && _snapshotTime == null)
+            {
+                _snapshotTime = snapshotTime;
+            }
+        }
+
+        /// <inheritdoc />
         public void WasUsed()
         {
             _serverSession.WasUsed();
@@ -450,6 +466,10 @@ namespace MongoDB.Driver.Core.Bindings
 
         private void EnsureStartTransactionCanBeCalled()
         {
+            if (IsSnapshot)
+            {
+                throw new MongoClientException("Transactions are not supported in snapshot sessions.");
+            }
             if (_currentTransaction == null)
             {
                 EnsureTransactionsAreSupported();

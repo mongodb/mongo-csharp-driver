@@ -282,6 +282,9 @@ namespace MongoDB.Driver.Core.Operations
             {
                 var operation = CreateOperation(context);
                 var result = operation.Execute(context, cancellationToken);
+
+                context.ChannelSource.Session.SetSnapshotTimeIfNeeded(result.AtClusterTime);
+
                 return CreateCursor(context.ChannelSource, context.Channel, operation.Command, result);
             }
         }
@@ -307,6 +310,9 @@ namespace MongoDB.Driver.Core.Operations
             {
                 var operation = CreateOperation(context);
                 var result = await operation.ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
+
+                context.ChannelSource.Session.SetSnapshotTimeIfNeeded(result.AtClusterTime);
+
                 return CreateCursor(context.ChannelSource, context.Channel, operation.Command, result);
             }
         }
@@ -422,6 +428,7 @@ namespace MongoDB.Driver.Core.Operations
 
         private class AggregateResult
         {
+            public BsonTimestamp AtClusterTime;
             public long? CursorId;
             public CollectionNamespace CollectionNamespace;
             public BsonDocument PostBatchResumeToken;
@@ -485,6 +492,10 @@ namespace MongoDB.Driver.Core.Operations
                     var elementName = reader.ReadName();
                     switch (elementName)
                     {
+                        case "atClusterTime":
+                            result.AtClusterTime = BsonTimestampSerializer.Instance.Deserialize(context);
+                            break;
+
                         case "id":
                             result.CursorId = new Int64Serializer().Deserialize(context);
                             break;
