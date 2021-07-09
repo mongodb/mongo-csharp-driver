@@ -119,7 +119,7 @@ namespace MongoDB.Driver.Core.Bindings
             }
         }
 
-        internal void PinConnection(IChannelHandle channel)
+        internal void PinChannel(IChannelHandle channel)
         {
             lock (_lock)
             {

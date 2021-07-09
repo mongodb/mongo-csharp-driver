@@ -542,7 +542,7 @@ namespace MongoDB.Driver.Core.Operations
         // private methods
         private IAsyncCursor<TDocument> CreateCursor(IChannelSourceHandle channelSource, BsonDocument query, CursorBatch<TDocument> batch)
         {
-            var getMoreChannelSource = ChannelPinningHelper.CreateEffectiveGetMoreChannelSource(channelSource, batch.CursorId);
+            var getMoreChannelSource = ChannelPinningHelper.CreateGetMoreChannelSource(channelSource, batch.CursorId);
 
             return new AsyncCursor<TDocument>(
                 getMoreChannelSource,

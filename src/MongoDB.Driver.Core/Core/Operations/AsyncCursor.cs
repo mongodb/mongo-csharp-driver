@@ -54,8 +54,6 @@ namespace MongoDB.Driver.Core.Operations
         private IReadOnlyList<TDocument> _currentBatch;
         private long _cursorId;
         private bool _disposed;
-        private bool _isTerminationRequested;
-        private bool _isInProgress;
         private IReadOnlyList<TDocument> _firstBatch;
         private readonly int? _limit;
         private readonly TimeSpan? _maxTime;
@@ -416,11 +414,8 @@ namespace MongoDB.Driver.Core.Operations
         /// <inheritdoc/>
         public void Dispose()
         {
-            if (!TryTerminationPendingMode())
-            {
-                Dispose(true);
-                GC.SuppressFinalize(this);
-            }
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         /// <summary>
@@ -446,7 +441,7 @@ namespace MongoDB.Driver.Core.Operations
 
         private void CloseIfNotAlreadyClosed(CancellationToken cancellationToken)
         {
-            if (!TryTerminationPendingMode() && !_closed)
+            if (!_closed)
             {
                 try
                 {
@@ -471,7 +466,7 @@ namespace MongoDB.Driver.Core.Operations
 
         private async Task CloseIfNotAlreadyClosedAsync(CancellationToken cancellationToken)
         {
-            if (!TryTerminationPendingMode() && !_closed)
+            if (!_closed)
             {
                 try
                 {
@@ -550,16 +545,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private bool TryTerminationPendingMode()
-        {
-            if (_isInProgress)
-            {
-                _isTerminationRequested = true;
-                return true;
-            }
-            return false;
-        }
-
         private bool IsMongoCursorNotFoundException(MongoCommandException exception)
         {
             return exception.Code == (int)ServerErrorCode.CursorNotFound;
@@ -613,27 +598,15 @@ namespace MongoDB.Driver.Core.Operations
             ThrowIfDisposed();
             cancellationToken.ThrowIfCancellationRequested();
 
-            _isInProgress = true;
-            try
+            bool hasMore;
+            if (TryMoveNext(out hasMore))
             {
-                bool hasMore;
-                if (TryMoveNext(out hasMore))
-                {
-                    return hasMore;
-                }
+                return hasMore;
+            }
 
-                var batch = GetNextBatch(cancellationToken);
-                SaveBatch(batch);
-                return true;
-            }
-            finally
-            {
-                _isInProgress = false;
-                if (_isTerminationRequested)
-                {
-                    Close(CancellationToken.None);
-                }
-            }
+            var batch = GetNextBatch(cancellationToken);
+            SaveBatch(batch);
+            return true;
         }
 
         /// <inheritdoc/>
@@ -642,27 +615,15 @@ namespace MongoDB.Driver.Core.Operations
             ThrowIfDisposed();
             cancellationToken.ThrowIfCancellationRequested();
 
-            _isInProgress = true;
-            try
+            bool hasMore;
+            if (TryMoveNext(out hasMore))
             {
-                bool hasMore;
-                if (TryMoveNext(out hasMore))
-                {
-                    return hasMore;
-                }
+                return hasMore;
+            }
 
-                var batch = await GetNextBatchAsync(cancellationToken).ConfigureAwait(false);
-                SaveBatch(batch);
-                return true;
-            }
-            finally
-            {
-                _isInProgress = false;
-                if (_isTerminationRequested)
-                {
-                    await CloseAsync(CancellationToken.None).ConfigureAwait(false);
-                }
-            }
+            var batch = await GetNextBatchAsync(cancellationToken).ConfigureAwait(false);
+            SaveBatch(batch);
+            return true;
         }
 
         private void SaveBatch(CursorBatch<TDocument> batch)
@@ -687,7 +648,7 @@ namespace MongoDB.Driver.Core.Operations
 
         private void ThrowIfDisposed()
         {
-            if (_disposed || _isTerminationRequested)
+            if (_disposed)
             {
                 throw new ObjectDisposedException(GetType().Name);
             }

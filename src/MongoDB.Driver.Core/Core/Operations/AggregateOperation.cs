@@ -385,7 +385,7 @@ namespace MongoDB.Driver.Core.Operations
         private AsyncCursor<TResult> CreateCursorFromCursorResult(IChannelSourceHandle channelSource, BsonDocument command, AggregateResult result)
         {
             var cursorId = result.CursorId.GetValueOrDefault(0);
-            var getMoreChannelSource = ChannelPinningHelper.CreateEffectiveGetMoreChannelSource(channelSource, cursorId);
+            var getMoreChannelSource = ChannelPinningHelper.CreateGetMoreChannelSource(channelSource, cursorId);
             return new AsyncCursor<TResult>(
                 getMoreChannelSource,
                 result.CollectionNamespace,

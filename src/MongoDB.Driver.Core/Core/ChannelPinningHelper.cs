@@ -28,13 +28,13 @@ namespace MongoDB.Driver.Core
     public static class ChannelPinningHelper
     {
         /// <summary>
-        /// Create effective read binding handle.
+        /// Create a read binding handle.
         /// </summary>
         /// <param name="cluster">The cluster,</param>
         /// <param name="session">The session.</param>
         /// <param name="readPreference">The read preference.</param>
         /// <returns>An effective read binging.</returns>
-        public static IReadBindingHandle CreateEffectiveReadBinding(ICluster cluster, ICoreSessionHandle session, ReadPreference readPreference)
+        public static IReadBindingHandle CreateReadBinding(ICluster cluster, ICoreSessionHandle session, ReadPreference readPreference)
         {
             IReadBinding readBinding;
             if (session.IsInTransaction &&
@@ -60,12 +60,12 @@ namespace MongoDB.Driver.Core
         }
 
         /// <summary>
-        /// Create effective readwrite binding handle.
+        /// Create a readwrite binding handle.
         /// </summary>
         /// <param name="cluster">The cluster.</param>
         /// <param name="session">The session.</param>
         /// <returns>An effective read write binging.</returns>
-        public static IReadWriteBindingHandle CreateEffectiveReadWriteBinding(ICluster cluster, ICoreSessionHandle session)
+        public static IReadWriteBindingHandle CreateReadWriteBinding(ICluster cluster, ICoreSessionHandle session)
         {
             IReadWriteBinding readWriteBinding;
             if (session.IsInTransaction &&
@@ -90,7 +90,7 @@ namespace MongoDB.Driver.Core
             return new ReadWriteBindingHandle(readWriteBinding);
         }
 
-        internal static IChannelSourceHandle CreateEffectiveGetMoreChannelSource(IChannelSourceHandle channelSource, long cursorId)
+        internal static IChannelSourceHandle CreateGetMoreChannelSource(IChannelSourceHandle channelSource, long cursorId)
         {
             IChannelSource effectiveChannelSource;
             if (IsInLoadBalancedMode(channelSource.ServerDescription) && cursorId != 0)
@@ -132,7 +132,7 @@ namespace MongoDB.Driver.Core
 
                 if (session.IsInTransaction && !IsConnectionPinned(session.CurrentTransaction))
                 {
-                    session.CurrentTransaction.PinConnection(forkedChannel.Fork());
+                    session.CurrentTransaction.PinChannel(forkedChannel.Fork());
                     session.CurrentTransaction.PinnedServer = server;
                 }
 

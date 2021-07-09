@@ -484,7 +484,7 @@ namespace MongoDB.Driver.Core.Operations
             var cursorDocument = commandResult["cursor"].AsBsonDocument;
             var collectionNamespace = CollectionNamespace.FromFullName(cursorDocument["ns"].AsString);
             var firstBatch = CreateFirstCursorBatch(cursorDocument);
-            var getMoreChannelSource = ChannelPinningHelper.CreateEffectiveGetMoreChannelSource(channelSource, firstBatch.CursorId);
+            var getMoreChannelSource = ChannelPinningHelper.CreateGetMoreChannelSource(channelSource, firstBatch.CursorId);
 
             return new AsyncCursor<TDocument>(
                 getMoreChannelSource,

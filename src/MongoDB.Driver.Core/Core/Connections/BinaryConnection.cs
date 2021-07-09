@@ -1072,7 +1072,7 @@ namespace MongoDB.Driver.Core.Connections
             {
                 if (_connection._commandEventHelper.ShouldCallErrorSending)
                 {
-                    _connection._commandEventHelper.ErrorSending(_messages, _connection._connectionId, _connection?._description?.ServiceId, ex);
+                    _connection._commandEventHelper.ErrorSending(_messages, _connection._connectionId, _connection._description?.ServiceId, ex);
                 }
 
                 var handler = _connection._failedSendingMessagesEvent;
@@ -1086,7 +1086,7 @@ namespace MongoDB.Driver.Core.Connections
             {
                 if (_connection._commandEventHelper.ShouldCallBeforeSending)
                 {
-                    _connection._commandEventHelper.BeforeSending(_messages, _connection.ConnectionId, _connection?.Description?.ServiceId, buffer, _messageEncoderSettings, _commandStopwatch);
+                    _connection._commandEventHelper.BeforeSending(_messages, _connection.ConnectionId, _connection.Description?.ServiceId, buffer, _messageEncoderSettings, _commandStopwatch);
                 }
 
                 _networkStopwatch = Stopwatch.StartNew();
@@ -1099,7 +1099,7 @@ namespace MongoDB.Driver.Core.Connections
 
                 if (_connection._commandEventHelper.ShouldCallAfterSending)
                 {
-                    _connection._commandEventHelper.AfterSending(_messages, _connection._connectionId, _connection?.Description?.ServiceId);
+                    _connection._commandEventHelper.AfterSending(_messages, _connection._connectionId, _connection.Description?.ServiceId);
                 }
 
                 var handler = _connection._sentMessagesEventHandler;

@@ -505,7 +505,7 @@ namespace MongoDB.Driver.Core.Bindings
         private TResult ExecuteEndTransactionOnPrimary<TResult>(IReadOperation<TResult> operation, CancellationToken cancellationToken)
         {
             using (var sessionHandle = new NonDisposingCoreSessionHandle(this))
-            using (var binding = ChannelPinningHelper.CreateEffectiveReadWriteBinding(_cluster, sessionHandle))
+            using (var binding = ChannelPinningHelper.CreateReadWriteBinding(_cluster, sessionHandle))
             {
                 return operation.Execute(binding, cancellationToken);
             }
@@ -514,7 +514,7 @@ namespace MongoDB.Driver.Core.Bindings
         private async Task<TResult> ExecuteEndTransactionOnPrimaryAsync<TResult>(IReadOperation<TResult> operation, CancellationToken cancellationToken)
         {
             using (var sessionHandle = new NonDisposingCoreSessionHandle(this))
-            using (var binding = ChannelPinningHelper.CreateEffectiveReadWriteBinding(_cluster, sessionHandle))
+            using (var binding = ChannelPinningHelper.CreateReadWriteBinding(_cluster, sessionHandle))
             {
                 return await operation.ExecuteAsync(binding, cancellationToken).ConfigureAwait(false);
             }
