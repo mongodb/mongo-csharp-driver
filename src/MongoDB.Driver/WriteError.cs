@@ -16,6 +16,7 @@
 #if !NETSTANDARD1_5
 using System;
 #endif
+using System.Text;
 using MongoDB.Bson;
 
 namespace MongoDB.Driver
@@ -74,6 +75,23 @@ namespace MongoDB.Driver
         public string Message
         {
             get { return _message; }
+        }
+
+        /// <inheritdoc/>
+        public override string ToString()
+        {
+            var stringBuilder = new StringBuilder($"{{ Category : \"{_category}\", Code : {_code}");
+            if (_message != null)
+            {
+                stringBuilder.Append($", Message : \"{_message}\"");
+            }
+            if (_details != null)
+            {
+                stringBuilder.Append($", Details : \"{_details}\"");
+            }
+            stringBuilder.Append(" }");
+
+            return stringBuilder.ToString();
         }
     }
 }

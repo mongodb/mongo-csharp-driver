@@ -84,7 +84,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
             RequireServer.Check().VersionGreaterThanOrEqualTo(new SemanticVersion(5, 0, 0, ""));
 
             var eventCapturer = new EventCapturer().Capture<CommandSucceededEvent>(e => e.CommandName == "insert");
-            var collectionName = DriverTestConfiguration.CollectionNamespace.CollectionName;
+            var collectionName = "WriteError_details_should_expose_writeErrors_errInfo";
             var collectionValidator = BsonDocument.Parse("{ x : { $type : 'string' } }");
             var collectionOptions = new CreateCollectionOptions<BsonDocument> { Validator = collectionValidator };
 
@@ -98,14 +98,29 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
                 exception = Record.Exception(() => collection.InsertOne(new BsonDocument("x", 1)));
             }
 
-            // Assert WriteError
-            var bulkWriteException = exception.InnerException.Should().BeOfType<MongoBulkWriteException<BsonDocument>>().Subject;
-            bulkWriteException.WriteErrors.Should().HaveCount(1);
-            var writeError = bulkWriteException.WriteErrors.Single();
+            // Assert MongoWriteException WriteError
+            exception.Should().NotBeNull();
+            var mongoWriteExcepion = exception.Should().BeOfType<MongoWriteException>().Subject;
+            var writeError = mongoWriteExcepion.WriteError;
+            var objectId = writeError.Details["failingDocumentId"].AsObjectId;
+            var expectedWriteErrorDetails = GetExpectedWriteErrorDetails(objectId);
             writeError.Code.Should().Be(121);
             writeError.Message.Should().Be("Document failed validation");
-            var objectId = writeError.Details["failingDocumentId"].AsObjectId;
-            writeError.Details.Should().BeEquivalentTo(GetExpectedWriteError(objectId));
+            writeError.Details.Should().BeEquivalentTo(expectedWriteErrorDetails);
+
+            // Assert MongoBulkWriteException WriteError
+            exception.InnerException.Should().NotBeNull();
+            var bulkWriteException = exception.InnerException.Should().BeOfType<MongoBulkWriteException<BsonDocument>>().Subject;
+            bulkWriteException.WriteErrors.Should().HaveCount(1);
+            var bulkWriteWriteError = bulkWriteException.WriteErrors.Single();
+            bulkWriteWriteError.Code.Should().Be(121);
+            bulkWriteWriteError.Message.Should().Be("Document failed validation");
+            bulkWriteWriteError.Details.Should().BeEquivalentTo(expectedWriteErrorDetails);
+
+            // Assert exception messages
+            var expectedWriteErrorMessage = GetExpectedWriteErrorMessage(expectedWriteErrorDetails.ToJson());
+            mongoWriteExcepion.Message.Should().Be($"A write operation resulted in an error. WriteError: {expectedWriteErrorMessage}.");
+            bulkWriteException.Message.Should().Be($"A bulk write operation resulted in one or more errors. WriteErrors: [ {expectedWriteErrorMessage} ].");
 
             // Assert writeErrors[0].errInfo
             eventCapturer.Events.Should().HaveCount(1);
@@ -113,9 +128,14 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
             var writeErrors = commandSucceededEvent.Reply["writeErrors"].AsBsonArray;
             writeErrors.Values.Should().HaveCount(1);
             var errorInfo = writeErrors.Values.Single()["errInfo"].AsBsonDocument;
-            errorInfo.Should().BeEquivalentTo(GetExpectedWriteError(objectId));
+            errorInfo.Should().BeEquivalentTo(expectedWriteErrorDetails);
 
-            BsonDocument GetExpectedWriteError(ObjectId objectId)
+            string GetExpectedWriteErrorMessage(string expectedWriteErrorDetails)
+            {
+                return $"{{ Category : \"Uncategorized\", Code : 121, Message : \"Document failed validation\", Details : \"{expectedWriteErrorDetails}\" }}";
+            }
+
+            BsonDocument GetExpectedWriteErrorDetails(ObjectId objectId)
             {
                 return BsonDocument.Parse($"{{ failingDocumentId : {objectId.ToJson()}, details : {{ operatorName : \"$type\", specifiedAs : {{ x : {{ $type : \"string\" }} }}, reason : \"type did not match\", consideredValue : 1, consideredType : \"int\" }} }}");
             }

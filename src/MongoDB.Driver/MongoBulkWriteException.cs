@@ -121,14 +121,17 @@ namespace MongoDB.Driver
             var sb = new StringBuilder("A bulk write operation resulted in one or more errors.");
             if (writeErrors != null)
             {
+                sb.Append(" WriteErrors: [ ");
                 foreach (var writeError in writeErrors)
                 {
-                    sb.AppendLine().Append("  " + writeError.Message);
+                    sb.Append(writeError + ", ");
                 }
+                sb.Remove(sb.Length - 2, 2);
+                sb.Append(" ].");
             }
             if (writeConcernError != null)
             {
-                sb.AppendLine().Append("  " + writeConcernError.Message);
+                sb.Append($" WriteConcernError: {writeConcernError}.");
             }
 
             return sb.ToString();

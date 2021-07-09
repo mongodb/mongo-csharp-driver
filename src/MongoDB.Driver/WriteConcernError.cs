@@ -13,8 +13,12 @@
 * limitations under the License.
 */
 
+#if !NETSTANDARD1_5
 using System;
+#endif
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using MongoDB.Bson;
 
 namespace MongoDB.Driver
@@ -91,6 +95,37 @@ namespace MongoDB.Driver
         public string Message
         {
             get { return _message; }
+        }
+
+        /// <inheritdoc/>
+        public override string ToString()
+        {
+            var sb = new StringBuilder($"{{ Code : \"{_code}\"");
+            if (_codeName != null)
+            {
+                sb.Append($", CodeName : \"{_codeName}\"");
+            }
+            if (_message != null)
+            {
+                sb.Append($", Message : \"{_message}\"");
+            }
+            if (_details != null)
+            {
+                sb.Append($", Details : \"{_details}\"");
+            }
+            if (_errorLabels != null && _errorLabels.Any())
+            {
+                sb.Append(", ErrorLabels : [ ");
+                foreach (var errorLabel in _errorLabels)
+                {
+                    sb.Append($"\"{errorLabel}\", ");
+                }
+                sb.Remove(sb.Length - 2, 2);
+                sb.Append(" ]");
+            }
+            sb.Append(" }");
+
+            return sb.ToString();
         }
 
         // internal static methods
