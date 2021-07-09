@@ -5,6 +5,9 @@ runOn:
     -
         minServerVersion: "4.1.8"
         topology: ["sharded"]
+        # serverless proxy doesn't append error labels to errors in transactions
+        # caused by failpoints (CLOUDP-88216)
+        serverless: "forbid"
 
 database_name: &database_name "transaction-tests"
 collection_name: &collection_name "test"
@@ -65,14 +68,14 @@ tests:
       collection:
         data: []
 
-  - description: NotMaster errors contain transient label
+  - description: NotWritablePrimary errors contain transient label
 
     failPoint:
       configureFailPoint: failCommand
       mode: { times: 1 }
       data:
           failCommands: ["insert"]
-          errorCode: 10107  # NotMaster
+          errorCode: 10107  # NotWritablePrimary
 
     operations:
       - name: startTransaction

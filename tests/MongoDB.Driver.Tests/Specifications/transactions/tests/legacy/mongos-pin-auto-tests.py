@@ -17,6 +17,9 @@ runOn:
     -
         minServerVersion: "4.1.8"
         topology: ["sharded"]
+        # serverless proxy doesn't append error labels to errors in transactions
+        # caused by failpoints (CLOUDP-88216)
+        serverless: "forbid"
 
 database_name: &database_name "transaction-tests"
 collection_name: &collection_name "test"
@@ -204,7 +207,7 @@ tests:
             startTransaction:
             autocommit: false
             writeConcern:
-            recoveryToken:
+            recoveryToken: 42
           command_name: abortTransaction
           database_name: admin
 
