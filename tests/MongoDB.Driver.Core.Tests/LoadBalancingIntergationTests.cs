@@ -15,9 +15,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
@@ -28,7 +26,6 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Operations;
-using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.TestHelpers;
 using Xunit;
@@ -77,34 +74,24 @@ namespace MongoDB.Driver.Core.Tests
 
                     using (session = CreateSession(cluster, isImplicit: false, withTransaction: true))
                     {
-                        AssertSessionReferenceCount(session, 1);
-
                         eventCapturer.Any().Should().BeFalse();
                         using (writeBindingsBundle = CreateReadWriteBindingsAndRetryableWriteContext(cluster, session.Fork(), async))
                         {
-                            AssertSessionReferenceCount(session, 3);
-                            AssertChannelReferenceCount(writeBindingsBundle.RetryableContext.Channel, 1);
                             AssertCheckOutOnlyEvents(eventCapturer, i);
 
                             writeBindingsBundle.RetryableContext.PinConnectionIfRequired();
 
-                            AssertSessionReferenceCount(session, 3);
-                            // +1 because now channel handle is pinned to session
-                            AssertChannelReferenceCount(writeBindingsBundle.RetryableContext.Channel, 2);
                             eventCapturer.Any().Should().BeFalse();
 
                             _ = CreateAndRunBulkOperation(writeBindingsBundle.RetryableContext, async);
 
-                            AssertSessionReferenceCount(session, 3);
-                            AssertChannelReferenceCount(writeBindingsBundle.RetryableContext.Channel, 2);
                             AssertCommand(eventCapturer, "insert", noMoreEvents: true);
                         }
-                        AssertSessionReferenceCount(session, 1);
-                        AssertChannelReferenceCount(writeBindingsBundle.RetryableContext.Channel, 1);
                     }
                     AssertCommand(eventCapturer, "abortTransaction", noMoreEvents: false);
                     AssertCheckInOnlyEvents(eventCapturer);
                     AssertSessionReferenceCount(session, 0);
+                    AssertChannelReferenceCount(writeBindingsBundle.RetryableContext.Channel, 0);
                 }
             }
         }
@@ -147,47 +134,30 @@ namespace MongoDB.Driver.Core.Tests
                     // bulk operation
                     using (writeBindingsBundle = CreateReadWriteBindingsAndRetryableWriteContext(cluster, session.Fork(), async))
                     {
-                        AssertSessionReferenceCount(session, 3);
-                        AssertChannelReferenceCount(writeBindingsBundle.RetryableContext.Channel, 1);
                         AssertCheckOutOnlyEvents(eventCapturer, 1);
 
                         writeBindingsBundle.RetryableContext.PinConnectionIfRequired();
 
                         AssertSessionReferenceCount(session, 3);
-                        // +1 because now channel handle is pinned to session
-                        AssertChannelReferenceCount(writeBindingsBundle.RetryableContext.Channel, 2);
                         eventCapturer.Any().Should().BeFalse();
 
                         _ = CreateAndRunBulkOperation(writeBindingsBundle.RetryableContext, async);
 
-                        AssertSessionReferenceCount(session, 3);
-                        AssertChannelReferenceCount(writeBindingsBundle.RetryableContext.Channel, 2);
                         AssertCommand(eventCapturer, "insert", noMoreEvents: true);
                     }
                     AssertSessionReferenceCount(session, 1);
-                    AssertChannelReferenceCount(writeBindingsBundle.RetryableContext.Channel, 1);
 
                     // find operation
                     using (readBindingsBundle = CreateReadBindingsAndRetryableReadContext(cluster, session.Fork(), async))
                     {
-                        AssertSessionReferenceCount(session, 3);
-                        // +1 gives pinnedChannel.Fork()
-                        // +2 creating retryableContext by ChannelReadWriteBinding
-                        AssertChannelReferenceCount(readBindingsBundle.RetryableContext.Channel, 4);
                         eventCapturer.Any().Should().BeFalse();
 
                         readBindingsBundle.RetryableContext.PinConnectionIfRequired();
 
-                        AssertSessionReferenceCount(session, 3);
-                        // -2 gives disposing initial retryable context
-                        // +1 gives pinning, +1 gives creating cursor
-                        AssertChannelReferenceCount(readBindingsBundle.RetryableContext.Channel, 3);
                         eventCapturer.Any().Should().BeFalse();
 
                         asyncCursor = CreateAndRunFindOperation(readBindingsBundle.RetryableContext, async);
 
-                        AssertSessionReferenceCount(session, 4);
-                        AssertChannelReferenceCount(readBindingsBundle.RetryableContext.Channel, 4);
                         AssertCommand(eventCapturer, "find", noMoreEvents: true);
                     }
                 }
@@ -237,59 +207,38 @@ namespace MongoDB.Driver.Core.Tests
                 for (int i = 1; i <= attempts; i++)
                 {
                     ICoreSessionHandle session;
+                    DisposableBindingBundle<IReadBindingHandle, RetryableReadContext> readBindingsBundle;
                     DisposableBindingBundle<IReadWriteBindingHandle, RetryableWriteContext> writeBindingsBundle;
 
                     using (session = CreateSession(cluster, isImplicit: false, withTransaction: true))
                     {
-                        AssertSessionReferenceCount(session, 1);
-
                         eventCapturer.Any().Should().BeFalse();
 
                         // bulk operation
                         using (writeBindingsBundle = CreateReadWriteBindingsAndRetryableWriteContext(cluster, session.Fork(), async))
                         {
-                            AssertSessionReferenceCount(session, 3);
-                            AssertChannelReferenceCount(writeBindingsBundle.RetryableContext.Channel, 1);
                             AssertCheckOutOnlyEvents(eventCapturer, i);
 
                             writeBindingsBundle.RetryableContext.PinConnectionIfRequired();
 
-                            AssertSessionReferenceCount(session, 3);
-                            // +1 because now channel handle is pinned to session
-                            AssertChannelReferenceCount(writeBindingsBundle.RetryableContext.Channel, 2);
                             eventCapturer.Any().Should().BeFalse();
 
                             _ = CreateAndRunBulkOperation(writeBindingsBundle.RetryableContext, async);
 
-                            AssertSessionReferenceCount(session, 3);
-                            AssertChannelReferenceCount(writeBindingsBundle.RetryableContext.Channel, 2);
                             AssertCommand(eventCapturer, "insert", noMoreEvents: true);
                         }
-                        AssertSessionReferenceCount(session, 1);
-                        AssertChannelReferenceCount(writeBindingsBundle.RetryableContext.Channel, 1);
 
                         // find operation
-                        DisposableBindingBundle<IReadBindingHandle, RetryableReadContext> readBindingsBundle;
                         using (readBindingsBundle = CreateReadBindingsAndRetryableReadContext(cluster, session.Fork(), async))
                         {
-                            AssertSessionReferenceCount(session, 3);
-                            // +1 gives pinnedChannel.Fork()
-                            // +2 creating retryableContext by ChannelReadWriteBinding
-                            AssertChannelReferenceCount(readBindingsBundle.RetryableContext.Channel, 4);
                             eventCapturer.Any().Should().BeFalse();
 
                             readBindingsBundle.RetryableContext.PinConnectionIfRequired();
 
-                            AssertSessionReferenceCount(session, 3);
-                            // -2 gives disposing initial retryable context
-                            // +1 gives pinning, +1 gives creating cursor
-                            AssertChannelReferenceCount(readBindingsBundle.RetryableContext.Channel, 3);
                             eventCapturer.Any().Should().BeFalse();
 
                             var asyncCursor = CreateAndRunFindOperation(readBindingsBundle.RetryableContext, async);
 
-                            AssertSessionReferenceCount(session, 4);
-                            AssertChannelReferenceCount(readBindingsBundle.RetryableContext.Channel, 4);
                             AssertCommand(eventCapturer, "find", noMoreEvents: true);
 
                             asyncCursor.Dispose();
@@ -300,6 +249,8 @@ namespace MongoDB.Driver.Core.Tests
                     AssertCommand(eventCapturer, "abortTransaction", noMoreEvents: false);
                     AssertCheckInOnlyEvents(eventCapturer);
                     AssertSessionReferenceCount(session, 0);
+                    AssertChannelReferenceCount(readBindingsBundle.RetryableContext.Channel, 0);
+                    AssertChannelReferenceCount(writeBindingsBundle.RetryableContext.Channel, 0);
                 }
             }
         }
@@ -344,44 +295,25 @@ namespace MongoDB.Driver.Core.Tests
                         eventCapturer.Any().Should().BeFalse();
                         using (readBindingsBundle = CreateReadBindingsAndRetryableReadContext(cluster, session.Fork(), async))
                         {
-                            AssertSessionReferenceCount(session, 3);
-                            AssertChannelReferenceCount(readBindingsBundle.RetryableContext.Channel, 1);
                             AssertCheckOutOnlyEvents(eventCapturer, i);
 
                             readBindingsBundle.RetryableContext.PinConnectionIfRequired();
 
-                            AssertSessionReferenceCount(session, 3);
-                            AssertChannelReferenceCount(readBindingsBundle.RetryableContext.Channel, 1);
                             eventCapturer.Any().Should().BeFalse();
 
                             asyncCursor = CreateAndRunFindOperation(readBindingsBundle.RetryableContext, async);
 
-                            AssertSessionReferenceCount(session, 4);
-                            // +1 gives creating a cursor
-                            AssertChannelReferenceCount(readBindingsBundle.RetryableContext.Channel, 2);
-                            AssertChannelReferenceCount(asyncCursor, 2);
                             AssertCommand(eventCapturer, "find", noMoreEvents: true);
                         }
-                        AssertSessionReferenceCount(session, 2);
-                        // -1 because context.channelSource contains the same channel as the context.channel, so the second dispose is skipped
-                        AssertChannelReferenceCount(readBindingsBundle.RetryableContext.Channel, 1);
-                        AssertChannelReferenceCount(asyncCursor, 1);
-
                         MoveNext(asyncCursor, async).Should().BeTrue(); // no op
                         MoveNext(asyncCursor, async).Should().BeTrue();
 
-                        AssertSessionReferenceCount(session, 2);
-                        AssertChannelReferenceCount(readBindingsBundle.RetryableContext.Channel, 1);
-                        AssertChannelReferenceCount(asyncCursor, 1);
                         AssertCommand(eventCapturer, "getMore", noMoreEvents: true);
 
                         if (forceCursorClose)
                         {
                             asyncCursor.Dispose();
 
-                            AssertSessionReferenceCount(session, 1);
-                            AssertChannelReferenceCount(readBindingsBundle.RetryableContext.Channel, 0);
-                            AssertChannelReferenceCount(asyncCursor, 0);
                             AssertCommand(eventCapturer, "killCursors", noMoreEvents: false);
                             AssertCheckInOnlyEvents(eventCapturer);
                         }
@@ -390,14 +322,12 @@ namespace MongoDB.Driver.Core.Tests
                             MoveNext(asyncCursor, async).Should().BeTrue(); // returns cursorId = 0
                             MoveNext(asyncCursor, async).Should().BeFalse();
 
-                            AssertSessionReferenceCount(session, 1);
-                            AssertChannelReferenceCount(readBindingsBundle.RetryableContext.Channel, 0);
-                            AssertChannelReferenceCount(asyncCursor, null); // effective channel count is 0, but we cannot assert it anymore
                             AssertCommand(eventCapturer, "getMore", noMoreEvents: false);
                             AssertCheckInOnlyEvents(eventCapturer);
                         }
                     }
                     AssertSessionReferenceCount(session, 0);
+                    AssertChannelReferenceCount(readBindingsBundle.RetryableContext.Channel, 0);
                 }
             }
         }
@@ -441,29 +371,16 @@ namespace MongoDB.Driver.Core.Tests
                         eventCapturer.Any().Should().BeFalse();
                         using (readBindingsBundle = CreateReadBindingsAndRetryableReadContext(cluster, session.Fork(), async))
                         {
-                            AssertSessionReferenceCount(session, 3);
-                            AssertChannelReferenceCount(readBindingsBundle.RetryableContext.Channel, 1);
                             AssertCheckOutOnlyEvents(eventCapturer, i);
 
                             readBindingsBundle.RetryableContext.PinConnectionIfRequired();
 
-                            AssertSessionReferenceCount(session, 3);
-                            // +1 because now channel handle is pinned to session
-                            AssertChannelReferenceCount(readBindingsBundle.RetryableContext.Channel, 2);
                             eventCapturer.Any().Should().BeFalse();
 
                             asyncCursor = CreateAndRunFindOperation(readBindingsBundle.RetryableContext, async);
 
-                            AssertSessionReferenceCount(session, 4);
-                            // +1 gives creating a cursor 
-                            AssertChannelReferenceCount(readBindingsBundle.RetryableContext.Channel, 3);
-                            AssertChannelReferenceCount(asyncCursor, 3);
                             AssertCommand(eventCapturer, "find", noMoreEvents: true);
                         }
-                        AssertSessionReferenceCount(session, 2);
-                        // -1 because context.channelSource contains the same channel as the context.channel, so the second dispose is skipped
-                        AssertChannelReferenceCount(readBindingsBundle.RetryableContext.Channel, 2);
-                        AssertChannelReferenceCount(asyncCursor, 2);
 
                         MoveNext(asyncCursor, async).Should().BeTrue(); // no op
                         MoveNext(asyncCursor, async).Should().BeTrue();
@@ -477,10 +394,6 @@ namespace MongoDB.Driver.Core.Tests
                         {
                             asyncCursor.Dispose();
 
-                            AssertSessionReferenceCount(session, 1);
-                            AssertChannelReferenceCount(readBindingsBundle.RetryableContext.Channel, 1);
-                            AssertChannelSourceReferenceCount(asyncCursor, 0);
-                            AssertChannelReferenceCount(asyncCursor, 1);
                             AssertCommand(eventCapturer, "killCursors", noMoreEvents: true);
                         }
                         else
@@ -488,10 +401,6 @@ namespace MongoDB.Driver.Core.Tests
                             MoveNext(asyncCursor, async).Should().BeTrue(); // cursorId = 0
                             MoveNext(asyncCursor, async).Should().BeFalse();
 
-                            AssertSessionReferenceCount(session, 1);
-                            AssertChannelReferenceCount(readBindingsBundle.RetryableContext.Channel, 1);
-                            AssertChannelSourceReferenceCount(asyncCursor, null);
-                            AssertChannelReferenceCount(asyncCursor, null); // effective channel count is 1, but we cannot assert it anymore
                             AssertCommand(eventCapturer, "getMore", noMoreEvents: true);
                         }
                     }
@@ -680,6 +589,36 @@ namespace MongoDB.Driver.Core.Tests
             }
         }
 
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void RetryableReadContext_create_should_not_change_referenceCounter_without_transaction(
+            [Values(false, true)] bool isImplicitSession,
+            [Values(false, true)] bool async)
+        {
+            SkipIfNotLoadBalancingMode();
+
+            KillOpenTransactions();
+
+            ServiceIdHelper.IsServiceIdEmulationEnabled = true; // TODO: temporary solution to enable emulating serviceId in a server response
+
+            using (var cluster = CreateLoadBalancedCluster(new EventCapturer()))
+            {
+                var readPreference = ReadPreference.Primary;
+
+                using (var session = CreateSession(cluster, isImplicitSession, withTransaction: false))
+                {
+                    var readBindings = ChannelPinningHelper.CreateReadBinding(cluster, session, readPreference);
+
+                    RetryableReadContext retryableReadContext;
+                    using (retryableReadContext = CreateRetryableReadContext(readBindings, async))
+                    {
+                        retryableReadContext.PinConnectionIfRequired();
+                    }
+                    AssertChannelReferenceCount(retryableReadContext.Channel, 0);
+                }
+            }
+        }
+
         // private methods
         private void AbortTransaction(ICoreSessionHandle session, bool async)
         {
@@ -701,19 +640,6 @@ namespace MongoDB.Driver.Core.Tests
         private void AssertChannelReferenceCount(IAsyncCursor<BsonDocument> cursor, int? expectedValue)
         {
             var referenceCount = cursor?._channelSource()?._reference_instance_channel_connection()?._reference_referenceCount();
-            if (expectedValue.HasValue)
-            {
-                referenceCount.Should().Be(expectedValue);
-            }
-            else
-            {
-                referenceCount.Should().NotHaveValue();
-            }
-        }
-
-        private void AssertChannelSourceReferenceCount(IAsyncCursor<BsonDocument> cursor, int? expectedValue)
-        {
-            var referenceCount = cursor?._channelSource()?._reference_referenceCount();
             if (expectedValue.HasValue)
             {
                 referenceCount.Should().Be(expectedValue);
@@ -782,7 +708,7 @@ namespace MongoDB.Driver.Core.Tests
 
         private IAsyncCursor<BsonDocument> CreateAndRunFindOperation(RetryableReadContext context, bool async)
         {
-            var findOperation = new FindCommandOperation<BsonDocument>(
+            var findOperation = new FindOperation<BsonDocument>(
                 _collectionNamespace,
                 BsonDocumentSerializer.Instance,
                 _messageEncoderSettings)
@@ -800,24 +726,34 @@ namespace MongoDB.Driver.Core.Tests
             }
         }
 
+        private RetryableReadContext CreateRetryableReadContext(IReadBindingHandle readBindingHandle, bool async)
+        {
+            return async
+                ? RetryableReadContext.CreateAsync(readBindingHandle, retryRequested: false, CancellationToken.None).GetAwaiter().GetResult()
+                : RetryableReadContext.Create(readBindingHandle, retryRequested: false, CancellationToken.None);
+        }
+
         private DisposableBindingBundle<IReadBindingHandle, RetryableReadContext> CreateReadBindingsAndRetryableReadContext(ICluster cluster, ICoreSessionHandle sessionHandle, bool async)
         {
             var readPreference = ReadPreference.Primary;
 
             var effectiveReadBindings = ChannelPinningHelper.CreateReadBinding(cluster, sessionHandle, readPreference);
-            var retryableReadContext = async
-                ? RetryableReadContext.CreateAsync(effectiveReadBindings, retryRequested: false, CancellationToken.None).GetAwaiter().GetResult()
-                : RetryableReadContext.Create(effectiveReadBindings, retryRequested: false, CancellationToken.None);
+            var retryableReadContext = CreateRetryableReadContext(effectiveReadBindings, async);
 
             return new DisposableBindingBundle<IReadBindingHandle, RetryableReadContext>(effectiveReadBindings, retryableReadContext);
+        }
+
+        private RetryableWriteContext CreateRetryableWriteContext(IReadWriteBindingHandle readWriteBindingHandle, bool async)
+        {
+            return async
+                    ? RetryableWriteContext.CreateAsync(readWriteBindingHandle, retryRequested: false, CancellationToken.None).GetAwaiter().GetResult()
+                    : RetryableWriteContext.Create(readWriteBindingHandle, retryRequested: false, CancellationToken.None);
         }
 
         private DisposableBindingBundle<IReadWriteBindingHandle, RetryableWriteContext> CreateReadWriteBindingsAndRetryableWriteContext(ICluster cluster, ICoreSessionHandle sessionHandle, bool async)
         {
             var effectiveReadBindings = ChannelPinningHelper.CreateReadWriteBinding(cluster, sessionHandle);
-            var retryableReadContext = async
-                ? RetryableWriteContext.CreateAsync(effectiveReadBindings, retryRequested: false, CancellationToken.None).GetAwaiter().GetResult()
-                : RetryableWriteContext.Create(effectiveReadBindings, retryRequested: false, CancellationToken.None);
+            var retryableReadContext = CreateRetryableWriteContext(effectiveReadBindings, async);
 
             return new DisposableBindingBundle<IReadWriteBindingHandle, RetryableWriteContext>(effectiveReadBindings, retryableReadContext);
         }

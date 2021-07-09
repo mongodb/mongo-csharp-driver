@@ -34,6 +34,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         /// <value>
         /// The generation.
         /// </value>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1721:Property names should not match get methods", Justification = "Backward compatibility")]
         int Generation { get; }
 
         /// <summary>
@@ -70,11 +71,11 @@ namespace MongoDB.Driver.Core.ConnectionPools
         void Clear(ObjectId serviceId);
 
         /// <summary>
-        /// Gets the connection pool generation for the connection.
+        /// Gets the current generation for the connection pool (or service).
         /// </summary>
-        /// <param name="description">The connection pool description.</param>
-        /// <returns>A connection pool generation for the connection.</returns>
-        int GetConnectionPoolGenerationForConnection(ConnectionDescription description);
+        /// <param name="serviceId">The optional service Id.</param>
+        /// <returns>The connection pool generation.</returns>
+        int GetGeneration(ObjectId? serviceId);
 
         /// <summary>
         /// Initializes the connection pool.

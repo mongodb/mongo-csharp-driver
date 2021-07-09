@@ -177,7 +177,8 @@ namespace MongoDB.Driver.Core.Clusters
                 var endPoint = _settings.EndPoints.Single();
                 if (_settings.Scheme != ConnectionStringScheme.MongoDBPlusSrv)
                 {
-                    _server = CreateInitializedServer(endPoint);
+                    _server = _serverFactory.CreateServer(_clusterType, _clusterId, _clusterClock, endPoint);
+                    InitializeServer(_server);
                 }
                 else
                 {
@@ -234,11 +235,9 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         // private method
-        private IClusterableServer CreateInitializedServer(EndPoint endPoint)
+        private void InitializeServer(IClusterableServer server)
         {
             ThrowIfDisposed();
-
-            var server = _serverFactory.CreateServer(_clusterType, _clusterId, _clusterClock, endPoint);
 
             var newClusterDescription = _description
                 .WithType(ClusterType.LoadBalanced)
@@ -248,7 +247,6 @@ namespace MongoDB.Driver.Core.Clusters
 
             server.DescriptionChanged += ServerDescriptionChangedHandler;
             server.Initialize();
-            return server;
         }
 
         private Exception CreateTimeoutException(ClusterDescription description)
@@ -313,7 +311,8 @@ namespace MongoDB.Driver.Core.Clusters
             }
 
             var resolvedEndpoint = endPoints.Single();
-            _server = CreateInitializedServer(resolvedEndpoint);
+            _server = _serverFactory.CreateServer(_clusterType, _clusterId, _clusterClock, resolvedEndpoint);
+            InitializeServer(_server);
         }
 
         bool IDnsMonitoringCluster.ShouldDnsMonitorStop() => true;  // we need only one successful attempt

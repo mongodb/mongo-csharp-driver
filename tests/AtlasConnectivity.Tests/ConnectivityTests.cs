@@ -35,6 +35,8 @@ namespace AtlasConnectivity.Tests
         [InlineData("ATLAS_TLS11_SRV")]
         [InlineData("ATLAS_TLS12")]
         [InlineData("ATLAS_TLS12_SRV")]
+        [InlineData("ATLAS_SERVERLESS")]
+        [InlineData("ATLAS_SERVERLESS_SRV")]
         public void Connection_to_Atlas_should_work(string environmentVariableName)
         {
             var connectionString = Environment.GetEnvironmentVariable(environmentVariableName);

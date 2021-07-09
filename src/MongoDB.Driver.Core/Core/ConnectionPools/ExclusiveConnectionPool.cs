@@ -31,12 +31,12 @@ namespace MongoDB.Driver.Core.ConnectionPools
         // fields
         private readonly IConnectionFactory _connectionFactory;
         private readonly ListConnectionHolder _connectionHolder;
-        private readonly ConnectionsState _connectionsState;
         private readonly EndPoint _endPoint;
         private int _generation;
         private readonly CancellationTokenSource _maintenanceCancellationTokenSource;
         private readonly WaitQueue _poolQueue;
         private readonly ServerId _serverId;
+        private readonly ServiceStates _serviceStates;
         private readonly ConnectionPoolSettings _settings;
         private readonly InterlockedInt32 _state;
         private readonly SemaphoreSlim _waitQueue;
@@ -73,7 +73,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             _connectingQueue = new SemaphoreSlimSignalable(MongoInternalDefaults.ConnectionPool.MaxConnecting);
             _connectionHolder = new ListConnectionHolder(eventSubscriber, _connectingQueue);
-            _connectionsState = new();
+            _serviceStates = new ServiceStates();
             _poolQueue = new WaitQueue(settings.MaxConnections);
 #pragma warning disable 618
             _waitQueue = new SemaphoreSlim(settings.WaitQueueSize);
@@ -219,7 +219,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             _clearingEventHandler?.Invoke(new ConnectionPoolClearingEvent(_serverId, _settings));
 
-            _connectionsState.IncreamentGenerationAndCleanConnections(serviceId);
+            _serviceStates.IncrementGeneration(serviceId);
 
             _clearedEventHandler?.Invoke(new ConnectionPoolClearedEvent(_serverId, _settings, serviceId));
         }
@@ -273,10 +273,10 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
         }
 
-        public int GetConnectionPoolGenerationForConnection(ConnectionDescription description)
+        public int GetGeneration(ObjectId? serviceId)
         {
             // if serviceId is supported, a generation for connection should be initialized on the previous handshake step
-            if (_connectionsState.TryGetGenerationForConnection(description, out var generation))
+            if (_serviceStates.TryGetGeneration(serviceId, out var generation))
             {
                 return generation;
             }
@@ -391,7 +391,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
             else
             {
-                _connectionsState.RemoveConnectionStateForConnectionIfSupported(connection.Description);
+                _serviceStates.DecrementConnectionCount(connection.Description?.ServiceId);
 
                 _connectionHolder.RemoveConnection(connection);
             }

@@ -214,7 +214,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             public bool IsExpired
             {
-                get { return _disposed || _generation < _connectionPool.GetConnectionPoolGenerationForConnection(_connection.Description) || _connection.IsExpired; }
+                get { return _disposed || _generation < _connectionPool.GetGeneration(_connection.Description?.ServiceId) || _connection.IsExpired; }
             }
 
             public ConnectionSettings Settings
@@ -328,7 +328,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             private void SetEffectiveGenerationIfRequired(ConnectionDescription description)
             {
-                if (_connectionPool._connectionsState.TryGetGenerationForConnection(description, out var effectiveGeneration))
+                if (_connectionPool._serviceStates.TryGetGeneration(description?.ServiceId, out var effectiveGeneration))
                 {
                     _generation = effectiveGeneration;
                 }
@@ -780,7 +780,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
                 // Only if reached this stage, connection should not be disposed
                 _disposeConnection = false;
-                _pool._connectionsState.AddConnectionStateForConnectionIfSupported(description);
+                _pool._serviceStates.IncrementConnectionCount(description?.ServiceId);
             }
 
             private Exception TimoutException(Stopwatch stopwatch) =>

@@ -677,12 +677,12 @@ namespace MongoDB.Driver.Core.ConnectionPools
             var randomServiceId = ObjectId.GenerateNewId();
             subject.Clear(randomServiceId);
             connection.IsExpired.Should().BeFalse();
-            subject._connectionsState().TryGetGenerationForConnection(connectionMock.Object.Description, out _).Should().BeTrue();
+            subject._serviceStates().TryGetGeneration(connectionMock.Object.Description?.ServiceId, out _).Should().BeTrue();
             subject.Clear(serviceId);
             connection.IsExpired.Should().BeTrue();
-            subject._connectionsState().TryGetGenerationForConnection(connectionMock.Object.Description, out _).Should().BeTrue();
+            subject._serviceStates().TryGetGeneration(connectionMock.Object.Description?.ServiceId, out _).Should().BeTrue();
             connection.Dispose();
-            subject._connectionsState().TryGetGenerationForConnection(connectionMock.Object.Description, out _).Should().BeFalse();
+            subject._serviceStates().TryGetGeneration(connectionMock.Object.Description?.ServiceId, out _).Should().BeFalse();
         }
 
         [Fact]
@@ -906,9 +906,9 @@ namespace MongoDB.Driver.Core.ConnectionPools
             return (Task)Reflector.Invoke(obj, nameof(MaintainSizeAsync));
         }
 
-        public static ConnectionsState _connectionsState(this ExclusiveConnectionPool obj)
+        public static ServiceStates _serviceStates(this ExclusiveConnectionPool obj)
         {
-            return (ConnectionsState)Reflector.GetFieldValue(obj, nameof(_connectionsState));
+            return (ServiceStates)Reflector.GetFieldValue(obj, nameof(_serviceStates));
         }
     }
 }

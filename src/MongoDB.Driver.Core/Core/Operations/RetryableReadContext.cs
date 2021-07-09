@@ -25,14 +25,15 @@ namespace MongoDB.Driver.Core.Operations
     {
         public static void PinConnectionIfRequired(this RetryableReadContext context)
         {
-            if (ChannelPinningHelper.TryCreatePinnedChannelSourceAndPinChannel(
+            if (ChannelPinningHelper.PinChannelSourceAndChannelIfRequired(
                 context.ChannelSource,
                 context.Channel,
                 context.Binding.Session,
+                out var pinnedChannelSource,
                 out var pinnedChannel))
             {
-                context.ReplaceChannelSource(pinnedChannel.PinnedChannelSource);
-                context.ReplaceChannel(pinnedChannel.Channel);
+                context.ReplaceChannelSource(pinnedChannelSource);
+                context.ReplaceChannel(pinnedChannel);
             }
         }
     }

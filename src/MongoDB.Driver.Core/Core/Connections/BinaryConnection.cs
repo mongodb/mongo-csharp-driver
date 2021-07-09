@@ -959,7 +959,7 @@ namespace MongoDB.Driver.Core.Connections
             {
                 if (_connection._commandEventHelper.ShouldCallErrorReceiving)
                 {
-                    _connection._commandEventHelper.ErrorReceiving(_responseTo, _connection._connectionId, _connection?.Description?.ServiceId, exception);
+                    _connection._commandEventHelper.ErrorReceiving(_responseTo, _connection._connectionId, _connection.Description?.ServiceId, exception);
                 }
 
                 var handler = _connection._failedReceivingMessageEventHandler;
@@ -973,7 +973,7 @@ namespace MongoDB.Driver.Core.Connections
             {
                 if (_connection._commandEventHelper.ShouldCallAfterReceiving)
                 {
-                    _connection._commandEventHelper.AfterReceiving(message, buffer, _connection._connectionId, _connection?.Description?.ServiceId, _messageEncoderSettings);
+                    _connection._commandEventHelper.AfterReceiving(message, buffer, _connection._connectionId, _connection.Description?.ServiceId, _messageEncoderSettings);
                 }
 
                 var handler = _connection._receivedMessageEventHandler;
