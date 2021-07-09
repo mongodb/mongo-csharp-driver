@@ -24,7 +24,9 @@ using System.Runtime.Serialization.Formatters.Binary;
 #endif
 using FluentAssertions;
 using MongoDB.Bson;
+#if !NETCOREAPP1_1
 using MongoDB.Bson.TestHelpers.EqualityComparers;
+#endif
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Operations;
@@ -71,7 +73,7 @@ namespace MongoDB.Driver.Tests
 
             subject.ConnectionId.Should().BeSameAs(__connectionId);
             subject.ErrorLabels.Should().BeEquivalentTo(__writeConcernError.ErrorLabels);
-            subject.Message.Should().Contain("bulk write operation");
+            subject.Message.Should().Be("A bulk write operation resulted in one or more errors. WriteErrors: [ { Category : \"Uncategorized\", Code : 1, Message : \"blah\", Details : \"{ \"a\" : 1 }\" } ]. WriteConcernError: { Code : \"11\", Message : \"funny\", Details : \"{ \"c\" : 1 }\", ErrorLabels : [ \"RetryableWriteError\" ] }.");
             subject.Result.Should().BeSameAs(__bulkWriteResult);
             subject.UnprocessedRequests.Should().Equal(__unprocessedRequests);
             subject.WriteConcernError.Should().BeSameAs(__writeConcernError);

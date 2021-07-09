@@ -15,14 +15,18 @@
 
 using System;
 using System.Collections.Generic;
+#if !NETCOREAPP1_1
 using System.IO;
+#endif
 using System.Net;
 #if NET452
 using System.Runtime.Serialization.Formatters.Binary;
 #endif
 using FluentAssertions;
 using MongoDB.Bson;
+#if !NETCOREAPP1_1
 using MongoDB.Bson.TestHelpers.EqualityComparers;
+#endif
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Servers;
@@ -64,7 +68,7 @@ namespace MongoDB.Driver.Tests
             subject.ConnectionId.Should().Be(__connectionId);
             subject.ErrorLabels.Should().BeEquivalentTo(__writeConcernError.ErrorLabels);
             subject.InnerException.Should().Be(__innerException);
-            subject.Message.Should().Be("A write operation resulted in an error." + Environment.NewLine + "  writeError" + Environment.NewLine + "  writeConcernError");
+            subject.Message.Should().Be("A write operation resulted in an error. WriteError: { Category : \"Uncategorized\", Code : 1, Message : \"writeError\", Details : \"{ \"details\" : \"writeError\" }\" }. WriteConcernError: { Code : \"1\", Message : \"writeConcernError\", Details : \"{ \"details\" : \"writeConcernError\" }\", ErrorLabels : [ \"RetryableWriteError\" ] }.");
             subject.WriteConcernError.Should().Be(__writeConcernError);
             subject.WriteError.Should().Be(__writeError);
         }
@@ -85,7 +89,7 @@ namespace MongoDB.Driver.Tests
             result.ConnectionId.Should().Be(__connectionId);
             result.ErrorLabels.Should().BeEquivalentTo(writeConcernError.ErrorLabels);
             result.InnerException.Should().BeSameAs(bulkWriteException);
-            result.Message.Should().Be("A write operation resulted in an error." + Environment.NewLine + "  message" + Environment.NewLine + "  message");
+            result.Message.Should().Be("A write operation resulted in an error. WriteError: { Category : \"Uncategorized\", Code : 2, Message : \"message\", Details : \"{ \"details\" : 1 }\" }. WriteConcernError: { Code : \"1\", Message : \"message\", Details : \"{ \"details\" : 1 }\", ErrorLabels : [ \"RetryableWriteError\" ] }.");
             result.WriteConcernError.Should().Be(writeConcernError);
             result.WriteError.Should().Be(writeErrors[0]);
         }

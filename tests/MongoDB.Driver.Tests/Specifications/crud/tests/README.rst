@@ -214,9 +214,13 @@ Prose Tests
 
 The following tests have not yet been automated, but MUST still be tested.
 
-"errInfo" is propagated
------------------------
-Test that a writeConcernError "errInfo" is propagated to the user in whatever way is idiomatic to the driver (exception, error object, etc.). Using a 4.0+ server, set the following failpoint:
+1. WriteConcernError.details exposes writeConcernError.errInfo
+--------------------------------------------------------------
+
+Test that ``writeConcernError.errInfo`` in a command response is propagated as
+``WriteConcernError.details`` (or equivalent) in the driver.
+
+Using a 4.0+ server, set the following failpoint:
 
 .. code:: javascript
 
@@ -239,4 +243,34 @@ Test that a writeConcernError "errInfo" is propagated to the user in whatever wa
      },
      "mode": { "times": 1 }
    }
-Then, perform an insert on the same database. Assert that an error occurs and that the "errInfo" is accessible and matches the one set in the failpoint.
+
+Then, perform an insert operation and assert that a WriteConcernError occurs and
+that its ``details`` property is both accessible and matches the ``errInfo``
+object from the failpoint.
+
+2. WriteError.details exposes writeErrors[].errInfo
+---------------------------------------------------
+
+Test that ``writeErrors[].errInfo`` in a command response is propagated as
+``WriteError.details`` (or equivalent) in the driver.
+
+Using a 5.0+ server, create a collection with
+`document validation <https://docs.mongodb.com/manual/core/schema-validation/>`_
+like so:
+
+.. code:: javascript
+
+   {
+     "create": "test",
+     "validator": {
+       "x": { $type: "string" }
+     }
+   }
+
+Enable `command monitoring <../../command-monitoring/command-monitoring.rst>`_
+to observe CommandSucceededEvents. Then, insert an invalid document (e.g.
+``{x: 1}``) and assert that a WriteError occurs, that its code is ``121``
+(i.e. DocumentValidationFailure), and that its ``details`` property is
+accessible. Additionally, assert that a CommandSucceededEvent was observed and
+that the ``writeErrors[0].errInfo`` field in the response document matches the
+WriteError's ``details`` property.

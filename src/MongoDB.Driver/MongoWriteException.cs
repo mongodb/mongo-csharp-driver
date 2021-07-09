@@ -129,11 +129,11 @@ namespace MongoDB.Driver
             var sb = new StringBuilder("A write operation resulted in an error.");
             if (writeError != null)
             {
-                sb.AppendLine().Append("  " + writeError.Message);
+                sb.Append($" WriteError: {writeError}.");
             }
             if (writeConcernError != null)
             {
-                sb.AppendLine().Append("  " + writeConcernError.Message);
+                sb.Append($" WriteConcernError: {writeConcernError}.");
             }
 
             return sb.ToString();
