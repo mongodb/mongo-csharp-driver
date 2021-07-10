@@ -217,7 +217,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         {
             ThrowIfNotOpen();
 
-            _clearingEventHandler?.Invoke(new ConnectionPoolClearingEvent(_serverId, _settings));
+            _clearingEventHandler?.Invoke(new ConnectionPoolClearingEvent(_serverId, _settings, serviceId));
 
             _serviceStates.IncrementGeneration(serviceId);
 
