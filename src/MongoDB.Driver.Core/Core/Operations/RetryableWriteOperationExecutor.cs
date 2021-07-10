@@ -29,7 +29,6 @@ namespace MongoDB.Driver.Core.Operations
         {
             using (var context = RetryableWriteContext.Create(binding, retryRequested, cancellationToken))
             {
-                context.PinConnectionIfRequired();
                 return Execute(operation, context, cancellationToken);
             }
         }

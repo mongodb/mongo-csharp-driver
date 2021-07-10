@@ -21,23 +21,6 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    internal static class RetryableReadContextExtensions
-    {
-        public static void PinConnectionIfRequired(this RetryableReadContext context)
-        {
-            if (ChannelPinningHelper.PinChannelSourceAndChannelIfRequired(
-                context.ChannelSource,
-                context.Channel,
-                context.Binding.Session,
-                out var pinnedChannelSource,
-                out var pinnedChannel))
-            {
-                context.ReplaceChannelSource(pinnedChannelSource);
-                context.ReplaceChannel(pinnedChannel);
-            }
-        }
-    }
-
     /// <summary>
     /// Represents a context for retryable reads.
     /// </summary>
@@ -59,6 +42,17 @@ namespace MongoDB.Driver.Core.Operations
             try
             {
                 context.Initialize(cancellationToken);
+
+                if (ChannelPinningHelper.PinChannelSourceAndChannelIfRequired(
+                    context.ChannelSource,
+                    context.Channel,
+                    context.Binding.Session,
+                    out var pinnedChannelSource,
+                    out var pinnedChannel))
+                {
+                    context.ReplaceChannelSource(pinnedChannelSource);
+                    context.ReplaceChannel(pinnedChannel);
+                }
                 return context;
             }
             catch
@@ -81,6 +75,17 @@ namespace MongoDB.Driver.Core.Operations
             try
             {
                 await context.InitializeAsync(cancellationToken).ConfigureAwait(false);
+
+                if (ChannelPinningHelper.PinChannelSourceAndChannelIfRequired(
+                    context.ChannelSource,
+                    context.Channel,
+                    context.Binding.Session,
+                    out var pinnedChannelSource,
+                    out var pinnedChannel))
+                {
+                    context.ReplaceChannelSource(pinnedChannelSource);
+                    context.ReplaceChannel(pinnedChannel);
+                }
                 return context;
             }
             catch

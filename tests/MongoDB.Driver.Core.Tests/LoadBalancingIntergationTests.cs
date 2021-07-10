@@ -79,10 +79,6 @@ namespace MongoDB.Driver.Core.Tests
                         {
                             AssertCheckOutOnlyEvents(eventCapturer, i);
 
-                            writeBindingsBundle.RetryableContext.PinConnectionIfRequired();
-
-                            eventCapturer.Any().Should().BeFalse();
-
                             _ = CreateAndRunBulkOperation(writeBindingsBundle.RetryableContext, async);
 
                             AssertCommand(eventCapturer, "insert", noMoreEvents: true);
@@ -136,11 +132,6 @@ namespace MongoDB.Driver.Core.Tests
                     {
                         AssertCheckOutOnlyEvents(eventCapturer, 1);
 
-                        writeBindingsBundle.RetryableContext.PinConnectionIfRequired();
-
-                        AssertSessionReferenceCount(session, 3);
-                        eventCapturer.Any().Should().BeFalse();
-
                         _ = CreateAndRunBulkOperation(writeBindingsBundle.RetryableContext, async);
 
                         AssertCommand(eventCapturer, "insert", noMoreEvents: true);
@@ -150,10 +141,6 @@ namespace MongoDB.Driver.Core.Tests
                     // find operation
                     using (readBindingsBundle = CreateReadBindingsAndRetryableReadContext(cluster, session.Fork(), async))
                     {
-                        eventCapturer.Any().Should().BeFalse();
-
-                        readBindingsBundle.RetryableContext.PinConnectionIfRequired();
-
                         eventCapturer.Any().Should().BeFalse();
 
                         asyncCursor = CreateAndRunFindOperation(readBindingsBundle.RetryableContext, async);
@@ -219,10 +206,6 @@ namespace MongoDB.Driver.Core.Tests
                         {
                             AssertCheckOutOnlyEvents(eventCapturer, i);
 
-                            writeBindingsBundle.RetryableContext.PinConnectionIfRequired();
-
-                            eventCapturer.Any().Should().BeFalse();
-
                             _ = CreateAndRunBulkOperation(writeBindingsBundle.RetryableContext, async);
 
                             AssertCommand(eventCapturer, "insert", noMoreEvents: true);
@@ -231,10 +214,6 @@ namespace MongoDB.Driver.Core.Tests
                         // find operation
                         using (readBindingsBundle = CreateReadBindingsAndRetryableReadContext(cluster, session.Fork(), async))
                         {
-                            eventCapturer.Any().Should().BeFalse();
-
-                            readBindingsBundle.RetryableContext.PinConnectionIfRequired();
-
                             eventCapturer.Any().Should().BeFalse();
 
                             var asyncCursor = CreateAndRunFindOperation(readBindingsBundle.RetryableContext, async);
@@ -296,10 +275,6 @@ namespace MongoDB.Driver.Core.Tests
                         using (readBindingsBundle = CreateReadBindingsAndRetryableReadContext(cluster, session.Fork(), async))
                         {
                             AssertCheckOutOnlyEvents(eventCapturer, i);
-
-                            readBindingsBundle.RetryableContext.PinConnectionIfRequired();
-
-                            eventCapturer.Any().Should().BeFalse();
 
                             asyncCursor = CreateAndRunFindOperation(readBindingsBundle.RetryableContext, async);
 
@@ -372,10 +347,6 @@ namespace MongoDB.Driver.Core.Tests
                         using (readBindingsBundle = CreateReadBindingsAndRetryableReadContext(cluster, session.Fork(), async))
                         {
                             AssertCheckOutOnlyEvents(eventCapturer, i);
-
-                            readBindingsBundle.RetryableContext.PinConnectionIfRequired();
-
-                            eventCapturer.Any().Should().BeFalse();
 
                             asyncCursor = CreateAndRunFindOperation(readBindingsBundle.RetryableContext, async);
 
@@ -453,10 +424,6 @@ namespace MongoDB.Driver.Core.Tests
                         using (readBindingsBundle = CreateReadBindingsAndRetryableReadContext(cluster, session.Fork(), async))
                         {
                             AssertCheckOutOnlyEvents(eventCapturer, i, shouldNextAttemptTriggerCheckout: false);
-
-                            readBindingsBundle.RetryableContext.PinConnectionIfRequired();
-
-                            eventCapturer.Any().Should().BeFalse();
 
                             asyncCursor = CreateAndRunFindOperation(readBindingsBundle.RetryableContext, async);
 
@@ -539,10 +506,6 @@ namespace MongoDB.Driver.Core.Tests
                         {
                             AssertCheckOutOnlyEvents(eventCapturer, i, shouldNextAttemptTriggerCheckout: false);
 
-                            readBindingsBundle.RetryableContext.PinConnectionIfRequired();
-
-                            eventCapturer.Any().Should().BeFalse();
-
                             asyncCursor = CreateAndRunFindOperation(readBindingsBundle.RetryableContext, async);
 
                             AssertCommand(eventCapturer, "find", noMoreEvents: true);
@@ -586,36 +549,6 @@ namespace MongoDB.Driver.Core.Tests
                 AssertCheckInOnlyEvents(eventCapturer);
                 AssertSessionReferenceCount(session, 0);
                 AssertChannelReferenceCount(readBindingsBundle.RetryableContext.Channel, 0);
-            }
-        }
-
-        [SkippableTheory]
-        [ParameterAttributeData]
-        public void RetryableReadContext_create_should_not_change_referenceCounter_without_transaction(
-            [Values(false, true)] bool isImplicitSession,
-            [Values(false, true)] bool async)
-        {
-            SkipIfNotLoadBalancingMode();
-
-            KillOpenTransactions();
-
-            ServiceIdHelper.IsServiceIdEmulationEnabled = true; // TODO: temporary solution to enable emulating serviceId in a server response
-
-            using (var cluster = CreateLoadBalancedCluster(new EventCapturer()))
-            {
-                var readPreference = ReadPreference.Primary;
-
-                using (var session = CreateSession(cluster, isImplicitSession, withTransaction: false))
-                {
-                    var readBindings = ChannelPinningHelper.CreateReadBinding(cluster, session, readPreference);
-
-                    RetryableReadContext retryableReadContext;
-                    using (retryableReadContext = CreateRetryableReadContext(readBindings, async))
-                    {
-                        retryableReadContext.PinConnectionIfRequired();
-                    }
-                    AssertChannelReferenceCount(retryableReadContext.Channel, 0);
-                }
             }
         }
 
