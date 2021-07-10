@@ -147,12 +147,12 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
         }
 
         [Fact]
-        public void CreateInitializedServer_should_throw_if_cluster_disposed()
+        public void InitializeServer_should_throw_if_cluster_disposed()
         {
             var subject = CreateSubject();
             subject.Dispose();
 
-            var exception = Record.Exception(() => subject.CreateInitializedServer(_endPoint));
+            var exception = Record.Exception(() => subject.InitializeServer(Mock.Of<IClusterableServer>()));
 
             exception.Should().BeOfType<ObjectDisposedException>();
         }
@@ -507,7 +507,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
 
     internal static class LoadBalancedClusterReflector
     {
-        public static IClusterableServer CreateInitializedServer(this LoadBalancedCluster cluster, EndPoint endPoint) => (IClusterableServer)Reflector.Invoke(cluster, nameof(CreateInitializedServer), endPoint);
+        public static IClusterableServer InitializeServer(this LoadBalancedCluster cluster, IClusterableServer server) => (IClusterableServer)Reflector.Invoke(cluster, nameof(InitializeServer), server);
         public static IDnsMonitorFactory _dnsMonitorFactory(this LoadBalancedCluster cluster) => (IDnsMonitorFactory)Reflector.GetFieldValue(cluster, nameof(_dnsMonitorFactory));
         public static Thread _dnsMonitorThread(this LoadBalancedCluster cluster) => (Thread)Reflector.GetFieldValue(cluster, nameof(_dnsMonitorThread));
         public static IEventSubscriber _eventSubscriber(this LoadBalancedCluster cluster) => (IEventSubscriber)Reflector.GetFieldValue(cluster, nameof(_eventSubscriber));
