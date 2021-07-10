@@ -482,9 +482,7 @@ namespace MongoDB.Driver.Core.Tests
                 .Capture<ConnectionPoolCheckingOutConnectionEvent>()
                 .Capture<ConnectionPoolCheckedInConnectionEvent>()
                 .Capture<ConnectionPoolCheckingInConnectionEvent>()
-                .Capture<CommandSucceededEvent>()
-                .Capture<ConnectionFailedEvent>()
-                .Capture<ConnectionClosedEvent>();
+                .Capture<CommandSucceededEvent>();
 
             List<IAsyncCursor<BsonDocument>> cursors = new();
             using (var cluster = CreateLoadBalancedCluster(eventCapturer))

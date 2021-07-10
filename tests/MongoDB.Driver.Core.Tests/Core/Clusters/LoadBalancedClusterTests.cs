@@ -460,6 +460,19 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
             }
         }
 
+        [Fact]
+        public void Server_should_be_assigned_immidiately_after_dns_response()
+        {
+            var settings = _settings.With(scheme: ConnectionStringScheme.MongoDBPlusSrv, endPoints: new[] { new DnsEndPoint("a.b.com", 53) });
+            var mockDnsMonitorFactory = CreateMockDnsMonitorFactory();
+            using (var subject = CreateSubject(settings: settings, dnsMonitorFactory: mockDnsMonitorFactory.Object))
+            {
+                subject._server().Should().BeNull();
+                PublishDnsResults(subject, _endPoint);
+                subject._server().Should().NotBeNull();
+            }
+        }
+
         // private methods
         private void AssertTryGetEventHandlerWasCalled<TEvent>(Mock<IEventSubscriber> mockEventSubscriber)
         {
