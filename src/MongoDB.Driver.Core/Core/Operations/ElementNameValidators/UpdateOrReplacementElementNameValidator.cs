@@ -44,6 +44,7 @@ namespace MongoDB.Driver.Core.Operations.ElementNameValidators
         /// <inheritdoc/>
         public bool IsValidElementName(string elementName)
         {
+            Ensure.IsNotNull(elementName, nameof(elementName));
             // the first elementName we see determines whether we are validating an update or a replacement document
             if (_chosenValidator == null)
             {

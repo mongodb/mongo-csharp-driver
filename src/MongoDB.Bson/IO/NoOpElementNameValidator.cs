@@ -14,6 +14,8 @@
 */
 
 
+using System;
+
 namespace MongoDB.Bson.IO
 {
     /// <summary>
@@ -54,6 +56,10 @@ namespace MongoDB.Bson.IO
         /// <returns>True if the element name is valid.</returns>
         public bool IsValidElementName(string elementName)
         {
+            if (elementName == null)
+            {
+                throw new ArgumentNullException(nameof(elementName), "Value cannot be null.");
+            }
             return true;
         }
     }

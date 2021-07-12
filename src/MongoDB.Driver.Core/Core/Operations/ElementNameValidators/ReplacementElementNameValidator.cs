@@ -14,11 +14,12 @@
 */
 
 using MongoDB.Bson.IO;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Operations.ElementNameValidators
 {
     /// <summary>
-    /// Represents an element name validator for update operations.
+    /// Represents an element name validator for replace operations.
     /// </summary>
     public class ReplacementElementNameValidator : IElementNameValidator
     {
@@ -27,7 +28,7 @@ namespace MongoDB.Driver.Core.Operations.ElementNameValidators
 
         // public static fields
         /// <summary>
-        /// Gets a pre-created instance of an UpdateElementNameValidator.
+        /// Gets a pre-created instance of an ReplacementElementNameValidator.
         /// </summary>
         /// <value>
         /// The pre-created instance.
@@ -47,6 +48,7 @@ namespace MongoDB.Driver.Core.Operations.ElementNameValidators
         /// <inheritdoc/>
         public bool IsValidElementName(string elementName)
         {
+            Ensure.IsNotNull(elementName, nameof(elementName));
             return elementName.Length > 0 && elementName[0] != '$';
         }
     }

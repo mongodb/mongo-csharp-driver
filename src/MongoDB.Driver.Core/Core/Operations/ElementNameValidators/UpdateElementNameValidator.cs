@@ -14,6 +14,7 @@
 */
 
 using MongoDB.Bson.IO;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Operations.ElementNameValidators
 {
@@ -47,6 +48,7 @@ namespace MongoDB.Driver.Core.Operations.ElementNameValidators
         /// <inheritdoc/>
         public bool IsValidElementName(string elementName)
         {
+            Ensure.IsNotNull(elementName, nameof(elementName));
             return elementName.Length > 0 && elementName[0] == '$';
         }
     }

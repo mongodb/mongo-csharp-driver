@@ -268,6 +268,7 @@ namespace MongoDB.Driver.Core.Operations
 
             public bool IsValidElementName(string elementName)
             {
+                Ensure.IsNotNull(elementName, nameof(elementName));
                 return true;
             }
         }

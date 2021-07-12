@@ -22,7 +22,6 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.Operations.ElementNameValidators;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
@@ -133,8 +132,8 @@ namespace MongoDB.Driver.Core.Operations
             {
                 documents = new BatchableSource<TDocument>(_documents.Items, _documents.Offset, _documents.ProcessedCount, canBeSplit: false);
             }
-            var isSystemIndexesCollection = _collectionNamespace.Equals(CollectionNamespace.DatabaseNamespace.SystemIndexesCollection);
-            var elementNameValidator = isSystemIndexesCollection ? (IElementNameValidator)NoOpElementNameValidator.Instance : CollectionElementNameValidator.Instance;
+
+            var elementNameValidator = NoOpElementNameValidator.Instance;
             var maxBatchCount = Math.Min(MaxBatchCount ?? int.MaxValue, channel.ConnectionDescription.MaxBatchCount);
             var maxDocumentSize = channel.ConnectionDescription.MaxDocumentSize;
             var payload = new Type1CommandMessageSection<TDocument>("documents", documents, _documentSerializer, elementNameValidator, maxBatchCount, maxDocumentSize);
