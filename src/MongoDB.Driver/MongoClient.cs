@@ -641,7 +641,7 @@ namespace MongoDB.Driver
 
             if (options != null && options.Snapshot && options.CausalConsistency == true)
             {
-                throw new MongoClientException("Combining both causal consistency and snapshot options is not supported.");
+                throw new NotSupportedException("Combining both causal consistency and snapshot options is not supported.");
             }
 
             options = options ?? new ClientSessionOptions();

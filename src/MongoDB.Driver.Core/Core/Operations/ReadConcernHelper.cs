@@ -16,6 +16,7 @@
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -40,10 +41,7 @@ namespace MongoDB.Driver.Core.Operations
             // snapshot
             if (sessionsAreSupported && session.IsSnapshot)
             {
-                if (connectionDescription.IsMasterResult.MaxWireVersion < 13)
-                {
-                    throw new MongoClientException("Snapshot reads require MongoDB 5.0 or later");
-                }
+                Feature.SnapshotReads.ThrowIfNotSupported(connectionDescription.ServerVersion);
 
                 var readConcernDocument = ReadConcern.Snapshot.ToBsonDocument();
                 if (session.SnapshotTime != null)
