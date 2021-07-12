@@ -207,7 +207,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void Lookup_expressive_should_generate_the_correct_lookup_when_using_BsonDocument()
         {
-            RequireServer.Check().Supports(Feature.AggregateLet);
+            RequireServer.Check().Supports(Feature.AggregateLookupLet);
 
             var subject = CreateSubject().Lookup(
                 CreateCollection<BsonDocument>("foreign"),
@@ -223,7 +223,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void Lookup_expressive_should_generate_the_correct_lookup_when_using_lambdas()
         {
-            RequireServer.Check().Supports(Feature.AggregateLet);
+            RequireServer.Check().Supports(Feature.AggregateLookupLet);
 
             var subject = CreateSubject()
                 .Lookup<Person, NameMeaning, NameMeaning, IEnumerable<NameMeaning>, LookedUpPerson>(

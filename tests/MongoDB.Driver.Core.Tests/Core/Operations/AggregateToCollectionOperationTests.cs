@@ -18,7 +18,6 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
@@ -196,6 +195,18 @@ namespace MongoDB.Driver.Core.Operations
 
             subject.Hint = value;
             var result = subject.Hint;
+
+            result.Should().BeSameAs(value);
+        }
+
+        [Fact]
+        public void Let_get_and_set_should_work()
+        {
+            var subject = new AggregateToCollectionOperation(_collectionNamespace, __pipeline, _messageEncoderSettings);
+            var value = new BsonDocument("x", "y");
+
+            subject.Let = value;
+            var result = subject.Let;
 
             result.Should().BeSameAs(value);
         }
@@ -415,6 +426,32 @@ namespace MongoDB.Driver.Core.Operations
                 { "pipeline", new BsonArray(__pipeline) },
                 { "cursor", new BsonDocument() },
                 { "hint", () => hint, hint != null }
+            };
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_the_expected_result_when_Let_is_set(
+            [Values(null, "{ y : 'z' }")]
+            string letJson)
+        {
+            var let = letJson == null ? null : BsonDocument.Parse(letJson);
+            var subject = new AggregateToCollectionOperation(_collectionNamespace, __pipeline, _messageEncoderSettings)
+            {
+                Let = let
+            };
+            var session = OperationTestHelper.CreateSession();
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+
+            var result = subject.CreateCommand(session, connectionDescription);
+
+            var expectedResult = new BsonDocument
+            {
+                { "aggregate", _collectionNamespace.CollectionName },
+                { "pipeline", new BsonArray(__pipeline) },
+                { "cursor", new BsonDocument() },
+                { "let", () => let, let != null }
             };
             result.Should().Be(expectedResult);
         }
@@ -710,6 +747,25 @@ namespace MongoDB.Driver.Core.Operations
             var subject = new AggregateToCollectionOperation(_collectionNamespace, __pipeline, _messageEncoderSettings)
             {
                 Hint = "_id_"
+            };
+
+            ExecuteOperation(subject, async);
+            var result = ReadAllFromCollection(new CollectionNamespace(_databaseNamespace, "awesome"), async);
+
+            result.Should().NotBeNull();
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_should_return_expected_result_when_Let_is_set(
+            [Values(false, true)]
+            bool async)
+        {
+            RequireServer.Check().Supports(Feature.AggregateLet);
+            EnsureTestData();
+            var subject = new AggregateToCollectionOperation(_collectionNamespace, __pipeline, _messageEncoderSettings)
+            {
+                Let = new BsonDocument("x", "y")
             };
 
             ExecuteOperation(subject, async);

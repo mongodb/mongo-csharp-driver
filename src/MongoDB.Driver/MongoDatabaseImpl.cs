@@ -519,6 +519,7 @@ namespace MongoDB.Driver
                 Collation = options.Collation,
                 Comment = options.Comment,
                 Hint = options.Hint,
+                Let = options.Let,
                 MaxAwaitTime = options.MaxAwaitTime,
                 MaxTime = options.MaxTime,
                 ReadConcern = _settings.ReadConcern,
@@ -604,6 +605,7 @@ namespace MongoDB.Driver
                 Collation = options.Collation,
                 Comment = options.Comment,
                 Hint = options.Hint,
+                Let = options.Let,
                 MaxTime = options.MaxTime,
                 ReadConcern = _settings.ReadConcern,
                 WriteConcern = _settings.WriteConcern

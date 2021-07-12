@@ -41,6 +41,7 @@ namespace MongoDB.Driver.Core.Operations
         private string _comment;
         private readonly DatabaseNamespace _databaseNamespace;
         private BsonValue _hint;
+        private BsonDocument _let;
         private TimeSpan? _maxTime;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly IReadOnlyList<BsonDocument> _pipeline;
@@ -160,6 +161,18 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <summary>
+        /// Gets or sets the "let" definition.
+        /// </summary>
+        /// <value>
+        /// The "let" definition.
+        /// </value>
+        public BsonDocument Let
+        {
+            get { return _let; }
+            set { _let = value; }
+        }
+
+        /// <summary>
         /// Gets or sets the maximum time the server should spend on this operation.
         /// </summary>
         /// <value>
@@ -270,6 +283,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "writeConcern", writeConcern, writeConcern != null },
                 { "cursor", new BsonDocument(), serverVersion >= new SemanticVersion(3, 6, 0) },
                 { "hint", () => _hint, _hint != null },
+                { "let", () => _let, _let != null },
                 { "comment", () => _comment, _comment != null }
             };
         }

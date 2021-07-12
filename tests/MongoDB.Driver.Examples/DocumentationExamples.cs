@@ -1406,7 +1406,7 @@ namespace MongoDB.Driver.Examples
         [Fact]
         public void Aggregation_Example_4()
         {
-            RequireServer.Check().Supports(Feature.AggregateLet);
+            RequireServer.Check().Supports(Feature.AggregateLookupLet);
 
             //db.air_alliances.aggregate( [
             //{
