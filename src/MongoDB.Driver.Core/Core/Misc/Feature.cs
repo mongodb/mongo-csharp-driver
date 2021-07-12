@@ -96,6 +96,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __serverReturnsResumableChangeStreamErrorLabel = new Feature("ServerReturnsResumableChangeStreamErrorLabel", new SemanticVersion(4, 3, 0));
         private static readonly Feature __serverReturnsRetryableWriteErrorLabel = new Feature("ServerReturnsRetryableWriteErrorLabel", new SemanticVersion(4, 3, 0));
         private static readonly Feature __shardedTransactions = new Feature("ShardedTransactions", new SemanticVersion(4, 1, 6));
+        private static readonly Feature __snapshotReads = new Feature("SnapshotReads", new SemanticVersion(5, 0, 0, ""), notSupportedMessage: "Snapshot reads require MongoDB 5.0 or later");
         private static readonly Feature __speculativeAuthentication = new Feature("SpeculativeAuthentication", new SemanticVersion(4, 4, 0, "rc0"));
         private static readonly Feature __streamingIsMaster = new Feature("StreamingIsMaster", new SemanticVersion(4, 4, 0, ""));
         private static readonly Feature __tailableCursor = new Feature("TailableCursor", new SemanticVersion(3, 2, 0));
@@ -471,6 +472,11 @@ namespace MongoDB.Driver.Core.Misc
         public static Feature ShardedTransactions => __shardedTransactions;
 
         /// <summary>
+        /// Gets the snapshot reads feature.
+        /// </summary>
+        public static Feature SnapshotReads => __snapshotReads;
+
+        /// <summary>
         /// Gets the speculative authentication feature.
         /// </summary>
         public static Feature SpeculativeAuthentication => __speculativeAuthentication;
@@ -514,19 +520,25 @@ namespace MongoDB.Driver.Core.Misc
         private readonly string _name;
         private readonly SemanticVersion _firstSupportedVersion;
         private readonly SemanticVersion _supportRemovedVersion;
+        private readonly string _notSupportedMessage;
 
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Feature"/> class.
+        /// Initializes a new instance of the <see cref="Feature" /> class.
         /// </summary>
         /// <param name="name">The name of the feature.</param>
         /// <param name="firstSupportedVersion">The first server version that supports the feature.</param>
-        /// /// <param name="supportRemovedVersion">The server version that stops support the feature.</param>
-        public Feature(string name, SemanticVersion firstSupportedVersion, SemanticVersion supportRemovedVersion = null)
+        /// <param name="supportRemovedVersion">The server version that stops support the feature.</param>
+        /// <param name="notSupportedMessage">The not supported error message.</param>
+        public Feature(string name,
+            SemanticVersion firstSupportedVersion,
+            SemanticVersion supportRemovedVersion = null,
+            string notSupportedMessage = null)
         {
             _name = name;
             _firstSupportedVersion = firstSupportedVersion;
             _supportRemovedVersion = supportRemovedVersion;
+            _notSupportedMessage = notSupportedMessage;
         }
 
         /// <summary>
@@ -543,6 +555,11 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the last server version that does not support the feature.
         /// </summary>
         public SemanticVersion LastNotSupportedVersion => VersionBefore(_firstSupportedVersion);
+
+        /// <summary>
+        /// Gets the error message to be used by the feature support checks.
+        /// </summary>
+        public string NotSupportedMessage => _notSupportedMessage;
 
         /// <summary>
         /// Determines whether a feature is supported by a version of the server.
@@ -574,7 +591,8 @@ namespace MongoDB.Driver.Core.Misc
         {
             if (!IsSupported(serverVersion))
             {
-                throw new NotSupportedException($"Server version {serverVersion} does not support the {_name} feature.");
+                var errorMessage = _notSupportedMessage ?? $"Server version {serverVersion} does not support the {_name} feature.";
+                throw new NotSupportedException(errorMessage);
             }
         }
 

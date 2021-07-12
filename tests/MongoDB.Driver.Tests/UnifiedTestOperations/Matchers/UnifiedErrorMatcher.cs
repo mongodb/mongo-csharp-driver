@@ -117,6 +117,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                 MongoClientException or
                 BsonException or
                 MongoConnectionException or
+                NotSupportedException or
                 TimeoutException;
 
             if (actualIsClientError != expectedIsClientError)

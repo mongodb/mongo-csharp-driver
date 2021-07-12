@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using FluentAssertions;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
@@ -37,7 +38,7 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
             var mongoClient = DriverTestConfiguration.Client;
 
             var exception = Record.Exception(() => mongoClient.StartSession(sessionOptions));
-            exception.Should().BeOfType<MongoClientException>();
+            exception.Should().BeOfType<NotSupportedException>();
         }
     }
 }
