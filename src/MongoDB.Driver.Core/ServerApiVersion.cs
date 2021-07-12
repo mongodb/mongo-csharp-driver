@@ -45,13 +45,23 @@ namespace MongoDB.Driver
         }
 
         // operators
-        /// <inheritdoc/>
+        /// <summary>
+        /// Returns true if the two values are not equal.
+        /// </summary>
+        /// <param name="lhs">The left hand side.</param>
+        /// <param name="rhs">The right hand side</param>
+        /// <returns>True if the two values are not equal.</returns>
         public static bool operator !=(ServerApiVersion lhs, ServerApiVersion rhs)
         {
             return !(lhs == rhs);
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Returns true if the two values are equal.
+        /// </summary>
+        /// <param name="lhs">The left hand side.</param>
+        /// <param name="rhs">The right hand side</param>
+        /// <returns>True if the two values are equal.</returns>
         public static bool operator ==(ServerApiVersion lhs, ServerApiVersion rhs)
         {
             return object.Equals(lhs, rhs);

@@ -71,6 +71,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         /// <summary>
         /// Clears the connection pool.
         /// </summary>
+        /// <param name="serviceId">The service id.</param>
         void Clear(ObjectId serviceId);
 
         /// <summary>
