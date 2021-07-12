@@ -62,8 +62,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             try
             {
                 using var cursor = _session == null
-                   ? await _collection.FindAsync(_filter, _options, cancellationToken)
-                   : await _collection.FindAsync(_session, _filter, _options, cancellationToken);
+                    ? await _collection.FindAsync(_filter, _options, cancellationToken)
+                    : await _collection.FindAsync(_session, _filter, _options, cancellationToken);
 
                 var result = await cursor.ToListAsync(cancellationToken);
 

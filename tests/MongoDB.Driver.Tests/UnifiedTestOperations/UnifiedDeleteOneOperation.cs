@@ -25,22 +25,27 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         private readonly IMongoCollection<BsonDocument> _collection;
         private readonly FilterDefinition<BsonDocument> _filter;
         private readonly DeleteOptions _options;
+        private readonly IClientSessionHandle _session = null;
 
         public UnifiedDeleteOneOperation(
             IMongoCollection<BsonDocument> collection,
             FilterDefinition<BsonDocument> filter,
-            DeleteOptions options)
+            DeleteOptions options,
+            IClientSessionHandle session)
         {
             _collection = collection;
             _filter = filter;
             _options = options;
+            _session = session;
         }
 
         public OperationResult Execute(CancellationToken cancellationToken)
         {
             try
             {
-                var result = _collection.DeleteOne(_filter, _options, cancellationToken);
+                var result = _session == null
+                    ? _collection.DeleteOne(_filter, _options, cancellationToken)
+                    : _collection.DeleteOne(_session, _filter, _options, cancellationToken);
 
                 return new UnifiedDeleteOneOperationResultConverter().Convert(result);
             }
@@ -54,7 +59,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             try
             {
-                var result = await _collection.DeleteOneAsync(_filter, _options, cancellationToken);
+                var result = _session == null
+                    ? await _collection.DeleteOneAsync(_filter, _options, cancellationToken)
+                    : await _collection.DeleteOneAsync(_session, _filter, _options, cancellationToken);
 
                 return new UnifiedDeleteOneOperationResultConverter().Convert(result);
             }
@@ -80,6 +87,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
             FilterDefinition<BsonDocument> filter = null;
             DeleteOptions options = null;
+            IClientSessionHandle session = null;
 
             foreach (var argument in arguments)
             {
@@ -92,12 +100,15 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         options ??= new DeleteOptions();
                         options.Hint = argument.Value;
                         break;
+                    case "session":
+                        session = _entityMap.GetSession(argument.Value.AsString);
+                        break;
                     default:
                         throw new FormatException($"Invalid DeleteOneOperation argument name: '{argument.Name}'.");
                 }
             }
 
-            return new UnifiedDeleteOneOperation(collection, filter, options);
+            return new UnifiedDeleteOneOperation(collection, filter, options, session);
         }
     }
 

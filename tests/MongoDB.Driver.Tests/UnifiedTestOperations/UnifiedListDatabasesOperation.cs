@@ -23,18 +23,25 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
     public class UnifiedListDatabasesOperation : IUnifiedEntityTestOperation
     {
         private readonly IMongoClient _client;
+        private readonly IClientSessionHandle _session = null;
 
-        public UnifiedListDatabasesOperation(IMongoClient client)
+        public UnifiedListDatabasesOperation(
+            IMongoClient client,
+            IClientSessionHandle session)
         {
             _client = client;
+            _session = session;
         }
 
         public OperationResult Execute(CancellationToken cancellationToken)
         {
             try
             {
-                var cursor = _client.ListDatabases(cancellationToken);
-                var result = cursor.ToList();
+                using var cursor = _session == null
+                    ? _client.ListDatabases(cancellationToken)
+                    : _client.ListDatabases(_session, cancellationToken);
+
+                var result = cursor.ToList(cancellationToken);
 
                 return OperationResult.FromResult(new BsonArray(result));
             }
@@ -48,8 +55,11 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             try
             {
-                var cursor = await _client.ListDatabasesAsync(cancellationToken);
-                var result = await cursor.ToListAsync();
+                using var cursor = _session == null
+                    ? await _client.ListDatabasesAsync(cancellationToken)
+                    : await _client.ListDatabasesAsync(_session, cancellationToken);
+
+                var result = await cursor.ToListAsync(cancellationToken);
 
                 return OperationResult.FromResult(new BsonArray(result));
             }
@@ -72,13 +82,24 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         public UnifiedListDatabasesOperation Build(string targetClientId, BsonDocument arguments)
         {
             var client = _entityMap.GetClient(targetClientId);
+            IClientSessionHandle session = null;
 
             if (arguments != null)
             {
-                throw new FormatException("ListDatabasesOperation is not expected to contain arguments.");
+                foreach (var argument in arguments)
+                {
+                    switch (argument.Name)
+                    {
+                        case "session":
+                            session = _entityMap.GetSession(argument.Value.AsString);
+                            break;
+                        default:
+                            throw new FormatException($"Invalid ListDatabasesOperation argument name: '{argument.Name}'.");
+                    }
+                }
             }
 
-            return new UnifiedListDatabasesOperation(client);
+            return new UnifiedListDatabasesOperation(client, session);
         }
     }
 }

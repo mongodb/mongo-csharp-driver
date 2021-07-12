@@ -33,13 +33,9 @@ namespace MongoDB.Driver.Core.Operations
             return ToBsonDocument(session, connectionDescription, readConcern);
         }
 
-        // private static methods
-        private static BsonDocument ToBsonDocument(ICoreSession session, ConnectionDescription connectionDescription, ReadConcern readConcern)
+        public static BsonDocument GetReadConcernForSnapshotSesssion(ICoreSession session, ConnectionDescription connectionDescription)
         {
-            var sessionsAreSupported = connectionDescription.IsMasterResult.LogicalSessionTimeout != null || connectionDescription.ServiceId.HasValue;
-
-            // snapshot
-            if (sessionsAreSupported && session.IsSnapshot)
+            if (AreSessionsSupported(connectionDescription) && session.IsSnapshot)
             {
                 Feature.SnapshotReads.ThrowIfNotSupported(connectionDescription.ServerVersion);
 
@@ -48,11 +44,18 @@ namespace MongoDB.Driver.Core.Operations
                 {
                     readConcernDocument.Add("atClusterTime", session.SnapshotTime);
                 }
+
                 return readConcernDocument;
             }
 
+            return null;
+        }
+
+        // private static methods
+        private static BsonDocument ToBsonDocument(ICoreSession session, ConnectionDescription connectionDescription, ReadConcern readConcern)
+        {
             // causal consistency
-            var shouldSendAfterClusterTime = sessionsAreSupported && session.IsCausallyConsistent && session.OperationTime != null;
+            var shouldSendAfterClusterTime = AreSessionsSupported(connectionDescription) && session.IsCausallyConsistent && session.OperationTime != null;
             var shouldSendReadConcern = !readConcern.IsServerDefault || shouldSendAfterClusterTime;
 
             if (shouldSendReadConcern)
@@ -67,5 +70,8 @@ namespace MongoDB.Driver.Core.Operations
 
             return null;
         }
+
+        private static bool AreSessionsSupported(ConnectionDescription connectionDescription) =>
+            connectionDescription?.IsMasterResult.LogicalSessionTimeout != null || connectionDescription?.ServiceId != null;
     }
 }

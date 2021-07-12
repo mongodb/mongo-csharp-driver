@@ -25,18 +25,28 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
     {
         private readonly IMongoCollection<BsonDocument> _collection;
         private readonly ListIndexesOptions _listIndexesOptions;
+        private readonly IClientSessionHandle _session;
 
-        public UnifiedListIndexesOperation(IMongoCollection<BsonDocument> collection, ListIndexesOptions listIndexesOptions)
+        public UnifiedListIndexesOperation(
+            IMongoCollection<BsonDocument> collection,
+            ListIndexesOptions listIndexesOptions,
+            IClientSessionHandle session)
         {
             _collection = Ensure.IsNotNull(collection, nameof(collection));
             _listIndexesOptions = listIndexesOptions; // can be null
+            _session = session;
         }
 
         public OperationResult Execute(CancellationToken cancellationToken)
         {
             try
             {
-                _ = _collection.Indexes.List(_listIndexesOptions, cancellationToken).ToList();
+                using var cursor = _session == null
+                    ? _collection.Indexes.List(_listIndexesOptions, cancellationToken)
+                    : _collection.Indexes.List(_session, _listIndexesOptions, cancellationToken);
+
+                _ = cursor.ToList(cancellationToken);
+
                 return OperationResult.Empty();
             }
             catch (Exception ex)
@@ -49,8 +59,12 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             try
             {
-                var cursor = await _collection.Indexes.ListAsync(_listIndexesOptions, cancellationToken).ConfigureAwait(false);
-                _ = await cursor.ToListAsync().ConfigureAwait(false);
+                using var cursor = _session == null
+                    ? await _collection.Indexes.ListAsync(_listIndexesOptions, cancellationToken)
+                    : await _collection.Indexes.ListAsync(_session, _listIndexesOptions, cancellationToken);
+
+                _ = cursor.ToListAsync(cancellationToken);
+
                 return OperationResult.Empty();
             }
             catch (Exception ex)
@@ -74,6 +88,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             var collection = _entityMap.GetCollection(targetCollectionId);
 
             var listIndexesOptions = new ListIndexesOptions();
+            IClientSessionHandle session = null;
+
             if (arguments != null)
             {
                 foreach (var argument in arguments)
@@ -83,13 +99,16 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         case "batchSize":
                             listIndexesOptions.BatchSize = argument.Value.ToInt32();
                             break;
+                        case "session":
+                            session = _entityMap.GetSession(argument.Value.AsString);
+                            break;
                         default:
                             throw new FormatException($"Invalid {nameof(UnifiedListIndexesOperation)} argument name: '{argument.Name}'.");
                     }
                 }
             }
 
-            return new UnifiedListIndexesOperation(collection, listIndexesOptions);
+            return new UnifiedListIndexesOperation(collection, listIndexesOptions, session);
         }
     }
 }

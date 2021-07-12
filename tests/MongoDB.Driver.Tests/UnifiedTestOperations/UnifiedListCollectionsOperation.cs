@@ -25,18 +25,28 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
     {
         private readonly IMongoDatabase _database;
         private readonly ListCollectionsOptions _options;
+        private readonly IClientSessionHandle _session;
 
-        public UnifiedListCollectionsOperation(IMongoDatabase database, ListCollectionsOptions options)
+        public UnifiedListCollectionsOperation(
+            IMongoDatabase database,
+            ListCollectionsOptions options,
+            IClientSessionHandle session)
         {
             _database = Ensure.IsNotNull(database, nameof(database));
             _options = options; // can be null
+            _session = session;
         }
 
         public OperationResult Execute(CancellationToken cancellationToken)
         {
             try
             {
-                _database.ListCollections(_options, cancellationToken).ToList();
+                using var cursor = _session == null
+                    ? _database.ListCollections(_options, cancellationToken)
+                    : _database.ListCollections(_session, _options, cancellationToken);
+
+                _ = cursor.ToList(cancellationToken);
+
                 return OperationResult.Empty();
             }
             catch (Exception ex)
@@ -49,8 +59,12 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             try
             {
-                var cursor = await _database.ListCollectionsAsync(_options, cancellationToken).ConfigureAwait(false);
-                _ = await cursor.ToListAsync().ConfigureAwait(false);
+                using var cursor = _session == null
+                    ? await _database.ListCollectionsAsync(_options, cancellationToken)
+                    : await _database.ListCollectionsAsync(_session, _options, cancellationToken);
+
+                _ = cursor.ToListAsync(cancellationToken);
+
                 return OperationResult.Empty();
             }
             catch (Exception ex)
@@ -74,6 +88,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             var database = _entityMap.GetDatabase(targetDatabaseId);
 
             var listCollectionsOptions = new ListCollectionsOptions();
+            IClientSessionHandle session = null;
+
             if (arguments != null)
             {
                 foreach (var argument in arguments)
@@ -86,13 +102,16 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         case "batchSize":
                             listCollectionsOptions.BatchSize = argument.Value.ToInt32();
                             break;
+                        case "session":
+                            session = _entityMap.GetSession(argument.Value.AsString);
+                            break;
                         default:
                             throw new FormatException($"Invalid AssertIndexNotExistsOperation argument name: '{argument.Name}'.");
                     }
                 }
             }
 
-            return new UnifiedListCollectionsOperation(database, listCollectionsOptions);
+            return new UnifiedListCollectionsOperation(database, listCollectionsOptions, session);
         }
     }
 }
