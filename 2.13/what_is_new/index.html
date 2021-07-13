@@ -2139,15 +2139,22 @@
 
 
 
-<h2 id="what-s-new-in-2-13-0-beta1">What&rsquo;s New in 2.13.0-beta1</h2>
+<h2 id="what-s-new-in-2-13-0">What&rsquo;s New in 2.13.0</h2>
 
-<p>The main new features in 2.13.0-beta1 include:</p>
+<p>The main new features in 2.13.0 include:</p>
 
 <ul>
+<li>Load-balanced mode for Atlas Serverless</li>
 <li>Versioned MongoDB API for Drivers</li>
 <li>Implemented change stream oplog parsing code for delta oplog entries</li>
+<li>Snapshot reads on secondaries</li>
+<li>Support for creating time-series collections</li>
+<li>Permit dots and dollars in field names</li>
+<li>Improved error messages from document validation</li>
+<li>Better ExpandoObject support</li>
 <li><code>estimatedDocumentCount()</code> now uses the <code>$collStats</code> aggregation stage instead of the <code>count</code> command</li>
 <li>Reduced lock contention in BsonSerializer.LookupActualType</li>
+<li><code>slaveOk</code> connection string option removed; use <code>readPreference</code> instead</li>
 </ul>
 
 <h2 id="what-s-new-in-2-12-0">What&rsquo;s New in 2.12.0</h2>
@@ -2579,7 +2586,7 @@ await db.GetCollection&lt;dynamic&gt;(&quot;people&quot;).InsertOneAsync(person)
 <ul>
 <li>
 <ul>
-<li><a href="#what-s-new-in-2-13-0-beta1">What&rsquo;s New in 2.13.0-beta1</a></li>
+<li><a href="#what-s-new-in-2-13-0">What&rsquo;s New in 2.13.0</a></li>
 <li><a href="#what-s-new-in-2-12-0">What&rsquo;s New in 2.12.0</a></li>
 <li><a href="#what-s-new-in-2-11-0">What&rsquo;s New in 2.11.0</a></li>
 <li><a href="#what-s-new-in-2-10-0">What&rsquo;s New in 2.10.0</a></li>
