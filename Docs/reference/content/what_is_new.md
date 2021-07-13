@@ -7,14 +7,21 @@ title = "What's New"
   identifier = "What's New"
   pre = "<i class='fa fa-star'></i>"
 +++
-## What's New in 2.13.0-beta1
+## What's New in 2.13.0
 
-The main new features in 2.13.0-beta1 include:
+The main new features in 2.13.0 include:
 
+* Load-balanced mode for Atlas Serverless
 * Versioned MongoDB API for Drivers
 * Implemented change stream oplog parsing code for delta oplog entries
+* Snapshot reads on secondaries
+* Support for creating time-series collections
+* Permit dots and dollars in field names
+* Improved error messages from document validation
+* Better ExpandoObject support
 * `estimatedDocumentCount()` now uses the `$collStats` aggregation stage instead of the `count` command
 * Reduced lock contention in BsonSerializer.LookupActualType
+* `slaveOk` connection string option removed; use `readPreference` instead
 
 ## What's New in 2.12.0
 
