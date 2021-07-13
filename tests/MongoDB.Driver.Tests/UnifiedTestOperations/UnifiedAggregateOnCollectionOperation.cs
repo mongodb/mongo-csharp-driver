@@ -90,7 +90,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             var collection = _entityMap.GetCollection(targetCollectionId);
 
-            var options = new AggregateOptions();
+            AggregateOptions options = null;
             PipelineDefinition<BsonDocument, BsonDocument> pipeline = null;
             IClientSessionHandle session = null;
 
@@ -99,7 +99,12 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 switch (argument.Name)
                 {
                     case "batchSize":
+                        options ??= new AggregateOptions();
                         options.BatchSize = argument.Value.ToInt32();
+                        break;
+                    case "let":
+                        options ??= new AggregateOptions();
+                        options.Let = argument.Value.AsBsonDocument;
                         break;
                     case "pipeline":
                         var stages = argument.Value.AsBsonArray.Cast<BsonDocument>();

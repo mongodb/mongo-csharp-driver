@@ -36,6 +36,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __aggregateFunction = new Feature("AggregateFunction", new SemanticVersion(4, 3, 4));
         private static readonly Feature __aggregateGraphLookupStage = new Feature("AggregateGraphLookupStage", new SemanticVersion(3, 4, 0, "rc0"));
         private static readonly Feature __aggregateHint = new Feature("AggregateHint", new SemanticVersion(3, 6, 0, "rc0"));
+        private static readonly Feature __aggregateOptionsLet = new Feature("AggregateOptionsLet", new SemanticVersion(5, 0, 0, ""));
         private static readonly Feature __aggregateLet = new Feature("AggregateLet", new SemanticVersion(3, 6, 0));
         private static readonly Feature __aggregateMerge = new Feature("AggregateMerge", new SemanticVersion(4, 2, 0));
         private static readonly Feature __aggregateOut = new Feature("AggregateOut", new SemanticVersion(2, 6, 0));
@@ -174,6 +175,11 @@ namespace MongoDB.Driver.Core.Misc
 
         /// <summary>
         /// Gets the aggregate let feature.
+        /// </summary>
+        public static Feature AggregateOptionsLet => __aggregateOptionsLet;
+
+        /// <summary>
+        /// Gets the aggregate lookup stage let feature.
         /// </summary>
         public static Feature AggregateLet => __aggregateLet;
 

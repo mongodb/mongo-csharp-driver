@@ -45,6 +45,7 @@ namespace MongoDB.Driver.Core.Operations
         private string _comment;
         private readonly DatabaseNamespace _databaseNamespace;
         private BsonValue _hint;
+        private BsonDocument _let;
         private TimeSpan? _maxAwaitTime;
         private TimeSpan? _maxTime;
         private readonly MessageEncoderSettings _messageEncoderSettings;
@@ -166,6 +167,18 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _hint; }
             set { _hint = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the "let" definition.
+        /// </summary>
+        /// <value>
+        /// The "let" definition.
+        /// </value>
+        public BsonDocument Let
+        {
+            get { return _let; }
+            set { _let = value; }
         }
 
         /// <summary>
@@ -346,6 +359,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(_maxTime.Value), _maxTime.HasValue },
                 { "collation", () => _collation.ToBsonDocument(), _collation != null },
                 { "hint", () => _hint, _hint != null },
+                { "let", () => _let, _let != null },
                 { "comment", () => _comment, _comment != null },
                 { "readConcern", readConcern, readConcern != null }
             };

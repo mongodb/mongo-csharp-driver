@@ -89,6 +89,7 @@ namespace MongoDB.Driver
                 Collation = new Collation("en_US"),
                 Comment = "test",
                 Hint = new BsonDocument("x", 1),
+                Let = new BsonDocument("y", "z"),
                 MaxAwaitTime = TimeSpan.FromSeconds(4),
                 MaxTime = TimeSpan.FromSeconds(3),
 #pragma warning disable 618
@@ -131,6 +132,7 @@ namespace MongoDB.Driver
             operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
             operation.Comment.Should().Be(options.Comment);
             operation.Hint.Should().Be(options.Hint);
+            operation.Let.Should().Be(options.Let);
             operation.MaxAwaitTime.Should().Be(options.MaxAwaitTime);
             operation.MaxTime.Should().Be(options.MaxTime);
             operation.Pipeline.Should().Equal(renderedPipeline.Documents);
@@ -167,6 +169,7 @@ namespace MongoDB.Driver
                 Collation = new Collation("en_US"),
                 Comment = "test",
                 Hint = new BsonDocument("x", 1),
+                Let = new BsonDocument("y", "z"),
                 MaxTime = TimeSpan.FromSeconds(3),
 #pragma warning disable 618
                 UseCursor = false
@@ -214,6 +217,7 @@ namespace MongoDB.Driver
             aggregateOperation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
             aggregateOperation.Comment.Should().Be(options.Comment);
             aggregateOperation.Hint.Should().Be(options.Hint);
+            aggregateOperation.Let.Should().Be(options.Let);
             aggregateOperation.MaxTime.Should().Be(options.MaxTime);
             aggregateOperation.Pipeline.Should().Equal(expectedPipeline);
             aggregateOperation.ReadConcern.Should().Be(readConcern);
@@ -339,6 +343,7 @@ namespace MongoDB.Driver
                 Collation = new Collation("en_US"),
                 Comment = "test",
                 Hint = new BsonDocument("x", 1),
+                Let = new BsonDocument("y", "z"),
                 MaxTime = TimeSpan.FromSeconds(3),
 #pragma warning disable 618
                 UseCursor = false
@@ -384,6 +389,7 @@ namespace MongoDB.Driver
             aggregateOperation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
             aggregateOperation.Comment.Should().Be(options.Comment);
             aggregateOperation.Hint.Should().Be(options.Hint);
+            aggregateOperation.Let.Should().Be(options.Let);
             aggregateOperation.MaxTime.Should().Be(options.MaxTime);
             aggregateOperation.Pipeline.Should().Equal(expectedPipeline);
             aggregateOperation.ReadConcern.Should().Be(readConcern);

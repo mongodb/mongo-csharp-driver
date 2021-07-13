@@ -211,6 +211,18 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Fact]
+        public void Let_get_and_set_should_work()
+        {
+            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings);
+            var value = new BsonDocument("y", "z");
+
+            subject.Let = value;
+            var result = subject.Let;
+
+            result.Should().BeSameAs(value);
+        }
+
+        [Fact]
         public void MaxAwaitTime_get_and_set_should_work()
         {
             var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings);
@@ -455,6 +467,33 @@ namespace MongoDB.Driver.Core.Operations
                 { "aggregate", _collectionNamespace.CollectionName },
                 { "pipeline", new BsonArray(__pipeline) },
                 { "hint", () => hint, hint != null },
+                { "cursor", new BsonDocument() }
+            };
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_expected_result_when_Let_is_set(
+            [Values(null, "{ y : 'z' }")]
+            string letJson)
+        {
+            var let = letJson == null ? null : BsonDocument.Parse(letJson);
+            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings)
+            {
+                Let = let
+            };
+
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.AggregateOptionsLet.FirstSupportedVersion);
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subject.CreateCommand(connectionDescription, session);
+
+            var expectedResult = new BsonDocument
+            {
+                { "aggregate", _collectionNamespace.CollectionName },
+                { "pipeline", new BsonArray(__pipeline) },
+                { "let", () => let, let != null },
                 { "cursor", new BsonDocument() }
             };
             result.Should().Be(expectedResult);
@@ -796,6 +835,53 @@ namespace MongoDB.Driver.Core.Operations
             var result = ReadCursorToEnd(cursor, async);
 
             result.Should().NotBeNull();
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_should_return_expected_result_when_Let_is_set_with_match_expression(
+            [Values(false, true)]
+            bool async)
+        {
+            RequireServer.Check().Supports(Feature.AggregateOptionsLet);
+            EnsureTestData();
+            var pipeline = new[] { BsonDocument.Parse("{ $match : { $expr : { $eq : [ '$x', '$$y'] } } }") };
+            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, pipeline, __resultSerializer, _messageEncoderSettings)
+            {
+                Let = new BsonDocument("y", "x")
+            };
+
+            var cursor = ExecuteOperation(subject, async);
+            var result = ReadCursorToEnd(cursor, async);
+
+            result.Should().BeEquivalentTo(new[]
+            {
+                new BsonDocument { { "_id", 1 }, { "x", "x" } }
+            });
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_should_return_expected_result_when_Let_is_set_with_project(
+            [Values(false, true)]
+            bool async)
+        {
+            RequireServer.Check().Supports(Feature.AggregateOptionsLet);
+            EnsureTestData();
+            var pipeline = new[] { BsonDocument.Parse("{ $project : { y : '$$z' } }") };
+            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, pipeline, __resultSerializer, _messageEncoderSettings)
+            {
+                Let = new BsonDocument("z", "x")
+            };
+
+            var cursor = ExecuteOperation(subject, async);
+            var result = ReadCursorToEnd(cursor, async);
+
+            result.Should().BeEquivalentTo(new[]
+            {
+                new BsonDocument { { "_id", 1 }, { "y", "x" } },
+                new BsonDocument { { "_id", 2 }, { "y", "x" } }
+            });
         }
 
         [SkippableTheory]
