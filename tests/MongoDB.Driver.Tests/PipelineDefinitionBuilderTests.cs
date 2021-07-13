@@ -82,7 +82,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void Lookup_should_throw_when_pipeline_is_null()
         {
-            RequireServer.Check().Supports(Feature.AggregateLookupLet);
+            RequireServer.Check().Supports(Feature.AggregateLet);
 
             PipelineDefinition<BsonDocument, IEnumerable<BsonDocument>> pipeline = null;
             IMongoCollection<BsonDocument> collection = null;

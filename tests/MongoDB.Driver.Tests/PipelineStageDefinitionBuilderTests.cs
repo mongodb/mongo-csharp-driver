@@ -205,7 +205,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void Lookup_with_let_should_return_the_expected_result()
         {
-            RequireServer.Check().Supports(Feature.AggregateLookupLet);
+            RequireServer.Check().Supports(Feature.AggregateLet);
 
             var client = new MongoClient(CoreTestConfiguration.ConnectionString.ToString());
             var warehousesCollection = client.GetDatabase("test").GetCollection<BsonDocument>("warehouses");
@@ -264,7 +264,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void Lookup_without_optional_let_should_return_the_expected_result()
         {
-            RequireServer.Check().Supports(Feature.AggregateLookupLet);
+            RequireServer.Check().Supports(Feature.AggregateLet);
 
             var client = new MongoClient(CoreTestConfiguration.ConnectionString.ToString());
             var warehousesCollection = client.GetDatabase("test").GetCollection<BsonDocument>("warehouses");
@@ -406,7 +406,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void Lookup_with_entity_generic_params_should_return_the_expected_result()
         {
-            RequireServer.Check().Supports(Feature.AggregateLookupLet);
+            RequireServer.Check().Supports(Feature.AggregateLet);
 
             var client = new MongoClient(CoreTestConfiguration.ConnectionString.ToString());
             var warehousesCollection = client.GetDatabase("test").GetCollection<Warehouse>("warehouses");
@@ -464,7 +464,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void Lookup_with_empty_required_params_should_throw_expected_exception()
         {
-            RequireServer.Check().Supports(Feature.AggregateLookupLet);
+            RequireServer.Check().Supports(Feature.AggregateLet);
 
             string warehousesCollectionName = "warehouses";
 

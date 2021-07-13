@@ -318,7 +318,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void Lookup_with_let_and_bsondocuments_params_should_return_the_expected_result()
         {
-            RequireServer.Check().Supports(Feature.AggregateLookupLet);
+            RequireServer.Check().Supports(Feature.AggregateLet);
 
             string databaseName = "test";
             string ordersCollectionName = "orders";
@@ -416,7 +416,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void Lookup_with_let_should_return_the_expected_result()
         {
-            RequireServer.Check().Supports(Feature.AggregateLookupLet);
+            RequireServer.Check().Supports(Feature.AggregateLet);
 
             string databaseName = "test";
             string ordersCollectionName = "orders";
@@ -484,7 +484,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void Lookup_with_let_and_mismatched_pipeline_condition_should_return_the_expected_result()
         {
-            RequireServer.Check().Supports(Feature.AggregateLookupLet);
+            RequireServer.Check().Supports(Feature.AggregateLet);
 
             string databaseName = "test";
             string ordersCollectionName = "orders";
@@ -552,7 +552,7 @@ namespace MongoDB.Driver.Tests
         [ParameterAttributeData]
         public void Lookup_without_let_should_return_the_expected_result([Values(null, "{}")] string emptyLetValue)
         {
-            RequireServer.Check().Supports(Feature.AggregateLookupLet);
+            RequireServer.Check().Supports(Feature.AggregateLet);
 
             string databaseName = "test";
             string ordersCollectionName = "orders";

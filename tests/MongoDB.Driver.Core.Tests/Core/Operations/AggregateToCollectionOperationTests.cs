@@ -757,21 +757,57 @@ namespace MongoDB.Driver.Core.Operations
 
         [SkippableTheory]
         [ParameterAttributeData]
-        public void Execute_should_return_expected_result_when_Let_is_set(
+        public void Execute_should_return_expected_result_when_Let_is_set_with_match_expression(
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.AggregateLet);
+            RequireServer.Check().Supports(Feature.AggregateOptionsLet);
             EnsureTestData();
-            var subject = new AggregateToCollectionOperation(_collectionNamespace, __pipeline, _messageEncoderSettings)
+            var pipeline = new[]
             {
-                Let = new BsonDocument("x", "y")
+                BsonDocument.Parse("{ $match : { $expr : { $eq : [ '$x', '$$y'] } } }"),
+                BsonDocument.Parse("{ $out : \"awesome\" }")
+            };
+            var subject = new AggregateToCollectionOperation(_collectionNamespace, pipeline, _messageEncoderSettings)
+            {
+                Let = new BsonDocument("y", "x")
             };
 
             ExecuteOperation(subject, async);
             var result = ReadAllFromCollection(new CollectionNamespace(_databaseNamespace, "awesome"), async);
 
-            result.Should().NotBeNull();
+            result.Should().BeEquivalentTo(new[]
+            {
+                new BsonDocument { { "_id", 1 }, { "x", "x" } }
+            });
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_should_return_expected_result_when_Let_is_set_with_project(
+            [Values(false, true)]
+            bool async)
+        {
+            RequireServer.Check().Supports(Feature.AggregateOptionsLet);
+            EnsureTestData();
+            var pipeline = new[]
+            {
+                BsonDocument.Parse("{ $project : { y : '$$z' } }"),
+                BsonDocument.Parse("{ $out : \"awesome\" }")
+            };
+            var subject = new AggregateToCollectionOperation(_collectionNamespace, pipeline, _messageEncoderSettings)
+            {
+                Let = new BsonDocument("z", "x")
+            };
+
+            ExecuteOperation(subject, async);
+            var result = ReadAllFromCollection(new CollectionNamespace(_databaseNamespace, "awesome"), async);
+
+            result.Should().BeEquivalentTo(new[]
+            {
+                new BsonDocument { { "_id", 1 }, { "y", "x" } },
+                new BsonDocument { { "_id", 2 }, { "y", "x" } }
+            });
         }
 
         [SkippableTheory]

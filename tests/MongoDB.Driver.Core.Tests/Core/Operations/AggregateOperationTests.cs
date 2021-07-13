@@ -484,7 +484,7 @@ namespace MongoDB.Driver.Core.Operations
                 Let = let
             };
 
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.AggregateLet.FirstSupportedVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.AggregateOptionsLet.FirstSupportedVersion);
             var session = OperationTestHelper.CreateSession();
 
             var result = subject.CreateCommand(connectionDescription, session);
@@ -839,21 +839,49 @@ namespace MongoDB.Driver.Core.Operations
 
         [SkippableTheory]
         [ParameterAttributeData]
-        public void Execute_should_return_expected_result_when_Let_is_set(
+        public void Execute_should_return_expected_result_when_Let_is_set_with_match_expression(
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.AggregateLet);
+            RequireServer.Check().Supports(Feature.AggregateOptionsLet);
             EnsureTestData();
-            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings)
+            var pipeline = new[] { BsonDocument.Parse("{ $match : { $expr : { $eq : [ '$x', '$$y'] } } }") };
+            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, pipeline, __resultSerializer, _messageEncoderSettings)
             {
-                Let = new BsonDocument("x", "y")
+                Let = new BsonDocument("y", "x")
             };
 
             var cursor = ExecuteOperation(subject, async);
             var result = ReadCursorToEnd(cursor, async);
 
-            result.Should().NotBeNull();
+            result.Should().BeEquivalentTo(new[]
+            {
+                new BsonDocument { { "_id", 1 }, { "x", "x" } }
+            });
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_should_return_expected_result_when_Let_is_set_with_project(
+            [Values(false, true)]
+            bool async)
+        {
+            RequireServer.Check().Supports(Feature.AggregateOptionsLet);
+            EnsureTestData();
+            var pipeline = new[] { BsonDocument.Parse("{ $project : { y : '$$z' } }") };
+            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, pipeline, __resultSerializer, _messageEncoderSettings)
+            {
+                Let = new BsonDocument("z", "x")
+            };
+
+            var cursor = ExecuteOperation(subject, async);
+            var result = ReadCursorToEnd(cursor, async);
+
+            result.Should().BeEquivalentTo(new[]
+            {
+                new BsonDocument { { "_id", 1 }, { "y", "x" } },
+                new BsonDocument { { "_id", 2 }, { "y", "x" } }
+            });
         }
 
         [SkippableTheory]
