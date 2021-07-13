@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             try
             {
-                using var cursor = _session == null
+                var cursor = _session == null
                     ? _database.ListCollections(_options, cancellationToken)
                     : _database.ListCollections(_session, _options, cancellationToken);
 
@@ -59,11 +59,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             try
             {
-                using var cursor = _session == null
-                    ? await _database.ListCollectionsAsync(_options, cancellationToken)
-                    : await _database.ListCollectionsAsync(_session, _options, cancellationToken);
-
-                _ = cursor.ToListAsync(cancellationToken);
+                var cursor = _session == null
+                    ? await _database.ListCollectionsAsync(_options, cancellationToken).ConfigureAwait(false)
+                    : await _database.ListCollectionsAsync(_session, _options, cancellationToken).ConfigureAwait(false);
+                _ = await cursor.ToListAsync(cancellationToken).ConfigureAwait(false);
 
                 return OperationResult.Empty();
             }
