@@ -79,7 +79,11 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
 
         private void AssertErrorContains(Exception actualException, string expectedSubstring)
         {
-            actualException.Message.Should().ContainEquivalentOf(expectedSubstring);
+            actualException
+                .Should()
+                .Match<Exception>(e =>
+                    e.Message.Contains(expectedSubstring) ||
+                    (e.InnerException != null && e.InnerException.Message.Contains(expectedSubstring)));
         }
 
         private void AssertErrorLabelsContain(Exception actualException, IEnumerable<string> expectedErrorLabels)

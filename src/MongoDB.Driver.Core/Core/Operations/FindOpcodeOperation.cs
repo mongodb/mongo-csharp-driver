@@ -22,6 +22,7 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
@@ -539,7 +540,8 @@ namespace MongoDB.Driver.Core.Operations
         // private methods
         private IAsyncCursor<TDocument> CreateCursor(IChannelSourceHandle channelSource, BsonDocument query, CursorBatch<TDocument> batch)
         {
-            var getMoreChannelSource = new ServerChannelSource(channelSource.Server, channelSource.Session.Fork());
+            var getMoreChannelSource = ChannelPinningHelper.CreateGetMoreChannelSource(channelSource, batch.CursorId);
+
             return new AsyncCursor<TDocument>(
                 getMoreChannelSource,
                 _collectionNamespace,

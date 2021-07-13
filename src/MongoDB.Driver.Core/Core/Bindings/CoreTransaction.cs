@@ -25,11 +25,13 @@ namespace MongoDB.Driver.Core.Bindings
     {
         // private fields
         private bool _isEmpty;
+        private IChannelHandle _pinnedChannel = null;
         private IServer _pinnedServer;
         private BsonDocument _recoveryToken;
         private CoreTransactionState _state;
         private readonly long _transactionNumber;
         private readonly TransactionOptions _transactionOptions;
+        private readonly object _lock = new object();
 
         // public constructors
         /// <summary>
@@ -61,6 +63,18 @@ namespace MongoDB.Driver.Core.Bindings
         /// The transaction state.
         /// </value>
         public CoreTransactionState State => _state;
+
+        /// <summary>
+        /// Gets pinned channel for the current transaction.
+        /// Value has meaning if and only if a transaction is in progress.
+        /// </summary>
+        /// <value>
+        /// The pinned channel for the current transaction.
+        /// </value>
+        public IChannelHandle PinnedChannel
+        {
+            get => _pinnedChannel;
+        }
 
         /// <summary>
         /// Gets or sets pinned server for the current transaction.
@@ -104,12 +118,31 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         // internal methods
+        internal void PinChannel(IChannelHandle channel)
+        {
+            lock (_lock)
+            {
+                _pinnedChannel?.Dispose();
+                _pinnedChannel = channel;
+            }
+        }
+
         internal void SetState(CoreTransactionState state)
         {
             _state = state;
             if (state == CoreTransactionState.InProgress)
             {
                 _isEmpty = false;
+            }
+        }
+
+        internal void UnpinAll()
+        {
+            lock (_lock)
+            {
+                _pinnedChannel?.Dispose();
+                _pinnedChannel = null;
+                _pinnedServer = null;
             }
         }
     }

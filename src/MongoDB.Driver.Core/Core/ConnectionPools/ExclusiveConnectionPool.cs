@@ -36,6 +36,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         private readonly CancellationTokenSource _maintenanceCancellationTokenSource;
         private readonly WaitQueue _poolQueue;
         private readonly ServerId _serverId;
+        private readonly ServiceStates _serviceStates;
         private readonly ConnectionPoolSettings _settings;
         private readonly InterlockedInt32 _state;
         private readonly SemaphoreSlim _waitQueue;
@@ -72,6 +73,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             _connectingQueue = new SemaphoreSlimSignalable(MongoInternalDefaults.ConnectionPool.MaxConnecting);
             _connectionHolder = new ListConnectionHolder(eventSubscriber, _connectingQueue);
+            _serviceStates = new ServiceStates();
             _poolQueue = new WaitQueue(settings.MaxConnections);
 #pragma warning disable 618
             _waitQueue = new SemaphoreSlim(settings.WaitQueueSize);
@@ -211,6 +213,17 @@ namespace MongoDB.Driver.Core.ConnectionPools
             _clearedEventHandler?.Invoke(new ConnectionPoolClearedEvent(_serverId, _settings));
         }
 
+        public void Clear(ObjectId serviceId)
+        {
+            ThrowIfNotOpen();
+
+            _clearingEventHandler?.Invoke(new ConnectionPoolClearingEvent(_serverId, _settings, serviceId));
+
+            _serviceStates.IncrementGeneration(serviceId);
+
+            _clearedEventHandler?.Invoke(new ConnectionPoolClearedEvent(_serverId, _settings, serviceId));
+        }
+
         private PooledConnection CreateNewConnection()
         {
             var connection = _connectionFactory.CreateConnection(_serverId, _endPoint);
@@ -260,6 +273,19 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
         }
 
+        public int GetGeneration(ObjectId? serviceId)
+        {
+            // if serviceId is supported, a generation for connection should be initialized on the previous handshake step
+            if (_serviceStates.TryGetGeneration(serviceId, out var generation))
+            {
+                return generation;
+            }
+
+            // fall back to not serviceId path
+            return Generation;
+        }
+
+        // private methods
         private async Task MaintainSizeAsync()
         {
             var maintenanceCancellationToken = _maintenanceCancellationTokenSource.Token;
@@ -365,6 +391,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
             else
             {
+                _serviceStates.DecrementConnectionCount(connection.Description?.ServiceId);
+
                 _connectionHolder.RemoveConnection(connection);
             }
 
@@ -389,17 +417,6 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 ThrowIfDisposed();
                 throw new InvalidOperationException("ConnectionPool must be initialized.");
             }
-        }
-
-        public void Clear(ObjectId serviceId)
-        {
-            ThrowIfNotOpen();
-
-            _clearingEventHandler?.Invoke(new ConnectionPoolClearingEvent(_serverId, _settings));
-
-            // TODO: temporary reverted
-
-            _clearedEventHandler?.Invoke(new ConnectionPoolClearedEvent(_serverId, _settings));
         }
     }
 }

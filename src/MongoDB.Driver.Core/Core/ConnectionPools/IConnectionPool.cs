@@ -14,10 +14,6 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -38,6 +34,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         /// <value>
         /// The generation.
         /// </value>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1721:Property names should not match get methods", Justification = "Backward compatibility")]
         int Generation { get; }
 
         /// <summary>
@@ -73,6 +70,13 @@ namespace MongoDB.Driver.Core.ConnectionPools
         /// </summary>
         /// <param name="serviceId">The service id.</param>
         void Clear(ObjectId serviceId);
+
+        /// <summary>
+        /// Gets the current generation for the connection pool (or service).
+        /// </summary>
+        /// <param name="serviceId">The optional service Id.</param>
+        /// <returns>The connection pool generation.</returns>
+        int GetGeneration(ObjectId? serviceId);
 
         /// <summary>
         /// Initializes the connection pool.

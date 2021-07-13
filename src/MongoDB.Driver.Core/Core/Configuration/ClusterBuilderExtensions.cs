@@ -166,6 +166,10 @@ namespace MongoDB.Driver.Core.Configuration
             {
                 builder = builder.ConfigureConnection(s => s.With(applicationName: connectionString.ApplicationName));
             }
+            if (connectionString.LoadBalanced)
+            {
+                builder = builder.ConfigureConnection(s => s.With(loadBalanced: connectionString.LoadBalanced));
+            }
             if (connectionString.MaxIdleTime != null)
             {
                 builder = builder.ConfigureConnection(s => s.With(maxIdleTime: connectionString.MaxIdleTime.Value));

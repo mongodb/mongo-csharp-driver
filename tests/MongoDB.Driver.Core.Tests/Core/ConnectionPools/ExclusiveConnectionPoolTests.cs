@@ -20,6 +20,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
@@ -644,6 +645,46 @@ namespace MongoDB.Driver.Core.ConnectionPools
             connection.IsExpired.Should().BeTrue();
         }
 
+        [Theory]
+        [ParameterAttributeData]
+        public void Clear_with_serviceId_should_cause_only_expected_connections_to_be_expired(
+            [Values(false, true)] bool async)
+        {
+            var serviceId = ObjectId.GenerateNewId();
+            var mockConnectionFactory = new Mock<IConnectionFactory> { DefaultValue = DefaultValue.Mock };
+            var connectionMock = new Mock<IConnection>();
+            connectionMock
+                .SetupGet(c => c.Description)
+                .Returns(
+                    new ConnectionDescription(
+                        new ConnectionId(_serverId),
+                        new IsMasterResult(new BsonDocument("serviceId", serviceId)),
+                        new BuildInfoResult(new BsonDocument("version", "5.0.0").Add("ok", 1))));
+            connectionMock
+                .SetupGet(c => c.Settings)
+                .Returns(new ConnectionSettings());
+
+            mockConnectionFactory
+                .Setup(c => c.CreateConnection(It.IsAny<ServerId>(), It.IsAny<EndPoint>()))
+                .Returns(connectionMock.Object);
+
+            var subject = CreateSubject(connectionPoolSettings: new ConnectionPoolSettings(minConnections: 0), connectionFactory: mockConnectionFactory.Object);
+            subject.Initialize();
+
+            var connection = AcquireConnection(subject, async);
+
+            connection.IsExpired.Should().BeFalse();
+            var randomServiceId = ObjectId.GenerateNewId();
+            subject.Clear(randomServiceId);
+            connection.IsExpired.Should().BeFalse();
+            subject._serviceStates().TryGetGeneration(connectionMock.Object.Description?.ServiceId, out _).Should().BeTrue();
+            subject.Clear(serviceId);
+            connection.IsExpired.Should().BeTrue();
+            subject._serviceStates().TryGetGeneration(connectionMock.Object.Description?.ServiceId, out _).Should().BeTrue();
+            connection.Dispose();
+            subject._serviceStates().TryGetGeneration(connectionMock.Object.Description?.ServiceId, out _).Should().BeFalse();
+        }
+
         [Fact]
         public void Initialize_should_throw_an_ObjectDisposedException_after_disposing()
         {
@@ -863,6 +904,11 @@ namespace MongoDB.Driver.Core.ConnectionPools
         public static Task MaintainSizeAsync(this ExclusiveConnectionPool obj)
         {
             return (Task)Reflector.Invoke(obj, nameof(MaintainSizeAsync));
+        }
+
+        public static ServiceStates _serviceStates(this ExclusiveConnectionPool obj)
+        {
+            return (ServiceStates)Reflector.GetFieldValue(obj, nameof(_serviceStates));
         }
     }
 }

@@ -111,7 +111,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                                     commandStartedEvent.DatabaseNamespace.DatabaseName.Should().Be(element.Value.AsString);
                                     break;
                                 case "hasServiceId":
-                                    // TODO: not implemented yet
+                                    commandStartedEvent.ServiceId.Should().Match<ObjectId?>(s => s.HasValue == element.Value.ToBoolean());
                                     break;
                                 default:
                                     throw new FormatException($"Unexpected commandStartedEvent field: '{element.Name}'.");
@@ -131,7 +131,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                                     commandSucceededEvent.CommandName.Should().Be(element.Value.AsString);
                                     break;
                                 case "hasServiceId":
-                                    // TODO: not implemented yet
+                                    commandSucceededEvent.ServiceId.Should().Match<ObjectId?>(s => s.HasValue == element.Value.ToBoolean());
                                     break;
                                 default:
                                     throw new FormatException($"Unexpected commandStartedEvent field: '{element.Name}'.");
@@ -148,7 +148,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                                     commandFailedEvent.CommandName.Should().Be(element.Value.AsString);
                                     break;
                                 case "hasServiceId":
-                                    // TODO: not implemented yet
+                                    commandFailedEvent.ServiceId.Should().Match<ObjectId?>(s => s.HasValue == element.Value.ToBoolean());
                                     break;
                                 default:
                                     throw new FormatException($"Unexpected commandStartedEvent field: '{element.Name}'.");
@@ -210,7 +210,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                             switch (element.Name)
                             {
                                 case "hasServiceId":
-                                    // TODO: not implemented yet
+                                    poolClearedEvent.ServiceId.Should().Match<ObjectId?>(s => s.HasValue == element.Value.ToBoolean());
                                     break;
                                 default:
                                     throw new FormatException($"Unexpected {expectedEventType} field: '{element.Name}'.");

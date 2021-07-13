@@ -31,6 +31,7 @@ namespace MongoDB.Driver.Core.Events
         private readonly DatabaseNamespace _databaseNamespace;
         private readonly long? _operationId;
         private readonly int _requestId;
+        private readonly ObjectId? _serviceId;
         private readonly DateTime _timestamp;
 
         /// <summary>
@@ -43,6 +44,21 @@ namespace MongoDB.Driver.Core.Events
         /// <param name="requestId">The request identifier.</param>
         /// <param name="connectionId">The connection identifier.</param>
         public CommandStartedEvent(string commandName, BsonDocument command, DatabaseNamespace databaseNamespace, long? operationId, int requestId, ConnectionId connectionId)
+            : this(commandName, command, databaseNamespace, operationId, requestId, connectionId, serviceId: null)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CommandStartedEvent" /> class.
+        /// </summary>
+        /// <param name="commandName">Name of the command.</param>
+        /// <param name="command">The command.</param>
+        /// <param name="databaseNamespace">The database namespace.</param>
+        /// <param name="operationId">The operation identifier.</param>
+        /// <param name="requestId">The request identifier.</param>
+        /// <param name="connectionId">The connection identifier.</param>
+        /// <param name="serviceId">The service identifier.</param>
+        public CommandStartedEvent(string commandName, BsonDocument command, DatabaseNamespace databaseNamespace, long? operationId, int requestId, ConnectionId connectionId, ObjectId? serviceId)
         {
             _commandName = Ensure.IsNotNullOrEmpty(commandName, "commandName");
             _command = Ensure.IsNotNull(command, "command");
@@ -50,6 +66,7 @@ namespace MongoDB.Driver.Core.Events
             _connectionId = Ensure.IsNotNull(connectionId, "connectionId");
             _operationId = operationId;
             _requestId = requestId;
+            _serviceId = serviceId; // can be null
             _timestamp = DateTime.UtcNow;
         }
 
@@ -99,6 +116,14 @@ namespace MongoDB.Driver.Core.Events
         public int RequestId
         {
             get { return _requestId; }
+        }
+
+        /// <summary>
+        /// Gets the service identifier.
+        /// </summary>
+        public ObjectId? ServiceId
+        {
+            get { return _serviceId;}
         }
 
         /// <summary>

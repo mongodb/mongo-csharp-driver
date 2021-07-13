@@ -39,7 +39,7 @@ namespace MongoDB.Driver
         #region static
         // static fields
         private static Lazy<ICluster> __cluster = new Lazy<ICluster>(CreateCluster, isThreadSafe: true);
-        private static Lazy<ConnectionString> __connectionString = new Lazy<ConnectionString>(GetConnectionString, isThreadSafe: true);
+        private static Lazy<ConnectionString> __connectionString = new Lazy<ConnectionString>(CreateConnectionString, isThreadSafe: true);
         private static Lazy<ConnectionString> __connectionStringWithMultipleShardRouters = new Lazy<ConnectionString>(
             GetConnectionStringWithMultipleShardRouters, isThreadSafe: true);
         private static Lazy<DatabaseNamespace> __databaseNamespace = new Lazy<DatabaseNamespace>(GetDatabaseNamespace, isThreadSafe: true);
@@ -238,7 +238,7 @@ namespace MongoDB.Driver
             return new CollectionNamespace(__databaseNamespace.Value, collectionName);
         }
 
-        private static ConnectionString GetConnectionString()
+        public static ConnectionString CreateConnectionString()
         {
             var uri = Environment.GetEnvironmentVariable("MONGODB_URI") ?? Environment.GetEnvironmentVariable("MONGO_URI");
             if (uri == null)

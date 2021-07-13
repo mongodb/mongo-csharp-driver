@@ -147,12 +147,12 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
         }
 
         [Fact]
-        public void CreateInitializedServer_should_throw_if_cluster_disposed()
+        public void InitializeServer_should_throw_if_cluster_disposed()
         {
             var subject = CreateSubject();
             subject.Dispose();
 
-            var exception = Record.Exception(() => subject.CreateInitializedServer(_endPoint));
+            var exception = Record.Exception(() => subject.InitializeServer(Mock.Of<IClusterableServer>()));
 
             exception.Should().BeOfType<ObjectDisposedException>();
         }
@@ -460,6 +460,19 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
             }
         }
 
+        [Fact]
+        public void Server_should_be_assigned_immidiately_after_dns_response()
+        {
+            var settings = _settings.With(scheme: ConnectionStringScheme.MongoDBPlusSrv, endPoints: new[] { new DnsEndPoint("a.b.com", 53) });
+            var mockDnsMonitorFactory = CreateMockDnsMonitorFactory();
+            using (var subject = CreateSubject(settings: settings, dnsMonitorFactory: mockDnsMonitorFactory.Object))
+            {
+                subject._server().Should().BeNull();
+                PublishDnsResults(subject, _endPoint);
+                subject._server().Should().NotBeNull();
+            }
+        }
+
         // private methods
         private void AssertTryGetEventHandlerWasCalled<TEvent>(Mock<IEventSubscriber> mockEventSubscriber)
         {
@@ -507,7 +520,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
 
     internal static class LoadBalancedClusterReflector
     {
-        public static IClusterableServer CreateInitializedServer(this LoadBalancedCluster cluster, EndPoint endPoint) => (IClusterableServer)Reflector.Invoke(cluster, nameof(CreateInitializedServer), endPoint);
+        public static IClusterableServer InitializeServer(this LoadBalancedCluster cluster, IClusterableServer server) => (IClusterableServer)Reflector.Invoke(cluster, nameof(InitializeServer), server);
         public static IDnsMonitorFactory _dnsMonitorFactory(this LoadBalancedCluster cluster) => (IDnsMonitorFactory)Reflector.GetFieldValue(cluster, nameof(_dnsMonitorFactory));
         public static Thread _dnsMonitorThread(this LoadBalancedCluster cluster) => (Thread)Reflector.GetFieldValue(cluster, nameof(_dnsMonitorThread));
         public static IEventSubscriber _eventSubscriber(this LoadBalancedCluster cluster) => (IEventSubscriber)Reflector.GetFieldValue(cluster, nameof(_eventSubscriber));

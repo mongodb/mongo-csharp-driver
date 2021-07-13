@@ -29,6 +29,7 @@ using Xunit;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using System.Linq;
+using MongoDB.Driver.Core.TestHelpers;
 
 namespace MongoDB.Driver.Core.Authentication
 {
@@ -219,19 +220,24 @@ namespace MongoDB.Driver.Core.Authentication
         [Theory]
         [ParameterAttributeData]
         public void Authenticate_should_throw_an_AuthenticationException_when_authentication_fails(
+            [Values("MongoConnectionException", "MongoNotPrimaryException")] string exceptionName,
             [Values(false, true)] bool async)
         {
             var subject = new ScramSha256Authenticator(__credential, serverApi: null);
 
-            var reply = MessageHelper.BuildNoDocumentsReturnedReply<RawBsonDocument>();
+            var replyException = CoreExceptionHelper.CreateException(exceptionName);
             var connection = new MockConnection(__serverId);
-            connection.EnqueueReplyMessage(reply);
+            connection.EnqueueReplyMessage(replyException);
 
-            var act = async
-                ? () => subject.AuthenticateAsync(connection, __descriptionQueryWireProtocol, CancellationToken.None).GetAwaiter().GetResult()
-                : (Action)(() => subject.Authenticate(connection, __descriptionQueryWireProtocol, CancellationToken.None));
-
-            var exception = Record.Exception(act);
+            Exception exception;
+            if (async)
+            {
+                exception = Record.Exception(() => subject.AuthenticateAsync(connection, __descriptionQueryWireProtocol, CancellationToken.None).GetAwaiter().GetResult());
+            }
+            else
+            {
+                exception = Record.Exception(() => subject.Authenticate(connection, __descriptionQueryWireProtocol, CancellationToken.None));
+            }
 
             exception.Should().BeOfType<MongoAuthenticationException>();
         }

@@ -14,8 +14,10 @@
 */
 
 using System;
+using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Events
@@ -27,6 +29,7 @@ namespace MongoDB.Driver.Core.Events
     {
         private readonly ConnectionPoolSettings _connectionPoolSettings;
         private readonly ServerId _serverId;
+        private readonly ObjectId? _serviceId;
         private readonly DateTime _timestamp;
 
         /// <summary>
@@ -35,9 +38,21 @@ namespace MongoDB.Driver.Core.Events
         /// <param name="serverId">The server identifier.</param>
         /// <param name="connectionPoolSettings">The connection pool settings.</param>
         public ConnectionPoolClearedEvent(ServerId serverId, ConnectionPoolSettings connectionPoolSettings)
+            : this(serverId, connectionPoolSettings, serviceId: null)
         {
-            _serverId = serverId;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConnectionPoolClearedEvent"/> struct.
+        /// </summary>
+        /// <param name="serverId">The server identifier.</param>
+        /// <param name="connectionPoolSettings">The connection pool settings.</param>
+        /// <param name="serviceId">The service identifier.</param>
+        public ConnectionPoolClearedEvent(ServerId serverId, ConnectionPoolSettings connectionPoolSettings, ObjectId? serviceId)
+        {
+            _serverId = Ensure.IsNotNull(serverId, nameof(serverId));
             _connectionPoolSettings = connectionPoolSettings;
+            _serviceId = serviceId; // can be null
             _timestamp = DateTime.UtcNow;
         }
 
@@ -63,6 +78,14 @@ namespace MongoDB.Driver.Core.Events
         public ServerId ServerId
         {
             get { return _serverId; }
+        }
+
+        /// <summary>
+        /// Gets the service identifier.
+        /// </summary>
+        public ObjectId? ServiceId
+        {
+            get { return _serviceId; }
         }
 
         /// <summary>

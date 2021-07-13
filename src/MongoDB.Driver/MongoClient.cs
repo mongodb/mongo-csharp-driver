@@ -462,7 +462,7 @@ namespace MongoDB.Driver
 
         private async Task<bool> AreSessionsSupportedAsync(CancellationToken cancellationToken)
         {
-            return AreSessionsSupported(_cluster.Description) ?? await AreSessionsSupportedAfterSeverSelctionAsync(cancellationToken).ConfigureAwait(false);
+            return AreSessionsSupported(_cluster.Description) ?? await AreSessionsSupportedAfterServerSelectionAsync(cancellationToken).ConfigureAwait(false);
         }
 
         private bool? AreSessionsSupported(ClusterDescription clusterDescription)
@@ -489,14 +489,16 @@ namespace MongoDB.Driver
         {
             var selector = new AreSessionsSupportedServerSelector();
             var selectedServer = _cluster.SelectServer(selector, cancellationToken);
-            return AreSessionsSupported(selector.ClusterDescription) ?? false;
+            var clusterDescription = selector.ClusterDescription ?? _cluster.Description; // LB cluster doesn't use server selector, so clusterDescription is null for this case
+            return AreSessionsSupported(clusterDescription) ?? false;
         }
 
-        private async Task<bool> AreSessionsSupportedAfterSeverSelctionAsync(CancellationToken cancellationToken)
+        private async Task<bool> AreSessionsSupportedAfterServerSelectionAsync(CancellationToken cancellationToken)
         {
             var selector = new AreSessionsSupportedServerSelector();
             var selectedServer = await _cluster.SelectServerAsync(selector, cancellationToken).ConfigureAwait(false);
-            return AreSessionsSupported(selector.ClusterDescription) ?? false;
+            var clusterDescription = selector.ClusterDescription ?? _cluster.Description;  // LB cluster doesn't use server selector, so clusterDescription is null for this case
+            return AreSessionsSupported(clusterDescription) ?? false;
         }
 
         private IAsyncCursor<string> CreateDatabaseNamesCursor(IAsyncCursor<BsonDocument> cursor)
