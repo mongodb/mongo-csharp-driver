@@ -2867,7 +2867,101 @@ settings.AllowInsecureTls = true;
 
 <p><div class="admonition note">
 <h5 class="admonition-title">Note</h5>
-Support for Kerberos/GSSAPI on Linux requires the shared library <code>libgssapi_krb5.so</code>. Please refer to your Linux package manager documentation for how to install this dependency if it is not already present on your system.&lt;div class=&ldquo;admonition
+Support for Kerberos/GSSAPI on Linux requires the shared library <code>libgssapi_krb5.so</code>. Please refer to your Linux package manager documentation for how to install this dependency if it is not already present on your system.
+</div>
+</p>
+
+<p>To create a Kerberos/GSSAPI credential, use the following method:</p>
+
+<pre><code class="language-csharp">var credential = MongoCredential.CreateGssapiCredential(username, password);
+</code></pre>
+
+<p>Or via the connection string:</p>
+
+<pre><code>mongodb://username%40REALM.COM:password@myserver/?authMechanism=GSSAPI
+</code></pre>
+
+<p><div class="admonition note">
+<h5 class="admonition-title">Note</h5>
+Note that the username will need to have a REALM associated with it. When used in a connection string, <code>%40</code> is the escape character for the <code>@</code> symbol.
+</div>
+</p>
+
+<p>You can omit the password if:</p>
+
+<ol>
+<li>[Windows] The process owner running the application is the same as the user needing authentication.</li>
+<li>[Linux] The user has initialized their keytab via <code>kinit username@REALM.COM</code>.</li>
+</ol>
+
+<pre><code class="language-csharp">var credential = MongoCredential.CreateGssapiCredential(username);
+</code></pre>
+
+<p>Or via the connection string:</p>
+
+<pre><code>mongodb://username%40REALM.COM@myserver/?authMechanism=GSSAPI
+</code></pre>
+
+<p>Depending on the kerberos setup, it may be required to specify some additional properties. These may be specified in the connection string or via code.</p>
+
+<ul>
+<li><p><strong>CANONICALIZE_HOST_NAME</strong></p>
+
+<p>Uses the DNS server to retrieve the fully qualified domain name (FQDN) of the host.</p>
+
+<pre><code class="language-csharp">credential = credential.WithMechanismProperty(&quot;CANONICALIZE_HOST_NAME&quot;, &quot;true&quot;);
+</code></pre>
+
+<p>Or via the connection string:</p>
+
+<pre><code>mongodb://username@myserver/?authMechanism=GSSAPI&amp;authMechanismProperties=CANONICALIZE_HOSTNAME:true
+</code></pre></li>
+
+<li><p><strong>REALM</strong></p>
+
+<p>This is used when the user&rsquo;s realm is different from the service&rsquo;s realm.</p>
+
+<pre><code class="language-csharp">credential = credential.WithMechanismProperty(&quot;REALM&quot;, &quot;otherrealm&quot;);
+</code></pre>
+
+<p>Or via the connection string:</p>
+
+<pre><code>mongodb://username%40REALM.com@myserver/?authMechanism=GSSAPI&amp;authMechanismProperties=REALM:otherrealm
+</code></pre></li>
+
+<li><p><strong>SERVICE_NAME</strong></p>
+
+<p>This is used when the service&rsquo;s name is different that the default <code>mongodb</code>.</p>
+
+<pre><code class="language-csharp">credential = credential.WithMechanismProperty(&quot;SERVICE_NAME&quot;, &quot;othername&quot;);
+</code></pre>
+
+<p>Or via the connection string:</p>
+
+<pre><code>mongodb://username%40REALM.com@myserver/?authMechanism=GSSAPI&amp;authMechanismProperties=SERVICE_NAME:othername
+</code></pre></li>
+</ul>
+
+<p>In addition, it is possible to use multiple authentication mechanism properties either via code or in the connection string. In code, call <code>WithMechanismProperty</code> multiple times. In the connection string, separate the entries with a <code>,</code> (comma).</p>
+
+<pre><code>mongodb://username%40REALM.com@myserver/?authMechanism=GSSAPI&amp;authMechanismProperties=SERVICE_NAME:othername,REALM:otherrealm
+</code></pre>
+
+<h3 id="ldap-plain">LDAP (PLAIN)</h3>
+
+<p><a href="http://www.mongodb.com/products/mongodb-enterprise">MongoDB Enterprise</a> supports proxy authentication through a Lightweight Directory Access Protocol (LDAP) service. To create a credential of type LDAP use the following static factory method:</p>
+
+<pre><code class="language-csharp">var credential = MongoCredential.CreatePlainCredential(&quot;$external&quot;, username, password);
+</code></pre>
+
+<p>Or via the connection string:</p>
+
+<pre><code>mongodb://username:password@myserver/?authSource=$external&amp;authMechanism=PLAIN
+</code></pre>
+
+<p><div class="admonition note">
+<h5 class="admonition-title">Note</h5>
+Note that the method refers to the plain authentication mechanism instead of LDAP because technically the driver is authenticating via the PLAIN SASL mechanism. This means that your credentials are in plain text on the wire. Therefore, PLAIN should only be used in conjunction with SSL.
 </div>
 </p>
 
