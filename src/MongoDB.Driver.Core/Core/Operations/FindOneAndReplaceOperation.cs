@@ -202,27 +202,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <inheritdoc/>
         protected override IElementNameValidator GetCommandValidator()
         {
-            return Validator.Instance;
-        }
-
-        private class Validator : IElementNameValidator
-        {
-            public readonly static Validator Instance = new Validator();
-
-            public IElementNameValidator GetValidatorForChildContent(string elementName)
-            {
-                if (elementName == "update")
-                {
-                    return CollectionElementNameValidator.Instance;
-                }
-
-                return NoOpElementNameValidator.Instance;
-            }
-
-            public bool IsValidElementName(string elementName)
-            {
-                return true;
-            }
+            return NoOpElementNameValidator.Instance;
         }
     }
 }

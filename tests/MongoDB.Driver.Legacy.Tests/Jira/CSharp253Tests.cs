@@ -50,20 +50,6 @@ namespace MongoDB.Driver.Tests.Jira.CSharp253
         }
 
         [Fact]
-        public void TestInsertDollar()
-        {
-            Assert.Throws<BsonSerializationException>(() => { _collection.Insert(new BsonDocument("$x", 1)); });
-            Assert.Throws<BsonSerializationException>(() => { _collection.Insert(new BsonDocument("x", new BsonDocument("$x", 1))); });
-        }
-
-        [Fact]
-        public void TestInsertPeriod()
-        {
-            Assert.Throws<BsonSerializationException>(() => { _collection.Insert(new BsonDocument("a.b", 1)); });
-            Assert.Throws<BsonSerializationException>(() => { _collection.Insert(new BsonDocument("a", new BsonDocument("b.c", 1))); });
-        }
-
-        [Fact]
         public void TestLegacyDollar()
         {
             var document = new BsonDocument

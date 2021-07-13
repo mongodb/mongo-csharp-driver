@@ -108,7 +108,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                 { "upsertedIds", new BsonDocument(bulkWriteResult.Upserts.Select(x => new BsonElement(x.Index.ToString(), x.Id))) }
             };
 
-            actualResult.Should().Be(expectedResult);
+            new UnifiedValueMatcher(null).AssertValuesMatch(actualResult, expectedResult);
         }
 
         private void AssertIsClientError(Exception actualException, bool expectedIsClientError)

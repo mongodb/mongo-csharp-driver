@@ -142,49 +142,37 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             var stream = writer.BsonStream;
             var context = BsonSerializationContext.CreateRoot(writer);
 
-            var collectionNamespace = message.CollectionNamespace;
-            var isSystemIndexesCollection = collectionNamespace.Equals(collectionNamespace.DatabaseNamespace.SystemIndexesCollection);
-            var elementNameValidator = isSystemIndexesCollection ? (IElementNameValidator)NoOpElementNameValidator.Instance : CollectionElementNameValidator.Instance;
-
-            writer.PushElementNameValidator(elementNameValidator);
-            try
+            var documentSource = message.DocumentSource;
+            var batchCount = Math.Min(documentSource.Count, message.MaxBatchCount);
+            if (batchCount < documentSource.Count && !documentSource.CanBeSplit)
             {
-                var documentSource = message.DocumentSource;
-                var batchCount = Math.Min(documentSource.Count, message.MaxBatchCount);
-                if (batchCount < documentSource.Count && !documentSource.CanBeSplit)
+                throw new BsonSerializationException("Batch is too large.");
+            }
+
+            for (var i = 0; i < batchCount; i++)
+            {
+                var document = documentSource.Items[documentSource.Offset + i];
+                var documentStartPosition = stream.Position;
+
+                _serializer.Serialize(context, document);
+
+                var messageSize = stream.Position - messageStartPosition;
+                if (messageSize > message.MaxMessageSize)
                 {
-                    throw new BsonSerializationException("Batch is too large.");
-                }
-
-                for (var i = 0; i < batchCount; i++)
-                {
-                    var document = documentSource.Items[documentSource.Offset + i];
-                    var documentStartPosition = stream.Position;
-
-                    _serializer.Serialize(context, document);
-
-                    var messageSize = stream.Position - messageStartPosition;
-                    if (messageSize > message.MaxMessageSize)
+                    if (i > 0 && documentSource.CanBeSplit)
                     {
-                        if (i > 0 && documentSource.CanBeSplit)
-                        {
-                            stream.Position = documentStartPosition;
-                            stream.SetLength(documentStartPosition);
-                            documentSource.SetProcessedCount(i);
-                            return;
-                        }
-                        else
-                        {
-                            throw new BsonSerializationException("Batch is too large.");
-                        }
+                        stream.Position = documentStartPosition;
+                        stream.SetLength(documentStartPosition);
+                        documentSource.SetProcessedCount(i);
+                        return;
+                    }
+                    else
+                    {
+                        throw new BsonSerializationException("Batch is too large.");
                     }
                 }
-                documentSource.SetProcessedCount(batchCount);
             }
-            finally
-            {
-                writer.PopElementNameValidator();
-            }
+            documentSource.SetProcessedCount(batchCount);
         }
 
         // explicit interface implementations
