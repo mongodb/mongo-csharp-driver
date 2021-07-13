@@ -176,7 +176,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
 
             foreach (var serverInfo in serverInfoCollection)
             {
-                var mockConnectionPool = new Mock<IConnectionPool>();
+                var mockConnectionPool = new Mock<ITrackedConnectionPool>();
                 SetupConnectionPoolFactory(mockConnectionPoolFactory, mockConnectionPool.Object, serverInfo.ServerId, serverInfo.Endpoint);
 
                 var mockServerConnection = new Mock<IConnectionHandle>();
@@ -192,17 +192,17 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 mockConnectionHandle.SetupGet(c => c.ConnectionId).Returns(new ConnectionId(serverId));
             }
 
-            void SetupConnectionPool(Mock<IConnectionPool> mockConnectionPool, IConnectionHandle connection)
+            void SetupConnectionPool(Mock<ITrackedConnectionPool> mockConnectionPool, IConnectionHandle connection)
             {
                 mockConnectionPool
-                    .Setup(c => c.AcquireConnection(It.IsAny<CancellationToken>()))
+                    .Setup(c => c.AcquireConnection(It.IsAny<CheckedOutReason>(), It.IsAny<CancellationToken>()))
                     .Returns(connection);
                 mockConnectionPool
-                    .Setup(c => c.AcquireConnectionAsync(It.IsAny<CancellationToken>()))
+                    .Setup(c => c.AcquireConnectionAsync(It.IsAny<CheckedOutReason>(), It.IsAny<CancellationToken>()))
                     .Returns(Task.FromResult(connection));
             }
 
-            void SetupConnectionPoolFactory(Mock<IConnectionPoolFactory> mockFactory, IConnectionPool connectionPool, ServerId serverId, EndPoint endPoint)
+            void SetupConnectionPoolFactory(Mock<IConnectionPoolFactory> mockFactory, ITrackedConnectionPool connectionPool, ServerId serverId, EndPoint endPoint)
             {
                 mockFactory.Setup(c => c.CreateConnectionPool(serverId, endPoint)).Returns(connectionPool);
             }

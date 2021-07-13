@@ -32,6 +32,7 @@ namespace MongoDB.Driver.Core.Bindings
         private readonly ICluster _cluster;
         private bool _disposed;
         private readonly ICoreSessionHandle _session;
+        private readonly TrackedOperationRunContext _trackedOperationRunContext;
 
         // constructors
         /// <summary>
@@ -40,9 +41,15 @@ namespace MongoDB.Driver.Core.Bindings
         /// <param name="cluster">The cluster.</param>
         /// <param name="session">The session.</param>
         public WritableServerBinding(ICluster cluster, ICoreSessionHandle session)
+            : this(cluster, session, trackedOperationRunContext: null)
+        {
+        }
+
+        internal WritableServerBinding(ICluster cluster, ICoreSessionHandle session, TrackedOperationRunContext trackedOperationRunContext)
         {
             _cluster = Ensure.IsNotNull(cluster, nameof(cluster));
             _session = Ensure.IsNotNull(session, nameof(session));
+            _trackedOperationRunContext = trackedOperationRunContext; // can be null
         }
 
         // properties
@@ -94,7 +101,7 @@ namespace MongoDB.Driver.Core.Bindings
 
         private IChannelSourceHandle GetChannelSourceHelper(IServer server)
         {
-            return new ChannelSourceHandle(new ServerChannelSource(server, _session.Fork()));
+            return new ChannelSourceHandle(new ServerChannelSource(server, _session.Fork(), _trackedOperationRunContext));
         }
 
         /// <inheritdoc/>

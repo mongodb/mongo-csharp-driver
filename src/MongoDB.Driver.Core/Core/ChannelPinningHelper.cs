@@ -32,8 +32,9 @@ namespace MongoDB.Driver.Core
         /// <param name="cluster">The cluster,</param>
         /// <param name="session">The session.</param>
         /// <param name="readPreference">The read preference.</param>
+        /// <param name="doesInitiateCursor">The flag whether operation initiates cursor.</param>
         /// <returns>An effective read binging.</returns>
-        public static IReadBindingHandle CreateReadBinding(ICluster cluster, ICoreSessionHandle session, ReadPreference readPreference)
+        public static IReadBindingHandle CreateReadBinding(ICluster cluster, ICoreSessionHandle session, ReadPreference readPreference, bool doesInitiateCursor)
         {
             IReadBinding readBinding;
             if (session.IsInTransaction &&
@@ -47,12 +48,21 @@ namespace MongoDB.Driver.Core
             }
             else
             {
-                if (IsInLoadBalancedMode(cluster.Description) && IsChannelPinned(session.CurrentTransaction))
+                TrackedOperationRunContext trackedOperationRunContext;
+                if (IsInLoadBalancedMode(cluster.Description))
                 {
-                    // unpin if the next operation is not under transaction
-                    session.CurrentTransaction.UnpinAll();
+                    if (IsChannelPinned(session.CurrentTransaction))
+                    {
+                        // unpin if the next operation is not under transaction
+                        session.CurrentTransaction.UnpinAll();
+                    }
+                    trackedOperationRunContext = new TrackedOperationRunContext(session.IsInTransaction, doesInitiateCursor);
                 }
-                readBinding = new ReadPreferenceBinding(cluster, readPreference, session);
+                else
+                {
+                    trackedOperationRunContext = TrackedOperationRunContext.CreateEmpty();
+                }
+                readBinding = new ReadPreferenceBinding(cluster, readPreference, session, trackedOperationRunContext);
             }
 
             return new ReadBindingHandle(readBinding);
@@ -78,12 +88,23 @@ namespace MongoDB.Driver.Core
             }
             else
             {
-                if (IsInLoadBalancedMode(cluster.Description) && IsChannelPinned(session.CurrentTransaction))
+                TrackedOperationRunContext trackedOperationRunContext;
+                if (IsInLoadBalancedMode(cluster.Description))
                 {
-                    // unpin if the next operation is not under transaction
-                    session.CurrentTransaction.UnpinAll();
+                    if (IsChannelPinned(session.CurrentTransaction))
+                    {
+                        // unpin if the next operation is not under transaction
+                        session.CurrentTransaction.UnpinAll();
+                    }
+
+                    trackedOperationRunContext = new TrackedOperationRunContext(session.IsInTransaction, withCursorResult: false);
                 }
-                readWriteBinding = new WritableServerBinding(cluster, session);
+                else
+                {
+                    trackedOperationRunContext = TrackedOperationRunContext.CreateEmpty();
+                }
+
+                readWriteBinding = new WritableServerBinding(cluster, session, trackedOperationRunContext);
             }
 
             return new ReadWriteBindingHandle(readWriteBinding);

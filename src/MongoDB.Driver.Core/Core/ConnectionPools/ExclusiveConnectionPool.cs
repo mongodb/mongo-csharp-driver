@@ -26,9 +26,10 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.ConnectionPools
 {
-    internal sealed partial class ExclusiveConnectionPool : IConnectionPool
+    internal sealed partial class ExclusiveConnectionPool : ITrackedConnectionPool
     {
         // fields
+        private readonly CheckedOutTracker _checkedOutTracker;
         private readonly IConnectionFactory _connectionFactory;
         private readonly ListConnectionHolder _connectionHolder;
         private readonly EndPoint _endPoint;
@@ -71,6 +72,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             _connectionFactory = Ensure.IsNotNull(connectionFactory, nameof(connectionFactory));
             Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
 
+            _checkedOutTracker = new CheckedOutTracker();
             _connectingQueue = new SemaphoreSlimSignalable(MongoInternalDefaults.ConnectionPool.MaxConnecting);
             _connectionHolder = new ListConnectionHolder(eventSubscriber, _connectingQueue);
             _serviceStates = new ServiceStates();
@@ -156,9 +158,12 @@ namespace MongoDB.Driver.Core.ConnectionPools
         }
 
         // public methods
-        public IConnectionHandle AcquireConnection(CancellationToken cancellationToken)
+
+        public IConnectionHandle AcquireConnection(CancellationToken cancellationToken) => AcquireConnection(CheckedOutReason.NotSet, cancellationToken);
+
+        public IConnectionHandle AcquireConnection(CheckedOutReason reason, CancellationToken cancellationToken)
         {
-            var helper = new AcquireConnectionHelper(this);
+            var helper = new AcquireConnectionHelper(this, reason);
             try
             {
                 helper.CheckingOutConnection();
@@ -178,9 +183,11 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
         }
 
-        public async Task<IConnectionHandle> AcquireConnectionAsync(CancellationToken cancellationToken)
+        public Task<IConnectionHandle> AcquireConnectionAsync(CancellationToken cancellationToken) => AcquireConnectionAsync(CheckedOutReason.NotSet, cancellationToken);
+
+        public async Task<IConnectionHandle> AcquireConnectionAsync(CheckedOutReason reason, CancellationToken cancellationToken)
         {
-            var helper = new AcquireConnectionHelper(this);
+            var helper = new AcquireConnectionHelper(this, reason);
             try
             {
                 helper.CheckingOutConnection();
@@ -224,10 +231,10 @@ namespace MongoDB.Driver.Core.ConnectionPools
             _clearedEventHandler?.Invoke(new ConnectionPoolClearedEvent(_serverId, _settings, serviceId));
         }
 
-        private PooledConnection CreateNewConnection()
+        private PooledConnection CreateNewConnection(CheckedOutReason checkedOutReason)
         {
             var connection = _connectionFactory.CreateConnection(_serverId, _endPoint);
-            var pooledConnection = new PooledConnection(this, connection);
+            var pooledConnection = new PooledConnection(this, connection, checkedOutReason);
             _connectionCreatedEventHandler?.Invoke(new ConnectionCreatedEvent(connection.ConnectionId, connection.Settings, EventContext.OperationId));
             return pooledConnection;
         }
@@ -350,7 +357,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                         return;
                     }
 
-                    using (var connectionCreator = new ConnectionCreator(this, minTimeout))
+                    using (var connectionCreator = new ConnectionCreator(this, minTimeout, CheckedOutReason.NotSet))
                     {
                         var connection = await connectionCreator.CreateOpenedAsync(cancellationToken).ConfigureAwait(false);
                         _connectionHolder.Return(connection);
@@ -385,6 +392,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 _checkedInConnectionEventHandler(new ConnectionPoolCheckedInConnectionEvent(connection.ConnectionId, TimeSpan.Zero, EventContext.OperationId));
             }
 
+            _checkedOutTracker.CheckIn(connection.CheckedOutReason);
             if (!connection.IsExpired && _state.Value != State.Disposed)
             {
                 _connectionHolder.Return(connection);

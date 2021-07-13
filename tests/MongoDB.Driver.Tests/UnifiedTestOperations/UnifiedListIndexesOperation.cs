@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     ? await _collection.Indexes.ListAsync(_listIndexesOptions, cancellationToken)
                     : await _collection.Indexes.ListAsync(_session, _listIndexesOptions, cancellationToken);
 
-                _ = cursor.ToListAsync(cancellationToken);
+                _ = await cursor.ToListAsync(cancellationToken);
 
                 return OperationResult.Empty();
             }

@@ -80,7 +80,7 @@ namespace MongoDB.Driver.Core.Helpers
                                 _servers[mockMonitor.Object.Description.EndPoint].HasBeenRemoved = true;
                             });
                     var mockConnection = new Mock<IConnectionHandle>();
-                    var mockConnectionPool = new Mock<IConnectionPool>();
+                    var mockConnectionPool = new Mock<ITrackedConnectionPool>();
                     var poolGeneration = 0;
                     var connectionGeneration = 0;
                     // need to use a func to close over connectionGeneration
