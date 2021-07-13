@@ -124,7 +124,7 @@ var settings = new MongoClientSettings
 
 [MongoDB Enterprise](http://www.mongodb.com/products/mongodb-enterprise) supports authentication using [Kerberos/GSSAPI](http://docs.mongodb.org/manual/core/authentication/#kerberos-authentication). The .NET driver supports Kerberos/GSSAPI authentication on Windows and Linux.
 
-{{% note %}}Support for Kerberos/GSSAPI on Linux requires the shared library `libgssapi_krb5.so`. Please refer to your Linux package manager documentation for how to install this dependency if it is not already present on your system.{{% note %}}
+{{% note %}}Support for Kerberos/GSSAPI on Linux requires the shared library `libgssapi_krb5.so`. Please refer to your Linux package manager documentation for how to install this dependency if it is not already present on your system.{{% /note %}}
 
 To create a Kerberos/GSSAPI credential, use the following method:
 
