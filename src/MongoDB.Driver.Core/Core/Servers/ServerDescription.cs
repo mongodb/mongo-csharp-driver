@@ -54,6 +54,7 @@ namespace MongoDB.Driver.Core.Servers
         private readonly EndPoint _endPoint;
         private readonly Exception _heartbeatException;
         private readonly TimeSpan _heartbeatInterval;
+        private readonly bool _helloOk;
         private readonly DateTime? _lastHeartbeatTimestamp;
         private readonly DateTime _lastUpdateTimestamp;
         private readonly DateTime? _lastWriteTimestamp;
@@ -84,6 +85,7 @@ namespace MongoDB.Driver.Core.Servers
         /// <param name="electionId">The election identifier.</param>
         /// <param name="heartbeatException">The heartbeat exception.</param>
         /// <param name="heartbeatInterval">The heartbeat interval.</param>
+        /// <param name="helloOk">Whether the server supports the hello command.</param>
         /// <param name="lastHeartbeatTimestamp">The last heartbeat timestamp.</param>
         /// <param name="lastUpdateTimestamp">The last update timestamp.</param>
         /// <param name="lastWriteTimestamp">The last write timestamp.</param>
@@ -109,6 +111,7 @@ namespace MongoDB.Driver.Core.Servers
             Optional<ElectionId> electionId = default(Optional<ElectionId>),
             Optional<Exception> heartbeatException = default(Optional<Exception>),
             Optional<TimeSpan> heartbeatInterval = default(Optional<TimeSpan>),
+            Optional<bool> helloOk = default(Optional<bool>),
             Optional<DateTime?> lastHeartbeatTimestamp = default(Optional<DateTime?>),
             Optional<DateTime> lastUpdateTimestamp = default(Optional<DateTime>),
             Optional<DateTime?> lastWriteTimestamp = default(Optional<DateTime?>),
@@ -138,6 +141,7 @@ namespace MongoDB.Driver.Core.Servers
             _endPoint = endPoint;
             _heartbeatException = heartbeatException.WithDefault(null);
             _heartbeatInterval = heartbeatInterval.WithDefault(TimeSpan.Zero);
+            _helloOk = helloOk.WithDefault(false);
             _lastHeartbeatTimestamp = lastHeartbeatTimestamp.WithDefault(null);
             _lastUpdateTimestamp = lastUpdateTimestamp.WithDefault(DateTime.UtcNow);
             _lastWriteTimestamp = lastWriteTimestamp.WithDefault(null);
@@ -218,6 +222,17 @@ namespace MongoDB.Driver.Core.Servers
         public TimeSpan HeartbeatInterval
         {
             get { return _heartbeatInterval; }
+        }
+
+        /// <summary>
+        /// Whether the server supports the hello command.
+        /// </summary>
+        /// <value>
+        /// True if the server responded with helloOk:true; false otherwise.
+        /// </value>
+        public bool HelloOk
+        {
+            get { return _helloOk; }
         }
 
         /// <summary>
@@ -563,6 +578,7 @@ namespace MongoDB.Driver.Core.Servers
         /// <param name="electionId">The election identifier.</param>
         /// <param name="heartbeatException">The heartbeat exception.</param>
         /// <param name="heartbeatInterval">The heartbeat interval.</param>
+        /// <param name="helloOk">Whether the server supports the hello command.</param>
         /// <param name="lastHeartbeatTimestamp">The last heartbeat timestamp.</param>
         /// <param name="lastUpdateTimestamp">The last update timestamp.</param>
         /// <param name="lastWriteTimestamp">The last write timestamp.</param>
@@ -585,6 +601,7 @@ namespace MongoDB.Driver.Core.Servers
             Optional<string> reasonChanged = default(Optional<string>),
             Optional<TimeSpan> averageRoundTripTime = default(Optional<TimeSpan>),
             Optional<EndPoint> canonicalEndPoint = default(Optional<EndPoint>),
+            Optional<bool> helloOk = default(Optional<bool>),
             Optional<ElectionId> electionId = default(Optional<ElectionId>),
             Optional<Exception> heartbeatException = default(Optional<Exception>),
             Optional<TimeSpan> heartbeatInterval = default(Optional<TimeSpan>),
@@ -613,6 +630,7 @@ namespace MongoDB.Driver.Core.Servers
                 electionId: electionId.WithDefault(_electionId),
                 heartbeatException: heartbeatException.WithDefault(_heartbeatException),
                 heartbeatInterval: heartbeatInterval.WithDefault(_heartbeatInterval),
+                helloOk: helloOk.WithDefault(_helloOk),
                 lastHeartbeatTimestamp: lastHeartbeatTimestamp.WithDefault(_lastHeartbeatTimestamp),
                 lastUpdateTimestamp: lastUpdateTimestamp.WithDefault(DateTime.UtcNow),
                 lastWriteTimestamp: lastWriteTimestamp.WithDefault(_lastWriteTimestamp),

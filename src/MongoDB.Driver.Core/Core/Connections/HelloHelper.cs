@@ -43,17 +43,18 @@ namespace MongoDB.Driver.Core.Connections
             return command.Add("compression", compressorsArray);
         }
 
-        internal static BsonDocument CreateCommand(ServerApi serverApi, TopologyVersion topologyVersion = null, TimeSpan? maxAwaitTime = null, bool loadBalanced = false)
+        internal static BsonDocument CreateCommand(ServerApi serverApi, bool helloOk = false, TopologyVersion topologyVersion = null, TimeSpan? maxAwaitTime = null, bool loadBalanced = false)
         {
             Ensure.That(
                 (topologyVersion == null && !maxAwaitTime.HasValue) ||
                 (topologyVersion != null && maxAwaitTime.HasValue),
                 $"Both {nameof(topologyVersion)} and {nameof(maxAwaitTime)} must be filled or null.");
 
-            var helloCommandName = serverApi != null ? "hello" : OppressiveLanguageConstants.LegacyHelloCommandName;
+            var helloCommandName = helloOk || serverApi != null ? "hello" : OppressiveLanguageConstants.LegacyHelloCommandName;
             return new BsonDocument
             {
                 { helloCommandName, 1 },
+                { "helloOk", true },
                 { "topologyVersion", () => topologyVersion.ToBsonDocument(), topologyVersion != null },
                 { "maxAwaitTimeMS", () => (long)maxAwaitTime.Value.TotalMilliseconds, maxAwaitTime.HasValue },
                 { "loadBalanced", true, loadBalanced }
