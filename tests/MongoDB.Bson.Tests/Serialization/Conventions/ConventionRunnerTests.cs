@@ -13,8 +13,9 @@
 * limitations under the License.
 */
 
-using System.Diagnostics;
+using System;
 using System.Linq;
+using System.Threading;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
@@ -29,16 +30,17 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
 
         public ConventionRunnerTests()
         {
-            var stopwatch = new Stopwatch();
+            int orderIndex = 0;
+
             _pack = new ConventionPack();
             _pack.AddRange(new IConvention[]
             {
-                new TrackingBeforeConvention(stopwatch) { Name = "1" },
-                new TrackingMemberConvention(stopwatch) { Name = "3" },
-                new TrackingAfterConvention(stopwatch) { Name = "5" },
-                new TrackingMemberConvention(stopwatch) { Name = "4" },
-                new TrackingAfterConvention(stopwatch) { Name = "6" },
-                new TrackingBeforeConvention(stopwatch) { Name = "2" },
+                new TrackingBeforeConvention(GetRunOrderIndex) { Name = "1" },
+                new TrackingMemberConvention(GetRunOrderIndex) { Name = "3" },
+                new TrackingAfterConvention(GetRunOrderIndex) { Name = "5" },
+                new TrackingMemberConvention(GetRunOrderIndex) { Name = "4" },
+                new TrackingAfterConvention(GetRunOrderIndex) { Name = "6" },
+                new TrackingBeforeConvention(GetRunOrderIndex) { Name = "2" },
             });
             _subject = new ConventionRunner(_pack);
 
@@ -48,9 +50,9 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
                 cm.MapMember(t => t.Prop2);
             });
 
-            stopwatch.Start();
             _subject.Apply(classMap);
-            stopwatch.Stop();
+
+            int GetRunOrderIndex() => Interlocked.Increment(ref orderIndex);
         }
 
         [Fact]
@@ -63,7 +65,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         [Fact]
         public void TestThatItRunsConventionsInTheProperOrder()
         {
-            var conventions = _pack.Conventions.OfType<ITrackRun>().OrderBy(x => x.RunTicks).ToList();
+            var conventions = _pack.Conventions.OfType<ITrackRun>().OrderBy(x => x.RunOrder).ToList();
             for (int i = 1; i < conventions.Count; i++)
             {
                 if (conventions[i - 1].Name != i.ToString())
@@ -116,23 +118,23 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
 
             int RunCount { get; }
 
-            long RunTicks { get; }
+            long RunOrder { get; }
         }
 
         private class TrackingBeforeConvention : IClassMapConvention, ITrackRun
         {
-            private readonly Stopwatch _stopwatch;
+            private readonly Func<int> _orderIndexProvider;
 
-            public TrackingBeforeConvention(Stopwatch stopwatch)
+            public TrackingBeforeConvention(Func<int> orderIndexProvider)
             {
-                _stopwatch = stopwatch;
+                _orderIndexProvider = orderIndexProvider;
             }
 
             public bool IsRun { get; set; }
 
             public int RunCount { get; set; }
 
-            public long RunTicks { get; set; }
+            public long RunOrder { get; set; }
 
             public string Name { get; set; }
 
@@ -140,24 +142,24 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             {
                 IsRun = true;
                 RunCount++;
-                RunTicks = _stopwatch.ElapsedTicks;
+                RunOrder = _orderIndexProvider();
             }
         }
 
         private class TrackingMemberConvention : IMemberMapConvention, ITrackRun
         {
-            private readonly Stopwatch _stopwatch;
+            private readonly Func<int> _orderIndexProvider;
 
-            public TrackingMemberConvention(Stopwatch stopwatch)
+            public TrackingMemberConvention(Func<int> orderIndexProvider)
             {
-                _stopwatch = stopwatch;
+                _orderIndexProvider = orderIndexProvider;
             }
 
             public bool IsRun { get; set; }
 
             public int RunCount { get; set; }
 
-            public long RunTicks { get; set; }
+            public long RunOrder { get; set; }
 
             public string Name { get; set; }
 
@@ -165,24 +167,24 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             {
                 IsRun = true;
                 RunCount++;
-                RunTicks = _stopwatch.ElapsedTicks;
+                RunOrder = _orderIndexProvider();
             }
         }
 
         private class TrackingAfterConvention : IPostProcessingConvention, ITrackRun
         {
-            private readonly Stopwatch _stopwatch;
+            private readonly Func<int> _orderIndexProvider;
 
-            public TrackingAfterConvention(Stopwatch stopwatch)
+            public TrackingAfterConvention(Func<int> orderIndexProvider)
             {
-                _stopwatch = stopwatch;
+                _orderIndexProvider = orderIndexProvider;
             }
 
             public bool IsRun { get; set; }
 
             public int RunCount { get; set; }
 
-            public long RunTicks { get; set; }
+            public long RunOrder { get; set; }
 
             public string Name { get; set; }
 
@@ -190,7 +192,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             {
                 IsRun = true;
                 RunCount++;
-                RunTicks = _stopwatch.ElapsedTicks;
+                RunOrder = _orderIndexProvider();
             }
         }
     }
