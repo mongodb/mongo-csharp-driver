@@ -23,9 +23,11 @@ using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Operations;
+using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.TestHelpers;
 using Xunit;
@@ -734,11 +736,9 @@ namespace MongoDB.Driver.Core.Tests
             RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
             // Make sure that LB is started. "nginx" is a LB we use for windows testing
             RequireEnvironment.Check().ProcessStarted("nginx");
-            Environment.SetEnvironmentVariable("MONGODB_URI", "mongodb://localhost:17017?loadBalanced=true");
-            Environment.SetEnvironmentVariable("MONGODB_URI_WITH_MULTIPLE_MONGOSES", "mongodb://localhost:17018?loadBalanced=true");
             RequireServer
-                .Check()
-                .LoadBalancing(enabled: true, ignorePreviousSetup: true)
+                .ConfigureAndCheck(new LoadBalancedCoreEnvironmentConfiguration())
+                .LoadBalancing(enabled: true)
                 .Authentication(authentication: false); // auth server requires credentials in connection string
 #else
             RequireEnvironment.Check().EnvironmentVariable("SINGLE_MONGOS_LB_URI"); // these env variables are used only on the scripting side
@@ -770,6 +770,13 @@ namespace MongoDB.Driver.Core.Tests
                 _retryableContext.Dispose();
                 _bindingHandle.Dispose();
             }
+        }
+
+        private class LoadBalancedCoreEnvironmentConfiguration : CoreEnvironmentConfiguration
+        {
+            protected override ConnectionString GetDefaultConnectionString() => new ConnectionString("mongodb://localhost:17017?loadBalanced=true");
+            // it's not used in this test suite
+            protected override ConnectionString GetMultipleShardRoutersConnectionString() => new ConnectionString("mongodb://localhost:17018?loadBalanced=true");
         }
     }
 

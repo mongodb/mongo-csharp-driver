@@ -25,21 +25,46 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
     public class RequireServer
     {
         #region static
-        public static RequireServer Check()
+        /// <summary>
+        /// The cluster settings should be in sync with the options configured in coreEnvironmentConfiguration.
+        /// </summary>
+        /// <param name="cluster">The cluster.</param>
+        /// <param name="coreEnvironmentConfiguration">The coreEnvironmentConfiguration.</param>
+        /// <returns>The RequireServer instance.</returns>
+        public static RequireServer ConfigureAndCheck(ICluster cluster, CoreEnvironmentConfiguration coreEnvironmentConfiguration)
         {
             if (Environment.GetEnvironmentVariable("SKIPTESTSTHATREQUIRESERVER") != null)
             {
                 throw new SkipException("Test skipped because it requires a server.");
             }
-            return new RequireServer();
+            return new RequireServer(cluster, coreEnvironmentConfiguration);
+        }
+
+        public static RequireServer ConfigureAndCheck(CoreEnvironmentConfiguration coreEnvironmentConfiguration)
+        {
+            var cluster = ClusterBuilderHelper.CreateAndConfigureCluster(coreEnvironmentConfiguration);
+            return ConfigureAndCheck(cluster, coreEnvironmentConfiguration);
+        }
+
+        public static RequireServer Check()
+        {
+            return ConfigureAndCheck(CoreTestConfiguration.Cluster, CoreTestConfiguration.DefaultCoreEnvironmentConfiguration);
         }
         #endregion
 
-        private SemanticVersion _serverVersion;
+        private readonly ICluster _cluster;
+        private readonly ClusterDescription _clusterDescription;
+        private readonly ClusterTestWrapper _clusterTestWrapper;
+        private readonly CoreEnvironmentConfiguration _coreEnvironmentConfiguration;
+        private readonly SemanticVersion _serverVersion;
 
-        public RequireServer()
+        private RequireServer(ICluster cluster, CoreEnvironmentConfiguration coreEnvironmentConfiguration)
         {
-            _serverVersion = CoreTestConfiguration.ServerVersion;
+            _cluster = cluster;
+            _clusterDescription = _cluster.Description;
+            _clusterTestWrapper = new ClusterTestWrapper(cluster);
+            _coreEnvironmentConfiguration = coreEnvironmentConfiguration;
+            _serverVersion = _clusterTestWrapper.ServerVersion;
         }
 
         public RequireServer Authentication(bool authentication)
@@ -54,7 +79,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
 
         public RequireServer ClusterType(ClusterType clusterType)
         {
-            var actualClusterType = CoreTestConfiguration.Cluster.Description.Type;
+            var actualClusterType = _clusterDescription.Type;
             if (actualClusterType == clusterType)
             {
                 return this;
@@ -64,7 +89,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
 
         public RequireServer ClusterTypes(params ClusterType[] clusterTypes)
         {
-            var actualClusterType = CoreTestConfiguration.Cluster.Description.Type;
+            var actualClusterType = _clusterDescription.Type;
             if (clusterTypes.Contains(actualClusterType))
             {
                 return this;
@@ -95,10 +120,9 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
         /// Determine whether a load balancing mode is configured.
         /// </summary>
         /// <param name="enabled">The expected value.</param>
-        /// <param name="ignorePreviousSetup">Force creating a new connection string and ignore the value assigned by scripts. Use this argument only for local development.</param>
-        public RequireServer LoadBalancing(bool enabled, bool ignorePreviousSetup = false)
+        public RequireServer LoadBalancing(bool enabled)
         {
-            var isLoadBalancing = (ignorePreviousSetup ? CoreTestConfiguration.CreateConnectionString() : CoreTestConfiguration.ConnectionString).LoadBalanced;
+            var isLoadBalancing = _coreEnvironmentConfiguration.DefaultConnectionString.LoadBalanced;
             if (isLoadBalancing == enabled)
             {
                 return this;
@@ -118,8 +142,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
 
         public RequireServer RunOn(BsonArray requirements)
         {
-            var cluster = CoreTestConfiguration.Cluster;
-            if (requirements.Any(requirement => CanRunOn(cluster, requirement.AsBsonDocument)))
+            if (requirements.Any(requirement => CanRunOn(_cluster, requirement.AsBsonDocument)))
             {
                 return this;
             }
@@ -154,7 +177,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
 
         public RequireServer SupportsSessions()
         {
-            var clusterDescription = CoreTestConfiguration.Cluster.Description;
+            var clusterDescription = _clusterDescription;
             if (clusterDescription.LogicalSessionTimeout != null || clusterDescription.Type == Clusters.ClusterType.LoadBalanced)
             {
                 return this;
@@ -164,7 +187,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
 
         public RequireServer StorageEngine(string storageEngine)
         {
-            var actualStorageEngine = CoreTestConfiguration.GetStorageEngine();
+            var actualStorageEngine = _clusterTestWrapper.GetStorageEngine();
             if (actualStorageEngine.Equals(storageEngine, StringComparison.OrdinalIgnoreCase))
             {
                 return this;
@@ -174,7 +197,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
 
         public RequireServer StorageEngines(params string[] storageEngines)
         {
-            var actualStorageEngine = CoreTestConfiguration.GetStorageEngine();
+            var actualStorageEngine = _clusterTestWrapper.GetStorageEngine();
             if (storageEngines.Contains(actualStorageEngine, StringComparer.OrdinalIgnoreCase))
             {
                 return this;
@@ -185,7 +208,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
 
         public RequireServer Tls(bool required = true)
         {
-            var usingTls = CoreTestConfiguration.ConnectionString.Tls;
+            var usingTls = _coreEnvironmentConfiguration.DefaultConnectionString.Tls;
             if (usingTls == required)
             {
                 return this;
@@ -197,7 +220,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
 
         public RequireServer VersionGreaterThanOrEqualTo(SemanticVersion version)
         {
-            var actualVersion = CoreTestConfiguration.ServerVersion;
+            var actualVersion = _serverVersion;
             if (actualVersion >= version)
             {
                 return this;
@@ -212,7 +235,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
 
         public RequireServer VersionLessThan(SemanticVersion version)
         {
-            var actualVersion = CoreTestConfiguration.ServerVersion;
+            var actualVersion = _serverVersion;
             if (actualVersion < version)
             {
                 return this;
@@ -227,7 +250,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
 
         public RequireServer VersionLessThanOrEqualTo(SemanticVersion version)
         {
-            var actualVersion = CoreTestConfiguration.ServerVersion;
+            var actualVersion = _serverVersion;
             if (actualVersion <= version)
             {
                 return this;
@@ -254,7 +277,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
                         }
                     case "minServerVersion":
                         {
-                            var actualVersion = CoreTestConfiguration.ServerVersion;
+                            var actualVersion = _serverVersion;
                             var minServerVersion = SemanticVersion.Parse(item.Value.AsString);
                             if (SemanticVersionCompareToAsReleased(actualVersion, minServerVersion) < 0)
                             {
@@ -264,7 +287,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
                         break;
                     case "maxServerVersion":
                         {
-                            var actualVersion = CoreTestConfiguration.ServerVersion;
+                            var actualVersion = _serverVersion;
                             var maxServerVersion = SemanticVersion.Parse(item.Value.AsString);
                             if (SemanticVersionCompareToAsReleased(actualVersion, maxServerVersion) > 0)
                             {
@@ -274,7 +297,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
                         break;
                     case "serverParameters":
                         {
-                            var serverParameters = CoreTestConfiguration.GetServerParameters();
+                            var serverParameters = _clusterTestWrapper.GetServerParameters();
                             foreach (var parameter in item.Value.AsBsonDocument)
                             {
                                 if (serverParameters[parameter.Name] != parameter.Value)
@@ -287,7 +310,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
                     case "topologies":
                     case "topology":
                         {
-                            var actualClusterType = CoreTestConfiguration.Cluster.Description.Type;
+                            var actualClusterType = _clusterDescription.Type;
                             var runOnClusterTypes = item.Value.AsBsonArray.Select(topology => MapTopologyToClusterType(topology.AsString)).ToList();
                             if (!runOnClusterTypes.Contains(actualClusterType))
                             {
@@ -305,7 +328,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
             return true;
         }
 
-        private bool IsAuthenticated() => CoreTestConfiguration.ConnectionString.Username != null;
+        private bool IsAuthenticated() => _coreEnvironmentConfiguration.DefaultConnectionString.Username != null;
 
         private ClusterType MapTopologyToClusterType(string topology)
         {

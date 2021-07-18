@@ -15,21 +15,12 @@
 
 using System;
 using System.Diagnostics;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Threading;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Core;
-using MongoDB.Driver.Core.Authentication;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Configuration;
-using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.Operations;
-using MongoDB.Driver.Core.Servers;
+using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver
@@ -38,15 +29,21 @@ namespace MongoDB.Driver
     {
         #region static
         // static fields
-        private static Lazy<ICluster> __cluster = new Lazy<ICluster>(CreateCluster, isThreadSafe: true);
-        private static Lazy<ConnectionString> __connectionString = new Lazy<ConnectionString>(CreateConnectionString, isThreadSafe: true);
-        private static Lazy<ConnectionString> __connectionStringWithMultipleShardRouters = new Lazy<ConnectionString>(
-            GetConnectionStringWithMultipleShardRouters, isThreadSafe: true);
-        private static Lazy<DatabaseNamespace> __databaseNamespace = new Lazy<DatabaseNamespace>(GetDatabaseNamespace, isThreadSafe: true);
-        private static Lazy<BuildInfoResult> _buildInfo = new Lazy<BuildInfoResult>(RunBuildInfo, isThreadSafe: true);
-        private static MessageEncoderSettings __messageEncoderSettings = new MessageEncoderSettings();
-        private static Lazy<ServerApi> __serverApi = new Lazy<ServerApi>(GetServerApi, isThreadSafe: true);
-        private static TraceSource __traceSource;
+        private static readonly Lazy<ICluster> __cluster;
+        private static readonly ClusterTestWrapper __clusterTestWrapper;
+        private static readonly CoreEnvironmentConfiguration __coreEnvironmentConfiguration;
+        private static readonly Lazy<DatabaseNamespace> __databaseNamespace;
+        private static TraceSource __traceSource = null;
+        private static readonly MessageEncoderSettings __messageEncoderSettings;
+
+        static CoreTestConfiguration()
+        {
+            __coreEnvironmentConfiguration = new CoreEnvironmentConfiguration();
+            __cluster = new Lazy<ICluster>(CreateCluster, isThreadSafe: true);
+            __clusterTestWrapper = new ClusterTestWrapper(__cluster.Value);
+            __databaseNamespace = new Lazy<DatabaseNamespace>(GetDatabaseNamespace, isThreadSafe: true);
+            __messageEncoderSettings = new MessageEncoderSettings();
+        }
 
         // static properties
         public static ICluster Cluster
@@ -56,12 +53,17 @@ namespace MongoDB.Driver
 
         public static ConnectionString ConnectionString
         {
-            get { return __connectionString.Value; }
+            get { return __coreEnvironmentConfiguration.DefaultConnectionString; }
+        }
+
+        public static CoreEnvironmentConfiguration DefaultCoreEnvironmentConfiguration
+        {
+            get { return __coreEnvironmentConfiguration; }
         }
 
         public static ConnectionString ConnectionStringWithMultipleShardRouters
         {
-            get => __connectionStringWithMultipleShardRouters.Value;
+            get => __coreEnvironmentConfiguration.MultipleShardRoutersConnectionString;
         }
 
         public static DatabaseNamespace DatabaseNamespace
@@ -76,28 +78,15 @@ namespace MongoDB.Driver
 
         public static bool RequireApiVersion
         {
-            get { return __serverApi.Value != null; }
+            get { return __coreEnvironmentConfiguration.ServerApi != null; }
         }
 
         public static ServerApi ServerApi
         {
-            get { return __serverApi.Value; }
+            get { return __coreEnvironmentConfiguration.ServerApi; }
         }
 
-        public static SemanticVersion ServerVersion
-        {
-            get
-            {
-                var server = __cluster.Value.SelectServer(WritableServerSelector.Instance, CancellationToken.None);
-                var description = server.Description;
-                var version = description.Version ?? (description.Type == ServerType.LoadBalanced ? _buildInfo.Value.ServerVersion : null);
-                if (version == null)
-                {
-                    throw new InvalidOperationException("ServerDescription.Version is unexpectedly null.");
-                }
-                return version;
-            }
-        }
+        public static SemanticVersion ServerVersion => __clusterTestWrapper.ServerVersion;
 
         public static TraceSource TraceSource
         {
@@ -112,70 +101,23 @@ namespace MongoDB.Driver
 
         public static ClusterBuilder ConfigureCluster(ClusterBuilder builder)
         {
-            var serverSelectionTimeoutString = Environment.GetEnvironmentVariable("MONGO_SERVER_SELECTION_TIMEOUT_MS");
-            if (serverSelectionTimeoutString == null)
+            builder = ClusterBuilderHelper.BaseConfigureCluster(__coreEnvironmentConfiguration, builder);
+            if (ClusterBuilderHelper.TryCreateTraceSourceIfConfigured(__coreEnvironmentConfiguration, out var traceSource))
             {
-                serverSelectionTimeoutString = "30000";
+                __traceSource = traceSource;
+                builder = ClusterBuilderHelper.ConfigureLogging(builder, traceSource);
             }
-
-            builder = builder
-                .ConfigureWithConnectionString(__connectionString.Value, __serverApi.Value)
-                .ConfigureCluster(c => c.With(serverSelectionTimeout: TimeSpan.FromMilliseconds(int.Parse(serverSelectionTimeoutString))));
-
-            if (__connectionString.Value.Tls.HasValue &&
-                __connectionString.Value.Tls.Value &&
-                __connectionString.Value.AuthMechanism != null &&
-                __connectionString.Value.AuthMechanism == MongoDBX509Authenticator.MechanismName)
-            {
-                var certificateFilename = Environment.GetEnvironmentVariable("MONGO_X509_CLIENT_CERTIFICATE_PATH");
-                if (certificateFilename != null)
-                {
-                    builder.ConfigureSsl(ssl =>
-                    {
-                        var password = Environment.GetEnvironmentVariable("MONGO_X509_CLIENT_CERTIFICATE_PASSWORD");
-                        X509Certificate cert;
-                        if (password == null)
-                        {
-                            cert = new X509Certificate2(certificateFilename);
-                        }
-                        else
-                        {
-                            cert = new X509Certificate2(certificateFilename, password);
-                        }
-                        return ssl.With(
-                            clientCertificates: new[] { cert });
-                    });
-                }
-            }
-
-            return ConfigureLogging(builder);
-        }
-
-        public static ClusterBuilder ConfigureLogging(ClusterBuilder builder)
-        {
-            var environmentVariable = Environment.GetEnvironmentVariable("MONGO_LOGGING");
-            if (environmentVariable == null)
-            {
-                return builder;
-            }
-
-            SourceLevels defaultLevel;
-            if (!Enum.TryParse<SourceLevels>(environmentVariable, ignoreCase: true, result: out defaultLevel))
-            {
-                return builder;
-            }
-
-            __traceSource = new TraceSource("mongodb-tests", defaultLevel);
-            __traceSource.Listeners.Clear(); // remove the default listener
-            var listener = new TextWriterTraceListener(Console.Out);
-            listener.TraceOutputOptions = TraceOptions.DateTime;
-            __traceSource.Listeners.Add(listener);
-            return builder.TraceWith(__traceSource);
+            return builder;
         }
 
         public static ICluster CreateCluster()
         {
             return CreateCluster(b => b);
+        }
+
+        public static ICluster CreateCluster(ClusterBuilder builder)
+        {
+            return ClusterBuilderHelper.CreateCluster(builder, __traceSource);
         }
 
         public static ICluster CreateCluster(Func<ClusterBuilder, ClusterBuilder> postConfigurator)
@@ -184,46 +126,6 @@ namespace MongoDB.Driver
             builder = ConfigureCluster(builder);
             builder = postConfigurator(builder);
             return CreateCluster(builder);
-        }
-
-        public static ICluster CreateCluster(ClusterBuilder builder)
-        {
-            var hasWritableServer = 0;
-            var cluster = builder.BuildCluster();
-            cluster.DescriptionChanged += (o, e) =>
-            {
-                var anyWritableServer = e.NewClusterDescription.Servers.Any(
-                    description => description.Type.IsWritable());
-                if (__traceSource != null)
-                {
-                    __traceSource.TraceEvent(TraceEventType.Information, 0, $"CreateCluster: DescriptionChanged event handler called.");
-                    __traceSource.TraceEvent(TraceEventType.Information, 0, $"CreateCluster: anyWritableServer = {anyWritableServer}.");
-                    __traceSource.TraceEvent(TraceEventType.Information, 0, $"CreateCluster: new description: {e.NewClusterDescription.ToString()}.");
-                }
-                Interlocked.Exchange(ref hasWritableServer, anyWritableServer ? 1 : 0);
-            };
-            if (__traceSource != null)
-            {
-                __traceSource.TraceEvent(TraceEventType.Information, 0, "CreateCluster: initializing cluster.");
-            }
-            cluster.Initialize();
-
-            // wait until the cluster has connected to a writable server
-            SpinWait.SpinUntil(() => Interlocked.CompareExchange(ref hasWritableServer, 0, 0) != 0, TimeSpan.FromSeconds(30));
-            if (Interlocked.CompareExchange(ref hasWritableServer, 0, 0) == 0)
-            {
-                var message = string.Format(
-                    "Test cluster has no writable server. Client view of the cluster is {0}.",
-                    cluster.Description.ToString());
-                throw new Exception(message);
-            }
-
-            if (__traceSource != null)
-            {
-                __traceSource.TraceEvent(TraceEventType.Information, 0, "CreateCluster: writable server found.");
-            }
-
-            return cluster;
         }
 
         public static CollectionNamespace GetCollectionNamespaceForTestClass(Type testClassType)
@@ -238,65 +140,15 @@ namespace MongoDB.Driver
             return new CollectionNamespace(__databaseNamespace.Value, collectionName);
         }
 
-        public static ConnectionString CreateConnectionString()
-        {
-            var uri = Environment.GetEnvironmentVariable("MONGODB_URI") ?? Environment.GetEnvironmentVariable("MONGO_URI");
-            if (uri == null)
-            {
-                uri = "mongodb://localhost";
-                if (IsReplicaSet(uri))
-                {
-                    uri += "/?connect=replicaSet";
-                }
-            }
-
-            var connectionString = new ConnectionString(uri);
-            if (connectionString.LoadBalanced)
-            {
-                // TODO: temporary solution until server will actually support serviceId
-                ServiceIdHelper.IsServiceIdEmulationEnabled = true;
-            }
-            return connectionString;
-        }
-
-        private static ConnectionString GetConnectionStringWithMultipleShardRouters()
-        {
-            var uri = Environment.GetEnvironmentVariable("MONGODB_URI_WITH_MULTIPLE_MONGOSES") ?? "mongodb://localhost,localhost:27018";
-            var connectionString = new ConnectionString(uri);
-            if (connectionString.LoadBalanced)
-            {
-                // TODO: temporary solution until server will actually support serviceId
-                ServiceIdHelper.IsServiceIdEmulationEnabled = true;
-            }
-            return connectionString;
-        }
-
         private static DatabaseNamespace GetDatabaseNamespace()
         {
-            if (!string.IsNullOrEmpty(__connectionString.Value.DatabaseName))
+            if (!string.IsNullOrEmpty(__coreEnvironmentConfiguration.DefaultConnectionString.DatabaseName))
             {
-                return new DatabaseNamespace(__connectionString.Value.DatabaseName);
+                return new DatabaseNamespace(__coreEnvironmentConfiguration.DefaultConnectionString.DatabaseName);
             }
 
             var timestamp = DateTime.Now.ToString("MMddHHmm");
             return new DatabaseNamespace("Tests" + timestamp);
-        }
-
-        private static ServerApi GetServerApi()
-        {
-            var serverApiVersion = Environment.GetEnvironmentVariable("MONGODB_API_VERSION");
-
-            if (serverApiVersion == null)
-            {
-                return null;
-            }
-
-            if (serverApiVersion != "1")
-            {
-                throw new ArgumentException($"Server API version \"{serverApiVersion}\" is not supported");
-            }
-
-            return new ServerApi(ServerApiVersion.V1);
         }
 
         public static DatabaseNamespace GetDatabaseNamespaceForTestClass(Type testClassType)
@@ -309,80 +161,13 @@ namespace MongoDB.Driver
             return new DatabaseNamespace(databaseName);
         }
 
-        private static BuildInfoResult RunBuildInfo()
-        {
-            using (var session = StartSession())
-            using (var binding = CreateReadBinding(session))
-            {
-                var command = new BsonDocument("buildinfo", 1);
-                var operation = new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, __messageEncoderSettings);
-                var response = operation.Execute(binding, CancellationToken.None);
-                return new BuildInfoResult(response);
-            }
-        }
+        public static BsonDocument GetServerParameters() => __clusterTestWrapper.GetServerParameters();
 
-        public static BsonDocument GetServerParameters()
-        {
-            using (var session = StartSession())
-            using (var binding = CreateReadBinding(session))
-            {
-                var command = new BsonDocument("getParameter", new BsonString("*"));
-                var operation = new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, __messageEncoderSettings);
-                var serverParameters = operation.Execute(binding, CancellationToken.None);
-
-                return serverParameters;
-            }
-        }
-
-        public static string GetStorageEngine()
-        {
-            using (var session = StartSession())
-            using (var binding = CreateReadWriteBinding(session))
-            {
-                var command = new BsonDocument("serverStatus", 1);
-                var operation = new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, __messageEncoderSettings);
-                var response = operation.Execute(binding, CancellationToken.None);
-                BsonValue storageEngine;
-                if (response.TryGetValue("storageEngine", out storageEngine) && storageEngine.AsBsonDocument.Contains("name"))
-                {
-                    return storageEngine["name"].AsString;
-                }
-                else
-                {
-                    return "mmapv1";
-                }
-            }
-        }
-
-        public static ICoreSessionHandle StartSession()
-        {
-            return StartSession(__cluster.Value);
-        }
+        public static string GetStorageEngine() => __clusterTestWrapper.GetStorageEngine();
 
         public static ICoreSessionHandle StartSession(ICluster cluster, CoreSessionOptions options = null)
         {
-            if (AreSessionsSupported(cluster))
-            {
-                return cluster.StartSession(options);
-            }
-            else
-            {
-                return NoCoreSession.NewHandle();
-            }
-        }
-
-        private static bool IsReplicaSet(string uri)
-        {
-            var clusterBuilder = new ClusterBuilder().ConfigureWithConnectionString(uri, __serverApi.Value);
-
-            using (var cluster = clusterBuilder.BuildCluster())
-            {
-                cluster.Initialize();
-
-                var serverSelector = new ReadPreferenceServerSelector(ReadPreference.PrimaryPreferred);
-                var server = cluster.SelectServer(serverSelector, CancellationToken.None);
-                return server.Description.Type.IsReplicaSetMember();
-            }
+            return new ClusterTestWrapper(cluster).StartSession(options);
         }
 
         private static string TruncateCollectionNameIfTooLong(DatabaseNamespace databaseNamespace, string collectionName)
@@ -411,58 +196,5 @@ namespace MongoDB.Driver
             }
         }
         #endregion
-
-        // private methods
-        private static bool AreSessionsSupported(ICluster cluster)
-        {
-            SpinWait.SpinUntil(() => cluster.Description.Servers.Any(s => s.State == ServerState.Connected), TimeSpan.FromSeconds(30));
-            return AreSessionsSupported(cluster.Description);
-        }
-
-        private static bool AreSessionsSupported(ClusterDescription clusterDescription)
-        {
-            return
-                clusterDescription.Servers.Any(s => s.State == ServerState.Connected) &&
-                (clusterDescription.LogicalSessionTimeout.HasValue || clusterDescription.Type == ClusterType.LoadBalanced);
-        }
-
-        private static IReadBindingHandle CreateReadBinding(ICoreSessionHandle session)
-        {
-            return CreateReadBinding(ReadPreference.Primary, session);
-        }
-
-        private static IReadBindingHandle CreateReadBinding(ReadPreference readPreference, ICoreSessionHandle session)
-        {
-            var binding = new ReadPreferenceBinding(__cluster.Value, readPreference, session.Fork());
-            return new ReadBindingHandle(binding);
-        }
-
-        private static IReadWriteBindingHandle CreateReadWriteBinding(ICoreSessionHandle session)
-        {
-            var binding = new WritableServerBinding(__cluster.Value, session.Fork());
-            return new ReadWriteBindingHandle(binding);
-        }
-
-        private static void DropDatabase()
-        {
-            var operation = new DropDatabaseOperation(__databaseNamespace.Value, __messageEncoderSettings);
-
-            using (var session = StartSession())
-            using (var binding = CreateReadWriteBinding(session))
-            {
-                operation.Execute(binding, CancellationToken.None);
-            }
-        }
-
-        public static void TearDown()
-        {
-            if (__cluster.IsValueCreated)
-            {
-                // TODO: DropDatabase
-                //DropDatabase();
-                __cluster.Value.Dispose();
-                __cluster = new Lazy<ICluster>(CreateCluster, isThreadSafe: true);
-            }
-        }
     }
 }

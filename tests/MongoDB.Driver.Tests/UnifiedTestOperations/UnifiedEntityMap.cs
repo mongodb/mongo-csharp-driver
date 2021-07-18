@@ -262,10 +262,12 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
     public class UnifiedEntityMapBuilder
     {
         private readonly Dictionary<string, IEventFormatter> _eventFormatters;
+        private readonly ITestClientsProvider _testClientsProvider;
 
-        public UnifiedEntityMapBuilder(Dictionary<string, IEventFormatter> eventFormatters)
+        public UnifiedEntityMapBuilder(ITestClientsProvider testClientsProvider, Dictionary<string, IEventFormatter> eventFormatters)
         {
             _eventFormatters = eventFormatters ?? new ();
+            _testClientsProvider = testClientsProvider;
         }
 
         public UnifiedEntityMap Build(BsonArray entitiesArray)
@@ -538,7 +540,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             }
 
             var eventCapturers = clientEventCapturers.Select(c => c.Value).ToArray();
-            var client = DriverTestConfiguration.CreateDisposableClient(
+            var client = _testClientsProvider.CreateClient(
                 settings =>
                 {
                     settings.ApplicationName = appName;
@@ -564,7 +566,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 },
                 useMultipleShardRouters);
 
-            return (client, clientEventCapturers);
+            return (new DisposableMongoClient(client), clientEventCapturers);
         }
 
         private IMongoCollection<BsonDocument> CreateCollection(BsonDocument entity, Dictionary<string, IMongoDatabase> databases)

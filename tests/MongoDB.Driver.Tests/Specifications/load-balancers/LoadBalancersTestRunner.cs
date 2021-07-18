@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
@@ -22,6 +21,10 @@ using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Tests.UnifiedTestOperations;
 using MongoDB.Driver.TestHelpers;
 using Xunit;
+using MongoDB.Driver.Core.TestHelpers;
+using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core;
+using MongoDB.Driver.Core.Clusters;
 
 namespace MongoDB.Driver.Tests.Specifications.load_balancers
 {
@@ -32,6 +35,7 @@ namespace MongoDB.Driver.Tests.Specifications.load_balancers
         [ClassData(typeof(TestCaseFactory))]
         public void Run(JsonDrivenTestCase testCase)
         {
+            ITestClientsProvider testClientsProvider;
 #if DEBUG
             RequirePlatform
                 .Check()
@@ -39,11 +43,14 @@ namespace MongoDB.Driver.Tests.Specifications.load_balancers
                 .SkipWhen(SupportedOperatingSystem.MacOS);
             // Make sure that LB is started. "nginx" is a LB we use for windows testing
             RequireEnvironment.Check().ProcessStarted("nginx");
-            Environment.SetEnvironmentVariable("MONGODB_URI", "mongodb://localhost:17017?loadBalanced=true");
-            Environment.SetEnvironmentVariable("MONGODB_URI_WITH_MULTIPLE_MONGOSES", "mongodb://localhost:17018?loadBalanced=true");
+
+            ServiceIdHelper.IsServiceIdEmulationEnabled = true;
+
+            var coreEnvironmentConfiguration = new LoadBalancedCoreEnvironmentConfiguration();
+            testClientsProvider = new TestClientsProvider(coreEnvironmentConfiguration, ClusterType.LoadBalanced);
             RequireServer
-                .Check()
-                .LoadBalancing(enabled: true, ignorePreviousSetup: true)
+                .ConfigureAndCheck(coreEnvironmentConfiguration)
+                .LoadBalancing(enabled: true)
                 .Authentication(authentication: false); // auth server requires credentials in connection string
 #else
             RequireEnvironment // these env variables are used only on the scripting side
@@ -55,15 +62,22 @@ namespace MongoDB.Driver.Tests.Specifications.load_balancers
                 .Check()
                 .SkipWhen(SupportedOperatingSystem.Windows)
                 .SkipWhen(SupportedOperatingSystem.MacOS);
+            testClientsProvider = DriverTestConfiguration.DefaultTestClientsProvider;
 #endif
 
-            using (var runner = new UnifiedTestRunner())
+            using (var runner = new UnifiedTestRunner(testClientsProvider: testClientsProvider))
             {
                 runner.Run(testCase);
             }
         }
 
         // nested types
+        private class LoadBalancedCoreEnvironmentConfiguration : CoreEnvironmentConfiguration
+        {
+            protected override ConnectionString GetDefaultConnectionString() => new ConnectionString("mongodb://localhost:17017?loadBalanced=true");
+            protected override ConnectionString GetMultipleShardRoutersConnectionString() => new ConnectionString("mongodb://localhost:17018?loadBalanced=true");
+        }
+
         public class TestCaseFactory : JsonDrivenTestCaseFactory
         {
             // protected properties

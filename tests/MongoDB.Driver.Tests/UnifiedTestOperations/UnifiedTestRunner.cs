@@ -25,6 +25,7 @@ using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.TestHelpers;
 using MongoDB.Driver.Tests.UnifiedTestOperations.Matchers;
 using Xunit;
 
@@ -33,17 +34,31 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
     public sealed class UnifiedTestRunner : IDisposable
     {
         private UnifiedEntityMap _entityMap;
-        private readonly List<FailPoint> _failPoints = new List<FailPoint>();
+        private readonly List<FailPoint> _failPoints;
         private readonly Dictionary<string, object> _additionalArgs;
         private readonly Dictionary<string, IEventFormatter> _eventFormatters;
         private bool _runHasBeenCalled;
+        private ITestClientsProvider _testClientsProvider;
+        private IMongoClient _testSetupClient;
 
         public UnifiedTestRunner(
+            ITestClientsProvider testClientsProvider = null,
             Dictionary<string, object> additionalArgs = null,
             Dictionary<string, IEventFormatter> eventFormatters = null)
         {
             _additionalArgs = additionalArgs; // can be null
             _eventFormatters = eventFormatters; // can be null
+            _failPoints = new List<FailPoint>();
+            if (testClientsProvider == null)
+            {
+                _testClientsProvider = DriverTestConfiguration.DefaultTestClientsProvider;
+                _testSetupClient = DriverTestConfiguration.Client;
+            }
+            else
+            {
+                _testClientsProvider = testClientsProvider;
+                _testSetupClient = _testClientsProvider.CreateClient(useMultipleShardRouters: false);
+            }
         }
 
         // public properties
@@ -91,26 +106,28 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             {
                 throw new FormatException($"Schema version '{schemaVersion}' is not supported.");
             }
+
+            var requireServer = RequireServer.ConfigureAndCheck(_testSetupClient.Cluster, _testClientsProvider.CoreEnvironmentConfiguration);
             if (testSetRunOnRequirements != null)
             {
-                RequireServer.Check().RunOn(testSetRunOnRequirements);
+                requireServer.RunOn(testSetRunOnRequirements);
             }
             if (runOnRequirements != null)
             {
-                RequireServer.Check().RunOn(runOnRequirements);
+                requireServer.RunOn(runOnRequirements);
             }
             if (skipReason != null)
             {
                 throw new SkipException($"Test skipped because '{skipReason}'.");
             }
 
-            KillOpenTransactions(DriverTestConfiguration.Client);
+            KillOpenTransactions(_testSetupClient);
 
-            _entityMap = new UnifiedEntityMapBuilder(_eventFormatters).Build(entities);
+            _entityMap = new UnifiedEntityMapBuilder(_testClientsProvider, _eventFormatters).Build(entities);
 
             if (initialData != null)
             {
-                AddInitialData(DriverTestConfiguration.Client, initialData);
+                AddInitialData(_testSetupClient, initialData);
             }
 
             foreach (var operation in operations)
@@ -125,7 +142,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             }
             if (outcome != null)
             {
-                AssertOutcome(DriverTestConfiguration.Client, outcome);
+                AssertOutcome(_testSetupClient, outcome);
             }
         }
 
@@ -140,7 +157,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             }
             try
             {
-                KillOpenTransactions(DriverTestConfiguration.Client);
+                KillOpenTransactions(_testSetupClient);
             }
             catch
             {
