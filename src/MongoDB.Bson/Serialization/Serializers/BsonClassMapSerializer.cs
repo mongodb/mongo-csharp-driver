@@ -462,7 +462,7 @@ namespace MongoDB.Bson.Serialization
 
             if (creatorMap == null)
             {
-                throw new BsonSerializationException("No matching creator found.");
+                throw new BsonSerializationException($"No matching creator found for class {_classMap.ClassType.FullName}.");
             }
 
             return creatorMap;
