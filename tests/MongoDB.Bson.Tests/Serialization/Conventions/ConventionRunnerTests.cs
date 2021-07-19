@@ -35,12 +35,12 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             _pack = new ConventionPack();
             _pack.AddRange(new IConvention[]
             {
-                new TrackingBeforeConvention(GetIndex) { Name = "1" },
-                new TrackingMemberConvention(GetIndex) { Name = "3" },
-                new TrackingAfterConvention(GetIndex) { Name = "5" },
-                new TrackingMemberConvention(GetIndex) { Name = "4" },
-                new TrackingAfterConvention(GetIndex) { Name = "6" },
-                new TrackingBeforeConvention(GetIndex) { Name = "2" },
+                new TrackingBeforeConvention(GetRunOrderIndex) { Name = "1" },
+                new TrackingMemberConvention(GetRunOrderIndex) { Name = "3" },
+                new TrackingAfterConvention(GetRunOrderIndex) { Name = "5" },
+                new TrackingMemberConvention(GetRunOrderIndex) { Name = "4" },
+                new TrackingAfterConvention(GetRunOrderIndex) { Name = "6" },
+                new TrackingBeforeConvention(GetRunOrderIndex) { Name = "2" },
             });
             _subject = new ConventionRunner(_pack);
 
@@ -52,7 +52,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
 
             _subject.Apply(classMap);
 
-            int GetIndex() => Interlocked.Increment(ref orderIndex);
+            int GetRunOrderIndex() => Interlocked.Increment(ref orderIndex);
         }
 
         [Fact]
@@ -65,7 +65,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         [Fact]
         public void TestThatItRunsConventionsInTheProperOrder()
         {
-            var conventions = _pack.Conventions.OfType<ITrackRun>().OrderBy(x => x.RunTicks).ToList();
+            var conventions = _pack.Conventions.OfType<ITrackRun>().OrderBy(x => x.RunOrder).ToList();
             for (int i = 1; i < conventions.Count; i++)
             {
                 if (conventions[i - 1].Name != i.ToString())
@@ -118,7 +118,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
 
             int RunCount { get; }
 
-            long RunTicks { get; }
+            long RunOrder { get; }
         }
 
         private class TrackingBeforeConvention : IClassMapConvention, ITrackRun
@@ -134,7 +134,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
 
             public int RunCount { get; set; }
 
-            public long RunTicks { get; set; }
+            public long RunOrder { get; set; }
 
             public string Name { get; set; }
 
@@ -142,7 +142,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             {
                 IsRun = true;
                 RunCount++;
-                RunTicks = _orderIndexProvider();
+                RunOrder = _orderIndexProvider();
             }
         }
 
@@ -159,7 +159,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
 
             public int RunCount { get; set; }
 
-            public long RunTicks { get; set; }
+            public long RunOrder { get; set; }
 
             public string Name { get; set; }
 
@@ -167,7 +167,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             {
                 IsRun = true;
                 RunCount++;
-                RunTicks = _orderIndexProvider();
+                RunOrder = _orderIndexProvider();
             }
         }
 
@@ -184,7 +184,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
 
             public int RunCount { get; set; }
 
-            public long RunTicks { get; set; }
+            public long RunOrder { get; set; }
 
             public string Name { get; set; }
 
@@ -192,7 +192,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             {
                 IsRun = true;
                 RunCount++;
-                RunTicks = _orderIndexProvider();
+                RunOrder = _orderIndexProvider();
             }
         }
     }
