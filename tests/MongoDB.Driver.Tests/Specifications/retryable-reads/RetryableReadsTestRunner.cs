@@ -420,7 +420,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
             #region static
             private static readonly string[] __serverlessIgnoredTestNames =
             {
-                // https://jira.mongodb.org/browse/CLOUDP-92618
+                // https://jira.mongodb.org/browse/CSHARP-3753
                 "listDatabases.json:ListDatabases succeeds on first attempt",
                 "listDatabases.json:ListDatabases succeeds on second attempt",
                 "listDatabases-serverErrors.json:ListDatabases succeeds after HostNotFound",

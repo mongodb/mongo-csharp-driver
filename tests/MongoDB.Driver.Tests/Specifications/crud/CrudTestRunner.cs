@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud
 
         public void RunTestDefinition(BsonDocument definition, BsonDocument test)
         {
-            JsonDrivenHelper.EnsureAllFieldsAreValid(definition, "_path", "database_name", "collection_name", "runOn", "minServerVersion", "maxServerVersion", "data", "tests");
+            JsonDrivenHelper.EnsureAllFieldsAreValid(definition, "_path", "database_name", "collection_name", "runOn", "minServerVersion", "maxServerVersion", "data", "tests", "serverless");
             JsonDrivenHelper.EnsureAllFieldsAreValid(test, "description", "skipReason", "operation", "operations", "expectations", "outcome", "async");
             SkipTestIfNeeded(definition, test);
 
@@ -299,6 +299,18 @@ namespace MongoDB.Driver.Tests.Specifications.crud
             if (definition.TryGetValue("maxServerVersion", out var maxServerVersion))
             {
                 RequireServer.Check().VersionLessThanOrEqualTo(maxServerVersion.AsString);
+            }
+
+            if (definition.TryGetValue("serverless", out var serverless))
+            {
+                if (serverless == "forbid")
+                {
+                    RequireServer.Check().Serverless(false);
+                }
+                else
+                {
+                    throw new FormatException($"Invalid serverless field value: '{serverless.AsString}'.");
+                }
             }
 
             if (test.TryGetValue("skipReason", out var reason))
