@@ -19,10 +19,13 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
         [InlineData(new[] { State.Disposed })]
         [InlineData(new[] { State.Disposed, State.Disposed })]
         [InlineData(new[] { State.Paused, State.Ready })]
+        [InlineData(new[] { State.Paused, State.ReadyNonPausable })]
         [InlineData(new[] { State.Paused, State.Paused })]
         [InlineData(new[] { State.Paused, State.Disposed })]
         [InlineData(new[] { State.Paused, State.Disposed, State.Disposed })]
         [InlineData(new[] { State.Paused, State.Ready, State.Disposed })]
+        [InlineData(new[] { State.Paused, State.ReadyNonPausable, State.Disposed })]
+        [InlineData(new[] { State.Paused, State.ReadyNonPausable, State.ReadyNonPausable })]
         [InlineData(new[] { State.Paused, State.Ready, State.Ready })]
         [InlineData(new[] { State.Paused, State.Ready, State.Paused, State.Ready })]
         [InlineData(new[] { State.Paused, State.Ready, State.Paused, State.Ready, State.Disposed })]
@@ -34,10 +37,16 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
         [Theory]
         [InlineData(null, State.Uninitialized)]
         [InlineData(null, State.Ready)]
+        [InlineData(null, State.ReadyNonPausable)]
         [InlineData(new[] { State.Paused }, State.Uninitialized)]
         [InlineData(new[] { State.Paused, State.Ready }, State.Uninitialized)]
+        [InlineData(new[] { State.Paused, State.Ready }, State.ReadyNonPausable)]
+        [InlineData(new[] { State.Paused, State.ReadyNonPausable }, State.Uninitialized)]
+        [InlineData(new[] { State.Paused, State.ReadyNonPausable }, State.Paused)]
+        [InlineData(new[] { State.Paused, State.ReadyNonPausable }, State.Ready)]
         [InlineData(new[] { State.Disposed }, State.Uninitialized)]
         [InlineData(new[] { State.Disposed }, State.Ready)]
+        [InlineData(new[] { State.Disposed }, State.ReadyNonPausable)]
         [InlineData(new[] { State.Disposed }, State.Paused)]
         internal void PoolState_should_throw_on_invalid_transitions(State[] validStates, State invalidState)
         {
@@ -68,6 +77,7 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
         [InlineData(null)]
         [InlineData(new[] { State.Paused })]
         [InlineData(new[] { State.Paused, State.Ready })]
+        [InlineData(new[] { State.Paused, State.ReadyNonPausable })]
         internal void PoolState_ThrowIfDisposed_should_not_throw_when_not_disposed(State[] states)
         {
             var poolState = CreatePoolStateAndValidate(states);
@@ -102,6 +112,9 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
         {
             var poolState = CreatePoolStateAndValidate(State.Paused, State.Ready);
             poolState.ThrowIfNotReady();
+
+            poolState = CreatePoolStateAndValidate(State.Paused, State.ReadyNonPausable);
+            poolState.ThrowIfNotReady();
         }
 
         [Fact]
@@ -116,6 +129,7 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
         [InlineData(new[] { State.Disposed })]
         [InlineData(new[] { State.Paused })]
         [InlineData(new[] { State.Paused, State.Ready })]
+        [InlineData(new[] { State.Paused, State.ReadyNonPausable })]
         internal void PoolState_ThrowIfNotInitialized_should_not_throw_when_initialized(State[] states)
         {
             var poolState = CreatePoolStateAndValidate(states);
