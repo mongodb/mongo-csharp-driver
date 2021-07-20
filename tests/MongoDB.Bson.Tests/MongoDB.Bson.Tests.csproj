@@ -2,7 +2,7 @@
   <PropertyGroup>
     <IsWindows Condition="$([MSBuild]::IsOSPlatform('Windows'))">true</IsWindows>
   </PropertyGroup>
-  
+
   <PropertyGroup>
     <TargetFrameworks>netcoreapp1.1;netcoreapp2.1;netcoreapp3.0;net452</TargetFrameworks>
     <TargetFrameworks Condition="'$(IsWindows)'!='true'">netcoreapp1.1;netcoreapp2.1;netcoreapp3.0</TargetFrameworks>
@@ -32,7 +32,7 @@
   <PropertyGroup>
     <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
-  
+
   <PropertyGroup Condition="'$(IsWindows)'=='true'">
     <DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
   </PropertyGroup>
@@ -52,7 +52,7 @@
       xUnit2017 <!--Do not use Contains() to check if a value exists in a collection (https://xunit.github.io/xunit.analyzers/rules/xUnit2017.html)-->
     </NoWarn>
   </PropertyGroup>
-  
+
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
@@ -64,6 +64,7 @@
     <PackageReference Include="Moq" Version="4.9.0" />
     <PackageReference Include="xunit" Version="2.4.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
+    <PackageReference Include="JunitXml.TestLogger" Version="2.1.81" />
   </ItemGroup>
 
   <ItemGroup>

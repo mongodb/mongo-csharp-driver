@@ -2,7 +2,7 @@
   <PropertyGroup>
     <IsWindows Condition="$([MSBuild]::IsOSPlatform('Windows'))">true</IsWindows>
   </PropertyGroup>
-  
+
   <PropertyGroup>
     <TargetFrameworks>netcoreapp1.1;netcoreapp2.1;netcoreapp3.0;net452</TargetFrameworks>
     <TargetFrameworks Condition="'$(IsWindows)'!='true'">netcoreapp1.1;netcoreapp2.1;netcoreapp3.0</TargetFrameworks>
@@ -41,7 +41,7 @@
       xUnit2013 <!--Do not use equality check to check for collection size. (https://xunit.github.io/xunit.analyzers/rules/xUnit2013.html)-->
     </NoWarn>
   </PropertyGroup>
-  
+
   <PropertyGroup Condition="'$(IsWindows)'=='true'">
     <DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
   </PropertyGroup>
@@ -57,6 +57,7 @@
     <PackageReference Include="Moq" Version="4.9.0" />
     <PackageReference Include="xunit" Version="2.4.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
+    <PackageReference Include="JunitXml.TestLogger" Version="2.1.81" />
   </ItemGroup>
 
   <ItemGroup>

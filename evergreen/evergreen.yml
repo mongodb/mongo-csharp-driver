@@ -195,7 +195,7 @@ functions:
   upload-test-results:
     - command: attach.xunit_results
       params:
-        file: ./mongo-csharp-driver/*/build/test-results/TEST-*.xml
+        file: ./mongo-csharp-driver/build/test-results/TEST-*.xml
 
   bootstrap-mongo-orchestration:
     - command: shell.exec

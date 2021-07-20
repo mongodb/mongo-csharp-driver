@@ -2,7 +2,7 @@
   <PropertyGroup>
     <IsWindows Condition="$([MSBuild]::IsOSPlatform('Windows'))">true</IsWindows>
   </PropertyGroup>
-  
+
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFrameworks>netcoreapp1.1;netcoreapp2.1;netcoreapp3.0;net452</TargetFrameworks>
@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" PrivateAssets="All" Version="1.0.0" />
+    <PackageReference Include="JunitXml.TestLogger" Version="2.1.81" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(Version)'==''">

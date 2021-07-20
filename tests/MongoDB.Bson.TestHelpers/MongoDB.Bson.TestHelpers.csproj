@@ -2,7 +2,7 @@
   <PropertyGroup>
     <IsWindows Condition="$([MSBuild]::IsOSPlatform('Windows'))">true</IsWindows>
   </PropertyGroup>
-  
+
   <PropertyGroup>
     <TargetFrameworks>netstandard1.5;netstandard2.0;netstandard2.1;net452</TargetFrameworks>
     <TargetFrameworks Condition="'$(IsWindows)'!='true'">netstandard1.5;netstandard2.0;netstandard2.1</TargetFrameworks>
@@ -42,6 +42,7 @@
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.2" />
     <PackageReference Include="xunit" Version="2.4.0" />
     <PackageReference Include="Xunit.SkippableFact" Version="1.3.6" />
+    <PackageReference Include="JunitXml.TestLogger" Version="2.1.81" />
   </ItemGroup>
 
   <ItemGroup>
