@@ -23,6 +23,16 @@ namespace MongoDB.Driver.Encryption
     /// </summary>
     public class EncryptOptions
     {
+        #region static
+        private static string ConvertEnumAlgorithmToString(EncryptionAlgorithm encryptionAlgorithm) =>
+            encryptionAlgorithm switch
+            {
+                EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic => "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic",
+                EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random => "AEAD_AES_256_CBC_HMAC_SHA_512-Random",
+                _ => encryptionAlgorithm.ToString(),
+            };
+        #endregion
+
         // private fields
         private readonly string _algorithm;
         private readonly string _alternateKeyName;
@@ -40,10 +50,36 @@ namespace MongoDB.Driver.Encryption
             Optional<string> alternateKeyName = default,
             Optional<Guid?> keyId = default)
         {
-            _algorithm = Ensure.IsNotNull(algorithm, nameof(algorithm));
+            Ensure.IsNotNull(algorithm, nameof(algorithm));
+            if (Enum.TryParse<EncryptionAlgorithm>(algorithm, out var @enum))
+            {
+                _algorithm = ConvertEnumAlgorithmToString(@enum);
+            }
+            else
+            {
+                _algorithm = algorithm;
+            }
+
             _alternateKeyName = alternateKeyName.WithDefault(null);
             _keyId = keyId.WithDefault(null);
             EnsureThatOptionsAreValid();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EncryptOptions"/> class.
+        /// </summary>
+        /// <param name="algorithm">The encryption algorithm.</param>
+        /// <param name="alternateKeyName">The alternate key name.</param>
+        /// <param name="keyId">The key Id.</param>
+        public EncryptOptions(
+            EncryptionAlgorithm algorithm,
+            Optional<string> alternateKeyName = default,
+            Optional<Guid?> keyId = default)
+            : this(
+                  algorithm: ConvertEnumAlgorithmToString(algorithm),
+                  alternateKeyName,
+                  keyId)
+        {
         }
 
         // public properties

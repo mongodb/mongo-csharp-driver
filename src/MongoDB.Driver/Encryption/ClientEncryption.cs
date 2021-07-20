@@ -121,12 +121,11 @@ namespace MongoDB.Driver.Encryption
         /// <returns>The encrypted value.</returns>
         public BsonBinaryData Encrypt(BsonValue value, EncryptOptions encryptOptions, CancellationToken cancellationToken)
         {
-            var algorithm = (EncryptionAlgorithm)Enum.Parse(typeof(EncryptionAlgorithm), encryptOptions.Algorithm);
             return _libMongoCryptController.EncryptField(
                 value,
                 encryptOptions.KeyId,
                 encryptOptions.AlternateKeyName,
-                algorithm,
+                encryptOptions.Algorithm,
                 cancellationToken);
         }
 
@@ -139,12 +138,11 @@ namespace MongoDB.Driver.Encryption
         /// <returns>The encrypted value.</returns>
         public Task<BsonBinaryData> EncryptAsync(BsonValue value, EncryptOptions encryptOptions, CancellationToken cancellationToken)
         {
-            var algorithm = (EncryptionAlgorithm)Enum.Parse(typeof(EncryptionAlgorithm), encryptOptions.Algorithm);
             return _libMongoCryptController.EncryptFieldAsync(
                 value,
                 encryptOptions.KeyId,
                 encryptOptions.AlternateKeyName,
-                algorithm,
+                encryptOptions.Algorithm,
                 cancellationToken);
         }
     }
