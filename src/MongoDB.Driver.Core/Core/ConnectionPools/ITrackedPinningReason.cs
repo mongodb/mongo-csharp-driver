@@ -15,8 +15,6 @@
 
 using System;
 using System.Threading;
-using System.Threading.Tasks;
-using MongoDB.Driver.Core.Connections;
 
 namespace MongoDB.Driver.Core.ConnectionPools
 {
@@ -27,11 +25,10 @@ namespace MongoDB.Driver.Core.ConnectionPools
         Transaction
     }
 
-    internal interface ITrackedConnectionPool : IConnectionPool
+    internal interface ITrackedPinningReason
     {
-        IConnectionHandle AcquireConnection(CheckedOutReason reason, CancellationToken cancellationToken);
-
-        Task<IConnectionHandle> AcquireConnectionAsync(CheckedOutReason reason, CancellationToken cancellationToken);
+        CheckedOutReason? CheckedOutReason { get; }
+        void SetPinningCheckoutReasonIfNotAlreadySet(CheckedOutReason reason);
     }
 
     internal sealed class CheckedOutTracker
@@ -69,22 +66,25 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
         }
 
-        public void CheckIn(CheckedOutReason reason)
+        public void CheckInIfNotNull(CheckedOutReason? reason)
         {
-            switch (reason)
+            if (reason.HasValue)
             {
-                case CheckedOutReason.NotSet:
-                    Interlocked.Decrement(ref _unspecifiedCheckoutsNumber);
-                    break;
-                case CheckedOutReason.Cursor:
-                    Interlocked.Decrement(ref _cursorCheckoutsNumber);
-                    break;
-                case CheckedOutReason.Transaction:
-                    Interlocked.Decrement(ref _transactionCheckoutsNumber);
-                    break;
-                default:
-                    // should not be reached
-                    throw new InvalidOperationException($"Unsupported checked out reason {reason}.");
+                switch (reason)
+                {
+                    case CheckedOutReason.NotSet:
+                        Interlocked.Decrement(ref _unspecifiedCheckoutsNumber);
+                        break;
+                    case CheckedOutReason.Cursor:
+                        Interlocked.Decrement(ref _cursorCheckoutsNumber);
+                        break;
+                    case CheckedOutReason.Transaction:
+                        Interlocked.Decrement(ref _transactionCheckoutsNumber);
+                        break;
+                    default:
+                        // should not be reached
+                        throw new InvalidOperationException($"Unsupported checked out reason {reason}.");
+                }
             }
         }
     }

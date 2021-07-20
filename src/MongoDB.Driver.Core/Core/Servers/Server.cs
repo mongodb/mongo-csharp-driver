@@ -35,16 +35,10 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Servers
 {
-    internal interface IServerWithTrackedGetChannel : IClusterableServer
-    {
-        IChannelHandle GetChannel(TrackedOperationRunContext trackedOperationRunContext, CancellationToken cancellationToken);
-        Task<IChannelHandle> GetChannelAsync(TrackedOperationRunContext trackedOperationRunContext, CancellationToken cancellationToken);
-    }
-
     /// <summary>
     /// Represents a server in a MongoDB cluster.
     /// </summary>
-    internal abstract class Server : IServerWithTrackedGetChannel
+    internal abstract class Server : IClusterableServer
     {
         // fields
         private readonly IClusterClock _clusterClock;
@@ -52,7 +46,7 @@ namespace MongoDB.Driver.Core.Servers
         private readonly ClusterConnectionMode _clusterConnectionMode;
         private readonly ConnectionModeSwitch _connectionModeSwitch;
 #pragma warning restore CS0618 // Type or member is obsolete
-        private readonly ITrackedConnectionPool _connectionPool;
+        private readonly IConnectionPool _connectionPool;
         private readonly bool? _directConnection;
         private readonly EndPoint _endPoint;
         private readonly ServerId _serverId;
@@ -94,10 +88,7 @@ namespace MongoDB.Driver.Core.Servers
             Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
 
             _serverId = new ServerId(clusterId, endPoint);
-
-            var connectionPool = Ensure.IsNotNull(connectionPoolFactory, nameof(connectionPoolFactory)).CreateConnectionPool(_serverId, endPoint);
-            _connectionPool = Ensure.IsAssignableTo<IConnectionPool, ITrackedConnectionPool>(connectionPool);
-
+            _connectionPool = Ensure.IsNotNull(connectionPoolFactory, nameof(connectionPoolFactory)).CreateConnectionPool(_serverId, endPoint);
             _state = new InterlockedInt32(State.Initial);
             _serverApi = serverApi;
             _outstandingOperationsCount = 0;
@@ -151,41 +142,15 @@ namespace MongoDB.Driver.Core.Servers
         protected abstract void HandleBeforeHandshakeCompletesException(Exception ex);
         protected abstract void HandleAfterHandshakeCompletesException(IConnection connection, Exception ex);
 
-        public IChannelHandle GetChannel(TrackedOperationRunContext trackedOperationRunContext, CancellationToken cancellationToken)
-        {
-            ThrowIfNotOpen();
-
-            try
-            {
-                Interlocked.Increment(ref _outstandingOperationsCount);
-
-                var checkOutReason = CreateCheckOutReason(trackedOperationRunContext);
-                var connection = _connectionPool.AcquireConnection(checkOutReason, cancellationToken);
-                return new ServerChannel(this, connection);
-            }
-            catch (Exception ex)
-            {
-                Interlocked.Decrement(ref _outstandingOperationsCount);
-
-                HandleBeforeHandshakeCompletesException(ex);
-                throw;
-            }
-        }
-
         public IChannelHandle GetChannel(CancellationToken cancellationToken)
         {
-            return GetChannel(TrackedOperationRunContext.CreateEmpty(), cancellationToken);
-        }
-
-        public async Task<IChannelHandle> GetChannelAsync(TrackedOperationRunContext trackedOperationRunContext, CancellationToken cancellationToken)
-        {
             ThrowIfNotOpen();
 
             try
             {
                 Interlocked.Increment(ref _outstandingOperationsCount);
-                var checkOutReason = CreateCheckOutReason(trackedOperationRunContext);
-                var connection = await _connectionPool.AcquireConnectionAsync(checkOutReason, cancellationToken).ConfigureAwait(false);
+
+                var connection = _connectionPool.AcquireConnection(cancellationToken);
                 return new ServerChannel(this, connection);
             }
             catch (Exception ex)
@@ -197,9 +162,23 @@ namespace MongoDB.Driver.Core.Servers
             }
         }
 
-        public Task<IChannelHandle> GetChannelAsync(CancellationToken cancellationToken)
+        public async Task<IChannelHandle> GetChannelAsync(CancellationToken cancellationToken)
         {
-            return GetChannelAsync(TrackedOperationRunContext.CreateEmpty(), cancellationToken);
+            ThrowIfNotOpen();
+
+            try
+            {
+                Interlocked.Increment(ref _outstandingOperationsCount);
+                var connection = await _connectionPool.AcquireConnectionAsync(cancellationToken).ConfigureAwait(false);
+                return new ServerChannel(this, connection);
+            }
+            catch (Exception ex)
+            {
+                Interlocked.Decrement(ref _outstandingOperationsCount);
+
+                HandleBeforeHandshakeCompletesException(ex);
+                throw;
+            }
         }
 
         public void Initialize()
@@ -279,22 +258,6 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         // private methods
-        private CheckedOutReason CreateCheckOutReason(TrackedOperationRunContext trackedOperationRunContext)
-        {
-            if (trackedOperationRunContext.IsInTransaction)
-            {
-                return CheckedOutReason.Transaction;
-            }
-            else if (trackedOperationRunContext.WithCursorResult)
-            {
-                return CheckedOutReason.Cursor;
-            }
-            else
-            {
-                return CheckedOutReason.NotSet;
-            }
-        }
-
         private void HandleChannelException(IConnection connection, Exception ex)
         {
             if (!IsOpen() || ShouldIgnoreException(ex))

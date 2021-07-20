@@ -16,6 +16,7 @@
 using System.Threading;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.ConnectionPools;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Servers;
 
@@ -32,9 +33,8 @@ namespace MongoDB.Driver.Core
         /// <param name="cluster">The cluster,</param>
         /// <param name="session">The session.</param>
         /// <param name="readPreference">The read preference.</param>
-        /// <param name="doesInitiateCursor">The flag whether operation initiates cursor.</param>
         /// <returns>An effective read binging.</returns>
-        public static IReadBindingHandle CreateReadBinding(ICluster cluster, ICoreSessionHandle session, ReadPreference readPreference, bool doesInitiateCursor)
+        public static IReadBindingHandle CreateReadBinding(ICluster cluster, ICoreSessionHandle session, ReadPreference readPreference)
         {
             IReadBinding readBinding;
             if (session.IsInTransaction &&
@@ -48,21 +48,12 @@ namespace MongoDB.Driver.Core
             }
             else
             {
-                TrackedOperationRunContext trackedOperationRunContext;
-                if (IsInLoadBalancedMode(cluster.Description))
+                if (IsInLoadBalancedMode(cluster.Description) && IsChannelPinned(session.CurrentTransaction))
                 {
-                    if (IsChannelPinned(session.CurrentTransaction))
-                    {
-                        // unpin if the next operation is not under transaction
-                        session.CurrentTransaction.UnpinAll();
-                    }
-                    trackedOperationRunContext = new TrackedOperationRunContext(session.IsInTransaction, doesInitiateCursor);
+                    // unpin if the next operation is not under transaction
+                    session.CurrentTransaction.UnpinAll();
                 }
-                else
-                {
-                    trackedOperationRunContext = TrackedOperationRunContext.CreateEmpty();
-                }
-                readBinding = new ReadPreferenceBinding(cluster, readPreference, session, trackedOperationRunContext);
+                readBinding = new ReadPreferenceBinding(cluster, readPreference, session);
             }
 
             return new ReadBindingHandle(readBinding);
@@ -88,23 +79,12 @@ namespace MongoDB.Driver.Core
             }
             else
             {
-                TrackedOperationRunContext trackedOperationRunContext;
-                if (IsInLoadBalancedMode(cluster.Description))
+                if (IsInLoadBalancedMode(cluster.Description) && IsChannelPinned(session.CurrentTransaction))
                 {
-                    if (IsChannelPinned(session.CurrentTransaction))
-                    {
-                        // unpin if the next operation is not under transaction
-                        session.CurrentTransaction.UnpinAll();
-                    }
-
-                    trackedOperationRunContext = new TrackedOperationRunContext(session.IsInTransaction, withCursorResult: false);
+                    // unpin if the next operation is not under transaction
+                    session.CurrentTransaction.UnpinAll();
                 }
-                else
-                {
-                    trackedOperationRunContext = TrackedOperationRunContext.CreateEmpty();
-                }
-
-                readWriteBinding = new WritableServerBinding(cluster, session, trackedOperationRunContext);
+                readWriteBinding = new WritableServerBinding(cluster, session);
             }
 
             return new ReadWriteBindingHandle(readWriteBinding);
@@ -117,6 +97,10 @@ namespace MongoDB.Driver.Core
             {
                 var getMoreChannel = channelSource.GetChannel(CancellationToken.None); // no need for cancellation token since we already have channel in the source
                 var getMoreSession = channelSource.Session.Fork();
+                if (getMoreChannel.Connection is ITrackedPinningReason trackedConnection)
+                {
+                    trackedConnection.SetPinningCheckoutReasonIfNotAlreadySet(CheckedOutReason.Cursor);
+                }
 
                 effectiveChannelSource = new ChannelChannelSource(
                     channelSource.Server,
@@ -150,6 +134,10 @@ namespace MongoDB.Driver.Core
 
                 if (session.IsInTransaction && !IsChannelPinned(session.CurrentTransaction))
                 {
+                    if (channel.Connection is ITrackedPinningReason trackedConnection)
+                    {
+                        trackedConnection.SetPinningCheckoutReasonIfNotAlreadySet(CheckedOutReason.Transaction);
+                    }
                     session.CurrentTransaction.PinChannel(channel.Fork());
                     session.CurrentTransaction.PinnedServer = server;
                 }

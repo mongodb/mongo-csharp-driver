@@ -26,24 +26,6 @@ namespace MongoDB.Driver.Core.Misc
     public static class Ensure
     {
         /// <summary>
-        /// Ensures that the value can be assignable to TResult.
-        /// </summary>
-        /// <typeparam name="T">Type type of the value</typeparam>
-        /// <typeparam name="TResult">Type type of the result</typeparam>
-        /// <param name="value">The value</param>
-        /// <returns>The result.</returns>
-        public static TResult IsAssignableTo<T, TResult>(T value)
-        {
-            if (value is not TResult tResult)
-            {
-                var message =$"Value must be assignable to : {typeof(TResult).Name}.";
-                throw new InvalidCastException(message);
-            }
-
-            return tResult;
-        }
-
-        /// <summary>
         /// Ensures that the value of a parameter is between a minimum and a maximum value.
         /// </summary>
         /// <typeparam name="T">Type type of the value.</typeparam>

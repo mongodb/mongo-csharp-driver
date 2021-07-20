@@ -104,14 +104,14 @@ namespace MongoDB.Driver
                 var forkedSession = session.Fork();
                 var deferredCursor = new DeferredAsyncCursor<TResult>(
                     () => forkedSession.Dispose(),
-                    ct => ExecuteReadOperation(forkedSession, findOperation, ReadPreference.Primary, doesInitiateCursor: true, ct),
-                    ct => ExecuteReadOperationAsync(forkedSession, findOperation, ReadPreference.Primary, doesInitiateCursor: true, ct));
+                    ct => ExecuteReadOperation(forkedSession, findOperation, ReadPreference.Primary, ct),
+                    ct => ExecuteReadOperationAsync(forkedSession, findOperation, ReadPreference.Primary, ct));
                 return deferredCursor;
             }
             else
             {
                 var aggregateOperation = CreateAggregateOperation(renderedPipeline, options);
-                return ExecuteReadOperation(session, aggregateOperation, doesInitiateCursor: true, cancellationToken);
+                return ExecuteReadOperation(session, aggregateOperation, cancellationToken);
             }
         }
 
@@ -139,14 +139,14 @@ namespace MongoDB.Driver
                 var forkedSession = session.Fork();
                 var deferredCursor = new DeferredAsyncCursor<TResult>(
                     () => forkedSession.Dispose(),
-                    ct => ExecuteReadOperation(forkedSession, findOperation, ReadPreference.Primary, doesInitiateCursor: true, ct),
-                    ct => ExecuteReadOperationAsync(forkedSession, findOperation, ReadPreference.Primary, doesInitiateCursor: true, ct));
+                    ct => ExecuteReadOperation(forkedSession, findOperation, ReadPreference.Primary, ct),
+                    ct => ExecuteReadOperationAsync(forkedSession, findOperation, ReadPreference.Primary, ct));
                 return await Task.FromResult<IAsyncCursor<TResult>>(deferredCursor).ConfigureAwait(false);
             }
             else
             {
                 var aggregateOperation = CreateAggregateOperation(renderedPipeline, options);
-                return await ExecuteReadOperationAsync(session, aggregateOperation, doesInitiateCursor: true, cancellationToken).ConfigureAwait(false);
+                return await ExecuteReadOperationAsync(session, aggregateOperation, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -335,7 +335,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(session, nameof(session));
             var operation = CreateListCollectionNamesOperation(options);
             var effectiveReadPreference = ReadPreferenceResolver.GetEffectiveReadPreference(session, null, ReadPreference.Primary);
-            var cursor = ExecuteReadOperation(session, operation, effectiveReadPreference, doesInitiateCursor: true, cancellationToken);
+            var cursor = ExecuteReadOperation(session, operation, effectiveReadPreference, cancellationToken);
             return new BatchTransformingAsyncCursor<BsonDocument, string>(cursor, ExtractCollectionNames);
         }
 
@@ -349,7 +349,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(session, nameof(session));
             var operation = CreateListCollectionNamesOperation(options);
             var effectiveReadPreference = ReadPreferenceResolver.GetEffectiveReadPreference(session, null, ReadPreference.Primary);
-            var cursor = await ExecuteReadOperationAsync(session, operation, effectiveReadPreference, doesInitiateCursor: true, cancellationToken).ConfigureAwait(false);
+            var cursor = await ExecuteReadOperationAsync(session, operation, effectiveReadPreference, cancellationToken).ConfigureAwait(false);
             return new BatchTransformingAsyncCursor<BsonDocument, string>(cursor, ExtractCollectionNames);
         }
 
@@ -363,7 +363,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(session, nameof(session));
             var operation = CreateListCollectionsOperation(options);
             var effectiveReadPreference = ReadPreferenceResolver.GetEffectiveReadPreference(session, null, ReadPreference.Primary);
-            return ExecuteReadOperation(session, operation, effectiveReadPreference, doesInitiateCursor: true, cancellationToken);
+            return ExecuteReadOperation(session, operation, effectiveReadPreference, cancellationToken);
         }
 
         public override Task<IAsyncCursor<BsonDocument>> ListCollectionsAsync(ListCollectionsOptions options, CancellationToken cancellationToken)
@@ -376,7 +376,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(session, nameof(session));
             var operation = CreateListCollectionsOperation(options);
             var effectiveReadPreference = ReadPreferenceResolver.GetEffectiveReadPreference(session, null, ReadPreference.Primary);
-            return ExecuteReadOperationAsync(session, operation, effectiveReadPreference, doesInitiateCursor: true, cancellationToken);
+            return ExecuteReadOperationAsync(session, operation, effectiveReadPreference, cancellationToken);
         }
 
         public override void RenameCollection(string oldName, string newName, RenameCollectionOptions options, CancellationToken cancellationToken)
@@ -423,7 +423,7 @@ namespace MongoDB.Driver
 
             var operation = CreateRunCommandOperation(command);
             var effectiveReadPreference = ReadPreferenceResolver.GetEffectiveReadPreference(session, readPreference, ReadPreference.Primary);
-            return ExecuteReadOperation(session, operation, effectiveReadPreference, doesInitiateCursor: false, cancellationToken);
+            return ExecuteReadOperation(session, operation, effectiveReadPreference, cancellationToken);
         }
 
         public override Task<TResult> RunCommandAsync<TResult>(Command<TResult> command, ReadPreference readPreference = null, CancellationToken cancellationToken = default(CancellationToken))
@@ -438,7 +438,7 @@ namespace MongoDB.Driver
 
             var operation = CreateRunCommandOperation(command);
             var effectiveReadPreference = ReadPreferenceResolver.GetEffectiveReadPreference(session, readPreference, ReadPreference.Primary);
-            return ExecuteReadOperationAsync(session, operation, effectiveReadPreference, doesInitiateCursor: false, cancellationToken);
+            return ExecuteReadOperationAsync(session, operation, effectiveReadPreference, cancellationToken);
         }
 
         public override IChangeStreamCursor<TResult> Watch<TResult>(
@@ -458,7 +458,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(session, nameof(session));
             Ensure.IsNotNull(pipeline, nameof(pipeline));
             var operation = CreateChangeStreamOperation(pipeline, options);
-            return ExecuteReadOperation(session, operation, doesInitiateCursor: true, cancellationToken);
+            return ExecuteReadOperation(session, operation, cancellationToken);
         }
 
         public override Task<IChangeStreamCursor<TResult>> WatchAsync<TResult>(
@@ -478,7 +478,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(session, nameof(session));
             Ensure.IsNotNull(pipeline, nameof(pipeline));
             var operation = CreateChangeStreamOperation(pipeline, options);
-            return ExecuteReadOperationAsync(session, operation, doesInitiateCursor: true, cancellationToken);
+            return ExecuteReadOperationAsync(session, operation, cancellationToken);
         }
 
         public override IMongoDatabase WithReadConcern(ReadConcern readConcern)
@@ -706,14 +706,14 @@ namespace MongoDB.Driver
             };
         }
 
-        private IReadBinding CreateReadBinding(IClientSessionHandle session, ReadPreference readPreference, bool doesInitiateCursor)
+        private IReadBinding CreateReadBinding(IClientSessionHandle session, ReadPreference readPreference)
         {
             if (session.IsInTransaction && readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary)
             {
                 throw new InvalidOperationException("Read preference in a transaction must be primary.");
             }
 
-            return ChannelPinningHelper.CreateReadBinding(_cluster, session.WrappedCoreSession.Fork(), readPreference, doesInitiateCursor);
+            return ChannelPinningHelper.CreateReadBinding(_cluster, session.WrappedCoreSession.Fork(), readPreference);
         }
 
         private IWriteBindingHandle CreateReadWriteBinding(IClientSessionHandle session)
@@ -762,29 +762,29 @@ namespace MongoDB.Driver
             return collections.Select(collection => collection["name"].AsString);
         }
 
-        private T ExecuteReadOperation<T>(IClientSessionHandle session, IReadOperation<T> operation, bool doesInitiateCursor, CancellationToken cancellationToken)
+        private T ExecuteReadOperation<T>(IClientSessionHandle session, IReadOperation<T> operation, CancellationToken cancellationToken)
         {
             var readPreference = ReadPreferenceResolver.GetEffectiveReadPreference(session, null, _settings.ReadPreference);
-            return ExecuteReadOperation(session, operation, readPreference, doesInitiateCursor, cancellationToken);
+            return ExecuteReadOperation(session, operation, readPreference, cancellationToken);
         }
 
-        private T ExecuteReadOperation<T>(IClientSessionHandle session, IReadOperation<T> operation, ReadPreference readPreference, bool doesInitiateCursor, CancellationToken cancellationToken)
+        private T ExecuteReadOperation<T>(IClientSessionHandle session, IReadOperation<T> operation, ReadPreference readPreference, CancellationToken cancellationToken)
         {
-            using (var binding = CreateReadBinding(session, readPreference, doesInitiateCursor))
+            using (var binding = CreateReadBinding(session, readPreference))
             {
                 return _operationExecutor.ExecuteReadOperation(binding, operation, cancellationToken);
             }
         }
 
-        private Task<T> ExecuteReadOperationAsync<T>(IClientSessionHandle session, IReadOperation<T> operation, bool doesInitiateCursor, CancellationToken cancellationToken)
+        private Task<T> ExecuteReadOperationAsync<T>(IClientSessionHandle session, IReadOperation<T> operation, CancellationToken cancellationToken)
         {
             var readPreference = ReadPreferenceResolver.GetEffectiveReadPreference(session, null, _settings.ReadPreference);
-            return ExecuteReadOperationAsync(session, operation, readPreference, doesInitiateCursor, cancellationToken);
+            return ExecuteReadOperationAsync(session, operation, readPreference, cancellationToken);
         }
 
-        private async Task<T> ExecuteReadOperationAsync<T>(IClientSessionHandle session, IReadOperation<T> operation, ReadPreference readPreference, bool doesInitiateCursor, CancellationToken cancellationToken)
+        private async Task<T> ExecuteReadOperationAsync<T>(IClientSessionHandle session, IReadOperation<T> operation, ReadPreference readPreference, CancellationToken cancellationToken)
         {
-            using (var binding = CreateReadBinding(session, readPreference, doesInitiateCursor))
+            using (var binding = CreateReadBinding(session, readPreference))
             {
                 return await _operationExecutor.ExecuteReadOperationAsync(binding, operation, cancellationToken).ConfigureAwait(false);
             }

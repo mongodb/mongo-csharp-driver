@@ -288,8 +288,10 @@ namespace MongoDB.Driver.Core.ConnectionPools
             [Values(false, true)] bool async)
         {
             var subjectSettings = new ConnectionPoolSettings(minConnections: 0);
-            var mockedConnection = new MockConnection();
-            var subject = CreateSubject(subjectSettings, connectionFactory: Mock.Of<IConnectionFactory>(f => f.CreateConnection(_serverId, _endPoint) == mockedConnection));
+
+            var mockConnectionFactory = Mock.Of<IConnectionFactory>(c => c.CreateConnection(_serverId, _endPoint) == Mock.Of<IConnection>());
+
+            var subject = CreateSubject(subjectSettings, connectionFactory: mockConnectionFactory);
 
             InitializeAndWait(subject, subjectSettings);
             _capturedEvents.Clear();
@@ -297,14 +299,17 @@ namespace MongoDB.Driver.Core.ConnectionPools
             List<IConnectionHandle> connections = new();
             for (int attempt = 1; attempt <= attempts; attempt++)
             {
+                IConnectionHandle connection;
                 if (async)
                 {
-                    connections.Add(subject.AcquireConnectionAsync(reason, CancellationToken.None).GetAwaiter().GetResult());
+                    connection = subject.AcquireConnectionAsync(CancellationToken.None).GetAwaiter().GetResult();
                 }
                 else
                 {
-                    connections.Add(subject.AcquireConnection(reason, CancellationToken.None));
+                    connection = subject.AcquireConnection(CancellationToken.None);
                 }
+                ((ITrackedPinningReason)connection).SetPinningCheckoutReasonIfNotAlreadySet(reason);
+                connections.Add(connection);
 
                 connections.Should().HaveCount(attempt);
                 subject._checkedOutTracker().GetCheckedOutNumber(reason).Should().Be(attempt);
@@ -834,7 +839,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
         [Theory]
         [ParameterAttributeData]
-        public void PrunePoolAsync_should_remove_all_expired_connections([RandomSeed]int seed)
+        public void PrunePoolAsync_should_remove_all_expired_connections([RandomSeed] int seed)
         {
             const int connectionsCount = 10;
 

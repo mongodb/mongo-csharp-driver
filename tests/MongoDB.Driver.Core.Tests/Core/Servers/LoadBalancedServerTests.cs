@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -40,7 +41,7 @@ namespace MongoDB.Driver.Core.Servers
         private IClusterClock _clusterClock;
         private ClusterId _clusterId;
         private ConnectionId _connectionId;
-        private Mock<ITrackedConnectionPool> _mockConnectionPool;
+        private Mock<IConnectionPool> _mockConnectionPool;
         private Mock<IConnectionPoolFactory> _mockConnectionPoolFactory;
         private EndPoint _endPoint;
         private EventCapturer _capturedEvents;
@@ -54,7 +55,7 @@ namespace MongoDB.Driver.Core.Servers
             _endPoint = new DnsEndPoint("localhost", 27017);
 
             _clusterClock = new Mock<IClusterClock>().Object;
-            _mockConnectionPool = new Mock<ITrackedConnectionPool>();
+            _mockConnectionPool = new Mock<IConnectionPool>();
             _mockConnectionPool.Setup(p => p.AcquireConnection(It.IsAny<CancellationToken>())).Returns(new Mock<IConnectionHandle>().Object);
             _mockConnectionPool.Setup(p => p.AcquireConnectionAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult(new Mock<IConnectionHandle>().Object));
             _mockConnectionPoolFactory = new Mock<IConnectionPoolFactory>();
@@ -168,13 +169,13 @@ namespace MongoDB.Driver.Core.Servers
             var connectionId = new ConnectionId(new ServerId(_clusterId, _endPoint));
             var mockConnectionHandle = new Mock<IConnectionHandle>();
 
-            var mockConnectionPool = new Mock<ITrackedConnectionPool>();
+            var mockConnectionPool = new Mock<IConnectionPool>();
             var authenticationException = new MongoAuthenticationException(connectionId, "Invalid login.") { ServiceId = ObjectId.GenerateNewId() };
             mockConnectionPool
-                .Setup(p => p.AcquireConnection(It.IsAny<CheckedOutReason>(), It.IsAny<CancellationToken>()))
+                .Setup(p => p.AcquireConnection(It.IsAny<CancellationToken>()))
                 .Throws(authenticationException);
             mockConnectionPool
-                .Setup(p => p.AcquireConnectionAsync(It.IsAny<CheckedOutReason>(), It.IsAny<CancellationToken>()))
+                .Setup(p => p.AcquireConnectionAsync(It.IsAny<CancellationToken>()))
                 .Throws(authenticationException);
             mockConnectionPool.Setup(p => p.Clear(It.IsAny<ObjectId>()));
 
@@ -401,34 +402,34 @@ namespace MongoDB.Driver.Core.Servers
                 .Setup(c => c.Fork())
                 .Returns(mockConnectionHandle.Object);
 
-            var mockConnectionPool = new Mock<ITrackedConnectionPool>();
+            var mockConnectionPool = new Mock<IConnectionPool>();
             if (exceptionOnConnectionAcquire)
             {
                 mockConnectionPool
-                    .Setup(p => p.AcquireConnection(It.IsAny<CheckedOutReason>(), It.IsAny<CancellationToken>()))
+                    .Setup(p => p.AcquireConnection(It.IsAny<CancellationToken>()))
                     .Throws(new TimeoutException("Timeout"));
                 mockConnectionPool
-                    .Setup(p => p.AcquireConnectionAsync(It.IsAny<CheckedOutReason>(), It.IsAny<CancellationToken>()))
+                    .Setup(p => p.AcquireConnectionAsync(It.IsAny<CancellationToken>()))
                     .Throws(new TimeoutException("Timeout"));
                 mockConnectionPool.Setup(p => p.Clear());
             }
             else if (exceptionOnConnectionOpen)
             {
                 mockConnectionPool
-                    .Setup(p => p.AcquireConnection(It.IsAny<CheckedOutReason>(), It.IsAny<CancellationToken>()))
+                    .Setup(p => p.AcquireConnection(It.IsAny<CancellationToken>()))
                     .Throws(new MongoAuthenticationException(connectionId, "Invalid login."));
                 mockConnectionPool
-                    .Setup(p => p.AcquireConnectionAsync(It.IsAny<CheckedOutReason>(), It.IsAny<CancellationToken>()))
+                    .Setup(p => p.AcquireConnectionAsync(It.IsAny<CancellationToken>()))
                     .Throws(new MongoAuthenticationException(connectionId, "Invalid login."));
                 mockConnectionPool.Setup(p => p.Clear());
             }
             else
             {
                 mockConnectionPool
-                    .Setup(p => p.AcquireConnection(It.IsAny<CheckedOutReason>(), It.IsAny<CancellationToken>()))
+                    .Setup(p => p.AcquireConnection(It.IsAny<CancellationToken>()))
                     .Returns(mockConnectionHandle.Object);
                 mockConnectionPool
-                    .Setup(p => p.AcquireConnectionAsync(It.IsAny<CheckedOutReason>(), It.IsAny<CancellationToken>()))
+                    .Setup(p => p.AcquireConnectionAsync(It.IsAny<CancellationToken>()))
                     .Returns(Task.FromResult(mockConnectionHandle.Object));
                 mockConnectionPool.Setup(p => p.Clear());
             }

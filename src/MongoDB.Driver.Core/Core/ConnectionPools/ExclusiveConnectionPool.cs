@@ -26,7 +26,7 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.ConnectionPools
 {
-    internal sealed partial class ExclusiveConnectionPool : ITrackedConnectionPool
+    internal sealed partial class ExclusiveConnectionPool : IConnectionPool
     {
         // fields
         private readonly CheckedOutTracker _checkedOutTracker;
@@ -158,12 +158,9 @@ namespace MongoDB.Driver.Core.ConnectionPools
         }
 
         // public methods
-
-        public IConnectionHandle AcquireConnection(CancellationToken cancellationToken) => AcquireConnection(CheckedOutReason.NotSet, cancellationToken);
-
-        public IConnectionHandle AcquireConnection(CheckedOutReason reason, CancellationToken cancellationToken)
+        public IConnectionHandle AcquireConnection(CancellationToken cancellationToken)
         {
-            var helper = new AcquireConnectionHelper(this, reason);
+            var helper = new AcquireConnectionHelper(this);
             try
             {
                 helper.CheckingOutConnection();
@@ -183,11 +180,9 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
         }
 
-        public Task<IConnectionHandle> AcquireConnectionAsync(CancellationToken cancellationToken) => AcquireConnectionAsync(CheckedOutReason.NotSet, cancellationToken);
-
-        public async Task<IConnectionHandle> AcquireConnectionAsync(CheckedOutReason reason, CancellationToken cancellationToken)
+        public async Task<IConnectionHandle> AcquireConnectionAsync(CancellationToken cancellationToken)
         {
-            var helper = new AcquireConnectionHelper(this, reason);
+            var helper = new AcquireConnectionHelper(this);
             try
             {
                 helper.CheckingOutConnection();
@@ -231,10 +226,10 @@ namespace MongoDB.Driver.Core.ConnectionPools
             _clearedEventHandler?.Invoke(new ConnectionPoolClearedEvent(_serverId, _settings, serviceId));
         }
 
-        private PooledConnection CreateNewConnection(CheckedOutReason checkedOutReason)
+        private PooledConnection CreateNewConnection()
         {
             var connection = _connectionFactory.CreateConnection(_serverId, _endPoint);
-            var pooledConnection = new PooledConnection(this, connection, checkedOutReason);
+            var pooledConnection = new PooledConnection(this, connection);
             _connectionCreatedEventHandler?.Invoke(new ConnectionCreatedEvent(connection.ConnectionId, connection.Settings, EventContext.OperationId));
             return pooledConnection;
         }
@@ -357,7 +352,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                         return;
                     }
 
-                    using (var connectionCreator = new ConnectionCreator(this, minTimeout, CheckedOutReason.NotSet))
+                    using (var connectionCreator = new ConnectionCreator(this, minTimeout))
                     {
                         var connection = await connectionCreator.CreateOpenedAsync(cancellationToken).ConfigureAwait(false);
                         _connectionHolder.Return(connection);
@@ -392,7 +387,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 _checkedInConnectionEventHandler(new ConnectionPoolCheckedInConnectionEvent(connection.ConnectionId, TimeSpan.Zero, EventContext.OperationId));
             }
 
-            _checkedOutTracker.CheckIn(connection.CheckedOutReason);
+            _checkedOutTracker.CheckInIfNotNull(connection.CheckedOutReason);
+
             if (!connection.IsExpired && _state.Value != State.Disposed)
             {
                 _connectionHolder.Return(connection);

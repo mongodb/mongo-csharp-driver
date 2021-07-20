@@ -16,6 +16,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 
@@ -30,7 +31,6 @@ namespace MongoDB.Driver.Core.Bindings
         private bool _disposed;
         private readonly IServer _server;
         private readonly ICoreSessionHandle _session;
-        private readonly TrackedOperationRunContext _trackedOperationRunContext;
 
         // constructors
         /// <summary>
@@ -39,15 +39,9 @@ namespace MongoDB.Driver.Core.Bindings
         /// <param name="server">The server.</param>
         /// <param name="session">The session.</param>
         public ServerChannelSource(IServer server, ICoreSessionHandle session)
-            : this(server, session, trackedOperationRunContext: null)
-        {
-        }
-
-        internal ServerChannelSource(IServer server, ICoreSessionHandle session, TrackedOperationRunContext trackedOperationRunContext)
         {
             _server = Ensure.IsNotNull(server, nameof(server));
             _session = Ensure.IsNotNull(session, nameof(session));
-            _trackedOperationRunContext = trackedOperationRunContext; // can be null
         }
 
         // properties
@@ -84,28 +78,14 @@ namespace MongoDB.Driver.Core.Bindings
         public IChannelHandle GetChannel(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
-            if (_trackedOperationRunContext != null && _server is IServerWithTrackedGetChannel trackedServer)
-            {
-                return trackedServer.GetChannel(_trackedOperationRunContext, cancellationToken);
-            }
-            else
-            {
-                return _server.GetChannel(cancellationToken);
-            }
+            return _server.GetChannel(cancellationToken);
         }
 
         /// <inheritdoc/>
         public Task<IChannelHandle> GetChannelAsync(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
-            if (_trackedOperationRunContext != null && _server is IServerWithTrackedGetChannel trackedServer)
-            {
-                return trackedServer.GetChannelAsync(_trackedOperationRunContext, cancellationToken);
-            }
-            else
-            {
-                return _server.GetChannelAsync(cancellationToken);
-            }
+            return _server.GetChannelAsync(cancellationToken);
         }
 
         private void ThrowIfDisposed()
