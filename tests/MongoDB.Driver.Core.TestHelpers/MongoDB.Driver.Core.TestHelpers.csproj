@@ -56,7 +56,7 @@
     <PackageReference Include="FluentAssertions" Version="4.12.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.2" />
     <PackageReference Include="xunit" Version="2.4.0" />
-    <PackageReference Include="JunitXml.TestLogger" Version="3.0.98" />
+    <PackageReference Include="JunitXml.TestLogger" Version="2.1.81" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
