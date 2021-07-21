@@ -136,7 +136,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
                 return this;
             }
 
-            throw new SkipException("Test skipped because serverless is " + (require ? "required" : "not required"));
+            throw new SkipException("Test skipped because serverless is " + (require ? "required" : "not required") + ".");
         }
 
         public RequireServer Supports(Feature feature)

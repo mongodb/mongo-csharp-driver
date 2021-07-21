@@ -9,7 +9,6 @@ set -o errexit # Exit the script with error if any of the commands fail
 #   SSL                                 TLS connection flag, must be "ssl"
 #   COMPRESSOR                          Field level compressor, must be set
 #   FRAMEWORK                           Used in build.cake "TestServerless" task, must be set
-#   MONGODB_SRV_URI                     Srv URI, produced by create-instance.sh script, must be set
 #   MONGODB_URI                         URI with mulpiple mongoses, produced by create-instance.sh script, must be set
 # Modified/exported environment variables:
 #   MONGODB_URI_WITH_MULTIPLE_MONGOSES  MONGODB_URI with auth details and TLS and compressor parameters
@@ -57,7 +56,7 @@ export MONGODB_URI="${MONGODB_URI_SPLIT[0]:0:10}${SERVERLESS_ATLAS_USER}:${SERVE
 export SERVERLESS=true
 
 if [ "Windows_NT" = "$OS" ]; then
-  powershell.exe .\\build.ps1 --target TestServerless
+  powershell.exe .\\build.ps1 --target "serverless${FRAMEWORK}"
 else
-  ./build.sh --target=TestServerless
+  ./build.sh --target="serverless${FRAMEWORK}"
 fi

@@ -599,7 +599,6 @@ functions:
       params:
         working_dir: mongo-csharp-driver
         script: |
-          # set +o xtrace
           MONGODB_URI="${MONGODB_URI}" \
           MONGODB_SRV_URI="${MONGODB_SRV_URI}" \
           SERVERLESS_ATLAS_USER="${SERVERLESS_ATLAS_USER}" \
@@ -609,6 +608,34 @@ functions:
           COMPRESSOR=${COMPRESSOR} \
           FRAMEWORK=${FRAMEWORK} \
             evergreen/run-serverless-tests.sh
+
+  create-serverless-instance:
+    - command: shell.exec
+      params:
+        #silent: true
+        script: |
+          ${PREPARE_SHELL}
+          set +o xtrace
+          SERVERLESS_DRIVERS_GROUP=${SERVERLESS_DRIVERS_GROUP} \
+          SERVERLESS_API_PUBLIC_KEY=${SERVERLESS_API_PUBLIC_KEY} \
+          SERVERLESS_API_PRIVATE_KEY=${SERVERLESS_API_PRIVATE_KEY} \
+            bash ${DRIVERS_TOOLS}/.evergreen/serverless/create-instance.sh
+    - command: expansions.update
+      params:
+        file: serverless-expansion.yml
+
+  delete-serverless-instance:
+    - command: shell.exec
+      params:
+        #silent: true
+        script: |
+          ${PREPARE_SHELL}
+          set +o xtrace
+          SERVERLESS_DRIVERS_GROUP=${SERVERLESS_DRIVERS_GROUP} \
+          SERVERLESS_API_PUBLIC_KEY=${SERVERLESS_API_PUBLIC_KEY} \
+          SERVERLESS_API_PRIVATE_KEY=${SERVERLESS_API_PRIVATE_KEY} \
+          SERVERLESS_INSTANCE_NAME=${SERVERLESS_INSTANCE_NAME} \
+            bash ${DRIVERS_TOOLS}/.evergreen/serverless/delete-instance.sh
 
   publish-snapshot:
     - command: shell.exec
@@ -675,7 +702,6 @@ functions:
           ${PREPARE_SHELL}
           echo '{"results": [{ "status": "FAIL", "test_file": "Build", "log_raw": "No test-results.json found was created" } ]}' > ${PROJECT_DIRECTORY}/test-results.json
 
-# Note: Task groups do not run "pre" or "post" tasks, thus relevant tasks should be copied to "setup_group" section of the task group
 pre:
   - func: fetch-source
   - func: prepare-resources
@@ -687,6 +713,7 @@ pre:
 post:
   # Removed, causing timeouts
   # - func: upload-working-dir
+  - func: delete-serverless-instance
   - func: upload-mo-artifacts
   - func: upload-test-results
   - func: cleanup
@@ -863,10 +890,33 @@ tasks:
       commands:
         - func: publish-snapshot
 
-    - name: serverless-tests
-      tags: ["serverless"]
+    - name: serverless-tests-net452
       commands:
+        - func: create-serverless-instance
         - func: run-serverless-tests
+          vars:
+            FRAMEWORK: net452
+
+    - name: serverless-tests-netstandard15
+      commands:
+        - func: create-serverless-instance
+        - func: run-serverless-tests
+          vars:
+            FRAMEWORK: netstandard15
+
+    - name: serverless-tests-netstandard20
+      commands:
+        - func: create-serverless-instance
+        - func: run-serverless-tests
+          vars:
+            FRAMEWORK: netstandard20
+
+    - name: serverless-tests-netstandard21
+      commands:
+        - func: create-serverless-instance
+        - func: run-serverless-tests
+          vars:
+            FRAMEWORK: netstandard21
 
     - name: test-ocsp-rsa-valid-cert-server-staples-ca-responder
       tags: ["ocsp"]
@@ -1314,67 +1364,6 @@ axes:
         variables:
            COMPRESSOR: "zstandard"
 
-  - id: framework
-    display_name: Framework
-    values:
-      - id: "net452"
-        display_name: .NET 4.5.2
-        variables:
-           FRAMEWORK: "net452"
-      - id: "netstandard15"
-        display_name: .NET Standard 1.5
-        variables:
-           FRAMEWORK: "netstandard15"
-      - id: "netstandard20"
-        display_name: .NET Standard 2.0
-        variables:
-           FRAMEWORK: "netstandard20"
-      - id: "netstandard21"
-        display_name: .NET Standard 2.1
-        variables:
-           FRAMEWORK: "netstandard21"
-
-task_groups:
-  - name: serverless-task-group
-    setup_group_can_fail_task: true
-    setup_group_timeout_secs: 900 # Setup task can take up to 15 minutes
-    setup_group:
-      # Note: "pre" functions do not run for task group tasks. That's why they are duplicated here.
-      - func: fetch-source
-      - func: prepare-resources
-      - func: windows-fix
-      - func: fix-absolute-paths
-      - func: init-test-results
-      - func: make-files-executable
-      - command: shell.exec
-        params:
-          shell: "bash"
-          silent: true
-          script: |
-            ${PREPARE_SHELL}
-            set +o xtrace
-            SERVERLESS_DRIVERS_GROUP=${SERVERLESS_DRIVERS_GROUP} \
-            SERVERLESS_API_PUBLIC_KEY=${SERVERLESS_API_PUBLIC_KEY} \
-            SERVERLESS_API_PRIVATE_KEY=${SERVERLESS_API_PRIVATE_KEY} \
-              bash ${DRIVERS_TOOLS}/.evergreen/serverless/create-instance.sh
-      - command: expansions.update
-        params:
-          file: serverless-expansion.yml
-    teardown_group:
-      - command: shell.exec
-        params:
-          silent: true
-          script: |
-            ${PREPARE_SHELL}
-            set +o xtrace
-            SERVERLESS_DRIVERS_GROUP=${SERVERLESS_DRIVERS_GROUP} \
-            SERVERLESS_API_PUBLIC_KEY=${SERVERLESS_API_PUBLIC_KEY} \
-            SERVERLESS_API_PRIVATE_KEY=${SERVERLESS_API_PRIVATE_KEY} \
-            SERVERLESS_INSTANCE_NAME=${SERVERLESS_INSTANCE_NAME} \
-              bash ${DRIVERS_TOOLS}/.evergreen/serverless/delete-instance.sh
-    tasks:
-      - serverless-tests
-
 buildvariants:
 
 - name: windows-64-compile
@@ -1532,8 +1521,8 @@ buildvariants:
   tasks:
     - name: "test-load-balancer-netstandard15"
     - name: "test-load-balancer-netstandard20"
-    - name: "test-load-balancer-netstandard21"  
-    
+    - name: "test-load-balancer-netstandard21"
+
 - matrix_name: tests-load-balancer-secure
   matrix_spec: { version: ["5.0", "latest"], auth: "auth", ssl: "ssl", topology: "sharded-cluster", os: "ubuntu-1804" }
   display_name: "Load Balancer ${version} ${auth} ${ssl} ${os}"
@@ -1543,22 +1532,27 @@ buildvariants:
     - name: "test-load-balancer-netstandard21"
 
 - matrix_name: serverless-tests-windows
-  matrix_spec: { auth: "auth", ssl: "ssl", compressor: "zlib", os: "windows-64", framework: ["net452", "netstandard15", "netstandard20", "netstandard21"] }
-  display_name: "Serverless ${compressor} ${auth} ${ssl} ${os} ${framework}"
+  matrix_spec: { auth: "auth", ssl: "ssl", compressor: "zlib", os: "windows-64" }
+  display_name: "Serverless ${compressor} ${auth} ${ssl} ${os}"
   tasks:
-    - name: serverless-task-group
+    - name: serverless-tests-net452
+    - name: serverless-tests-netstandard15
+    - name: serverless-tests-netstandard20
+    - name: serverless-tests-netstandard21
 
 - matrix_name: serverless-tests-macos
-  matrix_spec: { auth: "auth", ssl: "ssl", compressor: "zlib", os: "macos-1014", framework: ["netstandard20", "netstandard21"] }
-  display_name: "Serverless ${compressor} ${auth} ${ssl} ${os} ${framework}"
+  matrix_spec: { auth: "auth", ssl: "ssl", compressor: "zlib", os: "macos-1014" }
+  display_name: "Serverless ${compressor} ${auth} ${ssl} ${os}"
   tasks:
-    - name: serverless-task-group
+    - name: serverless-tests-netstandard20
+    - name: serverless-tests-netstandard21
 
 - matrix_name: serverless-tests-ubuntu
-  matrix_spec: { auth: "auth", ssl: "ssl", compressor: "zlib", os: "ubuntu-1804", framework: ["netstandard20", "netstandard21"] }
-  display_name: "Serverless ${compressor} ${auth} ${ssl} ${os} ${framework}"
+  matrix_spec: { auth: "auth", ssl: "ssl", compressor: "zlib", os: "ubuntu-1804" }
+  display_name: "Serverless ${compressor} ${auth} ${ssl} ${os}"
   tasks:
-    - name: serverless-task-group
+    - name: serverless-tests-netstandard20
+    - name: serverless-tests-netstandard21
 
 - name: atlas-connectivity-tests
   display_name: "Atlas Connectivity Tests"

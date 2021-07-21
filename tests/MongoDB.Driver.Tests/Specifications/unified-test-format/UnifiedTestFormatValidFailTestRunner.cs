@@ -22,7 +22,6 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Specifications.unified_test_format
 {
-    [Trait("Category", "unified-test-format")]
     public sealed class UnifiedTestFormatValidFailTestRunner
     {
         [Theory]
