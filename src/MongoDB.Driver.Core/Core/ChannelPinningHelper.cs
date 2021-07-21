@@ -90,22 +90,21 @@ namespace MongoDB.Driver.Core
             return new ReadWriteBindingHandle(readWriteBinding);
         }
 
-        internal static IChannelSourceHandle CreateGetMoreChannelSource(IChannelSourceHandle channelSource, long cursorId)
+        internal static IChannelSourceHandle CreateGetMoreChannelSource(IChannelSourceHandle channelSource, IChannelHandle channel, long cursorId)
         {
             IChannelSource effectiveChannelSource;
             if (IsInLoadBalancedMode(channelSource.ServerDescription) && cursorId != 0)
             {
-                var getMoreChannel = channelSource.GetChannel(CancellationToken.None); // no need for cancellation token since we already have channel in the source
-                var getMoreSession = channelSource.Session.Fork();
-                if (getMoreChannel.Connection is ITrackedPinningReason trackedConnection)
+                if (channel.Connection is ITrackedPinningReason trackedConnection)
                 {
                     trackedConnection.SetPinningCheckoutReasonIfNotAlreadySet(CheckedOutReason.Cursor);
                 }
 
+                // pinning channel
                 effectiveChannelSource = new ChannelChannelSource(
                     channelSource.Server,
-                    getMoreChannel,
-                    getMoreSession);
+                    channel.Fork(),
+                    channelSource.Session.Fork());
             }
             else
             {
@@ -115,41 +114,22 @@ namespace MongoDB.Driver.Core
             return new ChannelSourceHandle(effectiveChannelSource);
         }
 
-        internal static bool PinChannelSourceAndChannelIfRequired(
+        internal static void PinChannellIfRequired(
             IChannelSourceHandle channelSource,
             IChannelHandle channel,
-            ICoreSessionHandle session,
-            out IChannelSourceHandle pinnedChannelSource,
-            out IChannelHandle pinnedChannel)
+            ICoreSessionHandle session)
         {
-            if (IsInLoadBalancedMode(channel.ConnectionDescription))
+            if (IsInLoadBalancedMode(channel.ConnectionDescription) &&
+                session.IsInTransaction &&
+                !IsChannelPinned(session.CurrentTransaction))
             {
-                var server = channelSource.Server;
-
-                pinnedChannelSource = new ChannelSourceHandle(
-                    new ChannelChannelSource(
-                        server,
-                        channel.Fork(),
-                        session.Fork()));
-
-                if (session.IsInTransaction && !IsChannelPinned(session.CurrentTransaction))
+                if (channel.Connection is ITrackedPinningReason trackedConnection)
                 {
-                    if (channel.Connection is ITrackedPinningReason trackedConnection)
-                    {
-                        trackedConnection.SetPinningCheckoutReasonIfNotAlreadySet(CheckedOutReason.Transaction);
-                    }
-                    session.CurrentTransaction.PinChannel(channel.Fork());
-                    session.CurrentTransaction.PinnedServer = server;
+                    trackedConnection.SetPinningCheckoutReasonIfNotAlreadySet(CheckedOutReason.Transaction);
                 }
-
-                pinnedChannel = channel.Fork();
-
-                return true;
+                session.CurrentTransaction.PinChannel(channel.Fork());
+                session.CurrentTransaction.PinnedServer = channelSource.Server;
             }
-
-            pinnedChannelSource = null;
-            pinnedChannel = null;
-            return false;
         }
 
         // private methods
