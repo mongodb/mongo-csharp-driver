@@ -161,6 +161,7 @@ Task("Test")
             case "testnetstandard15": settings.Framework = "netcoreapp1.1"; break;
             case "testnetstandard20": settings.Framework = "netcoreapp2.1"; break;
             case "testnetstandard21": settings.Framework = "netcoreapp3.0"; break;
+            default: throw new ArgumentException($"Unexpected target: \"{target}\".");
         }
         DotNetCoreTest(
             testProject.FullPath,
@@ -328,6 +329,7 @@ Task("TestGssapi")
             case "testgssapinetstandard15": settings.Framework = "netcoreapp1.1"; break;
             case "testgssapinetstandard20": settings.Framework = "netcoreapp2.1"; break;
             case "testgssapinetstandard21": settings.Framework = "netcoreapp3.0"; break;
+            default: throw new ArgumentException($"Unexpected target: \"{target}\".");
         }
         DotNetCoreTest(
             testProject.FullPath,
@@ -341,27 +343,25 @@ Task("TestServerless")
         GetFiles("./**/MongoDB.Driver.Tests.csproj"),
         testProject =>
         {
-            var targetFramework = Environment.GetEnvironmentVariable("FRAMEWORK");
-            var framework = "";
-            switch (targetFramework.ToLowerInvariant())
+            var settings = new DotNetCoreTestSettings
             {
-                case "net452": framework = "net452"; break;
-                case "netstandard15": framework = "netcoreapp1.1"; break;
-                case "netstandard20": framework = "netcoreapp2.1"; break;
-                case "netstandard21": framework = "netcoreapp3.0"; break;
-                default: throw new ArgumentException($"Unexpected framework: \"{framework}\"");
+                NoBuild = true,
+                NoRestore = true,
+                Configuration = configuration,
+                ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64")
+                Filter = "Category=\"Serverless\"",
+            };
+            switch (target.ToLowerInvariant())
+            {
+                case "serverlessnet452": settings.Framework = "net452"; break;
+                case "serverlessnetstandard15": settings.Framework = "netcoreapp1.1"; break;
+                case "serverlessnetstandard20": settings.Framework = "netcoreapp2.1"; break;
+                case "serverlessnetstandard21": settings.Framework = "netcoreapp3.0"; break;
+                default: throw new ArgumentException($"Unexpected target: \"{target}\".");
             }
             DotNetCoreTest(
                 testProject.FullPath,
-                new DotNetCoreTestSettings
-                {
-                    NoBuild = true,
-                    NoRestore = true,
-                    Configuration = configuration,
-                    ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64"),
-                    Filter = "Category=\"Serverless\"",
-                    Framework = framework
-                }
+                settings
             );
         })
     .DeferOnError();
