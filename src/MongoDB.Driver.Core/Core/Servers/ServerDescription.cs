@@ -476,6 +476,7 @@ namespace MongoDB.Driver.Core.Servers
                 EndPointHelper.Equals(_endPoint, other._endPoint) &&
                 Equals(_heartbeatException, other._heartbeatException) &&
                 _heartbeatInterval == other._heartbeatInterval &&
+                _helloOk == other._helloOk &&
                 _lastHeartbeatTimestamp == other.LastHeartbeatTimestamp &&
                 _lastUpdateTimestamp == other._lastUpdateTimestamp &&
                 _lastWriteTimestamp == other._lastWriteTimestamp &&
@@ -505,6 +506,7 @@ namespace MongoDB.Driver.Core.Servers
                 .Hash(_endPoint)
                 .Hash(_heartbeatException)
                 .Hash(_heartbeatInterval)
+                .Hash(_helloOk)
                 .Hash(_lastHeartbeatTimestamp)
                 .Hash(_lastUpdateTimestamp)
                 .Hash(_lastWriteTimestamp)
@@ -666,6 +668,7 @@ namespace MongoDB.Driver.Core.Servers
                 electionId: _electionId,
                 heartbeatException: heartbeatException,
                 heartbeatInterval: _heartbeatInterval,
+                helloOk: _helloOk,
                 lastHeartbeatTimestamp: DateTime.UtcNow,
                 lastUpdateTimestamp: DateTime.UtcNow,
                 lastWriteTimestamp: _lastWriteTimestamp,

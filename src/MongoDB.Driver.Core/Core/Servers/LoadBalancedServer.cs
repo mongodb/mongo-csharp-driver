@@ -98,8 +98,10 @@ namespace MongoDB.Driver.Core.Servers
         {
             // generate initial server description
             var newDescription = _baseDescription
-                .With(reasonChanged: "Initialized",
-                    state: ServerState.Connected, type: ServerType.LoadBalanced);
+                .With(
+                    type: ServerType.LoadBalanced,
+                    reasonChanged: "Initialized",
+                    state: ServerState.Connected);
             var oldDescription = Interlocked.CompareExchange(ref _currentDescription, value: newDescription, comparand: _currentDescription);
             var eventArgs = new ServerDescriptionChangedEventArgs(oldDescription, newDescription);
 
