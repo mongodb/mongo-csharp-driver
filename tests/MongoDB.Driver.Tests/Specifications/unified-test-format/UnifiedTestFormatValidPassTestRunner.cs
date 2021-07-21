@@ -21,7 +21,6 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Specifications.unified_test_format
 {
-    [Trait("Category", "Serverless")]
     public sealed class UnifiedTestFormatValidPassTestRunner
     {
         [SkippableTheory]
