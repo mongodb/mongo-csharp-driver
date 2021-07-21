@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
         // public methods
         public override void Arrange(BsonDocument document)
         {
-            var expectedNames = new[] { "name", "object", "command_name", "arguments", "result", "databaseOptions" };
+            var expectedNames = new[] { "name", "object", "command_name", "arguments", "result", "databaseOptions", "error" };
             JsonDrivenHelper.EnsureAllFieldsAreValid(document, expectedNames);
             base.Arrange(document);
 

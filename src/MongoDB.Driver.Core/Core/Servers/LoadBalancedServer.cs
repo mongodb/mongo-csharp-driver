@@ -107,6 +107,10 @@ namespace MongoDB.Driver.Core.Servers
 
             // propagate event to upper levels, this will be called only once
             TriggerServerDescriptionChanged(this, eventArgs);
+
+            // mark pool as ready, start the connection creation thread.
+            // note that the pool can not be paused in LB mode.
+            ConnectionPool.SetReady();
         }
 
         public override void Invalidate(string reasonInvalidated, bool clearConnectionPool, TopologyVersion topologyVersion)

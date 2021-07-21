@@ -79,10 +79,11 @@ namespace MongoDB.Driver.Core.Servers
             _mockConnectionPool.Setup(p => p.AcquireConnectionAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult(new Mock<IConnectionHandle>().Object));
             _mockConnectionPoolFactory = new Mock<IConnectionPoolFactory>();
             _mockConnectionPoolFactory
-                .Setup(f => f.CreateConnectionPool(It.IsAny<ServerId>(), _endPoint))
+                .Setup(f => f.CreateConnectionPool(It.IsAny<ServerId>(), _endPoint, It.IsAny<IConnectionExceptionHandler>()))
                 .Returns(_mockConnectionPool.Object);
 
             _mockServerMonitor = new Mock<IServerMonitor>();
+            _mockServerMonitor.Setup(m => m.Lock).Returns(new object());
             _mockServerMonitorFactory = new Mock<IServerMonitorFactory>();
             _mockServerMonitorFactory.Setup(f => f.Create(It.IsAny<ServerId>(), _endPoint)).Returns(_mockServerMonitor.Object);
 
@@ -214,7 +215,7 @@ namespace MongoDB.Driver.Core.Servers
 
             var mockConnectionPoolFactory = new Mock<IConnectionPoolFactory>();
             mockConnectionPoolFactory
-                .Setup(f => f.CreateConnectionPool(It.IsAny<ServerId>(), _endPoint))
+                .Setup(f => f.CreateConnectionPool(It.IsAny<ServerId>(), _endPoint, It.IsAny<IConnectionExceptionHandler>()))
                 .Returns(mockConnectionPool.Object);
 
             var server = new DefaultServer(
@@ -378,12 +379,13 @@ namespace MongoDB.Driver.Core.Servers
             var connectionFactory = new Mock<IConnectionFactory>();
             connectionFactory.Setup(cf => cf.CreateConnection(serverId, _endPoint)).Returns(mockConnection.Object);
 
+            var mockExceptionHandler = new Mock<IConnectionExceptionHandler>();
             var connectionPoolSettings = new ConnectionPoolSettings();
-            var connectionPool = new ExclusiveConnectionPool(serverId, _endPoint, connectionPoolSettings, connectionFactory.Object, new EventAggregator());
+            var connectionPool = new ExclusiveConnectionPool(serverId, _endPoint, connectionPoolSettings, connectionFactory.Object, new EventAggregator(), mockExceptionHandler.Object);
 
             var mockConnectionPoolFactory = new Mock<IConnectionPoolFactory>();
             mockConnectionPoolFactory
-                .Setup(f => f.CreateConnectionPool(It.IsAny<ServerId>(), _endPoint))
+                .Setup(f => f.CreateConnectionPool(It.IsAny<ServerId>(), _endPoint, It.IsAny<IConnectionExceptionHandler>()))
                 .Returns(connectionPool);
             var mockMonitorServerDescription = new ServerDescription(serverId, _endPoint);
             var mockServerMonitor = new Mock<IServerMonitor>();
@@ -394,6 +396,7 @@ namespace MongoDB.Driver.Core.Servers
 
             var subject = new DefaultServer(_clusterId, _clusterClock, _clusterConnectionMode, _connectionModeSwitch, _directConnection, _settings, _endPoint, mockConnectionPoolFactory.Object, mockServerMonitorFactory.Object, _capturedEvents, _serverApi);
             subject.Initialize();
+            connectionPool.SetReady();
 
             IChannelHandle channel = null;
             Exception exception;
@@ -445,7 +448,7 @@ namespace MongoDB.Driver.Core.Servers
             mockConnectionPool.Setup(p => p.AcquireConnectionAsync(It.IsAny<CancellationToken>())).ReturnsAsync(mockConnection.Object);
             var mockConnectionPoolFactory = new Mock<IConnectionPoolFactory>();
             mockConnectionPoolFactory
-                .Setup(f => f.CreateConnectionPool(It.IsAny<ServerId>(), _endPoint))
+                .Setup(f => f.CreateConnectionPool(It.IsAny<ServerId>(), _endPoint, It.IsAny<IConnectionExceptionHandler>()))
                 .Returns(mockConnectionPool.Object);
             var mockMonitorServerInitialDescription = new ServerDescription(serverId, _endPoint).With(reasonChanged: "Initial D", type: ServerType.Unknown);
             var mockServerMonitor = new Mock<IServerMonitor>();
@@ -830,7 +833,7 @@ namespace MongoDB.Driver.Core.Servers
 
             var mockConnectionPoolFactory = new Mock<IConnectionPoolFactory>();
             mockConnectionPoolFactory
-                .Setup(f => f.CreateConnectionPool(It.IsAny<ServerId>(), _endPoint))
+                .Setup(f => f.CreateConnectionPool(It.IsAny<ServerId>(), _endPoint, It.IsAny<IConnectionExceptionHandler>()))
                 .Returns(mockConnectionPool.Object);
 
             var server = new DefaultServer(

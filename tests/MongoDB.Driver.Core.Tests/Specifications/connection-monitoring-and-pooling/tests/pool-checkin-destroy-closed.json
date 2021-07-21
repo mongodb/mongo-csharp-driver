@@ -4,6 +4,9 @@
   "description": "must destroy checked in connection if pool has been closed",
   "operations": [
     {
+      "name": "ready"
+    },
+    {
       "name": "checkOut",
       "label": "conn"
     },
@@ -18,7 +21,8 @@
   "events": [
     {
       "type": "ConnectionCheckedOut",
-      "connectionId": 1
+      "connectionId": 1,
+      "address": 42
     },
     {
       "type": "ConnectionPoolClosed",
@@ -26,16 +30,19 @@
     },
     {
       "type": "ConnectionCheckedIn",
-      "connectionId": 1
+      "connectionId": 1,
+      "address": 42
     },
     {
       "type": "ConnectionClosed",
       "connectionId": 1,
-      "reason": "poolClosed"
+      "reason": "poolClosed",
+      "address": 42
     }
   ],
   "ignore": [
     "ConnectionPoolCreated",
+    "ConnectionPoolReady",
     "ConnectionCreated",
     "ConnectionReady",
     "ConnectionCheckOutStarted"

@@ -66,7 +66,8 @@ namespace MongoDB.Bson.TestHelpers.JsonDrivenTests
                 SetArguments(document["arguments"].AsBsonDocument);
             }
 
-            if (document.Contains("error"))
+            if (document.TryGetElement("error", out var errorElement) &&
+                (!errorElement.Value.IsBoolean || errorElement.Value.AsBoolean))
             {
                 _expectedException = new BsonDocument(); // any exception will do
             }

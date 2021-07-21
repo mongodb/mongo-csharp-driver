@@ -99,7 +99,7 @@ namespace MongoDB.Driver.Core.Helpers
                     mockConnectionPool.Setup(p => p.Clear()).Callback(() => { ++poolGeneration; });
                     var mockConnectionPoolFactory = new Mock<IConnectionPoolFactory> { DefaultValue = DefaultValue.Mock };
                     mockConnectionPoolFactory
-                        .Setup(f => f.CreateConnectionPool(It.IsAny<ServerId>(), endPoint))
+                        .Setup(f => f.CreateConnectionPool(It.IsAny<ServerId>(), endPoint, It.IsAny<IConnectionExceptionHandler>()))
                         .Returns(mockConnectionPool.Object);
 
                     result = new ServerTuple
