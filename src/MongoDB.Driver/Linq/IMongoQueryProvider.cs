@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Linq
     /// <summary>
     /// An implementation of <see cref="IQueryProvider" /> for MongoDB.
     /// </summary>
-    internal interface IMongoQueryProvider : IQueryProvider
+    public interface IMongoQueryProvider : IQueryProvider
     {
         /// <summary>
         /// Gets the collection namespace.
