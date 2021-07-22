@@ -153,6 +153,7 @@ namespace MongoDB.Driver.Core.Servers
         [InlineData("CanonicalEndPoint")]
         [InlineData("ElectionId")]
         [InlineData("EndPoint")]
+        [InlineData("HelloOk")]
         [InlineData("LogicalSessionTimeout")]
         [InlineData("ReplicaSetConfig")]
         [InlineData("ServerId")]
@@ -167,6 +168,8 @@ namespace MongoDB.Driver.Core.Servers
             var canonicalEndPoint = new DnsEndPoint("localhost", 27017);
             var electionId = new ElectionId(ObjectId.GenerateNewId());
             var endPoint = new DnsEndPoint("localhost", 27017);
+            var helloOk = false;
+            var lastUpdateTimestamp = DateTime.UtcNow;
             var logicalSessionTimeout = TimeSpan.FromMinutes(1);
             var replicaSetConfig = new ReplicaSetConfig(
                 new[] { new DnsEndPoint("localhost", 27017), new DnsEndPoint("localhost", 27018) },
@@ -187,6 +190,9 @@ namespace MongoDB.Driver.Core.Servers
                 type: type,
                 averageRoundTripTime: averageRoundTripTime,
                 canonicalEndPoint: canonicalEndPoint,
+                electionId: electionId,
+                helloOk: helloOk,
+                lastUpdateTimestamp: lastUpdateTimestamp,
                 logicalSessionTimeout: logicalSessionTimeout,
                 replicaSetConfig: replicaSetConfig,
                 tags: tags,
@@ -199,6 +205,7 @@ namespace MongoDB.Driver.Core.Servers
                 case "CanonicalEndPoint": canonicalEndPoint = new DnsEndPoint("localhost", 27018); break;
                 case "ElectionId": electionId = new ElectionId(ObjectId.Empty); break;
                 case "EndPoint": endPoint = new DnsEndPoint(endPoint.Host, endPoint.Port + 1); serverId = new ServerId(__clusterId, endPoint); break;
+                case "HelloOk": helloOk = !helloOk; break;
                 case "LogicalSessionTimeout": logicalSessionTimeout = TimeSpan.FromMinutes(2); break;
                 case "ReplicaSetConfig": replicaSetConfig = new ReplicaSetConfig(replicaSetConfig.Members, "newname", replicaSetConfig.Primary, replicaSetConfig.Version); break;
                 case "State": state = ServerState.Disconnected; break;
@@ -217,6 +224,8 @@ namespace MongoDB.Driver.Core.Servers
                 averageRoundTripTime: averageRoundTripTime,
                 canonicalEndPoint: canonicalEndPoint,
                 electionId: electionId,
+                helloOk: helloOk,
+                lastUpdateTimestamp: lastUpdateTimestamp,
                 logicalSessionTimeout: logicalSessionTimeout,
                 replicaSetConfig: replicaSetConfig,
                 tags: tags,

@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Core.Connections
         [InlineData(true, true, "{ hello : 1, helloOk : true }")]
         public void CreateCommand_should_return_correct_hello_command(bool useServerApiVersion, bool helloOk, string expectedResult)
         {
-            ServerApi serverApi = useServerApiVersion? new ServerApi(ServerApiVersion.V1) : null;
+            var serverApi = useServerApiVersion ? new ServerApi(ServerApiVersion.V1) : null;
             var command = HelloHelper.CreateCommand(serverApi, helloOk);
             command.Should().Be(expectedResult);
         }

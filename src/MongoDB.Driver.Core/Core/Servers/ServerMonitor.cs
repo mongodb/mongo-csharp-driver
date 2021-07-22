@@ -324,7 +324,7 @@ namespace MongoDB.Driver.Core.Servers
                         // continue using the existing helloProtocol object.
                         // Otherwise helloProtocol has either not been initialized or we may need to switch between
                         // heartbeat commands based on the last heartbeat response.
-                        if (helloProtocol is not {MoreToCome: true})
+                        if (helloProtocol == null || helloProtocol.MoreToCome == false)
                         {
                             helloProtocol = InitializeHelloProtocol(connection, previousDescription?.HelloOk ?? false);
                         }
