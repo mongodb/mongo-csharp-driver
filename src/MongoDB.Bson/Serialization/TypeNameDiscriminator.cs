@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -28,6 +29,9 @@ namespace MongoDB.Bson.Serialization
     {
         // private static fields
         private static Assembly[] __wellKnownAssemblies;
+        private static readonly Hashtable __discriminatorToTypeCache = new Hashtable(StringComparer.Ordinal); // effectively a non-generic Dictionary<string, Type> but thread-safe for read operations
+        private static readonly Hashtable __typeToDiscriminatorCache = new Hashtable(EqualityComparer<Type>.Default); // effectively a non-generic Dictionary<Type, string> but thread-safe for read operations
+        private static readonly object __cacheLock = new object();
 
         // static constructor
         static TypeNameDiscriminator()
@@ -48,9 +52,16 @@ namespace MongoDB.Bson.Serialization
         /// <returns>The type if type type name can be resolved; otherwise, null.</returns>
         public static Type GetActualType(string typeName)
         {
+            object typeAsObject = __discriminatorToTypeCache[typeName];
+            if (typeAsObject != null)
+            {
+                return (Type)typeAsObject;
+            }
+
             var type = Type.GetType(typeName);
             if (type != null)
             {
+                AddToCache(typeName, type);
                 return type;
             }
 
@@ -59,6 +70,7 @@ namespace MongoDB.Bson.Serialization
                 type = assembly.GetType(typeName);
                 if (type != null)
                 {
+                    AddToCache(typeName, type);
                     return type;
                 }
             }
@@ -83,7 +95,9 @@ namespace MongoDB.Bson.Serialization
 
                     if (typeArguments.Count == genericTypeDefinition.GetTypeInfo().GetGenericArguments().Length)
                     {
-                        return genericTypeDefinition.MakeGenericType(typeArguments.ToArray());
+                        type = genericTypeDefinition.MakeGenericType(typeArguments.ToArray());
+                        AddToCache(typeName, type);
+                        return type;
                     }
                 }
             }
@@ -102,6 +116,13 @@ namespace MongoDB.Bson.Serialization
             {
                 throw new ArgumentNullException("type");
             }
+
+            object stringAsObject = __typeToDiscriminatorCache[type];
+            if (stringAsObject != null)
+            {
+                return (string)stringAsObject;
+            }
+
             var typeInfo = type.GetTypeInfo();
 
             string typeName;
@@ -145,17 +166,32 @@ namespace MongoDB.Bson.Serialization
                 }
             }
 
-            if (assemblyName == null)
+            if (assemblyName != null)
             {
-                return typeName;
+                typeName = typeName + ", " + assemblyName;
             }
-            else
-            {
-                return typeName + ", " + assemblyName;
-            }
+
+            AddToCache(type, typeName);
+            return typeName;
         }
 
         // private static methods
+        private static void AddToCache(Type type, string typeName)
+        {
+            lock (__cacheLock)
+            {
+                __typeToDiscriminatorCache[type] = typeName;
+            }
+        }
+
+        private static void AddToCache(string typeName, Type type)
+        {
+            lock (__cacheLock)
+            {
+                __discriminatorToTypeCache[typeName] = type;
+            }
+        }
+
         private static bool TryParseGenericTypeName(string typeName, out string genericTypeDefinitionName, out string[] typeArgumentNames)
         {
             var leftBracketIndex = typeName.IndexOf('[');
