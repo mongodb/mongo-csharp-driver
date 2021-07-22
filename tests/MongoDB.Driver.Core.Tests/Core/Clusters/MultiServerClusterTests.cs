@@ -1195,9 +1195,9 @@ namespace MongoDB.Driver.Core.Clusters
 
             var serverDescription = current.With(
                 averageRoundTripTime: TimeSpan.FromMilliseconds(10),
-                replicaSetConfig: serverType.IsReplicaSetMember() ? config : null,
                 canonicalEndPoint: canonicalEndPoint,
                 electionId: electionId,
+                replicaSetConfig: serverType.IsReplicaSetMember() ? config : null,
                 state: ServerState.Connected,
                 tags: null,
                 type: serverType,

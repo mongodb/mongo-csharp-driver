@@ -206,7 +206,7 @@ namespace MongoDB.Driver.Core.Servers
             switch (exceptionType)
             {
                 case null:
-                    mockConnection.EnqueueCommandResponseMessage(CreateStreamableCommandResponseMessage(moreToCome.Value), null);
+                    mockConnection.EnqueueCommandResponseMessage(CreateHeartbeatCommandResponseMessage(moreToCome.Value), null);
                     break;
                 case "MongoConnectionException":
                     // previousDescription type is "Known" for this case
@@ -216,7 +216,7 @@ namespace MongoDB.Driver.Core.Servers
             }
 
             // 10 seconds delay. Not expected to be processed
-            mockConnection.EnqueueCommandResponseMessage(CreateStreamableCommandResponseMessage(), TimeSpan.FromSeconds(10));
+            mockConnection.EnqueueCommandResponseMessage(CreateHeartbeatCommandResponseMessage(), TimeSpan.FromSeconds(10));
 
             subject.Initialize();
 
@@ -259,18 +259,21 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         [Theory]
-        [ParameterAttributeData]
-        public void InitializeHelloProtocol_should_use_streaming_protocol_when_available([Values(false, true)] bool isStreamable)
+        [InlineData(false, false, OppressiveLanguageConstants.LegacyHelloCommandName)]
+        [InlineData(true, false, OppressiveLanguageConstants.LegacyHelloCommandName)]
+        [InlineData(false, true, "hello")]
+        [InlineData(true, true, "hello")]
+        public void InitializeHelloProtocol_should_use_streaming_protocol_when_available(bool isStreamable, bool helloOk, string expectedCommand)
         {
             var subject = CreateSubject(out var mockConnection, out _, out _);
             SetupHeartbeatConnection(mockConnection, isStreamable, autoFillStreamingResponses: true);
 
             mockConnection.WasReadTimeoutChanged.Should().Be(null);
-            var resultProtocol = subject.InitializeHelloProtocol(mockConnection);
+            var resultProtocol = subject.InitializeHelloProtocol(mockConnection, helloOk);
             if (isStreamable)
             {
                 mockConnection.WasReadTimeoutChanged.Should().BeTrue();
-                resultProtocol._command().Should().Contain("isMaster");
+                resultProtocol._command().Should().Contain(expectedCommand);
                 resultProtocol._command().Should().Contain("topologyVersion");
                 resultProtocol._command().Should().Contain("maxAwaitTimeMS");
                 resultProtocol._responseHandling().Should().Be(CommandResponseHandling.ExhaustAllowed);
@@ -278,7 +281,7 @@ namespace MongoDB.Driver.Core.Servers
             else
             {
                 mockConnection.WasReadTimeoutChanged.Should().Be(null);
-                resultProtocol._command().Should().Contain("isMaster");
+                resultProtocol._command().Should().Contain(expectedCommand);
                 resultProtocol._command().Should().NotContain("topologyVersion");
                 resultProtocol._command().Should().NotContain("maxAwaitTimeMS");
                 resultProtocol._responseHandling().Should().Be(CommandResponseHandling.Return);
@@ -330,7 +333,7 @@ namespace MongoDB.Driver.Core.Servers
             using (var subject = CreateSubject(out connection, out _, out _, serverApi: serverApi))
             {
                 SetupHeartbeatConnection(connection, isStreamable: true, autoFillStreamingResponses: false);
-                connection.EnqueueCommandResponseMessage(CreateStreamableCommandResponseMessage(true), null);
+                connection.EnqueueCommandResponseMessage(CreateHeartbeatCommandResponseMessage(true), null);
 
                 subject.Initialize();
 
@@ -338,10 +341,28 @@ namespace MongoDB.Driver.Core.Servers
             }
 
             var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
-            sentMessages.Count.Should().Be(1);
-
             var requestId = sentMessages[0]["requestId"].AsInt32;
-            sentMessages[0].Should().Be($"{{ opcode : \"opmsg\", requestId : {requestId}, responseTo : 0, exhaustAllowed : true, sections : [ {{ payloadType : 0, document : {{ hello : 1, topologyVersion : {{ processId : ObjectId(\"000000000000000000000000\"), counter : NumberLong(0) }}, maxAwaitTimeMS : NumberLong(86400000), $db : \"admin\", apiVersion : \"1\" }} }} ] }}");
+            sentMessages[0].Should().Be($"{{ opcode : \"opmsg\", requestId : {requestId}, responseTo : 0, exhaustAllowed : true, sections : [ {{ payloadType : 0, document : {{ hello : 1, helloOk: true, topologyVersion : {{ processId : ObjectId(\"000000000000000000000000\"), counter : NumberLong(0) }}, maxAwaitTimeMS : NumberLong(86400000), $db : \"admin\", apiVersion : \"1\" }} }} ] }}");
+        }
+
+        [Fact]
+        public void ServerMonitor_without_serverApi_should_use_legacy_hello_to_set_up_streamable_monitoring()
+        {
+            MockConnection connection;
+
+            using (var subject = CreateSubject(out connection, out _, out _, serverApi: null))
+            {
+                SetupHeartbeatConnection(connection, isStreamable: true, autoFillStreamingResponses: false);
+                connection.EnqueueCommandResponseMessage(CreateHeartbeatCommandResponseMessage(true), null);
+
+                subject.Initialize();
+
+                SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(4)).Should().BeTrue();
+            }
+
+            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
+            var requestId = sentMessages[0]["requestId"].AsInt32;
+            sentMessages[0].Should().Be($"{{ opcode : \"opmsg\", requestId : {requestId}, responseTo : 0, exhaustAllowed : true, sections : [ {{ payloadType : 0, document : {{ {OppressiveLanguageConstants.LegacyHelloCommandName} : 1, helloOk : true, topologyVersion : {{ processId : ObjectId(\"000000000000000000000000\"), counter : NumberLong(0) }}, maxAwaitTimeMS : NumberLong(86400000), $db : \"admin\" }} }} ] }}");
         }
 
         // private methods
@@ -398,14 +419,14 @@ namespace MongoDB.Driver.Core.Servers
             if (autoFillStreamingResponses && isStreamable)
             {
                 // immediate attempt
-                connection.EnqueueCommandResponseMessage(CreateStreamableCommandResponseMessage(), null);
+                connection.EnqueueCommandResponseMessage(CreateHeartbeatCommandResponseMessage(), null);
 
                 // 10 seconds delay. Won't expected to be processed
-                connection.EnqueueCommandResponseMessage(CreateStreamableCommandResponseMessage(), TimeSpan.FromSeconds(10));
+                connection.EnqueueCommandResponseMessage(CreateHeartbeatCommandResponseMessage(), TimeSpan.FromSeconds(10));
             }
         }
 
-        private CommandResponseMessage CreateStreamableCommandResponseMessage(bool moreToCome = false)
+        private CommandResponseMessage CreateHeartbeatCommandResponseMessage(bool moreToCome = false)
         {
             var section0BsonDocument = new BsonDocument
             {
@@ -432,9 +453,9 @@ namespace MongoDB.Driver.Core.Servers
             return (IConnection)Reflector.GetFieldValue(serverMonitor, nameof(_connection));
         }
 
-        public static CommandWireProtocol<BsonDocument> InitializeHelloProtocol(this ServerMonitor serverMonitor, IConnection connection)
+        public static CommandWireProtocol<BsonDocument> InitializeHelloProtocol(this ServerMonitor serverMonitor, IConnection connection, bool helloOk)
         {
-            return (CommandWireProtocol<BsonDocument>)Reflector.Invoke(serverMonitor, nameof(InitializeHelloProtocol), connection);
+            return (CommandWireProtocol<BsonDocument>)Reflector.Invoke(serverMonitor, nameof(InitializeHelloProtocol), connection, helloOk);
         }
     }
 }

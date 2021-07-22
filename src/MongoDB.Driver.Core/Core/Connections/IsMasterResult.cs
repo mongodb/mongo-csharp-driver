@@ -451,6 +451,17 @@ namespace MongoDB.Driver.Core.Connections
             get { return _wrapped; }
         }
 
+        /// <summary>
+        /// Gets whether the server support the hello command.
+        /// </summary>
+        /// <value>
+        /// True if helloOk:true was included in the response; false otherwise.
+        /// </value>
+        public bool HelloOk
+        {
+            get { return _wrapped.GetValue("helloOk", false).ToBoolean(); }
+        }
+
         // methods
         /// <inheritdoc/>
         public bool Equals(IsMasterResult other)

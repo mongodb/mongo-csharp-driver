@@ -175,7 +175,6 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
         // private methods
         private DisposableMongoClient CreateClient(EventCapturer eventCapturer, TimeSpan heartbeatInterval, string applicationName = null)
         {
-            var clonedClient = DriverTestConfiguration.Client.Settings.Clone();
             return DriverTestConfiguration.CreateDisposableClient(
                 (clientSettings) =>
                 {
@@ -194,8 +193,8 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
         }
     }
 
-    internal static class ServerMonitorRelfector
-    { 
+    internal static class ServerMonitorReflector
+    {
         public static IRoundTripTimeMonitor _roundTripTimeMonitor(this IServerMonitor serverMonitor)
         {
             return (IRoundTripTimeMonitor)Reflector.GetFieldValue(serverMonitor, nameof(_roundTripTimeMonitor));

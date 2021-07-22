@@ -167,7 +167,7 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         // private methods
-        private CommandWireProtocol<BsonDocument> InitializeHelloProtocol(IConnection connection)
+        private CommandWireProtocol<BsonDocument> InitializeHelloProtocol(IConnection connection, bool helloOk)
         {
             BsonDocument helloCommand;
             var commandResponseHandling = CommandResponseHandling.Return;
@@ -178,11 +178,11 @@ namespace MongoDB.Driver.Core.Servers
 
                 var veryLargeHeartbeatInterval = TimeSpan.FromDays(1); // the server doesn't support Infinite value, so we set just a big enough value
                 var maxAwaitTime = _serverMonitorSettings.HeartbeatInterval == Timeout.InfiniteTimeSpan ? veryLargeHeartbeatInterval : _serverMonitorSettings.HeartbeatInterval;
-                helloCommand = HelloHelper.CreateCommand(_serverApi, connection.Description.IsMasterResult.TopologyVersion, maxAwaitTime);
+                helloCommand = HelloHelper.CreateCommand(_serverApi, helloOk, connection.Description.IsMasterResult.TopologyVersion, maxAwaitTime);
             }
             else
             {
-                helloCommand = HelloHelper.CreateCommand(_serverApi);
+                helloCommand = HelloHelper.CreateCommand(_serverApi, helloOk);
             }
 
             return HelloHelper.CreateProtocol(helloCommand, _serverApi, commandResponseHandling);
@@ -289,7 +289,6 @@ namespace MongoDB.Driver.Core.Servers
         private async Task HeartbeatAsync(CancellationToken cancellationToken)
         {
             CommandWireProtocol<BsonDocument> helloProtocol = null;
-
             bool processAnother = true;
             while (processAnother && !cancellationToken.IsCancellationRequested)
             {
@@ -321,7 +320,14 @@ namespace MongoDB.Driver.Core.Servers
                     }
                     else
                     {
-                        helloProtocol = helloProtocol ?? InitializeHelloProtocol(connection);
+                        // If MoreToCome is true, that means we are streaming hello or legacy hello results and must
+                        // continue using the existing helloProtocol object.
+                        // Otherwise helloProtocol has either not been initialized or we may need to switch between
+                        // heartbeat commands based on the last heartbeat response.
+                        if (helloProtocol == null || helloProtocol.MoreToCome == false)
+                        {
+                            helloProtocol = InitializeHelloProtocol(connection, previousDescription?.HelloOk ?? false);
+                        }
                         heartbeatHelloResult = await GetHelloResultAsync(connection, helloProtocol, cancellationToken).ConfigureAwait(false);
                     }
                 }
@@ -370,6 +376,7 @@ namespace MongoDB.Driver.Core.Servers
                         averageRoundTripTime: averageRoundTripTimeRounded,
                         canonicalEndPoint: heartbeatHelloResult.Me,
                         electionId: heartbeatHelloResult.ElectionId,
+                        helloOk: heartbeatHelloResult.HelloOk,
                         lastWriteTimestamp: heartbeatHelloResult.LastWriteTimestamp,
                         logicalSessionTimeout: heartbeatHelloResult.LogicalSessionTimeout,
                         maxBatchCount: heartbeatHelloResult.MaxBatchCount,

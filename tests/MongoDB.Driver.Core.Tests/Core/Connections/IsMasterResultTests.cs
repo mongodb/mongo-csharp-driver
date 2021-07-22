@@ -293,5 +293,30 @@ namespace MongoDB.Driver.Core.Connections
                 new DnsEndPoint("localhost", 1003));
             config.Version.Should().Be(20);
         }
+
+        [Fact]
+        public void HelloOk_should_return_true_when_response_contains_helloOk_true()
+        {
+            var doc = new BsonDocument
+            {
+                { "ok", 1 },
+                { "helloOk", true }
+            };
+
+            var subject = new IsMasterResult(doc);
+            subject.HelloOk.Should().BeTrue();
+        }
+
+        [Fact]
+        public void HelloOk_should_return_false_when_response_does_not_contain_helloOk()
+        {
+            var doc = new BsonDocument
+            {
+                { "ok", 1 }
+            };
+
+            var subject = new IsMasterResult(doc);
+            subject.HelloOk.Should().BeFalse();
+        }
     }
 }

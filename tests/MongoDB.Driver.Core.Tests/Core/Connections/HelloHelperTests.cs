@@ -21,23 +21,22 @@ using Xunit;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Connections
 {
     public class HelloHelperTests
     {
-        [Fact]
-        public void CreateCommand_with_ServerApi_should_return_hello_command()
+        [Theory]
+        [InlineData(true, false, "{ hello : 1, helloOk : true }")]
+        [InlineData(false, false, "{ isMaster : 1, helloOk : true }")]
+        [InlineData(false, true, "{ hello : 1, helloOk : true }")]
+        [InlineData(true, true, "{ hello : 1, helloOk : true }")]
+        public void CreateCommand_should_return_correct_hello_command(bool useServerApiVersion, bool helloOk, string expectedResult)
         {
-            var command = HelloHelper.CreateCommand(new ServerApi(ServerApiVersion.V1));
-            command.Should().Be($"{{ hello : 1 }}");
-        }
-
-        [Fact]
-        public void CreateCommand_without_ServerApi_should_return_legacy_hello_command()
-        {
-            var command = HelloHelper.CreateCommand(null);
-            command.Should().Be($"{{ isMaster : 1 }}");
+            var serverApi = useServerApiVersion ? new ServerApi(ServerApiVersion.V1) : null;
+            var command = HelloHelper.CreateCommand(serverApi, helloOk);
+            command.Should().Be(expectedResult);
         }
 
         [Theory]
@@ -50,7 +49,7 @@ namespace MongoDB.Driver.Core.Connections
             var command = HelloHelper.CreateCommand(null);
             var result = HelloHelper.AddClientDocumentToCommand(command, clientDocument);
 
-            result.Should().Be($"{{ isMaster : 1, client : {clientDocumentString} }}");
+            result.Should().Be($"{{ {OppressiveLanguageConstants.LegacyHelloCommandName} : 1, helloOk : true, client : {clientDocumentString} }}");
         }
 
         [Fact]
@@ -62,11 +61,12 @@ namespace MongoDB.Driver.Core.Connections
             var result = HelloHelper.AddClientDocumentToCommand(command, subjectClientDocument);
 
             var names = result.Names.ToList();
-            names.Count.Should().Be(2);
+            names.Count.Should().Be(3);
             names[0].Should().Be("isMaster");
-            names[1].Should().Be("client");
+            names[1].Should().Be("helloOk");
+            names[2].Should().Be("client");
             result[0].Should().Be(1);
-            var clientDocument = result[1].AsBsonDocument;
+            var clientDocument = result[2].AsBsonDocument;
             var clientDocumentNames = clientDocument.Names.ToList();
             clientDocumentNames.Count.Should().Be(4);
             clientDocumentNames[0].Should().Be("application");
@@ -97,7 +97,7 @@ namespace MongoDB.Driver.Core.Connections
             var result = HelloHelper.AddCompressorsToCommand(command, compressors);
 
             var expectedCompressions = string.Join(",", compressorsParameters.Select(c => $"'{CompressorTypeMapper.ToServerName(c)}'"));
-            result.Should().Be(BsonDocument.Parse($"{{ isMaster : 1, compression: [{expectedCompressions}] }}"));
+            result.Should().Be(BsonDocument.Parse($"{{ {OppressiveLanguageConstants.LegacyHelloCommandName} : 1, helloOk : true, compression: [{expectedCompressions}] }}"));
         }
     }
 }

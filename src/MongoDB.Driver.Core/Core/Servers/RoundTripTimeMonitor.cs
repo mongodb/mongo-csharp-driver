@@ -87,6 +87,7 @@ namespace MongoDB.Driver.Core.Servers
 
         public async Task RunAsync()
         {
+            var helloOk = false;
             while (!_cancellationToken.IsCancellationRequested)
             {
                 try
@@ -97,13 +98,14 @@ namespace MongoDB.Driver.Core.Servers
                     }
                     else
                     {
-                        var helloCommand = HelloHelper.CreateCommand(_serverApi);
+                        var helloCommand = HelloHelper.CreateCommand(_serverApi, helloOk);
                         var helloProtocol = HelloHelper.CreateProtocol(helloCommand, _serverApi);
 
                         var stopwatch = Stopwatch.StartNew();
                         var helloResult = await HelloHelper.GetResultAsync(_roundTripTimeConnection, helloProtocol, _cancellationToken).ConfigureAwait(false);
                         stopwatch.Stop();
                         AddSample(stopwatch.Elapsed);
+                        helloOk = helloResult.HelloOk;
                     }
                 }
                 catch (Exception)

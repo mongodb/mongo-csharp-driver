@@ -50,6 +50,7 @@ namespace MongoDB.Driver.Core.Servers
             subject.CanonicalEndPoint.Should().BeNull();
             subject.ElectionId.Should().BeNull();
             subject.EndPoint.Should().Be(__endPoint);
+            subject.HelloOk.Should().BeFalse();
             subject.LogicalSessionTimeout.Should().NotHaveValue();
             subject.ReplicaSetConfig.Should().BeNull();
             subject.ServerId.Should().Be(__serverId);
@@ -66,6 +67,7 @@ namespace MongoDB.Driver.Core.Servers
             var averageRoundTripTime = TimeSpan.FromSeconds(1);
             var canonicalEndPoint = new DnsEndPoint("localhost", 27017);
             var electionId = new ElectionId(ObjectId.GenerateNewId());
+            var helloOk = true;
             var logicalSessionTimeout = TimeSpan.FromMinutes(1);
             var replicaSetConfig = new ReplicaSetConfig(
                 new[] { new DnsEndPoint("localhost", 27017), new DnsEndPoint("localhost", 27018) },
@@ -86,6 +88,7 @@ namespace MongoDB.Driver.Core.Servers
                 averageRoundTripTime: averageRoundTripTime,
                 canonicalEndPoint: canonicalEndPoint,
                 electionId: electionId,
+                helloOk: helloOk,
                 logicalSessionTimeout: logicalSessionTimeout,
                 replicaSetConfig: replicaSetConfig,
                 tags: tags,
@@ -96,6 +99,7 @@ namespace MongoDB.Driver.Core.Servers
             subject.CanonicalEndPoint.Should().Be(canonicalEndPoint);
             subject.ElectionId.Should().Be(electionId);
             subject.EndPoint.Should().Be(__endPoint);
+            subject.HelloOk.Should().Be(helloOk);
             subject.LogicalSessionTimeout.Should().Be(logicalSessionTimeout);
             subject.ReplicaSetConfig.Should().Be(replicaSetConfig);
             subject.ServerId.Should().Be(__serverId);
@@ -149,6 +153,7 @@ namespace MongoDB.Driver.Core.Servers
         [InlineData("CanonicalEndPoint")]
         [InlineData("ElectionId")]
         [InlineData("EndPoint")]
+        [InlineData("HelloOk")]
         [InlineData("LogicalSessionTimeout")]
         [InlineData("ReplicaSetConfig")]
         [InlineData("ServerId")]
@@ -163,6 +168,8 @@ namespace MongoDB.Driver.Core.Servers
             var canonicalEndPoint = new DnsEndPoint("localhost", 27017);
             var electionId = new ElectionId(ObjectId.GenerateNewId());
             var endPoint = new DnsEndPoint("localhost", 27017);
+            var helloOk = false;
+            var lastUpdateTimestamp = DateTime.UtcNow;
             var logicalSessionTimeout = TimeSpan.FromMinutes(1);
             var replicaSetConfig = new ReplicaSetConfig(
                 new[] { new DnsEndPoint("localhost", 27017), new DnsEndPoint("localhost", 27018) },
@@ -183,6 +190,9 @@ namespace MongoDB.Driver.Core.Servers
                 type: type,
                 averageRoundTripTime: averageRoundTripTime,
                 canonicalEndPoint: canonicalEndPoint,
+                electionId: electionId,
+                helloOk: helloOk,
+                lastUpdateTimestamp: lastUpdateTimestamp,
                 logicalSessionTimeout: logicalSessionTimeout,
                 replicaSetConfig: replicaSetConfig,
                 tags: tags,
@@ -195,6 +205,7 @@ namespace MongoDB.Driver.Core.Servers
                 case "CanonicalEndPoint": canonicalEndPoint = new DnsEndPoint("localhost", 27018); break;
                 case "ElectionId": electionId = new ElectionId(ObjectId.Empty); break;
                 case "EndPoint": endPoint = new DnsEndPoint(endPoint.Host, endPoint.Port + 1); serverId = new ServerId(__clusterId, endPoint); break;
+                case "HelloOk": helloOk = !helloOk; break;
                 case "LogicalSessionTimeout": logicalSessionTimeout = TimeSpan.FromMinutes(2); break;
                 case "ReplicaSetConfig": replicaSetConfig = new ReplicaSetConfig(replicaSetConfig.Members, "newname", replicaSetConfig.Primary, replicaSetConfig.Version); break;
                 case "State": state = ServerState.Disconnected; break;
@@ -213,6 +224,8 @@ namespace MongoDB.Driver.Core.Servers
                 averageRoundTripTime: averageRoundTripTime,
                 canonicalEndPoint: canonicalEndPoint,
                 electionId: electionId,
+                helloOk: helloOk,
+                lastUpdateTimestamp: lastUpdateTimestamp,
                 logicalSessionTimeout: logicalSessionTimeout,
                 replicaSetConfig: replicaSetConfig,
                 tags: tags,
@@ -280,6 +293,7 @@ namespace MongoDB.Driver.Core.Servers
         [InlineData("ElectionId")]
         [InlineData("HeartbeatException")]
         [InlineData("HeartbeatInterval")]
+        [InlineData("HelloOk")]
         [InlineData("LastUpdateTimestamp")]
         [InlineData("LastWriteTimestamp")]
         [InlineData("LogicalSessionTimeout")]
@@ -300,6 +314,7 @@ namespace MongoDB.Driver.Core.Servers
             var electionId = new ElectionId(ObjectId.GenerateNewId());
             var heartbeatException = new Exception();
             var heartbeatInterval = TimeSpan.FromSeconds(10);
+            var helloOk = false;
             var lastUpdateTimestamp = DateTime.UtcNow;
             var lastWriteTimestamp = DateTime.UtcNow;
             var logicalSessionTimeout = TimeSpan.FromMinutes(1);
@@ -326,6 +341,7 @@ namespace MongoDB.Driver.Core.Servers
                 electionId: electionId,
                 heartbeatException: heartbeatException,
                 heartbeatInterval: heartbeatInterval,
+                helloOk: helloOk,
                 lastUpdateTimestamp: lastUpdateTimestamp,
                 lastWriteTimestamp: lastWriteTimestamp,
                 logicalSessionTimeout: logicalSessionTimeout,
@@ -347,6 +363,7 @@ namespace MongoDB.Driver.Core.Servers
                 case "ElectionId": electionId = new ElectionId(ObjectId.Empty); break;
                 case "HeartbeatException": heartbeatException = new Exception("NewMessage"); break;
                 case "HeartbeatInterval": heartbeatInterval = TimeSpan.FromSeconds(11); break;
+                case "HelloOk": helloOk = !helloOk; break;
                 case "LastUpdateTimestamp": lastUpdateTimestamp = lastUpdateTimestamp.Add(TimeSpan.FromSeconds(1)); break;
                 case "LastWriteTimestamp": lastWriteTimestamp = lastWriteTimestamp.Add(TimeSpan.FromSeconds(1)); break;
                 case "LogicalSessionTimeout": logicalSessionTimeout = TimeSpan.FromMinutes(2); break;
@@ -368,6 +385,7 @@ namespace MongoDB.Driver.Core.Servers
                 electionId: electionId,
                 heartbeatException: heartbeatException,
                 heartbeatInterval: heartbeatInterval,
+                helloOk: helloOk,
                 lastUpdateTimestamp: lastUpdateTimestamp,
                 lastWriteTimestamp: lastWriteTimestamp,
                 logicalSessionTimeout: logicalSessionTimeout,
@@ -392,6 +410,7 @@ namespace MongoDB.Driver.Core.Servers
         public void With_should_return_same_instance_when_all_fields_are_equal()
         {
             var averageRoundTripTime = TimeSpan.FromSeconds(1);
+            var helloOk = true;
             var lastUpdateTimestamp = DateTime.UtcNow;
             var replicaSetConfig = new ReplicaSetConfig(
                 new[] { new DnsEndPoint("localhost", 27017), new DnsEndPoint("localhost", 27018) },
@@ -408,6 +427,7 @@ namespace MongoDB.Driver.Core.Servers
                 __serverId,
                 __endPoint,
                 averageRoundTripTime: averageRoundTripTime,
+                helloOk: helloOk,
                 lastUpdateTimestamp: lastUpdateTimestamp,
                 replicaSetConfig: replicaSetConfig,
                 state: state,
@@ -418,6 +438,7 @@ namespace MongoDB.Driver.Core.Servers
 
             var result = subject.With(
                 averageRoundTripTime: averageRoundTripTime,
+                helloOk: helloOk,
                 lastUpdateTimestamp: lastUpdateTimestamp,
                 replicaSetConfig: replicaSetConfig,
                 state: ServerState.Connected,
