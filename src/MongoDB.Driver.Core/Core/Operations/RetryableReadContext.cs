@@ -43,16 +43,11 @@ namespace MongoDB.Driver.Core.Operations
             {
                 context.Initialize(cancellationToken);
 
-                if (ChannelPinningHelper.PinChannelSourceAndChannelIfRequired(
+                ChannelPinningHelper.PinChannellIfRequired(
                     context.ChannelSource,
                     context.Channel,
-                    context.Binding.Session,
-                    out var pinnedChannelSource,
-                    out var pinnedChannel))
-                {
-                    context.ReplaceChannelSource(pinnedChannelSource);
-                    context.ReplaceChannel(pinnedChannel);
-                }
+                    context.Binding.Session);
+
                 return context;
             }
             catch
@@ -76,16 +71,11 @@ namespace MongoDB.Driver.Core.Operations
             {
                 await context.InitializeAsync(cancellationToken).ConfigureAwait(false);
 
-                if (ChannelPinningHelper.PinChannelSourceAndChannelIfRequired(
+                ChannelPinningHelper.PinChannellIfRequired(
                     context.ChannelSource,
                     context.Channel,
-                    context.Binding.Session,
-                    out var pinnedChannelSource,
-                    out var pinnedChannel))
-                {
-                    context.ReplaceChannelSource(pinnedChannelSource);
-                    context.ReplaceChannel(pinnedChannel);
-                }
+                    context.Binding.Session);
+
                 return context;
             }
             catch
