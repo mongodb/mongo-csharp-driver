@@ -819,7 +819,7 @@ namespace MongoDB.Bson.IO
                 return value;
             }
 
-            var sb = new StringBuilder(value.Length);
+            var sb = new StringBuilder(value.Length + 1);
 
             foreach (char c in value)
             {
