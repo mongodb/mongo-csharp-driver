@@ -602,7 +602,6 @@ functions:
           COMPRESSOR=${COMPRESSOR} \
           FRAMEWORK=${FRAMEWORK} \
           MONGODB_URI="${MONGODB_URI}" \
-          OS=${OS} \
           SERVERLESS_ATLAS_USER="${SERVERLESS_ATLAS_USER}" \
           SERVERLESS_ATLAS_PASSWORD="${SERVERLESS_ATLAS_PASSWORD}" \
           SSL=${SSL} \
