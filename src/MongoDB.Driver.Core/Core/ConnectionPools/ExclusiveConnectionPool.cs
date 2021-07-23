@@ -29,6 +29,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
     internal sealed partial class ExclusiveConnectionPool : IConnectionPool
     {
         // fields
+        private readonly CheckOutReasonCounter _checkOutReasonCounter;
         private readonly IConnectionFactory _connectionFactory;
         private readonly ListConnectionHolder _connectionHolder;
         private readonly EndPoint _endPoint;
@@ -71,6 +72,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             _connectionFactory = Ensure.IsNotNull(connectionFactory, nameof(connectionFactory));
             Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
 
+            _checkOutReasonCounter = new CheckOutReasonCounter();
             _connectingQueue = new SemaphoreSlimSignalable(MongoInternalDefaults.ConnectionPool.MaxConnecting);
             _connectionHolder = new ListConnectionHolder(eventSubscriber, _connectingQueue);
             _serviceStates = new ServiceStates();
@@ -384,6 +386,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
             {
                 _checkedInConnectionEventHandler(new ConnectionPoolCheckedInConnectionEvent(connection.ConnectionId, TimeSpan.Zero, EventContext.OperationId));
             }
+
+            _checkOutReasonCounter.Decrement(connection.CheckOutReason);
 
             if (!connection.IsExpired && _state.Value != State.Disposed)
             {

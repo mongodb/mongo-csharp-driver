@@ -32,10 +32,6 @@ namespace MongoDB.Driver.Tests.Specifications.load_balancers
         [ClassData(typeof(TestCaseFactory))]
         public void Run(JsonDrivenTestCase testCase)
         {
-            if (testCase.Name.Contains("wait-queue-timeouts"))
-            {
-                throw new SkipException("Not implemented yet.");
-            }
 #if DEBUG
             RequirePlatform
                 .Check()

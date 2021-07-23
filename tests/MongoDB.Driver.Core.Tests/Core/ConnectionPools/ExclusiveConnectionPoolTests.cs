@@ -282,6 +282,81 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
         [Theory]
         [ParameterAttributeData]
+        internal void AcquireConnection_should_track_checked_out_reasons(
+            [Values(CheckOutReason.Cursor, CheckOutReason.Transaction)] CheckOutReason reason,
+            [Values(1, 3, 5)] int attempts,
+            [Values(false, true)] bool async)
+        {
+            var subjectSettings = new ConnectionPoolSettings(minConnections: 0);
+
+            var mockConnectionFactory = Mock.Of<IConnectionFactory>(c => c.CreateConnection(_serverId, _endPoint) == Mock.Of<IConnection>());
+
+            var subject = CreateSubject(subjectSettings, connectionFactory: mockConnectionFactory);
+
+            InitializeAndWait(subject, subjectSettings);
+            _capturedEvents.Clear();
+
+            List<IConnectionHandle> connections = new();
+            for (int attempt = 1; attempt <= attempts; attempt++)
+            {
+                IConnectionHandle connection;
+                if (async)
+                {
+                    connection = subject.AcquireConnectionAsync(CancellationToken.None).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    connection = subject.AcquireConnection(CancellationToken.None);
+                }
+                ((ICheckOutReasonTracker)connection).SetCheckOutReasonIfNotAlreadySet(reason);
+                connections.Add(connection);
+
+                connections.Should().HaveCount(attempt);
+                subject._checkOutReasonCounter().GetCheckOutsCount(reason).Should().Be(attempt);
+                foreach (var restItem in GetEnumItemsExcept(reason))
+                {
+                    subject._checkOutReasonCounter().GetCheckOutsCount(restItem).Should().Be(0);
+                }
+
+                _capturedEvents.Next().Should().BeOfType<ConnectionPoolCheckingOutConnectionEvent>();
+                _capturedEvents.Next().Should().BeOfType<ConnectionPoolAddingConnectionEvent>();
+                _capturedEvents.Next().Should().BeOfType<ConnectionCreatedEvent>();
+                _capturedEvents.Next().Should().BeOfType<ConnectionPoolAddedConnectionEvent>();
+                _capturedEvents.Next().Should().BeOfType<ConnectionPoolCheckedOutConnectionEvent>();
+            }
+
+            _capturedEvents.Any().Should().BeFalse();
+
+            for (int attempt = 1; attempt <= attempts; attempt++)
+            {
+                connections[attempt - 1].Dispose(); // return connection to the pool
+
+                subject._checkOutReasonCounter().GetCheckOutsCount(reason).Should().Be(attempts - attempt);
+                foreach (var restItem in GetEnumItemsExcept(reason))
+                {
+                    subject._checkOutReasonCounter().GetCheckOutsCount(restItem).Should().Be(0);
+                }
+
+                _capturedEvents.Next().Should().BeOfType<ConnectionPoolCheckingInConnectionEvent>();
+                _capturedEvents.Next().Should().BeOfType<ConnectionPoolCheckedInConnectionEvent>();
+            }
+            _capturedEvents.Any().Should().BeFalse();
+
+            IEnumerable<CheckOutReason> GetEnumItemsExcept(CheckOutReason reason)
+            {
+                foreach (var reasonItem in Enum.GetValues(typeof(CheckOutReason)).Cast<CheckOutReason>())
+                {
+                    if (reasonItem == reason)
+                    {
+                        continue;
+                    }
+                    yield return reasonItem;
+                }
+            }
+        }
+
+        [Theory]
+        [ParameterAttributeData]
         public void AcquireConnection_should_increase_count_up_to_the_max_number_of_connections(
             [Values(false, true)]
             bool async)
@@ -764,7 +839,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
         [Theory]
         [ParameterAttributeData]
-        public void PrunePoolAsync_should_remove_all_expired_connections([RandomSeed]int seed)
+        public void PrunePoolAsync_should_remove_all_expired_connections([RandomSeed] int seed)
         {
             const int connectionsCount = 10;
 
@@ -875,22 +950,27 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 _capturedEvents);
         }
 
-        private void InitializeAndWait()
+        private void InitializeAndWait(ExclusiveConnectionPool pool = null, ConnectionPoolSettings poolSettings = null)
         {
-            _subject.Initialize();
+            var connectionPool = pool ?? _subject;
+            var connectionPoolSettings = poolSettings ?? _settings;
+
+            connectionPool.Initialize();
 
             SpinWait.SpinUntil(
-                () => _subject.CreatedCount == _settings.MinConnections &&
-                    _subject.AvailableCount == _settings.MaxConnections &&
-                    _subject.DormantCount == _settings.MinConnections &&
-                    _subject.UsedCount == 0,
+                () =>
+                    connectionPool.CreatedCount == connectionPoolSettings.MinConnections &&
+                    connectionPool.AvailableCount == connectionPoolSettings.MaxConnections &&
+                    connectionPool.DormantCount == connectionPoolSettings.MinConnections &&
+                    connectionPool.UsedCount == 0,
                 TimeSpan.FromSeconds(5))
-                .Should().BeTrue();
+                .Should()
+                .BeTrue();
 
-            _subject.AvailableCount.Should().Be(_settings.MaxConnections);
-            _subject.CreatedCount.Should().Be(_settings.MinConnections);
-            _subject.DormantCount.Should().Be(_settings.MinConnections);
-            _subject.UsedCount.Should().Be(0);
+            connectionPool.AvailableCount.Should().Be(connectionPoolSettings.MaxConnections);
+            connectionPool.CreatedCount.Should().Be(connectionPoolSettings.MinConnections);
+            connectionPool.DormantCount.Should().Be(connectionPoolSettings.MinConnections);
+            connectionPool.UsedCount.Should().Be(0);
         }
     }
 
@@ -905,6 +985,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
         {
             return (Task)Reflector.Invoke(obj, nameof(MaintainSizeAsync));
         }
+
+        public static CheckOutReasonCounter _checkOutReasonCounter(this ExclusiveConnectionPool obj) => (CheckOutReasonCounter)Reflector.GetFieldValue(obj, nameof(_checkOutReasonCounter));
 
         public static ServiceStates _serviceStates(this ExclusiveConnectionPool obj)
         {
