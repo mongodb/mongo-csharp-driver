@@ -56,7 +56,7 @@ The main new features in 2.11.0 support new features in MongoDB 4.4.0. These fea
 * Support for shorter SCRAM (Salted Challenge Response Authentication Mechanism) conversations
 * Support for speculative SCRAM and MONGODB-X509 authentication
 * Support for the `CommitQuorum` option in `createIndexes`
-* Support for [hedged reads](https://docs.mongodb.com/master/core/read-preference-hedge-option/index.html)
+* Support for [hedged reads](https://docs.mongodb.com/manual/core/read-preference-hedge-option/)
 
 Other new additions and updates in this beta include:
 

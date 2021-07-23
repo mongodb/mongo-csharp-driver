@@ -1,7 +1,7 @@
 $(function() {
     var docsExcludedNav = window.docsExcludedNav;
 
-    /* Checks a whitelist for non-leaf nodes that should trigger a full page reload */
+    /* Checks an allow list for non-leaf nodes that should trigger a full page reload */
     function requiresPageload($node) {
         if (!docsExcludedNav || !docsExcludedNav.length) {
             return false;
