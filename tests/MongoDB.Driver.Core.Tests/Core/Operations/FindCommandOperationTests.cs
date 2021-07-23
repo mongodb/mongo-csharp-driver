@@ -846,7 +846,7 @@ namespace MongoDB.Driver.Core.Operations
             mockChannelSource.Setup(x => x.Server).Returns(mockServer.Object);
             mockChannelSource.Setup(x => x.Session).Returns(mockSession.Object);
 
-            var cursor = subject.CreateCursor(mockChannelSource.Object, commandResult);
+            var cursor = subject.CreateCursor(mockChannelSource.Object, Mock.Of<IChannelHandle>(), commandResult);
 
             cursor._collectionNamespace().Should().Be(cursorCollectionNamespace);
         }
@@ -1392,9 +1392,10 @@ namespace MongoDB.Driver.Core.Operations
         public static AsyncCursor<BsonDocument> CreateCursor(
             this FindCommandOperation<BsonDocument> obj,
             IChannelSourceHandle channelSource,
+            IChannelHandle channel,
             BsonDocument commandResult)
         {
-            return (AsyncCursor<BsonDocument>)Reflector.Invoke(obj, nameof(CreateCursor), channelSource, commandResult);
+            return (AsyncCursor<BsonDocument>)Reflector.Invoke(obj, nameof(CreateCursor), channelSource, channel, commandResult);
         }
     }
 }

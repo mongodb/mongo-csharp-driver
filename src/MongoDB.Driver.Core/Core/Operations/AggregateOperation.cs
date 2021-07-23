@@ -298,7 +298,7 @@ namespace MongoDB.Driver.Core.Operations
 
                 context.ChannelSource.Session.SetSnapshotTimeIfNeeded(result.AtClusterTime);
 
-                return CreateCursor(context.ChannelSource, operation.Command, result);
+                return CreateCursor(context.ChannelSource, context.Channel, operation.Command, result);
             }
         }
 
@@ -326,7 +326,7 @@ namespace MongoDB.Driver.Core.Operations
 
                 context.ChannelSource.Session.SetSnapshotTimeIfNeeded(result.AtClusterTime);
 
-                return CreateCursor(context.ChannelSource, operation.Command, result);
+                return CreateCursor(context.ChannelSource, context.Channel,operation.Command, result);
             }
         }
 
@@ -387,11 +387,11 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
-        private AsyncCursor<TResult> CreateCursor(IChannelSourceHandle channelSource, BsonDocument command, AggregateResult result)
+        private AsyncCursor<TResult> CreateCursor(IChannelSourceHandle channelSource, IChannelHandle channel, BsonDocument command, AggregateResult result)
         {
             if (result.CursorId.HasValue)
             {
-                return CreateCursorFromCursorResult(channelSource, command, result);
+                return CreateCursorFromCursorResult(channelSource, channel, command, result);
             }
             else
             {
@@ -400,10 +400,10 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private AsyncCursor<TResult> CreateCursorFromCursorResult(IChannelSourceHandle channelSource, BsonDocument command, AggregateResult result)
+        private AsyncCursor<TResult> CreateCursorFromCursorResult(IChannelSourceHandle channelSource, IChannelHandle channel, BsonDocument command, AggregateResult result)
         {
             var cursorId = result.CursorId.GetValueOrDefault(0);
-            var getMoreChannelSource = ChannelPinningHelper.CreateGetMoreChannelSource(channelSource, cursorId);
+            var getMoreChannelSource = ChannelPinningHelper.CreateGetMoreChannelSource(channelSource, channel, cursorId);
             return new AsyncCursor<TResult>(
                 getMoreChannelSource,
                 result.CollectionNamespace,
