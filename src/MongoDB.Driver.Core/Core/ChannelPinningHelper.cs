@@ -95,12 +95,11 @@ namespace MongoDB.Driver.Core
             IChannelSource effectiveChannelSource;
             if (IsInLoadBalancedMode(channelSource.ServerDescription) && cursorId != 0)
             {
-                if (channel.Connection is ITrackedPinningReason trackedConnection)
+                if (channel.Connection is ICheckOutReasonTracker checkOutReasonTracker)
                 {
-                    trackedConnection.SetPinningCheckoutReasonIfNotAlreadySet(CheckedOutReason.Cursor);
+                    checkOutReasonTracker.SetCheckOutReasonIfNotAlreadySet(CheckOutReason.Cursor);
                 }
 
-                // pinning channel
                 effectiveChannelSource = new ChannelChannelSource(
                     channelSource.Server,
                     channel.Fork(),
@@ -123,9 +122,9 @@ namespace MongoDB.Driver.Core
                 session.IsInTransaction &&
                 !IsChannelPinned(session.CurrentTransaction))
             {
-                if (channel.Connection is ITrackedPinningReason trackedConnection)
+                if (channel.Connection is ICheckOutReasonTracker checkOutReasonTracker)
                 {
-                    trackedConnection.SetPinningCheckoutReasonIfNotAlreadySet(CheckedOutReason.Transaction);
+                    checkOutReasonTracker.SetCheckOutReasonIfNotAlreadySet(CheckOutReason.Transaction);
                 }
                 session.CurrentTransaction.PinChannel(channel.Fork());
                 session.CurrentTransaction.PinnedServer = channelSource.Server;
