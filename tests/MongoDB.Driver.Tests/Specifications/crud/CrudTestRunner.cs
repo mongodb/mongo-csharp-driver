@@ -303,7 +303,14 @@ namespace MongoDB.Driver.Tests.Specifications.crud
 
             if (definition.TryGetValue("serverless", out var serverless))
             {
-                RequireServer.Check().RunOn(new BsonArray(new[] { serverless }));
+                if (serverless == "forbid")
+                {
+                    RequireServer.Check().Serverless(false);
+                }
+                else
+                {
+                    throw new FormatException($"Invalid serverless field value: '{serverless.AsString}'.");
+                }
             }
 
             if (test.TryGetValue("skipReason", out var reason))
