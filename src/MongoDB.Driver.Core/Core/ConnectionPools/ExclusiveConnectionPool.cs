@@ -199,9 +199,12 @@ namespace MongoDB.Driver.Core.ConnectionPools
         {
             lock (_poolState)
             {
+                // access to _poolState should be synchronized
                 _poolState.ThrowIfNotReadyNonPausable();
             }
 
+            // generation increment can happen outside lock, as _serviceStates is threadsafe
+            // and for now we allow dipose to start during generation increment.
             _clearingEventHandler?.Invoke(new ConnectionPoolClearingEvent(_serverId, _settings, serviceId));
 
             _serviceStates.IncrementGeneration(serviceId);

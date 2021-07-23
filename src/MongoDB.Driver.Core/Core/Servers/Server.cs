@@ -114,10 +114,6 @@ namespace MongoDB.Driver.Core.Servers
         int IClusterableServer.OutstandingOperationsCount => Interlocked.CompareExchange(ref _outstandingOperationsCount, 0, 0);
 
         // public methods
-
-        void IConnectionExceptionHandler.HandleExceptionOnOpen(Exception exception) =>
-            HandleBeforeHandshakeCompletesException(exception);
-
         public void Dispose()
         {
             if (_state.TryChange(State.Disposed))
@@ -141,10 +137,8 @@ namespace MongoDB.Driver.Core.Servers
             }
         }
 
-        protected abstract void Dispose(bool disposing);
-
-        protected abstract void HandleBeforeHandshakeCompletesException(Exception ex);
-        protected abstract void HandleAfterHandshakeCompletesException(IConnection connection, Exception ex);
+        public void HandleExceptionOnOpen(Exception exception) =>
+            HandleBeforeHandshakeCompletesException(exception);
 
         public IChannelHandle GetChannel(CancellationToken cancellationToken)
         {
@@ -222,9 +216,14 @@ namespace MongoDB.Driver.Core.Servers
         public abstract void RequestHeartbeat();
 
         // protected methods
+        protected abstract void Dispose(bool disposing);
+
+        protected abstract void HandleBeforeHandshakeCompletesException(Exception ex);
+        protected abstract void HandleAfterHandshakeCompletesException(IConnection connection, Exception ex);
+
         protected abstract void InitializeSubClass();
 
-        protected bool IsStandaloneTopology()
+        protected bool IsDirectConnection()
         {
 #pragma warning disable CS0618 // Type or member is obsolete
             if (_connectionModeSwitch == ConnectionModeSwitch.UseDirectConnection)
@@ -233,7 +232,7 @@ namespace MongoDB.Driver.Core.Servers
             }
             else
             {
-                return _clusterConnectionMode == ClusterConnectionMode.Standalone;
+                return _clusterConnectionMode == ClusterConnectionMode.Direct;
             }
 #pragma warning restore CS0618 // Type or member is obsolete
         }
@@ -1021,7 +1020,7 @@ namespace MongoDB.Driver.Core.Servers
 
             private ReadPreference GetEffectiveReadPreference(bool secondaryOk, ReadPreference readPreference)
             {
-                if (IsDirectConnection() && _server.Description.Type != ServerType.ShardRouter)
+                if (_server.IsDirectConnection() && _server.Description.Type != ServerType.ShardRouter)
                 {
                     return ReadPreference.PrimaryPreferred;
                 }
@@ -1042,26 +1041,12 @@ namespace MongoDB.Driver.Core.Servers
 
             private bool GetEffectiveSecondaryOk(bool secondaryOk)
             {
-                if (IsDirectConnection() && _server.Description.Type != ServerType.ShardRouter)
+                if (_server.IsDirectConnection() && _server.Description.Type != ServerType.ShardRouter)
                 {
                     return true;
                 }
 
                 return secondaryOk;
-            }
-
-            private bool IsDirectConnection()
-            {
-#pragma warning disable CS0618 // Type or member is obsolete
-                if (_server._connectionModeSwitch == ConnectionModeSwitch.UseDirectConnection)
-                {
-                    return _server._directConnection.GetValueOrDefault();
-                }
-                else
-                {
-                    return _server._clusterConnectionMode == ClusterConnectionMode.Direct;
-                }
-#pragma warning restore CS0618 // Type or member is obsolete
             }
 
             private void MarkSessionDirtyIfNeeded(ICoreSession session, Exception ex)

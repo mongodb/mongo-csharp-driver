@@ -47,34 +47,35 @@ namespace MongoDB.Driver.Core.Configuration
             Optional<int> maxConnections = default(Optional<int>),
             Optional<int> minConnections = default(Optional<int>),
             Optional<int> waitQueueSize = default(Optional<int>),
-            Optional<TimeSpan> waitQueueTimeout = default(Optional<TimeSpan>))
+            Optional<TimeSpan> waitQueueTimeout = default(Optional<TimeSpan>)) : this(
+                maintenanceInterval: maintenanceInterval,
+                maxConnections: maxConnections,
+                minConnections: minConnections,
+                waitQueueSize: waitQueueSize,
+                waitQueueTimeout: waitQueueTimeout,
+                isPausable: true)
+        {
+        }
+
+        private ConnectionPoolSettings(
+            Optional<TimeSpan> maintenanceInterval = default(Optional<TimeSpan>),
+            Optional<int> maxConnections = default(Optional<int>),
+            Optional<int> minConnections = default(Optional<int>),
+            Optional<int> waitQueueSize = default(Optional<int>),
+            Optional<TimeSpan> waitQueueTimeout = default(Optional<TimeSpan>),
+            Optional<bool> isPausable = default(Optional<bool>),
+            Optional<int> maxConnecting = default(Optional<int>))
         {
             _maintenanceInterval = Ensure.IsInfiniteOrGreaterThanOrEqualToZero(maintenanceInterval.WithDefault(TimeSpan.FromMinutes(1)), nameof(maintenanceInterval));
             _maxConnections = Ensure.IsGreaterThanZero(maxConnections.WithDefault(100), nameof(maxConnections));
-            _maxConnecting = MongoInternalDefaults.ConnectionPool.MaxConnecting;
+            _maxConnecting = maxConnecting.WithDefault(MongoInternalDefaults.ConnectionPool.MaxConnecting);
             _minConnections = Ensure.IsGreaterThanOrEqualToZero(minConnections.WithDefault(0), nameof(minConnections));
 #pragma warning disable CS0618 // Type or member is obsolete
             _waitQueueSize = Ensure.IsGreaterThanOrEqualToZero(waitQueueSize.WithDefault(ConnectionStringConversions.GetComputedWaitQueueSize(_maxConnections, 5)), "waitQueueSize");
 #pragma warning restore CS0618 // Type or member is obsolete
             _waitQueueTimeout = Ensure.IsInfiniteOrGreaterThanOrEqualToZero(waitQueueTimeout.WithDefault(TimeSpan.FromMinutes(2)), "waitQueueTimeout");
 
-            _isPausable = true;
-        }
-
-        private ConnectionPoolSettings(
-            ConnectionPoolSettings baseSettings,
-            Optional<bool> isPausable = default(Optional<bool>),
-            Optional<int> maxConnecting = default(Optional<int>)) : this(
-                baseSettings.MaintenanceInterval,
-                baseSettings.MaxConnections,
-                baseSettings.MinConnections,
-#pragma warning disable CS0618 // Type or member is obsolete
-                baseSettings.WaitQueueSize,
-#pragma warning restore CS0618 // Type or member is obsolete
-                baseSettings.WaitQueueTimeout)
-        {
-            _maxConnecting = maxConnecting.WithDefault(baseSettings.MaxConnecting);
-            _isPausable = isPausable.WithDefault(baseSettings.IsPausable);
+            _isPausable = isPausable.WithDefault(true);
         }
 
         // properties
@@ -173,6 +174,13 @@ namespace MongoDB.Driver.Core.Configuration
         internal ConnectionPoolSettings WithInternal(
             Optional<bool> isPausable = default(Optional<bool>),
             Optional<int> maxConnecting = default(Optional<int>)) =>
-            new ConnectionPoolSettings(this, isPausable, maxConnecting);
+            new ConnectionPoolSettings(
+                maintenanceInterval: _maintenanceInterval,
+                maxConnections: _maxConnections,
+                minConnections: _minConnections,
+                waitQueueSize: _waitQueueSize,
+                waitQueueTimeout: _waitQueueTimeout,
+                isPausable: isPausable,
+                maxConnecting: maxConnecting);
     }
 }

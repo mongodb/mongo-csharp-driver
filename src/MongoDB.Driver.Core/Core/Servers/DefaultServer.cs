@@ -221,7 +221,7 @@ namespace MongoDB.Driver.Core.Servers
                 ConnectionPool.Clear();
             }
             else if (newDescription.IsDataBearing ||
-                (newDescription.Type != ServerType.Unknown && IsStandaloneTopology()))
+                (newDescription.Type != ServerType.Unknown && IsDirectConnection()))
             {
                 ConnectionPool.SetReady();
             }

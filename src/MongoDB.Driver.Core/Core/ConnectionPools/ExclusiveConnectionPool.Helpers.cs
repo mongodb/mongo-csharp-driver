@@ -885,7 +885,6 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
                 if (_disposeConnection)
                 {
-                    // TODO SDAM spec: topology.handle_pre_handshake_error(error) # if possible, defer error handling to SDAM
                     _connection?.Dispose();
                 }
             }

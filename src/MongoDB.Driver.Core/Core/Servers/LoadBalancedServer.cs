@@ -109,7 +109,7 @@ namespace MongoDB.Driver.Core.Servers
             TriggerServerDescriptionChanged(this, eventArgs);
 
             // mark pool as ready, start the connection creation thread.
-            // note that the pool can not be paused in LB mode.
+            // note that the pool can not be paused after it was marked as ready in LB mode.
             ConnectionPool.SetReady();
         }
 

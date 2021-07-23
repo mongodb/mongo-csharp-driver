@@ -182,7 +182,7 @@ namespace MongoDB.Driver.Core.Helpers
             // which is one from methods called inside Open
             _lastUsedAtUtc = DateTime.UtcNow;
 
-            _openedEventHandler?.Invoke(new ConnectionOpenedEvent(_connectionId, _connectionSettings, TimeSpan.FromMilliseconds(100), null));
+            _openedEventHandler?.Invoke(new ConnectionOpenedEvent(_connectionId, _connectionSettings, TimeSpan.Zero, null));
         }
 
         public Task OpenAsync(CancellationToken cancellationToken)
@@ -194,7 +194,7 @@ namespace MongoDB.Driver.Core.Helpers
             // which is one from methods called inside OpenAsync
             _lastUsedAtUtc = DateTime.UtcNow;
 
-            _openedEventHandler?.Invoke(new ConnectionOpenedEvent(_connectionId, _connectionSettings, TimeSpan.FromMilliseconds(100), null));
+            _openedEventHandler?.Invoke(new ConnectionOpenedEvent(_connectionId, _connectionSettings, TimeSpan.Zero, null));
 
             return Task.FromResult<object>(null);
         }

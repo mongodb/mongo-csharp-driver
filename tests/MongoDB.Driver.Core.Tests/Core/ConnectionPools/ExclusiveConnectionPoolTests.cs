@@ -454,10 +454,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
         [Theory]
         [ParameterAttributeData]
         public void AquireConnection_should_timeout_when_non_sufficient_reused_connections(
-            [Values(true, false)]
-            bool isAsync,
-            [Values(1, 10, null)]
-            int? maxConnectingOptional)
+            [Values(true, false)] bool async,
+            [Values(1, 10, null)] int? maxConnectingOptional)
         {
             int maxConnecting = maxConnectingOptional ?? MongoInternalDefaults.ConnectionPool.MaxConnecting;
             int initalAcquiredCount = maxConnecting;
@@ -521,7 +519,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             subject.PendingCount.Should().Be(0);
             var connectionsAcquired = Enumerable.Range(0, initalAcquiredCount)
-                .Select(i => AcquireConnection(subject, isAsync))
+                .Select(i => AcquireConnection(subject, async))
                 .ToArray();
 
             // block further establishments
@@ -537,7 +535,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 {
                     // maximize maxConnecting
                     allAcquiringCountEvent.Signal();
-                    AcquireConnection(subject, isAsync);
+                    AcquireConnection(subject, async);
                 }
                 else if (threadIndex < maxConnecting + maxAcquiringCount)
                 {
@@ -549,7 +547,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
                     try
                     {
-                        AcquireConnection(subject, isAsync);
+                        AcquireConnection(subject, async);
                     }
                     catch (TimeoutException)
                     {
@@ -747,10 +745,10 @@ namespace MongoDB.Driver.Core.ConnectionPools
         [Theory]
         [ParameterAttributeData]
         public void Aquire_and_release_connection_stress_test(
-            [RandomSeed(new[] { 0 })]int seed,
-            [Values(2, 10, 30)]int threadsCount,
-            [Values(true, false, null)]bool? asyncOrRandom,
-            [Values(0, 1, null)]int? minPoolSizeOrRandom)
+            [RandomSeed(new[] { 0 })] int seed,
+            [Values(2, 10, 30)] int threadsCount,
+            [Values(true, false, null)] bool? asyncOrRandom,
+            [Values(0, 1, null)] int? minPoolSizeOrRandom)
         {
             var random = new Random(seed);
 
