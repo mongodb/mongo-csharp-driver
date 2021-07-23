@@ -252,7 +252,7 @@ namespace MongoDB.Driver.Core.Servers
             {
                 return
                     IsShutdownException(ex) ||
-                    !Feature.KeepConnectionPoolWhenNotMasterConnectionException.IsSupported(serverVersion); // i.e. serverVersion < 4.1.10
+                    !Feature.KeepConnectionPoolWhenNotPrimaryConnectionException.IsSupported(serverVersion); // i.e. serverVersion < 4.1.10
             }
             return false;
         }

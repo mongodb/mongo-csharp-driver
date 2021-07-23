@@ -258,19 +258,19 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         }
 
         /// <summary>
+        /// Gets a value indicating whether it is OK if the server is not the primary.
+        /// </summary>
+        public bool SecondaryOk
+        {
+            get { return _secondaryOk; }
+        }
+
+        /// <summary>
         /// Gets the number of documents to skip.
         /// </summary>
         public int Skip
         {
             get { return _skip; }
-        }
-
-        /// <summary>
-        /// Gets a value indicating whether it is OK if the server is not the primary.
-        /// </summary>
-        public bool SlaveOk
-        {
-            get { return _secondaryOk; }
         }
 
         /// <summary>

@@ -74,7 +74,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly HintForDeleteOperationsFeature __hintForDeleteOperations = new HintForDeleteOperationsFeature("HintForDeleteOperations", new SemanticVersion(4, 3, 4));
         private static readonly HintForFindAndModifyFeature __hintForFindAndModifyFeature = new HintForFindAndModifyFeature("HintForFindAndModify", new SemanticVersion(4, 3, 4));
         private static readonly HintForUpdateAndReplaceOperationsFeature __hintForUpdateAndReplaceOperations = new HintForUpdateAndReplaceOperationsFeature("HintForUpdateAndReplaceOperations", new SemanticVersion(4, 2, 0));
-        private static readonly Feature __keepConnectionPoolWhenNotMasterConnectionException = new Feature("KeepConnectionPoolWhenNotMasterConnectionException", new SemanticVersion(4, 1, 10));
+        private static readonly Feature __keepConnectionPoolWhenNotPrimaryConnectionException = new Feature("KeepConnectionPoolWhenNotWritablePrimaryConnectionException", new SemanticVersion(4, 1, 10));
         private static readonly Feature __keepConnectionPoolWhenReplSetStepDown = new Feature("KeepConnectionPoolWhenReplSetStepDown", new SemanticVersion(4, 1, 10));
         private static readonly Feature __killAllSessions = new Feature("KillAllSessions", new SemanticVersion(3, 6, 0));
         private static readonly Feature __killCursorsCommand = new Feature("KillCursorsCommand", new SemanticVersion(3, 2, 0));
@@ -100,7 +100,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __shardedTransactions = new Feature("ShardedTransactions", new SemanticVersion(4, 1, 6));
         private static readonly Feature __snapshotReads = new Feature("SnapshotReads", new SemanticVersion(5, 0, 0, ""), notSupportedMessage: "Snapshot reads require MongoDB 5.0 or later");
         private static readonly Feature __speculativeAuthentication = new Feature("SpeculativeAuthentication", new SemanticVersion(4, 4, 0, "rc0"));
-        private static readonly Feature __streamingIsMaster = new Feature("StreamingIsMaster", new SemanticVersion(4, 4, 0, ""));
+        private static readonly Feature __streamingHello = new Feature("StreamingHello", new SemanticVersion(4, 4, 0, ""));
         private static readonly Feature __tailableCursor = new Feature("TailableCursor", new SemanticVersion(3, 2, 0));
         private static readonly Feature __transactions = new Feature("Transactions", new SemanticVersion(4, 0, 0));
         private static readonly Feature __userManagementCommands = new Feature("UserManagementCommands", new SemanticVersion(2, 6, 0));
@@ -364,9 +364,15 @@ namespace MongoDB.Driver.Core.Misc
         public static HintForUpdateAndReplaceOperationsFeature HintForUpdateAndReplaceOperations => __hintForUpdateAndReplaceOperations;
 
         /// <summary>
-        /// Gets the keep connection pool when NotMaster connection exception feature.
+        /// Gets the keep connection pool when NotPrimary connection exception feature.
         /// </summary>
-        public static Feature KeepConnectionPoolWhenNotMasterConnectionException => __keepConnectionPoolWhenNotMasterConnectionException;
+        public static Feature KeepConnectionPoolWhenNotPrimaryConnectionException => __keepConnectionPoolWhenNotPrimaryConnectionException;
+
+        /// <summary>
+        /// Gets the keep connection pool when NotPrimary connection exception feature.
+        /// </summary>
+        [Obsolete("Use KeepConnectionPoolWhenNotPrimaryConnectionException instead.")]
+        public static Feature KeepConnectionPoolWhenNotMasterConnectionException => __keepConnectionPoolWhenNotPrimaryConnectionException;
 
         /// <summary>
         /// Gets the keep connection pool when replSetStepDown feature.
@@ -494,9 +500,15 @@ namespace MongoDB.Driver.Core.Misc
         public static Feature SpeculativeAuthentication => __speculativeAuthentication;
 
         /// <summary>
-        /// Gets the streaming isMaster feature.
+        /// Gets the streaming hello feature.
         /// </summary>
-        public static Feature StreamingIsMaster => __streamingIsMaster;
+        public static Feature StreamingHello => __streamingHello;
+
+        /// <summary>
+        /// Gets the streaming hello feature.
+        /// </summary>
+        [Obsolete("Use StreamingHello instead.")]
+        public static Feature StreamingIsMaster => __streamingHello;
 
         /// <summary>
         /// Gets the tailable cursor feature.

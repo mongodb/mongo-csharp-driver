@@ -29,5 +29,6 @@ using MongoDB.Bson;
 [assembly: InternalsVisibleTo("MongoDB.Driver.Core.TestHelpers")]
 [assembly: InternalsVisibleTo("MongoDB.Driver.Core.Tests")]
 [assembly: InternalsVisibleTo("MongoDB.Driver.Legacy.Tests")]
+[assembly: InternalsVisibleTo("MongoDB.Driver.Legacy.TestHelpers")]
 [assembly: InternalsVisibleTo("MongoDB.Driver.Tests")]
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]

@@ -25,6 +25,7 @@ using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.TestHelpers;
@@ -600,7 +601,7 @@ namespace MongoDB.Driver.Core.Tests
                 eventCapturer.Next().Should().BeOfType<ConnectionPoolCheckingOutConnectionEvent>();
                 if (shouldHelloBeCalled) // in other cases we will reuse the first connection
                 {
-                    eventCapturer.Next().Should().BeOfType<CommandSucceededEvent>().Subject.CommandName.Should().Be("isMaster");
+                    eventCapturer.Next().Should().BeOfType<CommandSucceededEvent>().Subject.CommandName.Should().Be(OppressiveLanguageConstants.LegacyHelloCommandName);
                     eventCapturer.Next().Should().BeOfType<CommandSucceededEvent>().Subject.CommandName.Should().Be("buildInfo");
                 }
                 eventCapturer.Next().Should().BeOfType<ConnectionPoolCheckedOutConnectionEvent>();

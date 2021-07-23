@@ -72,7 +72,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
                 attemptDuration
                     .Should()
                     .BeLessThan(TimeSpan.FromSeconds(2));
-                // Assert the client processes isMaster replies more frequently than 10 secs (approximately every 500ms)
+                // Assert the client processes heartbeat replies more frequently than 10 secs (approximately every 500ms)
             }
         }
 
@@ -90,7 +90,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
                     mode : {{ 'times' : 5 }},
                     data :
                     {{
-                        failCommands : [ 'isMaster', 'hello' ],
+                        failCommands : [ '{OppressiveLanguageConstants.LegacyHelloCommandName}', 'hello' ],
                         errorCode : 1234,
                         appName : '{appName}'
                     }}
@@ -123,7 +123,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
         [SkippableFact]
         public void RoundTimeTrip_test()
         {
-            RequireServer.Check().Supports(Feature.StreamingIsMaster);
+            RequireServer.Check().Supports(Feature.StreamingHello);
 
             var eventCapturer = new EventCapturer().Capture<ServerDescriptionChangedEvent>();
 
@@ -147,17 +147,17 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
                 }
 
                 var failPointCommand = BsonDocument.Parse(
-                    @"{
+                    $@"{{
                         configureFailPoint : 'failCommand',
-                        mode : { times : 1000 },
+                        mode : {{ times : 1000 }},
                         data :
-                        {
-                            failCommands : [ 'isMaster', 'hello' ],
+                        {{
+                            failCommands : [ '{OppressiveLanguageConstants.LegacyHelloCommandName}', 'hello' ],
                             blockConnection : true,
                             blockTimeMS : 500,
                             appName : 'streamingRttTest'
-                        }
-                    }");
+                        }}
+                    }}");
 
                 using (FailPoint.Configure(client.Cluster, NoCoreSession.NewHandle(), failPointCommand))
                 {

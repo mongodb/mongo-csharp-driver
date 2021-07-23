@@ -53,10 +53,10 @@ namespace MongoDB.Driver.Tests
         {
             if (__isReplicaSet)
             {
-                var isMasterResult = __database.RunCommand("isMaster").Response;
+                var legacyHelloResult = __database.RunCommand(OppressiveLanguageConstants.LegacyHelloCommandName).Response;
                 BsonValue arbiters;
                 int arbiterCount = 0;
-                if (isMasterResult.TryGetValue("arbiters", out arbiters))
+                if (legacyHelloResult.TryGetValue("arbiters", out arbiters))
                 {
                     arbiterCount = arbiters.AsBsonArray.Count;
                 }

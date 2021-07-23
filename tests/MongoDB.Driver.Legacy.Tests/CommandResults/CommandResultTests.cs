@@ -16,6 +16,7 @@
 using System;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using MongoDB.Driver.Core.Misc;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.CommandResults
@@ -135,9 +136,9 @@ namespace MongoDB.Driver.Tests.CommandResults
         }
 
         [Fact]
-        public void TestIsMasterCommand()
+        public void TestLegacyHelloCommand()
         {
-            var result = _database.RunCommand("ismaster");
+            var result = _database.RunCommand(OppressiveLanguageConstants.LegacyHelloCommandName);
             Assert.True(result.Ok);
         }
 

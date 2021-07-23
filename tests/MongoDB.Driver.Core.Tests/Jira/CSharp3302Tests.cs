@@ -290,7 +290,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
             };
 
             var primaryDocument = (BsonDocument)baseDocument.DeepClone();
-            primaryDocument.Add("ismaster", true);
+            primaryDocument.Add("isWritablePrimary", true);
 
             var secondaryDocument = (BsonDocument)baseDocument.DeepClone();
             secondaryDocument.Add("secondary", true);
@@ -306,23 +306,23 @@ namespace MongoDB.Driver.Core.Tests.Jira
             mockConnection.Setup(c => c.OpenAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult(true)); // no action is required
             mockConnection
                 .Setup(c => c.ReceiveMessageAsync(It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), It.IsAny<MessageEncoderSettings>(), It.IsAny<CancellationToken>()))
-                .Returns(GetIsMasterResponse);
+                .Returns(GetHelloResponse);
 
-            Task<ResponseMessage> GetIsMasterResponse()
+            Task<ResponseMessage> GetHelloResponse()
             {
-                var isMasterDocument = primaries.Contains(serverId) ? primaryDocument : secondaryDocument;
+                var helloDocument = primaries.Contains(serverId) ? primaryDocument : secondaryDocument;
 
-                ResponseMessage result = MessageHelper.BuildReply(new RawBsonDocument(isMasterDocument.ToBson()));
+                ResponseMessage result = MessageHelper.BuildReply(new RawBsonDocument(helloDocument.ToBson()));
                 return Task.FromResult(result);
             }
 
             ConnectionDescription GetConnectionDescription()
             {
-                var isMasterDocument = primaries.Contains(serverId) ? primaryDocument : secondaryDocument;
+                var helloDocument = primaries.Contains(serverId) ? primaryDocument : secondaryDocument;
 
                 return new ConnectionDescription(
                     mockConnection.Object.ConnectionId,
-                    new IsMasterResult(isMasterDocument),
+                    new HelloResult(helloDocument),
                     new BuildInfoResult(new BsonDocument("version", serverVersion)));
             }
         }

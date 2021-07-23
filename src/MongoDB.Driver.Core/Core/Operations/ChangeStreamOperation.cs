@@ -444,7 +444,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             if (_startAtOperationTime == null && _resumeAfter == null && _startAfter == null)
             {
-                var maxWireVersion = context.Channel.ConnectionDescription.IsMasterResult.MaxWireVersion;
+                var maxWireVersion = context.Channel.ConnectionDescription.HelloResult.MaxWireVersion;
                 if (maxWireVersion >= 7)
                 {
                     if (cursorBatchInfo.PostBatchResumeToken == null && cursorBatchInfo.WasFirstBatchEmpty)

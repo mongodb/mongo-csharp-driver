@@ -171,14 +171,14 @@ namespace MongoDB.Driver.Core.Servers
         {
             BsonDocument helloCommand;
             var commandResponseHandling = CommandResponseHandling.Return;
-            if (connection.Description.IsMasterResult.TopologyVersion != null)
+            if (connection.Description.HelloResult.TopologyVersion != null)
             {
                 connection.SetReadTimeout(_serverMonitorSettings.ConnectTimeout + _serverMonitorSettings.HeartbeatInterval);
                 commandResponseHandling = CommandResponseHandling.ExhaustAllowed;
 
                 var veryLargeHeartbeatInterval = TimeSpan.FromDays(1); // the server doesn't support Infinite value, so we set just a big enough value
                 var maxAwaitTime = _serverMonitorSettings.HeartbeatInterval == Timeout.InfiniteTimeSpan ? veryLargeHeartbeatInterval : _serverMonitorSettings.HeartbeatInterval;
-                helloCommand = HelloHelper.CreateCommand(_serverApi, helloOk, connection.Description.IsMasterResult.TopologyVersion, maxAwaitTime);
+                helloCommand = HelloHelper.CreateCommand(_serverApi, helloOk, connection.Description.HelloResult.TopologyVersion, maxAwaitTime);
             }
             else
             {
@@ -292,7 +292,7 @@ namespace MongoDB.Driver.Core.Servers
             bool processAnother = true;
             while (processAnother && !cancellationToken.IsCancellationRequested)
             {
-                IsMasterResult heartbeatHelloResult = null;
+                HelloResult heartbeatHelloResult = null;
                 Exception heartbeatException = null;
                 var previousDescription = _currentDescription;
 
@@ -315,7 +315,7 @@ namespace MongoDB.Driver.Core.Servers
                             }
                             _connection = initializedConnection;
                             _handshakeBuildInfoResult = _connection.Description.BuildInfoResult;
-                            heartbeatHelloResult = _connection.Description.IsMasterResult;
+                            heartbeatHelloResult = _connection.Description.HelloResult;
                         }
                     }
                     else
@@ -428,7 +428,7 @@ namespace MongoDB.Driver.Core.Servers
             }
         }
 
-        private async Task<IsMasterResult> GetHelloResultAsync(
+        private async Task<HelloResult> GetHelloResultAsync(
             IConnection connection,
             CommandWireProtocol<BsonDocument> helloProtocol,
             CancellationToken cancellationToken)
@@ -436,7 +436,7 @@ namespace MongoDB.Driver.Core.Servers
             cancellationToken.ThrowIfCancellationRequested();
             if (_heartbeatStartedEventHandler != null)
             {
-                _heartbeatStartedEventHandler(new ServerHeartbeatStartedEvent(connection.ConnectionId, connection.Description.IsMasterResult.TopologyVersion != null));
+                _heartbeatStartedEventHandler(new ServerHeartbeatStartedEvent(connection.ConnectionId, connection.Description.HelloResult.TopologyVersion != null));
             }
 
             try
@@ -447,7 +447,7 @@ namespace MongoDB.Driver.Core.Servers
 
                 if (_heartbeatSucceededEventHandler != null)
                 {
-                    _heartbeatSucceededEventHandler(new ServerHeartbeatSucceededEvent(connection.ConnectionId, stopwatch.Elapsed, connection.Description.IsMasterResult.TopologyVersion != null));
+                    _heartbeatSucceededEventHandler(new ServerHeartbeatSucceededEvent(connection.ConnectionId, stopwatch.Elapsed, connection.Description.HelloResult.TopologyVersion != null));
                 }
 
                 return helloResult;
@@ -456,7 +456,7 @@ namespace MongoDB.Driver.Core.Servers
             {
                 if (_heartbeatFailedEventHandler != null)
                 {
-                    _heartbeatFailedEventHandler(new ServerHeartbeatFailedEvent(connection.ConnectionId, ex, connection.Description.IsMasterResult.TopologyVersion != null));
+                    _heartbeatFailedEventHandler(new ServerHeartbeatFailedEvent(connection.ConnectionId, ex, connection.Description.HelloResult.TopologyVersion != null));
                 }
                 throw;
             }

@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Core.Connections
     {
         [Theory]
         [InlineData(true, false, "{ hello : 1, helloOk : true }")]
-        [InlineData(false, false, "{ isMaster : 1, helloOk : true }")]
+        [InlineData(false, false, "{ " + OppressiveLanguageConstants.LegacyHelloCommandName + " : 1, helloOk : true }")]
         [InlineData(false, true, "{ hello : 1, helloOk : true }")]
         [InlineData(true, true, "{ hello : 1, helloOk : true }")]
         public void CreateCommand_should_return_correct_hello_command(bool useServerApiVersion, bool helloOk, string expectedResult)
@@ -62,7 +62,7 @@ namespace MongoDB.Driver.Core.Connections
 
             var names = result.Names.ToList();
             names.Count.Should().Be(3);
-            names[0].Should().Be("isMaster");
+            names[0].Should().Be(OppressiveLanguageConstants.LegacyHelloCommandName);
             names[1].Should().Be("helloOk");
             names[2].Should().Be("client");
             result[0].Should().Be(1);

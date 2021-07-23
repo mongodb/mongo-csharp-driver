@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Core.Connections
             var authenticators = GetAuthenticators(connection.Settings);
             AuthenticationHelper.Authenticate(connection, description, authenticators, cancellationToken);
 
-            var connectionIdServerValue = description.IsMasterResult.ConnectionIdServerValue;
+            var connectionIdServerValue = description.HelloResult.ConnectionIdServerValue;
             if (connectionIdServerValue.HasValue)
             {
                 description = UpdateConnectionIdWithServerValue(description, connectionIdServerValue.Value);
@@ -85,7 +85,7 @@ namespace MongoDB.Driver.Core.Connections
             var authenticators = GetAuthenticators(connection.Settings);
             await AuthenticationHelper.AuthenticateAsync(connection, description, authenticators, cancellationToken).ConfigureAwait(false);
 
-            var connectionIdServerValue = description.IsMasterResult.ConnectionIdServerValue;
+            var connectionIdServerValue = description.HelloResult.ConnectionIdServerValue;
             if (connectionIdServerValue.HasValue)
             {
                 description = UpdateConnectionIdWithServerValue(description, connectionIdServerValue.Value);

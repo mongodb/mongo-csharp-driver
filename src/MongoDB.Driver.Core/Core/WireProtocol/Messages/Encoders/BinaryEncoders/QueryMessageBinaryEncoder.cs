@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             {
                 flags |= QueryFlags.Partial;
             }
-            if (message.SlaveOk)
+            if (message.SecondaryOk)
             {
                 flags |= QueryFlags.SecondaryOk;
             }

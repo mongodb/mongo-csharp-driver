@@ -105,7 +105,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 var subject = new QueryMessageBinaryEncoder(stream, __messageEncoderSettings);
                 var message = subject.ReadMessage();
                 message.TailableCursor.Should().Be(tailableCursor);
-                message.SlaveOk.Should().Be(secondaryOk);
+                message.SecondaryOk.Should().Be(secondaryOk);
                 message.NoCursorTimeout.Should().Be(noCursorTimeout);
 #pragma warning disable 618
                 message.OplogReplay.Should().Be(oplogReplay);
@@ -134,7 +134,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 message.Query.Should().Be(__query);
                 message.RequestId.Should().Be(__requestId);
                 message.Skip.Should().Be(__skip);
-                message.SlaveOk.Should().Be(__secondaryOk);
+                message.SecondaryOk.Should().Be(__secondaryOk);
                 message.TailableCursor.Should().Be(__tailableCursor);
             }
         }

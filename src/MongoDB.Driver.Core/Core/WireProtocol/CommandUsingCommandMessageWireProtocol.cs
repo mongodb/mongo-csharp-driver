@@ -259,7 +259,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             }
             else
             {
-                if (connection.Description.IsMasterResult.MaxWireVersion < 8)
+                if (connection.Description.HelloResult.MaxWireVersion < 8)
                 {
                     throw new NotSupportedException("Auto-encryption requires a minimum MongoDB version of 4.2.");
                 }
@@ -277,7 +277,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             }
             else
             {
-                if (connection.Description.IsMasterResult.MaxWireVersion < 8)
+                if (connection.Description.HelloResult.MaxWireVersion < 8)
                 {
                     throw new NotSupportedException("Auto-encryption requires a minimum MongoDB version of 4.2.");
                 }
@@ -324,7 +324,7 @@ namespace MongoDB.Driver.Core.WireProtocol
 
             AddIfNotAlreadyAdded("$db", _databaseNamespace.DatabaseName);
 
-            if (connectionDescription?.IsMasterResult.ServerType != ServerType.Standalone
+            if (connectionDescription?.HelloResult.ServerType != ServerType.Standalone
                 && _readPreference != null
                 && _readPreference != ReadPreference.Primary)
             {

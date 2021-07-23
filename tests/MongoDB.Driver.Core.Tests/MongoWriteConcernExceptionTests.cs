@@ -24,6 +24,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using Xunit;
 
@@ -52,13 +53,13 @@ namespace MongoDB.Driver
         [InlineData(ServerErrorCode.LegacyNotPrimary, typeof(MongoNotPrimaryException))]
         [InlineData(ServerErrorCode.NotWritablePrimary, typeof(MongoNotPrimaryException))]
         [InlineData(ServerErrorCode.NotPrimaryNoSecondaryOk, typeof(MongoNotPrimaryException))]
-        [InlineData("not master", typeof(MongoNotPrimaryException))]
+        [InlineData(OppressiveLanguageConstants.LegacyNotPrimaryErrorMessage, typeof(MongoNotPrimaryException))]
         [InlineData(ServerErrorCode.InterruptedAtShutdown, typeof(MongoNodeIsRecoveringException))] // IsShutdownError
         [InlineData(ServerErrorCode.ShutdownInProgress, typeof(MongoNodeIsRecoveringException))] // IsShutdownError
         [InlineData(ServerErrorCode.InterruptedDueToReplStateChange, typeof(MongoNodeIsRecoveringException))]
         [InlineData(ServerErrorCode.NotPrimaryOrSecondary, typeof(MongoNodeIsRecoveringException))]
         [InlineData(ServerErrorCode.PrimarySteppedDown, typeof(MongoNodeIsRecoveringException))]
-        [InlineData("not master or secondary", typeof(MongoNodeIsRecoveringException))]
+        [InlineData(OppressiveLanguageConstants.LegacyNotPrimaryOrSecondaryErrorMessage, typeof(MongoNodeIsRecoveringException))]
         [InlineData("node is recovering", typeof(MongoNodeIsRecoveringException))]
         [InlineData(ServerErrorCode.MaxTimeMSExpired, typeof(MongoExecutionTimeoutException))]
         [InlineData(13475, typeof(MongoExecutionTimeoutException))]

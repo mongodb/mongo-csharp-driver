@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
             var fields = (BsonDocument)messageDocument.GetValue("fields", null);
             var skip = messageDocument.GetValue("skip", 0).ToInt32();
             var batchSize = messageDocument.GetValue("batchSize", 0).ToInt32();
-            var secondaryOk = messageDocument.GetValue("slaveOk", false).ToBoolean();
+            var secondaryOk = messageDocument.GetValue("secondaryOk", false).ToBoolean();
             var partialOk = messageDocument.GetValue("partialOk", false).ToBoolean();
             var noCursorTimeout = messageDocument.GetValue("noCursorTimeout", false).ToBoolean();
             var oplogReplay = messageDocument.GetValue("oplogReplay", false).ToBoolean();
@@ -106,7 +106,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
                 { "fields", message.Fields, message.Fields != null },
                 { "skip", message.Skip, message.Skip != 0 },
                 { "batchSize", message.BatchSize, message.BatchSize != 0 },
-                { "slaveOk", true, message.SlaveOk },
+                { "secondaryOk", true, message.SecondaryOk },
                 { "partialOk", true, message.PartialOk },
                 { "noCursorTimeout", true, message.NoCursorTimeout },
 #pragma warning disable 618

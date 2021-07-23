@@ -26,6 +26,7 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Helpers;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -204,13 +205,13 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
 
         private ConnectionDescription CreateConnectionDescription()
         {
-            var isMasterDocument = new BsonDocument
+            var helloDocument = new BsonDocument
             {
                 { "ok", 1 },
             };
             return new ConnectionDescription(
                     new ConnectionId(__serverId, 0),
-                    new IsMasterResult(isMasterDocument),
+                    new HelloResult(helloDocument),
                     new BuildInfoResult(BsonDocument.Parse("{ ok : 1, version : '4.4.0' }")));
         }
 
@@ -230,7 +231,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
 
         private ResponseMessage CreateResponseMessage()
         {
-            var section0Document = "{ ismaster : true, topologyVersion : { processId : ObjectId('5ee3f0963109d4fe5e71dd28'), counter : NumberLong(0) }, ok : 1.0 }";
+            var section0Document = $"{{ {OppressiveLanguageConstants.LegacyHelloResponseIsWritablePrimaryFieldName} : true, topologyVersion : {{ processId : ObjectId('5ee3f0963109d4fe5e71dd28'), counter : NumberLong(0) }}, ok : 1.0 }}";
             var section0 = new Type0CommandMessageSection<RawBsonDocument>(
                 new RawBsonDocument(BsonDocument.Parse(section0Document).ToBson()),
                 RawBsonDocumentSerializer.Instance);

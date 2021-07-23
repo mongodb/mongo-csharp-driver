@@ -52,10 +52,18 @@ namespace MongoDB.Driver.Core.Authentication
         Task AuthenticateAsync(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken);
 
         /// <summary>
-        /// Optionally customizes isMaster command.
+        /// Optionally customizes hello or legacy hello command.
         /// </summary>
-        /// <param name="isMasterCommand">Initial isMaster command.</param>
-        /// <returns>Optionally mutated isMaster command.</returns>
-        BsonDocument CustomizeInitialIsMasterCommand(BsonDocument isMasterCommand);
+        /// <param name="helloCommand">Initial command.</param>
+        /// <returns>Optionally mutated command.</returns>
+        BsonDocument CustomizeInitialHelloCommand(BsonDocument helloCommand);
+
+        /// <summary>
+        /// Optionally customizes hello or legacy hello command.
+        /// </summary>
+        /// <param name="helloCommand">Initial command.</param>
+        /// <returns>Optionally mutated command.</returns>
+        [Obsolete("Use CustomizeInitialHelloCommand instead.")]
+        BsonDocument CustomizeInitialIsMasterCommand(BsonDocument helloCommand);
     }
 }

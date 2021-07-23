@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Core.Connections
         private readonly BuildInfoResult _buildInfoResult;
         private readonly IReadOnlyList<CompressorType> _compressors;
         private readonly ConnectionId _connectionId;
-        private readonly IsMasterResult _isMasterResult;
+        private readonly HelloResult _helloResult;
         private readonly int _maxBatchCount;
         private readonly int _maxDocumentSize;
         private readonly int _maxMessageSize;
@@ -43,19 +43,19 @@ namespace MongoDB.Driver.Core.Connections
         /// Initializes a new instance of the <see cref="ConnectionDescription"/> class.
         /// </summary>
         /// <param name="connectionId">The connection identifier.</param>
-        /// <param name="isMasterResult">The issMaster result.</param>
+        /// <param name="helloResult">The hello result.</param>
         /// <param name="buildInfoResult">The buildInfo result.</param>
-        public ConnectionDescription(ConnectionId connectionId, IsMasterResult isMasterResult, BuildInfoResult buildInfoResult)
+        public ConnectionDescription(ConnectionId connectionId, HelloResult helloResult, BuildInfoResult buildInfoResult)
         {
             _connectionId = Ensure.IsNotNull(connectionId, nameof(connectionId));
             _buildInfoResult = Ensure.IsNotNull(buildInfoResult, nameof(buildInfoResult));
-            _isMasterResult = Ensure.IsNotNull(isMasterResult, nameof(isMasterResult));
+            _helloResult = Ensure.IsNotNull(helloResult, nameof(helloResult));
 
-            _compressors = Ensure.IsNotNull(_isMasterResult.Compressions, "compressions");
-            _maxBatchCount = isMasterResult.MaxBatchCount;
-            _maxDocumentSize = isMasterResult.MaxDocumentSize;
-            _maxMessageSize = isMasterResult.MaxMessageSize;
-            _serviceId = isMasterResult.ServiceId;
+            _compressors = Ensure.IsNotNull(_helloResult.Compressions, "compressions");
+            _maxBatchCount = helloResult.MaxBatchCount;
+            _maxDocumentSize = helloResult.MaxDocumentSize;
+            _maxMessageSize = helloResult.MaxMessageSize;
+            _serviceId = helloResult.ServiceId;
             _serverVersion = buildInfoResult.ServerVersion;
         }
 
@@ -91,14 +91,26 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         /// <summary>
-        /// Gets the isMaster result.
+        /// Gets the hello result.
         /// </summary>
         /// <value>
-        /// The isMaster result.
+        /// The hello result.
         /// </value>
+        public HelloResult HelloResult
+        {
+            get { return _helloResult; }
+        }
+
+        /// <summary>
+        /// Gets the hello result.
+        /// </summary>
+        /// <value>
+        /// The hello result.
+        /// </value>
+        [Obsolete("Use HelloResult instead.")]
         public IsMasterResult IsMasterResult
         {
-            get { return _isMasterResult; }
+            get { return new IsMasterResult(_helloResult.Wrapped); }
         }
 
         /// <summary>
@@ -179,7 +191,7 @@ namespace MongoDB.Driver.Core.Connections
             return
                 _buildInfoResult.Equals(other._buildInfoResult) &&
                 _connectionId.StructurallyEquals(other._connectionId) &&
-                _isMasterResult.Equals(other._isMasterResult);
+                _helloResult.Equals(other._helloResult);
         }
 
         /// <inheritdoc/>
@@ -194,7 +206,7 @@ namespace MongoDB.Driver.Core.Connections
             return new Hasher()
                 .Hash(_buildInfoResult)
                 .Hash(_connectionId)
-                .Hash(_isMasterResult)
+                .Hash(_helloResult)
                 .GetHashCode();
         }
 
@@ -205,7 +217,7 @@ namespace MongoDB.Driver.Core.Connections
         /// <returns>A connection description.</returns>
         public ConnectionDescription WithConnectionId(ConnectionId value)
         {
-            return _connectionId.StructurallyEquals(value) ? this : new ConnectionDescription(value, _isMasterResult, _buildInfoResult);
+            return _connectionId.StructurallyEquals(value) ? this : new ConnectionDescription(value, _helloResult, _buildInfoResult);
         }
     }
 }

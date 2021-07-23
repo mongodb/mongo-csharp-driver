@@ -15,6 +15,7 @@
 
 using System;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Tests
 {
@@ -40,9 +41,9 @@ namespace MongoDB.Driver.Tests
 
             // connect early so BuildInfo will be populated
             __server.Connect();
-            var isMasterResult = __database.RunCommand("isMaster").Response;
+            var helloResult = __database.RunCommand(OppressiveLanguageConstants.LegacyHelloCommandName).Response;
             BsonValue setName = null;
-            if (isMasterResult.TryGetValue("setName", out setName))
+            if (helloResult.TryGetValue("setName", out setName))
             {
                 __isReplicaSet = true;
             }

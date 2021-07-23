@@ -22,5 +22,8 @@ namespace MongoDB.Driver.Core.Misc
         // The isMaster command response contains a boolean field ismaster (all lowercase)
         // to indicate whether the current node is the primary.
         public const string LegacyHelloResponseIsWritablePrimaryFieldName = "ismaster";
+
+        public const string LegacyNotPrimaryErrorMessage = "not master";
+        public const string LegacyNotPrimaryOrSecondaryErrorMessage = "not master or secondary";
     }
 }

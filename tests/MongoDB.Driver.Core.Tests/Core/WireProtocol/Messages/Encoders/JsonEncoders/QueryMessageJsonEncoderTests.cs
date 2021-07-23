@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
                     "\"fields\" : { \"f\" : 1 }, " +
                     "\"skip\" : 2, " +
                     "\"batchSize\" : 3, " +
-                    "\"slaveOk\" : true, " +
+                    "\"secondaryOk\" : true, " +
                     "\"partialOk\" : true, " +
                     "\"noCursorTimeout\" : true, " +
                     "\"oplogReplay\" : true, " +
@@ -127,7 +127,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
                 message.Query.Should().Be(__query);
                 message.RequestId.Should().Be(__requestId);
                 message.Skip.Should().Be(__skip);
-                message.SlaveOk.Should().Be(__secondaryOk);
+                message.SecondaryOk.Should().Be(__secondaryOk);
                 message.TailableCursor.Should().Be(__tailableCursor);
             }
         }

@@ -434,12 +434,12 @@ namespace MongoDB.Driver.Core.Servers
 
             var operationUsingChannelException = new MongoConnectionException(connectionId, "Oops", new IOException("Cry", innerMostException));
             var mockConnection = new Mock<IConnectionHandle>();
-            var isMasterResult = new IsMasterResult(new BsonDocument { { "compressors", new BsonArray() } });
+            var helloResult = new HelloResult(new BsonDocument { { "compressors", new BsonArray() } });
             // the server version doesn't matter when we're not testing MongoNotPrimaryExceptions, but is needed when
             // Server calls ShouldClearConnectionPoolForException
             var buildInfoResult = new BuildInfoResult(new BsonDocument { { "version", "4.4.0" } });
             mockConnection.SetupGet(c => c.Description)
-                .Returns(new ConnectionDescription(new ConnectionId(serverId, 0), isMasterResult, buildInfoResult));
+                .Returns(new ConnectionDescription(new ConnectionId(serverId, 0), helloResult, buildInfoResult));
             var mockConnectionPool = new Mock<IConnectionPool>();
             mockConnectionPool.Setup(p => p.AcquireConnection(It.IsAny<CancellationToken>())).Returns(mockConnection.Object);
             mockConnectionPool.Setup(p => p.AcquireConnectionAsync(It.IsAny<CancellationToken>())).ReturnsAsync(mockConnection.Object);
@@ -550,7 +550,7 @@ namespace MongoDB.Driver.Core.Servers
         internal void IsNotWritablePrimary_should_return_expected_result_for_code_with_conflicting_message()
         {
             var code = (ServerErrorCode)1;
-            var message = "not master";
+            var message = OppressiveLanguageConstants.LegacyNotPrimaryErrorMessage;
 
             var commandResult = new BsonDocument
             {
@@ -566,8 +566,8 @@ namespace MongoDB.Driver.Core.Servers
         [Theory]
         [InlineData(null, false, null)]
         [InlineData("abc", false, null)]
-        [InlineData("not master", true, typeof(MongoNotPrimaryException))]
-        [InlineData("not master or secondary", false, typeof(MongoNodeIsRecoveringException))]
+        [InlineData(OppressiveLanguageConstants.LegacyNotPrimaryErrorMessage, true, typeof(MongoNotPrimaryException))]
+        [InlineData(OppressiveLanguageConstants.LegacyNotPrimaryOrSecondaryErrorMessage, false, typeof(MongoNodeIsRecoveringException))]
         internal void IsNotWritablePrimary_should_return_expected_result_for_message(string message, bool expectedResult, Type expectedException)
         {
             var commandResult = new BsonDocument
@@ -636,7 +636,7 @@ namespace MongoDB.Driver.Core.Servers
         internal void IsRecovering_should_return_expected_result_for_code_with_conflicting_message()
         {
             var code = (ServerErrorCode)1;
-            var message = "not master or secondary";
+            var message = OppressiveLanguageConstants.LegacyNotPrimaryOrSecondaryErrorMessage;
 
             var commandResult = new BsonDocument
             {
@@ -653,7 +653,7 @@ namespace MongoDB.Driver.Core.Servers
         [InlineData(null, false)]
         [InlineData("abc", false)]
         [InlineData("node is recovering", true)]
-        [InlineData("not master or secondary", true)]
+        [InlineData(OppressiveLanguageConstants.LegacyNotPrimaryOrSecondaryErrorMessage, true)]
         internal void IsRecovering_should_return_expected_result_for_message(string message, bool expectedResult)
         {
             var commandResult = new BsonDocument
@@ -725,10 +725,10 @@ namespace MongoDB.Driver.Core.Servers
         [InlineData(ServerErrorCode.NotWritablePrimary, null, true)]
         [InlineData(ServerErrorCode.InterruptedAtShutdown, null, true)]
         [InlineData(null, "abc", false)]
-        [InlineData(null, "not master", true)]
-        [InlineData(null, "not master or secondary", true)]
+        [InlineData(null, OppressiveLanguageConstants.LegacyNotPrimaryErrorMessage, true)]
+        [InlineData(null, OppressiveLanguageConstants.LegacyNotPrimaryOrSecondaryErrorMessage, true)]
         [InlineData(null, "node is recovering", true)]
-        [InlineData((ServerErrorCode)1, "not master", false)]
+        [InlineData((ServerErrorCode)1, OppressiveLanguageConstants.LegacyNotPrimaryErrorMessage, false)]
         internal void ShouldInvalidateServer_should_return_expected_result_for_MongoCommandException(ServerErrorCode? code, string message, bool expectedResult)
         {
             _subject.Initialize();
@@ -757,10 +757,10 @@ namespace MongoDB.Driver.Core.Servers
         [InlineData(ServerErrorCode.NotWritablePrimary, null, true)]
         [InlineData(ServerErrorCode.InterruptedAtShutdown, null, true)]
         [InlineData(null, "abc", false)]
-        [InlineData(null, "not master", true)]
-        [InlineData(null, "not master or secondary", true)]
+        [InlineData(null, OppressiveLanguageConstants.LegacyNotPrimaryErrorMessage, true)]
+        [InlineData(null, OppressiveLanguageConstants.LegacyNotPrimaryOrSecondaryErrorMessage, true)]
         [InlineData(null, "node is recovering", true)]
-        [InlineData((ServerErrorCode)1, "not master", false)]
+        [InlineData((ServerErrorCode)1, OppressiveLanguageConstants.LegacyNotPrimaryErrorMessage, false)]
         internal void ShouldInvalidateServer_should_return_expected_result_for_MongoWriteConcernException(ServerErrorCode? code, string message, bool expectedResult)
         {
             _subject.Initialize();
