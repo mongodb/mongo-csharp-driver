@@ -2,7 +2,7 @@
 # Please review the generated file, then remove this notice.
 
 description: bulkWrite-delete-hint
-schemaVersion: '1.1'
+schemaVersion: '1.0'
 runOnRequirements:
   -
     minServerVersion: 4.3.4
@@ -63,7 +63,7 @@ tests:
         expectResult:
           deletedCount: 2
           insertedCount: 0
-          insertedIds: {  }
+          insertedIds: { $$unsetOrMatches: {} }
           matchedCount: 0
           modifiedCount: 0
           upsertedCount: 0
@@ -121,7 +121,7 @@ tests:
         expectResult:
           deletedCount: 3
           insertedCount: 0
-          insertedIds: {  }
+          insertedIds: { $$unsetOrMatches: {} }
           matchedCount: 0
           modifiedCount: 0
           upsertedCount: 0

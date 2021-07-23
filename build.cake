@@ -167,6 +167,7 @@ Task("Test")
             case "testnetstandard15": settings.Framework = "netcoreapp1.1"; break;
             case "testnetstandard20": settings.Framework = "netcoreapp2.1"; break;
             case "testnetstandard21": settings.Framework = "netcoreapp3.0"; break;
+            default: throw new ArgumentException($"Unexpected target: \"{target}\".");
         }
         DotNetCoreTest(
             testProject.FullPath,
@@ -319,7 +320,7 @@ Task("TestGssapi")
     .DoesForEach(
         GetFiles("./**/MongoDB.Driver.Tests.csproj"),
         testProject =>
-	{
+    {
         var settings = new DotNetCoreTestSettings
         {
             NoBuild = true,
@@ -334,17 +335,51 @@ Task("TestGssapi")
             case "testgssapinetstandard15": settings.Framework = "netcoreapp1.1"; break;
             case "testgssapinetstandard20": settings.Framework = "netcoreapp2.1"; break;
             case "testgssapinetstandard21": settings.Framework = "netcoreapp3.0"; break;
+            default: throw new ArgumentException($"Unexpected target: \"{target}\".");
         }
-		DotNetCoreTest(
-			testProject.FullPath,
+        DotNetCoreTest(
+            testProject.FullPath,
             settings
-		);
-	});
+        );
+    });
 
 Task("TestGssapiNet452").IsDependentOn("TestGssapi");
 Task("TestGssapiNetStandard15").IsDependentOn("TestGssapi");
 Task("TestGssapiNetStandard20").IsDependentOn("TestGssapi");
 Task("TestGssapiNetStandard21").IsDependentOn("TestGssapi");
+
+Task("TestServerless")
+    .IsDependentOn("Build")
+    .DoesForEach(
+        GetFiles("./**/MongoDB.Driver.Tests.csproj"),
+        testProject =>
+        {
+            var settings = new DotNetCoreTestSettings
+            {
+                NoBuild = true,
+                NoRestore = true,
+                Configuration = configuration,
+                ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64"),
+                Filter = "Category=\"Serverless\""
+            };
+            switch (target.ToLowerInvariant())
+            {
+                case "testserverlessnet452": settings.Framework = "net452"; break;
+                case "testserverlessnetstandard15": settings.Framework = "netcoreapp1.1"; break;
+                case "testserverlessnetstandard20": settings.Framework = "netcoreapp2.1"; break;
+                case "testserverlessnetstandard21": settings.Framework = "netcoreapp3.0"; break;
+                default: throw new ArgumentException($"Unexpected target: \"{target}\".");
+            }
+            DotNetCoreTest(
+                testProject.FullPath,
+                settings
+            );
+        });
+
+Task("TestServerlessNet452").IsDependentOn("TestServerless");
+Task("TestServerlessNetStandard15").IsDependentOn("TestServerless");
+Task("TestServerlessNetStandard20").IsDependentOn("TestServerless");
+Task("TestServerlessNetStandard21").IsDependentOn("TestServerless");
 
 Task("TestLoadBalanced")
     .IsDependentOn("Build")

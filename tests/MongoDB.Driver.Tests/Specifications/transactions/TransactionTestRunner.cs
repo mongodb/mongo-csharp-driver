@@ -38,6 +38,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Specifications.transactions
 {
+    [Trait("Category", "Serverless")]
     public sealed class TransactionTestRunner : IJsonDrivenTestRunner, IDisposable
     {
         #region static

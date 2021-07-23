@@ -46,6 +46,7 @@ namespace MongoDB.Driver
         StaleEpoch = 150,
         StaleShardVersion = 63,
         Unauthorized = 13,
+        UnauthorizedServerless = 8000,
         UnknownReplWriteConcern = 79,
         UnsatisfiableWriteConcern = 100,
         WriteConcernFailed = 64

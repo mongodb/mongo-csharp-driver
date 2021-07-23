@@ -316,28 +316,16 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 {
                     adminDatabase.RunCommand<BsonDocument>(command);
                 }
-                catch (MongoCommandException ex) when (ShouldIgnoreError(ex))
+                catch (MongoCommandException ex) when (
+                    // SERVER-38335
+                    serverVersion < new SemanticVersion(4, 1, 9) && ex.Code == (int)ServerErrorCode.Interrupted ||
+                    // SERVER-54216
+                    ex.Code == (int)ServerErrorCode.Unauthorized ||
+                    // Serverless has a different code for Unauthorized error
+                    ex.Code == (int)ServerErrorCode.UnauthorizedServerless)
                 {
                     // ignore errors
                 }
-            }
-
-            bool ShouldIgnoreError(MongoCommandException ex)
-            {
-                if (serverVersion < new SemanticVersion(4, 1, 9) && ex.Code == (int)ServerErrorCode.Interrupted)
-                {
-                    // SERVER-38335
-                    return true;
-                }
-                if (ex.Code == (int)ServerErrorCode.Unauthorized)
-                {
-                    // SERVER-54216
-                    return true;
-                }
-                // the spec also mentions CommandNotFound code, but it's not the case for c#
-                // since we don't call killAllSessions for servers less than 3.6
-
-                return false;
             }
         }
     }

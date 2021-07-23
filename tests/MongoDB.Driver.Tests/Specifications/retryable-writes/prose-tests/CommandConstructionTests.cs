@@ -30,6 +30,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
 {
+    [Trait("Category", "Serverless")]
     public class CommandConstructionTests
     {
         private readonly string _collectionName = CoreTestConfiguration.GetCollectionNamespaceForTestClass(typeof(CommandConstructionTests)).CollectionName;
@@ -199,7 +200,11 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
             [Values("$out", "$merge")] string outStage,
             [Values(false, true)] bool async)
         {
-            RequireServer.Check().ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded);
+            RequireServer
+                .Check()
+                .ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded)
+                .Serverless(false); // $out and $merge are not supported on serverless.
+
             if (outStage == "$merge")
             {
                 RequireServer.Check().Supports(Feature.AggregateMerge);

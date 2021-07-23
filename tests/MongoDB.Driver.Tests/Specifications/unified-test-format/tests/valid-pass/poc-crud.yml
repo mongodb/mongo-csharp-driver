@@ -1,6 +1,6 @@
 description: "poc-crud"
 
-schemaVersion: "1.3"
+schemaVersion: "1.4"
 
 createEntities:
   - client:
@@ -144,6 +144,7 @@ tests:
     runOnRequirements:
       - minServerVersion: "4.1.0"
         topologies: [ replicaset, sharded-replicaset ]
+        serverless: "forbid"
     operations:
       - name: aggregate
         object: *collection2
