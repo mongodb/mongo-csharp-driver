@@ -309,7 +309,7 @@ namespace MongoDB.Driver
         {
             var serverless = Environment.GetEnvironmentVariable("SERVERLESS");
 
-            return serverless != null;
+            return serverless?.ToLower() == "true";
         }
 
         public static DatabaseNamespace GetDatabaseNamespaceForTestClass(Type testClassType)

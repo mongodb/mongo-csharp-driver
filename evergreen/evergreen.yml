@@ -13,8 +13,7 @@ stepback: true
 command_type: system
 
 # Protect ourself against rogue test case, or curl gone wild, that runs forever
-# 42 minutes is the average for serverless tests (the longest of all, because of the heavy set up task)
-exec_timeout_secs: 2700
+exec_timeout_secs: 1800 # 30 minutes
 
 # What to do when evergreen hits the timeout (`post:` tasks are run automatically)
 timeout:
@@ -600,7 +599,6 @@ functions:
         working_dir: mongo-csharp-driver
         script: |
           MONGODB_URI="${MONGODB_URI}" \
-          MONGODB_SRV_URI="${MONGODB_SRV_URI}" \
           SERVERLESS_ATLAS_USER="${SERVERLESS_ATLAS_USER}" \
           SERVERLESS_ATLAS_PASSWORD="${SERVERLESS_ATLAS_PASSWORD}" \
           AUTH=${AUTH} \
@@ -612,7 +610,7 @@ functions:
   create-serverless-instance:
     - command: shell.exec
       params:
-        #silent: true
+        silent: true
         script: |
           ${PREPARE_SHELL}
           set +o xtrace
@@ -627,7 +625,7 @@ functions:
   delete-serverless-instance:
     - command: shell.exec
       params:
-        #silent: true
+        silent: true
         script: |
           ${PREPARE_SHELL}
           set +o xtrace
@@ -891,6 +889,7 @@ tasks:
         - func: publish-snapshot
 
     - name: serverless-tests-net452
+      exec_timeout_secs: 2700 # 45 minutes: 15 for setup + 30 for tests
       commands:
         - func: create-serverless-instance
         - func: run-serverless-tests
@@ -898,6 +897,7 @@ tasks:
             FRAMEWORK: net452
 
     - name: serverless-tests-netstandard15
+      exec_timeout_secs: 2700 # 45 minutes: 15 for setup + 30 for tests
       commands:
         - func: create-serverless-instance
         - func: run-serverless-tests
@@ -905,6 +905,7 @@ tasks:
             FRAMEWORK: netstandard15
 
     - name: serverless-tests-netstandard20
+      exec_timeout_secs: 2700 # 45 minutes: 15 for setup + 30 for tests
       commands:
         - func: create-serverless-instance
         - func: run-serverless-tests
@@ -912,6 +913,7 @@ tasks:
             FRAMEWORK: netstandard20
 
     - name: serverless-tests-netstandard21
+      exec_timeout_secs: 2700 # 45 minutes: 15 for setup + 30 for tests
       commands:
         - func: create-serverless-instance
         - func: run-serverless-tests

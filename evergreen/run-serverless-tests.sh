@@ -50,13 +50,13 @@ else
   done
 fi
 
-MONGODB_URI_SPLIT=(${MONGODB_URI//,/ })
-export MONGODB_URI_WITH_MULTIPLE_MONGOSES="${MONGODB_URI:0:10}${SERVERLESS_ATLAS_USER}:${SERVERLESS_ATLAS_PASSWORD}@${MONGODB_URI:10}/?tls=true&authSource=admin&compressors=$COMPRESSOR"
-export MONGODB_URI="${MONGODB_URI_SPLIT[0]:0:10}${SERVERLESS_ATLAS_USER}:${SERVERLESS_ATLAS_PASSWORD}@${MONGODB_URI_SPLIT[0]:10}/?tls=true&authSource=admin&compressors=$COMPRESSOR"
+MONGODB_URI_SINGLE_HOST=${MONGODB_URI%%,*}
+export MONGODB_URI_WITH_MULTIPLE_MONGOSES="mongodb://${SERVERLESS_ATLAS_USER}:${SERVERLESS_ATLAS_PASSWORD}@${MONGODB_URI:10}/?tls=true&authSource=admin&compressors=$COMPRESSOR"
+export MONGODB_URI="mongodb://${SERVERLESS_ATLAS_USER}:${SERVERLESS_ATLAS_PASSWORD}@${MONGODB_URI_SINGLE_HOST:10}/?tls=true&authSource=admin&compressors=$COMPRESSOR"
 export SERVERLESS=true
 
 if [ "Windows_NT" = "$OS" ]; then
-  powershell.exe .\\build.ps1 --target "serverless${FRAMEWORK}"
+  powershell.exe .\\build.ps1 --target "TestServerless${FRAMEWORK}"
 else
-  ./build.sh --target="serverless${FRAMEWORK}"
+  ./build.sh --target="TestServerless${FRAMEWORK}"
 fi

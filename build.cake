@@ -337,6 +337,11 @@ Task("TestGssapi")
         );
     });
 
+Task("TestGssapiNet452").IsDependentOn("TestGssapi");
+Task("TestGssapiNetStandard15").IsDependentOn("TestGssapi");
+Task("TestGssapiNetStandard20").IsDependentOn("TestGssapi");
+Task("TestGssapiNetStandard21").IsDependentOn("TestGssapi");
+
 Task("TestServerless")
     .IsDependentOn("Build")
     .DoesForEach(
@@ -348,28 +353,27 @@ Task("TestServerless")
                 NoBuild = true,
                 NoRestore = true,
                 Configuration = configuration,
-                ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64")
-                Filter = "Category=\"Serverless\"",
+                ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64"),
+                Filter = "Category=\"Serverless\""
             };
             switch (target.ToLowerInvariant())
             {
-                case "serverlessnet452": settings.Framework = "net452"; break;
-                case "serverlessnetstandard15": settings.Framework = "netcoreapp1.1"; break;
-                case "serverlessnetstandard20": settings.Framework = "netcoreapp2.1"; break;
-                case "serverlessnetstandard21": settings.Framework = "netcoreapp3.0"; break;
+                case "testserverlessnet452": settings.Framework = "net452"; break;
+                case "testserverlessnetstandard15": settings.Framework = "netcoreapp1.1"; break;
+                case "testserverlessnetstandard20": settings.Framework = "netcoreapp2.1"; break;
+                case "testserverlessnetstandard21": settings.Framework = "netcoreapp3.0"; break;
                 default: throw new ArgumentException($"Unexpected target: \"{target}\".");
             }
             DotNetCoreTest(
                 testProject.FullPath,
                 settings
             );
-        })
-    .DeferOnError();
+        });
 
-Task("TestGssapiNet452").IsDependentOn("TestGssapi");
-Task("TestGssapiNetStandard15").IsDependentOn("TestGssapi");
-Task("TestGssapiNetStandard20").IsDependentOn("TestGssapi");
-Task("TestGssapiNetStandard21").IsDependentOn("TestGssapi");
+Task("TestServerlessNet452").IsDependentOn("TestServerless");
+Task("TestServerlessNetStandard15").IsDependentOn("TestServerless");
+Task("TestServerlessNetStandard20").IsDependentOn("TestServerless");
+Task("TestServerlessNetStandard21").IsDependentOn("TestServerless");
 
 Task("TestLoadBalanced")
     .IsDependentOn("Build")
