@@ -16,7 +16,7 @@ The C# driver supports compression of messages to and from MongoDB servers. The 
 * [Zlib](https://zlib.net/): Zlib compression can be used when connecting to MongoDB servers starting with the 3.6 release.
 * [Zstandard](https://facebook.github.io/zstd/): Zstandard compression can be used when connecting to MongoDB servers starting with the 4.2 release.
 
-The driver will negotiate which, if any, compression algorithm is used based on capabilities advertised by the server in the [ismaster]({{<docsref "reference/command/isMaster/">}}) command response. 
+The driver will negotiate which, if any, compression algorithm is used based on capabilities advertised by the server in the [hello]({{<docsref "reference/command/hello/">}}) or legacy hello command response. 
 
 ### Specify compression via `Connection String`
 
