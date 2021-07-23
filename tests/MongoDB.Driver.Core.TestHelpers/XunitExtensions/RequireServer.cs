@@ -118,8 +118,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
 
         public RequireServer RunOn(BsonArray requirements)
         {
-            var cluster = CoreTestConfiguration.Cluster;
-            if (requirements.Any(requirement => CanRunOn(cluster, requirement.AsBsonDocument)))
+            if (requirements.Any(requirement => CanRunOn(requirement.AsBsonDocument)))
             {
                 return this;
             }
@@ -253,56 +252,48 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
         }
 
         // private methods
-        private bool CanRunOn(ICluster cluster, BsonDocument requirement)
+        private bool CanRunOn(BsonDocument requirements)
         {
-            foreach (var item in requirement)
-            {
-                if (!IsRequirementSatisfied(item.Name, item.Value))
-                {
-                    return false;
-                }
-            }
-
-            return true;
+            return requirements.All(IsRequirementSatisfied);
         }
 
         private bool IsAuthenticated() => CoreTestConfiguration.ConnectionString.Username != null;
 
-        private bool IsRequirementSatisfied(string name, BsonValue value)
+        private bool IsRequirementSatisfied(BsonElement requirement)
         {
-            switch (name)
+            switch (requirement.Name)
             {
                 case "authEnabled":
                 case "auth":
-                    return IsAuthenticated() == value.ToBoolean();
+                    return IsAuthenticated() == requirement.Value.ToBoolean();
                 case "minServerVersion":
                     {
                         var actualVersion = CoreTestConfiguration.ServerVersion;
-                        var minServerVersion = SemanticVersion.Parse(value.AsString);
+                        var minServerVersion = SemanticVersion.Parse(requirement.Value.AsString);
                         return SemanticVersionCompareToAsReleased(actualVersion, minServerVersion) >= 0;
                     }
                 case "maxServerVersion":
                     {
                         var actualVersion = CoreTestConfiguration.ServerVersion;
-                        var maxServerVersion = SemanticVersion.Parse(value.AsString);
+                        var maxServerVersion = SemanticVersion.Parse(requirement.Value.AsString);
                         return SemanticVersionCompareToAsReleased(actualVersion, maxServerVersion) <= 0;
                     }
                 case "serverless":
-                    var serverlessValue = value.AsString;
+                    var serverlessValue = requirement.Value.AsString;
                     switch (serverlessValue)
                     {
                         case "allow":
                             return true;
                         case "forbid":
-                            return CoreTestConfiguration.Serverless == true;
-                        case "require":
                             return CoreTestConfiguration.Serverless == false;
+                        case "require":
+                            return CoreTestConfiguration.Serverless == true;
                         default:
-                            throw new FormatException($"Invalid runOn requirement serverless field value: '{value}'.");
+                            throw new FormatException($"Invalid runOn requirement serverless field value: '{requirement.Value}'.");
                     }
                 case "serverParameters":
                     var serverParameters = CoreTestConfiguration.GetServerParameters();
-                    foreach (var parameter in value.AsBsonDocument)
+                    foreach (var parameter in requirement.Value.AsBsonDocument)
                     {
                         if (serverParameters[parameter.Name] != parameter.Value)
                         {
@@ -313,10 +304,10 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
                 case "topologies":
                 case "topology":
                     var actualClusterType = CoreTestConfiguration.Cluster.Description.Type;
-                    var runOnClusterTypes = value.AsBsonArray.Select(topology => MapTopologyToClusterType(topology.AsString)).ToList();
+                    var runOnClusterTypes = requirement.Value.AsBsonArray.Select(topology => MapTopologyToClusterType(topology.AsString)).ToList();
                     return runOnClusterTypes.Contains(actualClusterType);
                 default:
-                    throw new FormatException($"Unrecognized requirement field: '{name}'");
+                    throw new FormatException($"Unrecognized requirement field: '{requirement.Name}'.");
             }
         }
 

@@ -598,13 +598,14 @@ functions:
       params:
         working_dir: mongo-csharp-driver
         script: |
-          MONGODB_URI="${MONGODB_URI}" \
-          SERVERLESS_ATLAS_USER="${SERVERLESS_ATLAS_USER}" \
-          SERVERLESS_ATLAS_PASSWORD="${SERVERLESS_ATLAS_PASSWORD}" \
           AUTH=${AUTH} \
-          SSL=${SSL} \
           COMPRESSOR=${COMPRESSOR} \
           FRAMEWORK=${FRAMEWORK} \
+          MONGODB_URI="${MONGODB_URI}" \
+          OS=${OS} \
+          SERVERLESS_ATLAS_USER="${SERVERLESS_ATLAS_USER}" \
+          SERVERLESS_ATLAS_PASSWORD="${SERVERLESS_ATLAS_PASSWORD}" \
+          SSL=${SSL} \
             evergreen/run-serverless-tests.sh
 
   create-serverless-instance:
