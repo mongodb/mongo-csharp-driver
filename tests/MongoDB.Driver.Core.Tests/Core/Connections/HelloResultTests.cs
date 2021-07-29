@@ -25,7 +25,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Core.Connections
 {
-    public class IsMasterResultTests
+    public class HelloResultTests
     {
         [Theory]
         [InlineData("{ compression : ['zlib'] }", new[] { CompressorType.Zlib })]
@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Core.Connections
         [InlineData("{ }", new CompressorType[0])]
         public void Compression_should_parse_document_correctly(string json, CompressorType[] expectedCompression)
         {
-            var subject = new IsMasterResult(BsonDocument.Parse(json));
+            var subject = new HelloResult(BsonDocument.Parse(json));
 
             var result = subject.Compressions;
 
@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Core.Connections
         [InlineData("{ compression : ['zlib', 'unsupported'] }", "unsupported")]
         public void Compression_should_throw_the_exception_for_an_unsupported_compression_type(string json, string expectedUnsupportedCompressor)
         {
-            var subject = new IsMasterResult(BsonDocument.Parse(json));
+            var subject = new HelloResult(BsonDocument.Parse(json));
 
             var exception = Record.Exception(() => subject.Compressions);
 
@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Core.Connections
         [Fact]
         public void Constructor_should_throw_an_ArgumentNullException_if_wrapped_is_null()
         {
-            Action act = () => new IsMasterResult(null);
+            Action act = () => new HelloResult(null);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -72,7 +72,7 @@ namespace MongoDB.Driver.Core.Connections
         public void Wrapped_should_return_the_document_passed_in_the_constructor()
         {
             var doc = new BsonDocument();
-            var subject = new IsMasterResult(doc);
+            var subject = new HelloResult(doc);
 
             subject.Wrapped.Should().BeSameAs(doc);
         }
@@ -80,8 +80,8 @@ namespace MongoDB.Driver.Core.Connections
         [Fact]
         public void Equals_should_be_true_when_both_have_the_same_result()
         {
-            var subject1 = new IsMasterResult(new BsonDocument("x", 1));
-            var subject2 = new IsMasterResult(new BsonDocument("x", 1));
+            var subject1 = new HelloResult(new BsonDocument("x", 1));
+            var subject2 = new HelloResult(new BsonDocument("x", 1));
 
             subject1.Equals(subject2).Should().BeTrue();
         }
@@ -89,8 +89,8 @@ namespace MongoDB.Driver.Core.Connections
         [Fact]
         public void Equals_should_be_false_when_both_have_different_results()
         {
-            var subject1 = new IsMasterResult(new BsonDocument("x", 1));
-            var subject2 = new IsMasterResult(new BsonDocument("x", 2));
+            var subject1 = new HelloResult(new BsonDocument("x", 1));
+            var subject2 = new HelloResult(new BsonDocument("x", 2));
 
             subject1.Equals(subject2).Should().BeFalse();
         }
@@ -100,7 +100,7 @@ namespace MongoDB.Driver.Core.Connections
         [InlineData("{ electionId: ObjectId('555925bfb69aa7d5be29126b') }", "555925bfb69aa7d5be29126b")]
         public void ElectionId_should_parse_document_correctly(string json, string expectedObjectId)
         {
-            var subject = new IsMasterResult(BsonDocument.Parse(json));
+            var subject = new HelloResult(BsonDocument.Parse(json));
             var expected = expectedObjectId == null ? (ElectionId)null : new ElectionId(ObjectId.Parse(expectedObjectId));
 
             subject.ElectionId.Should().Be(expected);
@@ -112,7 +112,7 @@ namespace MongoDB.Driver.Core.Connections
         [InlineData("{ }", null)]
         public void LastWriteTimestamp_should_parse_document_correctly(string json, int? expectedYear)
         {
-            var subject = new IsMasterResult(BsonDocument.Parse(json));
+            var subject = new HelloResult(BsonDocument.Parse(json));
 
             var result = subject.LastWriteTimestamp;
 
@@ -128,7 +128,7 @@ namespace MongoDB.Driver.Core.Connections
         [InlineData("{ logicalSessionTimeoutMinutes : 3.0 }", 3)]
         public void LogicalSessionTimeout_should_parse_document_correctly(string json, int? expectedResultMinutes)
         {
-            var subject = new IsMasterResult(BsonDocument.Parse(json));
+            var subject = new HelloResult(BsonDocument.Parse(json));
             var expectedResult = expectedResultMinutes == null ? (TimeSpan?)null : TimeSpan.FromMinutes(expectedResultMinutes.Value);
 
             var result = subject.LogicalSessionTimeout;
@@ -142,7 +142,7 @@ namespace MongoDB.Driver.Core.Connections
         [InlineData("{ }", 1000)]
         public void MaxBatchCount_should_parse_document_correctly(string json, int expected)
         {
-            var subject = new IsMasterResult(BsonDocument.Parse(json));
+            var subject = new HelloResult(BsonDocument.Parse(json));
 
             subject.MaxBatchCount.Should().Be(expected);
         }
@@ -153,7 +153,7 @@ namespace MongoDB.Driver.Core.Connections
         [InlineData("{ }", 4 * 1024 * 1024)]
         public void MaxDocumentSize_should_parse_document_correctly(string json, int expected)
         {
-            var subject = new IsMasterResult(BsonDocument.Parse(json));
+            var subject = new HelloResult(BsonDocument.Parse(json));
 
             subject.MaxDocumentSize.Should().Be(expected);
         }
@@ -165,7 +165,7 @@ namespace MongoDB.Driver.Core.Connections
         [InlineData("{ }", 16000000)]
         public void MaxMessageSize_should_parse_document_correctly(string json, int expected)
         {
-            var subject = new IsMasterResult(BsonDocument.Parse(json));
+            var subject = new HelloResult(BsonDocument.Parse(json));
 
             subject.MaxMessageSize.Should().Be(expected);
         }
@@ -176,7 +176,7 @@ namespace MongoDB.Driver.Core.Connections
         [InlineData("{ }", 0)]
         public void MaxWireVersion_should_parse_document_correctly(string json, int expected)
         {
-            var subject = new IsMasterResult(BsonDocument.Parse(json));
+            var subject = new HelloResult(BsonDocument.Parse(json));
 
             subject.MaxWireVersion.Should().Be(expected);
         }
@@ -187,7 +187,7 @@ namespace MongoDB.Driver.Core.Connections
         [InlineData("{ }", 0)]
         public void MinWireVersion_should_parse_document_correctly(string json, int expected)
         {
-            var subject = new IsMasterResult(BsonDocument.Parse(json));
+            var subject = new HelloResult(BsonDocument.Parse(json));
 
             subject.MinWireVersion.Should().Be(expected);
         }
@@ -199,22 +199,22 @@ namespace MongoDB.Driver.Core.Connections
         {
             var endPoint = expectedEndPoint == null ? (EndPoint)null : EndPointHelper.Parse(expectedEndPoint);
 
-            var subject = new IsMasterResult(BsonDocument.Parse(json));
+            var subject = new HelloResult(BsonDocument.Parse(json));
 
             subject.Me.Should().Be(endPoint);
         }
 
         [Theory]
-        [InlineData("{ ok: 1, isreplicaset: true, setName: \"awesome\", ismaster: true }", ServerType.ReplicaSetGhost)]
-        [InlineData("{ ok: 1, setName: \"awesome\", ismaster: true }", ServerType.ReplicaSetPrimary)]
+        [InlineData("{ ok: 1, isreplicaset: true, setName: \"awesome\", isWritablePrimary: true }", ServerType.ReplicaSetGhost)]
+        [InlineData("{ ok: 1, setName: \"awesome\", " + OppressiveLanguageConstants.LegacyHelloResponseIsWritablePrimaryFieldName + ": true }", ServerType.ReplicaSetPrimary)]
         [InlineData("{ ok: 1, setName: \"awesome\", isWritablePrimary: true }", ServerType.ReplicaSetPrimary)]
-        [InlineData("{ ok: 1, setName: \"awesome\", ismaster: true, secondary: true }", ServerType.ReplicaSetPrimary)]
+        [InlineData("{ ok: 1, setName: \"awesome\", isWritablePrimary: true, secondary: true }", ServerType.ReplicaSetPrimary)]
         [InlineData("{ ok: 1, setName: \"awesome\", secondary: true }", ServerType.ReplicaSetSecondary)]
         [InlineData("{ ok: 1, setName: \"awesome\", secondary: true, passive: true }", ServerType.ReplicaSetSecondary)]
         [InlineData("{ ok: 1, setName: \"awesome\", arbiterOnly: true }", ServerType.ReplicaSetArbiter)]
-        [InlineData("{ ok: 1, setName: \"awesome\", ismaster: false, secondary: false, arbiterOnly: false }", ServerType.ReplicaSetOther)]
-        [InlineData("{ ok: 1, setName: \"awesome\", ismaster: false, secondary: false }", ServerType.ReplicaSetOther)]
-        [InlineData("{ ok: 1, setName: \"awesome\", ismaster: false }", ServerType.ReplicaSetOther)]
+        [InlineData("{ ok: 1, setName: \"awesome\", isWritablePrimary: false, secondary: false, arbiterOnly: false }", ServerType.ReplicaSetOther)]
+        [InlineData("{ ok: 1, setName: \"awesome\", isWritablePrimary: false, secondary: false }", ServerType.ReplicaSetOther)]
+        [InlineData("{ ok: 1, setName: \"awesome\", isWritablePrimary: false }", ServerType.ReplicaSetOther)]
         [InlineData("{ ok: 1, setName: \"awesome\", secondary: false }", ServerType.ReplicaSetOther)]
         [InlineData("{ ok: 1, setName: \"awesome\", arbiterOnly: false }", ServerType.ReplicaSetOther)]
         [InlineData("{ ok: 1, setName: \"awesome\", secondary: true, hidden: true }", ServerType.ReplicaSetOther)]
@@ -231,7 +231,7 @@ namespace MongoDB.Driver.Core.Connections
         [InlineData("{ ok: 0 }", ServerType.Unknown)]
         public void ServerType_should_parse_document_correctly(string json, ServerType expected)
         {
-            var subject = new IsMasterResult(BsonDocument.Parse(json));
+            var subject = new HelloResult(BsonDocument.Parse(json));
 
             subject.ServerType.Should().Be(expected);
         }
@@ -241,7 +241,7 @@ namespace MongoDB.Driver.Core.Connections
         [InlineData("{ serviceId : ObjectId('000000000000000000000000') }", true)]
         public void ServiceId_should_parse_document_correctly(string json, bool shouldBeParsed)
         {
-            var subject = new IsMasterResult(BsonDocument.Parse(json));
+            var subject = new HelloResult(BsonDocument.Parse(json));
 
             subject.ServiceId.HasValue.Should().Be(shouldBeParsed);
             if (shouldBeParsed)
@@ -253,7 +253,7 @@ namespace MongoDB.Driver.Core.Connections
         [Fact]
         public void Tags_should_be_null_when_no_tags_exist()
         {
-            var subject = new IsMasterResult(new BsonDocument());
+            var subject = new HelloResult(new BsonDocument());
 
             subject.Tags.Should().BeNull();
         }
@@ -261,7 +261,7 @@ namespace MongoDB.Driver.Core.Connections
         [Fact]
         public void Tags_should_parse_document_correctly()
         {
-            var subject = new IsMasterResult(BsonDocument.Parse("{ tags: { a: \"one\", b: \"two\" } }"));
+            var subject = new HelloResult(BsonDocument.Parse("{ tags: { a: \"one\", b: \"two\" } }"));
             var expected = new TagSet(new[] { new Tag("a", "one"), new Tag("b", "two") });
 
             subject.Tags.Should().Be(expected);
@@ -281,7 +281,7 @@ namespace MongoDB.Driver.Core.Connections
                 { "setVersion", 20 }
             };
 
-            var subject = new IsMasterResult(doc);
+            var subject = new HelloResult(doc);
             var config = subject.GetReplicaSetConfig();
 
             config.Name.Should().Be("funny");
@@ -303,7 +303,7 @@ namespace MongoDB.Driver.Core.Connections
                 { "helloOk", true }
             };
 
-            var subject = new IsMasterResult(doc);
+            var subject = new HelloResult(doc);
             subject.HelloOk.Should().BeTrue();
         }
 
@@ -315,7 +315,7 @@ namespace MongoDB.Driver.Core.Connections
                 { "ok", 1 }
             };
 
-            var subject = new IsMasterResult(doc);
+            var subject = new HelloResult(doc);
             subject.HelloOk.Should().BeFalse();
         }
     }

@@ -57,9 +57,9 @@ namespace MongoDB.Driver.Core.Operations
             var serverId = new ServerId(clusterId, new DnsEndPoint("localhost", 27017));
             var connectionId = new ConnectionId(serverId);
             var buildInfoResult = new BuildInfoResult(new BsonDocument("ok", 1).Add("version", serverVersion.ToString()));
-            var isMasterResult = CreateIsMasterResult(serverVersion, serverType, supportsSessions);
+            var helloResult = CreateHelloResult(serverVersion, serverType, supportsSessions);
 
-            return new ConnectionDescription(connectionId, isMasterResult, buildInfoResult);
+            return new ConnectionDescription(connectionId, helloResult, buildInfoResult);
         }
 
         public static ICoreSessionHandle CreateSession(
@@ -73,41 +73,41 @@ namespace MongoDB.Driver.Core.Operations
             return mock.Object;
         }
 
-        public static IsMasterResult CreateIsMasterResult(
+        private static HelloResult CreateHelloResult(
             SemanticVersion version = null,
             ServerType serverType = ServerType.Standalone,
             bool supportsSessions = true)
         {
-            var isMasterDocument = BsonDocument.Parse("{ ok: 1 }");
+            var helloDocument = BsonDocument.Parse("{ ok: 1 }");
             if (supportsSessions)
             {
-                isMasterDocument.Add("logicalSessionTimeoutMinutes", 10);
+                helloDocument.Add("logicalSessionTimeoutMinutes", 10);
             }
             switch (serverType)
             {
                 case ServerType.ReplicaSetArbiter:
-                    isMasterDocument.Add("setName", "rs");
-                    isMasterDocument.Add("arbiterOnly", true);
+                    helloDocument.Add("setName", "rs");
+                    helloDocument.Add("arbiterOnly", true);
                     break;
                 case ServerType.ReplicaSetGhost:
-                    isMasterDocument.Add("isreplicaset", true);
+                    helloDocument.Add("isreplicaset", true);
                     break;
                 case ServerType.ReplicaSetOther:
-                    isMasterDocument.Add("setName", "rs");
+                    helloDocument.Add("setName", "rs");
                     break;
                 case ServerType.ReplicaSetPrimary:
-                    isMasterDocument.Add("setName", "rs");
-                    isMasterDocument.Add("ismaster", true);
+                    helloDocument.Add("setName", "rs");
+                    helloDocument.Add(OppressiveLanguageConstants.LegacyHelloResponseIsWritablePrimaryFieldName, true);
                     break;
                 case ServerType.ReplicaSetSecondary:
-                    isMasterDocument.Add("setName", "rs");
-                    isMasterDocument.Add("secondary", true);
+                    helloDocument.Add("setName", "rs");
+                    helloDocument.Add("secondary", true);
                     break;
                 case ServerType.ShardRouter:
-                    isMasterDocument.Add("msg", "isdbgrid");
+                    helloDocument.Add("msg", "isdbgrid");
                     break;
             }
-            return new IsMasterResult(isMasterDocument);
+            return new HelloResult(helloDocument);
         }
     }
 }

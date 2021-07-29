@@ -187,7 +187,7 @@ namespace MongoDB.Driver.Core.Servers
             var currentDescription = Interlocked.CompareExchange(ref _currentDescription, value: null, comparand: null);
 
             var heartbeatException = e.NewServerDescription.HeartbeatException;
-            // The heartbeat commands are hello/isMaster + buildInfo. These commands will throw a MongoCommandException on
+            // The heartbeat commands are hello (or legacy hello) + buildInfo. These commands will throw a MongoCommandException on
             // {ok: 0}, but a reply (with a potential topologyVersion) will still have been received.
             // Not receiving a reply to the heartbeat commands implies a network error or a "HeartbeatFailed" type
             // exception (i.e. ServerDescription.WithHeartbeatException was called), in which case we should immediately

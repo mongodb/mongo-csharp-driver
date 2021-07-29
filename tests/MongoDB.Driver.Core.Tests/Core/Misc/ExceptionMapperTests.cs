@@ -187,7 +187,7 @@ namespace MongoDB.Driver.Core.Misc
         public void MapNotPrimaryOrNodeIsRecovering_should_ignore_errmsg_if_code_is_present()
         {
             var connectionId = CreateConnectionId();
-            var response = BsonDocument.Parse("{ ok : 0, code : 1, errmsg : '...not master...' }");
+            var response = BsonDocument.Parse("{ ok : 0, code : 1, errmsg : '..." + OppressiveLanguageConstants.LegacyNotPrimaryErrorMessage + "...' }");
 
             var result = ExceptionMapper.MapNotPrimaryOrNodeIsRecovering(connectionId, null, response, "errmsg");
 
@@ -216,12 +216,10 @@ namespace MongoDB.Driver.Core.Misc
         }
 
         [Theory]
-        [InlineData("...not master...", typeof(MongoNotPrimaryException))]
-        [InlineData("...NOT MASTER...", typeof(MongoNotPrimaryException))]
         [InlineData("...node is recovering...", typeof(MongoNodeIsRecoveringException))]
         [InlineData("...NODE IS RECOVERING...", typeof(MongoNodeIsRecoveringException))]
-        [InlineData("...not master or secondary...", typeof(MongoNodeIsRecoveringException))]
-        [InlineData("...NOT MASTER OR SECONDARY...", typeof(MongoNodeIsRecoveringException))]
+        [InlineData("..." + OppressiveLanguageConstants.LegacyNotPrimaryErrorMessage + "...", typeof(MongoNotPrimaryException))]
+        [InlineData("..." + OppressiveLanguageConstants.LegacyNotPrimaryOrSecondaryErrorMessage + "...", typeof(MongoNodeIsRecoveringException))]
         [InlineData("", null)]
         public void MapNotPrimaryOrNodeIsRecovering_should_return_expected_result_using_errmsg(string errmsg, Type expectedExceptionType)
         {

@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Core.Connections
         public void ConnectionAuthentication_should_throw_an_ArgumentNullException_if_required_arguments_missed(
             [Values(false, true)] bool async)
         {
-            var mockConnectionDescription = new ConnectionDescription(new ConnectionId(__serverId), new IsMasterResult(new BsonDocument()), new BuildInfoResult(new BsonDocument("version", "0.0.0")));
+            var mockConnectionDescription = new ConnectionDescription(new ConnectionId(__serverId), new HelloResult(new BsonDocument()), new BuildInfoResult(new BsonDocument("version", "0.0.0")));
             var subject = CreateSubject();
             if (async)
             {
@@ -71,7 +71,7 @@ namespace MongoDB.Driver.Core.Connections
             var subject = CreateSubject();
             var helloDocument = subject.CreateInitialHelloCommand(new[] { authenticator }, false);
 
-            helloDocument.Should().Contain("isMaster");
+            helloDocument.Should().Contain(OppressiveLanguageConstants.LegacyHelloCommandName);
             helloDocument.Should().Contain("speculativeAuthenticate");
             var speculativeAuthenticateDocument = helloDocument["speculativeAuthenticate"].AsBsonDocument;
             speculativeAuthenticateDocument.Should().Contain("mechanism");
@@ -158,7 +158,7 @@ namespace MongoDB.Driver.Core.Connections
 
         [Theory]
         [ParameterAttributeData]
-        public void InitializeConnection_should_call_Authenticator_CustomizeInitialIsMasterCommand(
+        public void InitializeConnection_should_call_Authenticator_CustomizeInitialHelloCommand(
             [Values("default", "SCRAM-SHA-256", "SCRAM-SHA-1")] string authenticatorType,
             [Values(false, true)] bool async)
         {
@@ -261,7 +261,7 @@ namespace MongoDB.Driver.Core.Connections
             sentMessages[0]["query"].AsBsonDocument.TryGetElement("apiVersion", out _).Should().BeFalse();
             sentMessages[0]["query"].AsBsonDocument.TryGetElement("apiStrict", out _).Should().BeFalse();
             sentMessages[0]["query"].AsBsonDocument.TryGetElement("apiDeprecationErrors", out _).Should().BeFalse();
-            sentMessages[1].Should().Be($"{{ opcode : \"query\", requestId : {actualRequestId1}, database : \"admin\", collection : \"$cmd\", batchSize : -1, slaveOk : true, query : {{ buildInfo : 1 }}}}");
+            sentMessages[1].Should().Be($"{{ opcode : \"query\", requestId : {actualRequestId1}, database : \"admin\", collection : \"$cmd\", batchSize : -1, secondaryOk : true, query : {{ buildInfo : 1 }}}}");
         }
 
         [Theory]

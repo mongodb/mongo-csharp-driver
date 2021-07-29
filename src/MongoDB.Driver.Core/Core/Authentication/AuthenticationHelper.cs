@@ -36,7 +36,7 @@ namespace MongoDB.Driver.Core.Authentication
             Ensure.IsNotNull(authenticators, nameof(authenticators));
 
             // authentication is currently broken on arbiters
-            if (!description.IsMasterResult.IsArbiter)
+            if (!description.HelloResult.IsArbiter)
             {
                 foreach (var authenticator in authenticators)
                 {
@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Core.Authentication
             Ensure.IsNotNull(authenticators, nameof(authenticators));
 
             // authentication is currently broken on arbiters
-            if (!description.IsMasterResult.IsArbiter)
+            if (!description.HelloResult.IsArbiter)
             {
                 foreach (var authenticator in authenticators)
                 {

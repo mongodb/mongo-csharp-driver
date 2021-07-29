@@ -55,7 +55,7 @@ namespace MongoDB.Driver.Core.Authentication
         {
             var description = new ConnectionDescription(
                 new ConnectionId(new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27017))),
-                new IsMasterResult(new BsonDocument("ok", 1)),
+                new HelloResult(new BsonDocument("ok", 1)),
                 new BuildInfoResult(new BsonDocument("version", "2.8.0")));
             var serverApi = new ServerApi(ServerApiVersion.V1, true, true);
 
@@ -89,7 +89,7 @@ namespace MongoDB.Driver.Core.Authentication
         {
             var description = new ConnectionDescription(
                 new ConnectionId(new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27017))),
-                new IsMasterResult(new BsonDocument("ok", 1).Add("setName", "rs").Add("arbiterOnly", true)),
+                new HelloResult(new BsonDocument("ok", 1).Add("setName", "rs").Add("arbiterOnly", true)),
                 new BuildInfoResult(new BsonDocument("version", "2.8.0")));
             var serverApi = new ServerApi(ServerApiVersion.V1, true, true);
 

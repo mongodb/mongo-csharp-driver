@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Core.Connections
 
         internal static BsonDocument CustomizeCommand(BsonDocument command, IReadOnlyList<IAuthenticator> authenticators)
         {
-            return authenticators.Count == 1 ? authenticators[0].CustomizeInitialIsMasterCommand(command) : command;
+            return authenticators.Count == 1 ? authenticators[0].CustomizeInitialHelloCommand(command) : command;
         }
 
         internal static CommandWireProtocol<BsonDocument> CreateProtocol(
@@ -81,7 +81,7 @@ namespace MongoDB.Driver.Core.Connections
                 serverApi);
         }
 
-        internal static IsMasterResult GetResult(
+        internal static HelloResult GetResult(
             IConnection connection,
             CommandWireProtocol<BsonDocument> helloProtocol,
             CancellationToken cancellationToken)
@@ -89,7 +89,7 @@ namespace MongoDB.Driver.Core.Connections
             try
             {
                 var helloResultDocument = helloProtocol.Execute(connection, cancellationToken);
-                return new IsMasterResult(helloResultDocument);
+                return new HelloResult(helloResultDocument);
             }
             catch (MongoCommandException ex) when (ex.Code == 11)
             {
@@ -100,7 +100,7 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        internal static async Task<IsMasterResult> GetResultAsync(
+        internal static async Task<HelloResult> GetResultAsync(
             IConnection connection,
             CommandWireProtocol<BsonDocument> helloProtocol,
             CancellationToken cancellationToken)
@@ -108,7 +108,7 @@ namespace MongoDB.Driver.Core.Connections
             try
             {
                 var helloResultDocument = await helloProtocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
-                return new IsMasterResult(helloResultDocument);
+                return new HelloResult(helloResultDocument);
             }
             catch (MongoCommandException ex) when (ex.Code == 11)
             {

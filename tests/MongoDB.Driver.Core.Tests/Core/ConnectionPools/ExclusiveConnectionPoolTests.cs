@@ -733,7 +733,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 .Returns(
                     new ConnectionDescription(
                         new ConnectionId(_serverId),
-                        new IsMasterResult(new BsonDocument("serviceId", serviceId)),
+                        new HelloResult(new BsonDocument("serviceId", serviceId)),
                         new BuildInfoResult(new BsonDocument("version", "5.0.0").Add("ok", 1))));
             connectionMock
                 .SetupGet(c => c.Settings)

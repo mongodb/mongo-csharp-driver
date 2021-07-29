@@ -80,19 +80,19 @@ namespace MongoDB.Driver.Specifications.sdam_monitoring
             }
 
             var address = response[0].AsString;
-            var isMasterDocument = response[1].AsBsonDocument;
-            JsonDrivenHelper.EnsureAllFieldsAreValid(isMasterDocument, "hosts", "isWritablePrimary", OppressiveLanguageConstants.LegacyHelloResponseIsWritablePrimaryFieldName, "helloOk", "maxWireVersion", "minWireVersion", "ok", "primary", "secondary", "setName", "setVersion");
+            var helloDocument = response[1].AsBsonDocument;
+            JsonDrivenHelper.EnsureAllFieldsAreValid(helloDocument, "hosts", "isWritablePrimary", OppressiveLanguageConstants.LegacyHelloResponseIsWritablePrimaryFieldName, "helloOk", "maxWireVersion", "minWireVersion", "ok", "primary", "secondary", "setName", "setVersion");
 
             var endPoint = EndPointHelper.Parse(address);
-            var isMasterResult = new IsMasterResult(isMasterDocument);
+            var helloResult = new HelloResult(helloDocument);
             var currentServerDescription = _serverFactory.GetServerDescription(endPoint);
             var newServerDescription = currentServerDescription.With(
-                canonicalEndPoint: isMasterResult.Me,
-                electionId: isMasterResult.ElectionId,
-                replicaSetConfig: isMasterResult.GetReplicaSetConfig(),
-                state: isMasterResult.Wrapped.GetValue("ok", false).ToBoolean() ? ServerState.Connected : ServerState.Disconnected,
-                type: isMasterResult.ServerType,
-                wireVersionRange: new Range<int>(isMasterResult.MinWireVersion, isMasterResult.MaxWireVersion));
+                canonicalEndPoint: helloResult.Me,
+                electionId: helloResult.ElectionId,
+                replicaSetConfig: helloResult.GetReplicaSetConfig(),
+                state: helloResult.Wrapped.GetValue("ok", false).ToBoolean() ? ServerState.Connected : ServerState.Disconnected,
+                type: helloResult.ServerType,
+                wireVersionRange: new Range<int>(helloResult.MinWireVersion, helloResult.MaxWireVersion));
 
             var currentClusterDescription = _cluster.Description;
             _serverFactory.PublishDescription(newServerDescription);

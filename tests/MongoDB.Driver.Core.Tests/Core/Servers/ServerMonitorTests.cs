@@ -402,18 +402,18 @@ namespace MongoDB.Driver.Core.Servers
 
         private void SetupHeartbeatConnection(MockConnection connection, bool isStreamable = false, bool autoFillStreamingResponses = true)
         {
-            var isMasterDocument = new BsonDocument
+            var helloDocument = new BsonDocument
             {
                 { "ok", 1 },
                 { "topologyVersion", new TopologyVersion(new ObjectId(), 0).ToBsonDocument(), isStreamable },
                 { "maxAwaitTimeMS", 5000, isStreamable }
             };
 
-            var streamingIsMaster = Feature.StreamingIsMaster;
-            var version = isStreamable ? streamingIsMaster.FirstSupportedVersion : streamingIsMaster.LastNotSupportedVersion;
+            var streamingHello = Feature.StreamingHello;
+            var version = isStreamable ? streamingHello.FirstSupportedVersion : streamingHello.LastNotSupportedVersion;
             connection.Description = new ConnectionDescription(
                 connection.ConnectionId,
-                new IsMasterResult(isMasterDocument),
+                new HelloResult(helloDocument),
                 new BuildInfoResult(BsonDocument.Parse($"{{ ok : 1, version : '{version}' }}")));
 
             if (autoFillStreamingResponses && isStreamable)
@@ -430,7 +430,7 @@ namespace MongoDB.Driver.Core.Servers
         {
             var section0BsonDocument = new BsonDocument
             {
-                { "ismaster", true },
+                { OppressiveLanguageConstants.LegacyHelloResponseIsWritablePrimaryFieldName, true },
                 {
                     "topologyVersion",
                     new BsonDocument

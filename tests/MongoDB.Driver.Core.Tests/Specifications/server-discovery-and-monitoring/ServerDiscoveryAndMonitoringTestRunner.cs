@@ -105,12 +105,12 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
 
             var mockConnection = new Mock<IConnectionHandle>();
 
-            var isMasterResult = new IsMasterResult(new BsonDocument { { "compressors", new BsonArray() } });
+            var helloResult = new HelloResult(new BsonDocument { { "compressors", new BsonArray() } });
             var serverVersion = WireVersionHelper.MapWireVersionToServerVersion(maxWireVersion);
             var buildInfoResult = new BuildInfoResult(new BsonDocument { { "version", serverVersion } });
             mockConnection
                 .SetupGet(c => c.Description)
-                .Returns(new ConnectionDescription(connectionId, isMasterResult, buildInfoResult));
+                .Returns(new ConnectionDescription(connectionId, helloResult, buildInfoResult));
 
             int generation = 0;
             if (applicationError.TryGetValue("generation", out var generationBsonValue))
@@ -179,7 +179,7 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
             }
 
             var address = response[0].AsString;
-            var isMasterDocument = response[1].AsBsonDocument;
+            var helloDocument = response[1].AsBsonDocument;
             var expectedNames = new[]
             {
                 "arbiterOnly",
@@ -205,20 +205,20 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
                 "setVersion",
                 "topologyVersion"
             };
-            JsonDrivenHelper.EnsureAllFieldsAreValid(isMasterDocument, expectedNames);
+            JsonDrivenHelper.EnsureAllFieldsAreValid(helloDocument, expectedNames);
 
             var endPoint = EndPointHelper.Parse(address);
-            var isMasterResult = new IsMasterResult(isMasterDocument);
+            var helloResult = new HelloResult(helloDocument);
             var currentServerDescription = _serverFactory.GetServerDescription(endPoint);
             var newServerDescription = currentServerDescription.With(
-                canonicalEndPoint: isMasterResult.Me,
-                electionId: isMasterResult.ElectionId,
-                logicalSessionTimeout: isMasterResult.LogicalSessionTimeout,
-                replicaSetConfig: isMasterResult.GetReplicaSetConfig(),
-                state: isMasterResult.Wrapped.GetValue("ok", false).ToBoolean() ? ServerState.Connected : ServerState.Disconnected,
-                topologyVersion: isMasterResult.TopologyVersion,
-                type: isMasterResult.ServerType,
-                wireVersionRange: new Range<int>(isMasterResult.MinWireVersion, isMasterResult.MaxWireVersion));
+                canonicalEndPoint: helloResult.Me,
+                electionId: helloResult.ElectionId,
+                logicalSessionTimeout: helloResult.LogicalSessionTimeout,
+                replicaSetConfig: helloResult.GetReplicaSetConfig(),
+                state: helloResult.Wrapped.GetValue("ok", false).ToBoolean() ? ServerState.Connected : ServerState.Disconnected,
+                topologyVersion: helloResult.TopologyVersion,
+                type: helloResult.ServerType,
+                wireVersionRange: new Range<int>(helloResult.MinWireVersion, helloResult.MaxWireVersion));
 
             var currentClusterDescription = _cluster.Description;
             _serverFactory.PublishDescription(newServerDescription);

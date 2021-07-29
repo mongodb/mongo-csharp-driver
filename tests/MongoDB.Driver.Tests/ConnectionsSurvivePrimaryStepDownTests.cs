@@ -144,11 +144,11 @@ namespace MongoDB.Driver.Tests
         }
 
         [SkippableFact]
-        public void Connection_pool_should_work_as_expected_when_NonMaster_exception()
+        public void Connection_pool_should_work_as_expected_when_NonPrimary_exception()
         {
             RequireServer.Check().Supports(Feature.FailPointsFailCommand).ClusterType(ClusterType.ReplicaSet);
 
-            var shouldConnectionPoolBeCleared = !Feature.KeepConnectionPoolWhenNotMasterConnectionException.IsSupported(CoreTestConfiguration.ServerVersion);
+            var shouldConnectionPoolBeCleared = !Feature.KeepConnectionPoolWhenNotPrimaryConnectionException.IsSupported(CoreTestConfiguration.ServerVersion);
 
             var eventCapturer = new EventCapturer()
                 .Capture<ConnectionPoolClearedEvent>()

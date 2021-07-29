@@ -26,6 +26,7 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Helpers;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -61,8 +62,10 @@ namespace MongoDB.Driver.Core.Connections
                 new object[] { "{ copydbsaslstart : 1 }", true },
                 new object[] { "{ copydb : 1 }", true },
                 new object[] { "{ authenticate : 1 }", true },
-                new object[] { "{ isMaster : 1 }", false },
-                new object[] { "{ isMaster : 1, speculativeAuthenticate : { } }", true },
+                new object[] { "{ hello : 1, helloOk : true }", false },
+                new object[] { "{ hello : 1, helloOk : true, speculativeAuthenticate : { } }", true },
+                new object[] { $"{{ {OppressiveLanguageConstants.LegacyHelloCommandName} : 1, helloOk : true }}", false },
+                new object[] { $"{{ {OppressiveLanguageConstants.LegacyHelloCommandName} : 1, helloOk : true, speculativeAuthenticate : {{ }} }}", true },
             };
         }
 
@@ -82,12 +85,12 @@ namespace MongoDB.Driver.Core.Connections
             _mockConnectionInitializer.Setup(i => i.SendHelloAsync(It.IsAny<IConnection>(), CancellationToken.None))
                 .Returns(() => Task.FromResult(new ConnectionDescription(
                     new ConnectionId(serverId),
-                    new IsMasterResult(new BsonDocument()),
+                    new HelloResult(new BsonDocument()),
                     new BuildInfoResult(new BsonDocument("version", "2.6.3")))));
             _mockConnectionInitializer.Setup(i => i.AuthenticateAsync(It.IsAny<IConnection>(), It.IsAny<ConnectionDescription>(), CancellationToken.None))
                 .Returns(() => Task.FromResult(new ConnectionDescription(
                     new ConnectionId(serverId),
-                    new IsMasterResult(new BsonDocument()),
+                    new HelloResult(new BsonDocument()),
                     new BuildInfoResult(new BsonDocument("version", "2.6.3")))));
 
             _subject = new BinaryConnection(
@@ -116,7 +119,7 @@ namespace MongoDB.Driver.Core.Connections
         [Fact]
         public void Should_process_a_command()
         {
-            var expectedCommand = BsonDocument.Parse("{ ismaster: 1 }");
+            var expectedCommand = BsonDocument.Parse("{ hello : 1, helloOk : true }");
             var expectedReply = BsonDocument.Parse("{ ok: 1 }");
 
             var requestMessage = MessageHelper.BuildCommand(
@@ -187,7 +190,7 @@ namespace MongoDB.Driver.Core.Connections
         [Fact]
         public void Should_process_a_failed_command()
         {
-            var expectedCommand = BsonDocument.Parse("{ ismaster: 1 }");
+            var expectedCommand = BsonDocument.Parse("{ hello : 1, helloOk : true }");
             var expectedReply = BsonDocument.Parse("{ ok: 0 }");
 
             var requestMessage = MessageHelper.BuildCommand(

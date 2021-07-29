@@ -38,11 +38,11 @@ namespace MongoDB.Driver.Core.Authentication
         private static readonly ServerId __serverId = new ServerId(__clusterId, new DnsEndPoint("localhost", 27017));
         private static readonly ConnectionDescription __descriptionCommandWireProtocol = new ConnectionDescription(
             new ConnectionId(__serverId),
-            new IsMasterResult(new BsonDocument("ok", 1).Add("ismaster", 1)),
+            new HelloResult(new BsonDocument("ok", 1).Add(OppressiveLanguageConstants.LegacyHelloResponseIsWritablePrimaryFieldName, 1)),
             new BuildInfoResult(new BsonDocument("version", "4.7.0")));
         private static readonly ConnectionDescription __descriptionQueryWireProtocol = new ConnectionDescription(
             new ConnectionId(__serverId),
-            new IsMasterResult(new BsonDocument("ok", 1).Add("ismaster", 1)),
+            new HelloResult(new BsonDocument("ok", 1).Add(OppressiveLanguageConstants.LegacyHelloResponseIsWritablePrimaryFieldName, 1)),
             new BuildInfoResult(new BsonDocument("version", "2.6.0")));
 
         [Fact]
@@ -143,8 +143,8 @@ namespace MongoDB.Driver.Core.Authentication
             }
             else
             {
-                sentMessages[0].Should().Be($"{{ opcode : \"query\", requestId : {actualRequestId0}, database : \"source\", collection : \"$cmd\", batchSize : -1, slaveOk : true, query : {{ saslStart : 1, mechanism : \"SCRAM-SHA-1\", payload : new BinData(0, \"biwsbj11c2VyLHI9ZnlrbytkMmxiYkZnT05Sdjlxa3hkYXdM\"), options : {{ \"skipEmptyExchange\" : true }} }} }}");
-                sentMessages[1].Should().Be($"{{ opcode : \"query\", requestId : {actualRequestId1}, database : \"source\", collection : \"$cmd\", batchSize : -1, slaveOk : true, query : {{ saslContinue : 1, conversationId : 1, payload : new BinData(0, \"Yz1iaXdzLHI9ZnlrbytkMmxiYkZnT05Sdjlxa3hkYXdMSG8rVmdrN3F2VU9LVXd1V0xJV2c0bC85U3JhR01IRUUscD1NQzJUOEJ2Ym1XUmNrRHc4b1dsNUlWZ2h3Q1k9\") }} }}");
+                sentMessages[0].Should().Be($"{{ opcode : \"query\", requestId : {actualRequestId0}, database : \"source\", collection : \"$cmd\", batchSize : -1, secondaryOk : true, query : {{ saslStart : 1, mechanism : \"SCRAM-SHA-1\", payload : new BinData(0, \"biwsbj11c2VyLHI9ZnlrbytkMmxiYkZnT05Sdjlxa3hkYXdM\"), options : {{ \"skipEmptyExchange\" : true }} }} }}");
+                sentMessages[1].Should().Be($"{{ opcode : \"query\", requestId : {actualRequestId1}, database : \"source\", collection : \"$cmd\", batchSize : -1, secondaryOk : true, query : {{ saslContinue : 1, conversationId : 1, payload : new BinData(0, \"Yz1iaXdzLHI9ZnlrbytkMmxiYkZnT05Sdjlxa3hkYXdMSG8rVmdrN3F2VU9LVXd1V0xJV2c0bC85U3JhR01IRUUscD1NQzJUOEJ2Ym1XUmNrRHc4b1dsNUlWZ2h3Q1k9\") }} }}");
             }
         }
 
@@ -256,23 +256,23 @@ namespace MongoDB.Driver.Core.Authentication
                     ok : 1 }"));
 
             var connection = new MockConnection(__serverId);
-            var isMasterResult = (BsonDocument)__descriptionQueryWireProtocol.IsMasterResult.Wrapped.Clone();
+            var helloResult = (BsonDocument)__descriptionQueryWireProtocol.HelloResult.Wrapped.Clone();
             if (useSpeculativeAuthenticate)
             {
-                isMasterResult.Add("speculativeAuthenticate", saslStartReply.Documents[0].ToBsonDocument());
+                helloResult.Add("speculativeAuthenticate", saslStartReply.Documents[0].ToBsonDocument());
             }
 
             /* set buildInfoResult to 3.4 to force authenticator to use Query Message Wire Protocol because MockConnection
              * does not support OP_MSG */
             connection.Description = new ConnectionDescription(
-                __descriptionQueryWireProtocol.ConnectionId, new IsMasterResult(isMasterResult), new BuildInfoResult(new BsonDocument("version", "3.4")));
+                __descriptionQueryWireProtocol.ConnectionId, new HelloResult(helloResult), new BuildInfoResult(new BsonDocument("version", "3.4")));
 
-            BsonDocument isMasterCommand = null;
+            BsonDocument helloCommand = null;
             if (useSpeculativeAuthenticate)
             {
-                // Call CustomizeIsMasterCommand so that the authenticator thinks its started to speculatively
+                // Call CustomizeInitialHelloCommand so that the authenticator thinks its started to speculatively
                 // authenticate
-                isMasterCommand = subject.CustomizeInitialIsMasterCommand(new BsonDocument { { "isMaster", 1 } });
+                helloCommand = subject.CustomizeInitialHelloCommand(new BsonDocument { { OppressiveLanguageConstants.LegacyHelloCommandName, 1 } });
             }
             else
             {
@@ -318,7 +318,7 @@ namespace MongoDB.Driver.Core.Authentication
                 @"  database : 'source',
                     collection : '$cmd',
                     batchSize : -1,
-                    slaveOk : true,
+                    secondaryOk : true,
                     query : { saslStart : 1,
                              mechanism : 'SCRAM-SHA-1'," +
                 $"           payload : new BinData(0, 'biwsbj11c2VyLHI9ZnlrbytkMmxiYkZnT05Sdjlxa3hkYXdM')" +
@@ -334,7 +334,7 @@ namespace MongoDB.Driver.Core.Authentication
                 @"  database : 'source',
                     collection : '$cmd',
                     batchSize : -1,
-                    slaveOk : true,
+                    secondaryOk : true,
                     query : { saslContinue : 1,
                              conversationId : 1, " +
                 $"           payload : new BinData(0, 'Yz1iaXdzLHI9ZnlrbytkMmxiYkZnT05Sdjlxa3hkYXdMSG8rVmdrN3F2VU9LVXd1V0xJV2c0bC85U3JhR01IRUUscD1NQzJUOEJ2Ym1XUmNrRHc4b1dsNUlWZ2h3Q1k9')}}}}");
@@ -348,7 +348,7 @@ namespace MongoDB.Driver.Core.Authentication
                      @" database : 'source',
                         collection : '$cmd',
                         batchSize : -1,
-                        slaveOk : true,
+                        secondaryOk : true,
                         query : { saslContinue : 1,
                                  conversationId : 1, " +
                      $"          payload : new BinData(0, '')}}}}");
@@ -358,8 +358,8 @@ namespace MongoDB.Driver.Core.Authentication
             sentMessages.Should().Equal(expectedMessages);
             if (useSpeculativeAuthenticate)
             {
-                isMasterCommand.Should().Contain("speculativeAuthenticate");
-                var speculativeAuthenticateDocument = isMasterCommand["speculativeAuthenticate"].AsBsonDocument;
+                helloCommand.Should().Contain("speculativeAuthenticate");
+                var speculativeAuthenticateDocument = helloCommand["speculativeAuthenticate"].AsBsonDocument;
                 var expectedSpeculativeAuthenticateDocument =
                     saslStartMessage["query"].AsBsonDocument.Add("db", __credential.Source);
                 speculativeAuthenticateDocument.Should().Be(expectedSpeculativeAuthenticateDocument);

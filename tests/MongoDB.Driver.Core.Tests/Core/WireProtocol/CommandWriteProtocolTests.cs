@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Core.WireProtocol
         private static readonly ServerId __serverId = new ServerId(__clusterId, new DnsEndPoint("localhost", 27017));
         private static readonly ConnectionDescription __connectionDescription = new ConnectionDescription(
             new ConnectionId(__serverId),
-            new IsMasterResult(new BsonDocument("ok", 1).Add("ismaster", 1)),
+            new HelloResult(new BsonDocument("ok", 1).Add(OppressiveLanguageConstants.LegacyHelloResponseIsWritablePrimaryFieldName, 1)),
             new BuildInfoResult(new BsonDocument("version", "4.9.0")));
 
         [Theory]
@@ -122,7 +122,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                     .Returns(
                         new ConnectionDescription(
                             id,
-                            new IsMasterResult(new BsonDocument("ok", 1)),
+                            new HelloResult(new BsonDocument("ok", 1)),
                             new BuildInfoResult(new BsonDocument("version", "4.4"))));
                 return id;
             }

@@ -38,7 +38,7 @@ namespace MongoDB.Driver
         /// <param name="command">The command.</param>
         /// <param name="result">The result.</param>
         public MongoNotPrimaryException(ConnectionId connectionId, BsonDocument command, BsonDocument result)
-            : base(connectionId, "Server returned not master error.", command, result)
+            : base(connectionId, "Server returned not primary error.", command, result)
         {
         }
 

@@ -48,11 +48,11 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication
         {
             __descriptionCommandWireProtocol = new ConnectionDescription(
                 new ConnectionId(__serverId),
-                new IsMasterResult(new BsonDocument("ok", 1).Add("ismaster", 1)),
+                new HelloResult(new BsonDocument("ok", 1).Add(OppressiveLanguageConstants.LegacyHelloResponseIsWritablePrimaryFieldName, 1)),
                 new BuildInfoResult(new BsonDocument("version", "4.7.0")));
             __descriptionQueryWireProtocol = new ConnectionDescription(
                 new ConnectionId(__serverId),
-                new IsMasterResult(new BsonDocument("ok", 1).Add("ismaster", 1)),
+                new HelloResult(new BsonDocument("ok", 1).Add(OppressiveLanguageConstants.LegacyHelloResponseIsWritablePrimaryFieldName, 1)),
                 new BuildInfoResult(new BsonDocument("version", "2.6.0")));
         }
         #endregion
@@ -604,7 +604,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication
                     "database : \"$external\", " +
                     "collection : \"$cmd\", " +
                     "batchSize : -1, " +
-                    "slaveOk : true, " +
+                    "secondaryOk : true, " +
                     "query : " +
                     "{ " +
                         "\"saslContinue\" : 1, " +
@@ -623,7 +623,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication
                         "database : \"$external\", " +
                         "collection : \"$cmd\", " +
                         "batchSize : -1, " +
-                        "slaveOk : true, " +
+                        "secondaryOk : true, " +
                         "query : " +
                         "{" +
                             "\"saslStart\" : 1, " +

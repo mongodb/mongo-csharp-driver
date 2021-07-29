@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -52,10 +51,10 @@ namespace MongoDB.Driver.Core.Authentication
         Task AuthenticateAsync(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken);
 
         /// <summary>
-        /// Optionally customizes isMaster command.
+        /// Optionally customizes hello or legacy hello command.
         /// </summary>
-        /// <param name="isMasterCommand">Initial isMaster command.</param>
-        /// <returns>Optionally mutated isMaster command.</returns>
-        BsonDocument CustomizeInitialIsMasterCommand(BsonDocument isMasterCommand);
+        /// <param name="helloCommand">Initial command.</param>
+        /// <returns>Optionally mutated command.</returns>
+        BsonDocument CustomizeInitialHelloCommand(BsonDocument helloCommand);
     }
 }

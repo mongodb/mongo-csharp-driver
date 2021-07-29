@@ -42,7 +42,7 @@ namespace MongoDB.Driver
 
             subject.ConnectionId.Should().BeSameAs(_connectionId);
             subject.InnerException.Should().BeNull();
-            subject.Message.Should().Be("Server returned not master error.");
+            subject.Message.Should().Be("Server returned not primary error.");
             subject.Command.Should().BeSameAs(_command);
             subject.Result.Should().Be(_serverResult);
         }

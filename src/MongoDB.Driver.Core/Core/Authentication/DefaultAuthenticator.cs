@@ -84,13 +84,13 @@ namespace MongoDB.Driver.Core.Authentication
             // If we don't have SaslSupportedMechs as part of the response, that means we didn't piggyback the initial
             // hello or legacy hello request and should query the server (provided that the server >= 4.0), merging results into
             // a new ConnectionDescription
-            if (!description.IsMasterResult.HasSaslSupportedMechs
+            if (!description.HelloResult.HasSaslSupportedMechs
                 && Feature.ScramSha256Authentication.IsSupported(description.ServerVersion))
             {
-                var command = CustomizeInitialIsMasterCommand(HelloHelper.CreateCommand(_serverApi));
+                var command = CustomizeInitialHelloCommand(HelloHelper.CreateCommand(_serverApi));
                 var helloProtocol = HelloHelper.CreateProtocol(command, _serverApi);
                 var helloResult = HelloHelper.GetResult(connection, helloProtocol, cancellationToken);
-                var mergedHelloResult = new IsMasterResult(description.IsMasterResult.Wrapped.Merge(helloResult.Wrapped));
+                var mergedHelloResult = new HelloResult(description.HelloResult.Wrapped.Merge(helloResult.Wrapped));
                 description = new ConnectionDescription(
                     description.ConnectionId,
                     mergedHelloResult,
@@ -110,13 +110,13 @@ namespace MongoDB.Driver.Core.Authentication
             // If we don't have SaslSupportedMechs as part of the response, that means we didn't piggyback the initial
             // hello or legacy hello request and should query the server (provided that the server >= 4.0), merging results into
             // a new ConnectionDescription
-            if (!description.IsMasterResult.HasSaslSupportedMechs
+            if (!description.HelloResult.HasSaslSupportedMechs
                 && Feature.ScramSha256Authentication.IsSupported(description.ServerVersion))
             {
-                var command = CustomizeInitialIsMasterCommand(HelloHelper.CreateCommand(_serverApi));
+                var command = CustomizeInitialHelloCommand(HelloHelper.CreateCommand(_serverApi));
                 var helloProtocol = HelloHelper.CreateProtocol(command, _serverApi);
                 var helloResult = await HelloHelper.GetResultAsync(connection, helloProtocol, cancellationToken).ConfigureAwait(false);
-                var mergedHelloResult = new IsMasterResult(description.IsMasterResult.Wrapped.Merge(helloResult.Wrapped));
+                var mergedHelloResult = new HelloResult(description.HelloResult.Wrapped.Merge(helloResult.Wrapped));
                 description = new ConnectionDescription(
                     description.ConnectionId,
                     mergedHelloResult,
@@ -128,12 +128,12 @@ namespace MongoDB.Driver.Core.Authentication
         }
 
         /// <inheritdoc/>
-        public BsonDocument CustomizeInitialIsMasterCommand(BsonDocument isMasterCommand)
+        public BsonDocument CustomizeInitialHelloCommand(BsonDocument helloCommand)
         {
             var saslSupportedMechs = CreateSaslSupportedMechsRequest(_credential.Source, _credential.Username);
-            isMasterCommand = isMasterCommand.Merge(saslSupportedMechs);
+            helloCommand = helloCommand.Merge(saslSupportedMechs);
             _speculativeAuthenticator = new ScramSha256Authenticator(_credential, _randomStringGenerator, _serverApi);
-            return _speculativeAuthenticator.CustomizeInitialIsMasterCommand(isMasterCommand);
+            return _speculativeAuthenticator.CustomizeInitialHelloCommand(helloCommand);
         }
 
         private static BsonDocument CreateSaslSupportedMechsRequest(string authenticationDatabaseName, string userName)
@@ -146,11 +146,11 @@ namespace MongoDB.Driver.Core.Authentication
         {
             // If a saslSupportedMechs field was present in the hello or legacy hello results for mechanism negotiation,
             // then it MUST be inspected to select a default mechanism.
-            if (description.IsMasterResult.HasSaslSupportedMechs)
+            if (description.HelloResult.HasSaslSupportedMechs)
             {
                 // If SCRAM-SHA-256 is present in the list of mechanisms, then it MUST be used as the default;
                 // otherwise, SCRAM-SHA-1 MUST be used as the default, regardless of whether SCRAM-SHA-1 is in the list.
-                return description.IsMasterResult.SaslSupportedMechs.Contains("SCRAM-SHA-256")
+                return description.HelloResult.SaslSupportedMechs.Contains("SCRAM-SHA-256")
                     ? (IAuthenticator)new ScramSha256Authenticator(_credential, _randomStringGenerator, _serverApi)
                     : new ScramSha1Authenticator(_credential, _randomStringGenerator, _serverApi);
             }
@@ -167,7 +167,7 @@ namespace MongoDB.Driver.Core.Authentication
         {
             /* It is possible to have Hello["SpeculativeAuthenticate"] != null and for
              * _speculativeScramSha256Authenticator to be null in the case of multiple authenticators */
-            var speculativeAuthenticateResult = description.IsMasterResult.SpeculativeAuthenticate;
+            var speculativeAuthenticateResult = description.HelloResult.SpeculativeAuthenticate;
             var canUseSpeculativeAuthenticator = _speculativeAuthenticator != null && speculativeAuthenticateResult != null;
             return canUseSpeculativeAuthenticator ? _speculativeAuthenticator : CreateAuthenticator(connection, description);
         }

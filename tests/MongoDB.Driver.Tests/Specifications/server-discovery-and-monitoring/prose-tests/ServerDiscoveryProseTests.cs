@@ -65,7 +65,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring.pr
                 if (directConnection.GetValueOrDefault())
                 {
                     exception.Should().BeOfType<MongoNotPrimaryException>();
-                    exception.Message.Should().Contain("Server returned not master error");
+                    exception.Message.Should().Contain("Server returned not primary error");
                 }
                 else
                 {

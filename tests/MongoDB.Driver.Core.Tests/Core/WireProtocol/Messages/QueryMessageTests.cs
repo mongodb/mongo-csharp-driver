@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             subject.Query.Should().Be(_query);
             subject.RequestId.Should().Be(_requestId);
             subject.ResponseHandling.Should().Be(CommandResponseHandling.Return);
-            subject.SlaveOk.Should().Be(secondaryOk);
+            subject.SecondaryOk.Should().Be(secondaryOk);
             subject.TailableCursor.Should().Be(tailableCursor);
         }
 

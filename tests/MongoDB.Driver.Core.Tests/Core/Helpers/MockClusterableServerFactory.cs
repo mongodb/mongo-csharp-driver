@@ -186,11 +186,11 @@ namespace MongoDB.Driver.Core.Helpers
                     var version = description.Version?.ToString() ??
                         WireVersionHelper.MapWireVersionToServerVersion(description.WireVersionRange.Max);
                     var server = (Server)result.Server;
-                    var isMasterResult = new IsMasterResult(new BsonDocument { { "compressors", new BsonArray() } });
+                    var helloResult = new HelloResult(new BsonDocument { { "compressors", new BsonArray() } });
                     var buildInfoResult = new BuildInfoResult(new BsonDocument { { "version", version } });
                     var mockConnection = Mock.Get(server._connectionPool().AcquireConnection(CancellationToken.None));
                     mockConnection.SetupGet(c => c.Description)
-                        .Returns(new ConnectionDescription(new ConnectionId(description.ServerId, 0), isMasterResult, buildInfoResult));
+                        .Returns(new ConnectionDescription(new ConnectionId(description.ServerId, 0), helloResult, buildInfoResult));
                 }
                 var mockMonitor = Mock.Get(result.Monitor);
                 mockMonitor.SetupGet(m => m.Description).Returns(description);

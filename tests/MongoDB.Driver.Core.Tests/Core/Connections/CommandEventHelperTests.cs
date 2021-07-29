@@ -16,6 +16,7 @@
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
+using MongoDB.Driver.Core.Misc;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Connections
@@ -33,8 +34,10 @@ namespace MongoDB.Driver.Core.Connections
         [InlineData("{ cOPYDBGETNONCE : 1 }", true)]
         [InlineData("{ cOPYDBSASLSTART : 1 }", true)]
         [InlineData("{ cOPYDB : 1 }", true)]
-        [InlineData("{ iSMASTER : 1 }", false)]
-        [InlineData("{ iSMASTER : 1, sPECULATIVEAUTHENTICATE : null }", true)]
+        [InlineData("{ " + OppressiveLanguageConstants.LegacyHelloCommandName + " : 1 }", false)]
+        [InlineData("{ " + OppressiveLanguageConstants.LegacyHelloCommandName + " : 1, sPECULATIVEAUTHENTICATE : null }", true)]
+        [InlineData("{ hello : 1, helloOk : true }", false)]
+        [InlineData("{ hello : 1, helloOk : true, sPECULATIVEAUTHENTICATE : null }", true)]
         public void ShouldRedactCommand_should_return_expected_result(string commandJson, bool expectedResult)
         {
             var command = BsonDocument.Parse(commandJson);

@@ -123,19 +123,19 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
             var endPoint = new DnsEndPoint("localhost", 27017);
             var serverId = new ServerId(clusterId, endPoint);
             var connectionId = new ConnectionId(serverId, 1);
-            var isMasterResultDocument = BsonDocument.Parse("{ ok : 1 }");
+            var helloResultDocument = BsonDocument.Parse("{ ok : 1 }");
             if (withLogicalSessionTimeout)
             {
-                isMasterResultDocument["logicalSessionTimeoutMinutes"] = 1;
-                isMasterResultDocument["msg"] = "isdbgrid"; // mongos
+                helloResultDocument["logicalSessionTimeoutMinutes"] = 1;
+                helloResultDocument["msg"] = "isdbgrid"; // mongos
             }
             if (serviceId.HasValue)
             {
-                isMasterResultDocument["serviceId"] = ObjectId.Empty; // load balancing mode
+                helloResultDocument["serviceId"] = ObjectId.Empty; // load balancing mode
             }
-            var isMasterResult = new IsMasterResult(isMasterResultDocument);
+            var helloResult = new HelloResult(helloResultDocument);
             var buildInfoResult = new BuildInfoResult(BsonDocument.Parse("{ ok : 1, version : '4.2.0' }"));
-            var connectionDescription = new ConnectionDescription(connectionId, isMasterResult, buildInfoResult);
+            var connectionDescription = new ConnectionDescription(connectionId, helloResult, buildInfoResult);
             return connectionDescription;
         }
 

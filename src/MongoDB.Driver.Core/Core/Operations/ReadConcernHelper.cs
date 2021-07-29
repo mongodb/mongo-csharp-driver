@@ -72,6 +72,6 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         private static bool AreSessionsSupported(ConnectionDescription connectionDescription) =>
-            connectionDescription?.IsMasterResult.LogicalSessionTimeout != null || connectionDescription?.ServiceId != null;
+            connectionDescription?.HelloResult.LogicalSessionTimeout != null || connectionDescription?.ServiceId != null;
     }
 }

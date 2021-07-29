@@ -446,7 +446,7 @@ namespace MongoDB.Driver.Core.Operations
             Feature.Collation.ThrowIfNotSupported(connectionDescription.ServerVersion, _collation);
 
             var firstBatchSize = _firstBatchSize ?? (_batchSize > 0 ? _batchSize : null);
-            var isShardRouter = connectionDescription.IsMasterResult.ServerType == ServerType.ShardRouter;
+            var isShardRouter = connectionDescription.HelloResult.ServerType == ServerType.ShardRouter;
 
             var readConcern = ReadConcernHelper.GetReadConcernForCommand(session, connectionDescription, _readConcern);
             return new BsonDocument

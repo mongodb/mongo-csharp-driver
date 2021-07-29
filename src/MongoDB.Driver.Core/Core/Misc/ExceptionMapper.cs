@@ -141,11 +141,11 @@ namespace MongoDB.Driver.Core.Misc
             {
                 var errorMessage = errorMessageBsonValue.ToString();
                 if (errorMessage.IndexOf("node is recovering", StringComparison.OrdinalIgnoreCase) != -1 ||
-                    errorMessage.IndexOf("not master or secondary", StringComparison.OrdinalIgnoreCase) != -1)
+                    errorMessage.IndexOf(OppressiveLanguageConstants.LegacyNotPrimaryOrSecondaryErrorMessage, StringComparison.OrdinalIgnoreCase) != -1)
                 {
                     return new MongoNodeIsRecoveringException(connectionId, command, response);
                 }
-                else if (errorMessage.IndexOf("not master", StringComparison.OrdinalIgnoreCase) != -1)
+                else if (errorMessage.IndexOf(OppressiveLanguageConstants.LegacyNotPrimaryErrorMessage, StringComparison.OrdinalIgnoreCase) != -1)
                 {
                     return new MongoNotPrimaryException(connectionId, command, response);
                 }

@@ -34,7 +34,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// It's OK for the query to be handled by a secondary server.
         /// </summary>
-        SlaveOk = 4,
+        SecondaryOk = 4,
         /// <summary>
         /// Tell the server not to let the cursor timeout.
         /// </summary>

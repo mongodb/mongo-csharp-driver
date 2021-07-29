@@ -163,7 +163,7 @@ namespace MongoDB.Driver
                 }
                 else
                 {
-                    return _flags | QueryFlags.SlaveOk;
+                    return _flags | QueryFlags.SecondaryOk;
                 }
             }
             set

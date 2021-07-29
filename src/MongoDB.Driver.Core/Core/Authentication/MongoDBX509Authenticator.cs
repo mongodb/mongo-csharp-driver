@@ -82,7 +82,7 @@ namespace MongoDB.Driver.Core.Authentication
             Ensure.IsNotNull(description, nameof(description));
             EnsureUsernameIsNotNullOrNullIsSupported(connection, description);
 
-            if (description.IsMasterResult.SpeculativeAuthenticate != null)
+            if (description.HelloResult.SpeculativeAuthenticate != null)
             {
                 return;
             }
@@ -105,7 +105,7 @@ namespace MongoDB.Driver.Core.Authentication
             Ensure.IsNotNull(description, nameof(description));
             EnsureUsernameIsNotNullOrNullIsSupported(connection, description);
 
-            if (description.IsMasterResult.SpeculativeAuthenticate != null)
+            if (description.HelloResult.SpeculativeAuthenticate != null)
             {
                 return;
             }
@@ -122,10 +122,10 @@ namespace MongoDB.Driver.Core.Authentication
         }
 
         /// <inheritdoc/>
-        public BsonDocument CustomizeInitialIsMasterCommand(BsonDocument isMasterCommand)
+        public BsonDocument CustomizeInitialHelloCommand(BsonDocument helloCommand)
         {
-            isMasterCommand.Add("speculativeAuthenticate", CreateAuthenticateCommand());
-            return isMasterCommand;
+            helloCommand.Add("speculativeAuthenticate", CreateAuthenticateCommand());
+            return helloCommand;
         }
 
         // private methods

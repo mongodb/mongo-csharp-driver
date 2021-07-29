@@ -299,8 +299,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 Insert(coll, async, new BsonDocument("unencrypted", "test"));
 
                 var adminDatabase = mongocryptdClient.GetDatabase(DatabaseNamespace.Admin.DatabaseName);
-                var isMasterCommand = new BsonDocument("ismaster", 1);
-                var exception = Record.Exception(() => adminDatabase.RunCommand<BsonDocument>(isMasterCommand));
+                var legacyHelloCommand = new BsonDocument(OppressiveLanguageConstants.LegacyHelloCommandName, 1);
+                var exception = Record.Exception(() => adminDatabase.RunCommand<BsonDocument>(legacyHelloCommand));
 
                 exception.Should().BeOfType<TimeoutException>();
                 exception.Message.Should().Contain("A timeout occurred after 10000ms selecting a server");
