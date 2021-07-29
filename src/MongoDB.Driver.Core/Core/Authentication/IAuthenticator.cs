@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -57,13 +56,5 @@ namespace MongoDB.Driver.Core.Authentication
         /// <param name="helloCommand">Initial command.</param>
         /// <returns>Optionally mutated command.</returns>
         BsonDocument CustomizeInitialHelloCommand(BsonDocument helloCommand);
-
-        /// <summary>
-        /// Optionally customizes hello or legacy hello command.
-        /// </summary>
-        /// <param name="helloCommand">Initial command.</param>
-        /// <returns>Optionally mutated command.</returns>
-        [Obsolete("Use CustomizeInitialHelloCommand instead.")]
-        BsonDocument CustomizeInitialIsMasterCommand(BsonDocument helloCommand);
     }
 }

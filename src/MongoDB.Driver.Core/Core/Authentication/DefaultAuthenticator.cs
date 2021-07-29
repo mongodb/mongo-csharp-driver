@@ -136,12 +136,6 @@ namespace MongoDB.Driver.Core.Authentication
             return _speculativeAuthenticator.CustomizeInitialHelloCommand(helloCommand);
         }
 
-        /// <inheritdoc/>
-        public BsonDocument CustomizeInitialIsMasterCommand(BsonDocument helloCommand)
-        {
-            return CustomizeInitialHelloCommand(helloCommand);
-        }
-
         private static BsonDocument CreateSaslSupportedMechsRequest(string authenticationDatabaseName, string userName)
         {
             return new BsonDocument { { "saslSupportedMechs", $"{authenticationDatabaseName}.{userName}" } };

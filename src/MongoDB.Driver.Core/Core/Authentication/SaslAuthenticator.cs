@@ -158,12 +158,6 @@ namespace MongoDB.Driver.Core.Authentication
             return helloCommand;
         }
 
-        /// <inheritdoc/>
-        public virtual BsonDocument CustomizeInitialIsMasterCommand(BsonDocument helloCommand)
-        {
-            return CustomizeInitialHelloCommand(helloCommand);
-        }
-
         private protected virtual BsonDocument CreateStartCommand(ISaslStep currentStep)
         {
             var startCommand = new BsonDocument

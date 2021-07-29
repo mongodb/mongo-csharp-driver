@@ -123,12 +123,6 @@ namespace MongoDB.Driver.Core.Authentication
             return helloCommand;
         }
 
-        /// <inheritdoc/>
-        public BsonDocument CustomizeInitialIsMasterCommand(BsonDocument helloCommand)
-        {
-            return CustomizeInitialHelloCommand(helloCommand);
-        }
-
         // private methods
         private CommandWireProtocol<BsonDocument> CreateAuthenticateProtocol(BsonDocument getNonceReply)
         {
