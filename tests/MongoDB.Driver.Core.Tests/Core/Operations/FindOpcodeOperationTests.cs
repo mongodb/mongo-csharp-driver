@@ -21,6 +21,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
@@ -254,7 +255,11 @@ namespace MongoDB.Driver.Core.Operations
         public void Execute_should_throw_when_maxTime_is_exceeded(
             [Values(false, true)] bool async)
         {
-            RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet);
+            RequireServer
+                .Check()
+                .ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet)
+                .Supports(Feature.LegacyWireProtocol);
+
             var subject = new FindOpcodeOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
             subject.MaxTime = TimeSpan.FromSeconds(9001);
 
@@ -269,7 +274,8 @@ namespace MongoDB.Driver.Core.Operations
         [SkippableFact]
         public async Task ExecuteAsync_should_find_all_the_documents_matching_the_query()
         {
-            RequireServer.Check();
+            RequireServer.Check().Supports(Feature.LegacyWireProtocol);
+
             EnsureTestData();
             var subject = new FindOpcodeOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
@@ -329,7 +335,8 @@ namespace MongoDB.Driver.Core.Operations
         [SkippableFact]
         public async Task ExecuteAsync_should_find_documents_matching_options()
         {
-            RequireServer.Check();
+            RequireServer.Check().Supports(Feature.LegacyWireProtocol);
+
             EnsureTestData();
             var subject = new FindOpcodeOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {

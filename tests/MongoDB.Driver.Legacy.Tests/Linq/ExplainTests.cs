@@ -20,6 +20,7 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
 using Xunit;
 
@@ -41,9 +42,11 @@ namespace MongoDB.Driver.Tests.Linq
             _collection = LegacyTestConfiguration.Collection;
         }
 
-        [Fact]
+        [SkippableFact]
         public void TestExplainFromLinqQueryEqualsExplainFromCursor()
         {
+            RequireServer.Check().Supports(Feature.LegacyWireProtocol);
+
             EnsureCollectionExists();
             var linqExplain = _collection.AsQueryable<C>().Where(c => c.X == 2 && c.Y == 1).Take(1).Explain();
             var queryExplain = _collection.FindAs<C>(Query.And(Query.EQ("X", 2), Query.EQ("Y", 1))).SetLimit(1).Explain();
@@ -61,9 +64,11 @@ namespace MongoDB.Driver.Tests.Linq
             }
         }
 
-        [Fact]
+        [SkippableFact]
         public void TestVerboseExplainFromLinqQueryEqualsVerboseExplainFromCursor()
         {
+            RequireServer.Check().Supports(Feature.LegacyWireProtocol);
+
             EnsureCollectionExists();
             var linqExplain = _collection.AsQueryable<C>().Where(c => c.X == 2 && c.Y == 1).Take(1).Explain(true);
             var queryExplain = _collection.FindAs<C>(Query.And(Query.EQ("X", 2), Query.EQ("Y", 1))).SetLimit(1).Explain(true);
