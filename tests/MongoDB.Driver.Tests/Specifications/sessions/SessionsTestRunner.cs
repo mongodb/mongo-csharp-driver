@@ -22,6 +22,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Specifications.sessions
 {
+    [Trait("Category", "Serverless")]
     public class SessionsTestRunner : MongoClientJsonDrivenSessionsTestRunner
     {
         protected override string[] ExpectedTestColumns => new string[] { "async", "clientOptions", "failPoint", "description", "operations", "expectations", "outcome" };

@@ -29,6 +29,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
 {
+    [Trait("Category", "Serverless")]
     public class CrudProseTests
     {
         [SkippableFact]

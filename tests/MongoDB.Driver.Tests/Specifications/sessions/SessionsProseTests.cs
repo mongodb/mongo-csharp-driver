@@ -21,6 +21,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Specifications.sessions
 {
+    [Trait("Category", "Serverless")]
     public class SessionsProseTests
     {
         [SkippableFact]

@@ -593,6 +593,47 @@ functions:
             -v \
             --fault revoked
 
+  run-serverless-tests:
+    - command: shell.exec
+      type: test
+      params:
+        working_dir: mongo-csharp-driver
+        script: |
+          AUTH=${AUTH} \
+          COMPRESSOR=${COMPRESSOR} \
+          FRAMEWORK=${FRAMEWORK} \
+          MONGODB_URI="${MONGODB_URI}" \
+          SERVERLESS_ATLAS_USER="${SERVERLESS_ATLAS_USER}" \
+          SERVERLESS_ATLAS_PASSWORD="${SERVERLESS_ATLAS_PASSWORD}" \
+          SSL=${SSL} \
+            evergreen/run-serverless-tests.sh
+
+  create-serverless-instance:
+    - command: shell.exec
+      params:
+        script: |
+          ${PREPARE_SHELL}
+          set +o xtrace # Disable tracing
+          SERVERLESS_DRIVERS_GROUP=${SERVERLESS_DRIVERS_GROUP} \
+          SERVERLESS_API_PUBLIC_KEY=${SERVERLESS_API_PUBLIC_KEY} \
+          SERVERLESS_API_PRIVATE_KEY=${SERVERLESS_API_PRIVATE_KEY} \
+            bash ${DRIVERS_TOOLS}/.evergreen/serverless/create-instance.sh
+    - command: expansions.update
+      params:
+        file: serverless-expansion.yml
+
+  delete-serverless-instance:
+    - command: shell.exec
+      params:
+        script: |
+          ${PREPARE_SHELL}
+          set +o xtrace # Disable tracing
+          SERVERLESS_DRIVERS_GROUP=${SERVERLESS_DRIVERS_GROUP} \
+          SERVERLESS_API_PUBLIC_KEY=${SERVERLESS_API_PUBLIC_KEY} \
+          SERVERLESS_API_PRIVATE_KEY=${SERVERLESS_API_PRIVATE_KEY} \
+          SERVERLESS_INSTANCE_NAME=${SERVERLESS_INSTANCE_NAME} \
+            bash ${DRIVERS_TOOLS}/.evergreen/serverless/delete-instance.sh
+
   publish-snapshot:
     - command: shell.exec
       type: test
@@ -632,13 +673,15 @@ functions:
     - command: shell.exec
       params:
         script: |
-          ${PREPARE_SHELL}
-          for i in $(find ${DRIVERS_TOOLS}/.evergreen ${PROJECT_DIRECTORY}/evergreen -name \*.sh); do
-            cat $i | tr -d '\r' > $i.new
-            mv $i.new $i
-          done
-          # Copy client certificate because symlinks do not work on Windows.
-          cp ${DRIVERS_TOOLS}/.evergreen/x509gen/client.pem ${MONGO_ORCHESTRATION_HOME}/lib/client.pem
+          if [ "Windows_NT" = "$OS" ]; then
+            ${PREPARE_SHELL}
+            for i in $(find ${DRIVERS_TOOLS}/.evergreen ${PROJECT_DIRECTORY}/evergreen -name \*.sh); do
+              cat $i | tr -d '\r' > $i.new
+              mv $i.new $i
+            done
+            # Copy client certificate because symlinks do not work on Windows.
+            cp ${DRIVERS_TOOLS}/.evergreen/x509gen/client.pem ${MONGO_ORCHESTRATION_HOME}/lib/client.pem
+          fi
 
   make-files-executable:
     - command: shell.exec
@@ -667,6 +710,7 @@ pre:
 post:
   # Removed, causing timeouts
   # - func: upload-working-dir
+  - func: delete-serverless-instance
   - func: upload-mo-artifacts
   - func: upload-test-results
   - func: cleanup
@@ -842,6 +886,38 @@ tasks:
           name: test
       commands:
         - func: publish-snapshot
+
+    - name: test-serverless-net452
+      exec_timeout_secs: 2700 # 45 minutes: 15 for setup + 30 for tests
+      commands:
+        - func: create-serverless-instance
+        - func: run-serverless-tests
+          vars:
+            FRAMEWORK: net452
+
+    - name: test-serverless-netstandard15
+      exec_timeout_secs: 2700 # 45 minutes: 15 for setup + 30 for tests
+      commands:
+        - func: create-serverless-instance
+        - func: run-serverless-tests
+          vars:
+            FRAMEWORK: netstandard15
+
+    - name: test-serverless-netstandard20
+      exec_timeout_secs: 2700 # 45 minutes: 15 for setup + 30 for tests
+      commands:
+        - func: create-serverless-instance
+        - func: run-serverless-tests
+          vars:
+            FRAMEWORK: netstandard20
+
+    - name: test-serverless-netstandard21
+      exec_timeout_secs: 2700 # 45 minutes: 15 for setup + 30 for tests
+      commands:
+        - func: create-serverless-instance
+        - func: run-serverless-tests
+          vars:
+            FRAMEWORK: netstandard21
 
     - name: test-ocsp-rsa-valid-cert-server-staples-ca-responder
       tags: ["ocsp"]
@@ -1440,21 +1516,44 @@ buildvariants:
   tasks:
     - name: plain-auth-tests
 
-- matrix_name: tests-load-balancer
+- matrix_name: load-balancer-tests
   matrix_spec: { version: ["5.0", "latest"], auth: "noauth", ssl: "nossl", topology: "sharded-cluster", os: "ubuntu-1804" }
   display_name: "Load Balancer ${version} ${auth} ${ssl} ${os}"
   tasks:
     - name: "test-load-balancer-netstandard15"
     - name: "test-load-balancer-netstandard20"
-    - name: "test-load-balancer-netstandard21"  
-    
-- matrix_name: tests-load-balancer-secure
+    - name: "test-load-balancer-netstandard21"
+
+- matrix_name: load-balancer-tests-secure
   matrix_spec: { version: ["5.0", "latest"], auth: "auth", ssl: "ssl", topology: "sharded-cluster", os: "ubuntu-1804" }
   display_name: "Load Balancer ${version} ${auth} ${ssl} ${os}"
   tasks:
     - name: "test-load-balancer-netstandard15"
     - name: "test-load-balancer-netstandard20"
     - name: "test-load-balancer-netstandard21"
+
+- matrix_name: serverless-tests-windows
+  matrix_spec: { auth: "auth", ssl: "ssl", compressor: "zlib", os: "windows-64" }
+  display_name: "Serverless ${compressor} ${auth} ${ssl} ${os}"
+  tasks:
+    - name: test-serverless-net452
+    - name: test-serverless-netstandard15
+    - name: test-serverless-netstandard20
+    - name: test-serverless-netstandard21
+
+- matrix_name: serverless-tests-macos
+  matrix_spec: { auth: "auth", ssl: "ssl", compressor: "zlib", os: "macos-1014" }
+  display_name: "Serverless ${compressor} ${auth} ${ssl} ${os}"
+  tasks:
+    - name: test-serverless-netstandard20
+    - name: test-serverless-netstandard21
+
+- matrix_name: serverless-tests-ubuntu
+  matrix_spec: { auth: "auth", ssl: "ssl", compressor: "zlib", os: "ubuntu-1804" }
+  display_name: "Serverless ${compressor} ${auth} ${ssl} ${os}"
+  tasks:
+    - name: test-serverless-netstandard20
+    - name: test-serverless-netstandard21
 
 - name: atlas-connectivity-tests
   display_name: "Atlas Connectivity Tests"

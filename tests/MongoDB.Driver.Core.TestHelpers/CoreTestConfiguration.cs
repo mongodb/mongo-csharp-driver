@@ -46,6 +46,7 @@ namespace MongoDB.Driver
         private static Lazy<BuildInfoResult> _buildInfo = new Lazy<BuildInfoResult>(RunBuildInfo, isThreadSafe: true);
         private static MessageEncoderSettings __messageEncoderSettings = new MessageEncoderSettings();
         private static Lazy<ServerApi> __serverApi = new Lazy<ServerApi>(GetServerApi, isThreadSafe: true);
+        private static Lazy<bool> __serverless = new Lazy<bool>(GetServerless, isThreadSafe: true);
         private static TraceSource __traceSource;
 
         // static properties
@@ -82,6 +83,11 @@ namespace MongoDB.Driver
         public static ServerApi ServerApi
         {
             get { return __serverApi.Value; }
+        }
+
+        public static bool Serverless
+        {
+            get { return __serverless.Value; }
         }
 
         public static SemanticVersion ServerVersion
@@ -297,6 +303,13 @@ namespace MongoDB.Driver
             }
 
             return new ServerApi(ServerApiVersion.V1);
+        }
+
+        private static bool GetServerless()
+        {
+            var serverless = Environment.GetEnvironmentVariable("SERVERLESS");
+
+            return serverless?.ToLower() == "true";
         }
 
         public static DatabaseNamespace GetDatabaseNamespaceForTestClass(Type testClassType)

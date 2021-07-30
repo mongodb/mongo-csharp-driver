@@ -118,13 +118,24 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
 
         public RequireServer RunOn(BsonArray requirements)
         {
-            var cluster = CoreTestConfiguration.Cluster;
-            if (requirements.Any(requirement => CanRunOn(cluster, requirement.AsBsonDocument)))
+            if (requirements.Any(requirement => CanRunOn(requirement.AsBsonDocument)))
             {
                 return this;
             }
 
             throw new SkipException($"Test skipped because cluster does not meet runOn requirements: {requirements}.");
+        }
+
+        public RequireServer Serverless(bool require = true)
+        {
+            var isServerless = CoreTestConfiguration.Serverless;
+
+            if (isServerless == require)
+            {
+                return this;
+            }
+
+            throw new SkipException("Test skipped because serverless is " + (require ? "required" : "not required") + ".");
         }
 
         public RequireServer Supports(Feature feature)
@@ -241,71 +252,64 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
         }
 
         // private methods
-        private bool CanRunOn(ICluster cluster, BsonDocument requirement)
+        private bool CanRunOn(BsonDocument requirements)
         {
-            foreach (var item in requirement)
-            {
-                switch (item.Name)
-                {
-                    case "authEnabled":
-                    case "auth":
-                        {
-                            return IsAuthenticated() == item.Value.ToBoolean();
-                        }
-                    case "minServerVersion":
-                        {
-                            var actualVersion = CoreTestConfiguration.ServerVersion;
-                            var minServerVersion = SemanticVersion.Parse(item.Value.AsString);
-                            if (SemanticVersionCompareToAsReleased(actualVersion, minServerVersion) < 0)
-                            {
-                                return false;
-                            }
-                        }
-                        break;
-                    case "maxServerVersion":
-                        {
-                            var actualVersion = CoreTestConfiguration.ServerVersion;
-                            var maxServerVersion = SemanticVersion.Parse(item.Value.AsString);
-                            if (SemanticVersionCompareToAsReleased(actualVersion, maxServerVersion) > 0)
-                            {
-                                return false;
-                            }
-                        }
-                        break;
-                    case "serverParameters":
-                        {
-                            var serverParameters = CoreTestConfiguration.GetServerParameters();
-                            foreach (var parameter in item.Value.AsBsonDocument)
-                            {
-                                if (serverParameters[parameter.Name] != parameter.Value)
-                                {
-                                    return false;
-                                }
-                            }
-                        }
-                        break;
-                    case "topologies":
-                    case "topology":
-                        {
-                            var actualClusterType = CoreTestConfiguration.Cluster.Description.Type;
-                            var runOnClusterTypes = item.Value.AsBsonArray.Select(topology => MapTopologyToClusterType(topology.AsString)).ToList();
-                            if (!runOnClusterTypes.Contains(actualClusterType))
-                            {
-                                return false;
-                            }
-                        }
-                        break;
-                    case "serverless":
-                        return false; // TODO: not implemented yet
-                    default:
-                        throw new FormatException($"Unrecognized requirement field: '{item.Name}'");
-                }
-            }
-
-            return true;
+            return requirements.All(IsRequirementSatisfied);
         }
 
         private bool IsAuthenticated() => CoreTestConfiguration.ConnectionString.Username != null;
+
+        private bool IsRequirementSatisfied(BsonElement requirement)
+        {
+            switch (requirement.Name)
+            {
+                case "authEnabled":
+                case "auth":
+                    return IsAuthenticated() == requirement.Value.ToBoolean();
+                case "minServerVersion":
+                    {
+                        var actualVersion = CoreTestConfiguration.ServerVersion;
+                        var minServerVersion = SemanticVersion.Parse(requirement.Value.AsString);
+                        return SemanticVersionCompareToAsReleased(actualVersion, minServerVersion) >= 0;
+                    }
+                case "maxServerVersion":
+                    {
+                        var actualVersion = CoreTestConfiguration.ServerVersion;
+                        var maxServerVersion = SemanticVersion.Parse(requirement.Value.AsString);
+                        return SemanticVersionCompareToAsReleased(actualVersion, maxServerVersion) <= 0;
+                    }
+                case "serverless":
+                    var serverlessValue = requirement.Value.AsString;
+                    switch (serverlessValue)
+                    {
+                        case "allow":
+                            return true;
+                        case "forbid":
+                            return CoreTestConfiguration.Serverless == false;
+                        case "require":
+                            return CoreTestConfiguration.Serverless == true;
+                        default:
+                            throw new FormatException($"Invalid runOn requirement serverless field value: '{requirement.Value}'.");
+                    }
+                case "serverParameters":
+                    var serverParameters = CoreTestConfiguration.GetServerParameters();
+                    foreach (var parameter in requirement.Value.AsBsonDocument)
+                    {
+                        if (serverParameters[parameter.Name] != parameter.Value)
+                        {
+                            return false;
+                        }
+                    }
+                    return true;
+                case "topologies":
+                case "topology":
+                    var actualClusterType = CoreTestConfiguration.Cluster.Description.Type;
+                    var runOnClusterTypes = requirement.Value.AsBsonArray.Select(topology => MapTopologyToClusterType(topology.AsString)).ToList();
+                    return runOnClusterTypes.Contains(actualClusterType);
+                default:
+                    throw new FormatException($"Unrecognized requirement field: '{requirement.Name}'.");
+            }
+        }
 
         private ClusterType MapTopologyToClusterType(string topology)
         {

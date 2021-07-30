@@ -33,5 +33,5 @@ To run this test, proceed as follows:
 - If the environment variable is set, all clients created in tests MUST declare
   the ``ServerApiVersion`` specified.
 
-No other topologies must be tested until ``mongo-orchestration`` can handle
-servers with ``requireApiVersion`` enabled.
+Only standalone servers must be tested. The tests should run for each server
+version >= 5.0, including ``latest``.

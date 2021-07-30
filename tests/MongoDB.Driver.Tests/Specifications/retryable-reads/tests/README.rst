@@ -91,6 +91,18 @@ Each YAML file has the following keys:
     mongos, the runner is not capable of determining this by issuing a server
     command such as ``buildInfo`` or ``hello``.
 
+  - ``serverless``: Optional string. Whether or not the test should be run on
+    serverless instances imitating sharded clusters. Valid values are "require",
+    "forbid", and "allow". If "require", the test MUST only be run on serverless
+    instances. If "forbid", the test MUST NOT be run on serverless instances. If
+    omitted or "allow", this option has no effect.
+
+    The test runner MUST be informed whether or not serverless is being used in
+    order to determine if this requirement is met (e.g. through an environment
+    variable or configuration option). Since the serverless proxy imitates a
+    mongos, the runner is not capable of determining this by issuing a server
+    command such as ``buildInfo`` or ``hello``.
+
 - ``database_name`` and ``collection_name``: Optional. The database and
   collection to use for testing.
   
