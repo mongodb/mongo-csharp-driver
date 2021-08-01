@@ -175,7 +175,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
 
         public RequireServer StorageEngine(string storageEngine)
         {
-            var actualStorageEngine = CoreTestConfiguration.GetStorageEngine();
+            var actualStorageEngine = CoreTestConfiguration.StorageEngine;
             if (actualStorageEngine.Equals(storageEngine, StringComparison.OrdinalIgnoreCase))
             {
                 return this;
@@ -185,7 +185,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
 
         public RequireServer StorageEngines(params string[] storageEngines)
         {
-            var actualStorageEngine = CoreTestConfiguration.GetStorageEngine();
+            var actualStorageEngine = CoreTestConfiguration.StorageEngine;
             if (storageEngines.Contains(actualStorageEngine, StringComparer.OrdinalIgnoreCase))
             {
                 return this;

@@ -557,7 +557,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             RequireServer.Check().Supports(Feature.IndexOptionsDefaults).ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet);
             DropCollection();
-            var storageEngine = CoreTestConfiguration.GetStorageEngine();
+            var storageEngine = CoreTestConfiguration.StorageEngine;
             var indexOptionDefaults = new BsonDocument
             {
                 {  "storageEngine", new BsonDocument(storageEngine, new BsonDocument()) }

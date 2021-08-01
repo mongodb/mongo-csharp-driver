@@ -58,7 +58,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes
                 RequireServer.Check().RunOn(runOn.AsBsonArray);
             }
 
-            if (CoreTestConfiguration.GetStorageEngine() == "mmapv1")
+            if (CoreTestConfiguration.StorageEngine == "mmapv1")
             {
                 throw new SkipException("Test skipped because mmapv1 does not support retryable writes.");
             }
