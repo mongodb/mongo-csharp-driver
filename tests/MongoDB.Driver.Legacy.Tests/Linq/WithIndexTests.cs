@@ -18,7 +18,8 @@ using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
-using MongoDB.Driver.Core;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
 using Xunit;
 
@@ -105,9 +106,11 @@ namespace MongoDB.Driver.Tests.Linq
             Assert.Equal("{ \"a\" : 1, \"b\" : 3 }", selectQuery.BuildQuery().ToJson());
         }
 
-        [Fact]
+        [SkippableFact]
         public void TestIndexNameHintIsUsedInQuery()
         {
+            RequireServer.Check().Supports(Feature.LegacyWireProtocol);
+
             var query = __collection.AsQueryable().Where(o => o.b == 1);
             var plan = query.Explain();
             if (LegacyTestConfiguration.Server.BuildInfo.Version < new Version(2, 7, 0))
@@ -195,9 +198,11 @@ namespace MongoDB.Driver.Tests.Linq
             Assert.Equal("{ \"a\" : 1, \"b\" : 3 }", selectQuery.BuildQuery().ToJson());
         }
 
-        [Fact]
+        [SkippableFact]
         public void TestIndexDocumentHintIsUsedInQuery()
         {
+            RequireServer.Check().Supports(Feature.LegacyWireProtocol);
+
             var query = __collection.AsQueryable().Where(o => o.b == 1);
             var plan = query.Explain();
             if (LegacyTestConfiguration.Server.BuildInfo.Version < new Version(2, 7, 0))

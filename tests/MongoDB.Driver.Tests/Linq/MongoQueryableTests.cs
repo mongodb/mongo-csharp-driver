@@ -556,11 +556,8 @@ namespace Tests.MongoDB.Driver.Linq
         {
             RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
             // remove the skip exception when SERVER-58680 is fixed
-            var actualVersion = CoreTestConfiguration.ServerVersion;
-            if (actualVersion > SemanticVersion.Parse("5.0.0-") && actualVersion < SemanticVersion.Parse("5.0.0"))
-            {
-                throw new SkipException("$ifNull behaves differently on latest.");
-            }
+            RequireServer.Check().VersionLessThan("5.1.0-");
+
             var query = from p in CreateQuery()
                         join o in __otherCollection on p.Id equals o.Id into joined
                         from subo in joined.DefaultIfEmpty()

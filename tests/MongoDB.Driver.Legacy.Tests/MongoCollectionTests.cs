@@ -143,9 +143,11 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(2, dictionary[3]);
         }
 
-        [Fact]
+        [SkippableFact]
         public void TestAggregateExplain()
         {
+            RequireServer.Check().Supports(Feature.LegacyWireProtocol);
+
             _collection.Drop();
             _collection.Insert(new BsonDocument("x", 1));
 
@@ -963,9 +965,11 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [Fact]
+        [SkippableFact]
         public void TestExplain()
         {
+            RequireServer.Check().Supports(Feature.LegacyWireProtocol);
+
             _collection.Drop();
             _collection.Insert(new BsonDocument { { "x", 4 }, { "y", 2 } });
             _collection.Insert(new BsonDocument { { "x", 2 }, { "y", 2 } });
@@ -2321,11 +2325,13 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [Theory]
+        [SkippableTheory]
         [ParameterAttributeData]
         public void TestInsertBatchMultipleBatchesWriteConcernDisabledContinueOnErrorFalse(
             [Values(false, true)] bool retryWrites)
         {
+            RequireServer.Check().Supports(Feature.LegacyWireProtocol);
+
             var server = LegacyTestConfiguration.GetServer(retryWrites);
             var database = server.GetDatabase(LegacyTestConfiguration.Database.Name);
             var collectionName = LegacyTestConfiguration.Collection.Name;
@@ -2360,11 +2366,13 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(0, collection.Count(Query.EQ("_id", 5)));
         }
 
-        [Theory]
+        [SkippableTheory]
         [ParameterAttributeData]
         public void TestInsertBatchMultipleBatchesWriteConcernDisabledContinueOnErrorTrue(
             [Values(false, true)] bool retryWrites)
         {
+            RequireServer.Check().Supports(Feature.LegacyWireProtocol);
+
             var server = LegacyTestConfiguration.GetServer(retryWrites);
             var database = server.GetDatabase(LegacyTestConfiguration.Database.Name);
             var collectionName = LegacyTestConfiguration.Collection.Name;
@@ -3081,11 +3089,13 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(0, _collection.Count());
         }
 
-        [Theory]
+        [SkippableTheory]
         [ParameterAttributeData]
         public void TestRemoveUnacknowledeged(
             [Values(false, true)] bool retryWrites)
         {
+            RequireServer.Check().Supports(Feature.LegacyWireProtocol);
+
             var server = LegacyTestConfiguration.GetServer(retryWrites);
             using (server.RequestStart())
             {
@@ -3358,11 +3368,13 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(2, _collection.Count());
         }
 
-        [Theory]
+        [SkippableTheory]
         [ParameterAttributeData]
         public void TestUpdateUnacknowledged(
             [Values(false, true)] bool retryWrites)
         {
+            RequireServer.Check().Supports(Feature.LegacyWireProtocol);
+
             var server = LegacyTestConfiguration.GetServer(retryWrites);
             using (server.RequestStart())
             {

@@ -78,6 +78,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __keepConnectionPoolWhenReplSetStepDown = new Feature("KeepConnectionPoolWhenReplSetStepDown", new SemanticVersion(4, 1, 10));
         private static readonly Feature __killAllSessions = new Feature("KillAllSessions", new SemanticVersion(3, 6, 0));
         private static readonly Feature __killCursorsCommand = new Feature("KillCursorsCommand", new SemanticVersion(3, 2, 0));
+        private static readonly Feature __legacyWireProtocol = new Feature("LegacyWireProtocol", new SemanticVersion(0, 0, 0), new SemanticVersion(5, 1, 0, ""));
         private static readonly Feature __listCollectionsCommand = new Feature("ListCollectionsCommand", new SemanticVersion(3, 0, 0));
         private static readonly Feature __listDatabasesAuthorizedDatabases = new Feature("ListDatabasesAuthorizedDatabases", new SemanticVersion(4, 0, 5));
         private static readonly Feature __listDatabasesFilter = new Feature("ListDatabasesFilter", new SemanticVersion(3, 4, 2));
@@ -393,6 +394,11 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the index options defaults feature.
         /// </summary>
         public static Feature IndexOptionsDefaults => __indexOptionsDefaults;
+
+        /// <summary>
+        /// Gets the legacy wire protocol feature.
+        /// </summary>
+        public static Feature LegacyWireProtocol => __legacyWireProtocol;
 
         /// <summary>
         /// Get the list databases authorizedDatabases feature.

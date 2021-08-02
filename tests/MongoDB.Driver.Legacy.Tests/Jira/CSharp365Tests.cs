@@ -16,15 +16,19 @@
 using System;
 using MongoDB.Bson;
 using MongoDB.Driver.Builders;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira.CSharp365
 {
     public class CSharp365Tests
     {
-        [Fact]
+        [SkippableFact]
         public void TestExplainWithFieldsAndCoveredIndex()
         {
+            RequireServer.Check().Supports(Feature.LegacyWireProtocol);
+
             var server = LegacyTestConfiguration.Server;
             if (server.BuildInfo.Version >= new Version(1, 8, 0))
             {
