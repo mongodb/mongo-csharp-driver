@@ -118,6 +118,75 @@ have a mix of Guid representations, and we need to allow that.&lt;/p&gt;
     </item>
     
     <item>
+      <title>V2 mode</title>
+      <link>/mongo-csharp-driver/2.13/reference/bson/guidserialization/guidrepresentationmode/v2mode/</link>
+      <pubDate>Thu, 23 Jul 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.13/reference/bson/guidserialization/guidrepresentationmode/v2mode/</guid>
+      <description>
+
+&lt;h2 id=&#34;v2-guidrepresentationmode-deprecated&#34;&gt;V2 GuidRepresentationMode (Deprecated)&lt;/h2&gt;
+
+&lt;p&gt;In V2 mode the central principle is that all Guids in a collection must be represented the same way. In order to enforce
+this the representation of Guids is not controlled at the individual serializer level, but rather at the reader/writer
+level since the same reader/writer is used to read/write an entire document.&lt;/p&gt;
+
+&lt;p&gt;All of the following properties and methods are only relevant to V2 mode and are now deprecated:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;BsonDefaults GuidRepresentation property&lt;/li&gt;
+&lt;li&gt;BsonBinaryData implicit conversion to or from Guid&lt;/li&gt;
+&lt;li&gt;BsonBinaryData constructor taking a Guid (without a GuidRepresentation)&lt;/li&gt;
+&lt;li&gt;BsonBinaryData constructor taking (byte[], BsonBinarySubType, GuidRepresentation)&lt;/li&gt;
+&lt;li&gt;BsonBinaryData GuidRepresentation property&lt;/li&gt;
+&lt;li&gt;BsonValue implicit conversion from Guid or Guid? (Nullable&amp;lt;Guid&amp;gt;)&lt;/li&gt;
+&lt;li&gt;BsonDocumentReaderSettings constructor taking a GuidRepresentation&lt;/li&gt;
+&lt;li&gt;BsonDocumentWriterSettings constructor taking a GuidRepresentation&lt;/li&gt;
+&lt;li&gt;BsonReaderSettings GuidRepresentation property&lt;/li&gt;
+&lt;li&gt;BsonWriterSettings GuidRepresentation property&lt;/li&gt;
+&lt;li&gt;IBsonReaderExtentions ReadBinaryDataWithGuidRepresentationUnspecified extension method&lt;/li&gt;
+&lt;li&gt;MongoClientSettings GuidRepresentation property&lt;/li&gt;
+&lt;li&gt;MongoCollectionSettings GuidRepresentation property&lt;/li&gt;
+&lt;li&gt;MongoDatabaseSettings GuidRepresentation property&lt;/li&gt;
+&lt;li&gt;MongoDefaults GuidRepresentation property&lt;/li&gt;
+&lt;li&gt;MongoUrl GuidRepresentation property&lt;/li&gt;
+&lt;li&gt;MongoUrlBuilder GuidRepresentation property&lt;/li&gt;
+&lt;li&gt;MongoGridFSSettings GuidRepresentation property&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Note: the BsonDefaults GuidRepresentationMode property is itself deprecated even though it is new because it is only
+intended to be use during the transition period and will be removed when support for V2 mode is removed.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>V3 mode</title>
+      <link>/mongo-csharp-driver/2.13/reference/bson/guidserialization/guidrepresentationmode/v3mode/</link>
+      <pubDate>Thu, 23 Jul 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.13/reference/bson/guidserialization/guidrepresentationmode/v3mode/</guid>
+      <description>
+
+&lt;h2 id=&#34;v3-guidrepresentationmode&#34;&gt;V3 GuidRepresentationMode&lt;/h2&gt;
+
+&lt;p&gt;In V3 mode the central principle is that the representation of Guids is controlled at the level of each individual
+property of a document by configuring the serializer for that property. The recommendation is that all Guids in a
+collection be represented uniformly using the standard BsonBinaryData subtype 4, but when working with historical
+data it is acceptable for different Guid fields in the same document to be represented differently.&lt;/p&gt;
+
+&lt;p&gt;The following existing methods behave differently in V3 mode:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;BsonBinaryReader.ReadBinaryData method ignores readerSettings.GuidRepresentation&lt;/li&gt;
+&lt;li&gt;BsonBinaryWriter.WriteBinaryData method ignores writerSettings.GuidRepresentation&lt;/li&gt;
+&lt;li&gt;JsonReader ReadBinaryData method ignores readerSettings.GuidRepresentation&lt;/li&gt;
+&lt;li&gt;JsonWriter ignores writerSettings.GuidRepresentation&lt;/li&gt;
+&lt;li&gt;BsonBinaryData ToGuid without GuidRepresentation argument is only valid for sub type 4&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
       <title>GuidRepresentationMode</title>
       <link>/mongo-csharp-driver/2.13/reference/bson/guidserialization/guidrepresentationmode/guidrepresentationmode/</link>
       <pubDate>Thu, 23 Jul 2020 00:00:00 +0000</pubDate>
@@ -162,75 +231,6 @@ not possible to mix use of both modes in the same application.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;BsonDefaults.GuidRepresentationMode = GuidRepresentationMode.V3;
 &lt;/code&gt;&lt;/pre&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>V3 mode</title>
-      <link>/mongo-csharp-driver/2.13/reference/bson/guidserialization/guidrepresentationmode/v3mode/</link>
-      <pubDate>Thu, 23 Jul 2020 00:00:00 +0000</pubDate>
-      
-      <guid>/mongo-csharp-driver/2.13/reference/bson/guidserialization/guidrepresentationmode/v3mode/</guid>
-      <description>
-
-&lt;h2 id=&#34;v3-guidrepresentationmode&#34;&gt;V3 GuidRepresentationMode&lt;/h2&gt;
-
-&lt;p&gt;In V3 mode the central principle is that the representation of Guids is controlled at the level of each individual
-property of a document by configuring the serializer for that property. The recommendation is that all Guids in a
-collection be represented uniformly using the standard BsonBinaryData subtype 4, but when working with historical
-data it is acceptable for different Guid fields in the same document to be represented differently.&lt;/p&gt;
-
-&lt;p&gt;The following existing methods behave differently in V3 mode:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;BsonBinaryReader.ReadBinaryData method ignores readerSettings.GuidRepresentation&lt;/li&gt;
-&lt;li&gt;BsonBinaryWriter.WriteBinaryData method ignores writerSettings.GuidRepresentation&lt;/li&gt;
-&lt;li&gt;JsonReader ReadBinaryData method ignores readerSettings.GuidRepresentation&lt;/li&gt;
-&lt;li&gt;JsonWriter ignores writerSettings.GuidRepresentation&lt;/li&gt;
-&lt;li&gt;BsonBinaryData ToGuid without GuidRepresentation argument is only valid for sub type 4&lt;/li&gt;
-&lt;/ul&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>V2 mode</title>
-      <link>/mongo-csharp-driver/2.13/reference/bson/guidserialization/guidrepresentationmode/v2mode/</link>
-      <pubDate>Thu, 23 Jul 2020 00:00:00 +0000</pubDate>
-      
-      <guid>/mongo-csharp-driver/2.13/reference/bson/guidserialization/guidrepresentationmode/v2mode/</guid>
-      <description>
-
-&lt;h2 id=&#34;v2-guidrepresentationmode-deprecated&#34;&gt;V2 GuidRepresentationMode (Deprecated)&lt;/h2&gt;
-
-&lt;p&gt;In V2 mode the central principle is that all Guids in a collection must be represented the same way. In order to enforce
-this the representation of Guids is not controlled at the individual serializer level, but rather at the reader/writer
-level since the same reader/writer is used to read/write an entire document.&lt;/p&gt;
-
-&lt;p&gt;All of the following properties and methods are only relevant to V2 mode and are now deprecated:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;BsonDefaults GuidRepresentation property&lt;/li&gt;
-&lt;li&gt;BsonBinaryData implicit conversion to or from Guid&lt;/li&gt;
-&lt;li&gt;BsonBinaryData constructor taking a Guid (without a GuidRepresentation)&lt;/li&gt;
-&lt;li&gt;BsonBinaryData constructor taking (byte[], BsonBinarySubType, GuidRepresentation)&lt;/li&gt;
-&lt;li&gt;BsonBinaryData GuidRepresentation property&lt;/li&gt;
-&lt;li&gt;BsonValue implicit conversion from Guid or Guid? (Nullable&amp;lt;Guid&amp;gt;)&lt;/li&gt;
-&lt;li&gt;BsonDocumentReaderSettings constructor taking a GuidRepresentation&lt;/li&gt;
-&lt;li&gt;BsonDocumentWriterSettings constructor taking a GuidRepresentation&lt;/li&gt;
-&lt;li&gt;BsonReaderSettings GuidRepresentation property&lt;/li&gt;
-&lt;li&gt;BsonWriterSettings GuidRepresentation property&lt;/li&gt;
-&lt;li&gt;IBsonReaderExtentions ReadBinaryDataWithGuidRepresentationUnspecified extension method&lt;/li&gt;
-&lt;li&gt;MongoClientSettings GuidRepresentation property&lt;/li&gt;
-&lt;li&gt;MongoCollectionSettings GuidRepresentation property&lt;/li&gt;
-&lt;li&gt;MongoDatabaseSettings GuidRepresentation property&lt;/li&gt;
-&lt;li&gt;MongoDefaults GuidRepresentation property&lt;/li&gt;
-&lt;li&gt;MongoUrl GuidRepresentation property&lt;/li&gt;
-&lt;li&gt;MongoUrlBuilder GuidRepresentation property&lt;/li&gt;
-&lt;li&gt;MongoGridFSSettings GuidRepresentation property&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;Note: the BsonDefaults GuidRepresentationMode property is itself deprecated even though it is new because it is only
-intended to be use during the transition period and will be removed when support for V2 mode is removed.&lt;/p&gt;
 </description>
     </item>
     
