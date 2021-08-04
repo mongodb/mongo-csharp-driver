@@ -1363,7 +1363,7 @@ axes:
       - id: "zstandard"
         display_name: Zstandard
         variables:
-           COMPRESSOR: "zstandard"
+           COMPRESSOR: "zstd"
 
 buildvariants:
 
