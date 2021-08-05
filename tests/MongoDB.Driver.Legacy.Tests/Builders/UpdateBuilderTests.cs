@@ -839,7 +839,7 @@ namespace MongoDB.Driver.Tests.Builders
         }
 
         // tests fail on .NET Core 2.1 and higher frameworks with out of order key-value-pairs
-#if NET452 || NETCOREAPP1_1
+#if NET472
         [Fact]
         public void TestReplace()
         {
@@ -857,7 +857,7 @@ namespace MongoDB.Driver.Tests.Builders
             var expected = "{ \"_id\" : 1, \"x\" : 2, \"xl\" : NumberLong(0), \"xd\" : 0.0, \"y\" : null, \"b\" : null, \"dAsDateTime\" : ISODate(\"0001-01-01T00:00:00Z\"), \"dAsInt64\" : NumberLong(0), \"bdt\" : { \"_csharpnull\" : true }, \"bts\" : { \"_csharpnull\" : true } }";
             Assert.Equal(expected, update.ToJson());
         }
-#endif        
+#endif
 
         [Fact]
         public void TestSet()

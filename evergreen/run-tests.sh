@@ -14,8 +14,7 @@ set -o errexit  # Exit the script with error if any of the commands fail
 #   OCSP_TLS_SHOULD_SUCCEED         Set to test OCSP. Values are true/false/nil
 #   MONGODB_X509_CLIENT_P12_PATH    Absolute path to client certificate in p12 format
 #   MONGO_X509_CLIENT_CERTIFICATE_PASSWORD  password for client certificate
-#   FRAMEWORK                       Set to specify .NET framework to test against. Values: "Net452", "NetStandard15",
-#                                   "NetStandard20", "nil"
+#   FRAMEWORK                       Set to specify .NET framework to test against. Values: "Net472", "NetStandard20", "NetStandard21", "nil"
 #
 # Environment variables produced as output:
 #   MONGODB_X509_CLIENT_P12_PATH            Absolute path to client certificate in p12 format

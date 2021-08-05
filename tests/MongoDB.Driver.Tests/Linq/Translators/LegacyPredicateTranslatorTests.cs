@@ -877,7 +877,7 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             Assert<C>(c => !c.S.Trim().StartsWith("xyz"), 4, "{ \"s\" : { \"$not\" : /^\\s*xyz.*\\s*$/s } }");
         }
 
-#if NET452 || NETCOREAPP1_0        
+#if NET472
         [Fact]
         public void TestWhereSTrimStartTrimEndToLowerContainsXyz()
         {

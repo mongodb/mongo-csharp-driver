@@ -15,9 +15,7 @@
 
 using System;
 using System.Collections.Generic;
-#if !NETSTANDARD1_5
 using System.Runtime.Serialization;
-#endif
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
@@ -25,9 +23,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a MongoDB exception.
     /// </summary>
-#if !NETSTANDARD1_5
     [Serializable]
-#endif
     public class MongoException : Exception
     {
         // private fields
@@ -53,7 +49,6 @@ namespace MongoDB.Driver
         {
         }
 
-#if !NETSTANDARD1_5
         /// <summary>
         /// Initializes a new instance of the <see cref="MongoException"/> class.
         /// </summary>
@@ -64,7 +59,6 @@ namespace MongoDB.Driver
         {
             _errorLabels = (List<string>)info.GetValue(nameof(_errorLabels), typeof(List<String>));
         }
-#endif
 
         // public properties
         /// <summary>
@@ -110,13 +104,11 @@ namespace MongoDB.Driver
             _errorLabels.Remove(errorLabel);
         }
 
-#if !NETSTANDARD1_5
         /// <inheritdoc/>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
             info.AddValue(nameof(_errorLabels), _errorLabels);
         }
-#endif
     }
 }

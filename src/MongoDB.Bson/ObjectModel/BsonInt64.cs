@@ -21,9 +21,7 @@ namespace MongoDB.Bson
     /// <summary>
     /// Represents a BSON long value.
     /// </summary>
-#if !NETSTANDARD1_5
     [Serializable]
-#endif
     public class BsonInt64 : BsonValue, IComparable<BsonInt64>, IEquatable<BsonInt64>
     {
         #region static

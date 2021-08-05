@@ -13,20 +13,17 @@
 * limitations under the License.
 */
 
-#if !NETCOREAPP1_1
 using System;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using FluentAssertions;
 using MongoDB.Driver.Encryption;
 using Xunit;
-#endif
 
 namespace MongoDB.Driver.Tests.Encryption
 {
     public class MongoEncryptionExceptionTests
     {
-#if !NETCOREAPP1_1
         [Fact]
         public void Serialization_should_work()
         {
@@ -42,6 +39,5 @@ namespace MongoDB.Driver.Tests.Encryption
                 rehydrated.InnerException.Message.Should().Be(subject.InnerException.Message);
             }
         }
-#endif
     }
 }

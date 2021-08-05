@@ -13,18 +13,14 @@
 * limitations under the License.
 */
 
-#if !NETSTANDARD1_5
 using System;
-#endif
 
 namespace MongoDB.Bson.IO
 {
     /// <summary>
     /// Represents settings for a JsonReader.
     /// </summary>
-#if !NETSTANDARD1_5
     [Serializable]
-#endif
     public class JsonReaderSettings : BsonReaderSettings
     {
         // private static fields

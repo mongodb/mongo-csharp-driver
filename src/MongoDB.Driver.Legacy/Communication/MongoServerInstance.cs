@@ -261,11 +261,7 @@ namespace MongoDB.Driver
         /// <returns>The IP end point of this server instance.</returns>
         public IPEndPoint GetIPEndPoint()
         {
-#if NETSTANDARD1_5
-            var ipAddresses = Dns.GetHostAddressesAsync(_address.Host).GetAwaiter().GetResult();
-#else
             var ipAddresses = Dns.GetHostAddresses(_address.Host);
-#endif
             var ipAddress = ipAddresses.FirstOrDefault(a => a.AddressFamily == (_settings.IPv6 ? AddressFamily.InterNetworkV6 : AddressFamily.InterNetwork));
             return new IPEndPoint(ipAddress, _address.Port);
         }

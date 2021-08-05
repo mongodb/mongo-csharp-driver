@@ -47,8 +47,6 @@ namespace MongoDB.Driver.Encryption
         {
             try
             {
-                ThrowIfUnsupportedPlatform();
-
                 var kmsKeyId = GetKmsKeyId(kmsProvider, alternateKeyNames, masterKey);
 
                 using (var context = _cryptClient.StartCreateDataKeyContext(kmsKeyId))
@@ -77,8 +75,6 @@ namespace MongoDB.Driver.Encryption
         {
             try
             {
-                ThrowIfUnsupportedPlatform();
-
                 var kmsKeyId = GetKmsKeyId(kmsProvider, alternateKeyNames, masterKey);
 
                 using (var context = _cryptClient.StartCreateDataKeyContext(kmsKeyId))
@@ -103,8 +99,6 @@ namespace MongoDB.Driver.Encryption
         {
             try
             {
-                ThrowIfUnsupportedPlatform();
-
                 var wrappedValueBytes = GetWrappedValueBytes(encryptedValue);
 
                 using (var context = _cryptClient.StartExplicitDecryptionContext(wrappedValueBytes))
@@ -123,8 +117,6 @@ namespace MongoDB.Driver.Encryption
         {
             try
             {
-                ThrowIfUnsupportedPlatform();
-
                 var wrappedValueBytes = GetWrappedValueBytes(wrappedBinaryValue);
 
                 using (var context = _cryptClient.StartExplicitDecryptionContext(wrappedValueBytes))
@@ -148,8 +140,6 @@ namespace MongoDB.Driver.Encryption
         {
             try
             {
-                ThrowIfUnsupportedPlatform();
-
                 var wrappedValueBytes = GetWrappedValueBytes(value);
 
                 CryptContext context;
@@ -193,8 +183,6 @@ namespace MongoDB.Driver.Encryption
         {
             try
             {
-                ThrowIfUnsupportedPlatform();
-
                 var wrappedValueBytes = GetWrappedValueBytes(value);
 
                 CryptContext context;

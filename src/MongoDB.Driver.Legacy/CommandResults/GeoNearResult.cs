@@ -27,9 +27,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents the result of a GeoNear command.
     /// </summary>
-#if NET452
     [Serializable]
-#endif
     public abstract class GeoNearResult : CommandResult
     {
         // private fields
@@ -273,9 +271,7 @@ namespace MongoDB.Driver
     /// Represents the result of a GeoNear command.
     /// </summary>
     /// <typeparam name="TDocument">The type of the returned documents.</typeparam>
-#if NET452
     [Serializable]
-#endif
     [BsonSerializer(typeof(GeoNearResult<>.Serializer))]
     public class GeoNearResult<TDocument> : GeoNearResult
     {

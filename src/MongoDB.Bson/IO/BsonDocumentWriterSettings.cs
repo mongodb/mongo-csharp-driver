@@ -20,9 +20,7 @@ namespace MongoDB.Bson.IO
     /// <summary>
     /// Represents settings for a BsonDocumentWriter.
     /// </summary>
-#if !NETSTANDARD1_5
     [Serializable]
-#endif
     public class BsonDocumentWriterSettings : BsonWriterSettings
     {
         // private static fields

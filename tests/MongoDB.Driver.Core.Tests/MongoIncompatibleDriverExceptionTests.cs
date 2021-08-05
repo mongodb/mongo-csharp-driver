@@ -13,13 +13,9 @@
 * limitations under the License.
 */
 
-#if !NETCOREAPP1_1
 using System.IO;
-#endif
 using System.Net;
-#if !NETCOREAPP1_1
 using System.Runtime.Serialization.Formatters.Binary;
-#endif
 using FluentAssertions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
@@ -57,7 +53,6 @@ namespace MongoDB.Driver
             subject.InnerException.Should().BeNull();
         }
 
-#if !NETCOREAPP1_1
         [Fact]
         public void Serialization_should_work()
         {
@@ -74,6 +69,5 @@ namespace MongoDB.Driver
                 rehydrated.InnerException.Should().BeNull();
             }
         }
-#endif
     }
 }

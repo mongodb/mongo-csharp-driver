@@ -13,9 +13,7 @@
 * limitations under the License.
 */
 
-#if !NETSTANDARD1_5
 using System;
-#endif
 using MongoDB.Bson;
 using MongoDB.Driver.Support;
 
@@ -24,9 +22,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents the details of a write error for a particular request.
     /// </summary>
-#if !NETSTANDARD1_5
     [Serializable]
-#endif
     public class BulkWriteError : WriteError
     {
         // private fields

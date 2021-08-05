@@ -15,10 +15,7 @@
 
 using System;
 using System.Collections.Generic;
-#if !NETSTANDARD1_5
 using System.ComponentModel;
-#endif
-using System.Linq;
 using System.Reflection;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Serializers;
@@ -31,32 +28,8 @@ namespace MongoDB.Bson.Serialization
     /// <typeparam name="TClass">The type of the class.</typeparam>
     public class BsonClassMapSerializer<TClass> : SerializerBase<TClass>, IBsonIdProvider, IBsonDocumentSerializer, IBsonPolymorphicSerializer
     {
-#if NETSTANDARD1_5
-        #region static
-        private static void CheckForISupportInitializeInterface(out MethodInfo beginInitMethodInfo, out MethodInfo endInitMethodInfo)
-        {
-            var classTypeInfo = typeof(TClass).GetTypeInfo();
-            var iSupportInitializeType = classTypeInfo.GetInterface("ISupportInitialize");
-            if (iSupportInitializeType != null && iSupportInitializeType.FullName == "System.ComponentModel.ISupportInitialize")
-            {
-                var iSupportInitializeTypeInfo = iSupportInitializeType.GetTypeInfo();
-                beginInitMethodInfo = iSupportInitializeTypeInfo.GetMethod("BeginInit");
-                endInitMethodInfo = iSupportInitializeTypeInfo.GetMethod("EndInit");
-                return;
-            }
-
-            beginInitMethodInfo = null;
-            endInitMethodInfo = null;
-        }
-        #endregion
-#endif
-
         // private fields
         private BsonClassMap _classMap;
-#if NETSTANDARD1_5
-        private readonly MethodInfo _beginInitMethodInfo;
-        private readonly MethodInfo _endInitMethodInfo;
-#endif
 
         // constructors
         /// <summary>
@@ -80,9 +53,6 @@ namespace MongoDB.Bson.Serialization
             }
 
             _classMap = classMap;
-#if NETSTANDARD1_5
-            CheckForISupportInitializeInterface(out _beginInitMethodInfo, out _endInitMethodInfo);
-#endif
         }
 
         // public properties
@@ -157,9 +127,8 @@ namespace MongoDB.Bson.Serialization
 
             Dictionary<string, object> values = null;
             var document = default(TClass);
-#if !NETSTANDARD1_5
+
             ISupportInitialize supportsInitialization = null;
-#endif
             if (_classMap.HasCreatorMaps)
             {
                 // for creator-based deserialization we first gather the values in a dictionary and then call a matching creator
@@ -170,19 +139,11 @@ namespace MongoDB.Bson.Serialization
                 // for mutable classes we deserialize the values directly into the result object
                 document = (TClass)_classMap.CreateInstance();
 
-#if !NETSTANDARD1_5
                 supportsInitialization = document as ISupportInitialize;
                 if (supportsInitialization != null)
                 {
                     supportsInitialization.BeginInit();
                 }
-#endif
-#if NETSTANDARD1_5
-                if (_beginInitMethodInfo != null)
-                {
-                    _beginInitMethodInfo.Invoke(document, new object[0]);
-                }
-#endif
             }
 
             var discriminatorConvention = _classMap.GetDiscriminatorConvention();
@@ -321,18 +282,10 @@ namespace MongoDB.Bson.Serialization
 
             if (document != null)
             {
-#if !NETSTANDARD1_5
                 if (supportsInitialization != null)
                 {
                     supportsInitialization.EndInit();
                 }
-#endif
-#if NETSTANDARD1_5
-                if (_endInitMethodInfo != null)
-                {
-                    _endInitMethodInfo.Invoke(document, new object[0]);
-                }
-#endif
                 return document;
             }
             else
@@ -473,13 +426,11 @@ namespace MongoDB.Bson.Serialization
             var creatorMap = ChooseBestCreator(values);
             var document = creatorMap.CreateInstance(values); // removes values consumed
 
-#if !NETSTANDARD1_5
             var supportsInitialization = document as ISupportInitialize;
             if (supportsInitialization != null)
             {
                 supportsInitialization.BeginInit();
             }
-#endif
             // process any left over values that weren't passed to the creator
             foreach (var keyValuePair in values)
             {
@@ -493,12 +444,10 @@ namespace MongoDB.Bson.Serialization
                 }
             }
 
-#if !NETSTANDARD1_5
             if (supportsInitialization != null)
             {
                 supportsInitialization.EndInit();
             }
-#endif
 
             return (TClass)document;
         }

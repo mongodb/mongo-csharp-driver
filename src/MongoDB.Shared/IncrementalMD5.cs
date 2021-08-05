@@ -22,11 +22,7 @@ namespace MongoDB.Shared
     {
         public static IncrementalMD5 Create()
         {
-#if NET452
-            return new IncrementalMD5Net45();
-#else
-            return new IncrementalMD5NetStandard();
-#endif
+            return new IncrementalMD5Imp();
         }
 
         public abstract void AppendData(byte[] data, int offset, int count);
@@ -34,51 +30,11 @@ namespace MongoDB.Shared
         public abstract byte[] GetHashAndReset();
     }
 
-#if NET452
-    // Required for .NET 4.5.2 only.
-    internal class IncrementalMD5Net45 : IncrementalMD5
-    {
-        private static readonly byte[] __emptyByteArray = new byte[0];
-
-        private MD5 _md5;
-
-        public override void AppendData(byte[] data, int offset, int count)
-        {
-            if (_md5 == null)
-            {
-                _md5 = MD5.Create();
-            }
-            _md5.TransformBlock(data, offset, count, null, 0);
-        }
-
-        public override void Dispose()
-        {
-            if (_md5 != null)
-            {
-                _md5.Dispose();
-            }
-        }
-
-        public override byte[] GetHashAndReset()
-        {
-            if (_md5 == null)
-            {
-                _md5 = MD5.Create();
-            }
-            _md5.TransformFinalBlock(__emptyByteArray, 0, 0);
-            var hash = _md5.Hash;
-            _md5.Dispose();
-            _md5 = null;
-            return hash;
-        }
-    }
-#else
-    // Works in .NET Standard 1.3 and higher.
-    internal class IncrementalMD5NetStandard : IncrementalMD5
+    internal class IncrementalMD5Imp : IncrementalMD5
     {
         private readonly IncrementalHash _incrementalHash;
 
-        public IncrementalMD5NetStandard()
+        public IncrementalMD5Imp()
         {
             _incrementalHash = IncrementalHash.CreateHash(HashAlgorithmName.MD5);
         }
@@ -98,5 +54,4 @@ namespace MongoDB.Shared
             return _incrementalHash.GetHashAndReset();
         }
     }
-#endif
 }

@@ -14,18 +14,14 @@
 */
 
 using System;
-#if !NETSTANDARD1_5
 using System.Runtime.Serialization;
-#endif
 
 namespace MongoDB.Driver
 {
     /// <summary>
     /// Represents a MongoDB client exception.
     /// </summary>
-#if !NETSTANDARD1_5
     [Serializable]
-#endif
     public class MongoClientException : MongoException
     {
         // constructors
@@ -48,7 +44,6 @@ namespace MongoDB.Driver
         {
         }
 
-#if !NETSTANDARD1_5
         /// <summary>
         /// Initializes a new instance of the <see cref="MongoClientException"/> class.
         /// </summary>
@@ -58,6 +53,5 @@ namespace MongoDB.Driver
             : base(info, context)
         {
         }
-#endif
     }
 }

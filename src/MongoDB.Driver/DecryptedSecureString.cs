@@ -55,11 +55,7 @@ namespace MongoDB.Driver
         {
             if (_chars == null)
             {
-#if NETSTANDARD1_5
-                _charsIntPtr = SecureStringMarshal.SecureStringToGlobalAllocUnicode(_secureString);
-#else
                 _charsIntPtr = Marshal.SecureStringToGlobalAllocUnicode(_secureString);
-#endif
                 _chars = new char[_secureString.Length];
                 _charsHandle = GCHandle.Alloc(_chars, GCHandleType.Pinned);
                 Marshal.Copy(_charsIntPtr, _chars, 0, _secureString.Length);

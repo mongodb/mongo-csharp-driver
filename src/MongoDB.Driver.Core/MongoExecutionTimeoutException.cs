@@ -14,9 +14,7 @@
 */
 
 using System;
-#if !NETSTANDARD1_5
 using System.Runtime.Serialization;
-#endif
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Connections;
 
@@ -25,9 +23,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a MongoDB execution timeout exception.
     /// </summary>
-#if !NETSTANDARD1_5
     [Serializable]
-#endif
     public class MongoExecutionTimeoutException : MongoServerException
     {
         private readonly BsonDocument _result;
@@ -79,7 +75,6 @@ namespace MongoDB.Driver
             AddErrorLabelsFromCommandResult(this, result);
         }
 
-#if !NETSTANDARD1_5
         /// <summary>
         /// Initializes a new instance of the <see cref="MongoExecutionTimeoutException"/> class.
         /// </summary>
@@ -90,7 +85,6 @@ namespace MongoDB.Driver
         {
             _result = (BsonDocument)info.GetValue("_result", typeof(BsonDocument));
         }
-#endif
 
         // properties
         /// <summary>
@@ -112,13 +106,11 @@ namespace MongoDB.Driver
         /// </value>
         public string CodeName => _result?.GetValue("codeName", null)?.AsString;
 
-#if !NETSTANDARD1_5
         /// <inheritdoc/>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
             info.AddValue("_result", _result);
         }
-#endif
     }
 }

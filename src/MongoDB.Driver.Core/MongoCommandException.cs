@@ -14,9 +14,7 @@
 */
 
 using System;
-#if !NETSTANDARD1_5
 using System.Runtime.Serialization;
-#endif
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Connections;
 
@@ -25,9 +23,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a MongoDB command exception.
     /// </summary>
-#if !NETSTANDARD1_5
     [Serializable]
-#endif
     public class MongoCommandException : MongoServerException
     {
         // fields
@@ -76,7 +72,6 @@ namespace MongoDB.Driver
             AddErrorLabelsFromCommandResult(this, result);
         }
 
-#if !NETSTANDARD1_5
         /// <summary>
         /// Initializes a new instance of the <see cref="MongoCommandException"/> class.
         /// </summary>
@@ -88,7 +83,6 @@ namespace MongoDB.Driver
             _command = (BsonDocument)info.GetValue("_command", typeof(BsonDocument));
             _result = (BsonDocument)info.GetValue("_result", typeof(BsonDocument));
         }
-#endif
 
         // properties
         /// <summary>
@@ -147,7 +141,6 @@ namespace MongoDB.Driver
         }
 
         // methods
-#if !NETSTANDARD1_5
         /// <inheritdoc/>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
@@ -155,6 +148,5 @@ namespace MongoDB.Driver
             info.AddValue("_command", _command);
             info.AddValue("_result", _result);
         }
-#endif
     }
 }

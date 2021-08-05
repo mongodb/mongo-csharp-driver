@@ -14,18 +14,14 @@
 */
 
 using System;
-#if !NETSTANDARD1_5
 using System.Runtime.Serialization;
-#endif
 
 namespace MongoDB.Bson
 {
     /// <summary>
     /// Represents a BSON exception.
     /// </summary>
-#if !NETSTANDARD1_5
     [Serializable]
-#endif
     public class BsonException : Exception
     {
         // constructors
@@ -66,7 +62,6 @@ namespace MongoDB.Bson
         {
         }
 
-#if !NETSTANDARD1_5
         /// <summary>
         /// Initializes a new instance of the BsonException class (this overload used by deserialization).
         /// </summary>
@@ -76,6 +71,5 @@ namespace MongoDB.Bson
             : base(info, context)
         {
         }
-#endif
     }
 }

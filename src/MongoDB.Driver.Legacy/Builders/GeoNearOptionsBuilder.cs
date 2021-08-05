@@ -71,9 +71,7 @@ namespace MongoDB.Driver.Builders
     /// <summary>
     /// A builder for the options of the GeoNear command.
     /// </summary>
-#if NET452
     [Serializable]
-#endif
     [Obsolete("Use GeoNearArgs instead.")]
     [BsonSerializer(typeof(GeoNearOptionsBuilder.Serializer))]
     public class GeoNearOptionsBuilder : BuilderBase, IMongoGeoNearOptions

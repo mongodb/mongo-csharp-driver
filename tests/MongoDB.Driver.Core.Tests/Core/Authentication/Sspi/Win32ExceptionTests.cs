@@ -13,19 +13,16 @@
 * limitations under the License.
 */
 
-#if !NETCOREAPP1_1
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using FluentAssertions;
 using MongoDB.Driver.Core.Authentication.Sspi;
 using Xunit;
-#endif
 
 namespace MongoDB.Driver.Core.Tests.Core.Authentication.Sspi
 {
     public class Win32ExceptionTests
     {
-#if !NETCOREAPP1_1
         [Fact]
         public void Serialization_should_work()
         {
@@ -42,6 +39,5 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Sspi
                 rehydrated.Message.Should().Be(subject.Message);
             }
         }
-#endif
     }
 }

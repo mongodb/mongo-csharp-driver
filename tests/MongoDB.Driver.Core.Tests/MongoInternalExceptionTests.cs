@@ -14,12 +14,8 @@
 */
 
 using System;
-#if !NETCOREAPP1_1
 using System.IO;
-#endif
-#if !NETCOREAPP1_1
 using System.Runtime.Serialization.Formatters.Binary;
-#endif
 using FluentAssertions;
 using Xunit;
 
@@ -48,7 +44,6 @@ namespace MongoDB.Driver
             subject.Message.Should().BeSameAs(_message);
         }
 
-#if !NETCOREAPP1_1
         [Fact]
         public void Serialization_should_work()
         {
@@ -65,6 +60,5 @@ namespace MongoDB.Driver
                 rehydrated.Message.Should().Be(subject.Message);
             }
         }
-#endif
     }
 }

@@ -62,7 +62,7 @@ namespace MongoDB.Driver.Core.Compression.Snappy
         // nested types
         private static class SnappyNativeMethodsAdapter
         {
-            private static bool __is64BitProcess = Is64BitProcess();
+            private static bool __is64BitProcess = Environment.Is64BitProcess;
 
             public static SnappyStatus snappy_compress(IntPtr input, int input_length, IntPtr output, ref int output_length)
             {
@@ -139,16 +139,6 @@ namespace MongoDB.Driver.Core.Compression.Snappy
                 {
                     return Snappy32NativeMethods.snappy_validate_compressed_buffer(input, (uint)input_length);
                 }
-            }
-
-            private static bool Is64BitProcess()
-            {
-#if NET452 || NETSTANDARD2_0
-                var is64Bit = Environment.Is64BitProcess;
-#else
-                var is64Bit = IntPtr.Size == 8;
-#endif
-                return is64Bit;
             }
         }
     }

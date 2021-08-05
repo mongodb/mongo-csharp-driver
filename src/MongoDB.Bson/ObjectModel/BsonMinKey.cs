@@ -20,9 +20,7 @@ namespace MongoDB.Bson
     /// <summary>
     /// Represents the BSON MinKey value.
     /// </summary>
-#if !NETSTANDARD1_5
     [Serializable]
-#endif
     public class BsonMinKey : BsonValue, IComparable<BsonMinKey>, IEquatable<BsonMinKey>
     {
         // private static fields

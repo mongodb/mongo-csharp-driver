@@ -48,7 +48,7 @@ namespace MongoDB.Driver.Core.Connections
         // methods
         public Stream CreateStream(EndPoint endPoint, CancellationToken cancellationToken)
         {
-#if NET452
+#if NET472
             var socket = CreateSocket(endPoint);
             Connect(socket, endPoint, cancellationToken);
             return CreateNetworkStream(socket);
@@ -80,7 +80,7 @@ namespace MongoDB.Driver.Core.Connections
 
         public async Task<Stream> CreateStreamAsync(EndPoint endPoint, CancellationToken cancellationToken)
         {
-#if NET452
+#if NET472
             var socket = CreateSocket(endPoint);
             await ConnectAsync(socket, endPoint, cancellationToken).ConfigureAwait(false);
             return CreateNetworkStream(socket);
@@ -179,7 +179,7 @@ namespace MongoDB.Driver.Core.Connections
                 try
                 {
                     var dnsEndPoint = endPoint as DnsEndPoint;
-#if !NET452
+#if !NET472
                     await socket.ConnectAsync(endPoint).ConfigureAwait(false);
 #else
                     if (dnsEndPoint != null)
@@ -306,11 +306,7 @@ namespace MongoDB.Driver.Core.Connections
                 preferred = _settings.AddressFamily;
             }
 
-#if NETSTANDARD1_5
-            var hostAddresses = Dns.GetHostAddressesAsync(dnsInitial.Host).GetAwaiter().GetResult();
-#else
             var hostAddresses = Dns.GetHostAddresses(dnsInitial.Host);
-#endif
             return hostAddresses
                 .Select(x => new IPEndPoint(x, dnsInitial.Port))
                 .OrderBy(x => x, new PreferredAddressFamilyComparer(preferred))

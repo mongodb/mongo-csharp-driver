@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-#if !NETCOREAPP1_1
 using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
@@ -158,4 +157,3 @@ namespace MongoDB.Bson.Tests.Serialization
         }
     }
 }
-#endif

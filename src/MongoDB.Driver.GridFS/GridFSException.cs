@@ -14,18 +14,14 @@
 */
 
 using System;
-#if !NETSTANDARD1_5
 using System.Runtime.Serialization;
-#endif
 
 namespace MongoDB.Driver.GridFS
 {
     /// <summary>
     /// Represents a GridFS exception.
     /// </summary>
-#if !NETSTANDARD1_5
     [Serializable]
-#endif
     public class GridFSException : MongoException
     {
         // constructors
@@ -48,7 +44,6 @@ namespace MongoDB.Driver.GridFS
         {
         }
 
-#if !NETSTANDARD1_5
         /// <summary>
         /// Initializes a new instance of the <see cref="GridFSException"/> class.
         /// </summary>
@@ -58,6 +53,5 @@ namespace MongoDB.Driver.GridFS
             : base(info, context)
         {
         }
-#endif
     }
 }

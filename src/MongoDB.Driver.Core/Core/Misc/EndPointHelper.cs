@@ -86,7 +86,6 @@ namespace MongoDB.Driver.Core.Misc
             }
         }
 
-#if !NETSTANDARD1_5
         /// <summary>
         /// Gets the object data required to serialize an end point.
         /// </summary>
@@ -119,7 +118,6 @@ namespace MongoDB.Driver.Core.Misc
 
             return null;
         }
-#endif
 
         /// <summary>
         /// Compares two sequences of end points.

@@ -22,9 +22,7 @@ namespace MongoDB.Bson
     /// Represents a BSON double value.
     /// </summary>
     /// <seealso cref="MongoDB.Bson.BsonValue" />
-#if !NETSTANDARD1_5
     [Serializable]
-#endif
     public class BsonDouble : BsonValue, IComparable<BsonDouble>, IEquatable<BsonDouble>
     {
         #region static

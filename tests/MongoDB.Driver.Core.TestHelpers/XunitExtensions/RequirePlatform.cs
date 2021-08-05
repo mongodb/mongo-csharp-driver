@@ -21,8 +21,7 @@ namespace MongoDB.Driver.TestHelpers
 {
     public enum SupportedTargetFramework
     {
-        Net452,
-        NetStandard15,
+        Net472,
         NetStandard20,
         NetStandard21
     }
@@ -57,11 +56,8 @@ namespace MongoDB.Driver.TestHelpers
 
         public static SupportedTargetFramework GetCurrentTargetFramework()
         {
-#if NET452
-            return SupportedTargetFramework.Net452;
-#endif
-#if NETSTANDARD1_5
-            return SupportedTargetFramework.NetStandard15;
+#if NET472
+            return SupportedTargetFramework.Net472;
 #endif
 #if NETSTANDARD2_0
             return SupportedTargetFramework.NetStandard20;

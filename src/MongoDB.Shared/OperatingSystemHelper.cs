@@ -31,7 +31,7 @@ namespace MongoDB.Shared
         {
             get
             {
-#if NET452
+#if NET472
                 return OperatingSystemPlatform.Windows;
 #else
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))

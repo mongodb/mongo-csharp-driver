@@ -15,18 +15,14 @@
 
 using System;
 using System.Collections.Generic;
-#if !NETCOREAPP1_1
 using System.IO;
-#endif
 using System.Net;
-#if NET452
+#if NET472
 using System.Runtime.Serialization.Formatters.Binary;
 #endif
 using FluentAssertions;
 using MongoDB.Bson;
-#if !NETCOREAPP1_1
 using MongoDB.Bson.TestHelpers.EqualityComparers;
-#endif
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Servers;
@@ -94,7 +90,7 @@ namespace MongoDB.Driver.Tests
             result.WriteError.Should().Be(writeErrors[0]);
         }
 
-#if NET452
+#if NET472
         [Fact]
         public void Serialization_should_work()
         {

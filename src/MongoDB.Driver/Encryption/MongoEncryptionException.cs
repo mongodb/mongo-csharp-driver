@@ -14,18 +14,14 @@
 */
 
 using System;
-#if !NETSTANDARD1_5
 using System.Runtime.Serialization;
-#endif
 
 namespace MongoDB.Driver.Encryption
 {
     /// <summary>
     /// Represents an encryption exception.
     /// </summary>
-#if !NETSTANDARD1_5
     [Serializable]
-#endif
     public class MongoEncryptionException : MongoClientException
     {
         /// <summary>
@@ -37,7 +33,6 @@ namespace MongoDB.Driver.Encryption
         {
         }
 
-#if !NETSTANDARD1_5
         /// <summary>
         /// Initializes a new instance of the <see cref="MongoEncryptionException"/> class (this overload used by deserialization).
         /// </summary>
@@ -47,6 +42,5 @@ namespace MongoDB.Driver.Encryption
             : base(info, context)
         {
         }
-#endif
     }
 }

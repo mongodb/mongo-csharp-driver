@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-#if NET452
+#if NET472
 using System;
 using System.Diagnostics;
 

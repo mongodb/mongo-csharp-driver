@@ -20,9 +20,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a MongoDB user.
     /// </summary>
-#if NET452
     [Serializable]
-#endif
     [Obsolete("Use the new user management commands instead.")]
     public class MongoUser : IEquatable<MongoUser>
     {

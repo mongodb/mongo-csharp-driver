@@ -13,18 +13,14 @@
 * limitations under the License.
 */
 
-#if !NETSTANDARD1_5
 using System;
-#endif
 
 namespace MongoDB.Bson
 {
     /// <summary>
     /// Represents the representation to use when converting a Guid to a BSON binary value.
     /// </summary>
-#if !NETSTANDARD1_5
     [Serializable]
-#endif
     public enum GuidRepresentation
     {
         /// <summary>

@@ -69,11 +69,7 @@ namespace MongoDB.Driver.Core.Authentication
             }
             else
             {
-#if NETSTANDARD1_5
-                var passwordIntPtr = SecureStringMarshal.SecureStringToGlobalAllocUnicode(password);
-#else
                 var passwordIntPtr = Marshal.SecureStringToGlobalAllocUnicode(password);
-#endif
                 try
                 {
                     var passwordChars = new char[password.Length];

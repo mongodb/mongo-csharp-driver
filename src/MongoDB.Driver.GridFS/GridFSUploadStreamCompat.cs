@@ -77,16 +77,6 @@ namespace MongoDB.Driver.GridFS
             return _wrappedStream.AbortAsync(cancellationToken);
         }
 
-#if NETSTANDARD1_5
-        /// <summary>
-        /// Closes the GridFS stream.
-        /// </summary>
-        public virtual void Close()
-        {
-            _wrappedStream.Close();
-        }
-#endif
-
         /// <summary>
         /// Closes the Stream and completes the upload operation.
         /// </summary>

@@ -88,8 +88,6 @@ namespace MongoDB.Driver.Encryption
         {
             try
             {
-                ThrowIfUnsupportedPlatform();
-
                 using (var context = _cryptClient.StartDecryptionContext(encryptedDocumentBytes))
                 {
                     return ProcessStates(context, databaseName: null, cancellationToken);
@@ -105,8 +103,6 @@ namespace MongoDB.Driver.Encryption
         {
             try
             {
-                ThrowIfUnsupportedPlatform();
-
                 using (var context = _cryptClient.StartDecryptionContext(encryptedDocumentBytes))
                 {
                     return await ProcessStatesAsync(context, databaseName: null, cancellationToken).ConfigureAwait(false);
@@ -122,8 +118,6 @@ namespace MongoDB.Driver.Encryption
         {
             try
             {
-                ThrowIfUnsupportedPlatform();
-
                 using (var context = _cryptClient.StartEncryptionContext(databaseName, unencryptedCommandBytes))
                 {
                     return ProcessStates(context, databaseName, cancellationToken);
@@ -139,8 +133,6 @@ namespace MongoDB.Driver.Encryption
         {
             try
             {
-                ThrowIfUnsupportedPlatform();
-
                 using (var context = _cryptClient.StartEncryptionContext(databaseName, unencryptedCommandBytes))
                 {
                     return await ProcessStatesAsync(context, databaseName, cancellationToken).ConfigureAwait(false);

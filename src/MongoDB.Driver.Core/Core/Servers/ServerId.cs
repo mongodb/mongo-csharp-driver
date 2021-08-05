@@ -14,13 +14,9 @@
 */
 
 using System;
-#if !NETSTANDARD1_5
 using System.Collections.Generic;
-#endif
 using System.Net;
-#if !NETSTANDARD1_5
 using System.Runtime.Serialization;
-#endif
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Shared;
@@ -30,12 +26,8 @@ namespace MongoDB.Driver.Core.Servers
     /// <summary>
     /// Represents a server identifier.
     /// </summary>
-#if !NETSTANDARD1_5
     [Serializable]
     public sealed class ServerId : IEquatable<ServerId>, ISerializable
-#else
-    public sealed class ServerId : IEquatable<ServerId>
-#endif
     {
         // fields
         private readonly ClusterId _clusterId;
@@ -58,7 +50,6 @@ namespace MongoDB.Driver.Core.Servers
                 .GetHashCode();
         }
 
-#if !NETSTANDARD1_5
         private ServerId(SerializationInfo info, StreamingContext context)
         {
             _clusterId = (ClusterId)info.GetValue("_clusterId", typeof(ClusterId));
@@ -68,7 +59,6 @@ namespace MongoDB.Driver.Core.Servers
                 .Hash(_endPoint)
                 .GetHashCode();
         }
-#endif
 
         // properties
         /// <summary>
@@ -125,12 +115,10 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         // explicit interface implementations
-#if !NETSTANDARD1_5
         void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("_clusterId", _clusterId);
             info.AddValue("_endPoint", EndPointHelper.GetObjectData(_endPoint));
         }
-#endif
     }
 }

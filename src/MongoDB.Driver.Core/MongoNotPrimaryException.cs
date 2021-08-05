@@ -13,10 +13,8 @@
 * limitations under the License.
 */
 
-#if !NETSTANDARD1_5
 using System;
 using System.Runtime.Serialization;
-#endif
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Connections;
 
@@ -25,9 +23,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a MongoDB not primary exception.
     /// </summary>
-#if !NETSTANDARD1_5
     [Serializable]
-#endif
     public class MongoNotPrimaryException : MongoCommandException
     {
         // constructors
@@ -42,7 +38,6 @@ namespace MongoDB.Driver
         {
         }
 
-#if !NETSTANDARD1_5
         /// <summary>
         /// Initializes a new instance of the <see cref="MongoNotPrimaryException"/> class.
         /// </summary>
@@ -52,6 +47,5 @@ namespace MongoDB.Driver
             : base(info, context)
         {
         }
-#endif
     }
 }
