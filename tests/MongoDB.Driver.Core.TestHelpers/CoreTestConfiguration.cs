@@ -107,9 +107,7 @@ namespace MongoDB.Driver
             }
         }
 
-#pragma warning disable CA1721 // Property names should not match get methods
         public static string StorageEngine => __storageEngine.Value;
-#pragma warning restore CA1721 // Property names should not match get methods
 
         public static TraceSource TraceSource
         {
@@ -200,7 +198,7 @@ namespace MongoDB.Driver
 
         public static ICluster CreateCluster(ClusterBuilder builder, bool allowDataBearingServers = false)
         {
-            string expectedServerKey = allowDataBearingServers ? "Databearing" : "Writable";
+            var expectedServerKey = allowDataBearingServers ? "Databearing" : "Writable";
 
             var hasExpectedServer = 0;
             var cluster = builder.BuildCluster();
@@ -222,9 +220,9 @@ namespace MongoDB.Driver
             }
             cluster.Initialize();
 
-            // wait until the cluster has connected to a writable server
-            SpinWait.SpinUntil(() => Interlocked.CompareExchange(ref hasExpectedServer, 0, 0) != 0, TimeSpan.FromSeconds(30));
-            if (Interlocked.CompareExchange(ref hasExpectedServer, 0, 0) == 0)
+            // wait until the cluster has connected to the expected server
+            var expecteServerFound = SpinWait.SpinUntil(() => Interlocked.CompareExchange(ref hasExpectedServer, 0, 0) != 0, TimeSpan.FromSeconds(30));
+            if (!expecteServerFound)
             {
                 var message = string.Format(
                     $"Test cluster has no {expectedServerKey.ToLower()} server. Client view of the cluster is {0}.",
@@ -355,80 +353,6 @@ namespace MongoDB.Driver
             }
         }
 
-        private static string GetStorageEngine()
-        {
-            string result;
-
-            var clusterType = __cluster.Value.Description.Type;
-            if (clusterType == ClusterType.Sharded || clusterType == ClusterType.LoadBalanced)
-            {
-                // mongos cannot provide this data directly, so we need connection to a particular mongos shard
-                var shards = FindShardsOnCLuster(__cluster.Value).FirstOrDefault();
-                if (shards != null)
-                {
-                    var fullHosts = shards["host"].AsString; // for example: "shard01/localhost:27018,localhost:27019,localhost:27020
-                    var hostsChars = fullHosts.SkipWhile(c => c != '/').Skip(1).Cast<char>().ToArray();
-                    var hosts = new string(hostsChars);
-                    var firstHost = hosts.Split(',')[0];
-                    using (var cluster = CreateCluster(
-                        configurator => configurator.ConfigureCluster(cs => cs.With(endPoints: new[] { EndPointHelper.Parse(firstHost) })),
-                        allowDataBearingServers: true))
-                    {
-                        result = GetStorageEngineForCluster(cluster);
-                    }
-                }
-                else
-                {
-                    if (Serverless)
-                    {
-                        result = null;
-                    }
-                    else
-                    {
-                        throw new InvalidOperationException("mongos has not been found.");
-                    }
-                }
-            }
-            else
-            {
-                result = GetStorageEngineForCluster(__cluster.Value);
-            }
-
-            return result ?? "mmapv1";
-
-            string GetStorageEngineForCluster(ICluster cluster)
-            {
-                var command = new BsonDocument("serverStatus", 1);
-                using (var session = StartSession(cluster))
-                using (var binding = CreateReadBinding(cluster, ReadPreference.PrimaryPreferred, session))
-                {
-                    var operation = new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, __messageEncoderSettings);
-
-                    var response = operation.Execute(binding, CancellationToken.None);
-                    if (response.TryGetValue("storageEngine", out var storageEngine) && storageEngine.AsBsonDocument.TryGetValue("name", out var name))
-                    {
-                        return name.AsString;
-                    }
-                    else
-                    {
-                        return null;
-                    }
-                }
-            }
-
-            IEnumerable<BsonDocument> FindShardsOnCLuster(ICluster cluster)
-            {
-                using (var session = StartSession(cluster))
-                using (var binding = CreateReadBinding(cluster, ReadPreference.PrimaryPreferred, session))
-                {
-                    var collectionNamespace = new CollectionNamespace("config", "shards"); // magic collection
-                    var operation = new FindOperation<BsonDocument>(collectionNamespace, BsonDocumentSerializer.Instance, __messageEncoderSettings);
-
-                    return operation.Execute(binding, CancellationToken.None).ToList();
-                }
-            }
-        }
-
         public static ICoreSessionHandle StartSession()
         {
             return StartSession(__cluster.Value);
@@ -445,47 +369,6 @@ namespace MongoDB.Driver
                 return NoCoreSession.NewHandle();
             }
         }
-
-        private static bool IsReplicaSet(string uri)
-        {
-            var clusterBuilder = new ClusterBuilder().ConfigureWithConnectionString(uri, __serverApi.Value);
-
-            using (var cluster = clusterBuilder.BuildCluster())
-            {
-                cluster.Initialize();
-
-                var serverSelector = new ReadPreferenceServerSelector(ReadPreference.PrimaryPreferred);
-                var server = cluster.SelectServer(serverSelector, CancellationToken.None);
-                return server.Description.Type.IsReplicaSetMember();
-            }
-        }
-
-        private static string TruncateCollectionNameIfTooLong(DatabaseNamespace databaseNamespace, string collectionName)
-        {
-            var fullNameLength = databaseNamespace.DatabaseName.Length + 1 + collectionName.Length;
-            if (fullNameLength <= 120)
-            {
-                return collectionName;
-            }
-            else
-            {
-                var maxCollectionNameLength = 120 - (databaseNamespace.DatabaseName.Length + 1);
-                return collectionName.Substring(0, maxCollectionNameLength - 1);
-            }
-        }
-
-        private static string TruncateDatabaseNameIfTooLong(string databaseName)
-        {
-            if (databaseName.Length < 64)
-            {
-                return databaseName;
-            }
-            else
-            {
-                return databaseName.Substring(0, 63);
-            }
-        }
-        #endregion
 
         // private methods
         private static bool AreSessionsSupported(ICluster cluster)
@@ -519,12 +402,7 @@ namespace MongoDB.Driver
 
         private static IReadWriteBindingHandle CreateReadWriteBinding(ICoreSessionHandle session)
         {
-            return CreateReadWriteBinding(__cluster.Value, session);
-        }
-
-        private static IReadWriteBindingHandle CreateReadWriteBinding(ICluster cluster, ICoreSessionHandle session)
-        {
-            var binding = new WritableServerBinding(cluster, session.Fork());
+            var binding = new WritableServerBinding(__cluster.Value, session.Fork());
             return new ReadWriteBindingHandle(binding);
         }
 
@@ -539,6 +417,92 @@ namespace MongoDB.Driver
             }
         }
 
+        private static string GetStorageEngine()
+        {
+            string result;
+
+            var clusterType = __cluster.Value.Description.Type;
+            if (clusterType == ClusterType.Sharded || clusterType == ClusterType.LoadBalanced)
+            {
+                // mongos cannot provide this data directly, so we need connection to a particular mongos shard
+                var shards = FindShardsOnCLuster(__cluster.Value).FirstOrDefault();
+                if (shards != null)
+                {
+                    var fullHosts = shards["host"].AsString; // for example: "shard01/localhost:27018,localhost:27019,localhost:27020
+                    var hostsChars = fullHosts.Skip(fullHosts.IndexOf('/') + 1).ToArray();
+                    var hosts = new string(hostsChars);
+                    var firstHost = hosts.Split(',')[0];
+                    using (var cluster = CreateCluster(
+                        configurator => configurator.ConfigureCluster(cs => cs.With(endPoints: new[] { EndPointHelper.Parse(firstHost) })),
+                        allowDataBearingServers: true))
+                    {
+                        result = GetStorageEngineForCluster(cluster);
+                    }
+                }
+                else
+                {
+                    if (Serverless)
+                    {
+                        result = "wiredTiger";
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException("mongos has not been found.");
+                    }
+                }
+            }
+            else
+            {
+                result = GetStorageEngineForCluster(__cluster.Value);
+            }
+
+            return result ?? "mmapv1";
+
+            string GetStorageEngineForCluster(ICluster cluster)
+            {
+                var command = new BsonDocument("serverStatus", 1);
+                using (var session = StartSession(cluster))
+                using (var binding = CreateReadBinding(cluster, ReadPreference.PrimaryPreferred, session))
+                {
+                    var operation = new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, __messageEncoderSettings);
+
+                    var response = operation.Execute(binding, CancellationToken.None);
+                    if (response.TryGetValue("storageEngine", out var storageEngine) && storageEngine.AsBsonDocument.TryGetValue("name", out var name))
+                    {
+                        return name.AsString;
+                    }
+
+                    return null;
+                }
+            }
+
+            IEnumerable<BsonDocument> FindShardsOnCLuster(ICluster cluster)
+            {
+                using (var session = StartSession(cluster))
+                using (var binding = CreateReadBinding(cluster, ReadPreference.PrimaryPreferred, session))
+                {
+                    var collectionNamespace = new CollectionNamespace("config", "shards"); // magic collection
+                    var operation = new FindOperation<BsonDocument>(collectionNamespace, BsonDocumentSerializer.Instance, __messageEncoderSettings);
+
+                    return operation.Execute(binding, CancellationToken.None).ToList();
+                }
+            }
+        }
+
+        private static bool IsReplicaSet(string uri)
+        {
+            var clusterBuilder = new ClusterBuilder().ConfigureWithConnectionString(uri, __serverApi.Value);
+
+            using (var cluster = clusterBuilder.BuildCluster())
+            {
+                cluster.Initialize();
+
+                var serverSelector = new ReadPreferenceServerSelector(ReadPreference.PrimaryPreferred);
+                var server = cluster.SelectServer(serverSelector, CancellationToken.None);
+                return server.Description.Type.IsReplicaSetMember();
+            }
+        }
+
         public static void TearDown()
         {
             if (__cluster.IsValueCreated)
@@ -549,5 +513,32 @@ namespace MongoDB.Driver
                 __cluster = new Lazy<ICluster>(CreateCluster, isThreadSafe: true);
             }
         }
+
+        private static string TruncateCollectionNameIfTooLong(DatabaseNamespace databaseNamespace, string collectionName)
+        {
+            var fullNameLength = databaseNamespace.DatabaseName.Length + 1 + collectionName.Length;
+            if (fullNameLength <= 120)
+            {
+                return collectionName;
+            }
+            else
+            {
+                var maxCollectionNameLength = 120 - (databaseNamespace.DatabaseName.Length + 1);
+                return collectionName.Substring(0, maxCollectionNameLength - 1);
+            }
+        }
+
+        private static string TruncateDatabaseNameIfTooLong(string databaseName)
+        {
+            if (databaseName.Length < 64)
+            {
+                return databaseName;
+            }
+            else
+            {
+                return databaseName.Substring(0, 63);
+            }
+        }
+        #endregion
     }
 }
