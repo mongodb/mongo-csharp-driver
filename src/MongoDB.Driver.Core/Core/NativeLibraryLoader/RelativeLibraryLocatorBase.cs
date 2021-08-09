@@ -26,40 +26,50 @@ namespace MongoDB.Driver.Core.NativeLibraryLoader
         public virtual bool IsX32ModeSupported => false;
 
         // public methods
+        public string GetBaseAssemblyDirectory()
+        {
+            var baseAssemblyPathUri = GetBaseAssemblyUri();
+            var uri = new Uri(baseAssemblyPathUri);
+            var absoluteAssemblyPath = Uri.UnescapeDataString(uri.AbsolutePath);
+            return Path.GetDirectoryName(absoluteAssemblyPath);
+        }
+
         public virtual string GetBaseAssemblyUri() => typeof(RelativeLibraryLocatorBase).GetTypeInfo().Assembly.CodeBase;
 
         public string GetLibraryAbsolutePath(OperatingSystemPlatform currentPlatform)
         {
-            var relativePath = GetLibraryRelativePath(currentPlatform);
-            return GetAbsolutePath(relativePath);
+            var relativePath = GetLibraryDirectoryRelativePath(currentPlatform);
+            var libraryName = GetLibraryName(currentPlatform);
+            return GetAbsolutePath(relativePath, libraryName);
         }
 
-        public virtual string GetLibraryBaseAssemblyPath()
+        public virtual string GetLibraryDirectoryRelativePath(OperatingSystemPlatform currentPlatform)
         {
-            var baseAssemblyPathUri = GetBaseAssemblyUri();
-            var uri = new Uri(baseAssemblyPathUri);
-            return Uri.UnescapeDataString(uri.AbsolutePath);
+            var rid = GetCurrentPlatformRuntimeIdentifier(currentPlatform);
+            return Path.Combine("runtimes", rid, "native");
         }
 
-        public virtual string GetLibraryBasePath()
-        {
-            var absoluteAssemblyPath = GetLibraryBaseAssemblyPath();
-            return Path.GetDirectoryName(absoluteAssemblyPath);
-        }
+        public abstract string GetLibraryName(OperatingSystemPlatform currentPlatform);
 
-        public abstract string GetLibraryRelativePath(OperatingSystemPlatform currentPlatform);
+        public virtual string GetCurrentPlatformRuntimeIdentifier(OperatingSystemPlatform currentPlatform)
+            => currentPlatform switch
+            {
+                OperatingSystemPlatform.Windows => "win",
+                OperatingSystemPlatform.Linux => "linux",
+                OperatingSystemPlatform.MacOS => "osx",
+                _ => $"The provided platform {currentPlatform} is not currently supported.",
+            };
 
         // private methods
-        private string GetAbsolutePath(string relativePath)
+        private string GetAbsolutePath(string relativeLibraryDirectoryPath, string libraryName)
         {
-            var libraryBasePath = GetLibraryBasePath();
-            var libraryName = Path.GetFileName(relativePath);
+            var libraryBasePath = GetBaseAssemblyDirectory();
 
             var absolutePathsToCheck = new[]
             {
                 Path.Combine(libraryBasePath, libraryName),  // look in the current assembly folder
-                Path.Combine(libraryBasePath, @"..\..\", relativePath),
-                Path.Combine(libraryBasePath, relativePath)
+                Path.Combine(libraryBasePath, "..", "..", relativeLibraryDirectoryPath, libraryName), // with step back on two folders
+                Path.Combine(libraryBasePath, relativeLibraryDirectoryPath, libraryName)
             };
 
             foreach (var absolutePath in absolutePathsToCheck)

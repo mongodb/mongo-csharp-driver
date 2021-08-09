@@ -20,6 +20,7 @@ using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Compression;
+using MongoDB.Driver.TestHelpers;
 using SharpCompress.IO;
 using Xunit;
 
@@ -28,12 +29,17 @@ namespace MongoDB.Driver.Core.Tests.Core.Compression
     public class CompressorsTests
     {
         private static string __testMessage = "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz";
-#if WINDOWS
-        [Theory]
+
+        [SkippableTheory]
         [InlineData(CompressorType.Snappy)]
         [InlineData(CompressorType.ZStandard)]
         public void Compressor_should_read_the_previously_written_message(CompressorType compressorType)
         {
+            RequirePlatform
+                .Check()
+                .SkipWhen(() => compressorType != CompressorType.ZStandard, SupportedOperatingSystem.MacOS)
+                .SkipWhen(() => compressorType != CompressorType.ZStandard, SupportedOperatingSystem.Linux); // snappy is not supported yet on non windows OSs
+
             var bytes = Encoding.ASCII.GetBytes(__testMessage);
             var compressor = GetCompressor(compressorType);
             Assert(
@@ -54,7 +60,6 @@ namespace MongoDB.Driver.Core.Tests.Core.Compression
                     result.Should().Be(__testMessage);
                 });
         }
-#endif
 
         [Fact]
         public void Zlib_should_generate_expected_compressed_bytes()

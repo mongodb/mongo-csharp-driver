@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Core.Tests.Core.NativeLibraryLoader
         {
             var subject = new TestRelativeLibraryLocator(mockedAssemblyUri: null);
 
-            var result = subject.GetLibraryBasePath();
+            var result = subject.GetBaseAssemblyDirectory();
 
             // Ideally the root folder for expectedResult should be mongo-csharp-driver,
             // but since it's not mocked logic it limits us where we can run our tests from. Avoid it by
@@ -53,7 +53,7 @@ namespace MongoDB.Driver.Core.Tests.Core.NativeLibraryLoader
             var testAssemblyCodeBaseUri = new Uri(assemblyCodeBase).ToString();
             var subject = new TestRelativeLibraryLocator(mockedAssemblyUri: testAssemblyCodeBaseUri);
 
-            var result = subject.GetLibraryBasePath();
+            var result = subject.GetBaseAssemblyDirectory();
 
             var expectedResult = Path.Combine(expectedRootTestFolder, GetCommonTestAssemblyFolderEnding());
             result.Should().EndWith(expectedResult);
@@ -99,7 +99,7 @@ namespace MongoDB.Driver.Core.Tests.Core.NativeLibraryLoader
             public override string GetBaseAssemblyUri() => _mockedAssemblyUri ?? base.GetBaseAssemblyUri();
 
             // not required for these tests yet
-            public override string GetLibraryRelativePath(OperatingSystemPlatform currentPlatform) => throw new NotImplementedException();
+            public override string GetLibraryName(OperatingSystemPlatform currentPlatform) => throw new NotImplementedException();
         }
     }
 }

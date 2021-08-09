@@ -54,11 +54,13 @@ namespace MongoDB.Driver.Core.NativeLibraryLoader
         // nested types
         private static class NativeMethods
         {
-            [DllImport("libdl", CharSet = CharSet.Unicode)]
+#pragma warning disable CA2101 // Specify marshaling for P/Invoke string arguments
+            [DllImport("libdl", CharSet = CharSet.Ansi)]
             public static extern IntPtr dlopen(string filename, int flags);
 
-            [DllImport("libdl", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+            [DllImport("libdl", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
             public static extern IntPtr dlsym(IntPtr handle, string symbol);
+#pragma warning restore CA2101 // Specify marshaling for P/Invoke string arguments
         }
     }
 }

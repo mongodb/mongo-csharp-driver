@@ -102,12 +102,12 @@ namespace MongoDB.Driver.Core.Compression.Snappy
         {
             public override bool IsX32ModeSupported => true;
 
-            public override string GetLibraryRelativePath(OperatingSystemPlatform currentPlatform)
+            public override string GetLibraryName(OperatingSystemPlatform currentPlatform)
             {
                 switch (currentPlatform)
                 {
                     case OperatingSystemPlatform.Windows:
-                        return @"runtimes\win\native\snappy64.dll";
+                        return "snappy64.dll";
                     case OperatingSystemPlatform.Linux: // TODO: add support for Linux and MacOS later
                     case OperatingSystemPlatform.MacOS:
                     default:
