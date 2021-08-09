@@ -9,7 +9,7 @@ using System.Text.RegularExpressions;
 using System.Linq;
 using Cake.Common.Tools.DotNetCore.DotNetCoreVerbosity;
 
-var defaultTarget = "Default";
+const string defaultTarget = "Default";
 var target = Argument("target", defaultTarget);
 var configuration = Argument("configuration", "Release");
 

@@ -259,16 +259,13 @@ functions:
         working_dir: "mongo-csharp-driver"
         script: |
           ${PREPARE_SHELL}
-          SSL=${SSL} \
-          OS=${OS} \ 
-            evergreen/add-certs-if-needed.sh
-          AUTH="${AUTH}" \
-          SSL="${SSL}" \
+          SSL=${SSL} OS=${OS} evergreen/add-certs-if-needed.sh
+          AUTH="${AUTH}" SSL="${SSL}" \
           FRAMEWORK=${FRAMEWORK} \
           OS=${OS} \
           SINGLE_MONGOS_LB_URI="${SINGLE_MONGOS_LB_URI}" \
           MULTI_MONGOS_LB_URI="${MULTI_MONGOS_LB_URI}" \
-            evergreen/run-load-balancer-tests.sh
+          evergreen/run-load-balancer-tests.sh
 
   stop-load-balancer:
     - command: shell.exec
