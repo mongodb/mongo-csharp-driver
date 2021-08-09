@@ -200,7 +200,7 @@ namespace MongoDB.Driver
         {
             var expectedServerKey = allowDataBearingServers ? "Databearing" : "Writable";
 
-            var hasExpectedServer = 0;
+            bool hasExpectedServer = false;
             var cluster = builder.BuildCluster();
             cluster.DescriptionChanged += (o, e) =>
             {
@@ -212,7 +212,7 @@ namespace MongoDB.Driver
                     __traceSource.TraceEvent(TraceEventType.Information, 0, $"CreateCluster: any{expectedServerKey}Server = {anyExpectedServer}.");
                     __traceSource.TraceEvent(TraceEventType.Information, 0, $"CreateCluster: new description: {e.NewClusterDescription.ToString()}.");
                 }
-                Interlocked.Exchange(ref hasExpectedServer, anyExpectedServer ? 1 : 0);
+                Volatile.Write(ref hasExpectedServer, anyExpectedServer);
             };
             if (__traceSource != null)
             {
@@ -221,7 +221,7 @@ namespace MongoDB.Driver
             cluster.Initialize();
 
             // wait until the cluster has connected to the expected server
-            var expecteServerFound = SpinWait.SpinUntil(() => Interlocked.CompareExchange(ref hasExpectedServer, 0, 0) != 0, TimeSpan.FromSeconds(30));
+            var expecteServerFound = SpinWait.SpinUntil(() => Volatile.Read(ref hasExpectedServer), TimeSpan.FromSeconds(30));
             if (!expecteServerFound)
             {
                 var message = string.Format(
@@ -428,10 +428,8 @@ namespace MongoDB.Driver
                 var shards = FindShardsOnCLuster(__cluster.Value).FirstOrDefault();
                 if (shards != null)
                 {
-                    var fullHosts = shards["host"].AsString; // for example: "shard01/localhost:27018,localhost:27019,localhost:27020
-                    var hostsChars = fullHosts.Skip(fullHosts.IndexOf('/') + 1).ToArray();
-                    var hosts = new string(hostsChars);
-                    var firstHost = hosts.Split(',')[0];
+                    var fullHosts = shards["host"].AsString; // for example: "shard01/localhost:27018,localhost:27019,localhost:27020"
+                    var firstHost = fullHosts.Substring(fullHosts.IndexOf('/') + 1).Split(',')[0];
                     using (var cluster = CreateCluster(
                         configurator => configurator.ConfigureCluster(cs => cs.With(endPoints: new[] { EndPointHelper.Parse(firstHost) })),
                         allowDataBearingServers: true))
