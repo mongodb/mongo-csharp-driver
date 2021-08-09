@@ -2,26 +2,43 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
     <PropertyGroup>
-      <CompressionRuntimesPath>runtimes/win/native</CompressionRuntimesPath>
+      <CompressionWinRuntimesPath>runtimes/win/native</CompressionWinRuntimesPath>
+      <CompressionLinuxRuntimesPath>runtimes/linux/native</CompressionLinuxRuntimesPath>
+      <CompressionOsxRuntimesPath>runtimes/osx/native</CompressionOsxRuntimesPath>
     </PropertyGroup>
 
     <!--snappy-->
-    <ItemGroup Condition="$([MSBuild]::IsOsPlatform('Windows'))">
-        <Content Include="$(MSBuildThisFileDirectory)../$(CompressionRuntimesPath)/snappy32.dll">
+    <ItemGroup>
+        <Content Include="$(MSBuildThisFileDirectory)../$(CompressionWinRuntimesPath)/snappy32.dll">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <Link>snappy32.dll</Link>
         </Content>
-        <Content Include="$(MSBuildThisFileDirectory)../$(CompressionRuntimesPath)/snappy64.dll">
+        <Content Include="$(MSBuildThisFileDirectory)../$(CompressionWinRuntimesPath)/snappy64.dll">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <Link>snappy64.dll</Link>
         </Content>
     </ItemGroup>
 
     <!--zstd-->
-    <ItemGroup Condition="$([MSBuild]::IsOsPlatform('Windows'))">
-        <Content Include="$(MSBuildThisFileDirectory)../$(CompressionRuntimesPath)/libzstd.dll">
+    <!--win -->
+    <ItemGroup>
+        <Content Include="$(MSBuildThisFileDirectory)../$(CompressionWinRuntimesPath)/libzstd.dll">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <Link>libzstd.dll</Link>
+            <Link>%(FileName)%(Extension)</Link>
         </Content>
+    </ItemGroup>
+    <!--linux-->
+    <ItemGroup>
+      <Content Include="$(MSBuildThisFileDirectory)../$(CompressionLinuxRuntimesPath)/libzstd.so">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>%(FileName)%(Extension)</Link>
+      </Content>
+    </ItemGroup>
+    <!--macos-->
+    <ItemGroup>
+      <Content Include="$(MSBuildThisFileDirectory)../$(CompressionOsxRuntimesPath)/libzstd.dylib">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>%(FileName)%(Extension)</Link>
+      </Content>
     </ItemGroup>
 </Project>

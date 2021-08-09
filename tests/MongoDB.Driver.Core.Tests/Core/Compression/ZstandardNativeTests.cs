@@ -28,7 +28,6 @@ namespace MongoDB.Driver.Core.Tests.Core.Compression
 {
     public class ZstandardNativeTests
     {
-#if WINDOWS
         #region static
         // private constants
         private const string __testMessagePortion = @"Two households, both alike in dignity,
@@ -169,6 +168,5 @@ namespace MongoDB.Driver.Core.Tests.Core.Compression
                 return outputStream.ToArray();
             }
         }
-#endif
     }
 }

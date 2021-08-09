@@ -4,7 +4,6 @@
     <IsOSX Condition="$([MSBuild]::IsOSPlatform('OSX'))">true</IsOSX>
     <IsLinux Condition="$([MSBuild]::IsOSPlatform('Linux'))">true</IsLinux>
   </PropertyGroup>
-
   <PropertyGroup>
     <TargetFrameworks>netstandard1.5;netstandard2.0;netstandard2.1;net452</TargetFrameworks>
     <TargetFrameworks Condition="'$(IsWindows)'!='true'">netstandard1.5;netstandard2.0;netstandard2.1</TargetFrameworks>
@@ -58,7 +57,9 @@
 
   <!--Compression-->
   <PropertyGroup>
-    <CompressionRuntimesPath>runtimes/win/native</CompressionRuntimesPath>
+    <CompressionWinRuntimesPath>runtimes/win/native</CompressionWinRuntimesPath>
+    <CompressionLinuxRuntimesPath>runtimes/linux/native</CompressionLinuxRuntimesPath>
+    <CompressionOsxRuntimesPath>runtimes/osx/native</CompressionOsxRuntimesPath>
   </PropertyGroup>
 
   <!--Snappy-->
@@ -71,18 +72,18 @@
     <SnappyBinaries>Core/Compression/Snappy/lib/win</SnappyBinaries>
   </PropertyGroup>
 
-  <ItemGroup Condition=" '$(IsWindows)' == true ">
+  <ItemGroup>
     <Content Include="$(SnappyBinaries)/snappy32.dll">
       <Pack>true</Pack>
-      <PackagePath>$(CompressionRuntimesPath)</PackagePath>
+      <PackagePath>$(CompressionWinRuntimesPath)</PackagePath>
     </Content>
     <Content Include="$(SnappyBinaries)/snappy64.dll">
       <Pack>true</Pack>
-      <PackagePath>$(CompressionRuntimesPath)</PackagePath>
+      <PackagePath>$(CompressionWinRuntimesPath)</PackagePath>
     </Content>
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(IsWindows)' == true ">
+  <ItemGroup>
     <Content Include="$(SnappyBinaries)/snappy32.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Link>snappy32.dll</Link>
@@ -94,29 +95,70 @@
   </ItemGroup>
 
   <!--Zstd-->
-  <ItemGroup>
-    <None Remove="libzstd.dll" />
-  </ItemGroup>
-
   <PropertyGroup>
-    <ZstdBinaries>Core/Compression/Zstandard/lib/win</ZstdBinaries>
+    <ZstdWinBinaries>Core/Compression/Zstandard/lib/win</ZstdWinBinaries>
+    <ZstdLinuxBinaries>Core/Compression/Zstandard/lib/linux</ZstdLinuxBinaries>
+    <ZstdOsxBinaries>Core/Compression/Zstandard/lib/osx</ZstdOsxBinaries>
   </PropertyGroup>
 
-  <ItemGroup Condition=" '$(IsWindows)' == true ">
-    <Content Include="$(ZstdBinaries)/libzstd.dll">
+  <!--win-->
+  <ItemGroup>
+    <Content Include="$(ZstdWinBinaries)/libzstd.dll">
       <Pack>true</Pack>
-      <PackagePath>$(CompressionRuntimesPath)</PackagePath>
+      <!--Responsible for 'runtimes\win\native\libzstd.dll' in package.nupkg-->
+      <PackagePath>$(CompressionWinRuntimesPath)</PackagePath>
     </Content>
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(IsWindows)' == true ">
-    <Content Include="$(ZstdBinaries)/libzstd.dll">
+  <ItemGroup>
+    <Content Include="$(ZstdWinBinaries)/libzstd.dll">
+      <!--Used to allow working with native libraries in our test projects-->
+      <!--Responsible for 'context and contentFiles' folders in package.nupkg-->
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Link>libzstd.dll</Link>
     </Content>
   </ItemGroup>
 
+  <!--linux-->
   <ItemGroup>
+    <Content Include="$(ZstdLinuxBinaries)/libzstd.so">
+      <Pack>true</Pack>
+      <!--Responsible for 'runtimes\linux\native\libzstd.so' in package.nupkg-->
+      <PackagePath>$(CompressionLinuxRuntimesPath)</PackagePath>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="$(ZstdLinuxBinaries)/libzstd.so">
+      <!--Used to allow working with native libraries in our test projects-->
+      <!--Responsible for 'context and contentFiles' folders in package.nupkg-->
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>libzstd.so</Link>
+    </Content>
+  </ItemGroup>
+
+  <!--osx-->
+  <ItemGroup>
+    <Content Include="$(ZstdOsxBinaries)/libzstd.dylib">
+      <Pack>true</Pack>
+      <!-- Responsible for 'runtimes\osx\native\libzstd.so' in package.nupkg-->
+      <PackagePath>$(CompressionOsxRuntimesPath)</PackagePath>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="$(ZstdOsxBinaries)/libzstd.dylib">
+      <!--Used to allow working with native libraries in our test projects-->
+      <!--Responsible for 'context and contentFiles' folders in package.nupkg-->
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>libzstd.dylib</Link>
+    </Content>
+  </ItemGroup>
+
+  <!--targets-->
+  <ItemGroup>
+    <!--Used for non-sdk projects-->
+    <!--Responsible for build/MongoDB.Driver.Core.targets-->
     <Content Include="MongoDB.Driver.Core.targets">
       <Pack>true</Pack>
       <PackagePath>build</PackagePath>

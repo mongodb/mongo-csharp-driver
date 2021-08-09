@@ -1438,6 +1438,24 @@ buildvariants:
      - name: test-netstandard20
      - name: test-netstandard21
 
+- matrix_name: "tests-zstandard-compression-linux"
+  matrix_spec: { compressor : "zstandard", auth: "noauth", ssl: "nossl", version: ["3.6", "4.0", "4.2", "4.4", "5.0", "latest"], topology: "standalone", os: "ubuntu-1804" }
+  display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
+  tags: ["tests-variant"]
+  tasks:
+     - name: test-netstandard15
+     - name: test-netstandard20
+     - name: test-netstandard21
+
+- matrix_name: "tests-zstandard-compression-macOS"
+  matrix_spec: { compressor : "zstandard", auth: "noauth", ssl: "nossl", version: ["3.6", "4.0", "4.2", "4.4", "5.0", "latest"], topology: "standalone", os: "macos-1014" }
+  display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
+  tags: ["tests-variant"]
+  tasks:
+     - name: test-netstandard15
+     - name: test-netstandard20
+     - name: test-netstandard21
+
   # ubuntu 18 does not support SSL until 4.0
 - matrix_name: "secure-tests-linux"
   matrix_spec: { version: ["4.0", "4.2", "4.4", "5.0", "latest"], topology: "*", auth: "auth", ssl: "ssl", os: "ubuntu-1804" }
