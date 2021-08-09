@@ -622,17 +622,19 @@ functions:
       params:
         file: serverless-expansion.yml
 
-  delete-serverless-instance:
+  delete-serverless-instance-if-configured:
     - command: shell.exec
       params:
         script: |
-          ${PREPARE_SHELL}
-          set +o xtrace # Disable tracing
-          SERVERLESS_DRIVERS_GROUP=${SERVERLESS_DRIVERS_GROUP} \
-          SERVERLESS_API_PUBLIC_KEY=${SERVERLESS_API_PUBLIC_KEY} \
-          SERVERLESS_API_PRIVATE_KEY=${SERVERLESS_API_PRIVATE_KEY} \
-          SERVERLESS_INSTANCE_NAME=${SERVERLESS_INSTANCE_NAME} \
-            bash ${DRIVERS_TOOLS}/.evergreen/serverless/delete-instance.sh
+          if [ "" != "${SERVERLESS}" ]; then
+            ${PREPARE_SHELL}
+            set +o xtrace # Disable tracing
+            SERVERLESS_DRIVERS_GROUP=${SERVERLESS_DRIVERS_GROUP} \
+            SERVERLESS_API_PUBLIC_KEY=${SERVERLESS_API_PUBLIC_KEY} \
+            SERVERLESS_API_PRIVATE_KEY=${SERVERLESS_API_PRIVATE_KEY} \
+            SERVERLESS_INSTANCE_NAME=${SERVERLESS_INSTANCE_NAME} \
+              bash ${DRIVERS_TOOLS}/.evergreen/serverless/delete-instance.sh
+          fi
 
   publish-snapshot:
     - command: shell.exec
@@ -710,7 +712,7 @@ pre:
 post:
   # Removed, causing timeouts
   # - func: upload-working-dir
-  - func: delete-serverless-instance
+  - func: delete-serverless-instance-if-configured
   - func: upload-mo-artifacts
   - func: upload-test-results
   - func: cleanup
@@ -762,27 +764,27 @@ tasks:
         - func: bootstrap-mongo-orchestration
         - func: run-load-balancer
         - func: run-load-balancer-tests
-        - func: stop-load-balancer
           vars:
             FRAMEWORK: netstandard15
+        - func: stop-load-balancer
 
     - name: test-load-balancer-netstandard20
       commands:
         - func: bootstrap-mongo-orchestration
         - func: run-load-balancer
         - func: run-load-balancer-tests
-        - func: stop-load-balancer
           vars:
             FRAMEWORK: netstandard20
+        - func: stop-load-balancer
         
     - name: test-load-balancer-netstandard21
       commands:
         - func: bootstrap-mongo-orchestration
         - func: run-load-balancer
         - func: run-load-balancer-tests
-        - func: stop-load-balancer
           vars:
             FRAMEWORK: netstandard21
+        - func: stop-load-balancer
 
     - name: atlas-connectivity-tests
       commands:

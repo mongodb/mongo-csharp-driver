@@ -9,7 +9,8 @@ using System.Text.RegularExpressions;
 using System.Linq;
 using Cake.Common.Tools.DotNetCore.DotNetCoreVerbosity;
 
-var target = Argument("target", "Default");
+const string defaultTarget = "Default";
+var target = Argument("target", defaultTarget);
 var configuration = Argument("configuration", "Release");
 
 var gitVersion = GitVersion();
@@ -167,7 +168,7 @@ Task("Test")
             case "testnetstandard15": settings.Framework = "netcoreapp1.1"; break;
             case "testnetstandard20": settings.Framework = "netcoreapp2.1"; break;
             case "testnetstandard21": settings.Framework = "netcoreapp3.0"; break;
-            default: throw new ArgumentException($"Unexpected target: \"{target}\".");
+            default: ThrowIfNotDefaultTarget(target); break;
         }
         DotNetCoreTest(
             testProject.FullPath,
@@ -335,7 +336,7 @@ Task("TestGssapi")
             case "testgssapinetstandard15": settings.Framework = "netcoreapp1.1"; break;
             case "testgssapinetstandard20": settings.Framework = "netcoreapp2.1"; break;
             case "testgssapinetstandard21": settings.Framework = "netcoreapp3.0"; break;
-            default: throw new ArgumentException($"Unexpected target: \"{target}\".");
+            default: ThrowIfNotDefaultTarget(target); break;
         }
         DotNetCoreTest(
             testProject.FullPath,
@@ -368,7 +369,7 @@ Task("TestServerless")
                 case "testserverlessnetstandard15": settings.Framework = "netcoreapp1.1"; break;
                 case "testserverlessnetstandard20": settings.Framework = "netcoreapp2.1"; break;
                 case "testserverlessnetstandard21": settings.Framework = "netcoreapp3.0"; break;
-                default: throw new ArgumentException($"Unexpected target: \"{target}\".");
+                default: ThrowIfNotDefaultTarget(target); break;
             }
             DotNetCoreTest(
                 testProject.FullPath,
@@ -562,3 +563,11 @@ Task("DumpGitVersion")
     });
 
 RunTarget(target);
+
+void ThrowIfNotDefaultTarget(string @value)
+{
+    if (@value != defaultTarget)
+    {
+       throw new ArgumentException($"Unexpected target: \"{target}\".");
+    }
+}
