@@ -126,7 +126,7 @@ namespace MongoDB.Driver.Core.Configuration
             _allOptions = new NameValueCollection(StringComparer.OrdinalIgnoreCase);
             _unknownOptions = new NameValueCollection(StringComparer.OrdinalIgnoreCase);
             _authMechanismProperties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-            _compressorsOptions = new CompressorsOptions();
+            _compressorsOptions = new CompressorsOptions(_unknownOptions);
             _dnsResolver = Ensure.IsNotNull(dnsResolver, nameof(dnsResolver));
             Parse();
 
@@ -946,7 +946,7 @@ namespace MongoDB.Driver.Core.Configuration
                     _authSource = value;
                     break;
                 case "compressors":
-                    _compressorsOptions.SaveCompressors(value.Split(','));
+                    _compressorsOptions.SaveCompressors(name, value.Split(','));
                     break;
                 case "connect":
                     _connect = ParseClusterConnectionMode(name, value);
@@ -1401,11 +1401,13 @@ namespace MongoDB.Driver.Core.Configuration
             private readonly List<CompressorConfiguration> _compressors;
             private readonly Dictionary<CompressorType, Dictionary<string, object>> _compressorsOptions;
             private bool _hasBeenBuilt;
+            private readonly NameValueCollection _unknownOptions;
 
-            public CompressorsOptions()
+            public CompressorsOptions(NameValueCollection unknownOptions)
             {
                 _compressorsOptions = new Dictionary<CompressorType, Dictionary<string, object>>();
                 _compressors = new List<CompressorConfiguration>();
+                _unknownOptions = unknownOptions;
             }
 
             public IReadOnlyList<CompressorConfiguration> Compressors
@@ -1428,13 +1430,15 @@ namespace MongoDB.Driver.Core.Configuration
                 properties.Add(option, value);
             }
 
-            public void SaveCompressors(string[] compressorNames)
+            public void SaveCompressors(string name, string[] compressorNames)
             {
                 foreach (var compressor in compressorNames)
                 {
                     // NOTE: the 'noop' is also expected by the server
                     if (!CompressorTypeMapper.TryFromServerName(compressor, out CompressorType compressorType) || !CompressorSource.IsCompressorSupported(compressorType))
                     {
+                        _unknownOptions.Add(name, compressor);
+
                         // Keys that aren't supported by a driver MUST be ignored.
                         continue;
                     }

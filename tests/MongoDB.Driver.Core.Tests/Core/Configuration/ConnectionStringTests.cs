@@ -15,12 +15,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Compression;
@@ -152,6 +154,22 @@ namespace MongoDB.Driver.Core.Configuration
 
             result.IsResolved.Should().BeTrue();
             result.ToString().Should().Be(expectedResult);
+        }
+
+        [Fact]
+        public void ServerConfiguration_should_have_only_expected_arguments()
+        {
+            Assert(CoreTestConfiguration.ConnectionString);
+            Assert(CoreTestConfiguration.ConnectionStringWithMultipleShardRouters);
+
+            void Assert(ConnectionString connectionString)
+            {
+                var nameValueCollection = connectionString._unknownOptions();
+                var collection = from key in nameValueCollection.Cast<string>()
+                                 from value in nameValueCollection.GetValues(key)
+                                 select $"{key}:{value}";
+                collection.Should().BeEmpty();
+            }
         }
 
         [Theory]
@@ -1235,5 +1253,10 @@ namespace MongoDB.Driver.Core.Configuration
 
             resolved.Should().BeSameAs(subject);
         }
+    }
+
+    public static class ConnectionStringReflector
+    {
+        public static NameValueCollection _unknownOptions(this ConnectionString connectionString) => (NameValueCollection)Reflector.GetFieldValue(connectionString, nameof(_unknownOptions));
     }
 }
