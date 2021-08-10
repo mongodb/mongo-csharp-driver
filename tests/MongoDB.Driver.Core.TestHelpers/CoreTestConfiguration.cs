@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
@@ -47,6 +48,7 @@ namespace MongoDB.Driver
         private static MessageEncoderSettings __messageEncoderSettings = new MessageEncoderSettings();
         private static Lazy<ServerApi> __serverApi = new Lazy<ServerApi>(GetServerApi, isThreadSafe: true);
         private static Lazy<bool> __serverless = new Lazy<bool>(GetServerless, isThreadSafe: true);
+        private static Lazy<string> __storageEngine = new Lazy<string>(GetStorageEngine, isThreadSafe: true);
         private static TraceSource __traceSource;
 
         // static properties
@@ -104,6 +106,8 @@ namespace MongoDB.Driver
                 return version;
             }
         }
+
+        public static string StorageEngine => __storageEngine.Value;
 
         public static TraceSource TraceSource
         {
@@ -184,29 +188,31 @@ namespace MongoDB.Driver
             return CreateCluster(b => b);
         }
 
-        public static ICluster CreateCluster(Func<ClusterBuilder, ClusterBuilder> postConfigurator)
+        public static ICluster CreateCluster(Func<ClusterBuilder, ClusterBuilder> postConfigurator, bool allowDataBearingServers = false)
         {
             var builder = new ClusterBuilder();
             builder = ConfigureCluster(builder);
             builder = postConfigurator(builder);
-            return CreateCluster(builder);
+            return CreateCluster(builder, allowDataBearingServers);
         }
 
-        public static ICluster CreateCluster(ClusterBuilder builder)
+        public static ICluster CreateCluster(ClusterBuilder builder, bool allowDataBearingServers = false)
         {
-            var hasWritableServer = 0;
+            var expectedServerKey = allowDataBearingServers ? "Databearing" : "Writable";
+
+            bool hasExpectedServer = false;
             var cluster = builder.BuildCluster();
             cluster.DescriptionChanged += (o, e) =>
             {
-                var anyWritableServer = e.NewClusterDescription.Servers.Any(
-                    description => description.Type.IsWritable());
+                var anyExpectedServer = e.NewClusterDescription.Servers.Any(
+                    description => allowDataBearingServers ? description.IsDataBearing : description.Type.IsWritable());
                 if (__traceSource != null)
                 {
                     __traceSource.TraceEvent(TraceEventType.Information, 0, $"CreateCluster: DescriptionChanged event handler called.");
-                    __traceSource.TraceEvent(TraceEventType.Information, 0, $"CreateCluster: anyWritableServer = {anyWritableServer}.");
+                    __traceSource.TraceEvent(TraceEventType.Information, 0, $"CreateCluster: any{expectedServerKey}Server = {anyExpectedServer}.");
                     __traceSource.TraceEvent(TraceEventType.Information, 0, $"CreateCluster: new description: {e.NewClusterDescription.ToString()}.");
                 }
-                Interlocked.Exchange(ref hasWritableServer, anyWritableServer ? 1 : 0);
+                Volatile.Write(ref hasExpectedServer, anyExpectedServer);
             };
             if (__traceSource != null)
             {
@@ -214,19 +220,18 @@ namespace MongoDB.Driver
             }
             cluster.Initialize();
 
-            // wait until the cluster has connected to a writable server
-            SpinWait.SpinUntil(() => Interlocked.CompareExchange(ref hasWritableServer, 0, 0) != 0, TimeSpan.FromSeconds(30));
-            if (Interlocked.CompareExchange(ref hasWritableServer, 0, 0) == 0)
+            // wait until the cluster has connected to the expected server
+            if (!SpinWait.SpinUntil(() => Volatile.Read(ref hasExpectedServer), TimeSpan.FromSeconds(30)))
             {
                 var message = string.Format(
-                    "Test cluster has no writable server. Client view of the cluster is {0}.",
+                    $"Test cluster has no {expectedServerKey.ToLower()} server. Client view of the cluster is {0}.",
                     cluster.Description.ToString());
                 throw new Exception(message);
             }
 
             if (__traceSource != null)
             {
-                __traceSource.TraceEvent(TraceEventType.Information, 0, "CreateCluster: writable server found.");
+                __traceSource.TraceEvent(TraceEventType.Information, 0, $"CreateCluster: {expectedServerKey.ToLower()} server found.");
             }
 
             return cluster;
@@ -347,26 +352,6 @@ namespace MongoDB.Driver
             }
         }
 
-        public static string GetStorageEngine()
-        {
-            using (var session = StartSession())
-            using (var binding = CreateReadWriteBinding(session))
-            {
-                var command = new BsonDocument("serverStatus", 1);
-                var operation = new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, __messageEncoderSettings);
-                var response = operation.Execute(binding, CancellationToken.None);
-                BsonValue storageEngine;
-                if (response.TryGetValue("storageEngine", out storageEngine) && storageEngine.AsBsonDocument.Contains("name"))
-                {
-                    return storageEngine["name"].AsString;
-                }
-                else
-                {
-                    return "mmapv1";
-                }
-            }
-        }
-
         public static ICoreSessionHandle StartSession()
         {
             return StartSession(__cluster.Value);
@@ -384,6 +369,123 @@ namespace MongoDB.Driver
             }
         }
 
+        // private methods
+        private static bool AreSessionsSupported(ICluster cluster)
+        {
+            SpinWait.SpinUntil(() => cluster.Description.Servers.Any(s => s.State == ServerState.Connected), TimeSpan.FromSeconds(30));
+            return AreSessionsSupported(cluster.Description);
+        }
+
+        private static bool AreSessionsSupported(ClusterDescription clusterDescription)
+        {
+            return
+                clusterDescription.Servers.Any(s => s.State == ServerState.Connected) &&
+                (clusterDescription.LogicalSessionTimeout.HasValue || clusterDescription.Type == ClusterType.LoadBalanced);
+        }
+
+        private static IReadBindingHandle CreateReadBinding(ICoreSessionHandle session)
+        {
+            return CreateReadBinding(ReadPreference.Primary, session);
+        }
+
+        private static IReadBindingHandle CreateReadBinding(ReadPreference readPreference, ICoreSessionHandle session)
+        {
+            return CreateReadBinding(__cluster.Value, readPreference, session);
+        }
+
+        private static IReadBindingHandle CreateReadBinding(ICluster cluster, ReadPreference readPreference, ICoreSessionHandle session)
+        {
+            var binding = new ReadPreferenceBinding(cluster, readPreference, session.Fork());
+            return new ReadBindingHandle(binding);
+        }
+
+        private static IReadWriteBindingHandle CreateReadWriteBinding(ICoreSessionHandle session)
+        {
+            var binding = new WritableServerBinding(__cluster.Value, session.Fork());
+            return new ReadWriteBindingHandle(binding);
+        }
+
+        private static void DropDatabase()
+        {
+            var operation = new DropDatabaseOperation(__databaseNamespace.Value, __messageEncoderSettings);
+
+            using (var session = StartSession())
+            using (var binding = CreateReadWriteBinding(session))
+            {
+                operation.Execute(binding, CancellationToken.None);
+            }
+        }
+
+        private static string GetStorageEngine()
+        {
+            string result;
+
+            var clusterType = __cluster.Value.Description.Type;
+            if (clusterType == ClusterType.Sharded || clusterType == ClusterType.LoadBalanced)
+            {
+                // mongos cannot provide this data directly, so we need connection to a particular mongos shard
+                var shards = FindShardsOnCLuster(__cluster.Value).FirstOrDefault();
+                if (shards != null)
+                {
+                    var fullHosts = shards["host"].AsString; // for example: "shard01/localhost:27018,localhost:27019,localhost:27020"
+                    var firstHost = fullHosts.Substring(fullHosts.IndexOf('/') + 1).Split(',')[0];
+                    using (var cluster = CreateCluster(
+                        configurator => configurator.ConfigureCluster(cs => cs.With(endPoints: new[] { EndPointHelper.Parse(firstHost) })),
+                        allowDataBearingServers: true))
+                    {
+                        result = GetStorageEngineForCluster(cluster);
+                    }
+                }
+                else
+                {
+                    if (Serverless)
+                    {
+                        result = "wiredTiger";
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException("mongos has not been found.");
+                    }
+                }
+            }
+            else
+            {
+                result = GetStorageEngineForCluster(__cluster.Value);
+            }
+
+            return result ?? "mmapv1";
+
+            string GetStorageEngineForCluster(ICluster cluster)
+            {
+                var command = new BsonDocument("serverStatus", 1);
+                using (var session = StartSession(cluster))
+                using (var binding = CreateReadBinding(cluster, ReadPreference.PrimaryPreferred, session))
+                {
+                    var operation = new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, __messageEncoderSettings);
+
+                    var response = operation.Execute(binding, CancellationToken.None);
+                    if (response.TryGetValue("storageEngine", out var storageEngine) && storageEngine.AsBsonDocument.TryGetValue("name", out var name))
+                    {
+                        return name.AsString;
+                    }
+
+                    return null;
+                }
+            }
+
+            IEnumerable<BsonDocument> FindShardsOnCLuster(ICluster cluster)
+            {
+                using (var session = StartSession(cluster))
+                using (var binding = CreateReadBinding(cluster, ReadPreference.PrimaryPreferred, session))
+                {
+                    var collectionNamespace = new CollectionNamespace("config", "shards"); // magic collection
+                    var operation = new FindOperation<BsonDocument>(collectionNamespace, BsonDocumentSerializer.Instance, __messageEncoderSettings);
+
+                    return operation.Execute(binding, CancellationToken.None).ToList();
+                }
+            }
+        }
+
         private static bool IsReplicaSet(string uri)
         {
             var clusterBuilder = new ClusterBuilder().ConfigureWithConnectionString(uri, __serverApi.Value);
@@ -395,6 +497,17 @@ namespace MongoDB.Driver
                 var serverSelector = new ReadPreferenceServerSelector(ReadPreference.PrimaryPreferred);
                 var server = cluster.SelectServer(serverSelector, CancellationToken.None);
                 return server.Description.Type.IsReplicaSetMember();
+            }
+        }
+
+        public static void TearDown()
+        {
+            if (__cluster.IsValueCreated)
+            {
+                // TODO: DropDatabase
+                //DropDatabase();
+                __cluster.Value.Dispose();
+                __cluster = new Lazy<ICluster>(CreateCluster, isThreadSafe: true);
             }
         }
 
@@ -424,58 +537,5 @@ namespace MongoDB.Driver
             }
         }
         #endregion
-
-        // private methods
-        private static bool AreSessionsSupported(ICluster cluster)
-        {
-            SpinWait.SpinUntil(() => cluster.Description.Servers.Any(s => s.State == ServerState.Connected), TimeSpan.FromSeconds(30));
-            return AreSessionsSupported(cluster.Description);
-        }
-
-        private static bool AreSessionsSupported(ClusterDescription clusterDescription)
-        {
-            return
-                clusterDescription.Servers.Any(s => s.State == ServerState.Connected) &&
-                (clusterDescription.LogicalSessionTimeout.HasValue || clusterDescription.Type == ClusterType.LoadBalanced);
-        }
-
-        private static IReadBindingHandle CreateReadBinding(ICoreSessionHandle session)
-        {
-            return CreateReadBinding(ReadPreference.Primary, session);
-        }
-
-        private static IReadBindingHandle CreateReadBinding(ReadPreference readPreference, ICoreSessionHandle session)
-        {
-            var binding = new ReadPreferenceBinding(__cluster.Value, readPreference, session.Fork());
-            return new ReadBindingHandle(binding);
-        }
-
-        private static IReadWriteBindingHandle CreateReadWriteBinding(ICoreSessionHandle session)
-        {
-            var binding = new WritableServerBinding(__cluster.Value, session.Fork());
-            return new ReadWriteBindingHandle(binding);
-        }
-
-        private static void DropDatabase()
-        {
-            var operation = new DropDatabaseOperation(__databaseNamespace.Value, __messageEncoderSettings);
-
-            using (var session = StartSession())
-            using (var binding = CreateReadWriteBinding(session))
-            {
-                operation.Execute(binding, CancellationToken.None);
-            }
-        }
-
-        public static void TearDown()
-        {
-            if (__cluster.IsValueCreated)
-            {
-                // TODO: DropDatabase
-                //DropDatabase();
-                __cluster.Value.Dispose();
-                __cluster = new Lazy<ICluster>(CreateCluster, isThreadSafe: true);
-            }
-        }
     }
 }
