@@ -253,7 +253,7 @@ namespace MongoDB.Driver.Tests.Linq
         [SkippableFact]
         public void TestWhereBTypeEqualsB()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("2.0.0").VersionLessThan("5.0.0-");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("2.0.0");
 
             var query =
                 from b in __collection.AsQueryable<B>()

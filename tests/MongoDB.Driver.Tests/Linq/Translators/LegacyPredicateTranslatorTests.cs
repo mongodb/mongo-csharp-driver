@@ -22,7 +22,6 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq.Translators;
 using Xunit;
 
@@ -526,11 +525,9 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             Assert<C>(c => c.SA[0].Contains("o"), 1, "{ \"sa.0\" : /o/s }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestWhereSASub0ContainsONot()
         {
-            RequireServer.Check().VersionLessThan("5.0.0-");
-
             Assert<C>(c => !c.SA[0].Contains("o"), 4, "{ \"sa.0\" : { \"$not\" : /o/s } }");
         }
 
@@ -540,11 +537,9 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             Assert<C>(c => c.SA[0].EndsWith("m"), 1, "{ \"sa.0\" : /m$/s }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestWhereSASub0EndsWithMNot()
         {
-            RequireServer.Check().VersionLessThan("5.0.0-");
-
             Assert<C>(c => !c.SA[0].EndsWith("m"), 4, "{ \"sa.0\" : { \"$not\" : /m$/s } }");
         }
 
@@ -555,11 +550,9 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             Assert<C>(c => regex.IsMatch(c.SA[0]), 1, "{ \"sa.0\" : /^T/ }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestWhereSASub0IsMatchNot()
         {
-            RequireServer.Check().VersionLessThan("5.0.0-");
-
             var regex = new Regex(@"^T");
             Assert<C>(c => !regex.IsMatch(c.SA[0]), 4, "{ \"sa.0\" : { \"$not\" : /^T/ } }");
         }
@@ -570,11 +563,9 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             Assert<C>(c => Regex.IsMatch(c.SA[0], "^T"), 1, "{ \"sa.0\" : /^T/ }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestWhereSASub0IsMatchStaticNot()
         {
-            RequireServer.Check().VersionLessThan("5.0.0-");
-
             Assert<C>(c => !Regex.IsMatch(c.SA[0], "^T"), 4, "{ \"sa.0\" : { \"$not\" : /^T/ } }");
         }
 
@@ -590,11 +581,9 @@ namespace MongoDB.Driver.Tests.Linq.Translators
             Assert<C>(c => c.SA[0].StartsWith("T"), 1, "{ \"sa.0\" : /^T/s }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestWhereSASub0StartsWithTNot()
         {
-            RequireServer.Check().VersionLessThan("5.0.0-");
-
             Assert<C>(c => !c.SA[0].StartsWith("T"), 4, "{ \"sa.0\" : { \"$not\" : /^T/s } }");
         }
 
