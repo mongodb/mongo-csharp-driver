@@ -4478,7 +4478,7 @@ namespace MongoDB.Driver.Tests.Linq
         [SkippableFact]
         public void TestWhereSASub0ContainsONot()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("1.8.0").VersionLessThan("5.0.0-");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("1.8.0");
 
             var query = from c in __collection.AsQueryable<C>()
                         where !c.SA[0].Contains("o")
@@ -4529,7 +4529,7 @@ namespace MongoDB.Driver.Tests.Linq
         [SkippableFact]
         public void TestWhereSASub0EndsWithMNot()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("1.8.0").VersionLessThan("5.0.0-");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("1.8.0");
 
             var query = from c in __collection.AsQueryable<C>()
                         where !c.SA[0].EndsWith("m")
@@ -4581,7 +4581,7 @@ namespace MongoDB.Driver.Tests.Linq
         [SkippableFact]
         public void TestWhereSASub0IsMatchNot()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("1.8.0").VersionLessThan("5.0.0-");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("1.8.0");
 
             var regex = new Regex(@"^T");
             var query = from c in __collection.AsQueryable<C>()
@@ -4633,7 +4633,7 @@ namespace MongoDB.Driver.Tests.Linq
         [SkippableFact]
         public void TestWhereSASub0IsMatchStaticNot()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("1.8.0").VersionLessThan("5.0.0-");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("1.8.0");
 
             var query = from c in __collection.AsQueryable<C>()
                         where !Regex.IsMatch(c.SA[0], "^T")
@@ -4710,7 +4710,7 @@ namespace MongoDB.Driver.Tests.Linq
         [SkippableFact]
         public void TestWhereSASub0StartsWithTNot()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("1.8.0").VersionLessThan("5.0.0-");
+            RequireServer.Check().VersionGreaterThanOrEqualTo("1.8.0");
 
             var query = from c in __collection.AsQueryable<C>()
                         where !c.SA[0].StartsWith("T")
