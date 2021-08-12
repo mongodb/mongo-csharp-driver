@@ -4,6 +4,9 @@
   "description": "must destroy and must not check out a stale connection if found while iterating available connections",
   "operations": [
     {
+      "name": "ready"
+    },
+    {
       "name": "checkOut",
       "label": "conn"
     },
@@ -13,6 +16,9 @@
     },
     {
       "name": "clear"
+    },
+    {
+      "name": "ready"
     },
     {
       "name": "checkOut"
@@ -26,11 +32,13 @@
     },
     {
       "type": "ConnectionCheckedOut",
-      "connectionId": 1
+      "connectionId": 1,
+      "address": 42
     },
     {
       "type": "ConnectionCheckedIn",
-      "connectionId": 1
+      "connectionId": 1,
+      "address": 42
     },
     {
       "type": "ConnectionPoolCleared",
@@ -39,15 +47,18 @@
     {
       "type": "ConnectionClosed",
       "connectionId": 1,
-      "reason": "stale"
+      "reason": "stale",
+      "address": 42
     },
     {
       "type": "ConnectionCheckedOut",
-      "connectionId": 2
+      "connectionId": 2,
+      "address": 42
     }
   ],
   "ignore": [
     "ConnectionReady",
+    "ConnectionPoolReady",
     "ConnectionCreated",
     "ConnectionCheckOutStarted"
   ]

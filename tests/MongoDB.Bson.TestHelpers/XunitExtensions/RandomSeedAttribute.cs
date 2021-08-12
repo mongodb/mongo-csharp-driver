@@ -15,6 +15,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Linq;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 
 namespace MongoDB.Bson.TestHelpers
@@ -22,11 +23,28 @@ namespace MongoDB.Bson.TestHelpers
     [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
     public class RandomSeedAttribute : Attribute, IValueGeneratorAttribute
     {
-        public object[] GenerateValues() => new object[]
+        private readonly object[] _values;
+
+        public RandomSeedAttribute(int[] constantSeeds = null)
         {
-            int.MaxValue,
-            int.MaxValue / 2,
-            Environment.TickCount ^ Process.GetCurrentProcess().Id
-        };
+            if (constantSeeds == null)
+            {
+                _values = new object[]
+                {
+                    int.MaxValue,
+                    int.MaxValue / 2,
+                    Environment.TickCount ^ Process.GetCurrentProcess().Id
+                };
+            }
+            else
+            {
+                _values = constantSeeds
+                    .Concat(new[] { Environment.TickCount ^ Process.GetCurrentProcess().Id })
+                    .Cast<object>()
+                    .ToArray();
+            }
+        }
+
+        public object[] GenerateValues() => _values;
     }
 }

@@ -204,7 +204,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
 
             void SetupConnectionPoolFactory(Mock<IConnectionPoolFactory> mockFactory, IConnectionPool connectionPool, ServerId serverId, EndPoint endPoint)
             {
-                mockFactory.Setup(c => c.CreateConnectionPool(serverId, endPoint)).Returns(connectionPool);
+                mockFactory.Setup(c => c.CreateConnectionPool(serverId, endPoint, It.IsAny<IConnectionExceptionHandler>())).Returns(connectionPool);
             }
         }
 

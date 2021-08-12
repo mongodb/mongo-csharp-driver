@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
@@ -126,6 +127,35 @@ namespace MongoDB.Driver.Core
             {
                 throw new Exception(message != null ? message(timeout) : $"Waiting for the expected event exceeded the timeout {timeout}.") ;
             }
+        }
+
+        public void WaitForOrThrowIfTimeout(Type[] typesSequence, TimeSpan timeout, Func<TimeSpan, string> message = null)
+        {
+            var matchSequence = typesSequence
+                .Select(t => new Func<object, bool>((object e) => e.GetType() == t))
+                .ToArray();
+
+            WaitForOrThrowIfTimeout(matchSequence, timeout, message);
+        }
+
+        public void WaitForOrThrowIfTimeout(Func<object, bool>[] matchSequence, TimeSpan timeout, Func<TimeSpan, string> message = null)
+        {
+            Func<IEnumerable<object>, bool> condition = @events =>
+            {
+                var enumerator = @events.GetEnumerator();
+
+                while (enumerator.MoveNext())
+                {
+                    if (matchSequence.All(m => m(enumerator.Current) && enumerator.MoveNext()))
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            };
+
+            WaitForOrThrowIfTimeout(condition, timeout, message);
         }
 
         public void WaitForOrThrowIfTimeout(Func<IEnumerable<object>, bool> condition, TimeSpan timeout, string message)

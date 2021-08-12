@@ -36,12 +36,12 @@ namespace MongoDB.Driver.Core.ConnectionPools
             _eventSubscriber = Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
         }
 
-        public IConnectionPool CreateConnectionPool(ServerId serverId, EndPoint endPoint)
+        public IConnectionPool CreateConnectionPool(ServerId serverId, EndPoint endPoint, IConnectionExceptionHandler connectionExceptionHandler)
         {
             Ensure.IsNotNull(serverId, nameof(serverId));
             Ensure.IsNotNull(endPoint, nameof(endPoint));
 
-            return new ExclusiveConnectionPool(serverId, endPoint, _settings, _connectionFactory, _eventSubscriber);
+            return new ExclusiveConnectionPool(serverId, endPoint, _settings, _connectionFactory, _eventSubscriber, connectionExceptionHandler);
         }
     }
 }

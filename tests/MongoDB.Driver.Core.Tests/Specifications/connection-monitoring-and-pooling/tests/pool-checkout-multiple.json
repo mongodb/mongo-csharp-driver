@@ -4,6 +4,9 @@
   "description": "must be able to check out multiple connections at the same time",
   "operations": [
     {
+      "name": "ready"
+    },
+    {
       "name": "start",
       "target": "thread1"
     },
@@ -43,19 +46,23 @@
   "events": [
     {
       "type": "ConnectionCheckedOut",
-      "connectionId": 42
+      "connectionId": 42,
+      "address": 42
     },
     {
       "type": "ConnectionCheckedOut",
-      "connectionId": 42
+      "connectionId": 42,
+      "address": 42
     },
     {
       "type": "ConnectionCheckedOut",
-      "connectionId": 42
+      "connectionId": 42,
+      "address": 42
     }
   ],
   "ignore": [
     "ConnectionCreated",
+    "ConnectionPoolReady",
     "ConnectionReady",
     "ConnectionPoolCreated",
     "ConnectionCheckOutStarted"

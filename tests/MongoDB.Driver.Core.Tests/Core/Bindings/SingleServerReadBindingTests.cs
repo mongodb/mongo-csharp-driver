@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Net;
 using System.Reflection;
 using System.Threading;
 using FluentAssertions;
@@ -186,9 +187,20 @@ namespace MongoDB.Driver.Core.Bindings
         private SingleServerReadBinding CreateSubject(IServer server = null, ReadPreference readPreference = null, ICoreSessionHandle session = null)
         {
             return new SingleServerReadBinding(
-                server ?? new Mock<IServer>().Object,
+                server ?? CreateMockServer().Object,
                 readPreference ?? ReadPreference.Primary,
                 session ?? new Mock<ICoreSessionHandle>().Object);
+        }
+
+        private Mock<IServer> CreateMockServer()
+        {
+            var mockServer = new Mock<IServer>();
+            mockServer.Setup(s => s.Description).Returns(new ServerDescription(
+                new ServerId(new Clusters.ClusterId(), new DnsEndPoint("localhost", 20017)),
+                new DnsEndPoint("localhost", 20017),
+                state: ServerState.Connected));
+
+            return mockServer;
         }
     }
 

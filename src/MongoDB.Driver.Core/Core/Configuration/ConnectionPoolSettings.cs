@@ -30,6 +30,8 @@ namespace MongoDB.Driver.Core.Configuration
         private readonly int _minConnections;
         private readonly int _waitQueueSize;
         private readonly TimeSpan _waitQueueTimeout;
+        private readonly int _maxConnecting;
+        private readonly bool _isPausable;
 
         // constructors
         /// <summary>
@@ -46,14 +48,34 @@ namespace MongoDB.Driver.Core.Configuration
             Optional<int> minConnections = default(Optional<int>),
             Optional<int> waitQueueSize = default(Optional<int>),
             Optional<TimeSpan> waitQueueTimeout = default(Optional<TimeSpan>))
+            : this(maintenanceInterval: maintenanceInterval,
+                  maxConnections: maxConnections,
+                  minConnections: minConnections,
+                  waitQueueSize: waitQueueSize,
+                  waitQueueTimeout: waitQueueTimeout,
+                  isPausable: true)
         {
-            _maintenanceInterval = Ensure.IsInfiniteOrGreaterThanOrEqualToZero(maintenanceInterval.WithDefault(TimeSpan.FromMinutes(1)), "maintenanceInterval");
-            _maxConnections = Ensure.IsGreaterThanZero(maxConnections.WithDefault(100), "maxConnections");
-            _minConnections = Ensure.IsGreaterThanOrEqualToZero(minConnections.WithDefault(0), "minConnections");
+        }
+
+        private ConnectionPoolSettings(
+            Optional<TimeSpan> maintenanceInterval = default(Optional<TimeSpan>),
+            Optional<int> maxConnections = default(Optional<int>),
+            Optional<int> minConnections = default(Optional<int>),
+            Optional<int> waitQueueSize = default(Optional<int>),
+            Optional<TimeSpan> waitQueueTimeout = default(Optional<TimeSpan>),
+            Optional<bool> isPausable = default(Optional<bool>),
+            Optional<int> maxConnecting = default(Optional<int>))
+        {
+            _maintenanceInterval = Ensure.IsInfiniteOrGreaterThanOrEqualToZero(maintenanceInterval.WithDefault(TimeSpan.FromMinutes(1)), nameof(maintenanceInterval));
+            _maxConnections = Ensure.IsGreaterThanZero(maxConnections.WithDefault(100), nameof(maxConnections));
+            _maxConnecting = Ensure.IsGreaterThanZero(maxConnecting.WithDefault(MongoInternalDefaults.ConnectionPool.MaxConnecting), nameof(maxConnecting));
+            _minConnections = Ensure.IsGreaterThanOrEqualToZero(minConnections.WithDefault(0), nameof(minConnections));
 #pragma warning disable CS0618 // Type or member is obsolete
-            _waitQueueSize = Ensure.IsGreaterThanOrEqualToZero(waitQueueSize.WithDefault(ConnectionStringConversions.GetComputedWaitQueueSize(_maxConnections, 5)), "waitQueueSize");
+            _waitQueueSize = Ensure.IsGreaterThanOrEqualToZero(waitQueueSize.WithDefault(ConnectionStringConversions.GetComputedWaitQueueSize(_maxConnections, 5)), nameof(waitQueueSize));
 #pragma warning restore CS0618 // Type or member is obsolete
-            _waitQueueTimeout = Ensure.IsInfiniteOrGreaterThanOrEqualToZero(waitQueueTimeout.WithDefault(TimeSpan.FromMinutes(2)), "waitQueueTimeout");
+            _waitQueueTimeout = Ensure.IsInfiniteOrGreaterThanOrEqualToZero(waitQueueTimeout.WithDefault(TimeSpan.FromMinutes(2)), nameof(waitQueueTimeout));
+
+            _isPausable = isPausable.WithDefault(true);
         }
 
         // properties
@@ -113,6 +135,17 @@ namespace MongoDB.Driver.Core.Configuration
             get { return _waitQueueTimeout; }
         }
 
+        // internal properties
+        internal int MaxConnecting
+        {
+            get { return _maxConnecting; }
+        }
+
+        internal bool IsPausable
+        {
+            get { return _isPausable; }
+        }
+
         // methods
         /// <summary>
         /// Returns a new ConnectionPoolSettings instance with some settings changed.
@@ -137,5 +170,17 @@ namespace MongoDB.Driver.Core.Configuration
                 waitQueueSize: waitQueueSize.WithDefault(_waitQueueSize),
                 waitQueueTimeout: waitQueueTimeout.WithDefault(_waitQueueTimeout));
         }
+
+        internal ConnectionPoolSettings WithInternal(
+            Optional<bool> isPausable = default(Optional<bool>),
+            Optional<int> maxConnecting = default(Optional<int>)) =>
+            new ConnectionPoolSettings(
+                maintenanceInterval: _maintenanceInterval,
+                maxConnections: _maxConnections,
+                minConnections: _minConnections,
+                waitQueueSize: _waitQueueSize,
+                waitQueueTimeout: _waitQueueTimeout,
+                isPausable: isPausable,
+                maxConnecting: maxConnecting);
     }
 }

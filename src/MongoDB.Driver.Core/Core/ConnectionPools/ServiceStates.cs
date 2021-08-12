@@ -85,7 +85,6 @@ namespace MongoDB.Driver.Core.ConnectionPools
                         return true;
                     }
                 }
-
             }
 
             generation = 0;

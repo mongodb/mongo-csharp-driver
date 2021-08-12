@@ -19,7 +19,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
@@ -44,7 +43,7 @@ namespace MongoDB.Driver.Core.Servers
         #endregion
 
         private readonly ServerDescription _baseDescription;
-        private ServerDescription _currentDescription;
+        private volatile ServerDescription _currentDescription;
         private readonly IServerMonitor _monitor;
 
         public DefaultServer(
@@ -78,27 +77,9 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         // properties
-        public override ServerDescription Description => Interlocked.CompareExchange(ref _currentDescription, value: null, comparand: null);
+        public override ServerDescription Description => _currentDescription;
 
         // public methods
-        public override void Invalidate(string reasonInvalidated, bool clearConnectionPool, TopologyVersion topologyVersion)
-        {
-            if (clearConnectionPool)
-            {
-                ConnectionPool.Clear();
-            }
-            var newDescription = _baseDescription.With(
-                    $"InvalidatedBecause:{reasonInvalidated}",
-                    lastUpdateTimestamp: DateTime.UtcNow,
-                    topologyVersion: topologyVersion);
-            SetDescription(newDescription);
-            // TODO: make the heartbeat request conditional so we adhere to this part of the spec
-            // > Network error when reading or writing: ... Clients MUST NOT request an immediate check of the server;
-            // > since application sockets are used frequently, a network error likely means the server has just become
-            // > unavailable, so an immediate refresh is likely to get a network error, too.
-            RequestHeartbeat();
-        }
-
         public override void RequestHeartbeat()
         {
             _monitor.RequestHeartbeat();
@@ -113,32 +94,35 @@ namespace MongoDB.Driver.Core.Servers
 
         protected override void HandleBeforeHandshakeCompletesException(Exception ex)
         {
-            if (ex is MongoAuthenticationException)
+            if (ex is not MongoConnectionException connectionException)
             {
-                ConnectionPool.Clear();
+                // non connection exception
                 return;
             }
 
-            if (ex is MongoConnectionException mongoConnectionException)
+            var (invalidateAndClear, cancelCheck) = ex switch
+            {
+                MongoAuthenticationException => (invalidateAndClear: true, cancelCheck: false),
+                _ => (invalidateAndClear: connectionException.IsNetworkException || connectionException.ContainsTimeoutException,
+                      cancelCheck: connectionException.IsNetworkException && !connectionException.ContainsTimeoutException)
+            };
+
+            if (invalidateAndClear)
             {
                 lock (_monitor.Lock)
                 {
-                    if (mongoConnectionException.Generation != null &&
-                        mongoConnectionException.Generation != ConnectionPool.Generation)
+                    if (connectionException.Generation != null && connectionException.Generation != ConnectionPool.Generation)
                     {
-                        return; // stale generation number
+                        // stale generation number
+                        return;
                     }
 
-                    if (mongoConnectionException.IsNetworkException &&
-                        !mongoConnectionException.ContainsTimeoutException)
+                    if (cancelCheck)
                     {
                         _monitor.CancelCurrentCheck();
                     }
 
-                    if (mongoConnectionException.IsNetworkException || mongoConnectionException.ContainsTimeoutException)
-                    {
-                        Invalidate($"ChannelException during handshake: {ex}.", clearConnectionPool: true, topologyVersion: null);
-                    }
+                    Invalidate($"ChannelException during handshake: {ex}.", clearConnectionPool: true, topologyVersion: null);
                 }
             }
         }
@@ -162,7 +146,7 @@ namespace MongoDB.Driver.Core.Servers
                     }
                 }
 
-                var description = Description; // use Description property to access _description value safely
+                var description = _currentDescription;
                 if (ShouldInvalidateServer(connection, ex, description, out TopologyVersion responseTopologyVersion))
                 {
                     var shouldClearConnectionPool = ShouldClearConnectionPoolForChannelException(ex, connection.Description.ServerVersion);
@@ -181,10 +165,24 @@ namespace MongoDB.Driver.Core.Servers
             _monitor.Initialize();
         }
 
+        protected override void Invalidate(string reasonInvalidated, bool clearConnectionPool, TopologyVersion topologyVersion)
+        {
+            var newDescription = _baseDescription.With(
+                    $"InvalidatedBecause:{reasonInvalidated}",
+                    lastUpdateTimestamp: DateTime.UtcNow,
+                    topologyVersion: topologyVersion);
+            SetDescription(newDescription, clearConnectionPool);
+            // TODO: make the heartbeat request conditional so we adhere to this part of the spec
+            // > Network error when reading or writing: ... Clients MUST NOT request an immediate check of the server;
+            // > since application sockets are used frequently, a network error likely means the server has just become
+            // > unavailable, so an immediate refresh is likely to get a network error, too.
+            RequestHeartbeat();
+        }
+
         // private methods
         private void OnMonitorDescriptionChanged(object sender, ServerDescriptionChangedEventArgs e)
         {
-            var currentDescription = Interlocked.CompareExchange(ref _currentDescription, value: null, comparand: null);
+            var currentDescription = _currentDescription;
 
             var heartbeatException = e.NewServerDescription.HeartbeatException;
             // The heartbeat commands are hello (or legacy hello) + buildInfo. These commands will throw a MongoCommandException on
@@ -200,25 +198,46 @@ namespace MongoDB.Driver.Core.Servers
             if (heartbeatReplyNotReceived ||
                 TopologyVersion.IsStalerThanOrEqualTo(currentDescription.TopologyVersion, e.NewServerDescription.TopologyVersion))
             {
-                SetDescription(e.NewServerDescription);
+                SetDescription(e.NewServerDescription, forceClearConnectionPool: false);
             }
         }
 
-        private void SetDescription(ServerDescription newDescription)
+        private void SetDescription(ServerDescription newDescription, bool forceClearConnectionPool)
         {
-            var oldDescription = Interlocked.CompareExchange(ref _currentDescription, value: newDescription, comparand: _currentDescription);
-            OnDescriptionChanged(sender: this, new ServerDescriptionChangedEventArgs(oldDescription, newDescription));
-        }
+            // Current assumption is SetDescription is always synchronized under _monitor.Lock.
+            // This synchronization technically can be violated by calling server.Invalidate not under _monitor.Lock.
+            // Therefore _currentDescription and ConnectionPool state can get out of sync.
+            var oldDescription = _currentDescription;
 
-        private void OnDescriptionChanged(object sender, ServerDescriptionChangedEventArgs e)
-        {
-            if (e.NewServerDescription.HeartbeatException != null)
+            if (newDescription.HeartbeatException != null || forceClearConnectionPool)
             {
+                // Set new description before clearing the pool, to deal with possible bug where server.Description is accessed directly
+                // and connection pool is not consistent with server.Description. Will be address in follow up ticket.
+                _currentDescription = newDescription;
+
                 ConnectionPool.Clear();
             }
+            else
+            {
+                if (newDescription.IsDataBearing ||
+                    (newDescription.Type != ServerType.Unknown && IsDirectConnection()))
+                {
+                    // The spec requires to check (server.type != Unknown and newTopologyDescription.type == Single)
+                    // in C# driver servers in single topology will be only selectable if direct connection was requested
+                    // therefore it is sufficient to check whether the connection mode is directConnection.
+
+                    ConnectionPool.SetReady();
+                }
+
+                // Set new description after unpausing the pool, to deal with possible bug where server.Description is accessed directly
+                // and connection pool is not consistent with server.Description. Will be address in follow up ticket.
+                _currentDescription = newDescription;
+            }
+
+            var descriptionChangedEvent = new ServerDescriptionChangedEventArgs(oldDescription, newDescription);
 
             // propagate event to upper levels
-            TriggerServerDescriptionChanged(this, e);
+            TriggerServerDescriptionChanged(this, descriptionChangedEvent);
         }
 
         private bool ShouldInvalidateServer(

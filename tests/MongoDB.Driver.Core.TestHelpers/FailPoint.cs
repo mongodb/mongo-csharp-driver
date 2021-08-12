@@ -17,9 +17,11 @@ using System;
 using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
+using MongoDB.Driver.Core.ConnectionPools;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
@@ -174,9 +176,9 @@ namespace MongoDB.Driver.Core.TestHelpers
         }
 
         // private methods
-        private void Configure(BsonDocument command)
+        private void Configure(BsonDocument command, bool waitForConnected = false)
         {
-            ExecuteCommand(command);
+            ExecuteCommand(command, waitForConnected);
         }
 
         private void ConfigureOff()
@@ -187,11 +189,17 @@ namespace MongoDB.Driver.Core.TestHelpers
                 { "configureFailPoint", name },
                 { "mode", "off" }
             };
-            Configure(command);
+            Configure(command, true);
         }
 
-        private void ExecuteCommand(BsonDocument command)
+        private void ExecuteCommand(BsonDocument command, bool waitForConnected)
         {
+            if (waitForConnected)
+            {
+                // server can transition to unknown state during the test, wait until server is connected
+                SpinWait.SpinUntil(() => _server.Description.State == ServerState.Connected, 1000);
+            }
+
             var adminDatabase = new DatabaseNamespace("admin");
             var operation = new WriteCommandOperation<BsonDocument>(
                 adminDatabase,

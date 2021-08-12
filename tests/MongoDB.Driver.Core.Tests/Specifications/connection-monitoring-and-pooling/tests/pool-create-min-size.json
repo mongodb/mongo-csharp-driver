@@ -7,8 +7,20 @@
   },
   "operations": [
     {
+      "name": "wait",
+      "ms": 200
+    },
+    {
+      "name": "ready"
+    },
+    {
       "name": "waitForEvent",
       "event": "ConnectionCreated",
+      "count": 3
+    },
+    {
+      "name": "waitForEvent",
+      "event": "ConnectionReady",
       "count": 3
     },
     {
@@ -22,20 +34,28 @@
       "options": 42
     },
     {
-      "type": "ConnectionCreated",
-      "connectionId": 42
+      "type": "ConnectionPoolReady",
+      "address": 42
     },
     {
       "type": "ConnectionCreated",
-      "connectionId": 42
+      "connectionId": 42,
+      "address": 42
     },
     {
       "type": "ConnectionCreated",
-      "connectionId": 42
+      "connectionId": 42,
+      "address": 42
+    },
+    {
+      "type": "ConnectionCreated",
+      "connectionId": 42,
+      "address": 42
     },
     {
       "type": "ConnectionCheckedOut",
-      "connectionId": 42
+      "connectionId": 42,
+      "address": 42
     }
   ],
   "ignore": [

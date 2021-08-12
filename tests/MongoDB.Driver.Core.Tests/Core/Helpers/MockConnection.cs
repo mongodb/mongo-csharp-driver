@@ -41,6 +41,8 @@ namespace MongoDB.Driver.Core.Helpers
         private readonly List<RequestMessage> _sentMessages;
         private bool? _wasReadTimeoutChanged;
 
+        private readonly Action<ConnectionOpeningEvent> _openingEventHandler;
+        private readonly Action<ConnectionOpenedEvent> _openedEventHandler;
         private readonly Action<ConnectionClosingEvent> _closingEventHandler;
         private readonly Action<ConnectionClosedEvent> _closedEventHandler;
 
@@ -63,6 +65,8 @@ namespace MongoDB.Driver.Core.Helpers
 
             if (eventSubscriber != null)
             {
+                eventSubscriber.TryGetEventHandler(out _openingEventHandler);
+                eventSubscriber.TryGetEventHandler(out _openedEventHandler);
                 eventSubscriber.TryGetEventHandler(out _closingEventHandler);
                 eventSubscriber.TryGetEventHandler(out _closedEventHandler);
             }
@@ -171,18 +175,27 @@ namespace MongoDB.Driver.Core.Helpers
 
         public void Open(CancellationToken cancellationToken)
         {
+            _openingEventHandler?.Invoke(new ConnectionOpeningEvent(_connectionId, _connectionSettings, null));
+
             _openedAtUtc = DateTime.UtcNow;
             // _lastUsedAtUtc is set in the SendBuffer method in the BinaryConnection
             // which is one from methods called inside Open
             _lastUsedAtUtc = DateTime.UtcNow;
+
+            _openedEventHandler?.Invoke(new ConnectionOpenedEvent(_connectionId, _connectionSettings, TimeSpan.Zero, null));
         }
 
         public Task OpenAsync(CancellationToken cancellationToken)
         {
+            _openingEventHandler?.Invoke(new ConnectionOpeningEvent(_connectionId, _connectionSettings, null));
+
             _openedAtUtc = DateTime.UtcNow;
             // _lastUsedAtUtc is set in the SendBufferAsync method in the BinaryConnection
             // which is one from methods called inside OpenAsync
             _lastUsedAtUtc = DateTime.UtcNow;
+
+            _openedEventHandler?.Invoke(new ConnectionOpenedEvent(_connectionId, _connectionSettings, TimeSpan.Zero, null));
+
             return Task.FromResult<object>(null);
         }
 

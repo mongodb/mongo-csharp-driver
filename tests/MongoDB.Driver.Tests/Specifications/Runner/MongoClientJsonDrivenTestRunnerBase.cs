@@ -19,12 +19,15 @@ using System.Linq;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
@@ -65,6 +68,8 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
         private string CollectionName { get; set; }
 
         private IDictionary<string, object> _objectMap = null;
+
+        protected IServer _failPointServer = null;
 
         // Protected
         // Virtual properties
@@ -331,7 +336,21 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
                     break;
 
                 case "directConnection":
-                    settings.DirectConnection = option.Value.ToBoolean();
+                    var isDirectConnection = option.Value.ToBoolean();
+
+#pragma warning disable CS0618 // Type or member is obsolete
+                    settings.ConnectionMode = ConnectionMode.Automatic;
+                    settings._connectionModeSwitch( ConnectionModeSwitch.UseDirectConnection);
+#pragma warning restore CS0618 // Type or member is obsolete
+                    settings.DirectConnection = isDirectConnection;
+
+                    if (isDirectConnection)
+                    {
+                        settings.Servers = new MongoServerAddress[]
+                        {
+                            settings.Servers.First()
+                        };
+                    }
                     break;
 
                 case "heartbeatFrequencyMS":
@@ -412,10 +431,29 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
                 ConfigureFailPointCommand(failPoint.AsBsonDocument);
 
                 var cluster = client.Cluster;
-                var server = cluster.SelectServer(WritableServerSelector.Instance, CancellationToken.None);
+
+                var settings = client.Settings.Clone();
+                ConfigureClientSettings(settings, test);
+
+#pragma warning disable CS0618 // Type or member is obsolete
+                if (settings.ConnectionModeSwitch == ConnectionModeSwitch.UseDirectConnection &&
+#pragma warning restore CS0618 // Type or member is obsolete
+                    settings.DirectConnection == true)
+                {
+                    var serverAddress = EndPointHelper.Parse(settings.Server.ToString());
+
+                    var selector = new EndPointServerSelector(serverAddress);
+                    _failPointServer = cluster.SelectServer(selector, CancellationToken.None);
+                }
+                else
+                {
+                    _failPointServer = cluster.SelectServer(WritableServerSelector.Instance, CancellationToken.None);
+                }
+
                 var session = NoCoreSession.NewHandle();
                 var command = failPoint.AsBsonDocument;
-                return FailPoint.Configure(server, session, command);
+
+                return FailPoint.Configure(_failPointServer, session, command);
             }
 
             return null;
@@ -538,5 +576,13 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
                 AssertOutcome(test);
             }
         }
+    }
+
+    internal static class MongoClientSettingsReflection
+    {
+#pragma warning disable CS0618 // Type or member is obsolete
+        public static void _connectionModeSwitch(this MongoClientSettings obj, ConnectionModeSwitch connectionModeSwitch)
+            => Reflector.SetFieldValue(obj, nameof(_connectionModeSwitch), connectionModeSwitch);
+#pragma warning restore CS0618 // Type or member is obsolete
     }
 }

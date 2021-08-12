@@ -268,5 +268,28 @@ namespace MongoDB.Driver.Core.Configuration
 #pragma warning restore 618
             result.WaitQueueTimeout.Should().Be(newWaitQueueTimeout);
         }
+
+        [Fact]
+        public void WithInternal_should_return_expected_result()
+        {
+            var subject = new ConnectionPoolSettings();
+
+            var result = subject.WithInternal(isPausable: false);
+            result.IsPausable.Should().Be(false);
+            result = subject.WithInternal(isPausable: true);
+            result.IsPausable.Should().Be(true);
+
+            result = subject.WithInternal(maxConnecting: 1233);
+            result.MaxConnecting.Should().Be(1233);
+        }
+
+        [Fact]
+        public void WithInternal_should_throw_when_maxConnecting_is_negative()
+        {
+            Action action = () => new ConnectionPoolSettings().WithInternal(maxConnecting: -1);
+
+            var exception = Record.Exception(action).Should().BeOfType<ArgumentOutOfRangeException>().Subject;
+            exception.ParamName.Should().Be("maxConnecting");
+        }
     }
 }

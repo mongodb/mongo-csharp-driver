@@ -26,7 +26,10 @@ namespace MongoDB.Driver.Core.Bindings
     /// </summary>
     public sealed class SingleServerReadBinding : IReadBinding
     {
-        // fields
+        // private constants
+        private const int SingleServerSelectionTimeoutMS = 1000;
+
+        // private fields
         private bool _disposed;
         private readonly ReadPreference _readPreference;
         private readonly IServer _server;
@@ -86,6 +89,15 @@ namespace MongoDB.Driver.Core.Bindings
 
         private IChannelSourceHandle GetChannelSourceHelper()
         {
+            // server might be in unknown state due to previous failed operation, allow description to be updated
+            // this is done instead of server selection
+            // TODO parameterize timeout and avoid busy wait, or offload waiting to server level
+            // Should be addressed by CSHARP-3556
+            if (_server.Description.State == ServerState.Disconnected)
+            {
+                SpinWait.SpinUntil(() => _server.Description.State == ServerState.Connected, SingleServerSelectionTimeoutMS);
+            }
+
             return new ChannelSourceHandle(new ServerChannelSource(_server, _session.Fork()));
         }
 

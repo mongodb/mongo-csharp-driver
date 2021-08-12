@@ -78,6 +78,9 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
                 case "PoolClearedEvent":
                     return @event => @event is ConnectionPoolClearedEvent;
 
+                case "PoolReadyEvent":
+                    return @event => @event is ConnectionPoolReadyEvent;
+
                 default:
                     throw new Exception($"Unexpected event type {eventName}.");
             }

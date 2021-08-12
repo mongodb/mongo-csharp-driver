@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Core.Servers
     /// <summary>
     /// Represents a server in a MongoDB cluster.
     /// </summary>
-    internal abstract class Server : IClusterableServer
+    internal abstract class Server : IClusterableServer, IConnectionExceptionHandler
     {
         // fields
         private readonly IClusterClock _clusterClock;
@@ -88,7 +88,7 @@ namespace MongoDB.Driver.Core.Servers
             Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
 
             _serverId = new ServerId(clusterId, endPoint);
-            _connectionPool = Ensure.IsNotNull(connectionPoolFactory, nameof(connectionPoolFactory)).CreateConnectionPool(_serverId, endPoint);
+            _connectionPool = Ensure.IsNotNull(connectionPoolFactory, nameof(connectionPoolFactory)).CreateConnectionPool(_serverId, endPoint, this);
             _state = new InterlockedInt32(State.Initial);
             _serverApi = serverApi;
             _outstandingOperationsCount = 0;
@@ -137,10 +137,8 @@ namespace MongoDB.Driver.Core.Servers
             }
         }
 
-        protected abstract void Dispose(bool disposing);
-
-        protected abstract void HandleBeforeHandshakeCompletesException(Exception ex);
-        protected abstract void HandleAfterHandshakeCompletesException(IConnection connection, Exception ex);
+        public void HandleExceptionOnOpen(Exception exception) =>
+            HandleBeforeHandshakeCompletesException(exception);
 
         public IChannelHandle GetChannel(CancellationToken cancellationToken)
         {
@@ -213,12 +211,32 @@ namespace MongoDB.Driver.Core.Servers
             Invalidate(reasonInvalidated, clearConnectionPool: true, responseTopologyDescription);
         }
 
-        public abstract void Invalidate(string reasonInvalidated, bool clearConnectionPool, TopologyVersion responseTopologyDescription);
-
         public abstract void RequestHeartbeat();
 
         // protected methods
+
+        protected abstract void Invalidate(string reasonInvalidated, bool clearConnectionPool, TopologyVersion responseTopologyDescription);
+
+        protected abstract void Dispose(bool disposing);
+
+        protected abstract void HandleBeforeHandshakeCompletesException(Exception ex);
+        protected abstract void HandleAfterHandshakeCompletesException(IConnection connection, Exception ex);
+
         protected abstract void InitializeSubClass();
+
+        protected bool IsDirectConnection()
+        {
+#pragma warning disable CS0618 // Type or member is obsolete
+            if (_connectionModeSwitch == ConnectionModeSwitch.UseDirectConnection)
+            {
+                return _directConnection.GetValueOrDefault();
+            }
+            else
+            {
+                return _clusterConnectionMode == ClusterConnectionMode.Direct;
+            }
+#pragma warning restore CS0618 // Type or member is obsolete
+        }
 
         protected bool IsStateChangeException(Exception ex) => ex is MongoNotPrimaryException || ex is MongoNodeIsRecoveringException;
 
@@ -1003,7 +1021,7 @@ namespace MongoDB.Driver.Core.Servers
 
             private ReadPreference GetEffectiveReadPreference(bool secondaryOk, ReadPreference readPreference)
             {
-                if (IsDirectConnection() && _server.Description.Type != ServerType.ShardRouter)
+                if (_server.IsDirectConnection() && _server.Description.Type != ServerType.ShardRouter)
                 {
                     return ReadPreference.PrimaryPreferred;
                 }
@@ -1024,26 +1042,12 @@ namespace MongoDB.Driver.Core.Servers
 
             private bool GetEffectiveSecondaryOk(bool secondaryOk)
             {
-                if (IsDirectConnection() && _server.Description.Type != ServerType.ShardRouter)
+                if (_server.IsDirectConnection() && _server.Description.Type != ServerType.ShardRouter)
                 {
                     return true;
                 }
 
                 return secondaryOk;
-            }
-
-            private bool IsDirectConnection()
-            {
-#pragma warning disable CS0618 // Type or member is obsolete
-                if (_server._connectionModeSwitch == ConnectionModeSwitch.UseDirectConnection)
-                {
-                    return _server._directConnection.GetValueOrDefault();
-                }
-                else
-                {
-                    return _server._clusterConnectionMode == ClusterConnectionMode.Direct;
-                }
-#pragma warning restore CS0618 // Type or member is obsolete
             }
 
             private void MarkSessionDirtyIfNeeded(ICoreSession session, Exception ex)

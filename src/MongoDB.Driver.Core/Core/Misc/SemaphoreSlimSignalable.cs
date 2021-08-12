@@ -29,8 +29,36 @@ namespace MongoDB.Driver.Core.Misc
             Entered
         }
 
+        public sealed class SemaphoreSlimSignalableAwaiter : IDisposable
+        {
+            private readonly SemaphoreSlimSignalable _semaphoreSlimSignalable;
+            private bool _enteredSemaphore;
+
+            public SemaphoreSlimSignalableAwaiter(SemaphoreSlimSignalable semaphoreSlimSignalable)
+            {
+                _semaphoreSlimSignalable = semaphoreSlimSignalable;
+                _enteredSemaphore = false;
+            }
+
+            public async Task<bool> WaitSignaledAsync(TimeSpan timeout, CancellationToken cancellationToken)
+            {
+                var waitResult = await _semaphoreSlimSignalable.WaitSignaledAsync(timeout, cancellationToken).ConfigureAwait(false);
+                _enteredSemaphore = waitResult == SemaphoreWaitResult.Entered;
+                return _enteredSemaphore;
+            }
+
+            public void Dispose()
+            {
+                if (_enteredSemaphore)
+                {
+                    _semaphoreSlimSignalable.Release();
+                }
+            }
+        }
+
         // private fields
         private CancellationTokenSource _signalCancellationTokenSource;
+        private bool _isCancellationScheduled;
 
         private readonly SemaphoreSlim _semaphore;
         private readonly object _syncRoot;
@@ -44,30 +72,36 @@ namespace MongoDB.Driver.Core.Misc
             _syncRoot = new object();
 
             _signalCancellationTokenSource = new CancellationTokenSource();
+            _isCancellationScheduled = false;
         }
 
         public int Count => _semaphore.CurrentCount;
 
         public void Signal()
         {
-            if (!_signalCancellationTokenSource.IsCancellationRequested)
+            if (!_isCancellationScheduled)
             {
                 lock (_syncRoot)
                 {
-                    _signalCancellationTokenSource.Cancel();
+                    if (!_isCancellationScheduled)
+                    {
+                        _signalCancellationTokenSource.CancelAfter(0);
+                        _isCancellationScheduled = true;
+                    }
                 }
             }
         }
 
         public void Reset()
         {
-            if (_signalCancellationTokenSource.IsCancellationRequested)
+            if (_isCancellationScheduled)
             {
                 lock (_syncRoot)
                 {
-                    if (_signalCancellationTokenSource.IsCancellationRequested)
+                    if (_isCancellationScheduled)
                     {
                         _signalCancellationTokenSource = new CancellationTokenSource();
+                        _isCancellationScheduled = false;
                     }
                 }
             }
@@ -134,6 +168,9 @@ namespace MongoDB.Driver.Core.Misc
                 throw;
             }
         }
+
+        public SemaphoreSlimSignalableAwaiter CreateAwaiter() =>
+            new SemaphoreSlimSignalableAwaiter(this);
 
         public void Release()
         {

@@ -17,7 +17,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading;
-using FluentAssertions;
 
 namespace MongoDB.Bson.TestHelpers
 {
@@ -25,8 +24,16 @@ namespace MongoDB.Bson.TestHelpers
     {
         public static void ExecuteOnNewThreads(int threadsCount, Action<int> action, int timeoutMilliseconds = 10000)
         {
-            var actionsExecutedCount = 0;
+            var exceptions = ExecuteOnNewThreadsCollectExceptions(threadsCount, action, timeoutMilliseconds);
 
+            if (exceptions.Any())
+            {
+                throw exceptions.First();
+            }
+        }
+
+        public static Exception[] ExecuteOnNewThreadsCollectExceptions(int threadsCount, Action<int> action, int timeoutMilliseconds = 10000)
+        {
             var exceptions = new ConcurrentBag<Exception>();
             var startEvent = new ManualResetEventSlim(false);
 
@@ -42,7 +49,6 @@ namespace MongoDB.Bson.TestHelpers
                         }
 
                         action(i);
-                        Interlocked.Increment(ref actionsExecutedCount);
                     }
                     catch (Exception ex)
                     {
@@ -67,12 +73,7 @@ namespace MongoDB.Bson.TestHelpers
                 }
             }
 
-            if (exceptions.Any())
-            {
-                throw exceptions.First();
-            }
-
-            actionsExecutedCount.Should().Be(threadsCount);
+            return exceptions.ToArray();
         }
     }
 }

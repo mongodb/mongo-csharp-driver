@@ -74,6 +74,8 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
             }
         }
 
+        public IServer FailPointServer => null;
+
         // public methods
         public void ConfigureFailPoint(IServer server, ICoreSessionHandle session, BsonDocument failCommand)
         {

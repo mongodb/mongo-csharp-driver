@@ -17,7 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
-using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -54,13 +53,15 @@ namespace MongoDB.Driver.Core.Servers
             _clusterId = new ClusterId();
             _endPoint = new DnsEndPoint("localhost", 27017);
 
+            var mockConnectionExceptionHandler = new Mock<IConnectionExceptionHandler>();
+
             _clusterClock = new Mock<IClusterClock>().Object;
             _mockConnectionPool = new Mock<IConnectionPool>();
             _mockConnectionPool.Setup(p => p.AcquireConnection(It.IsAny<CancellationToken>())).Returns(new Mock<IConnectionHandle>().Object);
             _mockConnectionPool.Setup(p => p.AcquireConnectionAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult(new Mock<IConnectionHandle>().Object));
             _mockConnectionPoolFactory = new Mock<IConnectionPoolFactory>();
             _mockConnectionPoolFactory
-                .Setup(f => f.CreateConnectionPool(It.IsAny<ServerId>(), _endPoint))
+                .Setup(f => f.CreateConnectionPool(It.IsAny<ServerId>(), _endPoint, It.IsAny<IConnectionExceptionHandler>()))
                 .Returns(_mockConnectionPool.Object);
 
             _capturedEvents = new EventCapturer();
@@ -168,6 +169,7 @@ namespace MongoDB.Driver.Core.Servers
         {
             var connectionId = new ConnectionId(new ServerId(_clusterId, _endPoint));
             var mockConnectionHandle = new Mock<IConnectionHandle>();
+            var mockConnectionExceptionHandler = new Mock<IConnectionExceptionHandler>();
 
             var mockConnectionPool = new Mock<IConnectionPool>();
             var authenticationException = new MongoAuthenticationException(connectionId, "Invalid login.") { ServiceId = ObjectId.GenerateNewId() };
@@ -181,7 +183,7 @@ namespace MongoDB.Driver.Core.Servers
 
             var mockConnectionPoolFactory = new Mock<IConnectionPoolFactory>();
             mockConnectionPoolFactory
-                .Setup(f => f.CreateConnectionPool(It.IsAny<ServerId>(), _endPoint))
+                .Setup(f => f.CreateConnectionPool(It.IsAny<ServerId>(), _endPoint, It.IsAny<IConnectionExceptionHandler>()))
                 .Returns(mockConnectionPool.Object);
 
             var server = new LoadBalancedServer(
@@ -329,6 +331,7 @@ namespace MongoDB.Driver.Core.Servers
             var serverId = new ServerId(_clusterId, _endPoint);
             var connectionId = new ConnectionId(serverId);
             var innerMostException = CoreExceptionHelper.CreateException(errorType);
+            var mockConnectionExceptionHandler = new Mock<IConnectionExceptionHandler>();
 
             var openConnectionException = new MongoConnectionException(connectionId, "Oops", new IOException("Cry", innerMostException));
             var mockConnection = new Mock<IConnectionHandle>();
@@ -339,11 +342,11 @@ namespace MongoDB.Driver.Core.Servers
             connectionFactory.Setup(cf => cf.CreateConnection(serverId, _endPoint)).Returns(mockConnection.Object);
 
             var connectionPoolSettings = new ConnectionPoolSettings();
-            var connectionPool = new ExclusiveConnectionPool(serverId, _endPoint, connectionPoolSettings, connectionFactory.Object, new EventAggregator());
+            var connectionPool = new ExclusiveConnectionPool(serverId, _endPoint, connectionPoolSettings, connectionFactory.Object, new EventAggregator(), mockConnectionExceptionHandler.Object);
 
             var mockConnectionPoolFactory = new Mock<IConnectionPoolFactory>();
             mockConnectionPoolFactory
-                .Setup(f => f.CreateConnectionPool(It.IsAny<ServerId>(), _endPoint))
+                .Setup(f => f.CreateConnectionPool(It.IsAny<ServerId>(), _endPoint, It.IsAny<IConnectionExceptionHandler>()))
                 .Returns(connectionPool);
 
             var subject = new LoadBalancedServer(_clusterId, _clusterClock, _settings, _endPoint, mockConnectionPoolFactory.Object, _capturedEvents, _serverApi);
@@ -397,6 +400,7 @@ namespace MongoDB.Driver.Core.Servers
         {
             var connectionId = new ConnectionId(new ServerId(_clusterId, _endPoint));
             var mockConnectionHandle = new Mock<IConnectionHandle>();
+            var mockConnectionExceptionHandler = new Mock<IConnectionExceptionHandler>();
 
             mockConnectionHandle
                 .Setup(c => c.Fork())
@@ -436,7 +440,7 @@ namespace MongoDB.Driver.Core.Servers
 
             var mockConnectionPoolFactory = new Mock<IConnectionPoolFactory>();
             mockConnectionPoolFactory
-                .Setup(f => f.CreateConnectionPool(It.IsAny<ServerId>(), _endPoint))
+                .Setup(f => f.CreateConnectionPool(It.IsAny<ServerId>(), _endPoint, It.IsAny<IConnectionExceptionHandler>()))
                 .Returns(mockConnectionPool.Object);
 
             var server = new LoadBalancedServer(

@@ -231,8 +231,10 @@ namespace MongoDB.Driver.Core.Configuration
                 _eventAggregator,
                 _clusterSettings.ServerApi);
 
+            var connectionPoolSettings = _connectionPoolSettings.WithInternal(isPausable: !_connectionSettings.LoadBalanced);
+
             return new ExclusiveConnectionPoolFactory(
-                _connectionPoolSettings,
+                connectionPoolSettings,
                 connectionFactory,
                 _eventAggregator);
         }
