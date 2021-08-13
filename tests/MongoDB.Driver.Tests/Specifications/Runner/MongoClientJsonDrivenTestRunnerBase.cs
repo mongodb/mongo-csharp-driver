@@ -332,7 +332,8 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
                     break;
 
                 case "connectTimeoutMS":
-                    settings.ConnectTimeout = TimeSpan.FromMilliseconds(option.Value.ToInt32());
+                    var connectTimeoutMS = option.Value.ToInt32();
+                    settings.ConnectTimeout = connectTimeoutMS == 0 ? Timeout.InfiniteTimeSpan : TimeSpan.FromMilliseconds(connectTimeoutMS);
                     break;
 
                 case "directConnection":

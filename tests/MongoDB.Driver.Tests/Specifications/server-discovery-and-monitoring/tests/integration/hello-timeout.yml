@@ -19,7 +19,7 @@ tests:
           failCommands: ["hello", "isMaster"]
           appName: timeoutMonitorHandshakeTest
           blockConnection: true
-          blockTimeMS: 1000
+          blockTimeMS: 2000
     clientOptions:
       retryWrites: false
       connectTimeoutMS: 250
@@ -99,7 +99,7 @@ tests:
                 # blockTimeMS is evaluated after the waiting for heartbeatFrequencyMS server-side, so this value only
                 # needs to be greater than connectTimeoutMS. The driver will wait for (500+750)ms and the server will
                 # respond after (500+1000)ms.
-                blockTimeMS: 1000
+                blockTimeMS: 2000
       # The network error on the next check should mark the server Unknown and
       # clear the pool.
       - name: waitForEvent

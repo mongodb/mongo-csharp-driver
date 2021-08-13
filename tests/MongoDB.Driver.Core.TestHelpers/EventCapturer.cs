@@ -16,7 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
@@ -59,6 +58,17 @@ namespace MongoDB.Driver.Core
                 predicate = o => true;
             }
             _eventsToCapture.Add(typeof(TEvent), o => predicate((TEvent)o));
+            return this;
+        }
+
+        public EventCapturer CaptureCommandEvents(string commandName = null)
+        {
+            Func<string, bool> predicate = s => commandName == null || commandName == s;
+
+            _eventsToCapture.Add(typeof(CommandStartedEvent), o => predicate(((CommandStartedEvent)o).CommandName));
+            _eventsToCapture.Add(typeof(CommandSucceededEvent), o => predicate(((CommandSucceededEvent)o).CommandName));
+            _eventsToCapture.Add(typeof(CommandFailedEvent), o => predicate(((CommandFailedEvent)o).CommandName));
+
             return this;
         }
 
@@ -142,11 +152,23 @@ namespace MongoDB.Driver.Core
         {
             Func<IEnumerable<object>, bool> condition = @events =>
             {
-                var enumerator = @events.GetEnumerator();
+                var allEvents = @events.ToArray();
+                var maxEventIndex = allEvents.Length - matchSequence.Length;
 
-                while (enumerator.MoveNext())
+                for (int i = 0; i <= maxEventIndex; i++)
                 {
-                    if (matchSequence.All(m => m(enumerator.Current) && enumerator.MoveNext()))
+                    var allMatched = true;
+
+                    for (int j = 0; j < matchSequence.Length; j++)
+                    {
+                        if (!matchSequence[j](allEvents[i + j]))
+                        {
+                            allMatched = false;
+                            break;
+                        }
+                    }
+
+                    if (allMatched)
                     {
                         return true;
                     }

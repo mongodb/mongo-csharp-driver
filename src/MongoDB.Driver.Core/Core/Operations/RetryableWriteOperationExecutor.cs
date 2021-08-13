@@ -127,7 +127,15 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        // privates static methods
+        public static bool ShouldConnectionAcquireBeRetried(RetryableWriteContext context, ServerDescription serverDescription)
+        {
+            return context.RetryRequested &&
+                AreRetryableWritesSupported(serverDescription) &&
+                context.Binding.Session.Id != null &&
+                !context.Binding.Session.IsInTransaction;
+        }
+
+        // private static methods
         private static bool AreRetriesAllowed<TResult>(IRetryableWriteOperation<TResult> operation, RetryableWriteContext context)
         {
             return IsOperationAcknowledged(operation) && DoesContextAllowRetries(context);
@@ -139,6 +147,12 @@ namespace MongoDB.Driver.Core.Operations
             return
                 helloResult.ServerType == ServerType.LoadBalanced ||
                 (helloResult.LogicalSessionTimeout != null && helloResult.ServerType != ServerType.Standalone);
+        }
+
+        private static bool AreRetryableWritesSupported(ServerDescription serverDescription)
+        {
+            return serverDescription.Type == ServerType.LoadBalanced ||
+                (serverDescription.LogicalSessionTimeout != null && serverDescription.Type != ServerType.Standalone);
         }
 
         private static bool DoesContextAllowRetries(RetryableWriteContext context)
@@ -158,9 +172,8 @@ namespace MongoDB.Driver.Core.Operations
                 writeConcern.IsAcknowledged;
         }
 
-        private static bool ShouldThrowOriginalException(Exception retryException)
-        {
-            return retryException is MongoException && !(retryException is MongoConnectionException);
-        }
+        private static bool ShouldThrowOriginalException(Exception retryException) =>
+            retryException == null ||
+            retryException is MongoException && !(retryException is MongoConnectionException || retryException is MongoConnectionPoolPausedException);
     }
 }

@@ -195,13 +195,47 @@ namespace MongoDB.Driver.Core.Operations
         private void Initialize(CancellationToken cancellationToken)
         {
             _channelSource = _binding.GetWriteChannelSource(cancellationToken);
-            _channel = _channelSource.GetChannel(cancellationToken);
+            var serverDescription = _channelSource.ServerDescription;
+
+            try
+            {
+                _channel = _channelSource.GetChannel(cancellationToken);
+            }
+            catch (MongoConnectionPoolPausedException)
+            {
+                if (RetryableWriteOperationExecutor.ShouldConnectionAcquireBeRetried(this, serverDescription))
+                {
+                    ReplaceChannelSource(_binding.GetWriteChannelSource(cancellationToken));
+                    ReplaceChannel(_channelSource.GetChannel(cancellationToken));
+                }
+                else
+                {
+                    throw;
+                }
+            }
         }
 
         private async Task InitializeAsync(CancellationToken cancellationToken)
         {
             _channelSource = await _binding.GetWriteChannelSourceAsync(cancellationToken).ConfigureAwait(false);
-            _channel = await _channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false);
+            var serverDescription = _channelSource.ServerDescription;
+
+            try
+            {
+                _channel = await _channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false);
+            }
+            catch (MongoConnectionPoolPausedException)
+            {
+                if (RetryableWriteOperationExecutor.ShouldConnectionAcquireBeRetried(this, serverDescription))
+                {
+                    ReplaceChannelSource(await _binding.GetWriteChannelSourceAsync(cancellationToken).ConfigureAwait(false));
+                    ReplaceChannel(await _channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false));
+                }
+                else
+                {
+                    throw;
+                }
+            }
         }
     }
 }

@@ -17,8 +17,8 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Bindings;
-using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -136,6 +136,13 @@ namespace MongoDB.Driver.Core.Operations
             {
                 throw originalException;
             }
+        }
+
+        public static bool ShouldConnectionAcquireBeRetried(RetryableReadContext context, ServerDescription serverDescription)
+        {
+            return context.RetryRequested &&
+                Feature.RetryableReads.IsSupported(serverDescription.Version) &&
+                !context.Binding.Session.IsInTransaction;
         }
 
         // private static methods

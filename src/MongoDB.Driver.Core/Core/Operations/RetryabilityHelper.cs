@@ -40,7 +40,8 @@ namespace MongoDB.Driver.Core.Operations
             var resumableAndRetryableExceptions = new HashSet<Type>()
             {
                 typeof(MongoNotPrimaryException),
-                typeof(MongoNodeIsRecoveringException)
+                typeof(MongoNodeIsRecoveringException),
+                typeof(MongoConnectionPoolPausedException)
             };
 
             __resumableChangeStreamExceptions = new HashSet<Type>(resumableAndRetryableExceptions);
@@ -93,6 +94,14 @@ namespace MongoDB.Driver.Core.Operations
             if (ShouldRetryableWriteExceptionLabelBeAdded(exception, serverVersion))
             {
                 exception.AddErrorLabel(RetryableWriteErrorLabel);
+            }
+        }
+
+        public static void AddRetryableWriteErrorLabelOnCheckoutRetryableWrite(Exception exception)
+        {
+            if (exception is MongoConnectionPoolPausedException mongoPoolPausedException)
+            {
+                mongoPoolPausedException.AddErrorLabel(RetryableWriteErrorLabel);
             }
         }
 
