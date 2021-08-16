@@ -119,7 +119,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             var settings = _settings.With(
                 minConnections: 0,
                 maxConnections: connectionsCount,
-                waitQueueTimeout: TimeSpan.FromMilliseconds(1),
+                waitQueueTimeout: TimeSpan.FromMilliseconds(20),
                 maintenanceInterval: TimeSpan.FromMilliseconds(10000));
 
             var connectionsCreated = new HashSet<ConnectionId>();
