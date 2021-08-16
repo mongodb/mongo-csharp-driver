@@ -55,6 +55,8 @@ namespace MongoDB.Driver.Core.Configuration
                   waitQueueTimeout: waitQueueTimeout,
                   isPausable: true)
         {
+            // Negative value is allowed internally
+            Ensure.IsInfiniteOrGreaterThanOrEqualToZero(_maintenanceInterval, nameof(maintenanceInterval));
         }
 
         private ConnectionPoolSettings(
@@ -172,10 +174,11 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         internal ConnectionPoolSettings WithInternal(
+            Optional<TimeSpan> maintenanceInterval = default(Optional<TimeSpan>),
             Optional<bool> isPausable = default(Optional<bool>),
             Optional<int> maxConnecting = default(Optional<int>)) =>
             new ConnectionPoolSettings(
-                maintenanceInterval: _maintenanceInterval,
+                maintenanceInterval: maintenanceInterval,
                 maxConnections: _maxConnections,
                 minConnections: _minConnections,
                 waitQueueSize: _waitQueueSize,

@@ -1114,7 +1114,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         [Fact]
         public async Task MaintainSizeAsync_should_not_run_with_negative_maintenanceInterval()
         {
-            var settings = _settings.With(maintenanceInterval: TimeSpan.FromSeconds(-1));
+            var settings = _settings.WithInternal(maintenanceInterval: TimeSpan.FromSeconds(-1));
 
             using var subject = CreateSubject(settings);
 
