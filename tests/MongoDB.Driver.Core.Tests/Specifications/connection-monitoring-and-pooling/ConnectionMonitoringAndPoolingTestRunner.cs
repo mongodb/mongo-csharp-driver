@@ -577,6 +577,11 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
                 {
                     switch (poolOption.Name)
                     {
+                        case "backgroundThreadIntervalMS":
+                            var intervalMS = poolOption.Value.ToInt32();
+                            var interval = TimeSpan.FromMilliseconds(intervalMS < 0 ? -1000 : intervalMS);
+                            connectionPoolSettings = connectionPoolSettings.With(maintenanceInterval: interval);
+                            break;
                         case "maxPoolSize":
                             connectionPoolSettings = connectionPoolSettings.With(maxConnections: poolOption.Value.ToInt32());
                             break;

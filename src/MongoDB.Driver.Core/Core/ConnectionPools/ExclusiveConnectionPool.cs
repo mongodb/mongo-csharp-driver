@@ -293,6 +293,12 @@ namespace MongoDB.Driver.Core.ConnectionPools
         // private methods
         private async Task MaintainSizeAsync(CancellationToken cancellationToken)
         {
+            if (_settings.MaintenanceInterval != Timeout.InfiniteTimeSpan &&
+                _settings.MaintenanceInterval < TimeSpan.Zero)
+            {
+                return;
+            }
+
             try
             {
                 while (!cancellationToken.IsCancellationRequested)

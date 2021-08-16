@@ -38,14 +38,6 @@ namespace MongoDB.Driver.Core.Configuration
             subject.WaitQueueTimeout.Should().Be(TimeSpan.FromMinutes(2));
         }
 
-        [Fact]
-        public void constructor_should_throw_when_maintenanceInterval_is_negative()
-        {
-            Action action = () => new ConnectionPoolSettings(maintenanceInterval: TimeSpan.FromSeconds(-1));
-
-            action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("maintenanceInterval");
-        }
-
         [Theory]
         [ParameterAttributeData]
         public void constructor_should_throw_when_maxConnections_is_negative_or_zero(

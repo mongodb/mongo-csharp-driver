@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Core.Configuration
             Optional<bool> isPausable = default(Optional<bool>),
             Optional<int> maxConnecting = default(Optional<int>))
         {
-            _maintenanceInterval = Ensure.IsInfiniteOrGreaterThanOrEqualToZero(maintenanceInterval.WithDefault(TimeSpan.FromMinutes(1)), nameof(maintenanceInterval));
+            _maintenanceInterval = maintenanceInterval.WithDefault(TimeSpan.FromMinutes(1));
             _maxConnections = Ensure.IsGreaterThanZero(maxConnections.WithDefault(100), nameof(maxConnections));
             _maxConnecting = Ensure.IsGreaterThanZero(maxConnecting.WithDefault(MongoInternalDefaults.ConnectionPool.MaxConnecting), nameof(maxConnecting));
             _minConnections = Ensure.IsGreaterThanOrEqualToZero(minConnections.WithDefault(0), nameof(minConnections));

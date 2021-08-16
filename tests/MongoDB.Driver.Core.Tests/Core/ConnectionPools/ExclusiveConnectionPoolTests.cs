@@ -1111,6 +1111,17 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
         }
 
+        [Fact]
+        public async Task MaintainSizeAsync_should_not_run_with_negative_maintenanceInterval()
+        {
+            var settings = _settings.With(maintenanceInterval: TimeSpan.FromSeconds(-1));
+
+            using var subject = CreateSubject(settings);
+
+            // Validate that MaintainSizeAsync is started and finished immediately (with 100ms buffer)
+            await subject.MaintainSizeAsync(default).WithTimeout(100);
+        }
+
         [Theory]
         [ParameterAttributeData]
         public void MaxConnecting_queue_should_be_cleared_on_pool_clear(
