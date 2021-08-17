@@ -83,8 +83,6 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
         public void WriteError_details_should_expose_writeErrors_errInfo()
         {
             RequireServer.Check().VersionGreaterThanOrEqualTo(new SemanticVersion(5, 0, 0, ""));
-            // https://jira.mongodb.org/browse/SERVER-58399
-            RequireServer.Check().VersionLessThan("5.1.0-");
 
             var eventCapturer = new EventCapturer().Capture<CommandSucceededEvent>(e => e.CommandName == "insert");
             var collectionName = "WriteError_details_should_expose_writeErrors_errInfo";
