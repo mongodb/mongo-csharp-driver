@@ -1428,6 +1428,24 @@ buildvariants:
      - name: test-netstandard20
      - name: test-netstandard21
 
+- matrix_name: "tests-snappy-compression-linux"
+  matrix_spec: { compressor : "snappy", auth: "noauth", ssl: "nossl", version: ["3.6", "4.0", "4.2", "4.4", "5.0", "latest"], topology: "standalone", os: "ubuntu-1804" }
+  display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
+  tags: ["tests-variant"]
+  tasks:
+     - name: test-netstandard15
+     - name: test-netstandard20
+     - name: test-netstandard21
+
+- matrix_name: "tests-snappy-compression-macOS"
+  matrix_spec: { compressor : "snappy", auth: "noauth", ssl: "nossl", version: ["3.6", "4.0", "4.2", "4.4", "5.0", "latest"], topology: "standalone", os: "macos-1014" }
+  display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
+  tags: ["tests-variant"]
+  tasks:
+     - name: test-netstandard15
+     - name: test-netstandard20
+     - name: test-netstandard21
+
 - matrix_name: "tests-zstandard-compression"
   matrix_spec: { compressor : "zstandard", auth: "noauth", ssl: "nossl", version: ["3.6", "4.0", "4.2", "4.4", "5.0", "latest"], topology: "standalone", os: "windows-64" }
   display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "

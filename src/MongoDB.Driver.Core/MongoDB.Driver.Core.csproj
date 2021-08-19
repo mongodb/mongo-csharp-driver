@@ -63,34 +63,54 @@
   </PropertyGroup>
 
   <!--Snappy-->
-  <ItemGroup>
-    <None Remove="snappy32.dll" />
-    <None Remove="snappy64.dll" />
-  </ItemGroup>
-
   <PropertyGroup>
-    <SnappyBinaries>Core/Compression/Snappy/lib/win</SnappyBinaries>
+    <SnappyWinBinaries>Core/Compression/Snappy/lib/win</SnappyWinBinaries>
+    <SnappyLinuxBinaries>Core/Compression/Snappy/lib/linux</SnappyLinuxBinaries>
+    <SnappyOsxBinaries>Core/Compression/Snappy/lib/osx</SnappyOsxBinaries>
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="$(SnappyBinaries)/snappy32.dll">
+    <!--Responsible for 'runtimes\$OS\native\%(FileName)%(Extension)' in package.nupkg-->
+    <!--win-->
+    <Content Include="$(SnappyWinBinaries)/**/*.dll">
+      <!--x32/x64-->
       <Pack>true</Pack>
       <PackagePath>$(CompressionWinRuntimesPath)</PackagePath>
     </Content>
-    <Content Include="$(SnappyBinaries)/snappy64.dll">
+    <!--linux-->
+    <Content Include="$(SnappyLinuxBinaries)/**/*.so">
+      <!--x32/x64-->
       <Pack>true</Pack>
-      <PackagePath>$(CompressionWinRuntimesPath)</PackagePath>
+      <PackagePath>$(CompressionLinuxRuntimesPath)</PackagePath>
+    </Content>
+    <!--osx-->
+    <Content Include="$(SnappyOsxBinaries)/**/*.dylib">
+      <!--x32/x64-->
+      <Pack>true</Pack>
+      <PackagePath>$(CompressionOsxRuntimesPath)</PackagePath>
     </Content>
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="$(SnappyBinaries)/snappy32.dll">
+    <!--Used to allow working with native libraries in our test projects-->
+    <!--Responsible for 'context and contentFiles' folders in package.nupkg-->
+    <!--win-->
+    <Content Include="$(SnappyWinBinaries)/**/*.dll">
+      <!--x32/x64-->
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Link>snappy32.dll</Link>
+      <Link>%(FileName)%(Extension)</Link>
     </Content>
-    <Content Include="$(SnappyBinaries)/snappy64.dll">
+    <!--linux-->
+    <Content Include="$(SnappyLinuxBinaries)/**/*.so">
+      <!--x32/x64-->
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Link>snappy64.dll</Link>
+      <Link>%(FileName)%(Extension)</Link>
+    </Content>
+    <!--osx-->
+    <Content Include="$(SnappyOsxBinaries)/**/*.dylib">
+      <!--x32/x64-->
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>%(FileName)%(Extension)</Link>
     </Content>
   </ItemGroup>
 
@@ -101,57 +121,48 @@
     <ZstdOsxBinaries>Core/Compression/Zstandard/lib/osx</ZstdOsxBinaries>
   </PropertyGroup>
 
-  <!--win-->
   <ItemGroup>
-    <Content Include="$(ZstdWinBinaries)/libzstd.dll">
+    <!--Responsible for 'runtimes\$OS\native\%(FileName)%(Extension)' in package.nupkg-->
+    <!--win-->
+    <Content Include="$(ZstdWinBinaries)/**/*.dll">
+      <!--only x64-->
       <Pack>true</Pack>
-      <!--Responsible for 'runtimes\win\native\libzstd.dll' in package.nupkg-->
       <PackagePath>$(CompressionWinRuntimesPath)</PackagePath>
     </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="$(ZstdWinBinaries)/libzstd.dll">
-      <!--Used to allow working with native libraries in our test projects-->
-      <!--Responsible for 'context and contentFiles' folders in package.nupkg-->
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Link>libzstd.dll</Link>
-    </Content>
-  </ItemGroup>
-
-  <!--linux-->
-  <ItemGroup>
-    <Content Include="$(ZstdLinuxBinaries)/libzstd.so">
+    <!--linux-->
+    <Content Include="$(ZstdLinuxBinaries)/**/*.so">
+      <!--only x64-->
       <Pack>true</Pack>
-      <!--Responsible for 'runtimes\linux\native\libzstd.so' in package.nupkg-->
       <PackagePath>$(CompressionLinuxRuntimesPath)</PackagePath>
     </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="$(ZstdLinuxBinaries)/libzstd.so">
-      <!--Used to allow working with native libraries in our test projects-->
-      <!--Responsible for 'context and contentFiles' folders in package.nupkg-->
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Link>libzstd.so</Link>
-    </Content>
-  </ItemGroup>
-
-  <!--osx-->
-  <ItemGroup>
-    <Content Include="$(ZstdOsxBinaries)/libzstd.dylib">
+    <!--osx-->
+    <Content Include="$(ZstdOsxBinaries)/**/*.dylib">
+      <!--only x64-->
       <Pack>true</Pack>
-      <!-- Responsible for 'runtimes\osx\native\libzstd.so' in package.nupkg-->
       <PackagePath>$(CompressionOsxRuntimesPath)</PackagePath>
     </Content>
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="$(ZstdOsxBinaries)/libzstd.dylib">
-      <!--Used to allow working with native libraries in our test projects-->
-      <!--Responsible for 'context and contentFiles' folders in package.nupkg-->
+    <!--Used to allow working with native libraries in our test projects-->
+    <!--Responsible for 'context and contentFiles' folders in package.nupkg-->
+    <!--win-->
+    <Content Include="$(ZstdWinBinaries)/**/*.dll">
+      <!--only x64-->
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Link>libzstd.dylib</Link>
+      <Link>%(FileName)%(Extension)</Link>
+    </Content>
+    <!--linux-->
+    <Content Include="$(ZstdLinuxBinaries)/**/*.so">
+      <!--only x64-->
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>%(FileName)%(Extension)</Link>
+    </Content>
+    <!--osx-->
+    <Content Include="$(ZstdOsxBinaries)/**/*.dylib">
+      <!--only x64-->
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>%(FileName)%(Extension)</Link>
     </Content>
   </ItemGroup>
 
