@@ -295,9 +295,6 @@ namespace MongoDB.Driver.Core.ConnectionPools
         {
             try
             {
-                // prevent MaintainSizeAsync to be scheduled on SetReady thread
-                await Task.Yield();
-
                 while (!cancellationToken.IsCancellationRequested)
                 {
                     try

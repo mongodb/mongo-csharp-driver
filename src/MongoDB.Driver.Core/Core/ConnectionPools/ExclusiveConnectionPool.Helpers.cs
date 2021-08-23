@@ -192,7 +192,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 _cancellationTokenSource?.Cancel();
                 _cancellationTokenSource = new CancellationTokenSource();
 
-                _maintenanceTask = _maintenanceTaskCreator(_cancellationTokenSource.Token);
+                _maintenanceTask = Task.Run(() => _maintenanceTaskCreator(_cancellationTokenSource.Token), _cancellationTokenSource.Token);
                 _maintenanceTask.ConfigureAwait(false);
             }
 
