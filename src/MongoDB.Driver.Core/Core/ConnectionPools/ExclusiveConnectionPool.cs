@@ -76,7 +76,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             _connectionExceptionHandler = Ensure.IsNotNull(connectionExceptionHandler, nameof(connectionExceptionHandler));
             Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
 
-            _maintenanceHelper = new MaintenanceHelper(token => MaintainSizeAsync(token));
+            _maintenanceHelper = new MaintenanceHelper(token => MaintainSizeAsync(token), _settings.MaintenanceInterval);
             _poolState = new PoolState(EndPointHelper.ToString(_endPoint));
             _checkOutReasonCounter = new CheckOutReasonCounter();
 
@@ -293,14 +293,11 @@ namespace MongoDB.Driver.Core.ConnectionPools
         // private methods
         private async Task MaintainSizeAsync(CancellationToken cancellationToken)
         {
-            if (_settings.MaintenanceInterval != Timeout.InfiniteTimeSpan &&
-                _settings.MaintenanceInterval < TimeSpan.Zero)
-            {
-                return;
-            }
-
             try
             {
+                // prevent MaintainSizeAsync to be scheduled on SetReady thread
+                await Task.Yield();
+
                 while (!cancellationToken.IsCancellationRequested)
                 {
                     try

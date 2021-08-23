@@ -55,8 +55,6 @@ namespace MongoDB.Driver.Core.Configuration
                   waitQueueTimeout: waitQueueTimeout,
                   isPausable: true)
         {
-            // Negative value is allowed internally
-            Ensure.IsInfiniteOrGreaterThanOrEqualToZero(_maintenanceInterval, nameof(maintenanceInterval));
         }
 
         private ConnectionPoolSettings(
@@ -68,7 +66,7 @@ namespace MongoDB.Driver.Core.Configuration
             Optional<bool> isPausable = default(Optional<bool>),
             Optional<int> maxConnecting = default(Optional<int>))
         {
-            _maintenanceInterval = maintenanceInterval.WithDefault(TimeSpan.FromMinutes(1));
+            _maintenanceInterval = Ensure.IsInfiniteOrGreaterThanOrEqualToZero(maintenanceInterval.WithDefault(TimeSpan.FromMinutes(1)), nameof(maintenanceInterval));
             _maxConnections = Ensure.IsGreaterThanZero(maxConnections.WithDefault(100), nameof(maxConnections));
             _maxConnecting = Ensure.IsGreaterThanZero(maxConnecting.WithDefault(MongoInternalDefaults.ConnectionPool.MaxConnecting), nameof(maxConnecting));
             _minConnections = Ensure.IsGreaterThanOrEqualToZero(minConnections.WithDefault(0), nameof(minConnections));
@@ -174,16 +172,15 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         internal ConnectionPoolSettings WithInternal(
-            Optional<TimeSpan> maintenanceInterval = default(Optional<TimeSpan>),
             Optional<bool> isPausable = default(Optional<bool>),
             Optional<int> maxConnecting = default(Optional<int>)) =>
             new ConnectionPoolSettings(
-                maintenanceInterval: maintenanceInterval,
+                maintenanceInterval: _maintenanceInterval,
                 maxConnections: _maxConnections,
                 minConnections: _minConnections,
                 waitQueueSize: _waitQueueSize,
                 waitQueueTimeout: _waitQueueTimeout,
-                isPausable: isPausable,
-                maxConnecting: maxConnecting);
+                isPausable: isPausable.WithDefault(_isPausable),
+                maxConnecting: maxConnecting.WithDefault(_maxConnecting));
     }
 }

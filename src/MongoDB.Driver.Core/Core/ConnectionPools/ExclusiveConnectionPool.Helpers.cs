@@ -161,19 +161,24 @@ namespace MongoDB.Driver.Core.ConnectionPools
             public override string ToString() => State.ToString();
         }
 
-        private sealed class MaintenanceHelper : IDisposable
+        internal sealed class MaintenanceHelper : IDisposable
         {
             private CancellationTokenSource _cancellationTokenSource = null;
             private Func<CancellationToken, Task> _maintenanceTaskCreator;
             private Task _maintenanceTask;
+            private readonly TimeSpan _interval;
 
-            public MaintenanceHelper(Func<CancellationToken, Task> maintenanceTaskCreator)
+            public MaintenanceHelper(Func<CancellationToken, Task> maintenanceTaskCreator, TimeSpan interval)
             {
+                _interval = interval;
                 _maintenanceTaskCreator = Ensure.IsNotNull(maintenanceTaskCreator, nameof(maintenanceTaskCreator));
             }
 
             public void Cancel()
             {
+                if (_interval == Timeout.InfiniteTimeSpan)
+                    return;
+
                 _cancellationTokenSource?.Cancel();
                 _cancellationTokenSource = null;
                 _maintenanceTask = null;
@@ -181,6 +186,9 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             public void Start()
             {
+                if (_interval == Timeout.InfiniteTimeSpan)
+                    return;
+
                 _cancellationTokenSource?.Cancel();
                 _cancellationTokenSource = new CancellationTokenSource();
 

@@ -50,6 +50,9 @@ namespace MongoDB.Bson.TestHelpers
             .Select(i => taskCreator(i))
             .ToArray();
 
+        public static bool IsScheduledOrRunning(this Task task) =>
+            task.Status < TaskStatus.RanToCompletion;
+
         public static async Task WithTimeout(this Task task, int timeoutMS)
         {
             var firstFinishedTask = await Task.WhenAny(task, Task.Delay(timeoutMS));
