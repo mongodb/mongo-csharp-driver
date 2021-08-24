@@ -171,13 +171,17 @@ namespace MongoDB.Driver.Core.Servers
             var mockConnectionHandle = new Mock<IConnectionHandle>();
             var mockConnectionExceptionHandler = new Mock<IConnectionExceptionHandler>();
 
+            LoadBalancedServer server = null;
+
             var mockConnectionPool = new Mock<IConnectionPool>();
             var authenticationException = new MongoAuthenticationException(connectionId, "Invalid login.") { ServiceId = ObjectId.GenerateNewId() };
             mockConnectionPool
                 .Setup(p => p.AcquireConnection(It.IsAny<CancellationToken>()))
+                .Callback(() => server.HandleExceptionOnOpen(authenticationException))
                 .Throws(authenticationException);
             mockConnectionPool
                 .Setup(p => p.AcquireConnectionAsync(It.IsAny<CancellationToken>()))
+                .Callback(() => server.HandleExceptionOnOpen(authenticationException))
                 .Throws(authenticationException);
             mockConnectionPool.Setup(p => p.Clear(It.IsAny<ObjectId>()));
 
@@ -186,7 +190,7 @@ namespace MongoDB.Driver.Core.Servers
                 .Setup(f => f.CreateConnectionPool(It.IsAny<ServerId>(), _endPoint, It.IsAny<IConnectionExceptionHandler>()))
                 .Returns(mockConnectionPool.Object);
 
-            var server = new LoadBalancedServer(
+            server = new LoadBalancedServer(
                 _clusterId,
                 _clusterClock,
                 _settings,

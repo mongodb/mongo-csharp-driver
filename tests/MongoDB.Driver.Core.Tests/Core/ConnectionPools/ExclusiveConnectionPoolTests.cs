@@ -293,6 +293,68 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
         [Theory]
         [ParameterAttributeData]
+        public async Task AcquireConnection_should_invoke_error_handling_before_releasing_maxConnectionsQueue(
+            [Values(false, true)]
+            bool async)
+        {
+            const int maxConnections = 1;
+            ExclusiveConnectionPool subject = null;
+
+            var connectionMock = new Mock<IConnection>();
+            var connectionId = new ConnectionId(new ServerId(new ClusterId(), new DnsEndPoint("localhost", 1234)));
+            var exception = new MongoConnectionException(connectionId, "Connection error");
+
+            var mockConnectionExceptionHandler = new Mock<IConnectionExceptionHandler>();
+            mockConnectionExceptionHandler
+                .Setup(handler => handler.HandleExceptionOnOpen(It.IsAny<Exception>()))
+                .Callback(() => subject.AvailableCount.Should().Be(maxConnections - 1));
+
+            var mockConnectionFactory = new Mock<IConnectionFactory> { DefaultValue = DefaultValue.Mock };
+            mockConnectionFactory
+                .Setup(c => c.CreateConnection(It.IsAny<ServerId>(), It.IsAny<EndPoint>()))
+                .Returns(() =>
+                {
+                    connectionMock
+                         .Setup(c => c.Settings)
+                         .Returns(new ConnectionSettings());
+                    connectionMock
+                        .Setup(c => c.Open(It.IsAny<CancellationToken>()))
+                        .Throws(exception);
+                    connectionMock
+                        .Setup(c => c.OpenAsync(It.IsAny<CancellationToken>()))
+                        .Throws(exception);
+
+                    return connectionMock.Object;
+                 });
+
+            var settings = new ConnectionPoolSettings(maxConnections: maxConnections, maintenanceInterval: Timeout.InfiniteTimeSpan);
+            subject = CreateSubject(
+                connectionPoolSettings: settings,
+                connectionFactory: mockConnectionFactory.Object,
+                connectionExceptionHandler: mockConnectionExceptionHandler.Object);
+            subject.Initialize();
+            subject.SetReady();
+
+            try
+            {
+                if (async)
+                {
+                    _ = await subject.AcquireConnectionAsync(default);
+                }
+                else
+                {
+                    _ = subject.AcquireConnection(default);
+                }
+            }
+            catch (MongoConnectionException)
+            {
+                subject.AvailableCount.Should().Be(maxConnections);
+                mockConnectionExceptionHandler.Verify(handler => handler.HandleExceptionOnOpen(exception), Times.Once);
+            }
+        }
+
+        [Theory]
+        [ParameterAttributeData]
         internal void AcquireConnection_should_track_checked_out_reasons(
             [Values(CheckOutReason.Cursor, CheckOutReason.Transaction)] CheckOutReason reason,
             [Values(1, 3, 5)] int attempts,
@@ -1530,7 +1592,10 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
         }
 
-        private ExclusiveConnectionPool CreateSubject(ConnectionPoolSettings connectionPoolSettings = null, IConnectionFactory connectionFactory = null)
+        private ExclusiveConnectionPool CreateSubject(
+            ConnectionPoolSettings connectionPoolSettings = null,
+            IConnectionFactory connectionFactory = null,
+            IConnectionExceptionHandler connectionExceptionHandler = null)
         {
             return new ExclusiveConnectionPool(
                 _serverId,
@@ -1538,7 +1603,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 connectionPoolSettings ?? _settings,
                 connectionFactory ?? _mockConnectionFactory.Object,
                 _capturedEvents,
-                _mockConnectionExceptionHandler.Object);
+                connectionExceptionHandler ?? _mockConnectionExceptionHandler.Object);
         }
 
         private void InitializeAndWait(ExclusiveConnectionPool pool = null, ConnectionPoolSettings poolSettings = null)
@@ -1582,6 +1647,11 @@ namespace MongoDB.Driver.Core.ConnectionPools
         public static ServiceStates _serviceStates(this ExclusiveConnectionPool obj)
         {
             return (ServiceStates)Reflector.GetFieldValue(obj, nameof(_serviceStates));
+        }
+
+        public static void _connectionExceptionHandler(this ExclusiveConnectionPool server, IConnectionExceptionHandler connectionExceptionHandler)
+        {
+            Reflector.SetFieldValue(server, nameof(_connectionExceptionHandler), connectionExceptionHandler);
         }
     }
 }

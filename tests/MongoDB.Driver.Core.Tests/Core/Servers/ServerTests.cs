@@ -205,13 +205,6 @@ namespace MongoDB.Driver.Core.Servers
             var mockConnectionHandle = new Mock<IConnectionHandle>();
 
             var mockConnectionPool = new Mock<IConnectionPool>();
-            mockConnectionPool
-                .Setup(p => p.AcquireConnection(It.IsAny<CancellationToken>()))
-                .Throws(new MongoAuthenticationException(connectionId, "Invalid login."));
-            mockConnectionPool
-                .Setup(p => p.AcquireConnectionAsync(It.IsAny<CancellationToken>()))
-                .Throws(new MongoAuthenticationException(connectionId, "Invalid login."));
-            mockConnectionPool.Setup(p => p.Clear());
 
             var mockConnectionPoolFactory = new Mock<IConnectionPoolFactory>();
             mockConnectionPoolFactory
@@ -230,6 +223,18 @@ namespace MongoDB.Driver.Core.Servers
                 _mockServerMonitorFactory.Object,
                 _capturedEvents,
                 _serverApi);
+
+            var exceptionToThrow = new MongoAuthenticationException(connectionId, "Invalid login.");
+            mockConnectionPool
+                .Setup(p => p.AcquireConnection(It.IsAny<CancellationToken>()))
+                .Callback(() => server.HandleExceptionOnOpen(exceptionToThrow))
+                .Throws(exceptionToThrow);
+            mockConnectionPool
+                .Setup(p => p.AcquireConnectionAsync(It.IsAny<CancellationToken>()))
+                .Callback(() => server.HandleExceptionOnOpen(exceptionToThrow))
+                .Throws(exceptionToThrow);
+            mockConnectionPool.Setup(p => p.Clear());
+
             server.Initialize();
 
             var exception = Record.Exception(() =>
@@ -395,6 +400,7 @@ namespace MongoDB.Driver.Core.Servers
             mockServerMonitorFactory.Setup(f => f.Create(It.IsAny<ServerId>(), _endPoint)).Returns(mockServerMonitor.Object);
 
             var subject = new DefaultServer(_clusterId, _clusterClock, _clusterConnectionMode, _connectionModeSwitch, _directConnection, _settings, _endPoint, mockConnectionPoolFactory.Object, mockServerMonitorFactory.Object, _capturedEvents, _serverApi);
+            connectionPool._connectionExceptionHandler(subject);
             subject.Initialize();
             connectionPool.SetReady();
 
