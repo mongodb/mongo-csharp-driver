@@ -1053,7 +1053,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         }
 
         [Fact]
-        public async Task Maintenance_should_call_connection_dispose_when_connection_authentication_fail()
+        public void Maintenance_should_call_connection_dispose_when_connection_authentication_fail()
         {
             var authenticationException = new MongoAuthenticationException(new ConnectionId(_serverId), "test message");
             var authenticationFailedConnection = new Mock<IConnection>();
@@ -1075,7 +1075,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 subject.Initialize();
                 subject.SetReady();
 
-                await subject._maintenanceHelper()._maintenanceTask();
+                var maintenanceHelper = subject._maintenanceHelper();
+                SpinWait.SpinUntil(() => !maintenanceHelper.IsRunning, 1000);
 
                 authenticationFailedConnection.Verify(conn => conn.Dispose(), Times.Once);
                 _mockConnectionExceptionHandler.Verify(c => c.HandleExceptionOnOpen(authenticationException), Times.Once);
@@ -1121,7 +1122,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             subject.Initialize();
             subject.SetReady();
 
-            subject._maintenanceHelper()._maintenanceTask().IsScheduledOrRunning().Should().BeTrue();
+            subject._maintenanceHelper().IsRunning.Should().BeTrue();
         }
 
         [Fact]
@@ -1134,8 +1135,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             subject.Initialize();
             subject.SetReady();
 
-            var isTaskNull = subject._maintenanceHelper()._maintenanceTask() == null;
-            isTaskNull.Should().BeTrue();
+            subject._maintenanceHelper().IsRunning.Should().BeFalse();
         }
 
         [Theory]
@@ -1613,14 +1613,6 @@ namespace MongoDB.Driver.Core.ConnectionPools
         public static ServiceStates _serviceStates(this ExclusiveConnectionPool obj)
         {
             return (ServiceStates)Reflector.GetFieldValue(obj, nameof(_serviceStates));
-        }
-    }
-
-    internal static class MaintenanceHelperReflector
-    {
-        public static Task _maintenanceTask(this ExclusiveConnectionPool.MaintenanceHelper obj)
-        {
-            return (Task)Reflector.GetFieldValue(obj, nameof(_maintenanceTask));
         }
     }
 }

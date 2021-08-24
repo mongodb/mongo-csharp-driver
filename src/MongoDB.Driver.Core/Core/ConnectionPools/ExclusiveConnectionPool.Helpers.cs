@@ -174,6 +174,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 _maintenanceTaskCreator = Ensure.IsNotNull(maintenanceTaskCreator, nameof(maintenanceTaskCreator));
             }
 
+            public bool IsRunning => _maintenanceTask != null;
+
             public void Cancel()
             {
                 if (_interval == Timeout.InfiniteTimeSpan)
