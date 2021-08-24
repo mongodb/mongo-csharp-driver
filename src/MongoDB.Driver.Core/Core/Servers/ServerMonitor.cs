@@ -153,12 +153,25 @@ namespace MongoDB.Driver.Core.Servers
                 // the delay is whatever time it takes for the new Task to be activated and scheduled
                 // and the delay is usually long enough for the test to get past the race condition (though not guaranteed)
 #if !NETSTANDARD1_5
-                using(_ = ExecutionContext.SuppressFlow())
+                var restoreFlow = false;
+                try
                 {
+                    if (!ExecutionContext.IsFlowSuppressed())
+                    {
+                        ExecutionContext.SuppressFlow();
+                        restoreFlow = true;
+                    }
 #endif
                     _ = Task.Factory.StartNew(() => _ = MonitorServerAsync().ConfigureAwait(false)).ConfigureAwait(false);
                     _ = _roundTripTimeMonitor.RunAsync().ConfigureAwait(false);
 #if !NETSTANDARD1_5
+                }
+                finally
+                {
+                    if (restoreFlow)
+                    {
+                        ExecutionContext.RestoreFlow();
+                    }
                 }
 #endif
             }
