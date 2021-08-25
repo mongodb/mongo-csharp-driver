@@ -294,8 +294,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         [Theory]
         [ParameterAttributeData]
         public async Task AcquireConnection_should_invoke_error_handling_before_releasing_maxConnectionsQueue(
-            [Values(false, true)]
-            bool async)
+            [Values(false, true)] bool async)
         {
             const int maxConnections = 1;
             ExclusiveConnectionPool subject = null;
