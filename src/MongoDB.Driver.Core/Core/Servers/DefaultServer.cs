@@ -207,14 +207,16 @@ namespace MongoDB.Driver.Core.Servers
             // Current assumption is SetDescription is always synchronized under _monitor.Lock.
             // This synchronization technically can be violated by calling server.Invalidate not under _monitor.Lock.
             // Therefore _currentDescription and ConnectionPool state can get out of sync.
-            var oldDescription = _currentDescription;
+
+            var descriptionChangedEvent = new ServerDescriptionChangedEventArgs(_currentDescription, newDescription);
+            _currentDescription = newDescription;
 
             if (newDescription.HeartbeatException != null || forceClearConnectionPool)
             {
-                // Set new description before clearing the pool, to deal with possible bug where server.Description is accessed directly
-                // and connection pool is not consistent with server.Description. Will be address in follow up ticket.
-                _currentDescription = newDescription;
+                // propagate event to upper levels
+                TriggerServerDescriptionChanged(this, descriptionChangedEvent);
 
+                // pool must be cleared on after cluster update
                 ConnectionPool.Clear();
             }
             else
@@ -229,15 +231,9 @@ namespace MongoDB.Driver.Core.Servers
                     ConnectionPool.SetReady();
                 }
 
-                // Set new description after unpausing the pool, to deal with possible bug where server.Description is accessed directly
-                // and connection pool is not consistent with server.Description. Will be address in follow up ticket.
-                _currentDescription = newDescription;
+                // propagate event to upper levels
+                TriggerServerDescriptionChanged(this, descriptionChangedEvent);
             }
-
-            var descriptionChangedEvent = new ServerDescriptionChangedEventArgs(oldDescription, newDescription);
-
-            // propagate event to upper levels
-            TriggerServerDescriptionChanged(this, descriptionChangedEvent);
         }
 
         private bool ShouldInvalidateServer(
