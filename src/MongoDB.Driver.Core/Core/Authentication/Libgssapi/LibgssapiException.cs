@@ -13,19 +13,15 @@
 * limitations under the License.
 */
 
-#if !NETSTANDARD1_5
 using System;
 using System.Runtime.Serialization;
-#endif
 
 namespace MongoDB.Driver.Core.Authentication.Libgssapi
 {
     /// <summary>
     /// Represents a Libgssapi exception.
     /// </summary>
-#if !NETSTANDARD1_5
     [Serializable]
-#endif
     public class LibgssapiException : GssapiException
     {
         /// <summary>
@@ -36,7 +32,6 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
         {
         }
 
-#if !NETSTANDARD1_5
         /// <summary>
         /// Initializes a new instance of the <see cref="LibgssapiException" /> class.
         /// </summary>
@@ -46,6 +41,5 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
             : base(info, context)
         {
         }
-#endif
     }
 }

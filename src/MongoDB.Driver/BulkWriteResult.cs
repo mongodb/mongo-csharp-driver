@@ -22,9 +22,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents the result of a bulk write operation.
     /// </summary>
-#if !NETSTANDARD1_5
     [Serializable]
-#endif
     public abstract class BulkWriteResult
     {
         // fields
@@ -92,9 +90,7 @@ namespace MongoDB.Driver
     /// Represents the result of a bulk write operation.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-#if !NETSTANDARD1_5
     [Serializable]
-#endif
     public abstract class BulkWriteResult<TDocument> : BulkWriteResult
     {
         // private fields
@@ -166,9 +162,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Result from an acknowledged write concern.
         /// </summary>
-#if !NETSTANDARD1_5
-    [Serializable]
-#endif
+        [Serializable]
         public class Acknowledged : BulkWriteResult<TDocument>
         {
             // private fields
@@ -260,9 +254,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Result from an unacknowledged write concern.
         /// </summary>
-#if !NETSTANDARD1_5
-    [Serializable]
-#endif
+        [Serializable]
         public class Unacknowledged : BulkWriteResult<TDocument>
         {
             // constructors

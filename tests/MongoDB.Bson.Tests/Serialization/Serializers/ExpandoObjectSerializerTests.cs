@@ -85,7 +85,7 @@ namespace MongoDB.Bson.Tests.Serialization
             public ExpandoObject ExtraData { get; set; }
         }
 
-#if NET452
+#if NET472
         [Fact]
         public void TestDeserializingDiscriminatedVersion()
         {

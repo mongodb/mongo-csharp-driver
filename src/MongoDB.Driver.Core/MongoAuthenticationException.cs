@@ -14,9 +14,7 @@
 */
 
 using System;
-#if !NETSTANDARD1_5
 using System.Runtime.Serialization;
-#endif
 using MongoDB.Driver.Core.Connections;
 
 namespace MongoDB.Driver
@@ -24,9 +22,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a MongoDB authentication exception.
     /// </summary>
-#if !NETSTANDARD1_5
     [Serializable]
-#endif
     public class MongoAuthenticationException : MongoConnectionException
     {
         // constructors
@@ -51,7 +47,6 @@ namespace MongoDB.Driver
         {
         }
 
-#if !NETSTANDARD1_5
         /// <summary>
         /// Initializes a new instance of the <see cref="MongoAuthenticationException"/> class.
         /// </summary>
@@ -61,7 +56,6 @@ namespace MongoDB.Driver
             : base(info, context)
         {
         }
-#endif
 
         /// <inheritdoc/>
         public override bool IsNetworkException => false;

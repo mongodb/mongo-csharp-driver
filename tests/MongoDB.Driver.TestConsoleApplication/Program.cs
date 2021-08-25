@@ -36,7 +36,7 @@ namespace MongoDB.Driver.TestConsoleApplication
 
         private static void ConfigureCluster(ClusterBuilder cb)
         {
-#if NET452
+#if NET472
             cb.UsePerformanceCounters("test", true);
 #endif
         }

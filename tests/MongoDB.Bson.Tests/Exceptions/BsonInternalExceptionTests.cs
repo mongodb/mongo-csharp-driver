@@ -13,19 +13,16 @@
 * limitations under the License.
 */
 
-#if !NETCOREAPP1_1
 using System;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using FluentAssertions;
 using Xunit;
-#endif
 
 namespace MongoDB.Bson.Tests.Exceptions
 {
     public class BsonInternalExceptionTests
     {
-#if !NETCOREAPP1_1
         [Fact]
         public void Serialization_should_work()
         {
@@ -42,6 +39,5 @@ namespace MongoDB.Bson.Tests.Exceptions
                 rehydrated.InnerException.Message.Should().Be(subject.InnerException.Message);
             }
         }
-#endif
     }
 }

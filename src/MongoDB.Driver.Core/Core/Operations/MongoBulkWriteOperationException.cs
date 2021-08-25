@@ -13,13 +13,9 @@
 * limitations under the License.
 */
 
-#if !NETSTANDARD1_5
 using System;
-#endif
 using System.Collections.Generic;
-#if !NETSTANDARD1_5
 using System.Runtime.Serialization;
-#endif
 using System.Text;
 using MongoDB.Driver.Core.Connections;
 
@@ -28,9 +24,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents a bulk write operation exception.
     /// </summary>
-#if !NETSTANDARD1_5
     [Serializable]
-#endif
     public class MongoBulkWriteOperationException : MongoServerException
     {
         // fields
@@ -69,7 +63,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-#if !NETSTANDARD1_5
         /// <summary>
         /// Initializes a new instance of the <see cref="MongoBulkWriteOperationException" /> class.
         /// </summary>
@@ -90,7 +83,6 @@ namespace MongoDB.Driver.Core.Operations
                 }
             }
         }
-#endif
 
         // properties
         /// <summary>
@@ -136,7 +128,6 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-#if !NETSTANDARD1_5
         /// <inheritdoc/>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
@@ -146,7 +137,6 @@ namespace MongoDB.Driver.Core.Operations
             info.AddValue("_writeConcernError", _writeConcernError);
             info.AddValue("_writeErrors", _writeErrors);
         }
-#endif
 
         private static string FormatMessage(IReadOnlyList<BulkWriteOperationError> writeErrors, BulkWriteConcernError writeConcernError)
         {

@@ -247,9 +247,6 @@ namespace MongoDB.Driver.Tests
             AssertAuthenticationSucceeds(settings, async);
         }
 
-        // Currently, we only support SaslPrep in .NET Framework due to a lack of a string normalization function in
-        // .NET Standard
-#if NET452
         [SkippableTheory]
         [InlineData("IX", "IX", "I\u00ADX", "\u2168", "\u2163", false)] // "IX", "IX", "I-X", Roman numeral nine, Roman numeral four
         [InlineData("IX", "IX", "I\u00ADX", "\u2168", "\u2163", true)] // "IX", "IX", "I-X", Roman numeral nine, Roman numeral four
@@ -320,7 +317,6 @@ namespace MongoDB.Driver.Tests
 
             AssertAuthenticationSucceeds(settings, async);
         }
-#endif
 
         [SkippableTheory]
         [ParameterAttributeData]

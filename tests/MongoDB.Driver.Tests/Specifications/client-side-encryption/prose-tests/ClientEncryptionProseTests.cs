@@ -75,10 +75,6 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             [Values(false, true)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
-            RequirePlatform
-                .Check()
-                .SkipWhen(SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard15)
-                .SkipWhen(SupportedOperatingSystem.MacOS, SupportedTargetFramework.NetStandard15);
 
             var eventCapturer = CreateEventCapturer(commandNameFilter: "insert");
             using (var client = ConfigureClient())
@@ -244,10 +240,6 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             [Values(false, true)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
-            RequirePlatform
-                .Check()
-                .SkipWhen(SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard15)
-                .SkipWhen(SupportedOperatingSystem.MacOS, SupportedTargetFramework.NetStandard15);
 
             var extraOptions = new Dictionary<string, object>
             {
@@ -280,10 +272,6 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             [Values(false, true)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
-            RequirePlatform
-                .Check()
-                .SkipWhen(SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard15)
-                .SkipWhen(SupportedOperatingSystem.MacOS, SupportedTargetFramework.NetStandard15);
 
             var extraOptions = new Dictionary<string, object>
             {
@@ -316,8 +304,6 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
             RequirePlatform
                 .Check()
-                .SkipWhen(SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard15)
-                .SkipWhen(SupportedOperatingSystem.MacOS, SupportedTargetFramework.NetStandard15)
                 // it's required only for gcp, but the test design doesn't allow skipping only required steps
                 .SkipWhen(SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard20)
                 .SkipWhen(SupportedOperatingSystem.MacOS, SupportedTargetFramework.NetStandard20);
@@ -498,8 +484,6 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
             RequirePlatform
                 .Check()
-                .SkipWhen(SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard15)
-                .SkipWhen(SupportedOperatingSystem.MacOS, SupportedTargetFramework.NetStandard15)
                 .SkipWhen(() => kmsProvider == "gcp", SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard20)
                 .SkipWhen(() => kmsProvider == "gcp", SupportedOperatingSystem.MacOS, SupportedTargetFramework.NetStandard20); // gcp is supported starting from netstandard2.1
 
@@ -587,8 +571,6 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
             RequirePlatform
                 .Check()
-                .SkipWhen(SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard15)
-                .SkipWhen(SupportedOperatingSystem.MacOS, SupportedTargetFramework.NetStandard15)
                 .SkipWhen(() => kmsType == "gcp", SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard20)  // gcp is supported starting from netstandard2.1
                 .SkipWhen(() => kmsType == "gcp", SupportedOperatingSystem.MacOS, SupportedTargetFramework.NetStandard20);
 
@@ -733,10 +715,6 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             bool async)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
-            RequirePlatform
-                .Check()
-                .SkipWhen(SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard15)
-                .SkipWhen(SupportedOperatingSystem.MacOS, SupportedTargetFramework.NetStandard15);
 
             var clientKeyVaultEventCapturer = CreateEventCapturer();
             using (var client_keyvault = CreateMongoClient(maxPoolSize: 1, writeConcern: WriteConcern.WMajority, readConcern: ReadConcern.Majority, eventCapturer: clientKeyVaultEventCapturer))
@@ -934,10 +912,6 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             [Values(false, true)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
-            RequirePlatform
-                .Check()
-                .SkipWhen(SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard15)
-                .SkipWhen(SupportedOperatingSystem.MacOS, SupportedTargetFramework.NetStandard15);
 
             IMongoClient externalKeyVaultClient = null;
             if (withExternalKeyVault)
@@ -987,10 +961,6 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         public void ViewAreProhibitedTest([Values(false, true)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
-            RequirePlatform
-                .Check()
-                .SkipWhen(SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard15)
-                .SkipWhen(SupportedOperatingSystem.MacOS, SupportedTargetFramework.NetStandard15);
 
             var viewName = CollectionNamespace.FromFullName("db.view");
             using (var client = ConfigureClient(false))
@@ -1038,13 +1008,6 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
                 switch (kmsProvider)
                 {
-                    // all crypto hooks fail on linux with .netstandard1.5
-                    case var _ when shouldThrowPlatformNotSupportedException && CurrentTargetFrameworkIs(SupportedTargetFramework.NetStandard15):
-                        {
-                            var errorMessage = AssertExceptionTypesAndReturnErrorMessage<PlatformNotSupportedException>(ex);
-                            errorMessage.Should().Be($"Field-level encryption is not supported on {currentOperatingSystem} with .NET Standard 1.5.");
-                        }
-                        break;
                     case "gcp" when shouldThrowPlatformNotSupportedException && CurrentTargetFrameworkIs(SupportedTargetFramework.NetStandard20):
                         {
                             var errorMessage = AssertExceptionTypesAndReturnErrorMessage<CryptException>(ex);
@@ -1052,7 +1015,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                         }
                         break;
                     default:
-                        ex.Should().BeNull(); // the rest of cases should not throw
+                        ex.Should().BeNull(); // the rest of supported cases should not throw
                         break;
                 }
             }

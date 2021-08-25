@@ -17,7 +17,7 @@
     <HtmlHelpName>LibMongocryptDocs</HtmlHelpName>
     <Language>en-US</Language>
     <DocumentationSources>
-      <DocumentationSource sourceFile="..\..\artifacts\bin\net452\MongoDB.Libmongocrypt.dll" />
+      <DocumentationSource sourceFile="..\..\artifacts\bin\net472\MongoDB.Libmongocrypt.dll" />
     </DocumentationSources>
   </PropertyGroup>
   <!-- There are no properties for these groups.  AnyCPU needs to appear in order for Visual Studio to perform

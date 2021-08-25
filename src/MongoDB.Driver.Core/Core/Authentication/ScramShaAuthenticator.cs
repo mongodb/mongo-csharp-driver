@@ -18,9 +18,6 @@ using System.Security.Cryptography;
 using System.Text;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
-#if NET452
-using MongoDB.Driver.Core.Authentication.Vendored;
-#endif
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 

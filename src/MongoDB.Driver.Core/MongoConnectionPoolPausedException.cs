@@ -14,10 +14,8 @@
 */
 
 using System.Net;
-#if !NETSTANDARD1_5
 using System;
 using System.Runtime.Serialization;
-#endif
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
@@ -25,9 +23,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a MongoDB connection pool paused exception.
     /// </summary>
-#if !NETSTANDARD1_5
     [Serializable]
-#endif
     public class MongoConnectionPoolPausedException : MongoClientException
     {
         #region static
@@ -53,7 +49,6 @@ namespace MongoDB.Driver
         {
         }
 
-#if !NETSTANDARD1_5
         /// <summary>
         /// Initializes a new instance of the <see cref="MongoConnectionPoolPausedException"/> class.
         /// </summary>
@@ -63,6 +58,5 @@ namespace MongoDB.Driver
             : base(info, context)
         {
         }
-#endif
     }
 }

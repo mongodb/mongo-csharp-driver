@@ -15,11 +15,9 @@
 
 using System;
 using System.Net;
-#if !NETCOREAPP1_1
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using MongoDB.Bson.TestHelpers.EqualityComparers;
-#endif
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
@@ -95,7 +93,6 @@ namespace MongoDB.Driver
             }
         }
 
-#if !NETCOREAPP1_1
         [Fact]
         public void Serialization_should_work()
         {
@@ -116,6 +113,5 @@ namespace MongoDB.Driver
                 rehydrated.WriteConcernResult.Should().BeUsing(subject.WriteConcernResult, EqualityComparerRegistry.Default);
             }
         }
-#endif
     }
 }

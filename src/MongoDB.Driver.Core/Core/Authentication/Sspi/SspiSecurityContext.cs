@@ -79,7 +79,7 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
 
             var descriptor = new SecurityBufferDescriptor(buffers);
             bool contextAddRefSuccess = false;
-#if NET452
+#if NET472
             RuntimeHelpers.PrepareConstrainedRegions();
 #endif
             try
@@ -132,7 +132,7 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
 
             bool contextAddRefSuccess = false;
             SecurityPackageContextSizes sizes;
-#if NET452
+#if NET472
             RuntimeHelpers.PrepareConstrainedRegions();
 #endif
             try
@@ -175,7 +175,7 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
             };
 
             var descriptor = new SecurityBufferDescriptor(buffers);
-#if NET452
+#if NET472
             RuntimeHelpers.PrepareConstrainedRegions();
 #endif
             try
@@ -232,7 +232,7 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
             bool credentialAddRefSuccess = false;
             bool contextAddRefSuccess = false;
 
-#if NET452
+#if NET472
             RuntimeHelpers.PrepareConstrainedRegions();
 #endif
             try

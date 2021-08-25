@@ -13,13 +13,9 @@
 * limitations under the License.
 */
 
-#if !NETCOREAPP1_1
 using System.IO;
-#endif
 using System.Net;
-#if !NETCOREAPP1_1
 using System.Runtime.Serialization.Formatters.Binary;
-#endif
 using FluentAssertions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
@@ -42,7 +38,6 @@ namespace MongoDB.Driver
             subject.Message.Should().BeSameAs("The connection was closed while we were waiting our turn to use it.");
         }
 
-#if !NETCOREAPP1_1
         [Fact]
         public void Serialization_should_work()
         {
@@ -60,6 +55,5 @@ namespace MongoDB.Driver
                 rehydrated.Message.Should().Be(subject.Message);
             }
         }
-#endif
     }
 }

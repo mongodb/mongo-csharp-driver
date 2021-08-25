@@ -13,9 +13,7 @@
 * limitations under the License.
 */
 
-#if !NETCOREAPP1_1
 using System;
-#endif
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -28,7 +26,6 @@ namespace MongoDB.Driver.GridFS.Tests
 {
     public class DelegatingStreamTests
     {
-#if !NETCOREAPP1_1
         [Fact]
         public void BeginRead_should_call_wrapped_stream()
         {
@@ -47,9 +44,7 @@ namespace MongoDB.Driver.GridFS.Tests
             result.Should().BeSameAs(mockAsyncResult.Object);
             mockStream.Verify(s => s.BeginRead(buffer, offset, count, mockCallback.Object, state), Times.Once);
         }
-#endif
 
-#if !NETCOREAPP1_1
         [Fact]
         public void BeginWrite_should_call_wrapped_stream()
         {
@@ -68,7 +63,6 @@ namespace MongoDB.Driver.GridFS.Tests
             result.Should().BeSameAs(mockAsyncResult.Object);
             mockStream.Verify(s => s.BeginWrite(buffer, offset, count, mockCallback.Object, state), Times.Once);
         }
-#endif
 
         [Theory]
         [ParameterAttributeData]
@@ -134,7 +128,6 @@ namespace MongoDB.Driver.GridFS.Tests
             mockStream.VerifyGet(s => s.CanWrite, Times.Once);
         }
 
-#if !NETCOREAPP1_1
         [Fact]
         public void Close_should_call_wrapped_stream()
         {
@@ -145,7 +138,6 @@ namespace MongoDB.Driver.GridFS.Tests
 
             mockStream.Verify(s => s.Close(), Times.Once);
         }
-#endif
 
         [Fact]
         public void CopyToAsync_should_call_wrapped_stream()
@@ -164,7 +156,6 @@ namespace MongoDB.Driver.GridFS.Tests
             mockStream.Verify(s => s.CopyToAsync(mockDestination.Object, bufferSize, cancellationToken), Times.Once);
         }
 
-#if !NETCOREAPP1_1
         [Fact]
         public void EndRead_should_call_wrapped_stream()
         {
@@ -179,9 +170,7 @@ namespace MongoDB.Driver.GridFS.Tests
             result.Should().Be(numberOfBytesRead);
             mockStream.Verify(s => s.EndRead(mockAsyncResult.Object), Times.Once);
         }
-#endif
 
-#if !NETCOREAPP1_1
         [Fact]
         public void EndWrite_should_call_wrapped_stream()
         {
@@ -193,7 +182,6 @@ namespace MongoDB.Driver.GridFS.Tests
 
             mockStream.Verify(s => s.EndWrite(mockAsyncResult.Object), Times.Once);
         }
-#endif
 
         [Fact]
         public void Equals_should_call_wrapped_stream()

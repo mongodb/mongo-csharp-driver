@@ -13,19 +13,15 @@
 * limitations under the License.
 */
 
-#if !NETSTANDARD1_5
 using System;
 using System.Runtime.Serialization;
-#endif
 
 namespace MongoDB.Driver.Core.Authentication.Sspi
 {
     /// <summary>
     /// Thrown from a win32 wrapped operation.
     /// </summary>
-#if !NETSTANDARD1_5
     [Serializable]
-#endif
     public class Win32Exception : GssapiException
     {
         /// <summary>
@@ -48,7 +44,6 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
             HResult = (int)errorCode;
         }
 
-#if !NETSTANDARD1_5
         /// <summary>
         /// Initializes a new instance of the <see cref="Win32Exception" /> class.
         /// </summary>
@@ -58,6 +53,5 @@ namespace MongoDB.Driver.Core.Authentication.Sspi
             : base(info, context)
         {
         }
-#endif
     }
 }

@@ -61,17 +61,6 @@ namespace MongoDB.Driver.GridFS
         /// <returns>A Task.</returns>
         public abstract Task AbortAsync(CancellationToken cancellationToken = default(CancellationToken));
 
-#if NETSTANDARD1_5
-        /// <summary>
-        /// Closes the GridFS stream.
-        /// </summary>
-        public virtual void Close()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-#endif
-
         /// <summary>
         /// Closes the Stream and completes the upload operation.
         /// </summary>

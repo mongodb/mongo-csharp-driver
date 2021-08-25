@@ -26,9 +26,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents the results of a validate collection command.
     /// </summary>
-#if NET452
     [Serializable]
-#endif
     [BsonSerializer(typeof(CommandResultSerializer<ValidateCollectionResult>))]
     public class ValidateCollectionResult : CommandResult
     {

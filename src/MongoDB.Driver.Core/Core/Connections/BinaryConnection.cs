@@ -747,10 +747,8 @@ namespace MongoDB.Driver.Core.Connections
         private Exception WrapException(Exception ex, string action)
         {
             if (
-#if !NETSTANDARD1_5
                 ex is ThreadAbortException ||
                 ex is StackOverflowException ||
-#endif
                 ex is MongoAuthenticationException ||
                 ex is OutOfMemoryException ||
                 ex is OperationCanceledException ||

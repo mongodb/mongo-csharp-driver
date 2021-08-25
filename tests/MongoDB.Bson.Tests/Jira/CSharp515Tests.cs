@@ -42,7 +42,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp515
             }
         }
 
-#if NET452
+#if NET472
         private static readonly AssemblyName __assemblyName = Assembly.GetExecutingAssembly().GetName();
         private static readonly bool __assemblyIsSigned = __assemblyName.GetPublicKey().Length > 0;
         private static readonly string __discriminatorAssemblyName = __assemblyIsSigned ? __assemblyName.FullName : __assemblyName.Name;

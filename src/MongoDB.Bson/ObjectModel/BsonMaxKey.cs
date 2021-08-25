@@ -20,9 +20,7 @@ namespace MongoDB.Bson
     /// <summary>
     /// Represents the BSON MaxKey value.
     /// </summary>
-#if !NETSTANDARD1_5
     [Serializable]
-#endif
     public class BsonMaxKey : BsonValue, IComparable<BsonMaxKey>, IEquatable<BsonMaxKey>
     {
         // private static fields

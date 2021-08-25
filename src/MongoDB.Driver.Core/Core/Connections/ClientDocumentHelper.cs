@@ -84,7 +84,6 @@ namespace MongoDB.Driver.Core.Connections
             string architecture;
             string osVersion;
 
-#if !NETSTANDARD1_5
             if (Type.GetType("Mono.Runtime") != null)
             {
                 switch (Environment.OSVersion.Platform)
@@ -139,7 +138,6 @@ namespace MongoDB.Driver.Core.Connections
 
                 return CreateOSDocument(osType, osName, architecture, osVersion);
             }
-#endif
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {

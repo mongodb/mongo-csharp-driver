@@ -246,11 +246,7 @@ namespace MongoDB.Driver.Core.Authentication
 
                 if (_canonicalizeHostName)
                 {
-#if NETSTANDARD1_5
-                    var entry = Dns.GetHostEntryAsync(hostName).GetAwaiter().GetResult();
-#else
                     var entry = Dns.GetHostEntry(hostName);
-#endif
                     if (entry != null)
                     {
                         hostName = entry.HostName;

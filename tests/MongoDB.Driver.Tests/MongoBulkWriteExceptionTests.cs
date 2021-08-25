@@ -15,18 +15,12 @@
 
 
 using System.Collections.Generic;
-#if !NETCOREAPP1_1
 using System.IO;
-#endif
 using System.Net;
-#if !NETCOREAPP1_1
 using System.Runtime.Serialization.Formatters.Binary;
-#endif
 using FluentAssertions;
 using MongoDB.Bson;
-#if !NETCOREAPP1_1
 using MongoDB.Bson.TestHelpers.EqualityComparers;
-#endif
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Operations;
@@ -147,7 +141,6 @@ namespace MongoDB.Driver.Tests
             ((InsertOneModel<BsonDocument>)mapped.UnprocessedRequests[0]).Document.Should().Be("{a:1}");
         }
 
-#if !NETCOREAPP1_1
         [Fact]
         public void Serialization_should_work()
         {
@@ -169,6 +162,5 @@ namespace MongoDB.Driver.Tests
                 rehydrated.WriteErrors.Should().EqualUsing(subject.WriteErrors, EqualityComparerRegistry.Default);
             }
         }
-#endif
     }
 }

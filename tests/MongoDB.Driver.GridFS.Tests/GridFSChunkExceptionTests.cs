@@ -14,10 +14,8 @@
 */
 
 using System;
-#if !NETCOREAPP1_1
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
-#endif
 using FluentAssertions;
 using Xunit;
 
@@ -59,7 +57,6 @@ namespace MongoDB.Driver.GridFS.Tests
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("reason");
         }
 
-#if !NETCOREAPP1_1
         [Fact]
         public void Serialization_should_work()
         {
@@ -75,6 +72,5 @@ namespace MongoDB.Driver.GridFS.Tests
                 rehydrated.Message.Should().Be(subject.Message);
             }
         }
-#endif
     }
 }

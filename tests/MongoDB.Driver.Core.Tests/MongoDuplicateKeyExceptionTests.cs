@@ -13,13 +13,9 @@
 * limitations under the License.
 */
 
-#if !NETCOREAPP1_1
 using System.IO;
-#endif
 using System.Net;
-#if !NETCOREAPP1_1
 using System.Runtime.Serialization.Formatters.Binary;
-#endif
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.EqualityComparers;
@@ -49,7 +45,6 @@ namespace MongoDB.Driver
             subject.WriteConcernResult.Should().Be(_writeConcernResult);
         }
 
-#if !NETCOREAPP1_1
         [Fact]
         public void Serialization_should_work()
         {
@@ -70,6 +65,5 @@ namespace MongoDB.Driver
                 rehydrated.WriteConcernResult.Should().BeUsing(subject.WriteConcernResult, EqualityComparerRegistry.Default);
             }
         }
-#endif
     }
 }

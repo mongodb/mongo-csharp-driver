@@ -14,13 +14,9 @@
 */
 
 using System;
-#if NET452
 using System.IO;
-#endif
 using System.Net;
-#if NET452
 using System.Runtime.Serialization.Formatters.Binary;
-#endif
 using FluentAssertions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
@@ -56,7 +52,6 @@ namespace MongoDB.Driver.Tests.GridFS
             subject.Message.Should().BeSameAs(_message);
         }
 
-#if NET452
         [Fact]
         public void Serialization_should_work()
         {
@@ -74,6 +69,5 @@ namespace MongoDB.Driver.Tests.GridFS
                 rehydrated.InnerException.Message.Should().Be(subject.InnerException.Message); // Exception does not override Equals
             }
         }
-#endif
     }
 }

@@ -13,10 +13,8 @@
 * limitations under the License.
 */
 
-#if !NETSTANDARD1_5
-using System.Runtime.Serialization;
-#endif
 using System;
+using System.Runtime.Serialization;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 
@@ -25,9 +23,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a MongoDB write concern exception.
     /// </summary>
-#if !NETSTANDARD1_5
     [Serializable]
-#endif
     public class MongoWriteConcernException : MongoCommandException
     {
         #region static
@@ -83,7 +79,6 @@ namespace MongoDB.Driver
             AddErrorLabelsFromWriteConcernResult(this, _writeConcernResult);
         }
 
-#if !NETSTANDARD1_5
         /// <summary>
         /// Initializes a new instance of the <see cref="MongoWriteConcernException"/> class.
         /// </summary>
@@ -96,7 +91,6 @@ namespace MongoDB.Driver
             _ = TryMapWriteConcernResultToException(ConnectionId, _writeConcernResult, out _writeConcernResultException);
             AddErrorLabelsFromWriteConcernResult(this, _writeConcernResult);
         }
-#endif
 
         // properties
         /// <summary>
@@ -119,14 +113,12 @@ namespace MongoDB.Driver
         }
 
         // methods
-#if !NETSTANDARD1_5
         /// <inheritdoc/>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
             info.AddValue("_writeConcernResult", _writeConcernResult);
         }
-#endif
 
         /// <summary>
         /// Determines whether the exception is due to a write concern error only.

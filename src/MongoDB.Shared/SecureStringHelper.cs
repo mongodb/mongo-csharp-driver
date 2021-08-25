@@ -34,11 +34,7 @@ namespace MongoDB.Shared
             }
             else
             {
-#if NETSTANDARD1_5
-                var secureStringIntPtr = SecureStringMarshal.SecureStringToGlobalAllocUnicode(secureString);
-#else
                 var secureStringIntPtr = Marshal.SecureStringToGlobalAllocUnicode(secureString);
-#endif
                 try
                 {
                     return Marshal.PtrToStringUni(secureStringIntPtr, secureString.Length);

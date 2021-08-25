@@ -5,8 +5,8 @@
     <IsLinux Condition="$([MSBuild]::IsOSPlatform('Linux'))">true</IsLinux>
   </PropertyGroup>
   <PropertyGroup>
-    <TargetFrameworks>netstandard1.5;netstandard2.0;netstandard2.1;net452</TargetFrameworks>
-    <TargetFrameworks Condition="'$(IsWindows)'!='true'">netstandard1.5;netstandard2.0;netstandard2.1</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;net472</TargetFrameworks>
+    <TargetFrameworks Condition="'$(IsWindows)'!='true'">netstandard2.0;netstandard2.1</TargetFrameworks>
     <LangVersion>9</LangVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors />
@@ -40,10 +40,6 @@
 
   <PropertyGroup>
     <DefineConstants>TRACE</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(TargetFramework)'=='netstandard1.5'">
-    <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -168,26 +164,14 @@
   <ItemGroup>
     <PackageReference Include="DnsClient" Version="1.4.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.2" PrivateAssets="All" />
-    <PackageReference Include="MongoDB.Libmongocrypt" Version="1.2.2" />
+    <PackageReference Include="MongoDB.Libmongocrypt" Version="1.2.3" />
     <PackageReference Include="SharpCompress" Version="0.23.0" />
     <PackageReference Include="System.Buffers" Version="4.5.1" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
     <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.3.0" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
-    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.5'">
-    <PackageReference Include="System.Collections.Specialized" Version="4.0.1" />
-    <PackageReference Include="System.Diagnostics.TextWriterTraceListener" Version="4.0.0" />
-    <PackageReference Include="System.Diagnostics.TraceSource" Version="4.3.0" />
-    <PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
-    <PackageReference Include="System.Net.Security" Version="4.3.2" />
-    <PackageReference Include="System.Security.SecureString" Version="4.0.0" />
-    <PackageReference Include="System.Threading.Thread" Version="4.3.0" />
-    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
   </ItemGroup>
 
   <ItemGroup>

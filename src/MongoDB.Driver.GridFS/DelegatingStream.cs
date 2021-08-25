@@ -13,9 +13,7 @@
 * limitations under the License.
 */
 
-#if !NETSTANDARD1_5
 using System;
-#endif
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -94,29 +92,23 @@ namespace MongoDB.Driver.GridFS
         }
 
         // methods
-#if !NETSTANDARD1_5
         /// <inheritdoc/>
         public override IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
         {
             return _wrappedStream.BeginRead(buffer, offset, count, callback, state);
         }
-#endif
 
-#if !NETSTANDARD1_5
         /// <inheritdoc/>
         public override IAsyncResult BeginWrite(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
         {
             return _wrappedStream.BeginWrite(buffer, offset, count, callback, state);
         }
-#endif
 
-#if !NETSTANDARD1_5
         /// <inheritdoc/>
         public override void Close()
         {
             _wrappedStream.Close();
         }
-#endif
 
         /// <inheritdoc/>
         public override Task CopyToAsync(Stream destination, int bufferSize, CancellationToken cancellationToken)
@@ -124,14 +116,12 @@ namespace MongoDB.Driver.GridFS
             return _wrappedStream.CopyToAsync(destination, bufferSize, cancellationToken);
         }
 
-#if !NETSTANDARD1_5
         /// <inheritdoc/>
         [Obsolete("Not supported by DelegatingStream.")]
         protected override WaitHandle CreateWaitHandle()
         {
             throw new NotSupportedException();
         }
-#endif
 
         /// <inheritdoc/>
         protected override void Dispose(bool disposing)
@@ -142,21 +132,17 @@ namespace MongoDB.Driver.GridFS
             }
         }
 
-#if !NETSTANDARD1_5
         /// <inheritdoc/>
         public override int EndRead(IAsyncResult asyncResult)
         {
             return _wrappedStream.EndRead(asyncResult);
         }
-#endif
 
-#if !NETSTANDARD1_5
         /// <inheritdoc/>
         public override void EndWrite(IAsyncResult asyncResult)
         {
             _wrappedStream.EndWrite(asyncResult);
         }
-#endif
 
         /// <inheritdoc/>
         public override bool Equals(object obj)

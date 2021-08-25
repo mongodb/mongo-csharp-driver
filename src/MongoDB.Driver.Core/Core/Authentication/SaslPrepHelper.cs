@@ -103,13 +103,7 @@ namespace MongoDB.Driver.Core.Authentication
 
             var mappedString = new string(chars.Take(length).ToArray());
             // 2. Normalize
-#if NETSTANDARD1_5
-            // String normalization step in the .NET Standard 1.5 version of the driver is skipped due to a lack of a string
-            // normalization function.
-            var normalized = mappedString;
-#else
             var normalized = mappedString.Normalize(NormalizationForm.FormKC);
-#endif
             var containsRandALCat = false;
             var containsLCat = false;
             var initialRandALCat = false;

@@ -13,10 +13,8 @@
 * limitations under the License.
 */
 
-#if !NETSTANDARD1_5
 using System;
 using System.Runtime.Serialization;
-#endif
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 
@@ -25,9 +23,7 @@ namespace MongoDB.Driver.GridFS
     /// <summary>
     /// Represents a GridFSMD5 exception.
     /// </summary>
-#if !NETSTANDARD1_5
     [Serializable]
-#endif
     public class GridFSMD5Exception : GridFSException
     {
         #region static
@@ -48,7 +44,6 @@ namespace MongoDB.Driver.GridFS
         {
         }
 
-#if !NETSTANDARD1_5
         /// <summary>
         /// Initializes a new instance of the <see cref="GridFSMD5Exception"/> class.
         /// </summary>
@@ -58,6 +53,5 @@ namespace MongoDB.Driver.GridFS
             : base(info, context)
         {
         }
-#endif
     }
 }

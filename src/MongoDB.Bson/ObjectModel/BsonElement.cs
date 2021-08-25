@@ -20,9 +20,7 @@ namespace MongoDB.Bson
     /// <summary>
     /// Represents a BSON element.
     /// </summary>
-#if !NETSTANDARD1_5
     [Serializable]
-#endif
     public struct BsonElement : IComparable<BsonElement>, IEquatable<BsonElement>
     {
         // private fields

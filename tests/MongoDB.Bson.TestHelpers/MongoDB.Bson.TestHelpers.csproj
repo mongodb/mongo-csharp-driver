@@ -4,8 +4,8 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard1.5;netstandard2.0;netstandard2.1;net452</TargetFrameworks>
-    <TargetFrameworks Condition="'$(IsWindows)'!='true'">netstandard1.5;netstandard2.0;netstandard2.1</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;net472</TargetFrameworks>
+    <TargetFrameworks Condition="'$(IsWindows)'!='true'">netstandard2.0;netstandard2.1</TargetFrameworks>
     <LangVersion>9</LangVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors />
@@ -32,10 +32,6 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" PrivateAssets="All" Version="1.0.0" />
   </ItemGroup>
-
-  <PropertyGroup Condition="'$(TargetFramework)'=='netstandard1.5'">
-    <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
-  </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="4.12.0" />

@@ -15,23 +15,17 @@
 
 using System;
 using System.Runtime.InteropServices;
-#if NETSTANDARD1_5
-using System.Security;
-#endif
 using System.Security.Cryptography;
 using System.Text;
 using MongoDB.Bson.IO;
-#if NET452
-using MongoDB.Driver.Core.Authentication.Vendored;
-#endif
 using MongoDB.Driver.Core.Misc;
 
-// Use our vendored version of Rfc2898DeriveBytes for .NET Standard 1.5, .NET Standard 2.0 and .NET Framework 4.5.2
-// because these targets do not support a version of Rfc2898DeriveBytes that allows to specify the hash algorithm
-#if NETSTANDARD2_1
-using Rfc2898DeriveBytes = System.Security.Cryptography.Rfc2898DeriveBytes;
-#else
+// Use our vendored version of Rfc2898DeriveBytes for .NET Standard 2.0
+// because this target does not support a version of Rfc2898DeriveBytes that allows to specify the hash algorithm
+#if NETSTANDARD2_0
 using Rfc2898DeriveBytes = MongoDB.Driver.Core.Authentication.Vendored.Rfc2898DeriveBytes;
+#else
+using Rfc2898DeriveBytes = System.Security.Cryptography.Rfc2898DeriveBytes;
 #endif
 
 namespace MongoDB.Driver.Core.Authentication
@@ -95,11 +89,7 @@ namespace MongoDB.Driver.Core.Authentication
 
         private static byte[] Hi256(UsernamePasswordCredential credential, byte[] salt, int iterations)
         {
-#if NETSTANDARD1_5
-            var passwordIntPtr = SecureStringMarshal.SecureStringToGlobalAllocUnicode(credential.SaslPreppedPassword);
-#else
             var passwordIntPtr = Marshal.SecureStringToGlobalAllocUnicode(credential.SaslPreppedPassword);
-#endif
             try
             {
                 var passwordChars = new char[credential.SaslPreppedPassword.Length];

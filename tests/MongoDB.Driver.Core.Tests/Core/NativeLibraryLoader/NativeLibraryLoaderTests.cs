@@ -76,14 +76,12 @@ namespace MongoDB.Driver.Core.Tests.Core.NativeLibraryLoader
 #endif
 
         private string GetTargetFrameworkMonikerName() =>
-#if NETCOREAPP1_1
-            "netcoreapp1.1";
-#elif NETCOREAPP2_1
+#if NETCOREAPP2_1
             "netcoreapp2.1";
 #elif NETCOREAPP3_0
             "netcoreapp3.0";
-#elif NET452
-            "net452";
+#elif NET472
+            "net472";
 #endif
 
         // nested types

@@ -18,10 +18,8 @@ namespace MongoDB.Driver.GridFS
     internal static class TargetFramework
     {
         public static string Moniker =>
-#if NET452
-            "net452";
-#elif NETSTANDARD1_5
-            "netstandard15";
+#if NET472
+            "net472";
 #elif NETSTANDARD2_0
             "netstandard20";
 #elif NETSTANDARD2_1

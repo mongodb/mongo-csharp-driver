@@ -11,7 +11,7 @@ title = "Installation"
 
 ## System Requirements
 
-The NuGet packages include support for four target framework monikers (TFMs): net452, netstandard1.5, netstandard2.0, and netstandard2.1. The net452 target allows the driver to be used with the full .NET Framework version 4.5.2 and later. The netstandardX.Y TFMs allow the driver to be used with any .NET implementation supporting that TFM. This includes support for various versions of .NET Core as well as .NET 5.0 and above.
+The NuGet packages include support for three target framework monikers (TFMs): net472, netstandard2.0, and netstandard2.1. The net472 target allows the driver to be used with the full .NET Framework version 4.7.2 and later. The netstandardX.Y TFMs allow the driver to be used with any .NET implementation supporting that TFM. This includes support for various versions of .NET Core as well as .NET 5.0 and above.
 
 ## NuGet Installation
 

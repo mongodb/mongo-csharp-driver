@@ -13,10 +13,8 @@
 * limitations under the License.
 */
 
-#if !NETSTANDARD1_5
 using System;
 using System.Runtime.Serialization;
-#endif
 using MongoDB.Driver.Core.Connections;
 
 namespace MongoDB.Driver
@@ -24,9 +22,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a MongoDB duplicate key exception.
     /// </summary>
-#if !NETSTANDARD1_5
     [Serializable]
-#endif
     public class MongoDuplicateKeyException : MongoWriteConcernException
     {
         /// <summary>
@@ -40,7 +36,6 @@ namespace MongoDB.Driver
         {
         }
 
-#if !NETSTANDARD1_5
         /// <summary>
         /// Initializes a new instance of the <see cref="MongoDuplicateKeyException"/> class.
         /// </summary>
@@ -50,6 +45,5 @@ namespace MongoDB.Driver
             : base(info, context)
         {
         }
-#endif
     }
 }

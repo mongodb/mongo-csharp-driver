@@ -97,9 +97,7 @@ namespace MongoDB.Driver.Tests.Linq
             Name
         }
 
-#if NET452
         [Serializable]
-#endif
         [BsonSerializer(typeof(TestDocumentClassSerializer))]
         public class TestDocument : BsonDocumentBackedClass
         {

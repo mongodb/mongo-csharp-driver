@@ -25,9 +25,7 @@ namespace MongoDB.Driver.Builders
     /// <summary>
     /// Abstract base class for the builders.
     /// </summary>
-#if NET452
     [Serializable]
-#endif
     [BsonSerializer(typeof(BuilderBase.Serializer))]
     public abstract class BuilderBase : IConvertibleToBsonDocument
     {

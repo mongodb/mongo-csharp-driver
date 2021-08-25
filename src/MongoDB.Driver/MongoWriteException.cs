@@ -14,9 +14,7 @@
 */
 
 using System;
-#if !NETSTANDARD1_5
 using System.Runtime.Serialization;
-#endif
 using System.Text;
 using MongoDB.Driver.Core.Connections;
 
@@ -25,9 +23,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a write exception.
     /// </summary>
-#if !NETSTANDARD1_5
     [Serializable]
-#endif
     public class MongoWriteException : MongoServerException
     {
         // static
@@ -70,7 +66,6 @@ namespace MongoDB.Driver
             }
         }
 
-#if !NETSTANDARD1_5
         /// <summary>
         /// Initializes a new instance of the MongoQueryException class (this overload supports deserialization).
         /// </summary>
@@ -89,7 +84,6 @@ namespace MongoDB.Driver
                 }
             }
         }
-#endif
 
         // properties
         /// <summary>
@@ -109,7 +103,6 @@ namespace MongoDB.Driver
         }
 
         // methods
-#if !NETSTANDARD1_5
         /// <summary>
         /// Gets the object data.
         /// </summary>
@@ -121,7 +114,6 @@ namespace MongoDB.Driver
             info.AddValue("_writeConcernError", _writeConcernError);
             info.AddValue("_writeError", _writeError);
         }
-#endif
 
         // private static methods
         private static string FormatMessage(WriteError writeError, WriteConcernError writeConcernError)

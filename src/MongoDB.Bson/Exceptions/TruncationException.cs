@@ -14,18 +14,14 @@
 */
 
 using System;
-#if !NETSTANDARD1_5
 using System.Runtime.Serialization;
-#endif
 
 namespace MongoDB.Bson
 {
     /// <summary>
     /// Represents a truncation exception.
     /// </summary>
-#if !NETSTANDARD1_5
     [Serializable]
-#endif
     public class TruncationException : BsonException
     {
         // constructors
@@ -56,7 +52,6 @@ namespace MongoDB.Bson
         {
         }
 
-#if !NETSTANDARD1_5
         /// <summary>
         /// Initializes a new instance of the TruncationException class (this overload used by deserialization).
         /// </summary>
@@ -66,6 +61,5 @@ namespace MongoDB.Bson
             : base(info, context)
         {
         }
-#endif
     }
 }

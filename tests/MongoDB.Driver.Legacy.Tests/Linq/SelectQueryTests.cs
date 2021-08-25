@@ -5981,7 +5981,7 @@ namespace MongoDB.Driver.Tests.Linq
             Assert.Equal(4, Consume(query));
         }
 
-#if NET452 || NETCOREAPP1_0
+#if NET472
         [Fact]
         public void TestWhereSTrimStartTrimEndToLowerContainsXyz()
         {
@@ -5995,7 +5995,7 @@ namespace MongoDB.Driver.Tests.Linq
             Assert.Same(typeof(C), translatedQuery.DocumentType);
 
             var selectQuery = (SelectQuery)translatedQuery;                  
-#if NET452 || NETCOREAPP1_0
+#if NET472
             var expectedExpression =
                 "(C c) => c.S.TrimStart(Char[]:{ ' ', '.', '-', '\t' }).TrimEnd(Char[]:{ }).ToLower().Contains(\"xyz\")";
 #else
@@ -6289,7 +6289,7 @@ namespace MongoDB.Driver.Tests.Linq
             Assert.Equal(2, Consume(query));
         }
 
-#if NET452 || NETCOREAPP1_0
+#if NET472
         [Fact]
         public void TestWhereSTrimStartTrimEndToLowerInvariantContainsXyz()
         {
@@ -6304,7 +6304,7 @@ namespace MongoDB.Driver.Tests.Linq
 
             var selectQuery = (SelectQuery)translatedQuery;
             
-#if NET452 || NETCOREAPP1_0
+#if NET472
             var expectedExpression =
                 "(C c) => c.S.TrimStart(Char[]:{ ' ', '.', '-', '\t' }).TrimEnd(Char[]:{ }).ToLowerInvariant().Contains(\"xyz\")";
 #else

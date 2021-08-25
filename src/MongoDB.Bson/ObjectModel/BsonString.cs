@@ -21,9 +21,7 @@ namespace MongoDB.Bson
     /// <summary>
     /// Represents a BSON string value.
     /// </summary>
-#if !NETSTANDARD1_5
     [Serializable]
-#endif
     public class BsonString : BsonValue, IComparable<BsonString>, IEquatable<BsonString>
     {
         // private static fields

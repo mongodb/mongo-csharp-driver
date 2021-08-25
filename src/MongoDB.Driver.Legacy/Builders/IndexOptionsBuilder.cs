@@ -210,9 +210,7 @@ namespace MongoDB.Driver.Builders
     /// <summary>
     /// A builder for the options used when creating an index.
     /// </summary>
-#if NET452
     [Serializable]
-#endif
     [BsonSerializer(typeof(IndexOptionsBuilder.Serializer))]
     public class IndexOptionsBuilder : BuilderBase, IMongoIndexOptions
     {
@@ -638,9 +636,7 @@ namespace MongoDB.Driver.Builders
     /// A builder for the options used when creating an index.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-#if NET452
     [Serializable]
-#endif
     [BsonSerializer(typeof(IndexOptionsBuilder<>.Serializer))]
     public class IndexOptionsBuilder<TDocument> : BuilderBase, IMongoIndexOptions
     {

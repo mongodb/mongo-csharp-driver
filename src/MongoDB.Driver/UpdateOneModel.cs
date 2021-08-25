@@ -25,9 +25,7 @@ namespace MongoDB.Driver
     /// Model for updating a single document.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-#if !NETSTANDARD1_5
     [Serializable]
-#endif
     public sealed class UpdateOneModel<TDocument> : WriteModel<TDocument>
     {
         // fields

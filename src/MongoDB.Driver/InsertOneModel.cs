@@ -13,9 +13,7 @@
 * limitations under the License.
 */
 
-#if !NETSTANDARD1_5
 using System;
-#endif
 
 namespace MongoDB.Driver
 {
@@ -23,9 +21,7 @@ namespace MongoDB.Driver
     /// Model for inserting a single document.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-#if !NETSTANDARD1_5
     [Serializable]
-#endif
     public sealed class InsertOneModel<TDocument> : WriteModel<TDocument>
     {
         // fields

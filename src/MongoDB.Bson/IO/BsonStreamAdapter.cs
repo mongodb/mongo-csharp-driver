@@ -162,31 +162,25 @@ namespace MongoDB.Bson.IO
         }
 
         // methods
-#if !NETSTANDARD1_5
         /// <inheritdoc/>
         public override IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
         {
             ThrowIfDisposed();
             return _stream.BeginRead(buffer, offset, count, callback, state);
         }
-#endif
 
-#if !NETSTANDARD1_5
         /// <inheritdoc/>
         public override IAsyncResult BeginWrite(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
         {
             ThrowIfDisposed();
             return _stream.BeginWrite(buffer, offset, count, callback, state);
         }
-#endif
 
-#if !NETSTANDARD1_5
         /// <inheritdoc/>
         public override void Close()
         {
             base.Close(); // base class will call Dispose
         }
-#endif
 
         /// <inheritdoc/>
         public override Task CopyToAsync(Stream destination, int bufferSize, CancellationToken cancellationToken)
@@ -212,23 +206,19 @@ namespace MongoDB.Bson.IO
             base.Dispose(disposing);
         }
 
-#if !NETSTANDARD1_5
         /// <inheritdoc/>
         public override int EndRead(IAsyncResult asyncResult)
         {
             ThrowIfDisposed();
             return _stream.EndRead(asyncResult);
         }
-#endif
 
-#if !NETSTANDARD1_5
         /// <inheritdoc/>
         public override void EndWrite(IAsyncResult asyncResult)
         {
             ThrowIfDisposed();
             _stream.EndWrite(asyncResult);
         }
-#endif
 
         /// <inheritdoc/>
         public override void Flush()
@@ -295,11 +285,7 @@ namespace MongoDB.Bson.IO
                 if (b == 0)
                 {
                     byte[] memoryStreamBuffer;
-#if NETSTANDARD1_5
-                    memoryStreamBuffer = memoryStream.ToArray();
-#else
                     memoryStreamBuffer = memoryStream.GetBuffer();
-#endif
                     return new ArraySegment<byte>(memoryStreamBuffer, 0, (int)memoryStream.Length);
                 }
 

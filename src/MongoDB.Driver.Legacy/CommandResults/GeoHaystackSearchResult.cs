@@ -27,9 +27,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents the result of a GeoHaystackSearch command.
     /// </summary>
-#if NET452
     [Serializable]
-#endif
     [Obsolete("GeoHaystack indexes were deprecated in server version 4.4.")]
     public abstract class GeoHaystackSearchResult : CommandResult
     {
@@ -232,9 +230,7 @@ namespace MongoDB.Driver
     /// Represents the result of a GeoHaystackSearch command.
     /// </summary>
     /// <typeparam name="TDocument">The type of the returned documents.</typeparam>
-#if NET452
     [Serializable]
-#endif
     [BsonSerializer(typeof(GeoHaystackSearchResult<>.Serializer))]
     [Obsolete("GeoHaystack indexes were deprecated in server version 4.4.")]
     public class GeoHaystackSearchResult<TDocument> : GeoHaystackSearchResult

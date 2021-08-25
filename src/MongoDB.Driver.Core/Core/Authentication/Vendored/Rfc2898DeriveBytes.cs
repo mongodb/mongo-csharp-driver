@@ -48,7 +48,6 @@ using System.Text;
 
 namespace MongoDB.Driver.Core.Authentication.Vendored
 {
-
     internal class Rfc2898DeriveBytes : DeriveBytes
     {
         private static readonly string Cryptography_PasswordDerivedBytes_FewBytesSalt

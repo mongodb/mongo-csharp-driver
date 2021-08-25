@@ -49,8 +49,6 @@ namespace MongoDB.Driver.Core.Authentication
             SaslPrepHelper.SaslPrepStored(input).Should().Be(expected);
         }
 
-#if !NETCOREAPP1_1
-// Normalization is not supported in netstandard 1.5 due to a lack of a string normalization function.
         [Theory]
         [ParameterAttributeData]
         [InlineData("IX", "\u2168")] // "IX", Roman numeral nine
@@ -61,7 +59,6 @@ namespace MongoDB.Driver.Core.Authentication
         {
             SaslPrepHelper.SaslPrepStored(nonNormalizedStr).Should().Be(expected);
         }
-#endif
 
         [Theory]
         [ParameterAttributeData]
@@ -80,11 +77,8 @@ namespace MongoDB.Driver.Core.Authentication
         [InlineData("user", "user")]
         [InlineData("user=", "user=")]
         [InlineData("USER", "USER")]
-#if !NETCOREAPP1_1
-// Normalization is not supported in netstandard 1.5 due to a lack of a string normalization function.
         [InlineData("a", "\u00AA")]
         [InlineData("IX", "\u2168")]
-#endif
         public void SaslPrepStored_returns_expected_output_when_passed_Rfc4013_examples(string expected, string input)
         {
             SaslPrepHelper.SaslPrepStored(input).Should().Be(expected);

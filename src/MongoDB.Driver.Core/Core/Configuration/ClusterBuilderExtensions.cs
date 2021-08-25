@@ -340,7 +340,7 @@ namespace MongoDB.Driver.Core.Configuration
             throw new NotSupportedException("Unable to create an authenticator.");
         }
 
-#if NET452
+#if NET472
         /// <summary>
         /// Configures the cluster to write performance counters.
         /// </summary>

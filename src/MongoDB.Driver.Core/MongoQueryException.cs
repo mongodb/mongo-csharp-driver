@@ -13,10 +13,8 @@
 * limitations under the License.
 */
 
-#if !NETSTANDARD1_5
 using System;
 using System.Runtime.Serialization;
-#endif
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Connections;
 
@@ -25,9 +23,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a MongoDB query exception.
     /// </summary>
-#if !NETSTANDARD1_5
     [Serializable]
-#endif
     public class MongoQueryException : MongoServerException
     {
         // fields
@@ -49,7 +45,6 @@ namespace MongoDB.Driver
             _queryResult = queryResult;
         }
 
-#if !NETSTANDARD1_5
         /// <summary>
         /// Initializes a new instance of the <see cref="MongoQueryException"/> class.
         /// </summary>
@@ -61,7 +56,6 @@ namespace MongoDB.Driver
             _query = (BsonDocument)info.GetValue("_query", typeof(BsonDocument));
             _queryResult = (BsonDocument)info.GetValue("_queryResult", typeof(BsonDocument));
         }
-#endif
 
         // properties
         /// <summary>
@@ -87,7 +81,6 @@ namespace MongoDB.Driver
         }
 
         // methods
-#if !NETSTANDARD1_5
         /// <inheritdoc/>
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
@@ -95,6 +88,5 @@ namespace MongoDB.Driver
             info.AddValue("_query", _query);
             info.AddValue("_queryResult", _queryResult);
         }
-#endif
     }
 }

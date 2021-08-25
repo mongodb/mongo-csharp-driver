@@ -240,7 +240,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var c = new C { Obj = new ExpandoObject() };
             var json = c.ToJson(configurator: config => config.IsDynamicType = t => false);
-#if NET452
+#if NET472
             var discriminator = "System.Dynamic.ExpandoObject";
 #else
             var discriminator = typeof(ExpandoObject).AssemblyQualifiedName;

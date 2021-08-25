@@ -13,9 +13,7 @@
 * limitations under the License.
 */
 
-#if !NETSTANDARD1_5
 using System;
-#endif
 using MongoDB.Bson;
 using MongoDB.Driver.Support;
 using MongoDB.Shared;
@@ -25,9 +23,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents the information about one Upsert.
     /// </summary>
-#if !NETSTANDARD1_5
     [Serializable]
-#endif
     public class BulkWriteUpsert
     {
         // private fields

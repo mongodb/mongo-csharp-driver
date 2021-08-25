@@ -20,9 +20,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-#if !NETSTANDARD1_5
 using System.Runtime.Serialization;
-#endif
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Conventions;
 
@@ -37,7 +35,6 @@ namespace MongoDB.Bson.Serialization
         private readonly static Dictionary<Type, BsonClassMap> __classMaps = new Dictionary<Type, BsonClassMap>();
         private readonly static Queue<Type> __knownTypesQueue = new Queue<Type>();
         private static int __freezeNestingLevel = 0;
-        private static readonly MethodInfo __getUninitializedObjectMethodInfo = GetGetUninitializedObjectMethodInfo();
 
         // private fields
         private readonly Type _classType;
@@ -416,37 +413,6 @@ namespace MongoDB.Bson.Serialization
             {
                 BsonSerializer.ConfigLock.ExitWriteLock();
             }
-        }
-
-        // private static methods
-        private static Type GetFormatterServicesType()
-        {
-#if NETSTANDARD1_5
-            var mscorlibAssembly = typeof(string).GetTypeInfo().Assembly;
-            return mscorlibAssembly.GetType("System.Runtime.Serialization.FormatterServices");
-#else
-            return typeof(FormatterServices);
-#endif
-        }
-
-        private static MethodInfo GetGetUninitializedObjectMethodInfo()
-        {
-            // don't let exceptions leak out of this method because it's called from the type initializer
-            try
-            {
-                var formatterServicesType = GetFormatterServicesType();
-                if (formatterServicesType != null)
-                {
-                    var formatterServicesTypeInfo = formatterServicesType.GetTypeInfo();
-                    return formatterServicesTypeInfo.GetMethod("GetUninitializedObject", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static);
-                }
-            }
-            catch
-            {
-                // ignore exceptions
-            }
-
-            return null;
         }
 
         // public methods
@@ -1261,31 +1227,21 @@ namespace MongoDB.Bson.Serialization
         {
             if (_creator == null)
             {
-                Expression body;
-                var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+                const BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
                 var classTypeInfo = _classType.GetTypeInfo();
-                var defaultConstructor = classTypeInfo.GetConstructors(bindingFlags)
-                    .Where(c => c.GetParameters().Length == 0)
-                    .SingleOrDefault();
+                var defaultConstructor = classTypeInfo
+                    .GetConstructors(bindingFlags)
+                    .SingleOrDefault(c => c.GetParameters().Length == 0);
                 if (defaultConstructor != null)
                 {
-                    // lambdaExpression = () => (object) new TClass()
-                    body = Expression.New(defaultConstructor);
-                }
-                else if (__getUninitializedObjectMethodInfo != null)
-                {
-                    // lambdaExpression = () => FormatterServices.GetUninitializedObject(classType)
-                    body = Expression.Call(__getUninitializedObjectMethodInfo, Expression.Constant(_classType));
+                    _creator = () => defaultConstructor.Invoke(null);
                 }
                 else
                 {
-                    var message = $"Type '{_classType.GetType().Name}' does not have a default constructor.";
-                    throw new BsonSerializationException(message);
+                    _creator = () => FormatterServices.GetUninitializedObject(_classType);
                 }
-
-                var lambdaExpression = Expression.Lambda<Func<object>>(body);
-                _creator = lambdaExpression.Compile();
             }
+
             return _creator;
         }
 
@@ -1586,30 +1542,6 @@ namespace MongoDB.Bson.Serialization
         {
             var interfaceType = interfacePropertyInfo.DeclaringType;
 
-#if NETSTANDARD1_5
-            var actualTypeInfo = actualType.GetTypeInfo();
-            var bindingFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
-            var actualTypePropertyInfos = actualTypeInfo.GetMembers(bindingFlags).OfType<PropertyInfo>();
-
-            var explicitlyImplementedPropertyName = $"{interfacePropertyInfo.DeclaringType.FullName}.{interfacePropertyInfo.Name}".Replace("+", ".");
-            var explicitlyImplementedPropertyInfo = actualTypePropertyInfos
-                .Where(p => p.Name == explicitlyImplementedPropertyName)
-                .SingleOrDefault();
-            if (explicitlyImplementedPropertyInfo != null)
-            {
-                return explicitlyImplementedPropertyInfo;
-            }
-
-            var implicitlyImplementedPropertyInfo = actualTypePropertyInfos
-                .Where(p => p.Name == interfacePropertyInfo.Name && p.PropertyType == interfacePropertyInfo.PropertyType)
-                .SingleOrDefault();
-            if (implicitlyImplementedPropertyInfo != null)
-            {
-                return implicitlyImplementedPropertyInfo;
-            }
-
-            throw new BsonSerializationException($"Unable to find property info for property: '{interfacePropertyInfo.Name}'.");
-#else
             // An interface map must be used because because there is no
             // other officially documented way to derive the explicitly
             // implemented property name.
@@ -1633,7 +1565,6 @@ namespace MongoDB.Bson.Serialization
                     var propertyAccessors = GetPropertyAccessors(propertyInfo);
                     return actualPropertyAccessors.All(x => propertyAccessors.Contains(x));
                 });
-#endif
         }
     }
 }

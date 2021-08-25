@@ -13,9 +13,7 @@
 * limitations under the License.
 */
 
-#if !NETSTANDARD1_5
 using System;
-#endif
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -26,9 +24,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents the details of a write concern error.
     /// </summary>
-#if !NETSTANDARD1_5
     [Serializable]
-#endif
     public class WriteConcernError
     {
         // private fields

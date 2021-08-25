@@ -495,7 +495,6 @@ namespace MongoDB.Driver.Core.Authentication
             subject._cache()._cachedEntry().Should().NotBe(null);
         }
 
-#if !NETCOREAPP1_1
         [Theory]
         [ParameterAttributeData]
         public void Authenticate_should_work_regardless_of_culture(
@@ -541,7 +540,6 @@ namespace MongoDB.Driver.Core.Authentication
                 }
             }
         }
-#endif
     }
 
     internal static class ScramShaAuthenticatorReflector

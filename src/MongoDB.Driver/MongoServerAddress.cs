@@ -22,9 +22,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// The address of a MongoDB server.
     /// </summary>
-#if !NETSTANDARD1_5
     [Serializable]
-#endif
     public class MongoServerAddress : IEquatable<MongoServerAddress>
     {
         // private fields

@@ -13,13 +13,9 @@
 * limitations under the License.
 */
 
-#if !NETCOREAPP1_1
 using System.IO;
-#endif
 using System.Net;
-#if !NETCOREAPP1_1
 using System.Runtime.Serialization.Formatters.Binary;
-#endif
 using FluentAssertions;
 using Xunit;
 
@@ -53,7 +49,6 @@ namespace MongoDB.Driver
             subject.Message.Should().Be("The wait queue for server selection is full.");
         }
 
-#if !NETCOREAPP1_1
         [Fact]
         public void Serialization_should_work()
         {
@@ -70,6 +65,5 @@ namespace MongoDB.Driver
                 rehydrated.InnerException.Should().BeNull();
             }
         }
-#endif
     }
 }

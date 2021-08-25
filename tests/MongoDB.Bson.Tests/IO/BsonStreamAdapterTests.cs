@@ -53,7 +53,6 @@ namespace MongoDB.Bson.Tests
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
 
-#if !NETCOREAPP1_1
         [Fact]
         public void BeginRead_should_call_wrapped_stream()
         {
@@ -72,9 +71,7 @@ namespace MongoDB.Bson.Tests
             result.Should().BeSameAs(mockAsyncResult.Object);
             mockStream.Verify(s => s.BeginRead(buffer, offset, count, mockCallback.Object, state), Times.Once);
         }
-#endif
 
-#if !NETCOREAPP1_1
         [Fact]
         public void BeginRead_should_throw_when_subject_is_diposed()
         {
@@ -91,9 +88,7 @@ namespace MongoDB.Bson.Tests
 
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
-#endif
 
-#if !NETCOREAPP1_1
         [Fact]
         public void BeginWrite_should_call_wrapped_stream()
         {
@@ -112,9 +107,7 @@ namespace MongoDB.Bson.Tests
             result.Should().BeSameAs(mockAsyncResult.Object);
             mockStream.Verify(s => s.BeginWrite(buffer, offset, count, mockCallback.Object, state), Times.Once);
         }
-#endif
 
-#if !NETCOREAPP1_1
         [Fact]
         public void BeginWrite_should_throw_when_subject_is_disposed()
         {
@@ -131,7 +124,6 @@ namespace MongoDB.Bson.Tests
 
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
-#endif
 
         [Theory]
         [ParameterAttributeData]
@@ -245,7 +237,6 @@ namespace MongoDB.Bson.Tests
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
 
-#if !NETCOREAPP1_1
         [Fact]
         public void Close_can_be_called_multiple_times()
         {
@@ -258,9 +249,7 @@ namespace MongoDB.Bson.Tests
             var subjectReflector = new Reflector(subject);
             subjectReflector._disposed.Should().BeTrue();
         }
-#endif
 
-#if !NETCOREAPP1_1
         [Fact]
         public void Close_should_dispose_subject()
         {
@@ -272,7 +261,6 @@ namespace MongoDB.Bson.Tests
             var subjectReflector = new Reflector(subject);
             subjectReflector._disposed.Should().BeTrue();
         }
-#endif
 
         [Fact]
         public void constructor_should_use_false_as_the_default_value_for_ownsStream()
@@ -355,7 +343,6 @@ namespace MongoDB.Bson.Tests
             subjectReflector._disposed.Should().BeTrue();
         }
 
-#if !NETCOREAPP1_1
         [Fact]
         public void Dispose_should_dispose_stream_once_when_Disposed_is_called_more_than_once()
         {
@@ -367,10 +354,8 @@ namespace MongoDB.Bson.Tests
 
             mockStream.Verify(s => s.Close(), Times.Once); // Dispose is not virtual but calls virtual Close
         }
-#endif
 
-#if !NETCOREAPP1_1
-       [Theory]
+        [Theory]
         [ParameterAttributeData]
         public void Dispose_should_dispose_stream_only_when_it_owns_it(
             [Values(false, true)]
@@ -383,7 +368,6 @@ namespace MongoDB.Bson.Tests
 
             mockStream.Verify(s => s.Close(), Times.Exactly(ownsStream ? 1 : 0)); // Dispose is not virtual but calls virtual Close
         }
-#endif
 
         [Fact]
         public void Dispose_should_dispose_subject()
@@ -397,7 +381,6 @@ namespace MongoDB.Bson.Tests
             subjectReflector._disposed.Should().BeTrue();
         }
 
-#if !NETCOREAPP1_1
         [Fact]
         public void EndRead_should_call_wrapped_stream()
         {
@@ -412,9 +395,7 @@ namespace MongoDB.Bson.Tests
             result.Should().Be(numberOfBytesRead);
             mockStream.Verify(s => s.EndRead(mockAsyncResult.Object), Times.Once);
         }
-#endif
 
-#if !NETCOREAPP1_1
         [Fact]
         public void EndRead_should_throw_when_subject_is_disposed()
         {
@@ -427,9 +408,7 @@ namespace MongoDB.Bson.Tests
 
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
-#endif
 
-#if !NETCOREAPP1_1
         [Fact]
         public void EndWrite_should_call_wrapped_stream()
         {
@@ -441,9 +420,7 @@ namespace MongoDB.Bson.Tests
 
             mockStream.Verify(s => s.EndWrite(mockAsyncResult.Object), Times.Once);
         }
-#endif
 
-#if !NETCOREAPP1_1
         [Fact]
         public void EndWrite_should_throw_when_subject_is_disposed()
         {
@@ -456,7 +433,6 @@ namespace MongoDB.Bson.Tests
 
             action.ShouldThrow<ObjectDisposedException>().And.ObjectName.Should().Be("BsonStreamAdapter");
         }
-#endif
 
         [Fact]
         public void Flush_should_call_wrapped_stream()
