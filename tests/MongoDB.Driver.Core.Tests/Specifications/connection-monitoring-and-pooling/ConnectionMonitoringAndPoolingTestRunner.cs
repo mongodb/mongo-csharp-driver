@@ -567,7 +567,7 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
             out ConnectionPoolSettings connectionPoolSettings,
             out ConnectionSettings connectionSettings)
         {
-            connectionPoolSettings = new ConnectionPoolSettings();
+            connectionPoolSettings = new ConnectionPoolSettings(maintenanceInterval: TimeSpan.FromMilliseconds(200));
             connectionSettings = new ConnectionSettings();
 
             if (test.TryGetValue(Schema.poolOptions, out var poolOptionsBson))
@@ -577,6 +577,9 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
                 {
                     switch (poolOption.Name)
                     {
+                        case "backgroundThreadIntervalMS":
+                            connectionPoolSettings = connectionPoolSettings.With(maintenanceInterval: TimeSpan.FromMilliseconds(poolOption.Value.ToInt32()));
+                            break;
                         case "maxPoolSize":
                             connectionPoolSettings = connectionPoolSettings.With(maxConnections: poolOption.Value.ToInt32());
                             break;
@@ -648,7 +651,7 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
                     .ConfigureConnectionPool(c => c.With(
                         maxConnections: connectionPoolSettings.MaxConnections,
                         minConnections: connectionPoolSettings.MinConnections,
-                        maintenanceInterval: TimeSpan.FromMilliseconds(200),
+                        maintenanceInterval: connectionPoolSettings.MaintenanceInterval,
                         waitQueueTimeout: connectionPoolSettings.WaitQueueTimeout))
                     .ConfigureConnection(s => s.With(applicationName: $"{connectionSettings.ApplicationName}_async_{async}"))
                     .Subscribe(eventCapturer));

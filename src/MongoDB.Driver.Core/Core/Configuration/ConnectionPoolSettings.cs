@@ -81,6 +81,7 @@ namespace MongoDB.Driver.Core.Configuration
         // properties
         /// <summary>
         /// Gets the maintenance interval.
+        /// <see cref="System.Threading.Timeout.Infinite"/> values indicates that maintenance thread is disabled.
         /// </summary>
         /// <value>
         /// The maintenance interval.
@@ -180,7 +181,7 @@ namespace MongoDB.Driver.Core.Configuration
                 minConnections: _minConnections,
                 waitQueueSize: _waitQueueSize,
                 waitQueueTimeout: _waitQueueTimeout,
-                isPausable: isPausable,
-                maxConnecting: maxConnecting);
+                isPausable: isPausable.WithDefault(_isPausable),
+                maxConnecting: maxConnecting.WithDefault(_maxConnecting));
     }
 }

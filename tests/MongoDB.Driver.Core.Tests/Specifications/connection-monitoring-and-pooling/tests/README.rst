@@ -36,7 +36,20 @@ Unit Test Format:
 
 All Unit Tests have some of the following fields:
 
-- ``poolOptions``: if present, connection pool options to use when creating a pool
+- ``poolOptions``: If present, connection pool options to use when creating a pool;
+  both `standard ConnectionPoolOptions <https://github.com/mongodb/specifications/blob/master/source/connection-monitoring-and-pooling/connection-monitoring-and-pooling.rst#connection-pool-options-1>`__
+  and the following test-specific options are allowed:
+
+  - ``backgroundThreadIntervalMS``: A time interval between the end of a
+    `Background Thread Run <https://github.com/mongodb/specifications/blob/master/source/connection-monitoring-and-pooling/connection-monitoring-and-pooling.rst#background-thread>`__
+    and the beginning of the next Run. If a Connection Pool does not implement a Background Thread, the Test Runner MUST ignore the option.
+    If the option is not specified, an implementation is free to use any value it finds reasonable.
+
+    Possible values (0 is not allowed):
+
+    - A negative value: never begin a Run.
+    - A positive value: the interval between Runs in milliseconds.
+
 - ``operations``: A list of operations to perform. All operations support the following fields:
 
   - ``name``: A string describing which operation to issue.
@@ -116,6 +129,8 @@ the addition of the following fields to each test:
 - ``failPoint``: optional, a document containing a ``configureFailPoint``
   command to run against the endpoint being used for the test.
 
+- ``poolOptions.appName`` (optional): appName attribute to be set in connections, which will be affected by the fail point.
+
 Spec Test Match Function
 ========================
 
@@ -153,8 +168,6 @@ For each YAML file with ``style: unit``:
 
   - If ``poolOptions`` is specified, use those options to initialize both pools
   - The returned pool must have an ``address`` set as a string value.
-  - If the pool uses a background thread to satisfy ``minPoolSize``, ensure it
-    attempts to create a new connection every 50ms.
 
 - Process each ``operation`` in ``operations`` (on the main thread)
 

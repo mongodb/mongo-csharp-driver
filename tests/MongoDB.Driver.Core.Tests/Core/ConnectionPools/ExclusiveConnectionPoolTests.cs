@@ -62,7 +62,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     return connectionMock.Object;
                 });
             _settings = new ConnectionPoolSettings(
-                maintenanceInterval: Timeout.InfiniteTimeSpan,
+                maintenanceInterval: TimeSpan.FromDays(1),
                 maxConnections: 4,
                 minConnections: 2,
                 waitQueueSize: 1,
@@ -298,7 +298,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             [Values(1, 3, 5)] int attempts,
             [Values(false, true)] bool async)
         {
-            var subjectSettings = new ConnectionPoolSettings(minConnections: 0);
+            var subjectSettings = new ConnectionPoolSettings(minConnections: 0, maintenanceInterval: TimeSpan.FromDays(1));
 
             var mockConnectionFactory = Mock.Of<IConnectionFactory>(c => c.CreateConnection(_serverId, _endPoint) == Mock.Of<IConnection>());
 
@@ -1053,7 +1053,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         }
 
         [Fact]
-        public async Task MaintainSizeAsync_should_call_connection_dispose_when_connection_authentication_fail()
+        public void Maintenance_should_call_connection_dispose_when_connection_authentication_fail()
         {
             var authenticationException = new MongoAuthenticationException(new ConnectionId(_serverId), "test message");
             var authenticationFailedConnection = new Mock<IConnection>();
@@ -1062,23 +1062,21 @@ namespace MongoDB.Driver.Core.ConnectionPools
                                                                         // that in turn is called from OpenAsync
                 .Throws(authenticationException);
 
+            _mockConnectionExceptionHandler
+                .Setup(handler => handler.HandleExceptionOnOpen(authenticationException))
+                .Callback(() => _subject.Clear());
+
             using (var subject = CreateSubject())
             {
-                // set test timeout to 3000 ms
-                var tokenSource = new CancellationTokenSource(3000);
-
                 _mockConnectionFactory
                     .Setup(f => f.CreateConnection(_serverId, _endPoint))
-                    .Returns(() =>
-                    {
-                        tokenSource.Cancel();
-                        return authenticationFailedConnection.Object;
-                    });
+                    .Returns(() => authenticationFailedConnection.Object);
 
                 subject.Initialize();
                 subject.SetReady();
 
-                await subject.MaintainSizeAsync(tokenSource.Token);
+                var maintenanceHelper = subject._maintenanceHelper();
+                SpinWait.SpinUntil(() => !maintenanceHelper.IsRunning, 1000);
 
                 authenticationFailedConnection.Verify(conn => conn.Dispose(), Times.Once);
                 _mockConnectionExceptionHandler.Verify(c => c.HandleExceptionOnOpen(authenticationException), Times.Once);
@@ -1109,6 +1107,34 @@ namespace MongoDB.Driver.Core.ConnectionPools
                                                                   // if the method is running more than 1 second, then delay is happening
                 testResult.Should().Be(1);
             }
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Maintenance_should_run_with_finite_maintenanceInterval(
+            [Values(0, 1, 1000)] int intervalMilliseconds)
+        {
+            var settings = _settings.With(maintenanceInterval: TimeSpan.FromMilliseconds(intervalMilliseconds));
+
+            using var subject = CreateSubject(settings);
+
+            subject.Initialize();
+            subject.SetReady();
+
+            subject._maintenanceHelper().IsRunning.Should().BeTrue();
+        }
+
+        [Fact]
+        public void Maintenance_should_not_run_with_infinite_maintenanceInterval()
+        {
+            var settings = _settings.With(maintenanceInterval: Timeout.InfiniteTimeSpan);
+
+            using var subject = CreateSubject(settings);
+
+            subject.Initialize();
+            subject.SetReady();
+            
+            subject._maintenanceHelper().IsRunning.Should().BeFalse();
         }
 
         [Theory]
@@ -1177,7 +1203,6 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     {
                         using var connection = AcquireConnection(subject, isAsync);
                     }
-                    
                     catch (MongoConnectionPoolPausedException)
                     {
                         allInQueueFailed.Signal();
@@ -1260,8 +1285,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             subject.Initialize();
             subject.SetReady();
 
-            _capturedEvents.WaitForOrThrowIfTimeout(events => events.Where(e => e is ConnectionCreatedEvent).Count() >= connectionsCount, TimeSpan.FromSeconds(10));
-            subject.DormantCount.Should().Be(connectionsCount);
+            SpinWait.SpinUntil(() => subject.DormantCount == connectionsCount, TimeSpan.FromSeconds(1));
 
             // expire some of the connections
             _capturedEvents.Clear();
@@ -1578,6 +1602,11 @@ namespace MongoDB.Driver.Core.ConnectionPools
         }
 
         public static CheckOutReasonCounter _checkOutReasonCounter(this ExclusiveConnectionPool obj) => (CheckOutReasonCounter)Reflector.GetFieldValue(obj, nameof(_checkOutReasonCounter));
+
+        public static ExclusiveConnectionPool.MaintenanceHelper _maintenanceHelper(this ExclusiveConnectionPool obj)
+        {
+            return (ExclusiveConnectionPool.MaintenanceHelper)Reflector.GetFieldValue(obj, nameof(_maintenanceHelper));
+        }
 
         public static ServiceStates _serviceStates(this ExclusiveConnectionPool obj)
         {
