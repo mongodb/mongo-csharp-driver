@@ -81,6 +81,7 @@ namespace MongoDB.Driver.Core.Configuration
         // properties
         /// <summary>
         /// Gets the maintenance interval.
+        /// <see cref="System.Threading.Timeout.Infinite"/> values indicates that maintenance thread is disabled.
         /// </summary>
         /// <value>
         /// The maintenance interval.

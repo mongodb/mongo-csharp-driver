@@ -1110,10 +1110,9 @@ namespace MongoDB.Driver.Core.ConnectionPools
         }
 
         [Theory]
-        [InlineData(0)]
-        [InlineData(1)]
-        [InlineData(1000)]
-        public void Maintenance_should_run_with_finite_maintenanceInterval(int intervalMilliseconds)
+        [ParameterAttributeData]
+        public void Maintenance_should_run_with_finite_maintenanceInterval(
+            [Values(0, 1, 1000)] int intervalMilliseconds)
         {
             var settings = _settings.With(maintenanceInterval: TimeSpan.FromMilliseconds(intervalMilliseconds));
 
@@ -1134,7 +1133,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             subject.Initialize();
             subject.SetReady();
-
+            
             subject._maintenanceHelper().IsRunning.Should().BeFalse();
         }
 
@@ -1204,7 +1203,6 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     {
                         using var connection = AcquireConnection(subject, isAsync);
                     }
-
                     catch (MongoConnectionPoolPausedException)
                     {
                         allInQueueFailed.Signal();

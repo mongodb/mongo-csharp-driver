@@ -179,7 +179,9 @@ namespace MongoDB.Driver.Core.ConnectionPools
             public void Cancel()
             {
                 if (_interval == Timeout.InfiniteTimeSpan)
+                {
                     return;
+                }
 
                 _cancellationTokenSource?.Cancel();
                 _cancellationTokenSource = null;
@@ -189,7 +191,9 @@ namespace MongoDB.Driver.Core.ConnectionPools
             public void Start()
             {
                 if (_interval == Timeout.InfiniteTimeSpan)
+                {
                     return;
+                }
 
                 _cancellationTokenSource?.Cancel();
                 _cancellationTokenSource = new CancellationTokenSource();
