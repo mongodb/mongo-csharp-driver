@@ -272,8 +272,4 @@ $cakeArguments += $ScriptArgs
 Write-Host "Running build script..."
 Invoke-Expression "& $CAKE_EXE_INVOCATION --bootstrap"
 Invoke-Expression "& $CAKE_EXE_INVOCATION $($cakeArguments -join " ")"
-
-# Shut down mongocryptd to avoid timeouts, tracked in CSHARP-3809
-Stop-Process -Name mongocryptd -Force
-
 exit $LASTEXITCODE

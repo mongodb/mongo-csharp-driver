@@ -305,6 +305,19 @@ functions:
           FRAMEWORK=${FRAMEWORK} \
             evergreen/run-tests.sh
           echo "Skipping certificate removal..."
+          if [ "Windows_NT" = "$OS" ]; then
+            tasklist -FI "IMAGENAME eq mongocryptd.exe"
+            echo "mongocryptd before kill"
+            taskkill -F -FI "IMAGENAME eq mongocryptd.exe"
+            tasklist -FI "IMAGENAME eq mongocryptd.exe"
+            echo "mongocryptd after kill"
+          else
+            ps -ax | grep mongocryptd
+            echo "mongocryptd before kill"
+            pkill -f 'mongocryptd' || echo 'mongocryptd was already killed or not launched'
+            ps -ax | grep mongocryptd
+            echo "mongocryptd after kill"
+          fi
 
   run-atlas-connectivity-tests:
     - command: shell.exec

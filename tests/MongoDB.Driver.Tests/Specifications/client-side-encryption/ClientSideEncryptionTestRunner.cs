@@ -28,6 +28,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
 {
+    [Trait("Category", "FLE")]
     public class ClientSideEncryptionTestRunner : MongoClientJsonDrivenTestRunnerBase
     {
         #region static

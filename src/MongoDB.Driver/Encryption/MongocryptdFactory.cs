@@ -153,7 +153,7 @@ namespace MongoDB.Driver.Encryption
                 args = args.Trim();
                 if (!args.Contains("idleShutdownTimeoutSecs"))
                 {
-                    args += " --idleShutdownTimeoutSecs 60";
+                    args += " --idleShutdownTimeoutSecs 30000";
                 }
 
                 if (!args.Contains("logpath")) // disable logging by the mongocryptd process

@@ -163,7 +163,8 @@ Task("Test")
             NoRestore = true,
             Configuration = configuration,
             Logger = logger,
-            ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64")
+            ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64"),
+            Filter = "Category=\"FLE\""
         };
         switch (target.ToLowerInvariant())
         {

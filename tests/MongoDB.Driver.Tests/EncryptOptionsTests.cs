@@ -20,6 +20,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
+    [Trait("Category", "FLE")]
     public class EncryptOptionsTests
     {
         [Fact]
