@@ -248,7 +248,8 @@ namespace MongoDB.Driver.Core.Tests.Jira
 
             var serverFactory = new ServerFactory(__clusterConnectionMode, __connectionModeSwitch, __directConnection, serverSettings, connectionPoolFactory, serverMonitorFactory, eventCapturer, serverApi: null);
 
-            return new MultiServerCluster(clusterSettings, serverFactory, eventCapturer);
+            cluster = new MultiServerCluster(clusterSettings, serverFactory, eventCapturer);
+            return cluster;
         }
 
         private Exception CreateDnsException(ConnectionId connectionId)
