@@ -157,7 +157,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
             AssertEvent(@event, expectedEndPoint, expectedServerType, expectedReasonStart, exceptionType);
         }
 
-        private IConnectionPoolFactory CreateAndSetupConnectionPoolFactory(params (ServerId ServerId, EndPoint Endpoint, bool IsHealthy)[] serverInfoCollection)
+        private IConnectionPoolFactory CreateAndSetupConnectionPoolFactory(Func<ServerId, IConnectionExceptionHandler> exceptionHandlerProvider, params (ServerId ServerId, EndPoint Endpoint, bool IsHealthy)[] serverInfoCollection)
         {
             var mockConnectionPoolFactory = new Mock<IConnectionPoolFactory>();
 
@@ -169,7 +169,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 var mockServerConnection = new Mock<IConnectionHandle>();
                 SetupConnection(mockServerConnection, serverInfo.ServerId);
 
-                SetupConnectionPool(mockConnectionPool, mockServerConnection.Object);
+                SetupConnectionPool(mockConnectionPool, mockServerConnection.Object, () => exceptionHandlerProvider(serverInfo.ServerId));
             }
 
             return mockConnectionPoolFactory.Object;
@@ -179,14 +179,17 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 mockConnectionHandle.SetupGet(c => c.ConnectionId).Returns(new ConnectionId(serverId));
             }
 
-            void SetupConnectionPool(Mock<IConnectionPool> mockConnectionPool, IConnectionHandle connection)
+            void SetupConnectionPool(Mock<IConnectionPool> mockConnectionPool, IConnectionHandle connection, Func<IConnectionExceptionHandler> exceptionHandlerProvider)
             {
+                var dnsException = CreateDnsException(connection.ConnectionId);
                 mockConnectionPool
                     .Setup(c => c.AcquireConnection(It.IsAny<CancellationToken>()))
-                    .Throws(CreateDnsException(connection.ConnectionId)); // throw command dns exception
+                    .Callback(() => exceptionHandlerProvider().HandleExceptionOnOpen(dnsException))
+                    .Throws(dnsException); // throw command dns exception
                 mockConnectionPool
                     .Setup(c => c.AcquireConnectionAsync(It.IsAny<CancellationToken>()))
-                    .Throws(CreateDnsException(connection.ConnectionId)); // throw command dns exception
+                    .Callback(() => exceptionHandlerProvider().HandleExceptionOnOpen(dnsException))
+                    .Throws(dnsException); // throw command dns exception
             }
 
             void SetupConnectionPoolFactory(Mock<IConnectionPoolFactory> mockFactory, IConnectionPool connectionPool, ServerId serverId, EndPoint endPoint)
@@ -235,13 +238,17 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 heartbeatInterval: __heartbeatInterval);
             var serverSettings = new ServerSettings(serverMonitorSettings.HeartbeatInterval);
 
-            var connectionPoolFactory = CreateAndSetupConnectionPoolFactory(serverInfoCollection);
+            MultiServerCluster cluster = null;
+
+            var connectionPoolFactory = CreateAndSetupConnectionPoolFactory(
+                serverId => (IConnectionExceptionHandler)cluster._servers().Single(s => s.ServerId.Equals(serverId)),
+                serverInfoCollection);
             var serverMonitorConnectionFactory = CreateAndSetupServerMonitorConnectionFactory(hasNetworkErrorBeenTriggered, hasClusterBeenDisposed, streamable, serverInfoCollection);
             var serverMonitorFactory = new ServerMonitorFactory(serverMonitorSettings, serverMonitorConnectionFactory, eventCapturer, serverApi: null);
 
             var serverFactory = new ServerFactory(__clusterConnectionMode, __connectionModeSwitch, __directConnection, serverSettings, connectionPoolFactory, serverMonitorFactory, eventCapturer, serverApi: null);
 
-            return new MultiServerCluster(clusterSettings, serverFactory, eventCapturer);
+            return cluster = new MultiServerCluster(clusterSettings, serverFactory, eventCapturer);
         }
 
         private Exception CreateDnsException(ConnectionId connectionId)

@@ -151,11 +151,10 @@ namespace MongoDB.Driver.Core.Servers
                 var connection = _connectionPool.AcquireConnection(cancellationToken);
                 return new ServerChannel(this, connection);
             }
-            catch (Exception ex)
+            catch
             {
                 Interlocked.Decrement(ref _outstandingOperationsCount);
 
-                HandleBeforeHandshakeCompletesException(ex);
                 throw;
             }
         }
@@ -170,11 +169,10 @@ namespace MongoDB.Driver.Core.Servers
                 var connection = await _connectionPool.AcquireConnectionAsync(cancellationToken).ConfigureAwait(false);
                 return new ServerChannel(this, connection);
             }
-            catch (Exception ex)
+            catch
             {
                 Interlocked.Decrement(ref _outstandingOperationsCount);
 
-                HandleBeforeHandshakeCompletesException(ex);
                 throw;
             }
         }

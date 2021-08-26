@@ -379,6 +379,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             private void HandleException(Exception ex)
             {
+                _pool._connectionExceptionHandler.HandleExceptionOnOpen(ex);
+
                 var handler = _pool._checkingOutConnectionFailedEventHandler;
                 if (handler != null)
                 {
