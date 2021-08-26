@@ -16,8 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -40,7 +38,6 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 {
-    [Trait("Category", "FLE")]
     public class ClientEncryptionProseTests
     {
         #region static
@@ -276,31 +273,6 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 exception.Message.Should().Contain("A timeout occurred after 10000ms selecting a server");
             }
         }
-
-        //[SkippableTheory]
-        //[ParameterAttributeData]
-        //public void MongocryptdTEst(
-        //   [Values(false)] bool async)
-        //{
-        //    using (var process = new Process())
-        //    {
-        //        process.StartInfo.Arguments = " --idleShutdownTimeoutSecs 300000";
-        //        process.StartInfo.FileName = Path.Combine(GetEnvironmentVariableOrDefaultOrThrowIfNothing("MONGODB_BINARIES"), "mongocryptd");
-        //        process.StartInfo.CreateNoWindow = true;
-        //        process.StartInfo.UseShellExecute = false;
-
-        //        if (!process.Start())
-        //        {
-        //            // skip it. This case can happen if no new process resource is started
-        //            // (for example, if an existing process is reused)
-        //        }
-        //    }
-
-        //    var clientSettings = MongoClientSettings.FromConnectionString("mongodb://localhost:27020");
-        //    __client = new MongoClient(clientSettings);
-        //    var res = __client.GetDatabase("admin").RunCommand<BsonDocument>("{isMaster:1}");
-        //    res["iscryptd"].AsBoolean.Should().BeTrue();
-        //}
 
         [SkippableTheory]
         [ParameterAttributeData]
