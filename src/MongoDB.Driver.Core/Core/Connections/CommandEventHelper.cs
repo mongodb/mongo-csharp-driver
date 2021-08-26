@@ -1021,9 +1021,9 @@ namespace MongoDB.Driver.Core.Connections
             };
 
             var query = message.Query;
-            if (query.ElementCount == 1 && !query.Contains("$query"))
+            if (query.ElementCount <= 1 && !query.Contains("$query"))
             {
-                command["filter"] = query;
+                command["filter"] = query; // can be empty
             }
             else
             {
