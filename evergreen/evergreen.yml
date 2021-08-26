@@ -305,6 +305,7 @@ functions:
           FRAMEWORK=${FRAMEWORK} \
             evergreen/run-tests.sh
           echo "Skipping certificate removal..."
+            evergreen/cleanup-test-resources.sh
 
   run-atlas-connectivity-tests:
     - command: shell.exec
