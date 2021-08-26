@@ -302,10 +302,6 @@ namespace MongoDB.Driver.Core.ConnectionPools
                         await PrunePoolAsync(cancellationToken).ConfigureAwait(false);
                         await EnsureMinSizeAsync(cancellationToken).ConfigureAwait(false);
                     }
-                    catch (MongoConnectionException exception)
-                    {
-                        _connectionExceptionHandler.HandleExceptionOnOpen(exception);
-                    }
                     catch
                     {
                         // ignore exceptions
@@ -339,19 +335,27 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             while (CreatedCount < _settings.MinConnections && !cancellationToken.IsCancellationRequested)
             {
-                using (var poolAwaiter = _maxConnectionsQueue.CreateAwaiter())
+                try
                 {
-                    var entered = await poolAwaiter.WaitSignaledAsync(minTimeout, cancellationToken).ConfigureAwait(false);
-                    if (!entered)
+                    using (var poolAwaiter = _maxConnectionsQueue.CreateAwaiter())
                     {
-                        return;
-                    }
+                        var entered = await poolAwaiter.WaitSignaledAsync(minTimeout, cancellationToken).ConfigureAwait(false);
+                        if (!entered)
+                        {
+                            return;
+                        }
 
-                    using (var connectionCreator = new ConnectionCreator(this, minTimeout))
-                    {
-                        var connection = await connectionCreator.CreateOpenedAsync(cancellationToken).ConfigureAwait(false);
-                        _connectionHolder.Return(connection);
+                        using (var connectionCreator = new ConnectionCreator(this, minTimeout))
+                        {
+                            var connection = await connectionCreator.CreateOpenedAsync(cancellationToken).ConfigureAwait(false);
+                            _connectionHolder.Return(connection);
+                        }
                     }
+                }
+                catch (Exception exception)
+                {
+                    _connectionExceptionHandler.HandleExceptionOnOpen(exception);
+                    throw;
                 }
 
                 cancellationToken.ThrowIfCancellationRequested();

@@ -365,10 +365,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             private void HandleException(Exception ex)
             {
-                if (ex is MongoConnectionException)
-                {
-                    _pool._connectionExceptionHandler.HandleExceptionOnOpen(ex);
-                }
+                _pool._connectionExceptionHandler.HandleExceptionOnOpen(ex);
 
                 var handler = _pool._checkingOutConnectionFailedEventHandler;
                 if (handler != null)
