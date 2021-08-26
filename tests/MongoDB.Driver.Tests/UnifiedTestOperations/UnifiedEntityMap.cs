@@ -513,28 +513,35 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 }
             }
 
-            if (eventTypesToCapture.Count > 0)
+            // Regardless of whether events are observed, we still need to track some info about the pool in order to implement
+            // the assertNumberConnectionsCheckedOut operation
+            if (eventTypesToCapture.Count == 0)
             {
-                var defaultCommandNamesToSkip = new List<string>
-                {
-                    "authenticate",
-                    "buildInfo",
-                    "configureFailPoint",
-                    "getLastError",
-                    "getnonce",
-                    "hello",
-                    OppressiveLanguageConstants.LegacyHelloCommandName,
-                    "saslContinue",
-                    "saslStart"
-                };
+                eventTypesToCapture.Add(
+                    (Key: Ensure.IsNotNull(clientId, nameof(clientId)),
+                    Events: new[] { "connectionCheckedInEvent", "connectionCheckedOutEvent" },
+                    CommandNotToCapture: commandNamesToSkipInEvents));
+            }
 
-                foreach (var eventsDetails in eventTypesToCapture)
-                {
-                    var commandNamesNotToCapture = Enumerable.Concat(eventsDetails.CommandNotToCapture ?? Enumerable.Empty<string>(), defaultCommandNamesToSkip);
-                    var formatter = _eventFormatters.ContainsKey(eventsDetails.Key) ? _eventFormatters[eventsDetails.Key] : null;
-                    var eventCapturer = CreateEventCapturer(eventsDetails.Events, commandNamesNotToCapture, formatter);
-                    clientEventCapturers.Add(eventsDetails.Key, eventCapturer);
-                }
+            var defaultCommandNamesToSkip = new List<string>
+            {
+                "authenticate",
+                "buildInfo",
+                "configureFailPoint",
+                "getLastError",
+                "getnonce",
+                "hello",
+                OppressiveLanguageConstants.LegacyHelloCommandName,
+                "saslContinue",
+                "saslStart"
+            };
+
+            foreach (var eventsDetails in eventTypesToCapture)
+            {
+                var commandNamesNotToCapture = Enumerable.Concat(eventsDetails.CommandNotToCapture ?? Enumerable.Empty<string>(), defaultCommandNamesToSkip);
+                var formatter = _eventFormatters.ContainsKey(eventsDetails.Key) ? _eventFormatters[eventsDetails.Key] : null;
+                var eventCapturer = CreateEventCapturer(eventsDetails.Events, commandNamesNotToCapture, formatter);
+                clientEventCapturers.Add(eventsDetails.Key, eventCapturer);
             }
 
             var eventCapturers = clientEventCapturers.Select(c => c.Value).ToArray();
