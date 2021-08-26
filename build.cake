@@ -591,35 +591,29 @@ Task("TestsPackaging")
     .DoesForEach(
     () => 
     {      
-        var testDetails = new List<(string Moniker, string CsprojType, string Bitness, string Command)>
-        {
-            /* Should be considered in https://jira.mongodb.org/browse/CSHARP-3805
-            { ("v4.7.2", "NonSdk", mongoDriverPackageVersion) }, */
+        var monikers = new[] { "net472", "netcoreapp21", "netcoreapp30", "net50" };
+        var csprojTypes = new[] { "SDK" };
+        var processorArchitectures = new[] { "x64" };
+        var projectTypes = new[] { "xunit", "console" };
 
-            { ("net472", "SDK", "x64", Command: "xunit") }, // TODO: add x32
-            { ("netcoreapp21", "SDK", "x64", Command: "xunit") },
-            { ("netcoreapp30", "SDK", "x64", Command: "xunit") },
-            { ("net50", "SDK", "x64", Command: "xunit") }
-        };
-
-        // run the same tests on x32 architecture
-        testDetails.AddRange(testDetails.ToArray().Select(i => (i.Moniker, i.CsprojType, "x86", Command: i.Command)));
-        // run the same tests on console app
-        testDetails.AddRange(testDetails.ToArray().Select(i => (i.Moniker, i.CsprojType, i.Bitness, Command: "console")));
-        
-        return testDetails;
+        return
+            from moniker in monikers
+            from csprojType in csprojTypes
+            from processorArchitecture in processorArchitectures
+            from projectType in projectTypes
+            select new { Moniker = moniker, CsprojType = csprojType, ProcessorArchitecture = processorArchitecture, ProjectType = projectType };
     },
     (testDetails) => 
     {
         var moniker = testDetails.Moniker;
         var csprojFormat = testDetails.CsprojType;
-        var command = testDetails.Command;
-        var bitness = testDetails.Bitness;
+        var projectType = testDetails.ProjectType;
+        var processorArchitecture = testDetails.ProcessorArchitecture;
         var localNugetSourceName = "LocalPackages";
 
         Information($"Moniker: {moniker}, csproj style: {csprojFormat}");
 
-        var monikerTestFolder = artifactsPackagingTestsDirectory.Combine($"{moniker}_{csprojFormat}_{command}_{bitness}");
+        var monikerTestFolder = artifactsPackagingTestsDirectory.Combine($"{moniker}_{csprojFormat}_{projectType}_{processorArchitecture}");
         Information($"Moniker test folder: {monikerTestFolder}");
         EnsureDirectoryExists(monikerTestFolder);
         CleanDirectory(monikerTestFolder);
@@ -627,7 +621,7 @@ Task("TestsPackaging")
         var csprojFileName = $"{monikerTestFolder.GetDirectoryName()}.csproj"; 
         var csprojFullPath = monikerTestFolder.CombineWithFilePath(csprojFileName);
 
-        switch (command)
+        switch (projectType)
         {
             case "xunit":
                 {
@@ -673,7 +667,7 @@ Task("TestsPackaging")
                         {
                             Framework = moniker,
                             Configuration = configuration,
-                            ArgumentCustomization = args => args.Append($"-- RunConfiguration.TargetPlatform={bitness}")
+                            ArgumentCustomization = args => args.Append($"-- RunConfiguration.TargetPlatform={processorArchitecture}")
                         }
                     );
                 } 
@@ -732,7 +726,7 @@ Task("TestsPackaging")
                             EnvironmentVariables = new Dictionary<string, string>() 
                             { 
                                 { "DefineConstants", "CONSOLE_TEST" },
-                                { "PlatformTarget", bitness }
+                                { "PlatformTarget", processorArchitecture }
                             },
                             Framework = moniker,
                             Configuration = configuration
@@ -740,7 +734,7 @@ Task("TestsPackaging")
                     );
                 } 
                 break;
-            default: throw new NotSupportedException($"Packaging tests for {command} is not supported.");
+            default: throw new NotSupportedException($"Packaging tests for {projectType} is not supported.");
         }
 
         string ConfigureAndGetTestedDriverVersion(DirectoryPath directoryPath, string localNugetSourceName)

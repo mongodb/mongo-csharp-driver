@@ -111,8 +111,8 @@ namespace MongoDB.Driver.Core.Compression.Snappy
             public override string GetLibraryName(OperatingSystemPlatform currentPlatform) =>
                 currentPlatform switch
                 {
-                    OperatingSystemPlatform.Windows => "snappy32.dll",
-                    _ => throw new InvalidOperationException($"Snappy is not supported on the current platform: {currentPlatform} and x32 bitness."),
+                    OperatingSystemPlatform.Windows => "snappy32.dll", // supported only on windows
+                    _ => throw new InvalidOperationException($"Snappy is not supported on the current platform: {currentPlatform} in 32-bit mode."),
                 };
         }
     }
