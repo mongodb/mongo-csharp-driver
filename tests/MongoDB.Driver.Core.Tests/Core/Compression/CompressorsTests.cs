@@ -30,16 +30,11 @@ namespace MongoDB.Driver.Core.Tests.Core.Compression
     {
         private static string __testMessage = "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz";
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(CompressorType.Snappy)]
         [InlineData(CompressorType.ZStandard)]
         public void Compressor_should_read_the_previously_written_message(CompressorType compressorType)
         {
-            RequirePlatform
-                .Check()
-                .SkipWhen(() => compressorType != CompressorType.ZStandard, SupportedOperatingSystem.MacOS)
-                .SkipWhen(() => compressorType != CompressorType.ZStandard, SupportedOperatingSystem.Linux); // snappy is not supported yet on non windows OSs
-
             var bytes = Encoding.ASCII.GetBytes(__testMessage);
             var compressor = GetCompressor(compressorType);
             Assert(

@@ -106,20 +106,14 @@ namespace MongoDB.Driver.Core.Compression.Snappy
 
         private class SnappyLocator : RelativeLibraryLocatorBase
         {
-            public override bool IsX32ModeSupported => true;
+            public override bool IsX32ModeSupported => OperatingSystemHelper.CurrentOperatingSystem == OperatingSystemPlatform.Windows;
 
-            public override string GetLibraryName(OperatingSystemPlatform currentPlatform)
-            {
-                switch (currentPlatform)
+            public override string GetLibraryName(OperatingSystemPlatform currentPlatform) =>
+                currentPlatform switch
                 {
-                    case OperatingSystemPlatform.Windows:
-                        return "snappy32.dll";
-                    case OperatingSystemPlatform.Linux: // TODO: add support for Linux and MacOS later
-                    case OperatingSystemPlatform.MacOS:
-                    default:
-                        throw new InvalidOperationException($"Snappy is not supported on the current platform: {currentPlatform}.");
-                }
-            }
+                    OperatingSystemPlatform.Windows => "snappy32.dll", // supported only on windows
+                    _ => throw new InvalidOperationException($"Snappy is not supported on the current platform: {currentPlatform} in 32-bit mode."),
+                };
         }
     }
 }

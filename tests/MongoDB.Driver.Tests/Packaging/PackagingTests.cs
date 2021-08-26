@@ -36,7 +36,21 @@ namespace MongoDB.Driver.Tests.Packaging
         [Fact]
         public static void Libmongocrypt_library_should_provide_library_version()
         {
-            Library.Version.Should().Be("1.2.1");
+            var version = Library.Version;
+
+            version.Should().Be("1.2.1");
+        }
+
+        [Fact]
+        public static void Snappy_compression_should_provide_snappy_max_compressed_length_x64()
+        {
+            var result = InvokeStaticMethod<ulong>(
+                assemblyName: "MongoDB.Driver.Core",
+                className: "MongoDB.Driver.Core.Compression.Snappy.Snappy64NativeMethods",
+                methodName: "snappy_max_compressed_length",
+                arguments: (ulong)10);
+
+            result.Should().Be((ulong)43);
         }
 
         [Fact]
@@ -53,26 +67,50 @@ namespace MongoDB.Driver.Tests.Packaging
         // private methods
         private static T GetStaticFieldValue<T>(string assemblyName, string className, string fieldName)
         {
-            var assembly = Assembly.Load(new AssemblyName(assemblyName));
-            var @class = assembly.GetType(className, throwOnError: true).GetTypeInfo();
-            var property = @class.GetProperty(fieldName, BindingFlags.Public | BindingFlags.Static);
-            return (T)property.GetValue(null);
+            try
+            {
+                var assembly = Assembly.Load(new AssemblyName(assemblyName));
+                var @class = assembly.GetType(className, throwOnError: true).GetTypeInfo();
+                var property = @class.GetProperty(fieldName, BindingFlags.Public | BindingFlags.Static);
+                return (T)property.GetValue(null);
+            }
+            catch (TargetInvocationException ex)
+            {
+                throw ex.InnerException;
+            }
         }
 
         private static T InvokeStaticMethod<T>(string assemblyName, string className, string methodName, params object[] arguments)
         {
-            var assembly = Assembly.Load(new AssemblyName(assemblyName));
-            var @class = assembly.GetType(className, throwOnError: true).GetTypeInfo();
-            var method = @class.GetMethod(methodName, BindingFlags.Public | BindingFlags.Static);
-            return (T)method.Invoke(null, arguments);
+            try
+            {
+                var assembly = Assembly.Load(new AssemblyName(assemblyName));
+                var @class = assembly.GetType(className, throwOnError: true).GetTypeInfo();
+                var method = @class.GetMethod(methodName, BindingFlags.Public | BindingFlags.Static);
+                return (T)method.Invoke(null, arguments);
+            }
+            catch (TargetInvocationException ex)
+            {
+                throw ex.InnerException;
+            }
         }
+
+#pragma warning disable IDE0051 // Remove unused private members
+        private static void RunAllTests()
+        {
+            // Left it outside Main method to protect us from losing sync between xunit and console modes
+            Libmongocrypt_library_should_provide_library_version();
+
+            Snappy_compression_should_provide_snappy_max_compressed_length_x64();
+
+            Zstandard_compression_should_provide_MaxCompressionLevel();
+        }
+#pragma warning restore IDE0051 // Remove unused private members
 
 #if CONSOLE_TEST
         static void Main(string[] args)
         {
-            Libmongocrypt_library_should_provide_library_version();
-
-            Zstandard_compression_should_provide_MaxCompressionLevel();
+            RunAllTests();
 
             var defaultForegroundColor = Console.ForegroundColor;
             Console.ForegroundColor = ConsoleColor.Green;
