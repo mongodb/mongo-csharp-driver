@@ -208,13 +208,13 @@ namespace MongoDB.Driver.Core.Servers
             // This synchronization technically can be violated by calling server.Invalidate not under _monitor.Lock.
             // Therefore _currentDescription and ConnectionPool state can get out of sync.
 
-            var descriptionChangedEvent = new ServerDescriptionChangedEventArgs(_currentDescription, newDescription);
+            var serverDescriptionChangedEvent = new ServerDescriptionChangedEventArgs(_currentDescription, newDescription);
             _currentDescription = newDescription;
 
             if (newDescription.HeartbeatException != null || forceClearConnectionPool)
             {
                 // propagate event to upper levels
-                TriggerServerDescriptionChanged(this, descriptionChangedEvent);
+                TriggerServerDescriptionChanged(this, serverDescriptionChangedEvent);
 
                 // pool must be cleared on after cluster update
                 ConnectionPool.Clear();
@@ -232,7 +232,7 @@ namespace MongoDB.Driver.Core.Servers
                 }
 
                 // propagate event to upper levels
-                TriggerServerDescriptionChanged(this, descriptionChangedEvent);
+                TriggerServerDescriptionChanged(this, serverDescriptionChangedEvent);
             }
         }
 
