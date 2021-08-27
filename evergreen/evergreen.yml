@@ -1390,7 +1390,6 @@ buildvariants:
   display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
   tags: ["tests-variant"]
   tasks:
-     - name: test-netstandard15
      - name: test-netstandard20
      - name: test-netstandard21
 
@@ -1399,7 +1398,6 @@ buildvariants:
   display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
   tags: ["tests-variant"]
   tasks:
-     - name: test-netstandard15
      - name: test-netstandard20
      - name: test-netstandard21
 
