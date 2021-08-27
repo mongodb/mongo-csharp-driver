@@ -103,6 +103,11 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
         {
             var definition = testCase.Test;
 
+            if (CoreTestConfiguration.ServerVersion < new SemanticVersion(3, 2, 0))
+            {
+                throw new SkipException("Supporting of these servers are going to be removed soon, so skip them.");
+            }
+
             BsonValue bsonValue;
             if (definition.TryGetValue("ignore_if_server_version_greater_than", out bsonValue))
             {
@@ -120,6 +125,17 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
                 if (serverVersion < minServerVersion)
                 {
                     throw new SkipException($"Test ignored because server version {serverVersion} is less than min server version {minServerVersion}.");
+                }
+            }
+            if (definition.TryGetValue("ignore_if_topology_type", out bsonValue))
+            {
+                var currentTopology = CoreTestConfiguration.Cluster.Description.Type.ToString().ToLower();
+                foreach (var topologyToIgnore in bsonValue.AsBsonArray)
+                {
+                    if (topologyToIgnore.ToString().ToLower() == currentTopology.ToString().ToLower())
+                    {
+                        throw new SkipException($"Test ignored because server topology {bsonValue} is not supported.");
+                    }
                 }
             }
 

@@ -184,8 +184,8 @@ namespace MongoDB.Driver.Core.Operations
             get { return _postBatchResumeToken; }
         }
 
-        // methods
-        private int CalculateGetMoreProtocolNumberToReturn()
+        // private methods
+        private int CalculateGetMoreNumberToReturn()
         {
             var numberToReturn = _batchSize ?? 0;
             if (_limit > 0)
@@ -252,7 +252,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 { "getMore", _cursorId },
                 { "collection", _collectionNamespace.CollectionName },
-                { "batchSize", () => _batchSize.Value, _batchSize > 0 },
+                { "batchSize", () => CalculateGetMoreNumberToReturn(), _batchSize > 0 },
                 { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(_maxTime.Value), _maxTime.HasValue }
             };
 
@@ -328,7 +328,7 @@ namespace MongoDB.Driver.Core.Operations
 
         private CursorBatch<TDocument> ExecuteGetMoreProtocol(IChannelHandle channel, CancellationToken cancellationToken)
         {
-            var numberToReturn = CalculateGetMoreProtocolNumberToReturn();
+            var numberToReturn = CalculateGetMoreNumberToReturn();
 
             return channel.GetMore<TDocument>(
                 _collectionNamespace,
@@ -342,7 +342,7 @@ namespace MongoDB.Driver.Core.Operations
 
         private Task<CursorBatch<TDocument>> ExecuteGetMoreProtocolAsync(IChannelHandle channel, CancellationToken cancellationToken)
         {
-            var numberToReturn = CalculateGetMoreProtocolNumberToReturn();
+            var numberToReturn = CalculateGetMoreNumberToReturn();
 
             return channel.GetMoreAsync<TDocument>(
                 _collectionNamespace,
