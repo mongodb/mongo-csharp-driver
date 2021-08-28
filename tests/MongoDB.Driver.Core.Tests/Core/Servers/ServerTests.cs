@@ -682,6 +682,32 @@ namespace MongoDB.Driver.Core.Servers
             }
         }
 
+        [Fact]
+        internal void SetDescription_should_trigger_update_before_pool_clear()
+        {
+            var onDescriptionChangedCalled = false;
+            EventHandler<ServerDescriptionChangedEventArgs> onDescriptionChanged =  (_, __) =>
+            {
+                _mockConnectionPool.Verify(pool => pool.Clear(), Times.Never);
+                onDescriptionChangedCalled = true;
+            };
+
+            try
+            {
+                _subject.DescriptionChanged += onDescriptionChanged;
+
+                _subject.Initialize();
+                _subject.Invalidate("Test reason", null);
+
+                _mockConnectionPool.Verify(pool => pool.Clear(), Times.Once);
+                onDescriptionChangedCalled.Should().BeTrue();
+            }
+            finally
+            {
+                _subject.DescriptionChanged -= onDescriptionChanged;
+            }
+        }
+
         [Theory]
         [InlineData(nameof(EndOfStreamException), true)]
         [InlineData(nameof(Exception), false)]
