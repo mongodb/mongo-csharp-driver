@@ -58,7 +58,6 @@ namespace MongoDB.Driver.Core.Misc
 
         // private fields
         private CancellationTokenSource _signalCancellationTokenSource;
-        private bool _isCancellationScheduled;
 
         private readonly SemaphoreSlim _semaphore;
         private readonly object _syncRoot;
@@ -72,36 +71,27 @@ namespace MongoDB.Driver.Core.Misc
             _syncRoot = new object();
 
             _signalCancellationTokenSource = new CancellationTokenSource();
-            _isCancellationScheduled = false;
         }
 
         public int Count => _semaphore.CurrentCount;
 
         public void Signal()
         {
-            if (!_isCancellationScheduled)
+            lock (_syncRoot)
             {
-                lock (_syncRoot)
-                {
-                    if (!_isCancellationScheduled)
-                    {
-                        _signalCancellationTokenSource.CancelAfter(0);
-                        _isCancellationScheduled = true;
-                    }
-                }
+                _signalCancellationTokenSource.Cancel();
             }
         }
 
         public void Reset()
         {
-            if (_isCancellationScheduled)
+            if (_signalCancellationTokenSource.IsCancellationRequested)
             {
                 lock (_syncRoot)
                 {
-                    if (_isCancellationScheduled)
+                    if (_signalCancellationTokenSource.IsCancellationRequested)
                     {
                         _signalCancellationTokenSource = new CancellationTokenSource();
-                        _isCancellationScheduled = false;
                     }
                 }
             }
@@ -146,7 +136,7 @@ namespace MongoDB.Driver.Core.Misc
 
         public async Task<SemaphoreWaitResult> WaitSignaledAsync(TimeSpan timeout, CancellationToken cancellationToken)
         {
-            var (tokemSourceLinked, signalTokenSource, signaled) = GetLinkedTokenAndCheckForSignaled(cancellationToken);
+            var (tokenSourceLinked, signalTokenSource, signaled) = GetLinkedTokenAndCheckForSignaled(cancellationToken);
 
             if (signaled)
             {
@@ -155,13 +145,17 @@ namespace MongoDB.Driver.Core.Misc
 
             try
             {
-                var entered = await _semaphore.WaitAsync(timeout, tokemSourceLinked.Token).ConfigureAwait(false);
+                var entered = await _semaphore.WaitAsync(timeout, tokenSourceLinked.Token).ConfigureAwait(false);
+
                 return entered ? SemaphoreWaitResult.Entered : SemaphoreWaitResult.TimedOut;
             }
             catch (OperationCanceledException)
             {
                 if (IsSignaled(signalTokenSource.Token, cancellationToken))
                 {
+                    // Request task rescheduling, to avoid resuming execution on Signal thread
+                    await TaskExtensions.YieldConfigurable().ConfigureAwait(false);
+
                     return SemaphoreWaitResult.Signaled;
                 }
 

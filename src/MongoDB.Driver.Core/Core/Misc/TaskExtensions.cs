@@ -25,5 +25,9 @@ namespace MongoDB.Driver.Core.Misc
                 TaskContinuationOptions.OnlyOnFaulted |
                 TaskContinuationOptions.ExecuteSynchronously);
         }
+
+        public static Task YieldConfigurable() => Task.Run(EmptyAction);
+
+        private static void EmptyAction() { }
     }
 }
