@@ -37,18 +37,28 @@ namespace MongoDB.Driver.Tests.Specifications.unified_test_format
         // nested types
         public class TestCaseFactory : JsonDrivenTestCaseFactory
         {
+            #region static
+            private static readonly string[] __ignoreTests =
+            {
+                // CSHARP-3823
+                "hello with speculativeAuthenticate",
+                "hello without speculativeAuthenticate is always observed",
+                "legacy hello with speculativeAuthenticate",
+                "legacy hello without speculativeAuthenticate is always observed"
+            };
+            #endregion
+
             // protected properties
             protected override string PathPrefix => "MongoDB.Driver.Tests.Specifications.unified_test_format.tests.valid_pass.";
 
             // protected methods
             protected override IEnumerable<JsonDrivenTestCase> CreateTestCases(BsonDocument document)
             {
-                var testCases = base.CreateTestCases(document);
-                foreach (var testCase in testCases)
+                foreach (var testCase in base.CreateTestCases(document).Where(c => !__ignoreTests.Any(i => c.Name.Contains(i))))
                 {
                     foreach (var async in new[] { false, true })
                     {
-                        var name = $"{testCase.Name.Replace(PathPrefix, "")}:async={async}";
+                        var name = $"{testCase.Name}:async={async}";
                         var test = testCase.Test.DeepClone().AsBsonDocument.Add("async", async);
                         yield return new JsonDrivenTestCase(name, testCase.Shared, test);
                     }
