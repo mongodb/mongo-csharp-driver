@@ -401,6 +401,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             List<(string Key, IEnumerable<string> Events, List<string> CommandNotToCapture)> eventTypesToCapture = new ();
             bool? loadBalanced = null;
             int? maxPoolSize = null;
+            bool? observeSensitiveCommands = null;
             var readConcern = ReadConcern.Default;
             var retryReads = true;
             var retryWrites = true;
@@ -461,6 +462,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                             (Key: Ensure.IsNotNull(clientId, nameof(clientId)),
                              Events: observeEvents,
                              CommandNotToCapture: commandNamesToSkipInEvents));
+                        break;
+                    case "observeSensitiveCommands":
+                        observeSensitiveCommands = element.Value.AsBoolean;
                         break;
                     case "ignoreCommandMonitoringEvents":
                         commandNamesToSkipInEvents.AddRange(element.Value.AsBsonArray.Select(x => x.AsString));
@@ -525,16 +529,23 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
             var defaultCommandNamesToSkip = new List<string>
             {
-                "authenticate",
                 "buildInfo",
                 "configureFailPoint",
                 "getLastError",
-                "getnonce",
-                "hello",
-                OppressiveLanguageConstants.LegacyHelloCommandName,
-                "saslContinue",
-                "saslStart"
+                OppressiveLanguageConstants.LegacyHelloCommandName,  // skip handshake events, should be reconsidered in the scope of CSHARP-3823
+                "hello"
             };
+
+            if (!observeSensitiveCommands.GetValueOrDefault())
+            {
+                defaultCommandNamesToSkip.AddRange(new[]
+                {
+                    "authenticate",
+                    "getnonce",
+                    "saslContinue",
+                    "saslStart"
+                });
+            }
 
             foreach (var eventsDetails in eventTypesToCapture)
             {
