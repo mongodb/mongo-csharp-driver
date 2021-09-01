@@ -15,6 +15,7 @@
 
 using System;
 using System.Net;
+using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson.TestHelpers.EqualityComparers;
 using MongoDB.Driver.Core.Clusters;
@@ -147,6 +148,22 @@ namespace MongoDB.Driver.Core.Configuration
             subject.EndPoints.Should().EqualUsing(__defaults.EndPoints, EndPointHelper.EndPointEqualityComparer);
             subject.LoadBalanced.Should().Be(loadBalanced);
             subject.LocalThreshold.Should().Be(__defaults.LocalThreshold);
+            subject.MaxServerSelectionWaitQueueSize.Should().Be(__defaults.MaxServerSelectionWaitQueueSize);
+            subject.ReplicaSetName.Should().Be(__defaults.ReplicaSetName);
+            subject.Scheme.Should().Be(__defaults.Scheme);
+            subject.ServerSelectionTimeout.Should().Be(__defaults.ServerSelectionTimeout);
+        }
+
+        [Fact]
+        public void constructor_with_infinite_localThreshold_should_initialize_instance()
+        {
+#pragma warning disable CS0618 // Type or member is obsolete
+            var subject = new ClusterSettings(localThreshold: Timeout.InfiniteTimeSpan);
+            subject.ConnectionMode.Should().Be(__defaults.ConnectionMode);
+#pragma warning restore CS0618 // Type or member is obsolete
+            subject.EndPoints.Should().EqualUsing(__defaults.EndPoints, EndPointHelper.EndPointEqualityComparer);
+            subject.LoadBalanced.Should().BeFalse();
+            subject.LocalThreshold.Should().Be(Timeout.InfiniteTimeSpan);
             subject.MaxServerSelectionWaitQueueSize.Should().Be(__defaults.MaxServerSelectionWaitQueueSize);
             subject.ReplicaSetName.Should().Be(__defaults.ReplicaSetName);
             subject.Scheme.Should().Be(__defaults.Scheme);
