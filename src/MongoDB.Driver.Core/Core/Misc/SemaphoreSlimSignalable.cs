@@ -154,7 +154,7 @@ namespace MongoDB.Driver.Core.Misc
                 if (IsSignaled(signalTokenSource.Token, cancellationToken))
                 {
                     // Request task rescheduling, to avoid resuming execution on Signal thread
-                    await TaskExtensions.YieldConfigurable().ConfigureAwait(false);
+                    await TaskExtensions.YieldNoContext();
 
                     return SemaphoreWaitResult.Signaled;
                 }
