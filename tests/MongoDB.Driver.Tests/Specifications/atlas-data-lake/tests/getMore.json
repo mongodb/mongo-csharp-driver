@@ -45,7 +45,7 @@
         {
           "command_started_event": {
             "command": {
-              "batchSize": 3
+              "batchSize": 1
             },
             "command_name": "getMore",
             "database_name": "cursors"
