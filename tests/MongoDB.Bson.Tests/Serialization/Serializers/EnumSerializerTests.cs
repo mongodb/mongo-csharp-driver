@@ -27,6 +27,12 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 {
     public class EnumSerializerTests
     {
+        public enum CaseDistinguishEnum
+        {
+            AnEnumValue,
+            anenumvalue
+        }
+
         public enum EnumByte : byte
         {
             Min = byte.MinValue,
@@ -255,6 +261,30 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             var exception = Record.Exception(() => Deserialize(subject, ToBson(json)));
 
             exception.Should().BeOfType<OverflowException>();
+        }
+
+        [Theory]
+        [InlineData("{ x : 'AnEnumValue' }", CaseDistinguishEnum.AnEnumValue)]
+        [InlineData("{ x : 'anenumvalue' }", CaseDistinguishEnum.anenumvalue)]
+        [InlineData("{ x : 'ANENUMVALUE' }", CaseDistinguishEnum.AnEnumValue)]
+        public void Deserialize_string_should_be_caseinsensitive(string json, CaseDistinguishEnum result)
+        {
+            var subject = new EnumSerializer<CaseDistinguishEnum>(BsonType.String);
+
+            var deserialized = Deserialize(subject, ToBson(json));
+
+            deserialized.Should().Be(result);
+        }
+
+        [Fact]
+        public void Deserialize_string_should_throw_when_enum_field_is_not_found()
+        {
+            var subject = new EnumSerializer<CaseDistinguishEnum>(BsonType.String);
+
+            var json = "{ x : 'NotEnumField' }";
+            var exception = Record.Exception(() => Deserialize(subject, ToBson(json)));
+
+            exception.Should().BeOfType<ArgumentException>();
         }
 
         [Theory]

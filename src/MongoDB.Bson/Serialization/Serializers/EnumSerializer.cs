@@ -243,7 +243,15 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
         }
 
-        private TEnum ConvertStringToEnum(string value) =>
-            (TEnum)Enum.Parse(typeof(TEnum), value, true);
+        private TEnum ConvertStringToEnum(string value)
+        {
+            if (Enum.TryParse<TEnum>(value, ignoreCase: false, out var result))
+            {
+                return result;
+            }
+
+            // fall back to case-insensitive parse
+            return (TEnum)Enum.Parse(typeof(TEnum), value, ignoreCase: true);
+        }
     }
 }
