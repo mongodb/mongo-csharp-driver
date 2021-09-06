@@ -16,6 +16,8 @@
 using System;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
+using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
@@ -36,13 +38,13 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
     {
         [SkippableTheory]
         [ParameterAttributeData]
-        public void PoolClearedError_write_retryablity_test([Values(false, true)] bool async)
+        public async Task PoolClearedError_write_retryablity_test([Values(false, true)] bool async)
         {
             RequireServer.Check()
                 .Supports(Feature.FailPointsBlockConnection)
                 .ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded);
 
-            var heartbeatInterval = TimeSpan.FromMilliseconds(500);
+            var heartbeatInterval = TimeSpan.FromMilliseconds(50);
             var eventsWaitTimeout = TimeSpan.FromMilliseconds(5000);
 
             var failPointCommand = BsonDocument.Parse(
@@ -92,42 +94,33 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
             var collection = database.GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName);
 
             eventCapturer.Clear();
-            ThreadingUtilities.ExecuteOnNewThreads(2, i =>
+
+            if (async)
             {
-                if (async)
+                await ThreadingUtilities.ExecuteTasksOnNewThreads(2, async _ =>
                 {
-                    collection.InsertOneAsync(new BsonDocument("x", 1))
-                        .GetAwaiter()
-                        .GetResult();
-                }
-                else
+                    await collection.InsertOneAsync(new BsonDocument("x", 1));
+                });
+            }
+            else
+            {
+                ThreadingUtilities.ExecuteOnNewThreads(2, _ =>
                 {
-                    collection.InsertOne(new BsonDocument("x", 1));
-                }
-            });
+                        collection.InsertOne(new BsonDocument("x", 1));
+                });
+            }
 
-            eventCapturer.WaitForOrThrowIfTimeout(new[]
-                {
-                    // first command fails
-                    typeof(ConnectionPoolCheckedOutConnectionEvent),
-                    typeof(CommandStartedEvent),
-                    typeof(CommandFailedEvent),
-                    typeof(ConnectionPoolClearedEvent),
-
-                    // second checkout fails
-                    typeof(ConnectionPoolCheckingOutConnectionFailedEvent),
-
-                    // retry or second command succeeds
-                    typeof(ConnectionPoolCheckedOutConnectionEvent),
-                    typeof(CommandStartedEvent),
-                    typeof(CommandSucceededEvent),
-
-                    // retry or second command succeeds
-                    typeof(ConnectionPoolCheckedOutConnectionEvent),
-                    typeof(CommandStartedEvent),
-                    typeof(CommandSucceededEvent)
-                },
+            // wait for 2 CommandSucceededEvent events, meaning that all other events should be received
+            eventCapturer.WaitForOrThrowIfTimeout(
+                events => events.Count(e => e is CommandSucceededEvent) == 2,
                 eventsWaitTimeout);
+
+            eventCapturer.Events.OfType<CommandStartedEvent>().Count().Should().Be(3);
+            eventCapturer.Events.OfType<CommandFailedEvent>().Count().Should().Be(1);
+            eventCapturer.Events.OfType<CommandSucceededEvent>().Count().Should().Be(2);
+            eventCapturer.Events.OfType<ConnectionPoolClearedEvent>().Count().Should().Be(1);
+            eventCapturer.Events.OfType<ConnectionPoolCheckedOutConnectionEvent>().Count().Should().Be(3);
+            eventCapturer.Events.OfType<ConnectionPoolCheckingOutConnectionFailedEvent>().Count().Should().Be(1);
         }
 
         // private methods
