@@ -589,7 +589,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
         [Theory]
         [ParameterAttributeData]
-        public void AquireConnection_should_timeout_when_non_sufficient_reused_connections(
+        public void AcquireConnection_should_timeout_when_non_sufficient_reused_connections(
             [Values(true, false)] bool async,
             [Values(1, 10, null)] int? maxConnectingOptional)
         {
@@ -755,7 +755,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
         [Theory]
         [ParameterAttributeData]
-        public void AquireConnection_should_timeout_when_no_sufficient_reused_connections(
+        public void AcquireConnection_should_timeout_when_no_sufficient_reused_connections(
             [Values(true, false)]
             bool async)
         {
@@ -880,7 +880,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
         [Theory]
         [ParameterAttributeData]
-        public void Aquire_and_release_connection_stress_test(
+        public void Acquire_and_release_connection_stress_test(
             [RandomSeed(new[] { 0 })] int seed,
             [Values(2, 10, 30)] int threadsCount,
             [Values(true, false, null)] bool? asyncOrRandom,

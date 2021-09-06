@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Core.Misc
     {
         [Theory]
         [ParameterAttributeData]
-        public void SemaphoreSlimSignalable_constructor_should_check_arguments([Values(-2, -1, 1025)]int count)
+        public void Constructor_should_check_arguments([Values(-2, -1, 1025)] int count)
         {
             var exception = Record.Exception(() => new SemaphoreSlimSignalable(count));
 
@@ -39,7 +39,48 @@ namespace MongoDB.Driver.Core.Misc
 
         [Theory]
         [ParameterAttributeData]
-        public async Task SemaphoreSlimSignalable_wait_should_enter(
+        public async Task Reset_should_clear_signal(
+            [Values(true, false)] bool async)
+        {
+            const int threadsCount = 4;
+            var semaphore = new SemaphoreSlimSignalable(0);
+
+            semaphore.Signal();
+            semaphore.Reset();
+
+            var waitTasks = WaitAsync(semaphore, async, true, threadsCount, TimeSpan.FromSeconds(5));
+
+            for (int i = 0; i < threadsCount; i++)
+            {
+                semaphore.Release();
+            }
+
+            var results = await waitTasks;
+
+            Assert(results, SemaphoreSlimSignalable.SemaphoreWaitResult.Entered);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Reset_should_not_reset_non_signaled(
+            [Values(true, false)] bool async)
+        {
+            const int threadsCount = 4;
+            var semaphore = new SemaphoreSlimSignalable(0);
+
+            var waitTasks = WaitAsync(semaphore, async, true, threadsCount, TimeSpan.FromSeconds(5));
+
+            semaphore.Reset();
+            semaphore.Signal();
+
+            var results = await waitTasks;
+
+            Assert(results, SemaphoreSlimSignalable.SemaphoreWaitResult.Signaled);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Wait_should_enter(
             [Values(true, false)] bool async,
             [Values(true, false)] bool isSignaledWait,
             [Values(0, 1, 2)] int initialCount,
@@ -61,10 +102,10 @@ namespace MongoDB.Driver.Core.Misc
 
         [Theory]
         [ParameterAttributeData]
-        public async Task SemaphoreSlimSignalable_wait_should_timeout(
+        public async Task Wait_should_timeout(
             [Values(true, false)] bool async,
             [Values(true, false)] bool isSignaledWait,
-            [Values(5, 10)]int timeoutMS)
+            [Values(5, 10)] int timeoutMS)
         {
             const int threadsCount = 4;
             var semaphore = new SemaphoreSlimSignalable(0);
@@ -75,7 +116,7 @@ namespace MongoDB.Driver.Core.Misc
 
         [Theory]
         [ParameterAttributeData]
-        public async Task SemaphoreSlimSignalable_wait_should_signal(
+        public async Task Wait_should_signal(
             [Values(true, false)] bool async,
             [Values(true, false)] bool signalBeforeWait)
         {
@@ -99,7 +140,7 @@ namespace MongoDB.Driver.Core.Misc
 
         [Theory]
         [ParameterAttributeData]
-        public async Task SemaphoreSlimSignalable_wait_should_cancel(
+        public async Task Wait_should_cancel(
             [Values(true, false)] bool async,
             [Values(true, false)] bool isSignaledWait)
         {
@@ -117,6 +158,65 @@ namespace MongoDB.Driver.Core.Misc
                 var exception = await Record.ExceptionAsync(() => task);
 
                 exception.Should().BeOfType<OperationCanceledException>();
+            }
+        }
+
+        [Fact]
+        public async Task WaitSignaledAsync_should_not_continue_on_signal_thread()
+        {
+            var cancelationTokenSource = new CancellationTokenSource();
+
+            var semaphore = new SemaphoreSlimSignalable(0);
+            var waitStartedEvent = new ManualResetEventSlim(false);
+
+            var signalThreadTerminated = false;
+            var signalThread = SignalThread();
+
+            for (int i = 0; i < 100; i++)
+            {
+                semaphore.Reset();
+                waitStartedEvent.Reset();
+
+                var waitSignaledTask = WaitSignaledTask();
+                await waitSignaledTask;
+
+                waitSignaledTask.Result.Should().NotBe(signalThread.ManagedThreadId);
+            }
+
+            Volatile.Write(ref signalThreadTerminated, true);
+            waitStartedEvent.Set();
+            signalThread.Join(100);
+
+            async Task<int> WaitSignaledTask()
+            {
+                await Task.Yield();
+
+                var waitTask = semaphore.WaitSignaledAsync(Timeout.InfiniteTimeSpan, cancelationTokenSource.Token);
+                waitStartedEvent.Set();
+
+                var waitResult = await waitTask;
+                waitResult.Should().Be(SemaphoreSlimSignalable.SemaphoreWaitResult.Signaled);
+
+                return Thread.CurrentThread.ManagedThreadId;
+            }
+
+            Thread SignalThread()
+            {
+                var thread = new Thread(_ =>
+                {
+                    while (!Volatile.Read(ref signalThreadTerminated))
+                    {
+                        waitStartedEvent.Wait();
+                        waitStartedEvent.Reset();
+
+                        semaphore.Signal();
+                    }
+                });
+
+                thread.IsBackground = true;
+                thread.Start();
+
+                return thread;
             }
         }
 

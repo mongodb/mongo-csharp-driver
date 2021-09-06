@@ -13,17 +13,48 @@
 * limitations under the License.
 */
 
+using System;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace MongoDB.Driver.Core.Misc
 {
     internal static class TaskExtensions
     {
+        internal struct YieldNoContextAwaitable
+        {
+            public YieldNoContextAwaiter GetAwaiter() { return new YieldNoContextAwaiter(); }
+
+            public struct YieldNoContextAwaiter : ICriticalNotifyCompletion
+            {
+                /// <summary>Gets whether a yield is not required.</summary>
+                /// <remarks>This property is intended for compiler user rather than use directly in code.</remarks>
+                public bool IsCompleted { get { return false; } } // yielding is always required for YieldNoContextAwaiter, hence false
+
+                public void OnCompleted(Action continuation)
+                {
+                    Task.Factory.StartNew(continuation, default, TaskCreationOptions.PreferFairness, TaskScheduler.Default);
+                }
+
+                public void UnsafeOnCompleted(Action continuation)
+                {
+                    Task.Factory.StartNew(continuation, default, TaskCreationOptions.PreferFairness, TaskScheduler.Default);
+                }
+
+                public void GetResult()
+                {
+                    // no op
+                }
+            }
+        }
+
         public static void IgnoreExceptions(this Task task)
         {
             task.ContinueWith(t => { var ignored = t.Exception; },
                 TaskContinuationOptions.OnlyOnFaulted |
                 TaskContinuationOptions.ExecuteSynchronously);
         }
+
+        public static YieldNoContextAwaitable YieldNoContext() => new YieldNoContextAwaitable();
     }
 }
