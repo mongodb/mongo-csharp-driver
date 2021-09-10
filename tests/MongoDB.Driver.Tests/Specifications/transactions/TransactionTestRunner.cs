@@ -31,15 +31,17 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.JsonDrivenTests;
+using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.TestHelpers;
 using MongoDB.Driver.Tests.JsonDrivenTests;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Specifications.transactions
 {
     [Trait("Category", "Serverless")]
-    public sealed class TransactionTestRunner : IJsonDrivenTestRunner, IDisposable
+    public sealed class TransactionTestRunner : LoggableTestClass, IJsonDrivenTestRunner, IDisposable
     {
         #region static
         private static readonly HashSet<string> __commandsToNotCapture = new HashSet<string>
@@ -76,6 +78,12 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
 
         public IServer FailPointServer => null;
 
+        // public constructors
+        public TransactionTestRunner(ITestOutputHelper testOutputHelper)
+            : base(testOutputHelper)
+        {
+        }
+
         // public methods
         public void ConfigureFailPoint(IServer server, ICoreSessionHandle session, BsonDocument failCommand)
         {
@@ -89,10 +97,12 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
             _disposables.Add(failPoint);
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
+
+            base.Dispose();
         }
 
         [SkippableTheory]
@@ -205,6 +215,8 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
 
         private void DropCollection()
         {
+            Logger.Debug("Dropping collection {0}", _collectionName);
+
             var client = DriverTestConfiguration.Client;
             var database = client.GetDatabase(_databaseName).WithWriteConcern(WriteConcern.WMajority);
             database.DropCollection(_collectionName);
@@ -212,6 +224,8 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
 
         private void CreateCollection()
         {
+            Logger.Debug("Creating collection {0}", _collectionName);
+
             var client = DriverTestConfiguration.Client;
             var database = client.GetDatabase(_databaseName).WithWriteConcern(WriteConcern.WMajority);
             database.CreateCollection(_collectionName);
@@ -219,6 +233,8 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
 
         private void InsertData(BsonDocument shared)
         {
+            Logger.Debug("Inserting data");
+
             if (shared.Contains("data"))
             {
                 var documents = shared["data"].AsBsonArray.Cast<BsonDocument>().ToList();
@@ -254,6 +270,7 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
                     ConfigureClientSettings(settings, test);
                     settings.ClusterConfigurator = c => c.Subscribe(eventCapturer);
                 },
+                CreateLogger<DisposableMongoClient>(),
                 useMultipleShardRouters);
         }
 
@@ -313,6 +330,8 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
 
         private IClientSessionHandle StartSession(IMongoClient client, BsonDocument test, string sessionKey)
         {
+            Logger.Debug("Starting session");
+
             var options = ParseSessionOptions(test, sessionKey);
             return client.StartSession(options);
         }
@@ -393,6 +412,8 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
                 var name = operation["name"].AsString;
                 var jsonDrivenTest = factory.CreateTest(receiver, name);
 
+                Logger.Debug("Execution operation {0}", name);
+
                 jsonDrivenTest.Arrange(operation);
                 if (test["async"].AsBoolean)
                 {
@@ -408,6 +429,8 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
 
         private void AssertEvents(EventCapturer actualEvents, BsonDocument test, Dictionary<string, BsonValue> sessionIdMap)
         {
+            Logger.Debug("Asserting events");
+
             if (test.Contains("expectations"))
             {
                 var expectedEvents = test["expectations"].AsBsonArray.Cast<BsonDocument>().GetEnumerator();
@@ -448,6 +471,8 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
 
         private void AssertOutcome(BsonDocument test)
         {
+            Logger.Debug("Asserting outcome");
+
             if (test.Contains("outcome"))
             {
                 foreach (var aspect in test["outcome"].AsBsonDocument)

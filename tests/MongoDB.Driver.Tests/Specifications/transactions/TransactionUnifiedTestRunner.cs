@@ -16,15 +16,24 @@
 using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
+using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Tests.UnifiedTestOperations;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Specifications.transactions
 {
     [Trait("Category", "SupportLoadBalancing")]
     [Trait("Category", "Serverless")]
-    public sealed class TransactionUnifiedTestRunner
+    public sealed class TransactionUnifiedTestRunner : LoggableTestClass
     {
+        // public constructors
+        public TransactionUnifiedTestRunner(ITestOutputHelper testOutputHelper)
+            : base(testOutputHelper)
+        {
+        }
+
+        // public methods
         [SkippableTheory]
         [ClassData(typeof(TestCaseFactory))]
         public void Run(JsonDrivenTestCase testCase)

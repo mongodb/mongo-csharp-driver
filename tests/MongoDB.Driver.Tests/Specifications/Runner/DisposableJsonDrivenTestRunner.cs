@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Specifications.Runner
 {
@@ -27,10 +28,18 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
             _disposables.Add(disposable);
         }
 
-        public void Dispose()
+        // public methods
+        public DisposableJsonDrivenTestRunner(ITestOutputHelper testOutputHelper)
+            : base(testOutputHelper)
+        {
+        }
+
+        public override void Dispose()
         {
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
+
+            base.Dispose();
         }
 
         // private methods

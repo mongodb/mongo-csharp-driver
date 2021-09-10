@@ -23,14 +23,16 @@ using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.JsonDrivenTests;
+using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.TestHelpers;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Specifications.crud
 {
     [Trait("Category", "Serverless")]
-    public class CrudTestRunner
+    public class CrudTestRunner : LoggableTestClass
     {
         #region static
         private static readonly HashSet<string> __commandsToNotCapture = new HashSet<string>
@@ -50,6 +52,13 @@ namespace MongoDB.Driver.Tests.Specifications.crud
         private readonly EventCapturer _capturedEvents = new EventCapturer()
             .Capture<CommandStartedEvent>(e => !__commandsToNotCapture.Contains(e.CommandName));
 
+        // public constructors
+        public CrudTestRunner(ITestOutputHelper testOutputHelper)
+            : base(testOutputHelper)
+        {
+        }
+
+        // public methods
         [SkippableTheory]
         [ClassData(typeof(TestCaseFactory))]
         public void Run(JsonDrivenTestCase testCase)
@@ -136,7 +145,8 @@ namespace MongoDB.Driver.Tests.Specifications.crud
                         c.Subscribe(eventCapturer);
                         c.ConfigureServer(ss => ss.With(heartbeatInterval: Timeout.InfiniteTimeSpan));
                     };
-                });
+                },
+                CreateLogger<DisposableMongoClient>());
         }
 
         private void ExecuteOperation(IMongoClient client, IMongoDatabase database, IMongoCollection<BsonDocument> collection, BsonDocument operation, BsonDocument outcome, bool async)

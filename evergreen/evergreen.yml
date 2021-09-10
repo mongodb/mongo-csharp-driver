@@ -13,8 +13,8 @@ stepback: true
 command_type: system
 
 # Protect ourself against rogue test case, or curl gone wild, that runs forever
-# 12 minutes is the longest we'll ever run
-exec_timeout_secs: 1800
+# 45 minutes: 20 minutes is a normal test run + up to 10 minutes for test setup + 15 minutes for longer macOS tests
+exec_timeout_secs: 2700
 
 # What to do when evergreen hits the timeout (`post:` tasks are run automatically)
 timeout:

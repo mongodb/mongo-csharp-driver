@@ -17,16 +17,24 @@ using System;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.TestHelpers;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests
 {
-    public class OcspIntegrationTests
+    public class OcspIntegrationTests : LoggableTestClass
     {
         private static readonly string _shouldSucceedEnvironmentVariableName = "OCSP_TLS_SHOULD_SUCCEED";
 
+        // public constructors
+        public OcspIntegrationTests(ITestOutputHelper testOutputHelper)
+            : base(testOutputHelper)
+        {
+        }
+
+        // public methods
         /*
          * This test must be run as its own task in Evergreen.
          * When testing locally, this test should not run alongside other integration tests.
@@ -97,7 +105,7 @@ namespace MongoDB.Driver.Tests
             settings.ServerSelectionTimeout = TimeSpan.FromSeconds(5 * 2); // must be > 5s
             // settings.SdamLogFilename = @"C:\temp\sdam" + $"{tlsInsecure}.log";
 
-            return new DisposableMongoClient(new MongoClient(settings));
+            return new DisposableMongoClient(new MongoClient(settings), CreateLogger<DisposableMongoClient>());
         }
 
         private bool GetShouldSucceed()

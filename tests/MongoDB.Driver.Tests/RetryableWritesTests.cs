@@ -23,14 +23,23 @@ using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
+using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.TestHelpers;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests
 {
-    public class RetryableWritesTests
+    public class RetryableWritesTests : LoggableTestClass
     {
+        // public constructors
+        public RetryableWritesTests(ITestOutputHelper output) :
+            base(output)
+        {
+        }
+
+        // public methods
         [SkippableFact]
         public void Insert_with_RetryWrites_true_should_work_whether_retryable_writes_are_supported_or_not()
         {
@@ -252,7 +261,8 @@ namespace MongoDB.Driver.Tests
             {
                 clientSettings.ClusterConfigurator = clusterConfigurator;
                 clientSettings.RetryWrites = retryWrites;
-            });
+            },
+            logger: CreateLogger<DisposableMongoClient>());
         }
 
         private DisposableMongoClient GetClient(EventCapturer capturer)

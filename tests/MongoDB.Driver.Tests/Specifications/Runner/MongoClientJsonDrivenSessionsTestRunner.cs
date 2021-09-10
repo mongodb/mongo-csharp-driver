@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.TestHelpers.JsonDrivenTests;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Specifications.Runner
 {
@@ -26,6 +27,12 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
         private const string SessionIdKeySuffix = "__ClientSessionId";
 
         protected override string[] ExpectedTestColumns => new[] { "description", "clientOptions", "useMultipleMongoses", "failPoint", "sessionOptions", "operations", "expectations", "outcome", "async" };
+
+        // public methods
+        public MongoClientJsonDrivenSessionsTestRunner(ITestOutputHelper testOutputHelper)
+            : base(testOutputHelper)
+        {
+        }
 
         // protected methods
         protected override void TestInitialize(MongoClient client, BsonDocument test, BsonDocument shared)

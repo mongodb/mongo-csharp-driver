@@ -13,23 +13,25 @@
 * limitations under the License.
 */
 
+using System;
+using System.Collections.Generic;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Encryption;
 using MongoDB.Driver.TestHelpers;
 using MongoDB.Libmongocrypt;
-using System;
-using System.Collections.Generic;
 using Moq;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests
 {
-    public class EncryptionTests
+    public class EncryptionTests : LoggableTestClass
     {
         #region static
         private static readonly CollectionNamespace __keyVaultCollectionNamespace = CollectionNamespace.FromFullName("db.coll");
@@ -37,6 +39,13 @@ namespace MongoDB.Driver.Tests
 
         private const string LocalMasterKey = "Mng0NCt4ZHVUYUJCa1kxNkVyNUR1QURhZ2h2UzR2d2RrZzh0cFBwM3R6NmdWMDFBMUN3YkQ5aXRRMkhGRGdQV09wOGVNYUMxT2k3NjZKelhaQmRCZGJkTXVyZG9uSjFk";
 
+        // public constructors
+        public EncryptionTests(ITestOutputHelper testOutputHelper)
+            : base(testOutputHelper)
+        {
+        }
+
+        // public methods
         [Theory]
         [InlineData("mongocryptdBypassSpawn", typeof(int), typeof(ArgumentException))]
         [InlineData("mongocryptdBypassSpawn", typeof(string), typeof(ArgumentException))]
@@ -219,7 +228,7 @@ namespace MongoDB.Driver.Tests
                 mongoClientSettings.AutoEncryptionOptions = autoEncryptionOptions;
             }
 
-            return new DisposableMongoClient(new MongoClient(mongoClientSettings));
+            return new DisposableMongoClient(new MongoClient(mongoClientSettings), CreateLogger<DisposableMongoClient>());
         }
 
         private ClientEncryption GetClientEncryption(

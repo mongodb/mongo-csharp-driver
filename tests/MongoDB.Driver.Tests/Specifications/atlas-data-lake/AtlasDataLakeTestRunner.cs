@@ -19,6 +19,7 @@ using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Tests.Specifications.Runner;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Specifications.atlas_data_lake
 {
@@ -27,6 +28,12 @@ namespace MongoDB.Driver.Tests.Specifications.atlas_data_lake
     {
         protected override string[] ExpectedSharedColumns => new[] { "_path", "database_name", "collection_name", "tests" };
         protected override string[] ExpectedTestColumns => new[] { "description", "operations", "expectations", "async" };
+
+        // public methods
+        public AtlasDataLakeTestRunner(ITestOutputHelper testOutputHelper)
+            : base(testOutputHelper)
+        {
+        }
 
         [SkippableTheory]
         [ClassData(typeof(TestCaseFactory))]

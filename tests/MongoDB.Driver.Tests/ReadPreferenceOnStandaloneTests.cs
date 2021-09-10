@@ -78,7 +78,8 @@ namespace MongoDB.Driver.Tests
             {
                 settings.ClusterConfigurator = c => c.Subscribe(eventCapturer);
                 settings.ReadPreference = readPreference;
-            });
+            },
+            logger: null);
         }
     }
 }

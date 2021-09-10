@@ -24,18 +24,27 @@ using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.TestHelpers;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
 {
     [Trait("Category", "Serverless")]
-    public class CommandConstructionTests
+    public class CommandConstructionTests : LoggableTestClass
     {
         private readonly string _collectionName = CoreTestConfiguration.GetCollectionNamespaceForTestClass(typeof(CommandConstructionTests)).CollectionName;
         private readonly string _databaseName = CoreTestConfiguration.DatabaseNamespace.DatabaseName;
 
+        // public constructors
+        public CommandConstructionTests(ITestOutputHelper testOutputHelper)
+            : base(testOutputHelper)
+        {
+        }
+
+        // public methods
         [SkippableTheory]
         [ParameterAttributeData]
         public void Unacknowledged_writes_should_not_have_transaction_id(
@@ -433,7 +442,8 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
             {
                 settings.ClusterConfigurator = c => c.Subscribe(eventCapturer);
                 settings.RetryWrites = true;
-            });
+            },
+            logger: LoggerFactory.CreateLogger<DisposableMongoClient>());
         }
 
         private EventCapturer CreateEventCapturer()
@@ -459,14 +469,22 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
         {
             var client = DriverTestConfiguration.Client;
             var database = client.GetDatabase(_databaseName);
+
+            Logger.Debug("Dropping collection {0}", _collectionName);
             database.DropCollection(_collectionName);
+
+            Logger.Debug("Creating collection {0}", _collectionName);
             database.CreateCollection(_collectionName);
+
+            Logger.Debug("Created collection {0}", _collectionName);
         }
 
         private void DropCollection()
         {
             var client = DriverTestConfiguration.Client;
             var database = client.GetDatabase(_databaseName);
+
+            Logger.Debug("Dropping collection {0}", _collectionName);
             database.DropCollection(_collectionName);
         }
 

@@ -16,14 +16,23 @@
 using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
+using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Tests.UnifiedTestOperations;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Specifications.change_streams
 {
     [Trait("Category", "SupportLoadBalancing")]
-    public sealed class ChangeStreamUnifiedTestRunner
+    public sealed class ChangeStreamUnifiedTestRunner : LoggableTestClass
     {
+        // public constructors
+        public ChangeStreamUnifiedTestRunner(ITestOutputHelper testOutputHelper)
+            : base(testOutputHelper)
+        {
+        }
+
+        // public methods
         [SkippableTheory]
         [ClassData(typeof(TestCaseFactory))]
         public void Run(JsonDrivenTestCase testCase)

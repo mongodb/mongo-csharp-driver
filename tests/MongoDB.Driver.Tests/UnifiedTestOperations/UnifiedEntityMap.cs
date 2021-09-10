@@ -20,6 +20,7 @@ using MongoDB.Bson;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.GridFS;
 using MongoDB.Driver.TestHelpers;
 
@@ -262,10 +263,12 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
     public class UnifiedEntityMapBuilder
     {
         private readonly Dictionary<string, IEventFormatter> _eventFormatters;
+        private readonly ILoggerFactory _loggerFactory;
 
-        public UnifiedEntityMapBuilder(Dictionary<string, IEventFormatter> eventFormatters)
+        public UnifiedEntityMapBuilder(Dictionary<string, IEventFormatter> eventFormatters, ILoggerFactory loggerFactory)
         {
             _eventFormatters = eventFormatters ?? new ();
+            _loggerFactory = loggerFactory;
         }
 
         public UnifiedEntityMap Build(BsonArray entitiesArray)
@@ -580,6 +583,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         };
                     }
                 },
+                _loggerFactory.CreateLogger<DisposableMongoClient>(),
                 useMultipleShardRouters);
 
             return (client, clientEventCapturers);
