@@ -363,7 +363,7 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
         private class TestCaseFactory : JsonDrivenTestCaseFactory
         {
             // protected properties
-            protected override string PathPrefix => "MongoDB.Driver.Tests.Specifications.command_monitoring.tests.";
+            protected override string PathPrefix => "MongoDB.Driver.Tests.Specifications.command_monitoring.tests.legacy";
 
             // protected methods
             protected override IEnumerable<JsonDrivenTestCase> CreateTestCases(BsonDocument document)
