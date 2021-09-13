@@ -164,12 +164,11 @@ Task("Test")
             Logger = logger,
             ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64")
         };
-        switch (target.ToLowerInvariant())
+        switch (target.ToLowerInvariant()) // target can be not only moniker related
         {
             case "testnet472": settings.Framework = "net472"; break;
             case "testnetstandard20": settings.Framework = "netcoreapp2.1"; break;
             case "testnetstandard21": settings.Framework = "netcoreapp3.0"; break;
-            default: ThrowIfNotDefaultTarget(target); break;
         }
         DotNetCoreTest(
             testProject.FullPath,
@@ -330,12 +329,12 @@ Task("TestGssapi")
             ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64"),
             Filter = "Category=\"GssapiMechanism\""
         };
-        switch (target.ToLowerInvariant())
+
+        switch (target.ToLowerInvariant()) // target can be not only moniker related
         {
             case "testgssapinet472": settings.Framework = "net472"; break;
             case "testgssapinetstandard20": settings.Framework = "netcoreapp2.1"; break;
             case "testgssapinetstandard21": settings.Framework = "netcoreapp3.0"; break;
-            default: ThrowIfNotDefaultTarget(target); break;
         }
         DotNetCoreTest(
             testProject.FullPath,
@@ -361,12 +360,11 @@ Task("TestServerless")
                 ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64"),
                 Filter = "Category=\"Serverless\""
             };
-            switch (target.ToLowerInvariant())
+            switch (target.ToLowerInvariant()) // target can be not only moniker related
             {
                 case "testserverlessnet472": settings.Framework = "net472"; break;
                 case "testserverlessnetstandard20": settings.Framework = "netcoreapp2.1"; break;
                 case "testserverlessnetstandard21": settings.Framework = "netcoreapp3.0"; break;
-                default: ThrowIfNotDefaultTarget(target); break;
             }
             DotNetCoreTest(
                 testProject.FullPath,
@@ -393,7 +391,7 @@ Task("TestLoadBalanced")
             Filter = "Category=\"SupportLoadBalancing\""
         };
 
-        switch (target.ToLowerInvariant())
+        switch (target.ToLowerInvariant()) // target can be not only moniker related
         {
             case "testloadbalancednetstandard20": settings.Framework = "netcoreapp2.1"; break;
             case "testloadbalancednetstandard21": settings.Framework = "netcoreapp3.0"; break;
@@ -771,11 +769,3 @@ Task("TestsPackaging")
     .DeferOnError();
 
 RunTarget(target);
-
-void ThrowIfNotDefaultTarget(string @value)
-{
-    if (@value != defaultTarget)
-    {
-       throw new ArgumentException($"Unexpected target: \"{target}\".");
-    }
-}
