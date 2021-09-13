@@ -27,7 +27,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 {
     public class EnumSerializerTests
     {
-        public enum CaseDistinguishEnum
+        public enum CaseSensitiveEnum
         {
             AnEnumValue,
             anenumvalue
@@ -264,12 +264,12 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         }
 
         [Theory]
-        [InlineData("{ x : 'AnEnumValue' }", CaseDistinguishEnum.AnEnumValue)]
-        [InlineData("{ x : 'anenumvalue' }", CaseDistinguishEnum.anenumvalue)]
-        [InlineData("{ x : 'ANENUMVALUE' }", CaseDistinguishEnum.AnEnumValue)]
-        public void Deserialize_string_should_be_caseinsensitive(string json, CaseDistinguishEnum result)
+        [InlineData("{ x : 'AnEnumValue' }", CaseSensitiveEnum.AnEnumValue)]
+        [InlineData("{ x : 'anenumvalue' }", CaseSensitiveEnum.anenumvalue)]
+        [InlineData("{ x : 'ANENUMVALUE' }", CaseSensitiveEnum.AnEnumValue)]
+        public void Deserialize_string_should_be_caseinsensitive(string json, CaseSensitiveEnum result)
         {
-            var subject = new EnumSerializer<CaseDistinguishEnum>(BsonType.String);
+            var subject = new EnumSerializer<CaseSensitiveEnum>(BsonType.String);
 
             var deserialized = Deserialize(subject, ToBson(json));
 
@@ -279,7 +279,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         [Fact]
         public void Deserialize_string_should_throw_when_enum_field_is_not_found()
         {
-            var subject = new EnumSerializer<CaseDistinguishEnum>(BsonType.String);
+            var subject = new EnumSerializer<CaseSensitiveEnum>(BsonType.String);
 
             var json = "{ x : 'NotEnumField' }";
             var exception = Record.Exception(() => Deserialize(subject, ToBson(json)));
