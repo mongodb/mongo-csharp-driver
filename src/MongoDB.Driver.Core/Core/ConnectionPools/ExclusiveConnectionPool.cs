@@ -299,7 +299,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 {
                     try
                     {
-                        await PrunePoolAsync(cancellationToken).ConfigureAwait(false);
+                        _connectionHolder.Prune(cancellationToken);
                         await EnsureMinSizeAsync(cancellationToken).ConfigureAwait(false);
                     }
                     catch
@@ -312,20 +312,6 @@ namespace MongoDB.Driver.Core.ConnectionPools
             catch
             {
                 // ignore exceptions
-            }
-        }
-
-        private async Task PrunePoolAsync(CancellationToken cancellationToken)
-        {
-            using (var poolAwaiter = _maxConnectionsQueue.CreateAwaiter())
-            {
-                var entered = await poolAwaiter.WaitSignaledAsync(TimeSpan.FromMilliseconds(20), cancellationToken).ConfigureAwait(false);
-                if (!entered)
-                {
-                    return;
-                }
-
-                _connectionHolder.Prune();
             }
         }
 

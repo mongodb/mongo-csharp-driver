@@ -745,7 +745,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
             }
 
-            public void Prune()
+            public void Prune(CancellationToken cancellationToken)
             {
                 PooledConnection[] expiredConnections;
                 lock (_lock)
@@ -755,6 +755,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
                 foreach (var connection in expiredConnections)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
+
                     lock (_lock)
                     {
                         // At this point connection is always expired and might be disposed
