@@ -17,6 +17,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace MongoDB.Bson.TestHelpers
 {
@@ -71,6 +72,48 @@ namespace MongoDB.Bson.TestHelpers
                 {
                     throw new TimeoutException();
                 }
+            }
+
+            return exceptions.ToArray();
+        }
+
+        public static async Task ExecuteTasksOnNewThreads(int threadsCount, Func<int, Task> action, int timeoutMilliseconds = 10000)
+        {
+            var exceptions = await ExecuteTasksOnNewThreadsCollectExceptions(threadsCount, action, timeoutMilliseconds);
+
+            if (exceptions.Any())
+            {
+                throw exceptions.First();
+            }
+        }
+
+        public static async Task<Exception[]> ExecuteTasksOnNewThreadsCollectExceptions(int threadsCount, Func<int, Task> action, int timeoutMilliseconds = 10000)
+        {
+            var exceptions = new ConcurrentBag<Exception>();
+            var tasksExecutingCountEvent = new CountdownEvent(threadsCount);
+
+            var allTasks = TasksUtils.CreateTasksOnOwnThread(threadsCount, async i =>
+            {
+                try
+                {
+                    tasksExecutingCountEvent.Signal();
+                    if (!tasksExecutingCountEvent.Wait(timeoutMilliseconds))
+                    {
+                        throw new TimeoutException();
+                    }
+
+                    await action(i);
+                }
+                catch (Exception ex)
+                {
+                    exceptions.Add(ex);
+                }
+            });
+
+            var taskAll = Task.WhenAll(allTasks);
+            if (await Task.WhenAny(taskAll, Task.Delay(timeoutMilliseconds)) != taskAll)
+            {
+                exceptions.Add(new TimeoutException());
             }
 
             return exceptions.ToArray();
