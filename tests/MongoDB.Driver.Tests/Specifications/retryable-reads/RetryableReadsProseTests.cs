@@ -109,7 +109,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
 
             // wait for 2 CommandSucceededEvent events, meaning that all other events should be received
             eventCapturer.WaitForOrThrowIfTimeout(
-                events => events.Count(e => e is CommandSucceededEvent) == 2,
+                events => events.OfType<CommandSucceededEvent>().Count() == 2,
                 eventsWaitTimeout);
 
             eventCapturer.Events.OfType<CommandStartedEvent>().Count().Should().Be(3);
