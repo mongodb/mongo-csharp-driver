@@ -1009,6 +1009,51 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Appends a $setWindowFields stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TIntermediate">The type of the intermediate documents.</typeparam>
+        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <param name="setWindowFieldsDefinition">The $setWindowFields projection.</param>
+        /// <returns>
+        /// A new pipeline with an additional stage.
+        /// </returns>
+        public static PipelineDefinition<TInput, TOutput> SetWindowFields<TInput, TIntermediate, TOutput>(
+            this PipelineDefinition<TInput, TIntermediate> pipeline,
+            ProjectionDefinition<TIntermediate, TOutput> setWindowFieldsDefinition)
+        {
+            Ensure.IsNotNull(pipeline, nameof(pipeline));
+            return pipeline.AppendStage(PipelineStageDefinitionBuilder.SetWindowFields(setWindowFieldsDefinition));
+        }
+
+        /// <summary>
+        /// Appends a $setWindowFields stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TIntermediate">The type of the iIntermediate documents.</typeparam>
+        /// <typeparam name="TPartitionBy">The type of the pPartitionBy documents.</typeparam>
+        /// <typeparam name="TOutput">The type of the intermediate documents.</typeparam>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <param name="partitionBy">The partitionBy field.</param>
+        /// <param name="sortBy">The sort definition.</param>
+        /// <param name="output">The output projections.</param>
+        /// <param name="outputWindowOptions">The output window options.</param>
+        /// <returns>
+        /// The fluent aggregate interface.
+        /// </returns>
+        public static PipelineDefinition<TInput, TOutput> SetWindowFields<TInput, TIntermediate, TPartitionBy, TOutput>(
+            this PipelineDefinition<TInput, TIntermediate> pipeline,
+            Expression<Func<TIntermediate, TPartitionBy>> partitionBy,
+            SortDefinition<TIntermediate> sortBy,
+            Expression<Func<IGrouping<TPartitionBy, TIntermediate>, TOutput>> output,
+            params AggregateOutputWindowOptionsBase<TOutput>[] outputWindowOptions)
+        {
+            Ensure.IsNotNull(pipeline, nameof(pipeline));
+            return pipeline.AppendStage(PipelineStageDefinitionBuilder.SetWindowFields(partitionBy, sortBy, output, outputWindowOptions));
+        }
+
+        /// <summary>
         /// Appends a $skip stage to the pipeline.
         /// </summary>
         /// <typeparam name="TInput">The type of the input documents.</typeparam>

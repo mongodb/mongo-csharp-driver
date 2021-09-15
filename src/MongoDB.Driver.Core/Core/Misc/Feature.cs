@@ -42,6 +42,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __aggregateOut = new Feature("AggregateOut", new SemanticVersion(2, 6, 0));
         private static readonly Feature __aggregateOutToDifferentDatabase = new Feature("AggregateOutToDifferentDatabase", new SemanticVersion(4, 3, 0));
         private static readonly Feature __aggregateToString = new Feature("AggregateToString", new SemanticVersion(4, 0, 0));
+        private static readonly Feature __aggregateSetWindowFields = new Feature("AggregateSetWindowFields", new SemanticVersion(5, 0, 0));
         private static readonly Feature __aggregateUnionWith = new Feature("AggregateUnionWith", new SemanticVersion(4, 3, 4));
         private static readonly ArrayFiltersFeature __arrayFilters = new ArrayFiltersFeature("ArrayFilters", new SemanticVersion(3, 5, 11));
         private static readonly Feature __bypassDocumentValidation = new Feature("BypassDocumentValidation", new SemanticVersion(3, 2, 0));
@@ -203,6 +204,11 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the aggregate toString feature.
         /// </summary>
         public static Feature AggregateToString => __aggregateToString;
+
+        /// <summary>
+        /// Gets the aggregate setWindowFields feature.
+        /// </summary>
+        public static Feature AggregateSetWindowFields => __aggregateSetWindowFields;
 
         /// <summary>
         /// Gets the aggregate unionWith feature.

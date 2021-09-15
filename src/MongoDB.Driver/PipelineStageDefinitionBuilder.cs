@@ -1224,6 +1224,59 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Creates a $setWindowFields stage.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TPartitionBy">The type of the partitionBy field.</typeparam>
+        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
+        /// <param name="partitionBy">The partitionBy field.</param>
+        /// <param name="sortBy">The sort definition.</param>
+        /// <param name="output">The output definition.</param>
+        /// <param name="outputWindowOptions">The output window definition.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<TInput, TOutput> SetWindowFields<TInput, TPartitionBy, TOutput>(
+            Expression<Func<TInput, TPartitionBy>> partitionBy,
+            SortDefinition<TInput> sortBy,
+            Expression<Func<IGrouping<TPartitionBy, TInput>, TOutput>> output,
+            params AggregateOutputWindowOptionsBase<TOutput>[] outputWindowOptions)
+        {
+            var setWindowFieldsExpressionProjection = new SetWindowFieldsExpressionProjection<TInput, TPartitionBy, TOutput>(
+                partitionBy,
+                output,
+                sortBy,
+                outputWindowOptions);
+            return SetWindowFields<TInput, TOutput>(setWindowFieldsExpressionProjection);
+        }
+
+        /// <summary>
+        /// Creates a $setWindowFields stage.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
+        /// <param name="setWindowFieldsProjection">The $setWindowField definition.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<TInput, TOutput> SetWindowFields<TInput, TOutput>(
+            ProjectionDefinition<TInput, TOutput> setWindowFieldsProjection)
+        {
+            Ensure.IsNotNull(setWindowFieldsProjection, nameof(setWindowFieldsProjection));
+
+            const string operatorName = "$setWindowFields";
+            var stage = new DelegatedPipelineStageDefinition<TInput, TOutput>(
+                operatorName,
+                (s, sr) =>
+                {
+                    var renderedProjection = setWindowFieldsProjection.Render(s, sr);
+
+                    return new RenderedPipelineStageDefinition<TOutput>(
+                        operatorName,
+                        new BsonDocument(operatorName, renderedProjection.Document),
+                        renderedProjection.ProjectionSerializer);
+                });
+
+            return stage;
+        }
+
+        /// <summary>
         /// Creates a $skip stage.
         /// </summary>
         /// <typeparam name="TInput">The type of the input documents.</typeparam>
@@ -1531,6 +1584,37 @@ namespace MongoDB.Driver
         public override RenderedProjectionDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             return AggregateProjectTranslator.Translate<TInput, TOutput>(_expression, inputSerializer, serializerRegistry, _translationOptions);
+        }
+    }
+
+    internal sealed class SetWindowFieldsExpressionProjection<TInput, TPartitionBy, TOutput> : ProjectionDefinition<TInput, TOutput>
+    {
+        private readonly Expression<Func<TInput, TPartitionBy>> _partitionBy;
+        private readonly Expression<Func<IGrouping<TPartitionBy, TInput>, TOutput>> _outputExpression;
+        private readonly AggregateOutputWindowOptionsBase<TOutput>[] _outputWindowOptions;
+        private readonly SortDefinition<TInput> _sortDefinition;
+
+        public SetWindowFieldsExpressionProjection(
+            Expression<Func<TInput, TPartitionBy>> partitionBy,
+            Expression<Func<IGrouping<TPartitionBy, TInput>, TOutput>> outputExpression,
+            SortDefinition<TInput> sortDefinition,
+            params AggregateOutputWindowOptionsBase<TOutput>[] outputWindowOptions)
+        {
+            _partitionBy = Ensure.IsNotNull(partitionBy, nameof(partitionBy));
+            _outputExpression = Ensure.IsNotNull(outputExpression, nameof(outputExpression));
+            _outputWindowOptions = outputWindowOptions; // can be null
+            _sortDefinition = sortDefinition; // can be null
+        }
+
+        public override RenderedProjectionDefinition<TOutput> Render(IBsonSerializer<TInput> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        {
+            return AggregateSetWindowFieldsTranslator.Translate<TPartitionBy, TInput, TOutput>(
+                _partitionBy,
+                _sortDefinition,
+                _outputExpression,
+                _outputWindowOptions,
+                documentSerializer,
+                serializerRegistry);
         }
     }
 

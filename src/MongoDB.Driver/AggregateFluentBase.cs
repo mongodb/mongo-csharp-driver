@@ -198,6 +198,12 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
+        public virtual IAggregateFluent<TNewResult> SetWindowFields<TNewResult>(ProjectionDefinition<TResult, TNewResult> setWindowFieldsDefinition)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
         public abstract IAggregateFluent<TResult> Skip(int skip);
 
         /// <inheritdoc />

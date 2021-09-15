@@ -512,6 +512,31 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Appends a group stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TPartitionByKey">The type of the partitionBy key.</typeparam>
+        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="partitionBy">The partitionBy field.</param>
+        /// <param name="sortBy">The sport definition.</param>
+        /// <param name="output">The output defintion.</param>
+        /// <param name="outputWindowOptions">The output window options.</param>
+        /// <returns>
+        /// The fluent aggregate interface.
+        /// </returns>
+        public static IAggregateFluent<TNewResult> SetWindowFields<TResult, TPartitionByKey, TNewResult>(
+            this IAggregateFluent<TResult> aggregate,
+            Expression<Func<TResult, TPartitionByKey>> partitionBy,
+            SortDefinition<TResult> sortBy,
+            Expression<Func<IGrouping<TPartitionByKey, TResult>, TNewResult>> output,
+            params AggregateOutputWindowOptionsBase<TNewResult>[] outputWindowOptions)
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            return aggregate.AppendStage(PipelineStageDefinitionBuilder.SetWindowFields(partitionBy, sortBy, output, outputWindowOptions));
+        }
+
+        /// <summary>
         /// Appends an ascending sort stage to the pipeline.
         /// </summary>
         /// <typeparam name="TResult">The type of the result.</typeparam>

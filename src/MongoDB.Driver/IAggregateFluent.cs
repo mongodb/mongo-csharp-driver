@@ -321,6 +321,14 @@ namespace MongoDB.Driver
         IAggregateFluent<TNewResult> ReplaceWith<TNewResult>(AggregateExpressionDefinition<TResult, TNewResult> newRoot);
 
         /// <summary>
+        /// Appends a #setWindowFields stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TNewResult">The type of the result of the stage.</typeparam>
+        /// <param name="setWindowFieldsDefinition">The $setWindowFields projection.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        IAggregateFluent<TNewResult> SetWindowFields<TNewResult>(ProjectionDefinition<TResult, TNewResult> setWindowFieldsDefinition);
+
+        /// <summary>
         /// Appends a skip stage to the pipeline.
         /// </summary>
         /// <param name="skip">The number of documents to skip.</param>

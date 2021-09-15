@@ -48,7 +48,7 @@ namespace MongoDB.Driver.Linq.Translators
             return new RenderedProjectionDefinition<TResult>(projection, (IBsonSerializer<TResult>)projectionSerializer);
         }
 
-        private static Expression BindKeySelector<TKey, TDocument>(PipelineBindingContext bindingContext, Expression<Func<TDocument, TKey>> keySelector, IBsonSerializer<TDocument> parameterSerializer)
+        public static Expression BindKeySelector<TKey, TDocument>(PipelineBindingContext bindingContext, Expression<Func<TDocument, TKey>> keySelector, IBsonSerializer<TDocument> parameterSerializer)
         {
             var parameterExpression = new DocumentExpression(parameterSerializer);
             bindingContext.AddExpressionMapping(keySelector.Parameters[0], parameterExpression);
@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Linq.Translators
             return new GroupingKeyExpression(node, keySerializer);
         }
 
-        private static Expression BindGroup<TKey, TDocument, TResult>(PipelineBindingContext bindingContext, Expression<Func<IGrouping<TKey, TDocument>, TResult>> groupProjector, IBsonSerializer<TDocument> parameterSerializer, Expression keySelector)
+        public static Expression BindGroup<TKey, TDocument, TResult>(PipelineBindingContext bindingContext, Expression<Func<IGrouping<TKey, TDocument>, TResult>> groupProjector, IBsonSerializer<TDocument> parameterSerializer, Expression keySelector)
         {
             var groupSerializer = new ArraySerializer<TDocument>(parameterSerializer);
             var groupExpression = new DocumentExpression(groupSerializer);

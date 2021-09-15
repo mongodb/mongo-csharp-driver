@@ -22,6 +22,7 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -175,7 +176,7 @@ namespace MongoDB.Driver.Tests
                     }
                 }");
         }
-        
+
         [SkippableFact]
         public void GraphLookup_with_one_to_one_parameters_should_return_expected_result()
         {
@@ -501,6 +502,185 @@ namespace MongoDB.Driver.Tests
                     (StringFieldDefinition<BsonDocument, IEnumerable<BsonDocument>>)null
                 );
             });
+        }
+
+        [Theory]
+        [InlineData(
+            "{ partitionBy :{ $year : '$orderDate' } , sortBy : { orderDate: 1 }, output : { outputField : { $sum: '$quantity', window: { documents : ['unbounded', 'current'] } } } }",
+            "{ '$setWindowFields' :  { partitionBy :{ $year : '$orderDate' } , sortBy : { orderDate: 1 }, output : { outputField : { $sum: '$quantity', window: { documents : ['unbounded', 'current'] } } } } }")]
+        public void SetWindowFields_should_return_the_expected_result_when_plain_bsonDocument_request(
+            string setWindowFieldsBody,
+            string expectedStage)
+        {
+            var result = PipelineStageDefinitionBuilder.SetWindowFields<BsonDocument, BsonDocument>(setWindowFieldsBody);
+
+            var stage = RenderStage(result);
+            stage.Document.Should().Be(expectedStage);
+        }
+
+        public class TestEntity
+        {
+            public DateTime OrderDate { get; set; }
+            public string State { get; set; }
+            public int Quantity { get; set; }
+            public int CumulativeQuantityForState { get; set; }
+            public double AverageQuantityForState { get; set; }
+        }
+
+        public class TestEntityOutput
+        {
+            public ObjectId Id { get; set; }
+            public string UnmappedField { get; set; }
+            public int CumulativeQuantityForState { get; set; }
+            public double AverageQuantityForState { get; set; }
+        }
+
+        [Fact]
+        public void SetWindowFields_with_typed_arguments_should_return_the_expected_result_when_return_type_is_the_Same_as_input()
+        {
+            var result = PipelineStageDefinitionBuilder.SetWindowFields<TestEntity, string, TestEntity>(
+                e => e.State,
+                Builders<TestEntity>.Sort.Descending(e => e.OrderDate),
+                g =>
+                    new TestEntity()
+                    {
+                        CumulativeQuantityForState = g.Sum(a => a.Quantity),
+                        AverageQuantityForState = g.Average(a => a.Quantity)
+                    },
+                new AggregateOutputWindowOptions<TestEntity, double>(ow => ow.AverageQuantityForState)
+                {
+                    Documents = WindowRange.Create(WindowBound.Current, WindowBound.Current),
+                    Range = WindowRange.Create(WindowBound.Unbounded, WindowBound.SetPosition(-10)),
+                    Unit = WindowTimeUnit.Day
+                });
+
+            var stage = RenderStage(result);
+            var expectedStage = @$"
+{{
+    $setWindowFields:
+    {{
+        ""partitionBy"" : ""$State"",
+        ""sortBy"" :
+        {{
+            ""OrderDate"" : -1
+         }},
+        ""output"":
+        {{
+            ""CumulativeQuantityForState"":
+            {{
+                ""$sum"" : ""$Quantity""
+            }},
+            ""AverageQuantityForState"":
+            {{
+                ""$avg"" : ""$Quantity"",
+                ""window"" :
+                {{
+                    ""documents"" : [ ""current"", ""current"" ],
+                    ""range"" : [ ""unbounded"", -10 ],
+                    ""unit"" : ""day""
+                }}
+            }}
+        }}
+    }}
+}}";
+            stage.Document.Should().Be(BsonDocument.Parse(expectedStage));
+        }
+
+        [Fact]
+        public void SetWindowFields_with_typed_arguments_should_return_the_expected_result_when_return_type_is_a_new_entity()
+        {
+            RequireServer.Check().Supports(Feature.AggregateSetWindowFields);
+
+            var result = PipelineStageDefinitionBuilder.SetWindowFields<TestEntity, string, TestEntityOutput>(
+                e => e.State,
+                Builders<TestEntity>.Sort.Ascending(e => e.OrderDate),
+                g =>
+                    new TestEntityOutput()
+                    {
+                        CumulativeQuantityForState = g.Sum(a => a.Quantity),
+                        AverageQuantityForState = g.Average(a => a.Quantity)
+                    },
+                new AggregateOutputWindowOptions<TestEntityOutput, int>(ow => ow.CumulativeQuantityForState)
+                {
+                    Documents = WindowRange.Create(WindowBound.Current, WindowBound.Current),
+                    Range = WindowRange.Create(WindowBound.Unbounded, WindowBound.SetPosition(-10)),
+                    Unit = WindowTimeUnit.Millisecond
+                },
+                new AggregateOutputWindowOptions<TestEntityOutput, double>(ow => ow.AverageQuantityForState)
+                {
+                    Documents = WindowRange.Create(WindowBound.Current, WindowBound.Current),
+                    Range = WindowRange.Create(WindowBound.Unbounded, WindowBound.SetPosition(-10)),
+                    Unit = WindowTimeUnit.Minute
+                });
+
+            var stage = RenderStage(result);
+            var expectedStage = @$"
+{{
+    $setWindowFields:
+    {{
+        ""partitionBy"" : ""$State"",
+        ""sortBy"" :
+        {{
+            ""OrderDate"" : 1
+         }},
+        ""output"":
+        {{
+            ""CumulativeQuantityForState"":
+            {{
+                ""$sum"" : ""$Quantity"",
+                ""window"" :
+                {{
+                    ""documents"" : [ ""current"", ""current""],
+                    ""range"" : [ ""unbounded"", -10 ],
+                    ""unit"" : ""millisecond""
+                }}
+            }},
+            ""AverageQuantityForState"":
+            {{
+                ""$avg"" : ""$Quantity"",
+                ""window"" :
+                {{
+                    ""documents"" : [ ""current"", ""current"" ],
+                    ""range"" : [ ""unbounded"", -10 ],
+                    ""unit"" : ""minute""
+                }}
+            }}
+        }}
+    }}
+}}";
+            stage.Document.Should().Be(BsonDocument.Parse(expectedStage));
+        }
+
+        [Fact]
+        public void SetWindowFields_should_throw_when_outputFields_dont_match_with_output_window_option_field()
+        {
+            RequireServer.Check().Supports(Feature.AggregateSetWindowFields);
+
+            var result = PipelineStageDefinitionBuilder.SetWindowFields<TestEntity, string, TestEntityOutput>(
+                e => e.State,
+                Builders<TestEntity>.Sort.Ascending(e => e.OrderDate),
+                g =>
+                    new TestEntityOutput()
+                    {
+                        CumulativeQuantityForState = g.Sum(a => a.Quantity),
+                        AverageQuantityForState = g.Average(a => a.Quantity)
+                    },
+                new AggregateOutputWindowOptions<TestEntityOutput, int>(ow => ow.CumulativeQuantityForState)
+                {
+                    Documents = WindowRange.Create(WindowBound.Current, WindowBound.Current),
+                    Range = WindowRange.Create(WindowBound.Unbounded, WindowBound.SetPosition(-10)),
+                    Unit = WindowTimeUnit.Millisecond
+                },
+                new AggregateOutputWindowOptions<TestEntityOutput, string>(ow => ow.UnmappedField)
+                {
+                    Documents = WindowRange.Create(WindowBound.Current, WindowBound.Current),
+                    Range = WindowRange.Create(WindowBound.Unbounded, WindowBound.SetPosition(-10)),
+                    Unit = WindowTimeUnit.Minute
+                });
+
+            var exception = Record.Exception(() => RenderStage(result));
+            var e = exception.Should().BeOfType<InvalidOperationException>().Subject;
+            e.Message.Should().StartWith("Unable to determine the serialization information for ow => ow.UnmappedField");
         }
 
         // private methods
