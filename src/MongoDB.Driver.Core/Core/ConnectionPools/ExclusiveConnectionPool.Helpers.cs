@@ -56,6 +56,32 @@ namespace MongoDB.Driver.Core.ConnectionPools
             return new TimeoutException(message);
         }
 
+        private T WithSdamErrorHandling<T>(Func<T> func)
+        {
+            try
+            {
+                return func();
+            }
+            catch (Exception ex)
+            {
+                _connectionExceptionHandler.HandleExceptionOnOpen(ex);
+                throw;
+            }
+        }
+
+        private async Task<T> WithSdamErrorHandlingAsync<T>(Func<Task<T>> funcAsync)
+        {
+            try
+            {
+                return await funcAsync().ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                _connectionExceptionHandler.HandleExceptionOnOpen(ex);
+                throw;
+            }
+        }
+
         // nested classes
         internal enum State
         {
@@ -241,27 +267,14 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
                         using (var connectionCreator = new ConnectionCreator(_pool, timeout))
                         {
-                            try
-                            {
-                                pooledConnection = connectionCreator.CreateOpenedOrReuse(cancellationToken);
-                            }
-                            catch (Exception ex)
-                            {
-                                // we need to apply SDAM rules before connection closing
-                                _pool._connectionExceptionHandler.HandleExceptionOnOpen(ex);
-                                throw;
-                            }
+                            pooledConnection = _pool.WithSdamErrorHandling(() => connectionCreator.CreateOpenedOrReuse(cancellationToken));
                         }
 
                         return EndCheckingOut(pooledConnection, stopwatch);
                     }
-                    else
-                    {
-                        stopwatch.Stop();
-                        var exception = CreateException(stopwatch);
-                        _pool._connectionExceptionHandler.HandleExceptionOnOpen(exception);
-                        throw exception;
-                    }
+
+                    stopwatch.Stop();
+                    throw CreateException(stopwatch);
                 }
                 catch (Exception ex)
                 {
@@ -286,27 +299,14 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
                         using (var connectionCreator = new ConnectionCreator(_pool, timeout))
                         {
-                            try
-                            {
-                                pooledConnection = await connectionCreator.CreateOpenedOrReuseAsync(cancellationToken).ConfigureAwait(false);
-                            }
-                            catch (Exception ex)
-                            {
-                                // we need to apply SDAM rules before connection closing
-                                _pool._connectionExceptionHandler.HandleExceptionOnOpen(ex);
-                                throw;
-                            }
+                            pooledConnection = await _pool.WithSdamErrorHandlingAsync(() => connectionCreator.CreateOpenedOrReuseAsync(cancellationToken)).ConfigureAwait(false);
                         }
 
                         return EndCheckingOut(pooledConnection, stopwatch);
                     }
-                    else
-                    {
-                        stopwatch.Stop();
-                        var exception = CreateException(stopwatch);
-                        _pool._connectionExceptionHandler.HandleExceptionOnOpen(exception);
-                        throw exception;
-                    }
+
+                    stopwatch.Stop();
+                    throw CreateException(stopwatch);
                 }
                 catch (Exception ex)
                 {
