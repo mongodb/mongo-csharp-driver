@@ -33,8 +33,15 @@ if [ "$DOTNET_VERSION" != "$DOTNET_INSTALLED_VERSION" ]; then
       mkdir "$SCRIPT_DIR/.dotnet"
     fi
     curl -Lsfo "$SCRIPT_DIR/.dotnet/dotnet-install.sh" https://dot.net/v1/dotnet-install.sh
-    bash "$SCRIPT_DIR/.dotnet/dotnet-install.sh" --version 2.1 --install-dir .dotnet --no-path
-    bash "$SCRIPT_DIR/.dotnet/dotnet-install.sh" --version 3.1 --install-dir .dotnet --no-path
+    # N.B. We explicitly install .NET Core 2.1 and 3.1 because .NET 5.0 SDK can build those TFMs
+    #      but will silently upgrade to a more recent runtime to execute tests if the desired runtime
+    #      isn't available. For example, `dotnet run --framework netcoreapp3.0` will silently run
+    #      on .NET 5.0 if .NET Core 3.0 and 3.1 aren't installed.
+    #      This solution is admittedly hacky as .NET Core 2.1 and 3.1 won't be installed if
+    #      $DOTNET_VERSION matches $DOTNET_INSTALLED_VERSION, but it minimizes the changes required
+    #      to install required dependencies on Evergreen.
+    bash "$SCRIPT_DIR/.dotnet/dotnet-install.sh" --channel 2.1 --install-dir .dotnet --no-path
+    bash "$SCRIPT_DIR/.dotnet/dotnet-install.sh" --channel 3.1 --install-dir .dotnet --no-path
     bash "$SCRIPT_DIR/.dotnet/dotnet-install.sh" --version $DOTNET_VERSION --install-dir .dotnet --no-path
     export PATH="$SCRIPT_DIR/.dotnet":$PATH
     export DOTNET_ROOT="$SCRIPT_DIR/.dotnet"
