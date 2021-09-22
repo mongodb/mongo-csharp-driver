@@ -33,6 +33,8 @@ if [ "$DOTNET_VERSION" != "$DOTNET_INSTALLED_VERSION" ]; then
       mkdir "$SCRIPT_DIR/.dotnet"
     fi
     curl -Lsfo "$SCRIPT_DIR/.dotnet/dotnet-install.sh" https://dot.net/v1/dotnet-install.sh
+    bash "$SCRIPT_DIR/.dotnet/dotnet-install.sh" --version 2.1 --install-dir .dotnet --no-path
+    bash "$SCRIPT_DIR/.dotnet/dotnet-install.sh" --version 3.1 --install-dir .dotnet --no-path
     bash "$SCRIPT_DIR/.dotnet/dotnet-install.sh" --version $DOTNET_VERSION --install-dir .dotnet --no-path
     export PATH="$SCRIPT_DIR/.dotnet":$PATH
     export DOTNET_ROOT="$SCRIPT_DIR/.dotnet"
