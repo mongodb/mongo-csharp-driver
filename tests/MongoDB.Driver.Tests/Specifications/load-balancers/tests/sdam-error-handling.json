@@ -367,17 +367,17 @@
               "connectionCreatedEvent": {}
             },
             {
-              "connectionClosedEvent": {
-                "reason": "error"
-            }
+              "poolClearedEvent": {}
             },
             {
-                "connectionCheckOutFailedEvent": {
-                    "reason": "connectionError"
-            }
+              "connectionClosedEvent": {
+                "reason": "error"
+              }
             },
-                        {
-              "poolClearedEvent": {}
+            {
+              "connectionCheckOutFailedEvent": {
+                "reason": "connectionError"
+              }
             }
           ]
         }

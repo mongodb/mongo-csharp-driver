@@ -321,27 +321,19 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             while (CreatedCount < _settings.MinConnections && !cancellationToken.IsCancellationRequested)
             {
-                try
+                using (var poolAwaiter = _maxConnectionsQueue.CreateAwaiter())
                 {
-                    using (var poolAwaiter = _maxConnectionsQueue.CreateAwaiter())
+                    var entered = await poolAwaiter.WaitSignaledAsync(minTimeout, cancellationToken).ConfigureAwait(false);
+                    if (!entered)
                     {
-                        var entered = await poolAwaiter.WaitSignaledAsync(minTimeout, cancellationToken).ConfigureAwait(false);
-                        if (!entered)
-                        {
-                            return;
-                        }
-
-                        using (var connectionCreator = new ConnectionCreator(this, minTimeout))
-                        {
-                            var connection = await connectionCreator.CreateOpenedAsync(cancellationToken).ConfigureAwait(false);
-                            _connectionHolder.Return(connection);
-                        }
+                        return;
                     }
-                }
-                catch (Exception exception)
-                {
-                    _connectionExceptionHandler.HandleExceptionOnOpen(exception);
-                    throw;
+
+                    using (var connectionCreator = new ConnectionCreator(this, minTimeout))
+                    {
+                        var connection = await connectionCreator.CreateOpenedAsync(cancellationToken).ConfigureAwait(false);
+                        _connectionHolder.Return(connection);
+                    }
                 }
 
                 cancellationToken.ThrowIfCancellationRequested();
