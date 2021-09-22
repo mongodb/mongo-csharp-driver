@@ -109,8 +109,8 @@ if($FoundDotNetCliVersion -ne $DotNetVersion) {
     else {
         $ScriptPath = Join-Path $InstallPath 'dotnet-install.ps1'
         (New-Object System.Net.WebClient).DownloadFile($DotNetInstallerUri, $ScriptPath);
-        & bash $ScriptPath --version "$DotNetVersion" --install-dir "$InstallPath" --channel 2.1 --no-path
-        & bash $ScriptPath --version "$DotNetVersion" --install-dir "$InstallPath" --channel 3.1 --no-path
+        & $ScriptPath -Channel 2.1 -InstallDir $InstallPath;
+        & $ScriptPath -Channel 3.1 -InstallDir $InstallPath;
         & $ScriptPath -Channel $DotNetChannel -Version $DotNetVersion -InstallDir $InstallPath;
 
         Remove-PathVariable "$InstallPath"
