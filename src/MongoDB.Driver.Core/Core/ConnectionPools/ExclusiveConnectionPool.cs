@@ -345,7 +345,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
                     using (var connectionCreator = new ConnectionCreator(this, minTimeout))
                     {
-                        var connection = await WithSdamErrorHandlingAsync(() => connectionCreator.CreateOpenedAsync(cancellationToken)).ConfigureAwait(false);
+                        var connection = await connectionCreator.CreateOpenedAsync(cancellationToken).ConfigureAwait(false);
                         _connectionHolder.Return(connection);
                     }
                 }
