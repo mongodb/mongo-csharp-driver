@@ -555,8 +555,6 @@ namespace Tests.MongoDB.Driver.Linq
         public void GroupJoin_syntax_with_select_many_and_DefaultIfEmpty()
         {
             RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
-            // remove the skip exception when SERVER-58680 is fixed
-            RequireServer.Check().VersionLessThan("5.1.0-");
 
             var query = from p in CreateQuery()
                         join o in __otherCollection on p.Id equals o.Id into joined
