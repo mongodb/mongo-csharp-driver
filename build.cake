@@ -168,7 +168,7 @@ Task("Test")
         {
             case "testnet472": settings.Framework = "net472"; break;
             case "testnetstandard20": settings.Framework = "netcoreapp2.1"; break;
-            case "testnetstandard21": settings.Framework = "netcoreapp3.0"; break;
+            case "testnetstandard21": settings.Framework = "netcoreapp3.1"; break;
         }
         DotNetCoreTest(
             testProject.FullPath,
@@ -334,7 +334,7 @@ Task("TestGssapi")
         {
             case "testgssapinet472": settings.Framework = "net472"; break;
             case "testgssapinetstandard20": settings.Framework = "netcoreapp2.1"; break;
-            case "testgssapinetstandard21": settings.Framework = "netcoreapp3.0"; break;
+            case "testgssapinetstandard21": settings.Framework = "netcoreapp3.1"; break;
         }
         DotNetCoreTest(
             testProject.FullPath,
@@ -364,7 +364,7 @@ Task("TestServerless")
             {
                 case "testserverlessnet472": settings.Framework = "net472"; break;
                 case "testserverlessnetstandard20": settings.Framework = "netcoreapp2.1"; break;
-                case "testserverlessnetstandard21": settings.Framework = "netcoreapp3.0"; break;
+                case "testserverlessnetstandard21": settings.Framework = "netcoreapp3.1"; break;
             }
             DotNetCoreTest(
                 testProject.FullPath,
@@ -394,7 +394,7 @@ Task("TestLoadBalanced")
         switch (target.ToLowerInvariant()) // target can be not only moniker related
         {
             case "testloadbalancednetstandard20": settings.Framework = "netcoreapp2.1"; break;
-            case "testloadbalancednetstandard21": settings.Framework = "netcoreapp3.0"; break;
+            case "testloadbalancednetstandard21": settings.Framework = "netcoreapp3.1"; break;
         }
 
         DotNetCoreTest(

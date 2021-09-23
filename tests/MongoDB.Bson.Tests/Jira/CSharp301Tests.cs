@@ -60,10 +60,10 @@ namespace MongoDB.Bson.Tests.Jira
         {
             var c = new C { Id = 1, Obj = new Hashtable { } };
             var json = c.ToJson();
-#if NET472 || NETCOREAPP3_0
+#if NET472 || NETCOREAPP3_1
             // Hashtable is situated in well-known libraries for:
             // - NET472: mscorlib
-            // - NETCOREAPP3_0: System.Private.CoreLib
+            // - NETCOREAPP3_1: System.Private.CoreLib
             var discriminator = "System.Collections.Hashtable";
 #else
             var discriminator = typeof(Hashtable).AssemblyQualifiedName;
@@ -81,10 +81,10 @@ namespace MongoDB.Bson.Tests.Jira
         {
             var c = new C { Id = 1, Obj = new Hashtable { { "x", 1 } } };
             var json = c.ToJson();
-#if NET472 || NETCOREAPP3_0
+#if NET472 || NETCOREAPP3_1
             // Hashtable is situated in well-known libraries for:
             // - NET472: mscorlib
-            // - NETCOREAPP3_0: System.Private.CoreLib
+            // - NETCOREAPP3_1: System.Private.CoreLib
             var discriminator = "System.Collections.Hashtable";
 #else
             var discriminator = typeof(Hashtable).AssemblyQualifiedName;

@@ -33,7 +33,7 @@ namespace MongoDB.Bson.Tests
         {
 #if NETCOREAPP2_1
             return "netstandard20";
-#elif NETCOREAPP3_0
+#elif NETCOREAPP3_1
             return "netstandard21";
 #elif NET472
             return "net472";
