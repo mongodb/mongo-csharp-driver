@@ -56,7 +56,7 @@ namespace MongoDB.Bson.IO
                 else
                 {
                     // let fallback encoding handle surrogate pairs
-                    var bytesWritten = fallbackEncoding.GetBytes(value, 0, value.Length, bytes, byteIndex);
+                    var bytesWritten = fallbackEncoding.GetBytes(value, 0, value.Length, bytes, initialByteIndex);
                     if (Array.IndexOf<byte>(bytes, 0, initialByteIndex, bytesWritten) != -1)
                     {
                         throw new ArgumentException("A CString cannot contain null bytes.", "value");
