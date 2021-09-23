@@ -53,7 +53,7 @@ namespace MongoDB.Bson.Tests.IO
         [InlineData("\\uffff", 0, 3, new byte[] { 0xef, 0xbf, 0xbf })]
         [InlineData("\\uffff", 1, 3, new byte[] { 0xef, 0xbf, 0xbf })]
         [InlineData("\\ud800\\udc00", 0, 4, new byte[] { 0xf0, 0x90, 0x80, 0x80 })] // surrogate pair
-        [InlineData("😋", 0, 4, new byte[] { 0xf0, 0x9F, 0x98, 0x8B })] // surrogate pair
+        [InlineData("a😋😋a", 0, 10, new byte[] { 0x61, 0xf0, 0x9F, 0x98, 0x8B, 0xf0, 0x9F, 0x98, 0x8B, 0x61 })] // surrogate pair
         public void GetBytes_should_return_expected_result(
             string value,
             int byteIndex,
