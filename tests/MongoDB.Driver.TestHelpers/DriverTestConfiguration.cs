@@ -145,7 +145,12 @@ namespace MongoDB.Driver.Tests
             Action<MongoClientSettings> clientSettingsConfigurator,
             bool useMultipleShardRouters = false)
         {
-            var client = CreateClient(clientSettingsConfigurator, useMultipleShardRouters);
+            Action<MongoClientSettings> compositeClientSettingsConfigurator = s =>
+            {
+                EnsureUniqueCluster(s);
+                clientSettingsConfigurator?.Invoke(s);
+            };
+            var client = CreateClient(compositeClientSettingsConfigurator, useMultipleShardRouters);
             return new DisposableMongoClient(client);
         }
 
@@ -156,6 +161,7 @@ namespace MongoDB.Driver.Tests
 
         public static DisposableMongoClient CreateDisposableClient(MongoClientSettings settings)
         {
+            EnsureUniqueCluster(settings);
             return new DisposableMongoClient(new MongoClient(settings));
         }
 
@@ -174,6 +180,13 @@ namespace MongoDB.Driver.Tests
             clientSettings.ServerApi = CoreTestConfiguration.ServerApi;
 
             return clientSettings;
+        }
+
+        private static void EnsureUniqueCluster(MongoClientSettings settings)
+        {
+            // make the settings unique (as far as the ClusterKey is concerned) by instantiating a new ClusterConfigurator
+            var configurator = settings.ClusterConfigurator;
+            settings.ClusterConfigurator = b => { configurator?.Invoke(b); };
         }
     }
 }
