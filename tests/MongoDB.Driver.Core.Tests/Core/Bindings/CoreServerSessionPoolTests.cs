@@ -268,7 +268,7 @@ namespace MongoDB.Driver.Tests
                 state: ServerState.Connected,
                 type: ServerType.ShardRouter,
                 version: new SemanticVersion(3, 6, 0),
-                wireVersionRange: new Range<int>(2, 6));
+                wireVersionRange: new Range<int>(6, 14));
 
 #pragma warning disable CS0618 // Type or member is obsolete
             var connectionMode = ClusterConnectionMode.Automatic;
