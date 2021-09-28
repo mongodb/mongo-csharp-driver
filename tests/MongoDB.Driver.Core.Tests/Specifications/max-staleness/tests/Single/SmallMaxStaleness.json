@@ -10,7 +10,7 @@
                     "$numberLong": "1"
                 }
             },
-            "maxWireVersion": 5,
+            "maxWireVersion": 6,
             "type": "Standalone"
         }
     ],
@@ -28,7 +28,7 @@
                     "$numberLong": "1"
                 }
             },
-            "maxWireVersion": 5,
+            "maxWireVersion": 6,
             "type": "Standalone"
         }
     ],
@@ -43,7 +43,7 @@
                         "$numberLong": "1"
                     }
                 },
-                "maxWireVersion": 5,
+                "maxWireVersion": 6,
                 "type": "Standalone"
             }
         ],

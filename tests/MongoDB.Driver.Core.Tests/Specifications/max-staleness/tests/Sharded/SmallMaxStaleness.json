@@ -10,7 +10,7 @@
                     "$numberLong": "1"
                 }
             },
-            "maxWireVersion": 5,
+            "maxWireVersion": 6,
             "type": "Mongos"
         }
     ],
@@ -28,7 +28,7 @@
                     "$numberLong": "1"
                 }
             },
-            "maxWireVersion": 5,
+            "maxWireVersion": 6,
             "type": "Mongos"
         },
         {
@@ -40,7 +40,7 @@
                     "$numberLong": "1"
                 }
             },
-            "maxWireVersion": 5,
+            "maxWireVersion": 6,
             "type": "Mongos"
         }
     ],
@@ -55,7 +55,7 @@
                         "$numberLong": "1"
                     }
                 },
-                "maxWireVersion": 5,
+                "maxWireVersion": 6,
                 "type": "Mongos"
             },
             {
@@ -67,7 +67,7 @@
                         "$numberLong": "1"
                     }
                 },
-                "maxWireVersion": 5,
+                "maxWireVersion": 6,
                 "type": "Mongos"
             }
         ],

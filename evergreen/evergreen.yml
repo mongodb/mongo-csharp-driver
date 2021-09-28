@@ -1236,22 +1236,6 @@ axes:
         display_name: "3.6"
         variables:
            VERSION: "3.6"
-      - id: "3.4"
-        display_name: "3.4"
-        variables:
-           VERSION: "3.4"
-      - id: "3.2"
-        display_name: "3.2"
-        variables:
-           VERSION: "3.2"
-      - id: "3.0"
-        display_name: "3.0"
-        variables:
-           VERSION: "3.0"
-      - id: "2.6"
-        display_name: "2.6"
-        variables:
-           VERSION: "2.6"
 
   - id: os
     display_name: OS
@@ -1443,9 +1427,8 @@ buildvariants:
      - name: test-netstandard20
      - name: test-netstandard21
 
-# macos-1014 does not support SSL until 3.2
 - matrix_name: "secure-tests-macOS"
-  matrix_spec: { version: ["3.2", "3.6", "4.0", "4.2", "4.4", "5.0", "latest"], topology: "*", auth: "auth", ssl: "ssl", os: "macos-1014" }
+  matrix_spec: { version: ["3.6", "4.0", "4.2", "4.4", "5.0", "latest"], topology: "*", auth: "auth", ssl: "ssl", os: "macos-1014" }
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
   tasks:

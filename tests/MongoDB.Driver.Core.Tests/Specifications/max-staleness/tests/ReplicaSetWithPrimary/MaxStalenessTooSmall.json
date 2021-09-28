@@ -16,7 +16,7 @@
                         "$numberLong": "1"
                     }
                 },
-                "maxWireVersion": 5,
+                "maxWireVersion": 6,
                 "type": "RSPrimary"
             },
             {
@@ -28,7 +28,7 @@
                         "$numberLong": "1"
                     }
                 },
-                "maxWireVersion": 5,
+                "maxWireVersion": 6,
                 "type": "RSSecondary"
             }
         ],

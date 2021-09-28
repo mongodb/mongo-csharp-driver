@@ -10,7 +10,7 @@
                     "$numberLong": "2"
                 }
             },
-            "maxWireVersion": 5,
+            "maxWireVersion": 6,
             "type": "RSSecondary"
         }
     ],
@@ -28,7 +28,7 @@
                     "$numberLong": "125002"
                 }
             },
-            "maxWireVersion": 5,
+            "maxWireVersion": 6,
             "type": "RSSecondary"
         },
         {
@@ -40,7 +40,7 @@
                     "$numberLong": "2"
                 }
             },
-            "maxWireVersion": 5,
+            "maxWireVersion": 6,
             "type": "RSSecondary"
         }
     ],
@@ -55,7 +55,7 @@
                         "$numberLong": "125002"
                     }
                 },
-                "maxWireVersion": 5,
+                "maxWireVersion": 6,
                 "type": "RSSecondary"
             },
             {
@@ -67,7 +67,7 @@
                         "$numberLong": "2"
                     }
                 },
-                "maxWireVersion": 5,
+                "maxWireVersion": 6,
                 "type": "RSSecondary"
             },
             {
@@ -79,7 +79,7 @@
                         "$numberLong": "1"
                     }
                 },
-                "maxWireVersion": 5,
+                "maxWireVersion": 6,
                 "type": "RSSecondary"
             }
         ],
