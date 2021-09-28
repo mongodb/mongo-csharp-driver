@@ -42,22 +42,16 @@ namespace MongoDB.Driver.Linq.Translators
             var boundGroupExpression = AggregateGroupTranslator.BindGroup(bindingContext, outputProjector, parameterSerializer, keySelector);
 
             var projectionSerializer = bindingContext.GetSerializer(boundGroupExpression.Type, boundGroupExpression);
-            var outputWithoutWindow = AggregateLanguageTranslator.Translate(boundGroupExpression, translationOptions: null).AsBsonDocument;
+            var outputDocument = AggregateLanguageTranslator.Translate(boundGroupExpression, translationOptions: null).AsBsonDocument;
+            var formattedOutputDocument = FormatOutputDocumentIfRequired(outputDocument);
 
             if (outputWindowOptions != null && outputWindowOptions.Length > 0)
             {
                 foreach (var windowOptions in outputWindowOptions)
                 {
-                    var windowDocuments = windowOptions.Documents;
-
                     var outputOptionFieldName = windowOptions.OutputWindowField.Render((IBsonSerializer<TResult>)projectionSerializer, serializerRegistry).FieldName;
-                    if (outputWithoutWindow.TryGetValue(outputOptionFieldName, out var outputWindow) && outputWindow is BsonDocument outputWindowDocument)
+                    if (formattedOutputDocument.TryGetValue(outputOptionFieldName, out var outputWindow) && outputWindow is BsonDocument outputWindowDocument)
                     {
-                        if (outputWindowDocument.Contains("window"))
-                        {
-                            throw new ArgumentException("The provided output window options cannot be used if projection already contains 'window' document.");
-                        }
-
                         var documents = windowOptions.Documents;
                         var range = windowOptions.Range;
                         var unit = windowOptions.Unit;
@@ -80,12 +74,58 @@ namespace MongoDB.Driver.Linq.Translators
             {
                 { "partitionBy", partitionBy },
                 { "sortBy", () => sortDefinition.Render(parameterSerializer, serializerRegistry), sortDefinition != null },
-                { "output", outputWithoutWindow }
+                { "output", formattedOutputDocument }
             };
 
             return new RenderedProjectionDefinition<TResult>(setWindowFieldsBody, (IBsonSerializer<TResult>)projectionSerializer);
 
             BsonArray ConvertWindowRangeIntoBsonArray(WindowRange range) => new BsonArray { range.Left.Value, range.Right.Value };
+        }
+
+        private static BsonDocument FormatOutputDocumentIfRequired(BsonDocument source)
+        {
+            var resultedDocument = new BsonDocument();
+            FillResultedDocument(fieldNamePrefix: null, source, resultedDocument);
+            return resultedDocument;
+        }
+
+        public static void FillResultedDocument(string fieldNamePrefix, BsonDocument source, BsonDocument resulted)
+        {
+            foreach (BsonElement item in source)
+            {
+                var fieldName = fieldNamePrefix != null ? $"{fieldNamePrefix}.{item.Name}" : item.Name;
+                if (IsChildOnWindowLevel(item))
+                {
+                    resulted.Add(fieldName, item.Value);
+                }
+                else
+                {
+                    if (item.Value is BsonDocument itemValueDocument)
+                    {
+                        FillResultedDocument(fieldName, itemValueDocument, resulted);
+                    }
+                    else
+                    {
+                        // should not be reached
+                        throw new ArgumentException($"The content {item.Value} of the output pipeline must be document.");
+                    }
+                }
+            }
+        }
+
+        private static bool IsChildOnWindowLevel(BsonElement sourceElement)
+        {
+            if (sourceElement != null &&
+                sourceElement.Value is BsonDocument childWindowLevel &&
+                childWindowLevel.ElementCount == 1 &&
+                childWindowLevel.GetElement(0).Name.StartsWith("$"))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }

@@ -1032,7 +1032,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TInput">The type of the input documents.</typeparam>
         /// <typeparam name="TIntermediate">The type of the iIntermediate documents.</typeparam>
-        /// <typeparam name="TPartitionBy">The type of the pPartitionBy documents.</typeparam>
+        /// <typeparam name="TPartitionBy">The type of the partitionBy documents.</typeparam>
         /// <typeparam name="TOutput">The type of the intermediate documents.</typeparam>
         /// <param name="pipeline">The pipeline.</param>
         /// <param name="partitionBy">The partitionBy field.</param>

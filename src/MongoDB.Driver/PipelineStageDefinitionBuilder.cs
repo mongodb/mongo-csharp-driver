@@ -1242,8 +1242,8 @@ namespace MongoDB.Driver
         {
             var setWindowFieldsExpressionProjection = new SetWindowFieldsExpressionProjection<TInput, TPartitionBy, TOutput>(
                 partitionBy,
-                output,
                 sortBy,
+                output,
                 outputWindowOptions);
             return SetWindowFields<TInput, TOutput>(setWindowFieldsExpressionProjection);
         }
@@ -1596,14 +1596,14 @@ namespace MongoDB.Driver
 
         public SetWindowFieldsExpressionProjection(
             Expression<Func<TInput, TPartitionBy>> partitionBy,
-            Expression<Func<IGrouping<TPartitionBy, TInput>, TOutput>> outputExpression,
             SortDefinition<TInput> sortDefinition,
-            params AggregateOutputWindowOptionsBase<TOutput>[] outputWindowOptions)
+            Expression<Func<IGrouping<TPartitionBy, TInput>, TOutput>> outputExpression,
+            AggregateOutputWindowOptionsBase<TOutput>[] outputWindowOptions)
         {
             _partitionBy = Ensure.IsNotNull(partitionBy, nameof(partitionBy));
+            _sortDefinition = sortDefinition; // can be null
             _outputExpression = Ensure.IsNotNull(outputExpression, nameof(outputExpression));
             _outputWindowOptions = outputWindowOptions; // can be null
-            _sortDefinition = sortDefinition; // can be null
         }
 
         public override RenderedProjectionDefinition<TOutput> Render(IBsonSerializer<TInput> documentSerializer, IBsonSerializerRegistry serializerRegistry)

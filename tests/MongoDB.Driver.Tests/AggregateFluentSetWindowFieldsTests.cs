@@ -95,6 +95,42 @@ namespace MongoDB.Driver.Tests
         }
 
         [SkippableFact]
+        public void SetWindowFields_with_sum_and_window_documents_and_nested_output_field_should_return_expected_result()
+        {
+            RequireServer.Check().Supports(Feature.AggregateSetWindowFields);
+
+            var collection = SetupCollection();
+
+            var result = collection
+                .Aggregate()
+                .SetWindowFields(
+                    partitionBy: c => c.State,
+                    sortBy: Builders<CakeSales>.Sort.Ascending(s => s.OrderDate),
+                    output:
+                        sw =>
+                            new CakeSales
+                            {
+                                NestedNode1 = new NestedNode
+                                {
+                                    ChildNested2 = new NestedNode { CumulativeQuantity = sw.Sum(c => c.Quantity) }
+                                }
+                            },
+                    outputWindowOptions:
+                        new AggregateOutputWindowOptions<CakeSales, int>(owo => owo.NestedNode1.ChildNested2.CumulativeQuantity)
+                        {
+                            Documents = WindowRange.Create(WindowBound.Unbounded, WindowBound.Current)
+                        })
+                .ToList();
+
+            result[0].NestedNode1.ChildNested2.CumulativeQuantity.Should().Be(162);
+            result[1].NestedNode1.ChildNested2.CumulativeQuantity.Should().Be(282);
+            result[2].NestedNode1.ChildNested2.CumulativeQuantity.Should().Be(427);
+            result[3].NestedNode1.ChildNested2.CumulativeQuantity.Should().Be(134);
+            result[4].NestedNode1.ChildNested2.CumulativeQuantity.Should().Be(238);
+            result[5].NestedNode1.ChildNested2.CumulativeQuantity.Should().Be(378);
+        }
+
+        [SkippableFact]
         public void SetWindowFields_with_partition_by_year_and_sum_and_window_documents_should_return_expected_result()
         {
             RequireServer.Check().Supports(Feature.AggregateSetWindowFields);
@@ -138,7 +174,7 @@ namespace MongoDB.Driver.Tests
                     outputWindowOptions:
                         new AggregateOutputWindowOptions<CakeSales, double>(owo => owo.AverageQuantity)
                         {
-                            Documents = WindowRange.Create(WindowBound.SetPosition(-1), WindowBound.SetPosition(0))
+                            Documents = WindowRange.Create(WindowBound.CreatePosition(-1), WindowBound.CreatePosition(0))
                         })
                 .ToList();
 
@@ -208,7 +244,7 @@ namespace MongoDB.Driver.Tests
                     outputWindowOptions:
                         new AggregateOutputWindowOptions<CakeSales, int>(owo => owo.CumulativeQuantity)
                         {
-                            Range = WindowRange.Create(WindowBound.SetPosition(-10), WindowBound.SetPosition(10))
+                            Range = WindowRange.Create(WindowBound.CreatePosition(-10), WindowBound.CreatePosition(10))
                         })
                 .ToList();
 
@@ -236,7 +272,7 @@ namespace MongoDB.Driver.Tests
                     outputWindowOptions:
                         new AggregateOutputWindowOptions<CakeSales, IEnumerable<DateTime>>(owo => owo.RecentOrders)
                         {
-                            Range = WindowRange.Create(WindowBound.Unbounded, WindowBound.SetPosition(10)),
+                            Range = WindowRange.Create(WindowBound.Unbounded, WindowBound.CreatePosition(10)),
                             Unit = WindowTimeUnit.Month
                         })
                 .ToList();
@@ -247,8 +283,6 @@ namespace MongoDB.Driver.Tests
             result[3].RecentOrders.Should().BeEquivalentTo(new[] { CreateUtcDateTime("2019-01-08T06:12:03Z") });
             result[4].RecentOrders.Should().BeEquivalentTo(new[] { CreateUtcDateTime("2019-01-08T06:12:03Z"), CreateUtcDateTime("2020-02-08T13:13:23Z") });
             result[5].RecentOrders.Should().BeEquivalentTo(new[] { CreateUtcDateTime("2019-01-08T06:12:03Z"), CreateUtcDateTime("2020-02-08T13:13:23Z"), CreateUtcDateTime("2021-03-20T11:30:05Z") });
-
-            DateTime CreateUtcDateTime(string date) => DateTime.Parse(date).ToUniversalTime();
         }
 
         [SkippableFact]
@@ -267,7 +301,7 @@ namespace MongoDB.Driver.Tests
                     outputWindowOptions:
                         new AggregateOutputWindowOptions<CakeSales, IEnumerable<DateTime>>(owo => owo.RecentOrders)
                         {
-                            Range = WindowRange.Create(WindowBound.Unbounded, WindowBound.SetPosition(-10)),
+                            Range = WindowRange.Create(WindowBound.Unbounded, WindowBound.CreatePosition(-10)),
                             Unit = WindowTimeUnit.Month
                         })
                 .ToList();
@@ -278,14 +312,15 @@ namespace MongoDB.Driver.Tests
             result[3].RecentOrders.Should().BeEmpty();
             result[4].RecentOrders.Should().BeEquivalentTo(new[] { CreateUtcDateTime("2019-01-08T06:12:03Z") });
             result[5].RecentOrders.Should().BeEquivalentTo(new[] { CreateUtcDateTime("2019-01-08T06:12:03Z"), CreateUtcDateTime("2020-02-08T13:13:23Z") });
-
-            DateTime CreateUtcDateTime(string date) => DateTime.Parse(date).ToUniversalTime();
         }
 
         // private methods
+        private DateTime CreateUtcDateTime(string date) => DateTime.Parse(date).ToUniversalTime();
+
+
         private IMongoCollection<CakeSales> SetupCollection()
         {
-            var collectionNamespace = CollectionNamespace.FromFullName("db.cakeSales");
+            var collectionNamespace = CollectionNamespace.FromFullName("db.cakeSales11");
 
             var client = DriverTestConfiguration.Client;
             var database = client.GetDatabase(collectionNamespace.DatabaseNamespace.DatabaseName);
@@ -306,7 +341,6 @@ namespace MongoDB.Driver.Tests
             return collection;
         }
 
-
         // nested types
         public class CakeSales
         {
@@ -320,6 +354,15 @@ namespace MongoDB.Driver.Tests
             public double AverageQuantity { get; set; }
             public int MaximumQuantityForYear { get; set; }
             public IEnumerable<DateTime> RecentOrders { get; set; }
+            public NestedNode NestedNode1 { get; set; }
+            public NestedNode NestedNode2 { get; set; }
+        }
+
+        public class NestedNode
+        {
+            public int CumulativeQuantity { get; set; }
+            public NestedNode ChildNested1 { get; set; }
+            public NestedNode ChildNested2 { get; set; }
         }
 
         public enum State

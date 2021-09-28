@@ -512,7 +512,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Appends a group stage to the pipeline.
+        /// Appends a setWindowFields stage to the pipeline.
         /// </summary>
         /// <typeparam name="TResult">The type of the result.</typeparam>
         /// <typeparam name="TPartitionByKey">The type of the partitionBy key.</typeparam>

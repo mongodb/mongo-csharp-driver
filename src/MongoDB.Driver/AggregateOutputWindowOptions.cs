@@ -47,7 +47,6 @@ namespace MongoDB.Driver
         public WindowTimeUnit? Unit { get; set; }
     }
 
-
     /// <summary>
     /// Options for the aggregate $setWindowFields stage.
     /// </summary>
@@ -105,24 +104,27 @@ namespace MongoDB.Driver
     public class WindowBound
     {
         #region static
+        private static readonly WindowBound __unbounded = new WindowBound(Mode.Unbounded);
+        private static readonly WindowBound __current = new WindowBound(Mode.Current);
+
         /// <summary>
         /// Represents the first or last document position in the partition.
         /// </summary>
-        public static WindowBound Unbounded => new WindowBound(Mode.Unbounded);
+        public static WindowBound Unbounded => __unbounded;
 
         /// <summary>
         /// Represents the current document position in the output.
         /// </summary>
-        public static WindowBound Current => new WindowBound(Mode.Current);
+        public static WindowBound Current => __current;
 
         /// <summary>
-        /// Set the position value.
+        /// Create a window bound with the position.
         /// </summary>
         /// <param name="position">The position value/</param>
         /// <returns>
         /// The WindowBound value.
         /// </returns>
-        public static WindowBound SetPosition(int position) => new WindowBound(Mode.Position, position);
+        public static WindowBound CreatePosition(int position) => new WindowBound(Mode.Position, position);
         #endregion
 
         private readonly Mode _mode;
@@ -165,7 +167,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="left">The left bound.</param>
         /// <param name="right">The right bound.</param>
-        /// <returns></returns>
+        /// <returns>The window range.</returns>
         public static WindowRange Create(WindowBound left, WindowBound right)
         {
             return new WindowRange(left, right);

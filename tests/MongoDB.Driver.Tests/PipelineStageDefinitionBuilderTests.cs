@@ -533,10 +533,12 @@ namespace MongoDB.Driver.Tests
             public string UnmappedField { get; set; }
             public int CumulativeQuantityForState { get; set; }
             public double AverageQuantityForState { get; set; }
+            public TestEntityOutput Child1 { get; set; }
+            public TestEntityOutput Child2 { get; set; }
         }
 
         [Fact]
-        public void SetWindowFields_with_typed_arguments_should_return_the_expected_result_when_return_type_is_the_Same_as_input()
+        public void SetWindowFields_with_typed_arguments_should_return_the_expected_result_when_return_type_is_the_same_as_input()
         {
             var result = PipelineStageDefinitionBuilder.SetWindowFields<TestEntity, string, TestEntity>(
                 e => e.State,
@@ -550,7 +552,7 @@ namespace MongoDB.Driver.Tests
                 new AggregateOutputWindowOptions<TestEntity, double>(ow => ow.AverageQuantityForState)
                 {
                     Documents = WindowRange.Create(WindowBound.Current, WindowBound.Current),
-                    Range = WindowRange.Create(WindowBound.Unbounded, WindowBound.SetPosition(-10)),
+                    Range = WindowRange.Create(WindowBound.Unbounded, WindowBound.CreatePosition(-10)),
                     Unit = WindowTimeUnit.Day
                 });
 
@@ -587,10 +589,87 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void SetWindowFields_with_typed_arguments_should_return_the_expected_result_when_return_type_has_nested_documentst()
+        {
+            var result = PipelineStageDefinitionBuilder.SetWindowFields<TestEntity, string, TestEntityOutput>(
+                e => e.State,
+                Builders<TestEntity>.Sort.Descending(e => e.OrderDate),
+                g =>
+                    new TestEntityOutput()
+                    {
+                        CumulativeQuantityForState = g.Sum(a => a.Quantity),
+                        AverageQuantityForState = g.Average(a => a.Quantity),
+                        Child1 = new TestEntityOutput
+                        {
+                            AverageQuantityForState = g.Min(a => a.AverageQuantityForState),
+                            Child2 = new TestEntityOutput
+                            {
+                                CumulativeQuantityForState = g.Sum(a => a.Quantity)
+                            }
+                        }
+                    },
+                new AggregateOutputWindowOptions<TestEntityOutput, double>(ow => ow.AverageQuantityForState)
+                {
+                    Documents = WindowRange.Create(WindowBound.Current, WindowBound.Current),
+                    Range = WindowRange.Create(WindowBound.Unbounded, WindowBound.CreatePosition(-10)),
+                    Unit = WindowTimeUnit.Day
+                },
+                new AggregateOutputWindowOptions<TestEntityOutput, int>(ow => ow.Child1.Child2.CumulativeQuantityForState)
+                {
+                    Documents = WindowRange.Create(WindowBound.Current, WindowBound.Current),
+                    Range = WindowRange.Create(WindowBound.Unbounded, WindowBound.CreatePosition(-10)),
+                    Unit = WindowTimeUnit.Day
+                });
+
+            var stage = RenderStage(result);
+            var expectedStage = @$"
+{{
+    ""$setWindowFields"" :
+    {{
+        ""partitionBy"" : ""$State"",
+        ""sortBy"" :
+        {{
+            ""OrderDate"" : -1
+        }},
+        ""output"" :
+        {{
+            ""CumulativeQuantityForState"" :
+            {{
+                ""$sum"" : ""$Quantity""
+            }},
+            ""AverageQuantityForState"" :
+            {{
+                ""$avg"" : ""$Quantity"",
+                ""window"" :
+                {{
+                    ""documents"" : [""current"", ""current""],
+                    ""range"" : [""unbounded"", -10],
+                    ""unit"" : ""day""
+                }}
+            }},
+            ""Child1.AverageQuantityForState"" :
+            {{
+                ""$min"" : ""$AverageQuantityForState""
+            }},
+            ""Child1.Child2.CumulativeQuantityForState"":
+            {{
+                ""$sum"" : ""$Quantity"",
+                ""window"" :
+                {{
+                    ""documents"" : [""current"", ""current""],
+                    ""range"" : [""unbounded"", -10],
+                    ""unit"" : ""day""
+                }}
+            }}
+        }}
+    }}
+}}";
+            stage.Document.Should().Be(BsonDocument.Parse(expectedStage));
+        }
+
+        [Fact]
         public void SetWindowFields_with_typed_arguments_should_return_the_expected_result_when_return_type_is_a_new_entity()
         {
-            RequireServer.Check().Supports(Feature.AggregateSetWindowFields);
-
             var result = PipelineStageDefinitionBuilder.SetWindowFields<TestEntity, string, TestEntityOutput>(
                 e => e.State,
                 Builders<TestEntity>.Sort.Ascending(e => e.OrderDate),
@@ -603,13 +682,13 @@ namespace MongoDB.Driver.Tests
                 new AggregateOutputWindowOptions<TestEntityOutput, int>(ow => ow.CumulativeQuantityForState)
                 {
                     Documents = WindowRange.Create(WindowBound.Current, WindowBound.Current),
-                    Range = WindowRange.Create(WindowBound.Unbounded, WindowBound.SetPosition(-10)),
+                    Range = WindowRange.Create(WindowBound.Unbounded, WindowBound.CreatePosition(-10)),
                     Unit = WindowTimeUnit.Millisecond
                 },
                 new AggregateOutputWindowOptions<TestEntityOutput, double>(ow => ow.AverageQuantityForState)
                 {
                     Documents = WindowRange.Create(WindowBound.Current, WindowBound.Current),
-                    Range = WindowRange.Create(WindowBound.Unbounded, WindowBound.SetPosition(-10)),
+                    Range = WindowRange.Create(WindowBound.Unbounded, WindowBound.CreatePosition(-10)),
                     Unit = WindowTimeUnit.Minute
                 });
 
@@ -654,8 +733,6 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void SetWindowFields_should_throw_when_outputFields_dont_match_with_output_window_option_field()
         {
-            RequireServer.Check().Supports(Feature.AggregateSetWindowFields);
-
             var result = PipelineStageDefinitionBuilder.SetWindowFields<TestEntity, string, TestEntityOutput>(
                 e => e.State,
                 Builders<TestEntity>.Sort.Ascending(e => e.OrderDate),
@@ -668,13 +745,13 @@ namespace MongoDB.Driver.Tests
                 new AggregateOutputWindowOptions<TestEntityOutput, int>(ow => ow.CumulativeQuantityForState)
                 {
                     Documents = WindowRange.Create(WindowBound.Current, WindowBound.Current),
-                    Range = WindowRange.Create(WindowBound.Unbounded, WindowBound.SetPosition(-10)),
+                    Range = WindowRange.Create(WindowBound.Unbounded, WindowBound.CreatePosition(-10)),
                     Unit = WindowTimeUnit.Millisecond
                 },
                 new AggregateOutputWindowOptions<TestEntityOutput, string>(ow => ow.UnmappedField)
                 {
                     Documents = WindowRange.Create(WindowBound.Current, WindowBound.Current),
-                    Range = WindowRange.Create(WindowBound.Unbounded, WindowBound.SetPosition(-10)),
+                    Range = WindowRange.Create(WindowBound.Unbounded, WindowBound.CreatePosition(-10)),
                     Unit = WindowTimeUnit.Minute
                 });
 
