@@ -14,11 +14,7 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
@@ -42,7 +38,7 @@ namespace MongoDB.Driver.Core.Helpers
                 tags: tags,
                 type: serverType,
                 version: new SemanticVersion(2, 6, 3),
-                wireVersionRange: wireVersionRange ?? new Range<int>(0, 2));
+                wireVersionRange: wireVersionRange ?? new Range<int>(6, 14));
         }
     }
 }
