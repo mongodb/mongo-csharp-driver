@@ -22,7 +22,7 @@
           ],
           "appName": "timeoutMonitorHandshakeTest",
           "blockConnection": true,
-          "blockTimeMS": 2000
+          "blockTimeMS": 3000
         }
       },
       "clientOptions": {

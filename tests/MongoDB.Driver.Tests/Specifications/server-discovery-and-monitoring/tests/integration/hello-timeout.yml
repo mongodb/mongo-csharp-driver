@@ -19,7 +19,9 @@ tests:
           failCommands: ["hello", "isMaster"]
           appName: timeoutMonitorHandshakeTest
           blockConnection: true
-          blockTimeMS: 2000
+          # Due to timeouts inaccuracies in C# driver, blocktimeMS temporary increased to 3000ms
+          # tracked by CSHARP-3662 and CSHARP-3881
+          blockTimeMS: 3000
     clientOptions:
       retryWrites: false
       connectTimeoutMS: 250
