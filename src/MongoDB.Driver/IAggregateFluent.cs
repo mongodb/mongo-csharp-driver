@@ -323,10 +323,18 @@ namespace MongoDB.Driver
         /// <summary>
         /// Appends a #setWindowFields stage to the pipeline.
         /// </summary>
+        /// <typeparam name="TPartitionBy">The type of the partitionBy definition.</typeparam>
         /// <typeparam name="TNewResult">The type of the result of the stage.</typeparam>
-        /// <param name="setWindowFieldsDefinition">The $setWindowFields projection.</param>
+        /// <param name="partitionBy">The partitionBy definition.</param>
+        /// <param name="sortBy">The sortBy definition.</param>
+        /// <param name="output">The output definition.</param>
+        /// <param name="outputWindowOptions">The output window options.</param>
         /// <returns>The fluent aggregate interface.</returns>
-        IAggregateFluent<TNewResult> SetWindowFields<TNewResult>(ProjectionDefinition<TResult, TNewResult> setWindowFieldsDefinition);
+        IAggregateFluent<TNewResult> SetWindowFields<TPartitionBy, TNewResult>(
+            AggregateExpressionDefinition<TResult, TPartitionBy> partitionBy,
+            SortDefinition<TResult> sortBy,
+            ProjectionDefinition<TResult, TNewResult> output,
+            params AggregateOutputWindowOptionsBase<TNewResult>[] outputWindowOptions);
 
         /// <summary>
         /// Appends a skip stage to the pipeline.

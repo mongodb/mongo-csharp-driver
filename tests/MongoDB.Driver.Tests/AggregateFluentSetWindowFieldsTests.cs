@@ -33,29 +33,22 @@ namespace MongoDB.Driver.Tests
 
             var collection = SetupCollection();
 
-            var setWindowFieldsStage = BsonDocument.Parse($@"
-{{
-    partitionBy : ""$State"",
-    sortBy:
-    {{
-        OrderDate: 1
-    }},
-    output:
-    {{
-        CumulativeQuantity:
-        {{
-            $sum: ""$Quantity"",
-            window:
-            {{
-                documents:[ ""unbounded"", ""current""]
-            }}
-        }}
-    }}
-}}
-");
             var result = collection
                 .Aggregate()
-                .SetWindowFields<CakeSales>(setWindowFieldsStage)
+                .SetWindowFields<BsonValue, CakeSales>(
+                partitionBy: "{ partitionBy : '$State' }",
+                sortBy: "{ OrderDate: 1 }",
+                output: @$"
+ {{
+    CumulativeQuantity:
+    {{
+        $sum: ""$Quantity"",
+    }}
+}}"             ,
+                outputWindowOptions: new AggregateOutputWindowOptions<CakeSales>("CumulativeQuantity")
+                {
+                    Documents = WindowRange.Create(WindowBound.Unbounded, WindowBound.Current)
+                })
                 .ToList();
 
             result[0].CumulativeQuantity.Should().Be(162);

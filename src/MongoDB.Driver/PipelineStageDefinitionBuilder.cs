@@ -1227,9 +1227,9 @@ namespace MongoDB.Driver
         /// Creates a $setWindowFields stage.
         /// </summary>
         /// <typeparam name="TInput">The type of the input documents.</typeparam>
-        /// <typeparam name="TPartitionBy">The type of the partitionBy field.</typeparam>
+        /// <typeparam name="TPartitionBy">The type of the partitionBy definition.</typeparam>
         /// <typeparam name="TOutput">The type of the output documents.</typeparam>
-        /// <param name="partitionBy">The partitionBy field.</param>
+        /// <param name="partitionBy">The partitionBy definition.</param>
         /// <param name="sortBy">The sort definition.</param>
         /// <param name="output">The output definition.</param>
         /// <param name="outputWindowOptions">The output window definition.</param>
@@ -1240,40 +1240,88 @@ namespace MongoDB.Driver
             Expression<Func<IGrouping<TPartitionBy, TInput>, TOutput>> output,
             params AggregateOutputWindowOptionsBase<TOutput>[] outputWindowOptions)
         {
-            var setWindowFieldsExpressionProjection = new SetWindowFieldsExpressionProjection<TInput, TPartitionBy, TOutput>(
-                partitionBy,
-                sortBy,
-                output,
+            Ensure.IsNotNull(output, nameof(output));
+            Ensure.IsNotNull(partitionBy, nameof(partitionBy));
+
+            var outputProjection = new SetWindowFieldsExpressionProjection<TInput, TPartitionBy, TOutput>(partitionBy, output);
+
+            return SetWindowFields<TInput, TPartitionBy, TOutput>(
+                partitionBy: new ExpressionAggregateExpressionDefinition<TInput, TPartitionBy>(partitionBy, ExpressionTranslationOptions.Default),
+                sortBy: sortBy,
+                outputProjection,
                 outputWindowOptions);
-            return SetWindowFields<TInput, TOutput>(setWindowFieldsExpressionProjection);
         }
 
         /// <summary>
         /// Creates a $setWindowFields stage.
         /// </summary>
         /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TPartitionBy">The type of the partitionBy definition.</typeparam>
         /// <typeparam name="TOutput">The type of the output documents.</typeparam>
-        /// <param name="setWindowFieldsProjection">The $setWindowField definition.</param>
+        /// <param name="partitionBy">The partitionBy definition.</param>
+        /// <param name="sortBy">The sortBy definition.</param>
+        /// <param name="output">The output definition.</param>
+        /// <param name="outputWindowOptions">The output window options.</param>
         /// <returns>The stage.</returns>
-        public static PipelineStageDefinition<TInput, TOutput> SetWindowFields<TInput, TOutput>(
-            ProjectionDefinition<TInput, TOutput> setWindowFieldsProjection)
+        public static PipelineStageDefinition<TInput, TOutput> SetWindowFields<TInput, TPartitionBy, TOutput>(
+            AggregateExpressionDefinition<TInput, TPartitionBy> partitionBy,
+            SortDefinition<TInput> sortBy,
+            ProjectionDefinition<TInput, TOutput> output,
+            params AggregateOutputWindowOptionsBase<TOutput>[] outputWindowOptions)
         {
-            Ensure.IsNotNull(setWindowFieldsProjection, nameof(setWindowFieldsProjection));
+            Ensure.IsNotNull(output, nameof(output));
+            Ensure.IsNotNull(partitionBy, nameof(partitionBy));
 
             const string operatorName = "$setWindowFields";
             var stage = new DelegatedPipelineStageDefinition<TInput, TOutput>(
                 operatorName,
                 (s, sr) =>
                 {
-                    var renderedProjection = setWindowFieldsProjection.Render(s, sr);
+                    var outputSerializer = s as IBsonSerializer<TOutput> ?? sr.GetSerializer<TOutput>();
+
+                    var outputDocument = output.Render(s, sr).Document;
+
+                    if (outputWindowOptions != null && outputWindowOptions.Length > 0)
+                    {
+                        foreach (var windowOptions in outputWindowOptions)
+                        {
+                            var outputOptionFieldName = windowOptions.OutputWindowField.Render(outputSerializer, sr).FieldName;
+                            if (outputDocument.TryGetValue(outputOptionFieldName, out var outputWindow) && outputWindow is BsonDocument outputWindowDocument)
+                            {
+                                var documents = windowOptions.Documents;
+                                var range = windowOptions.Range;
+                                var unit = windowOptions.Unit;
+                                var outputWindowOptionsDocument = new BsonDocument
+                                {
+                                    { "documents", () => ConvertWindowRangeIntoBsonArray(documents), documents != null },
+                                    { "range", () => ConvertWindowRangeIntoBsonArray(range), range != null },
+                                    { "unit", () => unit.ToString().ToLowerInvariant(), unit.HasValue }
+                                };
+                                outputWindowDocument.Add("window", outputWindowOptionsDocument);
+                            }
+                            else
+                            {
+                                throw new ArgumentException("The provided output is not a document or configured window options don't match to the provided pipeline.");
+                            }
+                        }
+                    }
+
+                    var setWindowFieldsDocument = new BsonDocument
+                    {
+                        { "partitionBy", partitionBy.Render(s, sr) },
+                        { "sortBy", () => sortBy.Render(s, sr), sortBy != null },
+                        { "output", outputDocument }
+                    };
 
                     return new RenderedPipelineStageDefinition<TOutput>(
                         operatorName,
-                        new BsonDocument(operatorName, renderedProjection.Document),
-                        renderedProjection.ProjectionSerializer);
+                        new BsonDocument(operatorName, setWindowFieldsDocument),
+                        outputSerializer);
                 });
 
             return stage;
+
+            BsonArray ConvertWindowRangeIntoBsonArray(WindowRange range) => new BsonArray { range.Left.Value, range.Right.Value };
         }
 
         /// <summary>
@@ -1591,28 +1639,20 @@ namespace MongoDB.Driver
     {
         private readonly Expression<Func<TInput, TPartitionBy>> _partitionBy;
         private readonly Expression<Func<IGrouping<TPartitionBy, TInput>, TOutput>> _outputExpression;
-        private readonly AggregateOutputWindowOptionsBase<TOutput>[] _outputWindowOptions;
-        private readonly SortDefinition<TInput> _sortDefinition;
 
         public SetWindowFieldsExpressionProjection(
             Expression<Func<TInput, TPartitionBy>> partitionBy,
-            SortDefinition<TInput> sortDefinition,
-            Expression<Func<IGrouping<TPartitionBy, TInput>, TOutput>> outputExpression,
-            AggregateOutputWindowOptionsBase<TOutput>[] outputWindowOptions)
+            Expression<Func<IGrouping<TPartitionBy, TInput>, TOutput>> outputExpression)
         {
             _partitionBy = Ensure.IsNotNull(partitionBy, nameof(partitionBy));
-            _sortDefinition = sortDefinition; // can be null
             _outputExpression = Ensure.IsNotNull(outputExpression, nameof(outputExpression));
-            _outputWindowOptions = outputWindowOptions; // can be null
         }
 
         public override RenderedProjectionDefinition<TOutput> Render(IBsonSerializer<TInput> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
             return AggregateSetWindowFieldsTranslator.Translate<TPartitionBy, TInput, TOutput>(
                 _partitionBy,
-                _sortDefinition,
                 _outputExpression,
-                _outputWindowOptions,
                 documentSerializer,
                 serializerRegistry);
         }

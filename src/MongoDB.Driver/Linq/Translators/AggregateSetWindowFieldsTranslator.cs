@@ -27,9 +27,7 @@ namespace MongoDB.Driver.Linq.Translators
     {
         public static RenderedProjectionDefinition<TResult> Translate<TPartitionBy, TDocument, TResult>(
             Expression<Func<TDocument, TPartitionBy>> partitionByProjector,
-            SortDefinition<TDocument> sortDefinition,
             Expression<Func<IGrouping<TPartitionBy, TDocument>, TResult>> outputProjector,
-            AggregateOutputWindowOptionsBase<TResult>[] outputWindowOptions,
             IBsonSerializer<TDocument> parameterSerializer,
             IBsonSerializerRegistry serializerRegistry)
         {
@@ -37,49 +35,11 @@ namespace MongoDB.Driver.Linq.Translators
 
             var keySelector = AggregateGroupTranslator.BindKeySelector(bindingContext, partitionByProjector, parameterSerializer);
 
-            var partitionBy = AggregateLanguageTranslator.Translate(keySelector, translationOptions: null);
-
             var boundGroupExpression = AggregateGroupTranslator.BindGroup(bindingContext, outputProjector, parameterSerializer, keySelector);
-
             var projectionSerializer = bindingContext.GetSerializer(boundGroupExpression.Type, boundGroupExpression);
             var outputDocument = AggregateLanguageTranslator.Translate(boundGroupExpression, translationOptions: null).AsBsonDocument;
-            var formattedOutputDocument = FormatOutputDocumentIfRequired(outputDocument);
-
-            if (outputWindowOptions != null && outputWindowOptions.Length > 0)
-            {
-                foreach (var windowOptions in outputWindowOptions)
-                {
-                    var outputOptionFieldName = windowOptions.OutputWindowField.Render((IBsonSerializer<TResult>)projectionSerializer, serializerRegistry).FieldName;
-                    if (formattedOutputDocument.TryGetValue(outputOptionFieldName, out var outputWindow) && outputWindow is BsonDocument outputWindowDocument)
-                    {
-                        var documents = windowOptions.Documents;
-                        var range = windowOptions.Range;
-                        var unit = windowOptions.Unit;
-                        var outputWindowOptionsDocument = new BsonDocument
-                        {
-                            { "documents", () => ConvertWindowRangeIntoBsonArray(documents), documents != null },
-                            { "range", () => ConvertWindowRangeIntoBsonArray(range), range != null },
-                            { "unit", () => unit.ToString().ToLowerInvariant(), unit.HasValue }
-                        };
-                        outputWindowDocument.Add("window", outputWindowOptionsDocument);
-                    }
-                    else
-                    {
-                        throw new ArgumentException("The provided output is not a document or configured window options don't match to the provided pipeline.");
-                    }
-                }
-            }
-
-            var setWindowFieldsBody = new BsonDocument
-            {
-                { "partitionBy", partitionBy },
-                { "sortBy", () => sortDefinition.Render(parameterSerializer, serializerRegistry), sortDefinition != null },
-                { "output", formattedOutputDocument }
-            };
-
-            return new RenderedProjectionDefinition<TResult>(setWindowFieldsBody, (IBsonSerializer<TResult>)projectionSerializer);
-
-            BsonArray ConvertWindowRangeIntoBsonArray(WindowRange range) => new BsonArray { range.Left.Value, range.Right.Value };
+            var outputBody = FormatOutputDocumentIfRequired(outputDocument);
+            return new RenderedProjectionDefinition<TResult>(outputBody, (IBsonSerializer<TResult>)projectionSerializer);
         }
 
         private static BsonDocument FormatOutputDocumentIfRequired(BsonDocument source)

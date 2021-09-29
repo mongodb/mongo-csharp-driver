@@ -1012,19 +1012,26 @@ namespace MongoDB.Driver
         /// Appends a $setWindowFields stage to the pipeline.
         /// </summary>
         /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TPartitionBy">The type of the partitionBy definition.</typeparam>
         /// <typeparam name="TIntermediate">The type of the intermediate documents.</typeparam>
         /// <typeparam name="TOutput">The type of the output documents.</typeparam>
         /// <param name="pipeline">The pipeline.</param>
-        /// <param name="setWindowFieldsDefinition">The $setWindowFields projection.</param>
+        /// <param name="partitionBy">The partitionBy definition.</param>
+        /// <param name="sortBy">The sortBy definition.</param>
+        /// <param name="output">The output document.</param>
+        /// <param name="outputWindowOptions">The output window options.</param>
         /// <returns>
         /// A new pipeline with an additional stage.
         /// </returns>
-        public static PipelineDefinition<TInput, TOutput> SetWindowFields<TInput, TIntermediate, TOutput>(
+        public static PipelineDefinition<TInput, TOutput> SetWindowFields<TInput, TPartitionBy, TIntermediate, TOutput>(
             this PipelineDefinition<TInput, TIntermediate> pipeline,
-            ProjectionDefinition<TIntermediate, TOutput> setWindowFieldsDefinition)
+            AggregateExpressionDefinition<TIntermediate, TPartitionBy> partitionBy,
+            SortDefinition<TIntermediate> sortBy,
+            ProjectionDefinition<TIntermediate, TOutput> output,
+            params AggregateOutputWindowOptionsBase<TOutput>[] outputWindowOptions)
         {
             Ensure.IsNotNull(pipeline, nameof(pipeline));
-            return pipeline.AppendStage(PipelineStageDefinitionBuilder.SetWindowFields(setWindowFieldsDefinition));
+            return pipeline.AppendStage(PipelineStageDefinitionBuilder.SetWindowFields(partitionBy, sortBy, output, outputWindowOptions));
         }
 
         /// <summary>
@@ -1032,10 +1039,10 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TInput">The type of the input documents.</typeparam>
         /// <typeparam name="TIntermediate">The type of the iIntermediate documents.</typeparam>
-        /// <typeparam name="TPartitionBy">The type of the partitionBy documents.</typeparam>
+        /// <typeparam name="TPartitionBy">The type of the partitionBy definition.</typeparam>
         /// <typeparam name="TOutput">The type of the intermediate documents.</typeparam>
         /// <param name="pipeline">The pipeline.</param>
-        /// <param name="partitionBy">The partitionBy field.</param>
+        /// <param name="partitionBy">The partitionBy definition.</param>
         /// <param name="sortBy">The sort definition.</param>
         /// <param name="output">The output projections.</param>
         /// <param name="outputWindowOptions">The output window options.</param>

@@ -220,9 +220,12 @@ namespace MongoDB.Driver
             return WithPipeline(_pipeline.ReplaceWith(newRoot));
         }
 
-        public override IAggregateFluent<TNewResult> SetWindowFields<TNewResult>(ProjectionDefinition<TResult, TNewResult> setWindowFieldsDefinition)
+        public override IAggregateFluent<TNewResult> SetWindowFields<TPartitionBy, TNewResult>(
+            AggregateExpressionDefinition<TResult, TPartitionBy> partitionBy,
+            SortDefinition<TResult> sortBy, ProjectionDefinition<TResult, TNewResult> output,
+            params AggregateOutputWindowOptionsBase<TNewResult>[] outputWindowOptions)
         {
-            return WithPipeline(_pipeline.SetWindowFields(setWindowFieldsDefinition));
+            return WithPipeline(_pipeline.SetWindowFields(partitionBy, sortBy, output, outputWindowOptions));
         }
 
         public override IAggregateFluent<TResult> Skip(int skip)

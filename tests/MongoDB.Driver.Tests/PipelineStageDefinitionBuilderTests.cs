@@ -504,20 +504,6 @@ namespace MongoDB.Driver.Tests
             });
         }
 
-        [Theory]
-        [InlineData(
-            "{ partitionBy :{ $year : '$orderDate' } , sortBy : { orderDate: 1 }, output : { outputField : { $sum: '$quantity', window: { documents : ['unbounded', 'current'] } } } }",
-            "{ '$setWindowFields' :  { partitionBy :{ $year : '$orderDate' } , sortBy : { orderDate: 1 }, output : { outputField : { $sum: '$quantity', window: { documents : ['unbounded', 'current'] } } } } }")]
-        public void SetWindowFields_should_return_the_expected_result_when_plain_bsonDocument_request(
-            string setWindowFieldsBody,
-            string expectedStage)
-        {
-            var result = PipelineStageDefinitionBuilder.SetWindowFields<BsonDocument, BsonDocument>(setWindowFieldsBody);
-
-            var stage = RenderStage(result);
-            stage.Document.Should().Be(expectedStage);
-        }
-
         public class TestEntity
         {
             public DateTime OrderDate { get; set; }
@@ -756,8 +742,8 @@ namespace MongoDB.Driver.Tests
                 });
 
             var exception = Record.Exception(() => RenderStage(result));
-            var e = exception.Should().BeOfType<InvalidOperationException>().Subject;
-            e.Message.Should().StartWith("Unable to determine the serialization information for ow => ow.UnmappedField");
+            var e = exception.Should().BeOfType<ArgumentException>().Subject;
+            e.Message.Should().StartWith("The provided output is not a document or configured window options don't match to the provided pipeline.");
         }
 
         // private methods
