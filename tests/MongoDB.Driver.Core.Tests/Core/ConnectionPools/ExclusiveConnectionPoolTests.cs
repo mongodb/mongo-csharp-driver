@@ -679,6 +679,37 @@ namespace MongoDB.Driver.Core.ConnectionPools
             subject.PendingCount.Should().Be(0);
         }
 
+        [Theory]
+        [ParameterAttributeData]
+        public async Task AcquireConnectionHelper_EnteredPool_should_not_create_connection_if_timed_out([Values(true, false)] bool async)
+        {
+            var settings = _settings.With(
+                maintenanceInterval: Timeout.InfiniteTimeSpan,
+                minConnections: 0,
+                waitQueueSize: 1,
+                waitQueueTimeout: TimeSpan.FromMilliseconds(2));
+
+            var mockConnectionFactory = new Mock<IConnectionFactory>();
+            using var pool = CreateSubject(settings, mockConnectionFactory.Object);
+
+            var acquireConnectionHelper = new ExclusiveConnectionPool.AcquireConnectionHelper(pool);
+
+            acquireConnectionHelper.EnterWaitQueue();
+            await Task.Delay(10);
+
+            Exception exception;
+            if (async)
+            {
+                exception = await Record.ExceptionAsync(() => acquireConnectionHelper.EnteredPoolAsync(true, default));
+            }
+            else
+            {
+                exception = Record.Exception(() => acquireConnectionHelper.EnteredPool(true, default));
+            }
+
+            exception.Should().BeOfType<TimeoutException>();
+        }
+
         [Fact]
         public void Clear_should_throw_an_InvalidOperationException_if_not_initialized()
         {

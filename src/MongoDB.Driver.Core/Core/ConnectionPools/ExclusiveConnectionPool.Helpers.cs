@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             public const int Disposed = 2;
         }
 
-        private sealed class AcquireConnectionHelper
+        internal sealed class AcquireConnectionHelper
         {
             // private fields
             private readonly ExclusiveConnectionPool _pool;
@@ -106,8 +106,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
                 if (enteredPool)
                 {
-                    var timeSpentInWaitQueue = _stopwatch.Elapsed;
-                    using (var connectionCreator = new ConnectionCreator(_pool, _pool._settings.WaitQueueTimeout - timeSpentInWaitQueue))
+                    var timeout = EnsureTimeout();
+                    using (var connectionCreator = new ConnectionCreator(_pool, timeout))
                     {
                         connection = connectionCreator.CreateOpenedOrReuse(cancellationToken);
                     }
@@ -123,8 +123,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
                 if (enteredPool)
                 {
-                    var timeSpentInWaitQueue = _stopwatch.Elapsed;
-                    using (var connectionCreator = new ConnectionCreator(_pool, _pool._settings.WaitQueueTimeout - timeSpentInWaitQueue))
+                    var timeout = EnsureTimeout();
+                    using (var connectionCreator = new ConnectionCreator(_pool, timeout))
                     {
                         connection = await connectionCreator.CreateOpenedOrReuseAsync(cancellationToken).ConfigureAwait(false);
                     }
@@ -152,6 +152,19 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     var message = $"Timed out waiting for a connection after {_stopwatch.ElapsedMilliseconds}ms.";
                     throw _pool.CreateTimeoutException(_stopwatch, message);
                 }
+            }
+
+            private TimeSpan EnsureTimeout()
+            {
+                var timeSpentInWaitQueue = _stopwatch.Elapsed;
+                var timeout = _pool._settings.WaitQueueTimeout - timeSpentInWaitQueue;
+
+                if (timeout <= TimeSpan.Zero)
+                {
+                    throw _pool.CreateTimeoutException(_stopwatch, $"Timed out waiting for a connection after {timeSpentInWaitQueue.TotalMilliseconds}ms.");
+                }
+
+                return timeout;
             }
 
             public void Finally()
