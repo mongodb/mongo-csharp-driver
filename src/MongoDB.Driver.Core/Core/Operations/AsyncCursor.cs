@@ -252,7 +252,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 { "getMore", _cursorId },
                 { "collection", _collectionNamespace.CollectionName },
-                { "batchSize", () => CalculateGetMoreNumberToReturn(), _batchSize > 0 },
+                { "batchSize", () => CalculateGetMoreNumberToReturn(), _batchSize > 0 || _limit > 0 },
                 { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(_maxTime.Value), _maxTime.HasValue }
             };
 

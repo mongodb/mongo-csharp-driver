@@ -41,9 +41,6 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
         {
             switch (name)
             {
-                case "comment":
-                    _options.Comment = value.AsString;
-                    return true;
                 case "filter":
                     _filter = (BsonDocument)value;
                     return true;
@@ -63,24 +60,6 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
 #pragma warning disable 618
                     _options.Modifiers = (BsonDocument)value;
 #pragma warning restore 618
-                    return true;
-                case "hint":
-                    _options.Hint = value;
-                    return true;
-                case "max":
-                    _options.Max = value.ToBsonDocument();
-                    return true;
-                case "min":
-                    _options.Min = value.ToBsonDocument();
-                    return true;
-                case "maxTimeMS":
-                    _options.MaxTime = TimeSpan.FromMilliseconds(value.ToInt32());
-                    return true;
-                case "returnKey":
-                    _options.ReturnKey = value.ToBoolean();
-                    return true;
-                case "showRecordId":
-                    _options.ShowRecordId = value.ToBoolean();
                     return true;
             }
 
