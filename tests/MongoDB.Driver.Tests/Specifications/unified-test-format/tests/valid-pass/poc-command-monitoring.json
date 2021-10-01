@@ -149,7 +149,7 @@
                     ]
                   },
                   "collection": "test",
-                  "batchSize": 3
+                  "batchSize": 1
                 },
                 "commandName": "getMore",
                 "databaseName": "command-monitoring-tests"

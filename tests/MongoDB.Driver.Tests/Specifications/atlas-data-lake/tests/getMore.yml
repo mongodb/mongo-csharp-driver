@@ -29,7 +29,7 @@ tests:
           command:
             # Assertions for "getMore" and "collection" fields are omitted, as they will have arbitrary values
             # TODO: Those assertions can be added after wildcard matchers are available via SPEC-1215
-            batchSize: 3
+            batchSize: 1
           command_name: "getMore"
           # mongohoused always expects getMores on the "cursors" database
           database_name: "cursors"

@@ -465,7 +465,7 @@
                 "$numberLong": "42"
               },
               "collection": "test",
-              "batchSize": 3
+              "batchSize": 1
             },
             "command_name": "getMore",
             "database_name": "command-monitoring-tests"
