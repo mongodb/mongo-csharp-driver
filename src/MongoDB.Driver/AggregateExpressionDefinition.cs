@@ -18,7 +18,7 @@ using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Linq.Translators;
+using MongoDB.Driver.Linq;
 
 namespace MongoDB.Driver
 {
@@ -70,8 +70,9 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="sourceSerializer">The source serializer.</param>
         /// <param name="serializerRegistry">The serializer registry.</param>
+        /// <param name="linqProvider">The LINQ provider.</param>
         /// <returns>The rendered aggregation expression.</returns>
-        public abstract BsonValue Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry);
+        public abstract BsonValue Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider);
     }
 
     /// <summary>
@@ -95,9 +96,9 @@ namespace MongoDB.Driver
             _expression = Ensure.IsNotNull(expression, nameof(expression));
         }
 
-        // public methods        
+        // public methods
         /// <inheritdoc/>
-        public override BsonValue Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry)
+        public override BsonValue Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
             return _expression;
         }
@@ -129,9 +130,9 @@ namespace MongoDB.Driver
 
         // public methods
         /// <inheritdoc/>
-        public override BsonValue Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry)
+        public override BsonValue Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
-            return AggregateExpressionTranslator.Translate(_expression, sourceSerializer, serializerRegistry, _translationOptions);
+            return linqProvider.TranslateExpressionToAggregateExpression(_expression, sourceSerializer, serializerRegistry, _translationOptions);
         }
     }
 }

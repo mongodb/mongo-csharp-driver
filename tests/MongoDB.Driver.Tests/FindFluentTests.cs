@@ -21,6 +21,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Linq;
 using Moq;
 using Xunit;
 
@@ -354,10 +355,18 @@ namespace MongoDB.Driver.Tests
 
         private IFindFluent<Person, Person> CreateSubject(IClientSessionHandle session = null, FilterDefinition<Person> filter = null, FindOptions<Person, Person> options = null)
         {
-            var settings = new MongoCollectionSettings();
+            var clientSettings = new MongoClientSettings { LinqProvider = LinqProvider.V2 };
+            var mockClient = new Mock<IMongoClient>();
+            mockClient.SetupGet(c => c.Settings).Returns(clientSettings);
+
+            var mockDatabase = new Mock<IMongoDatabase>();
+            mockDatabase.SetupGet(d => d.Client).Returns(mockClient.Object);
+
+            var collectionSettings = new MongoCollectionSettings();
             _mockCollection = new Mock<IMongoCollection<Person>>();
+            _mockCollection.SetupGet(c => c.Database).Returns(mockDatabase.Object);
             _mockCollection.SetupGet(c => c.DocumentSerializer).Returns(BsonSerializer.SerializerRegistry.GetSerializer<Person>());
-            _mockCollection.SetupGet(c => c.Settings).Returns(settings);
+            _mockCollection.SetupGet(c => c.Settings).Returns(collectionSettings);
             filter = filter ?? new BsonDocument();
             options = options ?? new FindOptions<Person, Person>();
             var subject = new FindFluent<Person, Person>(session: session, collection: _mockCollection.Object, filter: filter, options: options);

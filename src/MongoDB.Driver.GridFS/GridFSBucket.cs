@@ -629,8 +629,9 @@ namespace MongoDB.Driver.GridFS
         {
             var filesCollectionNamespace = this.GetFilesCollectionNamespace();
             var messageEncoderSettings = this.GetMessageEncoderSettings();
-            var renderedFilter = filter.Render(_fileInfoSerializer, _options.SerializerRegistry);
-            var renderedSort = options.Sort == null ? null : options.Sort.Render(_fileInfoSerializer, _options.SerializerRegistry);
+            var linqProvider = _database.Client.Settings.LinqProvider;
+            var renderedFilter = filter.Render(_fileInfoSerializer, _options.SerializerRegistry, linqProvider);
+            var renderedSort = options.Sort == null ? null : options.Sort.Render(_fileInfoSerializer, _options.SerializerRegistry, linqProvider);
 
             return new FindOperation<GridFSFileInfo<TFileId>>(
                 filesCollectionNamespace,

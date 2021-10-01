@@ -20,6 +20,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Linq;
 
 namespace MongoDB.Driver
 {
@@ -83,7 +84,19 @@ namespace MongoDB.Driver
         /// <param name="inputSerializer">The input serializer.</param>
         /// <param name="serializerRegistry">The serializer registry.</param>
         /// <returns>A <see cref="RenderedPipelineDefinition{TOutput}"/></returns>
-        public abstract RenderedPipelineDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry);
+        public virtual RenderedPipelineDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry)
+        {
+            return Render(inputSerializer, serializerRegistry, LinqProvider.V2);
+        }
+
+        /// <summary>
+        /// Renders the pipeline.
+        /// </summary>
+        /// <param name="inputSerializer">The input serializer.</param>
+        /// <param name="serializerRegistry">The serializer registry.</param>
+        /// <param name="linqProvider">The LINQ provider.</param>
+        /// <returns>A <see cref="RenderedPipelineDefinition{TOutput}"/></returns>
+        public abstract RenderedPipelineDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider);
 
         /// <inheritdoc/>
         public override string ToString()
@@ -103,7 +116,21 @@ namespace MongoDB.Driver
         /// </returns>
         public string ToString(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            var renderedPipeline = Render(inputSerializer, serializerRegistry);
+            return ToString(inputSerializer, serializerRegistry, LinqProvider.V2);
+        }
+
+        /// <summary>
+        /// Returns a <see cref="System.String" /> that represents this instance.
+        /// </summary>
+        /// <param name="inputSerializer">The input serializer.</param>
+        /// <param name="serializerRegistry">The serializer registry.</param>
+        /// <param name="linqProvider">The LINQ provider.</param>
+        /// <returns>
+        /// A <see cref="System.String" /> that represents this instance.
+        /// </returns>
+        public string ToString(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        {
+            var renderedPipeline = Render(inputSerializer, serializerRegistry, linqProvider);
             return $"[{string.Join(", ", renderedPipeline.Documents.Select(stage => stage.ToJson()))}]";
         }
 
@@ -263,7 +290,7 @@ namespace MongoDB.Driver
         public override IEnumerable<IPipelineStageDefinition> Stages => _stages.Select(s => new BsonDocumentPipelineStageDefinition<TInput, TOutput>(s, _outputSerializer));
 
         /// <inheritdoc />
-        public override RenderedPipelineDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry)
+        public override RenderedPipelineDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
             return new RenderedPipelineDefinition<TOutput>(
                 _stages,
@@ -310,14 +337,14 @@ namespace MongoDB.Driver
         public override IEnumerable<IPipelineStageDefinition> Stages => _stages;
 
         /// <inheritdoc />
-        public override RenderedPipelineDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry)
+        public override RenderedPipelineDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
             var pipeline = new List<BsonDocument>();
 
             IBsonSerializer currentSerializer = inputSerializer;
             foreach (var stage in _stages)
             {
-                var renderedStage = stage.Render(currentSerializer, serializerRegistry);
+                var renderedStage = stage.Render(currentSerializer, serializerRegistry, linqProvider);
                 currentSerializer = renderedStage.OutputSerializer;
                 if (renderedStage.Document.ElementCount > 0)
                 {
@@ -372,9 +399,9 @@ namespace MongoDB.Driver
         /// <inheritdoc />
         public override IEnumerable<IPipelineStageDefinition> Stages => _wrapped.Stages;
 
-        public override RenderedPipelineDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry)
+        public override RenderedPipelineDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
-            var rendered = _wrapped.Render(inputSerializer, serializerRegistry);
+            var rendered = _wrapped.Render(inputSerializer, serializerRegistry, linqProvider);
 
             // do some combining of $match documents if possible. This is optimized for the
             // OfType case where we've added a discriminator as a match at the beginning of the pipeline.
@@ -387,7 +414,7 @@ namespace MongoDB.Driver
                     var combinedFilter = Builders<BsonDocument>.Filter.And(
                         (BsonDocument)firstStage.Value,
                         (BsonDocument)secondStage.Value);
-                    var combinedStage = new BsonDocument("$match", combinedFilter.Render(BsonDocumentSerializer.Instance, serializerRegistry));
+                    var combinedStage = new BsonDocument("$match", combinedFilter.Render(BsonDocumentSerializer.Instance, serializerRegistry, linqProvider));
 
                     rendered.Documents[0] = combinedStage;
                     rendered.Documents.RemoveAt(1);

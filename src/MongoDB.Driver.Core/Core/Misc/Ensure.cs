@@ -14,7 +14,9 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 
 namespace MongoDB.Driver.Core.Misc
@@ -222,6 +224,27 @@ namespace MongoDB.Driver.Core.Misc
                 throw new ArgumentNullException(paramName, "Value cannot be null.");
             }
             return value;
+        }
+
+        /// <summary>
+        /// Ensures that the value of a parameter is not null and does not contain any nulls.
+        /// </summary>
+        /// <typeparam name="T">Type of the value.</typeparam>
+        /// <param name="values">The value of the parameter.</param>
+        /// <param name="paramName">The name of the parameter.</param>
+        /// <returns>The value of the parameter.</returns>
+        public static IEnumerable<T> IsNotNullAndDoesNotContainAnyNulls<T>(IEnumerable<T> values, string paramName)
+            where T : class
+        {
+            if (values == null)
+            {
+                throw new ArgumentNullException(paramName, "Values cannot be null.");
+            }
+            if (values.Any(v => v == null))
+            {
+                throw new ArgumentNullException(paramName, "Values cannot contain any null items.");
+            }
+            return values;
         }
 
         /// <summary>

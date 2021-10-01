@@ -18,7 +18,7 @@ using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Linq.Translators;
+using MongoDB.Driver.Linq;
 
 namespace MongoDB.Driver
 {
@@ -71,7 +71,19 @@ namespace MongoDB.Driver
         /// <param name="sourceSerializer">The source serializer.</param>
         /// <param name="serializerRegistry">The serializer registry.</param>
         /// <returns>A <see cref="BsonDocument"/>.</returns>
-        public abstract BsonDocument Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry);
+        public virtual BsonDocument Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry)
+        {
+            return Render(sourceSerializer, serializerRegistry, LinqProvider.V2);
+        }
+
+        /// <summary>
+        /// Renders the projection to a <see cref="RenderedProjectionDefinition{TProjection}"/>.
+        /// </summary>
+        /// <param name="sourceSerializer">The source serializer.</param>
+        /// <param name="serializerRegistry">The serializer registry.</param>
+        /// <param name="linqProvider">The LINQ provider.</param>
+        /// <returns>A <see cref="BsonDocument"/>.</returns>
+        public abstract BsonDocument Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider);
 
         /// <summary>
         /// Performs an implicit conversion from <see cref="BsonDocument"/> to <see cref="ProjectionDefinition{TSource}"/>.
@@ -121,7 +133,19 @@ namespace MongoDB.Driver
         /// <param name="sourceSerializer">The source serializer.</param>
         /// <param name="serializerRegistry">The serializer registry.</param>
         /// <returns>A <see cref="RenderedProjectionDefinition{TProjection}"/>.</returns>
-        public abstract RenderedProjectionDefinition<TProjection> Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry);
+        public virtual RenderedProjectionDefinition<TProjection> Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry)
+        {
+            return Render(sourceSerializer, serializerRegistry, LinqProvider.V2);
+        }
+
+        /// <summary>
+        /// Renders the projection to a <see cref="RenderedProjectionDefinition{TProjection}"/>.
+        /// </summary>
+        /// <param name="sourceSerializer">The source serializer.</param>
+        /// <param name="serializerRegistry">The serializer registry.</param>
+        /// <param name="linqProvider">The LINQ provider.</param>
+        /// <returns>A <see cref="RenderedProjectionDefinition{TProjection}"/>.</returns>
+        public abstract RenderedProjectionDefinition<TProjection> Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider);
 
         /// <summary>
         /// Performs an implicit conversion from <see cref="BsonDocument"/> to <see cref="ProjectionDefinition{TSource, TProjection}"/>.
@@ -196,7 +220,7 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public override BsonDocument Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry)
+        public override BsonDocument Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
             return _document;
         }
@@ -240,7 +264,7 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public override RenderedProjectionDefinition<TProjection> Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry)
+        public override RenderedProjectionDefinition<TProjection> Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
             return new RenderedProjectionDefinition<TProjection>(
                 _document,
@@ -275,9 +299,9 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public override RenderedProjectionDefinition<TProjection> Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry)
+        public override RenderedProjectionDefinition<TProjection> Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
-            return FindProjectionTranslator.Translate<TSource, TProjection>(_expression, sourceSerializer, serializerRegistry);
+            return linqProvider.TranslateExpressionToFindProjection(_expression, sourceSerializer, serializerRegistry);
         }
     }
 
@@ -307,7 +331,7 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public override BsonDocument Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry)
+        public override BsonDocument Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
             return BsonDocument.Parse(_json);
         }
@@ -351,7 +375,7 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public override RenderedProjectionDefinition<TProjection> Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry)
+        public override RenderedProjectionDefinition<TProjection> Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
             return new RenderedProjectionDefinition<TProjection>(
                 BsonDocument.Parse(_json),
@@ -385,7 +409,7 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public override BsonDocument Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry)
+        public override BsonDocument Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
             var serializer = serializerRegistry.GetSerializer(_obj.GetType());
             return new BsonDocumentWrapper(_obj, serializer);
@@ -430,7 +454,7 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public override RenderedProjectionDefinition<TProjection> Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry)
+        public override RenderedProjectionDefinition<TProjection> Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
             var serializer = serializerRegistry.GetSerializer(_obj.GetType());
             return new RenderedProjectionDefinition<TProjection>(
@@ -460,9 +484,9 @@ namespace MongoDB.Driver
             get { return _projectionSerializer; }
         }
 
-        public override RenderedProjectionDefinition<TProjection> Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry)
+        public override RenderedProjectionDefinition<TProjection> Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
-            var document = _projection.Render(sourceSerializer, serializerRegistry);
+            var document = _projection.Render(sourceSerializer, serializerRegistry, linqProvider);
             return new RenderedProjectionDefinition<TProjection>(
                 document,
                 _projectionSerializer ?? (sourceSerializer as IBsonSerializer<TProjection>) ?? serializerRegistry.GetSerializer<TProjection>());
@@ -499,7 +523,7 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc/>
-        public override RenderedProjectionDefinition<TProjection> Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry)
+        public override RenderedProjectionDefinition<TProjection> Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
             return new RenderedProjectionDefinition<TProjection>(
                 null,

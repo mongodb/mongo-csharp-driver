@@ -20,6 +20,7 @@ using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Linq;
 
 namespace MongoDB.Driver
 {
@@ -1223,10 +1224,10 @@ namespace MongoDB.Driver
         public override IEnumerable<IPipelineStageDefinition> Stages => _pipeline.Stages.Concat(new[] { _stage });
 
         /// <inheritdoc/>
-        public override RenderedPipelineDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry)
+        public override RenderedPipelineDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
-            var renderedPipeline = _pipeline.Render(inputSerializer, serializerRegistry);
-            var renderedStage = _stage.Render(renderedPipeline.OutputSerializer, serializerRegistry);
+            var renderedPipeline = _pipeline.Render(inputSerializer, serializerRegistry, linqProvider);
+            var renderedStage = _stage.Render(renderedPipeline.OutputSerializer, serializerRegistry, linqProvider);
             var documents = renderedPipeline.Documents.Concat(new[] { renderedStage.Document });
             var outputSerializer = _outputSerializer ?? renderedStage.OutputSerializer;
             return new RenderedPipelineDefinition<TOutput>(documents, outputSerializer);
@@ -1257,7 +1258,7 @@ namespace MongoDB.Driver
         public override IEnumerable<IPipelineStageDefinition> Stages => Enumerable.Empty<IPipelineStageDefinition>();
 
         /// <inheritdoc/>
-        public override RenderedPipelineDefinition<TInput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry)
+        public override RenderedPipelineDefinition<TInput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
             var documents = Enumerable.Empty<BsonDocument>();
             return new RenderedPipelineDefinition<TInput>(documents, _inputSerializer ?? inputSerializer);
@@ -1299,10 +1300,10 @@ namespace MongoDB.Driver
         public override IEnumerable<IPipelineStageDefinition> Stages => new[] { _stage }.Concat(_pipeline.Stages);
 
         /// <inheritdoc/>
-        public override RenderedPipelineDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry)
+        public override RenderedPipelineDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
-            var renderedStage = _stage.Render(inputSerializer, serializerRegistry);
-            var renderedPipeline = _pipeline.Render(renderedStage.OutputSerializer, serializerRegistry);
+            var renderedStage = _stage.Render(inputSerializer, serializerRegistry, linqProvider);
+            var renderedPipeline = _pipeline.Render(renderedStage.OutputSerializer, serializerRegistry, linqProvider);
             var documents = new[] { renderedStage.Document }.Concat(renderedPipeline.Documents);
             var outputSerializer = _outputSerializer ?? renderedPipeline.OutputSerializer;
             return new RenderedPipelineDefinition<TOutput>(documents, outputSerializer);
@@ -1341,9 +1342,9 @@ namespace MongoDB.Driver
         public override IEnumerable<IPipelineStageDefinition> Stages => _pipeline.Stages;
 
         /// <inheritdoc/>
-        public override RenderedPipelineDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry)
+        public override RenderedPipelineDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
-            var renderedPipeline = _pipeline.Render(inputSerializer, serializerRegistry);
+            var renderedPipeline = _pipeline.Render(inputSerializer, serializerRegistry, linqProvider);
             var outputSerializer = _outputSerializer ?? serializerRegistry.GetSerializer<TOutput>();
             return new RenderedPipelineDefinition<TOutput>(renderedPipeline.Documents, outputSerializer);
         }
