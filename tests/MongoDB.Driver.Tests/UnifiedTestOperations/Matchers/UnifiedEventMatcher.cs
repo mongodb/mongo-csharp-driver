@@ -20,6 +20,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using Xunit.Sdk;
 
@@ -113,6 +114,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                                 case "hasServiceId":
                                     commandStartedEvent.ServiceId.Should().Match<ObjectId?>(s => s.HasValue == element.Value.ToBoolean());
                                     break;
+                                case "hasServerConnectionId":
+                                    commandStartedEvent.ConnectionId.Should().Match<ConnectionId>(s => s.ServerValue.HasValue == element.Value.ToBoolean());
+                                    break;
                                 default:
                                     throw new FormatException($"Unexpected commandStartedEvent field: '{element.Name}'.");
                             }
@@ -133,6 +137,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                                 case "hasServiceId":
                                     commandSucceededEvent.ServiceId.Should().Match<ObjectId?>(s => s.HasValue == element.Value.ToBoolean());
                                     break;
+                                case "hasServerConnectionId":
+                                    commandSucceededEvent.ConnectionId.Should().Match<ConnectionId>(s => s.ServerValue.HasValue == element.Value.ToBoolean());
+                                    break;
                                 default:
                                     throw new FormatException($"Unexpected commandStartedEvent field: '{element.Name}'.");
                             }
@@ -149,6 +156,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                                     break;
                                 case "hasServiceId":
                                     commandFailedEvent.ServiceId.Should().Match<ObjectId?>(s => s.HasValue == element.Value.ToBoolean());
+                                    break;
+                                case "hasServerConnectionId":
+                                    commandFailedEvent.ConnectionId.Should().Match<ConnectionId>(s => s.ServerValue.HasValue == element.Value.ToBoolean());
                                     break;
                                 default:
                                     throw new FormatException($"Unexpected commandStartedEvent field: '{element.Name}'.");
