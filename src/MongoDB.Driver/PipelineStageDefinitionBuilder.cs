@@ -1227,6 +1227,23 @@ namespace MongoDB.Driver
         /// Creates a $setWindowFields stage.
         /// </summary>
         /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
+        /// <param name="output">The output definition.</param>
+        /// <param name="sortBy">The sort definition.</param>
+        /// <param name="outputWindowOptions">The output window definition.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<TInput, TOutput> SetWindowFields<TInput, TOutput>(
+            ProjectionDefinition<TInput, TOutput> output,
+            SortDefinition<TInput> sortBy = null,
+            params AggregateOutputWindowOptionsBase<TOutput>[] outputWindowOptions)
+        {
+            return SetWindowFields<TInput, object, TOutput>(partitionBy: null, output, sortBy, outputWindowOptions);
+        }
+
+        /// <summary>
+        /// Creates a $setWindowFields stage.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
         /// <typeparam name="TPartitionBy">The type of the partitionBy definition.</typeparam>
         /// <typeparam name="TOutput">The type of the output documents.</typeparam>
         /// <param name="partitionBy">The partitionBy definition.</param>
@@ -1236,8 +1253,8 @@ namespace MongoDB.Driver
         /// <returns>The stage.</returns>
         public static PipelineStageDefinition<TInput, TOutput> SetWindowFields<TInput, TPartitionBy, TOutput>(
             Expression<Func<TInput, TPartitionBy>> partitionBy,
-            SortDefinition<TInput> sortBy,
             Expression<Func<IGrouping<TPartitionBy, TInput>, TOutput>> output,
+            SortDefinition<TInput> sortBy = null,
             params AggregateOutputWindowOptionsBase<TOutput>[] outputWindowOptions)
         {
             Ensure.IsNotNull(output, nameof(output));
@@ -1247,8 +1264,8 @@ namespace MongoDB.Driver
 
             return SetWindowFields<TInput, TPartitionBy, TOutput>(
                 partitionBy: new ExpressionAggregateExpressionDefinition<TInput, TPartitionBy>(partitionBy, ExpressionTranslationOptions.Default),
-                sortBy: sortBy,
                 outputProjection,
+                sortBy: sortBy,
                 outputWindowOptions);
         }
 
@@ -1259,18 +1276,17 @@ namespace MongoDB.Driver
         /// <typeparam name="TPartitionBy">The type of the partitionBy definition.</typeparam>
         /// <typeparam name="TOutput">The type of the output documents.</typeparam>
         /// <param name="partitionBy">The partitionBy definition.</param>
-        /// <param name="sortBy">The sortBy definition.</param>
         /// <param name="output">The output definition.</param>
+        /// <param name="sortBy">The sortBy definition.</param>
         /// <param name="outputWindowOptions">The output window options.</param>
         /// <returns>The stage.</returns>
         public static PipelineStageDefinition<TInput, TOutput> SetWindowFields<TInput, TPartitionBy, TOutput>(
             AggregateExpressionDefinition<TInput, TPartitionBy> partitionBy,
-            SortDefinition<TInput> sortBy,
             ProjectionDefinition<TInput, TOutput> output,
+            SortDefinition<TInput> sortBy = null,
             params AggregateOutputWindowOptionsBase<TOutput>[] outputWindowOptions)
         {
             Ensure.IsNotNull(output, nameof(output));
-            Ensure.IsNotNull(partitionBy, nameof(partitionBy));
 
             const string operatorName = "$setWindowFields";
             var stage = new DelegatedPipelineStageDefinition<TInput, TOutput>(
@@ -1308,7 +1324,7 @@ namespace MongoDB.Driver
 
                     var setWindowFieldsDocument = new BsonDocument
                     {
-                        { "partitionBy", partitionBy.Render(s, sr) },
+                        { "partitionBy", () => partitionBy.Render(s, sr), partitionBy != null },
                         { "sortBy", () => sortBy.Render(s, sr), sortBy != null },
                         { "output", outputDocument }
                     };

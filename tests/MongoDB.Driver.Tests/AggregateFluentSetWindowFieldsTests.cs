@@ -27,6 +27,38 @@ namespace MongoDB.Driver.Tests
     public class AggregateFluentSetWindowFieldsTests
     {
         [SkippableFact]
+        public void SetWindowFields_with_plain_mql_and_empty_partitionBy_should_return_expected_result()
+        {
+            RequireServer.Check().Supports(Feature.AggregateSetWindowFields);
+
+            var collection = SetupCollection();
+
+            var result = collection
+                .Aggregate()
+                .SetWindowFields<CakeSales>(
+                output: @$"
+ {{
+    CumulativeQuantity:
+    {{
+        $sum: ""$Quantity"",
+    }}
+}}",
+                sortBy: "{ OrderDate: 1 }",
+                outputWindowOptions: new AggregateOutputWindowOptions<CakeSales>("CumulativeQuantity")
+                {
+                    Documents = WindowRange.Create(WindowBound.Unbounded, WindowBound.Current)
+                })
+                .ToList();
+
+            result[0].CumulativeQuantity.Should().Be(134);
+            result[1].CumulativeQuantity.Should().Be(296);
+            result[2].CumulativeQuantity.Should().Be(400);
+            result[3].CumulativeQuantity.Should().Be(520);
+            result[4].CumulativeQuantity.Should().Be(665);
+            result[5].CumulativeQuantity.Should().Be(805);
+        }
+
+        [SkippableFact]
         public void SetWindowFields_with_plain_mql_should_return_expected_result()
         {
             RequireServer.Check().Supports(Feature.AggregateSetWindowFields);
@@ -260,8 +292,8 @@ namespace MongoDB.Driver.Tests
                 .Aggregate()
                 .SetWindowFields(
                     partitionBy: c => c.State,
-                    sortBy: Builders<CakeSales>.Sort.Ascending(s => s.OrderDate),
                     output: sw => new CakeSales { RecentOrders = sw.Select(c => c.OrderDate) },
+                    sortBy: Builders<CakeSales>.Sort.Ascending(s => s.OrderDate),
                     outputWindowOptions:
                         new AggregateOutputWindowOptions<CakeSales, IEnumerable<DateTime>>(owo => owo.RecentOrders)
                         {
@@ -289,8 +321,8 @@ namespace MongoDB.Driver.Tests
                 .Aggregate()
                 .SetWindowFields(
                     partitionBy: c => c.State,
-                    sortBy: Builders<CakeSales>.Sort.Ascending(s => s.OrderDate),
                     output: sw => new CakeSales { RecentOrders = sw.Select(c => c.OrderDate) },
+                    sortBy: Builders<CakeSales>.Sort.Ascending(s => s.OrderDate),
                     outputWindowOptions:
                         new AggregateOutputWindowOptions<CakeSales, IEnumerable<DateTime>>(owo => owo.RecentOrders)
                         {

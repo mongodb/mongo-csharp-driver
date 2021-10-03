@@ -519,8 +519,8 @@ namespace MongoDB.Driver
         /// <typeparam name="TNewResult">The type of the new result.</typeparam>
         /// <param name="aggregate">The aggregate.</param>
         /// <param name="partitionBy">The partitionBy field.</param>
-        /// <param name="sortBy">The sport definition.</param>
         /// <param name="output">The output defintion.</param>
+        /// <param name="sortBy">The sport definition.</param>
         /// <param name="outputWindowOptions">The output window options.</param>
         /// <returns>
         /// The fluent aggregate interface.
@@ -533,7 +533,7 @@ namespace MongoDB.Driver
             params AggregateOutputWindowOptionsBase<TNewResult>[] outputWindowOptions)
         {
             Ensure.IsNotNull(aggregate, nameof(aggregate));
-            return aggregate.AppendStage(PipelineStageDefinitionBuilder.SetWindowFields(partitionBy, sortBy, output, outputWindowOptions));
+            return aggregate.AppendStage(PipelineStageDefinitionBuilder.SetWindowFields(partitionBy, output, sortBy, outputWindowOptions));
         }
 
         /// <summary>

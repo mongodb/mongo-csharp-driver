@@ -528,13 +528,13 @@ namespace MongoDB.Driver.Tests
         {
             var result = PipelineStageDefinitionBuilder.SetWindowFields<TestEntity, string, TestEntity>(
                 e => e.State,
-                Builders<TestEntity>.Sort.Descending(e => e.OrderDate),
                 g =>
                     new TestEntity()
                     {
                         CumulativeQuantityForState = g.Sum(a => a.Quantity),
                         AverageQuantityForState = g.Average(a => a.Quantity)
                     },
+                Builders<TestEntity>.Sort.Descending(e => e.OrderDate),
                 new AggregateOutputWindowOptions<TestEntity, double>(ow => ow.AverageQuantityForState)
                 {
                     Documents = WindowRange.Create(WindowBound.Current, WindowBound.Current),
@@ -579,7 +579,6 @@ namespace MongoDB.Driver.Tests
         {
             var result = PipelineStageDefinitionBuilder.SetWindowFields<TestEntity, string, TestEntityOutput>(
                 e => e.State,
-                Builders<TestEntity>.Sort.Descending(e => e.OrderDate),
                 g =>
                     new TestEntityOutput()
                     {
@@ -594,6 +593,7 @@ namespace MongoDB.Driver.Tests
                             }
                         }
                     },
+                Builders<TestEntity>.Sort.Descending(e => e.OrderDate),
                 new AggregateOutputWindowOptions<TestEntityOutput, double>(ow => ow.AverageQuantityForState)
                 {
                     Documents = WindowRange.Create(WindowBound.Current, WindowBound.Current),
@@ -658,13 +658,13 @@ namespace MongoDB.Driver.Tests
         {
             var result = PipelineStageDefinitionBuilder.SetWindowFields<TestEntity, string, TestEntityOutput>(
                 e => e.State,
-                Builders<TestEntity>.Sort.Ascending(e => e.OrderDate),
                 g =>
                     new TestEntityOutput()
                     {
                         CumulativeQuantityForState = g.Sum(a => a.Quantity),
                         AverageQuantityForState = g.Average(a => a.Quantity)
                     },
+                Builders<TestEntity>.Sort.Ascending(e => e.OrderDate),
                 new AggregateOutputWindowOptions<TestEntityOutput, int>(ow => ow.CumulativeQuantityForState)
                 {
                     Documents = WindowRange.Create(WindowBound.Current, WindowBound.Current),
@@ -721,13 +721,13 @@ namespace MongoDB.Driver.Tests
         {
             var result = PipelineStageDefinitionBuilder.SetWindowFields<TestEntity, string, TestEntityOutput>(
                 e => e.State,
-                Builders<TestEntity>.Sort.Ascending(e => e.OrderDate),
                 g =>
                     new TestEntityOutput()
                     {
                         CumulativeQuantityForState = g.Sum(a => a.Quantity),
                         AverageQuantityForState = g.Average(a => a.Quantity)
                     },
+                Builders<TestEntity>.Sort.Ascending(e => e.OrderDate),
                 new AggregateOutputWindowOptions<TestEntityOutput, int>(ow => ow.CumulativeQuantityForState)
                 {
                     Documents = WindowRange.Create(WindowBound.Current, WindowBound.Current),

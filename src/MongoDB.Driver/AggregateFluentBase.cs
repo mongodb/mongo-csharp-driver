@@ -198,10 +198,19 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
+        public virtual IAggregateFluent<TNewResult> SetWindowFields<TNewResult>(
+            ProjectionDefinition<TResult, TNewResult> output,
+            SortDefinition<TResult> sortBy = null,
+            params AggregateOutputWindowOptionsBase<TNewResult>[] outputWindowOptions)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
         public virtual IAggregateFluent<TNewResult> SetWindowFields<TPartitionBy, TNewResult>(
             AggregateExpressionDefinition<TResult, TPartitionBy> partitionBy,
-            SortDefinition<TResult> sortBy,
             ProjectionDefinition<TResult, TNewResult> output,
+            SortDefinition<TResult> sortBy = null,
             params AggregateOutputWindowOptionsBase<TNewResult>[] outputWindowOptions)
         {
             throw new NotImplementedException();
