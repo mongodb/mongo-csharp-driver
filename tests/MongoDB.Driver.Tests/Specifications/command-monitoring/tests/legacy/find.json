@@ -86,22 +86,22 @@
           "sort": {
             "_id": 1
           },
-          "skip": 2,
-          "modifiers": {
-            "$comment": "test",
-            "$hint": {
-              "_id": 1
-            },
-            "$max": {
-              "_id": 6
-            },
-            "$maxTimeMS": 6000,
-            "$min": {
-              "_id": 0
-            },
-            "$returnKey": false,
-            "$showDiskLoc": false,
-          }
+          "skip": {
+            "$numberLong": "2"
+          },
+          "comment": "test",
+          "hint": {
+            "_id": 1
+          },
+          "max": {
+            "_id": 6
+          },
+          "maxTimeMS": 6000,
+          "min": {
+            "_id": 0
+          },
+          "returnKey": false,
+          "showRecordId": false
         }
       },
       "expectations": [
@@ -117,7 +117,9 @@
               "sort": {
                 "_id": 1
               },
-              "skip": 2,
+              "skip": {
+                "$numberLong": "2"
+              },
               "comment": "test",
               "hint": {
                 "_id": 1
@@ -130,7 +132,7 @@
                 "_id": 0
               },
               "returnKey": false,
-              "showRecordId": false,
+              "showRecordId": false
             },
             "command_name": "find",
             "database_name": "command-monitoring-tests"
@@ -175,7 +177,9 @@
           "sort": {
             "_id": 1
           },
-          "batchSize": 3
+          "batchSize": {
+            "$numberLong": "3"
+          }
         }
       },
       "expectations": [
@@ -191,7 +195,9 @@
               "sort": {
                 "_id": 1
               },
-              "batchSize": 3
+              "batchSize": {
+                "$numberLong": "3"
+              }
             },
             "command_name": "find",
             "database_name": "command-monitoring-tests"
@@ -232,7 +238,9 @@
                 "$numberLong": "42"
               },
               "collection": "test",
-              "batchSize": 3
+              "batchSize": {
+                "$numberLong": "3"
+              }
             },
             "command_name": "getMore",
             "database_name": "command-monitoring-tests"
@@ -278,8 +286,12 @@
           "sort": {
             "_id": 1
           },
-          "batchSize": 3,
-          "limit": 4
+          "batchSize": {
+            "$numberLong": "3"
+          },
+          "limit": {
+            "$numberLong": "4"
+          }
         }
       },
       "expectations": [
@@ -295,8 +307,12 @@
               "sort": {
                 "_id": 1
               },
-              "batchSize": 3,
-              "limit": 4
+              "batchSize": {
+                "$numberLong": "3"
+              },
+              "limit": {
+                "$numberLong": "4"
+              }
             },
             "command_name": "find",
             "database_name": "command-monitoring-tests"
@@ -337,7 +353,9 @@
                 "$numberLong": "42"
               },
               "collection": "test",
-              "batchSize": 1
+              "batchSize": {
+                "$numberLong": "1"
+              }
             },
             "command_name": "getMore",
             "database_name": "command-monitoring-tests"
@@ -393,8 +411,12 @@
       ]
     },
     {
-      "description": "A successful find event with a getmore and the server kills the cursor",
+      "description": "A successful find event with a getmore and the server kills the cursor (<= 4.4)",
       "ignore_if_server_version_less_than": "3.1",
+      "ignore_if_server_version_greater_than": "4.4",
+      "ignore_if_topology_type": [
+        "sharded"
+      ],
       "operation": {
         "name": "find",
         "arguments": {
@@ -406,8 +428,12 @@
           "sort": {
             "_id": 1
           },
-          "batchSize": 3,
-          "limit": 4
+          "batchSize": {
+            "$numberLong": "3"
+          },
+          "limit": {
+            "$numberLong": "4"
+          }
         }
       },
       "expectations": [
@@ -423,8 +449,12 @@
               "sort": {
                 "_id": 1
               },
-              "batchSize": 3,
-              "limit": 4
+              "batchSize": {
+                "$numberLong": "3"
+              },
+              "limit": {
+                "$numberLong": "4"
+              }
             },
             "command_name": "find",
             "database_name": "command-monitoring-tests"
@@ -465,7 +495,9 @@
                 "$numberLong": "42"
               },
               "collection": "test",
-              "batchSize": 1
+              "batchSize": {
+                "$numberLong": "1"
+              }
             },
             "command_name": "getMore",
             "database_name": "command-monitoring-tests"
