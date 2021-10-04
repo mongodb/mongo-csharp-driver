@@ -1378,11 +1378,10 @@ buildvariants:
      - name: test-netstandard21
 
 - matrix_name: "tests-snappy-compression-macOS"
-  matrix_spec: { compressor : "snappy", auth: "noauth", ssl: "nossl", version: ["3.6", "4.0", "4.2", "4.4", "5.0", "latest"], topology: "standalone", os: "macos-1014" }
+  matrix_spec: { compressor : "snappy", auth: "noauth", ssl: "nossl", version: ["5.0", "latest"], topology: "standalone", os: "macos-1014" }
   display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
   tags: ["tests-variant"]
   tasks:
-     - name: test-netstandard20
      - name: test-netstandard21
 
 - matrix_name: "tests-zstandard-compression"
@@ -1403,11 +1402,10 @@ buildvariants:
      - name: test-netstandard21
 
 - matrix_name: "tests-zstandard-compression-macOS"
-  matrix_spec: { compressor : "zstandard", auth: "noauth", ssl: "nossl", version: ["3.6", "4.0", "4.2", "4.4", "5.0", "latest"], topology: "standalone", os: "macos-1014" }
+  matrix_spec: { compressor : "zstandard", auth: "noauth", ssl: "nossl", version: ["5.0", "latest"], topology: "standalone", os: "macos-1014" }
   display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
   tags: ["tests-variant"]
   tasks:
-     - name: test-netstandard20
      - name: test-netstandard21
 
   # ubuntu 18 does not support SSL until 4.0
@@ -1428,19 +1426,17 @@ buildvariants:
      - name: test-netstandard21
 
 - matrix_name: "secure-tests-macOS"
-  matrix_spec: { version: ["3.6", "4.0", "4.2", "4.4", "5.0", "latest"], topology: "*", auth: "auth", ssl: "ssl", os: "macos-1014" }
+  matrix_spec: { version: ["5.0", "latest"], topology: "replicaset", auth: "auth", ssl: "ssl", os: "macos-1014" }
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
   tasks:
-     - name: test-netstandard20
      - name: test-netstandard21
 
 - matrix_name: "unsecure-tests-macOS"
-  matrix_spec: { version: "*", topology: "*", auth: "noauth", ssl: "nossl", os: "macos-1014" }
+  matrix_spec: { version: ["5.0", "latest"], topology: "replicaset", auth: "noauth", ssl: "nossl", os: "macos-1014" }
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
   tasks:
-     - name: test-netstandard20
      - name: test-netstandard21
 
 - matrix_name: "tests-zlib-compression-posix"
@@ -1501,13 +1497,6 @@ buildvariants:
   display_name: "Serverless ${compressor} ${auth} ${ssl} ${os}"
   tasks:
     - name: test-serverless-net472
-    - name: test-serverless-netstandard20
-    - name: test-serverless-netstandard21
-
-- matrix_name: serverless-tests-macos
-  matrix_spec: { auth: "auth", ssl: "ssl", compressor: "zlib", os: "macos-1014" }
-  display_name: "Serverless ${compressor} ${auth} ${ssl} ${os}"
-  tasks:
     - name: test-serverless-netstandard20
     - name: test-serverless-netstandard21
 
