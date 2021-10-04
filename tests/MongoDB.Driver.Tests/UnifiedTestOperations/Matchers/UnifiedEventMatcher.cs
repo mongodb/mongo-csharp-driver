@@ -20,6 +20,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using Xunit.Sdk;
 
@@ -113,6 +114,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                                 case "hasServiceId":
                                     commandStartedEvent.ServiceId.Should().Match<ObjectId?>(s => s.HasValue == element.Value.ToBoolean());
                                     break;
+                                case "hasServerConnectionId":
+                                    AssertHasServerConnectionId(commandStartedEvent.ConnectionId, element.Value.ToBoolean());
+                                    break;
                                 default:
                                     throw new FormatException($"Unexpected commandStartedEvent field: '{element.Name}'.");
                             }
@@ -133,6 +137,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                                 case "hasServiceId":
                                     commandSucceededEvent.ServiceId.Should().Match<ObjectId?>(s => s.HasValue == element.Value.ToBoolean());
                                     break;
+                                case "hasServerConnectionId":
+                                    AssertHasServerConnectionId(commandSucceededEvent.ConnectionId, element.Value.ToBoolean());
+                                    break;
                                 default:
                                     throw new FormatException($"Unexpected commandStartedEvent field: '{element.Name}'.");
                             }
@@ -149,6 +156,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                                     break;
                                 case "hasServiceId":
                                     commandFailedEvent.ServiceId.Should().Match<ObjectId?>(s => s.HasValue == element.Value.ToBoolean());
+                                    break;
+                                case "hasServerConnectionId":
+                                    AssertHasServerConnectionId(commandFailedEvent.ConnectionId, element.Value.ToBoolean());
                                     break;
                                 default:
                                     throw new FormatException($"Unexpected commandStartedEvent field: '{element.Name}'.");
@@ -219,6 +229,16 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                         break;
                     default:
                         throw new FormatException($"Unrecognized event type: '{expectedEventType}'.");
+                }
+            }
+
+            void AssertHasServerConnectionId(ConnectionId connectionId, bool value)
+            {
+                // in c# we have fallback logic to get a server connectionId based on an additional getLastError call which is not expected by the spec.
+                // So even though servers less than 4.2 don't provide connectionId, we still have this value through getLastError, so don't assert hasServerConnectionId=false.
+                if (value)
+                {
+                    connectionId.ServerValue.Should().HaveValue();
                 }
             }
         }
