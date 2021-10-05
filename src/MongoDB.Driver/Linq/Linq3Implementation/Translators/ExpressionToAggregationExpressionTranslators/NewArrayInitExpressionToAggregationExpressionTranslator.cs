@@ -15,7 +15,6 @@
 
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators
@@ -31,7 +30,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 items.Add(itemTranslation.Ast);
             }
             var ast = AstExpression.ComputedArray(items);
-            var serializer = BsonSerializer.LookupSerializer(expression.Type); // TODO: find known serializer
+            var serializer = context.KnownSerializersRegistry.GetSerializer(expression);
             return new AggregationExpression(expression, ast, serializer);
         }
     }

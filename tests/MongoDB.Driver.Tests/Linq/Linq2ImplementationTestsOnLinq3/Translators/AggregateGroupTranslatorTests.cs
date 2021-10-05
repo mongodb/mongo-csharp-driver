@@ -20,11 +20,11 @@ using System.Linq.Expressions;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using MongoDB.Driver;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq.Linq3Implementation;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers;
+using MongoDB.Driver.Linq.Linq3Implementation.Serializers.KnownSerializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipelineTranslators;
 using MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3;
@@ -553,7 +553,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsTestsOnLinq3.Transla
                 .GroupBy(idProjector)
                 .Select(groupProjector);
 
-            var context = new TranslationContext();
+            var collectionSerializer = (IBsonDocumentSerializer)BsonSerializer.LookupSerializer<Root>();
+            var knownSerializersRegistry = KnownSerializerFinder.FindKnownSerializers(queryable.Expression, collectionSerializer);
+            var context = new TranslationContext(knownSerializersRegistry);
             var pipeline = ExpressionToPipelineTranslator.Translate(context, queryable.Expression);
             pipeline = AstPipelineOptimizer.Optimize(pipeline);
 

@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,28 +18,37 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
+using MongoDB.Driver.Linq.Linq3Implementation.Serializers.KnownSerializers;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
 {
     internal class TranslationContext
     {
         // private fields
+        private readonly KnownSerializersRegistry _knownKnownSerializersRegistry;
         private readonly NameGenerator _nameGenerator;
         private readonly SymbolTable _symbolTable;
 
         // constructors
         public TranslationContext()
-            : this(new SymbolTable(), new NameGenerator())
+            : this(new SymbolTable(), new NameGenerator(), new KnownSerializersRegistry())
         {
         }
 
-        public TranslationContext(SymbolTable symbolTable, NameGenerator nameGenerator)
+        public TranslationContext(KnownSerializersRegistry knownSerializersRegistry)
+            : this(new SymbolTable(), new NameGenerator(), knownSerializersRegistry)
+        {
+        }
+
+        private TranslationContext(SymbolTable symbolTable, NameGenerator nameGenerator, KnownSerializersRegistry knownSerializersRegistry)
         {
             _symbolTable = Ensure.IsNotNull(symbolTable, nameof(symbolTable));
             _nameGenerator = Ensure.IsNotNull(nameGenerator, nameof(nameGenerator));
+            _knownKnownSerializersRegistry = Ensure.IsNotNull(knownSerializersRegistry, nameof(knownSerializersRegistry));
         }
 
         // public properties
+        public KnownSerializersRegistry KnownSerializersRegistry => _knownKnownSerializersRegistry;
         public NameGenerator NameGenerator => _nameGenerator;
         public SymbolTable SymbolTable => _symbolTable;
 
@@ -104,7 +113,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
 
         public TranslationContext WithSymbolTable(SymbolTable symbolTable)
         {
-            return new TranslationContext(symbolTable, _nameGenerator);
+            return new TranslationContext(symbolTable, _nameGenerator, _knownKnownSerializersRegistry);
         }
     }
 }

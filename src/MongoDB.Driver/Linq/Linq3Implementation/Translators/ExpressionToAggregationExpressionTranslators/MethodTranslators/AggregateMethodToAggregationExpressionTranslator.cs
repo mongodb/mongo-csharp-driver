@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,9 +13,9 @@
 * limitations under the License.
 */
 
+using System;
 using System.Linq.Expressions;
 using System.Reflection;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
@@ -74,7 +74,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     var funcLambda = (LambdaExpression)arguments[2];
                     var funcParameters = funcLambda.Parameters;
                     var accumulatorParameter = funcParameters[0];
-                    var accumulatorSerializer = BsonSerializer.LookupSerializer(accumulatorParameter.Type); // TODO: use known serializer
+                    var accumulatorSerializer = context.KnownSerializersRegistry.GetSerializer(accumulatorParameter);
                     var accumulatorSymbol = context.CreateSymbolWithVarName(accumulatorParameter, varName: "value", accumulatorSerializer); // note: MQL uses $$value for the accumulator
                     var itemParameter = funcParameters[1];
                     var itemSymbol = context.CreateSymbolWithVarName(itemParameter, varName: "this", itemSerializer); // note: MQL uses $$this for the item being processed
@@ -91,7 +91,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     {
                         var resultSelectorLambda = (LambdaExpression)arguments[3];
                         var resultSelectorParameter = resultSelectorLambda.Parameters[0];
-                        var resultSelectorParameterSerializer = BsonSerializer.LookupSerializer(resultSelectorParameter.Type); // TODO: use known serializer
+                        var resultSelectorParameterSerializer = context.KnownSerializersRegistry.GetSerializer(resultSelectorParameter);
                         var resultSelectorSymbol = context.CreateSymbol(resultSelectorParameter, resultSelectorParameterSerializer);
                         var resultSelectorContext = context.WithSymbol(resultSelectorSymbol);
                         var resultSelectorTranslation = ExpressionToAggregationExpressionTranslator.Translate(resultSelectorContext, resultSelectorLambda.Body);
@@ -99,7 +99,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                         ast = AstExpression.Let(
                             var: AstExpression.VarBinding(resultSelectorSymbol.Var, ast),
                             @in: resultSelectorTranslation.Ast);
-                        serializer = BsonSerializer.LookupSerializer(resultSelectorLambda.ReturnType); // TODO: use known serializer
+                        serializer = context.KnownSerializersRegistry.GetSerializer(resultSelectorLambda);
                     }
 
                     return new AggregationExpression(expression, ast, serializer);

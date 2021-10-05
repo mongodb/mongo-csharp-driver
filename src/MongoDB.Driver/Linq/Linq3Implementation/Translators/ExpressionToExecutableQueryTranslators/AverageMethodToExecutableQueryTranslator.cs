@@ -16,9 +16,9 @@
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Stages;
@@ -136,8 +136,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
                     valueExpression = AstExpression.GetField(root, "_v");
                 }
 
-                var outputValueType = expression.GetResultType();
-                var outputValueSerializer = BsonSerializer.LookupSerializer(outputValueType); // TODO: use known serializer
+                IBsonSerializer outputValueSerializer = expression.GetResultType() switch
+                {
+                    Type t when t == typeof(int) => new Int32Serializer(),
+                    Type t when t == typeof(long) => new Int64Serializer(),
+                    Type t when t == typeof(float) => new SingleSerializer(),
+                    Type t when t == typeof(double) => new DoubleSerializer(),
+                    Type t when t == typeof(decimal) => new DecimalSerializer(),
+                    Type { IsConstructedGenericType: true } t when t.GetGenericTypeDefinition() == typeof(Nullable<>) => (IBsonSerializer)Activator.CreateInstance(typeof(NullableSerializer<>).MakeGenericType(t.GenericTypeArguments[0])),
+                    _ => throw new ExpressionNotSupportedException(expression)
+                };
                 var outputWrappedValueSerializer = WrappedValueSerializer.Create("_v", outputValueSerializer);
 
                 pipeline = pipeline.AddStages(

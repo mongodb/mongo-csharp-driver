@@ -14,7 +14,6 @@
 */
 
 using System.Linq.Expressions;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators
@@ -32,7 +31,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var ifFalseExpression = expression.IfFalse;
                 var ifFalseTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, ifFalseExpression);
                 var ast = AstExpression.Cond(testTranslation.Ast, ifTrueTranslation.Ast, ifFalseTranslation.Ast);
-                var serializer = BsonSerializer.LookupSerializer(expression.Type); // TODO: use known serializer
+                var serializer = context.KnownSerializersRegistry.GetSerializer(expression);
                 return new AggregationExpression(expression, ast, serializer);
             }
 

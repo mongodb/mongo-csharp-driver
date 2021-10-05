@@ -20,7 +20,6 @@ using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
-using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators
 {
@@ -62,6 +61,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
             var ast = AstExpression.ComputedDocument(computedFields);
             var serializerType = typeof(BsonClassMapSerializer<>).MakeGenericType(expression.Type);
+            // Note that we should use context.KnownSerializersRegistry to find the serializer,
+            // but the above implementation builds up computedFields during the mapping process.
+            // We need to figure out how to resolve the serializer from KnownSerializers and then
+            // populate computedFields from that resolved serializer.
             var serializer = (IBsonSerializer)Activator.CreateInstance(serializerType, classMap);
 
             return new AggregationExpression(expression, ast, serializer);

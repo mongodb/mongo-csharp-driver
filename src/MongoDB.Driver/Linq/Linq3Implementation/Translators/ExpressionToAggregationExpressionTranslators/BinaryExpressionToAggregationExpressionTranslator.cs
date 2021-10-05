@@ -13,8 +13,10 @@
 * limitations under the License.
 */
 
+using System;
 using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Support;
@@ -36,6 +38,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             {
                 leftExpression = ConvertHelper.RemoveWideningConvert(leftExpression);
                 rightExpression = ConvertHelper.RemoveWideningConvert(rightExpression);
+            }
+
+            if (IsEnumComparisonExpression(expression))
+            {
+                leftExpression = ConvertHelper.RemoveConvertToEnumUnderlyingType(leftExpression);
+                rightExpression = ConvertHelper.RemoveConvertToEnumUnderlyingType(rightExpression);
             }
 
             var leftTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, leftExpression);
@@ -64,7 +72,24 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 ExpressionType.Subtract => AstExpression.Subtract(leftTranslation.Ast, rightTranslation.Ast),
                 _ => throw new ExpressionNotSupportedException(expression)
             };
-            var serializer = BsonSerializer.LookupSerializer(expression.Type); // TODO: get correct serializer
+            var serializer = expression.Type switch
+            {
+                Type t when t == typeof(bool) => new BooleanSerializer(),
+                Type t when t == typeof(string) => new StringSerializer(),
+                Type t when t == typeof(byte) => new ByteSerializer(),
+                Type t when t == typeof(short) => new Int16Serializer(),
+                Type t when t == typeof(ushort) => new UInt16Serializer(),
+                Type t when t == typeof(int) => new Int32Serializer(),
+                Type t when t == typeof(uint) => new UInt32Serializer(),
+                Type t when t == typeof(long) => new Int64Serializer(),
+                Type t when t == typeof(ulong) => new UInt64Serializer(),
+                Type t when t == typeof(float) => new SingleSerializer(),
+                Type t when t == typeof(double) => new DoubleSerializer(),
+                Type t when t == typeof(decimal) => new DecimalSerializer(),
+                Type { IsConstructedGenericType: true } t when t.GetGenericTypeDefinition() == typeof(Nullable<>) => (IBsonSerializer)Activator.CreateInstance(typeof(NullableSerializer<>).MakeGenericType(t.GenericTypeArguments[0])),
+                Type { IsArray: true } t => (IBsonSerializer)Activator.CreateInstance(typeof(ArraySerializer<>).MakeGenericType(t.GetElementType())),
+                _ => context.KnownSerializersRegistry.GetSerializer(expression) // Required for Coalesce
+            };
 
             return new AggregationExpression(expression, ast, serializer);
         }
@@ -86,6 +111,40 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 ExpressionType.Subtract => true,
                 _ => false
             };
+        }
+
+        private static bool IsComparisonOperator(ExpressionType nodeType)
+        {
+            return nodeType switch
+            {
+                ExpressionType.Equal => true,
+                ExpressionType.GreaterThan => true,
+                ExpressionType.GreaterThanOrEqual => true,
+                ExpressionType.LessThan => true,
+                ExpressionType.LessThanOrEqual => true,
+                ExpressionType.NotEqual => true,
+                _ => false
+            };
+        }
+
+        private static bool IsEnumComparisonExpression(BinaryExpression expression)
+        {
+            return
+                IsComparisonOperator(expression.NodeType) &&
+                (IsConvertToEnumUnderlyingType(expression.Left) || IsConvertToEnumUnderlyingType(expression.Right));
+
+            static bool IsConvertToEnumUnderlyingType(Expression expression)
+            {
+                if (expression.NodeType == ExpressionType.Convert)
+                {
+                    var convertExpression = (UnaryExpression)expression;
+                    var sourceType = convertExpression.Operand.Type;
+                    var targetType = convertExpression.Type;
+                    return sourceType.IsEnum() && targetType == Enum.GetUnderlyingType(sourceType);
+                }
+
+                return false;
+            }
         }
 
         private static bool IsStringConcatenationExpression(BinaryExpression expression)

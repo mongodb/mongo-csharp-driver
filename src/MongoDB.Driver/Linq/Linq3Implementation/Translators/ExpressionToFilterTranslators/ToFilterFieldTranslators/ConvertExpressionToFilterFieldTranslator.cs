@@ -48,7 +48,20 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
 
                 if (IsNumericType(targetType))
                 {
-                    var targetTypeSerializer = BsonSerializer.LookupSerializer(targetType); // TODO: use known serializer
+                    IBsonSerializer targetTypeSerializer = expression.Type switch
+                    {
+                        Type t when t == typeof(byte) => new ByteSerializer(),
+                        Type t when t == typeof(short) => new Int16Serializer(),
+                        Type t when t == typeof(ushort) => new UInt16Serializer(),
+                        Type t when t == typeof(int) => new Int32Serializer(),
+                        Type t when t == typeof(uint) => new UInt32Serializer(),
+                        Type t when t == typeof(long) => new Int64Serializer(),
+                        Type t when t == typeof(ulong) => new UInt64Serializer(),
+                        Type t when t == typeof(float) => new SingleSerializer(),
+                        Type t when t == typeof(double) => new DoubleSerializer(),
+                        Type t when t == typeof(decimal) => new DecimalSerializer(),
+                        _ => throw new ExpressionNotSupportedException(expression)
+                    };
                     if (fieldSerializer is IRepresentationConfigurable representationConfigurableFieldSerializer &&
                         targetTypeSerializer is IRepresentationConfigurable representationConfigurableTargetTypeSerializer)
                     {

@@ -13,8 +13,10 @@
 * limitations under the License.
 */
 
+using System;
 using System.Linq.Expressions;
 using System.Reflection;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
@@ -55,7 +57,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var millisecondTranslation = millisecondExpression != null ? ExpressionToAggregationExpressionTranslator.Translate(context, millisecondExpression) : null;
 
                 var ast = AstExpression.DateFromParts(yearTranslation.Ast, monthTranslation.Ast, dayTranslation.Ast, hourTranslation?.Ast, minuteTranslation?.Ast, secondTranslation?.Ast, millisecondTranslation?.Ast);
-                var serializer = new DateTimeSerializer(); // TODO: get correct serializer;
+                var serializer = context.KnownSerializersRegistry.GetSerializer(expression);
 
                 return new AggregationExpression(expression, ast, serializer);
             }

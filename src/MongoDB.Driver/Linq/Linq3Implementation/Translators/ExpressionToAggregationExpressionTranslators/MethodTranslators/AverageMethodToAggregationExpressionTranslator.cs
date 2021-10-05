@@ -13,9 +13,11 @@
 * limitations under the License.
 */
 
+using System;
 using System.Linq.Expressions;
 using System.Reflection;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
@@ -92,7 +94,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 {
                     ast = AstExpression.Avg(sourceTranslation.Ast);
                 }
-                var serializer = BsonSerializer.LookupSerializer(expression.Type); // TODO: find more specific serializer?
+                IBsonSerializer serializer = expression.Type switch
+                {
+                    Type t when t == typeof(int) => new Int32Serializer(),
+                    Type t when t == typeof(long) => new Int64Serializer(),
+                    Type t when t == typeof(float) => new SingleSerializer(),
+                    Type t when t == typeof(double) => new DoubleSerializer(),
+                    Type t when t == typeof(decimal) => new DecimalSerializer(),
+                    Type { IsConstructedGenericType: true } t when t.GetGenericTypeDefinition() == typeof(Nullable<>) => (IBsonSerializer)Activator.CreateInstance(typeof(NullableSerializer<>).MakeGenericType(t.GenericTypeArguments[0])),
+                    _ => throw new ExpressionNotSupportedException(expression)
+                };
 
                 return new AggregationExpression(expression, ast, serializer);
             }

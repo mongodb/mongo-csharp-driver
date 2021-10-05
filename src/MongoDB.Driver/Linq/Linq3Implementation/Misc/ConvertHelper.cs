@@ -15,7 +15,6 @@
 
 using System;
 using System.Linq.Expressions;
-using MongoDB.Driver.Linq;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 {
@@ -35,6 +34,22 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             }
 
             throw new ExpressionNotSupportedException(expression);
+        }
+
+        public static Expression RemoveConvertToEnumUnderlyingType(Expression expression)
+        {
+            if (expression.NodeType == ExpressionType.Convert)
+            {
+                var convertExpression = (UnaryExpression)expression;
+                var sourceType = convertExpression.Operand.Type;
+                var targetType = convertExpression.Type;
+                if (sourceType.IsEnum() && targetType == Enum.GetUnderlyingType(sourceType))
+                {
+                    return convertExpression.Operand;
+                }
+            }
+
+            return expression;
         }
 
         public static Expression RemoveWideningConvert(Expression expression)

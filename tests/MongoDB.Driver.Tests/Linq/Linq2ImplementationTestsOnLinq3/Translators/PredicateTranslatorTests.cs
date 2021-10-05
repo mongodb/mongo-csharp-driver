@@ -25,6 +25,7 @@ using MongoDB.Driver;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq.Linq3Implementation;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
+using MongoDB.Driver.Linq.Linq3Implementation.Serializers.KnownSerializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilterTranslators;
 using Xunit;
@@ -1158,7 +1159,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
 
             var serializer = BsonSerializer.SerializerRegistry.GetSerializer<TDocument>();
             var parameter = filter.Parameters.Single();
-            var context = new TranslationContext();
+            var knownSerializersRegistry = KnownSerializerFinder.FindKnownSerializers(filter, (IBsonDocumentSerializer)serializer);
+            var context = new TranslationContext(knownSerializersRegistry);
             var symbol = context.CreateSymbol(parameter, serializer, isCurrent: true);
             context = context.WithSymbol(symbol);
             var filterAst = ExpressionToFilterTranslator.Translate(context, filter.Body);

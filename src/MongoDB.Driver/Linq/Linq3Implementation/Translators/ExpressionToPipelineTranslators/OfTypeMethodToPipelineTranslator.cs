@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                 var discriminatorField = AstFilter.Field(discriminatorElementName, BsonValueSerializer.Instance);
                 var discriminatorValue = discriminatorConvention.GetDiscriminator(nominalType, actualType);
                 var filter = AstFilter.Eq(discriminatorField, discriminatorValue); // note: OfType only works with hierarchical discriminators
-                var actualSerializer = BsonSerializer.LookupSerializer(actualType); // TODO: use known serializer
+                var actualSerializer = context.KnownSerializersRegistry.GetSerializer(expression);
                 if (wrappedValueOutputSerializer != null)
                 {
                     actualSerializer = WrappedValueSerializer.Create(wrappedValueOutputSerializer.FieldName, actualSerializer);

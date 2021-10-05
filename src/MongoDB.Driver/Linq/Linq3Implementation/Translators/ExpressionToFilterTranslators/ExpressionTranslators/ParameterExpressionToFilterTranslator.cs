@@ -14,7 +14,6 @@
 */
 
 using System.Linq.Expressions;
-using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilterTranslators.ExpressionTranslators
@@ -27,7 +26,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             {
                 if (context.SymbolTable.TryGetSymbol(expression, out var symbol))
                 {
-                    var field = AstFilter.Field(symbol.Name, new BooleanSerializer()); // TODO: use known serializer
+                    var serializer = context.KnownSerializersRegistry.GetSerializer(expression);
+                    var field = AstFilter.Field(symbol.Name, serializer);
                     return AstFilter.Eq(field, true);
                 }
             }

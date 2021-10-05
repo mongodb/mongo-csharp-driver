@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
 
@@ -23,24 +24,26 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers.KnownSerializers
     internal class KnownSerializersRegistry
     {
         // private fields
-        private readonly Dictionary<Expression, KnownSerializersNode> _registry = new Dictionary<Expression, KnownSerializersNode>();
+        private readonly Dictionary<Expression, KnownSerializersNode> _registry = new();
 
         // public methods
         public void Add(Expression expression, KnownSerializersNode knownSerializers)
         {
+            if (_registry.ContainsKey(expression)) return;
+
             _registry.Add(expression, knownSerializers);
         }
 
-        public HashSet<IBsonSerializer> GetPossibleSerializers(Expression expression, Type type)
+        public IBsonSerializer GetSerializer(Expression expression, IBsonSerializer defaultSerializer = null)
         {
-            if (_registry.TryGetValue(expression, out var knownSerializers))
+            var expressionType = expression is LambdaExpression lambdaExpression ? lambdaExpression.ReturnType : expression.Type;
+            var possibleSerializers = _registry.TryGetValue(expression, out var knownSerializers) ? knownSerializers.GetPossibleSerializers(expressionType) : new HashSet<IBsonSerializer>();
+            return possibleSerializers.Count switch
             {
-                return knownSerializers.GetPossibleSerializers(type);
-            }
-            else
-            {
-                return new HashSet<IBsonSerializer>();
-            }
+                0 => defaultSerializer ?? throw new InvalidOperationException($"Cannot find serializer for {expression}."),
+                > 1 => throw new InvalidOperationException($"More than one possible serializer found for {expression}."),
+                _ => possibleSerializers.First()
+            };
         }
     }
 }

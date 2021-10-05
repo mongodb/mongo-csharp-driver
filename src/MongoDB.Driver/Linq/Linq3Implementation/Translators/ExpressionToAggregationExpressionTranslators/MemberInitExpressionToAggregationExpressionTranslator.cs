@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -59,7 +58,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 }
 
                 var ast = AstExpression.ComputedDocument(computedFields);
-                var serializer = BsonSerializer.LookupSerializer(expression.Type); // TODO: generate serializer?
+                var serializer = context.KnownSerializersRegistry.GetSerializer(expression);
                 return new AggregationExpression(expression, ast, serializer);
             }
 

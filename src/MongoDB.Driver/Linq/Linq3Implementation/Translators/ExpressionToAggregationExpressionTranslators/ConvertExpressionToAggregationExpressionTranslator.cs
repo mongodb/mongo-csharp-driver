@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 }
 
                 var ast = AstExpression.Convert(operandTranslation.Ast, expressionType);
-                var serializer = BsonSerializer.SerializerRegistry.GetSerializer(expressionType); // TODO: find correct serializer
+                var serializer = context.KnownSerializersRegistry.GetSerializer(expression);
                 return new AggregationExpression(expression, ast, serializer);
             }
 
