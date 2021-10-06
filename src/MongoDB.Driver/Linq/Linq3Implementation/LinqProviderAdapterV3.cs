@@ -73,9 +73,22 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
             var context = TranslationContext.Create(expression, documentSerializer);
             var symbol = context.CreateSymbol(parameter, documentSerializer, isCurrent: true);
             context = context.WithSymbol(symbol);
-            var field = ExpressionToFilterFieldTranslator.Translate(context, expression.Body);
+            var body = RemovePossibleConvertToObject(expression.Body);
+            var field = ExpressionToFilterFieldTranslator.Translate(context, body);
 
             return new RenderedFieldDefinition(field.Path, field.Serializer);
+
+            static Expression RemovePossibleConvertToObject(Expression expression)
+            {
+                if (expression is UnaryExpression unaryExpression &&
+                    unaryExpression.NodeType == ExpressionType.Convert &&
+                    unaryExpression.Type == typeof(object))
+                {
+                    return unaryExpression.Operand;
+                }
+
+                return expression;
+            }
         }
 
         internal override RenderedFieldDefinition<TField> TranslateExpressionToField<TDocument, TField>(

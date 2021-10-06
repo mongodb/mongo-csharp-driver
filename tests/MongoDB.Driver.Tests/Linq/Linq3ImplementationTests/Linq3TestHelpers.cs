@@ -13,9 +13,12 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq.Linq3Implementation;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecutableQueryTranslators;
 
@@ -23,23 +26,39 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests
 {
     public static class Linq3TestHelpers
     {
-        public static void AssertStages(BsonDocument[] stages, string[] expectedStages)
+        public static void AssertStages(IEnumerable<BsonDocument> stages, IEnumerable<string> expectedStages)
         {
             stages.Should().Equal(expectedStages.Select(json => BsonDocument.Parse(json)));
         }
 
+        public static List<BsonDocument> Translate<TDocument, TResult>(IMongoCollection<TDocument> collection, IAggregateFluent<TResult> aggregate)
+        {
+            var renderedStages = new List<BsonDocument>();
+
+            IBsonSerializer inputSerializer = collection.DocumentSerializer;
+            var serializerRegistry = BsonSerializer.SerializerRegistry;
+            foreach (var stage in aggregate.Stages)
+            {
+                var renderedStage = stage.Render(inputSerializer, serializerRegistry, LinqProvider.V3);
+                renderedStages.Add(renderedStage.Document);
+                inputSerializer = renderedStage.OutputSerializer;
+            }
+
+            return renderedStages;
+        }
+
         // in this overload the collection argument is used only to infer the TDocument type
-        public static BsonDocument[] Translate<TDocument, TResult>(IMongoCollection<TDocument> collection, IQueryable<TResult> queryable)
+        public static List<BsonDocument> Translate<TDocument, TResult>(IMongoCollection<TDocument> collection, IQueryable<TResult> queryable)
         {
             return Translate<TDocument, TResult>(queryable);
         }
 
-        public static BsonDocument[] Translate<TDocument, TResult>(IQueryable<TResult> queryable)
+        public static List<BsonDocument> Translate<TDocument, TResult>(IQueryable<TResult> queryable)
         {
             var provider = (MongoQueryProvider<TDocument>)queryable.Provider;
             var executableQuery = ExpressionToExecutableQueryTranslator.Translate<TDocument, TResult>(provider, queryable.Expression);
             var stages = executableQuery.Pipeline.Stages;
-            return stages.Select(s => s.Render().AsBsonDocument).ToArray();
+            return stages.Select(s => s.Render().AsBsonDocument).ToList();
         }
     }
 }
