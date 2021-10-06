@@ -19,6 +19,7 @@ using System.Linq;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Linq;
 using MongoDB.Driver.TestHelpers;
 
 namespace MongoDB.Driver.Tests
@@ -34,6 +35,7 @@ namespace MongoDB.Driver.Tests
         private static CollectionNamespace __collectionNamespace;
         private static DatabaseNamespace __databaseNamespace;
         private static Lazy<IReadOnlyList<IMongoClient>> __directClientsToShardRouters;
+        private static Lazy<MongoClient> __linq3Client;
 
         // static constructor
         static DriverTestConfiguration()
@@ -45,6 +47,7 @@ namespace MongoDB.Driver.Tests
                 () => CreateDirectClientsToHostsInConnectionString(CoreTestConfiguration.ConnectionStringWithMultipleShardRouters).ToList().AsReadOnly(),
                 isThreadSafe: true);
             __collectionNamespace = new CollectionNamespace(__databaseNamespace, "testcollection");
+            __linq3Client = new Lazy<MongoClient>(CreateLinq3Client, isThreadSafe: true);
         }
 
         // public static properties
@@ -92,6 +95,14 @@ namespace MongoDB.Driver.Tests
         public static DatabaseNamespace DatabaseNamespace
         {
             get { return __databaseNamespace; }
+        }
+
+        /// <summary>
+        /// Gets the LINQ3 test client.
+        /// </summary>
+        public static MongoClient Linq3Client
+        {
+            get { return __linq3Client.Value; }
         }
 
         // public static methods
@@ -163,6 +174,13 @@ namespace MongoDB.Driver.Tests
         {
             EnsureUniqueCluster(settings);
             return new DisposableMongoClient(new MongoClient(settings));
+        }
+
+        private static MongoClient CreateLinq3Client()
+        {
+            var linq3ClientSettings = Client.Settings.Clone();
+            linq3ClientSettings.LinqProvider = LinqProvider.V3;
+            return new MongoClient(linq3ClientSettings);
         }
 
         public static MongoClientSettings GetClientSettings()
