@@ -115,7 +115,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             __modifierMethods = new[]
             {
                 StringMethod.ToLower,
+                StringMethod.ToLowerInvariant,
                 StringMethod.ToUpper,
+                StringMethod.ToUpperInvariant,
                 StringMethod.Trim,
                 StringMethod.TrimEnd,
                 StringMethod.TrimStart,
@@ -407,8 +409,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
         {
             switch (modifierExpression.Method.Name)
             {
-                case "ToLower": return TranslateToLower(modifiers, modifierExpression);
-                case "ToUpper": return TranslateToUpper(modifiers, modifierExpression);
+                case "ToLower": case "ToLowerInvariant": return TranslateToLower(modifiers, modifierExpression);
+                case "ToUpper": case "ToUpperInvariant": return TranslateToUpper(modifiers, modifierExpression);
                 case "Trim": return TranslateTrim(modifiers, modifierExpression);
                 case "TrimEnd": return TranslateTrimEnd(modifiers, modifierExpression);
                 case "TrimStart": return TranslateTrimStart(modifiers, modifierExpression);
