@@ -16,8 +16,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 
@@ -28,9 +26,18 @@ namespace MongoDB.Driver.Core.Bindings
     /// </summary>
     public sealed class ChannelReadWriteBinding : IReadWriteBinding
     {
+        #region static
+        internal static ChannelReadWriteBinding CreateChannelReadWriteBindingWithReadPreference(IServer server, IChannelHandle channel, ICoreSessionHandle session, ReadPreference readPreference)
+        {
+            // this is a really special case for operations that consider own rules to determine whether the server is writable or no
+            return new ChannelReadWriteBinding(server, channel, session, readPreference);
+        }
+        #endregion
+
         // fields
         private readonly IChannelHandle _channel;
         private bool _disposed;
+        private readonly ReadPreference _readPreference;
         private readonly IServer _server;
         private readonly ICoreSessionHandle _session;
 
@@ -42,9 +49,15 @@ namespace MongoDB.Driver.Core.Bindings
         /// <param name="channel">The channel.</param>
         /// <param name="session">The session.</param>
         public ChannelReadWriteBinding(IServer server, IChannelHandle channel, ICoreSessionHandle session)
+            : this(server, channel, session, ReadPreference.Primary)
+        {
+        }
+
+        internal ChannelReadWriteBinding(IServer server, IChannelHandle channel, ICoreSessionHandle session, ReadPreference readPreference)
         {
             _server = Ensure.IsNotNull(server, nameof(server));
             _channel = Ensure.IsNotNull(channel, nameof(channel));
+            _readPreference = Ensure.IsNotNull(readPreference, nameof(readPreference));
             _session = Ensure.IsNotNull(session, nameof(session));
         }
 
@@ -52,7 +65,7 @@ namespace MongoDB.Driver.Core.Bindings
         /// <inheritdoc/>
         public ReadPreference ReadPreference
         {
-            get { return ReadPreference.Primary; }
+            get { return _readPreference; }
         }
 
         /// <inheritdoc/>

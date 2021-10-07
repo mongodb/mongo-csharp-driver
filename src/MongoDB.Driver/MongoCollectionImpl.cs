@@ -105,7 +105,7 @@ namespace MongoDB.Driver
             if (lastStage != null && (lastStageName == "$out" || lastStageName == "$merge"))
             {
                 var aggregateOperation = CreateAggregateToCollectionOperation(renderedPipeline, options);
-                ExecuteWriteOperation(session, aggregateOperation, cancellationToken);
+                ExecuteAggregateOutOperation(session, aggregateOperation, cancellationToken);
 
                 // we want to delay execution of the find because the user may
                 // not want to iterate the results at all...
@@ -113,8 +113,8 @@ namespace MongoDB.Driver
                 var forkedSession = session.Fork();
                 var deferredCursor = new DeferredAsyncCursor<TResult>(
                     () => forkedSession.Dispose(),
-                    ct => ExecuteReadOperation(forkedSession, findOperation, ReadPreference.Primary, ct),
-                    ct => ExecuteReadOperationAsync(forkedSession, findOperation, ReadPreference.Primary, ct));
+                    ct => ExecuteReadOperation(forkedSession, findOperation, aggregateOperation.EffectiveReadPreference, ct),
+                    ct => ExecuteReadOperationAsync(forkedSession, findOperation, aggregateOperation.EffectiveReadPreference, ct));
                 return deferredCursor;
             }
             else
@@ -140,7 +140,7 @@ namespace MongoDB.Driver
             if (lastStage != null && (lastStageName == "$out" || lastStageName == "$merge"))
             {
                 var aggregateOperation = CreateAggregateToCollectionOperation(renderedPipeline, options);
-                await ExecuteWriteOperationAsync(session, aggregateOperation, cancellationToken).ConfigureAwait(false);
+                await ExecuteAggregateOutOperationAsync(session, aggregateOperation, cancellationToken).ConfigureAwait(false);
 
                 // we want to delay execution of the find because the user may
                 // not want to iterate the results at all...
@@ -148,8 +148,8 @@ namespace MongoDB.Driver
                 var forkedSession = session.Fork();
                 var deferredCursor = new DeferredAsyncCursor<TResult>(
                     () => forkedSession.Dispose(),
-                    ct => ExecuteReadOperation(forkedSession, findOperation, ReadPreference.Primary, ct),
-                    ct => ExecuteReadOperationAsync(forkedSession, findOperation, ReadPreference.Primary, ct));
+                    ct => ExecuteReadOperation(forkedSession, findOperation, aggregateOperation.EffectiveReadPreference, ct),
+                    ct => ExecuteReadOperationAsync(forkedSession, findOperation, aggregateOperation.EffectiveReadPreference, ct));
                 return await Task.FromResult<IAsyncCursor<TResult>>(deferredCursor).ConfigureAwait(false);
             }
             else
@@ -178,7 +178,7 @@ namespace MongoDB.Driver
             }
 
             var aggregateOperation = CreateAggregateToCollectionOperation(renderedPipeline, options);
-            ExecuteWriteOperation(session, aggregateOperation, cancellationToken);
+            ExecuteAggregateOutOperation(session, aggregateOperation, cancellationToken);
         }
 
         public override Task AggregateToCollectionAsync<TResult>(PipelineDefinition<TDocument, TResult> pipeline, AggregateOptions options, CancellationToken cancellationToken = default(CancellationToken))
@@ -200,7 +200,7 @@ namespace MongoDB.Driver
             }
 
             var aggregateOperation = CreateAggregateToCollectionOperation(renderedPipeline, options);
-            await ExecuteWriteOperationAsync(session, aggregateOperation, cancellationToken).ConfigureAwait(false);
+            await ExecuteAggregateOutOperationAsync(session, aggregateOperation, cancellationToken).ConfigureAwait(false);
         }
 
         public override BulkWriteResult<TDocument> BulkWrite(IEnumerable<WriteModel<TDocument>> requests, BulkWriteOptions options, CancellationToken cancellationToken = default(CancellationToken))
@@ -875,7 +875,8 @@ namespace MongoDB.Driver
                 Let = options.Let,
                 MaxTime = options.MaxTime,
                 ReadConcern = _settings.ReadConcern,
-                WriteConcern = _settings.WriteConcern
+                WriteConcern = _settings.WriteConcern,
+                InitialReadPreference = _settings.ReadPreference
             };
         }
 
@@ -1259,6 +1260,22 @@ namespace MongoDB.Driver
             using (var binding = CreateReadWriteBinding(session))
             {
                 return await _operationExecutor.ExecuteWriteOperationAsync(binding, operation, cancellationToken).ConfigureAwait(false);
+            }
+        }
+
+        private void ExecuteAggregateOutOperation(IClientSessionHandle session, AggregateToCollectionOperation operation, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            using (var binding = operation.CreateReadWriteBinding(_cluster, session.WrappedCoreSession.Fork()))
+            {
+                _operationExecutor.ExecuteWriteOperation(binding, operation, cancellationToken);
+            }
+        }
+
+        private async Task ExecuteAggregateOutOperationAsync(IClientSessionHandle session, AggregateToCollectionOperation operation, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            using (var binding = operation.CreateReadWriteBinding(_cluster, session.WrappedCoreSession.Fork()))
+            {
+                await _operationExecutor.ExecuteWriteOperationAsync(binding, operation, cancellationToken).ConfigureAwait(false);
             }
         }
 

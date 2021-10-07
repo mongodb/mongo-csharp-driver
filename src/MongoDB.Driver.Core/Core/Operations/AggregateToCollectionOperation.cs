@@ -21,8 +21,11 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using MongoDB.Shared;
 
@@ -40,7 +43,9 @@ namespace MongoDB.Driver.Core.Operations
         private readonly CollectionNamespace _collectionNamespace;
         private string _comment;
         private readonly DatabaseNamespace _databaseNamespace;
+        private ReadPreference _effectiveReadPreference;
         private BsonValue _hint;
+        private ReadPreference _initialReadPreference;
         private BsonDocument _let;
         private TimeSpan? _maxTime;
         private readonly MessageEncoderSettings _messageEncoderSettings;
@@ -149,6 +154,14 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <summary>
+        /// The effective read preference.
+        /// </summary>
+        public ReadPreference EffectiveReadPreference
+        {
+            get { return _effectiveReadPreference ?? _initialReadPreference; }
+        }
+
+        /// <summary>
         /// Gets or sets the hint. This must either be a BsonString representing the index name or a BsonDocument representing the key pattern of the index.
         /// </summary>
         /// <value>
@@ -158,6 +171,15 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _hint; }
             set { _hint = value; }
+        }
+
+        /// <summary>
+        /// The initial read preference.
+        /// </summary>
+        public ReadPreference InitialReadPreference
+        {
+            get { return _initialReadPreference; }
+            set { _initialReadPreference = value; }
         }
 
         /// <summary>
@@ -240,11 +262,14 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (var channelSource = binding.GetWriteChannelSource(cancellationToken))
-            using (var channel = channelSource.GetChannel(cancellationToken))
-            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
-                var operation = CreateOperation(channelBinding.Session, channel.ConnectionDescription);
-                return operation.Execute(channelBinding, cancellationToken);
+                _effectiveReadPreference = GetEffectiveReadPreference(channelSource.ServerDescription);
+                using (var channel = channelSource.GetChannel(cancellationToken))
+                using (var channelBinding = ChannelReadWriteBinding.CreateChannelReadWriteBindingWithReadPreference(channelSource.Server, channel, binding.Session.Fork(), _effectiveReadPreference))
+                {
+                    var operation = CreateWriteOperation(channelBinding.Session, channel.ConnectionDescription, _effectiveReadPreference);
+                    return operation.Execute(channelBinding, cancellationToken);
+                }
             }
         }
 
@@ -254,11 +279,57 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsNotNull(binding, nameof(binding));
 
             using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationToken).ConfigureAwait(false))
-            using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
-            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
-                var operation = CreateOperation(channelBinding.Session, channel.ConnectionDescription);
-                return await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
+                _effectiveReadPreference = GetEffectiveReadPreference(channelSource.ServerDescription);
+                using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
+                using (var channelBinding = ChannelReadWriteBinding.CreateChannelReadWriteBindingWithReadPreference(channelSource.Server, channel, binding.Session.Fork(), _effectiveReadPreference))
+                {
+                    var operation = CreateWriteOperation(channelBinding.Session, channel.ConnectionDescription, _effectiveReadPreference);
+                    return await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Create $out/$merge related read write binding.
+        /// </summary>
+        /// <param name="cluster">The cluster.</param>
+        /// <param name="session">The session.</param>
+        /// <returns>A read write binding.</returns>
+        public IReadWriteBinding CreateReadWriteBinding(ICluster cluster, ICoreSessionHandle session)
+        {
+            if (!ChannelPinningHelper.TryCreatePinnedReadWriteBinding(cluster, session, out var readWriteBinding))
+            {
+                var customServerSelector = new DelegateServerSelector(
+                    (c, s) =>
+                    {
+                        IServerSelector serverSelector;
+                        if (ChannelPinningHelper.IsInLoadBalancedMode(c) || Feature.AggregateOutOnSecondary.IsSupported(s.Max(i => i.Version)))
+                        {
+                            serverSelector = new ReadPreferenceServerSelector(_initialReadPreference);
+                        }
+                        else
+                        {
+                            serverSelector = WritableServerSelector.Instance;
+                        }
+                        return serverSelector.SelectServers(c, s);
+                    });
+
+                readWriteBinding = WritableServerBinding.CreateCustomWritableServerBinding(cluster, session, customServerSelector, _initialReadPreference);
+            }
+
+            return new ReadWriteBindingHandle(readWriteBinding);
+        }
+
+        private ReadPreference GetEffectiveReadPreference(ServerDescription serverDescription)
+        {
+            if (_initialReadPreference != null && (ChannelPinningHelper.IsInLoadBalancedMode(serverDescription) || Feature.AggregateOutOnSecondary.IsSupported(serverDescription.Version)))
+            {
+                return _initialReadPreference;
+            }
+            else
+            {
+                return ReadPreference.Primary;
             }
         }
 
@@ -288,10 +359,15 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
-        private WriteCommandOperation<BsonDocument> CreateOperation(ICoreSessionHandle session, ConnectionDescription connectionDescription)
+        private WriteCommandOperation<BsonDocument> CreateWriteOperation(ICoreSessionHandle session, ConnectionDescription connectionDescription, ReadPreference readPreference)
         {
             var command = CreateCommand(session, connectionDescription);
-            return new WriteCommandOperation<BsonDocument>(CollectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, MessageEncoderSettings);
+            return WriteCommandOperation<BsonDocument>.CreateWriteCommandOperationWithReadPreference(
+                CollectionNamespace?.DatabaseNamespace ?? _databaseNamespace,
+                command,
+                BsonDocumentSerializer.Instance,
+                readPreference: readPreference,
+                MessageEncoderSettings);
         }
 
         private void EnsureIsOutputToCollectionPipeline()

@@ -265,7 +265,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
         public UnifiedEntityMapBuilder(Dictionary<string, IEventFormatter> eventFormatters)
         {
-            _eventFormatters = eventFormatters ?? new ();
+            _eventFormatters = eventFormatters ?? new();
         }
 
         public UnifiedEntityMap Build(BsonArray entitiesArray)
@@ -398,7 +398,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             var clientEventCapturers = new Dictionary<string, EventCapturer>();
             string clientId = null;
             var commandNamesToSkipInEvents = new List<string>();
-            List<(string Key, IEnumerable<string> Events, List<string> CommandNotToCapture)> eventTypesToCapture = new ();
+            List<(string Key, IEnumerable<string> Events, List<string> CommandNotToCapture)> eventTypesToCapture = new();
             bool? loadBalanced = null;
             int? maxPoolSize = null;
             bool? observeSensitiveCommands = null;
@@ -615,7 +615,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                                     settings.ReadConcern = ReadConcern.FromBsonDocument(option.Value.AsBsonDocument);
                                     break;
                                 case "readPreference":
-                                    settings.ReadPreference = ReadPreference.FromBsonDocument(option.Value.AsBsonDocument);
+                                    settings.ReadPreference = CreateReadPreference(option.Value.AsBsonDocument);
                                     break;
                                 case "writeConcern":
                                     settings.WriteConcern = WriteConcern.FromBsonDocument(option.Value.AsBsonDocument);
@@ -637,6 +637,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             IMongoClient client = null;
             string databaseName = null;
+            MongoDatabaseSettings settings = null;
 
             foreach (var element in entity)
             {
@@ -652,12 +653,26 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     case "databaseName":
                         databaseName = element.Value.AsString;
                         break;
+                    case "databaseOptions":
+                        settings = new MongoDatabaseSettings();
+                        foreach (var option in element.Value.AsBsonDocument)
+                        {
+                            switch (option.Name)
+                            {
+                                case "readPreference":
+                                    settings.ReadPreference = CreateReadPreference(option.Value.AsBsonDocument);
+                                    break;
+                                default:
+                                    throw new FormatException($"Invalid collection option argument name: '{option.Name}'.");
+                            }
+                        }
+                        break;
                     default:
                         throw new FormatException($"Invalid database argument name: '{element.Name}'.");
                 }
             }
 
-            return client.GetDatabase(databaseName);
+            return client.GetDatabase(databaseName, settings);
         }
 
         private EventCapturer CreateEventCapturer(IEnumerable<string> eventTypesToCapture, IEnumerable<string> commandNamesToSkip, IEventFormatter eventFormatter)
@@ -716,6 +731,22 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             }
 
             return eventCapturer;
+        }
+
+        private ReadPreference CreateReadPreference(BsonDocument readPreferenceDocument)
+        {
+            var readPreference = new ReadPreference(ReadPreferenceMode.Primary);
+            foreach (var element in readPreferenceDocument)
+            {
+                readPreference = element.Name switch
+                {
+                    "mode" => readPreference.With(mode: (ReadPreferenceMode)Enum.Parse(typeof(ReadPreferenceMode), element.Value.AsString, ignoreCase: true)),
+                    "maxStalenessSeconds" => readPreference.With(maxStaleness: TimeSpan.FromSeconds(element.Value.ToDouble())),
+                    _ => throw new ArgumentException($"Invalid element in {nameof(ReadPreference)} document: {element.Name}."),
+                };
+            }
+
+            return readPreference;
         }
 
         private IClientSessionHandle CreateSession(BsonDocument entity, Dictionary<string, DisposableMongoClient> clients)

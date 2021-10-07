@@ -77,7 +77,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             _entityMap = entityMap;
         }
 
-        public UnifiedAggregateOnDatabaseOperation Build(string targetDatabaseId, BsonDocument arguments)
+        public IUnifiedEntityTestOperation Build(string targetDatabaseId, BsonDocument arguments)
         {
             var database = _entityMap.GetDatabase(targetDatabaseId);
 
@@ -101,7 +101,15 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 }
             }
 
-            return new UnifiedAggregateOnDatabaseOperation(database, pipeline, options);
+            var lastStageName = pipeline.Stages.LastOrDefault()?.OperatorName;
+            if (lastStageName == "$out" || lastStageName == "$merge")
+            {
+                return new UnifiedAggregateToDatabaseOperation(database, pipeline, options);
+            }
+            else
+            {
+                return new UnifiedAggregateOnDatabaseOperation(database, pipeline, options);
+            }
         }
     }
 }

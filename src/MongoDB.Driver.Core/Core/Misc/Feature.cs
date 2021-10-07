@@ -40,6 +40,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __aggregateLet = new Feature("AggregateLet", new SemanticVersion(3, 6, 0));
         private static readonly Feature __aggregateMerge = new Feature("AggregateMerge", new SemanticVersion(4, 2, 0));
         private static readonly Feature __aggregateOut = new Feature("AggregateOut", new SemanticVersion(2, 6, 0));
+        private static readonly Feature __aggregateOutOnSecondary = new Feature("AggregateOutOnSecondary", new SemanticVersion(5, 0, 0));
         private static readonly Feature __aggregateOutToDifferentDatabase = new Feature("AggregateOutToDifferentDatabase", new SemanticVersion(4, 3, 0));
         private static readonly Feature __aggregateToString = new Feature("AggregateToString", new SemanticVersion(4, 0, 0));
         private static readonly Feature __aggregateUnionWith = new Feature("AggregateUnionWith", new SemanticVersion(4, 3, 4));
@@ -193,6 +194,11 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the aggregate out feature.
         /// </summary>
         public static Feature AggregateOut => __aggregateOut;
+
+        /// <summary>
+        /// Gets the aggregate out on secondary feature,
+        /// </summary>
+        public static Feature AggregateOutOnSecondary => __aggregateOutOnSecondary;
 
         /// <summary>
         /// Gets the aggregate out to a different database feature.

@@ -32,8 +32,8 @@ namespace MongoDB.Driver.Core.Operations
     {
         private static readonly BsonDocument[] __pipeline = new[]
         {
-                BsonDocument.Parse("{ $match : { _id : 1 } }"),
-                BsonDocument.Parse("{ $out : \"awesome\" }")
+            BsonDocument.Parse("{ $match : { _id : 1 } }"),
+            BsonDocument.Parse("{ $out : \"awesome\" }")
         };
 
         [Fact]
@@ -187,6 +187,19 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().BeSameAs(value);
         }
 
+        [Theory]
+        [ParameterAttributeData]
+        public void EffectiveReadPreference_get_should_return_InitialReadPreference_when_no_operations_called([Values("{ mode : 'Primary' }", "{ mode : 'Secondary' }")] string readPreference)
+        {
+            var subject = new AggregateToCollectionOperation(_collectionNamespace, __pipeline, _messageEncoderSettings);
+            var value = ReadPreference.FromBsonDocument(BsonDocument.Parse(readPreference));
+
+            subject.InitialReadPreference = value;
+            var result = subject.EffectiveReadPreference;
+
+            result.Should().BeSameAs(value);
+        }
+
         [Fact]
         public void Hint_get_and_set_should_work()
         {
@@ -195,6 +208,19 @@ namespace MongoDB.Driver.Core.Operations
 
             subject.Hint = value;
             var result = subject.Hint;
+
+            result.Should().BeSameAs(value);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void InitialReadPreference_get_and_set_should_work([Values("{ mode : 'Primary' }", "{ mode : 'Secondary' }")] string readPreference)
+        {
+            var subject = new AggregateToCollectionOperation(_collectionNamespace, __pipeline, _messageEncoderSettings);
+            var value = ReadPreference.FromBsonDocument(BsonDocument.Parse(readPreference));
+
+            subject.InitialReadPreference = value;
+            var result = subject.InitialReadPreference;
 
             result.Should().BeSameAs(value);
         }

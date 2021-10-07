@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System.Threading;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.ConnectionPools;
@@ -68,14 +67,32 @@ namespace MongoDB.Driver.Core
         public static IReadWriteBindingHandle CreateReadWriteBinding(ICluster cluster, ICoreSessionHandle session)
         {
             IReadWriteBinding readWriteBinding;
+            if (!TryCreatePinnedReadWriteBinding(cluster, session, out readWriteBinding))
+            {
+                readWriteBinding = new WritableServerBinding(cluster, session);
+            }
+
+            return new ReadWriteBindingHandle(readWriteBinding);
+        }
+
+        /// <summary>
+        /// Create a readwrite binding handle.
+        /// </summary>
+        /// <param name="cluster">The cluster.</param>
+        /// <param name="session">The session.</param>
+        /// <param name="pinnedBinding">The pinned binding.</param>
+        /// <returns>An effective read write binging.</returns>
+        public static bool TryCreatePinnedReadWriteBinding(ICluster cluster, ICoreSessionHandle session, out IReadWriteBinding pinnedBinding)
+        {
             if (session.IsInTransaction &&
                 IsChannelPinned(session.CurrentTransaction) &&
                 session.CurrentTransaction.State != CoreTransactionState.Starting)
             {
-                readWriteBinding = new ChannelReadWriteBinding(
+                pinnedBinding = new ChannelReadWriteBinding(
                     session.CurrentTransaction.PinnedServer,
                     session.CurrentTransaction.PinnedChannel.Fork(),
                     session);
+                return true;
             }
             else
             {
@@ -84,10 +101,10 @@ namespace MongoDB.Driver.Core
                     // unpin if the next operation is not under transaction
                     session.CurrentTransaction.UnpinAll();
                 }
-                readWriteBinding = new WritableServerBinding(cluster, session);
-            }
 
-            return new ReadWriteBindingHandle(readWriteBinding);
+                pinnedBinding = null;
+                return false;
+            }
         }
 
         internal static IChannelSourceHandle CreateGetMoreChannelSource(IChannelSourceHandle channelSource, IChannelHandle channel, long cursorId)
@@ -131,10 +148,10 @@ namespace MongoDB.Driver.Core
             }
         }
 
-        // private methods
-        private static bool IsInLoadBalancedMode(ConnectionDescription connectionDescription) => connectionDescription?.ServiceId.HasValue ?? false;
-        private static bool IsInLoadBalancedMode(ServerDescription serverDescription) => serverDescription?.Type == ServerType.LoadBalanced;
-        private static bool IsInLoadBalancedMode(ClusterDescription clusterDescription) => clusterDescription?.Type == ClusterType.LoadBalanced;
-        private static bool IsChannelPinned(CoreTransaction coreTransaction) => coreTransaction?.PinnedChannel != null;
+        // internal methods
+        internal static bool IsInLoadBalancedMode(ConnectionDescription connectionDescription) => connectionDescription?.ServiceId.HasValue ?? false;
+        internal static bool IsInLoadBalancedMode(ServerDescription serverDescription) => serverDescription?.Type == ServerType.LoadBalanced;
+        internal static bool IsInLoadBalancedMode(ClusterDescription clusterDescription) => clusterDescription?.Type == ClusterType.LoadBalanced;
+        internal static bool IsChannelPinned(CoreTransaction coreTransaction) => coreTransaction?.PinnedChannel != null;
     }
 }
