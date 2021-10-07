@@ -48,7 +48,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             _additionalArgs = additionalArgs; // can be null
             _eventFormatters = eventFormatters; // can be null
-            _loggerFactory = loggerFactory ?? LoggerFactoryEmpty.Instance;
+            _loggerFactory = loggerFactory ?? EmptyLoggerFactory.Instance;
             _logger = _loggerFactory.CreateLogger<UnifiedTestRunner>();
         }
 

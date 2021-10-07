@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Core.TestHelpers.Logging
             _loggerBase = new XunitLogger(_output);
             MinLogLevel = LogLevel.Warning;
 
-            LoggerFactory = new LoggerFactoryXUnit(_loggerBase);
+            LoggerFactory = new XUnitLoggerFactory(_loggerBase);
             Logger = LoggerFactory.CreateLogger<LoggableTestClass>();
         }
 

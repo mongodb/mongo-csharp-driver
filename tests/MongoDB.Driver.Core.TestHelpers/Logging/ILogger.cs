@@ -20,7 +20,7 @@ namespace MongoDB.Driver.Core.TestHelpers.Logging
         public void Log(LogLevel logLevel, string decoration, string format, params object[] arguments);
     }
 
-    public interface ILogger<TCatergory> : ILogger
+    public interface ILogger<TCategory> : ILogger
     {
     }
 }

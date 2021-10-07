@@ -15,11 +15,11 @@
 
 namespace MongoDB.Driver.Core.TestHelpers.Logging
 {
-    internal sealed class LoggerFactoryXUnit : ILoggerFactory
+    internal sealed class XUnitLoggerFactory : ILoggerFactory
     {
         private readonly ILogger _loggerBase;
 
-        public LoggerFactoryXUnit(ILogger loggerBase)
+        public XUnitLoggerFactory(ILogger loggerBase)
         {
             _loggerBase = loggerBase;
         }
@@ -28,11 +28,11 @@ namespace MongoDB.Driver.Core.TestHelpers.Logging
             new TypedLoggerDecorator<TCatergory>(_loggerBase);
     }
 
-    public class LoggerFactoryEmpty : ILoggerFactory
+    public class EmptyLoggerFactory : ILoggerFactory
     {
-        public static ILoggerFactory Instance { get; } = new LoggerFactoryEmpty();
+        public static ILoggerFactory Instance { get; } = new EmptyLoggerFactory();
 
-        private LoggerFactoryEmpty()
+        private EmptyLoggerFactory()
         {
         }
 

@@ -15,7 +15,7 @@
 
 namespace MongoDB.Driver.Core.TestHelpers.Logging
 {
-    public static class ILoggerExtentions
+    public static class ILoggerExtensions
     {
         public static ILogger<T> Decorate<T>(this ILogger<T> logger, string decoration) =>
             logger != null ? new LoggerDecorator<T>(logger, decoration) : null;
@@ -51,9 +51,9 @@ namespace MongoDB.Driver.Core.TestHelpers.Logging
             logger?.Log(LogLevel.Trace, null, format, arguments);
     }
 
-    internal static class ILoggerFactoryExtentions
+    internal static class ILoggerFactoryExtensions
     {
-        public static ILogger<TCatergory> CreateLogger<TCatergory>(this ILoggerFactory loggerFactory, string decoration) =>
-            loggerFactory?.CreateLogger<TCatergory>().Decorate(decoration);
+        public static ILogger<TCategory> CreateLogger<TCategory>(this ILoggerFactory loggerFactory, string decoration) =>
+            loggerFactory?.CreateLogger<TCategory>().Decorate(decoration);
     }
 }
