@@ -30,8 +30,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
         {
             expression = PartialEvaluator.EvaluatePartially(expression);
 
-            var knownSerializersRegistry = KnownSerializerFinder.FindKnownSerializers(expression, (IBsonDocumentSerializer)provider.CollectionDocumentSerializer);
-            var context = new TranslationContext(knownSerializersRegistry);
+            var context = TranslationContext.Create(expression, provider.CollectionDocumentSerializer);
             var pipeline = ExpressionToPipelineTranslator.Translate(context, expression);
 
             return ExecutableQuery.Create(
@@ -45,8 +44,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
         {
             expression = PartialEvaluator.EvaluatePartially(expression);
 
-            var knownSerializersRegistry = KnownSerializerFinder.FindKnownSerializers(expression, (IBsonDocumentSerializer)provider.CollectionDocumentSerializer);
-            var context = new TranslationContext(knownSerializersRegistry);
+            var context = TranslationContext.Create(expression, provider.CollectionDocumentSerializer);
             var methodCallExpression = (MethodCallExpression)expression;
             switch (methodCallExpression.Method.Name)
             {

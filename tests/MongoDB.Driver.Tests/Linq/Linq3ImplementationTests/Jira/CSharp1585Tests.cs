@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             var parameter = expression.Parameters[0];
             var serializerRegistry = BsonSerializer.SerializerRegistry;
             var documentSerializer = serializerRegistry.GetSerializer<Document>();
-            var context = new TranslationContext();
+            var context = TranslationContext.Create(expression, documentSerializer);
             var symbol = context.CreateSymbol(parameter, documentSerializer, isCurrent: true);
             context = context.WithSymbol(symbol);
             var filter = ExpressionToFilterTranslator.Translate(context, expression.Body, exprOk: false);

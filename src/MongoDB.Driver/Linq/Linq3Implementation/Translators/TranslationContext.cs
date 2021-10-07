@@ -24,21 +24,20 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
 {
     internal class TranslationContext
     {
+        #region static
+        public static TranslationContext Create(Expression expression, IBsonSerializer serializer)
+        {
+            var symbolTable = new SymbolTable();
+            var nameGenerator = new NameGenerator();
+            var knownSerializersRegistry = KnownSerializerFinder.FindKnownSerializers(expression, (IBsonDocumentSerializer)serializer);
+            return new TranslationContext(symbolTable, nameGenerator, knownSerializersRegistry);
+        }
+        #endregion
+
         // private fields
         private readonly KnownSerializersRegistry _knownKnownSerializersRegistry;
         private readonly NameGenerator _nameGenerator;
         private readonly SymbolTable _symbolTable;
-
-        // constructors
-        public TranslationContext()
-            : this(new SymbolTable(), new NameGenerator(), new KnownSerializersRegistry())
-        {
-        }
-
-        public TranslationContext(KnownSerializersRegistry knownSerializersRegistry)
-            : this(new SymbolTable(), new NameGenerator(), knownSerializersRegistry)
-        {
-        }
 
         private TranslationContext(SymbolTable symbolTable, NameGenerator nameGenerator, KnownSerializersRegistry knownSerializersRegistry)
         {
