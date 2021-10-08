@@ -1549,7 +1549,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
         {
             var result = Project(x => new { Result = string.IsNullOrEmpty(x.B) });
 
-            result.Projection.Should().Be("{ Result: { \"$or\": [{ $eq: [\"$B\", null] }, { $eq: [\"$B\", \"\"] } ] }, _id: 0 }");
+            result.Projection.Should().Be("{ Result: { $in : ['$B', [null, '']] }, _id: 0 }");
 
             result.Value.Result.Should().BeFalse();
         }

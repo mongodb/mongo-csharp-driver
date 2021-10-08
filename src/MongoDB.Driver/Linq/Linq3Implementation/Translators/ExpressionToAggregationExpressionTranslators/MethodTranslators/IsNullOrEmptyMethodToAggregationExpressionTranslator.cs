@@ -16,7 +16,6 @@
 using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Linq.Linq3Implementation.Ast;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 
@@ -33,13 +32,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             {
                 var stringExpression = arguments[0];
                 var stringTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, stringExpression);
-
-                var (stringVar, stringAst) = AstExpression.UseVarIfNotSimple("this", stringTranslation.Ast);
-                var ast = AstExpression.Let(
-                    stringVar,
-                    @in: AstExpression.Or(
-                        AstExpression.Eq(stringAst, BsonNull.Value),
-                        AstExpression.Eq(stringAst, "")));
+                var ast = AstExpression.In(stringTranslation.Ast, new BsonArray { BsonNull.Value, "" });
 
                 return new AggregationExpression(expression, ast, new BooleanSerializer());
             }
