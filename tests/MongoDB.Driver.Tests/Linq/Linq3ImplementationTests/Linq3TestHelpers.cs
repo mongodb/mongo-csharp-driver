@@ -18,6 +18,7 @@ using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq.Linq3Implementation;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecutableQueryTranslators;
@@ -33,18 +34,12 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests
 
         public static List<BsonDocument> Translate<TDocument, TResult>(IMongoCollection<TDocument> collection, IAggregateFluent<TResult> aggregate)
         {
-            var renderedStages = new List<BsonDocument>();
-
-            IBsonSerializer inputSerializer = collection.DocumentSerializer;
+            var pipelineDefinition = ((AggregateFluent<TDocument, TResult>)aggregate).Pipeline;
+            var documentSerializer = collection.DocumentSerializer;
             var serializerRegistry = BsonSerializer.SerializerRegistry;
-            foreach (var stage in aggregate.Stages)
-            {
-                var renderedStage = stage.Render(inputSerializer, serializerRegistry, LinqProvider.V3);
-                renderedStages.Add(renderedStage.Document);
-                inputSerializer = renderedStage.OutputSerializer;
-            }
-
-            return renderedStages;
+            var linqProvider = collection.Database.Client.Settings.LinqProvider;
+            var renderedPipeline = pipelineDefinition.Render(documentSerializer, serializerRegistry, linqProvider);
+            return renderedPipeline.Documents.ToList();
         }
 
         // in this overload the collection argument is used only to infer the TDocument type

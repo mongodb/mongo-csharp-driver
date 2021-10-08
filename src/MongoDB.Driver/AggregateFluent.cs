@@ -44,6 +44,8 @@ namespace MongoDB.Driver
             get { return _options; }
         }
 
+        public PipelineDefinition<TInput, TResult> Pipeline => _pipeline;
+
         public override IList<IPipelineStageDefinition> Stages
         {
             get { return _pipeline.Stages.ToList(); }
