@@ -13,14 +13,12 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Tests.Specifications.Runner;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Specifications.read_write_concern
 {
@@ -28,7 +26,8 @@ namespace MongoDB.Driver.Tests.Specifications.read_write_concern
     {
         protected override string[] ExpectedTestColumns => new[] { "description", "operations", "outcome", "expectations", "async" };
 
-        public OperationTestRunner()
+        public OperationTestRunner(ITestOutputHelper testOutputHelper)
+            : base(testOutputHelper)
         {
             DefaultCommandsToNotCapture.Add("find");
         }

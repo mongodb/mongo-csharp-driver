@@ -18,16 +18,25 @@ using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Tests.UnifiedTestOperations;
 using MongoDB.Driver.TestHelpers;
+using MongoDB.Driver.Tests.UnifiedTestOperations;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Specifications.load_balancers
 {
     [Trait("Category", "SupportLoadBalancing")]
-    public sealed class LoadBalancersTestRunner
+    public sealed class LoadBalancersTestRunner : LoggableTestClass
     {
+        // public constructors
+        public LoadBalancersTestRunner(ITestOutputHelper output) :
+            base(output)
+        {
+        }
+
+        // public methods
         [SkippableTheory]
         [ClassData(typeof(TestCaseFactory))]
         public void Run(JsonDrivenTestCase testCase)

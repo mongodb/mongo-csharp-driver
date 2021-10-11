@@ -155,13 +155,15 @@ Task("Test")
 
         var testResultsFile = outputDirectory.Combine("test-results").Combine($"TEST-{target.ToLowerInvariant()}-{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}.xml");
         // Evergreen CI server requires JUnit output format to display test results
-        var logger = $"junit;LogFilePath={testResultsFile};FailureBodyFormat=Verbose";
+        var junitLogger = $"junit;LogFilePath={testResultsFile};FailureBodyFormat=Verbose";
+        var consoleLogger = "console;verbosity=detailed";
+        
         var settings = new DotNetCoreTestSettings
         {
             NoBuild = true,
             NoRestore = true,
             Configuration = configuration,
-            Logger = logger,
+            Loggers = new string[] { consoleLogger, junitLogger },
             ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64")
         };
         switch (target.ToLowerInvariant()) // target can be not only moniker related

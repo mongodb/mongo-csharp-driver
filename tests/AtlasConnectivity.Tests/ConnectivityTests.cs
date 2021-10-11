@@ -17,13 +17,22 @@ using System;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.TestHelpers;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace AtlasConnectivity.Tests
 {
-    public class ConnectivityTests
+    public class ConnectivityTests : LoggableTestClass
     {
+        // public constructors
+        public ConnectivityTests(ITestOutputHelper testOutputHelper)
+            : base(testOutputHelper)
+        {
+        }
+
+        // public methods
         [Theory]
         [InlineData("ATLAS_FREE")]
         [InlineData("ATLAS_FREE_SRV")]
@@ -62,7 +71,7 @@ namespace AtlasConnectivity.Tests
         {
             var clientSettings = MongoClientSettings.FromUrl(new MongoUrl(connectionString));
             var client = new MongoClient(clientSettings);
-            return new DisposableMongoClient(client);
+            return new DisposableMongoClient(client, CreateLogger<DisposableMongoClient>());
         }
     }
 }

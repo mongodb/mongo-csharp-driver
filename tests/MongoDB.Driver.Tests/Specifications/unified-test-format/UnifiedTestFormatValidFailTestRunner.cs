@@ -17,18 +17,27 @@ using System.Collections.Generic;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
+using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Tests.UnifiedTestOperations;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Specifications.unified_test_format
 {
-    public sealed class UnifiedTestFormatValidFailTestRunner
+    public sealed class UnifiedTestFormatValidFailTestRunner : LoggableTestClass
     {
-        [Theory]
+        // public constructors
+        public UnifiedTestFormatValidFailTestRunner(ITestOutputHelper testOutputHelper)
+            : base(testOutputHelper)
+        {
+        }
+
+        // public methods
+        [SkippableTheory]
         [ClassData(typeof(TestCaseFactory))]
         public void Run(JsonDrivenTestCase testCase)
         {
-            using (var runner = new UnifiedTestRunner())
+            using (var runner = new UnifiedTestRunner(loggerFactory: LoggerFactory))
             {
                 var exception = Record.Exception(() => runner.Run(testCase));
                 exception.Should().NotBeNull();

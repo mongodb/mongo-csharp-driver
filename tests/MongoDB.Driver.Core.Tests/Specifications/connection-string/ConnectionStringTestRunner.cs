@@ -24,12 +24,21 @@ using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers.Logging;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Specifications.connection_string
 {
-    public class ConnectionStringTestRunner
+    public class ConnectionStringTestRunner : LoggableTestClass
     {
+        // public constructors
+        public ConnectionStringTestRunner(ITestOutputHelper testOutputHelper)
+            : base(testOutputHelper)
+        {
+        }
+
+        // public methods
         [SkippableTheory]
         [ClassData(typeof(TestCaseFactory))]
         public void RunTestDefinition(JsonDrivenTestCase testCase)

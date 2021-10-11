@@ -23,14 +23,23 @@ using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
+using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.TestHelpers;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring.prose_tests
 {
-    public class ServerDiscoveryProseTests
+    public class ServerDiscoveryProseTests : LoggableTestClass
     {
+        // public constructors
+        public ServerDiscoveryProseTests(ITestOutputHelper testOutputHelper)
+            : base(testOutputHelper)
+        {
+        }
+
+        // public methods
         [SkippableTheory]
         [ParameterAttributeData]
         public void Topology_secondary_discovery_with_directConnection_false_should_work_as_expected([Values(false, true, null)] bool? directConnection)
@@ -56,7 +65,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring.pr
 
             var dnsEndpoint = (DnsEndPoint)secondary.EndPoint;
             var replicaSetName = secondary.ReplicaSetConfig.Name;
-            using (var client = new DisposableMongoClient(new MongoClient(CreateConnectionString(dnsEndpoint, directConnection, replicaSetName))))
+            using (var client = new DisposableMongoClient(new MongoClient(CreateConnectionString(dnsEndpoint, directConnection, replicaSetName)), CreateLogger<DisposableMongoClient>()))
             {
                 var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
                 var collection = database.GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName);

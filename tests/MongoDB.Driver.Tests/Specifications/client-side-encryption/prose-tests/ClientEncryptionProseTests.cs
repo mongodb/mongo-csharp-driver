@@ -30,15 +30,17 @@ using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.TestHelpers;
+using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Encryption;
 using MongoDB.Driver.TestHelpers;
 using MongoDB.Libmongocrypt;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 {
-    public class ClientEncryptionProseTests
+    public class ClientEncryptionProseTests : LoggableTestClass
     {
         #region static
         private static readonly CollectionNamespace __collCollectionNamespace = CollectionNamespace.FromFullName("db.coll");
@@ -64,11 +66,14 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
         private readonly ICluster _cluster;
 
-        public ClientEncryptionProseTests()
+        // public constructors
+        public ClientEncryptionProseTests(ITestOutputHelper testOutputHelper)
+            : base(testOutputHelper)
         {
             _cluster = CoreTestConfiguration.Cluster;
         }
 
+        // public methods
         [SkippableTheory]
         [ParameterAttributeData]
         public void BsonSizeLimitAndBatchSizeSplittingTest(
@@ -277,7 +282,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             {
                 { "mongocryptdSpawnArgs", new [] { "--pidfilepath=bypass-spawning-mongocryptd.pid", "--port=27021" } },
             };
-            using (var mongocryptdClient = new DisposableMongoClient(new MongoClient("mongodb://localhost:27021/?serverSelectionTimeoutMS=10000")))
+            using (var mongocryptdClient = new DisposableMongoClient(new MongoClient("mongodb://localhost:27021/?serverSelectionTimeoutMS=10000"), CreateLogger<DisposableMongoClient>()))
             using (var clientEncrypted = ConfigureClientEncrypted(
                 kmsProviderFilter: "local",
                 bypassAutoEncryption: true,
@@ -1208,7 +1213,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 writeConcern,
                 readConcern);
 
-            return DriverTestConfiguration.CreateDisposableClient(mongoClientSettings);
+            return DriverTestConfiguration.CreateDisposableClient(mongoClientSettings, logger: CreateLogger<DisposableMongoClient>());
         }
 
         private MongoClientSettings CreateMongoClientSettings(

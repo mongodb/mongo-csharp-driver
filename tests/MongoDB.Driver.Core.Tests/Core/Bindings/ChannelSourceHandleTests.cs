@@ -14,12 +14,10 @@
 */
 
 using System;
-using System.Reflection;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
 using Moq;
 using Xunit;

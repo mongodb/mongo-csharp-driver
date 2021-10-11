@@ -193,5 +193,44 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
                     throw new FormatException($"Invalid receiver: \"{receiver}\".");
             }
         }
+
+        public static void SkipTestIfNeeded(string receiver, string name)
+        {
+            switch (receiver)
+            {
+                case "testRunner":
+                    break;
+
+                case "client":
+                    switch (name)
+                    {
+                        case "listDatabaseObjects":
+                            throw new SkipException(".NET/C# driver does not implement a ListDatabaseObjects helper.");
+                        default: break;
+                    }
+                    break;
+
+                case "database":
+                    switch (name)
+                    {
+                        case "listCollectionObjects":
+                            throw new SkipException(".NET/C# driver does not implement a ListCollectionObjects helper.");
+                        default:
+                            break;
+                    }
+                    break;
+                case "collection":
+                    switch (name)
+                    {
+                        case "listIndexNames":
+                            throw new SkipException(".NET/C# driver does not implement a ListIndexNames helper.");
+                        default:
+                            break;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 }

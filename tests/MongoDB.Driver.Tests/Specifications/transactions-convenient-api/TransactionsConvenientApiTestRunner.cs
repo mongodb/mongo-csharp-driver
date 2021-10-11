@@ -19,11 +19,18 @@ using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Tests.Specifications.Runner;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Specifications.transactions_convenient_api
 {
     public class TransactionsConvenientApiTestRunner : MongoClientJsonDrivenSessionsTestRunner
     {
+        // public methods
+        public TransactionsConvenientApiTestRunner(ITestOutputHelper testOutputHelper)
+            : base(testOutputHelper)
+        {
+        }
+
         [SkippableTheory]
         [ClassData(typeof(TestCaseFactory))]
         public void Run(JsonDrivenTestCase testCase)

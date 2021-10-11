@@ -28,21 +28,29 @@ using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.JsonDrivenTests;
+using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.TestHelpers;
 using MongoDB.Driver.Tests.Specifications.crud;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Specifications.change_streams
 {
     [Trait("Category", "SupportLoadBalancing")]
-    public class ChangeStreamTestRunner
+    public class ChangeStreamTestRunner : LoggableTestClass
     {
         // private fields
         private string _databaseName;
         private string _database2Name;
         private string _collectionName;
         private string _collection2Name;
+
+        // public constructors
+        public ChangeStreamTestRunner(ITestOutputHelper testOutputHelper)
+            : base(testOutputHelper)
+        {
+        }
 
         // public methods
         [SkippableTheory]
@@ -198,7 +206,8 @@ namespace MongoDB.Driver.Tests.Specifications.change_streams
             {
                 settings.HeartbeatInterval = TimeSpan.FromMilliseconds(5); // the default value for spec tests
                 settings.ClusterConfigurator = c => c.Subscribe(eventCapturer);
-            });
+            },
+            logger: CreateLogger<DisposableMongoClient>());
         }
 
         private IAsyncCursor<ChangeStreamDocument<BsonDocument>> Watch(IMongoClient client, BsonDocument test, bool async)

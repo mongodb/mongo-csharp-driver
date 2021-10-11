@@ -23,15 +23,24 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
+using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.TestHelpers;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
 {
     [Trait("Category", "Serverless")]
-    public class CrudProseTests
+    public class CrudProseTests : LoggableTestClass
     {
+        // public constructors
+        public CrudProseTests(ITestOutputHelper output) :
+            base(output)
+        {
+        }
+
+        // public methods
         [SkippableFact]
         public void WriteConcernError_details_should_expose_writeConcernError_errInfo()
         {
@@ -157,7 +166,8 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
             {
                 settings.HeartbeatInterval = TimeSpan.FromMilliseconds(5);
                 settings.ClusterConfigurator = c => c.Subscribe(eventCapturer);
-            });
+            },
+            logger: CreateLogger<DisposableMongoClient>());
         }
     }
 }

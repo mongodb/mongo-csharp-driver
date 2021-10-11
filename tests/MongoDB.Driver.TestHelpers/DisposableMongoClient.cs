@@ -18,6 +18,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.TestHelpers.Logging;
 
 namespace MongoDB.Driver.TestHelpers
 {
@@ -27,10 +28,14 @@ namespace MongoDB.Driver.TestHelpers
     public class DisposableMongoClient : IMongoClient, IDisposable
     {
         private readonly IMongoClient wrapped;
+        private readonly ILogger<DisposableMongoClient> _logger;
 
-        public DisposableMongoClient(IMongoClient wrapped)
+        public DisposableMongoClient(IMongoClient wrapped, ILogger<DisposableMongoClient> logger)
         {
             this.wrapped = wrapped;
+
+            _logger = logger.Decorate($"_cluster:{wrapped.Cluster.ClusterId}");
+            _logger.Debug("Created");
         }
 
         public ICluster Cluster => wrapped.Cluster;
@@ -238,7 +243,11 @@ namespace MongoDB.Driver.TestHelpers
 
         public void Dispose()
         {
+            _logger.Debug("Disposing");
+
             ClusterRegistry.Instance.UnregisterAndDisposeCluster(wrapped.Cluster);
+
+            _logger.Debug("Cluster unregistered and disposed");
 
             if (wrapped is MongoClient mongoClient)
             {
@@ -248,6 +257,8 @@ namespace MongoDB.Driver.TestHelpers
                     ClusterRegistry.Instance.UnregisterAndDisposeCluster(internalClient.Cluster);
                 }
             }
+
+            _logger.Debug("Disposed");
         }
     }
 }

@@ -24,6 +24,7 @@ using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
+using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Tests.UnifiedTestOperations.Matchers;
 using Xunit;
@@ -37,13 +38,18 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         private readonly Dictionary<string, object> _additionalArgs;
         private readonly Dictionary<string, IEventFormatter> _eventFormatters;
         private bool _runHasBeenCalled;
+        private ILoggerFactory _loggerFactory;
+        private readonly ILogger<UnifiedTestRunner> _logger;
 
         public UnifiedTestRunner(
             Dictionary<string, object> additionalArgs = null,
-            Dictionary<string, IEventFormatter> eventFormatters = null)
+            Dictionary<string, IEventFormatter> eventFormatters = null,
+            ILoggerFactory loggerFactory = null)
         {
             _additionalArgs = additionalArgs; // can be null
             _eventFormatters = eventFormatters; // can be null
+            _loggerFactory = loggerFactory ?? EmptyLoggerFactory.Instance;
+            _logger = _loggerFactory.CreateLogger<UnifiedTestRunner>();
         }
 
         // public properties
@@ -51,6 +57,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
         public void Run(JsonDrivenTestCase testCase)
         {
+            _logger.Debug("Running {0}", testCase.Name);
+
             // Top-level fields
             var schemaVersion = testCase.Shared["schemaVersion"].AsString; // cannot be null
             var testSetRunOnRequirements = testCase.Shared.GetValue("runOnRequirements", null)?.AsBsonArray;
@@ -106,7 +114,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
             KillOpenTransactions(DriverTestConfiguration.Client);
 
-            _entityMap = new UnifiedEntityMapBuilder(_eventFormatters).Build(entities);
+            _entityMap = new UnifiedEntityMapBuilder(_eventFormatters, _loggerFactory).Build(entities);
 
             if (initialData != null)
             {
@@ -131,6 +139,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
         public void Dispose()
         {
+            _logger.Debug("Disposing");
+
             if (_failPoints != null)
             {
                 foreach (var failPoint in _failPoints)
@@ -146,7 +156,12 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             {
                 // Ignored because Dispose shouldn't fail
             }
+
+            _logger.Debug("Disposing entity map");
+
             _entityMap?.Dispose();
+
+            _logger.Debug("Disposed");
         }
 
         // private methods
@@ -163,6 +178,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     .GetCollection<BsonDocument>(collectionName)
                     .WithWriteConcern(WriteConcern.WMajority);
 
+                _logger.Debug("Dropping {0}", collectionName);
+
                 database.DropCollection(collectionName);
                 if (documents.Any())
                 {
@@ -177,6 +194,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
         private void AssertEvents(BsonArray eventItems, UnifiedEntityMap entityMap)
         {
+            _logger.Debug("Asserting events");
+
             var unifiedEventMatcher = new UnifiedEventMatcher(new UnifiedValueMatcher(entityMap));
             foreach (var eventItem in eventItems.Cast<BsonDocument>())
             {
@@ -225,6 +244,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
         private void AssertOutcome(IMongoClient client, BsonArray outcome)
         {
+            _logger.Debug("Asserting outcome");
+
             foreach (var outcomeItem in outcome)
             {
                 var collectionName = outcomeItem["collectionName"].AsString;
@@ -300,6 +321,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             var operationName = operation["name"].AsString;
             var operationTarget = operation["object"].AsString;
             var operationArguments = operation.GetValue("arguments", null)?.AsBsonDocument;
+
+
+            _logger.Debug("Created {0} operation", operationName);
 
             return factory.CreateOperation(operationName, operationTarget, operationArguments);
         }

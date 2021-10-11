@@ -204,7 +204,8 @@ namespace MongoDB.Driver.Tests
                     settings.HeartbeatInterval = TimeSpan.FromMilliseconds(5); // the default value for spec tests
                     settings.RetryWrites = false;
                     settings.ClusterConfigurator = c => { c.Subscribe(capturedEvents); };
-                });
+                },
+                null);
         }
     }
 }

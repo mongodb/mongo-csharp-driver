@@ -20,6 +20,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.TestHelpers;
 using Xunit;
@@ -29,10 +30,16 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes
 {
     [Trait("Category", "SupportLoadBalancing")]
     [Trait("Category", "Serverless")]
-    public class RetryableWriteTestRunner
+    public class RetryableWriteTestRunner : LoggableTestClass
     {
         private readonly string _databaseName = DriverTestConfiguration.DatabaseNamespace.DatabaseName;
         private readonly string _collectionName = DriverTestConfiguration.CollectionNamespace.CollectionName;
+
+        // public constructors
+        public RetryableWriteTestRunner(ITestOutputHelper testOutputHelper)
+            : base(testOutputHelper)
+        {
+        }
 
         // public methods
         [SkippableTheory]
@@ -81,6 +88,8 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes
             var database = client.GetDatabase(_databaseName);
             var collection = database.GetCollection<BsonDocument>(_collectionName);
 
+            Logger.Debug("Dropping colleciton");
+
             database.DropCollection(collection.CollectionNamespace.CollectionName);
             if (definition.TryGetValue("data", out var data) &&
                 data is BsonArray dataArray &&
@@ -92,6 +101,8 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes
 
         private void RunTest(BsonDocument test, bool async)
         {
+            Logger.Debug("Running test");
+
             VerifyFields(test, "description", "clientOptions", "failPoint", "operation", "outcome", "useMultipleMongoses");
             var failPoint = (BsonDocument)test.GetValue("failPoint", null);
             var operation = test["operation"].AsBsonDocument;
@@ -105,6 +116,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes
 
                 using (ConfigureFailPoint(client, failPoint))
                 {
+
                     executableTest.Execute(collection, async);
                 }
 
@@ -123,6 +135,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes
                     settings.HeartbeatInterval = TimeSpan.FromMilliseconds(5); // the default value for spec tests
                     ParseClientOptions(settings, clientOptions);
                 },
+                CreateLogger<DisposableMongoClient>(),
                 useMultipleShardRouters);
         }
 

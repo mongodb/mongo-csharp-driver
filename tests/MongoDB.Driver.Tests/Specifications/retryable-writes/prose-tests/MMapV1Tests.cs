@@ -61,7 +61,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
         // private methods
         private DisposableMongoClient CreateDisposableMongoClient()
         {
-            return DriverTestConfiguration.CreateDisposableClient(s => s.RetryWrites = true);
+            return DriverTestConfiguration.CreateDisposableClient(s => s.RetryWrites = true, logger: null);
         }
     }
 }

@@ -46,7 +46,8 @@ namespace MongoDB.Driver.Tests
                                         postServerSelector: customServerSelector,
                                         serverApi: CoreTestConfiguration.ServerApi));
                             c.Subscribe(eventCapturer);
-                        }))
+                        },
+                 logger: null))
             {
                 var collection = client
                     .GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName)

@@ -175,6 +175,7 @@ namespace MongoDB.Driver.Tests
                     settings.ClusterConfigurator = c => c.Subscribe(eventCapturer);
                     settings.LocalThreshold = TimeSpan.FromMilliseconds(1000);
                 },
+                logger: null,
                 useMultipleShardRouters);
             var timeOut = TimeSpan.FromSeconds(60);
             bool AllServersConnected() => client.Cluster.Description.Servers.All(s => s.State == ServerState.Connected);

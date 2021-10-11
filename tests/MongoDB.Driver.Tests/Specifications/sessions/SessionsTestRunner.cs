@@ -13,12 +13,13 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Tests.Specifications.Runner;
-using System.Collections.Generic;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Specifications.sessions
 {
@@ -26,6 +27,12 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
     public class SessionsTestRunner : MongoClientJsonDrivenSessionsTestRunner
     {
         protected override string[] ExpectedTestColumns => new string[] { "async", "clientOptions", "failPoint", "description", "operations", "expectations", "outcome" };
+
+        // public methods
+        public SessionsTestRunner(ITestOutputHelper testOutputHelper)
+            : base(testOutputHelper)
+        {
+        }
 
         [SkippableTheory]
         [ClassData(typeof(TestCaseFactory))]
