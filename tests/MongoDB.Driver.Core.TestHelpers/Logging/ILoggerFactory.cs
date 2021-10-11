@@ -17,6 +17,6 @@ namespace MongoDB.Driver.Core.TestHelpers.Logging
 {
     public interface ILoggerFactory
     {
-        public ILogger<TCatergory> CreateLogger<TCatergory>();
+        public ILogger<TCategory> CreateLogger<TCategory>();
     }
 }
