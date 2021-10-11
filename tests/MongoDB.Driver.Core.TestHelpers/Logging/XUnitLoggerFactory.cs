@@ -24,8 +24,8 @@ namespace MongoDB.Driver.Core.TestHelpers.Logging
             _loggerBase = loggerBase;
         }
 
-        public ILogger<TCatergory> CreateLogger<TCatergory>() =>
-            new TypedLoggerDecorator<TCatergory>(_loggerBase);
+        public ILogger<TCategory> CreateLogger<TCategory>() =>
+            new TypedLoggerDecorator<TCategory>(_loggerBase);
     }
 
     public class EmptyLoggerFactory : ILoggerFactory
@@ -36,6 +36,6 @@ namespace MongoDB.Driver.Core.TestHelpers.Logging
         {
         }
 
-        public ILogger<TCatergory> CreateLogger<TCatergory>() => null;
+        public ILogger<TCategory> CreateLogger<TCategory>() => null;
     }
 }
