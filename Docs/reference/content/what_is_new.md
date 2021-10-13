@@ -7,6 +7,14 @@ title = "What's New"
   identifier = "What's New"
   pre = "<i class='fa fa-star'></i>"
 +++
+
+## What's New in 2.14.0
+
+The main new features in 2.1.40 include:
+
+* A beta version of the new LINQ provider (known as LINQ3, see: [LINQ3]({{< relref "reference\driver\crud\linq3.md" >}}))
+* The current LINQ provider (known as LINQ2) continues to be available and is still the default LINQ provider for now
+
 ## What's New in 2.13.0
 
 The main new features in 2.13.0 include:
