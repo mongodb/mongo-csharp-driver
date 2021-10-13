@@ -19,11 +19,13 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -344,14 +346,14 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
-        private WriteCommandOperation<BsonDocument> CreateWriteOperation(ICoreSessionHandle session, ConnectionDescription connectionDescription, ReadPreference readPreference)
+        private AggregateToCollectionWriteCommandOperation<BsonDocument> CreateWriteOperation(ICoreSessionHandle session, ConnectionDescription connectionDescription, ReadPreference readPreference)
         {
             var command = CreateCommand(session, connectionDescription);
-            return WriteCommandOperation<BsonDocument>.CreateWriteCommandOperationWithReadPreference(
+            return new AggregateToCollectionWriteCommandOperation<BsonDocument>(
                 CollectionNamespace?.DatabaseNamespace ?? _databaseNamespace,
                 command,
-                BsonDocumentSerializer.Instance,
                 readPreference: readPreference,
+                BsonDocumentSerializer.Instance,
                 MessageEncoderSettings);
         }
 
@@ -495,6 +497,48 @@ namespace MongoDB.Driver.Core.Operations
                 if (_disposed)
                 {
                     throw new ObjectDisposedException(GetType().Name);
+                }
+            }
+        }
+
+        private class AggregateToCollectionWriteCommandOperation<TCommandResult> : CommandOperationBase<TCommandResult>, IWriteOperation<TCommandResult>
+        {
+            private readonly ReadPreference _readPreference;
+
+            // constructors
+            public AggregateToCollectionWriteCommandOperation(
+                DatabaseNamespace databaseNamespace,
+                BsonDocument command,
+                ReadPreference readPreference,
+                IBsonSerializer<TCommandResult> resultSerializer,
+                MessageEncoderSettings messageEncoderSettings)
+                : base(databaseNamespace, command, resultSerializer, messageEncoderSettings)
+            {
+                _readPreference = readPreference;
+            }
+
+            // methods
+            /// <inheritdoc/>
+            public TCommandResult Execute(IWriteBinding binding, CancellationToken cancellationToken)
+            {
+                Ensure.IsNotNull(binding, nameof(binding));
+
+                using (EventContext.BeginOperation())
+                using (var channelSource = binding.GetWriteChannelSource(cancellationToken))
+                {
+                    return ExecuteProtocol(channelSource, binding.Session, _readPreference, cancellationToken);
+                }
+            }
+
+            /// <inheritdoc/>
+            public async Task<TCommandResult> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken = default(CancellationToken))
+            {
+                Ensure.IsNotNull(binding, nameof(binding));
+
+                using (EventContext.BeginOperation())
+                using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationToken).ConfigureAwait(false))
+                {
+                    return await ExecuteProtocolAsync(channelSource, binding.Session, _readPreference, cancellationToken).ConfigureAwait(false);
                 }
             }
         }

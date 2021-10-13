@@ -13,10 +13,12 @@
 * limitations under the License.
 */
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
@@ -30,16 +32,6 @@ namespace MongoDB.Driver.Core.Operations
     /// <typeparam name="TCommandResult">The type of the command result.</typeparam>
     public class WriteCommandOperation<TCommandResult> : CommandOperationBase<TCommandResult>, IWriteOperation<TCommandResult>
     {
-        #region static
-        internal static WriteCommandOperation<TCommandResult> CreateWriteCommandOperationWithReadPreference(DatabaseNamespace databaseNamespace, BsonDocument command, IBsonSerializer<TCommandResult> resultSerializer, ReadPreference readPreference, MessageEncoderSettings messageEncoderSettings)
-        {
-            // this is a really special case for operations that consider own rules to determine whether the server is writable or no
-            return new WriteCommandOperation<TCommandResult>(databaseNamespace, command, resultSerializer, readPreference, messageEncoderSettings);
-        }
-        #endregion
-
-        private readonly ReadPreference _readPreference;
-
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="WriteCommandOperation{TCommandResult}"/> class.
@@ -49,20 +41,8 @@ namespace MongoDB.Driver.Core.Operations
         /// <param name="resultSerializer">The result serializer.</param>
         /// <param name="messageEncoderSettings">The message encoder settings.</param>
         public WriteCommandOperation(DatabaseNamespace databaseNamespace, BsonDocument command, IBsonSerializer<TCommandResult> resultSerializer, MessageEncoderSettings messageEncoderSettings)
-            : this(
-                  databaseNamespace,
-                  command,
-                  resultSerializer,
-                  // most of write operations mist be called on Primary
-                  ReadPreference.Primary,
-                  messageEncoderSettings)
-        {
-        }
-
-        private WriteCommandOperation(DatabaseNamespace databaseNamespace, BsonDocument command, IBsonSerializer<TCommandResult> resultSerializer, ReadPreference readPreference, MessageEncoderSettings messageEncoderSettings)
             : base(databaseNamespace, command, resultSerializer, messageEncoderSettings)
         {
-            _readPreference = Ensure.IsNotNull(readPreference, nameof(readPreference));
         }
 
         // methods
@@ -74,7 +54,7 @@ namespace MongoDB.Driver.Core.Operations
             using (EventContext.BeginOperation())
             using (var channelSource = binding.GetWriteChannelSource(cancellationToken))
             {
-                return ExecuteProtocol(channelSource, binding.Session, _readPreference, cancellationToken);
+                return ExecuteProtocol(channelSource, binding.Session, ReadPreference.Primary, cancellationToken);
             }
         }
 
@@ -86,7 +66,7 @@ namespace MongoDB.Driver.Core.Operations
             using (EventContext.BeginOperation())
             using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationToken).ConfigureAwait(false))
             {
-                return await ExecuteProtocolAsync(channelSource, binding.Session, _readPreference, cancellationToken).ConfigureAwait(false);
+                return await ExecuteProtocolAsync(channelSource, binding.Session, ReadPreference.Primary, cancellationToken).ConfigureAwait(false);
             }
         }
     }
