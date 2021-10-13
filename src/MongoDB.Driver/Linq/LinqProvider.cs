@@ -35,14 +35,12 @@ namespace MongoDB.Driver.Linq
 
     internal static class LinqProviderExtensions
     {
-        public static LinqProviderAdapter GetAdapter(this LinqProvider linqProvider)
-        {
-            return linqProvider switch
+        public static LinqProviderAdapter GetAdapter(this LinqProvider linqProvider) =>
+            linqProvider switch
             {
                 LinqProvider.V2 => LinqProviderAdapter.V2,
                 LinqProvider.V3 => LinqProviderAdapter.V3,
                 _ => throw new ArgumentException($"Unknown LINQ provider: {linqProvider}.", nameof(linqProvider))
             };
-        }
     }
 }
