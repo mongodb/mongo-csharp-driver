@@ -28,20 +28,10 @@ namespace MongoDB.Driver.Core.Bindings
     /// </summary>
     public sealed class WritableServerBinding : IReadWriteBinding
     {
-        #region static
-        internal static IReadWriteBinding CreateCustomWritableServerBinding(ICluster cluster, ICoreSessionHandle session, IServerSelector serverSelector, ReadPreference readPreference)
-        {
-            // this is a really special case for operations that consider own rules to determine whether the server is writable or no
-            return new WritableServerBinding(cluster, session, serverSelector, readPreference);
-        }
-        #endregion
-
         // fields
         private readonly ICluster _cluster;
         private bool _disposed;
-        private ReadPreference _readPreference;
         private readonly ICoreSessionHandle _session;
-        private IServerSelector _serverSelector;
 
         // constructors
         /// <summary>
@@ -50,28 +40,16 @@ namespace MongoDB.Driver.Core.Bindings
         /// <param name="cluster">The cluster.</param>
         /// <param name="session">The session.</param>
         public WritableServerBinding(ICluster cluster, ICoreSessionHandle session)
-            : this(
-                cluster,
-                session,
-                // most write operations must be called for Primary
-                WritableServerSelector.Instance,
-                ReadPreference.Primary)
-        {
-        }
-
-        private WritableServerBinding(ICluster cluster, ICoreSessionHandle session, IServerSelector serverSelector, ReadPreference readPreference)
         {
             _cluster = Ensure.IsNotNull(cluster, nameof(cluster));
             _session = Ensure.IsNotNull(session, nameof(session));
-            _serverSelector = Ensure.IsNotNull(serverSelector, nameof(serverSelector));
-            _readPreference = Ensure.IsNotNull(readPreference, nameof(readPreference));
         }
 
         // properties
         /// <inheritdoc/>
         public ReadPreference ReadPreference
         {
-            get { return _readPreference; }
+            get { return ReadPreference.Primary; }
         }
 
         /// <inheritdoc/>
@@ -85,7 +63,7 @@ namespace MongoDB.Driver.Core.Bindings
         public IChannelSourceHandle GetReadChannelSource(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
-            var server = _cluster.SelectServerAndPinIfNeeded(_session, _serverSelector, cancellationToken);
+            var server = _cluster.SelectServerAndPinIfNeeded(_session, WritableServerSelector.Instance, cancellationToken);
 
             return GetChannelSourceHelper(server);
         }
@@ -94,7 +72,7 @@ namespace MongoDB.Driver.Core.Bindings
         public async Task<IChannelSourceHandle> GetReadChannelSourceAsync(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
-            var server = await _cluster.SelectServerAndPinIfNeededAsync(_session, _serverSelector, cancellationToken).ConfigureAwait(false);
+            var server = await _cluster.SelectServerAndPinIfNeededAsync(_session, WritableServerSelector.Instance, cancellationToken).ConfigureAwait(false);
             return GetChannelSourceHelper(server);
         }
 
@@ -102,7 +80,7 @@ namespace MongoDB.Driver.Core.Bindings
         public IChannelSourceHandle GetWriteChannelSource(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
-            var server = _cluster.SelectServerAndPinIfNeeded(_session, _serverSelector, cancellationToken);
+            var server = _cluster.SelectServerAndPinIfNeeded(_session, WritableServerSelector.Instance, cancellationToken);
             return GetChannelSourceHelper(server);
         }
 
@@ -110,7 +88,7 @@ namespace MongoDB.Driver.Core.Bindings
         public async Task<IChannelSourceHandle> GetWriteChannelSourceAsync(CancellationToken cancellationToken)
         {
             ThrowIfDisposed();
-            var server = await _cluster.SelectServerAndPinIfNeededAsync(_session, _serverSelector, cancellationToken).ConfigureAwait(false);
+            var server = await _cluster.SelectServerAndPinIfNeededAsync(_session, WritableServerSelector.Instance, cancellationToken).ConfigureAwait(false);
             return GetChannelSourceHelper(server);
         }
 

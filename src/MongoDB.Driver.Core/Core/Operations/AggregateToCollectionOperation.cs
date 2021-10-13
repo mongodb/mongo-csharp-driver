@@ -300,22 +300,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             if (!ChannelPinningHelper.TryCreatePinnedReadWriteBinding(cluster, session, out var readWriteBinding))
             {
-                var customServerSelector = new DelegateServerSelector(
-                    (c, s) =>
-                    {
-                        IServerSelector serverSelector;
-                        if (ChannelPinningHelper.IsInLoadBalancedMode(c) || Feature.AggregateOutOnSecondary.IsSupported(s.Max(i => i.Version)))
-                        {
-                            serverSelector = new ReadPreferenceServerSelector(_initialReadPreference);
-                        }
-                        else
-                        {
-                            serverSelector = WritableServerSelector.Instance;
-                        }
-                        return serverSelector.SelectServers(c, s);
-                    });
-
-                readWriteBinding = WritableServerBinding.CreateCustomWritableServerBinding(cluster, session, customServerSelector, _initialReadPreference);
+                readWriteBinding = new AggregateToCollectionWriteBinding(cluster, session, _initialReadPreference);
             }
 
             return new ReadWriteBindingHandle(readWriteBinding);
@@ -405,6 +390,113 @@ namespace MongoDB.Driver.Core.Operations
             }
 
             return pipeline; // unchanged
+        }
+
+        private class AggregateToCollectionWriteBinding : IReadWriteBinding
+        {
+            // fields
+            private readonly ICluster _cluster;
+            private bool _disposed;
+            private ReadPreference _readPreference;
+            private readonly ICoreSessionHandle _session;
+            private IServerSelector _serverSelector;
+
+            // constructors
+            public AggregateToCollectionWriteBinding(ICluster cluster, ICoreSessionHandle session, ReadPreference readPreference)
+            {
+                _cluster = Ensure.IsNotNull(cluster, nameof(cluster));
+                _session = Ensure.IsNotNull(session, nameof(session));
+                _readPreference = Ensure.IsNotNull(readPreference, nameof(readPreference));
+                _serverSelector = CreateServerSelector();
+            }
+
+            // properties
+            /// <inheritdoc/>
+            public ReadPreference ReadPreference
+            {
+                get { return _readPreference; }
+            }
+
+            /// <inheritdoc/>
+            public ICoreSessionHandle Session
+            {
+                get { return _session; }
+            }
+
+            // methods
+            /// <inheritdoc/>
+            public IChannelSourceHandle GetReadChannelSource(CancellationToken cancellationToken)
+            {
+                ThrowIfDisposed();
+                var server = _cluster.SelectServerAndPinIfNeeded(_session, _serverSelector, cancellationToken);
+
+                return GetChannelSourceHelper(server);
+            }
+
+            /// <inheritdoc/>
+            public async Task<IChannelSourceHandle> GetReadChannelSourceAsync(CancellationToken cancellationToken)
+            {
+                ThrowIfDisposed();
+                var server = await _cluster.SelectServerAndPinIfNeededAsync(_session, _serverSelector, cancellationToken).ConfigureAwait(false);
+                return GetChannelSourceHelper(server);
+            }
+
+            /// <inheritdoc/>
+            public IChannelSourceHandle GetWriteChannelSource(CancellationToken cancellationToken)
+            {
+                ThrowIfDisposed();
+                var server = _cluster.SelectServerAndPinIfNeeded(_session, _serverSelector, cancellationToken);
+                return GetChannelSourceHelper(server);
+            }
+
+            /// <inheritdoc/>
+            public async Task<IChannelSourceHandle> GetWriteChannelSourceAsync(CancellationToken cancellationToken)
+            {
+                ThrowIfDisposed();
+                var server = await _cluster.SelectServerAndPinIfNeededAsync(_session, _serverSelector, cancellationToken).ConfigureAwait(false);
+                return GetChannelSourceHelper(server);
+            }
+
+            private IChannelSourceHandle GetChannelSourceHelper(IServer server)
+            {
+                return new ChannelSourceHandle(new ServerChannelSource(server, _session.Fork()));
+            }
+
+            /// <inheritdoc/>
+            private IServerSelector CreateServerSelector()
+            {
+                return new DelegateServerSelector(
+                   (c, s) =>
+                   {
+                       IServerSelector serverSelector;
+                       if (ChannelPinningHelper.IsInLoadBalancedMode(c) || Feature.AggregateOutOnSecondary.IsSupported(s.Max(i => i.Version)))
+                       {
+                           serverSelector = new ReadPreferenceServerSelector(_readPreference);
+                       }
+                       else
+                       {
+                           serverSelector = WritableServerSelector.Instance;
+                       }
+                       return serverSelector.SelectServers(c, s);
+                   });
+            }
+
+            public void Dispose()
+            {
+                if (!_disposed)
+                {
+                    _session.Dispose();
+                    _disposed = true;
+                }
+            }
+
+            private void ThrowIfDisposed()
+            {
+                if (_disposed)
+                {
+                    throw new ObjectDisposedException(GetType().Name);
+                }
+            }
         }
     }
 }
