@@ -414,7 +414,7 @@ namespace MongoDB.Driver
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
-                _linqProvider = Ensure.IsNotNull(value, nameof(value));
+                _linqProvider = value;
             }
         }
 

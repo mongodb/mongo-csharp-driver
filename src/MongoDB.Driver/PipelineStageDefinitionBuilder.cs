@@ -1476,7 +1476,7 @@ namespace MongoDB.Driver
 
         public override RenderedProjectionDefinition<TOutput> Render(IBsonSerializer<TInput> documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
-            return linqProvider.TranslateExpressionToBucketOutputProjection(_valueExpression, _outputExpression, documentSerializer, serializerRegistry, _translationOptions);
+            return linqProvider.GetAdapter().TranslateExpressionToBucketOutputProjection(_valueExpression, _outputExpression, documentSerializer, serializerRegistry, _translationOptions);
         }
     }
 
@@ -1505,7 +1505,7 @@ namespace MongoDB.Driver
 
         public override RenderedProjectionDefinition<TOutput> Render(IBsonSerializer<TInput> documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
-            return linqProvider.TranslateExpressionToGroupProjection(_idExpression, _groupExpression, documentSerializer, serializerRegistry, _translationOptions);
+            return linqProvider.GetAdapter().TranslateExpressionToGroupProjection(_idExpression, _groupExpression, documentSerializer, serializerRegistry, _translationOptions);
         }
     }
 
@@ -1527,7 +1527,7 @@ namespace MongoDB.Driver
 
         public override RenderedProjectionDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
-            return linqProvider.TranslateExpressionToProjection(_expression, inputSerializer, serializerRegistry, _translationOptions);
+            return linqProvider.GetAdapter().TranslateExpressionToProjection(_expression, inputSerializer, serializerRegistry, _translationOptions);
         }
     }
 

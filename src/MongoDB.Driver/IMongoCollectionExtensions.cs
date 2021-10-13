@@ -2327,7 +2327,7 @@ namespace MongoDB.Driver
         {
             var linqProvider = collection.Database.Client.Settings.LinqProvider;
             aggregateOptions = aggregateOptions ?? new AggregateOptions();
-            return linqProvider.AsQueryable(collection, session, aggregateOptions);
+            return linqProvider.GetAdapter().AsQueryable(collection, session, aggregateOptions);
         }
     }
 }

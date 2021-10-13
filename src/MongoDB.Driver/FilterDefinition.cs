@@ -217,7 +217,7 @@ namespace MongoDB.Driver
         /// <inheritdoc />
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
-            return linqProvider.TranslateExpressionToFilter(_expression, documentSerializer, serializerRegistry);
+            return linqProvider.GetAdapter().TranslateExpressionToFilter(_expression, documentSerializer, serializerRegistry);
         }
     }
 

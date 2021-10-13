@@ -300,7 +300,7 @@ namespace MongoDB.Driver
         /// <inheritdoc />
         public override RenderedFieldDefinition Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
-            return linqProvider.TranslateExpressionToField(_expression, documentSerializer, serializerRegistry);
+            return linqProvider.GetAdapter().TranslateExpressionToField(_expression, documentSerializer, serializerRegistry);
         }
     }
 
@@ -343,7 +343,7 @@ namespace MongoDB.Driver
             LinqProvider linqProvider,
             bool allowScalarValueForArrayField)
         {
-            return linqProvider.TranslateExpressionToField(_expression, documentSerializer, serializerRegistry, allowScalarValueForArrayField);
+            return linqProvider.GetAdapter().TranslateExpressionToField(_expression, documentSerializer, serializerRegistry, allowScalarValueForArrayField);
         }
     }
 

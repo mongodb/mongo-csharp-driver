@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests
         [Fact]
         public void AsQueryable_should_return_expected_result()
         {
-            var subject = LinqProvider.V3;
+            var subject = LinqProviderAdapter.V3;
             var collection = Mock.Of<IMongoCollection<C>>();
             var session = Mock.Of<IClientSessionHandle>();
             var options = new AggregateOptions();
@@ -48,7 +48,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests
         [Fact]
         public void TranslateExpressionToAggregateExpression_should_return_expected_result()
         {
-            var subject = LinqProvider.V3;
+            var subject = LinqProviderAdapter.V3;
             Expression<Func<C, int>> expression = c => c.X;
             var serializerRegistry = BsonSerializer.SerializerRegistry;
             var sourceSerializer = serializerRegistry.GetSerializer<C>();
@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests
 
             var result = subject.TranslateExpressionToAggregateExpression(expression, sourceSerializer, serializerRegistry, translationOptions);
 
-            var expectedResult = LinqProvider.V2.TranslateExpressionToAggregateExpression(expression, sourceSerializer, serializerRegistry, translationOptions);
+            var expectedResult = LinqProviderAdapter.V2.TranslateExpressionToAggregateExpression(expression, sourceSerializer, serializerRegistry, translationOptions);
             expectedResult.Should().Be("'$X'");
             result.Should().Be(expectedResult);
         }
@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests
         [Fact]
         public void TranslateExpressionToBucketOutputProjection_should_return_expected_result()
         {
-            var subject = LinqProvider.V3;
+            var subject = LinqProviderAdapter.V3;
             Expression<Func<C, int>> valueExpression = c => c.X;
             Expression<Func<IGrouping<int, C>, int>> outputExpression = g => g.Count();
             var serializerRegistry = BsonSerializer.SerializerRegistry;
@@ -73,7 +73,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests
 
             var result = subject.TranslateExpressionToBucketOutputProjection(valueExpression, outputExpression, documentSerializer, serializerRegistry, translationOptions);
 
-            var expectedResult = LinqProvider.V2.TranslateExpressionToBucketOutputProjection(valueExpression, outputExpression, documentSerializer, serializerRegistry, translationOptions);
+            var expectedResult = LinqProviderAdapter.V2.TranslateExpressionToBucketOutputProjection(valueExpression, outputExpression, documentSerializer, serializerRegistry, translationOptions);
             expectedResult.Document.Should().Be("{ $sum : 1 }");
             expectedResult.ProjectionSerializer.Should().BeOfType<Int32Serializer>();
             result.Document.Should().Be(expectedResult.Document);
@@ -83,14 +83,14 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests
         [Fact]
         public void TranslateExpressionToField_with_untyped_lambda_should_return_expected_result()
         {
-            var subject = LinqProvider.V3;
+            var subject = LinqProviderAdapter.V3;
             LambdaExpression expression = (Expression<Func<C, int>>)(c => c.X);
             var serializerRegistry = BsonSerializer.SerializerRegistry;
             var documentSerializer = serializerRegistry.GetSerializer<C>();
 
             var result = subject.TranslateExpressionToField(expression, documentSerializer, serializerRegistry);
 
-            var expectedResult = LinqProvider.V2.TranslateExpressionToField(expression, documentSerializer, serializerRegistry);
+            var expectedResult = LinqProviderAdapter.V2.TranslateExpressionToField(expression, documentSerializer, serializerRegistry);
             expectedResult.FieldName.Should().Be("X");
             expectedResult.FieldSerializer.Should().BeOfType<Int32Serializer>();
             result.FieldName.Should().Be(expectedResult.FieldName);
@@ -100,14 +100,14 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests
         [Fact]
         public void TranslateExpressionToField_with_typed_lambda_should_return_expected_result()
         {
-            var subject = LinqProvider.V3;
+            var subject = LinqProviderAdapter.V3;
             Expression<Func<C, int>> expression = c => c.X;
             var serializerRegistry = BsonSerializer.SerializerRegistry;
             var documentSerializer = serializerRegistry.GetSerializer<C>();
 
             var result = subject.TranslateExpressionToField(expression, documentSerializer, serializerRegistry, allowScalarValueForArrayField: false);
 
-            var expectedResult = LinqProvider.V2.TranslateExpressionToField(expression, documentSerializer, serializerRegistry, allowScalarValueForArrayField: false);
+            var expectedResult = LinqProviderAdapter.V2.TranslateExpressionToField(expression, documentSerializer, serializerRegistry, allowScalarValueForArrayField: false);
             expectedResult.FieldName.Should().Be("X");
             expectedResult.FieldSerializer.Should().BeOfType<Int32Serializer>();
             result.FieldName.Should().Be(expectedResult.FieldName);
@@ -117,14 +117,14 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests
         [Fact]
         public void TranslateExpressionToFilter_should_return_expected_result()
         {
-            var subject = LinqProvider.V3;
+            var subject = LinqProviderAdapter.V3;
             Expression<Func<C, bool>> expression = c => c.X == 0;
             var serializerRegistry = BsonSerializer.SerializerRegistry;
             var documentSerializer = serializerRegistry.GetSerializer<C>();
 
             var result = subject.TranslateExpressionToFilter(expression, documentSerializer, serializerRegistry);
 
-            var expectedResult = LinqProvider.V2.TranslateExpressionToFilter(expression, documentSerializer, serializerRegistry);
+            var expectedResult = LinqProviderAdapter.V2.TranslateExpressionToFilter(expression, documentSerializer, serializerRegistry);
             expectedResult.Should().Be("{ X : 0 }");
             result.Should().Be(expectedResult);
         }
@@ -132,14 +132,14 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests
         [Fact]
         public void TranslateExpressionToFindProjection_should_return_expected_result()
         {
-            var subject = LinqProvider.V3;
+            var subject = LinqProviderAdapter.V3;
             Expression<Func<C, int>> expression = c => c.X;
             var serializerRegistry = BsonSerializer.SerializerRegistry;
             var documentSerializer = serializerRegistry.GetSerializer<C>();
 
             var result = subject.TranslateExpressionToFindProjection(expression, documentSerializer, serializerRegistry);
 
-            var expectedResult = LinqProvider.V2.TranslateExpressionToFindProjection(expression, documentSerializer, serializerRegistry);
+            var expectedResult = LinqProviderAdapter.V2.TranslateExpressionToFindProjection(expression, documentSerializer, serializerRegistry);
             expectedResult.Document.Should().Be("{ X : 1, _id : 0 }");
             result.Document.Should().Be(expectedResult.Document);
             result.ProjectionSerializer.ValueType.Should().Be(typeof(int));
@@ -152,7 +152,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests
 
             void WithAnonymousOutputType<TOutput>(Expression<Func<IGrouping<int, C>, TOutput>> groupExpression)
             {
-                var subject = LinqProvider.V3;
+                var subject = LinqProviderAdapter.V3;
                 Expression<Func<C, int>> idExpression = c => c.X;
                 var serializerRegistry = BsonSerializer.SerializerRegistry;
                 var documentSerializer = serializerRegistry.GetSerializer<C>();
@@ -160,7 +160,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests
 
                 var result = subject.TranslateExpressionToGroupProjection(idExpression, groupExpression, documentSerializer, serializerRegistry, translationOptions);
 
-                var expectedResult = LinqProvider.V2.TranslateExpressionToGroupProjection(idExpression, groupExpression, documentSerializer, serializerRegistry, translationOptions);
+                var expectedResult = LinqProviderAdapter.V2.TranslateExpressionToGroupProjection(idExpression, groupExpression, documentSerializer, serializerRegistry, translationOptions);
                 expectedResult.Document.Should().Be("{ _id : '$X', count : { $sum : 1 } }");
                 expectedResult.ProjectionSerializer.ValueType.Should().Be(typeof(TOutput));
                 result.Document.Should().Be(expectedResult.Document);
@@ -175,14 +175,14 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests
 
             void WithAnonymousOutputType<TOutput>(Expression<Func<C, TOutput>> expression)
             {
-                var subject = LinqProvider.V3;
+                var subject = LinqProviderAdapter.V3;
                 var serializerRegistry = BsonSerializer.SerializerRegistry;
                 var inputSerializer = serializerRegistry.GetSerializer<C>();
                 var translationOptions = new ExpressionTranslationOptions();
 
                 var result = subject.TranslateExpressionToProjection(expression, inputSerializer, serializerRegistry, translationOptions);
 
-                var expectedResult = LinqProvider.V2.TranslateExpressionToProjection(expression, inputSerializer, serializerRegistry, translationOptions);
+                var expectedResult = LinqProviderAdapter.V2.TranslateExpressionToProjection(expression, inputSerializer, serializerRegistry, translationOptions);
                 expectedResult.Document.Should().Be("{ id : '$_id', x : '$X', _id : 0 }");
                 expectedResult.ProjectionSerializer.ValueType.Should().Be(typeof(TOutput));
                 result.Document.Should().Be(expectedResult.Document);

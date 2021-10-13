@@ -301,7 +301,7 @@ namespace MongoDB.Driver
         /// <inheritdoc />
         public override RenderedProjectionDefinition<TProjection> Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
-            return linqProvider.TranslateExpressionToFindProjection(_expression, sourceSerializer, serializerRegistry);
+            return linqProvider.GetAdapter().TranslateExpressionToFindProjection(_expression, sourceSerializer, serializerRegistry);
         }
     }
 

@@ -132,7 +132,7 @@ namespace MongoDB.Driver
         /// <inheritdoc/>
         public override BsonValue Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
-            return linqProvider.TranslateExpressionToAggregateExpression(_expression, sourceSerializer, serializerRegistry, _translationOptions);
+            return linqProvider.GetAdapter().TranslateExpressionToAggregateExpression(_expression, sourceSerializer, serializerRegistry, _translationOptions);
         }
     }
 }

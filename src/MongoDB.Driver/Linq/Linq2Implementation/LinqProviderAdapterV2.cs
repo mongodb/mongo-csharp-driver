@@ -26,7 +26,7 @@ using MongoDB.Driver.Linq.Linq2Implementation.Translators;
 
 namespace MongoDB.Driver.Linq.Linq2Implementation
 {
-    internal sealed class LinqProviderV2 : LinqProvider
+    internal sealed class LinqProviderAdapterV2 : LinqProviderAdapter
     {
         internal override IMongoQueryable<TDocument> AsQueryable<TDocument>(
             IMongoCollection<TDocument> collection,

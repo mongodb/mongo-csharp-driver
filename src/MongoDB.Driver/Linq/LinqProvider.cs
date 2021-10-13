@@ -14,83 +14,35 @@
 */
 
 using System;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Threading;
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver.Linq
 {
     /// <summary>
     /// Represents the different LINQ providers.
     /// </summary>
-    public abstract class LinqProvider
+    public enum LinqProvider
     {
-        #region static
-        // public static fields
         /// <summary>
         /// The LINQ provider that was first shipped with version 2.0 of the driver,
         /// </summary>
-        public static readonly LinqProvider V2 = new Linq2Implementation.LinqProviderV2();
+        V2 = 2,
 
         /// <summary>
         /// The LINQ provider that is planned to be the default in version 3.0 of the driver and can be optionally used before that.
         /// </summary>
-        public static readonly LinqProvider V3 = new Linq3Implementation.LinqProviderV3();
-        #endregion
+        V3 = 3
+    }
 
-        // internal methods
-        internal abstract IMongoQueryable<TDocument> AsQueryable<TDocument>(
-            IMongoCollection<TDocument> collection,
-            IClientSessionHandle session,
-            AggregateOptions options);
-
-        internal abstract BsonValue TranslateExpressionToAggregateExpression<TSource, TResult>(
-            Expression<Func<TSource, TResult>> expression,
-            IBsonSerializer<TSource> sourceSerializer,
-            IBsonSerializerRegistry serializerRegistry,
-            ExpressionTranslationOptions translationOptions);
-
-        internal abstract RenderedProjectionDefinition<TOutput> TranslateExpressionToBucketOutputProjection<TInput, TValue, TOutput>(
-            Expression<Func<TInput, TValue>> valueExpression,
-            Expression<Func<IGrouping<TValue, TInput>, TOutput>> outputExpression,
-            IBsonSerializer<TInput> documentSerializer,
-            IBsonSerializerRegistry serializerRegistry,
-            ExpressionTranslationOptions translationOptions);
-
-        internal abstract RenderedFieldDefinition TranslateExpressionToField<TDocument>(
-            LambdaExpression expression,
-            IBsonSerializer<TDocument> documentSerializer,
-            IBsonSerializerRegistry serializerRegistry);
-
-        internal abstract RenderedFieldDefinition<TField> TranslateExpressionToField<TDocument, TField>(
-            Expression<Func<TDocument, TField>> expression,
-            IBsonSerializer<TDocument> documentSerializer,
-            IBsonSerializerRegistry serializerRegistry,
-            bool allowScalarValueForArrayField);
-
-        internal abstract BsonDocument TranslateExpressionToFilter<TDocument>(
-            Expression<Func<TDocument, bool>> expression,
-            IBsonSerializer<TDocument> documentSerializer,
-            IBsonSerializerRegistry serializerRegistry);
-
-        internal abstract RenderedProjectionDefinition<TProjection> TranslateExpressionToFindProjection<TSource, TProjection>(
-            Expression<Func<TSource, TProjection>> expression,
-            IBsonSerializer<TSource> sourceSerializer,
-            IBsonSerializerRegistry serializerRegistry);
-
-        internal abstract RenderedProjectionDefinition<TOutput> TranslateExpressionToGroupProjection<TInput, TKey, TOutput>(
-            Expression<Func<TInput, TKey>> idExpression,
-            Expression<Func<IGrouping<TKey, TInput>, TOutput>> groupExpression,
-            IBsonSerializer<TInput> documentSerializer,
-            IBsonSerializerRegistry serializerRegistry,
-            ExpressionTranslationOptions translationOptions);
-
-        internal abstract RenderedProjectionDefinition<TOutput> TranslateExpressionToProjection<TInput, TOutput>(
-            Expression<Func<TInput, TOutput>> expression,
-            IBsonSerializer<TInput> inputSerializer,
-            IBsonSerializerRegistry serializerRegistry,
-            ExpressionTranslationOptions translationOptions);
+    internal static class LinqProviderExtensions
+    {
+        public static LinqProviderAdapter GetAdapter(this LinqProvider linqProvider)
+        {
+            return linqProvider switch
+            {
+                LinqProvider.V2 => LinqProviderAdapter.V2,
+                LinqProvider.V3 => LinqProviderAdapter.V3,
+                _ => throw new ArgumentException($"Unknown LINQ provider: {linqProvider}.", nameof(linqProvider))
+            };
+        }
     }
 }

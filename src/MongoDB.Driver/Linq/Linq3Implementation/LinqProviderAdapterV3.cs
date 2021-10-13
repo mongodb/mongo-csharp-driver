@@ -28,7 +28,7 @@ using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilterTran
 
 namespace MongoDB.Driver.Linq.Linq3Implementation
 {
-    internal sealed class LinqProviderV3 : LinqProvider
+    internal sealed class LinqProviderAdapterV3 : LinqProviderAdapter
     {
         internal override IMongoQueryable<TDocument> AsQueryable<TDocument>(
             IMongoCollection<TDocument> collection,
@@ -61,7 +61,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
             ExpressionTranslationOptions translationOptions)
         {
             // TODO: implement using LINQ3 instead of falling back to LINQ2
-            return LinqProvider.V2.TranslateExpressionToBucketOutputProjection(valueExpression, outputExpression, documentSerializer, serializerRegistry, translationOptions);
+            return LinqProviderAdapter.V2.TranslateExpressionToBucketOutputProjection(valueExpression, outputExpression, documentSerializer, serializerRegistry, translationOptions);
         }
 
         internal override RenderedFieldDefinition TranslateExpressionToField<TDocument>(
@@ -114,7 +114,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
             IBsonSerializerRegistry serializerRegistry)
         {
             // TODO: implement using LINQ3 instead of falling back to LINQ2
-            return LinqProvider.V2.TranslateExpressionToFindProjection(expression, sourceSerializer, serializerRegistry);
+            return LinqProviderAdapter.V2.TranslateExpressionToFindProjection(expression, sourceSerializer, serializerRegistry);
         }
 
         internal override RenderedProjectionDefinition<TOutput> TranslateExpressionToGroupProjection<TInput, TKey, TOutput>(
@@ -125,7 +125,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
             ExpressionTranslationOptions translationOptions)
         {
             // TODO: implement using LINQ3 instead of falling back to LINQ2
-            return LinqProvider.V2.TranslateExpressionToGroupProjection(idExpression, groupExpression, documentSerializer, serializerRegistry, translationOptions);
+            return LinqProviderAdapter.V2.TranslateExpressionToGroupProjection(idExpression, groupExpression, documentSerializer, serializerRegistry, translationOptions);
         }
 
         internal override RenderedProjectionDefinition<TOutput> TranslateExpressionToProjection<TInput, TOutput>(
