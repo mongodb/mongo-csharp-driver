@@ -5,12 +5,12 @@ set -o errexit # Exit the script with error if any of the commands fail
 
 # Supported/used environment variables:
 #   AUTH                                Authentication flag, must be "auth"
-#   COMPRESSOR                          Field level compressor, must be set
 #   FRAMEWORK                           Used in build.cake "TestServerless" task, must be set
-#   MONGODB_URI                         URI with mulpiple mongoses, produced by create-instance.sh script, must be set
 #   OS                                  Operating system, must be set
 #   SERVERLESS_ATLAS_USER               Authentication user, must be set
 #   SERVERLESS_ATLAS_PASSWORD           Authentiction password, must be set
+#   SINGLE_ATLASPROXY_SERVERLESS_URI    Single atlas proxy serverless uri, must be set
+#   MULTI_ATLASPROXY_SERVERLESS_URI     Multi atlas proxy serverless uri, must be set
 #   SSL                                 TLS connection flag, must be "ssl"
 # Modified/exported environment variables:
 #   MONGODB_URI                         MONGODB_URI for single host with auth details and TLS and compressor parameters
@@ -23,11 +23,6 @@ set -o errexit # Exit the script with error if any of the commands fail
 
 if [[ "$AUTH" != "auth" ]]; then
   echo "Serverless tests require AUTH to be enabled"
-  exit 1
-fi
-
-if [ -z "$COMPRESSOR" ]; then
-  echo "Serverless tests require COMPRESSOR to be configured"
   exit 1
 fi
 
@@ -52,9 +47,8 @@ else
   done
 fi
 
-MONGODB_URI_SINGLE_HOST=${MONGODB_URI%%,*}
-export MONGODB_URI_WITH_MULTIPLE_MONGOSES="mongodb://${SERVERLESS_ATLAS_USER}:${SERVERLESS_ATLAS_PASSWORD}@${MONGODB_URI:10}/?tls=true&authSource=admin&compressors=$COMPRESSOR"
-export MONGODB_URI="mongodb://${SERVERLESS_ATLAS_USER}:${SERVERLESS_ATLAS_PASSWORD}@${MONGODB_URI_SINGLE_HOST:10}/?tls=true&authSource=admin&compressors=$COMPRESSOR"
+export MONGODB_URI="mongodb://${SERVERLESS_ATLAS_USER}:${SERVERLESS_ATLAS_PASSWORD}@${SINGLE_ATLASPROXY_SERVERLESS_URI:10}"
+export MONGODB_URI_WITH_MULTIPLE_MONGOSES="mongodb+srv://${SERVERLESS_ATLAS_USER}:${SERVERLESS_ATLAS_PASSWORD}@${MULTI_ATLASPROXY_SERVERLESS_URI:14}"
 export SERVERLESS="true"
 
 if [ "Windows_NT" = "$OS" ]; then

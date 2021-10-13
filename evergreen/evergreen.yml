@@ -601,11 +601,11 @@ functions:
         working_dir: mongo-csharp-driver
         script: |
           AUTH=${AUTH} \
-          COMPRESSOR=${COMPRESSOR} \
           FRAMEWORK=${FRAMEWORK} \
-          MONGODB_URI="${MONGODB_URI}" \
           SERVERLESS_ATLAS_USER="${SERVERLESS_ATLAS_USER}" \
           SERVERLESS_ATLAS_PASSWORD="${SERVERLESS_ATLAS_PASSWORD}" \
+          SINGLE_ATLASPROXY_SERVERLESS_URI="${SINGLE_ATLASPROXY_SERVERLESS_URI}" \
+          MULTI_ATLASPROXY_SERVERLESS_URI="${MULTI_ATLASPROXY_SERVERLESS_URI}" \
           SSL=${SSL} \
             evergreen/run-serverless-tests.sh
 
@@ -618,6 +618,7 @@ functions:
           SERVERLESS_DRIVERS_GROUP=${SERVERLESS_DRIVERS_GROUP} \
           SERVERLESS_API_PUBLIC_KEY=${SERVERLESS_API_PUBLIC_KEY} \
           SERVERLESS_API_PRIVATE_KEY=${SERVERLESS_API_PRIVATE_KEY} \
+          LOADBALANCED=ON \
             bash ${DRIVERS_TOOLS}/.evergreen/serverless/create-instance.sh
     - command: expansions.update
       params:
