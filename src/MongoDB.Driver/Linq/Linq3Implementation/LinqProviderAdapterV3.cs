@@ -117,6 +117,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
         {
             var context = TranslationContext.Create(expression, documentSerializer);
             var filter = ExpressionToFilterTranslator.TranslateLambda(context, expression, documentSerializer);
+            filter = AstSimplifier.SimplifyAndConvert(filter);
 
             return filter.Render().AsBsonDocument;
         }
