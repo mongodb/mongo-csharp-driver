@@ -25,7 +25,6 @@ using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
-using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
@@ -64,13 +63,10 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                   }
             }";
 
-        private readonly ICluster _cluster;
-
         // public constructors
         public ClientEncryptionProseTests(ITestOutputHelper testOutputHelper)
             : base(testOutputHelper)
         {
-            _cluster = CoreTestConfiguration.Cluster;
         }
 
         // public methods
@@ -961,6 +957,64 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             }
         }
 
+        [Trait("Category", "CsfleKmsTls")]
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void KmsTls_Test([Values(false, true)] bool async)
+        {
+            RequireEnvironment.Check().EnvironmentVariable("KMS_TLS_ERROR_TYPE", isDefined: true);
+
+            using (var clientEncrypted = ConfigureClientEncrypted())
+            using (var clientEncryption = ConfigureClientEncryption(clientEncrypted.Wrapped as MongoClient))
+            {
+                var dataKeyOptions = CreateDataKeyOptions(
+                    kmsProvider: "aws",
+                    customMasterKey: new BsonDocument
+                    {
+                        { "region", "us-east-1" },
+                        { "key", "arn:aws:kms:us-east-1:579766882180:key/89fcc2c4-08b0-4bd9-9f25-e30687b580d0" },
+                        { "endpoint", "127.0.0.1:8000" }
+                    });
+
+                var exception = Record.Exception(() => CreateDataKey(clientEncryption, "aws", dataKeyOptions, async));
+
+                // Unfortunately .dotnet doesn't make difference between different certificate issues and throws the same exception for all cases.
+                // To ensure that we assert the expected case you need to add the following log callback:
+                //
+                //  private static bool SslServerCertificateCallback(
+                //      object sender,
+                //      X509Certificate certificate,
+                //      X509Chain chain,
+                //      SslPolicyErrors sslPolicyErrors)
+                //  {
+                //      Console.WriteLine("sslPolicyErrors:" + sslPolicyErrors.ToString());
+                //      Console.WriteLine("certificate:" + certificate.ToString());
+                //      return false;
+                //  }
+                //
+                // to the SslStream ctor in LibMongoCryptControllerBase.SendKmsRequest/SendKmsRequestAsync:
+                //
+                //  var remoteCertificateValidation = new RemoteCertificateValidationCallback(SslServerCertificateCallback);
+                //  using (var sslStream = new SslStream(networkStream, leaveInnerStreamOpen: false, remoteCertificateValidation))
+                //
+                // The expected output:
+                // * invalidHostname:
+                //      sslPolicyErrors:RemoteCertificateNameMismatch
+                //      certificate:
+                //          [Subject] C = US, S = New York, L = New York City, O = MongoDB, OU = Drivers, CN = wronghost.com
+                //          ...
+                // * expiredCertificate (pay attention the certificate is expired):
+                //      sslPolicyErrors:RemoteCertificateChainErrors
+                //      certificate:
+                //          ...
+                //          [Not Before]
+                //             05/20/2019 22:36:35
+                //          [Not After]
+                //             05/21/2019 22:36:35
+                exception.Message.Should().Be("Encryption related exception: The remote certificate is invalid according to the validation procedure.", $"because {Environment.GetEnvironmentVariable("KMS_TLS_ERROR_TYPE")} EG configuration");
+            }
+        }
+
         [SkippableTheory]
         [ParameterAttributeData]
         public void ViewAreProhibitedTest([Values(false, true)] bool async)
@@ -1148,39 +1202,43 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             }
         }
 
-        private DataKeyOptions CreateDataKeyOptions(string kmsProvider)
+        private DataKeyOptions CreateDataKeyOptions(string kmsProvider, BsonDocument customMasterKey = null)
         {
             var alternateKeyNames = new[] { $"{kmsProvider}_altname" };
             switch (kmsProvider)
             {
                 case "local":
+                    Ensure.IsNull(customMasterKey, "local masterKey");
                     return new DataKeyOptions(alternateKeyNames: alternateKeyNames);
                 case "aws":
-                    var awsMasterKey = new BsonDocument
-                    {
-                        { "region", "us-east-1" },
-                        { "key", "arn:aws:kms:us-east-1:579766882180:key/89fcc2c4-08b0-4bd9-9f25-e30687b580d0" }
-                    };
+                    var awsMasterKey = customMasterKey ??
+                        new BsonDocument
+                        {
+                            { "region", "us-east-1" },
+                            { "key", "arn:aws:kms:us-east-1:579766882180:key/89fcc2c4-08b0-4bd9-9f25-e30687b580d0" }
+                        };
                     return new DataKeyOptions(
                         alternateKeyNames: alternateKeyNames,
                         masterKey: awsMasterKey);
                 case "azure":
-                    var azureMasterKey = new BsonDocument
-                    {
-                        { "keyName", "key-name-csfle" },
-                        { "keyVaultEndpoint", "key-vault-csfle.vault.azure.net" }
-                    };
+                    var azureMasterKey = customMasterKey ??
+                        new BsonDocument
+                        {
+                            { "keyName", "key-name-csfle" },
+                            { "keyVaultEndpoint", "key-vault-csfle.vault.azure.net" }
+                        };
                     return new DataKeyOptions(
                         alternateKeyNames: alternateKeyNames,
                         masterKey: azureMasterKey);
                 case "gcp":
-                    var gcpMasterKey = new BsonDocument
-                    {
-                        { "projectId", "devprod-drivers" },
-                        { "location", "global" },
-                        { "keyRing", "key-ring-csfle" },
-                        { "keyName", "key-name-csfle" }
-                    };
+                    var gcpMasterKey = customMasterKey ??
+                        new BsonDocument
+                        {
+                            { "projectId", "devprod-drivers" },
+                            { "location", "global" },
+                            { "keyRing", "key-ring-csfle" },
+                            { "keyName", "key-name-csfle" }
+                        };
                     return new DataKeyOptions(
                         alternateKeyNames: alternateKeyNames,
                         masterKey: gcpMasterKey);
@@ -1296,9 +1354,10 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
         private void DropView(CollectionNamespace viewNamespace)
         {
+            var cluster = CoreTestConfiguration.Cluster;
             var operation = new DropCollectionOperation(viewNamespace, CoreTestConfiguration.MessageEncoderSettings);
-            using (var session = CoreTestConfiguration.StartSession(_cluster))
-            using (var binding = new WritableServerBinding(_cluster, session.Fork()))
+            using (var session = CoreTestConfiguration.StartSession(cluster))
+            using (var binding = new WritableServerBinding(cluster, session.Fork()))
             using (var bindingHandle = new ReadWriteBindingHandle(binding))
             {
                 operation.Execute(bindingHandle, CancellationToken.None);

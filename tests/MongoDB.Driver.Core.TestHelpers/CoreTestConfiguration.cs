@@ -225,9 +225,7 @@ namespace MongoDB.Driver
             // wait until the cluster has connected to the expected server
             if (!SpinWait.SpinUntil(() => Volatile.Read(ref hasExpectedServer), TimeSpan.FromSeconds(30)))
             {
-                var message = string.Format(
-                    $"Test cluster has no {expectedServerKey.ToLower()} server. Client view of the cluster is {0}.",
-                    cluster.Description.ToString());
+                var message = $"Test cluster has no {expectedServerKey.ToLower()} server. Client view of the cluster is {cluster.Description}.";
                 throw new Exception(message);
             }
 

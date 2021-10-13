@@ -408,6 +408,37 @@ Task("TestLoadBalanced")
 Task("TestLoadBalancedNetStandard20").IsDependentOn("TestLoadBalanced");
 Task("TestLoadBalancedNetStandard21").IsDependentOn("TestLoadBalanced");
 
+Task("TestCsfleKmsTls")
+    .IsDependentOn("Build")
+    .DoesForEach(
+        GetFiles("./**/*.Tests.csproj"),
+        testProject =>
+    {
+    
+        var settings = new DotNetCoreTestSettings
+        {
+            NoBuild = true,
+            NoRestore = true,
+            Configuration = configuration,
+            ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64"),
+            Filter = "Category=\"CsfleKmsTls\""
+        };
+
+        switch (target.ToLowerInvariant()) // target can be not only moniker related
+        {
+            case "testcsflekmstlsnetstandard20": settings.Framework = "netcoreapp2.1"; break;
+            case "testcsflekmstlsnetstandard21": settings.Framework = "netcoreapp3.1"; break;
+        }
+
+        DotNetCoreTest(
+            testProject.FullPath,
+            settings
+        );
+    });
+
+Task("TestCsfleKmsTlsNetStandard20").IsDependentOn("TestCsfleKmsTls");
+Task("TestCsfleKmsTlsNetStandard21").IsDependentOn("TestCsfleKmsTls");
+
 Task("Docs")
     .IsDependentOn("ApiDocs")
     .IsDependentOn("RefDocs");
