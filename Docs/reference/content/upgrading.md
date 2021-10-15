@@ -13,6 +13,10 @@ title = "Upgrading"
 
 ### Backwards compatibility with driver version 2.7.0–2.13.x
 
+Driver version 2.14.0 only supports MongoDB 3.6+. It cannot connect to
+clusters running earlier versions of MongoDB. If you need to connect to
+an older cluster, please use driver version 2.13.x or earlier.
+
 Starting in 2.11.0, ``BsonSerializer.Serialize`` will throw an
 ``InvalidOperationException`` when attempting to serialize an array at
 the root of a BSON document. Prior versions would allow this invalid operation.
