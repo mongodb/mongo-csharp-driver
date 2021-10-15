@@ -1449,10 +1449,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests.Translators
         [Theory]
         [InlineData(StringComparison.CurrentCulture)]
         [InlineData(StringComparison.CurrentCultureIgnoreCase)]
-#if NET472
         [InlineData(StringComparison.InvariantCulture)]
         [InlineData(StringComparison.InvariantCultureIgnoreCase)]
-#endif
         public void Should_throw_for_a_not_supported_string_comparison_type(StringComparison comparison)
         {
             Action act = () => Project(x => new { Result = x.B.Equals("balloon", comparison) });

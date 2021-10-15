@@ -1433,7 +1433,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
         {
             RequireServer.Check().VersionGreaterThanOrEqualTo("3.3.6");
 
-#if NET452 || NETCOREAPP1_1 
+#if NET472
             /* for implementations that don't support omitted optional parameters in expression trees
              * skip to next test */
             var result1 = Project(x => new { Result = x.A.Split('e') });
@@ -1532,7 +1532,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
             result.Value.Result.Should().BeTrue();
         }
 
-#if NET452
         [Theory]
         [InlineData(StringComparison.InvariantCulture)]
         [InlineData(StringComparison.InvariantCultureIgnoreCase)]
@@ -1542,7 +1541,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
 
             act.ShouldThrow<NotSupportedException>();
         }
-#endif
 
         [Fact]
         public void Should_translate_string_is_null_or_empty()
