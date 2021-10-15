@@ -13,7 +13,7 @@ title = "Upgrading"
 
 ### Backwards compatibility with driver version 2.7.0–2.13.x
 
-Driver version 2.14.0 only supports MongoDB 3.6+. It cannot connect to
+Driver version 2.14.0 only supports MongoDB 3.6 and later. It cannot connect to
 clusters running earlier versions of MongoDB. If you need to connect to
 an older cluster, please use driver version 2.13.x or earlier.
 
