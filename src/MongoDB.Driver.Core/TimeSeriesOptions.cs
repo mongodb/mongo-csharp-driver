@@ -19,7 +19,8 @@ using MongoDB.Driver.Core.Misc;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Defines the time series options to use when creating a time-series collection.
+    /// Defines the time series options to use when creating a time series collection. See https://docs.mongodb.com/manual/reference/command/create/ for supported options
+    /// and https://docs.mongodb.com/manual/core/timeseries-collections/ for more information on time series collections.
     /// </summary>
     public class TimeSeriesOptions
     {
@@ -41,22 +42,22 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// The coarse granularity of time-series data.
+        /// The coarse granularity of time series data.
         /// </summary>
         public TimeSeriesGranularity? Granularity => _granularity;
 
         /// <summary>
-        /// The name of the field which contains metadata in each time-series document.
+        /// The name of the field which contains metadata in each time series document.
         /// </summary>
         public string MetaField => _metaField;
 
         /// <summary>
-        /// The name of the field which contains the date and time in each time-series document.
+        /// The name of the field which contains the date and time in each time series document.
         /// </summary>
         public string TimeField => _timeField;
 
         /// <summary>
-        /// The BSON representation of the time-series options.
+        /// The BSON representation of the time series options.
         /// </summary>
         /// <returns>A BsonDocument.</returns>
         public BsonDocument ToBsonDocument()
