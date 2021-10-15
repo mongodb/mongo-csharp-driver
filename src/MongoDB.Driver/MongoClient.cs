@@ -72,10 +72,6 @@ namespace MongoDB.Driver
 
         /// <summary>
         /// Initializes a new instance of the MongoClient class.
-        /// In .NET Standard, authenticating via SCRAM-SHA-256 may not work with non-ASCII passwords because SaslPrep is
-        /// not fully implemented due to the lack of a string normalization function in .NET Standard 1.5.
-        /// Normalizing the password into Unicode Normalization Form KC beforehand MAY help.
-        /// SCRAM-SHA-1 is the recommended alternative for now.
         /// </summary>
         /// <param name="settings">The settings.</param>
         public MongoClient(MongoClientSettings settings)
@@ -95,10 +91,6 @@ namespace MongoDB.Driver
 
         /// <summary>
         /// Initializes a new instance of the MongoClient class.
-        /// In .NET Standard, authenticating via SCRAM-SHA-256 may not work with non-ASCII passwords because SaslPrep is
-        /// not fully implemented due to the lack of a string normalization function in .NET Standard 1.5.
-        /// Normalizing the password into Unicode Normalization Form KC beforehand MAY help.
-        /// SCRAM-SHA-1 is the recommended alternative for now.
         /// </summary>
         /// <param name="url">The URL.</param>
         public MongoClient(MongoUrl url)
@@ -108,10 +100,6 @@ namespace MongoDB.Driver
 
         /// <summary>
         /// Initializes a new instance of the MongoClient class.
-        /// In .NET Standard, authenticating via SCRAM-SHA-256 may not work with non-ASCII passwords because SaslPrep is
-        /// not fully implemented due to the lack of a string normalization function in .NET Standard 1.5.
-        /// Normalizing the password into Unicode Normalization Form KC beforehand MAY help.
-        /// SCRAM-SHA-1 is the recommended alternative for now.
         /// </summary>
         /// <param name="connectionString">The connection string.</param>
         public MongoClient(string connectionString)

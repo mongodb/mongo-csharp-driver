@@ -32,8 +32,6 @@ namespace MongoDB.Driver.Core.Authentication
 {
     /// <summary>
     /// A SCRAM-SHA256 SASL authenticator.
-    /// In .NET Standard, this class does not normalize the password in the credentials, so non-ASCII
-    /// passwords may not work unless they are normalized into Unicode Normalization Form KC beforehand.
     /// </summary>
     public sealed class ScramSha256Authenticator : ScramShaAuthenticator
     {
@@ -49,8 +47,6 @@ namespace MongoDB.Driver.Core.Authentication
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="ScramSha256Authenticator"/> class.
-        /// In .NET Standard, this class does not normalize the password in <paramref name="credential"/>, so non-ASCII
-        /// passwords may not work unless they are normalized into Unicode Normalization Form KC beforehand.
         /// </summary>
         /// <param name="credential">The credential.</param>
         [Obsolete("Use the newest overload instead.")]
@@ -61,8 +57,6 @@ namespace MongoDB.Driver.Core.Authentication
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ScramSha256Authenticator"/> class.
-        /// In .NET Standard, this class does not normalize the password in <paramref name="credential"/>, so non-ASCII
-        /// passwords may not work unless they are normalized into Unicode Normalization Form KC beforehand.
         /// </summary>
         /// <param name="credential">The credential.</param>
         /// <param name="serverApi">The server API.</param>
