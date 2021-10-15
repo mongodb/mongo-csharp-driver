@@ -113,9 +113,9 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <summary>
-        /// Gets or sets the expiration timespan for time-series collections. Used to automatically delete documents in time series collections.
-        /// See https://docs.mongodb.com/manual/reference/command/create/ for supported options, and https://docs.mongodb.com/manual/core/timeseries-collections/
-        /// for more information on time-series collections.
+        /// Gets or sets the expiration timespan for time series collections. Used to automatically delete documents in time series collections.
+        /// See https://docs.mongodb.com/manual/reference/command/create/ for supported options and https://docs.mongodb.com/manual/core/timeseries-collections/
+        /// for more information on time series collections.
         /// </summary>
         /// <value>
         /// The timespan after which to expire documents.
@@ -196,8 +196,8 @@ namespace MongoDB.Driver.Core.Operations
 
         /// <summary>
         /// Gets or sets the <see cref="TimeSeriesOptions"/>. Represents an object containing options for creating time series collections.
-        /// See https://docs.mongodb.com/manual/reference/command/create/ for supported options, and https://docs.mongodb.com/manual/core/timeseries-collections/
-        /// for more information on time-series collections.
+        /// See https://docs.mongodb.com/manual/reference/command/create/ for supported options and https://docs.mongodb.com/manual/core/timeseries-collections/
+        /// for more information on time series collections.
         /// </summary>
         /// <value>
         /// The time series options.
