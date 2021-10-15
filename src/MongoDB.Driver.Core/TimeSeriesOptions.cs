@@ -19,7 +19,8 @@ using MongoDB.Driver.Core.Misc;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Defines the time series options to use when creating a time-series collection.
+    /// Defines the time series options to use when creating a time-series collection. See https://docs.mongodb.com/manual/reference/command/create/ for supported options,
+    /// and https://docs.mongodb.com/manual/core/timeseries-collections/ for more information on time-series collections.
     /// </summary>
     public class TimeSeriesOptions
     {
