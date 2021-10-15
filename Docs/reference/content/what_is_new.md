@@ -10,10 +10,16 @@ title = "What's New"
 
 ## What's New in 2.14.0
 
-The main new features in 2.1.40 include:
+The main new features in 2.14.0-beta1 include:
 
 * A beta version of the new LINQ provider (known as LINQ3, see: [LINQ3]({{< relref "reference\driver\crud\linq3.md" >}}))
 * The current LINQ provider (known as LINQ2) continues to be available and is still the default LINQ provider for now
+* Support for Zstandard and Snappy on Linux and MacOS
+* Added connection storm avoidance features
+* Use "hello" command for monitoring if supported
+* Removed support for .NET Framework 4.5.2; minimum is now 4.7.2
+* Removed support for .NET Standard 1.5; minimum is now 2.0
+* Minimum server version is now MongoDB 3.6+
 
 ## What's New in 2.13.0
 
