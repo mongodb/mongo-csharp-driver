@@ -15,40 +15,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 {
     internal static class TypeExtensions
     {
-#if NETSTANDARD1_5
-        public static ConstructorInfo GetConstructor(this Type type, Type[] types)
-        {
-            return type.GetTypeInfo().GetConstructor(types);
-        }
-#endif
-
-#if NETSTANDARD1_5
-        public static ConstructorInfo[] GetConstructors(this Type type)
-        {
-            return type.GetTypeInfo().GetConstructors();
-        }
-#endif
-
-#if NETSTANDARD1_5
-        public static Type GetEnumUnderlyingType(this Type type)
-        {
-            return type.GetTypeInfo().GetEnumUnderlyingType();
-        }
-#endif
-
-#if NETSTANDARD1_5
-        public static Type[] GetGenericArguments(this Type type)
-        {
-            return type.GetTypeInfo().GetGenericArguments();
-        }
-#endif
-
         public static Type GetIEnumerableGenericInterface(this Type enumerableType)
         {
             if (enumerableType.TryGetIEnumerableGenericInterface(out var ienumerableGenericInterface))
@@ -58,20 +29,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 
             throw new InvalidOperationException($"Could not find IEnumerable<T> interface of type: {enumerableType}.");
         }
-
-#if NETSTANDARD1_5
-        public static Type[] GetInterfaces(this Type type)
-        {
-            return type.GetTypeInfo().GetInterfaces();
-        }
-#endif
-
-#if NETSTANDARD1_5
-        public static PropertyInfo GetProperty(this Type type, string name)
-        {
-            return type.GetTypeInfo().GetProperty(name);
-        }
-#endif
 
         public static bool Implements(this Type type, Type @interface)
         {
@@ -115,38 +72,19 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             return false;
         }
 
-#if NETSTANDARD1_5
-        public static bool IsAssignableFrom(this Type type, Type c)
-        {
-            return type.GetTypeInfo().IsAssignableFrom(c);
-        }
-#endif
-
         public static bool IsEnum(this Type type)
         {
-#if NETSTANDARD1_5
-            return type.GetTypeInfo().IsEnum;
-#else
             return type.IsEnum;
-#endif
         }
 
         public static bool IsGenericType(this Type type)
         {
-#if NETSTANDARD1_5
-            return type.GetTypeInfo().IsGenericType;
-#else
             return type.IsGenericType;
-#endif
         }
 
         public static bool IsGenericTypeDefinition(this Type type)
         {
-#if NETSTANDARD1_5
-            return type.GetTypeInfo().IsGenericTypeDefinition;
-#else
             return type.IsGenericType;
-#endif
         }
 
         public static bool TryGetIDictionaryGenericInterface(this Type type, out Type idictionaryGenericInterface)
