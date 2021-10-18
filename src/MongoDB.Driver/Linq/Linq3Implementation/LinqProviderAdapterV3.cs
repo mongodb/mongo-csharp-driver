@@ -46,6 +46,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
             IBsonSerializerRegistry serializerRegistry,
             ExpressionTranslationOptions translationOptions)
         {
+            expression = (Expression<Func<TSource, TResult>>)PartialEvaluator.EvaluatePartially(expression);
             var context = TranslationContext.Create(expression, sourceSerializer);
             var translation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, expression, sourceSerializer, asRoot: true);
             var simplifiedAst = AstSimplifier.Simplify(translation.Ast);
@@ -115,6 +116,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
             IBsonSerializer<TDocument> documentSerializer,
             IBsonSerializerRegistry serializerRegistry)
         {
+            expression = (Expression<Func<TDocument, bool>>)PartialEvaluator.EvaluatePartially(expression);
             var context = TranslationContext.Create(expression, documentSerializer);
             var filter = ExpressionToFilterTranslator.TranslateLambda(context, expression, documentSerializer);
             filter = AstSimplifier.SimplifyAndConvert(filter);
@@ -148,6 +150,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
             IBsonSerializerRegistry serializerRegistry,
             ExpressionTranslationOptions translationOptions)
         {
+            expression = (Expression<Func<TInput, TOutput>>)PartialEvaluator.EvaluatePartially(expression);
             var context = TranslationContext.Create(expression, inputSerializer);
             var translation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, expression, inputSerializer, asRoot: true);
             var (projectStage, projectionSerializer) = ProjectionHelper.CreateProjectStage(translation);
