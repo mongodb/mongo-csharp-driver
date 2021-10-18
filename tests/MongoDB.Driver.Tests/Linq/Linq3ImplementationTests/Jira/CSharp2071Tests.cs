@@ -14,10 +14,6 @@
 */
 
 using System.Linq;
-using FluentAssertions;
-using MongoDB.Bson;
-using MongoDB.Driver.Linq.Linq3Implementation;
-using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecutableQueryTranslators;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
@@ -25,58 +21,73 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
     public class CSharp2071Tests
     {
         [Fact]
+        public void Select_with_anonymous_type_followed_by_Where_and_Select_should_work()
+        {
+            var collection = CreateCollection();
+            var subject = collection.AsQueryable();
+
+            var tags = new[] { "tag1", "tag2" };
+            var queryable = subject
+                .Select(c => new { doc = c, dif = c.X.Except(tags) })
+                .Where(c => c.dif.Count() == 0)
+                .Select(c => c.doc);
+
+            var stages = Linq3TestHelpers.Translate(collection, queryable);
+            var expectedStages = new[]
+            {
+                "{ $project : { doc : '$$ROOT', dif : { $setDifference : ['$X', ['tag1', 'tag2']] }, _id : 0 } }",
+                "{ $match : { dif : { $size : 0 } } }",
+                "{ $project : { _v : '$doc', _id : 0 } }" // Select becomes $project, not $replaceRoot
+            };
+            Linq3TestHelpers.AssertStages(stages, expectedStages);
+        }
+
+        [Fact]
         public void GroupBy_with_key_selector_and_result_selector_should_translate_as_expected()
         {
-            var subject = CreateSubject();
+            var collection = CreateCollection();
+            var subject = collection.AsQueryable();
 
             var queryable = subject.GroupBy(c => c.A, (k, g) => new { Result = g.Select(x => x) });
-            var pipeline = Translate(queryable);
 
-            // note: the expected pipeline will be different once the AstPipelineOptimizer is implemented
-            var expectedPipeline = new[]
+            var stages = Linq3TestHelpers.Translate(collection, queryable);
+            var expectedStages = new[]
             {
                 "{ $group : { _id : '$A', __agg0 : { $push : '$$ROOT' } } }",
                 "{ $project : { Result : '$__agg0', _id : 0 } }"
             };
-            pipeline.Should().Equal(expectedPipeline.Select(json => BsonDocument.Parse(json)));
+            Linq3TestHelpers.AssertStages(stages, expectedStages);
         }
 
         [Fact]
         public void GroupBy_followed_by_select_should_translate_as_expected()
         {
-            var subject = CreateSubject();
+            var collection = CreateCollection();
+            var subject = collection.AsQueryable();
 
             var queryable = subject.GroupBy(c => c.A).Select(g => new { Result = g.Select(x => x) });
-            var pipeline = Translate(queryable);
 
-            // note: the expected pipeline will be different once the AstPipelineOptimizer is implemented
-            var expectedPipeline = new[]
+            var stages = Linq3TestHelpers.Translate(collection, queryable);
+            var expectedStages = new[]
             {
                 "{ $group : { _id : '$A', __agg0 : { $push : '$$ROOT' } } }",
                 "{ $project : { Result : '$__agg0', _id : 0 } }"
             };
-            pipeline.Should().Equal(expectedPipeline.Select(json => BsonDocument.Parse(json)));
+            Linq3TestHelpers.AssertStages(stages, expectedStages);
         }
 
-        private IQueryable<C> CreateSubject()
+        private IMongoCollection<C> CreateCollection()
         {
-            var client = DriverTestConfiguration.Client;
+            var client = DriverTestConfiguration.Linq3Client;
             var database = client.GetDatabase("test");
-            var collection = database.GetCollection<C>("test");
-            return collection.AsQueryable3();
-        }
-
-        private BsonDocument[] Translate<T>(IQueryable<T> queryable)
-        {
-            var queryProvider = (MongoQueryProvider<C>)queryable.Provider;
-            var executableQuery = ExpressionToExecutableQueryTranslator.Translate<C, IGrouping<int, C>>(queryProvider, queryable.Expression);
-            return executableQuery.Pipeline.Render().AsBsonArray.Cast<BsonDocument>().ToArray();
+            return database.GetCollection<C>("test");
         }
 
         public class C
         {
             public int Id { get; set; }
             public int A { get; set; }
+            public string[] X { get; set; }
         }
     }
 }
