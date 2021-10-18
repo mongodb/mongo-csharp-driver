@@ -72,6 +72,7 @@ namespace MongoDB.Driver
         private readonly IEnumerable<MongoServerAddress> _servers;
         private readonly TimeSpan _serverSelectionTimeout;
         private readonly TimeSpan _socketTimeout;
+        private readonly int _srvMaxHosts;
         private readonly bool _tlsDisableCertificateRevocationCheck;
         private readonly string _username;
         private readonly bool _useTls;
@@ -142,6 +143,7 @@ namespace MongoDB.Driver
             _servers = builder.Servers;
             _serverSelectionTimeout = builder.ServerSelectionTimeout;
             _socketTimeout = builder.SocketTimeout;
+            _srvMaxHosts = builder.SrvMaxHosts;
             _tlsDisableCertificateRevocationCheck = builder.TlsDisableCertificateRevocationCheck;
             _username = builder.Username;
             _useTls = builder.UseTls;
@@ -485,7 +487,7 @@ namespace MongoDB.Driver
         /// </summary>
         public IEnumerable<MongoServerAddress> Servers
         {
-            get { return _servers; }
+            get { return _srvMaxHosts > 0 ? _servers.Take(_srvMaxHosts) : _servers; }
         }
 
         /// <summary>
@@ -503,6 +505,13 @@ namespace MongoDB.Driver
         {
             get { return _socketTimeout; }
         }
+
+        /// <summary>
+        /// Limits the number of SRV records used to populate the seedlist
+        /// during initial discovery, as well as the number of additional hosts
+        /// that may be added during SRV polling.
+        /// </summary>
+        public int SrvMaxHosts => _srvMaxHosts;
 
         /// <summary>
         /// Gets whether or not to disable checking certificate revocation status during the TLS handshake.

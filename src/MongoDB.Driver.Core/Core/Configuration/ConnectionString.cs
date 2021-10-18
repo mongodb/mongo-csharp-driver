@@ -80,7 +80,8 @@ namespace MongoDB.Driver.Core.Configuration
         private TimeSpan? _heartbeatTimeout;
         private IReadOnlyList<EndPoint> _hosts;
         private bool? _ipv6;
-        private bool _isResolved;
+        private readonly bool _isInternalRepresentation;
+        private readonly bool _isResolved;
         private bool? _journal;
         private bool _loadBalanced;
         private TimeSpan? _localThreshold;
@@ -99,6 +100,7 @@ namespace MongoDB.Driver.Core.Configuration
         private ConnectionStringScheme _scheme;
         private TimeSpan? _serverSelectionTimeout;
         private TimeSpan? _socketTimeout;
+        private int _srvMaxHosts;
         private bool? _tls;
         private bool? _tlsDisableCertificateRevocationCheck;
         private bool? _tlsInsecure;
@@ -115,13 +117,14 @@ namespace MongoDB.Driver.Core.Configuration
         /// Initializes a new instance of the <see cref="ConnectionString" /> class.
         /// </summary>
         /// <param name="connectionString">The connection string.</param>
-        public ConnectionString(string connectionString) : this(connectionString, DnsClientWrapper.Instance)
+        public ConnectionString(string connectionString) : this(connectionString, false, DnsClientWrapper.Instance)
         {
         }
 
-        internal ConnectionString(string connectionString, IDnsResolver dnsResolver)
+        internal ConnectionString(string connectionString, bool isInternalRepresentation, IDnsResolver dnsResolver)
         {
             _originalConnectionString = Ensure.IsNotNull(connectionString, nameof(connectionString));
+            _isInternalRepresentation = isInternalRepresentation;
 
             _allOptions = new NameValueCollection(StringComparer.OrdinalIgnoreCase);
             _unknownOptions = new NameValueCollection(StringComparer.OrdinalIgnoreCase);
@@ -139,7 +142,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="connectionString">The connection string.</param>
         /// <param name="isResolved">Whether the connection string is resolved.</param>
         internal ConnectionString(string connectionString, bool isResolved)
-            : this(connectionString)
+            : this(connectionString, true, DnsClientWrapper.Instance)
         {
             if (!isResolved && _scheme != ConnectionStringScheme.MongoDBPlusSrv)
             {
@@ -293,7 +296,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// </summary>
         public IReadOnlyList<EndPoint> Hosts
         {
-            get { return _hosts; }
+            get { return _srvMaxHosts > 0 ? _hosts.Take(_srvMaxHosts).ToList() : _hosts; }
         }
 
         /// <summary>
@@ -456,6 +459,13 @@ namespace MongoDB.Driver.Core.Configuration
         {
             get { return _socketTimeout; }
         }
+
+        /// <summary>
+        /// Limits the number of SRV records used to populate the seedlist
+        /// during initial discovery, as well as the number of additional hosts
+        /// that may be added during SRV polling.
+        /// </summary>
+        public int SrvMaxHosts => _srvMaxHosts;
 
         /// <summary>
         /// Gets whether to use SSL.
@@ -890,6 +900,16 @@ namespace MongoDB.Driver.Core.Configuration
                 throw new MongoConfigurationException("Direct connect cannot be used with multiple host names.");
             }
 
+            if (!_isInternalRepresentation && _srvMaxHosts > 0 && _scheme != ConnectionStringScheme.MongoDBPlusSrv)
+            {
+                throw new MongoConfigurationException("srvMaxHosts can only be used with the mongodb+srv scheme.");
+            }
+
+            if (_replicaSet != null && _srvMaxHosts > 0)
+            {
+                throw new MongoConfigurationException("Specifying srvMaxHosts when connecting to a replica set is invalid.");
+            }
+
             if (_loadBalanced)
             {
                 if (_hosts.Count > 1)
@@ -900,6 +920,11 @@ namespace MongoDB.Driver.Core.Configuration
                 if (_replicaSet != null)
                 {
                     throw new MongoConfigurationException("ReplicaSetName cannot be used with load balanced mode.");
+                }
+
+                if (_srvMaxHosts > 0)
+                {
+                    throw new MongoConfigurationException("srvMaxHosts cannot be used with load balanced mode.");
                 }
 
                 if (IsDirectConnection())
@@ -1068,6 +1093,14 @@ namespace MongoDB.Driver.Core.Configuration
                 case "sockettimeout":
                 case "sockettimeoutms":
                     _socketTimeout = ParseTimeSpan(name, value);
+                    break;
+                case "srvmaxhosts":
+                    var srvMaxHostsValue = ParseInt32(name, value);
+                    if (srvMaxHostsValue < 0)
+                    {
+                        throw new MongoConfigurationException("srvMaxHosts must be greater than or equal to 0.");
+                    }
+                    _srvMaxHosts = srvMaxHostsValue;
                     break;
                 case "ssl": // Obsolete
                 case "tls":
@@ -1305,6 +1338,11 @@ namespace MongoDB.Driver.Core.Configuration
                     h = h.Substring(0, h.Length - 1);
                 }
                 hosts.Add(h + ":" + srvRecord.EndPoint.Port);
+            }
+
+            if (_srvMaxHosts > 0)
+            {
+                FisherYatesShuffle.Shuffle(hosts);
             }
 
             return hosts;

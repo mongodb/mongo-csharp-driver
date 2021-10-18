@@ -69,6 +69,7 @@ namespace MongoDB.Driver
         private List<MongoServerAddress> _servers;
         private TimeSpan _serverSelectionTimeout;
         private TimeSpan _socketTimeout;
+        private int _srvMaxHosts;
         private SslSettings _sslSettings;
         private bool _useTls;
         private int _waitQueueSize;
@@ -681,6 +682,21 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Limits the number of SRV records used to populate the seedlist
+        /// during initial discovery, as well as the number of additional hosts
+        /// that may be added during SRV polling.
+        /// </summary>
+        public int SrvMaxHosts
+        {
+            get { return _srvMaxHosts; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
+                _srvMaxHosts = value;
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the SSL settings.
         /// </summary>
         public SslSettings SslSettings
@@ -917,6 +933,7 @@ namespace MongoDB.Driver
             clientSettings.Servers = new List<MongoServerAddress>(url.Servers);
             clientSettings.ServerSelectionTimeout = url.ServerSelectionTimeout;
             clientSettings.SocketTimeout = url.SocketTimeout;
+            clientSettings.SrvMaxHosts = url.SrvMaxHosts;
             clientSettings.SslSettings = null;
             if (url.TlsDisableCertificateRevocationCheck)
             {
@@ -973,6 +990,7 @@ namespace MongoDB.Driver
             clone._servers = new List<MongoServerAddress>(_servers);
             clone._serverSelectionTimeout = _serverSelectionTimeout;
             clone._socketTimeout = _socketTimeout;
+            clone._srvMaxHosts = _srvMaxHosts;
             clone._sslSettings = (_sslSettings == null) ? null : _sslSettings.Clone();
             clone._useTls = _useTls;
             clone._waitQueueSize = _waitQueueSize;
@@ -1039,6 +1057,7 @@ namespace MongoDB.Driver
                 _servers.SequenceEqual(rhs._servers) &&
                 _serverSelectionTimeout == rhs._serverSelectionTimeout &&
                 _socketTimeout == rhs._socketTimeout &&
+                _srvMaxHosts == rhs._srvMaxHosts &&
                 _sslSettings == rhs._sslSettings &&
                 _useTls == rhs._useTls &&
                 _waitQueueSize == rhs._waitQueueSize &&
@@ -1122,6 +1141,7 @@ namespace MongoDB.Driver
                 .HashElements(_servers)
                 .Hash(_serverSelectionTimeout)
                 .Hash(_socketTimeout)
+                .Hash(_srvMaxHosts)
                 .Hash(_sslSettings)
                 .Hash(_useTls)
                 .Hash(_waitQueueSize)
@@ -1203,6 +1223,7 @@ namespace MongoDB.Driver
             sb.AppendFormat("Servers={0};", string.Join(",", _servers.Select(s => s.ToString()).ToArray()));
             sb.AppendFormat("ServerSelectionTimeout={0};", _serverSelectionTimeout);
             sb.AppendFormat("SocketTimeout={0};", _socketTimeout);
+            sb.AppendFormat("SrvMaxHosts={0}", _srvMaxHosts);
             if (_sslSettings != null)
             {
                 sb.AppendFormat("SslSettings={0};", _sslSettings);
@@ -1252,6 +1273,7 @@ namespace MongoDB.Driver
                 _servers.ToList(),
                 _serverSelectionTimeout,
                 _socketTimeout,
+                _srvMaxHosts,
                 _sslSettings,
                 _useTls,
                 _waitQueueSize,

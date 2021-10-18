@@ -71,6 +71,7 @@ namespace MongoDB.Driver.Tests
         [InlineData("Servers", false)]
         [InlineData("ServerSelectionTimeout", true)]
         [InlineData("SocketTimeout", true)]
+        [InlineData("SrvMaxHosts", true)]
         [InlineData("SslSettings", true)]
         [InlineData("UseTls", true)]
         [InlineData("WaitQueueSize", true)]
@@ -199,6 +200,7 @@ namespace MongoDB.Driver.Tests
             var servers = new[] { new MongoServerAddress("localhost") };
             var serverSelectionTimeout = TimeSpan.FromSeconds(6);
             var socketTimeout = TimeSpan.FromSeconds(4);
+            var srvMaxHosts = 0;
             var sslSettings = new SslSettings
             {
                 CheckCertificateRevocation = true,
@@ -255,6 +257,7 @@ namespace MongoDB.Driver.Tests
                     case "Servers": servers = new[] { new MongoServerAddress("different") }; break;
                     case "ServerSelectionTimeout": serverSelectionTimeout = TimeSpan.FromSeconds(98); break;
                     case "SocketTimeout": socketTimeout = TimeSpan.FromSeconds(99); break;
+                    case "SrvMaxHosts": srvMaxHosts = 3; break;
                     case "SslSettings": sslSettings.CheckCertificateRevocation = !sslSettings.CheckCertificateRevocation; break;
                     case "UseTls": useTls = !useTls; break;
                     case "WaitQueueSize": waitQueueSize = 99; break;
@@ -293,6 +296,7 @@ namespace MongoDB.Driver.Tests
                 servers,
                 serverSelectionTimeout,
                 socketTimeout,
+                srvMaxHosts,
                 sslSettings,
                 useTls,
                 waitQueueSize,
@@ -338,6 +342,7 @@ namespace MongoDB.Driver.Tests
             var servers = new[] { new MongoServerAddress("localhost") };
             var serverSelectionTimeout = TimeSpan.FromSeconds(6);
             var socketTimeout = TimeSpan.FromSeconds(4);
+            var srvMaxHosts = 3;
             var sslSettings = new SslSettings
             {
                 CheckCertificateRevocation = true,
@@ -377,6 +382,7 @@ namespace MongoDB.Driver.Tests
                 servers,
                 serverSelectionTimeout,
                 socketTimeout,
+                srvMaxHosts,
                 sslSettings,
                 useTls,
                 waitQueueSize,

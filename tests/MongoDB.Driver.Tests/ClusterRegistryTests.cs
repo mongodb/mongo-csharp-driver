@@ -95,6 +95,7 @@ namespace MongoDB.Driver.Tests
                 servers: servers,
                 serverSelectionTimeout: TimeSpan.FromSeconds(11),
                 socketTimeout: TimeSpan.FromSeconds(12),
+                srvMaxHosts: 0,
                 sslSettings: sslSettings,
                 useTls: true,
                 waitQueueSize: 13,

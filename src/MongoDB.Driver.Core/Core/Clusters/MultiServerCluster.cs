@@ -576,16 +576,22 @@ namespace MongoDB.Driver.Core.Clusters
                 var newClusterDescription = oldClusterDescription;
                 var currentEndPoints = oldClusterDescription.Servers.Select(serverDescription => serverDescription.EndPoint).ToList();
 
-                var endPointsToAdd = dnsEndPoints.Where(endPoint => !currentEndPoints.Contains(endPoint));
-                foreach (var endPoint in endPointsToAdd)
-                {
-                    newClusterDescription = EnsureServer(newClusterDescription, endPoint, newServers);
-                }
-
                 var endPointsToRemove = currentEndPoints.Where(endPoint => !dnsEndPoints.Contains(endPoint));
                 foreach (var endPoint in endPointsToRemove)
                 {
                     newClusterDescription = RemoveServer(newClusterDescription, endPoint, "Server no longer appears in the DNS SRV records.");
+                }
+
+                var endPointsToAdd = dnsEndPoints.Where(endPoint => !currentEndPoints.Contains(endPoint)).ToList();
+                var srvMaxHosts = Settings.SrvMaxHosts;
+                if (srvMaxHosts > 0)
+                {
+                    FisherYatesShuffle.Shuffle(endPointsToAdd);
+                    endPointsToAdd = endPointsToAdd.Take(srvMaxHosts - currentEndPoints.Count + endPointsToRemove.Count()).ToList();
+                }
+                foreach (var endPoint in endPointsToAdd)
+                {
+                    newClusterDescription = EnsureServer(newClusterDescription, endPoint, newServers);
                 }
 
                 newClusterDescription = newClusterDescription.WithDnsMonitorException(null);

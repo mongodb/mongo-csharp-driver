@@ -501,6 +501,25 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         [Fact]
+        public void ProcessDnsResults_should_add_missing_servers_up_to_srvMaxHosts()
+        {
+            var settings = new ClusterSettings(scheme: ConnectionStringScheme.MongoDBPlusSrv,
+                endPoints: new[] { new DnsEndPoint("a.b.com", 53) },
+                srvMaxHosts: 1);
+            var mockDnsMonitorFactory = CreateMockDnsMonitorFactory();
+            using (var subject = CreateSubject(settings: settings, dnsMonitorFactory: mockDnsMonitorFactory.Object))
+            {
+                subject.Initialize();
+                PublishDnsResults(subject, _firstEndPoint);
+                subject.Description.Servers.Select(s => s.EndPoint).Should().Equal(_firstEndPoint);
+
+                PublishDnsResults(subject, _firstEndPoint, _secondEndPoint);
+
+                subject.Description.Servers.Select(s => s.EndPoint).Should().Equal(_firstEndPoint);
+            }
+        }
+
+        [Fact]
         public void ProcessDnsResults_should_clear_dns_monitor_exception()
         {
             var settings = new ClusterSettings(scheme: ConnectionStringScheme.MongoDBPlusSrv, endPoints: new[] { new DnsEndPoint("a.b.com", 53) });

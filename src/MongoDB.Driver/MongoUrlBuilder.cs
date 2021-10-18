@@ -71,6 +71,7 @@ namespace MongoDB.Driver
         private IEnumerable<MongoServerAddress> _servers;
         private TimeSpan _serverSelectionTimeout;
         private TimeSpan _socketTimeout;
+        private int _srvMaxHosts;
         private bool? _tlsDisableCertificateRevocationCheck;
         private string _username;
         private bool _useTls;
@@ -126,6 +127,7 @@ namespace MongoDB.Driver
             _servers = new[] { new MongoServerAddress("localhost", 27017) };
             _serverSelectionTimeout = MongoDefaults.ServerSelectionTimeout;
             _socketTimeout = MongoDefaults.SocketTimeout;
+            _srvMaxHosts = 0;
             _username = null;
             _useTls = false;
             _w = null;
@@ -622,6 +624,24 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Limits the number of SRV records used to populate the seedlist
+        /// during initial discovery, as well as the number of additional hosts
+        /// that may be added during SRV polling.
+        /// </summary>
+        public int SrvMaxHosts
+        {
+            get { return _srvMaxHosts; }
+            set
+            {
+                if (value < 0)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(value), "SrvMaxHosts must be greater than or equal to zero.");
+                }
+                _srvMaxHosts = value;
+            }
+        }
+
+        /// <summary>
         /// Gets or sets whether to disable certificate revocation checking during the TLS handshake.
         /// </summary>
         public bool TlsDisableCertificateRevocationCheck
@@ -873,6 +893,7 @@ namespace MongoDB.Driver
             });
             _serverSelectionTimeout = connectionString.ServerSelectionTimeout.GetValueOrDefault(MongoDefaults.ServerSelectionTimeout);
             _socketTimeout = connectionString.SocketTimeout.GetValueOrDefault(MongoDefaults.SocketTimeout);
+            _srvMaxHosts = connectionString.SrvMaxHosts;
             _tlsDisableCertificateRevocationCheck = connectionString.TlsDisableCertificateRevocationCheck;
             _username = connectionString.Username;
             _useTls = connectionString.Tls.GetValueOrDefault(false);

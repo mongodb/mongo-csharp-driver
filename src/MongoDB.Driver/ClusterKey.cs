@@ -59,6 +59,7 @@ namespace MongoDB.Driver
         private readonly IReadOnlyList<MongoServerAddress> _servers;
         private readonly TimeSpan _serverSelectionTimeout;
         private readonly TimeSpan _socketTimeout;
+        private readonly int _srvMaxHosts;
         private readonly SslSettings _sslSettings;
         private readonly bool _useTls;
         private readonly int _waitQueueSize;
@@ -97,6 +98,7 @@ namespace MongoDB.Driver
             IReadOnlyList<MongoServerAddress> servers,
             TimeSpan serverSelectionTimeout,
             TimeSpan socketTimeout,
+            int srvMaxHosts,
             SslSettings sslSettings,
             bool useTls,
             int waitQueueSize,
@@ -133,6 +135,7 @@ namespace MongoDB.Driver
             _servers = servers;
             _serverSelectionTimeout = serverSelectionTimeout;
             _socketTimeout = socketTimeout;
+            _srvMaxHosts = srvMaxHosts;
             _sslSettings = sslSettings;
             _useTls = useTls;
             _waitQueueSize = waitQueueSize;
@@ -195,6 +198,7 @@ namespace MongoDB.Driver
         public IReadOnlyList<MongoServerAddress> Servers { get { return _servers; } }
         public TimeSpan ServerSelectionTimeout { get { return _serverSelectionTimeout; } }
         public TimeSpan SocketTimeout { get { return _socketTimeout; } }
+        public int SrvMaxHosts { get { return _srvMaxHosts; } }
         public SslSettings SslSettings { get { return _sslSettings; } }
         public bool UseTls => _useTls;
         public int WaitQueueSize { get { return _waitQueueSize; } }
@@ -248,6 +252,7 @@ namespace MongoDB.Driver
                 _servers.SequenceEqual(rhs._servers) &&
                 _serverSelectionTimeout == rhs._serverSelectionTimeout &&
                 _socketTimeout == rhs._socketTimeout &&
+                _srvMaxHosts == rhs._srvMaxHosts &&
                 object.Equals(_sslSettings, rhs._sslSettings) &&
                 _useTls == rhs._useTls &&
                 _waitQueueSize == rhs._waitQueueSize &&
