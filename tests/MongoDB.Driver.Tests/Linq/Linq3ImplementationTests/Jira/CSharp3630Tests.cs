@@ -14,10 +14,6 @@
 */
 
 using System.Linq;
-using FluentAssertions;
-using MongoDB.Bson;
-using MongoDB.Driver.Linq.Linq3Implementation;
-using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecutableQueryTranslators;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
@@ -25,82 +21,146 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
     public class CSharp3630Tests
     {
         [Fact]
-        public void GroupBy_with_key_selector_and_result_selector_with_first_should_translate_as_expected()
+        public void GroupBy_with_key_selector_followed_by_Select_should_translate_as_expected()
         {
-            var subject = CreateSubject();
+            var collection = CreateCollection();
+            var subject = collection.AsQueryable();
 
-            var queryable = subject.GroupBy(c => c.A, (k, g) => new { Result = g.Select(x => x).First() });
-            var pipeline = Translate(queryable);
+            var queryable = subject.GroupBy(c => c.A).Select(g => new { Result = g.First() });
 
-            var expectedPipeline = new[]
+            var stages = Linq3TestHelpers.Translate(collection, queryable);
+            var expectedStages = new[]
             {
                 "{ $group : { _id : '$A', __agg0 : { $first : '$$ROOT' } } }",
                 "{ $project : { Result : '$__agg0', _id : 0 } }"
             };
-            pipeline.Should().Equal(expectedPipeline.Select(json => BsonDocument.Parse(json)));
+            Linq3TestHelpers.AssertStages(stages, expectedStages);
         }
 
         [Fact]
-        public void GroupBy_followed_by_select_with_first_should_translate_as_expected()
+        public void GroupBy_with_key_selector_followed_by_Select_with_embedded_identity_projection_should_translate_as_expected()
         {
-            var subject = CreateSubject();
+            var collection = CreateCollection();
+            var subject = collection.AsQueryable();
 
-            var queryable = subject.GroupBy(c => c.A).Select(g => new { Result = g.Select(x => x).First() });
-            var pipeline = Translate(queryable);
+            var queryable = subject.GroupBy(c => c.A).Select(g => new { Result = g.Select(c => c).First() });
 
-            var expectedPipeline = new[]
+            var stages = Linq3TestHelpers.Translate(collection, queryable);
+            var expectedStages = new[]
             {
                 "{ $group : { _id : '$A', __agg0 : { $first : '$$ROOT' } } }",
                 "{ $project : { Result : '$__agg0', _id : 0 } }"
             };
-            pipeline.Should().Equal(expectedPipeline.Select(json => BsonDocument.Parse(json)));
+            Linq3TestHelpers.AssertStages(stages, expectedStages);
         }
 
         [Fact]
-        public void GroupBy_with_key_selector_and_result_selector_with_last_should_translate_as_expected()
+        public void GroupBy_with_key_selector_and_element_selector_followed_by_Select_should_translate_as_expected()
         {
-            var subject = CreateSubject();
+            var collection = CreateCollection();
+            var subject = collection.AsQueryable();
 
-            var queryable = subject.GroupBy(c => c.A, (k, g) => new { Result = g.Select(x => x).Last() });
-            var pipeline = Translate(queryable);
+            var queryable = subject.GroupBy(c => c.A, c => c).Select(g => new { Result = g.First() });
 
-            var expectedPipeline = new[]
+            var stages = Linq3TestHelpers.Translate(collection, queryable);
+            var expectedStages = new[]
             {
-                "{ $group : { _id : '$A', __agg0 : { $last : '$$ROOT' } } }",
+                "{ $group : { _id : '$A', __agg0 : { $first : '$$ROOT' } } }",
                 "{ $project : { Result : '$__agg0', _id : 0 } }"
             };
-            pipeline.Should().Equal(expectedPipeline.Select(json => BsonDocument.Parse(json)));
+            Linq3TestHelpers.AssertStages(stages, expectedStages);
         }
 
         [Fact]
-        public void GroupBy_followed_by_select_with_last_should_translate_as_expected()
+        public void GroupBy_with_key_selector_and_element_selector_followed_by_Select_with_embedded_identity_projection_should_translate_as_expected()
         {
-            var subject = CreateSubject();
+            var collection = CreateCollection();
+            var subject = collection.AsQueryable();
 
-            var queryable = subject.GroupBy(c => c.A).Select(g => new { Result = g.Select(x => x).Last() });
-            var pipeline = Translate(queryable);
+            var queryable = subject.GroupBy(c => c.A, c => c).Select(g => new { Result = g.Select(c => c).First() });
 
-            var expectedPipeline = new[]
+            var stages = Linq3TestHelpers.Translate(collection, queryable);
+            var expectedStages = new[]
             {
-                "{ $group : { _id : '$A', __agg0 : { $last : '$$ROOT' } } }",
+                "{ $group : { _id : '$A', __agg0 : { $first : '$$ROOT' } } }",
                 "{ $project : { Result : '$__agg0', _id : 0 } }"
             };
-            pipeline.Should().Equal(expectedPipeline.Select(json => BsonDocument.Parse(json)));
+            Linq3TestHelpers.AssertStages(stages, expectedStages);
         }
 
-        private IQueryable<C> CreateSubject()
+        [Fact]
+        public void GroupBy_with_key_selector_and_result_selector_should_translate_as_expected()
         {
-            var client = DriverTestConfiguration.Client;
+            var collection = CreateCollection();
+            var subject = collection.AsQueryable();
+
+            var queryable = subject.GroupBy(c => c.A, (k, g) => new { Result = g.First() });
+
+            var stages = Linq3TestHelpers.Translate(collection, queryable);
+            var expectedStages = new[]
+            {
+                "{ $group : { _id : '$A', __agg0 : { $first : '$$ROOT' } } }",
+                "{ $project : { Result : '$__agg0', _id : 0 } }"
+            };
+            Linq3TestHelpers.AssertStages(stages, expectedStages);
+        }
+
+        [Fact]
+        public void GroupBy_with_key_selector_and_result_selector_with_embedded_identity_projection_should_translate_as_expected()
+        {
+            var collection = CreateCollection();
+            var subject = collection.AsQueryable();
+
+            var queryable = subject.GroupBy(c => c.A, (k, g) => new { Result = g.Select(c => c).First() });
+
+            var stages = Linq3TestHelpers.Translate(collection, queryable);
+            var expectedStages = new[]
+            {
+                "{ $group : { _id : '$A', __agg0 : { $first : '$$ROOT' } } }",
+                "{ $project : { Result : '$__agg0', _id : 0 } }"
+            };
+            Linq3TestHelpers.AssertStages(stages, expectedStages);
+        }
+
+        [Fact]
+        public void GroupBy_with_key_selector_and_element_selector_and_result_selector_should_translate_as_expected()
+        {
+            var collection = CreateCollection();
+            var subject = collection.AsQueryable();
+
+            var queryable = subject.GroupBy(c => c.A, c => c, (k, g) => new { Result = g.First() });
+
+            var stages = Linq3TestHelpers.Translate(collection, queryable);
+            var expectedStages = new[]
+            {
+                "{ $group : { _id : '$A', __agg0 : { $first : '$$ROOT' } } }",
+                "{ $project : { Result : '$__agg0', _id : 0 } }"
+            };
+            Linq3TestHelpers.AssertStages(stages, expectedStages);
+        }
+
+        [Fact]
+        public void GroupBy_with_key_selector_and_element_selector_and_result_selector_with_embedded_identity_projection_should_translate_as_expected()
+        {
+            var collection = CreateCollection();
+            var subject = collection.AsQueryable();
+
+            var queryable = subject.GroupBy(c => c.A, c => c, (k, g) => new { Result = g.Select(c => c).First() });
+
+            var stages = Linq3TestHelpers.Translate(collection, queryable);
+            var expectedStages = new[]
+            {
+                "{ $group : { _id : '$A', __agg0 : { $first : '$$ROOT' } } }",
+                "{ $project : { Result : '$__agg0', _id : 0 } }"
+            };
+            Linq3TestHelpers.AssertStages(stages, expectedStages);
+        }
+
+        private IMongoCollection<C> CreateCollection()
+        {
+            var client = DriverTestConfiguration.Linq3Client;
             var database = client.GetDatabase("test");
-            var collection = database.GetCollection<C>("test");
-            return collection.AsQueryable3();
-        }
-
-        private BsonDocument[] Translate<T>(IQueryable<T> queryable)
-        {
-            var queryProvider = (MongoQueryProvider<C>)queryable.Provider;
-            var executableQuery = ExpressionToExecutableQueryTranslator.Translate<C, IGrouping<int, C>>(queryProvider, queryable.Expression);
-            return executableQuery.Pipeline.Render().AsBsonArray.Cast<BsonDocument>().ToArray();
+            return database.GetCollection<C>("test");
         }
 
         public class C
