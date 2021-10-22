@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents an aggregate operation that writes the results to an output collection.
     /// </summary>
-    public class AggregateToCollectionOperation : IWriteOperation<BsonDocument>, IMayUseSecondaryWriteOperationInternal
+    public class AggregateToCollectionOperation : IWriteOperation<BsonDocument>, IMayUseSecondaryWriteOperation
     {
         // fields
         private bool? _allowDiskUse;
@@ -244,7 +244,7 @@ namespace MongoDB.Driver.Core.Operations
             set { _writeConcern = value; }
         }
 
-        ServerVersion IMayUseSecondaryWriteOperationInternal.MinServerVersionToUseSecondary => new ServerVersion(5, 0, 0);
+        ServerVersion IMayUseSecondaryWriteOperation.MinServerVersionToUseSecondary => new ServerVersion(5, 0, 0);
 
         // methods
         /// <inheritdoc/>

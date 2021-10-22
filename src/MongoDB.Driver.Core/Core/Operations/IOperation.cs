@@ -81,19 +81,9 @@ namespace MongoDB.Driver.Core.Operations
         Task<TResult> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken);
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    public interface IMayUseSecondaryWriteOperation
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        ReadPreference ReadPreference { get; }
-    }
-
-    internal interface IMayUseSecondaryWriteOperationInternal : IMayUseSecondaryWriteOperation
+    internal interface IMayUseSecondaryWriteOperation
     {
         ServerVersion MinServerVersionToUseSecondary { get; }
+        ReadPreference ReadPreference { get; }
     }
 }

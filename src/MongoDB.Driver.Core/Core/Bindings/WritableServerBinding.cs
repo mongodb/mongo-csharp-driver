@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Core.Bindings
         {
             get
             {
-                if (_operation is IMayUseSecondaryWriteOperationInternal mayUseSecondaryWriteOperation)
+                if (_operation is IMayUseSecondaryWriteOperation mayUseSecondaryWriteOperation)
                 {
                     return mayUseSecondaryWriteOperation.ReadPreference;
                 }

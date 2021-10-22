@@ -65,7 +65,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
                 return servers;
             }
 
-            if (_operation is IMayUseSecondaryWriteOperationInternal mayUseSecondaryOperation)
+            if (_operation is IMayUseSecondaryWriteOperation mayUseSecondaryOperation)
             {
                 var readPreference = mayUseSecondaryOperation.ReadPreference;
                 var minServerVersionToUseSecondary = mayUseSecondaryOperation.MinServerVersionToUseSecondary;
