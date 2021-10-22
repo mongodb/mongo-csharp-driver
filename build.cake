@@ -414,7 +414,6 @@ Task("TestCsfleKmsTls")
         GetFiles("./**/*.Tests.csproj"),
         testProject =>
     {
-    
         var settings = new DotNetCoreTestSettings
         {
             NoBuild = true,

@@ -25,6 +25,7 @@ using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
@@ -63,10 +64,13 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                   }
             }";
 
+        private readonly ICluster _cluster;
+
         // public constructors
         public ClientEncryptionProseTests(ITestOutputHelper testOutputHelper)
             : base(testOutputHelper)
         {
+            _cluster = CoreTestConfiguration.Cluster;
         }
 
         // public methods
@@ -962,6 +966,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         [ParameterAttributeData]
         public void KmsTls_Test([Values(false, true)] bool async)
         {
+            RequireServer.Check().Supports(Feature.ClientSideEncryption);
             RequireEnvironment.Check().EnvironmentVariable("KMS_TLS_ERROR_TYPE", isDefined: true);
 
             using (var clientEncrypted = ConfigureClientEncrypted())
@@ -1354,10 +1359,9 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
         private void DropView(CollectionNamespace viewNamespace)
         {
-            var cluster = CoreTestConfiguration.Cluster;
             var operation = new DropCollectionOperation(viewNamespace, CoreTestConfiguration.MessageEncoderSettings);
-            using (var session = CoreTestConfiguration.StartSession(cluster))
-            using (var binding = new WritableServerBinding(cluster, session.Fork()))
+            using (var session = CoreTestConfiguration.StartSession(_cluster))
+            using (var binding = new WritableServerBinding(_cluster, session.Fork()))
             using (var bindingHandle = new ReadWriteBindingHandle(binding))
             {
                 operation.Execute(bindingHandle, CancellationToken.None);

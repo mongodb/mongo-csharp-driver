@@ -924,7 +924,7 @@ tasks:
           vars:
             TOPOLOGY: "server"
             AUTH: "noauth"
-            SSL: "ssl"
+            SSL: "nossl"
         - func: start-kms-mock-server
           vars:
             BROKEN_CERT: "expired.pem"
@@ -943,7 +943,7 @@ tasks:
           vars:
             TOPOLOGY: "server"
             AUTH: "noauth"
-            SSL: "ssl"
+            SSL: "nossl"
         - func: start-kms-mock-server
           vars:
            BROKEN_CERT: "wrong-host.pem"
@@ -1616,11 +1616,3 @@ buildvariants:
   display_name: "CSFLE KMS TLS ${os}"
   tasks:
     - name: ".kms-tls"   
-
-# It looks like "kms-mock-server" doesn't work on windows, so running it only on linux
-# should be fixed in the drivers-evergreen-tools repo
-# - matrix_name: "kms-tls-tests"
-  # matrix_spec: { os: "windows-64", version: [ "5.0" ], topology: ["standalone"] }
-  # display_name: "CSFLE KMS TLS ${os}"
-  # tasks:
-    # - name: ".kms-tls"  
