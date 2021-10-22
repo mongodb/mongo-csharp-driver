@@ -67,7 +67,7 @@ namespace MongoDB.Driver.Core
         /// <param name="session">The session.</param>
         /// <param name="operation">The operation.</param>
         /// <returns>An effective read write binging.</returns>
-        public static IReadWriteBindingHandle CreateReadWriteBinding(ICluster cluster, ICoreSessionHandle session, IWriteOperation operation = null)
+        public static IReadWriteBindingHandle CreateReadWriteBinding(ICluster cluster, ICoreSessionHandle session, IWriteOperation operation)
         {
             IReadWriteBinding readWriteBinding;
             if (session.IsInTransaction &&
@@ -87,16 +87,7 @@ namespace MongoDB.Driver.Core
                     session.CurrentTransaction.UnpinAll();
                 }
 
-                if (operation is IMayUseSecondaryWriteOperationInternal mayUseSecondaryWriteOperation)
-                {
-                    var readPreference = mayUseSecondaryWriteOperation.ReadPreference;
-                    var minServerVersionToUseSecondary = mayUseSecondaryWriteOperation.MinServerVersionToUseSecondary;
-                    readWriteBinding = new WritableServerBinding(cluster, session, readPreference, minServerVersionToUseSecondary);
-                }
-                else
-                {
-                    readWriteBinding = new WritableServerBinding(cluster, session);
-                }
+                readWriteBinding = new WritableServerBinding(cluster, session, operation);
             }
 
             return new ReadWriteBindingHandle(readWriteBinding);

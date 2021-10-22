@@ -87,20 +87,21 @@ namespace MongoDB.Driver.TestConsoleApplication
 
         private async Task ClearData(ICluster cluster)
         {
-            using (var binding = new WritableServerBinding(cluster, NoCoreSession.NewHandle()))
+            var operation = new DropDatabaseOperation(_collection.DatabaseNamespace, _messageEncoderSettings);
+            using (var binding = new WritableServerBinding(cluster, NoCoreSession.NewHandle(), operation))
             {
-                var commandOp = new DropDatabaseOperation(_collection.DatabaseNamespace, _messageEncoderSettings);
-                await commandOp.ExecuteAsync(binding, CancellationToken.None);
+                await operation.ExecuteAsync(binding, CancellationToken.None);
             }
         }
 
         private async Task InsertData(ICluster cluster)
         {
-            using (var binding = new WritableServerBinding(cluster, NoCoreSession.NewHandle()))
+            for (int i = 0; i < 100; i++)
             {
-                for (int i = 0; i < 100; i++)
+                var operation = CreateInsertOperation(new BsonDocument("i", i));
+                using (var binding = new WritableServerBinding(cluster, NoCoreSession.NewHandle(), operation))
                 {
-                    await Insert(binding, new BsonDocument("i", i));
+                    _ = await ExecuteWriteOperationAsync(operation, binding);
                 }
             }
         }
@@ -108,13 +109,15 @@ namespace MongoDB.Driver.TestConsoleApplication
         private async Task DoWork(ICluster cluster)
         {
             var rand = new Random();
-            using (var binding = new WritableServerBinding(cluster, NoCoreSession.NewHandle()))
+            while (!_cancellationTokenSource.IsCancellationRequested)
             {
-                while (!_cancellationTokenSource.IsCancellationRequested)
+                var i = rand.Next(0, 10000);
+                var findOperation = CreateFindOperation(new BsonDocument("i", i));
+
+                IReadOnlyList<BsonDocument> docs;
+                using (var binding = new ReadPreferenceBinding(cluster, ReadPreference.Primary, session: null))
                 {
-                    var i = rand.Next(0, 10000);
-                    IReadOnlyList<BsonDocument> docs;
-                    using (var cursor = await Query(binding, new BsonDocument("i", i)))
+                    using (var cursor = await ExecuteReadOperationAsync(findOperation, binding))
                     {
                         try
                         {
@@ -134,76 +137,85 @@ namespace MongoDB.Driver.TestConsoleApplication
                             continue;
                         }
                     }
+                }
 
 
-                    if (docs == null || docs.Count == 0)
+                if (docs == null || docs.Count == 0)
+                {
+                    try
                     {
-                        try
+                        // await Insert(binding, new BsonDocument().Add("i", i));
+                        var operation = CreateInsertOperation(new BsonDocument("i", i));
+                        using (var binding = new WritableServerBinding(cluster, NoCoreSession.NewHandle(), operation))
                         {
-                            await Insert(binding, new BsonDocument().Add("i", i));
-                            //Console.Write(".");
+                            _ = await ExecuteWriteOperationAsync(operation, binding);
                         }
-                        catch (Exception)
-                        {
-                            Console.Write("*");
-                        }
+                        //Console.Write(".");
                     }
-                    else
+                    catch (Exception)
                     {
-                        try
+                        Console.Write("*");
+                    }
+                }
+                else
+                {
+                    try
+                    {
+                        var filter = new BsonDocument("_id", docs[0]["_id"]);
+                        var update = new BsonDocument("$set", new BsonDocument("i", i + 1));
+                        var operation = CreateUpdateOperation(filter, update);
+                        using (var binding = new WritableServerBinding(cluster, NoCoreSession.NewHandle(), operation))
                         {
-                            var filter = new BsonDocument("_id", docs[0]["_id"]);
-                            var update = new BsonDocument("$set", new BsonDocument("i", i + 1));
-                            await Update(binding, filter, update);
-                            //Console.Write(".");
+                            _ = await ExecuteWriteOperationAsync(operation, binding);
                         }
-                        catch (Exception)
-                        {
-                            Console.Write("*");
-                        }
+                        //Console.Write(".");
+                    }
+                    catch (Exception)
+                    {
+                        Console.Write("*");
                     }
                 }
             }
         }
 
-        private async Task Insert(IWriteBinding binding, BsonDocument document)
+        private InsertOpcodeOperation<BsonDocument> CreateInsertOperation(BsonDocument document)
         {
-            var insertOp = new InsertOpcodeOperation<BsonDocument>(_collection, new[] { document }, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            return new InsertOpcodeOperation<BsonDocument>(_collection, new[] { document }, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+        }
 
+        private async Task<TResult> ExecuteWriteOperationAsync<TResult>(IWriteOperation<TResult> operation, IWriteBinding binding)
+        {
             using (var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
             using (var linked = CancellationTokenSource.CreateLinkedTokenSource(timeout.Token, _cancellationTokenSource.Token))
             {
-                await insertOp.ExecuteAsync(binding, linked.Token);
+                return await operation.ExecuteAsync(binding, linked.Token);
             }
         }
 
-        private async Task<IAsyncCursor<BsonDocument>> Query(IReadBinding binding, BsonDocument filter)
+        private FindOperation<BsonDocument> CreateFindOperation(BsonDocument filter)
         {
-            var findOp = new FindOperation<BsonDocument>(_collection, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            return new FindOperation<BsonDocument>(_collection, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
                 Filter = filter,
                 Limit = -1
             };
+        }
 
+        private async Task<TResult> ExecuteReadOperationAsync<TResult>(IReadOperation<TResult> operation, IReadBinding binding)
+        {
             using (var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
             using (var linked = CancellationTokenSource.CreateLinkedTokenSource(timeout.Token, _cancellationTokenSource.Token))
             {
-                return await findOp.ExecuteAsync(binding, linked.Token);
+                return await operation.ExecuteAsync(binding, linked.Token);
             }
         }
 
-        private async Task Update(IWriteBinding binding, BsonDocument filter, BsonDocument update)
+        private UpdateOpcodeOperation CreateUpdateOperation(BsonDocument filter, BsonDocument update)
         {
-            var updateOp = new UpdateOpcodeOperation(
+            return new UpdateOpcodeOperation(
                 _collection,
                 new UpdateRequest(UpdateType.Update, filter, update),
                 _messageEncoderSettings);
-
-            using (var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
-            using (var linked = CancellationTokenSource.CreateLinkedTokenSource(timeout.Token, _cancellationTokenSource.Token))
-            {
-                await updateOp.ExecuteAsync(binding, linked.Token);
-            }
         }
     }
 }

@@ -1298,7 +1298,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         {
             var operation = new DropCollectionOperation(viewNamespace, CoreTestConfiguration.MessageEncoderSettings);
             using (var session = CoreTestConfiguration.StartSession(_cluster))
-            using (var binding = new WritableServerBinding(_cluster, session.Fork()))
+            using (var binding = new WritableServerBinding(_cluster, session.Fork(), operation))
             using (var bindingHandle = new ReadWriteBindingHandle(binding))
             {
                 operation.Execute(bindingHandle, CancellationToken.None);

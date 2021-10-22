@@ -845,7 +845,7 @@ namespace MongoDB.Driver
 
             if (readPreference.ReadPreferenceMode == ReadPreferenceMode.Primary)
             {
-                return new ReadWriteBindingHandle(new WritableServerBinding(_cluster, session.WrappedCoreSession.Fork()));
+                return new ReadWriteBindingHandle(new WritableServerBinding(_cluster, session.WrappedCoreSession.Fork(), operation: null));
             }
             else
             {
@@ -862,7 +862,7 @@ namespace MongoDB.Driver
             }
         }
 
-        internal IWriteBindingHandle GetWriteBinding(IClientSessionHandle session)
+        internal IWriteBindingHandle GetWriteBinding(IClientSessionHandle session, IWriteOperation operation)
         {
             var request = __threadStaticRequest;
             if (request != null)
@@ -870,7 +870,7 @@ namespace MongoDB.Driver
                 return ToWriteBinding(request.Binding).Fork();
             }
 
-            return new ReadWriteBindingHandle(new WritableServerBinding(_cluster, session.WrappedCoreSession.Fork()));
+            return new ReadWriteBindingHandle(new WritableServerBinding(_cluster, session.WrappedCoreSession.Fork(), operation));
         }
 
         // private methods
@@ -885,7 +885,7 @@ namespace MongoDB.Driver
 
         private TResult ExecuteWriteOperation<TResult>(IClientSessionHandle session, IWriteOperation<TResult> operation)
         {
-            using (var binding = GetWriteBinding(session))
+            using (var binding = GetWriteBinding(session, operation))
             {
                 return _operationExecutor.ExecuteWriteOperation(binding, operation, CancellationToken.None);
             }

@@ -13,9 +13,11 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Clusters.ServerSelectors
@@ -42,18 +44,16 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
         }
         #endregion
 
-        private readonly ReadPreference _readPreference;
-        private readonly ServerVersion _minServerVersionToUseSecondary;
+        private readonly IWriteOperation _operation;
 
         // constructors
         private WritableServerSelector()
         {
         }
 
-        internal WritableServerSelector(ReadPreference readPreference, ServerVersion minServerVersionToUseSecondary)
+        internal WritableServerSelector(IWriteOperation operation)
         {
-            _readPreference = Ensure.IsNotNull(readPreference, nameof(readPreference));
-            _minServerVersionToUseSecondary = Ensure.IsNotNull(minServerVersionToUseSecondary, nameof(minServerVersionToUseSecondary));
+            _operation = operation; // can be null
         }
 
         // methods
@@ -65,10 +65,23 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
                 return servers;
             }
 
-            // modify this method to use _readPreference and _minServerVersionToUseSecondary (if not null)
-            // possibly leveraging an enhanced ReadPreferenceServerSelector as a helper
+            if (_operation is IMayUseSecondaryWriteOperationInternal mayUseSecondaryOperation)
+            {
+                var readPreference = mayUseSecondaryOperation.ReadPreference;
+                var minServerVersionToUseSecondary = mayUseSecondaryOperation.MinServerVersionToUseSecondary;
+                return SelectServersUsingReadPreference(cluster, servers, readPreference, minServerVersionToUseSecondary);
+            }
 
             return servers.Where(x => x.Type.IsWritable());
+        }
+
+        private IEnumerable<ServerDescription> SelectServersUsingReadPreference(
+            ClusterDescription cluster,
+            IEnumerable<Servers.ServerDescription> servers,
+            ReadPreference readPreference,
+            ServerVersion minServerVersionToUseSecondary)
+        {
+            throw new NotImplementedException(); // implement the new server selection logic here
         }
 
         /// <inheritdoc/>

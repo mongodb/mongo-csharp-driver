@@ -209,12 +209,11 @@ namespace MongoDB.Driver.Core.Operations
         {
             RequireServer.Check();
             DropCollection();
+            var indexName = "x_1";
+            var subject = new DropIndexOperation(_collectionNamespace, indexName, _messageEncoderSettings);
 
-            using (var binding = CreateReadWriteBinding())
+            using (var binding = CreateReadWriteBinding(subject))
             {
-                var indexName = "x_1";
-                var subject = new DropIndexOperation(_collectionNamespace, indexName, _messageEncoderSettings);
-
                 ExecuteOperation(subject, async); // should not throw
             }
         }

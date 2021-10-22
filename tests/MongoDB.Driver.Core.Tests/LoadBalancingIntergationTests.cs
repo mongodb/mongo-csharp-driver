@@ -76,11 +76,13 @@ namespace MongoDB.Driver.Core.Tests
                     using (session = CreateSession(cluster, isImplicit: false, withTransaction: true))
                     {
                         eventCapturer.Any().Should().BeFalse();
-                        using (writeBindingsBundle = CreateReadWriteBindingsAndRetryableWriteContext(cluster, session.Fork(), async))
+
+                        var operation = CreateBulkInsertOperation();
+                        using (writeBindingsBundle = CreateReadWriteBindingsAndRetryableWriteContext(cluster, session.Fork(), operation, async))
                         {
                             AssertCheckOutOnlyEvents(eventCapturer, i);
 
-                            _ = CreateAndRunBulkOperation(writeBindingsBundle.RetryableContext, async);
+                            _ = RunBulkWriteOperation(operation, writeBindingsBundle.RetryableContext, async);
 
                             AssertCommand(eventCapturer, "insert", noMoreEvents: true);
                         }
@@ -129,11 +131,12 @@ namespace MongoDB.Driver.Core.Tests
                     eventCapturer.Any().Should().BeFalse();
 
                     // bulk operation
-                    using (writeBindingsBundle = CreateReadWriteBindingsAndRetryableWriteContext(cluster, session.Fork(), async))
+                    var operation = CreateBulkInsertOperation();
+                    using (writeBindingsBundle = CreateReadWriteBindingsAndRetryableWriteContext(cluster, session.Fork(), operation, async))
                     {
                         AssertCheckOutOnlyEvents(eventCapturer, 1);
 
-                        _ = CreateAndRunBulkOperation(writeBindingsBundle.RetryableContext, async);
+                        _ = RunBulkWriteOperation(operation, writeBindingsBundle.RetryableContext, async);
 
                         AssertCommand(eventCapturer, "insert", noMoreEvents: true);
                     }
@@ -203,11 +206,12 @@ namespace MongoDB.Driver.Core.Tests
                         eventCapturer.Any().Should().BeFalse();
 
                         // bulk operation
-                        using (writeBindingsBundle = CreateReadWriteBindingsAndRetryableWriteContext(cluster, session.Fork(), async))
+                        var operation = CreateBulkInsertOperation();
+                        using (writeBindingsBundle = CreateReadWriteBindingsAndRetryableWriteContext(cluster, session.Fork(), operation, async))
                         {
                             AssertCheckOutOnlyEvents(eventCapturer, i);
 
-                            _ = CreateAndRunBulkOperation(writeBindingsBundle.RetryableContext, async);
+                            _ = RunBulkWriteOperation(operation, writeBindingsBundle.RetryableContext, async);
 
                             AssertCommand(eventCapturer, "insert", noMoreEvents: true);
                         }
@@ -621,20 +625,24 @@ namespace MongoDB.Driver.Core.Tests
             coreSession._wrapped_referenceCount().Should().Be(expectedValue);
         }
 
-        private BulkWriteOperationResult CreateAndRunBulkOperation(RetryableWriteContext context, bool async)
+        private BulkInsertOperation CreateBulkInsertOperation()
         {
-            var bulkInsertOperation = new BulkInsertOperation(
+            return new BulkInsertOperation(
                 _collectionNamespace,
                 new[] { new InsertRequest(new BsonDocument()) },
                 _messageEncoderSettings);
+        }
 
+        private BulkWriteOperationResult RunBulkWriteOperation<TWriteRequest>(BulkUnmixedWriteOperationBase<TWriteRequest> operation, RetryableWriteContext context, bool async)
+            where TWriteRequest : WriteRequest
+        {
             if (async)
             {
-                return bulkInsertOperation.ExecuteAsync(context, CancellationToken.None).GetAwaiter().GetResult();
+                return operation.ExecuteAsync(context, CancellationToken.None).GetAwaiter().GetResult();
             }
             else
             {
-                return bulkInsertOperation.Execute(context, CancellationToken.None);
+                return operation.Execute(context, CancellationToken.None);
             }
         }
 
@@ -682,9 +690,9 @@ namespace MongoDB.Driver.Core.Tests
                     : RetryableWriteContext.Create(readWriteBindingHandle, retryRequested: false, CancellationToken.None);
         }
 
-        private DisposableBindingBundle<IReadWriteBindingHandle, RetryableWriteContext> CreateReadWriteBindingsAndRetryableWriteContext(ICluster cluster, ICoreSessionHandle sessionHandle, bool async)
+        private DisposableBindingBundle<IReadWriteBindingHandle, RetryableWriteContext> CreateReadWriteBindingsAndRetryableWriteContext(ICluster cluster, ICoreSessionHandle sessionHandle, IWriteOperation operation, bool async)
         {
-            var effectiveReadBindings = ChannelPinningHelper.CreateReadWriteBinding(cluster, sessionHandle);
+            var effectiveReadBindings = ChannelPinningHelper.CreateReadWriteBinding(cluster, sessionHandle, operation);
             var retryableReadContext = CreateRetryableWriteContext(effectiveReadBindings, async);
 
             return new DisposableBindingBundle<IReadWriteBindingHandle, RetryableWriteContext>(effectiveReadBindings, retryableReadContext);

@@ -175,7 +175,7 @@ namespace MongoDB.Driver.Core.Operations
 
         protected TResult ExecuteOperation<TResult>(IWriteOperation<TResult> operation, bool useImplicitSession = false)
         {
-            using (var binding = CreateReadWriteBinding(useImplicitSession))
+            using (var binding = CreateReadWriteBinding(operation, useImplicitSession))
             using (var bindingHandle = new ReadWriteBindingHandle(binding))
             {
                 return operation.Execute(bindingHandle, CancellationToken.None);
@@ -222,7 +222,7 @@ namespace MongoDB.Driver.Core.Operations
 
         protected async Task<TResult> ExecuteOperationAsync<TResult>(IWriteOperation<TResult> operation, bool useImplicitSession = false)
         {
-            using (var binding = CreateReadWriteBinding(useImplicitSession))
+            using (var binding = CreateReadWriteBinding(operation, useImplicitSession))
             using (var bindingHandle = new ReadWriteBindingHandle(binding))
             {
                 return await operation.ExecuteAsync(bindingHandle, CancellationToken.None);
@@ -254,11 +254,11 @@ namespace MongoDB.Driver.Core.Operations
             return new ReadPreferenceBinding(_cluster, readPreference, _session.Fork());
         }
 
-        protected IReadWriteBinding CreateReadWriteBinding(bool useImplicitSession = false)
+        protected IReadWriteBinding CreateReadWriteBinding(IWriteOperation operation, bool useImplicitSession = false)
         {
             var options = new CoreSessionOptions(isImplicit: useImplicitSession);
             var session = CoreTestConfiguration.StartSession(_cluster, options);
-            return new WritableServerBinding(_cluster, session);
+            return new WritableServerBinding(_cluster, session, operation);
         }
 
         protected void Insert(params BsonDocument[] documents)
@@ -437,6 +437,7 @@ namespace MongoDB.Driver.Core.Operations
             bool useImplicitSession)
         {
             VerifySessionIdSending(
+                operation,
                 (binding, cancellationToken) => operation.ExecuteAsync(binding, cancellationToken),
                 (binding, cancellationToken) => operation.Execute(binding, cancellationToken),
                 AssertSessionIdWasNotSentIfUnacknowledgedWrite,
@@ -448,6 +449,7 @@ namespace MongoDB.Driver.Core.Operations
         protected void VerifySessionIdWasSentWhenSupported<TResult>(IReadOperation<TResult> operation, string commandName, bool async)
         {
             VerifySessionIdSending(
+                operation: null, // not a write operation
                 (binding, cancellationToken) => operation.ExecuteAsync(binding, cancellationToken),
                 (binding, cancellationToken) => operation.Execute(binding, cancellationToken),
                 AssertSessionIdWasSentWhenSupported,
@@ -458,6 +460,7 @@ namespace MongoDB.Driver.Core.Operations
         protected void VerifySessionIdWasSentWhenSupported<TResult>(IWriteOperation<TResult> operation, string commandName, bool async)
         {
             VerifySessionIdSending(
+                operation,
                 (binding, cancellationToken) => operation.ExecuteAsync(binding, cancellationToken),
                 (binding, cancellationToken) => operation.Execute(binding, cancellationToken),
                 AssertSessionIdWasSentWhenSupported,
@@ -466,6 +469,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         protected void VerifySessionIdSending<TResult>(
+            IWriteOperation operation,
             Func<WritableServerBinding, CancellationToken, Task<TResult>> executeAsync,
             Func<WritableServerBinding, CancellationToken, TResult> execute,
             Action<EventCapturer, ICoreSessionHandle, Exception> assertResults,
@@ -477,7 +481,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var cluster = CoreTestConfiguration.CreateCluster(b => b.Subscribe(eventCapturer)))
             {
                 using (var session = CreateSession(cluster, useImplicitSession))
-                using (var binding = new WritableServerBinding(cluster, session.Fork()))
+                using (var binding = new WritableServerBinding(cluster, session.Fork(), operation))
                 {
                     var cancellationToken = new CancellationTokenSource().Token;
                     Exception exception;

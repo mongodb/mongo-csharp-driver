@@ -401,9 +401,9 @@ namespace MongoDB.Driver
             return new ReadBindingHandle(binding);
         }
 
-        private static IReadWriteBindingHandle CreateReadWriteBinding(ICoreSessionHandle session)
+        private static IReadWriteBindingHandle CreateReadWriteBinding(ICoreSessionHandle session, IWriteOperation operation)
         {
-            var binding = new WritableServerBinding(__cluster.Value, session.Fork());
+            var binding = new WritableServerBinding(__cluster.Value, session.Fork(), operation);
             return new ReadWriteBindingHandle(binding);
         }
 
@@ -412,7 +412,7 @@ namespace MongoDB.Driver
             var operation = new DropDatabaseOperation(__databaseNamespace.Value, __messageEncoderSettings);
 
             using (var session = StartSession())
-            using (var binding = CreateReadWriteBinding(session))
+            using (var binding = CreateReadWriteBinding(session, operation))
             {
                 operation.Execute(binding, CancellationToken.None);
             }

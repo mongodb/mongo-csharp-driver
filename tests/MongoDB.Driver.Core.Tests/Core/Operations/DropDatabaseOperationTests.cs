@@ -96,11 +96,10 @@ namespace MongoDB.Driver.Core.Operations
         {
             RequireServer.Check();
             EnsureDatabaseExists();
+            var subject = new DropDatabaseOperation(_databaseNamespace, _messageEncoderSettings);
 
-            using (var binding = CreateReadWriteBinding())
+            using (var binding = CreateReadWriteBinding(subject))
             {
-                var subject = new DropDatabaseOperation(_databaseNamespace, _messageEncoderSettings);
-
                 var result = ExecuteOperation(subject, binding, async);
 
                 result["ok"].ToBoolean().Should().BeTrue();
@@ -134,7 +133,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var exception = Record.Exception(() =>
             {
-                using (var binding = CreateReadWriteBinding())
+                using (var binding = CreateReadWriteBinding(subject))
                 {
                     ExecuteOperation(subject, binding, async);
                 }

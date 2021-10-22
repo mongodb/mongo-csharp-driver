@@ -2289,7 +2289,7 @@ namespace MongoDB.Driver
 
         internal TResult ExecuteWriteOperation<TResult>(IClientSessionHandle session, IWriteOperation<TResult> operation)
         {
-            using (var binding = _server.GetWriteBinding(session))
+            using (var binding = _server.GetWriteBinding(session, operation))
             {
                 return _operationExecutor.ExecuteWriteOperation(binding, operation, CancellationToken.None);
             }

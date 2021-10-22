@@ -19,6 +19,7 @@ using System.Threading.Tasks;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Bindings
@@ -31,8 +32,7 @@ namespace MongoDB.Driver.Core.Bindings
         // fields
         private readonly ICluster _cluster;
         private bool _disposed;
-        private readonly ServerVersion _minServerVersionToUseSecondary;
-        private readonly ReadPreference _readPreference;
+        private readonly IWriteOperation _operation;
         private readonly IServerSelector _serverSelector;
         private readonly ICoreSessionHandle _session;
 
@@ -42,27 +42,30 @@ namespace MongoDB.Driver.Core.Bindings
         /// </summary>
         /// <param name="cluster">The cluster.</param>
         /// <param name="session">The session.</param>
-        public WritableServerBinding(ICluster cluster, ICoreSessionHandle session)
+        /// <param name="operation">The operation.</param>
+        public WritableServerBinding(ICluster cluster, ICoreSessionHandle session, IWriteOperation operation)
         {
             _cluster = Ensure.IsNotNull(cluster, nameof(cluster));
             _session = Ensure.IsNotNull(session, nameof(session));
-            _serverSelector = WritableServerSelector.Instance;
-        }
-
-        internal WritableServerBinding(ICluster cluster, ICoreSessionHandle session, ReadPreference readPreference, ServerVersion minServerVersionToUseSecondary)
-        {
-            _cluster = Ensure.IsNotNull(cluster, nameof(cluster));
-            _session = Ensure.IsNotNull(session, nameof(session));
-            _readPreference = Ensure.IsNotNull(readPreference, nameof(readPreference));
-            _minServerVersionToUseSecondary = Ensure.IsNotNull(minServerVersionToUseSecondary, nameof(minServerVersionToUseSecondary));
-            _serverSelector = new WritableServerSelector(_readPreference, _minServerVersionToUseSecondary);
+            _operation = operation; // can be null
+            _serverSelector = new WritableServerSelector(_operation);
         }
 
         // properties
         /// <inheritdoc/>
         public ReadPreference ReadPreference
         {
-            get { return ReadPreference.Primary; }
+            get
+            {
+                if (_operation is IMayUseSecondaryWriteOperationInternal mayUseSecondaryWriteOperation)
+                {
+                    return mayUseSecondaryWriteOperation.ReadPreference;
+                }
+                else
+                {
+                    return ReadPreference.Primary;
+                }
+            }
         }
 
         /// <inheritdoc/>
