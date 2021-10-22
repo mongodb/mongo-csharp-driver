@@ -2686,6 +2686,7 @@ namespace MongoDB.Driver.Tests
                 "}\n";
 
 
+#pragma warning disable CS0618 // Type or member is obsolete
             var result = _collection.MapReduce(new MapReduceArgs
             {
                 BypassDocumentValidation = true,
@@ -2694,6 +2695,7 @@ namespace MongoDB.Driver.Tests
                 OutputMode = MapReduceOutputMode.Replace,
                 OutputCollectionName = "mrout"
             });
+#pragma warning restore CS0618 // Type or member is obsolete
 
             Assert.True(result.Ok);
             if (CoreTestConfiguration.ServerVersion < __mapReduceNewServerImplementationServerVersion)
@@ -2768,11 +2770,13 @@ namespace MongoDB.Driver.Tests
                     "    return {count : total};\n" +
                     "}\n";
 
+#pragma warning disable CS0618 // Type or member is obsolete
                 var result = _collection.MapReduce(new MapReduceArgs
                 {
                     MapFunction = map,
                     ReduceFunction = reduce
                 });
+#pragma warning restore CS0618 // Type or member is obsolete
 
                 Assert.True(result.Ok);
                 if (CoreTestConfiguration.ServerVersion < __mapReduceNewServerImplementationServerVersion)
@@ -2838,6 +2842,7 @@ namespace MongoDB.Driver.Tests
                     _collection.Insert(new BsonDocument("x", 1)); // make sure collection has at least one document so map gets called
 
                     failpoint.SetAlwaysOn();
+#pragma warning disable CS0618 // Type or member is obsolete
                     var args = new MapReduceArgs
                     {
                         MapFunction = "function() { }",
@@ -2845,6 +2850,7 @@ namespace MongoDB.Driver.Tests
                         MaxTime = TimeSpan.FromMilliseconds(1)
                     };
                     Assert.Throws<MongoExecutionTimeoutException>(() => _collection.MapReduce(args));
+#pragma warning restore CS0618 // Type or member is obsolete
                 }
             }
         }
@@ -2880,12 +2886,14 @@ namespace MongoDB.Driver.Tests
                     "    return {count : total};\n" +
                     "}\n";
 
+#pragma warning disable CS0618 // Type or member is obsolete
                 var result = _collection.MapReduce(new MapReduceArgs
                 {
                     Query = query,
                     MapFunction = map,
                     ReduceFunction = reduce
                 });
+#pragma warning restore CS0618 // Type or member is obsolete
 
                 Assert.True(result.Ok);
                 if (CoreTestConfiguration.ServerVersion < __mapReduceNewServerImplementationServerVersion)
@@ -2963,16 +2971,20 @@ namespace MongoDB.Driver.Tests
                 "    }\n" +
                 "    return {count : total};\n" +
                 "}\n";
+#pragma warning disable CS0618 // Type or member is obsolete
             var args = new MapReduceArgs
             {
                 BypassDocumentValidation = true,
                 MapFunction = map,
                 ReduceFunction = reduce,
                 OutputMode = MapReduceOutputMode.Replace,
+#pragma warning restore CS0618 // Type or member is obsolete
                 OutputCollectionName = "mrout"
             };
 
+#pragma warning disable CS0618 // Type or member is obsolete
             var exception = Record.Exception(() => _collection.WithWriteConcern(writeConcern).MapReduce(args));
+#pragma warning restore CS0618 // Type or member is obsolete
 
             exception.Should().BeOfType<MongoWriteConcernException>();
         }

@@ -22,6 +22,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents the output mode for a map-reduce operation.
     /// </summary>
+    [Obsolete("Use Aggregation pipeline instead.")]
     public enum MapReduceOutputMode
     {
         /// <summary>
@@ -44,6 +45,7 @@ namespace MongoDB.Driver
 
     internal static class MapReduceOutputModeExtensionMethods
     {
+#pragma warning disable CS0618 // Type or member is obsolete
         public static Core.Operations.MapReduceOutputMode ToCore(this MapReduceOutputMode outputMode)
         {
             switch (outputMode)
@@ -59,11 +61,13 @@ namespace MongoDB.Driver
                     throw new ArgumentException(message, "outputMode");
             }
         }
+#pragma warning restore CS0618 // Type or member is obsolete
     }
 
     /// <summary>
     /// Represents arguments for the MapReduce command helper method.
     /// </summary>
+    [Obsolete("Use Aggregation pipeline instead.")]
     public class MapReduceArgs
     {
         // private fields

@@ -26,6 +26,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents a base class for map-reduce operations.
     /// </summary>
+    [Obsolete("Use Aggregation pipeline instead.")]
     public abstract class MapReduceOperationBase
     {
         // fields

@@ -565,7 +565,9 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // nested types
+#pragma warning disable CS0618 // Type or member is obsolete
         private class FakeMapReduceOperation : MapReduceOperationBase
+#pragma warning restore CS0618 // Type or member is obsolete
         {
             public FakeMapReduceOperation(
                 CollectionNamespace collectionNamespace,
