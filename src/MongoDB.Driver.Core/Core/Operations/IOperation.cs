@@ -20,6 +20,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -48,10 +49,19 @@ namespace MongoDB.Driver.Core.Operations
     }
 
     /// <summary>
+    /// 
+    /// </summary>
+#pragma warning disable CA1040 // Avoid empty interfaces
+    public interface IWriteOperation
+    {
+    }
+#pragma warning restore CA1040 // Avoid empty interfaces
+
+    /// <summary>
     /// Represents a database write operation.
     /// </summary>
     /// <typeparam name="TResult">The type of the result.</typeparam>
-    public interface IWriteOperation<TResult>
+    public interface IWriteOperation<TResult> : IWriteOperation
     {
         // methods
         /// <summary>
@@ -69,5 +79,21 @@ namespace MongoDB.Driver.Core.Operations
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A Task whose result is the result of the operation.</returns>
         Task<TResult> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken);
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public interface IMayUseSecondaryWriteOperation
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        ReadPreference ReadPreference { get; }
+    }
+
+    internal interface IMayUseSecondaryWriteOperationInternal : IMayUseSecondaryWriteOperation
+    {
+        ServerVersion MinServerVersionToUseSecondary { get; }
     }
 }

@@ -15,6 +15,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Clusters.ServerSelectors
@@ -41,9 +42,18 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
         }
         #endregion
 
+        private readonly ReadPreference _readPreference;
+        private readonly ServerVersion _minServerVersionToUseSecondary;
+
         // constructors
         private WritableServerSelector()
         {
+        }
+
+        internal WritableServerSelector(ReadPreference readPreference, ServerVersion minServerVersionToUseSecondary)
+        {
+            _readPreference = Ensure.IsNotNull(readPreference, nameof(readPreference));
+            _minServerVersionToUseSecondary = Ensure.IsNotNull(minServerVersionToUseSecondary, nameof(minServerVersionToUseSecondary));
         }
 
         // methods
@@ -54,6 +64,9 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
             {
                 return servers;
             }
+
+            // modify this method to use _readPreference and _minServerVersionToUseSecondary (if not null)
+            // possibly leveraging an enhanced ReadPreferenceServerSelector as a helper
 
             return servers.Where(x => x.Type.IsWritable());
         }

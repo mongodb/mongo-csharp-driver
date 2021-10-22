@@ -612,6 +612,7 @@ namespace MongoDB.Driver
                 Let = options.Let,
                 MaxTime = options.MaxTime,
                 ReadConcern = _settings.ReadConcern,
+                ReadPreference = _settings.ReadPreference,
                 WriteConcern = _settings.WriteConcern
             };
         }
@@ -719,9 +720,9 @@ namespace MongoDB.Driver
             return ChannelPinningHelper.CreateReadBinding(_cluster, session.WrappedCoreSession.Fork(), readPreference);
         }
 
-        private IWriteBindingHandle CreateReadWriteBinding(IClientSessionHandle session)
+        private IWriteBindingHandle CreateReadWriteBinding(IClientSessionHandle session, IWriteOperation operation)
         {
-            return ChannelPinningHelper.CreateReadWriteBinding(_cluster, session.WrappedCoreSession.Fork());
+            return ChannelPinningHelper.CreateReadWriteBinding(_cluster, session.WrappedCoreSession.Fork(), operation);
         }
 
         private RenameCollectionOperation CreateRenameCollectionOperation(string oldName, string newName, RenameCollectionOptions options)
@@ -796,7 +797,7 @@ namespace MongoDB.Driver
 
         private T ExecuteWriteOperation<T>(IClientSessionHandle session, IWriteOperation<T> operation, CancellationToken cancellationToken)
         {
-            using (var binding = CreateReadWriteBinding(session))
+            using (var binding = CreateReadWriteBinding(session, operation))
             {
                 return _operationExecutor.ExecuteWriteOperation(binding, operation, cancellationToken);
             }
@@ -804,7 +805,7 @@ namespace MongoDB.Driver
 
         private async Task<T> ExecuteWriteOperationAsync<T>(IClientSessionHandle session, IWriteOperation<T> operation, CancellationToken cancellationToken)
         {
-            using (var binding = CreateReadWriteBinding(session))
+            using (var binding = CreateReadWriteBinding(session, operation))
             {
                 return await _operationExecutor.ExecuteWriteOperationAsync(binding, operation, cancellationToken).ConfigureAwait(false);
             }

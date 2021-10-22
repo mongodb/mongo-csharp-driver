@@ -875,6 +875,7 @@ namespace MongoDB.Driver
                 Let = options.Let,
                 MaxTime = options.MaxTime,
                 ReadConcern = _settings.ReadConcern,
+                ReadPreference = Settings.ReadPreference,
                 WriteConcern = _settings.WriteConcern
             };
         }
@@ -1165,9 +1166,9 @@ namespace MongoDB.Driver
             return ChannelPinningHelper.CreateReadBinding(_cluster, session.WrappedCoreSession.Fork(), readPreference);
         }
 
-        private IWriteBindingHandle CreateReadWriteBinding(IClientSessionHandle session)
+        private IWriteBindingHandle CreateReadWriteBinding(IClientSessionHandle session, IWriteOperation operation)
         {
-            return ChannelPinningHelper.CreateReadWriteBinding(_cluster, session.WrappedCoreSession.Fork());
+            return ChannelPinningHelper.CreateReadWriteBinding(_cluster, session.WrappedCoreSession.Fork(), operation);
         }
 
         private MessageEncoderSettings GetMessageEncoderSettings()
@@ -1248,7 +1249,7 @@ namespace MongoDB.Driver
 
         private TResult ExecuteWriteOperation<TResult>(IClientSessionHandle session, IWriteOperation<TResult> operation, CancellationToken cancellationToken = default(CancellationToken))
         {
-            using (var binding = CreateReadWriteBinding(session))
+            using (var binding = CreateReadWriteBinding(session, operation))
             {
                 return _operationExecutor.ExecuteWriteOperation(binding, operation, cancellationToken);
             }
@@ -1256,7 +1257,7 @@ namespace MongoDB.Driver
 
         private async Task<TResult> ExecuteWriteOperationAsync<TResult>(IClientSessionHandle session, IWriteOperation<TResult> operation, CancellationToken cancellationToken = default(CancellationToken))
         {
-            using (var binding = CreateReadWriteBinding(session))
+            using (var binding = CreateReadWriteBinding(session, operation))
             {
                 return await _operationExecutor.ExecuteWriteOperationAsync(binding, operation, cancellationToken).ConfigureAwait(false);
             }

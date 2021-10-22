@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents an aggregate operation that writes the results to an output collection.
     /// </summary>
-    public class AggregateToCollectionOperation : IWriteOperation<BsonDocument>
+    public class AggregateToCollectionOperation : IWriteOperation<BsonDocument>, IMayUseSecondaryWriteOperationInternal
     {
         // fields
         private bool? _allowDiskUse;
@@ -46,6 +46,7 @@ namespace MongoDB.Driver.Core.Operations
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly IReadOnlyList<BsonDocument> _pipeline;
         private ReadConcern _readConcern;
+        private ReadPreference _readPreference;
         private WriteConcern _writeConcern;
 
         // constructors
@@ -221,6 +222,16 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
+        /// <inheritdoc/>
+        public ReadPreference ReadPreference
+        {
+            get { return _readPreference; }
+            set
+            {
+                _readPreference = value;
+            }
+        }
+
         /// <summary>
         /// Gets or sets the write concern.
         /// </summary>
@@ -232,6 +243,8 @@ namespace MongoDB.Driver.Core.Operations
             get { return _writeConcern; }
             set { _writeConcern = value; }
         }
+
+        ServerVersion IMayUseSecondaryWriteOperationInternal.MinServerVersionToUseSecondary => new ServerVersion(5, 0, 0);
 
         // methods
         /// <inheritdoc/>
