@@ -25,6 +25,7 @@ namespace MongoDB.Driver
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     /// <typeparam name="TResult">The type of the result.</typeparam>
+    [Obsolete("Use Aggregation pipeline instead.")]
     public sealed class MapReduceOptions<TDocument, TResult>
     {
         // fields
@@ -155,6 +156,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents the output options for a map-reduce operation.
     /// </summary>
+    [Obsolete("Use Aggregation pipeline instead.")]
     public abstract class MapReduceOutputOptions
     {
         private static MapReduceOutputOptions __inline = new InlineOutput();

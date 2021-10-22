@@ -30,6 +30,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents a map-reduce operation.
     /// </summary>
+    [Obsolete("Use Aggregation pipeline instead.")]
     public class MapReduceLegacyOperation : MapReduceOperationBase, IReadOperation<BsonDocument>
     {
         // fields

@@ -28,7 +28,9 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
     {
         // private fields
         private BsonJavaScript _map;
+#pragma warning disable CS0618 // Type or member is obsolete
         private MapReduceOptions<BsonDocument, BsonDocument> _options = new MapReduceOptions<BsonDocument, BsonDocument>();
+#pragma warning restore CS0618 // Type or member is obsolete
         private BsonJavaScript _reduce;
         private List<BsonDocument> _result;
         private IClientSessionHandle _session;
@@ -57,11 +59,15 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
             IAsyncCursor<BsonDocument> cursor;
             if (_session == null)
             {
+#pragma warning disable CS0618 // Type or member is obsolete
                 cursor = _collection.MapReduce(_map, _reduce, _options, cancellationToken);
+#pragma warning restore CS0618 // Type or member is obsolete
             }
             else
             {
+#pragma warning disable CS0618 // Type or member is obsolete
                 cursor = _collection.MapReduce(_session, _map, _reduce, _options, cancellationToken);
+#pragma warning restore CS0618 // Type or member is obsolete
             }
 
             _result = cursor.ToList();
@@ -72,11 +78,15 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
             IAsyncCursor<BsonDocument> cursor;
             if (_session == null)
             {
+#pragma warning disable CS0618 // Type or member is obsolete
                 cursor = await _collection.MapReduceAsync(_map, _reduce, _options, cancellationToken).ConfigureAwait(false);
+#pragma warning restore CS0618 // Type or member is obsolete
             }
             else
             {
+#pragma warning disable CS0618 // Type or member is obsolete
                 cursor = await _collection.MapReduceAsync(_session, _map, _reduce, _options, cancellationToken).ConfigureAwait(false);
+#pragma warning restore CS0618 // Type or member is obsolete
             }
 
             _result = await cursor.ToListAsync(cancellationToken).ConfigureAwait(false);
@@ -96,8 +106,10 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
 
                 case "out":
                     _options.OutputOptions = value is BsonString
+#pragma warning disable CS0618 // Type or member is obsolete
                         ? new MapReduceOutputOptions.CollectionOutput(value.AsString, MapReduceOutputMode.Replace)
                         : MapReduceOutputOptions.Inline; // TODO: Clean this up.
+#pragma warning restore CS0618 // Type or member is obsolete
                     return;
 
                 case "session":

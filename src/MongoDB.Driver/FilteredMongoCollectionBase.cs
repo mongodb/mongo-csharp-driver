@@ -296,6 +296,7 @@ namespace MongoDB.Driver
             return _wrappedCollection.FindOneAndUpdateAsync(session, CombineFilters(filter), update, options, cancellationToken);
         }
 
+        [Obsolete("Use Aggregation pipeline instead.")]
         public override IAsyncCursor<TResult> MapReduce<TResult>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             options = options ?? new MapReduceOptions<TDocument, TResult>();
@@ -303,6 +304,7 @@ namespace MongoDB.Driver
             return _wrappedCollection.MapReduce(map, reduce, options, cancellationToken);
         }
 
+        [Obsolete("Use Aggregation pipeline instead.")]
         public override IAsyncCursor<TResult> MapReduce<TResult>(IClientSessionHandle session, BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             options = options ?? new MapReduceOptions<TDocument, TResult>();
@@ -310,6 +312,7 @@ namespace MongoDB.Driver
             return _wrappedCollection.MapReduce(session, map, reduce, options, cancellationToken);
         }
 
+        [Obsolete("Use Aggregation pipeline instead.")]
         public override Task<IAsyncCursor<TResult>> MapReduceAsync<TResult>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             options = options ?? new MapReduceOptions<TDocument, TResult>();
@@ -317,6 +320,7 @@ namespace MongoDB.Driver
             return _wrappedCollection.MapReduceAsync(map, reduce, options, cancellationToken);
         }
 
+        [Obsolete("Use Aggregation pipeline instead.")]
         public override Task<IAsyncCursor<TResult>> MapReduceAsync<TResult>(IClientSessionHandle session, BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             options = options ?? new MapReduceOptions<TDocument, TResult>();

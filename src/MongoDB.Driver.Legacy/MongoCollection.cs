@@ -1674,11 +1674,13 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="args">The args.</param>
         /// <returns>A <see cref="MapReduceResult"/>.</returns>
+        [Obsolete("Use Aggregation pipeline instead.")]
         public virtual MapReduceResult MapReduce(MapReduceArgs args)
         {
             return UsingImplicitSession(session => MapReduce(session, args));
         }
 
+        [Obsolete("Use Aggregation pipeline instead.")]
         private MapReduceResult MapReduce(IClientSessionHandle session, MapReduceArgs args)
         {
             if (args == null) { throw new ArgumentNullException("args"); }

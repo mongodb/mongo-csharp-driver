@@ -39,7 +39,9 @@ namespace MongoDB.Driver.Core.Operations
         [Fact]
         public void constructor_should_initialize_instance()
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceLegacyOperation(_collectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
+#pragma warning restore CS0618 // Type or member is obsolete
 
             subject.CollectionNamespace.Should().BeSameAs(_collectionNamespace);
             subject.MapFunction.Should().BeSameAs(_mapFunction);
@@ -51,7 +53,9 @@ namespace MongoDB.Driver.Core.Operations
         [Fact]
         public void CreateOutputOptions_should_return_expected_result()
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceLegacyOperation(_collectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
+#pragma warning restore CS0618 // Type or member is obsolete
             var subjectReflector = new Reflector(subject);
             var expectedResult = new BsonDocument("inline", 1);
 
@@ -71,7 +75,9 @@ namespace MongoDB.Driver.Core.Operations
 
             var mapFunction = "function() { emit(this.x, this.v); }";
             var reduceFunction = "function(key, values) { var sum = 0; for (var i = 0; i < values.length; i++) { sum += values[i]; }; return sum; }";
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceLegacyOperation(_collectionNamespace, mapFunction, reduceFunction, _messageEncoderSettings);
+#pragma warning restore CS0618 // Type or member is obsolete
             var expectedResults = new List<BsonDocument>
             {
                 new BsonDocument { {"_id", 1 }, { "value", 3 } },
@@ -93,7 +99,9 @@ namespace MongoDB.Driver.Core.Operations
             EnsureTestData();
             var mapFunction = "function() { emit(this.x, this.v); }";
             var reduceFunction = "function(key, values) { var sum = 0; for (var i = 0; i < values.length; i++) { sum += values[i]; }; return sum; }";
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceLegacyOperation(_collectionNamespace, mapFunction, reduceFunction, _messageEncoderSettings);
+#pragma warning restore CS0618 // Type or member is obsolete
             var expectedResults = new List<BsonDocument>
             {
                 new BsonDocument { {"_id", 1 }, { "value", 3 } },
@@ -111,7 +119,9 @@ namespace MongoDB.Driver.Core.Operations
             var readConcern = new ReadConcern(readConcernLevel);
             var mapFunction = "function() { emit(this.x, this.v); }";
             var reduceFunction = "function(key, values) { var sum = 0; for (var i = 0; i < values.length; i++) { sum += values[i]; }; return sum; }";
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceLegacyOperation(_collectionNamespace, mapFunction, reduceFunction, _messageEncoderSettings)
+#pragma warning restore CS0618 // Type or member is obsolete
             {
                 ReadConcern = readConcern
             };
@@ -135,7 +145,9 @@ namespace MongoDB.Driver.Core.Operations
         {
             var mapFunction = "function() { emit(this.x, this.v); }";
             var reduceFunction = "function(key, values) { var sum = 0; for (var i = 0; i < values.length; i++) { sum += values[i]; }; return sum; }";
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceLegacyOperation(_collectionNamespace, mapFunction, reduceFunction, _messageEncoderSettings)
+#pragma warning restore CS0618 // Type or member is obsolete
             {
                 ReadConcern = ReadConcern.Majority
             };
@@ -155,7 +167,9 @@ namespace MongoDB.Driver.Core.Operations
             var readConcern = new ReadConcern(readConcernLevel);
             var mapFunction = "function() { emit(this.x, this.v); }";
             var reduceFunction = "function(key, values) { var sum = 0; for (var i = 0; i < values.length; i++) { sum += values[i]; }; return sum; }";
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceLegacyOperation(_collectionNamespace, mapFunction, reduceFunction, _messageEncoderSettings)
+#pragma warning restore CS0618 // Type or member is obsolete
             {
                 ReadConcern = readConcern
             };
@@ -177,7 +191,9 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceLegacyOperation(_collectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
+#pragma warning restore CS0618 // Type or member is obsolete
             IReadBinding binding = null;
 
             Action act = () => ExecuteOperation(subject, binding, async);
@@ -199,10 +215,14 @@ namespace MongoDB.Driver.Core.Operations
         private class Reflector
         {
             // fields
+#pragma warning disable CS0618 // Type or member is obsolete
             private readonly MapReduceLegacyOperation _instance;
+#pragma warning restore CS0618 // Type or member is obsolete
 
             // constructor
+#pragma warning disable CS0618 // Type or member is obsolete
             public Reflector(MapReduceLegacyOperation instance)
+#pragma warning restore CS0618 // Type or member is obsolete
             {
                 _instance = instance;
             }
@@ -210,7 +230,9 @@ namespace MongoDB.Driver.Core.Operations
             // methods
             public BsonDocument CreateOutputOptions()
             {
+#pragma warning disable CS0618 // Type or member is obsolete
                 var method = typeof(MapReduceLegacyOperation).GetMethod("CreateOutputOptions", BindingFlags.NonPublic | BindingFlags.Instance);
+#pragma warning restore CS0618 // Type or member is obsolete
                 return (BsonDocument)method.Invoke(_instance, new object[0]);
             }
         }

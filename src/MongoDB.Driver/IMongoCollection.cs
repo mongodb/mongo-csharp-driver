@@ -852,6 +852,7 @@ namespace MongoDB.Driver
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A cursor.</returns>
+        [Obsolete("Use Aggregation pipeline instead.")]
         IAsyncCursor<TResult> MapReduce<TResult>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
@@ -866,6 +867,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A cursor.
         /// </returns>
+        [Obsolete("Use Aggregation pipeline instead.")]
         IAsyncCursor<TResult> MapReduce<TResult>(IClientSessionHandle session, BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
@@ -877,6 +879,7 @@ namespace MongoDB.Driver
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A Task whose result is a cursor.</returns>
+        [Obsolete("Use Aggregation pipeline instead.")]
         Task<IAsyncCursor<TResult>> MapReduceAsync<TResult>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
@@ -891,6 +894,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// A Task whose result is a cursor.
         /// </returns>
+        [Obsolete("Use Aggregation pipeline instead.")]
         Task<IAsyncCursor<TResult>> MapReduceAsync<TResult>(IClientSessionHandle session, BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>

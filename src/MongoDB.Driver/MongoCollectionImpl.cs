@@ -515,11 +515,13 @@ namespace MongoDB.Driver
             return ExecuteWriteOperationAsync(session, operation, cancellationToken);
         }
 
+        [Obsolete("Use Aggregation pipeline instead.")]
         public override IAsyncCursor<TResult> MapReduce<TResult>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return UsingImplicitSession(session => MapReduce(session, map, reduce, options, cancellationToken), cancellationToken);
         }
 
+        [Obsolete("Use Aggregation pipeline instead.")]
         public override IAsyncCursor<TResult> MapReduce<TResult>(IClientSessionHandle session, BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(session, nameof(session));
@@ -552,11 +554,13 @@ namespace MongoDB.Driver
             }
         }
 
+        [Obsolete("Use Aggregation pipeline instead.")]
         public override Task<IAsyncCursor<TResult>> MapReduceAsync<TResult>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return UsingImplicitSessionAsync(session => MapReduceAsync(session, map, reduce, options, cancellationToken), cancellationToken);
         }
 
+        [Obsolete("Use Aggregation pipeline instead.")]
         public override async Task<IAsyncCursor<TResult>> MapReduceAsync<TResult>(IClientSessionHandle session, BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(session, nameof(session));
@@ -1079,9 +1083,11 @@ namespace MongoDB.Driver
             };
         }
 
+#pragma warning disable CS0618 // Type or member is obsolete
         private MapReduceOperation<TResult> CreateMapReduceOperation<TResult>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options, IBsonSerializer<TResult> resultSerializer)
         {
             return new MapReduceOperation<TResult>(
+#pragma warning restore CS0618 // Type or member is obsolete
                 _collectionNamespace,
                 map,
                 reduce,
@@ -1103,6 +1109,7 @@ namespace MongoDB.Driver
             };
         }
 
+#pragma warning disable CS0618 // Type or member is obsolete
         private MapReduceOutputToCollectionOperation CreateMapReduceOutputToCollectionOperation<TResult>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options, MapReduceOutputOptions outputOptions)
         {
             var collectionOutputOptions = (MapReduceOutputOptions.CollectionOutput)outputOptions;
@@ -1112,6 +1119,7 @@ namespace MongoDB.Driver
             var outputCollectionNamespace = new CollectionNamespace(databaseNamespace, collectionOutputOptions.CollectionName);
 
             return new MapReduceOutputToCollectionOperation(
+#pragma warning restore CS0618 // Type or member is obsolete
                 _collectionNamespace,
                 outputCollectionNamespace,
                 map,
@@ -1141,7 +1149,9 @@ namespace MongoDB.Driver
             };
         }
 
+#pragma warning disable CS0618 // Type or member is obsolete
         private FindOperation<TResult> CreateMapReduceOutputToCollectionFindOperation<TResult>(MapReduceOptions<TDocument, TResult> options, CollectionNamespace outputCollectionNamespace, IBsonSerializer<TResult> resultSerializer)
+#pragma warning restore CS0618 // Type or member is obsolete
         {
             return new FindOperation<TResult>(
                 outputCollectionNamespace,

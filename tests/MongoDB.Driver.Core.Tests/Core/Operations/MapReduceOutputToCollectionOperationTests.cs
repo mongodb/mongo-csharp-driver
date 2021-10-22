@@ -46,7 +46,9 @@ namespace MongoDB.Driver.Core.Operations
         [Fact]
         public void constructor_should_initialize_instance()
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
+#pragma warning restore CS0618 // Type or member is obsolete
 
             subject.CollectionNamespace.Should().BeSameAs(_collectionNamespace);
             subject.OutputCollectionNamespace.Should().BeSameAs(_outputCollectionNamespace);
@@ -65,8 +67,8 @@ namespace MongoDB.Driver.Core.Operations
             subject.MaxTime.Should().NotHaveValue();
 #pragma warning disable 618
             subject.NonAtomicOutput.Should().NotHaveValue();
-#pragma warning restore 618
             subject.OutputMode.Should().Be(MapReduceOutputMode.Replace);
+#pragma warning restore 618
             subject.Scope.Should().BeNull();
             subject.Sort.Should().BeNull();
             subject.Verbose.Should().NotHaveValue();
@@ -75,7 +77,9 @@ namespace MongoDB.Driver.Core.Operations
         [Fact]
         public void constructor_should_throw_when_outputCollectionNamespace_is_null()
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             var exception = Record.Exception(() => new MapReduceOutputToCollectionOperation(_collectionNamespace, null, _mapFunction, _reduceFunction, _messageEncoderSettings));
+#pragma warning restore CS0618 // Type or member is obsolete
 
             var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
             argumentNullException.ParamName.Should().Be("outputCollectionNamespace");
@@ -87,7 +91,9 @@ namespace MongoDB.Driver.Core.Operations
             [Values(null, false, true)]
             bool? value)
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
+#pragma warning restore CS0618 // Type or member is obsolete
 
             subject.BypassDocumentValidation = value;
             var result = subject.BypassDocumentValidation;
@@ -101,7 +107,9 @@ namespace MongoDB.Driver.Core.Operations
             [Values(null, "{ x : 1 }", "{ x : 2 }")]
             string valueString)
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
+#pragma warning restore CS0618 // Type or member is obsolete
             var value = valueString == null ? null : BsonDocument.Parse(valueString);
 
             subject.Filter = value;
@@ -116,7 +124,9 @@ namespace MongoDB.Driver.Core.Operations
             [Values(null, false, true)]
             bool? value)
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
+#pragma warning restore CS0618 // Type or member is obsolete
 
 #pragma warning disable 618
             subject.NonAtomicOutput = value;
@@ -133,7 +143,9 @@ namespace MongoDB.Driver.Core.Operations
             string collectionName)
         {
             var outputCollectionNamespace = new CollectionNamespace(_databaseNamespace, collectionName);
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, outputCollectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
+#pragma warning restore CS0618 // Type or member is obsolete
 
             var result = subject.OutputCollectionNamespace;
 
@@ -143,6 +155,7 @@ namespace MongoDB.Driver.Core.Operations
         [Theory]
         [ParameterAttributeData]
         public void OutputMode_get_and_set_should_work(
+#pragma warning disable CS0618 // Type or member is obsolete
             [Values(MapReduceOutputMode.Merge, MapReduceOutputMode.Reduce)]
             MapReduceOutputMode value)
         {
@@ -150,6 +163,7 @@ namespace MongoDB.Driver.Core.Operations
 
             subject.OutputMode = value;
             var result = subject.OutputMode;
+#pragma warning restore CS0618 // Type or member is obsolete
 
             result.Should().Be(value);
         }
@@ -160,9 +174,9 @@ namespace MongoDB.Driver.Core.Operations
             [Values(null, false, true)]
             bool? value)
         {
+#pragma warning disable 618
             var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
 
-#pragma warning disable 618
             subject.ShardedOutput = value;
             var result = subject.ShardedOutput;
 #pragma warning restore 618
@@ -176,7 +190,9 @@ namespace MongoDB.Driver.Core.Operations
             [Values(null, 1, 2)]
             int? w)
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
+#pragma warning restore CS0618 // Type or member is obsolete
             var value = w.HasValue ? new WriteConcern(w.Value) : null;
 
             subject.WriteConcern = value;
@@ -193,7 +209,9 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool useServerVersionSupportingBypassDocumentValidation)
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings)
+#pragma warning restore CS0618 // Type or member is obsolete
             {
                 BypassDocumentValidation = bypassDocumentValidation
             };
@@ -225,7 +243,9 @@ namespace MongoDB.Driver.Core.Operations
             bool isWriteConcernSupported)
         {
             var writeConcern = w.HasValue ? new WriteConcern(w.Value) : null;
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings)
+#pragma warning restore CS0618 // Type or member is obsolete
             {
                 WriteConcern = writeConcern
             };
@@ -251,7 +271,9 @@ namespace MongoDB.Driver.Core.Operations
         [Fact]
         public void CreateOutputOptions_should_return_expected_result()
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
+#pragma warning restore CS0618 // Type or member is obsolete
             var subjectReflector = new Reflector(subject);
 
             var result = subjectReflector.CreateOutputOptions();
@@ -270,7 +292,9 @@ namespace MongoDB.Driver.Core.Operations
             [Values(null, false, true)]
             bool? shardedOutput)
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings)
+#pragma warning restore CS0618 // Type or member is obsolete
             {
 #pragma warning disable 618
                 ShardedOutput = shardedOutput
@@ -295,9 +319,9 @@ namespace MongoDB.Driver.Core.Operations
             [Values(null, false, true)]
             bool? nonAtomicOutput)
         {
+#pragma warning disable 618
             var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings)
             {
-#pragma warning disable 618
                 NonAtomicOutput = nonAtomicOutput
 #pragma warning restore 618
             };
@@ -322,7 +346,9 @@ namespace MongoDB.Driver.Core.Operations
         {
             RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet);
             EnsureTestData();
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
+#pragma warning restore CS0618 // Type or member is obsolete
 
             ExecuteOperation(subject, async);
 
@@ -343,7 +369,9 @@ namespace MongoDB.Driver.Core.Operations
             EnsureTestData();
             var collation = new Collation("en_US", caseLevel: caseSensitive, strength: CollationStrength.Primary);
             var filter = BsonDocument.Parse("{ y : 'a' }");
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings)
+#pragma warning restore CS0618 // Type or member is obsolete
             {
                 Collation = collation,
                 Filter = filter
@@ -380,7 +408,9 @@ namespace MongoDB.Driver.Core.Operations
             RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet);
             EnsureTestData();
             var filter = BsonDocument.Parse("{ y : 'a' }");
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings)
+#pragma warning restore CS0618 // Type or member is obsolete
             {
                 Filter = filter
             };
@@ -401,7 +431,9 @@ namespace MongoDB.Driver.Core.Operations
             RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet);
             EnsureTestData();
             var finalizeFunction = new BsonJavaScript("function(key, reduced) { return -reduced; }");
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings)
+#pragma warning restore CS0618 // Type or member is obsolete
             {
                 FinalizeFunction = finalizeFunction
             };
@@ -448,7 +480,9 @@ namespace MongoDB.Driver.Core.Operations
         {
             RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet);
             EnsureTestData();
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings)
+#pragma warning restore CS0618 // Type or member is obsolete
             {
                 Limit = limit
             };
@@ -473,7 +507,9 @@ namespace MongoDB.Driver.Core.Operations
             RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet);
             EnsureTestData();
             var maxTime = seconds.HasValue ? TimeSpan.FromSeconds(seconds.Value) : (TimeSpan?)null;
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings)
+#pragma warning restore CS0618 // Type or member is obsolete
             {
                 MaxTime = maxTime
             };
@@ -496,7 +532,9 @@ namespace MongoDB.Driver.Core.Operations
             EnsureTestData();
             var finalizeFunction = new BsonJavaScript("function(key, reduced) { return reduced + zeroFromScope; }");
             var scope = new BsonDocument("zeroFromScope", 0);
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings)
+#pragma warning restore CS0618 // Type or member is obsolete
             {
                 FinalizeFunction = finalizeFunction,
                 Scope = scope
@@ -520,7 +558,9 @@ namespace MongoDB.Driver.Core.Operations
             RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet);
             EnsureTestData();
             var sort = new BsonDocument("_id", direction);
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings)
+#pragma warning restore CS0618 // Type or member is obsolete
             {
                 Limit = 2,
                 Sort = sort
@@ -553,7 +593,9 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
+#pragma warning restore CS0618 // Type or member is obsolete
 
             var exception = Record.Exception(() => ExecuteOperation(subject, null, async));
 
@@ -568,7 +610,9 @@ namespace MongoDB.Driver.Core.Operations
             bool async)
         {
             RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.ReplicaSet);
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings)
+#pragma warning restore CS0618 // Type or member is obsolete
             {
                 WriteConcern = new WriteConcern(9)
             };
@@ -585,7 +629,9 @@ namespace MongoDB.Driver.Core.Operations
         {
             RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet);
             EnsureTestData();
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
+#pragma warning restore CS0618 // Type or member is obsolete
 
             VerifySessionIdWasSentWhenSupported(subject, "mapReduce", async);
         }
@@ -604,6 +650,7 @@ namespace MongoDB.Driver.Core.Operations
         private class Reflector
         {
             // fields
+#pragma warning disable CS0618 // Type or member is obsolete
             private readonly MapReduceOutputToCollectionOperation _instance;
 
             // constructor
@@ -624,6 +671,7 @@ namespace MongoDB.Driver.Core.Operations
                 var method = typeof(MapReduceOutputToCollectionOperation).GetMethod("CreateOutputOptions", BindingFlags.NonPublic | BindingFlags.Instance);
                 return (BsonDocument)method.Invoke(_instance, new object[0]);
             }
+#pragma warning restore CS0618 // Type or member is obsolete
         }
     }
 }

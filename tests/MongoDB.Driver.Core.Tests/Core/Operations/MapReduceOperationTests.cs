@@ -48,7 +48,9 @@ namespace MongoDB.Driver.Core.Operations
         [Fact]
         public void constructor_should_initialize_instance()
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceOperation<BsonDocument>(_collectionNamespace, _mapFunction, _reduceFunction, _resultSerializer, _messageEncoderSettings);
+#pragma warning restore CS0618 // Type or member is obsolete
 
             subject.CollectionNamespace.Should().BeSameAs(_collectionNamespace);
             subject.MapFunction.Should().BeSameAs(_mapFunction);
@@ -73,7 +75,9 @@ namespace MongoDB.Driver.Core.Operations
         [Fact]
         public void constructor_should_throw_when_resultSerializer_is_null()
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             var exception = Record.Exception(() => new MapReduceOperation<BsonDocument>(_collectionNamespace, _mapFunction, _reduceFunction, null, _messageEncoderSettings));
+#pragma warning restore CS0618 // Type or member is obsolete
 
             var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
             argumentNullException.ParamName.Should().Be("resultSerializer");
@@ -85,7 +89,9 @@ namespace MongoDB.Driver.Core.Operations
             [Values(ReadConcernLevel.Linearizable, ReadConcernLevel.Local)]
             ReadConcernLevel level)
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceOperation<BsonDocument>(_collectionNamespace, _mapFunction, _reduceFunction, _resultSerializer, _messageEncoderSettings);
+#pragma warning restore CS0618 // Type or member is obsolete
             var value = new ReadConcern(level);
 
             subject.ReadConcern = value;
@@ -97,7 +103,9 @@ namespace MongoDB.Driver.Core.Operations
         [Fact]
         public void ReadConcern_set_should_throw_when_value_is_null()
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceOperation<BsonDocument>(_collectionNamespace, _mapFunction, _reduceFunction, _resultSerializer, _messageEncoderSettings);
+#pragma warning restore CS0618 // Type or member is obsolete
 
             var exception = Record.Exception(() => subject.ReadConcern = null);
 
@@ -108,7 +116,9 @@ namespace MongoDB.Driver.Core.Operations
         [Fact]
         public void ResultSerializer_should_get_value()
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceOperation<BsonDocument>(_collectionNamespace, _mapFunction, _reduceFunction, _resultSerializer, _messageEncoderSettings);
+#pragma warning restore CS0618 // Type or member is obsolete
 
             var result = subject.ResultSerializer;
 
@@ -118,7 +128,9 @@ namespace MongoDB.Driver.Core.Operations
         [Fact]
         public void CreateOutputOptions_should_return_expected_result()
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceOperation<BsonDocument>(_collectionNamespace, _mapFunction, _reduceFunction, _resultSerializer, _messageEncoderSettings);
+#pragma warning restore CS0618 // Type or member is obsolete
             var subjectReflector = new Reflector(subject);
 
             var result = subjectReflector.CreateOutputOptions();
@@ -134,7 +146,9 @@ namespace MongoDB.Driver.Core.Operations
         {
             RequireServer.Check();
             EnsureTestData();
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceOperation<BsonDocument>(_collectionNamespace, _mapFunction, _reduceFunction, _resultSerializer, _messageEncoderSettings);
+#pragma warning restore CS0618 // Type or member is obsolete
 
             var cursor = ExecuteOperation(subject, async);
             var results = ReadCursorToEnd(cursor, async);
@@ -156,7 +170,9 @@ namespace MongoDB.Driver.Core.Operations
             EnsureTestData();
             var collation = new Collation("en_US", caseLevel: caseSensitive, strength: CollationStrength.Primary);
             var filter = BsonDocument.Parse("{ y : 'a' }");
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceOperation<BsonDocument>(_collectionNamespace, _mapFunction, _reduceFunction, _resultSerializer, _messageEncoderSettings)
+#pragma warning restore CS0618 // Type or member is obsolete
             {
                 Collation = collation,
                 Filter = filter
@@ -194,7 +210,9 @@ namespace MongoDB.Driver.Core.Operations
             RequireServer.Check();
             EnsureTestData();
             var filter = BsonDocument.Parse("{ y : 'a' }");
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceOperation<BsonDocument>(_collectionNamespace, _mapFunction, _reduceFunction, _resultSerializer, _messageEncoderSettings)
+#pragma warning restore CS0618 // Type or member is obsolete
             {
                 Filter = filter
             };
@@ -216,7 +234,9 @@ namespace MongoDB.Driver.Core.Operations
             RequireServer.Check();
             EnsureTestData();
             var finalizeFunction = new BsonJavaScript("function(key, reduced) { return -reduced; }");
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceOperation<BsonDocument>(_collectionNamespace, _mapFunction, _reduceFunction, _resultSerializer, _messageEncoderSettings)
+#pragma warning restore CS0618 // Type or member is obsolete
             {
                 FinalizeFunction = finalizeFunction
             };
@@ -265,7 +285,9 @@ namespace MongoDB.Driver.Core.Operations
         {
             RequireServer.Check();
             EnsureTestData();
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceOperation<BsonDocument>(_collectionNamespace, _mapFunction, _reduceFunction, _resultSerializer, _messageEncoderSettings)
+#pragma warning restore CS0618 // Type or member is obsolete
             {
                 Limit = limit
             };
@@ -291,7 +313,9 @@ namespace MongoDB.Driver.Core.Operations
             RequireServer.Check();
             EnsureTestData();
             var maxTime = seconds.HasValue ? TimeSpan.FromSeconds(seconds.Value) : (TimeSpan?)null;
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceOperation<BsonDocument>(_collectionNamespace, _mapFunction, _reduceFunction, _resultSerializer, _messageEncoderSettings)
+#pragma warning restore CS0618 // Type or member is obsolete
             {
                 MaxTime = maxTime
             };
@@ -316,7 +340,9 @@ namespace MongoDB.Driver.Core.Operations
             RequireServer.Check().Supports(Feature.ReadConcern);
             EnsureTestData();
             var readConcern = new ReadConcern(readConcernLevel);
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceOperation<BsonDocument>(_collectionNamespace, _mapFunction, _reduceFunction, _resultSerializer, _messageEncoderSettings)
+#pragma warning restore CS0618 // Type or member is obsolete
             {
                 ReadConcern = readConcern
             };
@@ -339,7 +365,9 @@ namespace MongoDB.Driver.Core.Operations
             RequireServer.Check();
             EnsureTestData();
             var resultSerializer = new ElementDeserializer<double>("value", new DoubleSerializer());
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceOperation<double>(_collectionNamespace, _mapFunction, _reduceFunction, resultSerializer, _messageEncoderSettings);
+#pragma warning restore CS0618 // Type or member is obsolete
 
             var cursor = ExecuteOperation(subject, async);
             var results = ReadCursorToEnd(cursor, async);
@@ -358,7 +386,9 @@ namespace MongoDB.Driver.Core.Operations
             EnsureTestData();
             var finalizeFunction = new BsonJavaScript("function(key, reduced) { return reduced + zeroFromScope; }");
             var scope = new BsonDocument("zeroFromScope", 0);
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceOperation<BsonDocument>(_collectionNamespace, _mapFunction, _reduceFunction, _resultSerializer, _messageEncoderSettings)
+#pragma warning restore CS0618 // Type or member is obsolete
             {
                 FinalizeFunction = finalizeFunction,
                 Scope = scope
@@ -383,7 +413,9 @@ namespace MongoDB.Driver.Core.Operations
             RequireServer.Check();
             EnsureTestData();
             var sort = new BsonDocument("_id", direction);
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceOperation<BsonDocument>(_collectionNamespace, _mapFunction, _reduceFunction, _resultSerializer, _messageEncoderSettings)
+#pragma warning restore CS0618 // Type or member is obsolete
             {
                 Limit = 2,
                 Sort = sort
@@ -417,7 +449,9 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceOperation<BsonDocument>(_collectionNamespace, _mapFunction, _reduceFunction, _resultSerializer, _messageEncoderSettings);
+#pragma warning restore CS0618 // Type or member is obsolete
 
             var exception = Record.Exception(() => ExecuteOperation(subject, (IReadBinding)null, async));
 
@@ -431,7 +465,9 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)] bool async)
         {
             RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet);
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceOperation<BsonDocument>(_collectionNamespace, _mapFunction, _reduceFunction, _resultSerializer, _messageEncoderSettings);
+#pragma warning restore CS0618 // Type or member is obsolete
             subject.MaxTime = TimeSpan.FromSeconds(9001);
 
             using (var failPoint = FailPoint.ConfigureAlwaysOn(_cluster, _session, FailPointName.MaxTimeAlwaysTimeout))
@@ -450,7 +486,9 @@ namespace MongoDB.Driver.Core.Operations
         {
             RequireServer.Check().DoesNotSupport(Feature.ReadConcern);
             EnsureTestData();
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceOperation<BsonDocument>(_collectionNamespace, _mapFunction, _reduceFunction, _resultSerializer, _messageEncoderSettings)
+#pragma warning restore CS0618 // Type or member is obsolete
             {
                 ReadConcern = new ReadConcern(ReadConcernLevel.Local)
             };
@@ -467,7 +505,9 @@ namespace MongoDB.Driver.Core.Operations
         {
             RequireServer.Check();
             EnsureTestData();
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceOperation<BsonDocument>(_collectionNamespace, _mapFunction, _reduceFunction, _resultSerializer, _messageEncoderSettings);
+#pragma warning restore CS0618 // Type or member is obsolete
 
             VerifySessionIdWasSentWhenSupported(subject, "mapReduce", async);
         }
@@ -479,7 +519,9 @@ namespace MongoDB.Driver.Core.Operations
             ReadConcernLevel? level)
         {
             var readConcern = level.HasValue ? new ReadConcern(level.Value) : ReadConcern.Default;
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceOperation<BsonDocument>(_collectionNamespace, _mapFunction, _reduceFunction, _resultSerializer, _messageEncoderSettings)
+#pragma warning restore CS0618 // Type or member is obsolete
             {
                 ReadConcern = readConcern
             };
@@ -502,7 +544,9 @@ namespace MongoDB.Driver.Core.Operations
         [Fact]
         public void CreateCommand_should_throw_when_ReadConcern_is_set_but_not_supported()
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceOperation<BsonDocument>(_collectionNamespace, _mapFunction, _reduceFunction, _resultSerializer, _messageEncoderSettings)
+#pragma warning restore CS0618 // Type or member is obsolete
             {
                 ReadConcern = ReadConcern.Majority
             };
@@ -521,7 +565,9 @@ namespace MongoDB.Driver.Core.Operations
             ReadConcernLevel? level)
         {
             var readConcern = level.HasValue ? new ReadConcern(level.Value) : ReadConcern.Default;
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceOperation<BsonDocument>(_collectionNamespace, _mapFunction, _reduceFunction, _resultSerializer, _messageEncoderSettings)
+#pragma warning restore CS0618 // Type or member is obsolete
             {
                 ReadConcern = readConcern
             };
@@ -558,6 +604,7 @@ namespace MongoDB.Driver.Core.Operations
         private class Reflector
         {
             // fields
+#pragma warning disable CS0618 // Type or member is obsolete
             private readonly MapReduceOperation<BsonDocument> _instance;
 
             // constructor
@@ -572,6 +619,7 @@ namespace MongoDB.Driver.Core.Operations
                 var method = typeof(MapReduceOperation<BsonDocument>).GetMethod("CreateOutputOptions", BindingFlags.NonPublic | BindingFlags.Instance);
                 return (BsonDocument)method.Invoke(_instance, new object[0]);
             }
+#pragma warning restore CS0618 // Type or member is obsolete
         }
     }
 }

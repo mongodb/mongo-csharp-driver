@@ -25,6 +25,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents the result of a map-reduce command.
     /// </summary>
+    [Obsolete("Use Aggregation pipeline instead.")]
     [BsonSerializer(typeof(CommandResultSerializer<MapReduceResult>))]
     public class MapReduceResult : CommandResult
     {

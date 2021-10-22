@@ -760,6 +760,7 @@ namespace MongoDB.Driver.Tests
 
             if (async)
             {
+#pragma warning disable CS0618 // Type or member is obsolete
                 subject.MapReduceAsync<B>("map", "reduce", null, CancellationToken.None);
 
                 _mockDerivedCollection.Verify(
@@ -781,6 +782,7 @@ namespace MongoDB.Driver.Tests
                         It.Is<MapReduceOptions<B, B>>(o => RenderFilter(o.Filter).Equals(_ofTypeFilter)),
                         CancellationToken.None),
                     Times.Once);
+#pragma warning restore CS0618 // Type or member is obsolete
             }
         }
 
@@ -790,6 +792,7 @@ namespace MongoDB.Driver.Tests
             [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
+#pragma warning disable CS0618 // Type or member is obsolete
             var options = new MapReduceOptions<B, B>
             {
                 Filter = _providedFilter
@@ -819,6 +822,7 @@ namespace MongoDB.Driver.Tests
                         CancellationToken.None),
                     Times.Once);
             }
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         [Fact]

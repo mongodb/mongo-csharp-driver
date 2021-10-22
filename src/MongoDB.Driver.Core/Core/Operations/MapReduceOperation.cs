@@ -31,6 +31,7 @@ namespace MongoDB.Driver.Core.Operations
     /// Represents a map-reduce operation.
     /// </summary>
     /// <typeparam name="TResult">The type of the result.</typeparam>
+    [Obsolete("Use Aggregation pipeline instead.")]
     public class MapReduceOperation<TResult> : MapReduceOperationBase, IReadOperation<IAsyncCursor<TResult>>
     {
         // fields
