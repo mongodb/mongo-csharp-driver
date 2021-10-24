@@ -550,7 +550,8 @@ namespace MongoDB.Driver
 
         private IReadWriteBindingHandle CreateReadWriteBinding(IClientSessionHandle session, IWriteOperation operation)
         {
-            var binding = new WritableServerBinding(_cluster, session.WrappedCoreSession.Fork(), operation);
+            var mayUseSecondary = operation as IMayUseSecondaryCriteria;
+            var binding = new WritableServerBinding(_cluster, session.WrappedCoreSession.Fork(), mayUseSecondary);
             return new ReadWriteBindingHandle(binding);
         }
 

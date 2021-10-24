@@ -845,7 +845,7 @@ namespace MongoDB.Driver
 
             if (readPreference.ReadPreferenceMode == ReadPreferenceMode.Primary)
             {
-                return new ReadWriteBindingHandle(new WritableServerBinding(_cluster, session.WrappedCoreSession.Fork(), operation: null));
+                return new ReadWriteBindingHandle(new WritableServerBinding(_cluster, session.WrappedCoreSession.Fork()));
             }
             else
             {
@@ -870,7 +870,8 @@ namespace MongoDB.Driver
                 return ToWriteBinding(request.Binding).Fork();
             }
 
-            return new ReadWriteBindingHandle(new WritableServerBinding(_cluster, session.WrappedCoreSession.Fork(), operation));
+            var mayUseSecondary = operation as IMayUseSecondaryCriteria;
+            return new ReadWriteBindingHandle(new WritableServerBinding(_cluster, session.WrappedCoreSession.Fork(), mayUseSecondary));
         }
 
         // private methods

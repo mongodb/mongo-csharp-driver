@@ -23,6 +23,7 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using MongoDB.Shared;
 
@@ -31,7 +32,7 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents an aggregate operation that writes the results to an output collection.
     /// </summary>
-    public class AggregateToCollectionOperation : IWriteOperation<BsonDocument>, IMayUseSecondaryWriteOperation
+    public class AggregateToCollectionOperation : IWriteOperation<BsonDocument>, IMayUseSecondaryCriteria
     {
         // fields
         private bool? _allowDiskUse;
@@ -244,9 +245,13 @@ namespace MongoDB.Driver.Core.Operations
             set { _writeConcern = value; }
         }
 
-        ServerVersion IMayUseSecondaryWriteOperation.MinServerVersionToUseSecondary => new ServerVersion(5, 0, 0);
-
         // methods
+        /// <inheritdoc/>
+        public bool CanUseSecondary(ServerDescription server)
+        {
+            return server.Version >= new SemanticVersion(5, 0, 0);
+        }
+
         /// <inheritdoc/>
         public BsonDocument Execute(IWriteBinding binding, CancellationToken cancellationToken)
         {

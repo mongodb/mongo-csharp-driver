@@ -294,7 +294,7 @@ namespace MongoDB.Driver.Core.Operations
         // private methods
         private BsonValue ExecuteOperation(EvalOperation operation, bool async)
         {
-            using (var binding = CreateReadWriteBinding(operation))
+            using (var binding = CreateReadWriteBinding())
             {
                 return ExecuteOperation(operation, binding, async);
             }

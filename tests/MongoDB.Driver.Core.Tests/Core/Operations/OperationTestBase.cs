@@ -254,11 +254,17 @@ namespace MongoDB.Driver.Core.Operations
             return new ReadPreferenceBinding(_cluster, readPreference, _session.Fork());
         }
 
+        protected IReadWriteBinding CreateReadWriteBinding(bool useImplicitSession = false)
+        {
+            return CreateReadWriteBinding(operation: null, useImplicitSession);
+        }
+
         protected IReadWriteBinding CreateReadWriteBinding(IWriteOperation operation, bool useImplicitSession = false)
         {
             var options = new CoreSessionOptions(isImplicit: useImplicitSession);
             var session = CoreTestConfiguration.StartSession(_cluster, options);
-            return new WritableServerBinding(_cluster, session, operation);
+            var mayUseSecondary = operation as IMayUseSecondaryCriteria;
+            return new WritableServerBinding(_cluster, session, mayUseSecondary);
         }
 
         protected void Insert(params BsonDocument[] documents)
@@ -480,8 +486,10 @@ namespace MongoDB.Driver.Core.Operations
             var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>(e => e.CommandName == commandName);
             using (var cluster = CoreTestConfiguration.CreateCluster(b => b.Subscribe(eventCapturer)))
             {
+                var mayUseSecondary = operation as IMayUseSecondaryCriteria;
+
                 using (var session = CreateSession(cluster, useImplicitSession))
-                using (var binding = new WritableServerBinding(cluster, session.Fork(), operation))
+                using (var binding = new WritableServerBinding(cluster, session.Fork(), mayUseSecondary))
                 {
                     var cancellationToken = new CancellationTokenSource().Token;
                     Exception exception;

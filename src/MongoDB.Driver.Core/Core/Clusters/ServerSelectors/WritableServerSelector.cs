@@ -44,16 +44,17 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
         }
         #endregion
 
-        private readonly IWriteOperation _operation;
+        private readonly IMayUseSecondaryCriteria _mayUseSecondary;
 
         // constructors
         private WritableServerSelector()
+            : this(mayUseSecondary:null)
         {
         }
 
-        internal WritableServerSelector(IWriteOperation operation)
+        internal WritableServerSelector(IMayUseSecondaryCriteria mayUseSecondary)
         {
-            _operation = operation; // can be null
+            _mayUseSecondary = mayUseSecondary; // can be null
         }
 
         // methods
@@ -65,23 +66,22 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
                 return servers;
             }
 
-            if (_operation is IMayUseSecondaryWriteOperation mayUseSecondaryOperation)
+            if (_mayUseSecondary == null)
             {
-                var readPreference = mayUseSecondaryOperation.ReadPreference;
-                var minServerVersionToUseSecondary = mayUseSecondaryOperation.MinServerVersionToUseSecondary;
-                return SelectServersUsingReadPreference(cluster, servers, readPreference, minServerVersionToUseSecondary);
+                return servers.Where(x => x.Type.IsWritable());
             }
-
-            return servers.Where(x => x.Type.IsWritable());
+            else
+            {
+                return SelectServersUsingMayUseSecondaryCriteria(cluster, servers);
+            }
         }
 
-        private IEnumerable<ServerDescription> SelectServersUsingReadPreference(
+        private IEnumerable<ServerDescription> SelectServersUsingMayUseSecondaryCriteria(
             ClusterDescription cluster,
-            IEnumerable<Servers.ServerDescription> servers,
-            ReadPreference readPreference,
-            ServerVersion minServerVersionToUseSecondary)
+            IEnumerable<Servers.ServerDescription> servers)
         {
-            throw new NotImplementedException(); // implement the new server selection logic here
+            // implement the new server selection logic here
+            return servers.Where(x => x.Type.IsWritable());
         }
 
         /// <inheritdoc/>

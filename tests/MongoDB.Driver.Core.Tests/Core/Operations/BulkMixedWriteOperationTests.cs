@@ -1201,7 +1201,7 @@ namespace MongoDB.Driver.Core.Operations
                 WriteConcern = WriteConcern.Unacknowledged
             };
 
-            using (var readWriteBinding = CreateReadWriteBinding(subject, useImplicitSession: true))
+            using (var readWriteBinding = CreateReadWriteBinding(useImplicitSession: true))
             using (var channelSource = readWriteBinding.GetWriteChannelSource(CancellationToken.None))
             using (var channel = channelSource.GetChannel(CancellationToken.None))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, readWriteBinding.Session.Fork()))
@@ -1248,7 +1248,7 @@ namespace MongoDB.Driver.Core.Operations
                 WriteConcern = WriteConcern.Unacknowledged
             };
 
-            using (var readWriteBinding = CreateReadWriteBinding(subject, useImplicitSession: true))
+            using (var readWriteBinding = CreateReadWriteBinding(useImplicitSession: true))
             using (var channelSource = readWriteBinding.GetWriteChannelSource(CancellationToken.None))
             using (var channel = channelSource.GetChannel(CancellationToken.None))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, readWriteBinding.Session.Fork()))
@@ -1289,7 +1289,7 @@ namespace MongoDB.Driver.Core.Operations
                 WriteConcern = WriteConcern.Unacknowledged
             };
 
-            using (var readWriteBinding = CreateReadWriteBinding(subject, useImplicitSession: true))
+            using (var readWriteBinding = CreateReadWriteBinding(useImplicitSession: true))
             using (var channelSource = readWriteBinding.GetWriteChannelSource(CancellationToken.None))
             using (var channel = channelSource.GetChannel(CancellationToken.None))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, readWriteBinding.Session.Fork()))
@@ -1330,7 +1330,7 @@ namespace MongoDB.Driver.Core.Operations
                 WriteConcern = WriteConcern.Unacknowledged
             };
 
-            using (var readWriteBinding = CreateReadWriteBinding(subject, useImplicitSession: true))
+            using (var readWriteBinding = CreateReadWriteBinding(useImplicitSession: true))
             using (var channelSource = readWriteBinding.GetWriteChannelSource(CancellationToken.None))
             using (var channel = channelSource.GetChannel(CancellationToken.None))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, readWriteBinding.Session.Fork()))
@@ -1466,14 +1466,14 @@ namespace MongoDB.Driver.Core.Operations
 
             using (EventContext.BeginOperation())
             {
-                var requests = requestSizes.Select(size => CreateDeleteRequest(size));
-                var operation = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
-
                 var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>(e => e.CommandName == "delete" && e.OperationId == EventContext.OperationId);
                 using (var cluster = CoreTestConfiguration.CreateCluster(b => b.Subscribe(eventCapturer)))
                 using (var session = NoCoreSession.NewHandle())
-                using (var binding = new ReadWriteBindingHandle(new WritableServerBinding(cluster, session.Fork(), operation)))
+                using (var binding = new ReadWriteBindingHandle(new WritableServerBinding(cluster, session.Fork())))
                 {
+                    var requests = requestSizes.Select(size => CreateDeleteRequest(size));
+                    var operation = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
+
                     var result = ExecuteOperation(operation, binding, async: false);
 
                     var commandStartedEvents = eventCapturer.Events.OfType<CommandStartedEvent>().ToList();
@@ -1498,14 +1498,14 @@ namespace MongoDB.Driver.Core.Operations
 
             using (EventContext.BeginOperation())
             {
-                var requests = requestSizes.Select(size => CreateDeleteRequest(size));
-                var operation = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
-
                 var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>(e => e.CommandName == "delete" && e.OperationId == EventContext.OperationId);
                 using (var cluster = CoreTestConfiguration.CreateCluster(b => b.Subscribe(eventCapturer)))
                 using (var session = NoCoreSession.NewHandle())
-                using (var binding = new ReadWriteBindingHandle(new WritableServerBinding(cluster, session.Fork(), operation)))
+                using (var binding = new ReadWriteBindingHandle(new WritableServerBinding(cluster, session.Fork())))
                 {
+                    var requests = requestSizes.Select(size => CreateDeleteRequest(size));
+                    var operation = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
+
                     var result = ExecuteOperation(operation, binding, async: false);
 
                     result.RequestCount.Should().Be(requestSizes.Length);
@@ -1537,15 +1537,15 @@ namespace MongoDB.Driver.Core.Operations
 
             using (EventContext.BeginOperation())
             {
-                var documents = documentSizes.Select((size, index) => CreateDocument(index + 1, size)).ToList();
-                var requests = documents.Select(d => new InsertRequest(d)).ToList();
-                var operation = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
-
                 var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>(e => e.CommandName == "insert" && e.OperationId == EventContext.OperationId);
                 using (var cluster = CoreTestConfiguration.CreateCluster(b => b.Subscribe(eventCapturer)))
                 using (var session = NoCoreSession.NewHandle())
-                using (var binding = new ReadWriteBindingHandle(new WritableServerBinding(cluster, session.Fork(), operation)))
+                using (var binding = new ReadWriteBindingHandle(new WritableServerBinding(cluster, session.Fork())))
                 {
+                    var documents = documentSizes.Select((size, index) => CreateDocument(index + 1, size)).ToList();
+                    var requests = documents.Select(d => new InsertRequest(d)).ToList();
+                    var operation = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
+
                     var result = ExecuteOperation(operation, binding, async: false);
 
                     result.InsertedCount.Should().Be(documents.Count);
@@ -1571,15 +1571,15 @@ namespace MongoDB.Driver.Core.Operations
 
             using (EventContext.BeginOperation())
             {
-                var documents = documentSizes.Select((size, index) => CreateDocument(index + 1, size)).ToList();
-                var requests = documents.Select(d => new InsertRequest(d)).ToList();
-                var operation = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
-
                 var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>(e => e.CommandName == "insert" && e.OperationId == EventContext.OperationId);
                 using (var cluster = CoreTestConfiguration.CreateCluster(b => b.Subscribe(eventCapturer)))
                 using (var session = NoCoreSession.NewHandle())
-                using (var binding = new ReadWriteBindingHandle(new WritableServerBinding(cluster, session.Fork(), operation)))
+                using (var binding = new ReadWriteBindingHandle(new WritableServerBinding(cluster, session.Fork())))
                 {
+                    var documents = documentSizes.Select((size, index) => CreateDocument(index + 1, size)).ToList();
+                    var requests = documents.Select(d => new InsertRequest(d)).ToList();
+                    var operation = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
+
                     var result = ExecuteOperation(operation, binding, async: false);
 
                     result.InsertedCount.Should().Be(documents.Count);
@@ -1611,14 +1611,14 @@ namespace MongoDB.Driver.Core.Operations
 
             using (EventContext.BeginOperation())
             {
-                var requests = requestSizes.Select(size => CreateUpdateRequest(size));
-                var operation = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
-
                 var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>(e => e.CommandName == "update" && e.OperationId == EventContext.OperationId);
                 using (var cluster = CoreTestConfiguration.CreateCluster(b => b.Subscribe(eventCapturer)))
                 using (var session = NoCoreSession.NewHandle())
-                using (var binding = new ReadWriteBindingHandle(new WritableServerBinding(cluster, session.Fork(), operation)))
+                using (var binding = new ReadWriteBindingHandle(new WritableServerBinding(cluster, session.Fork())))
                 {
+                    var requests = requestSizes.Select(size => CreateUpdateRequest(size));
+                    var operation = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
+
                     var result = ExecuteOperation(operation, binding, async: false);
 
                     var commandStartedEvents = eventCapturer.Events.OfType<CommandStartedEvent>().ToList();
@@ -1643,14 +1643,14 @@ namespace MongoDB.Driver.Core.Operations
 
             using (EventContext.BeginOperation())
             {
-                var requests = requestSizes.Select(size => CreateUpdateRequest(size));
-                var operation = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
-
                 var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>(e => e.CommandName == "update" && e.OperationId == EventContext.OperationId);
                 using (var cluster = CoreTestConfiguration.CreateCluster(b => b.Subscribe(eventCapturer)))
                 using (var session = NoCoreSession.NewHandle())
-                using (var binding = new ReadWriteBindingHandle(new WritableServerBinding(cluster, session.Fork(), operation)))
+                using (var binding = new ReadWriteBindingHandle(new WritableServerBinding(cluster, session.Fork())))
                 {
+                    var requests = requestSizes.Select(size => CreateUpdateRequest(size));
+                    var operation = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
+
                     var result = ExecuteOperation(operation, binding, async: false);
 
                     result.RequestCount.Should().Be(requestSizes.Length);

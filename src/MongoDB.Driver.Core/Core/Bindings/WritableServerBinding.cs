@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Core.Bindings
         // fields
         private readonly ICluster _cluster;
         private bool _disposed;
-        private readonly IWriteOperation _operation;
+        private readonly IMayUseSecondaryCriteria _mayUseSecondary;
         private readonly IServerSelector _serverSelector;
         private readonly ICoreSessionHandle _session;
 
@@ -42,31 +42,28 @@ namespace MongoDB.Driver.Core.Bindings
         /// </summary>
         /// <param name="cluster">The cluster.</param>
         /// <param name="session">The session.</param>
-        /// <param name="operation">The operation.</param>
-        public WritableServerBinding(ICluster cluster, ICoreSessionHandle session, IWriteOperation operation)
+        public WritableServerBinding(ICluster cluster, ICoreSessionHandle session)
+            : this(cluster, session, mayUseSecondary: null)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="WritableServerBinding" /> class.
+        /// </summary>
+        /// <param name="cluster">The cluster.</param>
+        /// <param name="session">The session.</param>
+        /// <param name="mayUseSecondary">The may use secondary criteria.</param>
+        public WritableServerBinding(ICluster cluster, ICoreSessionHandle session, IMayUseSecondaryCriteria mayUseSecondary)
         {
             _cluster = Ensure.IsNotNull(cluster, nameof(cluster));
             _session = Ensure.IsNotNull(session, nameof(session));
-            _operation = operation; // can be null
-            _serverSelector = new WritableServerSelector(_operation);
+            _mayUseSecondary = mayUseSecondary; // can be null
+            _serverSelector = new WritableServerSelector(mayUseSecondary);
         }
 
         // properties
         /// <inheritdoc/>
-        public ReadPreference ReadPreference
-        {
-            get
-            {
-                if (_operation is IMayUseSecondaryWriteOperation mayUseSecondaryWriteOperation)
-                {
-                    return mayUseSecondaryWriteOperation.ReadPreference;
-                }
-                else
-                {
-                    return ReadPreference.Primary;
-                }
-            }
-        }
+        public ReadPreference ReadPreference => _mayUseSecondary?.ReadPreference ?? ReadPreference.Primary;
 
         /// <inheritdoc/>
         public ICoreSessionHandle Session

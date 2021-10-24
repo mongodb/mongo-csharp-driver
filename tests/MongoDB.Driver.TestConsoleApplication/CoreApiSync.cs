@@ -87,21 +87,20 @@ namespace MongoDB.Driver.TestConsoleApplication
 
         private void ClearData(ICluster cluster)
         {
-            var operation = new DropDatabaseOperation(_collection.DatabaseNamespace, _messageEncoderSettings);
-            using (var binding = new WritableServerBinding(cluster, NoCoreSession.NewHandle(), operation))
+            using (var binding = new WritableServerBinding(cluster, NoCoreSession.NewHandle()))
             {
-                operation.Execute(binding, CancellationToken.None);
+                var commandOp = new DropDatabaseOperation(_collection.DatabaseNamespace, _messageEncoderSettings);
+                commandOp.Execute(binding, CancellationToken.None);
             }
         }
 
         private void InsertData(ICluster cluster)
         {
-            for (int i = 0; i < 100; i++)
+            using (var binding = new WritableServerBinding(cluster, NoCoreSession.NewHandle()))
             {
-                var operation = CreateInsertOperation(new BsonDocument("i", i));
-                using (var binding = new WritableServerBinding(cluster, NoCoreSession.NewHandle(), operation))
+                for (int i = 0; i < 100; i++)
                 {
-                    _ = ExecuteWriteOperation(binding, operation);
+                    Insert(binding, new BsonDocument("i", i));
                 }
             }
         }
@@ -109,109 +108,102 @@ namespace MongoDB.Driver.TestConsoleApplication
         private void DoWork(ICluster cluster)
         {
             var rand = new Random();
-            while (!_cancellationTokenSource.IsCancellationRequested)
+            using (var binding = new WritableServerBinding(cluster, NoCoreSession.NewHandle()))
             {
-                var i = rand.Next(0, 10000);
-                IReadOnlyList<BsonDocument> docs;
-                var findOperation = CreateFindOperation(filter: new BsonDocument("i", i));
-                using (var binding = new ReadPreferenceBinding(cluster, ReadPreference.Primary, session: null))
-                using (var cursor = ExecuteReadOperation(binding, findOperation))
+                while (!_cancellationTokenSource.IsCancellationRequested)
                 {
-                    try
+                    var i = rand.Next(0, 10000);
+                    IReadOnlyList<BsonDocument> docs;
+                    using (var cursor = Query(binding, new BsonDocument("i", i)))
                     {
-                        if (cursor.MoveNext(_cancellationTokenSource.Token))
+                        try
                         {
-                            docs = cursor.Current.ToList();
+                            if (cursor.MoveNext(_cancellationTokenSource.Token))
+                            {
+                                docs = cursor.Current.ToList();
+                            }
+                            else
+                            {
+                                docs = null;
+                            }
+                            //Console.Write(".");
                         }
-                        else
+                        catch
                         {
-                            docs = null;
+                            Console.Write("+");
+                            continue;
                         }
-                        //Console.Write(".");
                     }
-                    catch
-                    {
-                        Console.Write("+");
-                        continue;
-                    }
-                }
 
-                if (docs == null || docs.Count == 0)
-                {
-                    try
-                    {
-                        var insertOperation = CreateInsertOperation(new BsonDocument().Add("i", i));
-                        using (var binding = new WritableServerBinding(cluster, NoCoreSession.NewHandle(), insertOperation))
-                        {
-                            ExecuteWriteOperation(binding, insertOperation);
-                        }
-                        //Console.Write(".");
-                    }
-                    catch (Exception)
-                    {
-                        Console.Write("*");
-                    }
-                }
-                else
-                {
-                    try
-                    {
-                        var filter = new BsonDocument("_id", docs[0]["_id"]);
-                        var update = new BsonDocument("$set", new BsonDocument("i", i + 1));
 
-                        var updateOoperation = CreateUpdateOperation(filter, update);
-                        using (var binding = new WritableServerBinding(cluster, NoCoreSession.NewHandle(), updateOoperation))
-                        {
-                            ExecuteWriteOperation(binding, updateOoperation);
-                        }
-                        //Console.Write(".");
-                    }
-                    catch (Exception)
+                    if (docs == null || docs.Count == 0)
                     {
-                        Console.Write("*");
+                        try
+                        {
+                            Insert(binding, new BsonDocument().Add("i", i));
+                            //Console.Write(".");
+                        }
+                        catch (Exception)
+                        {
+                            Console.Write("*");
+                        }
+                    }
+                    else
+                    {
+                        try
+                        {
+                            var filter = new BsonDocument("_id", docs[0]["_id"]);
+                            var update = new BsonDocument("$set", new BsonDocument("i", i + 1));
+                            Update(binding, filter, update);
+                            //Console.Write(".");
+                        }
+                        catch (Exception)
+                        {
+                            Console.Write("*");
+                        }
                     }
                 }
             }
         }
 
-        private InsertOpcodeOperation<BsonDocument> CreateInsertOperation(BsonDocument document)
+        private void Insert(IWriteBinding binding, BsonDocument document)
         {
-            return new InsertOpcodeOperation<BsonDocument>(_collection, new[] { document }, BsonDocumentSerializer.Instance, _messageEncoderSettings);
-        }
+            var insertOp = new InsertOpcodeOperation<BsonDocument>(_collection, new[] { document }, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
-        private TResult ExecuteWriteOperation<TResult>(IWriteBinding binding, IWriteOperation<TResult> operation)
-        {
             using (var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
             using (var linked = CancellationTokenSource.CreateLinkedTokenSource(timeout.Token, _cancellationTokenSource.Token))
             {
-                return operation.Execute(binding, linked.Token);
+                insertOp.Execute(binding, linked.Token);
             }
         }
 
-        private FindOperation<BsonDocument> CreateFindOperation(BsonDocument filter)
+        private IAsyncCursor<BsonDocument> Query(IReadBinding binding, BsonDocument filter)
         {
-            return new FindOperation<BsonDocument>(_collection, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            var findOp = new FindOperation<BsonDocument>(_collection, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
                 Filter = filter,
                 Limit = -1
             };
-        }
 
-        private TResult ExecuteReadOperation<TResult>(IReadBinding binding, IReadOperation<TResult> operation)
-        {
             using (var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
             using (var linked = CancellationTokenSource.CreateLinkedTokenSource(timeout.Token, _cancellationTokenSource.Token))
             {
-                return operation.Execute(binding, linked.Token);
+                return findOp.Execute(binding, linked.Token);
             }
         }
 
-        private UpdateOpcodeOperation CreateUpdateOperation(BsonDocument filter, BsonDocument update)
+        private void Update(IWriteBinding binding, BsonDocument filter, BsonDocument update)
         {
-            return new UpdateOpcodeOperation(
+            var updateOp = new UpdateOpcodeOperation(
                 _collection,
                 new UpdateRequest(UpdateType.Update, filter, update),
                 _messageEncoderSettings);
+
+            using (var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
+            using (var linked = CancellationTokenSource.CreateLinkedTokenSource(timeout.Token, _cancellationTokenSource.Token))
+            {
+                updateOp.Execute(binding, linked.Token);
+            }
         }
     }
 }

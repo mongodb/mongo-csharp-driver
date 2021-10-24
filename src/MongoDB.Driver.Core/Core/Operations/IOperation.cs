@@ -21,6 +21,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -81,9 +82,21 @@ namespace MongoDB.Driver.Core.Operations
         Task<TResult> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken);
     }
 
-    internal interface IMayUseSecondaryWriteOperation
+    /// <summary>
+    /// 
+    /// </summary>
+    public interface IMayUseSecondaryCriteria
     {
-        ServerVersion MinServerVersionToUseSecondary { get; }
+        /// <summary>
+        /// 
+        /// </summary>
         ReadPreference ReadPreference { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="server"></param>
+        /// <returns></returns>
+        bool CanUseSecondary(ServerDescription server);
     }
 }
