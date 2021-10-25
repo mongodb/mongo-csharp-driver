@@ -47,12 +47,10 @@ namespace MongoDB.Driver.Core.Authentication
         private const int SurrogateMaxCodePoint = 0x00dfff;
 
         /// <summary>
-        /// Return the SASLPrep-canonicalised version of the given <paramref name="str"/> for use as a query string.                          
-        /// This implements the {@code SASLPrep} algorithm defined in <a href="https://tools.ietf.org/html/rfc4013">RFC 4013</a>.          
+        /// Return the SASLPrep-canonicalised version of the given <paramref name="str"/> for use as a query string.
+        /// This implements the {@code SASLPrep} algorithm defined in <a href="https://tools.ietf.org/html/rfc4013">RFC 4013</a>.
         /// See <a href="https://tools.ietf.org/html/rfc3454#section-7">RFC 3454, Section 7</a> for discussion of what a
         /// query string is.
-        /// String normalization step in the .NET Standard version of the driver is skipped due to a lack of a string
-        /// normalization function.
         /// </summary>
         /// <param name="str">The string to canonicalise.</param>
         /// <returns>The canonicalised string.</returns>
@@ -62,12 +60,10 @@ namespace MongoDB.Driver.Core.Authentication
         }
 
         /// <summary>
-        /// Return the SASLPrep-canonicalised version of the given <paramref name="str"/> for use as a stored string.                          
+        /// Return the SASLPrep-canonicalised version of the given <paramref name="str"/> for use as a stored string.
         /// This implements the SASLPrep algorithm defined in <a href="https://tools.ietf.org/html/rfc4013">RFC 4013</a>.
         /// See <a href="https://tools.ietf.org/html/rfc3454#section-7">RFC 3454, Section 7</a> for discussion of what a
         /// stored string is.
-        /// String normalization step in the .NET Standard version of the driver is skipped due to a lack of a string
-        /// normalization function.
         /// </summary>
         ///<param name="str">The string to canonicalise.</param>
         ///<returns>The canonicalised string.</returns>
