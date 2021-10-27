@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# Don't trace since the URI contains a password that shouldn't show up in the logs
 set -o xtrace   # Write all commands first to stderr
 set -o errexit  # Exit the script with error if any of the commands fail
 
@@ -14,7 +13,6 @@ set -o errexit  # Exit the script with error if any of the commands fail
 ############################################
 
 echo "Running KMS TLS tests"
-
 echo "FRAMEWORK: ${FRAMEWORK}"
 echo "KMS_TLS_ERROR_TYPE: ${KMS_TLS_ERROR_TYPE}"
 

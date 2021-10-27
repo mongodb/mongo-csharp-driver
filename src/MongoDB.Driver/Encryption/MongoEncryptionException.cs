@@ -15,6 +15,7 @@
 
 using System;
 using System.Runtime.Serialization;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Encryption
 {
@@ -27,9 +28,8 @@ namespace MongoDB.Driver.Encryption
         #region static
         private static string FormatErrorMessage(string errorMessage)
         {
-            return EndWithDotIfNotPresented($"Encryption related exception: {errorMessage}");
-
-            string EndWithDotIfNotPresented(string errorMessage) => errorMessage[errorMessage.Length - 1] == '.' ? errorMessage : $"{errorMessage}.";
+            errorMessage = $"Encryption related exception: {Ensure.IsNotNull(errorMessage, nameof(errorMessage))}";
+            return errorMessage[errorMessage.Length - 1] == '.' ? errorMessage : $"{errorMessage}.";
         }
         #endregion
 

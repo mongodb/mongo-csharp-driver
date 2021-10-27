@@ -964,7 +964,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         [Trait("Category", "CsfleKmsTls")]
         [SkippableTheory]
         [ParameterAttributeData]
-        public void KmsTls_Test([Values(false, true)] bool async)
+        public void KmsTlsTest([Values(false, true)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
             RequireEnvironment.Check().EnvironmentVariable("KMS_TLS_ERROR_TYPE", isDefined: true);
@@ -983,39 +983,10 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
                 var exception = Record.Exception(() => CreateDataKey(clientEncryption, "aws", dataKeyOptions, async));
 
-                // Unfortunately .dotnet doesn't make difference between different certificate issues and throws the same exception for all cases.
-                // To ensure that we assert the expected case you need to add the following log callback:
-                //
-                //  private static bool SslServerCertificateCallback(
-                //      object sender,
-                //      X509Certificate certificate,
-                //      X509Chain chain,
-                //      SslPolicyErrors sslPolicyErrors)
-                //  {
-                //      Console.WriteLine("sslPolicyErrors:" + sslPolicyErrors.ToString());
-                //      Console.WriteLine("certificate:" + certificate.ToString());
-                //      return false;
-                //  }
-                //
-                // to the SslStream ctor in LibMongoCryptControllerBase.SendKmsRequest/SendKmsRequestAsync:
-                //
-                //  var remoteCertificateValidation = new RemoteCertificateValidationCallback(SslServerCertificateCallback);
-                //  using (var sslStream = new SslStream(networkStream, leaveInnerStreamOpen: false, remoteCertificateValidation))
-                //
-                // The expected output:
-                // * invalidHostname:
-                //      sslPolicyErrors:RemoteCertificateNameMismatch
-                //      certificate:
-                //          [Subject] C = US, S = New York, L = New York City, O = MongoDB, OU = Drivers, CN = wronghost.com
-                //          ...
-                // * expiredCertificate (pay attention the certificate is expired):
-                //      sslPolicyErrors:RemoteCertificateChainErrors
-                //      certificate:
-                //          ...
-                //          [Not Before]
-                //             05/20/2019 22:36:35
-                //          [Not After]
-                //             05/21/2019 22:36:35
+                // .Net doesn't make difference between different certificate issues and throws the same exception for all cases.
+                // To ensure that we assert the expected case you need to configure a RemoteCertificateValidationCallback
+                // to the SslStream ctor in LibMongoCryptControllerBase.SendKmsRequest/SendKmsRequestAsync and assert
+                // sslPolicyErrors (for invalidHostname) and expiration dates (for expiredCertificate).
                 exception.Message.Should().Be("Encryption related exception: The remote certificate is invalid according to the validation procedure.", $"because {Environment.GetEnvironmentVariable("KMS_TLS_ERROR_TYPE")} EG configuration");
             }
         }
