@@ -15,6 +15,7 @@
 
 using System;
 using System.Runtime.Serialization;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Encryption
 {
@@ -24,12 +25,20 @@ namespace MongoDB.Driver.Encryption
     [Serializable]
     public class MongoEncryptionException : MongoClientException
     {
+        #region static
+        private static string FormatErrorMessage(string errorMessage)
+        {
+            errorMessage = $"Encryption related exception: {errorMessage}";
+            return errorMessage.EndsWith(".") ? errorMessage : $"{errorMessage}.";
+        }
+        #endregion
+
         /// <summary>
         /// Initializes a new instance of the <see cref="MongoEncryptionException"/> class.
         /// </summary>
         /// <param name="innerException">The inner exception.</param>
         public MongoEncryptionException(Exception innerException)
-            : base($"Encryption related exception: {innerException.Message}.", innerException)
+            : base(FormatErrorMessage(innerException.Message), innerException)
         {
         }
 

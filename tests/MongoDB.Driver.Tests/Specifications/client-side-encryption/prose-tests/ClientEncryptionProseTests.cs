@@ -961,6 +961,36 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             }
         }
 
+        [Trait("Category", "CsfleKmsTls")]
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void KmsTlsTest([Values(false, true)] bool async)
+        {
+            RequireServer.Check().Supports(Feature.ClientSideEncryption);
+            RequireEnvironment.Check().EnvironmentVariable("KMS_TLS_ERROR_TYPE", isDefined: true);
+
+            using (var clientEncrypted = ConfigureClientEncrypted())
+            using (var clientEncryption = ConfigureClientEncryption(clientEncrypted.Wrapped as MongoClient))
+            {
+                var dataKeyOptions = CreateDataKeyOptions(
+                    kmsProvider: "aws",
+                    customMasterKey: new BsonDocument
+                    {
+                        { "region", "us-east-1" },
+                        { "key", "arn:aws:kms:us-east-1:579766882180:key/89fcc2c4-08b0-4bd9-9f25-e30687b580d0" },
+                        { "endpoint", "127.0.0.1:8000" }
+                    });
+
+                var exception = Record.Exception(() => CreateDataKey(clientEncryption, "aws", dataKeyOptions, async));
+
+                // .Net doesn't make difference between different certificate issues and throws the same exception for all cases.
+                // To ensure that we assert the expected case you need to configure a RemoteCertificateValidationCallback
+                // to the SslStream ctor in LibMongoCryptControllerBase.SendKmsRequest/SendKmsRequestAsync and assert
+                // sslPolicyErrors (for invalidHostname) and expiration dates (for expiredCertificate).
+                exception.Message.Should().Be("Encryption related exception: The remote certificate is invalid according to the validation procedure.", $"because {Environment.GetEnvironmentVariable("KMS_TLS_ERROR_TYPE")} EG configuration");
+            }
+        }
+
         [SkippableTheory]
         [ParameterAttributeData]
         public void ViewAreProhibitedTest([Values(false, true)] bool async)
@@ -1148,39 +1178,43 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             }
         }
 
-        private DataKeyOptions CreateDataKeyOptions(string kmsProvider)
+        private DataKeyOptions CreateDataKeyOptions(string kmsProvider, BsonDocument customMasterKey = null)
         {
             var alternateKeyNames = new[] { $"{kmsProvider}_altname" };
             switch (kmsProvider)
             {
                 case "local":
+                    Ensure.IsNull(customMasterKey, "local masterKey");
                     return new DataKeyOptions(alternateKeyNames: alternateKeyNames);
                 case "aws":
-                    var awsMasterKey = new BsonDocument
-                    {
-                        { "region", "us-east-1" },
-                        { "key", "arn:aws:kms:us-east-1:579766882180:key/89fcc2c4-08b0-4bd9-9f25-e30687b580d0" }
-                    };
+                    var awsMasterKey = customMasterKey ??
+                        new BsonDocument
+                        {
+                            { "region", "us-east-1" },
+                            { "key", "arn:aws:kms:us-east-1:579766882180:key/89fcc2c4-08b0-4bd9-9f25-e30687b580d0" }
+                        };
                     return new DataKeyOptions(
                         alternateKeyNames: alternateKeyNames,
                         masterKey: awsMasterKey);
                 case "azure":
-                    var azureMasterKey = new BsonDocument
-                    {
-                        { "keyName", "key-name-csfle" },
-                        { "keyVaultEndpoint", "key-vault-csfle.vault.azure.net" }
-                    };
+                    var azureMasterKey = customMasterKey ??
+                        new BsonDocument
+                        {
+                            { "keyName", "key-name-csfle" },
+                            { "keyVaultEndpoint", "key-vault-csfle.vault.azure.net" }
+                        };
                     return new DataKeyOptions(
                         alternateKeyNames: alternateKeyNames,
                         masterKey: azureMasterKey);
                 case "gcp":
-                    var gcpMasterKey = new BsonDocument
-                    {
-                        { "projectId", "devprod-drivers" },
-                        { "location", "global" },
-                        { "keyRing", "key-ring-csfle" },
-                        { "keyName", "key-name-csfle" }
-                    };
+                    var gcpMasterKey = customMasterKey ??
+                        new BsonDocument
+                        {
+                            { "projectId", "devprod-drivers" },
+                            { "location", "global" },
+                            { "keyRing", "key-ring-csfle" },
+                            { "keyName", "key-name-csfle" }
+                        };
                     return new DataKeyOptions(
                         alternateKeyNames: alternateKeyNames,
                         masterKey: gcpMasterKey);

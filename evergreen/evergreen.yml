@@ -638,6 +638,41 @@ functions:
               bash ${DRIVERS_TOOLS}/.evergreen/serverless/delete-instance.sh
           fi
 
+  run-kms-tls-test:
+    - command: shell.exec
+      type: test
+      params:
+        working_dir: "mongo-csharp-driver"
+        script: |
+          ${PREPARE_SHELL}
+          set +o xtrace
+          # technically FLE_* vars are not needed, added just to reduce a number of changes in the code
+          export FLE_AWS_ACCESS_KEY_ID=${FLE_AWS_ACCESS_KEY_ID}
+          export FLE_AWS_SECRET_ACCESS_KEY=${FLE_AWS_SECRET_ACCESS_KEY}
+          export FLE_AZURE_TENANT_ID=${FLE_AZURE_TENANT_ID}
+          export FLE_AZURE_CLIENT_ID=${FLE_AZURE_CLIENT_ID}
+          export FLE_AZURE_CLIENT_SECRET=${FLE_AZURE_CLIENT_SECRET}
+          export FLE_GCP_EMAIL=${FLE_GCP_EMAIL}
+          export FLE_GCP_PRIVATE_KEY=${FLE_GCP_PRIVATE_KEY}
+          KMS_TLS_ERROR_TYPE="${KMS_TLS_ERROR_TYPE}" \
+          MONGODB_URI="${MONGODB_URI}" \
+          FRAMEWORK=${FRAMEWORK} \
+            evergreen/run-kms-tls-tests.sh
+
+  start-kms-mock-server:
+    - command: shell.exec
+      params:
+        script: |
+          ${PREPARE_SHELL}
+          cd ${DRIVERS_TOOLS}/.evergreen/csfle
+          . ./activate_venv.sh
+    - command: shell.exec
+      params:
+        background: true
+        script: |
+          cd ${DRIVERS_TOOLS}/.evergreen/csfle
+          ./kmstlsvenv/bin/python3 -u kms_http_server.py -v --ca_file ../x509gen/ca.pem --cert_file ../x509gen/${BROKEN_CERT} --port 8000
+
   publish-snapshot:
     - command: shell.exec
       type: test
@@ -882,6 +917,44 @@ tasks:
         - func: run-serverless-tests
           vars:
             FRAMEWORK: netstandard21
+
+    - name: test-kms-tls-expired-certificate-netstandard21
+      tags: ["kms-tls"]
+      commands:
+        - func: bootstrap-mongo-orchestration
+          vars:
+            TOPOLOGY: "server"
+            AUTH: "noauth"
+            SSL: "nossl"
+        - func: start-kms-mock-server
+          vars:
+            BROKEN_CERT: "expired.pem"
+        - func: run-kms-tls-test
+          vars:
+            TOPOLOGY: "server"
+            AUTH: "noauth"
+            SSL: "nossl"
+            FRAMEWORK: netstandard21
+            KMS_TLS_ERROR_TYPE: "expiredCertificate"
+            
+    - name: test-kms-tls-invalid-host-netstandard21
+      tags: ["kms-tls"]
+      commands:
+        - func: bootstrap-mongo-orchestration
+          vars:
+            TOPOLOGY: "server"
+            AUTH: "noauth"
+            SSL: "nossl"
+        - func: start-kms-mock-server
+          vars:
+           BROKEN_CERT: "wrong-host.pem"
+        - func: run-kms-tls-test
+          vars:
+            TOPOLOGY: "server"
+            AUTH: "noauth"
+            SSL: "nossl"
+            FRAMEWORK: netstandard21
+            KMS_TLS_ERROR_TYPE: "invalidHostname"
 
     - name: test-ocsp-rsa-valid-cert-server-staples-ca-responder
       tags: ["ocsp"]
@@ -1538,3 +1611,9 @@ buildvariants:
   tasks:
     - name: test-gssapi-netstandard20
     - name: test-gssapi-netstandard21
+
+- matrix_name: "kms-tls-tests-linux"
+  matrix_spec: { os: "ubuntu-1804", version: [ "5.0" ], topology: ["standalone"] }
+  display_name: "CSFLE KMS TLS ${os}"
+  tasks:
+    - name: ".kms-tls"   
