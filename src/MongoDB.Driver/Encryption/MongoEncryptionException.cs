@@ -28,8 +28,8 @@ namespace MongoDB.Driver.Encryption
         #region static
         private static string FormatErrorMessage(string errorMessage)
         {
-            errorMessage = $"Encryption related exception: {Ensure.IsNotNull(errorMessage, nameof(errorMessage))}";
-            return errorMessage[errorMessage.Length - 1] == '.' ? errorMessage : $"{errorMessage}.";
+            errorMessage = $"Encryption related exception: {errorMessage}";
+            return errorMessage.EndsWith(".") ? errorMessage : $"{errorMessage}.";
         }
         #endregion
 
