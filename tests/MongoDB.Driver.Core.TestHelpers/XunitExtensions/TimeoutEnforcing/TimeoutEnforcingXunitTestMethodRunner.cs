@@ -14,6 +14,7 @@
 */
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -22,6 +23,7 @@ using Xunit.Sdk;
 
 namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions.TimeoutEnforcing
 {
+    [DebuggerStepThrough]
     internal sealed class TimeoutEnforcingXunitTestMethodRunner : XunitTestMethodRunner
     {
         private static string[] __skippingExceptionNames = new string[] { typeof(SkipException).FullName };

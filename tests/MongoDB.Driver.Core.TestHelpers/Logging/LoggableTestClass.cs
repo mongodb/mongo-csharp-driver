@@ -23,6 +23,7 @@ using Xunit.Sdk;
 
 namespace MongoDB.Driver.Core.TestHelpers.Logging
 {
+    [DebuggerStepThrough]
     public abstract class LoggableTestClass : IDisposable
     {
         private readonly XunitLogger _loggerBase;

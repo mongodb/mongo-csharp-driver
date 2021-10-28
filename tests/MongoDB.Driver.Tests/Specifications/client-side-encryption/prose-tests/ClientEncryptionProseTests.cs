@@ -17,15 +17,21 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Net.Security;
+using System.Net.Sockets;
 using System.Reflection;
+using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
@@ -40,6 +46,7 @@ using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 {
+    [Trait("Category", "FLE")]
     public class ClientEncryptionProseTests : LoggableTestClass
     {
         #region static
@@ -266,8 +273,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 var coll = GetCollection(clientEncrypted, __collCollectionNamespace);
                 var exception = Record.Exception(() => Insert(coll, async, new BsonDocument("encrypted", "test")));
 
-                exception.Should().BeOfType<MongoEncryptionException>();
-                exception.Message.Should().Contain("A timeout occurred after 10000ms selecting a server");
+                AssertInnerEncryptionException<TimeoutException>(exception, "A timeout occurred after 10000ms selecting a server");
             }
         }
 
@@ -313,11 +319,14 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 .SkipWhen(SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard20)
                 .SkipWhen(SupportedOperatingSystem.MacOS, SupportedTargetFramework.NetStandard20);
 
+            // this needs only for kmip, but the test design doesn't allow skipping only required steps
+            RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true);
+
             var corpusSchema = JsonFileReader.Instance.Documents["corpus.corpus-schema.json"];
             var schemaMap = useLocalSchema ? new BsonDocument("db.coll", corpusSchema) : null;
             using (var client = ConfigureClient())
             using (var clientEncrypted = ConfigureClientEncrypted(schemaMap))
-            using (var clientEncryption = ConfigureClientEncryption(clientEncrypted.Wrapped as MongoClient))
+            using (var clientEncryption = ConfigureClientEncryption(clientEncrypted))
             {
                 CreateCollection(client, __collCollectionNamespace, new BsonDocument("$jsonSchema", corpusSchema));
 
@@ -328,7 +337,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                     JsonFileReader.Instance.Documents["corpus.corpus-key-local.json"],
                     JsonFileReader.Instance.Documents["corpus.corpus-key-aws.json"],
                     JsonFileReader.Instance.Documents["corpus.corpus-key-azure.json"],
-                    JsonFileReader.Instance.Documents["corpus.corpus-key-gcp.json"]);
+                    JsonFileReader.Instance.Documents["corpus.corpus-key-gcp.json"],
+                    JsonFileReader.Instance.Documents["corpus.corpus-key-kmip.json"]);
 
                 var corpus = JsonFileReader.Instance.Documents["corpus.corpus.json"];
                 var corpusCopied = new BsonDocument
@@ -337,7 +347,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                     corpus.GetElement("altname_aws"),
                     corpus.GetElement("altname_local"),
                     corpus.GetElement("altname_azure"),
-                    corpus.GetElement("altname_gcp")
+                    corpus.GetElement("altname_gcp"),
+                    corpus.GetElement("altname_kmip")
                 };
 
                 foreach (var corpusElement in corpus.Elements.Where(c => c.Value.IsBsonDocument))
@@ -434,56 +445,41 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             {
                 Guid? keyId = null;
                 string alternateName = null;
-                if (identifier == "id")
+                switch (identifier)
                 {
-                    switch (kms)
-                    {
-                        case "local":
-                            keyId = GuidConverter.FromBytes(Convert.FromBase64String("LOCALAAAAAAAAAAAAAAAAA=="), GuidRepresentation.Standard);
-                            break;
-                        case "aws":
-                            keyId = GuidConverter.FromBytes(Convert.FromBase64String("AWSAAAAAAAAAAAAAAAAAAA=="), GuidRepresentation.Standard);
-                            break;
-                        case "azure":
-                            keyId = GuidConverter.FromBytes(Convert.FromBase64String("AZUREAAAAAAAAAAAAAAAAA=="), GuidRepresentation.Standard);
-                            break;
-                        case "gcp":
-                            keyId = GuidConverter.FromBytes(Convert.FromBase64String("GCPAAAAAAAAAAAAAAAAAAA=="), GuidRepresentation.Standard);
-                            break;
-                        default:
-                            throw new ArgumentException($"Unsupported kms type {kms}.");
-                    }
-                }
-                else if (identifier == "altname")
-                {
-                    alternateName = kms;
-                }
-                else
-                {
-                    throw new ArgumentException($"Unsupported identifier {identifier}.", nameof(identifier));
+                    case "id":
+                        keyId = kms switch
+                        {
+                            "local" => GuidConverter.FromBytes(Convert.FromBase64String("LOCALAAAAAAAAAAAAAAAAA=="), GuidRepresentation.Standard),
+                            "aws" => GuidConverter.FromBytes(Convert.FromBase64String("AWSAAAAAAAAAAAAAAAAAAA=="), GuidRepresentation.Standard),
+                            "azure" => GuidConverter.FromBytes(Convert.FromBase64String("AZUREAAAAAAAAAAAAAAAAA=="), GuidRepresentation.Standard),
+                            "gcp" => GuidConverter.FromBytes(Convert.FromBase64String("GCPAAAAAAAAAAAAAAAAAAA=="), GuidRepresentation.Standard),
+                            "kmip" => GuidConverter.FromBytes(Convert.FromBase64String("KMIPAAAAAAAAAAAAAAAAAA=="), GuidRepresentation.Standard),
+                            _ => throw new ArgumentException($"Unsupported kms type {kms}."),
+                        };
+                        break;
+                    case "altname":
+                        alternateName = kms;
+                        break;
+                    default:
+                        throw new ArgumentException($"Unsupported identifier {identifier}.", nameof(identifier));
                 }
 
                 return new EncryptOptions(ParseAlgorithm(algorithm).ToString(), alternateName, keyId);
             }
 
-            EncryptionAlgorithm ParseAlgorithm(string algorithm)
+            EncryptionAlgorithm ParseAlgorithm(string algorithm) => algorithm switch
             {
-                switch (algorithm)
-                {
-                    case "rand":
-                        return EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random;
-                    case "det":
-                        return EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic;
-                    default:
-                        throw new ArgumentException($"Unsupported algorithm {algorithm}.");
-                }
-            }
+                "rand" => EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random,
+                "det" => EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic,
+                _ => throw new ArgumentException($"Unsupported algorithm {algorithm}."),
+            };
         }
 
         [SkippableTheory]
         [ParameterAttributeData]
         public void CreateDataKeyAndDoubleEncryptionTest(
-            [Values("local", "aws", "azure", "gcp")] string kmsProvider,
+            [Values("local", "aws", "azure", "gcp", "kmip")] string kmsProvider,
             [Values(false, true)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
@@ -491,10 +487,14 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 .Check()
                 .SkipWhen(() => kmsProvider == "gcp", SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard20)
                 .SkipWhen(() => kmsProvider == "gcp", SupportedOperatingSystem.MacOS, SupportedTargetFramework.NetStandard20); // gcp is supported starting from netstandard2.1
+            if (kmsProvider == "kmip")
+            {
+                RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true);
+            }
 
             using (var client = ConfigureClient())
             using (var clientEncrypted = ConfigureClientEncrypted(BsonDocument.Parse(SchemaMap)))
-            using (var clientEncryption = ConfigureClientEncryption(clientEncrypted.Wrapped as MongoClient))
+            using (var clientEncryption = ConfigureClientEncryption(clientEncrypted))
             {
                 var dataKeyOptions = CreateDataKeyOptions(kmsProvider);
                 var dataKey = CreateDataKey(clientEncryption, kmsProvider, dataKeyOptions, async);
@@ -567,6 +567,10 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         // gcp
         [InlineData("gcp", "cloudkms.googleapis.com:443", null, "parse error")]
         [InlineData("gcp", "example.com:443", "Invalid KMS response", null)]
+        // kmip
+        [InlineData("kmip", null, null, "No such host is known")]
+        [InlineData("kmip", "localhost:5698", null, null)]
+        [InlineData("kmip", "doesnotexist.local:5698", "No such host is known", null)] //nodename nor servname provided, or not known
         public void CustomEndpointTest(
             string kmsType,
             string customEndpoint,
@@ -578,49 +582,43 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 .Check()
                 .SkipWhen(() => kmsType == "gcp", SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard20)  // gcp is supported starting from netstandard2.1
                 .SkipWhen(() => kmsType == "gcp", SupportedOperatingSystem.MacOS, SupportedTargetFramework.NetStandard20);
+            if (kmsType == "kmip")
+            {
+                RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true);
+            }
 
             using (var client = ConfigureClient())
-            using (var clientEncryption = ConfigureClientEncryption(client.Wrapped as MongoClient, ValidKmsEndpointConfigurator))
-            using (var clientEncryptionInvalid = ConfigureClientEncryption(client.Wrapped as MongoClient, InvalidKmsEndpointConfigurator))
+            using (var clientEncryption = ConfigureClientEncryption(client, ValidKmsEndpointConfigurator))
+            using (var clientEncryptionInvalid = ConfigureClientEncryption(client, InvalidKmsEndpointConfigurator))
             {
-                BsonDocument testCaseMasterKey = null;
-                switch (kmsType)
+                var testCaseMasterKey = kmsType switch
                 {
-                    case "aws":
-                        {
-                            testCaseMasterKey = new BsonDocument
-                            {
-                                { "region", "us-east-1" },
-                                { "key", "arn:aws:kms:us-east-1:579766882180:key/89fcc2c4-08b0-4bd9-9f25-e30687b580d0" },
-                                { "endpoint", customEndpoint, customEndpoint != null }
-                            };
-                        }
-                        break;
-                    case "azure":
-                        {
-                            testCaseMasterKey = new BsonDocument
-                            {
-                                { "keyVaultEndpoint", customEndpoint },
-                                { "keyName", "key-name-csfle" }
-                            };
-                        }
-                        break;
-                    case "gcp":
-                        {
-                            testCaseMasterKey = new BsonDocument
-                            {
-                                { "projectId", "devprod-drivers" },
-                                { "location", "global" },
-                                { "keyRing", "key-ring-csfle" },
-                                { "keyName", "key-name-csfle" },
-                                { "endpoint", customEndpoint }
-                            };
-                        }
-                        break;
-                    default:
-                        throw new Exception($"Unexpected kms type {kmsType}.");
-                }
-
+                    "aws" => new BsonDocument
+                    {
+                        { "region", "us-east-1" },
+                        { "key", "arn:aws:kms:us-east-1:579766882180:key/89fcc2c4-08b0-4bd9-9f25-e30687b580d0" },
+                        { "endpoint", customEndpoint, customEndpoint != null }
+                    },
+                    "azure" => new BsonDocument
+                    {
+                        { "keyVaultEndpoint", customEndpoint },
+                        { "keyName", "key-name-csfle" }
+                    },
+                    "gcp" => new BsonDocument
+                    {
+                        { "projectId", "devprod-drivers" },
+                        { "location", "global" },
+                        { "keyRing", "key-ring-csfle" },
+                        { "keyName", "key-name-csfle" },
+                        { "endpoint", customEndpoint }
+                    },
+                    "kmip" => new BsonDocument
+                    {
+                        { "keyId", "1" },
+                        { "endpoint", customEndpoint, customEndpoint != null }
+                    },
+                    _ => throw new Exception($"Unexpected kms type {kmsType}."),
+                };
                 foreach (var async in new[] { false, true })
                 {
                     var exception = Record.Exception(() => TestCase(clientEncryption, testCaseMasterKey, async));
@@ -643,13 +641,15 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                     if (expectedExceptionInfo.StartsWith("$") && expectedExceptionInfo.EndsWith("Exception$"))
                     {
                         var expectedException = CoreExceptionHelper.CreateException(expectedExceptionInfo.Trim('$'));
-                        var excectedExceptionType = expectedException.GetType().GetTypeInfo();
-                        excectedExceptionType.IsAssignableFrom(innerException.GetType()).Should().BeTrue();
+                        var expectedExceptionType = expectedException.GetType().GetTypeInfo();
+                        expectedExceptionType.IsAssignableFrom(innerException.GetType()).Should().BeTrue();
                         innerException.Message.Should().StartWith(expectedException.Message);
                     }
                     else
                     {
-                        var e = innerException.Should().BeOfType<CryptException>().Subject;
+                        Exception e = kmsType == "kmip"
+                            ? innerException.Should().BeAssignableTo<SocketException>().Subject // kmip triggers driver side exception
+                            : innerException.Should().BeOfType<CryptException>().Subject;
                         e.Message.Should().Contain(expectedExceptionInfo.ToString());
                     }
                 }
@@ -675,6 +675,9 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                     case "gcp":
                         ko.Add("endpoint", "example.com:443");
                         break;
+                    case "kmip":
+                        AddOrReplace(ko, "endpoint", "doesnotexist.local:5698");
+                        break;
                 }
             }
 
@@ -690,13 +693,15 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                     case "gcp":
                         ko.Add("endpoint", "oauth2.googleapis.com:443");
                         break;
+                    case "kmip":
+                        //ko.Add("endpoint", "localhost:5698");
+                        break;
                 }
             }
 
             void TestCase(ClientEncryption testCaseClientEncription, BsonDocument masterKey, bool async)
             {
                 var dataKey = CreateDataKeyTestCaseStep(testCaseClientEncription, masterKey, async);
-
                 var encryptOptions = new EncryptOptions(
                     algorithm: EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic.ToString(),
                     keyId: dataKey);
@@ -732,7 +737,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 var externalSchema = JsonFileReader.Instance.Documents["external.external-schema.json"];
                 CreateCollection(client_test, __collCollectionNamespace, new BsonDocument("$jsonSchema", externalSchema));
 
-                using (var client_encryption = ConfigureClientEncryption(client_test.Wrapped as MongoClient, kmsProviderFilter: "local"))
+                using (var client_encryption = ConfigureClientEncryption(client_test, kmsProviderFilter: "local"))
                 {
                     var value = "string0";
                     var encryptionOptions = new EncryptOptions(
@@ -929,7 +934,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             var clientEncryptedSchema = new BsonDocument("db.coll", JsonFileReader.Instance.Documents["external.external-schema.json"]);
             using (var client = ConfigureClient())
             using (var clientEncrypted = ConfigureClientEncrypted(clientEncryptedSchema, externalKeyVaultClient: externalKeyVaultClient))
-            using (var clientEncryption = ConfigureClientEncryption(clientEncrypted.Wrapped as MongoClient))
+            using (var clientEncryption = ConfigureClientEncryption(clientEncrypted))
             {
                 var datakeys = GetCollection(client, __keyVaultCollectionNamespace);
                 var externalKey = JsonFileReader.Instance.Documents["external.external-key.json"];
@@ -939,7 +944,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 var exception = Record.Exception(() => Insert(coll, async, new BsonDocument("encrypted", "test")));
                 if (withExternalKeyVault)
                 {
-                    exception.InnerException.Should().BeOfType<MongoAuthenticationException>();
+                    AssertInnerEncryptionException<MongoAuthenticationException>(exception);
                 }
                 else
                 {
@@ -952,7 +957,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 exception = Record.Exception(() => ExplicitEncrypt(clientEncryption, encryptionOptions, "test", async));
                 if (withExternalKeyVault)
                 {
-                    exception.InnerException.Should().BeOfType<MongoAuthenticationException>();
+                    AssertInnerEncryptionException<MongoAuthenticationException>(exception);
                 }
                 else
                 {
@@ -961,33 +966,293 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             }
         }
 
-        [Trait("Category", "CsfleKmsTls")]
+        [Trait("Category", "RequireCsfleMockServers")]
         [SkippableTheory]
         [ParameterAttributeData]
-        public void KmsTlsTest([Values(false, true)] bool async)
+        public void KmsTlsOptionsTest(
+            [Values("aws", "azure", "gcp", "kmip")] string kmsProvider,
+            [Values(CertificateType.TlsWithoutClientCert, CertificateType.TlsWithClientCert, CertificateType.Expired, CertificateType.InvalidHostName)] CertificateType certificateType,
+            [Values(false, true)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
-            RequireEnvironment.Check().EnvironmentVariable("KMS_TLS_ERROR_TYPE", isDefined: true);
+            RequirePlatform
+                .Check()
+                .SkipWhen(() => kmsProvider == "gcp", SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard20)  // gcp is supported starting from netstandard2.1
+                .SkipWhen(() => kmsProvider == "gcp", SupportedOperatingSystem.MacOS, SupportedTargetFramework.NetStandard20);
+            RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true);
+
+            bool? isCertificateExpired = null, isInvalidHost = null; // will be assigned inside TlsOptionsConfigurator
 
             using (var clientEncrypted = ConfigureClientEncrypted())
-            using (var clientEncryption = ConfigureClientEncryption(clientEncrypted.Wrapped as MongoClient))
+            using (var clientEncryption = ConfigureClientEncryption(
+                clientEncrypted,
+                kmsProviderConfigurator: KmsProviderEndpointConfigurator,
+                allowClientCertificateFunc: (kmsName) => kmsName == kmsProvider && certificateType == CertificateType.TlsWithClientCert,
+                clientEncryptionOptionsConfigurator: TestRelatedClientEncryptionOptionsConfigurator,
+                kmsProviderFilter: kmsProvider))
             {
                 var dataKeyOptions = CreateDataKeyOptions(
-                    kmsProvider: "aws",
-                    customMasterKey: new BsonDocument
+                    kmsProvider: kmsProvider,
+                    customMasterKey: kmsProvider switch
                     {
-                        { "region", "us-east-1" },
-                        { "key", "arn:aws:kms:us-east-1:579766882180:key/89fcc2c4-08b0-4bd9-9f25-e30687b580d0" },
-                        { "endpoint", "127.0.0.1:8000" }
+                        "aws" => new BsonDocument
+                        {
+                            { "region", "us-east-1" },
+                            { "key", "arn:aws:kms:us-east-1:579766882180:key/89fcc2c4-08b0-4bd9-9f25-e30687b580d0" },
+                            { "endpoint", GetMockedKmsEndpoint() }
+                        },
+                        "azure" => new BsonDocument
+                        {
+                            { "keyVaultEndpoint", "doesnotexist.local" },
+                            { "keyName", "foo" }
+                        },
+                        "gcp" => new BsonDocument
+                        {
+                            { "projectId", "foo" },
+                            { "location", "bar" },
+                            { "keyRing", "baz" },
+                            { "keyName", "foo" }
+                        },
+                        "kmip" => new BsonDocument(), // empty doc
+                        _ => throw new Exception($"Unexpected kmsProvider {kmsProvider}."),
                     });
 
-                var exception = Record.Exception(() => CreateDataKey(clientEncryption, "aws", dataKeyOptions, async));
+                var exception = Record.Exception(() => CreateDataKey(clientEncryption, kmsProvider, dataKeyOptions, async));
+                AssertException(exception);
+            }
 
-                // .Net doesn't make difference between different certificate issues and throws the same exception for all cases.
-                // To ensure that we assert the expected case you need to configure a RemoteCertificateValidationCallback
-                // to the SslStream ctor in LibMongoCryptControllerBase.SendKmsRequest/SendKmsRequestAsync and assert
-                // sslPolicyErrors (for invalidHostname) and expiration dates (for expiredCertificate).
-                exception.Message.Should().Be("Encryption related exception: The remote certificate is invalid according to the validation procedure.", $"because {Environment.GetEnvironmentVariable("KMS_TLS_ERROR_TYPE")} EG configuration");
+            void AssertException(Exception exception)
+            {
+                var currentOperatingSystem = OperatingSystemHelper.CurrentOperatingSystem;
+                switch (kmsProvider)
+                {
+                    case "aws":
+                        {
+                            switch (certificateType)
+                            {
+                                case CertificateType.TlsWithoutClientCert:
+                                    AssertCertificate(isExpired: null, invalidHost: null);
+                                    // Expect an error indicating TLS handshake failed.
+                                    switch (currentOperatingSystem)
+                                    {
+                                        case OperatingSystemPlatform.Windows:
+                                            AssertInnerEncryptionException<System.ComponentModel.Win32Exception>(exception, "Authentication failed, see inner exception.", "The message received was unexpected or badly formatted");
+                                            break;
+                                        case OperatingSystemPlatform.Linux:
+                                            AssertInnerEncryptionException(exception, Type.GetType("Interop+Crypto+OpenSslCryptographicException, System.Net.Security", throwOnError: true), "Authentication failed, see inner exception.", "SSL Handshake failed with OpenSSL error - SSL_ERROR_SSL.");
+                                            break;
+                                        case OperatingSystemPlatform.MacOS:
+                                            AssertInnerEncryptionException(exception, Type.GetType("Interop+AppleCrypto+SslException, System.Net.Security", throwOnError: true), "Authentication failed, see inner exception.", "handshake failure");
+                                            break;
+                                        default: throw new Exception($"Unsupported OS {currentOperatingSystem}.");
+                                    }
+                                    break;
+                                case CertificateType.TlsWithClientCert:
+                                    AssertCertificate(isExpired: null, invalidHost: null);
+                                    // Expect an error from libmongocrypt with a message containing the string: "parse
+                                    // error". This implies TLS handshake succeeded.
+                                    AssertInnerEncryptionException<CryptException>(exception, "Got parse error");
+                                    break;
+                                case CertificateType.Expired:
+                                    AssertCertificate(isExpired: true, invalidHost: false);
+                                    // Expect an error indicating TLS handshake failed due to an expired certificate.
+                                    AssertInnerEncryptionException<AuthenticationException>(exception, "The remote certificate is invalid according to the validation procedure");
+                                    break;
+                                case CertificateType.InvalidHostName:
+                                    AssertCertificate(isExpired: false, invalidHost: true);
+                                    // Expect an error indicating TLS handshake failed due to an invalid hostname.
+                                    AssertInnerEncryptionException<AuthenticationException>(exception, "The remote certificate is invalid according to the validation procedure");
+                                    break;
+                                default: throw new Exception($"Unexpected certificate type {certificateType} for {kmsProvider}.");
+                            }
+                        }
+                        break;
+                    case "azure":
+                        switch (certificateType)
+                        {
+                            case CertificateType.TlsWithoutClientCert:
+                                AssertCertificate(isExpired: null, invalidHost: null);
+                                // Expect an error indicating TLS handshake failed.
+                                switch (currentOperatingSystem)
+                                {
+                                    case OperatingSystemPlatform.Windows:
+                                        AssertInnerEncryptionException<System.ComponentModel.Win32Exception>(exception, "Authentication failed, see inner exception.", "The message received was unexpected or badly formatted");
+                                        break;
+                                    case OperatingSystemPlatform.Linux:
+                                        AssertInnerEncryptionException(exception, Type.GetType("Interop+Crypto+OpenSslCryptographicException, System.Net.Security", throwOnError: true), "Authentication failed, see inner exception.", "SSL Handshake failed with OpenSSL error - SSL_ERROR_SSL.");
+                                        break;
+                                    case OperatingSystemPlatform.MacOS:
+                                        //Interop + AppleCrypto + SslException
+                                        AssertInnerEncryptionException(exception, Type.GetType("Interop+AppleCrypto+SslException, System.Net.Security", throwOnError: true), "Authentication failed, see inner exception.", "handshake failure");
+                                        break;
+                                    default: throw new Exception($"Unsupported OS {currentOperatingSystem}.");
+                                }
+                                break;
+                            case CertificateType.TlsWithClientCert:
+                                AssertCertificate(isExpired: null, invalidHost: null);
+                                // Expect an error from libmongocrypt with a message containing the string: "HTTP
+                                // status = 404". This implies TLS handshake succeeded.
+                                AssertInnerEncryptionException<CryptException>(exception, "HTTP status=404");
+                                break;
+                            case CertificateType.Expired:
+                                AssertCertificate(isExpired: true, invalidHost: false);
+                                isCertificateExpired.Should().BeTrue();
+                                // Expect an error indicating TLS handshake failed due to an expired certificate.
+                                AssertInnerEncryptionException<AuthenticationException>(exception, "The remote certificate is invalid according to the validation procedure.");
+                                break;
+                            case CertificateType.InvalidHostName:
+                                AssertCertificate(isExpired: false, invalidHost: true);
+                                // Expect an error indicating TLS handshake failed due to an invalid hostname.
+                                AssertInnerEncryptionException<AuthenticationException>(exception, "The remote certificate is invalid according to the validation procedure.");
+                                break;
+                            default: throw new Exception($"Unexpected certificate type {certificateType} for {kmsProvider}.");
+                        }
+                        break;
+                    case "gcp":
+                        switch (certificateType)
+                        {
+                            case CertificateType.TlsWithoutClientCert:
+                                AssertCertificate(isExpired: null, invalidHost: null);
+                                // Expect an error indicating TLS handshake failed.
+                                switch (currentOperatingSystem)
+                                {
+                                    case OperatingSystemPlatform.Windows:
+                                        AssertInnerEncryptionException<System.ComponentModel.Win32Exception>(exception, "Authentication failed, see inner exception.", "The message received was unexpected or badly formatted");
+                                        break;
+                                    case OperatingSystemPlatform.Linux:
+                                        AssertInnerEncryptionException(exception, Type.GetType("Interop+Crypto+OpenSslCryptographicException, System.Net.Security", throwOnError: true), "Authentication failed, see inner exception.", "SSL Handshake failed with OpenSSL error - SSL_ERROR_SSL.");
+                                        break;
+                                    case OperatingSystemPlatform.MacOS:
+                                        AssertInnerEncryptionException(exception, Type.GetType("Interop+AppleCrypto+SslException, System.Net.Security", throwOnError: true), "Authentication failed, see inner exception.", "handshake failure");
+                                        break;
+                                    default: throw new Exception($"Unsupported OS {currentOperatingSystem}.");
+                                }
+                                break;
+                            case CertificateType.TlsWithClientCert:
+                                AssertCertificate(isExpired: null, invalidHost: null);
+                                // Expect an error from libmongocrypt with a message containing the string: "HTTP
+                                // status = 404". This implies TLS handshake succeeded.
+                                AssertInnerEncryptionException<CryptException>(exception, "HTTP status=404");
+                                break;
+                            case CertificateType.Expired:
+                                AssertCertificate(isExpired: true, invalidHost: false);
+                                // Expect an error indicating TLS handshake failed due to an expired certificate.
+                                AssertInnerEncryptionException<AuthenticationException>(exception, "The remote certificate is invalid according to the validation procedure.");
+                                break;
+                            case CertificateType.InvalidHostName:
+                                AssertCertificate(isExpired: false, invalidHost: true);
+                                // Expect an error indicating TLS handshake failed due to an invalid hostname.
+                                AssertInnerEncryptionException<AuthenticationException>(exception, "The remote certificate is invalid according to the validation procedure.");
+                                break;
+                            default: throw new Exception($"Unexpected certificate type {certificateType} for {kmsProvider}.");
+                        }
+                        break;
+                    case "kmip":
+                        switch (certificateType)
+                        {
+                            case CertificateType.TlsWithoutClientCert:
+                                AssertCertificate(isExpired: null, invalidHost: null);
+                                // Expect an error indicating TLS handshake failed.
+                                switch (currentOperatingSystem)
+                                {
+                                    case OperatingSystemPlatform.Windows:
+                                        AssertInnerEncryptionException<System.ComponentModel.Win32Exception>(exception, "Authentication failed, see inner exception.", "The message received was unexpected or badly formatted");
+                                        break;
+                                    case OperatingSystemPlatform.Linux:
+                                        AssertInnerEncryptionException(exception, Type.GetType("Interop+Crypto+OpenSslCryptographicException, System.Net.Security", throwOnError: true), "Authentication failed, see inner exception.", "SSL Handshake failed with OpenSSL error - SSL_ERROR_SSL.");
+                                        break;
+                                    case OperatingSystemPlatform.MacOS:
+                                        AssertInnerEncryptionException(exception, Type.GetType("Interop+AppleCrypto+SslException, System.Net.Security", throwOnError: true), "Authentication failed, see inner exception.", "handshake failure");
+                                        break;
+                                    default: throw new Exception($"Unsupported OS {currentOperatingSystem}.");
+                                }
+                                break;
+                            case CertificateType.TlsWithClientCert:
+                                AssertCertificate(isExpired: null, invalidHost: null);
+                                exception.Should().BeNull();
+                                break;
+                            case CertificateType.Expired:
+                                AssertCertificate(isExpired: true, invalidHost: false);
+                                // Expect an error indicating TLS handshake failed due to an expired certificate.
+                                AssertInnerEncryptionException<AuthenticationException>(exception, "The remote certificate is invalid according to the validation procedure.");
+                                break;
+                            case CertificateType.InvalidHostName:
+                                AssertCertificate(isExpired: false, invalidHost: true);
+                                // Expect an error indicating TLS handshake failed due to an invalid hostname.
+                                AssertInnerEncryptionException<AuthenticationException>(exception, "The remote certificate is invalid according to the validation procedure.");
+                                break;
+                            default: throw new Exception($"Unexpected certificate type {certificateType} for {kmsProvider}.");
+                        }
+                        break;
+                    default: throw new Exception($"Not supported client certificate type {certificateType}.");
+                }
+            }
+
+            void AssertCertificate(bool? isExpired, bool? invalidHost)
+            {
+                isCertificateExpired.Should().Be(isExpired);
+                isInvalidHost.Should().Be(invalidHost);
+            }
+
+            void KmsProviderEndpointConfigurator(string kmsProviderName, Dictionary<string, object> kmsOptions)
+            {
+                string endpoint = GetMockedKmsEndpoint();
+
+                switch (kmsProviderName)
+                {
+                    case "local":
+                        // not related to this test, do nothing
+                        break;
+                    case "aws":
+                        // do nothing since aws cannot configure endpoint on kms provider level
+                        break;
+                    case "azure":
+                        kmsOptions.Add("identityPlatformEndpoint", endpoint);
+                        break;
+                    case "gcp":
+                        kmsOptions.Add("endpoint", endpoint);
+                        break;
+                    case "kmip":
+                        AddOrReplace(kmsOptions, "endpoint", endpoint);
+                        break;
+                    default:
+                        throw new Exception($"Unexpected kmsProvider {kmsProvider}.");
+                }
+            }
+
+            string GetMockedKmsEndpoint() => certificateType switch
+            {
+                CertificateType.Expired => "127.0.0.1:8000",
+                CertificateType.InvalidHostName => "127.0.0.1:8001",
+                CertificateType.TlsWithClientCert or CertificateType.TlsWithoutClientCert => kmsProvider != "kmip" ? "127.0.0.1:8002" : "127.0.0.1:5698",
+                _ => throw new Exception($"Not supported client certificate type {certificateType}."),
+            };
+
+            void TestRelatedClientEncryptionOptionsConfigurator(ClientEncryptionOptions clientEncryptionOptions) // needs only for asserting reasons
+            {
+                var tlsOptions = new Dictionary<string, SslSettings>((IDictionary<string, SslSettings>)clientEncryptionOptions.TlsOptions);
+                if (!tlsOptions.ContainsKey(kmsProvider))
+                {
+                    tlsOptions.Add(kmsProvider, new SslSettings()); // configure it regardless global tls configuration to be able to validate certificate
+                }
+
+                tlsOptions[kmsProvider].ServerCertificateValidationCallback = new RemoteCertificateValidationCallback((subject, certificate, chain, policyErrors) =>
+                {
+                    if (policyErrors == SslPolicyErrors.None)
+                    {
+                        // certificate is valid
+                        return true;
+                    }
+
+                    var x509certificate2 = (X509Certificate2)certificate;
+                    isCertificateExpired = x509certificate2.NotAfter < DateTime.UtcNow;
+                    isInvalidHost = policyErrors == SslPolicyErrors.RemoteCertificateNameMismatch && certificate.Subject.Contains("wronghost.com");
+
+                    Ensure.That(isCertificateExpired.GetValueOrDefault() || isInvalidHost.GetValueOrDefault(), $"Unexpected certificate issue detected for cert: {x509certificate2} and policyErrors: {policyErrors}.");
+
+                    return false;
+                });
+                clientEncryptionOptions._tlsOptions(tlsOptions); // avoid validation on serverCertificateValidationCallback
             }
         }
 
@@ -1023,52 +1288,61 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         [SkippableTheory]
         [ParameterAttributeData]
         public void UnsupportedPlatformsTests(
-            [Values("local", "aws", "azure", "gcp")] string kmsProvider,
+            [Values("gcp")] string kmsProvider, // the rest kms providers are supported on all supported TFs
             [Values(false, true)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
 
             using (var clientEncrypted = ConfigureClientEncrypted())
-            using (var clientEncryption = ConfigureClientEncryption(clientEncrypted.Wrapped as MongoClient))
+            using (var clientEncryption = ConfigureClientEncryption(clientEncrypted))
             {
                 var dataKeyOptions = CreateDataKeyOptions(kmsProvider);
                 var exception = Record.Exception(() => _ = CreateDataKey(clientEncryption, kmsProvider, dataKeyOptions, async));
-                AssertResult(exception);
-            }
-
-            void AssertResult(Exception ex)
-            {
-                var currentOperatingSystem = RequirePlatform.GetCurrentOperatingSystem();
-                var shouldThrowPlatformNotSupportedException = currentOperatingSystem != SupportedOperatingSystem.Windows;
-
-                switch (kmsProvider)
+                if (RequirePlatform.GetCurrentOperatingSystem() != SupportedOperatingSystem.Windows &&
+                    RequirePlatform.GetCurrentTargetFramework() == SupportedTargetFramework.NetStandard20)
                 {
-                    case "gcp" when shouldThrowPlatformNotSupportedException && CurrentTargetFrameworkIs(SupportedTargetFramework.NetStandard20):
-                        {
-                            var errorMessage = AssertExceptionTypesAndReturnErrorMessage<CryptException>(ex);
-                            errorMessage.Should().Be("error constructing KMS message: Failed to create GCP oauth request signature: RSACryptoServiceProvider.ImportPkcs8PrivateKey is supported only on frameworks higher or equal to .netstandard2.1.");
-                        }
-                        break;
-                    default:
-                        ex.Should().BeNull(); // the rest of supported cases should not throw
-                        break;
+                    AssertInnerEncryptionException<CryptException>(exception, "error constructing KMS message: Failed to create GCP oauth request signature: RSACryptoServiceProvider.ImportPkcs8PrivateKey is supported only on frameworks higher or equal to .netstandard2.1.");
                 }
-            }
-
-            string AssertExceptionTypesAndReturnErrorMessage<TInnerException>(Exception ex) where TInnerException : Exception
-            {
-                var e = ex.Should().BeOfType<MongoEncryptionException>().Subject;
-                return e.InnerException.Should().BeOfType<TInnerException>().Subject.Message;
-            }
-
-            bool CurrentTargetFrameworkIs(SupportedTargetFramework supportedTargetFramework)
-            {
-                var currentTargetFramework = RequirePlatform.GetCurrentTargetFramework();
-                return supportedTargetFramework == currentTargetFramework;
+                else
+                {
+                    exception.Should().BeNull();
+                }
             }
         }
 
         // private methods
+        private void AddOrReplace<TValue>(IDictionary<string, TValue> dict, string key, TValue value)
+        {
+            if (dict.ContainsKey(key))
+            {
+                dict[key] = value;
+            }
+            else
+            {
+                dict.Add(key, value);
+            }
+        }
+
+        private void AssertInnerEncryptionException(Exception ex, Type exType, params string[] innerExceptionErrorMessage)
+        {
+            Exception e = ex.Should().BeOfType<MongoEncryptionException>().Subject.InnerException;
+            foreach (var innerMessage in innerExceptionErrorMessage)
+            {
+                e.Message.Should().Contain(innerMessage);
+                if (e.InnerException != null)
+                {
+                    e = e.InnerException;
+                }
+            }
+
+            e.Should().BeOfType(exType);
+        }
+
+        private void AssertInnerEncryptionException<TMostInnerException>(Exception ex, params string[] innerExceptionErrorMessage) where TMostInnerException : Exception
+        {
+            AssertInnerEncryptionException(ex, typeof(TMostInnerException), innerExceptionErrorMessage);
+        }
+
         private DisposableMongoClient ConfigureClient(
             bool clearCollections = true,
             int? maxPoolSize = null,
@@ -1093,7 +1367,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             EventCapturer eventCapturer = null,
             Dictionary<string, object> extraOptions = null,
             bool bypassAutoEncryption = false,
-            int? maxPoolSize = null)
+            int? maxPoolSize = null,
+            Action<AutoEncryptionOptions> autoEncryptionOptionsConfigurator = null)
         {
             var configuredSettings = ConfigureClientEncryptedSettings(
                 schemaMap,
@@ -1103,6 +1378,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 extraOptions,
                 bypassAutoEncryption,
                 maxPoolSize);
+            autoEncryptionOptionsConfigurator?.Invoke(configuredSettings.AutoEncryptionOptions);
 
             return DriverTestConfiguration.CreateDisposableClient(configuredSettings);
         }
@@ -1117,6 +1393,10 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             int? maxPoolSize = null)
         {
             var kmsProviders = GetKmsProviders(kmsProviderFilter: kmsProviderFilter);
+            var tlsOptions = EncryptionTestHelper.CreateTlsOptionsIfAllowed(
+                kmsProviders,
+                // only kmip currently requires tls configuration for ClientEncrypted
+                allowClientCertificateFunc: kmsProviderName => kmsProviderName == "kmip");
 
             var clientEncryptedSettings =
                 CreateMongoClientSettings(
@@ -1129,20 +1409,36 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                     bypassAutoEncryption: bypassAutoEncryption,
                     maxPoolSize: maxPoolSize);
 
+            if (tlsOptions != null)
+            {
+                clientEncryptedSettings.AutoEncryptionOptions = clientEncryptedSettings.AutoEncryptionOptions.With(tlsOptions: tlsOptions);
+            }
+
             return clientEncryptedSettings;
         }
 
         private ClientEncryption ConfigureClientEncryption(
-            MongoClient client,
+            DisposableMongoClient client,
             Action<string, Dictionary<string, object>> kmsProviderConfigurator = null,
+            Func<string, bool> allowClientCertificateFunc = null,
+            Action<ClientEncryptionOptions> clientEncryptionOptionsConfigurator = null,
             string kmsProviderFilter = null)
         {
-            var kmsProviders = GetKmsProviders(kmsProviderConfigurator, kmsProviderFilter);
+            var kmsProviders = GetKmsProviders(kmsProviderFilter, kmsProviderConfigurator);
+            allowClientCertificateFunc = allowClientCertificateFunc ?? ((kmsProviderName) => kmsProviderName == "kmip"); // configure Tls for kmip by default
+            var tlsOptions = EncryptionTestHelper.CreateTlsOptionsIfAllowed(kmsProviders, allowClientCertificateFunc);
 
             var clientEncryptionOptions = new ClientEncryptionOptions(
-                keyVaultClient: client.Settings.AutoEncryptionOptions?.KeyVaultClient ?? client,
+                keyVaultClient: client.Settings.AutoEncryptionOptions?.KeyVaultClient ?? client.Wrapped,
                 keyVaultNamespace: __keyVaultCollectionNamespace,
                 kmsProviders: kmsProviders);
+
+            if (tlsOptions != null)
+            {
+                clientEncryptionOptions = clientEncryptionOptions.With(tlsOptions: tlsOptions);
+            }
+
+            clientEncryptionOptionsConfigurator?.Invoke(clientEncryptionOptions);
 
             return new ClientEncryption(clientEncryptionOptions);
         }
@@ -1181,46 +1477,34 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         private DataKeyOptions CreateDataKeyOptions(string kmsProvider, BsonDocument customMasterKey = null)
         {
             var alternateKeyNames = new[] { $"{kmsProvider}_altname" };
-            switch (kmsProvider)
-            {
-                case "local":
-                    Ensure.IsNull(customMasterKey, "local masterKey");
-                    return new DataKeyOptions(alternateKeyNames: alternateKeyNames);
-                case "aws":
-                    var awsMasterKey = customMasterKey ??
-                        new BsonDocument
-                        {
-                            { "region", "us-east-1" },
-                            { "key", "arn:aws:kms:us-east-1:579766882180:key/89fcc2c4-08b0-4bd9-9f25-e30687b580d0" }
-                        };
-                    return new DataKeyOptions(
-                        alternateKeyNames: alternateKeyNames,
-                        masterKey: awsMasterKey);
-                case "azure":
-                    var azureMasterKey = customMasterKey ??
-                        new BsonDocument
-                        {
-                            { "keyName", "key-name-csfle" },
-                            { "keyVaultEndpoint", "key-vault-csfle.vault.azure.net" }
-                        };
-                    return new DataKeyOptions(
-                        alternateKeyNames: alternateKeyNames,
-                        masterKey: azureMasterKey);
-                case "gcp":
-                    var gcpMasterKey = customMasterKey ??
-                        new BsonDocument
-                        {
-                            { "projectId", "devprod-drivers" },
-                            { "location", "global" },
-                            { "keyRing", "key-ring-csfle" },
-                            { "keyName", "key-name-csfle" }
-                        };
-                    return new DataKeyOptions(
-                        alternateKeyNames: alternateKeyNames,
-                        masterKey: gcpMasterKey);
-                default:
-                    throw new ArgumentException($"Incorrect kms provider {kmsProvider}", nameof(kmsProvider));
-            }
+            var masterKey = customMasterKey ??
+                kmsProvider switch
+                {
+                    var kmsName when kmsName == "local" && customMasterKey == null => null,
+                    "aws" => new BsonDocument
+                    {
+                        { "region", "us-east-1" },
+                        { "key", "arn:aws:kms:us-east-1:579766882180:key/89fcc2c4-08b0-4bd9-9f25-e30687b580d0" }
+                    },
+                    "azure" => new BsonDocument
+                    {
+                        { "keyName", "key-name-csfle" },
+                        { "keyVaultEndpoint", "key-vault-csfle.vault.azure.net" }
+                    },
+                    "gcp" => new BsonDocument
+                    {
+                        { "projectId", "devprod-drivers" },
+                        { "location", "global" },
+                        { "keyRing", "key-ring-csfle" },
+                        { "keyName", "key-name-csfle" }
+                    },
+                    "kmip" => new BsonDocument(),
+                    _ => throw new ArgumentException($"Incorrect kms provider {kmsProvider} or provided custom master key {customMasterKey}.", nameof(kmsProvider)),
+                };
+
+            return new DataKeyOptions(
+                alternateKeyNames: alternateKeyNames,
+                masterKey: masterKey);
         }
 
         private DisposableMongoClient CreateMongoClient(
@@ -1427,9 +1711,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             defaultValue ??
             throw new Exception($"{variableName} environment variable must be configured on the machine.");
 
-        private IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> GetKmsProviders(
-            Action<string, Dictionary<string, object>> kmsProviderConfigurator = null,
-            string kmsProviderFilter = null)
+        private IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> GetKmsProviders(string kmsProviderFilter = null, Action<string, Dictionary<string, object>> kmsProviderConfigurator = null)
         {
             var kmsProviders = new Dictionary<string, IReadOnlyDictionary<string, object>>();
 
@@ -1471,6 +1753,13 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             };
             kmsProviderConfigurator?.Invoke("gcp", gcpKmsOptions);
             kmsProviders.Add("gcp", gcpKmsOptions);
+
+            var kmipOptions = new Dictionary<string, object>
+            {
+                { "endpoint", "localhost:5698" }
+            };
+            kmsProviderConfigurator?.Invoke("kmip", kmipOptions);
+            kmsProviders.Add("kmip", kmipOptions);
 
             if (kmsProviderFilter != null)
             {
@@ -1532,6 +1821,15 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             {
                 collection.InsertMany(documents);
             }
+        }
+
+        // nested types
+        public enum CertificateType
+        {
+            TlsWithClientCert,
+            TlsWithoutClientCert,
+            Expired,
+            InvalidHostName
         }
 
         public class JsonFileReader : EmbeddedResourceJsonFileReader
@@ -1609,5 +1907,10 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 }
             }
         }
+    }
+
+    public static class ClientEncryptionOptionsReflector
+    {
+        public static void _tlsOptions(this ClientEncryptionOptions obj, IReadOnlyDictionary<string, SslSettings> tlsOptions) => Reflector.SetFieldValue(obj, nameof(_tlsOptions), tlsOptions);
     }
 }

@@ -38,6 +38,24 @@ namespace MongoDB.Driver.Encryption
             }
         }
 
+        public static void EnsureKmsProvidersTlsSettingsAreValid(IReadOnlyDictionary<string, SslSettings> kmsProviderTlsSettings)
+        {
+            if (kmsProviderTlsSettings == null)
+            {
+                return;
+            }
+
+            foreach (var kmsProviderTlsSetting in kmsProviderTlsSettings)
+            {
+                var kmsProviderTlsSettingValue = Ensure.IsNotNull(kmsProviderTlsSetting.Value, nameof(kmsProviderTlsSetting.Value));
+
+                if (kmsProviderTlsSettingValue.ServerCertificateValidationCallback != null) // tlsInsecure
+                {
+                    throw new ArgumentException("Insecure TLS options prohibited.");
+                }
+            }
+        }
+
         public static bool Equals(IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> x, IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> y)
         {
             return x.IsEquivalentTo(y, KmsProviderIsEquivalentTo);

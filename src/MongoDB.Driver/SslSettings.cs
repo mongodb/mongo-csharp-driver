@@ -21,6 +21,7 @@ using System.Net.Security;
 using System.Reflection;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
+using MongoDB.Driver.Core.Configuration;
 using MongoDB.Shared;
 
 namespace MongoDB.Driver
@@ -249,6 +250,18 @@ namespace MongoDB.Driver
             }
 
             return string.Format("{{{0}}}", string.Join(",", parts.ToArray()));
+        }
+
+        // internal methods
+        internal SslStreamSettings ToSslStreamSettings()
+        {
+            var clientCertificates = _clientCertificateCollection != null ? ((IEnumerable)_clientCertificateCollection).Cast<X509Certificate>() : Enumerable.Empty<X509Certificate>(); ;
+            return new SslStreamSettings(
+                checkCertificateRevocation: _checkCertificateRevocation,
+                clientCertificates: Optional.Create(clientCertificates),
+                clientCertificateSelectionCallback: _clientCertificateSelectionCallback,
+                enabledProtocols: _enabledSslProtocols,
+                serverCertificateValidationCallback: _serverCertificateValidationCallback);
         }
 
         // nested classes

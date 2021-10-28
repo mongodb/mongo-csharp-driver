@@ -303,6 +303,7 @@ functions:
           CLIENT_PEM=${DRIVERS_TOOLS}/.evergreen/x509gen/client.pem \
           REQUIRE_API_VERSION=${REQUIRE_API_VERSION} \
           FRAMEWORK=${FRAMEWORK} \
+          ALLOW_NOSSL=true \
             evergreen/run-tests.sh
           echo "Skipping certificate removal..."
             evergreen/cleanup-test-resources.sh
@@ -663,7 +664,7 @@ functions:
           FRAMEWORK=${FRAMEWORK} \
             evergreen/run-kms-tls-tests.sh
 
-  start-kms-mock-server:
+  start-kms-mock-servers:
     - command: shell.exec
       params:
         script: |
@@ -674,8 +675,41 @@ functions:
       params:
         background: true
         script: |
+          #expired client cert
+          PYTHON=$(Venv="${DRIVERS_TOOLS}/.evergreen/csfle/kmstlsvenv" OS=${OS} ${PROJECT_DIRECTORY}/evergreen/get-python-path.sh);
           cd ${DRIVERS_TOOLS}/.evergreen/csfle
-          ./kmstlsvenv/bin/python3 -u kms_http_server.py -v --ca_file ../x509gen/ca.pem --cert_file ../x509gen/${BROKEN_CERT} --port 8000
+          $PYTHON -u kms_http_server.py -v --ca_file ../x509gen/ca.pem --cert_file ../x509gen/expired.pem --port 8000
+    - command: shell.exec
+      params:
+        background: true
+        script: |
+          #wrong-host client cert
+          PYTHON=$(Venv="${DRIVERS_TOOLS}/.evergreen/csfle/kmstlsvenv" OS=${OS} ${PROJECT_DIRECTORY}/evergreen/get-python-path.sh);
+          cd ${DRIVERS_TOOLS}/.evergreen/csfle
+          $PYTHON -u kms_http_server.py -v --ca_file ../x509gen/ca.pem --cert_file ../x509gen/wrong-host.pem --port 8001
+    - command: shell.exec
+      params:
+        background: true
+        script: |
+          #server.pem client cert
+          PYTHON=$(Venv="${DRIVERS_TOOLS}/.evergreen/csfle/kmstlsvenv" OS=${OS} ${PROJECT_DIRECTORY}/evergreen/get-python-path.sh);
+          cd ${DRIVERS_TOOLS}/.evergreen/csfle
+          $PYTHON -u kms_http_server.py -v --ca_file ../x509gen/ca.pem --cert_file ../x509gen/server.pem --port 8002 --require_client_cert
+
+  start-kms-kmip-server:
+    - command: shell.exec
+      params:
+        script: |
+          ${PREPARE_SHELL}
+          cd ${DRIVERS_TOOLS}/.evergreen/csfle
+          . ./activate_venv.sh
+    - command: shell.exec
+      params:
+        background: true
+        script: |
+          PYTHON=$(Venv="${DRIVERS_TOOLS}/.evergreen/csfle/kmstlsvenv" OS=${OS} ${PROJECT_DIRECTORY}/evergreen/get-python-path.sh);
+          cd ${DRIVERS_TOOLS}/.evergreen/csfle
+          $PYTHON -u kms_kmip_server.py
 
   publish-snapshot:
     - command: shell.exec
@@ -769,11 +803,15 @@ tasks:
 
     - name: test
       commands:
+        - func: start-kms-mock-servers
+        - func: start-kms-kmip-server
         - func: bootstrap-mongo-orchestration
         - func: run-tests
 
     - name: test-net472
       commands:
+        - func: start-kms-mock-servers
+        - func: start-kms-kmip-server
         - func: bootstrap-mongo-orchestration
         - func: run-tests
           vars:
@@ -781,6 +819,8 @@ tasks:
 
     - name: test-netstandard20
       commands:
+        - func: start-kms-mock-servers
+        - func: start-kms-kmip-server
         - func: bootstrap-mongo-orchestration
         - func: run-tests
           vars:
@@ -788,6 +828,8 @@ tasks:
 
     - name: test-netstandard21
       commands:
+        - func: start-kms-mock-servers
+        - func: start-kms-kmip-server
         - func: bootstrap-mongo-orchestration
         - func: run-tests
           vars:
@@ -921,44 +963,6 @@ tasks:
         - func: run-serverless-tests
           vars:
             FRAMEWORK: netstandard21
-
-    - name: test-kms-tls-expired-certificate-netstandard21
-      tags: ["kms-tls"]
-      commands:
-        - func: bootstrap-mongo-orchestration
-          vars:
-            TOPOLOGY: "server"
-            AUTH: "noauth"
-            SSL: "nossl"
-        - func: start-kms-mock-server
-          vars:
-            BROKEN_CERT: "expired.pem"
-        - func: run-kms-tls-test
-          vars:
-            TOPOLOGY: "server"
-            AUTH: "noauth"
-            SSL: "nossl"
-            FRAMEWORK: netstandard21
-            KMS_TLS_ERROR_TYPE: "expiredCertificate"
-            
-    - name: test-kms-tls-invalid-host-netstandard21
-      tags: ["kms-tls"]
-      commands:
-        - func: bootstrap-mongo-orchestration
-          vars:
-            TOPOLOGY: "server"
-            AUTH: "noauth"
-            SSL: "nossl"
-        - func: start-kms-mock-server
-          vars:
-           BROKEN_CERT: "wrong-host.pem"
-        - func: run-kms-tls-test
-          vars:
-            TOPOLOGY: "server"
-            AUTH: "noauth"
-            SSL: "nossl"
-            FRAMEWORK: netstandard21
-            KMS_TLS_ERROR_TYPE: "invalidHostname"
 
     - name: test-ocsp-rsa-valid-cert-server-staples-ca-responder
       tags: ["ocsp"]
@@ -1615,9 +1619,3 @@ buildvariants:
   tasks:
     - name: test-gssapi-netstandard20
     - name: test-gssapi-netstandard21
-
-- matrix_name: "kms-tls-tests-linux"
-  matrix_spec: { os: "ubuntu-1804", version: [ "5.0" ], topology: ["standalone"] }
-  display_name: "CSFLE KMS TLS ${os}"
-  tasks:
-    - name: ".kms-tls"   

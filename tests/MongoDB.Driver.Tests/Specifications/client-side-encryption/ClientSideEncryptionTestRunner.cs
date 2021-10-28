@@ -29,6 +29,7 @@ using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
 {
+    [Trait("Category", "FLE")]
     public class ClientSideEncryptionTestRunner : MongoClientJsonDrivenTestRunnerBase
     {
         #region static
@@ -50,6 +51,12 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                 // This test requires setting of some temporary environment variables that can be set by mongo orchestration or manually.
                 // Add this environment variable on your local machine only together with FLE_AWS_TEMP_* variables (note: they will be expired in 12 hours)
                 RequireEnvironment.Check().EnvironmentVariable("FLE_AWS_TEMPORARY_CREDS_ENABLED");
+            }
+
+            if (testCase.Name.Contains("kmip"))
+            {
+                // kmip requires configuring kms mock server
+                RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED");
             }
 
             RequirePlatform
@@ -200,8 +207,12 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                 {
                     case "kmsProviders":
                         kmsProviders = ParseKmsProviders(option.Value.AsBsonDocument);
-                        autoEncryptionOptions = autoEncryptionOptions
-                            .With(kmsProviders: kmsProviders);
+                        autoEncryptionOptions = autoEncryptionOptions.With(kmsProviders: kmsProviders);
+                        var tlsSettings = EncryptionTestHelper.CreateTlsOptionsIfAllowed(kmsProviders, allowClientCertificateFunc: (kms) => kms == "kmip");
+                        if (tlsSettings != null)
+                        {
+                            autoEncryptionOptions = autoEncryptionOptions.With(tlsOptions: tlsSettings);
+                        }
                         break;
                     case "schemaMap":
                         var schemaMaps = new Dictionary<string, BsonDocument>();
@@ -292,6 +303,11 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                             var gcpPrivateKey = GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_GCP_PRIVATE_KEY");
                             kmsOptions.Add("email", gcpEmail);
                             kmsOptions.Add("privateKey", gcpPrivateKey);
+                        }
+                        break;
+                    case "kmip":
+                        {
+                            kmsOptions.Add("endpoint", "localhost:5698"); // mock server
                         }
                         break;
                     default:

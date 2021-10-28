@@ -13,12 +13,14 @@
 * limitations under the License.
 */
 
+using System.Diagnostics;
 using System.Reflection;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
 namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions.TimeoutEnforcing
 {
+    [DebuggerStepThrough]
     public sealed class TimeoutEnforcingXunitTestFramework : XunitTestFramework
     {
         public TimeoutEnforcingXunitTestFramework(IMessageSink messageSink)

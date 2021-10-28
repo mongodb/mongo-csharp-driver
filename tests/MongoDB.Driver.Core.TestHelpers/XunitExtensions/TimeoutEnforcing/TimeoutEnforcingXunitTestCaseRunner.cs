@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
 using System.Threading;
 using Xunit.Abstractions;
@@ -22,6 +23,7 @@ using Xunit.Sdk;
 
 namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions.TimeoutEnforcing
 {
+    [DebuggerStepThrough]
     internal sealed class TimeoutEnforcingXunitTestCaseRunner : XunitTestCaseRunner
     {
         public TimeoutEnforcingXunitTestCaseRunner(

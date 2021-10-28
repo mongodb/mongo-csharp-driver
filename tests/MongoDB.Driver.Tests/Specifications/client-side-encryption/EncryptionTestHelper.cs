@@ -17,6 +17,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
+using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
@@ -41,15 +43,35 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                     extraOptions.Add("mongocryptdURI", $"mongodb://localhost:{mongocryptdPort}");
                 }
 
-                var portValue = $" --port={mongocryptdPort}";
+                var portKey = " --port=";
+                var portValue = $"{portKey}{mongocryptdPort}";
                 if (extraOptions.TryGetValue("mongocryptdSpawnArgs", out var args))
                 {
-                    object effectiveValue = args switch
+                    object effectiveValue;
+                    switch (args)
                     {
-                        string str => str + portValue,
-                        IEnumerable enumerable => new List<object>(enumerable.Cast<object>()) { portValue },
-                        _ => throw new Exception("Unsupported mongocryptdSpawnArgs type."),
-                    };
+                        case string str:
+                            {
+                                effectiveValue = str.Contains(portKey) ? str : str + portValue;
+                            }
+                            break;
+                        case IEnumerable enumerable:
+                            {
+                                var list = new List<string>(enumerable.Cast<string>());
+                                if (list.Any(v => v.Contains(portKey)))
+                                {
+                                    effectiveValue = list;
+                                }
+                                else
+                                {
+                                    list.Add(portValue);
+                                    effectiveValue = list;
+                                }
+                            }
+                            break;
+                        default: throw new Exception("Unsupported mongocryptdSpawnArgs type.");
+                    }
+
                     extraOptions["mongocryptdSpawnArgs"] = effectiveValue;
                 }
                 else
@@ -57,6 +79,44 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                     extraOptions.Add("mongocryptdSpawnArgs", portValue);
                 }
             }
+        }
+
+        public static Dictionary<string, SslSettings> CreateTlsOptionsIfAllowed(
+            IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> kmsProviders,
+            Func<string, bool> allowClientCertificateFunc)
+        {
+            if (allowClientCertificateFunc != null)
+            {
+                Dictionary<string, SslSettings> tlsOptions = new();
+                foreach (var kmsProvider in kmsProviders)
+                {
+                    var tlsSettings = CreateTlsOptionsIfAllowed(kmsProvider.Key, allowClientCertificateFunc);
+                    if (tlsSettings != null)
+                    {
+                        tlsOptions.Add(kmsProvider.Key, tlsSettings);
+                    }
+                }
+
+                return new Dictionary<string, SslSettings>(tlsOptions);
+            }
+
+            return null;
+        }
+
+        public static SslSettings CreateTlsOptionsIfAllowed(
+            string kmsProvider,
+            Func<string, bool> allowClientCertificateFunc)
+        {
+            if (allowClientCertificateFunc != null && allowClientCertificateFunc(kmsProvider))
+            {
+                var certificateFilename = Environment.GetEnvironmentVariable("MONGO_X509_CLIENT_CERTIFICATE_PATH");
+                var password = Environment.GetEnvironmentVariable("MONGO_X509_CLIENT_CERTIFICATE_PASSWORD");
+                var clientCertificate = new X509Certificate2(Ensure.IsNotNull(certificateFilename, nameof(certificateFilename)), Ensure.IsNotNull(password, nameof(password)));
+                var effectiveClientCertificates = clientCertificate != null ? new[] { clientCertificate } : Enumerable.Empty<X509Certificate2>();
+                return new SslSettings { ClientCertificates = effectiveClientCertificates };
+            }
+
+            return null;
         }
     }
 }

@@ -15,15 +15,18 @@
 
 using System;
 using System.Collections.Generic;
-using System.Net.Security;
+using System.IO;
+using System.Net;
 using System.Net.Sockets;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
+using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Libmongocrypt;
-using MongoDB.Shared;
 
 namespace MongoDB.Driver.Encryption
 {
@@ -35,16 +38,23 @@ namespace MongoDB.Driver.Encryption
         protected readonly Lazy<IMongoCollection<BsonDocument>> _keyVaultCollection;
         protected readonly CollectionNamespace _keyVaultNamespace;
 
+        // private fields
+        private readonly IReadOnlyDictionary<string, SslSettings> _tlsOptions;
+        private readonly IStreamFactory _networkStreamFactory;
+
         // constructors
         protected LibMongoCryptControllerBase(
              CryptClient cryptClient,
              IMongoClient keyVaultClient,
-             CollectionNamespace keyVaultNamespace)
+             CollectionNamespace keyVaultNamespace,
+             IReadOnlyDictionary<string, SslSettings> tlsOptions)
         {
             _cryptClient = cryptClient;
             _keyVaultClient = keyVaultClient; // _keyVaultClient might not be fully constructed at this point, don't call any instance methods on it yet
             _keyVaultNamespace = keyVaultNamespace;
             _keyVaultCollection = new Lazy<IMongoCollection<BsonDocument>>(GetKeyVaultCollection); // delay use _keyVaultClient
+            _networkStreamFactory = new NetworkStreamFactory();
+            _tlsOptions = Ensure.IsNotNull(tlsOptions, nameof(tlsOptions));
         }
 
         // protected methods
@@ -156,9 +166,11 @@ namespace MongoDB.Driver.Encryption
             return keyVaultDatabase.GetCollection<BsonDocument>(_keyVaultNamespace.CollectionName, collectionSettings);
         }
 
-        private void ParseKmsEndPoint(string value, out string host, out int port)
+        private DnsEndPoint CreateKmsEndPoint(string value)
         {
             var match = Regex.Match(value, @"^(?<host>.*):(?<port>\d+)$");
+            string host;
+            int port;
             if (match.Success)
             {
                 host = match.Groups["host"].Value;
@@ -169,6 +181,18 @@ namespace MongoDB.Driver.Encryption
                 host = value;
                 port = 443;
             }
+
+            return new DnsEndPoint(host, port);
+        }
+
+        private SslStreamSettings GetTlsStreamSettings(string kmsProvider)
+        {
+            if (!_tlsOptions.TryGetValue(kmsProvider, out var tlsSettings))
+            {
+                // default settings
+                tlsSettings = new SslSettings();
+            }
+            return Ensure.IsNotNull(tlsSettings, nameof(tlsSettings)).ToSslStreamSettings();
         }
 
         private void ProcessNeedKmsState(CryptContext context, CancellationToken cancellationToken)
@@ -218,18 +242,14 @@ namespace MongoDB.Driver.Encryption
 
         private void SendKmsRequest(KmsRequest request, CancellationToken cancellation)
         {
-            var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            ParseKmsEndPoint(request.Endpoint, out var host, out var port);
+            var endpoint = CreateKmsEndPoint(request.Endpoint);
 
-            socket.Connect(host, port);
-
-            using (var networkStream = new NetworkStream(socket, ownsSocket: true))
-            using (var sslStream = new SslStream(networkStream, leaveInnerStreamOpen: false))
+            var tlsStreamSettings = GetTlsStreamSettings(request.KmsProvider);
+            var sslStreamFactory = new SslStreamFactory(tlsStreamSettings, _networkStreamFactory);
+            using (var sslStream = sslStreamFactory.CreateStream(endpoint, cancellation))
             {
-                sslStream.AuthenticateAsClient(host);
-
                 var requestBytes = request.Message.ToArray();
-                sslStream.Write(requestBytes);
+                sslStream.Write(requestBytes, 0, requestBytes.Length);
 
                 while (request.BytesNeeded > 0)
                 {
@@ -244,16 +264,12 @@ namespace MongoDB.Driver.Encryption
 
         private async Task SendKmsRequestAsync(KmsRequest request, CancellationToken cancellation)
         {
-            var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            ParseKmsEndPoint(request.Endpoint, out var host, out var port);
+            var endpoint = CreateKmsEndPoint(request.Endpoint);
 
-            await socket.ConnectAsync(host, port).ConfigureAwait(false);
-
-            using (var networkStream = new NetworkStream(socket, ownsSocket: true))
-            using (var sslStream = new SslStream(networkStream, leaveInnerStreamOpen: false))
+            var tlsStreamSettings = GetTlsStreamSettings(request.KmsProvider);
+            var sslStreamFactory = new SslStreamFactory(tlsStreamSettings, _networkStreamFactory);
+            using (var sslStream = await sslStreamFactory.CreateStreamAsync(endpoint, cancellation).ConfigureAwait(false))
             {
-                await sslStream.AuthenticateAsClientAsync(host).ConfigureAwait(false);
-
                 var requestBytes = request.Message.ToArray();
                 await sslStream.WriteAsync(requestBytes, 0, requestBytes.Length).ConfigureAwait(false);
 
@@ -266,6 +282,29 @@ namespace MongoDB.Driver.Encryption
                     request.Feed(responseBytes);
                 }
             }
+        }
+
+        // nested type
+        private class NetworkStreamFactory : IStreamFactory
+        {
+            public Stream CreateStream(EndPoint endPoint, CancellationToken cancellationToken)
+            {
+                var socket = CreateSocket();
+                socket.Connect(endPoint);
+
+                return new NetworkStream(socket, ownsSocket: true);
+            }
+
+            public async Task<Stream> CreateStreamAsync(EndPoint endPoint, CancellationToken cancellationToken)
+            {
+                var socket = CreateSocket();
+                await socket.ConnectAsync(endPoint).ConfigureAwait(false);
+
+                return new NetworkStream(socket, ownsSocket: true);
+            }
+
+            // private methods
+            private Socket CreateSocket() => new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         }
     }
 }
