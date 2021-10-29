@@ -41,7 +41,7 @@ namespace MongoDB.Driver.GridFS
         private readonly BsonValue _idAsBsonValue;
         private readonly int _lastChunkNumber;
         private readonly int _lastChunkSize;
-        private readonly IncrementalMD5 _md5;
+        private readonly IncrementalHash _md5;
         private int _nextChunkNumber;
         private long _position;
         private bool _retryReads;
@@ -57,7 +57,7 @@ namespace MongoDB.Driver.GridFS
             _checkMD5 = checkMD5;
             if (_checkMD5)
             {
-                _md5 = IncrementalMD5.Create();
+                _md5 = IncrementalHash.CreateHash(HashAlgorithmName.MD5);
             }
 
             _lastChunkNumber = (int)((fileInfo.Length - 1) / fileInfo.ChunkSizeBytes);

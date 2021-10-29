@@ -15,8 +15,6 @@
 
 using System;
 using System.Threading;
-using System.Threading.Tasks;
-using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Misc
 {

@@ -16,9 +16,9 @@
 using System;
 using System.IO;
 using FluentAssertions;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.NativeLibraryLoader;
 using MongoDB.Driver.TestHelpers;
-using MongoDB.Shared;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Tests.Core.NativeLibraryLoader

@@ -18,7 +18,7 @@ using System.Collections.Generic;
 using FluentAssertions;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core.Authentication;
-using MongoDB.Shared;
+using MongoDB.Driver.Core.Misc;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Tests.Core.Authentication

@@ -16,7 +16,7 @@
 using System;
 using MongoDB.Bson.IO;
 
-namespace MongoDB.Shared
+namespace MongoDB.Driver.Core.Misc
 {
     internal static class ApplicationNameHelper
     {

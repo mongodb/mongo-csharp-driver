@@ -16,7 +16,7 @@
 using System;
 using System.IO;
 using System.Reflection;
-using MongoDB.Shared;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.NativeLibraryLoader
 {

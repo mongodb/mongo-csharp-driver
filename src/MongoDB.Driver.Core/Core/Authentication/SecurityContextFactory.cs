@@ -17,7 +17,7 @@ using System;
 using System.Security;
 using MongoDB.Driver.Core.Authentication.Libgssapi;
 using MongoDB.Driver.Core.Authentication.Sspi;
-using MongoDB.Shared;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Authentication
 {

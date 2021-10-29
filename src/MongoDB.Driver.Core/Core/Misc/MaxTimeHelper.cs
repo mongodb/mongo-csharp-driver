@@ -1,4 +1,4 @@
-﻿/* Copyright 2019-present MongoDB Inc.
+﻿/* Copyright 2018-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,11 +14,26 @@
 */
 
 using System;
+using System.Threading;
 
-namespace MongoDB.Driver.Support
+namespace MongoDB.Driver.Core.Misc
 {
-    internal interface IClock
+    internal static class MaxTimeHelper
     {
-        DateTime UtcNow { get; }
+        public static int ToMaxTimeMS(TimeSpan value)
+        {
+            if (value == Timeout.InfiniteTimeSpan)
+            {
+                return 0;
+            }
+            else if (value < TimeSpan.Zero)
+            {
+                throw new ArgumentOutOfRangeException(nameof(value));
+            }
+            else
+            {
+                return (int)Math.Ceiling(value.TotalMilliseconds);
+            }
+        }
     }
 }

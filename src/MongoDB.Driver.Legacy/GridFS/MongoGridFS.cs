@@ -428,7 +428,7 @@ namespace MongoDB.Driver.GridFS
                 var chunksCollection = GetChunksCollection(database);
 
                 string md5Client = null;
-                using (var md5Algorithm = _settings.VerifyMD5 ? IncrementalMD5.Create() : null)
+                using (var md5Algorithm = _settings.VerifyMD5 ? IncrementalHash.CreateHash(HashAlgorithmName.MD5) : null)
                 {
                     var numberOfChunks = (fileInfo.Length + fileInfo.ChunkSize - 1) / fileInfo.ChunkSize;
                     for (var n = 0L; n < numberOfChunks; n++)
@@ -994,7 +994,7 @@ namespace MongoDB.Driver.GridFS
 
                 var length = 0L;
                 string md5Client = null;
-                using (var md5Algorithm = _settings.VerifyMD5 ? IncrementalMD5.Create() : null)
+                using (var md5Algorithm = _settings.VerifyMD5 ? IncrementalHash.CreateHash(HashAlgorithmName.MD5) : null)
                 {
                     for (var n = 0L; true; n++)
                     {

@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-using MongoDB.Shared;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.NativeLibraryLoader
 {

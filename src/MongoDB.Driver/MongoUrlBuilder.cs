@@ -24,6 +24,7 @@ using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Shared;
 
 namespace MongoDB.Driver

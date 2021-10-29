@@ -15,7 +15,7 @@
 
 using System;
 
-namespace MongoDB.Shared
+namespace MongoDB.Driver.Core.Misc
 {
     internal static class ConnectionStringConversions
     {

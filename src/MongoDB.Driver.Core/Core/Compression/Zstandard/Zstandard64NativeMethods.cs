@@ -45,8 +45,8 @@
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.NativeLibraryLoader;
-using MongoDB.Shared;
 
 namespace MongoDB.Driver.Core.Compression.Zstandard
 {

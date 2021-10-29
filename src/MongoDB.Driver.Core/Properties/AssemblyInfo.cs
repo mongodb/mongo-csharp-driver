@@ -25,6 +25,8 @@ using MongoDB.Bson;
 // Required for most of the reflection usage in Xamarin.iOS/Xamarin.Mac.
 [assembly: Preserve(AllMembers = true)]
 
+[assembly: InternalsVisibleTo("MongoDB.Driver")]
+[assembly: InternalsVisibleTo("MongoDB.Driver.Legacy")]
 [assembly: InternalsVisibleTo("MongoDB.Driver.Core.FunctionalTests")]
 [assembly: InternalsVisibleTo("MongoDB.Driver.Core.TestHelpers")]
 [assembly: InternalsVisibleTo("MongoDB.Driver.Core.Tests")]
