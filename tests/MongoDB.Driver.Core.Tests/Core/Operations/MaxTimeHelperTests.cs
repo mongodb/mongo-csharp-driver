@@ -16,7 +16,7 @@
 using System;
 using FluentAssertions;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
-using MongoDB.Shared;
+using MongoDB.Driver.Core.Misc;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Operations

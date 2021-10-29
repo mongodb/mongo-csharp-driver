@@ -16,7 +16,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace MongoDB.Shared
+namespace MongoDB.Driver.Core.Misc
 {
     internal enum OperatingSystemPlatform
     {

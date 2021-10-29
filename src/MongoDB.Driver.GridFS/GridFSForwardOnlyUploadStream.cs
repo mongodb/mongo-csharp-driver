@@ -51,7 +51,7 @@ namespace MongoDB.Driver.GridFS
         private readonly TFileId _id;
         private readonly BsonValue _idAsBsonValue;
         private long _length;
-        private readonly IncrementalMD5 _md5;
+        private readonly IncrementalHash _md5;
         private readonly BsonDocument _metadata;
 
         // constructors
@@ -78,7 +78,7 @@ namespace MongoDB.Driver.GridFS
             _batchSize = batchSize;
 
             _batch = new List<byte[]>();
-            _md5 = disableMD5 ? null : IncrementalMD5.Create();
+            _md5 = disableMD5 ? null : IncrementalHash.CreateHash(HashAlgorithmName.MD5);
             _disableMD5 = disableMD5;
 
             var idSerializer = bucket.Options.SerializerRegistry.GetSerializer<TFileId>();

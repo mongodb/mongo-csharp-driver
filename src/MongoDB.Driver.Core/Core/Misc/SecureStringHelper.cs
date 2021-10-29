@@ -16,7 +16,7 @@
 using System.Runtime.InteropServices;
 using System.Security;
 
-namespace MongoDB.Shared
+namespace MongoDB.Driver.Core.Misc
 {
     internal static class SecureStringHelper
     {

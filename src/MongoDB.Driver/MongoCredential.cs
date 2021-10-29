@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security;
 using MongoDB.Driver.Core.Authentication;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Shared;
 
 namespace MongoDB.Driver

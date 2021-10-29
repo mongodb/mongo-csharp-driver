@@ -54,13 +54,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\MongoDB.Shared\IncrementalMD5.cs" Link="IncrementalMD5.cs" />
-    <Compile Include="..\MongoDB.Shared\MaxTimeHelper.cs" Link="MaxTimeHelper.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="..\..\License.txt" Pack="true" PackagePath="$(PackageLicenseFile)" />
-    <None Include="..\..\packageIcon.png" Pack="true" PackagePath=""/>
+    <None Include="..\..\packageIcon.png" Pack="true" PackagePath="" />
   </ItemGroup>
 
 </Project>
