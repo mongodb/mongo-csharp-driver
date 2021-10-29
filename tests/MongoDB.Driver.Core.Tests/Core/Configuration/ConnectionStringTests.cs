@@ -389,7 +389,7 @@ namespace MongoDB.Driver.Core.Configuration
                 "heartbeatTimeout=2m;" +
                 "ipv6=false;" +
                 "j=true;" +
-                "loadBalanced=false;" + 
+                "loadBalanced=false;" +
                 "maxIdleTime=10ms;" +
                 "maxLifeTime=5ms;" +
                 "maxPoolSize=20;" +
@@ -1209,6 +1209,26 @@ namespace MongoDB.Driver.Core.Configuration
         {
             var connectionString = "mongodb+srv://localhost1:53";
 
+            var exception = Record.Exception(() => new ConnectionString(connectionString));
+
+            exception.Should().BeOfType<MongoConfigurationException>();
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Valid_srvMaxHosts_with_mongodbsrv_scheme_should_be_valid([Values(0, 42)]int srvMaxHosts)
+        {
+            var subject = new ConnectionString($"mongodb+srv://cluster0.10gen.cc/?srvMaxHosts={srvMaxHosts}");
+
+            subject.SrvMaxHosts.Should().Be(srvMaxHosts);
+        }
+
+        [Theory]
+        [InlineData("mongodb+srv://cluster0.10gen.cc/?srvMaxHosts=-1")]
+        [InlineData("mongodb://server0.10gen.cc:27017/?srvMaxHosts=5")]
+        [InlineData("mongodb+srv://cluster0.10gen.cc/?srvMaxHosts=5&replicaSet=replset0")]
+        public void Invalid_srvMaxHosts_configuration_should_throw(string connectionString)
+        {
             var exception = Record.Exception(() => new ConnectionString(connectionString));
 
             exception.Should().BeOfType<MongoConfigurationException>();

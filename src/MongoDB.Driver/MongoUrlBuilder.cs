@@ -1160,6 +1160,10 @@ namespace MongoDB.Driver
             {
                 query.AppendFormat("retryWrites={0};", JsonConvert.ToString(_retryWrites.Value));
             }
+            if (_srvMaxHosts > 0)
+            {
+                query.AppendFormat("srvMaxHosts={0};", _srvMaxHosts);
+            }
             if (query.Length != 0)
             {
                 query.Length = query.Length - 1; // remove trailing ";"

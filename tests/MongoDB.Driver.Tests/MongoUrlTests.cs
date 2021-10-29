@@ -429,6 +429,16 @@ namespace MongoDB.Driver.Tests
             }
         }
 
+        [Fact]
+        public void TestSrvMaxHosts()
+        {
+            var connectionString = "mongodb+srv://test5.test.build.10gen.cc/test?srvMaxHosts=2";
+
+            var subject = new MongoUrl(connectionString);
+
+            subject.SrvMaxHosts.Should().Be(2);
+        }
+
         // private methods
         private IEnumerable<MongoUrl> EnumerateBuiltAndParsedUrls(
             MongoUrlBuilder built,

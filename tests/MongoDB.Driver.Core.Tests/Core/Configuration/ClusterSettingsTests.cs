@@ -18,6 +18,7 @@ using System.Net;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson.TestHelpers.EqualityComparers;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using Xunit;
@@ -46,6 +47,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.Scheme.Should().Be(ConnectionStringScheme.MongoDB);
             subject.ServerApi.Should().BeNull();
             subject.ServerSelectionTimeout.Should().Be(TimeSpan.FromSeconds(30));
+            subject.SrvMaxHosts.Should().Be(0);
         }
 
         [Fact]
@@ -285,6 +287,23 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         [Theory]
+        [ParameterAttributeData]
+        public void Constructor_with_valid_srvMaxHosts_should_initialize_instance([Values(0,42)]int srvMaxHosts)
+        {
+            var subject = new ClusterSettings(srvMaxHosts: srvMaxHosts);
+
+            subject.SrvMaxHosts.Should().Be(srvMaxHosts);
+        }
+
+        [Fact]
+        public void Constructor_with_negative_srvMaxHosts_should_throw()
+        {
+            Action action = () => new ClusterSettings(srvMaxHosts: -1);
+
+            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("srvMaxHosts");
+        }
+
+        [Theory]
 #pragma warning disable CS0618 // Type or member is obsolete
         [InlineData(ConnectionModeSwitch.NotSet, "directConnection", false)]
         [InlineData(ConnectionModeSwitch.NotSet, "connect", false)]
@@ -507,6 +526,27 @@ namespace MongoDB.Driver.Core.Configuration
             result.ReplicaSetName.Should().Be(subject.ReplicaSetName);
             result.Scheme.Should().Be(subject.Scheme);
             result.ServerSelectionTimeout.Should().Be(newServerSelectionTimeout);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void With_valid_srvMaxHosts_should_return_expected_result([Values(0,42)]int srvMaxHosts)
+        {
+            var subject = new ClusterSettings(srvMaxHosts: 5);
+
+            var result = subject.With(srvMaxHosts: srvMaxHosts);
+
+            result.SrvMaxHosts.Should().Be(srvMaxHosts);
+        }
+
+        [Fact]
+        public void With_negative_srvMaxHosts_should_throw()
+        {
+            var subject = new ClusterSettings();
+
+            Action action = () => subject.With(srvMaxHosts: -1);
+
+            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("srvMaxHosts");
         }
     }
 }

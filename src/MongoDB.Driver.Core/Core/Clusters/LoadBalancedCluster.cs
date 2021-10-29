@@ -86,6 +86,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             Ensure.IsEqualTo(settings.EndPoints.Count, 1, nameof(settings.EndPoints.Count));
             Ensure.IsNull(settings.ReplicaSetName, nameof(settings.ReplicaSetName));
+            Ensure.That(settings.SrvMaxHosts == 0, "srvMaxHosts cannot be used with load balanced mode.");
 
             _clusterClock = new ClusterClock();
             _clusterId = new ClusterId();

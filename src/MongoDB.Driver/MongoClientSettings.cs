@@ -127,6 +127,7 @@ namespace MongoDB.Driver
             _servers = new List<MongoServerAddress> { new MongoServerAddress("localhost") };
             _serverSelectionTimeout = MongoDefaults.ServerSelectionTimeout;
             _socketTimeout = MongoDefaults.SocketTimeout;
+            _srvMaxHosts = 0;
             _sslSettings = null;
             _useTls = false;
 #pragma warning disable 618
@@ -632,7 +633,7 @@ namespace MongoDB.Driver
                 if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
                 if (value == null)
                 {
-                    throw new ArgumentNullException("value");
+                    throw new ArgumentNullException(nameof(value));
                 }
                 _servers = new List<MongoServerAddress> { value };
             }
@@ -643,15 +644,26 @@ namespace MongoDB.Driver
         /// </summary>
         public IEnumerable<MongoServerAddress> Servers
         {
-            get { return new ReadOnlyCollection<MongoServerAddress>(_servers); }
+            get
+            {
+                var servers = _srvMaxHosts > 0 ? _servers.Take(_srvMaxHosts).ToList() : _servers;
+                return new ReadOnlyCollection<MongoServerAddress>(servers);
+            }
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
                 if (value == null)
                 {
-                    throw new ArgumentNullException("value");
+                    throw new ArgumentNullException(nameof(value));
                 }
-                _servers = new List<MongoServerAddress>(value);
+
+                var servers = new List<MongoServerAddress>(value);
+                if (_srvMaxHosts > 0)
+                {
+                    FisherYatesShuffle.Shuffle(servers);
+                }
+
+                _servers = servers;
             }
         }
 
@@ -692,7 +704,7 @@ namespace MongoDB.Driver
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
-                _srvMaxHosts = value;
+                _srvMaxHosts = Ensure.IsGreaterThanOrEqualToZero(value, nameof(value));
             }
         }
 
@@ -1302,6 +1314,11 @@ namespace MongoDB.Driver
                 }
             }
 
+            if (_replicaSetName != null && _srvMaxHosts > 0)
+            {
+                throw new InvalidOperationException("Specifying srvMaxHosts when connecting to a replica set is invalid.");
+            }
+
             if (_loadBalanced)
             {
                 if (_servers.Count > 1)
@@ -1312,6 +1329,11 @@ namespace MongoDB.Driver
                 if (_replicaSetName != null)
                 {
                     throw new InvalidOperationException("ReplicaSetName cannot be used with load balanced mode.");
+                }
+
+                if (_srvMaxHosts > 0)
+                {
+                    throw new InvalidOperationException("srvMaxHosts cannot be used with load balanced mode.");
                 }
 
                 if (IsDirectConnection())

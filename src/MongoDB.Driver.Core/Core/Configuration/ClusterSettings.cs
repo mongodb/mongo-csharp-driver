@@ -99,19 +99,19 @@ namespace MongoDB.Driver.Core.Configuration
             _connectionModeSwitch = connectionModeSwitch.WithDefault(ConnectionModeSwitch.NotSet);
 #pragma warning restore CS0618 // Type or member is obsolete
             _directConnection = directConnection.WithDefault(null);
-            _endPoints = Ensure.IsNotNull(endPoints.WithDefault(__defaultEndPoints), "endPoints").ToList();
+            _endPoints = Ensure.IsNotNull(endPoints.WithDefault(__defaultEndPoints), nameof(endPoints)).ToList();
             _kmsProviders = kmsProviders.WithDefault(null);
             _loadBalanced = loadBalanced.WithDefault(false);
-            _localThreshold = Ensure.IsInfiniteOrGreaterThanOrEqualToZero(localThreshold.WithDefault(TimeSpan.FromMilliseconds(15)), "localThreshold");
-            _maxServerSelectionWaitQueueSize = Ensure.IsGreaterThanOrEqualToZero(maxServerSelectionWaitQueueSize.WithDefault(500), "maxServerSelectionWaitQueueSize");
+            _localThreshold = Ensure.IsInfiniteOrGreaterThanOrEqualToZero(localThreshold.WithDefault(TimeSpan.FromMilliseconds(15)), nameof(localThreshold));
+            _maxServerSelectionWaitQueueSize = Ensure.IsGreaterThanOrEqualToZero(maxServerSelectionWaitQueueSize.WithDefault(500), nameof(maxServerSelectionWaitQueueSize));
             _replicaSetName = replicaSetName.WithDefault(null);
             _serverApi = serverApi.WithDefault(null);
-            _serverSelectionTimeout = Ensure.IsGreaterThanOrEqualToZero(serverSelectionTimeout.WithDefault(TimeSpan.FromSeconds(30)), "serverSelectionTimeout");
+            _serverSelectionTimeout = Ensure.IsGreaterThanOrEqualToZero(serverSelectionTimeout.WithDefault(TimeSpan.FromSeconds(30)), nameof(serverSelectionTimeout));
             _preServerSelector = preServerSelector.WithDefault(null);
             _postServerSelector = postServerSelector.WithDefault(null);
             _scheme = scheme.WithDefault(ConnectionStringScheme.MongoDB);
             _schemaMap = schemaMap.WithDefault(null);
-            _srvMaxHosts = srvMaxHosts.WithDefault(0);
+            _srvMaxHosts = Ensure.IsGreaterThanOrEqualToZero(srvMaxHosts.WithDefault(0), nameof(srvMaxHosts));
 
             ClusterConnectionModeHelper.EnsureConnectionModeValuesAreValid(_connectionMode, _connectionModeSwitch, _directConnection);
         }
