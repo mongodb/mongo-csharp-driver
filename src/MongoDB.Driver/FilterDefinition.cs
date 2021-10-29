@@ -146,6 +146,15 @@ namespace MongoDB.Driver
         {
             return new NotFilterDefinition<TDocument>(op);
         }
+
+        /// <inheritdoc/>
+        public override string ToString()
+        {
+            var serializerRegistry = BsonSerializer.SerializerRegistry;
+            var serializer = serializerRegistry.GetSerializer<TDocument>();
+            var rendered = Render(serializer, serializerRegistry);
+            return rendered.ToString();
+        }
     }
 
     /// <summary>
