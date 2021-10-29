@@ -249,7 +249,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <inheritdoc/>
         public bool CanUseSecondary(ServerDescription server)
         {
-            return server.Version >= new SemanticVersion(5, 0, 0);
+            return Feature.AggregateOutOnSecondary.IsSupported(server.Version);
         }
 
         /// <inheritdoc/>
@@ -261,7 +261,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var channel = channelSource.GetChannel(cancellationToken))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
-                var operation = CreateOperation(channelBinding.Session, channel.ConnectionDescription);
+                var operation = CreateOperation(channelBinding.Session, channelSource.Server.Description, channel.ConnectionDescription);
                 return operation.Execute(channelBinding, cancellationToken);
             }
         }
@@ -275,7 +275,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
-                var operation = CreateOperation(channelBinding.Session, channel.ConnectionDescription);
+                var operation = CreateOperation(channelBinding.Session, channelSource.Server.Description, channel.ConnectionDescription);
                 return await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
             }
         }
@@ -306,10 +306,14 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
-        private WriteCommandOperation<BsonDocument> CreateOperation(ICoreSessionHandle session, ConnectionDescription connectionDescription)
+        private WriteCommandOperation<BsonDocument> CreateOperation(ICoreSessionHandle session, ServerDescription server, ConnectionDescription connectionDescription)
         {
             var command = CreateCommand(session, connectionDescription);
-            return new WriteCommandOperation<BsonDocument>(CollectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, MessageEncoderSettings);
+            var effectiveReadPreference = GetEffectiveReadPreference(server);
+            return new WriteCommandOperation<BsonDocument>(CollectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, MessageEncoderSettings)
+            {
+                ReadPreference = effectiveReadPreference
+            };
         }
 
         private void EnsureIsOutputToCollectionPipeline()
@@ -320,6 +324,17 @@ namespace MongoDB.Driver.Core.Operations
             {
                 throw new ArgumentException("The last stage of the pipeline for an AggregateOutputToCollectionOperation must have a $out or $merge operator.", "pipeline");
             }
+        }
+
+        private ReadPreference GetEffectiveReadPreference(ServerDescription selectedServer)
+        {
+            return selectedServer.Type switch
+            {
+                ServerType.LoadBalanced => _readPreference, // we can assume that any mongos behind a load balancer is 5.0+
+                ServerType.ReplicaSetSecondary => _readPreference, // we wouldn't have selected the secondary if it wasn't 5.0+
+                ServerType.ShardRouter => Feature.AggregateOutOnSecondary.IsSupported(selectedServer.Version) ? _readPreference : ReadPreference.Primary,
+                _ => ReadPreference.Primary
+            };
         }
 
         private IReadOnlyList<BsonDocument> SimplifyOutStageIfOutputDatabaseIsSameAsInputDatabase(IReadOnlyList<BsonDocument> pipeline)

@@ -102,6 +102,7 @@ namespace MongoDB.Driver
         public static ReadPreference FromBsonDocument(BsonDocument document)
         {
             ReadPreferenceMode mode = ReadPreferenceMode.Primary;
+            TimeSpan? maxStaleness = null;
 
             foreach (var element in document)
             {
@@ -111,12 +112,16 @@ namespace MongoDB.Driver
                         mode = (ReadPreferenceMode)Enum.Parse(typeof(ReadPreferenceMode), element.Value.AsString, ignoreCase: true);
                         break;
 
+                    case "maxStaleness":
+                        maxStaleness = TimeSpan.FromSeconds(element.Value.ToDouble());
+                        break;
+
                     default:
-                        throw new ArgumentException($"Invalid element in ReadConcern document: {element.Name}.");
+                        throw new ArgumentException($"Invalid element in ReadPreference document: {element.Name}.");
                 }
             }
 
-            return new ReadPreference(mode);
+            return new ReadPreference(mode, maxStaleness: maxStaleness);
         }
         #endregion
 

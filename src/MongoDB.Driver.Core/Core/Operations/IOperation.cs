@@ -13,14 +13,9 @@
 * limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Bindings;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Operations
@@ -50,7 +45,7 @@ namespace MongoDB.Driver.Core.Operations
     }
 
     /// <summary>
-    /// 
+    /// Represents a write operation without specifying the result type.
     /// </summary>
 #pragma warning disable CA1040 // Avoid empty interfaces
     public interface IWriteOperation
@@ -83,20 +78,20 @@ namespace MongoDB.Driver.Core.Operations
     }
 
     /// <summary>
-    /// 
+    /// Represents the criteria for using a secondary for operations that may use a secondary.
     /// </summary>
     public interface IMayUseSecondaryCriteria
     {
         /// <summary>
-        /// 
+        /// The read preference.
         /// </summary>
         ReadPreference ReadPreference { get; }
 
         /// <summary>
-        /// 
+        /// Whether a particular secondary can be used.
         /// </summary>
-        /// <param name="server"></param>
-        /// <returns></returns>
+        /// <param name="server">The server.</param>
+        /// <returns>True if the server can be used.</returns>
         bool CanUseSecondary(ServerDescription server);
     }
 }

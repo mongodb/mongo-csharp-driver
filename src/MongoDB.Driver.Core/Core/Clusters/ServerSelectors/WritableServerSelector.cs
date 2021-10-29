@@ -13,10 +13,8 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
 
@@ -45,16 +43,20 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
         #endregion
 
         private readonly IMayUseSecondaryCriteria _mayUseSecondary;
+        private readonly IServerSelector _readPreferenceServerSelector;
 
         // constructors
         private WritableServerSelector()
-            : this(mayUseSecondary:null)
+            : this(mayUseSecondary: null)
         {
         }
 
         internal WritableServerSelector(IMayUseSecondaryCriteria mayUseSecondary)
         {
             _mayUseSecondary = mayUseSecondary; // can be null
+
+            var readPreference = mayUseSecondary?.ReadPreference;
+            _readPreferenceServerSelector = readPreference == null ? null : new ReadPreferenceServerSelector(readPreference);
         }
 
         // methods
@@ -66,21 +68,15 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
                 return servers;
             }
 
-            if (_mayUseSecondary == null)
+            if (cluster.Type == ClusterType.ReplicaSet && _readPreferenceServerSelector != null)
             {
-                return servers.Where(x => x.Type.IsWritable());
+                var eligibleServers = _readPreferenceServerSelector.SelectServers(cluster, servers).Where(s => _mayUseSecondary.CanUseSecondary(s)).ToList();
+                if (eligibleServers.Count > 0)
+                {
+                    return eligibleServers;
+                }
             }
-            else
-            {
-                return SelectServersUsingMayUseSecondaryCriteria(cluster, servers);
-            }
-        }
 
-        private IEnumerable<ServerDescription> SelectServersUsingMayUseSecondaryCriteria(
-            ClusterDescription cluster,
-            IEnumerable<Servers.ServerDescription> servers)
-        {
-            // implement the new server selection logic here
             return servers.Where(x => x.Type.IsWritable());
         }
 

@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System.Threading;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.ConnectionPools;
