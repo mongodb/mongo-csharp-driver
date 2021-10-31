@@ -22,7 +22,9 @@ using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
+using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
@@ -172,6 +174,17 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 var collectionName = dataItem["collectionName"].AsString;
                 var databaseName = dataItem["databaseName"].AsString;
                 var documents = dataItem["documents"].AsBsonArray.Cast<BsonDocument>().ToList();
+
+                var writeConcern = WriteConcern.WMajority;
+                SpinWait.SpinUntil(() => client.Cluster.Description.Type != ClusterType.Unknown, TimeSpan.FromSeconds(5)).Should().BeTrue();
+                var clusterDescription = client.Cluster.Description;
+                if (clusterDescription.Type == ClusterType.ReplicaSet)
+                {
+                    ServerDescription primary = null;
+                    SpinWait.SpinUntil(() => (primary = client.Cluster.Description.Servers.SingleOrDefault(s => s.Type == ServerType.ReplicaSetPrimary)) != null, TimeSpan.FromSeconds(5)).Should().BeTrue();
+                    var n = primary.ReplicaSetConfig.Members.Count();
+                    writeConcern = new WriteConcern(n);
+                }
 
                 var database = client.GetDatabase(databaseName);
                 var collection = database

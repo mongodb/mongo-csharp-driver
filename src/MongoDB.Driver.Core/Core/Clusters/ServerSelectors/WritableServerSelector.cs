@@ -81,9 +81,9 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
 
             bool ShouldUseReadPreference()
             {
-                if (_mayUseSecondary == null)
+                if (_readPreferenceServerSelector == null)
                 {
-                    return false; // no ReadPreference available to use
+                    return false; // no ReadPreference server selector available to use
                 }
 
                 if (cluster.Type != ClusterType.ReplicaSet)

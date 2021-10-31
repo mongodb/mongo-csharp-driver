@@ -46,7 +46,7 @@
         "collectionName": "coll0",
         "collectionOptions": {
           "readPreference": {
-            "mode": "secondaryPreferred",
+            "mode": "secondary",
             "maxStalenessSeconds": 600
           }
         }
@@ -144,7 +144,7 @@
                     }
                   ],
                   "$readPreference": {
-                    "mode": "secondaryPreferred",
+                    "mode": "secondary",
                     "maxStalenessSeconds": 600
                   },
                   "readConcern": {
@@ -327,7 +327,7 @@
                     }
                   ],
                   "$readPreference": {
-                    "mode": "secondaryPreferred",
+                    "mode": "secondary",
                     "maxStalenessSeconds": 600
                   },
                   "readConcern": {
