@@ -63,21 +63,39 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
         /// <inheritdoc/>
         public IEnumerable<ServerDescription> SelectServers(ClusterDescription cluster, IEnumerable<Servers.ServerDescription> servers)
         {
+            var serversList = servers.ToList(); // avoid multiple enumeration
+
             if (cluster.IsDirectConnection)
             {
-                return servers;
+                return serversList;
             }
 
-            if (cluster.Type == ClusterType.ReplicaSet && _readPreferenceServerSelector != null)
+            if (ShouldUseReadPreference())
             {
-                var eligibleServers = _readPreferenceServerSelector.SelectServers(cluster, servers).Where(s => _mayUseSecondary.CanUseSecondary(s)).ToList();
-                if (eligibleServers.Count > 0)
-                {
-                    return eligibleServers;
-                }
+                return _readPreferenceServerSelector.SelectServers(cluster, serversList);
+            }
+            else
+            {
+                return serversList.Where(x => x.Type.IsWritable());
             }
 
-            return servers.Where(x => x.Type.IsWritable());
+            bool ShouldUseReadPreference()
+            {
+                if (_mayUseSecondary == null)
+                {
+                    return false; // no ReadPreference available to use
+                }
+
+                if (cluster.Type != ClusterType.ReplicaSet)
+                {
+                    return false; // ReadPreference server selector is only applicable to replica sets
+                }
+
+                // ReadPreference should be used if there is at least one available server and all available servers are suitable
+                return
+                    serversList.Count > 0 &&
+                    serversList.All(s => s.Type == ServerType.ReplicaSetPrimary || _mayUseSecondary.CanUseSecondary(s));
+            }
         }
 
         /// <inheritdoc/>

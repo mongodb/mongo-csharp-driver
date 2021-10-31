@@ -113,6 +113,14 @@ namespace MongoDB.Driver
                         break;
 
                     case "maxStaleness":
+                        maxStaleness = element.Value.BsonType switch
+                        {
+                            BsonType.String => TimeSpanParser.Parse(element.Value.AsString),
+                            _ => TimeSpan.FromSeconds(element.Value.ToDouble())
+                        };
+                        break;
+
+                    case "maxStalenessSeconds":
                         maxStaleness = TimeSpan.FromSeconds(element.Value.ToDouble());
                         break;
 

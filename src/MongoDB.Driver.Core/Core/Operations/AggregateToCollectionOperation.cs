@@ -310,7 +310,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var command = CreateCommand(session, connectionDescription);
             var effectiveReadPreference = GetEffectiveReadPreference(server);
-            return new WriteCommandOperation<BsonDocument>(CollectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, MessageEncoderSettings)
+            return new WriteCommandOperation<BsonDocument>(_databaseNamespace, command, BsonDocumentSerializer.Instance, MessageEncoderSettings)
             {
                 ReadPreference = effectiveReadPreference
             };
