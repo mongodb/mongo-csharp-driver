@@ -945,7 +945,7 @@ namespace MongoDB.Driver
             clientSettings.Servers = new List<MongoServerAddress>(url.Servers);
             clientSettings.ServerSelectionTimeout = url.ServerSelectionTimeout;
             clientSettings.SocketTimeout = url.SocketTimeout;
-            clientSettings.SrvMaxHosts = url.SrvMaxHosts;
+            clientSettings.SrvMaxHosts = url.SrvMaxHosts.GetValueOrDefault(0);
             clientSettings.SslSettings = null;
             if (url.TlsDisableCertificateRevocationCheck)
             {

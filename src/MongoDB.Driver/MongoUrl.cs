@@ -72,7 +72,7 @@ namespace MongoDB.Driver
         private readonly IEnumerable<MongoServerAddress> _servers;
         private readonly TimeSpan _serverSelectionTimeout;
         private readonly TimeSpan _socketTimeout;
-        private readonly int _srvMaxHosts;
+        private readonly int? _srvMaxHosts;
         private readonly bool _tlsDisableCertificateRevocationCheck;
         private readonly string _username;
         private readonly bool _useTls;
@@ -487,7 +487,7 @@ namespace MongoDB.Driver
         /// </summary>
         public IEnumerable<MongoServerAddress> Servers
         {
-            get { return _srvMaxHosts > 0 ? _servers.Take(_srvMaxHosts) : _servers; }
+            get { return _srvMaxHosts > 0 ? _servers.Take(_srvMaxHosts.Value) : _servers; }
         }
 
         /// <summary>
@@ -511,7 +511,7 @@ namespace MongoDB.Driver
         /// during initial discovery, as well as the number of additional hosts
         /// that may be added during SRV polling.
         /// </summary>
-        public int SrvMaxHosts => _srvMaxHosts;
+        public int? SrvMaxHosts => _srvMaxHosts;
 
         /// <summary>
         /// Gets whether or not to disable checking certificate revocation status during the TLS handshake.

@@ -26,7 +26,6 @@ using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Shared;
 
 namespace MongoDB.Driver.Core.Configuration
 {
@@ -100,7 +99,7 @@ namespace MongoDB.Driver.Core.Configuration
         private ConnectionStringScheme _scheme;
         private TimeSpan? _serverSelectionTimeout;
         private TimeSpan? _socketTimeout;
-        private int _srvMaxHosts;
+        private int? _srvMaxHosts;
         private bool? _tls;
         private bool? _tlsDisableCertificateRevocationCheck;
         private bool? _tlsInsecure;
@@ -296,7 +295,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// </summary>
         public IReadOnlyList<EndPoint> Hosts
         {
-            get { return _srvMaxHosts > 0 ? _hosts.Take(_srvMaxHosts).ToList() : _hosts; }
+            get { return _srvMaxHosts > 0 ? _hosts.Take(_srvMaxHosts.Value).ToList() : _hosts; }
         }
 
         /// <summary>
@@ -465,7 +464,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// during initial discovery, as well as the number of additional hosts
         /// that may be added during SRV polling.
         /// </summary>
-        public int SrvMaxHosts => _srvMaxHosts;
+        public int? SrvMaxHosts => _srvMaxHosts;
 
         /// <summary>
         /// Gets whether to use SSL.

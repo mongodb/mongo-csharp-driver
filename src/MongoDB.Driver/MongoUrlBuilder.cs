@@ -71,7 +71,7 @@ namespace MongoDB.Driver
         private IEnumerable<MongoServerAddress> _servers;
         private TimeSpan _serverSelectionTimeout;
         private TimeSpan _socketTimeout;
-        private int _srvMaxHosts;
+        private int? _srvMaxHosts;
         private bool? _tlsDisableCertificateRevocationCheck;
         private string _username;
         private bool _useTls;
@@ -127,7 +127,7 @@ namespace MongoDB.Driver
             _servers = new[] { new MongoServerAddress("localhost", 27017) };
             _serverSelectionTimeout = MongoDefaults.ServerSelectionTimeout;
             _socketTimeout = MongoDefaults.SocketTimeout;
-            _srvMaxHosts = 0;
+            _srvMaxHosts = null;
             _username = null;
             _useTls = false;
             _w = null;
@@ -628,7 +628,7 @@ namespace MongoDB.Driver
         /// during initial discovery, as well as the number of additional hosts
         /// that may be added during SRV polling.
         /// </summary>
-        public int SrvMaxHosts
+        public int? SrvMaxHosts
         {
             get { return _srvMaxHosts; }
             set
@@ -1160,7 +1160,7 @@ namespace MongoDB.Driver
             {
                 query.AppendFormat("retryWrites={0};", JsonConvert.ToString(_retryWrites.Value));
             }
-            if (_srvMaxHosts > 0)
+            if (_srvMaxHosts.HasValue)
             {
                 query.AppendFormat("srvMaxHosts={0};", _srvMaxHosts);
             }
