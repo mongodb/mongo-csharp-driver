@@ -184,10 +184,9 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
         // private methods
         private AutoEncryptionOptions ConfigureAutoEncryptionOptions(BsonDocument autoEncryptOpts)
         {
-            var extraOptions = new Dictionary<string, object>()
-            {
-                { "mongocryptdSpawnPath", GetEnvironmentVariableOrDefaultOrThrowIfNothing("MONGODB_BINARIES", string.Empty) }
-            };
+            var extraOptions = new Dictionary<string, object>();
+
+            EncryptionTestHelper.ConfigureDefaultExtraOptions(extraOptions);
 
             var kmsProviders = new ReadOnlyDictionary<string, IReadOnlyDictionary<string, object>>(new Dictionary<string, IReadOnlyDictionary<string, object>>());
             var autoEncryptionOptions = new AutoEncryptionOptions(

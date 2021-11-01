@@ -1298,11 +1298,10 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             {
                 if (extraOptions == null)
                 {
-                    extraOptions = new Dictionary<string, object>()
-                    {
-                        { "mongocryptdSpawnPath", GetEnvironmentVariableOrDefaultOrThrowIfNothing("MONGODB_BINARIES", string.Empty) }
-                    };
+                    extraOptions = new Dictionary<string, object>();
                 }
+
+                EncryptionTestHelper.ConfigureDefaultExtraOptions(extraOptions);
 
                 var schemaMap = GetSchemaMapIfNotNull(schemaMapDocument);
 
