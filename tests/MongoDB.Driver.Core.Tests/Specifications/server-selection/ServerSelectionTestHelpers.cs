@@ -46,6 +46,7 @@ namespace MongoDB.Driver.Specifications.server_selection
            Mongos = ServerType.ShardRouter,
            Standalone = ServerType.Standalone,
            Unknown = ServerType.Unknown,
+           PossiblePrimary = ServerType.Unknown,
            LoadBalancer = ServerType.LoadBalanced
         }
 
