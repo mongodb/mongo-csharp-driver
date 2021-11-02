@@ -633,15 +633,30 @@ namespace MongoDB.Driver.Tests
             return new CollectionAggregateFluent<Person, Person>(null, collection, new EmptyPipelineDefinition<Person>(), new AggregateOptions());
         }
 
+        private IMongoClient CreateClient()
+        {
+            var mockClient = new Mock<IMongoClient>();
+            var settings = new MongoClientSettings();
+            mockClient.SetupGet(x => x.Settings).Returns(settings);
+            return mockClient.Object;
+        }
+
+        private IMongoDatabase CreateDatabase()
+        {
+            var client = CreateClient();
+            var mockDatabase = new Mock<IMongoDatabase>();
+            mockDatabase.SetupGet(x => x.Client).Returns(client);
+            SetupDatabaseGetCollectionMethod<BsonDocument>(mockDatabase);
+            return mockDatabase.Object;
+        }
+
         private IMongoCollection<T> CreateCollection<T>(string collectionName = null)
         {
-            var mockDatabase = new Mock<IMongoDatabase>();
-            SetupDatabaseGetCollectionMethod<BsonDocument>(mockDatabase);
-
+            var database = CreateDatabase();
             var settings = new MongoCollectionSettings();
             var mockCollection = new Mock<IMongoCollection<T>>();
             mockCollection.SetupGet(c => c.CollectionNamespace).Returns(new CollectionNamespace(new DatabaseNamespace("test"), collectionName ?? typeof(T).Name));
-            mockCollection.SetupGet(c => c.Database).Returns(mockDatabase.Object);
+            mockCollection.SetupGet(c => c.Database).Returns(database);
             mockCollection.SetupGet(c => c.DocumentSerializer).Returns(settings.SerializerRegistry.GetSerializer<T>());
             mockCollection.SetupGet(c => c.Settings).Returns(settings);
             return mockCollection.Object;

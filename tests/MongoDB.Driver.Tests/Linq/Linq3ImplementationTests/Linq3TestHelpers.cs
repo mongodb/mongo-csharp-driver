@@ -32,6 +32,18 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests
             stages.Should().Equal(expectedStages.Select(json => BsonDocument.Parse(json)));
         }
 
+        public static IList<BsonDocument> Render<TInput, TOutput>(PipelineDefinition<TInput, TOutput> pipeline, IBsonSerializer<TInput> inputSerializer, LinqProvider linqProvider)
+        {
+            var rendered = pipeline.Render(inputSerializer, BsonSerializer.SerializerRegistry, linqProvider);
+            return rendered.Documents;
+        }
+
+        public static BsonDocument Render<TInput, TOutput>(PipelineStageDefinition<TInput, TOutput> stage, IBsonSerializer<TInput> inputSerializer, LinqProvider linqProvider)
+        {
+            var rendered = stage.Render(inputSerializer, BsonSerializer.SerializerRegistry, linqProvider);
+            return rendered.Document;
+        }
+
         public static List<BsonDocument> Translate<TDocument, TResult>(IMongoCollection<TDocument> collection, IAggregateFluent<TResult> aggregate)
         {
             var pipelineDefinition = ((AggregateFluent<TDocument, TResult>)aggregate).Pipeline;

@@ -22,6 +22,7 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Linq;
 
 namespace MongoDB.Driver
 {
@@ -319,7 +320,15 @@ namespace MongoDB.Driver
         public static IAggregateFluent<TNewResult> Group<TResult, TKey, TNewResult>(this IAggregateFluent<TResult> aggregate, Expression<Func<TResult, TKey>> id, Expression<Func<IGrouping<TKey, TResult>, TNewResult>> group)
         {
             Ensure.IsNotNull(aggregate, nameof(aggregate));
-            return aggregate.AppendStage(PipelineStageDefinitionBuilder.Group(id, group));
+            if (aggregate.Database.Client.Settings.LinqProvider == LinqProvider.V2)
+            {
+                return aggregate.AppendStage(PipelineStageDefinitionBuilder.Group(id, group));
+            }
+            else
+            {
+                var (groupStage, projectStage) = PipelineStageDefinitionBuilder.GroupForLinq3(id, group);
+                return aggregate.AppendStage(groupStage).AppendStage(projectStage);
+            }
         }
 
         /// <summary>

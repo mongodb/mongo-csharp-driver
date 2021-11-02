@@ -704,7 +704,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Creates a $group stage.
+        /// Creates a $group stage (this method can only be used with LINQ2).
         /// </summary>
         /// <typeparam name="TInput">The type of the input documents.</typeparam>
         /// <typeparam name="TValue">The type of the values.</typeparam>
@@ -713,6 +713,7 @@ namespace MongoDB.Driver
         /// <param name="group">The group projection.</param>
         /// <param name="translationOptions">The translation options.</param>
         /// <returns>The stage.</returns>
+        /// <remarks>This method can only be used with LINQ2 but that can't be verified until Render is called.</remarks>
         public static PipelineStageDefinition<TInput, TOutput> Group<TInput, TValue, TOutput>(
             Expression<Func<TInput, TValue>> value,
             Expression<Func<IGrouping<TValue, TInput>, TOutput>> group,
@@ -721,6 +722,28 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(value, nameof(value));
             Ensure.IsNotNull(group, nameof(group));
             return Group(new GroupExpressionProjection<TInput, TValue, TOutput>(value, group, translationOptions));
+        }
+
+        /// <summary>
+        /// Creates a $group stage (this method can only be used with LINQ3).
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TValue">The type of the values.</typeparam>
+        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
+        /// <param name="value">The value field.</param>
+        /// <param name="group">The group projection.</param>
+        /// <param name="translationOptions">The translation options.</param>
+        /// <returns>The stage.</returns>
+        /// <remarks>This method can only be used with LINQ3 but that can't be verified until Render is called.</remarks>
+        public static (PipelineStageDefinition<TInput, IGrouping<TValue, TInput>> GroupStage, PipelineStageDefinition<IGrouping<TValue, TInput>, TOutput> ProjectStage) GroupForLinq3<TInput, TValue, TOutput>(
+            Expression<Func<TInput, TValue>> value,
+            Expression<Func<IGrouping<TValue, TInput>, TOutput>> group,
+            ExpressionTranslationOptions translationOptions = null)
+        {
+            Ensure.IsNotNull(value, nameof(value));
+            Ensure.IsNotNull(group, nameof(group));
+            var stages = new Linq.Linq3Implementation.GroupExpressionStageDefinitions<TInput, TValue, TOutput>(value, group);
+            return (stages.GroupStage, stages.ProjectStage);
         }
 
         /// <summary>
@@ -1505,6 +1528,10 @@ namespace MongoDB.Driver
 
         public override RenderedProjectionDefinition<TOutput> Render(IBsonSerializer<TInput> documentSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
+            if (linqProvider != LinqProvider.V2)
+            {
+                throw new InvalidOperationException("The GroupExpressionProjection class can only be used with LINQ2.");
+            }
             return linqProvider.GetAdapter().TranslateExpressionToGroupProjection(_idExpression, _groupExpression, documentSerializer, serializerRegistry, _translationOptions);
         }
     }

@@ -146,7 +146,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests
         }
 
         [Fact]
-        public void TranslateExpressionToGroupProjection_should_return_expected_result()
+        public void TranslateExpressionToGroupProjection_should_throw()
         {
             WithAnonymousOutputType(g => new { count = g.Count() });
 
@@ -158,13 +158,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests
                 var documentSerializer = serializerRegistry.GetSerializer<C>();
                 var translationOptions = new ExpressionTranslationOptions();
 
-                var result = subject.TranslateExpressionToGroupProjection(idExpression, groupExpression, documentSerializer, serializerRegistry, translationOptions);
+                var exception = Record.Exception(() => subject.TranslateExpressionToGroupProjection(idExpression, groupExpression, documentSerializer, serializerRegistry, translationOptions));
 
-                var expectedResult = LinqProviderAdapter.V2.TranslateExpressionToGroupProjection(idExpression, groupExpression, documentSerializer, serializerRegistry, translationOptions);
-                expectedResult.Document.Should().Be("{ _id : '$X', count : { $sum : 1 } }");
-                expectedResult.ProjectionSerializer.ValueType.Should().Be(typeof(TOutput));
-                result.Document.Should().Be(expectedResult.Document);
-                result.ProjectionSerializer.ValueType.Should().Be(typeof(TOutput));
+                exception.Should().BeOfType<InvalidOperationException>();
             }
         }
 
