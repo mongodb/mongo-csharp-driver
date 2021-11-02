@@ -19,7 +19,6 @@ using MongoDB.Bson;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
-using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Servers;
 using Xunit;
@@ -40,11 +39,7 @@ namespace MongoDB.Driver.Tests
                     clientSettings.ClusterConfigurator =
                         c =>
                         {
-                            c.ConfigureCluster(
-                                s =>
-                                    new ClusterSettings(
-                                        postServerSelector: customServerSelector,
-                                        serverApi: CoreTestConfiguration.ServerApi));
+                            c.ConfigureCluster(s => s.With(postServerSelector: customServerSelector));
                             c.Subscribe(eventCapturer);
                         },
                  logger: null))

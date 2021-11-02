@@ -38,7 +38,7 @@
         "databaseName": "db0",
         "databaseOptions": {
           "readPreference": {
-            "mode": "secondary",
+            "mode": "secondaryPreferred",
             "maxStalenessSeconds": 600
           }
         }
@@ -126,7 +126,7 @@
                     }
                   ],
                   "$readPreference": {
-                    "mode": "secondary",
+                    "mode": "secondaryPreferred",
                     "maxStalenessSeconds": 600
                   },
                   "readConcern": {
@@ -315,7 +315,7 @@
                     }
                   ],
                   "$readPreference": {
-                    "mode": "secondary",
+                    "mode": "secondaryPreferred",
                     "maxStalenessSeconds": 600
                   },
                   "readConcern": {

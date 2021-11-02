@@ -328,6 +328,11 @@ namespace MongoDB.Driver.Core.Operations
 
         private ReadPreference GetEffectiveReadPreference(ServerDescription selectedServer)
         {
+            if (_readPreference == null)
+            {
+                return ReadPreference.Primary;
+            }
+
             return selectedServer.Type switch
             {
                 ServerType.LoadBalanced => _readPreference, // we can assume that any mongos behind a load balancer is 5.0+
