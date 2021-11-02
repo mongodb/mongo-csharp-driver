@@ -40,11 +40,7 @@ namespace MongoDB.Driver.Tests
                     clientSettings.ClusterConfigurator =
                         c =>
                         {
-                            c.ConfigureCluster(
-                                s =>
-                                    new ClusterSettings(
-                                        postServerSelector: customServerSelector,
-                                        serverApi: CoreTestConfiguration.ServerApi));
+                            c.ConfigureCluster(s => s.With(postServerSelector: customServerSelector));
                             c.Subscribe(eventCapturer);
                         },
                  logger: null))
