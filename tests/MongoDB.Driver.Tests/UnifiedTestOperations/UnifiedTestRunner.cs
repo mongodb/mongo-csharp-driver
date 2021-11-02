@@ -186,10 +186,11 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     writeConcern = new WriteConcern(n);
                 }
 
-                var database = client.GetDatabase(databaseName);
+                var database = client
+                    .GetDatabase(databaseName)
+                    .WithWriteConcern(writeConcern);
                 var collection = database
-                    .GetCollection<BsonDocument>(collectionName)
-                    .WithWriteConcern(WriteConcern.WMajority);
+                    .GetCollection<BsonDocument>(collectionName); // inherits WriteConcern from database
 
                 _logger.Debug("Dropping {0}", collectionName);
 
