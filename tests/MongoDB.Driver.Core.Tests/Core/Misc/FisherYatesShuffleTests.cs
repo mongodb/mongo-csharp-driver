@@ -25,6 +25,16 @@ namespace MongoDB.Driver.Core.Tests.Core.Misc
     public class FisherYatesShuffleTests
     {
         [Fact]
+        public void Shuffling_null_should_throw_ArgumentNullException()
+        {
+            IList<int> list = null;
+
+            var exception = Record.Exception(() => FisherYatesShuffle.Shuffle(list));
+
+            exception.Should().BeOfType<ArgumentNullException>();
+        }
+
+        [Fact]
         public void Shuffling_empty_list_should_do_nothing()
         {
             var empty = Array.Empty<int>();

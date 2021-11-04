@@ -21,6 +21,8 @@ namespace MongoDB.Driver.Core.Misc
     {
         public static void Shuffle<T>(IList<T> list)
         {
+            Ensure.IsNotNull(list, nameof(list));
+
             for (var i = list.Count - 1; i > 0; i--)
             {
                 var j = ThreadStaticRandom.Next(i + 1);

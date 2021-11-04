@@ -147,6 +147,16 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
         }
 
         [Fact]
+        public void Constructor_should_throw_if_srvMaxHosts_is_greater_than_zero()
+        {
+            _settings = _settings.With(srvMaxHosts: 2);
+
+            var exception = Record.Exception(() => new LoadBalancedCluster(_settings, _mockServerFactory, _capturedEvents));
+
+            exception.Should().BeOfType<ArgumentException>();
+        }
+
+        [Fact]
         public void InitializeServer_should_throw_if_cluster_disposed()
         {
             var subject = CreateSubject();
@@ -340,7 +350,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
                     PublishDnsResults(subject, _endPoint);
                 }
 
-                PublishDescription(_endPoint); 
+                PublishDescription(_endPoint);
 
                 IServer result;
                 if (async)

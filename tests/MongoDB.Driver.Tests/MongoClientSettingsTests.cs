@@ -595,6 +595,12 @@ namespace MongoDB.Driver.Tests
                 settings.ReplicaSetName = "test";
             });
 
+            AssertException(settings =>
+            {
+                settings.Scheme = ConnectionStringScheme.MongoDB;
+                settings.SrvMaxHosts = 2;
+            });
+
             void AssertException(Action<MongoClientSettings> setAction)
             {
                 var settings = new MongoClientSettings();
@@ -1435,7 +1441,8 @@ namespace MongoDB.Driver.Tests
         [ParameterAttributeData]
         public void TestSrvMaxHosts([Values(0, 1, 5)]int srvMaxHosts)
         {
-            var subject = new MongoClientSettings();
+            var subject = new MongoClientSettings { Scheme = ConnectionStringScheme.MongoDBPlusSrv };
+
             subject.SrvMaxHosts.Should().Be(0);
 
             subject.SrvMaxHosts = srvMaxHosts;

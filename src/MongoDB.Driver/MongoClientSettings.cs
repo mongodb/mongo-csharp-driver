@@ -1314,6 +1314,11 @@ namespace MongoDB.Driver
                 }
             }
 
+            if (_srvMaxHosts > 0 && _scheme != ConnectionStringScheme.MongoDBPlusSrv)
+            {
+                throw new InvalidOperationException("srvMaxHosts can only be used with the mongodb+srv scheme.");
+            }
+
             if (_replicaSetName != null && _srvMaxHosts > 0)
             {
                 throw new InvalidOperationException("Specifying srvMaxHosts when connecting to a replica set is invalid.");

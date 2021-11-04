@@ -52,6 +52,16 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         [Fact]
+        public void Constructor_should_throw_if_srvMaxHosts_is_greater_than_zero()
+        {
+            _settings = _settings.With(srvMaxHosts: 2);
+
+            var exception = Record.Exception(() => new SingleServerCluster(_settings, _mockServerFactory, _capturedEvents));
+
+            exception.Should().BeOfType<ArgumentException>();
+        }
+
+        [Fact]
         public void Initialize_should_throw_if_disposed()
         {
             var subject = CreateSubject();
