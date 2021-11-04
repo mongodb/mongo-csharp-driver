@@ -505,17 +505,29 @@ namespace MongoDB.Driver.Core.Clusters
         {
             var settings = new ClusterSettings(scheme: ConnectionStringScheme.MongoDBPlusSrv,
                 endPoints: new[] { new DnsEndPoint("a.b.com", 53) },
-                srvMaxHosts: 1);
+                srvMaxHosts: 2);
             var mockDnsMonitorFactory = CreateMockDnsMonitorFactory();
             using (var subject = CreateSubject(settings: settings, dnsMonitorFactory: mockDnsMonitorFactory.Object))
             {
                 subject.Initialize();
+
+                // SRV response containing only a new node should remove old node and replace with new node
                 PublishDnsResults(subject, _firstEndPoint);
                 subject.Description.Servers.Select(s => s.EndPoint).Should().Equal(_firstEndPoint);
 
+                // SRV response containing an existing node and a new node should add the new node
                 PublishDnsResults(subject, _firstEndPoint, _secondEndPoint);
+                subject.Description.Servers.Select(x => x.EndPoint)
+                    .Should().HaveCount(2)
+                    .And.Contain(_firstEndPoint)
+                    .And.Contain(_secondEndPoint);
 
-                subject.Description.Servers.Select(s => s.EndPoint).Should().Equal(_firstEndPoint);
+                // SRV response containing more nodes than srvMaxHosts should keep existing nodes
+                PublishDnsResults(subject, _firstEndPoint, _secondEndPoint, _thirdEndPoint);
+                subject.Description.Servers.Select(x => x.EndPoint)
+                    .Should().HaveCount(2)
+                    .And.Contain(_firstEndPoint)
+                    .And.Contain(_secondEndPoint);
             }
         }
 
