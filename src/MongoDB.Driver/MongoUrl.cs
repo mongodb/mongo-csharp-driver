@@ -22,6 +22,7 @@ using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Support;
 
 namespace MongoDB.Driver
 {
@@ -166,6 +167,90 @@ namespace MongoDB.Driver
             }
 
             _isResolved = isResolved;
+        }
+
+        internal MongoUrl(ConnectionString connectionString)
+        {
+            _originalUrl = connectionString.ToString();
+            _url = _originalUrl; // keep canonical form
+
+            _allowInsecureTls = connectionString.TlsInsecure.GetValueOrDefault();
+            _applicationName = connectionString.ApplicationName;
+            _authenticationMechanism = connectionString.AuthMechanism;
+            _authenticationMechanismProperties = connectionString.AuthMechanismProperties;
+            _authenticationSource = connectionString.AuthSource;
+            _compressors = connectionString.Compressors;
+#pragma warning disable CS0618 // Type or member is obsolete
+            if (connectionString.ConnectionModeSwitch == ConnectionModeSwitch.UseConnectionMode)
+            {
+                _connectionMode = connectionString.Connect switch
+                {
+                    ClusterConnectionMode.Automatic => ConnectionMode.Automatic,
+                    ClusterConnectionMode.Direct => ConnectionMode.Direct,
+                    ClusterConnectionMode.Standalone => ConnectionMode.Standalone,
+                    ClusterConnectionMode.ReplicaSet => ConnectionMode.ReplicaSet,
+                    ClusterConnectionMode.Sharded => ConnectionMode.ShardRouter,
+                    _ => throw new ArgumentOutOfRangeException()
+                };
+            }
+            _connectionModeSwitch = connectionString.ConnectionModeSwitch;
+#pragma warning restore CS0618 // Type or member is obsolete
+            _connectTimeout = connectionString.ConnectTimeout.GetValueOrDefault(MongoDefaults.ConnectTimeout);
+            _databaseName = connectionString.DatabaseName;
+#pragma warning disable CS0618 // Type or member is obsolete
+            if (connectionString.ConnectionModeSwitch == ConnectionModeSwitch.UseDirectConnection)
+            {
+                _directConnection = connectionString.DirectConnection;
+            }
+#pragma warning restore CS0618 // Type or member is obsolete
+            _fsync = connectionString.FSync;
+#pragma warning disable 618
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+            {
+                _guidRepresentation = connectionString.UuidRepresentation.GetValueOrDefault(GuidRepresentation.Unspecified);
+            }
+#pragma warning restore 618
+            _heartbeatInterval = connectionString.HeartbeatInterval.GetValueOrDefault(ServerSettings.DefaultHeartbeatInterval);
+            _heartbeatTimeout = connectionString.HeartbeatTimeout.GetValueOrDefault(ServerSettings.DefaultHeartbeatTimeout);
+            _ipv6 = connectionString.Ipv6.GetValueOrDefault(false);
+            _isResolved = connectionString.IsResolved;
+            _journal = connectionString.Journal;
+            _loadBalanced = connectionString.LoadBalanced;
+            _localThreshold = connectionString.LocalThreshold.GetValueOrDefault(MongoDefaults.LocalThreshold);
+            _maxConnectionIdleTime = connectionString.MaxIdleTime.GetValueOrDefault(MongoDefaults.MaxConnectionIdleTime);
+            _maxConnectionLifeTime = connectionString.MaxLifeTime.GetValueOrDefault(MongoDefaults.MaxConnectionLifeTime);
+            _maxConnectionPoolSize = connectionString.MaxPoolSize.GetValueOrDefault(MongoDefaults.MaxConnectionPoolSize);
+            _minConnectionPoolSize = connectionString.MinPoolSize.GetValueOrDefault(MongoDefaults.MinConnectionPoolSize);
+            _password = connectionString.Password;
+            _readConcernLevel = connectionString.ReadConcernLevel;
+            _readPreference = connectionString.ReadPreference switch
+            {
+                ReadPreferenceMode.Primary => ReadPreference.Primary,
+                ReadPreferenceMode.PrimaryPreferred => ReadPreference.PrimaryPreferred,
+                ReadPreferenceMode.Secondary => ReadPreference.Secondary,
+                ReadPreferenceMode.SecondaryPreferred => ReadPreference.SecondaryPreferred,
+                ReadPreferenceMode.Nearest => ReadPreference.Nearest,
+                null => ReadPreference.Primary,
+                _ => throw new ArgumentOutOfRangeException()
+            };
+            _replicaSetName = connectionString.ReplicaSet;
+            _retryReads = connectionString.RetryReads;
+            _retryWrites = connectionString.RetryWrites;
+            _scheme = connectionString.Scheme;
+            _servers = connectionString.Hosts.ToMongoServerAddresses();
+            _serverSelectionTimeout = connectionString.ServerSelectionTimeout.GetValueOrDefault(MongoDefaults.ServerSelectionTimeout);
+            _socketTimeout = connectionString.SocketTimeout.GetValueOrDefault(MongoDefaults.SocketTimeout);
+            _srvMaxHosts = connectionString.SrvMaxHosts;
+            _tlsDisableCertificateRevocationCheck = connectionString.TlsDisableCertificateRevocationCheck.GetValueOrDefault(false);
+            _username = connectionString.Username;
+            _useTls = connectionString.Tls.GetValueOrDefault(false);
+            _w = connectionString.W;
+#pragma warning disable 618
+            _waitQueueMultiple = connectionString.WaitQueueMultiple.GetValueOrDefault(MongoDefaults.WaitQueueMultiple);
+            _waitQueueSize = connectionString.WaitQueueSize.GetValueOrDefault(MongoDefaults.WaitQueueSize);
+#pragma warning restore 618
+            _waitQueueTimeout = connectionString.WaitQueueTimeout.GetValueOrDefault(MongoDefaults.WaitQueueTimeout);
+            _wTimeout = connectionString.WTimeout;
         }
 
         // public properties
@@ -754,7 +839,7 @@ namespace MongoDB.Driver
 
             var resolved = connectionString.Resolve(resolveHosts, cancellationToken);
 
-            return new MongoUrl(resolved.ToString(), isResolved: true);
+            return new MongoUrl(resolved);
         }
 
         /// <summary>
@@ -786,7 +871,7 @@ namespace MongoDB.Driver
 
             var resolved = await connectionString.ResolveAsync(resolveHosts, cancellationToken).ConfigureAwait(false);
 
-            return new MongoUrl(resolved.ToString(), isResolved: true);
+            return new MongoUrl(resolved);
         }
 
         /// <summary>

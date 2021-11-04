@@ -25,7 +25,7 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Shared;
+using MongoDB.Driver.Support;
 
 namespace MongoDB.Driver
 {
@@ -869,28 +869,7 @@ namespace MongoDB.Driver
             _retryReads = connectionString.RetryReads;
             _retryWrites = connectionString.RetryWrites;
             _scheme = connectionString.Scheme;
-            _servers = connectionString.Hosts.Select(endPoint =>
-            {
-                DnsEndPoint dnsEndPoint;
-                IPEndPoint ipEndPoint;
-                if ((dnsEndPoint = endPoint as DnsEndPoint) != null)
-                {
-                    return new MongoServerAddress(dnsEndPoint.Host, dnsEndPoint.Port);
-                }
-                else if ((ipEndPoint = endPoint as IPEndPoint) != null)
-                {
-                    var address = ipEndPoint.Address.ToString();
-                    if (ipEndPoint.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6)
-                    {
-                        address = "[" + address + "]";
-                    }
-                    return new MongoServerAddress(address, ipEndPoint.Port);
-                }
-                else
-                {
-                    throw new NotSupportedException("Only DnsEndPoint and IPEndPoints are supported in the connection string.");
-                }
-            });
+            _servers = connectionString.Hosts.ToMongoServerAddresses();
             _serverSelectionTimeout = connectionString.ServerSelectionTimeout.GetValueOrDefault(MongoDefaults.ServerSelectionTimeout);
             _socketTimeout = connectionString.SocketTimeout.GetValueOrDefault(MongoDefaults.SocketTimeout);
             _srvMaxHosts = connectionString.SrvMaxHosts;
