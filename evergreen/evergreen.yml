@@ -521,6 +521,7 @@ functions:
   run-valid-ocsp-server-ca-responder:
     - command: shell.exec
       params:
+        working_dir: mongo-csharp-driver
         script: |
           ${PREPARE_SHELL}
           evergreen/prepare-ocsp.sh
@@ -539,6 +540,7 @@ functions:
   run-valid-ocsp-server-delegate-responder:
     - command: shell.exec
       params:
+        working_dir: mongo-csharp-driver
         script: |
           ${PREPARE_SHELL}
           evergreen/prepare-ocsp.sh
@@ -557,6 +559,7 @@ functions:
   run-revoked-ocsp-server-ca-responder:
     - command: shell.exec
       params:
+        working_dir: mongo-csharp-driver
         script: |
           ${PREPARE_SHELL}
           evergreen/prepare-ocsp.sh
@@ -577,6 +580,7 @@ functions:
   run-revoked-ocsp-server-delegate-responder:
     - command: shell.exec
       params:
+        working_dir: mongo-csharp-driver
         script: |
           ${PREPARE_SHELL}
           evergreen/prepare-ocsp.sh
