@@ -685,7 +685,7 @@ namespace MongoDB.Driver.Core.Configuration
             connectionString += string.Join(",", resolvedHosts) + "/";
             if (_databaseName != null)
             {
-                connectionString += Uri.EscapeDataString(_databaseName) + "/";
+                connectionString += Uri.EscapeDataString(_databaseName);
             }
 
             // remove any option from the resolved options that was specified locally

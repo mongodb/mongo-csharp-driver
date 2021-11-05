@@ -411,7 +411,7 @@ namespace MongoDB.Driver.Tests
 
             var resolved = subject.Resolve();
 
-            Assert.Equal("mongodb://user%40GSSAPI.COM:password@localhost.test.build.10gen.cc/funny?authSource=thisDB;tls=true;replicaSet=rs0", resolved.ToString());
+            Assert.Equal("mongodb://user%40GSSAPI.COM:password@localhost.test.build.10gen.cc:27017/funny?authSource=thisDB&replicaSet=rs0&tls=true", resolved.ToString());
         }
 
         [Fact]
@@ -426,7 +426,7 @@ namespace MongoDB.Driver.Tests
 
             var resolved = await subject.ResolveAsync();
 
-            Assert.Equal("mongodb://user%40GSSAPI.COM:password@localhost.test.build.10gen.cc/funny?authSource=thisDB;tls=true;replicaSet=rs0", resolved.ToString());
+            Assert.Equal("mongodb://user%40GSSAPI.COM:password@localhost.test.build.10gen.cc:27017/funny?authSource=thisDB&replicaSet=rs0&tls=true", resolved.ToString());
         }
 
         [Fact]
