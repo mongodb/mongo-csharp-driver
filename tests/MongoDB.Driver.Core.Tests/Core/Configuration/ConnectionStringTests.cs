@@ -1245,7 +1245,7 @@ namespace MongoDB.Driver.Core.Configuration
 
             var resolved = subject.Resolve();
 
-            resolved.ToString().Should().Be("mongodb://user%40GSSAPI.COM:password@localhost.test.build.10gen.cc:27017/funny/?authSource=thisDB&replicaSet=rs0&tls=true");
+            resolved.ToString().Should().Be("mongodb://user%40GSSAPI.COM:password@localhost.test.build.10gen.cc:27017/funny?authSource=thisDB&replicaSet=rs0&tls=true");
         }
 
         [Fact]
@@ -1259,7 +1259,7 @@ namespace MongoDB.Driver.Core.Configuration
 
             var resolved = await subject.ResolveAsync();
 
-            resolved.ToString().Should().Be("mongodb://user%40GSSAPI.COM:password@localhost.test.build.10gen.cc:27017/funny/?authSource=thisDB&replicaSet=rs0&tls=true");
+            resolved.ToString().Should().Be("mongodb://user%40GSSAPI.COM:password@localhost.test.build.10gen.cc:27017/funny?authSource=thisDB&replicaSet=rs0&tls=true");
         }
 
         [Fact]
