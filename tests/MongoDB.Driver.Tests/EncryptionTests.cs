@@ -24,6 +24,7 @@ using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Encryption;
 using MongoDB.Driver.TestHelpers;
+using MongoDB.Driver.Tests.Specifications.client_side_encryption;
 using MongoDB.Libmongocrypt;
 using Moq;
 using Xunit;
@@ -214,11 +215,10 @@ namespace MongoDB.Driver.Tests
             {
                 if (extraOptions == null)
                 {
-                    extraOptions = new Dictionary<string, object>()
-                    {
-                        { "mongocryptdSpawnPath", Environment.GetEnvironmentVariable("MONGODB_BINARIES") ?? string.Empty }
-                    };
+                    extraOptions = new Dictionary<string, object>();
                 }
+
+                EncryptionTestHelper.ConfigureDefaultExtraOptions(extraOptions);
 
                 var kmsProviders = GetKmsProviders();
                 var autoEncryptionOptions = new AutoEncryptionOptions(
