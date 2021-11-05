@@ -158,17 +158,6 @@ namespace MongoDB.Driver
             _url = builder.ToString(); // keep canonical form
         }
 
-        internal MongoUrl(string url, bool isResolved)
-            : this(url)
-        {
-            if (!isResolved && _scheme != ConnectionStringScheme.MongoDBPlusSrv)
-            {
-                throw new ArgumentException("Only connection strings with scheme MongoDBPlusSrv can be unresolved.", nameof(isResolved));
-            }
-
-            _isResolved = isResolved;
-        }
-
         internal MongoUrl(ConnectionString connectionString)
         {
             _originalUrl = connectionString.ToString();
