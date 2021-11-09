@@ -298,9 +298,10 @@ namespace MongoDB.Driver.Core.Configuration
         [Fact]
         public void Constructor_with_negative_srvMaxHosts_should_throw()
         {
-            Action action = () => new ClusterSettings(srvMaxHosts: -1);
+            var exception = Record.Exception(() => new ClusterSettings(srvMaxHosts: -1));
 
-            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("srvMaxHosts");
+            exception.Should().BeOfType<ArgumentOutOfRangeException>()
+                .Subject.ParamName.Should().Be("srvMaxHosts");
         }
 
         [Theory]
@@ -544,9 +545,10 @@ namespace MongoDB.Driver.Core.Configuration
         {
             var subject = new ClusterSettings();
 
-            Action action = () => subject.With(srvMaxHosts: -1);
+            var exception = Record.Exception(() => subject.With(srvMaxHosts: -1));
 
-            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("srvMaxHosts");
+            exception.Should().BeOfType<ArgumentOutOfRangeException>()
+                .Subject.ParamName.Should().Be("srvMaxHosts");
         }
     }
 }

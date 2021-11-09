@@ -1442,7 +1442,6 @@ namespace MongoDB.Driver.Tests
         public void TestSrvMaxHosts([Values(0, 1, 5)]int srvMaxHosts)
         {
             var subject = new MongoClientSettings { Scheme = ConnectionStringScheme.MongoDBPlusSrv };
-
             subject.SrvMaxHosts.Should().Be(0);
 
             subject.SrvMaxHosts = srvMaxHosts;
@@ -1450,8 +1449,9 @@ namespace MongoDB.Driver.Tests
 
             subject.Freeze();
             subject.SrvMaxHosts.Should().Be(srvMaxHosts);
-            Action action = () => subject.SrvMaxHosts = int.MaxValue;
-            action.ShouldThrow<InvalidOperationException>();
+
+            var exception = Record.Exception(() => subject.SrvMaxHosts = int.MaxValue);
+            exception.Should().BeOfType<InvalidOperationException>();
         }
 
         [Fact]
@@ -1459,9 +1459,9 @@ namespace MongoDB.Driver.Tests
         {
             var subject = new MongoClientSettings();
 
-            Action action = () => subject.SrvMaxHosts = -1;
+            var exception = Record.Exception(() => subject.SrvMaxHosts = -1);
 
-            action.ShouldThrow<ArgumentOutOfRangeException>().And.ParamName.Should().Be("value");
+            exception.Should().BeOfType<ArgumentOutOfRangeException>();
         }
 
         [Fact]
@@ -1469,9 +1469,9 @@ namespace MongoDB.Driver.Tests
         {
             var subject = new MongoClientSettings { SrvMaxHosts = 2, ReplicaSetName = "replSet0" };
 
-            Action action = () => subject.Freeze();
+            var exception = Record.Exception(() => subject.Freeze());
 
-            action.ShouldThrow<InvalidOperationException>();
+            exception.Should().BeOfType<InvalidOperationException>();
         }
 
         [Fact]
@@ -1479,9 +1479,9 @@ namespace MongoDB.Driver.Tests
         {
             var subject = new MongoClientSettings { SrvMaxHosts = 2, LoadBalanced = true };
 
-            Action action = () => subject.Freeze();
+            var exception = Record.Exception(() => subject.Freeze());
 
-            action.ShouldThrow<InvalidOperationException>();
+            exception.Should().BeOfType<InvalidOperationException>();
         }
     }
 }
