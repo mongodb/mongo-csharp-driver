@@ -15,8 +15,10 @@
 
 using System.Linq.Expressions;
 using System.Reflection;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Options;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
 using MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
@@ -74,6 +76,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
         private static AstFilterField TranslateWithStringIndex(TranslationContext context, MethodCallExpression expression, MethodInfo method, Expression fieldExpression, string key)
         {
             var field = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
+
+            if (typeof(BsonValue).IsAssignableFrom(field.Serializer.ValueType))
+            {
+                var valueSerializer = BsonValueSerializer.Instance;
+                return field.SubField(key, valueSerializer);
+            }
 
             if (field.Serializer is IBsonDictionarySerializer dictionarySerializer &&
                 dictionarySerializer.DictionaryRepresentation == DictionaryRepresentation.Document)

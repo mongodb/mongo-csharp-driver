@@ -92,11 +92,36 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             return ExtractPropertyInfoFromLambda(lambda);
         }
 
+        public static MethodInfo IndexerGet<TObject, TIndex, TValue>(Expression<Func<TObject, TIndex, TValue>> lambda)
+        {
+            return ExtractMethodInfoFromLambda(lambda);
+        }
+
+        public static MethodInfo IndexerSet<TObject, TIndex, TValue>(Expression<Func<TObject, TIndex, TValue>> lambda)
+        {
+            return ExtractIndexerSetMethodInfoFromLambda(lambda);
+        }
+
         // private static methods
         private static ConstructorInfo ExtractConstructorInfoFromLambda(LambdaExpression lambda)
         {
             var newExpression = (NewExpression)lambda.Body;
             return newExpression.Constructor;
+        }
+
+        private static MethodInfo ExtractIndexerSetMethodInfoFromLambda(LambdaExpression lambda)
+        {
+            var getMethod = ExtractMethodInfoFromLambda(lambda);
+            var declaringType = getMethod.DeclaringType;
+            foreach (var propertyInfo in declaringType.GetProperties())
+            {
+                if (propertyInfo.GetGetMethod() == getMethod)
+                {
+                    return propertyInfo.GetSetMethod();
+                }
+            }
+
+            throw new ArgumentException($"No set method found for: {lambda.Body}.", nameof(lambda));
         }
 
         private static MethodInfo ExtractMethodInfoFromLambda(LambdaExpression lambda)

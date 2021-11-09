@@ -15,6 +15,7 @@
 
 using System;
 using System.Linq.Expressions;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
@@ -98,6 +99,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers.KnownSerializers
             {
                 var actualType = node.Method.GetGenericArguments()[0];
                 var serializer = BsonSerializer.LookupSerializer(actualType);
+                _currentKnownSerializersNode.AddKnownSerializer(node.Type, serializer);
+            }
+
+            if (node.Method.DeclaringType == typeof(BsonValue) && node.Method.Name == "get_Item")
+            {
+                var serializer = BsonValueSerializer.Instance;
                 _currentKnownSerializersNode.AddKnownSerializer(node.Type, serializer);
             }
 
