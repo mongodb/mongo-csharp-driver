@@ -60,7 +60,7 @@ namespace MongoDB.Driver
         /// <param name="connectionId">The connection identifier.</param>
         /// <param name="message">The message.</param>
         /// <param name="command">The command.</param>
-        /// // <param name="result">The command result.</param>
+        /// <param name="result">The command result.</param>
         /// <param name="innerException">The inner exception.</param>
         ///
         public MongoCommandException(ConnectionId connectionId, string message, BsonDocument command, BsonDocument result, Exception innerException)

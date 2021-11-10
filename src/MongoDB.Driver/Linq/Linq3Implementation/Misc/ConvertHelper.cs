@@ -14,12 +14,68 @@
 */
 
 using System;
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 {
     internal static class ConvertHelper
     {
+        private readonly static (Type SourceType, Type TargetType)[] __wideningConverts = new[]
+        {
+            (typeof(byte), typeof(short)),
+            (typeof(byte), typeof(ushort)),
+            (typeof(byte), typeof(int)),
+            (typeof(byte), typeof(uint)),
+            (typeof(byte), typeof(long)),
+            (typeof(byte), typeof(ulong)),
+            (typeof(byte), typeof(float)),
+            (typeof(byte), typeof(double)),
+            (typeof(byte), typeof(decimal)),
+            (typeof(sbyte), typeof(short)),
+            (typeof(sbyte), typeof(ushort)),
+            (typeof(sbyte), typeof(int)),
+            (typeof(sbyte), typeof(uint)),
+            (typeof(sbyte), typeof(long)),
+            (typeof(sbyte), typeof(ulong)),
+            (typeof(sbyte), typeof(float)),
+            (typeof(sbyte), typeof(double)),
+            (typeof(sbyte), typeof(decimal)),
+            (typeof(short), typeof(int)),
+            (typeof(short), typeof(uint)),
+            (typeof(short), typeof(long)),
+            (typeof(short), typeof(ulong)),
+            (typeof(short), typeof(float)),
+            (typeof(short), typeof(double)),
+            (typeof(short), typeof(decimal)),
+            (typeof(ushort), typeof(int)),
+            (typeof(ushort), typeof(uint)),
+            (typeof(ushort), typeof(long)),
+            (typeof(ushort), typeof(ulong)),
+            (typeof(ushort), typeof(float)),
+            (typeof(ushort), typeof(double)),
+            (typeof(ushort), typeof(decimal)),
+            (typeof(int), typeof(long)),
+            (typeof(int), typeof(ulong)),
+            (typeof(int), typeof(float)),
+            (typeof(int), typeof(double)),
+            (typeof(int), typeof(decimal)),
+            (typeof(uint), typeof(long)),
+            (typeof(uint), typeof(ulong)),
+            (typeof(uint), typeof(float)),
+            (typeof(uint), typeof(double)),
+            (typeof(uint), typeof(decimal)),
+            (typeof(long), typeof(float)),
+            (typeof(long), typeof(double)),
+            (typeof(long), typeof(decimal)),
+            (typeof(ulong), typeof(float)),
+            (typeof(ulong), typeof(double)),
+            (typeof(ulong), typeof(decimal)),
+            (typeof(float), typeof(double)),
+            (typeof(float), typeof(decimal)),
+            (typeof(double), typeof(decimal))
+        };
+
         public static Expression RemoveConvertToMongoQueryable(Expression expression)
         {
             if (expression.NodeType == ExpressionType.Convert)
@@ -69,22 +125,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 
             static bool IsWideningConvert(Type sourceType, Type targetType)
             {
-                if (sourceType == typeof(int))
-                {
-                    return targetType == typeof(long) || targetType == typeof(double) || targetType == typeof(decimal);
-                }
-
-                if (sourceType == typeof(long))
-                {
-                    return targetType == typeof(double) || targetType == typeof(decimal);
-                }
-
-                if (sourceType == typeof(double))
-                {
-                    return targetType == typeof(decimal);
-                }
-
-                return false;
+                return __wideningConverts.Contains((sourceType, targetType));
             }
         }
     }

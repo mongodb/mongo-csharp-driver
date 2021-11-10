@@ -25,6 +25,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             switch (expression.Method.Name)
             {
                 case "Abs": return AbsMethodToAggregationExpressionTranslator.Translate(context, expression);
+                case "Add": return AddMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Aggregate": return AggregateMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "All": return AllMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Any": return AnyMethodToAggregationExpressionTranslator.Translate(context, expression);
@@ -53,6 +54,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 case "Split": return SplitMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Sqrt": return SqrtMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "StrLenBytes": return StrLenBytesMethodToAggregationExpressionTranslator.Translate(context, expression);
+                case "Subtract": return SubtractMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Sum": return SumMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Take": return TakeMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "ToArray": return ToArrayMethodToAggregationExpressionTranslator.Translate(context, expression);
@@ -62,6 +64,18 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 case "Where": return WhereMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Union": return UnionMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Zip": return ZipMethodToAggregationExpressionTranslator.Translate(context, expression);
+
+                case "AddDays":
+                case "AddHours":
+                case "AddMilliseconds":
+                case "AddMinutes":
+                case "AddMonths":
+                case "AddQuarters":
+                case "AddSeconds":
+                case "AddTicks":
+                case "AddWeeks":
+                case "AddYears":
+                    return DateTimeAddOrSubtractMethodToAggregationExpressionTranslator.Translate(context, expression);
 
                 case "Count":
                 case "LongCount":

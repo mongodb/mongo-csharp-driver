@@ -35,7 +35,17 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             return new AstConstantExpression(value);
         }
 
+        public static implicit operator AstExpression(double value)
+        {
+            return new AstConstantExpression(value);
+        }
+
         public static implicit operator AstExpression(int value)
+        {
+            return new AstConstantExpression(value);
+        }
+
+        public static implicit operator AstExpression(long value)
         {
             return new AstConstantExpression(value);
         }
@@ -252,6 +262,25 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             return AstExpression.Convert(input, to, onError, onNull);
         }
 
+        public static AstExpression DateAdd(
+            AstExpression startDate,
+            AstExpression unit,
+            AstExpression amount,
+            AstExpression timezone = null)
+        {
+            return new AstDateAddExpression(startDate, unit, amount, timezone);
+        }
+
+        public static AstExpression DateDiff(
+            AstExpression startDate,
+            AstExpression endDate,
+            AstExpression unit,
+            AstExpression timezone = null,
+            AstExpression startOfWeek = null)
+        {
+            return new AstDateDiffExpression(startDate, endDate, unit, timezone, startOfWeek);
+        }
+
         public static AstExpression DateFromParts(
             AstExpression year,
             AstExpression month = null,
@@ -280,6 +309,15 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             return new AstDatePartExpression(part, date, timezone);
         }
 
+        public static AstExpression DateSubtract(
+            AstExpression startDate,
+            AstExpression unit,
+            AstExpression amount,
+            AstExpression timezone = null)
+        {
+            return new AstDateSubtractExpression(startDate, unit, amount, timezone);
+        }
+
         public static AstExpression DateToString(AstExpression date, AstExpression format = null, AstExpression timezone = null, AstExpression onNull = null)
         {
             return new AstDateToStringExpression(date, format, timezone, onNull);
@@ -287,7 +325,29 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
 
         public static AstExpression Divide(AstExpression arg1, AstExpression arg2)
         {
+            if (arg1 is AstConstantExpression constant1 && arg2 is AstConstantExpression constant2)
+            {
+                return Divide(constant1, constant2);
+            }
+
             return new AstBinaryExpression(AstBinaryOperator.Divide, arg1, arg2);
+
+            static AstExpression Divide(AstConstantExpression constant1, AstConstantExpression constant2)
+            {
+                return (constant1.Value.BsonType, constant2.Value.BsonType) switch
+                {
+                    (BsonType.Double, BsonType.Double) => constant1.Value.AsDouble / constant2.Value.AsDouble,
+                    (BsonType.Double, BsonType.Int32) => constant1.Value.AsDouble / constant2.Value.AsInt32,
+                    (BsonType.Double, BsonType.Int64) => constant1.Value.AsDouble / constant2.Value.AsInt64,
+                    (BsonType.Int32, BsonType.Double) => constant1.Value.AsInt32 / constant2.Value.AsDouble,
+                    (BsonType.Int32, BsonType.Int32) => (double)constant1.Value.AsInt32 / constant2.Value.AsInt32,
+                    (BsonType.Int32, BsonType.Int64) => (double)constant1.Value.AsInt32 / constant2.Value.AsInt64,
+                    (BsonType.Int64, BsonType.Double) => constant1.Value.AsInt64 / constant2.Value.AsDouble,
+                    (BsonType.Int64, BsonType.Int32) => (double)constant1.Value.AsInt64 / constant2.Value.AsInt32,
+                    (BsonType.Int64, BsonType.Int64) => (double)constant1.Value.AsInt64 / constant2.Value.AsInt64,
+                    _ => new AstBinaryExpression(AstBinaryOperator.Divide, constant1, constant2)
+                };
+            }
         }
 
         public static AstExpression Eq(AstExpression arg1, AstExpression arg2)

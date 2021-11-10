@@ -239,6 +239,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors
             return node.Update(VisitAndConvert(node.InitArgs), VisitAndConvert(node.AccumulateArgs));
         }
 
+        public virtual AstNode VisitDateAddExpression(AstDateAddExpression node)
+        {
+            return node.Update(VisitAndConvert(node.StartDate), VisitAndConvert(node.Unit), VisitAndConvert(node.Amount), VisitAndConvert(node.Timezone));
+        }
+
+        public virtual AstNode VisitDateDiffExpression(AstDateDiffExpression node)
+        {
+            return node.Update(VisitAndConvert(node.StartDate), VisitAndConvert(node.EndDate), VisitAndConvert(node.Unit), VisitAndConvert(node.Timezone), VisitAndConvert(node.StartOfWeek));
+        }
+
         public virtual AstNode VisitDateFromIsoWeekPartsExpression(AstDateFromIsoWeekPartsExpression node)
         {
             return node.Update(VisitAndConvert(node.IsoWeekYear), VisitAndConvert(node.IsoWeek), VisitAndConvert(node.IsoDayOfWeek), VisitAndConvert(node.Hour), VisitAndConvert(node.Minute), VisitAndConvert(node.Second), VisitAndConvert(node.Millisecond), VisitAndConvert(node.Timezone));
@@ -257,6 +267,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors
         public virtual AstNode VisitDatePartExpression(AstDatePartExpression node)
         {
             return node.Update(VisitAndConvert(node.Date), VisitAndConvert(node.Timezone));
+        }
+
+        public virtual AstNode VisitDateSubtractExpression(AstDateSubtractExpression node)
+        {
+            return node.Update(VisitAndConvert(node.StartDate), VisitAndConvert(node.Unit), VisitAndConvert(node.Amount), VisitAndConvert(node.Timezone));
         }
 
         public virtual AstNode VisitDateToPartsExpression(AstDateToPartsExpression node)
