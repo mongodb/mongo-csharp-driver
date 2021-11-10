@@ -1030,14 +1030,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                     switch (currentOperatingSystem)
                                     {
                                         case OperatingSystemPlatform.Windows:
-                                            AssertInnerEncryptionException<System.ComponentModel.Win32Exception>(
-                                                exception,
-#if NET472
-                                                "A call to SSPI failed, see inner exception.",
-#else
-                                                "Authentication failed, see inner exception.",
-#endif
-                                                "The message received was unexpected or badly formatted");
+                                            AssertTlsWithoutClientCertOnWindows(exception);
                                             break;
                                         case OperatingSystemPlatform.Linux:
                                             AssertInnerEncryptionException(exception, Type.GetType("Interop+Crypto+OpenSslCryptographicException, System.Net.Security", throwOnError: true), "Authentication failed, see inner exception.", "SSL Handshake failed with OpenSSL error - SSL_ERROR_SSL.");
@@ -1077,14 +1070,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                 switch (currentOperatingSystem)
                                 {
                                     case OperatingSystemPlatform.Windows:
-                                        AssertInnerEncryptionException<System.ComponentModel.Win32Exception>(
-                                            exception,
-#if NET472
-                                            "A call to SSPI failed, see inner exception.",
-#else
-                                            "Authentication failed, see inner exception.",
-#endif
-                                            "The message received was unexpected or badly formatted");
+                                        AssertTlsWithoutClientCertOnWindows(exception);
                                         break;
                                     case OperatingSystemPlatform.Linux:
                                         AssertInnerEncryptionException(exception, Type.GetType("Interop+Crypto+OpenSslCryptographicException, System.Net.Security", throwOnError: true), "Authentication failed, see inner exception.", "SSL Handshake failed with OpenSSL error - SSL_ERROR_SSL.");
@@ -1124,14 +1110,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                 switch (currentOperatingSystem)
                                 {
                                     case OperatingSystemPlatform.Windows:
-                                        AssertInnerEncryptionException<System.ComponentModel.Win32Exception>(
-                                            exception,
-#if NET472
-                                            "A call to SSPI failed, see inner exception.",
-#else
-                                            "Authentication failed, see inner exception.",
-#endif
-                                            "The message received was unexpected or badly formatted");
+                                        AssertTlsWithoutClientCertOnWindows(exception);
                                         break;
                                     case OperatingSystemPlatform.Linux:
                                         AssertInnerEncryptionException(exception, Type.GetType("Interop+Crypto+OpenSslCryptographicException, System.Net.Security", throwOnError: true), "Authentication failed, see inner exception.", "SSL Handshake failed with OpenSSL error - SSL_ERROR_SSL.");
@@ -1170,14 +1149,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                 switch (currentOperatingSystem)
                                 {
                                     case OperatingSystemPlatform.Windows:
-                                        AssertInnerEncryptionException<System.ComponentModel.Win32Exception>(
-                                            exception,
-#if NET472
-                                            "A call to SSPI failed, see inner exception.",
-#else
-                                            "Authentication failed, see inner exception.",
-#endif
-                                            "The message received was unexpected or badly formatted");
+                                        AssertTlsWithoutClientCertOnWindows(exception);
                                         break;
                                     case OperatingSystemPlatform.Linux:
                                         AssertInnerEncryptionException(exception, Type.GetType("Interop+Crypto+OpenSslCryptographicException, System.Net.Security", throwOnError: true), "Authentication failed, see inner exception.", "SSL Handshake failed with OpenSSL error - SSL_ERROR_SSL.");
@@ -1213,6 +1185,30 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             {
                 isCertificateExpired.Should().Be(isExpired);
                 isInvalidHost.Should().Be(invalidHost);
+            }
+
+            void AssertTlsWithoutClientCertOnWindows(Exception exception)
+            {
+                try
+                {
+                    AssertInnerEncryptionException<System.ComponentModel.Win32Exception>(
+                        exception,
+#if NET472
+                        "A call to SSPI failed, see inner exception.",
+#else
+                        "Authentication failed, see inner exception.",
+#endif
+                        "The message received was unexpected or badly formatted");
+                }
+                catch (Xunit.Sdk.XunitException) // assertation failed
+                {
+                    // Sometimes the mock server triggers SocketError.ConnectionReset (10054) on windows instead the expected exception.
+                    // It looks like a test env issue, a similar behavior presents in other drivers, so we rely on the same check on different OSs
+                    AssertInnerEncryptionException<SocketException>(
+                        exception,
+                        "Unable to read data from the transport connection: An existing connection was forcibly closed by the remote host.",
+                        "An existing connection was forcibly closed by the remote host");
+                }
             }
 
             void KmsProviderEndpointConfigurator(string kmsProviderName, Dictionary<string, object> kmsOptions)
