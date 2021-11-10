@@ -137,10 +137,6 @@ namespace MongoDB.Driver.Tests
             options2 = CreateAutoEncryptionOptions(tlsOptions: new SslSettings());
             options1.Equals(options2).Should().BeFalse();
 
-            options1 = CreateAutoEncryptionOptions(tlsOptions: new SslSettings() { ServerCertificateValidationCallback = new System.Net.Security.RemoteCertificateValidationCallback((a, b, c, d) => true) });
-            options2 = CreateAutoEncryptionOptions(tlsOptions: new SslSettings());
-            options1.Equals(options2).Should().BeFalse();
-
             AutoEncryptionOptions CreateAutoEncryptionOptions(SslSettings tlsOptions = null, string tlsKey = "test", CollectionNamespace collectionNamespace = null)
             {
                 var autoEncryptionOptions = new AutoEncryptionOptions(

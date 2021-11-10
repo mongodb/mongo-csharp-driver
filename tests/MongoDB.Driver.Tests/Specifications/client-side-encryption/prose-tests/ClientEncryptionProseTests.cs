@@ -19,7 +19,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net.Security;
 using System.Net.Sockets;
-using System.Reflection;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
@@ -31,11 +30,9 @@ using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
-using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Encryption;
@@ -46,7 +43,7 @@ using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 {
-    [Trait("Category", "FLE")]
+    [Trait("Category", "CSFLE")]
     public class ClientEncryptionProseTests : LoggableTestClass
     {
         #region static
@@ -557,7 +554,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         [InlineData("aws", null, null, null)]
         [InlineData("aws", "kms.us-east-1.amazonaws.com", null, null)]
         [InlineData("aws", "kms.us-east-1.amazonaws.com:443", null, null)]
-        [InlineData("aws", "kms.us-east-1.amazonaws.com:12345", "$ConnectionRefusedSocketException$", null)]
+        [InlineData("aws", "kms.us-east-1.amazonaws.com:12345", "$ConnectionRefused$", null)]
         [InlineData("aws", "kms.us-east-2.amazonaws.com", "us-east-1", null)]
         [InlineData("aws", "example.com", "parse error", null)]
         // additional not spec tests
@@ -568,9 +565,9 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         [InlineData("gcp", "cloudkms.googleapis.com:443", null, "parse error")]
         [InlineData("gcp", "example.com:443", "Invalid KMS response", null)]
         // kmip
-        [InlineData("kmip", null, null, "No such host is known")]
+        [InlineData("kmip", null, null, "$HostNotFound$")]
         [InlineData("kmip", "localhost:5698", null, null)]
-        [InlineData("kmip", "doesnotexist.local:5698", "No such host is known", null)] //nodename nor servname provided, or not known
+        [InlineData("kmip", "doesnotexist.local:5698", "$HostNotFound$", null)]
         public void CustomEndpointTest(
             string kmsType,
             string customEndpoint,
@@ -638,18 +635,16 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 {
                     var innerException = ex.Should().BeOfType<MongoEncryptionException>().Subject.InnerException;
 
-                    if (expectedExceptionInfo.StartsWith("$") && expectedExceptionInfo.EndsWith("Exception$"))
+                    if (expectedExceptionInfo.StartsWith("$") &&
+                        expectedExceptionInfo.EndsWith("$") &&
+                        Enum.TryParse<SocketError>(expectedExceptionInfo.Trim(new char[] { '$' }), out var socketError))
                     {
-                        var expectedException = CoreExceptionHelper.CreateException(expectedExceptionInfo.Trim('$'));
-                        var expectedExceptionType = expectedException.GetType().GetTypeInfo();
-                        expectedExceptionType.IsAssignableFrom(innerException.GetType()).Should().BeTrue();
-                        innerException.Message.Should().StartWith(expectedException.Message);
+                        var e = innerException.Should().BeAssignableTo<SocketException>().Subject;// kmip triggers driver side exception
+                        e.SocketErrorCode.Should().Be(socketError); // the error message is platform dependent
                     }
                     else
                     {
-                        Exception e = kmsType == "kmip"
-                            ? innerException.Should().BeAssignableTo<SocketException>().Subject // kmip triggers driver side exception
-                            : innerException.Should().BeOfType<CryptException>().Subject;
+                        var e = innerException.Should().BeOfType<CryptException>().Subject;
                         e.Message.Should().Contain(expectedExceptionInfo.ToString());
                     }
                 }
@@ -694,7 +689,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                         ko.Add("endpoint", "oauth2.googleapis.com:443");
                         break;
                     case "kmip":
-                        //ko.Add("endpoint", "localhost:5698");
+                        // do nothing
                         break;
                 }
             }
@@ -966,7 +961,6 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             }
         }
 
-        [Trait("Category", "RequireCsfleMockServers")]
         [SkippableTheory]
         [ParameterAttributeData]
         public void KmsTlsOptionsTest(
@@ -981,7 +975,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 .SkipWhen(() => kmsProvider == "gcp", SupportedOperatingSystem.MacOS, SupportedTargetFramework.NetStandard20);
             RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true);
 
-            bool? isCertificateExpired = null, isInvalidHost = null; // will be assigned inside TlsOptionsConfigurator
+            bool? isCertificateExpired = null, isInvalidHost = null; // will be assigned inside TestRelatedClientEncryptionOptionsConfigurator
 
             using (var clientEncrypted = ConfigureClientEncrypted())
             using (var clientEncryption = ConfigureClientEncryption(
@@ -1036,7 +1030,14 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                     switch (currentOperatingSystem)
                                     {
                                         case OperatingSystemPlatform.Windows:
-                                            AssertInnerEncryptionException<System.ComponentModel.Win32Exception>(exception, "Authentication failed, see inner exception.", "The message received was unexpected or badly formatted");
+                                            AssertInnerEncryptionException<System.ComponentModel.Win32Exception>(
+                                                exception,
+#if NET472
+                                                "A call to SSPI failed, see inner exception.",
+#else
+                                                "Authentication failed, see inner exception.",
+#endif
+                                                "The message received was unexpected or badly formatted");
                                             break;
                                         case OperatingSystemPlatform.Linux:
                                             AssertInnerEncryptionException(exception, Type.GetType("Interop+Crypto+OpenSslCryptographicException, System.Net.Security", throwOnError: true), "Authentication failed, see inner exception.", "SSL Handshake failed with OpenSSL error - SSL_ERROR_SSL.");
@@ -1076,13 +1077,19 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                 switch (currentOperatingSystem)
                                 {
                                     case OperatingSystemPlatform.Windows:
-                                        AssertInnerEncryptionException<System.ComponentModel.Win32Exception>(exception, "Authentication failed, see inner exception.", "The message received was unexpected or badly formatted");
+                                        AssertInnerEncryptionException<System.ComponentModel.Win32Exception>(
+                                            exception,
+#if NET472
+                                            "A call to SSPI failed, see inner exception.",
+#else
+                                            "Authentication failed, see inner exception.",
+#endif
+                                            "The message received was unexpected or badly formatted");
                                         break;
                                     case OperatingSystemPlatform.Linux:
                                         AssertInnerEncryptionException(exception, Type.GetType("Interop+Crypto+OpenSslCryptographicException, System.Net.Security", throwOnError: true), "Authentication failed, see inner exception.", "SSL Handshake failed with OpenSSL error - SSL_ERROR_SSL.");
                                         break;
                                     case OperatingSystemPlatform.MacOS:
-                                        //Interop + AppleCrypto + SslException
                                         AssertInnerEncryptionException(exception, Type.GetType("Interop+AppleCrypto+SslException, System.Net.Security", throwOnError: true), "Authentication failed, see inner exception.", "handshake failure");
                                         break;
                                     default: throw new Exception($"Unsupported OS {currentOperatingSystem}.");
@@ -1117,7 +1124,14 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                 switch (currentOperatingSystem)
                                 {
                                     case OperatingSystemPlatform.Windows:
-                                        AssertInnerEncryptionException<System.ComponentModel.Win32Exception>(exception, "Authentication failed, see inner exception.", "The message received was unexpected or badly formatted");
+                                        AssertInnerEncryptionException<System.ComponentModel.Win32Exception>(
+                                            exception,
+#if NET472
+                                            "A call to SSPI failed, see inner exception.",
+#else
+                                            "Authentication failed, see inner exception.",
+#endif
+                                            "The message received was unexpected or badly formatted");
                                         break;
                                     case OperatingSystemPlatform.Linux:
                                         AssertInnerEncryptionException(exception, Type.GetType("Interop+Crypto+OpenSslCryptographicException, System.Net.Security", throwOnError: true), "Authentication failed, see inner exception.", "SSL Handshake failed with OpenSSL error - SSL_ERROR_SSL.");
@@ -1156,7 +1170,14 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                 switch (currentOperatingSystem)
                                 {
                                     case OperatingSystemPlatform.Windows:
-                                        AssertInnerEncryptionException<System.ComponentModel.Win32Exception>(exception, "Authentication failed, see inner exception.", "The message received was unexpected or badly formatted");
+                                        AssertInnerEncryptionException<System.ComponentModel.Win32Exception>(
+                                            exception,
+#if NET472
+                                            "A call to SSPI failed, see inner exception.",
+#else
+                                            "Authentication failed, see inner exception.",
+#endif
+                                            "The message received was unexpected or badly formatted");
                                         break;
                                     case OperatingSystemPlatform.Linux:
                                         AssertInnerEncryptionException(exception, Type.GetType("Interop+Crypto+OpenSslCryptographicException, System.Net.Security", throwOnError: true), "Authentication failed, see inner exception.", "SSL Handshake failed with OpenSSL error - SSL_ERROR_SSL.");
