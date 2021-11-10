@@ -97,14 +97,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public static void AddRetryableWriteErrorLabelOnCheckoutRetryableWrite(Exception exception)
-        {
-            if (exception is MongoConnectionPoolPausedException mongoPoolPausedException)
-            {
-                mongoPoolPausedException.AddErrorLabel(RetryableWriteErrorLabel);
-            }
-        }
-
         public static bool IsCommandRetryable(BsonDocument command)
         {
             return
@@ -120,6 +112,10 @@ namespace MongoDB.Driver.Core.Operations
                 return true;
             }
             if (exception is MongoCursorNotFoundException)
+            {
+                return true;
+            }
+            if (exception is MongoConnectionPoolPausedException)
             {
                 return true;
             }
