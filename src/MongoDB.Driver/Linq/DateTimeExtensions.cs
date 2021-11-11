@@ -278,5 +278,42 @@ namespace MongoDB.Driver.Linq
         {
             throw new InvalidOperationException("This DateTime.Subtract method is only intended to be used in LINQ queries.");
         }
+
+        /// <summary>
+        /// Truncates a DateTime value to the specified unit.
+        /// </summary>
+        /// <param name="this">The original DateTime.</param>
+        /// <param name="unit">The unit.</param>
+        /// <returns>The resulting DateTime.</returns>
+        public static DateTime Truncate(this DateTime @this, DateTimeUnit unit)
+        {
+            throw new InvalidOperationException("This DateTime.Truncate method is only intended to be used in LINQ queries.");
+        }
+
+        /// <summary>
+        /// Truncates a DateTime value to the specified unit and bin size.
+        /// </summary>
+        /// <param name="this">The original DateTime.</param>
+        /// <param name="unit">The unit.</param>
+        /// <param name="binSize">The bin size.</param>
+        /// <returns>The resulting DateTime.</returns>
+        public static DateTime Truncate(this DateTime @this, DateTimeUnit unit, long binSize)
+        {
+            throw new InvalidOperationException("This DateTime.Truncate method is only intended to be used in LINQ queries.");
+        }
+
+        /// <summary>
+        /// Truncates a DateTime value to the specified unit and bin size taking a timezone into consideration.
+        /// </summary>
+        /// <param name="this">The original DateTime.</param>
+        /// <param name="unit">The unit.</param>
+        /// <param name="binSize">The bin size.</param>
+        /// <param name="timezone">The timezone.</param>
+        /// <returns>The resulting DateTime.</returns>
+        /// <remarks>See the server documentation for $dateTrunc for information on timezones in MongoDB.</remarks>
+        public static DateTime Truncate(this DateTime @this, DateTimeUnit unit, long binSize, string timezone)
+        {
+            throw new InvalidOperationException("This DateTime.Truncate method is only intended to be used in LINQ queries.");
+        }
     }
 }

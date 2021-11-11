@@ -81,11 +81,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 if (method.IsOneOf(__dateTimeSubtractWithUnitMethods))
                 {
                     var unitExpression = arguments[2];
-                    var dateTimeUnit = unitExpression.GetConstantValue<DateTimeUnit>(containingExpression: expression);
-                    unit = dateTimeUnit.Unit;
-                    if (dateTimeUnit is WeekWithStartOfWeekDayTimeUnit withStartOfWeekUnit)
+                    var unitConstant = unitExpression.GetConstantValue<DateTimeUnit>(containingExpression: expression);
+                    unit = unitConstant.Unit;
+                    if (unitConstant is WeekWithStartOfWeekDayTimeUnit unitConstantWithStartOfWeek)
                     {
-                        startOfWeek = withStartOfWeekUnit.StartOfWeek;
+                        startOfWeek = unitConstantWithStartOfWeek.StartOfWeek;
                     }
                     else
                     {

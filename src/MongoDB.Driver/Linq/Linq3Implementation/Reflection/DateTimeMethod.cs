@@ -53,6 +53,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __subtractWithTimeSpanAndTimezone;
         private static readonly MethodInfo __subtractWithUnit;
         private static readonly MethodInfo __subtractWithUnitAndTimezone;
+        private static readonly MethodInfo __truncate;
+        private static readonly MethodInfo __truncateWithBinSize;
+        private static readonly MethodInfo __truncateWithBinSizeAndTimezone;
 
         // static constructor
         static DateTimeMethod()
@@ -89,6 +92,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __subtractWithTimeSpanAndTimezone = ReflectionInfo.Method((DateTime @this, TimeSpan value, string timezone) => @this.Subtract(value, timezone));
             __subtractWithUnit = ReflectionInfo.Method((DateTime @this, long value, DateTimeUnit unit) => @this.Subtract(value, unit));
             __subtractWithUnitAndTimezone = ReflectionInfo.Method((DateTime @this, long value, DateTimeUnit unit, string timezone) => @this.Subtract(value, unit, timezone));
+            __truncate = ReflectionInfo.Method((DateTime @this, DateTimeUnit unit) => @this.Truncate(unit));
+            __truncateWithBinSize = ReflectionInfo.Method((DateTime @this, DateTimeUnit unit, long binSize) => @this.Truncate(unit, binSize));
+            __truncateWithBinSizeAndTimezone = ReflectionInfo.Method((DateTime @this, DateTimeUnit unit, long binSize, string timezone) => @this.Truncate(unit, binSize, timezone));
         }
 
         // public properties
@@ -124,5 +130,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo SubtractWithTimeSpanAndTimezone => __subtractWithTimeSpanAndTimezone;
         public static MethodInfo SubtractWithUnit => __subtractWithUnit;
         public static MethodInfo SubtractWithUnitAndTimezone => __subtractWithUnitAndTimezone;
+        public static MethodInfo Truncate => __truncate;
+        public static MethodInfo TruncateWithBinSize => __truncateWithBinSize;
+        public static MethodInfo TruncateWithBinSizeAndTimezone => __truncateWithBinSizeAndTimezone;
     }
 }

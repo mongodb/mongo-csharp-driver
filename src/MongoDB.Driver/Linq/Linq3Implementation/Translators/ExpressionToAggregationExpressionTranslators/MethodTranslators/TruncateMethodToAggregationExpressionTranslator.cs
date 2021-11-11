@@ -14,7 +14,9 @@
 */
 
 using System.Linq.Expressions;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
+using MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
 
@@ -26,6 +28,46 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
+
+            if (method.IsOneOf(DateTimeMethod.Truncate, DateTimeMethod.TruncateWithBinSize, DateTimeMethod.TruncateWithBinSizeAndTimezone))
+            {
+                var dateExpression = arguments[0];
+                var dateTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, dateExpression);
+
+                var unitExpression = arguments[1];
+                var unitConstant = unitExpression.GetConstantValue<DateTimeUnit>(expression);
+                AstExpression unit = unitConstant.Unit;
+                AstExpression startOfWeek;
+                if (unitConstant is WeekWithStartOfWeekDayTimeUnit unitConstantWithStartOfWeek)
+                {
+                    startOfWeek = unitConstantWithStartOfWeek.StartOfWeek;
+                }
+                else
+                {
+                    startOfWeek = null;
+                }
+
+                AstExpression binSize = null;
+                if (method.IsOneOf(DateTimeMethod.TruncateWithBinSize, DateTimeMethod.TruncateWithBinSizeAndTimezone))
+                {
+                    var binSizeExpression = arguments[2];
+                    binSizeExpression = ConvertHelper.RemoveWideningConvert(binSizeExpression);
+                    var binSizeTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, binSizeExpression);
+                    binSize = binSizeTranslation.Ast;
+                }
+
+                AstExpression timezone = null;
+                if (method.Is(DateTimeMethod.TruncateWithBinSizeAndTimezone))
+                {
+                    var timezoneExpression = arguments[3];
+                    var timezoneTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, timezoneExpression);
+                    timezone = timezoneTranslation.Ast;
+                }
+
+                var ast = AstExpression.DateTrunc(dateTranslation.Ast, unit, binSize, timezone, startOfWeek);
+                var serializer = DateTimeSerializer.UtcInstance;
+                return new AggregationExpression(expression, ast, serializer);
+            }
 
             if (method.IsOneOf(MathMethod.TruncateDecimal, MathMethod.TruncateDouble))
             {

@@ -284,6 +284,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors
             return node.Update(VisitAndConvert(node.Date), VisitAndConvert(node.Format), VisitAndConvert(node.Timezone), VisitAndConvert(node.OnNull));
         }
 
+        public virtual AstNode VisitDateTruncExpression(AstDateTruncExpression node)
+        {
+            return node.Update(VisitAndConvert(node.Date), VisitAndConvert(node.Unit), VisitAndConvert(node.BinSize), VisitAndConvert(node.Timezone), VisitAndConvert(node.StartOfWeek));
+        }
+
         public virtual AstNode VisitElemMatchFilterOperation(AstElemMatchFilterOperation node)
         {
             return node.Update(VisitAndConvert(node.Filter));

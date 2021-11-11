@@ -323,6 +323,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             return new AstDateToStringExpression(date, format, timezone, onNull);
         }
 
+        public static AstExpression DateTrunc(
+           AstExpression date,
+           AstExpression unit,
+           AstExpression binSize = null,
+           AstExpression timezone = null,
+           AstExpression startOfWeek = null)
+        {
+            return new AstDateTruncExpression(date, unit, binSize, timezone, startOfWeek);
+        }
+
         public static AstExpression Divide(AstExpression arg1, AstExpression arg2)
         {
             if (arg1 is AstConstantExpression constant1 && arg2 is AstConstantExpression constant2)
