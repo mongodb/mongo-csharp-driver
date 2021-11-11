@@ -422,8 +422,8 @@ Task("TestCsfleWithMockedKms")
         switch (target.ToLowerInvariant()) // target can be not only moniker related
         {
             case "testcsflewithmockedkmsnet472": settings.Framework = "net472"; break;
-            case "testcsflewithmockedkmsnetStandard20": settings.Framework = "netcoreapp2.1"; break;
-            case "testcsflewithmockedkmsnetStandard21": settings.Framework = "netcoreapp3.1"; break;
+            case "testcsflewithmockedkmsnetstandard20": settings.Framework = "netcoreapp2.1"; break;
+            case "testcsflewithmockedkmsnetstandard21": settings.Framework = "netcoreapp3.1"; break;
         }
 
         DotNetCoreTest(
