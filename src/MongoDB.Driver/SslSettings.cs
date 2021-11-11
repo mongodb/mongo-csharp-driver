@@ -255,7 +255,7 @@ namespace MongoDB.Driver
         // internal methods
         internal SslStreamSettings ToSslStreamSettings()
         {
-            var clientCertificates = _clientCertificateCollection != null ? ((IEnumerable)_clientCertificateCollection).Cast<X509Certificate>() : Enumerable.Empty<X509Certificate>(); ;
+            var clientCertificates = _clientCertificateCollection != null ? ((IEnumerable)_clientCertificateCollection).Cast<X509Certificate>() : Enumerable.Empty<X509Certificate>();
             return new SslStreamSettings(
                 checkCertificateRevocation: _checkCertificateRevocation,
                 clientCertificates: Optional.Create(clientCertificates),

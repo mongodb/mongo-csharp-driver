@@ -9,8 +9,8 @@
 
 # Don't write anything to output
 if [ -z "$Venv" ]; then
-    if [ -e "/cygdrive/c/python/Python36/python" ]; then
-        echo "/cygdrive/c/python/Python36/python"
+    if [ -e "/cygdrive/c/python/Python39/python" ]; then
+        echo "/cygdrive/c/python/Python39/python"
     elif [ -e "/opt/mongodbtoolchain/v3/bin/python3" ]; then
         echo "/opt/mongodbtoolchain/v3/bin/python3"
     elif python3 --version >/dev/null 2>&1; then

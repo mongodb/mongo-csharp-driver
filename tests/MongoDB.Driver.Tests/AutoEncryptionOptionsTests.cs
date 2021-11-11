@@ -15,6 +15,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -173,7 +175,7 @@ namespace MongoDB.Driver.Tests
             };
             var tlsOptions = new Dictionary<string, SslSettings>
             {
-                { "local", new SslSettings { ClientCertificates = new [] { Mock.Of<X509Certificate2>() } } }
+                { "local", new SslSettings { ClientCertificates = new [] { new X509Certificate(GetTestCertificateFileName(), "password") } } }
             };
 
             var subject = new AutoEncryptionOptions(
@@ -185,7 +187,7 @@ namespace MongoDB.Driver.Tests
                 tlsOptions: tlsOptions);
 
             var result = subject.ToString();
-            result.Should().Be("{ BypassAutoEncryption : True, KmsProviders : { \"provider1\" : { \"string\" : \"test\" }, \"provider2\" : { \"binary\" : { \"_t\" : \"System.Byte[]\", \"_v\" : new BinData(0, \"ABEiM0RVZneImaq7zN3u/w==\") } } }, KeyVaultNamespace : \"db.coll\", ExtraOptions : { \"mongocryptdURI\" : \"testURI\" }, SchemaMap : { \"coll1\" : { \"string\" : \"test\" }, \"coll2\" : { \"binary\" : UUID(\"00112233-4455-6677-8899-aabbccddeeff\") } }, TlsOptions: [{ \"local\" : \"<hidden>\"  }");
+            result.Should().Be("{ BypassAutoEncryption : True, KmsProviders : { \"provider1\" : { \"string\" : \"test\" }, \"provider2\" : { \"binary\" : { \"_t\" : \"System.Byte[]\", \"_v\" : new BinData(0, \"ABEiM0RVZneImaq7zN3u/w==\") } } }, KeyVaultNamespace : \"db.coll\", ExtraOptions : { \"mongocryptdURI\" : \"testURI\" }, SchemaMap : { \"coll1\" : { \"string\" : \"test\" }, \"coll2\" : { \"binary\" : UUID(\"00112233-4455-6677-8899-aabbccddeeff\") } }, TlsOptions: { \"local\" : { \"CheckCertificateRevocation\" : false, \"ClientCertificates\" : [{ }], \"ClientCertificateSelectionCallback\" : null, \"EnabledSslProtocols\" : 4032, \"ServerCertificateValidationCallback\" : null } } }");
         }
 
         // private methods
@@ -212,6 +214,16 @@ namespace MongoDB.Driver.Tests
                 { "local", localOptions }
             };
             return kmsProviders;
+        }
+
+        private string GetTestCertificateFileName()
+        {
+            var codeBase = typeof(SslSettingsTests).GetTypeInfo().Assembly.CodeBase;
+            var codeBaseUrl = new Uri(codeBase);
+            var codeBasePath = Uri.UnescapeDataString(codeBaseUrl.AbsolutePath);
+            var codeBaseDirectory = Path.GetDirectoryName(codeBasePath);
+            var certificateDirectory = codeBaseDirectory;
+            return Path.Combine(certificateDirectory, "testcert.pfx");
         }
     }
 }

@@ -132,7 +132,7 @@ fi
 export KMS_MOCK_SERVERS_ENABLED="true"
 
 if [[ "$OS" =~ Windows|windows ]]; then
-  powershell.exe '.\build.ps1 --target' $TARGET
+  powershell.exe .\\build.ps1 --target=$TARGET
 else
   ./build.sh --target=$TARGET
 fi
