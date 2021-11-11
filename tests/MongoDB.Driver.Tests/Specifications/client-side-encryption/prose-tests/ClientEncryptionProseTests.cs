@@ -1089,7 +1089,6 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                 break;
                             case CertificateType.Expired:
                                 AssertCertificate(isExpired: true, invalidHost: false);
-                                isCertificateExpired.Should().BeTrue();
                                 // Expect an error indicating TLS handshake failed due to an expired certificate.
                                 AssertInnerEncryptionException<AuthenticationException>(exception, "The remote certificate is invalid according to the validation procedure.");
                                 break;

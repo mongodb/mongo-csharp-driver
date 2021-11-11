@@ -293,7 +293,6 @@ functions:
           ${PREPARE_SHELL}
           SSL=${SSL} \
           OS=${OS} \
-          ALLOW_NOSSL=true \
             evergreen/add-certs-if-needed.sh
           AUTH=${AUTH} \
           SSL=${SSL} \
@@ -306,6 +305,38 @@ functions:
           FRAMEWORK=${FRAMEWORK} \
             evergreen/run-tests.sh
           echo "Skipping certificate removal..."
+            evergreen/cleanup-test-resources.sh
+
+  run-csfle-tests-with-mocked-kms:
+    - command: shell.exec
+      type: test
+      params:
+        working_dir: "mongo-csharp-driver"
+        script: |
+          set +x
+          export FLE_AWS_ACCESS_KEY_ID=${FLE_AWS_ACCESS_KEY_ID}
+          export FLE_AWS_SECRET_ACCESS_KEY=${FLE_AWS_SECRET_ACCESS_KEY}
+          export FLE_AZURE_TENANT_ID=${FLE_AZURE_TENANT_ID}
+          export FLE_AZURE_CLIENT_ID=${FLE_AZURE_CLIENT_ID}
+          export FLE_AZURE_CLIENT_SECRET=${FLE_AZURE_CLIENT_SECRET}
+          export FLE_GCP_EMAIL=${FLE_GCP_EMAIL}
+          export FLE_GCP_PRIVATE_KEY=${FLE_GCP_PRIVATE_KEY}
+          export KMS_MOCK_SERVERS_ENABLED=true
+          ${PREPARE_SHELL}
+          set +o xtrace
+          SSL=${SSL} \
+          OS=${OS} \
+          ALLOW_NOSSL=true \
+            evergreen/add-certs-if-needed.sh
+          AUTH=${AUTH} \
+          SSL=${SSL} \
+          MONGODB_URI="${MONGODB_URI}" \
+          TOPOLOGY=${TOPOLOGY} \
+          OS=${OS} \
+          CLIENT_PEM=${DRIVERS_TOOLS}/.evergreen/x509gen/client.pem \
+          FRAMEWORK=${FRAMEWORK} \
+          TARGET=${TestCsfleWithMockedKms} \
+            evergreen/run-tests.sh
             evergreen/cleanup-test-resources.sh
 
   run-atlas-connectivity-tests:
@@ -643,27 +674,6 @@ functions:
               bash ${DRIVERS_TOOLS}/.evergreen/serverless/delete-instance.sh
           fi
 
-  run-kms-tls-test:
-    - command: shell.exec
-      type: test
-      params:
-        working_dir: "mongo-csharp-driver"
-        script: |
-          ${PREPARE_SHELL}
-          set +o xtrace
-          # technically FLE_* vars are not needed, added just to reduce a number of changes in the code
-          export FLE_AWS_ACCESS_KEY_ID=${FLE_AWS_ACCESS_KEY_ID}
-          export FLE_AWS_SECRET_ACCESS_KEY=${FLE_AWS_SECRET_ACCESS_KEY}
-          export FLE_AZURE_TENANT_ID=${FLE_AZURE_TENANT_ID}
-          export FLE_AZURE_CLIENT_ID=${FLE_AZURE_CLIENT_ID}
-          export FLE_AZURE_CLIENT_SECRET=${FLE_AZURE_CLIENT_SECRET}
-          export FLE_GCP_EMAIL=${FLE_GCP_EMAIL}
-          export FLE_GCP_PRIVATE_KEY=${FLE_GCP_PRIVATE_KEY}
-          KMS_TLS_ERROR_TYPE="${KMS_TLS_ERROR_TYPE}" \
-          MONGODB_URI="${MONGODB_URI}" \
-          FRAMEWORK=${FRAMEWORK} \
-            evergreen/run-kms-tls-tests.sh
-
   start-kms-mock-servers:
     - command: shell.exec
       params:
@@ -803,15 +813,11 @@ tasks:
 
     - name: test
       commands:
-        - func: start-kms-mock-servers
-        - func: start-kms-kmip-server
         - func: bootstrap-mongo-orchestration
         - func: run-tests
 
     - name: test-net472
       commands:
-        - func: start-kms-mock-servers
-        - func: start-kms-kmip-server
         - func: bootstrap-mongo-orchestration
         - func: run-tests
           vars:
@@ -819,8 +825,6 @@ tasks:
 
     - name: test-netstandard20
       commands:
-        - func: start-kms-mock-servers
-        - func: start-kms-kmip-server
         - func: bootstrap-mongo-orchestration
         - func: run-tests
           vars:
@@ -828,10 +832,35 @@ tasks:
 
     - name: test-netstandard21
       commands:
+        - func: bootstrap-mongo-orchestration
+        - func: run-tests
+          vars:
+            FRAMEWORK: netstandard21
+
+    - name: test-kms-tls-mocked-net472
+      commands:
         - func: start-kms-mock-servers
         - func: start-kms-kmip-server
         - func: bootstrap-mongo-orchestration
-        - func: run-tests
+        - func: run-csfle-tests-with-mocked-kms
+          vars:
+            FRAMEWORK: net472
+
+    - name: test-kms-tls-mocked-netstandard20
+      commands:
+        - func: start-kms-mock-servers
+        - func: start-kms-kmip-server
+        - func: bootstrap-mongo-orchestration
+        - func: run-csfle-tests-with-mocked-kms
+          vars:
+            FRAMEWORK: netstandard20
+
+    - name: test-kms-tls-mocked-netstandard21
+      commands:
+        - func: start-kms-mock-servers
+        - func: start-kms-kmip-server
+        - func: bootstrap-mongo-orchestration
+        - func: run-csfle-tests-with-mocked-kms
           vars:
             FRAMEWORK: netstandard21
 
@@ -1619,3 +1648,24 @@ buildvariants:
   tasks:
     - name: test-gssapi-netstandard20
     - name: test-gssapi-netstandard21
+
+- matrix_name: "kms-tls-mocked-tests-windows"
+  matrix_spec: { os: "windows-64", ssl: "nossl", version: [ "5.0" ], topology: ["standalone"] }
+  display_name: "CSFLE KMS TLS ${os}"
+  tasks:
+    - name: test-kms-tls-mocked-net472
+    - name: test-kms-tls-mocked-netstandard20
+    - name: test-kms-tls-mocked-netstandard21  
+
+- matrix_name: "kms-tls-mocked-tests-linux"
+  matrix_spec: { os: "ubuntu-1804", ssl: "nossl", version: [ "5.0" ], topology: ["standalone"] }
+  display_name: "CSFLE KMS TLS ${os}"
+  tasks:
+    - name: test-kms-tls-mocked-netstandard20
+    - name: test-kms-tls-mocked-netstandard21
+
+- matrix_name: "kms-tls-mocked-tests-macOS"
+  matrix_spec: { os: "macos-1014", ssl: "nossl", version: [ "5.0" ], topology: ["standalone"] }
+  display_name: "CSFLE KMS TLS ${os}"
+  tasks:
+    - name: test-kms-tls-mocked-netstandard21
