@@ -30,6 +30,7 @@ namespace MongoDB.Driver.Core.Configuration
             var subject = new ConnectionPoolSettings();
 
             subject.MaintenanceInterval.Should().Be(TimeSpan.FromMinutes(1));
+            subject.MaxConnecting.Should().Be(2);
             subject.MaxConnections.Should().Be(100);
             subject.MinConnections.Should().Be(0);
 #pragma warning disable 618
@@ -44,6 +45,15 @@ namespace MongoDB.Driver.Core.Configuration
             Action action = () => new ConnectionPoolSettings(maintenanceInterval: TimeSpan.FromSeconds(-1));
 
             action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("maintenanceInterval");
+        }
+
+        [Fact]
+        public void constructor_should_throw_when_maxConnecting_is_negative()
+        {
+            var exception = Record.Exception(() => new ConnectionPoolSettings(maxConnecting: -1));
+
+            var e =exception.Should().BeOfType<ArgumentOutOfRangeException>().Subject;
+            e.ParamName.Should().Be("maxConnecting");
         }
 
         [Theory]
@@ -89,6 +99,7 @@ namespace MongoDB.Driver.Core.Configuration
             var subject = new ConnectionPoolSettings(maintenanceInterval: maintenanceInterval);
 
             subject.MaintenanceInterval.Should().Be(maintenanceInterval);
+            subject.MaxConnecting.Should().Be(__defaults.MaxConnecting);
             subject.MaxConnections.Should().Be(__defaults.MaxConnections);
             subject.MinConnections.Should().Be(__defaults.MinConnections);
 #pragma warning disable 618
@@ -106,6 +117,7 @@ namespace MongoDB.Driver.Core.Configuration
             var subject = new ConnectionPoolSettings(maxConnections: maxConnections);
 
             subject.MaintenanceInterval.Should().Be(__defaults.MaintenanceInterval);
+            subject.MaxConnecting.Should().Be(__defaults.MaxConnecting);
             subject.MaxConnections.Should().Be(maxConnections);
             subject.MinConnections.Should().Be(__defaults.MinConnections);
 #pragma warning disable 618
@@ -123,6 +135,7 @@ namespace MongoDB.Driver.Core.Configuration
             var subject = new ConnectionPoolSettings(maxConnections: maxConnections, waitQueueSize: waitQueueSize);
 
             subject.MaintenanceInterval.Should().Be(__defaults.MaintenanceInterval);
+            subject.MaxConnecting.Should().Be(__defaults.MaxConnecting);
             subject.MaxConnections.Should().Be(maxConnections);
             subject.MinConnections.Should().Be(__defaults.MinConnections);
 #pragma warning disable 618
@@ -139,6 +152,7 @@ namespace MongoDB.Driver.Core.Configuration
             var subject = new ConnectionPoolSettings(minConnections: minConnections);
 
             subject.MaintenanceInterval.Should().Be(__defaults.MaintenanceInterval);
+            subject.MaxConnecting.Should().Be(__defaults.MaxConnecting);
             subject.MaxConnections.Should().Be(subject.MaxConnections);
             subject.MinConnections.Should().Be(minConnections);
 #pragma warning disable 618
@@ -155,6 +169,7 @@ namespace MongoDB.Driver.Core.Configuration
             var subject = new ConnectionPoolSettings(waitQueueSize: waitQueueSize);
 
             subject.MaintenanceInterval.Should().Be(__defaults.MaintenanceInterval);
+            subject.MaxConnecting.Should().Be(__defaults.MaxConnecting);
             subject.MaxConnections.Should().Be(subject.MaxConnections);
             subject.MinConnections.Should().Be(subject.MinConnections);
 #pragma warning disable 618
@@ -171,6 +186,7 @@ namespace MongoDB.Driver.Core.Configuration
             var subject = new ConnectionPoolSettings(waitQueueTimeout: waitQueueTimeout);
 
             subject.MaintenanceInterval.Should().Be(__defaults.MaintenanceInterval);
+            subject.MaxConnecting.Should().Be(__defaults.MaxConnecting);
             subject.MaxConnections.Should().Be(subject.MaxConnections);
             subject.MinConnections.Should().Be(subject.MinConnections);
 #pragma warning disable 618
@@ -189,6 +205,26 @@ namespace MongoDB.Driver.Core.Configuration
             var result = subject.With(maintenanceInterval: newMaintenanceInterval);
 
             result.MaintenanceInterval.Should().Be(newMaintenanceInterval);
+            result.MaxConnecting.Should().Be(__defaults.MaxConnecting);
+            result.MaxConnections.Should().Be(subject.MaxConnections);
+            result.MinConnections.Should().Be(subject.MinConnections);
+#pragma warning disable 618
+            result.WaitQueueSize.Should().Be(subject.WaitQueueSize);
+#pragma warning restore 618
+            result.WaitQueueTimeout.Should().Be(subject.WaitQueueTimeout);
+        }
+
+        [Fact]
+        public void With_maxConnecting_should_return_expected_result()
+        {
+            var oldMaxConnecting = 1;
+            var newMaxConnecting = 2;
+            var subject = new ConnectionPoolSettings(maxConnecting: oldMaxConnecting);
+
+            var result = subject.With(maxConnecting: newMaxConnecting);
+
+            result.MaintenanceInterval.Should().Be(subject.MaintenanceInterval);
+            result.MaxConnecting.Should().Be(newMaxConnecting);
             result.MaxConnections.Should().Be(subject.MaxConnections);
             result.MinConnections.Should().Be(subject.MinConnections);
 #pragma warning disable 618
@@ -207,6 +243,7 @@ namespace MongoDB.Driver.Core.Configuration
             var result = subject.With(maxConnections: newMaxConnections);
 
             result.MaintenanceInterval.Should().Be(subject.MaintenanceInterval);
+            result.MaxConnecting.Should().Be(subject.MaxConnecting);
             result.MaxConnections.Should().Be(newMaxConnections);
             result.MinConnections.Should().Be(subject.MinConnections);
 #pragma warning disable 618
@@ -225,6 +262,7 @@ namespace MongoDB.Driver.Core.Configuration
             var result = subject.With(minConnections: newMinConnections);
 
             result.MaintenanceInterval.Should().Be(subject.MaintenanceInterval);
+            result.MaxConnecting.Should().Be(subject.MaxConnecting);
             result.MaxConnections.Should().Be(subject.MaxConnections);
             result.MinConnections.Should().Be(newMinConnections);
 #pragma warning disable 618
@@ -243,6 +281,7 @@ namespace MongoDB.Driver.Core.Configuration
             var result = subject.With(waitQueueSize: newWaitQueueSize);
 
             result.MaintenanceInterval.Should().Be(subject.MaintenanceInterval);
+            result.MaxConnecting.Should().Be(subject.MaxConnecting);
             result.MaxConnections.Should().Be(subject.MaxConnections);
             result.MinConnections.Should().Be(subject.MinConnections);
 #pragma warning disable 618
@@ -278,18 +317,6 @@ namespace MongoDB.Driver.Core.Configuration
             result.IsPausable.Should().Be(false);
             result = subject.WithInternal(isPausable: true);
             result.IsPausable.Should().Be(true);
-
-            result = subject.WithInternal(maxConnecting: 1233);
-            result.MaxConnecting.Should().Be(1233);
-        }
-
-        [Fact]
-        public void WithInternal_should_throw_when_maxConnecting_is_negative()
-        {
-            Action action = () => new ConnectionPoolSettings().WithInternal(maxConnecting: -1);
-
-            var exception = Record.Exception(action).Should().BeOfType<ArgumentOutOfRangeException>().Subject;
-            exception.ParamName.Should().Be("maxConnecting");
         }
     }
 }
