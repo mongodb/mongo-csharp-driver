@@ -4,23 +4,12 @@ set -o xtrace   # Write all commands first to stderr
 set -o errexit  # Exit the script with an error if any of the commands fail
 
 # Supported/used environment variables:
-#     SSL                     Set to enable SSL. Values are "ssl" / "nossl" (default)
 #     OCSP_TLS_SHOULD_SUCCEED Set to test OCSP. Values are true/false/nil
 #     OCSP_ALGORITHM          Set to test OCSP. Values are rsa/ecdsa/nil
 #     OS                      Set to access operating system
-#     ALLOW_NOSSL             Set to ignore check on SSL
 
-SSL=${SSL:-nossl}
 OCSP_TLS_SHOULD_SUCCEED=${OCSP_TLS_SHOULD_SUCCEED:-nil}
 OCSP_ALGORITHM=${OCSP_ALGORITHM:-nil}
-ALLOW_NOSSL=${ALLOW_NOSSL:-nil}
-
-if [[ "$SSL" != "ssl" ]] && [[ "$ALLOW_NOSSL" != true ]]; then
-  echo "Adding certificate has been skipping because input conditions"
-  exit 0
-fi
-
-echo "Adding certificate has been started"
 
 function make_trusted() {
   echo "CA.pem certificate $1"

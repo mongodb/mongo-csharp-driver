@@ -259,7 +259,7 @@ functions:
         working_dir: "mongo-csharp-driver"
         script: |
           ${PREPARE_SHELL}
-          SSL=${SSL} OS=${OS} evergreen/add-certs-if-needed.sh
+          OS=${OS} evergreen/add-ca-certs.sh
           AUTH="${AUTH}" SSL="${SSL}" \
           FRAMEWORK=${FRAMEWORK} \
           OS=${OS} \
@@ -291,9 +291,8 @@ functions:
           . ./evergreen/set-virtualenv.sh
           . ./evergreen/set-temp-fle-aws-creds.sh
           ${PREPARE_SHELL}
-          SSL=${SSL} \
           OS=${OS} \
-            evergreen/add-certs-if-needed.sh
+            evergreen/add-ca-certs.sh
           AUTH=${AUTH} \
           SSL=${SSL} \
           MONGODB_URI="${MONGODB_URI}" \
@@ -324,10 +323,8 @@ functions:
           export KMS_MOCK_SERVERS_ENABLED=true
           ${PREPARE_SHELL}
           set +o xtrace
-          SSL=${SSL} \
           OS=${OS} \
-          ALLOW_NOSSL=true \
-            evergreen/add-certs-if-needed.sh
+            evergreen/add-ca-certs.sh
           AUTH=${AUTH} \
           SSL=${SSL} \
           MONGODB_URI="${MONGODB_URI}" \
@@ -539,8 +536,7 @@ functions:
           ${PREPARE_SHELL}
           OCSP_TLS_SHOULD_SUCCEED="${OCSP_TLS_SHOULD_SUCCEED}" \
             OCSP_ALGORITHM=${OCSP_ALGORITHM} \
-            SSL="ssl" \
-            evergreen/add-certs-if-needed.sh
+            evergreen/add-ca-certs.sh
           set +o xtrace
           AUTH="${AUTH}" \
             SSL="ssl" \
