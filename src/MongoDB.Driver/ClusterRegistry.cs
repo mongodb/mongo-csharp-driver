@@ -106,6 +106,7 @@ namespace MongoDB.Driver
         {
             return settings.With(
                 // maintenanceInterval: TODO: should this be configurable?
+                maxConnecting: clusterKey.MaxConnecting,
                 maxConnections: clusterKey.MaxConnectionPoolSize,
                 minConnections: clusterKey.MinConnectionPoolSize,
                 waitQueueSize: clusterKey.WaitQueueSize,

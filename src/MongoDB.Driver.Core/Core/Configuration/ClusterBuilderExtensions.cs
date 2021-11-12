@@ -185,6 +185,10 @@ namespace MongoDB.Driver.Core.Configuration
             }
 
             // Connection Pool
+            if (connectionString.MaxConnecting.HasValue)
+            {
+                builder = builder.ConfigureConnectionPool(s => s.With(maxConnecting: connectionString.MaxConnecting.Value));
+            }
             if (connectionString.MaxPoolSize != null)
             {
                 var effectiveMaxConnections = ConnectionStringConversions.GetEffectiveMaxConnections(connectionString.MaxPoolSize.Value);

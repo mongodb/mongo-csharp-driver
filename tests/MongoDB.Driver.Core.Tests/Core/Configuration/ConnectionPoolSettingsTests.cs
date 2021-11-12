@@ -47,12 +47,13 @@ namespace MongoDB.Driver.Core.Configuration
             action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("maintenanceInterval");
         }
 
-        [Fact]
-        public void constructor_should_throw_when_maxConnecting_is_negative()
+        [Theory]
+        [ParameterAttributeData]
+        public void constructor_should_throw_when_maxConnecting_is_negative([Values(0, -1)] int invalidMaxConnecting)
         {
-            var exception = Record.Exception(() => new ConnectionPoolSettings(maxConnecting: -1));
+            var exception = Record.Exception(() => new ConnectionPoolSettings(maxConnecting: invalidMaxConnecting));
 
-            var e =exception.Should().BeOfType<ArgumentOutOfRangeException>().Subject;
+            var e = exception.Should().BeOfType<ArgumentOutOfRangeException>().Subject;
             e.ParamName.Should().Be("maxConnecting");
         }
 
@@ -217,8 +218,8 @@ namespace MongoDB.Driver.Core.Configuration
         [Fact]
         public void With_maxConnecting_should_return_expected_result()
         {
-            var oldMaxConnecting = 1;
-            var newMaxConnecting = 2;
+            const int oldMaxConnecting = 1;
+            const int newMaxConnecting = 2;
             var subject = new ConnectionPoolSettings(maxConnecting: oldMaxConnecting);
 
             var result = subject.With(maxConnecting: newMaxConnecting);

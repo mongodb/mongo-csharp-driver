@@ -344,6 +344,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.Ipv6.Should().Be(null);
             subject.Journal.Should().Be(null);
             subject.LoadBalanced.Should().BeFalse();
+            subject.MaxConnecting.Should().Be(null);
             subject.MaxIdleTime.Should().Be(null);
             subject.MaxLifeTime.Should().Be(null);
             subject.MaxPoolSize.Should().Be(null);
@@ -389,7 +390,8 @@ namespace MongoDB.Driver.Core.Configuration
                 "heartbeatTimeout=2m;" +
                 "ipv6=false;" +
                 "j=true;" +
-                "loadBalanced=false;" + 
+                "loadBalanced=false;" +
+                "maxConnecting=3;" + 
                 "maxIdleTime=10ms;" +
                 "maxLifeTime=5ms;" +
                 "maxPoolSize=20;" +
@@ -433,6 +435,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.HeartbeatTimeout.Should().Be(TimeSpan.FromMinutes(2));
             subject.Ipv6.Should().BeFalse();
             subject.Journal.Should().BeTrue();
+            subject.MaxConnecting.Should().Be(3);
             subject.MaxIdleTime.Should().Be(TimeSpan.FromMilliseconds(10));
             subject.MaxLifeTime.Should().Be(TimeSpan.FromMilliseconds(5));
             subject.MaxPoolSize.Should().Be(20);
@@ -784,6 +787,15 @@ namespace MongoDB.Driver.Core.Configuration
             {
                 exception.Should().BeNull();
             }
+        }
+
+        [Theory]
+        [InlineData("mongodb://localhost?maxConnecting=3", 3)]
+        public void When_maxConnecting_is_specified(string connectionString, int maxConnecting)
+        {
+            var subject = new ConnectionString(connectionString);
+
+            subject.MaxConnecting.Should().Be(maxConnecting);
         }
 
         [Theory]

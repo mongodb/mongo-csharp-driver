@@ -45,6 +45,7 @@ namespace MongoDB.Driver
         private readonly IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> _kmsProviders;
         private readonly bool _loadBalanced;
         private readonly TimeSpan _localThreshold;
+        private readonly int _maxConnecting;
         private readonly TimeSpan _maxConnectionIdleTime;
         private readonly TimeSpan _maxConnectionLifeTime;
         private readonly int _maxConnectionPoolSize;
@@ -83,6 +84,7 @@ namespace MongoDB.Driver
             IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> kmsProviders,
             bool loadBalanced,
             TimeSpan localThreshold,
+            int maxConnecting,
             TimeSpan maxConnectionIdleTime,
             TimeSpan maxConnectionLifeTime,
             int maxConnectionPoolSize,
@@ -119,6 +121,7 @@ namespace MongoDB.Driver
             _kmsProviders = kmsProviders;
             _loadBalanced = loadBalanced;
             _localThreshold = localThreshold;
+            _maxConnecting = maxConnecting;
             _maxConnectionIdleTime = maxConnectionIdleTime;
             _maxConnectionLifeTime = maxConnectionLifeTime;
             _maxConnectionPoolSize = maxConnectionPoolSize;
@@ -181,6 +184,7 @@ namespace MongoDB.Driver
         public IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> KmsProviders { get { return _kmsProviders; } }
         public bool LoadBalanced => _loadBalanced;
         public TimeSpan LocalThreshold { get { return _localThreshold; } }
+        public int MaxConnecting{ get { return _maxConnecting; } }
         public TimeSpan MaxConnectionIdleTime { get { return _maxConnectionIdleTime; } }
         public TimeSpan MaxConnectionLifeTime { get { return _maxConnectionLifeTime; } }
         public int MaxConnectionPoolSize { get { return _maxConnectionPoolSize; } }
@@ -234,6 +238,7 @@ namespace MongoDB.Driver
                 KmsProvidersHelper.Equals(_kmsProviders, rhs.KmsProviders) &&
                 _loadBalanced == rhs._loadBalanced &&
                 _localThreshold == rhs._localThreshold &&
+                _maxConnecting == rhs._maxConnecting &&
                 _maxConnectionIdleTime == rhs._maxConnectionIdleTime &&
                 _maxConnectionLifeTime == rhs._maxConnectionLifeTime &&
                 _maxConnectionPoolSize == rhs._maxConnectionPoolSize &&

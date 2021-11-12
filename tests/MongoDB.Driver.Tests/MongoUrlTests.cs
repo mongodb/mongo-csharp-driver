@@ -158,6 +158,7 @@ namespace MongoDB.Driver.Tests
                 HeartbeatTimeout = TimeSpan.FromSeconds(12),
                 IPv6 = true,
                 Journal = true,
+                MaxConnecting = 3,
                 MaxConnectionIdleTime = TimeSpan.FromSeconds(2),
                 MaxConnectionLifeTime = TimeSpan.FromSeconds(3),
                 MaxConnectionPoolSize = 4,
@@ -211,6 +212,7 @@ namespace MongoDB.Driver.Tests
                 "heartbeatInterval=11s",
                 "heartbeatTimeout=12s",
                 "localThreshold=6s",
+                "maxConnecting=3",
                 "maxIdleTime=2s",
                 "maxLifeTime=3s",
                 "maxPoolSize=4",
@@ -260,6 +262,7 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(true, url.IsResolved);
                 Assert.Equal(true, url.Journal);
                 Assert.Equal(false, url.LoadBalanced);
+                Assert.Equal(3, url.MaxConnecting);
                 Assert.Equal(TimeSpan.FromSeconds(2), url.MaxConnectionIdleTime);
                 Assert.Equal(TimeSpan.FromSeconds(3), url.MaxConnectionLifeTime);
                 Assert.Equal(4, url.MaxConnectionPoolSize);

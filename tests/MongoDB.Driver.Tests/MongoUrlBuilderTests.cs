@@ -81,6 +81,7 @@ namespace MongoDB.Driver.Tests
                 HeartbeatTimeout = TimeSpan.FromMinutes(2),
                 IPv6 = true,
                 Journal = true,
+                MaxConnecting = 3,
                 MaxConnectionIdleTime = TimeSpan.FromSeconds(2),
                 MaxConnectionLifeTime = TimeSpan.FromSeconds(3),
                 MaxConnectionPoolSize = 4,
@@ -139,6 +140,7 @@ namespace MongoDB.Driver.Tests
                 "heartbeatInterval=1m",
                 "heartbeatTimeout=2m",
                 "localThreshold=6s",
+                "maxConnecting=3",
                 "maxIdleTime=2s",
                 "maxLifeTime=3s",
                 "maxPoolSize=4",
@@ -191,6 +193,7 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(false, builder.LoadBalanced);
                 Assert.Equal(TimeSpan.FromSeconds(2), builder.MaxConnectionIdleTime);
                 Assert.Equal(TimeSpan.FromSeconds(3), builder.MaxConnectionLifeTime);
+                Assert.Equal(3, builder.MaxConnecting);
                 Assert.Equal(4, builder.MaxConnectionPoolSize);
                 Assert.Equal(5, builder.MinConnectionPoolSize);
                 Assert.Equal("password", builder.Password);
@@ -499,6 +502,7 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(false, builder.IPv6);
                 Assert.Equal(null, builder.Journal);
                 Assert.Equal(false, builder.LoadBalanced);
+                Assert.Equal(MongoInternalDefaults.ConnectionPool.MaxConnecting, builder.MaxConnecting);
                 Assert.Equal(MongoDefaults.MaxConnectionIdleTime, builder.MaxConnectionIdleTime);
                 Assert.Equal(MongoDefaults.MaxConnectionLifeTime, builder.MaxConnectionLifeTime);
                 Assert.Equal(MongoDefaults.MaxConnectionPoolSize, builder.MaxConnectionPoolSize);
@@ -853,6 +857,18 @@ namespace MongoDB.Driver.Tests
             subject.LoadBalanced.Should().Be(value);
             var expectedConnectionString = $"mongodb://localhost{(value ? $"/?loadBalanced={JsonConvert.ToString(value)}" : "")}";
             subject.ToString().Should().Be(expectedConnectionString);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void TestMaxConnecting([Values(0, -1)] int incorrectMaxConnecting)
+        {
+            var value = 3;
+
+            var builder = new MongoUrlBuilder { MaxConnecting = value };
+            builder.MaxConnecting.Should().Be(value);
+
+            Record.Exception(() => { builder.MaxConnecting = incorrectMaxConnecting; }).Should().BeOfType<ArgumentOutOfRangeException>();
         }
 
         [Theory]

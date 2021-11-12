@@ -649,6 +649,7 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
                     .ConfigureServer(s => s.With(
                         heartbeatInterval: TimeSpan.FromMinutes(10)))
                     .ConfigureConnectionPool(c => c.With(
+                        maxConnecting: connectionPoolSettings.MaxConnecting,
                         maxConnections: connectionPoolSettings.MaxConnections,
                         minConnections: connectionPoolSettings.MinConnections,
                         maintenanceInterval: connectionPoolSettings.MaintenanceInterval,

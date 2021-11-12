@@ -53,6 +53,7 @@ namespace MongoDB.Driver
         private LinqProvider _linqProvider;
         private bool _loadBalanced;
         private TimeSpan _localThreshold;
+        private int _maxConnecting;
         private TimeSpan _maxConnectionIdleTime;
         private TimeSpan _maxConnectionLifeTime;
         private int _maxConnectionPoolSize;
@@ -110,6 +111,7 @@ namespace MongoDB.Driver
             _linqProvider = LinqProvider.V2;
             _loadBalanced = false;
             _localThreshold = MongoDefaults.LocalThreshold;
+            _maxConnecting = MongoInternalDefaults.ConnectionPool.MaxConnecting;
             _maxConnectionIdleTime = MongoDefaults.MaxConnectionIdleTime;
             _maxConnectionLifeTime = MongoDefaults.MaxConnectionLifeTime;
             _maxConnectionPoolSize = MongoDefaults.MaxConnectionPoolSize;
@@ -441,6 +443,19 @@ namespace MongoDB.Driver
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
                 _localThreshold = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the max connecting.
+        /// </summary>
+        public int MaxConnecting
+        {
+            get { return _maxConnecting; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException($"{nameof(MaxConnecting)} is frozen."); }
+                _maxConnecting = Ensure.IsGreaterThanZero(value, nameof(MaxConnecting));
             }
         }
 
@@ -903,6 +918,7 @@ namespace MongoDB.Driver
             clientSettings.LinqProvider = LinqProvider.V2;
             clientSettings.LoadBalanced = url.LoadBalanced;
             clientSettings.LocalThreshold = url.LocalThreshold;
+            clientSettings.MaxConnecting = url.MaxConnecting;
             clientSettings.MaxConnectionIdleTime = url.MaxConnectionIdleTime;
             clientSettings.MaxConnectionLifeTime = url.MaxConnectionLifeTime;
             clientSettings.MaxConnectionPoolSize = ConnectionStringConversions.GetEffectiveMaxConnections(url.MaxConnectionPoolSize);
@@ -957,6 +973,7 @@ namespace MongoDB.Driver
             clone._linqProvider = _linqProvider;
             clone._loadBalanced = _loadBalanced;
             clone._localThreshold = _localThreshold;
+            clone.MaxConnecting = _maxConnecting;
             clone._maxConnectionIdleTime = _maxConnectionIdleTime;
             clone._maxConnectionLifeTime = _maxConnectionLifeTime;
             clone._maxConnectionPoolSize = _maxConnectionPoolSize;
@@ -1023,6 +1040,7 @@ namespace MongoDB.Driver
                 _linqProvider == rhs._linqProvider &&
                 _loadBalanced == rhs._loadBalanced &&
                 _localThreshold == rhs._localThreshold &&
+                _maxConnecting == rhs._maxConnecting &&
                 _maxConnectionIdleTime == rhs._maxConnectionIdleTime &&
                 _maxConnectionLifeTime == rhs._maxConnectionLifeTime &&
                 _maxConnectionPoolSize == rhs._maxConnectionPoolSize &&
@@ -1106,6 +1124,7 @@ namespace MongoDB.Driver
                 .Hash(_ipv6)
                 .Hash(_loadBalanced)
                 .Hash(_localThreshold)
+                .Hash(_maxConnecting)
                 .Hash(_maxConnectionIdleTime)
                 .Hash(_maxConnectionLifeTime)
                 .Hash(_maxConnectionPoolSize)
@@ -1175,6 +1194,7 @@ namespace MongoDB.Driver
                 sb.AppendFormat("LoadBalanced={0};", _loadBalanced);
             }
             sb.AppendFormat("LocalThreshold={0};", _localThreshold);
+            sb.AppendFormat("MaxConnecting={0};", _maxConnecting);
             sb.AppendFormat("MaxConnectionIdleTime={0};", _maxConnectionIdleTime);
             sb.AppendFormat("MaxConnectionLifeTime={0};", _maxConnectionLifeTime);
             sb.AppendFormat("MaxConnectionPoolSize={0};", _maxConnectionPoolSize);
@@ -1238,6 +1258,7 @@ namespace MongoDB.Driver
                 _autoEncryptionOptions?.KmsProviders,
                 _loadBalanced,
                 _localThreshold,
+                _maxConnecting,
                 _maxConnectionIdleTime,
                 _maxConnectionLifeTime,
                 _maxConnectionPoolSize,
