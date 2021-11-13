@@ -27,11 +27,6 @@ namespace MongoDB.Driver.GridFS
     /// <typeparam name="TFileId">The type of the file identifier.</typeparam>
     public abstract class GridFSUploadStream<TFileId> : Stream
     {
-        // constructors
-        internal GridFSUploadStream()
-        {
-        }
-
         // public properties
         /// <summary>
         /// Gets the id of the file being added to GridFS.
