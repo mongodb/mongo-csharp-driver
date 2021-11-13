@@ -26,11 +26,6 @@ namespace MongoDB.Driver.GridFS
     /// <typeparam name="TFileId">The type of the file identifier.</typeparam>
     public abstract class GridFSDownloadStream<TFileId> : Stream
     {
-        // constructors
-        internal GridFSDownloadStream()
-        {
-        }
-
         // public properties
         /// <summary>
         /// Gets the files collection document.
