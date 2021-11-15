@@ -137,6 +137,7 @@ namespace MongoDB.Driver.Core.Operations
         [InlineData(typeof(MongoNodeIsRecoveringException), true)]
         [InlineData(typeof(MongoNotPrimaryException), true)]
         [InlineData(typeof(MongoCursorNotFoundException), true)]
+        [InlineData(typeof(MongoConnectionPoolPausedException), true)]
         [InlineData(ServerErrorCode.HostNotFound, true)]
         [InlineData(ServerErrorCode.HostUnreachable, true)]
         [InlineData(ServerErrorCode.NetworkTimeout, true)]
@@ -196,6 +197,7 @@ namespace MongoDB.Driver.Core.Operations
         [InlineData(typeof(MongoConnectionException), true)] // network exception
         [InlineData(typeof(MongoConnectionClosedException), false)]
         [InlineData(typeof(MongoCursorNotFoundException), true)]
+        [InlineData(typeof(MongoConnectionPoolPausedException), true)]
         public void IsResumableChangeStreamException_should_return_expected_result_for_servers_with_new_behavior_and_errors(Type exceptionType, bool isResumable)
         {
             var exception = (MongoException)CoreExceptionHelper.CreateException(exceptionType);
