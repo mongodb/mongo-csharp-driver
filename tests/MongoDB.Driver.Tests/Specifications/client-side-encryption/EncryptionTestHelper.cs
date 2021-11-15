@@ -41,15 +41,34 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                     extraOptions.Add("mongocryptdURI", $"mongodb://localhost:{mongocryptdPort}");
                 }
 
-                var portValue = $" --port={mongocryptdPort}";
+                var portKey = "--port=";
+                var portValue = $" {portKey}{mongocryptdPort}";
                 if (extraOptions.TryGetValue("mongocryptdSpawnArgs", out var args))
                 {
-                    object effectiveValue = args switch
+                    object effectiveValue;
+                    switch (args)
                     {
-                        string str => str + portValue,
-                        IEnumerable enumerable => new List<object>(enumerable.Cast<object>()) { portValue },
-                        _ => throw new Exception("Unsupported mongocryptdSpawnArgs type."),
-                    };
+                        case string str:
+                            {
+                                effectiveValue = str.Contains(portKey) ? str : str + portValue;
+                            }
+                            break;
+                        case IEnumerable enumerable:
+                            {
+                                var list = new List<string>(enumerable.Cast<string>());
+                                if (list.Any(v => v.Contains(portKey)))
+                                {
+                                    effectiveValue = list;
+                                }
+                                else
+                                {
+                                    list.Add(portValue);
+                                    effectiveValue = list;
+                                }
+                            }
+                            break;
+                        default: throw new Exception("Unsupported mongocryptdSpawnArgs type.");
+                    }
                     extraOptions["mongocryptdSpawnArgs"] = effectiveValue;
                 }
                 else
