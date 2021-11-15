@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Core.Configuration
 
         [Theory]
         [ParameterAttributeData]
-        public void constructor_should_throw_when_maxConnecting_is_negative([Values(0, -1)] int invalidMaxConnecting)
+        public void constructor_should_throw_when_maxConnecting_is_invalid([Values(0, -1)] int invalidMaxConnecting)
         {
             var exception = Record.Exception(() => new ConnectionPoolSettings(maxConnecting: invalidMaxConnecting));
 
@@ -101,6 +101,23 @@ namespace MongoDB.Driver.Core.Configuration
 
             subject.MaintenanceInterval.Should().Be(maintenanceInterval);
             subject.MaxConnecting.Should().Be(__defaults.MaxConnecting);
+            subject.MaxConnections.Should().Be(__defaults.MaxConnections);
+            subject.MinConnections.Should().Be(__defaults.MinConnections);
+#pragma warning disable 618
+            subject.WaitQueueSize.Should().Be(__defaults.WaitQueueSize);
+#pragma warning restore 618
+            subject.WaitQueueTimeout.Should().Be(__defaults.WaitQueueTimeout);
+        }
+
+        [Fact]
+        public void constructor_with_maxConnecting_should_initialize_instance()
+        {
+            const int maxConnecting = 1;
+
+            var subject = new ConnectionPoolSettings(maxConnecting: maxConnecting);
+
+            subject.MaintenanceInterval.Should().Be(__defaults.MaintenanceInterval);
+            subject.MaxConnecting.Should().Be(maxConnecting);
             subject.MaxConnections.Should().Be(__defaults.MaxConnections);
             subject.MinConnections.Should().Be(__defaults.MinConnections);
 #pragma warning disable 618
@@ -206,7 +223,7 @@ namespace MongoDB.Driver.Core.Configuration
             var result = subject.With(maintenanceInterval: newMaintenanceInterval);
 
             result.MaintenanceInterval.Should().Be(newMaintenanceInterval);
-            result.MaxConnecting.Should().Be(__defaults.MaxConnecting);
+            result.MaxConnecting.Should().Be(subject.MaxConnecting);
             result.MaxConnections.Should().Be(subject.MaxConnections);
             result.MinConnections.Should().Be(subject.MinConnections);
 #pragma warning disable 618

@@ -335,7 +335,7 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         /// <summary>
-        /// Gets the max connecting.
+        /// Gets the maximum number of connections a pool may be establishing concurrently. Defaults to 2.
         /// </summary>
         public int? MaxConnecting
         {
@@ -994,7 +994,7 @@ namespace MongoDB.Driver.Core.Configuration
                     _loadBalanced = ParseBoolean(name, value);
                     break;
                 case "maxconnecting":
-                    _maxConnecting = ParseInt32(name, value);
+                    _maxConnecting = EnsureValueValid(ParseInt32(name, value), condition: v => v > 0, "MaxConnecting {0} must be greater than 0.");
                     break;
                 case "maxidletime":
                 case "maxidletimems":
@@ -1301,6 +1301,16 @@ namespace MongoDB.Driver.Core.Configuration
             if (_tlsInsecure.HasValue && _tlsInsecure.Value != value)
             {
                 throw new MongoConfigurationException("tlsInsecure has already been configured with a different value.");
+            }
+
+            return value;
+        }
+
+        private static TValue EnsureValueValid<TValue>(TValue value, Func<TValue, bool> condition, string message)
+        {
+            if (!condition(value))
+            {
+                throw new MongoConfigurationException(string.Format(message, value));
             }
 
             return value;

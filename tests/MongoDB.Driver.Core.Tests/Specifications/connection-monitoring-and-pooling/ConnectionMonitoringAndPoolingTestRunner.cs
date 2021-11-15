@@ -595,6 +595,9 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
                         case "appName":
                             connectionSettings = connectionSettings.With(applicationName: poolOption.Value.AsString);
                             break;
+                        case "maxConnecting":
+                            connectionPoolSettings = connectionPoolSettings.With(maxConnecting: poolOption.Value.ToInt32());
+                            break;
                         default:
                             throw new ArgumentException($"Unknown pool option {poolOption.Name}.");
                     }

@@ -94,10 +94,10 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         /// <summary>
-        /// Gets the max connecting.
+        /// Gets the maximum number of connections a pool may be establishing concurrently. Defaults to 2.
         /// </summary>
         /// <value>
-        /// The max connecting.
+        /// The maximum concurrently connecting connections.
         /// </value>
         public int MaxConnecting
         {
@@ -160,7 +160,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// Returns a new ConnectionPoolSettings instance with some settings changed.
         /// </summary>
         /// <param name="maintenanceInterval">The maintenance interval.</param>
-        /// <param name="maxConnecting">The max connecting.</param>
+        /// <param name="maxConnecting">The maximum concurrently connecting connections.</param>
         /// <param name="maxConnections">The maximum connections.</param>
         /// <param name="minConnections">The minimum connections.</param>
         /// <param name="waitQueueSize">Size of the wait queue.</param>
