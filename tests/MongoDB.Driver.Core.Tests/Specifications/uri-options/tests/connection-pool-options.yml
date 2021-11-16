@@ -49,19 +49,19 @@ tests:
           minPoolSize: 0 
 
     -
-      description: "maxConnecting=0 causes an error"
+      description: "maxConnecting=0 causes a warning"
       uri: "mongodb://example.com/?maxConnecting=0"
-      valid: false
-      warning: false
+      valid: true
+      warning: true
       hosts: ~
       auth: ~
       options: {}
 
     -
-      description: "maxConnecting<0 causes an error"
+      description: "maxConnecting<0 causes a warning"
       uri: "mongodb://example.com/?maxConnecting=-1"
-      valid: false
-      warning: false
+      valid: true
+      warning: true
       hosts: ~
       auth: ~
       options: {}

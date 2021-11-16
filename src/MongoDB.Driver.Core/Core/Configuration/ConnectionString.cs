@@ -994,7 +994,7 @@ namespace MongoDB.Driver.Core.Configuration
                     _loadBalanced = ParseBoolean(name, value);
                     break;
                 case "maxconnecting":
-                    _maxConnecting = EnsureValueValid(ParseInt32(name, value), condition: v => v > 0, "MaxConnecting {0} must be greater than 0.");
+                    _maxConnecting = ParseInt32(name, value);
                     break;
                 case "maxidletime":
                 case "maxidletimems":
@@ -1306,15 +1306,6 @@ namespace MongoDB.Driver.Core.Configuration
             return value;
         }
 
-        private static TValue EnsureValueValid<TValue>(TValue value, Func<TValue, bool> condition, string message)
-        {
-            if (!condition(value))
-            {
-                throw new MongoConfigurationException(string.Format(message, value));
-            }
-
-            return value;
-        }
 
         private List<string> GetHostsFromSrvRecords(IEnumerable<SrvRecord> srvRecords)
         {
