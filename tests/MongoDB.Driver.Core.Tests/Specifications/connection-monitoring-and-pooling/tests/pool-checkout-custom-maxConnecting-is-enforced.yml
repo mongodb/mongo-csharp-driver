@@ -31,10 +31,6 @@ operations:
   - name: waitForEvent
     event: ConnectionCreated
     count: 1
-  # Wait long enough to be sure that thread1 started establishing a connection,
-  # and short enough to be sure that it is still blocked by failPoint.
-  - name: wait
-    ms: 100
   - name: checkOut
     thread: thread2
   - name: waitForEvent

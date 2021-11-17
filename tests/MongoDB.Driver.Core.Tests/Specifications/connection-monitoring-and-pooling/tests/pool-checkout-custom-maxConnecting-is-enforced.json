@@ -47,10 +47,6 @@
       "count": 1
     },
     {
-      "name": "wait",
-      "ms": 100
-    },
-    {
       "name": "checkOut",
       "thread": "thread2"
     },
