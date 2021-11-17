@@ -436,7 +436,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets the max connecting.
+        /// Gets or sets the maximum concurrently connecting connections.
         /// </summary>
         public int MaxConnecting
         {

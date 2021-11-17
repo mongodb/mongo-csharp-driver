@@ -447,14 +447,14 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets the max connecting.
+        /// Gets or sets the maximum concurrently connecting connections.
         /// </summary>
         public int MaxConnecting
         {
             get { return _maxConnecting; }
             set
             {
-                if (_isFrozen) { throw new InvalidOperationException($"{nameof(MaxConnecting)} is frozen."); }
+                ThrowIfFrozen();
                 _maxConnecting = Ensure.IsGreaterThanZero(value, nameof(MaxConnecting));
             }
         }
@@ -973,7 +973,7 @@ namespace MongoDB.Driver
             clone._linqProvider = _linqProvider;
             clone._loadBalanced = _loadBalanced;
             clone._localThreshold = _localThreshold;
-            clone.MaxConnecting = _maxConnecting;
+            clone._maxConnecting = _maxConnecting;
             clone._maxConnectionIdleTime = _maxConnectionIdleTime;
             clone._maxConnectionLifeTime = _maxConnectionLifeTime;
             clone._maxConnectionPoolSize = _maxConnectionPoolSize;
@@ -1277,6 +1277,15 @@ namespace MongoDB.Driver
                 _useTls,
                 _waitQueueSize,
                 _waitQueueTimeout);
+        }
+
+        // private methods
+        private void ThrowIfFrozen()
+        {
+            if (_isFrozen)
+            {
+                throw new InvalidOperationException($"{nameof(MongoClientSettings)} is frozen.");
+            }
         }
 
         private void ThrowIfSettingsAreInvalid()

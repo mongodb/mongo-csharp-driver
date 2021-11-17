@@ -1306,7 +1306,6 @@ namespace MongoDB.Driver.Core.Configuration
             return value;
         }
 
-
         private List<string> GetHostsFromSrvRecords(IEnumerable<SrvRecord> srvRecords)
         {
             var hosts = new List<string>();

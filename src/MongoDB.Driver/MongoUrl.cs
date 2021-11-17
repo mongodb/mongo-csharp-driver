@@ -387,7 +387,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets the max connecting.
+        /// Gets the maximum concurrently connecting connections.
         /// </summary>
         public int MaxConnecting
         {

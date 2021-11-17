@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="minConnections">The minimum number of connections.</param>
         /// <param name="waitQueueSize">Size of the wait queue.</param>
         /// <param name="waitQueueTimeout">The wait queue timeout.</param>
-        /// <param name="maxConnecting">The max connecting.</param>
+        /// <param name="maxConnecting">The maximum concurrently connecting connections.</param>
         public ConnectionPoolSettings(
             Optional<TimeSpan> maintenanceInterval = default(Optional<TimeSpan>),
             Optional<int> maxConnections = default(Optional<int>),
