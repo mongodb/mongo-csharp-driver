@@ -71,7 +71,6 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                             break;
                         default: throw new Exception("Unsupported mongocryptdSpawnArgs type.");
                     }
-
                     extraOptions["mongocryptdSpawnArgs"] = effectiveValue;
                 }
                 else
