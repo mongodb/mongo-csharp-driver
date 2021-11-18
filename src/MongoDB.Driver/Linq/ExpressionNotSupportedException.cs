@@ -16,9 +16,12 @@
 using System;
 using System.Linq.Expressions;
 
-namespace MongoDB.Driver.Linq.Linq3Implementation
+namespace MongoDB.Driver.Linq
 {
-    internal class ExpressionNotSupportedException : NotSupportedException
+    /// <summary>
+    /// Exception that is thrown when using a LINQ expression that is not supported.
+    /// </summary>
+    public class ExpressionNotSupportedException : NotSupportedException
     {
         #region static
         private static string FormatMessage(Expression expression)
@@ -33,16 +36,29 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
         #endregion
 
         // constructors
+        /// <summary>
+        /// Initializes an instance of an ExpressionNotSupportedException.
+        /// </summary>
+        /// <param name="message">The message.</param>
         public ExpressionNotSupportedException(string message)
             : base(message)
         {
         }
 
+        /// <summary>
+        /// Initializes an instance of an ExpressionNotSupportedException.
+        /// </summary>
+        /// <param name="expression">The expression.</param>
         public ExpressionNotSupportedException(Expression expression)
             : base(FormatMessage(expression))
         {
         }
 
+        /// <summary>
+        /// Initializes an instance of an ExpressionNotSupportedException.
+        /// </summary>
+        /// <param name="expression">The expression.</param>
+        /// <param name="containingExpression">The containing expression.</param>
         public ExpressionNotSupportedException(Expression expression, Expression containingExpression)
             : base(FormatMessage(expression, containingExpression))
         {
