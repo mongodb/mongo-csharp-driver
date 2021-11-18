@@ -1204,6 +1204,7 @@ namespace MongoDB.Driver
                 kmsProviders: null, // not supported for legacy
                 loadBalanced: false, // not supported for legacy, so turn it off
                 _localThreshold,
+                maxConnecting: MongoInternalDefaults.ConnectionPool.MaxConnecting,
                 _maxConnectionIdleTime,
                 _maxConnectionLifeTime,
                 _maxConnectionPoolSize,

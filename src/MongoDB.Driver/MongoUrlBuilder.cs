@@ -25,7 +25,6 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Shared;
 
 namespace MongoDB.Driver
 {
@@ -59,6 +58,7 @@ namespace MongoDB.Driver
         private TimeSpan _localThreshold;
         private TimeSpan _maxConnectionIdleTime;
         private TimeSpan _maxConnectionLifeTime;
+        private int _maxConnecting;
         private int _maxConnectionPoolSize;
         private int _minConnectionPoolSize;
         private string _password;
@@ -112,6 +112,7 @@ namespace MongoDB.Driver
             _journal = null;
             _loadBalanced = false;
             _localThreshold = MongoDefaults.LocalThreshold;
+            _maxConnecting = MongoInternalDefaults.ConnectionPool.MaxConnecting;
             _maxConnectionIdleTime = MongoDefaults.MaxConnectionIdleTime;
             _maxConnectionLifeTime = MongoDefaults.MaxConnectionLifeTime;
             _maxConnectionPoolSize = MongoDefaults.MaxConnectionPoolSize;
@@ -431,6 +432,18 @@ namespace MongoDB.Driver
                     throw new ArgumentOutOfRangeException("value", "LocalThreshold must be greater than or equal to zero.");
                 }
                 _localThreshold = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the maximum concurrently connecting connections.
+        /// </summary>
+        public int MaxConnecting
+        {
+            get { return _maxConnecting; }
+            set
+            {
+                _maxConnecting = Ensure.IsGreaterThanZero(value, nameof(MaxConnecting));
             }
         }
 
@@ -831,6 +844,7 @@ namespace MongoDB.Driver
             _journal = connectionString.Journal;
             _loadBalanced = connectionString.LoadBalanced;
             _localThreshold = connectionString.LocalThreshold.GetValueOrDefault(MongoDefaults.LocalThreshold);
+            _maxConnecting = connectionString.MaxConnecting.GetValueOrDefault(MongoInternalDefaults.ConnectionPool.MaxConnecting);
             _maxConnectionIdleTime = connectionString.MaxIdleTime.GetValueOrDefault(MongoDefaults.MaxConnectionIdleTime);
             _maxConnectionLifeTime = connectionString.MaxLifeTime.GetValueOrDefault(MongoDefaults.MaxConnectionLifeTime);
             _maxConnectionPoolSize = connectionString.MaxPoolSize.GetValueOrDefault(MongoDefaults.MaxConnectionPoolSize);
@@ -1083,6 +1097,10 @@ namespace MongoDB.Driver
             if (_localThreshold != MongoDefaults.LocalThreshold)
             {
                 query.AppendFormat("localThreshold={0};", FormatTimeSpan(_localThreshold));
+            }
+            if (_maxConnecting != MongoInternalDefaults.ConnectionPool.MaxConnecting)
+            {
+                query.AppendFormat("maxConnecting={0};", _maxConnecting);
             }
             if (_maxConnectionIdleTime != MongoDefaults.MaxConnectionIdleTime)
             {

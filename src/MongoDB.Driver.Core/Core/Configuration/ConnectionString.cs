@@ -84,6 +84,7 @@ namespace MongoDB.Driver.Core.Configuration
         private bool? _journal;
         private bool _loadBalanced;
         private TimeSpan? _localThreshold;
+        private int? _maxConnecting;
         private TimeSpan? _maxIdleTime;
         private TimeSpan? _maxLifeTime;
         private int? _maxPoolSize;
@@ -331,6 +332,14 @@ namespace MongoDB.Driver.Core.Configuration
         public TimeSpan? LocalThreshold
         {
             get { return _localThreshold; }
+        }
+
+        /// <summary>
+        /// Gets the maximum number of connections a pool may be establishing concurrently. Defaults to 2.
+        /// </summary>
+        public int? MaxConnecting
+        {
+            get { return _maxConnecting; }
         }
 
         /// <summary>
@@ -983,6 +992,9 @@ namespace MongoDB.Driver.Core.Configuration
                     break;
                 case "loadbalanced":
                     _loadBalanced = ParseBoolean(name, value);
+                    break;
+                case "maxconnecting":
+                    _maxConnecting = ParseInt32(name, value);
                     break;
                 case "maxidletime":
                 case "maxidletimems":

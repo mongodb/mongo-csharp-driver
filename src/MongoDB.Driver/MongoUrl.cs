@@ -57,6 +57,7 @@ namespace MongoDB.Driver
         private readonly bool _isResolved;
         private readonly bool? _journal;
         private readonly bool _loadBalanced;
+        private readonly int _maxConnecting;
         private readonly TimeSpan _maxConnectionIdleTime;
         private readonly TimeSpan _maxConnectionLifeTime;
         private readonly int _maxConnectionPoolSize;
@@ -128,6 +129,7 @@ namespace MongoDB.Driver
             _journal = builder.Journal;
             _loadBalanced = builder.LoadBalanced;
             _localThreshold = builder.LocalThreshold;
+            _maxConnecting = builder.MaxConnecting;
             _maxConnectionIdleTime = builder.MaxConnectionIdleTime;
             _maxConnectionLifeTime = builder.MaxConnectionLifeTime;
             _maxConnectionPoolSize = builder.MaxConnectionPoolSize;
@@ -382,6 +384,14 @@ namespace MongoDB.Driver
         public TimeSpan LocalThreshold
         {
             get { return _localThreshold; }
+        }
+
+        /// <summary>
+        /// Gets the maximum concurrently connecting connections.
+        /// </summary>
+        public int MaxConnecting
+        {
+            get { return _maxConnecting; }
         }
 
         /// <summary>

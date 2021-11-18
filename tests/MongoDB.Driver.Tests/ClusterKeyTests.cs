@@ -55,6 +55,7 @@ namespace MongoDB.Driver.Tests
         [InlineData("HeartbeatTimeout", true)]
         [InlineData("IPv6", true)]
         [InlineData("KmsProviders", true)]
+        [InlineData("MaxConnecting", true)]
         [InlineData("MaxConnectionIdleTime", true)]
         [InlineData("MaxConnectionLifeTime", true)]
         [InlineData("MaxConnectionPoolSize", true)]
@@ -185,6 +186,7 @@ namespace MongoDB.Driver.Tests
             var kmsProviders = new Dictionary<string, IReadOnlyDictionary<string, object>>();
             var loadBalanced = true;
             var localThreshold = TimeSpan.FromMilliseconds(20);
+            var maxConnecting = 3;
             var maxConnectionIdleTime = TimeSpan.FromSeconds(2);
             var maxConnectionLifeTime = TimeSpan.FromSeconds(3);
             var maxConnectionPoolSize = 50;
@@ -241,6 +243,7 @@ namespace MongoDB.Driver.Tests
                     case "KmsProviders": kmsProviders.Add("local", new Dictionary<string, object>() { { "key", "test" } }); break;
                     case "LoadBalanced": loadBalanced = false; break;
                     case "LocalThreshold": localThreshold = TimeSpan.FromMilliseconds(99); break;
+                    case "MaxConnecting": maxConnecting = 4; break;
                     case "MaxConnectionIdleTime": maxConnectionIdleTime = TimeSpan.FromSeconds(99); break;
                     case "MaxConnectionLifeTime": maxConnectionLifeTime = TimeSpan.FromSeconds(99); break;
                     case "MaxConnectionPoolSize": maxConnectionPoolSize = 99; break;
@@ -279,6 +282,7 @@ namespace MongoDB.Driver.Tests
                 kmsProviders,
                 loadBalanced,
                 localThreshold,
+                maxConnecting,
                 maxConnectionIdleTime,
                 maxConnectionLifeTime,
                 maxConnectionPoolSize,
@@ -324,6 +328,7 @@ namespace MongoDB.Driver.Tests
             var kmsProviders = kmsProvidersValue ?? new Dictionary<string, IReadOnlyDictionary<string, object>>();
             var loadBalanced = true;
             var localThreshold = TimeSpan.FromMilliseconds(20);
+            var maxConnecting = 3;
             var maxConnectionIdleTime = TimeSpan.FromSeconds(2);
             var maxConnectionLifeTime = TimeSpan.FromSeconds(3);
             var maxConnectionPoolSize = 50;
@@ -363,6 +368,7 @@ namespace MongoDB.Driver.Tests
                 kmsProviders,
                 loadBalanced,
                 localThreshold,
+                maxConnecting,
                 maxConnectionIdleTime,
                 maxConnectionLifeTime,
                 maxConnectionPoolSize,

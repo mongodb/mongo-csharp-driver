@@ -83,7 +83,7 @@ namespace MongoDB.Driver.Tests
             var connectionString =
                 "mongodb://user1:password1@somehost/?appname=app;" +
                 "connect=direct;connectTimeout=123;ipv6=true;heartbeatInterval=1m;heartbeatTimeout=2m;localThreshold=128;loadBalanced=false;" +
-                "maxIdleTime=124;maxLifeTime=125;maxPoolSize=126;minPoolSize=127;readConcernLevel=majority;" +
+                "maxConnecting=3;maxIdleTime=124;maxLifeTime=125;maxPoolSize=126;minPoolSize=127;readConcernLevel=majority;" +
                 "readPreference=secondary;readPreferenceTags=a:1,b:2;readPreferenceTags=c:3,d:4;socketTimeout=129;" +
                 "serverSelectionTimeout=20s;ssl=true;sslVerifyCertificate=false;waitqueuesize=130;waitQueueTimeout=131;" +
                 "w=1;fsync=true;journal=true;w=2;wtimeout=131;gssapiServiceName=other;tlsInsecure=true";
@@ -247,6 +247,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(ServerSettings.DefaultHeartbeatTimeout, settings.HeartbeatTimeout);
             Assert.Equal(false, settings.IPv6);
             Assert.Equal(false, settings.LoadBalanced);
+            Assert.Equal(MongoInternalDefaults.ConnectionPool.MaxConnecting, settings.MaxConnecting);
             Assert.Equal(MongoDefaults.MaxConnectionIdleTime, settings.MaxConnectionIdleTime);
             Assert.Equal(MongoDefaults.MaxConnectionLifeTime, settings.MaxConnectionLifeTime);
             Assert.Equal(MongoDefaults.MaxConnectionPoolSize, settings.MaxConnectionPoolSize);
@@ -445,6 +446,10 @@ namespace MongoDB.Driver.Tests
             Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
+            clone.MaxConnecting = 3;
+            Assert.False(clone.Equals(settings));
+
+            clone = settings.Clone();
             clone.MaxConnectionIdleTime = new TimeSpan(1, 2, 3);
             Assert.False(clone.Equals(settings));
 
@@ -615,7 +620,7 @@ namespace MongoDB.Driver.Tests
             var connectionString =
                 "mongodb://user1:password1@somehost/?appname=app1;authSource=db;authMechanismProperties=CANONICALIZE_HOST_NAME:true;" +
                 "compressors=zlib,snappy;zlibCompressionLevel=9;connect=direct;connectTimeout=123;ipv6=true;heartbeatInterval=1m;heartbeatTimeout=2m;loadBalanced=false;localThreshold=128;" +
-                "maxIdleTime=124;maxLifeTime=125;maxPoolSize=126;minPoolSize=127;readConcernLevel=majority;" +
+                "maxConnecting=3;maxIdleTime=124;maxLifeTime=125;maxPoolSize=126;minPoolSize=127;readConcernLevel=majority;" +
                 "readPreference=secondary;readPreferenceTags=a:1,b:2;readPreferenceTags=c:3,d:4;retryReads=false;retryWrites=true;socketTimeout=129;" +
                 "serverSelectionTimeout=20s;tls=true;sslVerifyCertificate=false;waitqueuesize=130;waitQueueTimeout=131;" +
                 "w=1;fsync=true;journal=true;w=2;wtimeout=131;gssapiServiceName=other";
@@ -656,6 +661,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(url.IPv6, settings.IPv6);
             Assert.Equal(url.LoadBalanced, settings.LoadBalanced);
             Assert.Equal(url.LocalThreshold, settings.LocalThreshold);
+            Assert.Equal(url.MaxConnecting, settings.MaxConnecting);
             Assert.Equal(url.MaxConnectionIdleTime, settings.MaxConnectionIdleTime);
             Assert.Equal(url.MaxConnectionLifeTime, settings.MaxConnectionLifeTime);
             Assert.Equal(url.MaxConnectionPoolSize, settings.MaxConnectionPoolSize);
@@ -912,6 +918,29 @@ namespace MongoDB.Driver.Tests
             settings.Freeze();
             Assert.Equal(localThreshold, settings.LocalThreshold);
             Assert.Throws<InvalidOperationException>(() => { settings.LocalThreshold = localThreshold; });
+        }
+
+        [Fact]
+        public void TestMaxConnecting()
+        {
+            var settings = new MongoClientSettings();
+            settings.MaxConnecting.Should().Be(MongoInternalDefaults.ConnectionPool.MaxConnecting);
+
+            var maxConnecting = 3;
+            settings.MaxConnecting = maxConnecting;
+            settings.MaxConnecting.Should().Be(maxConnecting);
+
+            var exception = Record.Exception(() => settings.MaxConnecting = 0);
+            exception.Should().BeOfType<ArgumentOutOfRangeException>();
+
+            exception = Record.Exception(() => settings.MaxConnecting = -1);
+            exception.Should().BeOfType<ArgumentOutOfRangeException>();
+
+            settings.Freeze();
+
+            settings.MaxConnecting.Should().Be(maxConnecting);
+            exception = Record.Exception(() => settings.MaxConnecting = maxConnecting);
+            exception.Should().BeOfType<InvalidOperationException>();
         }
 
         [Fact]
@@ -1353,6 +1382,7 @@ namespace MongoDB.Driver.Tests
                 HeartbeatTimeout = TimeSpan.FromSeconds(8),
                 IPv6 = true,
                 LocalThreshold = TimeSpan.FromMilliseconds(20),
+                MaxConnecting = 3,
                 MaxConnectionIdleTime = TimeSpan.FromSeconds(2),
                 MaxConnectionLifeTime = TimeSpan.FromSeconds(3),
                 MaxConnectionPoolSize = 10,
@@ -1394,6 +1424,7 @@ namespace MongoDB.Driver.Tests
             result.HeartbeatTimeout.Should().Be(subject.HeartbeatTimeout);
             result.IPv6.Should().Be(subject.IPv6);
             result.LocalThreshold.Should().Be(subject.LocalThreshold);
+            result.MaxConnecting.Should().Be(subject.MaxConnecting);
             result.MaxConnectionIdleTime.Should().Be(subject.MaxConnectionIdleTime);
             result.MaxConnectionLifeTime.Should().Be(subject.MaxConnectionLifeTime);
             result.MaxConnectionPoolSize.Should().Be(subject.MaxConnectionPoolSize);

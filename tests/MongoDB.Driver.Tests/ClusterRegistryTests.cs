@@ -81,6 +81,7 @@ namespace MongoDB.Driver.Tests
                 kmsProviders: kmsProviders,
                 loadBalanced: false,
                 localThreshold: TimeSpan.FromSeconds(4),
+                maxConnecting: 3,
                 maxConnectionIdleTime: TimeSpan.FromSeconds(5),
                 maxConnectionLifeTime: TimeSpan.FromSeconds(6),
                 maxConnectionPoolSize: 7,

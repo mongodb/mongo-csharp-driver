@@ -122,6 +122,9 @@ namespace MongoDB.Driver.Specifications.connection_string
                         case "localthresholdms":
                             AssertTimeSpan(connectionString.LocalThreshold, expectedOption.Value);
                             break;
+                        case "maxconnecting":
+                            connectionString.MaxConnecting.Should().Be(expectedOption.Value.ToInt32());
+                            break;
                         case "maxidletimems":
                             AssertTimeSpan(connectionString.MaxIdleTime, expectedOption.Value);
                             break;
