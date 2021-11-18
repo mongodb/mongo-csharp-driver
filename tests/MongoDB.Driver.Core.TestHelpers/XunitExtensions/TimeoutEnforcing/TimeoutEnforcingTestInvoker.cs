@@ -15,7 +15,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,7 +25,6 @@ using Xunit.Sdk;
 
 namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions.TimeoutEnforcing
 {
-    [DebuggerStepThrough]
     internal sealed class TimeoutEnforcingTestInvoker : XunitTestInvoker
     {
         public TimeoutEnforcingTestInvoker(
@@ -69,15 +67,15 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions.TimeoutEnforcing
                     throw new TestTimeoutException((int)timeout.TotalMilliseconds);
                 }
 
-                //if (Aggregator.HasExceptions && testLoggable != null)
-                //{
-                //    var exception = Aggregator.ToException();
+                if (Aggregator.HasExceptions && testLoggable != null)
+                {
+                    var exception = Aggregator.ToException();
 
-                //    if (exception is not SkipException)
-                //    {
-                //        testLoggable.OnException(exception);
-                //    }
-                //}
+                    if (exception is not SkipException)
+                    {
+                        testLoggable.OnException(exception);
+                    }
+                }
 
                 result = await baseTask;
             }
