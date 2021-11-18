@@ -304,6 +304,7 @@ functions:
           FRAMEWORK=${FRAMEWORK} \
             evergreen/run-tests.sh
           echo "Skipping certificate removal..."
+          OS=${OS} \
             evergreen/cleanup-test-resources.sh
 
   run-csfle-tests-with-mocked-kms:
@@ -334,6 +335,7 @@ functions:
           FRAMEWORK=${FRAMEWORK} \
           TARGET="TestCsfleWithMockedKms" \
             evergreen/run-tests.sh
+          OS=${OS} \
             evergreen/cleanup-test-resources.sh
 
   run-atlas-connectivity-tests:
