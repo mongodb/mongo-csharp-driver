@@ -43,8 +43,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                     extraOptions.Add("mongocryptdURI", $"mongodb://localhost:{mongocryptdPort}");
                 }
 
-                var portKey = " --port=";
-                var portValue = $"{portKey}{mongocryptdPort}";
+                var portKey = "--port=";
+                var portValue = $" {portKey}{mongocryptdPort}";
                 if (extraOptions.TryGetValue("mongocryptdSpawnArgs", out var args))
                 {
                     object effectiveValue;
