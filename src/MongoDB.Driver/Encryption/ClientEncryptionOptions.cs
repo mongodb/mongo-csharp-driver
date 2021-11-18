@@ -27,6 +27,7 @@ namespace MongoDB.Driver.Encryption
         private readonly IMongoClient _keyVaultClient;
         private readonly CollectionNamespace _keyVaultNamespace;
         private readonly IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> _kmsProviders;
+        private readonly IReadOnlyDictionary<string, SslSettings> _tlsOptions;
 
         // constructors
         /// <summary>
@@ -35,16 +36,20 @@ namespace MongoDB.Driver.Encryption
         /// <param name="keyVaultClient">The key vault client.</param>
         /// <param name="keyVaultNamespace">The key vault namespace.</param>
         /// <param name="kmsProviders">The KMS providers.</param>
+        /// <param name="tlsOptions">The tls options.</param>
         public ClientEncryptionOptions(
             IMongoClient keyVaultClient,
             CollectionNamespace keyVaultNamespace,
-            IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> kmsProviders)
+            IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> kmsProviders,
+            Optional<IReadOnlyDictionary<string, SslSettings>> tlsOptions = default)
         {
             _keyVaultClient = Ensure.IsNotNull(keyVaultClient, nameof(keyVaultClient));
             _keyVaultNamespace = Ensure.IsNotNull(keyVaultNamespace, nameof(keyVaultNamespace));
             _kmsProviders = Ensure.IsNotNull(kmsProviders, nameof(kmsProviders));
+            _tlsOptions = tlsOptions.WithDefault(new Dictionary<string, SslSettings>());
 
             KmsProvidersHelper.EnsureKmsProvidersAreValid(_kmsProviders);
+            KmsProvidersHelper.EnsureKmsProvidersTlsSettingsAreValid(_tlsOptions);
         }
 
         // public properties
@@ -73,21 +78,32 @@ namespace MongoDB.Driver.Encryption
         public IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> KmsProviders => _kmsProviders;
 
         /// <summary>
+        /// Gets the tls options.
+        /// </summary>
+        /// <value>
+        /// The tls options.
+        /// </value>
+        public IReadOnlyDictionary<string, SslSettings> TlsOptions => _tlsOptions;
+
+        /// <summary>
         /// Returns a new ClientEncryptionOptions instance with some settings changed.
         /// </summary>
         /// <param name="keyVaultClient">The key vault client.</param>
         /// <param name="keyVaultNamespace">The key vault namespace.</param>
         /// <param name="kmsProviders">The KMS providers.</param>
+        /// <param name="tlsOptions">The tls options.</param>
         /// <returns>A new ClientEncryptionOptions instance.</returns>
         public ClientEncryptionOptions With(
             Optional<IMongoClient> keyVaultClient = default,
             Optional<CollectionNamespace> keyVaultNamespace = default,
-            Optional<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>>> kmsProviders = default)
+            Optional<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>>> kmsProviders = default,
+            Optional<IReadOnlyDictionary<string, SslSettings>> tlsOptions = default)
         {
             return new ClientEncryptionOptions(
                 keyVaultClient: keyVaultClient.WithDefault(_keyVaultClient),
                 keyVaultNamespace: keyVaultNamespace.WithDefault(_keyVaultNamespace),
-                kmsProviders: kmsProviders.WithDefault(_kmsProviders));
+                kmsProviders: kmsProviders.WithDefault(_kmsProviders),
+                tlsOptions: Optional.Create(tlsOptions.WithDefault(_tlsOptions)));
         }
     }
 }

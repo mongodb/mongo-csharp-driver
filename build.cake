@@ -403,7 +403,7 @@ Task("TestLoadBalanced")
 Task("TestLoadBalancedNetStandard20").IsDependentOn("TestLoadBalanced");
 Task("TestLoadBalancedNetStandard21").IsDependentOn("TestLoadBalanced");
 
-Task("TestCsfleKmsTls")
+Task("TestCsfleWithMockedKms")
     .IsDependentOn("Build")
     .DoesForEach(
         GetFiles("./**/*.Tests.csproj"),
@@ -416,13 +416,14 @@ Task("TestCsfleKmsTls")
             Configuration = configuration,
             Loggers = CreateLoggers(),
             ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64"),
-            Filter = "Category=\"CsfleKmsTls\""
+            Filter = "Category=\"CSFLE\""
         };
 
         switch (target.ToLowerInvariant()) // target can be not only moniker related
         {
-            case "testcsflekmstlsnetstandard20": settings.Framework = "netcoreapp2.1"; break;
-            case "testcsflekmstlsnetstandard21": settings.Framework = "netcoreapp3.1"; break;
+            case "testcsflewithmockedkmsnet472": settings.Framework = "net472"; break;
+            case "testcsflewithmockedkmsnetstandard20": settings.Framework = "netcoreapp2.1"; break;
+            case "testcsflewithmockedkmsnetstandard21": settings.Framework = "netcoreapp3.1"; break;
         }
 
         DotNetCoreTest(
@@ -431,8 +432,9 @@ Task("TestCsfleKmsTls")
         );
     });
 
-Task("TestCsfleKmsTlsNetStandard20").IsDependentOn("TestCsfleKmsTls");
-Task("TestCsfleKmsTlsNetStandard21").IsDependentOn("TestCsfleKmsTls");
+Task("TestCsfleWithMockedKmsnet472").IsDependentOn("TestCsfleWithMockedKms");
+Task("TestCsfleWithMockedKmsNetStandard20").IsDependentOn("TestCsfleWithMockedKms");
+Task("TestCsfleWithMockedKmsNetStandard21").IsDependentOn("TestCsfleWithMockedKms");
 
 Task("Docs")
     .IsDependentOn("ApiDocs")

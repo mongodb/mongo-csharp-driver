@@ -34,6 +34,7 @@ namespace MongoDB.Driver.Encryption
         private readonly IMongoClient _keyVaultClient;
         private readonly CollectionNamespace _keyVaultNamespace;
         private readonly IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> _kmsProviders;
+        private readonly IReadOnlyDictionary<string, SslSettings> _tlsOptions;
         private readonly IReadOnlyDictionary<string, BsonDocument> _schemaMap;
 
         // constructors
@@ -46,13 +47,15 @@ namespace MongoDB.Driver.Encryption
         /// <param name="extraOptions">The extra options.</param>
         /// <param name="keyVaultClient">The keyVault client.</param>
         /// <param name="schemaMap">The schema map.</param>
+        /// <param name="tlsOptions">The tls options.</param>
         public AutoEncryptionOptions(
             CollectionNamespace keyVaultNamespace,
             IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> kmsProviders,
             Optional<bool> bypassAutoEncryption = default,
             Optional<IReadOnlyDictionary<string, object>> extraOptions = default,
             Optional<IMongoClient> keyVaultClient = default,
-            Optional<IReadOnlyDictionary<string, BsonDocument>> schemaMap = default)
+            Optional<IReadOnlyDictionary<string, BsonDocument>> schemaMap = default,
+            Optional<IReadOnlyDictionary<string, SslSettings>> tlsOptions = default)
         {
             _keyVaultNamespace = Ensure.IsNotNull(keyVaultNamespace, nameof(keyVaultNamespace));
             _kmsProviders = Ensure.IsNotNull(kmsProviders, nameof(kmsProviders));
@@ -60,9 +63,11 @@ namespace MongoDB.Driver.Encryption
             _extraOptions = extraOptions.WithDefault(null);
             _keyVaultClient = keyVaultClient.WithDefault(null);
             _schemaMap = schemaMap.WithDefault(null);
+            _tlsOptions = tlsOptions.WithDefault(new Dictionary<string, SslSettings>());
 
             EncryptionExtraOptionsValidator.EnsureThatExtraOptionsAreValid(_extraOptions);
             KmsProvidersHelper.EnsureKmsProvidersAreValid(_kmsProviders);
+            KmsProvidersHelper.EnsureKmsProvidersTlsSettingsAreValid(_tlsOptions);
         }
 
         // public properties
@@ -107,6 +112,14 @@ namespace MongoDB.Driver.Encryption
         public IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> KmsProviders => _kmsProviders;
 
         /// <summary>
+        /// Gets the tls options.
+        /// </summary>
+        /// <value>
+        /// The tls options.
+        /// </value>
+        public IReadOnlyDictionary<string, SslSettings> TlsOptions => _tlsOptions;
+
+        /// <summary>
         /// Gets the schema map.
         /// </summary>
         /// <value>
@@ -123,6 +136,7 @@ namespace MongoDB.Driver.Encryption
         /// <param name="extraOptions">The extra options.</param>
         /// <param name="keyVaultClient">The keyVault client.</param>
         /// <param name="schemaMap">The schema map.</param>
+        /// <param name="tlsOptions">The tls options.</param>
         /// <returns>A new instance of <see cref="AutoEncryptionOptions"/>.</returns>
         public AutoEncryptionOptions With(
             Optional<CollectionNamespace> keyVaultNamespace = default,
@@ -130,7 +144,8 @@ namespace MongoDB.Driver.Encryption
             Optional<bool> bypassAutoEncryption = default,
             Optional<IReadOnlyDictionary<string, object>> extraOptions = default,
             Optional<IMongoClient> keyVaultClient = default,
-            Optional<IReadOnlyDictionary<string, BsonDocument>> schemaMap = default)
+            Optional<IReadOnlyDictionary<string, BsonDocument>> schemaMap = default,
+            Optional<IReadOnlyDictionary<string, SslSettings>> tlsOptions = default)
         {
             return new AutoEncryptionOptions(
                 keyVaultNamespace.WithDefault(_keyVaultNamespace),
@@ -138,7 +153,8 @@ namespace MongoDB.Driver.Encryption
                 bypassAutoEncryption.WithDefault(_bypassAutoEncryption),
                 Optional.Create(extraOptions.WithDefault(_extraOptions)),
                 Optional.Create(keyVaultClient.WithDefault(_keyVaultClient)),
-                Optional.Create(schemaMap.WithDefault(_schemaMap)));
+                Optional.Create(schemaMap.WithDefault(_schemaMap)),
+                Optional.Create(tlsOptions.WithDefault(_tlsOptions)));
         }
 
         /// <inheritdoc />
@@ -153,7 +169,8 @@ namespace MongoDB.Driver.Encryption
                 object.ReferenceEquals(_keyVaultClient, rhs._keyVaultClient) &&
                 _keyVaultNamespace.Equals(rhs._keyVaultNamespace) &&
                 KmsProvidersHelper.Equals(_kmsProviders, rhs._kmsProviders) &&
-                _schemaMap.IsEquivalentTo(rhs._schemaMap, object.Equals);
+                _schemaMap.IsEquivalentTo(rhs._schemaMap, object.Equals) &&
+               _tlsOptions.IsEquivalentTo(rhs._tlsOptions, object.Equals);
         }
 
         /// <inheritdoc />
@@ -165,6 +182,7 @@ namespace MongoDB.Driver.Encryption
                 .Hash(_keyVaultClient)
                 .Hash(_keyVaultNamespace)
                 .HashElements(_kmsProviders)
+                .HashElements(_tlsOptions)
                 .HashElements(_schemaMap)
                 .GetHashCode();
         }
@@ -195,6 +213,10 @@ namespace MongoDB.Driver.Encryption
             if (_schemaMap != null)
             {
                 sb.AppendFormat("SchemaMap : {0}, ", _schemaMap.ToJson(jsonWriterSettings));
+            }
+            if (_tlsOptions != null)
+            {
+                sb.AppendFormat("TlsOptions: {0}", _tlsOptions.Select(t => new BsonDocument(t.Key, "<hidden>")).ToJson(jsonWriterSettings));
             }
             sb.Remove(sb.Length - 2, 2);
             sb.Append(" }");

@@ -14,7 +14,8 @@ set -o errexit  # Exit the script with error if any of the commands fail
 #   OCSP_TLS_SHOULD_SUCCEED         Set to test OCSP. Values are true/false/nil
 #   MONGODB_X509_CLIENT_P12_PATH    Absolute path to client certificate in p12 format
 #   MONGO_X509_CLIENT_CERTIFICATE_PASSWORD  password for client certificate
-#   FRAMEWORK                       Set to specify .NET framework to test against. Values: "Net472", "NetStandard20", "NetStandard21", "nil"
+#   FRAMEWORK                       Set to specify .NET framework to test against. Values: "Net472", "NetStandard20", "NetStandard21",
+#   TARGET                          Set to specify a custom test target. Default: "nil"
 #
 # Environment variables produced as output:
 #   MONGODB_X509_CLIENT_P12_PATH            Absolute path to client certificate in p12 format
@@ -29,6 +30,8 @@ COMPRESSOR=${COMPRESSOR:-none}
 OCSP_TLS_SHOULD_SUCCEED=${OCSP_TLS_SHOULD_SUCCEED:-nil}
 CLIENT_PEM=${CLIENT_PEM:-nil}
 PLATFORM=${PLATFORM:-nil}
+TARGET=${TARGET:-Test}
+FRAMEWORK=${FRAMEWORK:-nil}
 
 ############################################
 #            Functions                     #
@@ -66,6 +69,8 @@ provision_compressor () {
 #            Main Program                  #
 ############################################
 echo "Initial MongoDB URI:" $MONGODB_URI
+echo "Framework: " $FRAMEWORK
+
 # Provision the correct connection string and set up SSL if needed
 if [ "$TOPOLOGY" == "sharded_cluster" ]; then
        export MONGODB_URI_WITH_MULTIPLE_MONGOSES="${MONGODB_URI}"
@@ -97,13 +102,19 @@ if [ ! -z "$REQUIRE_API_VERSION" ]; then
   echo "Server API version is set to $MONGODB_API_VERSION"
 fi
 
-export TARGET="Test${FRAMEWORK}"
+if [[ $FRAMEWORK != "nil" ]] && [[ $TARGET != *${FRAMEWORK} ]]; then
+  TARGET="${TARGET}${FRAMEWORK}"
+fi
+
+export TARGET
 if [[ "$OS" =~ Windows|windows ]]; then
   if [ "$OCSP_TLS_SHOULD_SUCCEED" != "nil" ]; then
     export TARGET="TestOcsp"
     certutil.exe -urlcache localhost delete # clear the OS-level cache of all entries with the URL "localhost"
   fi
 fi
+
+echo "Test target: $TARGET"
 
 echo "Final MongoDB_URI: $MONGODB_URI"
 if [ "$TOPOLOGY" == "sharded_cluster" ]; then
@@ -121,22 +132,16 @@ if [[ "$CLIENT_PEM" != "nil" ]]; then
   CLIENT_PEM=${CLIENT_PEM} source evergreen/convert-client-cert-to-pkcs12.sh
 fi
 
+if [[ -z "$MONGO_X509_CLIENT_CERTIFICATE_PATH" && -z "$MONGO_X509_CLIENT_CERTIFICATE_PASSWORD" ]]; then
+    # technically the above condiion will be always true since CLIENT_PEM is always set and 
+    # convert-client-cert-to-pkcs12 always assigns these env variables, but leaving this condition in case 
+    # if we make CLIENT_PEM input parameter conditional
+    export MONGO_X509_CLIENT_CERTIFICATE_PATH=${MONGO_X509_CLIENT_CERTIFICATE_PATH}
+    export MONGO_X509_CLIENT_CERTIFICATE_PASSWORD="${MONGO_X509_CLIENT_CERTIFICATE_PASSWORD}"
+fi
+
 if [[ "$OS" =~ Windows|windows ]]; then
-  export DRIVERS_TOOLS=$(cygpath -m $DRIVERS_TOOLS)
-  if [[ -z "$MONGO_X509_CLIENT_CERTIFICATE_PATH" && -z "$MONGO_X509_CLIENT_CERTIFICATE_PASSWORD" ]]; then
-    powershell.exe '.\build.ps1 --target' $TARGET
-  else
-    powershell.exe \
-      '$env:MONGO_X509_CLIENT_CERTIFICATE_PATH="${MONGO_X509_CLIENT_CERTIFICATE_PATH}";'\
-      '$env:MONGO_X509_CLIENT_CERTIFICATE_PASSWORD="${MONGO_X509_CLIENT_CERTIFICATE_PASSWORD}";'\
-      '.\build.ps1 --target' $TARGET
-  fi
+  powershell.exe .\\build.ps1 --target=$TARGET
 else
-  if [[ -z "$MONGO_X509_CLIENT_CERTIFICATE_PATH" && -z "$MONGO_X509_CLIENT_CERTIFICATE_PASSWORD" ]]; then
-    ./build.sh --target=$TARGET
-  else
-    MONGO_X509_CLIENT_CERTIFICATE_PATH="${MONGO_X509_CLIENT_CERTIFICATE_PATH}" \
-    MONGO_X509_CLIENT_CERTIFICATE_PASSWORD="${MONGO_X509_CLIENT_CERTIFICATE_PASSWORD}" \
-    ./build.sh --target=$TARGET
-  fi
+  ./build.sh --target=$TARGET
 fi
