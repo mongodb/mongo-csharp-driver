@@ -4,7 +4,7 @@ set -o xtrace   # Write all commands first to stderr
 #   OS                                               The current operating system
 
 echo "Attempt to kill mongocryptd process if presented on ${OS}"
-if [ "Windows_NT" = "$OS" ]; then
+if [[ "$OS" =~ Windows|windows ]]; then
   tasklist -FI "IMAGENAME eq mongocryptd.exe"
   taskkill -F -FI "IMAGENAME eq mongocryptd.exe"
   # check that it's actually killed
