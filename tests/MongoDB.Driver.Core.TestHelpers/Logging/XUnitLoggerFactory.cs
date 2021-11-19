@@ -13,8 +13,11 @@
 * limitations under the License.
 */
 
+using System.Diagnostics;
+
 namespace MongoDB.Driver.Core.TestHelpers.Logging
 {
+    [DebuggerStepThrough]
     internal sealed class XUnitLoggerFactory : ILoggerFactory
     {
         private readonly ILogger _loggerBase;
