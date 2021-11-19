@@ -54,18 +54,10 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions.TimeoutEnforcing
         {
             var xUnitTestCase = Test.TestCase as IXunitTestCase;
             var timeoutMS = xUnitTestCase?.Timeout ?? 0;
+            var timeout = Debugger.IsAttached
+                ? Timeout.InfiniteTimeSpan // allow more flexible debugging expirience
+                : timeoutMS <= 0 ? CoreTestConfiguration.DefaultTestTimeout : TimeSpan.FromMilliseconds(timeoutMS);
 
-            TimeSpan timeout;
-            if (timeoutMS > 0)
-            {
-                timeout = TimeSpan.FromMilliseconds(timeoutMS);
-            }
-            else
-            {
-                timeout = Debugger.IsAttached
-                    ? Timeout.InfiniteTimeSpan // allow more flexible debugging expirience
-                    : CoreTestConfiguration.DefaultTestTimeout;
-            }
 
             var testLoggable = testClassInstance as LoggableTestClass;
 
