@@ -249,6 +249,7 @@ namespace MongoDB.Driver.Core.Operations
             var requests = batch.Requests.Cast<DeleteRequest>();
             return new BulkDeleteOperation(_collectionNamespace, requests, _messageEncoderSettings)
             {
+                IsOrdered = _isOrdered,
                 MaxBatchCount = _maxBatchCount,
                 MaxBatchLength = _maxBatchLength,
                 WriteConcern = batch.WriteConcern,
