@@ -98,11 +98,11 @@ namespace MongoDB.Driver.Core.Configuration
             ConnectionString result;
             if (async)
             {
-                result = subject.Resolve();
+                result = subject.ResolveAsync().GetAwaiter().GetResult();
             }
             else
             {
-                result = subject.ResolveAsync().GetAwaiter().GetResult();
+                result = subject.Resolve();
             }
 
             result.IsResolved.Should().BeTrue();
@@ -145,11 +145,11 @@ namespace MongoDB.Driver.Core.Configuration
             ConnectionString result;
             if (async)
             {
-                result = subject.Resolve(resolveHosts);
+                result = subject.ResolveAsync(resolveHosts).GetAwaiter().GetResult();
             }
             else
             {
-                result = subject.ResolveAsync(resolveHosts).GetAwaiter().GetResult();
+                result = subject.Resolve(resolveHosts);
             }
 
             result.IsResolved.Should().BeTrue();

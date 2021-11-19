@@ -69,8 +69,9 @@ namespace MongoDB.Driver.Tests
         {
             var connectionString = new ConnectionString(url);
             var resolvedConnectionString = connectionString.Resolve();
+            var builder = new MongoUrlBuilder(resolvedConnectionString);
 
-            var result = new MongoUrl(resolvedConnectionString);
+            var result = new MongoUrl(builder);
 
             result.IsResolved.Should().Be(true);
         }
@@ -83,13 +84,13 @@ namespace MongoDB.Driver.Tests
             var subject = new MongoUrl(url);
 
             MongoUrl result;
-            if (!async)
+            if (async)
             {
-                result = subject.Resolve();
+                result = subject.ResolveAsync().GetAwaiter().GetResult();
             }
             else
             {
-                result = subject.ResolveAsync().GetAwaiter().GetResult();
+                result = subject.Resolve();
             }
 
             var expectedServers = new[] { MongoServerAddress.Parse(expectedServer) };
@@ -106,13 +107,13 @@ namespace MongoDB.Driver.Tests
             var subject = new MongoUrl(url);
 
             MongoUrl result;
-            if (!async)
+            if (async)
             {
-                result = subject.Resolve(resolveHosts);
+                result = subject.ResolveAsync(resolveHosts).GetAwaiter().GetResult();
             }
             else
             {
-                result = subject.ResolveAsync(resolveHosts).GetAwaiter().GetResult();
+                result = subject.Resolve(resolveHosts);
             }
 
             var expectedServers = new[] { MongoServerAddress.Parse(expectedServer) };
@@ -120,23 +121,25 @@ namespace MongoDB.Driver.Tests
         }
 
         [Theory]
-        [InlineData("mongodb+srv://test1.test.build.10gen.cc/?srvMaxHosts=2", 2, false)]
-        [InlineData("mongodb+srv://test1.test.build.10gen.cc/?srvMaxHosts=2", 2, true)]
-        public void Resolve_with_srvMaxHosts_should_return_expected_result(string url, int srvMaxHosts, bool async)
+        [InlineData("mongodb+srv://test1.test.build.10gen.cc/?srvMaxHosts=2", false, 2, false)]
+        [InlineData("mongodb+srv://test1.test.build.10gen.cc/?srvMaxHosts=2", false, 2, true)]
+        [InlineData("mongodb+srv://test1.test.build.10gen.cc/?srvMaxHosts=2", true, 2, false)]
+        [InlineData("mongodb+srv://test1.test.build.10gen.cc/?srvMaxHosts=2", true, 2, true)]
+        public void Resolve_with_srvMaxHosts_should_return_expected_result(string url, bool resolveHosts, int expectedSrvMaxHosts, bool async)
         {
             var subject = new MongoUrl(url);
 
             MongoUrl result;
-            if (!async)
+            if (async)
             {
-                result = subject.Resolve();
+                result = subject.ResolveAsync(resolveHosts).GetAwaiter().GetResult();
             }
             else
             {
-                result = subject.ResolveAsync().GetAwaiter().GetResult();
+                result = subject.Resolve(resolveHosts);
             }
 
-            result.SrvMaxHosts.Should().Be(srvMaxHosts);
+            result.SrvMaxHosts.Should().Be(expectedSrvMaxHosts);
         }
 
         [Fact]
