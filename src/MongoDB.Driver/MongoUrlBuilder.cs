@@ -16,7 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Text;
 using System.Threading;
 using MongoDB.Bson;
@@ -25,6 +24,7 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Support;
 
 namespace MongoDB.Driver
 {
@@ -71,6 +71,7 @@ namespace MongoDB.Driver
         private IEnumerable<MongoServerAddress> _servers;
         private TimeSpan _serverSelectionTimeout;
         private TimeSpan _socketTimeout;
+        private int? _srvMaxHosts;
         private bool? _tlsDisableCertificateRevocationCheck;
         private string _username;
         private bool _useTls;
@@ -127,6 +128,7 @@ namespace MongoDB.Driver
             _servers = new[] { new MongoServerAddress("localhost", 27017) };
             _serverSelectionTimeout = MongoDefaults.ServerSelectionTimeout;
             _socketTimeout = MongoDefaults.SocketTimeout;
+            _srvMaxHosts = null;
             _username = null;
             _useTls = false;
             _w = null;
@@ -146,6 +148,12 @@ namespace MongoDB.Driver
             : this()
         {
             Parse(url);
+        }
+
+        internal MongoUrlBuilder(ConnectionString connectionString)
+            : this()
+        {
+            InitializeFromConnectionString(connectionString);
         }
 
         // public properties
@@ -635,6 +643,24 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Limits the number of SRV records used to populate the seedlist
+        /// during initial discovery, as well as the number of additional hosts
+        /// that may be added during SRV polling.
+        /// </summary>
+        public int? SrvMaxHosts
+        {
+            get { return _srvMaxHosts; }
+            set
+            {
+                if (value < 0)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(value), "SrvMaxHosts must be greater than or equal to zero.");
+                }
+                _srvMaxHosts = value;
+            }
+        }
+
+        /// <summary>
         /// Gets or sets whether to disable certificate revocation checking during the TLS handshake.
         /// </summary>
         public bool TlsDisableCertificateRevocationCheck
@@ -784,127 +810,7 @@ namespace MongoDB.Driver
         public void Parse(string url)
         {
             var connectionString = new ConnectionString(url);
-            _allowInsecureTls = connectionString.TlsInsecure.GetValueOrDefault(false);
-            _applicationName = connectionString.ApplicationName;
-            _authenticationMechanism = connectionString.AuthMechanism;
-            _authenticationMechanismProperties = connectionString.AuthMechanismProperties.ToDictionary(x => x.Key, x => x.Value, StringComparer.OrdinalIgnoreCase);
-            _authenticationSource = connectionString.AuthSource;
-            _compressors = connectionString.Compressors;
-#pragma warning disable CS0618
-            if (connectionString.ConnectionModeSwitch == ConnectionModeSwitch.UseConnectionMode)
-            {
-                switch (connectionString.Connect)
-                {
-                    case ClusterConnectionMode.Direct:
-                        _connectionMode = Driver.ConnectionMode.Direct;
-                        break;
-                    case ClusterConnectionMode.ReplicaSet:
-                        _connectionMode = Driver.ConnectionMode.ReplicaSet;
-                        break;
-                    case ClusterConnectionMode.Sharded:
-                        _connectionMode = Driver.ConnectionMode.ShardRouter;
-                        break;
-                    case ClusterConnectionMode.Standalone:
-                        _connectionMode = Driver.ConnectionMode.Standalone;
-                        break;
-                    default:
-                        _connectionMode = Driver.ConnectionMode.Automatic;
-                        break;
-                }
-#pragma warning restore CS0618
-            }
-#pragma warning disable CS0618 // Type or member is obsolete
-            _connectionModeSwitch = connectionString.ConnectionModeSwitch;
-#pragma warning restore CS0618 // Type or member is obsolete
-            _connectTimeout = connectionString.ConnectTimeout.GetValueOrDefault(MongoDefaults.ConnectTimeout);
-            _databaseName = connectionString.DatabaseName;
-#pragma warning disable CS0618
-            if (connectionString.ConnectionModeSwitch == ConnectionModeSwitch.UseDirectConnection)
-#pragma warning restore CS0618
-            {
-                _directConnection = connectionString.DirectConnection;
-            }
-            _fsync = connectionString.FSync;
-#pragma warning disable 618
-            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-            {
-                _guidRepresentation = connectionString.UuidRepresentation.GetValueOrDefault(MongoDefaults.GuidRepresentation);
-            }
-            else
-            {
-                if (connectionString.UuidRepresentation.HasValue)
-                {
-                    throw new InvalidOperationException("ConnectionString.UuidRepresentation can only be used when BsonDefaults.GuidRepresentationMode is V2.");
-                }
-            }
-#pragma warning restore 618
-            _heartbeatInterval = connectionString.HeartbeatInterval ?? ServerSettings.DefaultHeartbeatInterval;
-            _heartbeatTimeout = connectionString.HeartbeatTimeout ?? ServerSettings.DefaultHeartbeatTimeout;
-            _ipv6 = connectionString.Ipv6.GetValueOrDefault(false);
-            _journal = connectionString.Journal;
-            _loadBalanced = connectionString.LoadBalanced;
-            _localThreshold = connectionString.LocalThreshold.GetValueOrDefault(MongoDefaults.LocalThreshold);
-            _maxConnecting = connectionString.MaxConnecting.GetValueOrDefault(MongoInternalDefaults.ConnectionPool.MaxConnecting);
-            _maxConnectionIdleTime = connectionString.MaxIdleTime.GetValueOrDefault(MongoDefaults.MaxConnectionIdleTime);
-            _maxConnectionLifeTime = connectionString.MaxLifeTime.GetValueOrDefault(MongoDefaults.MaxConnectionLifeTime);
-            _maxConnectionPoolSize = connectionString.MaxPoolSize.GetValueOrDefault(MongoDefaults.MaxConnectionPoolSize);
-            _minConnectionPoolSize = connectionString.MinPoolSize.GetValueOrDefault(MongoDefaults.MinConnectionPoolSize);
-            _password = connectionString.Password;
-            _readConcernLevel = connectionString.ReadConcernLevel;
-            if (connectionString.ReadPreference.HasValue || connectionString.ReadPreferenceTags != null || connectionString.MaxStaleness.HasValue)
-            {
-                if (!connectionString.ReadPreference.HasValue)
-                {
-                    throw new MongoConfigurationException("readPreference mode is required when using tag sets or max staleness.");
-                }
-                _readPreference = new ReadPreference(connectionString.ReadPreference.Value, connectionString.ReadPreferenceTags, connectionString.MaxStaleness);
-            }
-            _replicaSetName = connectionString.ReplicaSet;
-            _retryReads = connectionString.RetryReads;
-            _retryWrites = connectionString.RetryWrites;
-            _scheme = connectionString.Scheme;
-            _servers = connectionString.Hosts.Select(endPoint =>
-            {
-                DnsEndPoint dnsEndPoint;
-                IPEndPoint ipEndPoint;
-                if ((dnsEndPoint = endPoint as DnsEndPoint) != null)
-                {
-                    return new MongoServerAddress(dnsEndPoint.Host, dnsEndPoint.Port);
-                }
-                else if ((ipEndPoint = endPoint as IPEndPoint) != null)
-                {
-                    var address = ipEndPoint.Address.ToString();
-                    if (ipEndPoint.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6)
-                    {
-                        address = "[" + address + "]";
-                    }
-                    return new MongoServerAddress(address, ipEndPoint.Port);
-                }
-                else
-                {
-                    throw new NotSupportedException("Only DnsEndPoint and IPEndPoints are supported in the connection string.");
-                }
-            });
-            _serverSelectionTimeout = connectionString.ServerSelectionTimeout.GetValueOrDefault(MongoDefaults.ServerSelectionTimeout);
-            _socketTimeout = connectionString.SocketTimeout.GetValueOrDefault(MongoDefaults.SocketTimeout);
-            _tlsDisableCertificateRevocationCheck = connectionString.TlsDisableCertificateRevocationCheck;
-            _username = connectionString.Username;
-            _useTls = connectionString.Tls.GetValueOrDefault(false);
-            _w = connectionString.W;
-#pragma warning disable 618
-            if (connectionString.WaitQueueSize != null)
-            {
-                _waitQueueSize = connectionString.WaitQueueSize.Value;
-                _waitQueueMultiple = 0.0;
-            }
-            else if (connectionString.WaitQueueMultiple != null)
-            {
-                _waitQueueMultiple = connectionString.WaitQueueMultiple.Value;
-                _waitQueueSize = 0;
-            }
-#pragma warning restore 618
-            _waitQueueTimeout = connectionString.WaitQueueTimeout.GetValueOrDefault(MongoDefaults.WaitQueueTimeout);
-            _wTimeout = connectionString.WTimeout;
+            InitializeFromConnectionString(connectionString);
         }
 
         /// <summary>
@@ -1157,6 +1063,10 @@ namespace MongoDB.Driver
             {
                 query.AppendFormat("retryWrites={0};", JsonConvert.ToString(_retryWrites.Value));
             }
+            if (_srvMaxHosts.HasValue)
+            {
+                query.AppendFormat("srvMaxHosts={0};", _srvMaxHosts);
+            }
             if (query.Length != 0)
             {
                 query.Length = query.Length - 1; // remove trailing ";"
@@ -1171,6 +1081,111 @@ namespace MongoDB.Driver
         }
 
         // private methods
+        private void InitializeFromConnectionString(ConnectionString connectionString)
+        {
+            _allowInsecureTls = connectionString.TlsInsecure.GetValueOrDefault(false);
+            _applicationName = connectionString.ApplicationName;
+            _authenticationMechanism = connectionString.AuthMechanism;
+            _authenticationMechanismProperties = connectionString.AuthMechanismProperties.ToDictionary(x => x.Key, x => x.Value, StringComparer.OrdinalIgnoreCase);
+            _authenticationSource = connectionString.AuthSource;
+            _compressors = connectionString.Compressors;
+#pragma warning disable CS0618
+            if (connectionString.ConnectionModeSwitch == ConnectionModeSwitch.UseConnectionMode)
+            {
+                switch (connectionString.Connect)
+                {
+                    case ClusterConnectionMode.Direct:
+                        _connectionMode = Driver.ConnectionMode.Direct;
+                        break;
+                    case ClusterConnectionMode.ReplicaSet:
+                        _connectionMode = Driver.ConnectionMode.ReplicaSet;
+                        break;
+                    case ClusterConnectionMode.Sharded:
+                        _connectionMode = Driver.ConnectionMode.ShardRouter;
+                        break;
+                    case ClusterConnectionMode.Standalone:
+                        _connectionMode = Driver.ConnectionMode.Standalone;
+                        break;
+                    default:
+                        _connectionMode = Driver.ConnectionMode.Automatic;
+                        break;
+                }
+#pragma warning restore CS0618
+            }
+#pragma warning disable CS0618 // Type or member is obsolete
+            _connectionModeSwitch = connectionString.ConnectionModeSwitch;
+#pragma warning restore CS0618 // Type or member is obsolete
+            _connectTimeout = connectionString.ConnectTimeout.GetValueOrDefault(MongoDefaults.ConnectTimeout);
+            _databaseName = connectionString.DatabaseName;
+#pragma warning disable CS0618
+            if (connectionString.ConnectionModeSwitch == ConnectionModeSwitch.UseDirectConnection)
+#pragma warning restore CS0618
+            {
+                _directConnection = connectionString.DirectConnection;
+            }
+            _fsync = connectionString.FSync;
+#pragma warning disable 618
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+            {
+                _guidRepresentation = connectionString.UuidRepresentation.GetValueOrDefault(MongoDefaults.GuidRepresentation);
+            }
+            else
+            {
+                if (connectionString.UuidRepresentation.HasValue)
+                {
+                    throw new InvalidOperationException("ConnectionString.UuidRepresentation can only be used when BsonDefaults.GuidRepresentationMode is V2.");
+                }
+            }
+#pragma warning restore 618
+            _heartbeatInterval = connectionString.HeartbeatInterval ?? ServerSettings.DefaultHeartbeatInterval;
+            _heartbeatTimeout = connectionString.HeartbeatTimeout ?? ServerSettings.DefaultHeartbeatTimeout;
+            _ipv6 = connectionString.Ipv6.GetValueOrDefault(false);
+            _journal = connectionString.Journal;
+            _loadBalanced = connectionString.LoadBalanced;
+            _localThreshold = connectionString.LocalThreshold.GetValueOrDefault(MongoDefaults.LocalThreshold);
+            _maxConnecting = connectionString.MaxConnecting.GetValueOrDefault(MongoInternalDefaults.ConnectionPool.MaxConnecting);
+            _maxConnectionIdleTime = connectionString.MaxIdleTime.GetValueOrDefault(MongoDefaults.MaxConnectionIdleTime);
+            _maxConnectionLifeTime = connectionString.MaxLifeTime.GetValueOrDefault(MongoDefaults.MaxConnectionLifeTime);
+            _maxConnectionPoolSize = connectionString.MaxPoolSize.GetValueOrDefault(MongoDefaults.MaxConnectionPoolSize);
+            _minConnectionPoolSize = connectionString.MinPoolSize.GetValueOrDefault(MongoDefaults.MinConnectionPoolSize);
+            _password = connectionString.Password;
+            _readConcernLevel = connectionString.ReadConcernLevel;
+            if (connectionString.ReadPreference.HasValue || connectionString.ReadPreferenceTags != null || connectionString.MaxStaleness.HasValue)
+            {
+                if (!connectionString.ReadPreference.HasValue)
+                {
+                    throw new MongoConfigurationException("readPreference mode is required when using tag sets or max staleness.");
+                }
+                _readPreference = new ReadPreference(connectionString.ReadPreference.Value, connectionString.ReadPreferenceTags, connectionString.MaxStaleness);
+            }
+            _replicaSetName = connectionString.ReplicaSet;
+            _retryReads = connectionString.RetryReads;
+            _retryWrites = connectionString.RetryWrites;
+            _scheme = connectionString.Scheme;
+            _servers = connectionString.Hosts.ToMongoServerAddresses();
+            _serverSelectionTimeout = connectionString.ServerSelectionTimeout.GetValueOrDefault(MongoDefaults.ServerSelectionTimeout);
+            _socketTimeout = connectionString.SocketTimeout.GetValueOrDefault(MongoDefaults.SocketTimeout);
+            _srvMaxHosts = connectionString.SrvMaxHosts;
+            _tlsDisableCertificateRevocationCheck = connectionString.TlsDisableCertificateRevocationCheck;
+            _username = connectionString.Username;
+            _useTls = connectionString.Tls.GetValueOrDefault(false);
+            _w = connectionString.W;
+#pragma warning disable 618
+            if (connectionString.WaitQueueSize != null)
+            {
+                _waitQueueSize = connectionString.WaitQueueSize.Value;
+                _waitQueueMultiple = 0.0;
+            }
+            else if (connectionString.WaitQueueMultiple != null)
+            {
+                _waitQueueMultiple = connectionString.WaitQueueMultiple.Value;
+                _waitQueueSize = 0;
+            }
+#pragma warning restore 618
+            _waitQueueTimeout = connectionString.WaitQueueTimeout.GetValueOrDefault(MongoDefaults.WaitQueueTimeout);
+            _wTimeout = connectionString.WTimeout;
+        }
+
         private bool AnyWriteConcernSettingsAreSet()
         {
             return _fsync != null || _journal != null || _w != null || _wTimeout != null;

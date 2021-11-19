@@ -50,6 +50,7 @@ namespace MongoDB.Driver.Core.Configuration
         private readonly ConnectionStringScheme _scheme;
         private readonly ServerApi _serverApi;
         private readonly TimeSpan _serverSelectionTimeout;
+        private readonly int _srvMaxHosts;
         private readonly IServerSelector _preServerSelector;
         private readonly IServerSelector _postServerSelector;
 
@@ -72,6 +73,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="postServerSelector">The post server selector.</param>
         /// <param name="schemaMap">The schema map.</param>
         /// <param name="scheme">The connection string scheme.</param>
+        /// <param name="srvMaxHosts">Limits the number of SRV records used to populate the seedlist during initial discovery, as well as the number of additional hosts that may be added during SRV polling.</param>
         public ClusterSettings(
 #pragma warning disable CS0618 // Type or member is obsolete
             Optional<ClusterConnectionMode> connectionMode = default(Optional<ClusterConnectionMode>),
@@ -89,25 +91,27 @@ namespace MongoDB.Driver.Core.Configuration
             Optional<IServerSelector> preServerSelector = default(Optional<IServerSelector>),
             Optional<IServerSelector> postServerSelector = default(Optional<IServerSelector>),
             Optional<IReadOnlyDictionary<string, BsonDocument>> schemaMap = default(Optional<IReadOnlyDictionary<string, BsonDocument>>),
-            Optional<ConnectionStringScheme> scheme = default(Optional<ConnectionStringScheme>))
+            Optional<ConnectionStringScheme> scheme = default(Optional<ConnectionStringScheme>),
+            Optional<int> srvMaxHosts = default)
         {
 #pragma warning disable CS0618 // Type or member is obsolete
             _connectionMode = connectionMode.WithDefault(ClusterConnectionMode.Automatic);
             _connectionModeSwitch = connectionModeSwitch.WithDefault(ConnectionModeSwitch.NotSet);
 #pragma warning restore CS0618 // Type or member is obsolete
             _directConnection = directConnection.WithDefault(null);
-            _endPoints = Ensure.IsNotNull(endPoints.WithDefault(__defaultEndPoints), "endPoints").ToList();
+            _endPoints = Ensure.IsNotNull(endPoints.WithDefault(__defaultEndPoints), nameof(endPoints)).ToList();
             _kmsProviders = kmsProviders.WithDefault(null);
             _loadBalanced = loadBalanced.WithDefault(false);
-            _localThreshold = Ensure.IsInfiniteOrGreaterThanOrEqualToZero(localThreshold.WithDefault(TimeSpan.FromMilliseconds(15)), "localThreshold");
-            _maxServerSelectionWaitQueueSize = Ensure.IsGreaterThanOrEqualToZero(maxServerSelectionWaitQueueSize.WithDefault(500), "maxServerSelectionWaitQueueSize");
+            _localThreshold = Ensure.IsInfiniteOrGreaterThanOrEqualToZero(localThreshold.WithDefault(TimeSpan.FromMilliseconds(15)), nameof(localThreshold));
+            _maxServerSelectionWaitQueueSize = Ensure.IsGreaterThanOrEqualToZero(maxServerSelectionWaitQueueSize.WithDefault(500), nameof(maxServerSelectionWaitQueueSize));
             _replicaSetName = replicaSetName.WithDefault(null);
             _serverApi = serverApi.WithDefault(null);
-            _serverSelectionTimeout = Ensure.IsGreaterThanOrEqualToZero(serverSelectionTimeout.WithDefault(TimeSpan.FromSeconds(30)), "serverSelectionTimeout");
+            _serverSelectionTimeout = Ensure.IsGreaterThanOrEqualToZero(serverSelectionTimeout.WithDefault(TimeSpan.FromSeconds(30)), nameof(serverSelectionTimeout));
             _preServerSelector = preServerSelector.WithDefault(null);
             _postServerSelector = postServerSelector.WithDefault(null);
             _scheme = scheme.WithDefault(ConnectionStringScheme.MongoDB);
             _schemaMap = schemaMap.WithDefault(null);
+            _srvMaxHosts = Ensure.IsGreaterThanOrEqualToZero(srvMaxHosts.WithDefault(0), nameof(srvMaxHosts));
 
             ClusterConnectionModeHelper.EnsureConnectionModeValuesAreValid(_connectionMode, _connectionModeSwitch, _directConnection);
         }
@@ -266,6 +270,13 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         /// <summary>
+        /// Limits the number of SRV records used to populate the seedlist
+        /// during initial discovery, as well as the number of additional hosts
+        /// that may be added during SRV polling.
+        /// </summary>
+        public int SrvMaxHosts => _srvMaxHosts;
+
+        /// <summary>
         /// Gets the pre server selector.
         /// </summary>
         /// <value>
@@ -306,6 +317,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="postServerSelector">The post server selector.</param>
         /// <param name="schemaMap">The schema map.</param>
         /// <param name="scheme">The connection string scheme.</param>
+        /// <param name="srvMaxHosts">Limits the number of SRV records used to populate the seedlist during initial discovery, as well as the number of additional hosts that may be added during SRV polling.</param>
         /// <returns>A new ClusterSettings instance.</returns>
         public ClusterSettings With(
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -324,7 +336,8 @@ namespace MongoDB.Driver.Core.Configuration
             Optional<IServerSelector> preServerSelector = default(Optional<IServerSelector>),
             Optional<IServerSelector> postServerSelector = default(Optional<IServerSelector>),
             Optional<IReadOnlyDictionary<string, BsonDocument>> schemaMap = default(Optional<IReadOnlyDictionary<string, BsonDocument>>),
-            Optional<ConnectionStringScheme> scheme = default(Optional<ConnectionStringScheme>))
+            Optional<ConnectionStringScheme> scheme = default(Optional<ConnectionStringScheme>),
+            Optional<int> srvMaxHosts = default)
         {
             return new ClusterSettings(
                 connectionMode: connectionMode.WithDefault(_connectionMode),
@@ -341,7 +354,8 @@ namespace MongoDB.Driver.Core.Configuration
                 preServerSelector: Optional.Create(preServerSelector.WithDefault(_preServerSelector)),
                 postServerSelector: Optional.Create(postServerSelector.WithDefault(_postServerSelector)),
                 schemaMap: Optional.Create(schemaMap.WithDefault(_schemaMap)),
-                scheme: scheme.WithDefault(_scheme));
+                scheme: scheme.WithDefault(_scheme),
+                srvMaxHosts: srvMaxHosts.WithDefault(_srvMaxHosts));
         }
 
         // internal methods

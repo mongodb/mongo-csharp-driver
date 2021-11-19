@@ -71,10 +71,21 @@ namespace MongoDB.Driver.Specifications.initial_dns_seedlist_discovery
 
         private void AssertValid(ConnectionString connectionString, BsonDocument definition)
         {
-            var expectedSeeds = definition["seeds"].AsBsonArray.Select(x => x.ToString()).ToList();
-            var actualSeeds = connectionString.Hosts.Select(ConvertEndPointToString).ToList();
+            if (definition.Contains("seeds"))
+            {
+                var expectedSeeds = definition["seeds"].AsBsonArray.Select(x => x.ToString()).ToList();
+                var actualSeeds = connectionString.Hosts.Select(ConvertEndPointToString).ToList();
 
-            actualSeeds.ShouldAllBeEquivalentTo(expectedSeeds);
+                actualSeeds.ShouldAllBeEquivalentTo(expectedSeeds);
+            }
+
+            if (definition.Contains("numSeeds"))
+            {
+                var numExpectedSeeds = definition["numSeeds"].AsInt32;
+                var numActualSeeds = connectionString.Hosts.Count;
+
+                numActualSeeds.Should().Be(numExpectedSeeds);
+            }
 
             if (definition.Contains("options"))
             {

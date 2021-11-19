@@ -63,24 +63,17 @@ namespace MongoDB.Driver.Tests
         }
 
         [Theory]
-        [InlineData("mongodb://localhost", true)]
-        [InlineData("mongodb+srv://localhost", false)]
-        [InlineData("mongodb+srv://localhost", true)]
-        public void constructor_with_string_and_bool_should_initialize_instance(string url, bool isResolved)
-        {
-            var result = new MongoUrl(url, isResolved);
-
-            result.IsResolved.Should().Be(isResolved);
-        }
-
-        [Theory]
         [InlineData("mongodb://localhost")]
-        public void constructor_with_string_and_bool_should_throw_when_false_is_invalid(string url)
+        [InlineData("mongodb+srv://test2.test.build.10gen.cc")]
+        public void constructor_with_resolved_connection_string_should_initialize_resolved_instance(string url)
         {
-            var exception = Record.Exception(() => new MongoUrl(url, false));
+            var connectionString = new ConnectionString(url);
+            var resolvedConnectionString = connectionString.Resolve();
+            var builder = new MongoUrlBuilder(resolvedConnectionString);
 
-            var e = exception.Should().BeOfType<ArgumentException>().Subject;
-            e.ParamName.Should().Be("isResolved");
+            var result = new MongoUrl(builder);
+
+            result.IsResolved.Should().Be(true);
         }
 
         [Theory]
@@ -93,11 +86,11 @@ namespace MongoDB.Driver.Tests
             MongoUrl result;
             if (async)
             {
-                result = subject.Resolve();
+                result = subject.ResolveAsync().GetAwaiter().GetResult();
             }
             else
             {
-                result = subject.ResolveAsync().GetAwaiter().GetResult();
+                result = subject.Resolve();
             }
 
             var expectedServers = new[] { MongoServerAddress.Parse(expectedServer) };
@@ -116,15 +109,37 @@ namespace MongoDB.Driver.Tests
             MongoUrl result;
             if (async)
             {
-                result = subject.Resolve(resolveHosts);
+                result = subject.ResolveAsync(resolveHosts).GetAwaiter().GetResult();
             }
             else
             {
-                result = subject.ResolveAsync(resolveHosts).GetAwaiter().GetResult();
+                result = subject.Resolve(resolveHosts);
             }
 
             var expectedServers = new[] { MongoServerAddress.Parse(expectedServer) };
             result.Servers.Should().Equal(expectedServers);
+        }
+
+        [Theory]
+        [InlineData("mongodb+srv://test1.test.build.10gen.cc/?srvMaxHosts=2", false, 2, false)]
+        [InlineData("mongodb+srv://test1.test.build.10gen.cc/?srvMaxHosts=2", false, 2, true)]
+        [InlineData("mongodb+srv://test1.test.build.10gen.cc/?srvMaxHosts=2", true, 2, false)]
+        [InlineData("mongodb+srv://test1.test.build.10gen.cc/?srvMaxHosts=2", true, 2, true)]
+        public void Resolve_with_srvMaxHosts_should_return_expected_result(string url, bool resolveHosts, int expectedSrvMaxHosts, bool async)
+        {
+            var subject = new MongoUrl(url);
+
+            MongoUrl result;
+            if (async)
+            {
+                result = subject.ResolveAsync(resolveHosts).GetAwaiter().GetResult();
+            }
+            else
+            {
+                result = subject.Resolve(resolveHosts);
+            }
+
+            result.SrvMaxHosts.Should().Be(expectedSrvMaxHosts);
         }
 
         [Fact]
@@ -430,6 +445,16 @@ namespace MongoDB.Driver.Tests
             {
                 url.TlsDisableCertificateRevocationCheck.Should().Be(true);
             }
+        }
+
+        [Fact]
+        public void TestSrvMaxHosts()
+        {
+            var connectionString = "mongodb+srv://test5.test.build.10gen.cc/test?srvMaxHosts=2";
+
+            var subject = new MongoUrl(connectionString);
+
+            subject.SrvMaxHosts.Should().Be(2);
         }
 
         // private methods

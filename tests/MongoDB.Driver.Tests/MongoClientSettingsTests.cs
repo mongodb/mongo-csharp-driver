@@ -600,6 +600,12 @@ namespace MongoDB.Driver.Tests
                 settings.ReplicaSetName = "test";
             });
 
+            AssertException(settings =>
+            {
+                settings.Scheme = ConnectionStringScheme.MongoDB;
+                settings.SrvMaxHosts = 2;
+            });
+
             void AssertException(Action<MongoClientSettings> setAction)
             {
                 var settings = new MongoClientSettings();
@@ -1191,6 +1197,22 @@ namespace MongoDB.Driver.Tests
             Assert.Throws<InvalidOperationException>(() => { settings.Servers = servers; });
         }
 
+        [Fact]
+        public void TestServersWithSrvMaxHosts()
+        {
+            var settings = new MongoClientSettings { SrvMaxHosts = 2 };
+
+            var servers = new MongoServerAddress[]
+            {
+                new MongoServerAddress("server1"),
+                new MongoServerAddress("server2"),
+                new MongoServerAddress("server3")
+            };
+            settings.Servers = servers;
+
+            settings.Servers.Should().HaveCount(2);
+        }
+
         [SkippableFact]
         public void TestSocketConfigurator()
         {
@@ -1444,6 +1466,53 @@ namespace MongoDB.Driver.Tests
             result.WaitQueueSize.Should().Be(subject.WaitQueueSize);
 #pragma warning restore 618
             result.WaitQueueTimeout.Should().Be(subject.WaitQueueTimeout);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void TestSrvMaxHosts([Values(0, 1, 5)]int srvMaxHosts)
+        {
+            var subject = new MongoClientSettings { Scheme = ConnectionStringScheme.MongoDBPlusSrv };
+            subject.SrvMaxHosts.Should().Be(0);
+
+            subject.SrvMaxHosts = srvMaxHosts;
+            subject.SrvMaxHosts.Should().Be(srvMaxHosts);
+
+            subject.Freeze();
+            subject.SrvMaxHosts.Should().Be(srvMaxHosts);
+
+            var exception = Record.Exception(() => subject.SrvMaxHosts = int.MaxValue);
+            exception.Should().BeOfType<InvalidOperationException>();
+        }
+
+        [Fact]
+        public void Negative_SrvMaxHosts_should_throw()
+        {
+            var subject = new MongoClientSettings();
+
+            var exception = Record.Exception(() => subject.SrvMaxHosts = -1);
+
+            exception.Should().BeOfType<ArgumentOutOfRangeException>();
+        }
+
+        [Fact]
+        public void Freezing_instance_with_SrvMaxHosts_and_ReplicaSetName_should_throw()
+        {
+            var subject = new MongoClientSettings { SrvMaxHosts = 2, ReplicaSetName = "replSet0" };
+
+            var exception = Record.Exception(() => subject.Freeze());
+
+            exception.Should().BeOfType<InvalidOperationException>();
+        }
+
+        [Fact]
+        public void Freezing_instance_with_SrvMaxHosts_and_LoadBalanced_should_throw()
+        {
+            var subject = new MongoClientSettings { SrvMaxHosts = 2, LoadBalanced = true };
+
+            var exception = Record.Exception(() => subject.Freeze());
+
+            exception.Should().BeOfType<InvalidOperationException>();
         }
     }
 }

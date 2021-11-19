@@ -15,11 +15,9 @@
 
 using System;
 using System.Text;
-using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Shared;
 
 namespace MongoDB.Driver
 {

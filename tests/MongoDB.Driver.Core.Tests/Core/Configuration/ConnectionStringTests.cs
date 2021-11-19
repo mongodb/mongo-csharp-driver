@@ -98,11 +98,11 @@ namespace MongoDB.Driver.Core.Configuration
             ConnectionString result;
             if (async)
             {
-                result = subject.Resolve();
+                result = subject.ResolveAsync().GetAwaiter().GetResult();
             }
             else
             {
-                result = subject.ResolveAsync().GetAwaiter().GetResult();
+                result = subject.Resolve();
             }
 
             result.IsResolved.Should().BeTrue();
@@ -145,11 +145,11 @@ namespace MongoDB.Driver.Core.Configuration
             ConnectionString result;
             if (async)
             {
-                result = subject.Resolve(resolveHosts);
+                result = subject.ResolveAsync(resolveHosts).GetAwaiter().GetResult();
             }
             else
             {
-                result = subject.ResolveAsync(resolveHosts).GetAwaiter().GetResult();
+                result = subject.Resolve(resolveHosts);
             }
 
             result.IsResolved.Should().BeTrue();
@@ -391,7 +391,7 @@ namespace MongoDB.Driver.Core.Configuration
                 "ipv6=false;" +
                 "j=true;" +
                 "loadBalanced=false;" +
-                "maxConnecting=3;" + 
+                "maxConnecting=3;" +
                 "maxIdleTime=10ms;" +
                 "maxLifeTime=5ms;" +
                 "maxPoolSize=20;" +
@@ -1226,6 +1226,26 @@ namespace MongoDB.Driver.Core.Configuration
             exception.Should().BeOfType<MongoConfigurationException>();
         }
 
+        [Theory]
+        [ParameterAttributeData]
+        public void Valid_srvMaxHosts_with_mongodbsrv_scheme_should_be_valid([Values(0, 42)]int srvMaxHosts)
+        {
+            var subject = new ConnectionString($"mongodb+srv://cluster0.10gen.cc/?srvMaxHosts={srvMaxHosts}");
+
+            subject.SrvMaxHosts.Should().Be(srvMaxHosts);
+        }
+
+        [Theory]
+        [InlineData("mongodb+srv://cluster0.10gen.cc/?srvMaxHosts=-1")]
+        [InlineData("mongodb://server0.10gen.cc:27017/?srvMaxHosts=5")]
+        [InlineData("mongodb+srv://cluster0.10gen.cc/?srvMaxHosts=5&replicaSet=replset0")]
+        public void Invalid_srvMaxHosts_configuration_should_throw(string connectionString)
+        {
+            var exception = Record.Exception(() => new ConnectionString(connectionString));
+
+            exception.Should().BeOfType<MongoConfigurationException>();
+        }
+
         [Fact]
         public void When_calling_resolve_on_a_srv_connection_string()
         {
@@ -1237,7 +1257,7 @@ namespace MongoDB.Driver.Core.Configuration
 
             var resolved = subject.Resolve();
 
-            resolved.ToString().Should().Be("mongodb://user%40GSSAPI.COM:password@localhost.test.build.10gen.cc:27017/funny/?authSource=thisDB&replicaSet=rs0&tls=true");
+            resolved.ToString().Should().Be("mongodb://user%40GSSAPI.COM:password@localhost.test.build.10gen.cc:27017/funny?authSource=thisDB&replicaSet=rs0&tls=true");
         }
 
         [Fact]
@@ -1251,7 +1271,7 @@ namespace MongoDB.Driver.Core.Configuration
 
             var resolved = await subject.ResolveAsync();
 
-            resolved.ToString().Should().Be("mongodb://user%40GSSAPI.COM:password@localhost.test.build.10gen.cc:27017/funny/?authSource=thisDB&replicaSet=rs0&tls=true");
+            resolved.ToString().Should().Be("mongodb://user%40GSSAPI.COM:password@localhost.test.build.10gen.cc:27017/funny?authSource=thisDB&replicaSet=rs0&tls=true");
         }
 
         [Fact]

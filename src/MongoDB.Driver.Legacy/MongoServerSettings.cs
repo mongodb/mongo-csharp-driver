@@ -1219,6 +1219,7 @@ namespace MongoDB.Driver
                 _servers.ToList(),
                 _serverSelectionTimeout,
                 _socketTimeout,
+                srvMaxHosts: 0, // not supported for legacy
                 _sslSettings,
                 _useTls,
                 _waitQueueSize,

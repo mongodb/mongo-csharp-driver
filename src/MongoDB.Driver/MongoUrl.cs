@@ -73,6 +73,7 @@ namespace MongoDB.Driver
         private readonly IEnumerable<MongoServerAddress> _servers;
         private readonly TimeSpan _serverSelectionTimeout;
         private readonly TimeSpan _socketTimeout;
+        private readonly int? _srvMaxHosts;
         private readonly bool _tlsDisableCertificateRevocationCheck;
         private readonly string _username;
         private readonly bool _useTls;
@@ -89,11 +90,13 @@ namespace MongoDB.Driver
         /// Creates a new instance of MongoUrl.
         /// </summary>
         /// <param name="url">The URL containing the settings.</param>
-        public MongoUrl(string url)
+        public MongoUrl(string url) : this(new MongoUrlBuilder(url))
         {
             _originalUrl = url;
+        }
 
-            var builder = new MongoUrlBuilder(url); // parses url
+        internal MongoUrl(MongoUrlBuilder builder)
+        {
             _allowInsecureTls = builder.AllowInsecureTls;
             _applicationName = builder.ApplicationName;
             _authenticationMechanism = builder.AuthenticationMechanism;
@@ -144,6 +147,7 @@ namespace MongoDB.Driver
             _servers = builder.Servers;
             _serverSelectionTimeout = builder.ServerSelectionTimeout;
             _socketTimeout = builder.SocketTimeout;
+            _srvMaxHosts = builder.SrvMaxHosts;
             _tlsDisableCertificateRevocationCheck = builder.TlsDisableCertificateRevocationCheck;
             _username = builder.Username;
             _useTls = builder.UseTls;
@@ -155,17 +159,6 @@ namespace MongoDB.Driver
             _waitQueueTimeout = builder.WaitQueueTimeout;
             _wTimeout = builder.WTimeout;
             _url = builder.ToString(); // keep canonical form
-        }
-
-        internal MongoUrl(string url, bool isResolved)
-            : this(url)
-        {
-            if (!isResolved && _scheme != ConnectionStringScheme.MongoDBPlusSrv)
-            {
-                throw new ArgumentException("Only connection strings with scheme MongoDBPlusSrv can be unresolved.", nameof(isResolved));
-            }
-
-            _isResolved = isResolved;
         }
 
         // public properties
@@ -495,7 +488,7 @@ namespace MongoDB.Driver
         /// </summary>
         public IEnumerable<MongoServerAddress> Servers
         {
-            get { return _servers; }
+            get { return _srvMaxHosts > 0 ? _servers.Take(_srvMaxHosts.Value) : _servers; }
         }
 
         /// <summary>
@@ -513,6 +506,13 @@ namespace MongoDB.Driver
         {
             get { return _socketTimeout; }
         }
+
+        /// <summary>
+        /// Limits the number of SRV records used to populate the seedlist
+        /// during initial discovery, as well as the number of additional hosts
+        /// that may be added during SRV polling.
+        /// </summary>
+        public int? SrvMaxHosts => _srvMaxHosts;
 
         /// <summary>
         /// Gets whether or not to disable checking certificate revocation status during the TLS handshake.
@@ -755,7 +755,8 @@ namespace MongoDB.Driver
 
             var resolved = connectionString.Resolve(resolveHosts, cancellationToken);
 
-            return new MongoUrl(resolved.ToString(), isResolved: true);
+            var mongoUrlBuilder = new MongoUrlBuilder(resolved);
+            return new MongoUrl(mongoUrlBuilder);
         }
 
         /// <summary>
@@ -787,7 +788,8 @@ namespace MongoDB.Driver
 
             var resolved = await connectionString.ResolveAsync(resolveHosts, cancellationToken).ConfigureAwait(false);
 
-            return new MongoUrl(resolved.ToString(), isResolved: true);
+            var mongoUrlBuilder = new MongoUrlBuilder(resolved);
+            return new MongoUrl(mongoUrlBuilder);
         }
 
         /// <summary>
