@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -25,6 +26,7 @@ using Xunit.Sdk;
 
 namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions.TimeoutEnforcing
 {
+    [DebuggerStepThrough]
     internal sealed class TimeoutEnforcingTestInvoker : XunitTestInvoker
     {
         public TimeoutEnforcingTestInvoker(
@@ -52,7 +54,10 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions.TimeoutEnforcing
         {
             var xUnitTestCase = Test.TestCase as IXunitTestCase;
             var timeoutMS = xUnitTestCase?.Timeout ?? 0;
-            var timeout = timeoutMS <= 0 ? CoreTestConfiguration.DefaultTestTimeout : TimeSpan.FromMilliseconds(timeoutMS);
+            var timeout = Debugger.IsAttached
+                ? Timeout.InfiniteTimeSpan // allow more flexible debugging expirience
+                : timeoutMS <= 0 ? CoreTestConfiguration.DefaultTestTimeout : TimeSpan.FromMilliseconds(timeoutMS);
+
 
             var testLoggable = testClassInstance as LoggableTestClass;
 

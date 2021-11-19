@@ -15,11 +15,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using MongoDB.Driver.Core.Misc;
 using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Core.TestHelpers.Logging
 {
+    [DebuggerStepThrough]
     internal sealed class XunitLogger : ILogger
     {
         private readonly ITestOutputHelper _output;
