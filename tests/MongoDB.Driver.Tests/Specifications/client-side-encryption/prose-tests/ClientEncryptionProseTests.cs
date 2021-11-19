@@ -490,8 +490,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             }
 
             using (var client = ConfigureClient())
-            using (var clientEncrypted = ConfigureClientEncrypted(BsonDocument.Parse(SchemaMap)))
-            using (var clientEncryption = ConfigureClientEncryption(clientEncrypted))
+            using (var clientEncrypted = ConfigureClientEncrypted(BsonDocument.Parse(SchemaMap), kmsProviderFilter: kmsProvider))
+            using (var clientEncryption = ConfigureClientEncryption(clientEncrypted, kmsProviderFilter: kmsProvider))
             {
                 var dataKeyOptions = CreateDataKeyOptions(kmsProvider);
                 var dataKey = CreateDataKey(clientEncryption, kmsProvider, dataKeyOptions, async);
@@ -585,8 +585,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             }
 
             using (var client = ConfigureClient())
-            using (var clientEncryption = ConfigureClientEncryption(client, ValidKmsEndpointConfigurator))
-            using (var clientEncryptionInvalid = ConfigureClientEncryption(client, InvalidKmsEndpointConfigurator))
+            using (var clientEncryption = ConfigureClientEncryption(client, ValidKmsEndpointConfigurator, kmsProviderFilter: kmsType))
+            using (var clientEncryptionInvalid = ConfigureClientEncryption(client, InvalidKmsEndpointConfigurator, kmsProviderFilter: kmsType))
             {
                 var testCaseMasterKey = kmsType switch
                 {
@@ -928,8 +928,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
             var clientEncryptedSchema = new BsonDocument("db.coll", JsonFileReader.Instance.Documents["external.external-schema.json"]);
             using (var client = ConfigureClient())
-            using (var clientEncrypted = ConfigureClientEncrypted(clientEncryptedSchema, externalKeyVaultClient: externalKeyVaultClient))
-            using (var clientEncryption = ConfigureClientEncryption(clientEncrypted))
+            using (var clientEncrypted = ConfigureClientEncrypted(clientEncryptedSchema, externalKeyVaultClient: externalKeyVaultClient, kmsProviderFilter: "local"))
+            using (var clientEncryption = ConfigureClientEncryption(clientEncrypted, kmsProviderFilter: "local"))
             {
                 var datakeys = GetCollection(client, __keyVaultCollectionNamespace);
                 var externalKey = JsonFileReader.Instance.Documents["external.external-key.json"];
@@ -1309,8 +1309,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
 
-            using (var clientEncrypted = ConfigureClientEncrypted())
-            using (var clientEncryption = ConfigureClientEncryption(clientEncrypted))
+            using (var clientEncrypted = ConfigureClientEncrypted(kmsProviderFilter: kmsProvider))
+            using (var clientEncryption = ConfigureClientEncryption(clientEncrypted, kmsProviderFilter: kmsProvider))
             {
                 var dataKeyOptions = CreateDataKeyOptions(kmsProvider);
                 var exception = Record.Exception(() => _ = CreateDataKey(clientEncryption, kmsProvider, dataKeyOptions, async));
