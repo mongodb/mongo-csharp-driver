@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3
 
         static MongoQueryableIntArrayComparedToEnumerableIntTests()
         {
-            __client = DriverTestConfiguration.Client;
+            __client = DriverTestConfiguration.Linq3Client;
             __database = __client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
             __collection = __database.GetCollection<C>(DriverTestConfiguration.CollectionNamespace.CollectionName);
         }
@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3
         [InlineData(new int[] { 1, 2 }, "{ \"A\" : [1, 2] }")]
         public void Where_operator_equal_should_render_correctly(IEnumerable<int> value, string expectedFilter)
         {
-            var subject = __collection.AsQueryable3();
+            var subject = __collection.AsQueryable();
 
             var queryable = subject.Where(x => x.A == value);
 
@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3
         [InlineData(new int[] { 1, 2 }, "{ \"A\" : { \"$ne\" : [1, 2] } }")]
         public void Where_operator_not_equal_should_render_correctly(IEnumerable<int> value, string expectedFilter)
         {
-            var subject = __collection.AsQueryable3();
+            var subject = __collection.AsQueryable();
 
             var queryable = subject.Where(x => x.A != value);
 

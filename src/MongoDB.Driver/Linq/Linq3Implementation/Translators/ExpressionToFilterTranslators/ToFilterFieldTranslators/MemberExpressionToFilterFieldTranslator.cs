@@ -18,6 +18,7 @@ using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
+using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilterTranslators.ToFilterFieldTranslators
 {
@@ -25,7 +26,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
     {
         public static AstFilterField Translate(TranslationContext context, MemberExpression memberExpression)
         {
-            var field = ExpressionToFilterFieldTranslator.Translate(context, memberExpression.Expression);
+            var fieldExpression = ConvertHelper.RemoveConvertToInterface(memberExpression.Expression);
+            var field = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
             var fieldSerializer = field.Serializer;
             var fieldSerializerType = fieldSerializer.GetType();
 
@@ -49,6 +51,5 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
 
             throw new ExpressionNotSupportedException(memberExpression);
         }
-
     }
 }

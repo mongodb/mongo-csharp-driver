@@ -112,10 +112,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Serializers.KnownSe
 
         private IQueryable<TDocument> GetSubject<TDocument>()
         {
-            var client = DriverTestConfiguration.Client;
+            var client = DriverTestConfiguration.Linq3Client;
             var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
             var collection = database.GetCollection<TDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName);
-            return collection.AsQueryable3();
+            return collection.AsQueryable();
         }
 
         private void AssertProjection<TDocument, TOutput>(IQueryable<TOutput> queryable, string expectedProjection)

@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3
 
         static MongoQueryableEnumComparedToEnumWithStringRepresentationTests()
         {
-            __client = DriverTestConfiguration.Client;
+            __client = DriverTestConfiguration.Linq3Client;
             __database = __client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
             __collection = __database.GetCollection<C>(DriverTestConfiguration.CollectionNamespace.CollectionName);
         }
@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3
         [InlineData(E.B, "{ \"E\" : \"B\" }")]
         public void Where_operator_equal_should_render_correctly(E value, string expectedFilter)
         {
-            var subject = __collection.AsQueryable3();
+            var subject = __collection.AsQueryable();
 
             var queryable = subject.Where(x => x.E == value);
 
@@ -61,7 +61,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3
         [InlineData(E.B, "{ \"E\" : { \"$gt\" : \"B\" } }")]
         public void Where_operator_greater_than_should_render_correctly(E value, string expectedFilter)
         {
-            var subject = __collection.AsQueryable3();
+            var subject = __collection.AsQueryable();
 
             var queryable = subject.Where(x => x.E > value);
 
@@ -73,7 +73,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3
         [InlineData(E.B, "{ \"E\" : { \"$gte\" : \"B\" } }")]
         public void Where_operator_greater_than_or_equal_should_render_correctly(E value, string expectedFilter)
         {
-            var subject = __collection.AsQueryable3();
+            var subject = __collection.AsQueryable();
 
             var queryable = subject.Where(x => x.E >= value);
 
@@ -85,7 +85,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3
         [InlineData(E.B, "{ \"E\" : { \"$lt\" : \"B\" } }")]
         public void Where_operator_less_than_should_render_correctly(E value, string expectedFilter)
         {
-            var subject = __collection.AsQueryable3();
+            var subject = __collection.AsQueryable();
 
             var queryable = subject.Where(x => x.E < value);
 
@@ -97,7 +97,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3
         [InlineData(E.B, "{ \"E\" : { \"$lte\" : \"B\" } }")]
         public void Where_operator_less_than_or_equal_should_render_correctly(E value, string expectedFilter)
         {
-            var subject = __collection.AsQueryable3();
+            var subject = __collection.AsQueryable();
 
             var queryable = subject.Where(x => x.E <= value);
 
@@ -109,7 +109,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3
         [InlineData(E.B, "{ \"E\" : { \"$ne\" : \"B\" } }")]
         public void Where_operator_not_equal_should_render_correctly(E value, string expectedFilter)
         {
-            var subject = __collection.AsQueryable3();
+            var subject = __collection.AsQueryable();
 
             var queryable = subject.Where(x => x.E != value);
 

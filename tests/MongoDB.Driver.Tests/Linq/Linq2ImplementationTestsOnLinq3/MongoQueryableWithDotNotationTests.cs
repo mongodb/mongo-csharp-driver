@@ -95,12 +95,12 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3
         {
             var database = client.GetDatabase("test");
             var collection = database.GetCollection<Car>("test");
-            return collection.AsQueryable3();
+            return collection.AsQueryable();
         }
 
         private MongoClient GetClient()
         {
-            return DriverTestConfiguration.Client;
+            return DriverTestConfiguration.Linq3Client;
         }
 
         private BsonDocument[] Translate<T>(IQueryable<T> queryable)

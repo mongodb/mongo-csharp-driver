@@ -622,7 +622,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3
         public void GroupJoin_syntax_with_select_many()
         {
             RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
-            var otherCollection = __otherCollection.AsQueryable3();
+            var otherCollection = __otherCollection.AsQueryable();
             var query = from p in CreateQuery()
                         join o in otherCollection on p.Id equals o.Id into joined
                         from subo in joined
@@ -641,7 +641,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3
         public void GroupJoin_syntax_with_select_many_and_DefaultIfEmpty()
         {
             RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
-            var otherCollection = __otherCollection.AsQueryable3();
+            var otherCollection = __otherCollection.AsQueryable();
             var query = from p in CreateQuery()
                         join o in otherCollection on p.Id equals o.Id into joined
                         from subo in joined // TODO: .DefaultIfEmpty()
@@ -1870,17 +1870,17 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3
 
         private IMongoQueryable<Root> CreateQuery()
         {
-            return __collection.AsQueryable3();
+            return __collection.AsQueryable();
         }
 
         private IMongoQueryable<Root> CreateQuery(IClientSessionHandle session)
         {
-            return __collection.AsQueryable3(session);
+            return __collection.AsQueryable(session);
         }
 
         private IMongoQueryable<Other> CreateOtherQuery()
         {
-            return __otherCollection.AsQueryable3();
+            return __otherCollection.AsQueryable();
         }
     }
 }

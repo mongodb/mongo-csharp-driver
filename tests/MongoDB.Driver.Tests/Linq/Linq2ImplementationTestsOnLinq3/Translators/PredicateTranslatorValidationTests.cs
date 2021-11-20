@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
 
         private void Setup()
         {
-            var client = DriverTestConfiguration.Client;
+            var client = DriverTestConfiguration.Linq3Client;
             var database = client.GetDatabase("test");
             _collection = database.GetCollection<TestObject>("testObject");
             database.DropCollection("testObject");
@@ -299,7 +299,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
 
         private IQueryable<TestObject> CreateQuery()
         {
-            return _collection.AsQueryable3();
+            return _collection.AsQueryable();
         }
     }
 }

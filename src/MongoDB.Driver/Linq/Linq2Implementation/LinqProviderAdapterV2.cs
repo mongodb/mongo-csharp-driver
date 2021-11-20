@@ -33,8 +33,8 @@ namespace MongoDB.Driver.Linq.Linq2Implementation
             IClientSessionHandle session,
             AggregateOptions options)
         {
-            var queryProvider = new MongoQueryProviderImpl<TDocument>(collection, session, options);
-            return new MongoQueryableImpl<TDocument, TDocument>(queryProvider);
+            var provider = new MongoQueryProviderImpl<TDocument>(collection, session, options);
+            return new MongoQueryableImpl<TDocument, TDocument>(provider);
         }
 
         public override string ToString() => "V2";

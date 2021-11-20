@@ -1763,7 +1763,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
 
         private ProjectedResult<TResult> Project<TResult>(Expression<Func<Root, TResult>> projector, ExpressionTranslationOptions translationOptions)
         {
-            var query = __collection.AsQueryable3().Select(projector);
+            var query = __collection.AsQueryable().Select(projector);
 
             var provider = (MongoQueryProvider<Root>)query.Provider;
             var executableQuery = ExpressionToExecutableQueryTranslator.Translate<Root, TResult>(provider, query.Expression);

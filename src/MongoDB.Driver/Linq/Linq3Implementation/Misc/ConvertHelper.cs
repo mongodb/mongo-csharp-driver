@@ -108,6 +108,21 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             return expression;
         }
 
+        public static Expression RemoveConvertToInterface(Expression expression)
+        {
+            if (expression.NodeType == ExpressionType.Convert)
+            {
+                var convertExpression = (UnaryExpression)expression;
+                var targetType = convertExpression.Type;
+                if (targetType.IsInterface)
+                {
+                    return convertExpression.Operand;
+                }
+            }
+
+            return expression;
+        }
+
         public static Expression RemoveWideningConvert(Expression expression)
         {
             if (expression.NodeType == ExpressionType.Convert)

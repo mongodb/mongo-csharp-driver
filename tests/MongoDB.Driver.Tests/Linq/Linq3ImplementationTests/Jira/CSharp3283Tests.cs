@@ -57,10 +57,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
 
         private IQueryable<Person> CreateSubject()
         {
-            var client = DriverTestConfiguration.Client;
+            var client = DriverTestConfiguration.Linq3Client;
             var database = client.GetDatabase("test");
             var collection = database.GetCollection<Person>("test");
-            return collection.AsQueryable3();
+            return collection.AsQueryable();
         }
 
         private BsonDocument[] Translate<T>(IQueryable<T> queryable)

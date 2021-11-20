@@ -30,10 +30,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void SelectMany_should_translate_correctly()
         {
-            var client = DriverTestConfiguration.Client;
+            var client = DriverTestConfiguration.Linq3Client;
             var database = client.GetDatabase("test");
             var collection = database.GetCollection<Item>("test");
-            var queryable = collection.AsQueryable3()
+            var queryable = collection.AsQueryable()
                 .SelectMany(
                     x => x.Meta,
                     (item, meta) =>

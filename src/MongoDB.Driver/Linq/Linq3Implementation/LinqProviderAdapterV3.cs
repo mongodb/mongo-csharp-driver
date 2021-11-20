@@ -35,7 +35,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
             IClientSessionHandle session,
             AggregateOptions options)
         {
-            return collection.AsQueryable3(session, options);
+            var provider = new MongoQueryProvider<TDocument>(collection, session, options);
+            return new MongoQuery<TDocument, TDocument>(provider);
         }
 
         public override string ToString() => "V3";
