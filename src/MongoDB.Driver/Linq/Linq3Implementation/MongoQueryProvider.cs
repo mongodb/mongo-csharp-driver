@@ -52,12 +52,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
         public abstract object Execute(Expression expression);
         public abstract TResult Execute<TResult>(Expression expression);
         public abstract Task<TResult> ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken);
-        public MongoQueryProvider WithOptions(AggregateOptions options) => WithOptionsGeneric(options);
-        public MongoQueryProvider WithSession(IClientSessionHandle session) => WithSessionGeneric(session);
-
-        // protected methods
-        protected abstract MongoQueryProvider WithOptionsGeneric(AggregateOptions options);
-        protected abstract MongoQueryProvider WithSessionGeneric(IClientSessionHandle session);
     }
 
     internal sealed class MongoQueryProvider<TDocument> : MongoQueryProvider
@@ -111,27 +105,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
         {
             var executableQuery = ExpressionToExecutableQueryTranslator.TranslateScalar<TDocument, TResult>(this, expression);
             return executableQuery.ExecuteAsync(_session, cancellationToken);
-        }
-
-        public new MongoQueryProvider<TDocument> WithOptions(AggregateOptions options)
-        {
-            return new MongoQueryProvider<TDocument>(_collection, _session, options);
-        }
-
-        public new MongoQueryProvider<TDocument> WithSession(IClientSessionHandle session)
-        {
-            return new MongoQueryProvider<TDocument>(_collection, session, _options);
-        }
-
-        // protected methods
-        protected override MongoQueryProvider WithOptionsGeneric(AggregateOptions options)
-        {
-            return WithOptions(options);
-        }
-
-        protected override MongoQueryProvider WithSessionGeneric(IClientSessionHandle session)
-        {
-            return WithSession(session);
         }
     }
 }
