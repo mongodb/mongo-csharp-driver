@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 return TranslateHelper(context, expression, stringExpression, startIndexExpression, lengthExpression, AstTernaryOperator.SubstrCP);
             }
 
-            if (method.Is(MongoDBLinqExtensionsMethod.SubstrBytes))
+            if (method.Is(StringMethod.SubstrBytes))
             {
                 var stringExpression = arguments[0];
                 var startIndexExpression = arguments[1];

@@ -31,6 +31,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         private static readonly MethodInfo __indexOfAny;
         private static readonly MethodInfo __indexOfAnyWithStartIndex;
         private static readonly MethodInfo __indexOfAnyWithStartIndexAndCount;
+        private static readonly MethodInfo __indexOfBytesWithValue;
+        private static readonly MethodInfo __indexOfBytesWithValueAndStartIndex;
+        private static readonly MethodInfo __indexOfBytesWithValueAndStartIndexAndCount;
         private static readonly MethodInfo __indexOfWithChar;
         private static readonly MethodInfo __indexOfWithCharAndStartIndex;
         private static readonly MethodInfo __indexOfWithCharAndStartIndexAndCount;
@@ -50,6 +53,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         private static readonly MethodInfo __startsWith;
         private static readonly MethodInfo __startsWithWithComparisonType;
         private static readonly MethodInfo __startsWithWithIgnoreCaseAndCulture;
+        private static readonly MethodInfo __strLenBytes;
+        private static readonly MethodInfo __substrBytes;
         private static readonly MethodInfo __substring;
         private static readonly MethodInfo __substringWithLength;
         private static readonly MethodInfo __toLower;
@@ -74,6 +79,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             __indexOfAny = ReflectionInfo.Method((string s, char[] anyOf) => s.IndexOfAny(anyOf));
             __indexOfAnyWithStartIndex = ReflectionInfo.Method((string s, char[] anyOf, int startIndex) => s.IndexOfAny(anyOf, startIndex));
             __indexOfAnyWithStartIndexAndCount = ReflectionInfo.Method((string s, char[] anyOf, int startIndex, int count) => s.IndexOfAny(anyOf, startIndex, count));
+            __indexOfBytesWithValue = ReflectionInfo.Method((string s, string value) => s.IndexOfBytes(value));
+            __indexOfBytesWithValueAndStartIndex = ReflectionInfo.Method((string s, string value, int startIndex) => s.IndexOfBytes(value, startIndex));
+            __indexOfBytesWithValueAndStartIndexAndCount = ReflectionInfo.Method((string s, string value, int startIndex, int count) => s.IndexOfBytes(value, startIndex, count));
             __indexOfWithChar = ReflectionInfo.Method((string s, char value) => s.IndexOf(value));
             __indexOfWithCharAndStartIndex = ReflectionInfo.Method((string s, char value, int startIndex) => s.IndexOf(value, startIndex));
             __indexOfWithCharAndStartIndexAndCount = ReflectionInfo.Method((string s, char value, int startIndex, int count) => s.IndexOf(value, startIndex, count));
@@ -93,6 +101,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             __startsWith = ReflectionInfo.Method((string s, string value) => s.StartsWith(value));
             __startsWithWithComparisonType = ReflectionInfo.Method((string s, string value, StringComparison comparisonType) => s.StartsWith(value, comparisonType));
             __startsWithWithIgnoreCaseAndCulture = ReflectionInfo.Method((string s, string value, bool ignoreCase, CultureInfo culture) => s.StartsWith(value, ignoreCase, culture));
+            __strLenBytes = ReflectionInfo.Method((string s) => s.StrLenBytes());
+            __substrBytes = ReflectionInfo.Method((string s, int startIndex, int length) => s.SubstrBytes(startIndex, length));
             __substring = ReflectionInfo.Method((string s, int startIndex) => s.Substring(startIndex));
             __substringWithLength = ReflectionInfo.Method((string s, int startIndex, int length) => s.Substring(startIndex, length));
             __toLower = ReflectionInfo.Method((string s) => s.ToLower());
@@ -116,6 +126,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         public static MethodInfo IndexOfAny => __indexOfAny;
         public static MethodInfo IndexOfAnyWithStartIndex => __indexOfAnyWithStartIndex;
         public static MethodInfo IndexOfAnyWithStartIndexAndCount => __indexOfAnyWithStartIndexAndCount;
+        public static MethodInfo IndexOfBytesWithValue => __indexOfBytesWithValue;
+        public static MethodInfo IndexOfBytesWithValueAndStartIndex => __indexOfBytesWithValueAndStartIndex;
+        public static MethodInfo IndexOfBytesWithValueAndStartIndexAndCount => __indexOfBytesWithValueAndStartIndexAndCount;
         public static MethodInfo IndexOfWithChar => __indexOfWithChar;
         public static MethodInfo IndexOfWithCharAndStartIndex => __indexOfWithCharAndStartIndex;
         public static MethodInfo IndexOfWithCharAndStartIndexAndCount => __indexOfWithCharAndStartIndexAndCount;
@@ -134,6 +147,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         public static MethodInfo SplitWithStringsAndOptions => __splitWithStringsAndOptions;
         public static MethodInfo StartsWith => __startsWith;
         public static MethodInfo StartsWithWithComparisonType => __startsWithWithComparisonType;
+        public static MethodInfo StrLenBytes => __strLenBytes;
+        public static MethodInfo SubstrBytes => __substrBytes;
         public static MethodInfo StartsWithWithIgnoreCaseAndCulture => __startsWithWithIgnoreCaseAndCulture;
         public static MethodInfo Substring => __substring;
         public static MethodInfo SubstringWithLength => __substringWithLength;

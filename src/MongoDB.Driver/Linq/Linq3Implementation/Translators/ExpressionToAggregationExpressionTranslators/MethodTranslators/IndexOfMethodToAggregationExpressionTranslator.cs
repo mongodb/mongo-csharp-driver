@@ -30,6 +30,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
         private static readonly MethodInfo[] __indexOfMethods =
         {
             StringMethod.IndexOfWithChar,
+            StringMethod.IndexOfBytesWithValue,
+            StringMethod.IndexOfBytesWithValueAndStartIndex,
+            StringMethod.IndexOfBytesWithValueAndStartIndexAndCount,
             StringMethod.IndexOfWithCharAndStartIndex,
             StringMethod.IndexOfWithCharAndStartIndexAndCount,
             StringMethod.IndexOfWithString,
@@ -37,30 +40,27 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             StringMethod.IndexOfWithStringAndStartIndexAndCount,
             StringMethod.IndexOfWithStringAndComparisonType,
             StringMethod.IndexOfWithStringAndStartIndexAndComparisonType,
-            StringMethod.IndexOfWithStringAndStartIndexAndCountAndComparisonType,
-            MongoDBLinqExtensionsMethod.IndexOfBytesWithValue,
-            MongoDBLinqExtensionsMethod.IndexOfBytesWithValueAndStartIndex,
-            MongoDBLinqExtensionsMethod.IndexOfBytesWithValueAndStartIndexAndCount
+            StringMethod.IndexOfWithStringAndStartIndexAndCountAndComparisonType
        };
 
         private static readonly MethodInfo[] __indexOfWithStartIndexMethods =
         {
+            StringMethod.IndexOfBytesWithValueAndStartIndex,
+            StringMethod.IndexOfBytesWithValueAndStartIndexAndCount,
             StringMethod.IndexOfWithCharAndStartIndex,
             StringMethod.IndexOfWithCharAndStartIndexAndCount,
             StringMethod.IndexOfWithStringAndStartIndex,
             StringMethod.IndexOfWithStringAndStartIndexAndCount,
             StringMethod.IndexOfWithStringAndStartIndexAndComparisonType,
-            StringMethod.IndexOfWithStringAndStartIndexAndCountAndComparisonType,
-            MongoDBLinqExtensionsMethod.IndexOfBytesWithValueAndStartIndex,
-            MongoDBLinqExtensionsMethod.IndexOfBytesWithValueAndStartIndexAndCount
+            StringMethod.IndexOfWithStringAndStartIndexAndCountAndComparisonType
        };
 
         private static readonly MethodInfo[] __indexOfWithCountMethods =
         {
+            StringMethod.IndexOfBytesWithValueAndStartIndexAndCount,
             StringMethod.IndexOfWithCharAndStartIndexAndCount,
             StringMethod.IndexOfWithStringAndStartIndexAndCount,
-            StringMethod.IndexOfWithStringAndStartIndexAndCountAndComparisonType,
-            MongoDBLinqExtensionsMethod.IndexOfBytesWithValueAndStartIndexAndCount
+            StringMethod.IndexOfWithStringAndStartIndexAndCountAndComparisonType
         };
 
         private static readonly MethodInfo[] __indexOfWithStringComparisonMethods =
@@ -72,9 +72,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
         private static readonly MethodInfo[] __indexOfBytesMethods =
         {
-            MongoDBLinqExtensionsMethod.IndexOfBytesWithValue,
-            MongoDBLinqExtensionsMethod.IndexOfBytesWithValueAndStartIndex,
-            MongoDBLinqExtensionsMethod.IndexOfBytesWithValueAndStartIndexAndCount
+            StringMethod.IndexOfBytesWithValue,
+            StringMethod.IndexOfBytesWithValueAndStartIndex,
+            StringMethod.IndexOfBytesWithValueAndStartIndexAndCount
        };
 
         public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
