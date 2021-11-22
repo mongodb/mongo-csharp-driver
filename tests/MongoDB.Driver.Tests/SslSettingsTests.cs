@@ -137,6 +137,7 @@ namespace MongoDB.Driver.Tests
             var certificateFileName = GetTestCertificateFileName();
             clone.ClientCertificates = new[] { new X509Certificate2(certificateFileName, "password") };
             Assert.NotEqual(settings, clone);
+            Assert.NotEqual(clone, settings);
 
             clone = settings.Clone();
             clone.ClientCertificateSelectionCallback = ClientCertificateSelectionCallback;

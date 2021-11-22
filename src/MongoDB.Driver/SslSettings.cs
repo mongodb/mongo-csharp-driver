@@ -269,7 +269,11 @@ namespace MongoDB.Driver
         {
             public bool Equals(X509CertificateCollection lhs, X509CertificateCollection rhs)
             {
-                if (lhs == null) { return rhs == null; }
+                if (lhs == null || rhs == null)
+                {
+                    return rhs == lhs;
+                }
+
                 return ((IEnumerable)lhs).Cast<X509Certificate>().SequenceEqual(((IEnumerable)rhs).Cast<X509Certificate>());
             }
 
