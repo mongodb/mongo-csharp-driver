@@ -1,13 +1,18 @@
 current = "2.12.4"
 
 [[versions]]
-  version = "2.13.0-beta1"
+  version = "2.14.0-beta1"
+  docs = "./2.14/"
+  api = "./2.14/apidocs"
+
+[[versions]]
+  version = "2.13.2"
+  status = "current"
   docs = "./2.13/"
   api = "./2.13/apidocs"
 
 [[versions]]
-  version = "2.12.4"
-  status = "current"
+  version = "2.12.5"
   docs = "./2.12/"
   api = "./2.12/apidocs"
 
