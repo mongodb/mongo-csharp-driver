@@ -12,7 +12,7 @@ current = "2.13.2"
   api = "./2.13/apidocs"
 
 [[versions]]
-  version = "2.12.4"
+  version = "2.12.5"
   docs = "./2.12/"
   api = "./2.12/apidocs"
 
