@@ -735,7 +735,7 @@ namespace MongoDB.Driver
         /// <param name="translationOptions">The translation options.</param>
         /// <returns>The stage.</returns>
         /// <remarks>This method can only be used with LINQ3 but that can't be verified until Render is called.</remarks>
-        public static (PipelineStageDefinition<TInput, IGrouping<TValue, TInput>> GroupStage, PipelineStageDefinition<IGrouping<TValue, TInput>, TOutput> ProjectStage) GroupForLinq3<TInput, TValue, TOutput>(
+        public static GroupForLinq3Result<TInput, TValue, TOutput> GroupForLinq3<TInput, TValue, TOutput>(
             Expression<Func<TInput, TValue>> value,
             Expression<Func<IGrouping<TValue, TInput>, TOutput>> group,
             ExpressionTranslationOptions translationOptions = null)
@@ -743,7 +743,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(value, nameof(value));
             Ensure.IsNotNull(group, nameof(group));
             var stages = new Linq.Linq3Implementation.GroupExpressionStageDefinitions<TInput, TValue, TOutput>(value, group);
-            return (stages.GroupStage, stages.ProjectStage);
+            return new GroupForLinq3Result<TInput, TValue, TOutput>(stages.GroupStage, stages.ProjectStage);
         }
 
         /// <summary>
