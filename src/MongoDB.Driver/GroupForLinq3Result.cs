@@ -25,19 +25,33 @@ namespace MongoDB.Driver
     /// <typeparam name="TOutput">The type of the output documents.</typeparam>
     public class GroupForLinq3Result<TInput, TValue, TOutput>
     {
+        internal GroupForLinq3Result(PipelineStageDefinition<TInput, IGrouping<TValue, TInput>> groupStage, PipelineStageDefinition<IGrouping<TValue, TInput>, TOutput> projectStage)
+        {
+            GroupStage = groupStage;
+            ProjectStage = projectStage;
+        }
+
         /// <summary>
         /// The resulting group stage.
         /// </summary>
         public PipelineStageDefinition<TInput, IGrouping<TValue, TInput>> GroupStage { get; }
+
         /// <summary>
         /// The resulting project stage.
         /// </summary>
         public PipelineStageDefinition<IGrouping<TValue, TInput>, TOutput> ProjectStage { get; }
 
-        internal GroupForLinq3Result(PipelineStageDefinition<TInput, IGrouping<TValue, TInput>> groupStage, PipelineStageDefinition<IGrouping<TValue, TInput>, TOutput> projectStage)
+        /// <summary>
+        /// Deconstructs this class into its components.
+        /// </summary>
+        /// <param name="groupStage">The group stage.</param>
+        /// <param name="projectStage">The project stage.</param>
+        public void Deconstruct(
+            out PipelineStageDefinition<TInput, IGrouping<TValue, TInput>> groupStage,
+            out PipelineStageDefinition<IGrouping<TValue, TInput>, TOutput> projectStage)
         {
-            GroupStage = groupStage;
-            ProjectStage = projectStage;
+            groupStage = GroupStage;
+            projectStage = ProjectStage;
         }
     }
 }

@@ -234,20 +234,20 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void PipelineStageDefinitionBuilder_GroupForLinq3_with_expressions_should_throw_with_LINQ2()
         {
-            var stages = PipelineStageDefinitionBuilder.GroupForLinq3((BsonDocument x) => 1, x => new { Count = x.Count() });
+            var (groupStageDefinition, projectStageDefinition) = PipelineStageDefinitionBuilder.GroupForLinq3((BsonDocument x) => 1, x => new { Count = x.Count() });
 
-            var exception = Record.Exception(() => Linq3TestHelpers.Render(stages.GroupStage, BsonDocumentSerializer.Instance, LinqProvider.V2));
+            var exception = Record.Exception(() => Linq3TestHelpers.Render(groupStageDefinition, BsonDocumentSerializer.Instance, LinqProvider.V2));
             exception.Should().BeOfType<InvalidOperationException>();
         }
 
         [Fact]
         public void PipelineStageDefinitionBuilderGroupForLinq3_with_expressions_should_work_with_LINQ3()
         {
-            var stages = PipelineStageDefinitionBuilder.GroupForLinq3((BsonDocument x) => 1, x => new { Count = x.Count() });
+            var (groupStageDefinition, projectStageDefinition) = PipelineStageDefinitionBuilder.GroupForLinq3((BsonDocument x) => 1, x => new { Count = x.Count() });
 
-            var groupStage = Linq3TestHelpers.Render(stages.GroupStage, BsonDocumentSerializer.Instance, LinqProvider.V3);
+            var groupStage = Linq3TestHelpers.Render(groupStageDefinition, BsonDocumentSerializer.Instance, LinqProvider.V3);
             var groupingSerializer = new IGroupingSerializer<int, BsonDocument>(new Int32Serializer(), BsonDocumentSerializer.Instance);
-            var projectStage = Linq3TestHelpers.Render(stages.ProjectStage, groupingSerializer, LinqProvider.V3);
+            var projectStage = Linq3TestHelpers.Render(projectStageDefinition, groupingSerializer, LinqProvider.V3);
             var expectedStages = new[]
             {
                 "{ $group : { _id : 1, __agg0 : { $sum : 1 } } }",

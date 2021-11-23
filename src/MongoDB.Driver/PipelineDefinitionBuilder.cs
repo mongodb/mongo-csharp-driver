@@ -651,8 +651,8 @@ namespace MongoDB.Driver
             ExpressionTranslationOptions translationOptions = null)
         {
             Ensure.IsNotNull(pipeline, nameof(pipeline));
-            var stages = PipelineStageDefinitionBuilder.GroupForLinq3(id, group, translationOptions);
-            return pipeline.AppendStage(stages.GroupStage).AppendStage(stages.ProjectStage);
+            var (groupStage, projectStage) = PipelineStageDefinitionBuilder.GroupForLinq3(id, group, translationOptions);
+            return pipeline.AppendStage(groupStage).AppendStage(projectStage);
         }
 
         /// <summary>
