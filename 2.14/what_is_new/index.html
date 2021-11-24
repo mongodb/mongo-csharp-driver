@@ -2170,13 +2170,15 @@
 
 <h2 id="what-s-new-in-2-14-0">What&rsquo;s New in 2.14.0</h2>
 
-<p>The main new features in 2.14.0-beta1 include:</p>
+<p>The main new features in 2.14.0 include:</p>
 
 <ul>
-<li>A beta version of the new LINQ provider (known as LINQ3, see: <a href="/mongo-csharp-driver/2.14/reference/driver/crud/linq3/">LINQ3</a>)</li>
-<li>The current LINQ provider (known as LINQ2) continues to be available and is still the default LINQ provider for now</li>
+<li>Added a new improved LINQ provider (known as LINQ3, see: <a href="/mongo-csharp-driver/2.14/reference/driver/crud/linq3/">LINQ3</a>), which is available on an opt-in basis</li>
+<li>The current LINQ provider (known as LINQ2) continues to be available and is still the default LINQ provider for this version</li>
 <li>Support for Zstandard and Snappy on Linux and MacOS</li>
 <li>Added connection storm avoidance features</li>
+<li>Added KMIP support for client-side field level encryption (CSFLE)</li>
+<li>Added <code>srvMaxHosts</code> URI option to limit the number of <code>mongos</code> nodes used in connecting to sharded clusters</li>
 <li>Use &ldquo;hello&rdquo; command for monitoring if supported</li>
 <li>Removed support for .NET Framework 4.5.2; minimum is now 4.7.2</li>
 <li>Removed support for .NET Standard 1.5; minimum is now 2.0</li>

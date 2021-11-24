@@ -113,6 +113,37 @@ var result = database.RunCommand&amp;lt;BsonDocument&amp;gt;(new BsonDocument(&a
     </item>
     
     <item>
+      <title>Background</title>
+      <link>/mongo-csharp-driver/2.14/reference/bson/guidserialization/background/</link>
+      <pubDate>Thu, 23 Jul 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.14/reference/bson/guidserialization/background/</guid>
+      <description>
+
+&lt;h2 id=&#34;background-information&#34;&gt;Background information&lt;/h2&gt;
+
+&lt;p&gt;Guids were originally represented in BSON as BsonBinaryData values of subtype 3. Unfortunately, different drivers
+inadvertently used different byte orders when converting a Guid to a 16 byte binary value. To standardize on a
+single canonical representation BsonBinaryData subtype 4 was created with a well defined byte order.&lt;/p&gt;
+
+&lt;p&gt;The C# driver&amp;rsquo;s support for Guids was originally based on the premise that all Guids in a single collection must
+be represented the same way (i.e. using the same BsonBinaryData sub type and byte order). In order to accomplish this
+the representation of Guids is enforced at the BSON reader and writer levels (because a single reader or writer is
+used to read or write an entire document from or to the collection).&lt;/p&gt;
+
+&lt;p&gt;However, this original premise has not stood the test of time.&lt;/p&gt;
+
+&lt;p&gt;The first issue we ran into was that the server
+started returning UUIDs (i.e. Guids) in metadata using standard subtype 4. If a collection was configured to use
+subtype 3 (which it usually was since that is the default) the driver could not deserialize the Guids in the metadata
+without throwing an exception. We worked around this by temporarily reconfiguring the BSON reader while reading the metadata.&lt;/p&gt;
+
+&lt;p&gt;The second issue is that the original premise was too strict. There are valid reasons why a single collection might
+have a mix of Guid representations, and we need to allow that.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
       <title>GuidRepresentationMode</title>
       <link>/mongo-csharp-driver/2.14/reference/bson/guidserialization/guidrepresentationmode/guidrepresentationmode/</link>
       <pubDate>Thu, 23 Jul 2020 00:00:00 +0000</pubDate>
@@ -157,37 +188,6 @@ not possible to mix use of both modes in the same application.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;BsonDefaults.GuidRepresentationMode = GuidRepresentationMode.V3;
 &lt;/code&gt;&lt;/pre&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Background</title>
-      <link>/mongo-csharp-driver/2.14/reference/bson/guidserialization/background/</link>
-      <pubDate>Thu, 23 Jul 2020 00:00:00 +0000</pubDate>
-      
-      <guid>/mongo-csharp-driver/2.14/reference/bson/guidserialization/background/</guid>
-      <description>
-
-&lt;h2 id=&#34;background-information&#34;&gt;Background information&lt;/h2&gt;
-
-&lt;p&gt;Guids were originally represented in BSON as BsonBinaryData values of subtype 3. Unfortunately, different drivers
-inadvertently used different byte orders when converting a Guid to a 16 byte binary value. To standardize on a
-single canonical representation BsonBinaryData subtype 4 was created with a well defined byte order.&lt;/p&gt;
-
-&lt;p&gt;The C# driver&amp;rsquo;s support for Guids was originally based on the premise that all Guids in a single collection must
-be represented the same way (i.e. using the same BsonBinaryData sub type and byte order). In order to accomplish this
-the representation of Guids is enforced at the BSON reader and writer levels (because a single reader or writer is
-used to read or write an entire document from or to the collection).&lt;/p&gt;
-
-&lt;p&gt;However, this original premise has not stood the test of time.&lt;/p&gt;
-
-&lt;p&gt;The first issue we ran into was that the server
-started returning UUIDs (i.e. Guids) in metadata using standard subtype 4. If a collection was configured to use
-subtype 3 (which it usually was since that is the default) the driver could not deserialize the Guids in the metadata
-without throwing an exception. We worked around this by temporarily reconfiguring the BSON reader while reading the metadata.&lt;/p&gt;
-
-&lt;p&gt;The second issue is that the original premise was too strict. There are valid reasons why a single collection might
-have a mix of Guid representations, and we need to allow that.&lt;/p&gt;
 </description>
     </item>
     
@@ -334,25 +334,6 @@ to mark the ones that use a different representation.&lt;/p&gt;
     </item>
     
     <item>
-      <title>Serializer changes</title>
-      <link>/mongo-csharp-driver/2.14/reference/bson/guidserialization/serializerchanges/serializerchanges/</link>
-      <pubDate>Thu, 23 Jul 2020 00:00:00 +0000</pubDate>
-      
-      <guid>/mongo-csharp-driver/2.14/reference/bson/guidserialization/serializerchanges/serializerchanges/</guid>
-      <description>
-
-&lt;h1 id=&#34;serializer-changes&#34;&gt;Serializer changes&lt;/h1&gt;
-
-&lt;p&gt;The following sections describe changes to the two serializers to handle Guids differently:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;- &lt;a href=&#34;/mongo-csharp-driver/2.14/mongo-csharp-driver/2.14/reference/bson/guidserialization/serializerchanges/guidserializerchanges/&#34;&gt;GuidSerializer changes&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;- &lt;a href=&#34;/mongo-csharp-driver/2.14/mongo-csharp-driver/2.14/reference/bson/guidserialization/serializerchanges/objectserializerchanges/&#34;&gt;ObjectSerializer changes&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-</description>
-    </item>
-    
-    <item>
       <title>ObjectSerializer changes</title>
       <link>/mongo-csharp-driver/2.14/reference/bson/guidserialization/serializerchanges/objectserializerchanges/</link>
       <pubDate>Thu, 23 Jul 2020 00:00:00 +0000</pubDate>
@@ -383,6 +364,25 @@ serializer will be globally used whenever an object serializer is needed and has
 var objectSerializer = new ObjectSerializer(objectDiscriminatorConvention, GuidRepresentation.Standard);
 BsonSerializer.RegisterSerializer(objectSerializer);
 &lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Serializer changes</title>
+      <link>/mongo-csharp-driver/2.14/reference/bson/guidserialization/serializerchanges/serializerchanges/</link>
+      <pubDate>Thu, 23 Jul 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.14/reference/bson/guidserialization/serializerchanges/serializerchanges/</guid>
+      <description>
+
+&lt;h1 id=&#34;serializer-changes&#34;&gt;Serializer changes&lt;/h1&gt;
+
+&lt;p&gt;The following sections describe changes to the two serializers to handle Guids differently:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;- &lt;a href=&#34;/mongo-csharp-driver/2.14/mongo-csharp-driver/2.14/reference/bson/guidserialization/serializerchanges/guidserializerchanges/&#34;&gt;GuidSerializer changes&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;- &lt;a href=&#34;/mongo-csharp-driver/2.14/mongo-csharp-driver/2.14/reference/bson/guidserialization/serializerchanges/objectserializerchanges/&#34;&gt;ObjectSerializer changes&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
 </description>
     </item>
     
