@@ -77,6 +77,16 @@ Task("Build")
                { "SourceRevisionId", gitVersion.Sha }
            }
         };
+        if (target.ToLowerInvariant().StartsWith("package") || target.ToLowerInvariant().StartsWith("release"))
+        {
+            Console.WriteLine("Build continuousIntegration is enabled");
+            if (settings.MSBuildSettings == null)
+            {
+                settings.MSBuildSettings = new DotNetCoreMSBuildSettings();
+            }
+            // needs to make nupkg package deterministic. Should be used only during package release
+            settings.MSBuildSettings.SetContinuousIntegrationBuild(continuousIntegrationBuild: true);
+        }
         DotNetCoreBuild(solutionFullPath, settings);
     });
 
@@ -535,22 +545,23 @@ Task("PackageNugetPackages")
             {
                 Configuration = configuration,
                 OutputDirectory = artifactsPackagesDirectory,
-                NoBuild = true,
+                NoBuild = true, // SetContinuousIntegrationBuild is enabled for nupkg on the Build step
                 IncludeSymbols = true,
                 MSBuildSettings = new DotNetCoreMSBuildSettings()
+                    .SetContinuousIntegrationBuild(continuousIntegrationBuild: true)
                     .WithProperty("PackageVersion", gitVersion.LegacySemVer)
             };
             DotNetCorePack(projectPath, settings);
         }
     });
 
-Task("PushToNuGet")
+Task("PushToMyGet")
     .Does(() =>
     {
-        var nugetApiKey = EnvironmentVariable("NUGETAPIKEY");
-        if (nugetApiKey == null)
+        var mygetApiKey = EnvironmentVariable("MYGETAPIKEY");
+        if (mygetApiKey == null)
         {
-            throw new Exception("NUGETAPIKEY environment variable missing");
+            throw new Exception("MYGETAPIKEY environment variable missing");
         }
 
         var packageFiles = new List<FilePath>();
@@ -573,8 +584,8 @@ Task("PushToNuGet")
 
         NuGetPush(packageFiles, new NuGetPushSettings
         {
-            ApiKey = nugetApiKey,
-            Source = "https://api.nuget.org/v3/index.json"
+            ApiKey = mygetApiKey,
+            Source = "https://www.myget.org/F/mongodb/api/v3/index.json"
         });
     });
 
