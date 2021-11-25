@@ -136,6 +136,9 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
                 RequireServer.Check().RunOn(runOn.AsBsonArray);
             }
 
+            var useMultipleShardRouters = test.GetValue("useMultipleMongoses", false).ToBoolean();
+            RequireServer.Check().UseMultipleMongoses(useMultipleShardRouters);
+
             JsonDrivenHelper.EnsureAllFieldsAreValid(shared,
                 "_path",
                 "database_name",
@@ -170,7 +173,6 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
             var eventCapturer = new EventCapturer()
                 .Capture<CommandStartedEvent>(e => !__commandsToNotCapture.Contains(e.CommandName));
 
-            var useMultipleShardRouters = test.GetValue("useMultipleMongoses", false).ToBoolean();
             using (var client = CreateDisposableClient(test, eventCapturer, useMultipleShardRouters))
             using (ConfigureFailPointOnPrimaryOrShardRoutersIfNeeded(client, test))
             {

@@ -163,6 +163,17 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
                 .SupportsSessions();
         }
 
+        public RequireServer HasMongos(int mongos)
+        {
+            if (CoreTestConfiguration.MongosNumberIfSharded.HasValue && CoreTestConfiguration.MongosNumberIfSharded.Value == mongos)
+            {
+                return this;
+            }
+
+            var skipReason = CoreTestConfiguration.MongosNumberIfSharded.HasValue ? $"has {CoreTestConfiguration.MongosNumberIfSharded.Value} mongos, but expected number is {mongos}" : "must be sharded";
+            throw new SkipException($"Test skipped because the server {skipReason}.");
+        }
+
         public RequireServer SupportsSessions()
         {
             var clusterDescription = CoreTestConfiguration.Cluster.Description;
@@ -204,6 +215,18 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
             throw new SkipException(
                 $"Test skipped because the connection string specifies TLS={usingTls} " +
                 $"and this test requires TLS={required}.");
+        }
+
+        public RequireServer UseMultipleMongoses(bool useMultipleMongoses)
+        {
+            var clusterDescription = CoreTestConfiguration.Cluster.Description;
+            if (clusterDescription.Type != Clusters.ClusterType.Sharded && clusterDescription.Type != Clusters.ClusterType.LoadBalanced)
+            {
+                // This option has no effect for topologies that are not sharded or load balanced.
+                return this;
+            }
+
+            return useMultipleMongoses ? HasMongos(mongos: 2) : this;
         }
 
         public RequireServer VersionGreaterThanOrEqualTo(SemanticVersion version)

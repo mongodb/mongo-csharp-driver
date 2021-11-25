@@ -55,8 +55,11 @@ namespace MongoDB.Driver.Tests
         [ParameterAttributeData]
         public async void Test_Unpin_For_Next_Transaction([Values(false, true)] bool async)
         {
-            RequireServer.Check().Supports(Feature.ShardedTransactions).ClusterType(ClusterType.Sharded);
-            RequireMultipleShardRouters();
+            RequireServer
+                .Check()
+                .Supports(Feature.ShardedTransactions)
+                .ClusterType(ClusterType.Sharded)
+                .HasMongos(mongos: 2);
 
             DropCollection();
             var eventCapturer = CreateEventCapturer();
@@ -112,8 +115,11 @@ namespace MongoDB.Driver.Tests
         [ParameterAttributeData]
         public async void Test_Unpin_For_Non_Transaction_Operation([Values(false, true)] bool async)
         {
-            RequireServer.Check().Supports(Feature.ShardedTransactions).ClusterType(ClusterType.Sharded);
-            RequireMultipleShardRouters();
+            RequireServer
+                .Check()
+                .Supports(Feature.ShardedTransactions)
+                .ClusterType(ClusterType.Sharded)
+                .HasMongos(mongos: 2);
 
             DropCollection();
             var eventCapturer = CreateEventCapturer();
@@ -188,16 +194,6 @@ namespace MongoDB.Driver.Tests
             var client = DriverTestConfiguration.Client;
             var database = client.GetDatabase(_databaseName).WithWriteConcern(WriteConcern.WMajority);
             database.DropCollection(_collectionName);
-        }
-
-        private void RequireMultipleShardRouters()
-        {
-            var connectionString = CoreTestConfiguration.ConnectionStringWithMultipleShardRouters.ToString();
-            var numberOfShardRouters = MongoClientSettings.FromUrl(new MongoUrl(connectionString)).Servers.Count();
-            if (numberOfShardRouters < 2)
-            {
-                throw new SkipException("Two or more shard routers are required.");
-            }
         }
     }
 }

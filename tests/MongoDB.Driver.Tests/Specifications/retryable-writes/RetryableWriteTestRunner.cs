@@ -103,12 +103,15 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes
         {
             Logger.Debug("Running test");
 
+            var useMultipleShardRouters = test.GetValue("useMultipleMongoses", false).AsBoolean;
+            RequireServer.Check().UseMultipleMongoses(useMultipleShardRouters);
+
             VerifyFields(test, "description", "clientOptions", "failPoint", "operation", "outcome", "useMultipleMongoses");
             var failPoint = (BsonDocument)test.GetValue("failPoint", null);
             var operation = test["operation"].AsBsonDocument;
             var outcome = test["outcome"].AsBsonDocument;
 
-            using (var client = CreateDisposableClient(test))
+            using (var client = CreateDisposableClient(test, useMultipleShardRouters))
             {
                 var database = client.GetDatabase(_databaseName);
                 var collection = database.GetCollection<BsonDocument>(_collectionName);
@@ -124,9 +127,8 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes
             }
         }
 
-        private DisposableMongoClient CreateDisposableClient(BsonDocument test)
+        private DisposableMongoClient CreateDisposableClient(BsonDocument test, bool useMultipleShardRouters)
         {
-            var useMultipleShardRouters = test.GetValue("useMultipleMongoses", false).AsBoolean;
             var clientOptions = (BsonDocument)test.GetValue("clientOptions", null);
 
             return DriverTestConfiguration.CreateDisposableClient(

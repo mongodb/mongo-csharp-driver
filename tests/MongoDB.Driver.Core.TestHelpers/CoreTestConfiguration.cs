@@ -46,6 +46,7 @@ namespace MongoDB.Driver
         private static Lazy<DatabaseNamespace> __databaseNamespace = new Lazy<DatabaseNamespace>(GetDatabaseNamespace, isThreadSafe: true);
         private static Lazy<BuildInfoResult> _buildInfo = new Lazy<BuildInfoResult>(RunBuildInfo, isThreadSafe: true);
         private static MessageEncoderSettings __messageEncoderSettings = new MessageEncoderSettings();
+        private static Lazy<int?> __mongosNumberIfSharded = new Lazy<int?>(GetMongosNumberCountIfSharded, isThreadSafe: true);
         private static Lazy<ServerApi> __serverApi = new Lazy<ServerApi>(GetServerApi, isThreadSafe: true);
         private static Lazy<bool> __serverless = new Lazy<bool>(GetServerless, isThreadSafe: true);
         private static Lazy<string> __storageEngine = new Lazy<string>(GetStorageEngine, isThreadSafe: true);
@@ -78,6 +79,8 @@ namespace MongoDB.Driver
         {
             get { return __messageEncoderSettings; }
         }
+
+        public static int? MongosNumberIfSharded => __mongosNumberIfSharded.Value;
 
         public static bool RequireApiVersion
         {
@@ -416,6 +419,32 @@ namespace MongoDB.Driver
             }
         }
 
+        private static IEnumerable<BsonDocument> FindDocuments(ICluster cluster, CollectionNamespace collectionNamespace)
+        {
+            using (var session = StartSession(cluster))
+            using (var binding = CreateReadBinding(cluster, ReadPreference.PrimaryPreferred, session))
+            {
+                var operation = new FindOperation<BsonDocument>(collectionNamespace, BsonDocumentSerializer.Instance, __messageEncoderSettings);
+
+                return operation.Execute(binding, CancellationToken.None).ToList();
+            }
+        }
+
+        private static int? GetMongosNumberCountIfSharded()
+        {
+            var clusterType = __cluster.Value.Description.Type;
+            if (clusterType == ClusterType.Sharded || clusterType == ClusterType.LoadBalanced)
+            {
+                var mongosCollection = new CollectionNamespace("config", "mongos"); // magic collection
+                var mongosDocuments = FindDocuments(__cluster.Value, mongosCollection).ToList();
+                return mongosDocuments.Count;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         private static string GetStorageEngine()
         {
             string result;
@@ -424,7 +453,8 @@ namespace MongoDB.Driver
             if (clusterType == ClusterType.Sharded || clusterType == ClusterType.LoadBalanced)
             {
                 // mongos cannot provide this data directly, so we need connection to a particular mongos shard
-                var shards = FindShardsOnCLuster(__cluster.Value).FirstOrDefault();
+                var shardsCollection = new CollectionNamespace("config", "shards"); // magic collection
+                var shards = FindDocuments(__cluster.Value, shardsCollection).FirstOrDefault();
                 if (shards != null)
                 {
                     var fullHosts = shards["host"].AsString; // for example: "shard01/localhost:27018,localhost:27019,localhost:27020"
@@ -470,18 +500,6 @@ namespace MongoDB.Driver
                     }
 
                     return null;
-                }
-            }
-
-            IEnumerable<BsonDocument> FindShardsOnCLuster(ICluster cluster)
-            {
-                using (var session = StartSession(cluster))
-                using (var binding = CreateReadBinding(cluster, ReadPreference.PrimaryPreferred, session))
-                {
-                    var collectionNamespace = new CollectionNamespace("config", "shards"); // magic collection
-                    var operation = new FindOperation<BsonDocument>(collectionNamespace, BsonDocumentSerializer.Instance, __messageEncoderSettings);
-
-                    return operation.Execute(binding, CancellationToken.None).ToList();
                 }
             }
         }
