@@ -77,13 +77,12 @@ Task("Build")
                { "SourceRevisionId", gitVersion.Sha }
            }
         };
-        if (target.ToLowerInvariant().StartsWith("package") || target.ToLowerInvariant().StartsWith("release"))
+
+        var lowerTarget = target.ToLowerInvariant();
+        if (lowerTarget.StartsWith("package") || lowerTarget.StartsWith("release"))
         {
             Console.WriteLine("Build continuousIntegration is enabled");
-            if (settings.MSBuildSettings == null)
-            {
-                settings.MSBuildSettings = new DotNetCoreMSBuildSettings();
-            }
+            settings.MSBuildSettings = new DotNetCoreMSBuildSettings();
             // needs to make nupkg package deterministic. Should be used only during package release
             settings.MSBuildSettings.SetContinuousIntegrationBuild(continuousIntegrationBuild: true);
         }
