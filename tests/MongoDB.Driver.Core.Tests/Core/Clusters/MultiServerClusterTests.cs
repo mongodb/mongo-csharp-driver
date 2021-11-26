@@ -1232,7 +1232,7 @@ namespace MongoDB.Driver.Core.Clusters
                 state: ServerState.Connected,
                 tags: null,
                 type: serverType,
-                version: new SemanticVersion(2, 6, 3),
+                version: new SemanticVersion(3, 6, 0),
                 wireVersionRange: new Range<int>(0, int.MaxValue));
 
             var currentClusterDescription = cluster.Description;

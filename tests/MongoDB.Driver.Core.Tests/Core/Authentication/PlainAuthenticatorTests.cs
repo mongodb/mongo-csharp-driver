@@ -38,10 +38,6 @@ namespace MongoDB.Driver.Core.Authentication
             new ConnectionId(__serverId),
             new HelloResult(new BsonDocument("ok", 1).Add(OppressiveLanguageConstants.LegacyHelloResponseIsWritablePrimaryFieldName, 1)),
             new BuildInfoResult(new BsonDocument("version", "4.7.0")));
-        private static readonly ConnectionDescription __descriptionQueryWireProtocol = new ConnectionDescription(
-            new ConnectionId(__serverId),
-            new HelloResult(new BsonDocument("ok", 1).Add(OppressiveLanguageConstants.LegacyHelloResponseIsWritablePrimaryFieldName, 1)),
-            new BuildInfoResult(new BsonDocument("version", "2.6.0")));
 
         [Fact]
         public void Constructor_should_throw_an_ArgumentNullException_when_credential_is_null()
@@ -59,18 +55,19 @@ namespace MongoDB.Driver.Core.Authentication
         {
             var subject = new PlainAuthenticator(__credential, serverApi: null);
 
-            var reply = MessageHelper.BuildNoDocumentsReturnedReply<RawBsonDocument>();
+            var response = MessageHelper.BuildCommandResponse(RawBsonDocumentHelper.FromJson("{ }"));
             var connection = new MockConnection(__serverId);
-            connection.EnqueueReplyMessage(reply);
+            connection.EnqueueCommandResponseMessage(response);
+            connection.Description = __descriptionCommandWireProtocol;
 
             Action act;
             if (async)
             {
-                act = () => subject.AuthenticateAsync(connection, __descriptionQueryWireProtocol, CancellationToken.None).GetAwaiter().GetResult();
+                act = () => subject.AuthenticateAsync(connection, __descriptionCommandWireProtocol, CancellationToken.None).GetAwaiter().GetResult();
             }
             else
             {
-                act = () => subject.Authenticate(connection, __descriptionQueryWireProtocol, CancellationToken.None);
+                act = () => subject.Authenticate(connection, __descriptionCommandWireProtocol, CancellationToken.None);
             }
 
             act.ShouldThrow<MongoAuthenticationException>();
@@ -84,22 +81,22 @@ namespace MongoDB.Driver.Core.Authentication
         {
             var subject = new PlainAuthenticator(__credential, serverApi: null);
 
-            var saslStartReply = MessageHelper.BuildReply<RawBsonDocument>(
-                RawBsonDocumentHelper.FromJson("{conversationId: 0, payload: BinData(0,\"\"), done: true, ok: 1}"));
+            var saslStartResponse = MessageHelper.BuildCommandResponse(RawBsonDocumentHelper.FromJson("{conversationId: 0, payload: BinData(0,\"\"), done: true, ok: 1}"));
 
             var connection = new MockConnection(__serverId);
-            connection.EnqueueReplyMessage(saslStartReply);
+            connection.EnqueueCommandResponseMessage(saslStartResponse);
+            connection.Description = __descriptionCommandWireProtocol;
 
             var expectedRequestId = RequestMessage.CurrentGlobalRequestId + 1;
 
             Action act;
             if (async)
             {
-                act = () => subject.AuthenticateAsync(connection, __descriptionQueryWireProtocol, CancellationToken.None).GetAwaiter().GetResult();
+                act = () => subject.AuthenticateAsync(connection, __descriptionCommandWireProtocol, CancellationToken.None).GetAwaiter().GetResult();
             }
             else
             {
-                act = () => subject.Authenticate(connection, __descriptionQueryWireProtocol, CancellationToken.None);
+                act = () => subject.Authenticate(connection, __descriptionCommandWireProtocol, CancellationToken.None);
             }
 
             act.ShouldNotThrow();
@@ -111,7 +108,7 @@ namespace MongoDB.Driver.Core.Authentication
             var actualRequestId = sentMessages[0]["requestId"].AsInt32;
             actualRequestId.Should().BeInRange(expectedRequestId, expectedRequestId + 10);
 
-            sentMessages[0].Should().Be("{opcode: \"query\", requestId: " + actualRequestId + ", database: \"source\", collection: \"$cmd\", batchSize: -1, secondaryOk: true, query: {saslStart: 1, mechanism: \"PLAIN\", payload: new BinData(0, \"AHVzZXIAcGVuY2ls\")}}");
+            sentMessages[0].Should().Be("{ \"opcode\" : \"opmsg\", \"requestId\" : " + actualRequestId + ", \"responseTo\" : 0, \"sections\" : [{ \"payloadType\" : 0, \"document\" : { \"saslStart\" : 1, \"mechanism\" : \"PLAIN\", \"payload\" : new BinData(0, \"AHVzZXIAcGVuY2ls\"), \"$db\" : \"source\" } }] }");
         }
 
         [Theory]
@@ -150,58 +147,6 @@ namespace MongoDB.Driver.Core.Authentication
 
             var expectedServerApiString = useServerApi ? ", apiVersion : \"1\", apiStrict : true, apiDeprecationErrors : true" : "";
             sentMessages[0].Should().Be($"{{ opcode : \"opmsg\", requestId : {actualRequestId}, responseTo : 0, sections : [ {{ payloadType : 0, document : {{ saslStart : 1, mechanism : \"PLAIN\", payload : new BinData(0, \"AHVzZXIAcGVuY2ls\"), $db : \"source\"{expectedServerApiString} }} }} ] }}");
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void Authenticate_should_send_serverApi_with_command_wire_protocol_if_serverApi_is_provided(
-            [Values(false, true)] bool useServerApi,
-            [Values(false, true)] bool async)
-        {
-            var serverApi = useServerApi ? new ServerApi(ServerApiVersion.V1, true, true) : null;
-
-            var subject = new PlainAuthenticator(__credential, serverApi);
-
-            var connection = new MockConnection(__serverId);
-            var saslStartReply = RawBsonDocumentHelper.FromJson("{ conversationId : 0, payload : BinData(0,\"\"), done : true, ok : 1 }");
-            if (useServerApi)
-            {
-                connection.EnqueueCommandResponseMessage(MessageHelper.BuildCommandResponse(saslStartReply));
-            }
-            else
-            {
-                connection.EnqueueReplyMessage(MessageHelper.BuildReply(saslStartReply));
-            }
-
-            connection.Description = __descriptionQueryWireProtocol;
-
-            var expectedRequestId = RequestMessage.CurrentGlobalRequestId + 1;
-
-            if (async)
-            {
-                subject.AuthenticateAsync(connection, __descriptionQueryWireProtocol, CancellationToken.None).GetAwaiter().GetResult();
-            }
-            else
-            {
-                subject.Authenticate(connection, __descriptionQueryWireProtocol, CancellationToken.None);
-            }
-
-            SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(5)).Should().BeTrue();
-
-            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
-            sentMessages.Count.Should().Be(1);
-
-            var actualRequestId = sentMessages[0]["requestId"].AsInt32;
-            actualRequestId.Should().BeInRange(expectedRequestId, expectedRequestId + 10);
-
-            if (useServerApi)
-            {
-                sentMessages[0].Should().Be($"{{ opcode : \"opmsg\", requestId : {actualRequestId}, responseTo : 0, sections : [{{ payloadType : 0, document : {{ saslStart : 1, mechanism : \"PLAIN\", payload : new BinData(0, \"AHVzZXIAcGVuY2ls\"), \"$db\" : \"source\", apiVersion : \"1\", apiStrict : true, apiDeprecationErrors : true }} }}] }}");
-            }
-            else
-            {
-                sentMessages[0].Should().Be($"{{ opcode : \"query\", requestId : {actualRequestId}, database : \"source\", collection : \"$cmd\", batchSize : -1, secondaryOk : true, query : {{ saslStart : 1, mechanism : \"PLAIN\", payload : new BinData(0, \"AHVzZXIAcGVuY2ls\") }} }}");
-            }
         }
     }
 }

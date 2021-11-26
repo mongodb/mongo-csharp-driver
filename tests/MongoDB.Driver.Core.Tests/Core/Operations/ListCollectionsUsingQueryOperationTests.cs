@@ -180,7 +180,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().VersionLessThan("2.7.0").ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet);
+            RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet);
             var filter = new BsonDocument("name", new BsonRegularExpression("^abc"));
             var subject = new ListCollectionsUsingQueryOperation(_databaseNamespace, _messageEncoderSettings)
             {

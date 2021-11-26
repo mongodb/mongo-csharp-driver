@@ -82,30 +82,12 @@ namespace MongoDB.Driver.Tests.Specifications.crud
                 actualResult.ModifiedCount.Should().Be(expectedResult.ModifiedCount);
             }
             actualResult.MatchedCount.Should().Be(expectedResult.MatchedCount);
-
-            if (ClusterDescription.Servers[0].Version >= new SemanticVersion(2, 6, 0) || !_options.IsUpsert)
-            {
-                actualResult.UpsertedId.Should().Be(expectedResult.UpsertedId);
-            }
+            actualResult.UpsertedId.Should().Be(expectedResult.UpsertedId);
         }
 
         protected override void VerifyCollection(IMongoCollection<BsonDocument> collection, BsonArray expectedData)
         {
             var data = collection.FindSync("{}").ToList();
-
-            if (ClusterDescription.Servers[0].Version < new SemanticVersion(2, 6, 0) && _options.IsUpsert)
-            {
-                foreach (var doc in data)
-                {
-                    doc.Remove("_id");
-                }
-
-                foreach (var doc in expectedData.Cast<BsonDocument>())
-                {
-                    doc.Remove("_id");
-                }
-            }
-
             data.Should().BeEquivalentTo(expectedData);
         }
     }

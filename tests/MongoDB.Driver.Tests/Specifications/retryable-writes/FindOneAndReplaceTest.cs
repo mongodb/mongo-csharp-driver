@@ -90,16 +90,6 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes
             _serverVersion = collection.Database.Client.Cluster.Description.Servers[0].Version;
         }
 
-        protected override void VerifyCollectionContents(List<BsonDocument> actualContents, List<BsonDocument> expectedContents)
-        {
-            if (_serverVersion < new SemanticVersion(2, 6, 0) && _options.IsUpsert)
-            {
-                RemoveIds(actualContents);
-                RemoveIds(expectedContents);
-            }
-            base.VerifyCollectionContents(actualContents, expectedContents);
-        }
-
         protected override void VerifyResult(BsonDocument result)
         {
             _result.Should().Be(result);

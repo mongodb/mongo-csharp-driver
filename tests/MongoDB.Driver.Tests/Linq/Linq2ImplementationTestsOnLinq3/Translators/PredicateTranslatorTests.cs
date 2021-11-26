@@ -482,7 +482,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
         [SkippableFact]
         public void Any_with_a_predicate_on_scalars()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
+            RequireServer.Check();
 
             Assert(
                 x => x.C.E.I.Any(i => i.StartsWith("ick")),

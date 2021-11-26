@@ -182,7 +182,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests
         [SkippableFact]
         public void Distinct_document_followed_by_where()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
+            RequireServer.Check();
             var query = CreateQuery()
                 .Distinct()
                 .Where(x => x.A == "Awesome");
@@ -196,7 +196,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests
         [SkippableFact]
         public void Distinct_document_preceded_by_select_where()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
+            RequireServer.Check();
             var query = CreateQuery()
                 .Select(x => new { x.A, x.B })
                 .Where(x => x.A == "Awesome")
@@ -212,7 +212,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests
         [SkippableFact]
         public void Distinct_document_preceded_by_where_select()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
+            RequireServer.Check();
             var query = CreateQuery()
                 .Where(x => x.A == "Awesome")
                 .Select(x => new { x.A, x.B })
@@ -227,7 +227,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests
         [SkippableFact]
         public void Distinct_field_preceded_by_where_select()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
+            RequireServer.Check();
             var query = CreateQuery()
                 .Where(x => x.A == "Awesome")
                 .Select(x => x.A)
@@ -242,7 +242,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests
         [SkippableFact]
         public void Distinct_field_preceded_by_select_where()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
+            RequireServer.Check();
             var query = CreateQuery()
                 .Select(x => x.A)
                 .Where(x => x == "Awesome")
@@ -937,7 +937,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests
         [SkippableFact]
         public void Select_method_with_predicated_any()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
+            RequireServer.Check();
             var query = CreateQuery()
                 .Select(x => x.G.Any(g => g.D == "Don't"));
 
@@ -1093,7 +1093,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests
         [SkippableFact]
         public void Select_method_computed_array()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
+            RequireServer.Check();
             var query = CreateQuery()
                 .Select(x => x.M.Select(i => i + 1));
 
@@ -1105,7 +1105,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests
         [SkippableFact]
         public void Select_syntax_computed_array()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
+            RequireServer.Check();
             var query = from x in CreateQuery()
                         select x.M.Select(i => i + 1);
 

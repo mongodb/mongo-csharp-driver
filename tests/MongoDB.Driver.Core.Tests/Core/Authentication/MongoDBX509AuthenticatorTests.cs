@@ -37,10 +37,6 @@ namespace MongoDB.Driver.Core.Authentication
             new ConnectionId(__serverId),
             new HelloResult(new BsonDocument("ok", 1).Add(OppressiveLanguageConstants.LegacyHelloResponseIsWritablePrimaryFieldName, 1)),
             new BuildInfoResult(new BsonDocument("version", "4.7.0")));
-        private static readonly ConnectionDescription __descriptionQueryWireProtocol = new ConnectionDescription(
-            new ConnectionId(__serverId),
-            new HelloResult(new BsonDocument("ok", 1).Add(OppressiveLanguageConstants.LegacyHelloResponseIsWritablePrimaryFieldName, 1)),
-            new BuildInfoResult(new BsonDocument("version", "2.6.0")));
 
         [Theory]
         [InlineData("")]
@@ -91,77 +87,25 @@ namespace MongoDB.Driver.Core.Authentication
 
         [Theory]
         [ParameterAttributeData]
-        public void Authenticate_should_send_serverApi_with_command_wire_protocol_if_serverApi_is_provided(
-            [Values(false, true)] bool useServerApi,
-            [Values(false, true)] bool async)
-        {
-            var serverApi = useServerApi ? new ServerApi(ServerApiVersion.V1, true, true) : null;
-
-            var subject = new MongoDBX509Authenticator("CN=client,OU=kerneluser,O=10Gen,L=New York City,ST=New York,C=US", serverApi);
-
-            var connection = new MockConnection(__serverId);
-            if (useServerApi)
-            {
-                var reply = MessageHelper.BuildCommandResponse(RawBsonDocumentHelper.FromJson("{ok: 1}"));
-                connection.EnqueueCommandResponseMessage(reply);
-            }
-            else
-            {
-                var reply = MessageHelper.BuildReply(RawBsonDocumentHelper.FromJson("{ok: 1}"));
-                connection.EnqueueReplyMessage(reply);
-            }
-            connection.Description = __descriptionQueryWireProtocol;
-
-            var expectedRequestId = RequestMessage.CurrentGlobalRequestId + 1;
-
-            if (async)
-            {
-                subject.AuthenticateAsync(connection, __descriptionQueryWireProtocol, CancellationToken.None).GetAwaiter().GetResult();
-            }
-            else
-            {
-                subject.Authenticate(connection, __descriptionQueryWireProtocol, CancellationToken.None);
-            }
-
-            SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(5)).Should().BeTrue();
-
-            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
-            sentMessages.Count.Should().Be(1);
-
-            var actualRequestId = sentMessages[0]["requestId"].AsInt32;
-            actualRequestId.Should().BeInRange(expectedRequestId, expectedRequestId + 10);
-
-            if (useServerApi)
-            {
-                sentMessages[0].Should().Be($"{{ \"opcode\" : \"opmsg\", \"requestId\" : {actualRequestId}, \"responseTo\" : 0, \"sections\" : [{{ \"payloadType\" : 0, \"document\" : {{ \"authenticate\" : 1, \"mechanism\" : \"MONGODB-X509\", \"user\" : \"CN=client,OU=kerneluser,O=10Gen,L=New York City,ST=New York,C=US\", \"$db\" : \"$external\", \"apiVersion\" : \"1\", \"apiStrict\" : true, \"apiDeprecationErrors\" : true }} }}] }}");
-            }
-            else
-            {
-                sentMessages[0].Should().Be($"{{ opcode : \"query\", requestId : {actualRequestId}, database : \"$external\", collection : \"$cmd\", batchSize : -1, secondaryOk : true, query : {{ authenticate : 1, mechanism : \"MONGODB-X509\", user : \"CN=client,OU=kerneluser,O=10Gen,L=New York City,ST=New York,C=US\" }} }}");
-            }
-        }
-
-        [Theory]
-        [ParameterAttributeData]
         public void Authenticate_should_throw_an_AuthenticationException_when_authentication_fails(
             [Values(false, true)]
             bool async)
         {
             var subject = new MongoDBX509Authenticator("CN=client,OU=kerneluser,O=10Gen,L=New York City,ST=New York,C=US", serverApi: null);
 
-            var reply = MessageHelper.BuildNoDocumentsReturnedReply<RawBsonDocument>();
+            var response = MessageHelper.BuildCommandResponse(RawBsonDocumentHelper.FromJson("{ }"));
             var connection = new MockConnection(__serverId);
-            connection.Description = CreateConnectionDescription(new SemanticVersion(3, 2, 0));
-            connection.EnqueueReplyMessage(reply);
+            connection.Description = CreateConnectionDescription(new SemanticVersion(3, 6, 0));
+            connection.EnqueueCommandResponseMessage(response);
 
             Action act;
             if (async)
             {
-                act = () => subject.AuthenticateAsync(connection, __descriptionQueryWireProtocol, CancellationToken.None).GetAwaiter().GetResult();
+                act = () => subject.AuthenticateAsync(connection, __descriptionCommandWireProtocol, CancellationToken.None).GetAwaiter().GetResult();
             }
             else
             {
-                act = () => subject.Authenticate(connection, __descriptionQueryWireProtocol, CancellationToken.None);
+                act = () => subject.Authenticate(connection, __descriptionCommandWireProtocol, CancellationToken.None);
             }
 
             act.ShouldThrow<MongoAuthenticationException>();
@@ -175,21 +119,20 @@ namespace MongoDB.Driver.Core.Authentication
         {
             var subject = new MongoDBX509Authenticator("CN=client,OU=kerneluser,O=10Gen,L=New York City,ST=New York,C=US", serverApi: null);
 
-            var reply = MessageHelper.BuildReply<RawBsonDocument>(
-                RawBsonDocumentHelper.FromJson("{ok: 1}"));
+            var response = MessageHelper.BuildCommandResponse(RawBsonDocumentHelper.FromJson("{ok: 1}"));
 
             var connection = new MockConnection(__serverId);
-            connection.Description = CreateConnectionDescription(new SemanticVersion(3, 2, 0));
-            connection.EnqueueReplyMessage(reply);
+            connection.Description = CreateConnectionDescription(new SemanticVersion(3, 6, 0));
+            connection.EnqueueCommandResponseMessage(response);
 
             Action act;
             if (async)
             {
-                act = () => subject.AuthenticateAsync(connection, __descriptionQueryWireProtocol, CancellationToken.None).GetAwaiter().GetResult();
+                act = () => subject.AuthenticateAsync(connection, __descriptionCommandWireProtocol, CancellationToken.None).GetAwaiter().GetResult();
             }
             else
             {
-                act = () => subject.Authenticate(connection, __descriptionQueryWireProtocol, CancellationToken.None);
+                act = () => subject.Authenticate(connection, __descriptionCommandWireProtocol, CancellationToken.None);
             }
 
             act.ShouldNotThrow();
@@ -197,46 +140,19 @@ namespace MongoDB.Driver.Core.Authentication
 
         [Theory]
         [ParameterAttributeData]
-        public void Authenticate_should_throw_when_username_is_null_and_server_does_not_support_null_username(
+        public void Authenticate_should_not_throw_when_username_is_null(
             [Values(false, true)]
             bool async)
         {
             var subject = new MongoDBX509Authenticator(username: null, serverApi: null);
 
-            var reply = MessageHelper.BuildReply<RawBsonDocument>(
+            var response = MessageHelper.BuildCommandResponse(
                 RawBsonDocumentHelper.FromJson("{ok: 1}"));
 
             var connection = new MockConnection(__serverId);
-            connection.Description = CreateConnectionDescription(new SemanticVersion(3, 2, 0));
-            connection.EnqueueReplyMessage(reply);
-
-            Exception exception;
-            if (async)
-            {
-                exception = Record.Exception(() => subject.AuthenticateAsync(connection, __descriptionQueryWireProtocol, CancellationToken.None).GetAwaiter().GetResult());
-            }
-            else
-            {
-                exception = Record.Exception(() => subject.Authenticate(connection, __descriptionQueryWireProtocol, CancellationToken.None));
-            }
-
-            exception.Should().BeOfType<MongoConnectionException>();
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void Authenticate_should_not_throw_when_username_is_null_and_server_support_null_username(
-            [Values(false, true)]
-            bool async)
-        {
-            var subject = new MongoDBX509Authenticator(username: null, serverApi: null);
-
-            var reply = MessageHelper.BuildReply<RawBsonDocument>(
-                RawBsonDocumentHelper.FromJson("{ok: 1}"));
-
-            var connection = new MockConnection(__serverId);
-            connection.EnqueueReplyMessage(reply);
-            var description = CreateConnectionDescription(new SemanticVersion(3, 4, 0));
+            connection.EnqueueCommandResponseMessage(response);
+            var description = CreateConnectionDescription(new SemanticVersion(3, 6, 0));
+            connection.Description = description;
 
             Exception exception;
             if (async)

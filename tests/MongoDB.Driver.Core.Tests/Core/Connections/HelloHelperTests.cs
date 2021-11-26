@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Core.Connections
         [Theory]
         [ParameterAttributeData]
         public void AddClientDocumentToCommand_with_custom_document_should_return_expected_result(
-            [Values("{ client : { driver : 'dotnet', version : '2.4.0' }, os : { type : 'Windows' } }")]
+            [Values("{ client : { driver : 'dotnet', version : '3.6.0' }, os : { type : 'Windows' } }")]
             string clientDocumentString)
         {
             var clientDocument = BsonDocument.Parse(clientDocumentString);

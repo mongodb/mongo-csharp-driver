@@ -304,8 +304,7 @@ namespace MongoDB.Driver.Core.Operations
         public void CreateCommand_should_return_the_expected_result()
         {
             var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings);
-            var serverVersion = Feature.AggregateCursorResult.FirstSupportedVersion;
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             var session = OperationTestHelper.CreateSession();
 
             var result = subject.CreateCommand(connectionDescription, session);
@@ -330,8 +329,7 @@ namespace MongoDB.Driver.Core.Operations
                 AllowDiskUse = allowDiskUse
             };
 
-            var serverVersion = Feature.AggregateCursorResult.FirstSupportedVersion;
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
             var session = OperationTestHelper.CreateSession();
 
@@ -357,8 +355,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 BatchSize = batchSize
             };
-            var serverVersion = Feature.AggregateCursorResult.FirstSupportedVersion;
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             var session = OperationTestHelper.CreateSession();
 
             var result = subject.CreateCommand(connectionDescription, session);
@@ -512,8 +509,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 MaxTime = TimeSpan.FromTicks(maxTimeTicks)
             };
-            var serverVersion = Feature.AggregateCursorResult.FirstSupportedVersion;
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             var session = OperationTestHelper.CreateSession();
 
             var result = subject.CreateCommand(connectionDescription, session);
@@ -598,33 +594,6 @@ namespace MongoDB.Driver.Core.Operations
                 { "pipeline", new BsonArray(__pipeline) },
                 { "readConcern", expectedReadConcernDocument },
                 { "cursor", new BsonDocument() }
-            };
-            result.Should().Be(expectedResult);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void CreateCommand_should_return_the_expected_result_when_UseCursor_is_set(
-            [Values(null, false, true)]
-            bool? useCursor)
-        {
-            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings)
-            {
-#pragma warning disable 618
-                UseCursor = useCursor
-#pragma warning restore 618
-            };
-            var serverVersion = Feature.AggregateCursorResult.FirstSupportedVersion;
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion);
-            var session = OperationTestHelper.CreateSession();
-
-            var result = subject.CreateCommand(connectionDescription, session);
-
-            var expectedResult = new BsonDocument
-            {
-                { "aggregate", _collectionNamespace.CollectionName },
-                { "pipeline", new BsonArray(__pipeline) },
-                { "cursor", () => new BsonDocument(), useCursor.GetValueOrDefault(true) }
             };
             result.Should().Be(expectedResult);
         }

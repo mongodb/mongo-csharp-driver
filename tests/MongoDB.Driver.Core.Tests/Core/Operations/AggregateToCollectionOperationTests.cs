@@ -554,7 +554,6 @@ namespace MongoDB.Driver.Core.Operations
             switch (lastStageName)
             {
                 case "$out":
-                    RequireServer.Check().Supports(Feature.AggregateOut);
                     if (usingDifferentOutputDatabase)
                     {
                         RequireServer.Check().Supports(Feature.AggregateOutToDifferentDatabase);

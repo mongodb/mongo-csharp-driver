@@ -86,12 +86,12 @@ namespace MongoDB.Driver.Core.Connections
                 .Returns(() => Task.FromResult(new ConnectionDescription(
                     new ConnectionId(serverId),
                     new HelloResult(new BsonDocument()),
-                    new BuildInfoResult(new BsonDocument("version", "2.6.3")))));
+                    new BuildInfoResult(new BsonDocument("version", "3.6.0")))));
             _mockConnectionInitializer.Setup(i => i.AuthenticateAsync(It.IsAny<IConnection>(), It.IsAny<ConnectionDescription>(), CancellationToken.None))
                 .Returns(() => Task.FromResult(new ConnectionDescription(
                     new ConnectionId(serverId),
                     new HelloResult(new BsonDocument()),
-                    new BuildInfoResult(new BsonDocument("version", "2.6.3")))));
+                    new BuildInfoResult(new BsonDocument("version", "3.6.0")))));
 
             _subject = new BinaryConnection(
                 serverId: serverId,

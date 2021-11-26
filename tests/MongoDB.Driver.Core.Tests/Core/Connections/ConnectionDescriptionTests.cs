@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Core.Connections
     public class ConnectionDescriptionTests
     {
         private static readonly BuildInfoResult __buildInfoResult = new BuildInfoResult(BsonDocument.Parse(
-            "{ ok: 1, version: \"2.6.3\" }"
+            "{ ok: 1, version: \"3.6.0\" }"
         ));
 
         private static readonly IEnumerable<CompressorType> __compressors = new[] { CompressorType.Zlib, CompressorType.ZStandard };
@@ -92,8 +92,8 @@ namespace MongoDB.Driver.Core.Connections
             var connectionId2 = new ConnectionId(new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27018)), 10);
             var helloResult1 = new HelloResult(new BsonDocument("x", 1));
             var helloResult2 = new HelloResult(new BsonDocument("x", 2));
-            var buildInfoResult1 = new BuildInfoResult(new BsonDocument("version", "2.6.3"));
-            var buildInfoResult2 = new BuildInfoResult(new BsonDocument("version", "2.4.10"));
+            var buildInfoResult1 = new BuildInfoResult(new BsonDocument("version", "3.6.0"));
+            var buildInfoResult2 = new BuildInfoResult(new BsonDocument("version", "4.0.0"));
 
             var subject1 = new ConnectionDescription(connectionId1, helloResult1, buildInfoResult1);
             var subject2 = new ConnectionDescription(connectionId1, helloResult1, buildInfoResult1);
@@ -155,7 +155,7 @@ namespace MongoDB.Driver.Core.Connections
             var connectionId1 = new ConnectionId(serverId, 1);
             var connectionId2 = new ConnectionId(serverId, 1).WithServerValue(2);
             var helloResult = new HelloResult(new BsonDocument());
-            var buildInfoResult = new BuildInfoResult(new BsonDocument("version", "2.6.0"));
+            var buildInfoResult = new BuildInfoResult(new BsonDocument("version", "3.6.0"));
             var subject = new ConnectionDescription(connectionId1, helloResult, buildInfoResult);
 
             var result = subject.WithConnectionId(connectionId2);

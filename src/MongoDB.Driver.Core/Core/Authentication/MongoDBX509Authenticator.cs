@@ -80,7 +80,6 @@ namespace MongoDB.Driver.Core.Authentication
         {
             Ensure.IsNotNull(connection, nameof(connection));
             Ensure.IsNotNull(description, nameof(description));
-            EnsureUsernameIsNotNullOrNullIsSupported(connection, description);
 
             if (description.HelloResult.SpeculativeAuthenticate != null)
             {
@@ -103,7 +102,6 @@ namespace MongoDB.Driver.Core.Authentication
         {
             Ensure.IsNotNull(connection, nameof(connection));
             Ensure.IsNotNull(description, nameof(description));
-            EnsureUsernameIsNotNullOrNullIsSupported(connection, description);
 
             if (description.HelloResult.SpeculativeAuthenticate != null)
             {
@@ -159,16 +157,6 @@ namespace MongoDB.Driver.Core.Authentication
         {
             var message = string.Format("Unable to authenticate username '{0}' using protocol '{1}'.", _username, Name);
             return new MongoAuthenticationException(connection.ConnectionId, message, ex);
-        }
-
-        private void EnsureUsernameIsNotNullOrNullIsSupported(IConnection connection, ConnectionDescription description)
-        {
-            var serverVersion = description.ServerVersion;
-            if (_username == null && !Feature.ServerExtractsUsernameFromX509Certificate.IsSupported(serverVersion))
-            {
-                var message = $"Username cannot be null for server version {serverVersion}.";
-                throw new MongoConnectionException(connection.ConnectionId, message);
-            }
         }
     }
 }

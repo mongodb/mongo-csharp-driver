@@ -77,8 +77,8 @@ namespace MongoDB.Driver.Core.Servers
             var state = ServerState.Connected;
             var tags = new TagSet(new[] { new Tag("x", "a") });
             var type = ServerType.ReplicaSetPrimary;
-            var version = new SemanticVersion(2, 6, 3);
-            var wireVersionRange = new Range<int>(2, 3);
+            var version = new SemanticVersion(3, 6, 0);
+            var wireVersionRange = new Range<int>(6, 14);
 
             var subject = new ServerDescription(
                 __serverId,
@@ -180,8 +180,8 @@ namespace MongoDB.Driver.Core.Servers
             var state = ServerState.Connected;
             var tags = new TagSet(new[] { new Tag("x", "a") });
             var type = ServerType.ReplicaSetPrimary;
-            var version = new SemanticVersion(2, 6, 3);
-            var wireVersionRange = new Range<int>(2, 3);
+            var version = new SemanticVersion(3, 6, 0);
+            var wireVersionRange = new Range<int>(6, 14);
 
             var subject = new ServerDescription(
                 serverId,
@@ -331,8 +331,8 @@ namespace MongoDB.Driver.Core.Servers
             var state = ServerState.Connected;
             var tags = new TagSet(new[] { new Tag("x", "a") });
             var type = ServerType.ReplicaSetPrimary;
-            var version = new SemanticVersion(2, 6, 3);
-            var wireVersionRange = new Range<int>(2, 3);
+            var version = new SemanticVersion(3, 6, 0);
+            var wireVersionRange = new Range<int>(6, 14);
 
             var subject = new ServerDescription(
                 __serverId,
@@ -421,8 +421,8 @@ namespace MongoDB.Driver.Core.Servers
             var state = ServerState.Connected;
             var tags = new TagSet(new[] { new Tag("x", "a") });
             var type = ServerType.ReplicaSetPrimary;
-            var version = new SemanticVersion(2, 6, 3);
-            var wireVersionRange = new Range<int>(0, 2);
+            var version = new SemanticVersion(3, 6, 0);
+            var wireVersionRange = new Range<int>(6, 14);
 
             var subject = new ServerDescription(
                 __serverId,
