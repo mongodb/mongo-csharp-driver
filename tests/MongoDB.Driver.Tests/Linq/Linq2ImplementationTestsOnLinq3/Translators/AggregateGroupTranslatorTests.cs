@@ -390,7 +390,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsTestsOnLinq3.Transla
         [SkippableFact]
         public void Should_translate_stdDevPop_with_embedded_projector()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.1.7");
+            RequireServer.Check();
 
             var result = Group(x => 1, g => new { Result = g.StandardDeviationPopulation(x => x.C.E.F) });
 
@@ -405,7 +405,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsTestsOnLinq3.Transla
         [SkippableFact]
         public void Should_translate_stdDevPop_with_selected_projector()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.1.7");
+            RequireServer.Check();
 
             var result = Group(x => 1, g => new { Result = g.Select(x => x.C.E.F).StandardDeviationPopulation() });
 
@@ -420,7 +420,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsTestsOnLinq3.Transla
         [SkippableFact]
         public void Should_translate_stdDevSamp_with_embedded_projector()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.1.7");
+            RequireServer.Check();
 
             var result = Group(x => 1, g => new { Result = g.StandardDeviationSample(x => x.C.E.F) });
 
@@ -435,7 +435,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsTestsOnLinq3.Transla
         [SkippableFact]
         public void Should_translate_stdDevSamp_with_selected_projector()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.1.7");
+            RequireServer.Check();
 
             var result = Group(x => 1, g => new { Result = g.Select(x => x.C.E.F).StandardDeviationSample() });
 

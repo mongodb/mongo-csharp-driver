@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Tests.Specifications.atlas_data_lake.prose_tests
         public void Driver_should_connect_to_AtlasDataLake_with_SCRAM_SHA_1()
         {
             RequireEnvironment.Check().EnvironmentVariable("ATLAS_DATA_LAKE_TESTS_ENABLED");
-            RequireServer.Check().Supports(Feature.ScramSha1Authentication);
+            RequireServer.Check();
 
             var connectionString = CoreTestConfiguration.ConnectionString;
             var username = connectionString.Username;

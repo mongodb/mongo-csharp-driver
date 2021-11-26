@@ -638,7 +638,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.0").ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet).StorageEngine("mmapv1");
+            RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet).StorageEngine("mmapv1");
             DropCollection();
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
             {

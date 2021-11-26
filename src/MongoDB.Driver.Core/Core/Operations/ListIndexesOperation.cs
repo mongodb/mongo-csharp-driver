@@ -125,21 +125,11 @@ namespace MongoDB.Driver.Core.Operations
         // private methods
         private IExecutableInRetryableReadContext<IAsyncCursor<BsonDocument>> CreateOperation(IChannel channel)
         {
-            if (Feature.ListIndexesCommand.IsSupported(channel.ConnectionDescription.ServerVersion))
+            return new ListIndexesUsingCommandOperation(_collectionNamespace, _messageEncoderSettings)
             {
-                return new ListIndexesUsingCommandOperation(_collectionNamespace, _messageEncoderSettings)
-                {
-                    BatchSize = _batchSize,
-                    RetryRequested = _retryRequested // might be overridden by retryable read context
-                };
-            }
-            else
-            {
-                return new ListIndexesUsingQueryOperation(_collectionNamespace, _messageEncoderSettings)
-                {
-                    BatchSize = _batchSize
-                };
-            }
+                BatchSize = _batchSize,
+                RetryRequested = _retryRequested // might be overridden by retryable read context
+            };
         }
     }
 }

@@ -298,6 +298,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the explain command feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature ExplainCommand => __explainCommand;
 
         /// <summary>
@@ -425,11 +426,13 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the list collections command feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature ListCollectionsCommand => __listCollectionsCommand;
 
         /// <summary>
         /// Gets the list indexes command feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature ListIndexesCommand => __listIndexesCommand;
 
         /// <summary>
@@ -476,6 +479,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the scram sha1 authentication feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature ScramSha1Authentication => __scramSha1Authentication;
 
         /// <summary>

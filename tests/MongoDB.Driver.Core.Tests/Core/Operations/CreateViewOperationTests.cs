@@ -160,7 +160,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.Views).VersionGreaterThanOrEqualTo("3.3.13");
+            RequireServer.Check().Supports(Feature.Views);
             DropView(_viewName);
             var collation = locale == null ? null : new Collation(locale);
             var subject = new CreateViewOperation(_databaseNamespace, _viewName, _collectionNamespace.CollectionName, _pipeline, _messageEncoderSettings)

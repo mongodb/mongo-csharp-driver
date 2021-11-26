@@ -99,7 +99,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.ExplainCommand);
+            RequireServer.Check();
             EnsureCollectionExists();
             var subject = new ExplainOperation(_databaseNamespace, _command, _messageEncoderSettings);
 

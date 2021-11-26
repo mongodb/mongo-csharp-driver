@@ -84,7 +84,7 @@ namespace MongoDB.Driver.Tests.Operations
         [SkippableFact]
         public void Execute_should_return_expected_result()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.1.2");
+            RequireServer.Check();
             var subject = new CurrentOpOperation(_adminDatabaseNamespace, _messageEncoderSettings);
             using (var binding = new ReadPreferenceBinding(CoreTestConfiguration.Cluster, ReadPreference.PrimaryPreferred, NoCoreSession.NewHandle()))
             {

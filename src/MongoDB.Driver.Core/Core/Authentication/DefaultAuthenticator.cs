@@ -25,8 +25,7 @@ namespace MongoDB.Driver.Core.Authentication
 {
     /// <summary>
     /// The default authenticator.
-    /// If saslSupportedMechs is not present in the hello or legacy hello results for mechanism negotiation
-    /// uses SCRAM-SHA-1 when talking to servers >= 3.0. Prior to server 3.0, uses MONGODB-CR.
+    /// If saslSupportedMechs is not present in the hello or legacy hello results for mechanism negotiation uses SCRAM-SHA-1.
     /// Else, uses SCRAM-SHA-256 if present in the list of mechanisms. Otherwise, uses
     /// SCRAM-SHA-1 the default, regardless of whether SCRAM-SHA-1 is in the list.
     /// </summary>
@@ -154,13 +153,8 @@ namespace MongoDB.Driver.Core.Authentication
                     ? (IAuthenticator)new ScramSha256Authenticator(_credential, _randomStringGenerator, _serverApi)
                     : new ScramSha1Authenticator(_credential, _randomStringGenerator, _serverApi);
             }
-            // If saslSupportedMechs is not present in the hello or legacy hello results for mechanism negotiation, then SCRAM-SHA-1
-            // MUST be used when talking to servers >= 3.0. Prior to server 3.0, MONGODB-CR MUST be used.
-#pragma warning disable 618
-            return Feature.ScramSha1Authentication.IsSupported(description.ServerVersion)
-                    ? (IAuthenticator)new ScramSha1Authenticator(_credential, _randomStringGenerator, _serverApi)
-                    : new MongoDBCRAuthenticator(_credential, _serverApi);
-#pragma warning restore 618
+            // If saslSupportedMechs is not present in the hello or legacy hello results for mechanism negotiation, then SCRAM-SHA-1 MUST be used
+            return new ScramSha1Authenticator(_credential, _randomStringGenerator, _serverApi);
         }
 
         private IAuthenticator GetOrCreateAuthenticator(IConnection connection, ConnectionDescription description)

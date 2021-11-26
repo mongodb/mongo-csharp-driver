@@ -166,7 +166,7 @@ namespace MongoDB.Driver.Core.Operations
         public void Execute_should_send_session_id_when_supported(
             [Values(false, true)] bool async)
         {
-            RequireServer.Check().Supports(Feature.ListIndexesCommand);
+            RequireServer.Check();
             EnsureCollectionExists(async);
             var subject = new ListIndexesOperation(_collectionNamespace, _messageEncoderSettings);
 

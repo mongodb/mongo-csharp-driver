@@ -119,7 +119,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.ListCollectionsCommand);
+            RequireServer.Check();
             EnsureCollectionsExist();
             var subject = new ListCollectionsUsingCommandOperation(_databaseNamespace, _messageEncoderSettings);
             var expectedNames = new[] { "regular", "capped" };
@@ -138,7 +138,7 @@ namespace MongoDB.Driver.Core.Operations
         [InlineData("{ \"options.capped\" : true }", "capped", true)]
         public void Execute_should_return_the_expected_result_when_filter_is_used(string filterString, string expectedName, bool async)
         {
-            RequireServer.Check().Supports(Feature.ListCollectionsCommand);
+            RequireServer.Check();
             EnsureCollectionsExist();
             var filter = BsonDocument.Parse(filterString);
             var subject = new ListCollectionsUsingCommandOperation(_databaseNamespace, _messageEncoderSettings)
@@ -157,7 +157,7 @@ namespace MongoDB.Driver.Core.Operations
         [ParameterAttributeData]
         public void Execute_should_return_the_expected_result_when_batchSize_is_used([Values(false, true)] bool async)
         {
-            RequireServer.Check().Supports(Feature.ListCollectionsCommand);
+            RequireServer.Check();
             EnsureCollectionsExist();
             int batchSize = 1;
             var subject = new ListCollectionsUsingCommandOperation(_databaseNamespace, _messageEncoderSettings)
@@ -177,7 +177,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.ListCollectionsCommand);
+            RequireServer.Check();
             var databaseNamespace = new DatabaseNamespace(_databaseNamespace.DatabaseName + "-not");
             var subject = new ListCollectionsUsingCommandOperation(databaseNamespace, _messageEncoderSettings);
 
@@ -192,7 +192,7 @@ namespace MongoDB.Driver.Core.Operations
         public void Execute_should_send_session_id_when_supported(
             [Values(false, true)] bool async)
         {
-            RequireServer.Check().Supports(Feature.ListCollectionsCommand);
+            RequireServer.Check();
             EnsureCollectionsExist();
             var subject = new ListCollectionsUsingCommandOperation(_databaseNamespace, _messageEncoderSettings);
             var expectedNames = new[] { "regular", "capped" };
