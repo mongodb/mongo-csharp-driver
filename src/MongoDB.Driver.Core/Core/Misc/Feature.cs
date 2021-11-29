@@ -23,11 +23,15 @@ namespace MongoDB.Driver.Core.Misc
     public class Feature
     {
         #region static
+        private static readonly Feature __aggregate = new Feature("Aggregate", new SemanticVersion(2, 2, 0));
         private static readonly Feature __aggregateAccumulator = new Feature("AggregateAccumulator", new SemanticVersion(4, 3, 4));
         private static readonly Feature __aggregateAddFields = new Feature("AggregateAddFields", new SemanticVersion(3, 4, 0));
+        private static readonly Feature __aggregateAllowDiskUse = new Feature("AggregateAllowDiskUse", new SemanticVersion(2, 6, 0));
         private static readonly Feature __aggregateBucketStage = new Feature("AggregateBucketStage", new SemanticVersion(3, 3, 11));
         private static readonly Feature __aggregateComment = new Feature("AggregateComment", new SemanticVersion(3, 6, 0, "rc0"));
         private static readonly Feature __aggregateCountStage = new Feature("AggregateCountStage", new SemanticVersion(3, 3, 11));
+        private static readonly Feature __aggregateCursorResult = new Feature("AggregateCursorResult", new SemanticVersion(2, 6, 0));
+        private static readonly Feature __aggregateExplain = new Feature("AggregateExplain", new SemanticVersion(2, 6, 0));
         private static readonly Feature __aggregateFacetStage = new Feature("AggregateFacetStage", new SemanticVersion(3, 4, 0, "rc0"));
         private static readonly Feature __aggregateFunction = new Feature("AggregateFunction", new SemanticVersion(4, 3, 4));
         private static readonly Feature __aggregateGraphLookupStage = new Feature("AggregateGraphLookupStage", new SemanticVersion(3, 4, 0, "rc0"));
@@ -35,6 +39,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __aggregateOptionsLet = new Feature("AggregateOptionsLet", new SemanticVersion(5, 0, 0, ""));
         private static readonly Feature __aggregateLet = new Feature("AggregateLet", new SemanticVersion(3, 6, 0));
         private static readonly Feature __aggregateMerge = new Feature("AggregateMerge", new SemanticVersion(4, 2, 0));
+        private static readonly Feature __aggregateOut = new Feature("AggregateOut", new SemanticVersion(2, 6, 0));
         private static readonly Feature __aggregateOutToDifferentDatabase = new Feature("AggregateOutToDifferentDatabase", new SemanticVersion(4, 3, 0));
         private static readonly Feature __aggregateToString = new Feature("AggregateToString", new SemanticVersion(4, 0, 0));
         private static readonly Feature __aggregateUnionWith = new Feature("AggregateUnionWith", new SemanticVersion(4, 3, 4));
@@ -47,6 +52,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __commandMessage = new Feature("CommandMessage", new SemanticVersion(3, 6, 0));
         private static readonly CommandsThatWriteAcceptWriteConcernFeature __commandsThatWriteAcceptWriteConcern = new CommandsThatWriteAcceptWriteConcernFeature("CommandsThatWriteAcceptWriteConcern", new SemanticVersion(3, 3, 11));
         private static readonly Feature __createIndexCommitQuorum = new Feature("CreateIndexCommitQuorum", new SemanticVersion(4, 4, 0, ""));
+        private static readonly Feature __createIndexesCommand = new Feature("CreateIndexesCommand", new SemanticVersion(2, 6, 0));
         private static readonly Feature __createIndexesUsingInsertOperations = new Feature("CreateIndexesUsingInsertOperations", new SemanticVersion(1, 0, 0), new SemanticVersion(4, 1, 1, ""));
         private static readonly Feature __currentOpCommand = new Feature("CurrentOpCommand", new SemanticVersion(3, 2, 0));
         private static readonly Feature __documentValidation = new Feature("DocumentValidation", new SemanticVersion(3, 2, 0));
@@ -54,6 +60,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __estimatedDocumentCountByCollStats = new Feature("EstimatedDocumentCountByCollStats", new SemanticVersion(4, 9, 0, ""));
         private static readonly Feature __eval = new Feature("Eval", new SemanticVersion(0, 0, 0), new SemanticVersion(4, 1, 0, ""));
         private static readonly Feature __explainCommand = new Feature("ExplainCommand", new SemanticVersion(3, 0, 0));
+        private static readonly Feature __failPoints = new Feature("FailPoints", new SemanticVersion(2, 4, 0));
         private static readonly Feature __failPointsBlockConnection = new Feature("FailPointsBlockConnection", new SemanticVersion(4, 2, 9));
         private static readonly Feature __failPointsFailCommand = new Feature("FailPointsFailCommand", new SemanticVersion(4, 0, 0));
         private static readonly Feature __failPointsFailCommandForSharded = new Feature("FailPointsFailCommandForSharded", new SemanticVersion(4, 1, 5));
@@ -80,6 +87,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __loadBalancedMode = new Feature("LoadBalancedMode", new SemanticVersion(5, 0, 0));
         private static readonly Feature __indexOptionsDefaults = new Feature("IndexOptionsDefaults", new SemanticVersion(3, 2, 0));
         private static readonly Feature __maxStaleness = new Feature("MaxStaleness", new SemanticVersion(3, 3, 12));
+        private static readonly Feature __maxTime = new Feature("MaxTime", new SemanticVersion(2, 6, 0));
         private static readonly Feature __mmapV1StorageEngine = new Feature("MmapV1StorageEngine", new SemanticVersion(0, 0, 0), new SemanticVersion(4, 1, 0, ""));
         private static readonly Feature __partialIndexes = new Feature("PartialIndexes", new SemanticVersion(3, 2, 0));
         private static readonly ReadConcernFeature __readConcern = new ReadConcernFeature("ReadConcern", new SemanticVersion(3, 2, 0));
@@ -87,6 +95,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __retryableWrites = new Feature("RetryableWrites", new SemanticVersion(3, 6, 0));
         private static readonly Feature __scramSha1Authentication = new Feature("ScramSha1Authentication", new SemanticVersion(3, 0, 0));
         private static readonly Feature __scramSha256Authentication = new Feature("ScramSha256Authentication", new SemanticVersion(4, 0, 0, ""));
+        private static readonly Feature __serverExtractsUsernameFromX509Certificate = new Feature("ServerExtractsUsernameFromX509Certificate", new SemanticVersion(3, 3, 12));
         private static readonly Feature __serverReturnsResumableChangeStreamErrorLabel = new Feature("ServerReturnsResumableChangeStreamErrorLabel", new SemanticVersion(4, 3, 0));
         private static readonly Feature __serverReturnsRetryableWriteErrorLabel = new Feature("ServerReturnsRetryableWriteErrorLabel", new SemanticVersion(4, 3, 0));
         private static readonly Feature __shardedTransactions = new Feature("ShardedTransactions", new SemanticVersion(4, 1, 6));
@@ -95,8 +104,16 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __streamingHello = new Feature("StreamingHello", new SemanticVersion(4, 4, 0, ""));
         private static readonly Feature __tailableCursor = new Feature("TailableCursor", new SemanticVersion(3, 2, 0));
         private static readonly Feature __transactions = new Feature("Transactions", new SemanticVersion(4, 0, 0));
+        private static readonly Feature __userManagementCommands = new Feature("UserManagementCommands", new SemanticVersion(2, 6, 0));
         private static readonly Feature __views = new Feature("Views", new SemanticVersion(3, 3, 11));
         private static readonly Feature __wildcardIndexes = new Feature("WildcardIndexes", new SemanticVersion(4, 1, 6));
+        private static readonly Feature __writeCommands = new Feature("WriteCommands", new SemanticVersion(2, 6, 0));
+
+        /// <summary>
+        /// Gets the aggregate feature.
+        /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
+        public static Feature Aggregate => __aggregate;
 
         /// <summary>
         /// Gets the aggregate accumulato feature.
@@ -107,6 +124,12 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the aggregate AddFields feature.
         /// </summary>
         public static Feature AggregateAddFields => __aggregateAddFields;
+
+        /// <summary>
+        /// Gets the aggregate allow disk use feature.
+        /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
+        public static Feature AggregateAllowDiskUse => __aggregateAllowDiskUse;
 
         /// <summary>
         /// Gets the aggregate bucket stage feature.
@@ -122,6 +145,18 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the aggregate count stage feature.
         /// </summary>
         public static Feature AggregateCountStage => __aggregateCountStage;
+
+        /// <summary>
+        /// Gets the aggregate cursor result feature.
+        /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
+        public static Feature AggregateCursorResult => __aggregateCursorResult;
+
+        /// <summary>
+        /// Gets the aggregate explain feature.
+        /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
+        public static Feature AggregateExplain => __aggregateExplain;
 
         /// <summary>
         /// Gets the aggregate $facet stage feature.
@@ -157,6 +192,12 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the aggregate merge feature.
         /// </summary>
         public static Feature AggregateMerge => __aggregateMerge;
+
+        /// <summary>
+        /// Gets the aggregate out feature.
+        /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
+        public static Feature AggregateOut => __aggregateOut;
 
         /// <summary>
         /// Gets the aggregate out to a different database feature.
@@ -219,6 +260,12 @@ namespace MongoDB.Driver.Core.Misc
         public static Feature CreateIndexCommitQuorum => __createIndexCommitQuorum;
 
         /// <summary>
+        /// Gets the create indexes command feature.
+        /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
+        public static Feature CreateIndexesCommand => __createIndexesCommand;
+
+        /// <summary>
         /// Gets the create indexes using insert operations feature.
         /// </summary>
         public static Feature CreateIndexesUsingInsertOperations => __createIndexesUsingInsertOperations;
@@ -252,6 +299,12 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the explain command feature.
         /// </summary>
         public static Feature ExplainCommand => __explainCommand;
+
+        /// <summary>
+        /// Gets the fail points feature.
+        /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
+        public static Feature FailPoints => __failPoints;
 
         /// <summary>
         /// Gets the fail points block connection feature.
@@ -390,6 +443,12 @@ namespace MongoDB.Driver.Core.Misc
         public static Feature MaxStaleness => __maxStaleness;
 
         /// <summary>
+        /// Gets the maximum time feature.
+        /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
+        public static Feature MaxTime => __maxTime;
+
+        /// <summary>
         /// Gets the mmapv1 storage engine feature.
         /// </summary>
         public static Feature MmapV1StorageEngine => __mmapV1StorageEngine;
@@ -423,6 +482,12 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the scram sha256 authentication feature.
         /// </summary>
         public static Feature ScramSha256Authentication => __scramSha256Authentication;
+
+        /// <summary>
+        /// Gets the server extracts username from X509 certificate feature.
+        /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
+        public static Feature ServerExtractsUsernameFromX509Certificate => __serverExtractsUsernameFromX509Certificate;
 
         /// <summary>
         /// Gets the server returns resumableChangeStream label feature.
@@ -471,6 +536,12 @@ namespace MongoDB.Driver.Core.Misc
         public static Feature Transactions => __transactions;
 
         /// <summary>
+        /// Gets the user management commands feature.
+        /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
+        public static Feature UserManagementCommands => __userManagementCommands;
+
+        /// <summary>
         /// Gets the views feature.
         /// </summary>
         public static Feature Views => __views;
@@ -479,6 +550,12 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the wildcard indexes feature.
         /// </summary>
         public static Feature WildcardIndexes => __wildcardIndexes;
+
+        /// <summary>
+        /// Gets the write commands feature.
+        /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
+        public static Feature WriteCommands => __writeCommands;
         #endregion
 
         private readonly string _name;
