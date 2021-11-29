@@ -98,7 +98,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void GraphLookup_should_return_expected_result()
         {
-            RequireServer.Check().Supports(Feature.AggregateGraphLookupStage);
+            RequireServer.Check();
             EnsureTestData();
             var subject = __employeesCollection.Aggregate();
             var connectFromField = (FieldDefinition<Employee, string>)"ReportsTo";
@@ -153,7 +153,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void GraphLookup_with_restrictSearchWithMatch_should_return_expected_result()
         {
-            RequireServer.Check().Supports(Feature.AggregateGraphLookupStage);
+            RequireServer.Check();
             EnsureTestData();
             var subject = __employeesCollection.Aggregate();
             var connectFromField = (FieldDefinition<Employee, string>)"ReportsTo";
@@ -208,7 +208,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void GraphLookup_with_expressions_should_return_expected_result()
         {
-            RequireServer.Check().Supports(Feature.AggregateGraphLookupStage);
+            RequireServer.Check();
             EnsureTestData();
             var subject = __employeesCollection.Aggregate();
 
@@ -255,7 +255,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void GraphLookup_untyped_based_should_return_expected_result()
         {
-            RequireServer.Check().Supports(Feature.AggregateGraphLookupStage);
+            RequireServer.Check();
             EnsureTestData();
             var subject = __employeesCollection.Aggregate();
 

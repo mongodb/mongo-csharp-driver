@@ -411,7 +411,7 @@ namespace MongoDB.Driver.Core.Operations
                 Comment = comment,
             };
 
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.AggregateComment.FirstSupportedVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             var session = OperationTestHelper.CreateSession();
 
             var result = subject.CreateCommand(connectionDescription, session);
@@ -438,7 +438,7 @@ namespace MongoDB.Driver.Core.Operations
                 Hint = hint
             };
 
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.AggregateHint.FirstSupportedVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             var session = OperationTestHelper.CreateSession();
 
             var result = subject.CreateCommand(connectionDescription, session);
@@ -714,9 +714,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check()
-                .ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet)
-                .Supports(Feature.AggregateComment);
+            RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet);
             EnsureTestData();
 
             var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings)
@@ -743,7 +741,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.AggregateHint);
+            RequireServer.Check();
             EnsureTestData();
             var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings)
             {
@@ -811,7 +809,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.ChangeStreamStage);
+            RequireServer.Check();
             EnsureTestData();
             var maxAwaitTime = milliseconds == null ? (TimeSpan?)null : TimeSpan.FromMilliseconds(milliseconds.Value);
             var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings)

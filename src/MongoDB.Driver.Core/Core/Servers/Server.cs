@@ -813,54 +813,6 @@ namespace MongoDB.Driver.Core.Servers
                 return ExecuteProtocolAsync(protocol, cancellationToken);
             }
 
-            public WriteConcernResult Update(
-                CollectionNamespace collectionNamespace,
-                MessageEncoderSettings messageEncoderSettings,
-                WriteConcern writeConcern,
-                BsonDocument query,
-                BsonDocument update,
-                IElementNameValidator updateValidator,
-                bool isMulti,
-                bool isUpsert,
-                CancellationToken cancellationToken)
-            {
-                var protocol = new UpdateWireProtocol(
-                    collectionNamespace,
-                    messageEncoderSettings,
-                    writeConcern,
-                    query,
-                    update,
-                    updateValidator,
-                    isMulti,
-                    isUpsert);
-
-                return ExecuteProtocol(protocol, cancellationToken);
-            }
-
-            public Task<WriteConcernResult> UpdateAsync(
-               CollectionNamespace collectionNamespace,
-               MessageEncoderSettings messageEncoderSettings,
-               WriteConcern writeConcern,
-               BsonDocument query,
-               BsonDocument update,
-               IElementNameValidator updateValidator,
-               bool isMulti,
-               bool isUpsert,
-               CancellationToken cancellationToken)
-            {
-                var protocol = new UpdateWireProtocol(
-                    collectionNamespace,
-                    messageEncoderSettings,
-                    writeConcern,
-                    query,
-                    update,
-                    updateValidator,
-                    isMulti,
-                    isUpsert);
-
-                return ExecuteProtocolAsync(protocol, cancellationToken);
-            }
-
             private ICoreSession CreateClusterClockAdvancingCoreSession(ICoreSession session)
             {
                 return new ClusterClockAdvancingCoreSession(session, _server.ClusterClock);

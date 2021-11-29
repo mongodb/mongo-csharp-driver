@@ -74,11 +74,5 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
         /// <param name="serializer">The serializer.</param>
         /// <returns>An encoder.</returns>
         IMessageEncoder GetReplyMessageEncoder<TDocument>(IBsonSerializer<TDocument> serializer);
-
-        /// <summary>
-        /// Gets an encoder for an Update message.
-        /// </summary>
-        /// <returns>An encoder.</returns>
-        IMessageEncoder GetUpdateMessageEncoder();
     }
 }

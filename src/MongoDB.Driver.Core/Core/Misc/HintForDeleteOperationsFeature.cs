@@ -13,12 +13,15 @@
 * limitations under the License.
 */
 
+using System;
+
 namespace MongoDB.Driver.Core.Misc
 {
     /// <summary>
     /// Represents the hint for delete operations feature.
     /// </summary>
     /// <seealso cref="MongoDB.Driver.Core.Misc.Feature" />
+    [Obsolete("This class will be removed in a later release.")]
     public class HintForDeleteOperationsFeature : Feature
     {
         private readonly SemanticVersion _firstServerVersionWhereWeRelyOnServerToReturnError = new SemanticVersion(3, 4, 0);

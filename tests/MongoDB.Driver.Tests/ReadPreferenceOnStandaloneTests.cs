@@ -20,7 +20,6 @@ using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Events;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.TestHelpers;
 using Xunit;
@@ -59,10 +58,7 @@ namespace MongoDB.Driver.Tests
                     .Version;
                 var clusterType = client.Cluster.Description.Type;
 
-                var expectedContainsReadPreference = clusterType == ClusterType.Standalone ||
-                    (clusterType == ClusterType.ReplicaSet && serverVersion < Feature.CommandMessage.FirstSupportedVersion)
-                    ? false
-                    : true;
+                var expectedContainsReadPreference = clusterType != ClusterType.Standalone;
                 var readPreferenceFieldName = sentCommand.Command.Contains("$readPreference")
                     ? "$readPreference"
                     : "readPreference";

@@ -67,11 +67,6 @@ namespace MongoDB.Driver.Core.Operations
                 throw originalException;
             }
 
-            if (!AreRetryableReadsSupported(context))
-            {
-                throw originalException;
-            }
-
             try
             {
                 return operation.ExecuteAttempt(context, attempt: 2, transactionNumber: null, cancellationToken);
@@ -123,11 +118,6 @@ namespace MongoDB.Driver.Core.Operations
                 throw originalException;
             }
 
-            if (!AreRetryableReadsSupported(context))
-            {
-                throw originalException;
-            }
-
             try
             {
                 return await operation.ExecuteAttemptAsync(context, attempt: 2, transactionNumber: null, cancellationToken).ConfigureAwait(false);
@@ -140,20 +130,13 @@ namespace MongoDB.Driver.Core.Operations
 
         public static bool ShouldConnectionAcquireBeRetried(RetryableReadContext context, ServerDescription serverDescription)
         {
-            return context.RetryRequested &&
-                Feature.RetryableReads.IsSupported(serverDescription.Version) &&
-                !context.Binding.Session.IsInTransaction;
+            return context.RetryRequested && !context.Binding.Session.IsInTransaction;
         }
 
         // private static methods
-        private static bool AreRetryableReadsSupported(RetryableReadContext context)
-        {
-            return Feature.RetryableReads.IsSupported(context.Channel.ConnectionDescription.ServerVersion);
-        }
-
         private static bool ShouldReadBeRetried(RetryableReadContext context)
         {
-            return context.RetryRequested && AreRetryableReadsSupported(context) && !context.Binding.Session.IsInTransaction;
+            return context.RetryRequested && !context.Binding.Session.IsInTransaction;
         }
 
         private static bool ShouldThrowOriginalException(Exception retryException)

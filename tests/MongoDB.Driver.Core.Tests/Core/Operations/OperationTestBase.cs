@@ -293,23 +293,20 @@ namespace MongoDB.Driver.Core.Operations
         protected void KillOpenTransactions()
         {
             var serverVersion = CoreTestConfiguration.ServerVersion;
-            if (Feature.KillAllSessions.IsSupported(serverVersion))
+            var command = new BsonDocument("killAllSessions", new BsonArray());
+
+            try
             {
-                var command = new BsonDocument("killAllSessions", new BsonArray());
-
-                try
+                var runCommandOperation = new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, _messageEncoderSettings)
                 {
-                    var runCommandOperation = new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, _messageEncoderSettings)
-                    {
-                        RetryRequested = false
-                    };
+                    RetryRequested = false
+                };
 
-                    ExecuteOperation(runCommandOperation);
-                }
-                catch (MongoCommandException)
-                {
-                    // ignore errors
-                }
+                ExecuteOperation(runCommandOperation);
+            }
+            catch (MongoCommandException)
+            {
+                // ignore errors
             }
         }
 

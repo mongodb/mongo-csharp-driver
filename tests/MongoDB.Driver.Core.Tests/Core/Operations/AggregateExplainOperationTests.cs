@@ -354,9 +354,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check()
-                .ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet)
-                .Supports(Feature.AggregateComment);
+            RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet);
             var subject = new AggregateExplainOperation(_collectionNamespace, __pipeline, _messageEncoderSettings)
             {
                 Comment = "test"
@@ -380,7 +378,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.AggregateHint);
+            RequireServer.Check();
             var subject = new AggregateExplainOperation(_collectionNamespace, __pipeline, _messageEncoderSettings)
             {
                 Hint = "_id_"

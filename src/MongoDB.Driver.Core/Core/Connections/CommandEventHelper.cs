@@ -243,9 +243,6 @@ namespace MongoDB.Driver.Core.Connections
                 case MongoDBMessageType.Query:
                     ProcessQueryMessage((QueryMessage)message, connectionId, new QueryMessageBinaryEncoder(stream, encoderSettings), stopwatch);
                     break;
-                case MongoDBMessageType.Update:
-                    ProcessUpdateMessage((UpdateMessage)message, messageQueue, connectionId, new UpdateMessageBinaryEncoder(stream, encoderSettings), stopwatch);
-                    break;
                 default:
                     throw new MongoInternalException("Invalid message type.");
             }
@@ -291,6 +288,7 @@ namespace MongoDB.Driver.Core.Connections
                         requestId,
                         connectionId,
                         serviceId);
+                    @event.WireProtocol = "Command";
 
                     _startedEvent(@event);
                 }
@@ -409,6 +407,7 @@ namespace MongoDB.Driver.Core.Connections
                         operationId,
                         requestId,
                         connectionId);
+                    @event.WireProtocol = "Delete";
 
                     _startedEvent(@event);
                 }
@@ -482,7 +481,7 @@ namespace MongoDB.Driver.Core.Connections
                         operationId,
                         requestId,
                         connectionId);
-
+                    @event.WireProtocol = "Insert";
                     _startedEvent(@event);
                 }
                 finally
@@ -550,6 +549,7 @@ namespace MongoDB.Driver.Core.Connections
                         operationId,
                         requestId,
                         connectionId);
+                    @event.WireProtocol = "Query";
 
                     _startedEvent(@event);
                 }
@@ -774,7 +774,7 @@ namespace MongoDB.Driver.Core.Connections
                         fakeReply["upserted"] = new BsonArray(new[] { new BsonDocument
                         {
                             { "index", 0 },
-                            { "_id", upsertedValue ?? state.UpsertedId ?? BsonUndefined.Value }
+                            { "_id", upsertedValue ?? /*state.UpsertedId ??*/ BsonUndefined.Value }
                         }});
                     }
                 }
@@ -821,97 +821,6 @@ namespace MongoDB.Driver.Core.Connections
                     replyMessage.ResponseTo,
                     connectionId,
                     state.Stopwatch.Elapsed));
-            }
-        }
-
-        private void ProcessUpdateMessage(UpdateMessage originalMessage, Queue<RequestMessage> messageQueue, ConnectionId connectionId, UpdateMessageBinaryEncoder encoder, Stopwatch stopwatch)
-        {
-            var commandName = "update";
-            int requestId = originalMessage.RequestId;
-            var operationId = EventContext.OperationId;
-            var expectedResponseType = ExpectedResponseType.None;
-            BsonValue upsertedId = null;
-            int gleRequestId;
-            WriteConcern writeConcern;
-            if (TryGetWriteConcernFromGLE(messageQueue, out gleRequestId, out writeConcern))
-            {
-                requestId = gleRequestId;
-                expectedResponseType = ExpectedResponseType.GLE;
-            }
-
-            if (_startedEvent != null)
-            {
-                var decodedMessage = encoder.ReadMessage(RawBsonDocumentSerializer.Instance);
-                try
-                {
-                    if (_shouldTrackState)
-                    {
-                        // GLE result on older versions of the server didn't return
-                        // the upserted id when it wasn't an object id, so we'll
-                        // attempt to get it from the messages.
-                        if (!decodedMessage.Update.TryGetValue("_id", out upsertedId))
-                        {
-                            decodedMessage.Query.TryGetValue("_id", out upsertedId);
-                        }
-                    }
-
-                    var entry = new BsonDocument
-                    {
-                        { "q", decodedMessage.Query },
-                        { "u", decodedMessage.Update },
-                        { "upsert", decodedMessage.IsUpsert },
-                        { "multi", decodedMessage.IsMulti }
-                    };
-                    var command = new BsonDocument
-                    {
-                        { commandName, decodedMessage.CollectionNamespace.CollectionName },
-                        { "updates", new BsonArray(new [] { entry }) }
-                    };
-
-                    if (writeConcern == null)
-                    {
-                        command["writeConcern"] = WriteConcern.Unacknowledged.ToBsonDocument();
-                    }
-                    else if (!writeConcern.IsServerDefault)
-                    {
-                        command["writeConcern"] = writeConcern.ToBsonDocument();
-                    }
-
-                    var @event = new CommandStartedEvent(
-                        commandName,
-                        command,
-                        decodedMessage.CollectionNamespace.DatabaseNamespace,
-                        operationId,
-                        requestId,
-                        connectionId);
-
-                    _startedEvent(@event);
-                }
-                finally
-                {
-                    var disposable = decodedMessage.Query as IDisposable;
-                    if (disposable != null)
-                    {
-                        disposable.Dispose();
-                    }
-                    disposable = decodedMessage.Update as IDisposable;
-                    if (disposable != null)
-                    {
-                        disposable.Dispose();
-                    }
-                }
-            }
-
-            if (_shouldTrackState)
-            {
-                _state.TryAdd(requestId, new CommandState
-                {
-                    CommandName = commandName,
-                    OperationId = operationId,
-                    Stopwatch = Stopwatch.StartNew(),
-                    ExpectedResponseType = expectedResponseType,
-                    UpsertedId = upsertedId
-                });
             }
         }
 
@@ -1062,7 +971,7 @@ namespace MongoDB.Driver.Core.Connections
             public CollectionNamespace QueryNamespace;
             public int NumberOfInsertedDocuments;
             public ExpectedResponseType ExpectedResponseType;
-            public BsonValue UpsertedId;
+            //public BsonValue UpsertedId; //TODO
             public bool ShouldRedactReply;
         }
     }

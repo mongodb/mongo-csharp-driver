@@ -131,13 +131,13 @@ namespace MongoDB.Driver.Core.WireProtocol
         // public methods
         public TCommandResult Execute(IConnection connection, CancellationToken cancellationToken)
         {
-            var supportedProtocol = CreateSupportedWireProtocol(connection);
+            var supportedProtocol = CreateWireProtocol(connection);
             return supportedProtocol.Execute(connection, cancellationToken);
         }
 
         public Task<TCommandResult> ExecuteAsync(IConnection connection, CancellationToken cancellationToken)
         {
-            var supportedProtocol = CreateSupportedWireProtocol(connection);
+            var supportedProtocol = CreateWireProtocol(connection);
             return supportedProtocol.ExecuteAsync(connection, cancellationToken);
         }
 
@@ -159,26 +159,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 _serverApi);
         }
 
-        private IWireProtocol<TCommandResult> CreateCommandUsingQueryMessageWireProtocol()
-        {
-            var responseHandling = _responseHandling == CommandResponseHandling.NoResponseExpected ? CommandResponseHandling.Ignore : _responseHandling;
-
-            return new CommandUsingQueryMessageWireProtocol<TCommandResult>(
-                _session,
-                _readPreference,
-                _databaseNamespace,
-                _command,
-                _commandPayloads,
-                _commandValidator,
-                _additionalOptions,
-                responseHandling,
-                _resultSerializer,
-                _messageEncoderSettings,
-                _postWriteAction,
-                _serverApi);
-        }
-
-        private IWireProtocol<TCommandResult> CreateSupportedWireProtocol(IConnection connection)
+        private IWireProtocol<TCommandResult> CreateWireProtocol(IConnection connection)
         {
             if (_cachedWireProtocol != null && _cachedConnectionId == connection.ConnectionId)
             {
@@ -187,22 +168,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             else
             {
                 _cachedConnectionId = connection.ConnectionId;
-                var serverVersion = connection.Description?.ServerVersion;
-                // If server API versioning has been requested, then we SHOULD send the initial hello command
-                // using OP_MSG. Since this is the first message and buildInfo hasn't been sent yet,
-                // connection.Description will be null and we can't rely on the semver check to determine if
-                // the server supports OP_MSG.
-                // As well since server API versioning is supported on MongoDB 5.0+, we also know that
-                // OP_MSG will be supported regardless and can skip the semver checks for other messages.
-                if (_serverApi != null ||
-                    (serverVersion != null && Feature.CommandMessage.IsSupported(serverVersion)))
-                {
-                    return _cachedWireProtocol = CreateCommandUsingCommandMessageWireProtocol();
-                }
-                else
-                {
-                    return _cachedWireProtocol = CreateCommandUsingQueryMessageWireProtocol();
-                }
+                return _cachedWireProtocol = CreateCommandUsingCommandMessageWireProtocol();
             }
         }
     }

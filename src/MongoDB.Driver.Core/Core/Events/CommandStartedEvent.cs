@@ -68,7 +68,13 @@ namespace MongoDB.Driver.Core.Events
             _requestId = requestId;
             _serviceId = serviceId; // can be null
             _timestamp = DateTime.UtcNow;
+            WireProtocol = "none";
         }
+
+        /// <summary>
+        /// TODO: remove
+        /// </summary>
+        public string WireProtocol { get; set; }
 
         /// <summary>
         /// Gets the command.

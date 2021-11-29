@@ -654,137 +654,52 @@ namespace MongoDB.Driver.Core.Connections
             commandFailedEvent.RequestId.Should().Be(commandStartedEvent.RequestId);
         }
 
-        [Fact]
-        public void Should_process_an_update_without_gle()
-        {
-            var update = BsonDocument.Parse("{ q: { x: 1 }, u: { $set: { x: 2 } }, upsert: false, multi: false }");
-            var expectedCommand = new BsonDocument
-            {
-                { "update", MessageHelper.DefaultCollectionNamespace.CollectionName },
-                { "updates", new BsonArray(new [] { update }) },
-                { "writeConcern", WriteConcern.Unacknowledged.ToBsonDocument() }
-            };
-            var expectedReply = BsonDocument.Parse("{ ok: 1 }");
+        //[Fact]
+        //public void Should_process_an_upsert_with_a_gle_where_the_server_does_not_return_the_upserted_id()
+        //{
+        //    var update = BsonDocument.Parse("{ q: { _id: 10, x: 1 }, u: { $set: { x: 2 } }, upsert: true, multi: true }");
+        //    var expectedCommand = new BsonDocument
+        //    {
+        //        { "update", MessageHelper.DefaultCollectionNamespace.CollectionName },
+        //        { "updates", new BsonArray(new [] { update }) },
+        //        { "writeConcern", new BsonDocument("w", 2)}
+        //    };
+        //    var expectedReply = BsonDocument.Parse("{ ok: 1, n: 1, upserted: [ { index: 0, _id: 10 } ] }");
 
-            var requestMessage = MessageHelper.BuildUpdate(
-                (BsonDocument)update["q"],
-                (BsonDocument)update["u"],
-                requestId: 10,
-                isMulti: update.GetValue("multi", false).ToBoolean(),
-                isUpsert: update.GetValue("upsert", false).ToBoolean());
-            SendMessages(requestMessage);
+        //    var requestMessage = MessageHelper.BuildCommandResponse(
+        //        (BsonDocument)update["q"],
+        //        (BsonDocument)update["u"],
+        //        requestId: 10,
+        //        isMulti: update.GetValue("multi", false).ToBoolean(),
+        //        isUpsert: update.GetValue("upsert", false).ToBoolean());
+        //    var gleMessage = MessageHelper.BuildCommand(
+        //        BsonDocument.Parse("{ getLastError: 1, w: 2 }"),
+        //        requestId: requestMessage.RequestId + 1);
+        //    SendMessages(requestMessage, gleMessage);
 
-            var commandStartedEvent = (CommandStartedEvent)_capturedEvents.Next();
-            var commandSucceededEvent = (CommandSucceededEvent)_capturedEvents.Next();
+        //    var replyMessage = MessageHelper.BuildReply(
+        //        BsonDocument.Parse("{ ok: 1, n: 1 }"),
+        //        serializer: BsonDocumentSerializer.Instance,
+        //        responseTo: gleMessage.RequestId);
+        //    ReceiveMessages(replyMessage);
 
-            commandStartedEvent.CommandName.Should().Be(expectedCommand.GetElement(0).Name);
-            commandStartedEvent.Command.Should().Be(expectedCommand);
-            commandStartedEvent.ConnectionId.Should().Be(_subject.ConnectionId);
-            commandStartedEvent.DatabaseNamespace.Should().Be(MessageHelper.DefaultDatabaseNamespace);
-            commandStartedEvent.OperationId.Should().Be(EventContext.OperationId);
-            commandStartedEvent.RequestId.Should().Be(requestMessage.RequestId);
+        //    var commandStartedEvent = (CommandStartedEvent)_capturedEvents.Next();
+        //    var commandSucceededEvent = (CommandSucceededEvent)_capturedEvents.Next();
 
-            commandSucceededEvent.CommandName.Should().Be(commandStartedEvent.CommandName);
-            commandSucceededEvent.ConnectionId.Should().Be(commandStartedEvent.ConnectionId);
-            commandSucceededEvent.Duration.Should().BeGreaterThan(TimeSpan.Zero);
-            commandSucceededEvent.OperationId.Should().Be(commandStartedEvent.OperationId);
-            commandSucceededEvent.Reply.Should().Be(expectedReply);
-            commandSucceededEvent.RequestId.Should().Be(commandStartedEvent.RequestId);
-        }
+        //    commandStartedEvent.CommandName.Should().Be(expectedCommand.GetElement(0).Name);
+        //    commandStartedEvent.Command.Should().Be(expectedCommand);
+        //    commandStartedEvent.ConnectionId.Should().Be(_subject.ConnectionId);
+        //    commandStartedEvent.DatabaseNamespace.Should().Be(MessageHelper.DefaultDatabaseNamespace);
+        //    commandStartedEvent.OperationId.Should().Be(EventContext.OperationId);
+        //    commandStartedEvent.RequestId.Should().Be(gleMessage.RequestId);
 
-        [Fact]
-        public void Should_process_an_update_with_a_gle()
-        {
-            var update = BsonDocument.Parse("{ q: { x: 1 }, u: { $set: { x: 2 } }, upsert: true, multi: true }");
-            var expectedCommand = new BsonDocument
-            {
-                { "update", MessageHelper.DefaultCollectionNamespace.CollectionName },
-                { "updates", new BsonArray(new [] { update }) },
-                { "writeConcern", new BsonDocument("w", 2)}
-            };
-            var expectedReply = BsonDocument.Parse("{ ok: 1, n: 1, upserted: [ { index: 0, _id: undefined } ] }");
-
-            var requestMessage = MessageHelper.BuildUpdate(
-                (BsonDocument)update["q"],
-                (BsonDocument)update["u"],
-                requestId: 10,
-                isMulti: update.GetValue("multi", false).ToBoolean(),
-                isUpsert: update.GetValue("upsert", false).ToBoolean());
-            var gleMessage = MessageHelper.BuildCommand(
-                BsonDocument.Parse("{ getLastError: 1, w: 2 }"),
-                requestId: requestMessage.RequestId + 1);
-            SendMessages(requestMessage, gleMessage);
-
-            var replyMessage = MessageHelper.BuildReply(
-                BsonDocument.Parse("{ ok: 1, n: 1 }"),
-                serializer: BsonDocumentSerializer.Instance,
-                responseTo: gleMessage.RequestId);
-            ReceiveMessages(replyMessage);
-
-            var commandStartedEvent = (CommandStartedEvent)_capturedEvents.Next();
-            var commandSucceededEvent = (CommandSucceededEvent)_capturedEvents.Next();
-
-            commandStartedEvent.CommandName.Should().Be(expectedCommand.GetElement(0).Name);
-            commandStartedEvent.Command.Should().Be(expectedCommand);
-            commandStartedEvent.ConnectionId.Should().Be(_subject.ConnectionId);
-            commandStartedEvent.DatabaseNamespace.Should().Be(MessageHelper.DefaultDatabaseNamespace);
-            commandStartedEvent.OperationId.Should().Be(EventContext.OperationId);
-            commandStartedEvent.RequestId.Should().Be(gleMessage.RequestId);
-
-            commandSucceededEvent.CommandName.Should().Be(commandStartedEvent.CommandName);
-            commandSucceededEvent.ConnectionId.Should().Be(commandStartedEvent.ConnectionId);
-            commandSucceededEvent.Duration.Should().BeGreaterThan(TimeSpan.Zero);
-            commandSucceededEvent.OperationId.Should().Be(commandStartedEvent.OperationId);
-            commandSucceededEvent.Reply.Should().Be(expectedReply);
-            commandSucceededEvent.RequestId.Should().Be(commandStartedEvent.RequestId);
-        }
-
-        [Fact]
-        public void Should_process_an_upsert_with_a_gle_where_the_server_does_not_return_the_upserted_id()
-        {
-            var update = BsonDocument.Parse("{ q: { _id: 10, x: 1 }, u: { $set: { x: 2 } }, upsert: true, multi: true }");
-            var expectedCommand = new BsonDocument
-            {
-                { "update", MessageHelper.DefaultCollectionNamespace.CollectionName },
-                { "updates", new BsonArray(new [] { update }) },
-                { "writeConcern", new BsonDocument("w", 2)}
-            };
-            var expectedReply = BsonDocument.Parse("{ ok: 1, n: 1, upserted: [ { index: 0, _id: 10 } ] }");
-
-            var requestMessage = MessageHelper.BuildUpdate(
-                (BsonDocument)update["q"],
-                (BsonDocument)update["u"],
-                requestId: 10,
-                isMulti: update.GetValue("multi", false).ToBoolean(),
-                isUpsert: update.GetValue("upsert", false).ToBoolean());
-            var gleMessage = MessageHelper.BuildCommand(
-                BsonDocument.Parse("{ getLastError: 1, w: 2 }"),
-                requestId: requestMessage.RequestId + 1);
-            SendMessages(requestMessage, gleMessage);
-
-            var replyMessage = MessageHelper.BuildReply(
-                BsonDocument.Parse("{ ok: 1, n: 1 }"),
-                serializer: BsonDocumentSerializer.Instance,
-                responseTo: gleMessage.RequestId);
-            ReceiveMessages(replyMessage);
-
-            var commandStartedEvent = (CommandStartedEvent)_capturedEvents.Next();
-            var commandSucceededEvent = (CommandSucceededEvent)_capturedEvents.Next();
-
-            commandStartedEvent.CommandName.Should().Be(expectedCommand.GetElement(0).Name);
-            commandStartedEvent.Command.Should().Be(expectedCommand);
-            commandStartedEvent.ConnectionId.Should().Be(_subject.ConnectionId);
-            commandStartedEvent.DatabaseNamespace.Should().Be(MessageHelper.DefaultDatabaseNamespace);
-            commandStartedEvent.OperationId.Should().Be(EventContext.OperationId);
-            commandStartedEvent.RequestId.Should().Be(gleMessage.RequestId);
-
-            commandSucceededEvent.CommandName.Should().Be(commandStartedEvent.CommandName);
-            commandSucceededEvent.ConnectionId.Should().Be(commandStartedEvent.ConnectionId);
-            commandSucceededEvent.Duration.Should().BeGreaterThan(TimeSpan.Zero);
-            commandSucceededEvent.OperationId.Should().Be(commandStartedEvent.OperationId);
-            commandSucceededEvent.Reply.Should().Be(expectedReply);
-            commandSucceededEvent.RequestId.Should().Be(commandStartedEvent.RequestId);
-        }
+        //    commandSucceededEvent.CommandName.Should().Be(commandStartedEvent.CommandName);
+        //    commandSucceededEvent.ConnectionId.Should().Be(commandStartedEvent.ConnectionId);
+        //    commandSucceededEvent.Duration.Should().BeGreaterThan(TimeSpan.Zero);
+        //    commandSucceededEvent.OperationId.Should().Be(commandStartedEvent.OperationId);
+        //    commandSucceededEvent.Reply.Should().Be(expectedReply);
+        //    commandSucceededEvent.RequestId.Should().Be(commandStartedEvent.RequestId);
+        //}
 
         [Fact]
         public void Should_process_a_write_with_a_write_error()

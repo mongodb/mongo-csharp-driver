@@ -289,7 +289,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.AggregateHint);
+            RequireServer.Check();
             EnsureTestData();
             var subject = new CountDocumentsOperation(_collectionNamespace, _messageEncoderSettings)
             {

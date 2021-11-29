@@ -118,7 +118,9 @@ namespace MongoDB.Driver.Core.Operations
                 Hint = hint
             };
             var session = OperationTestHelper.CreateSession();
+#pragma warning disable CS0618 // Type or member is obsolete
             var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion: Feature.HintForFindAndModifyFeature.FirstSupportedVersion);
+#pragma warning restore CS0618 // Type or member is obsolete
 
             var result = subject.CreateCommand(session, connectionDescription, null);
 
@@ -152,11 +154,13 @@ namespace MongoDB.Driver.Core.Operations
             {
                 exception.Should().BeOfType<NotSupportedException>();
             }
+#pragma warning disable CS0618 // Type or member is obsolete
             else if (Feature.HintForFindAndModifyFeature.DriverMustThrowIfNotSupported(serverVersion))
             {
                 exception.Should().BeOfType<NotSupportedException>();
             }
             else if (Feature.HintForFindAndModifyFeature.IsSupported(serverVersion))
+#pragma warning restore CS0618 // Type or member is obsolete
             {
                 exception.Should().BeNull();
             }

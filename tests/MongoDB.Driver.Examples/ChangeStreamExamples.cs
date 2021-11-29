@@ -129,7 +129,7 @@ namespace MongoDB.Driver.Examples
         [Fact]
         public void ChangestreamExample4()
         {
-            RequireServer.Check().Supports(Feature.AggregateAddFields);
+            RequireServer.Check();
 
             var client = DriverTestConfiguration.Client;
             var database = client.GetDatabase("ChangeStreamExamples");

@@ -982,7 +982,7 @@ namespace MongoDB.Driver.Core.Servers
         [ParameterAttributeData]
         public void Command_should_use_serverApi([Values(false, true)] bool async)
         {
-            RequireServer.Check().Supports(Feature.CommandMessage);
+            RequireServer.Check();
 
             var serverApi = new ServerApi(ServerApiVersion.V1);
             var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>(e => e.CommandName == "ping");

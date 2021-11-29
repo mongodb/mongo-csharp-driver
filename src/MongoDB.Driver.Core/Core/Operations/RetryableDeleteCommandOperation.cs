@@ -82,7 +82,7 @@ namespace MongoDB.Driver.Core.Operations
         protected override BsonDocument CreateCommand(ICoreSessionHandle session, ConnectionDescription connectionDescription, int attempt, long? transactionNumber)
         {
             var serverVersion = connectionDescription.ServerVersion;
-            if (Feature.HintForDeleteOperations.DriverMustThrowIfNotSupported(serverVersion) || (WriteConcern != null && !WriteConcern.IsAcknowledged))
+            if (WriteConcern != null && !WriteConcern.IsAcknowledged)
             {
                 if (_deletes.Items.Skip(_deletes.Offset).Take(_deletes.Count).Any(u => u.Hint != null))
                 {

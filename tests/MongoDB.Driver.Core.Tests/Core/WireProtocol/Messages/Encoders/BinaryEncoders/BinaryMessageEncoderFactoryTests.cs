@@ -119,16 +119,5 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 encoder.Should().BeOfType<ReplyMessageBinaryEncoder<BsonDocument>>();
             }
         }
-
-        [Fact]
-        public void GetUpdateMessageEncoder_should_return_a_UpdateMessageBinaryEncoder()
-        {
-            using (var stream = new MemoryStream())
-            {
-                var encoderFactory = new BinaryMessageEncoderFactory(stream, null);
-                var encoder = encoderFactory.GetUpdateMessageEncoder();
-                encoder.Should().BeOfType<UpdateMessageBinaryEncoder>();
-            }
-        }
     }
 }

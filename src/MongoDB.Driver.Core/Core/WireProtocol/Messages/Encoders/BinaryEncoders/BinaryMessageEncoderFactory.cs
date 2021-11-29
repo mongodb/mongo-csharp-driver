@@ -97,11 +97,5 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         {
             return new ReplyMessageBinaryEncoder<TDocument>(_stream, _encoderSettings, serializer);
         }
-
-        /// <inheritdoc/>
-        public IMessageEncoder GetUpdateMessageEncoder()
-        {
-            return new UpdateMessageBinaryEncoder(_stream, _encoderSettings);
-        }
     }
 }

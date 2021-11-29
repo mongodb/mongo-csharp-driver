@@ -173,11 +173,6 @@ namespace MongoDB.Driver.Core.Operations
 
         private static bool ShouldRetryableWriteExceptionLabelBeAdded(Exception exception, SemanticVersion serverVersion)
         {
-            if (!Feature.RetryableWrites.IsSupported(serverVersion))
-            {
-                return false;
-            }
-
             if (IsNetworkException(exception))
             {
                 return true;

@@ -170,17 +170,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         }
 
         [Fact]
-        public void GetUpdateMessageEncoder_should_return_a_UpdateMessageJsonEncoder()
-        {
-            using (var textWriter = new StringWriter())
-            {
-                var encoderFactory = new JsonMessageEncoderFactory(null, textWriter, __messageEncoderSettings);
-                var encoder = encoderFactory.GetUpdateMessageEncoder();
-                encoder.Should().BeOfType<UpdateMessageJsonEncoder>();
-            }
-        }
-
-        [Fact]
         public void GetCompressedMessageEncoder_should_return_a_CompressedMessageJsonEncoder()
         {
             using (var textWriter = new StringWriter())

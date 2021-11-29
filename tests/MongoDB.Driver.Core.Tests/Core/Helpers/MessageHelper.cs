@@ -234,24 +234,6 @@ namespace MongoDB.Driver.Core.Helpers
                 startingFrom: startingFrom);
         }
 
-        public static UpdateMessage BuildUpdate(
-            BsonDocument query,
-            BsonDocument update,
-            CollectionNamespace collectionNamespace = null,
-            int requestId = 0,
-            bool isMulti = false,
-            bool isUpsert = false)
-        {
-            return new UpdateMessage(
-                requestId,
-                collectionNamespace ?? __defaultCollectionNamespace,
-                query,
-                update,
-                NoOpElementNameValidator.Instance,
-                isMulti,
-                isUpsert);
-        }
-
         public static List<BsonDocument> TranslateMessagesToBsonDocuments(IEnumerable<MongoDBMessage> requests)
         {
             var docs = new List<BsonDocument>();

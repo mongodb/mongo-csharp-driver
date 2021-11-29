@@ -61,14 +61,14 @@ namespace MongoDB.Driver.Tests
             {
                 RequireServer
                     .Check()
-                    .Supports(Feature.RetryableWrites, Feature.FailPointsFailCommandForSharded)
+                    .Supports(Feature.FailPointsFailCommandForSharded)
                     .ClusterTypes(ClusterType.Sharded);
             }
             else
             {
                 RequireServer
                     .Check()
-                    .Supports(Feature.RetryableWrites, Feature.FailPointsFailCommand)
+                    .Supports(Feature.FailPointsFailCommand)
                     .ClusterTypes(ClusterType.ReplicaSet);
             }
 

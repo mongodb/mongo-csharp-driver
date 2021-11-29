@@ -462,54 +462,6 @@ namespace MongoDB.Driver.Core.Bindings
             IBsonSerializer<TDocument> serializer,
             MessageEncoderSettings messageEncoderSettings,
             CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Executes an Update protocol.
-        /// </summary>
-        /// <param name="collectionNamespace">The collection namespace.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        /// <param name="writeConcern">The write concern.</param>
-        /// <param name="query">The query.</param>
-        /// <param name="update">The update.</param>
-        /// <param name="updateValidator">The update validator.</param>
-        /// <param name="isMulti">if set to <c>true</c> the Update can affect multiple documents.</param>
-        /// <param name="isUpsert">if set to <c>true</c> the document will be inserted if it is not found.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The result of the Update protocol.</returns>
-        WriteConcernResult Update(
-            CollectionNamespace collectionNamespace,
-            MessageEncoderSettings messageEncoderSettings,
-            WriteConcern writeConcern,
-            BsonDocument query,
-            BsonDocument update,
-            IElementNameValidator updateValidator,
-            bool isMulti,
-            bool isUpsert,
-            CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Executes an Update protocol.
-        /// </summary>
-        /// <param name="collectionNamespace">The collection namespace.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        /// <param name="writeConcern">The write concern.</param>
-        /// <param name="query">The query.</param>
-        /// <param name="update">The update.</param>
-        /// <param name="updateValidator">The update validator.</param>
-        /// <param name="isMulti">if set to <c>true</c> the Update can affect multiple documents.</param>
-        /// <param name="isUpsert">if set to <c>true</c> the document will be inserted if it is not found.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A Task whose result is the result of the Update protocol.</returns>
-        Task<WriteConcernResult> UpdateAsync(
-            CollectionNamespace collectionNamespace,
-            MessageEncoderSettings messageEncoderSettings,
-            WriteConcern writeConcern,
-            BsonDocument query,
-            BsonDocument update,
-            IElementNameValidator updateValidator,
-            bool isMulti,
-            bool isUpsert,
-            CancellationToken cancellationToken);
     }
 
     /// <summary>
