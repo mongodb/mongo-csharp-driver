@@ -163,17 +163,6 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
                 .SupportsSessions();
         }
 
-        public RequireServer HasMongos(int mongos)
-        {
-            if (CoreTestConfiguration.MongosNumberIfSharded.HasValue && CoreTestConfiguration.MongosNumberIfSharded.Value == mongos)
-            {
-                return this;
-            }
-
-            var skipReason = CoreTestConfiguration.MongosNumberIfSharded.HasValue ? $"has {CoreTestConfiguration.MongosNumberIfSharded.Value} mongos, but expected number is {mongos}" : "must be sharded";
-            throw new SkipException($"Test skipped because the server {skipReason}.");
-        }
-
         public RequireServer SupportsSessions()
         {
             var clusterDescription = CoreTestConfiguration.Cluster.Description;
@@ -226,7 +215,20 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
                 return this;
             }
 
-            return useMultipleMongoses ? HasMongos(mongos: 2) : this;
+            if (useMultipleMongoses)
+            {
+                if (CoreTestConfiguration.MongosNumberIfSharded.HasValue && CoreTestConfiguration.MongosNumberIfSharded.Value >= 2)
+                {
+                    return this;
+                }
+
+                var skipReason = CoreTestConfiguration.MongosNumberIfSharded.HasValue
+                    ? $"has {CoreTestConfiguration.MongosNumberIfSharded.Value} mongos, but expected number is greater than or equal 2"
+                    : "must be sharded"; // should not be reached due the above check on topology
+                throw new SkipException($"Test skipped because the server {skipReason}.");
+            }
+
+            return this;
         }
 
         public RequireServer VersionGreaterThanOrEqualTo(SemanticVersion version)

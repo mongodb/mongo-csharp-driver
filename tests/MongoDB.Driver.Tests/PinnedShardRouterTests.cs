@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Tests
                 .Check()
                 .Supports(Feature.ShardedTransactions)
                 .ClusterType(ClusterType.Sharded)
-                .HasMongos(mongos: 2);
+                .UseMultipleMongoses(true);
 
             DropCollection();
             var eventCapturer = CreateEventCapturer();
@@ -119,7 +119,7 @@ namespace MongoDB.Driver.Tests
                 .Check()
                 .Supports(Feature.ShardedTransactions)
                 .ClusterType(ClusterType.Sharded)
-                .HasMongos(mongos: 2);
+                .UseMultipleMongoses(true);
 
             DropCollection();
             var eventCapturer = CreateEventCapturer();
