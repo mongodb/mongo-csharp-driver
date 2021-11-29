@@ -563,12 +563,12 @@ namespace MongoDB.Driver.Core.Misc
         /// <inheritdoc/>
         public override string ToString()
         {
-            var message = $"First supported version: {_firstSupportedVersion}";
+            var message = $"{_name} feature added in {_firstSupportedVersion}";
             if (_supportRemovedVersion != null)
             {
-                message += $", Support removed in: {_supportRemovedVersion}";
+                message += $" and removed in {_supportRemovedVersion}";
             }
-            return message;
+            return $"{message}.";
         }
 
         private SemanticVersion VersionBefore(SemanticVersion version)
