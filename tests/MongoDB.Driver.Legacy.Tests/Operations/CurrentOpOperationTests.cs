@@ -57,18 +57,6 @@ namespace MongoDB.Driver.Tests.Operations
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("databaseNamespace");
         }
 
-        [Fact]
-        public void CreateOperation_should_return_expected_result_when_server_version_does_support_command()
-        {
-            var subject = new CurrentOpOperation(_adminDatabaseNamespace, _messageEncoderSettings);
-
-            var result = subject.CreateOperation();
-
-            result.Should().BeOfType<CurrentOpUsingCommandOperation>();
-            result.As<CurrentOpUsingCommandOperation>().DatabaseNamespace.Should().Be(_adminDatabaseNamespace);
-            result.As<CurrentOpUsingCommandOperation>().MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
-        }
-
         [SkippableFact]
         public void Execute_should_return_expected_result()
         {
