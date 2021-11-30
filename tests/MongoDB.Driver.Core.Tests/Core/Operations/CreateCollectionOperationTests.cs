@@ -185,7 +185,7 @@ namespace MongoDB.Driver.Core.Operations
                 Collation = collation
             };
             var session = OperationTestHelper.CreateSession();
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion: Feature.Collation.FirstSupportedVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
             var result = subject.CreateCommand(session, connectionDescription);
 
@@ -195,21 +195,6 @@ namespace MongoDB.Driver.Core.Operations
                 { "collation", () => collation.ToBsonDocument(), collation != null }
             };
             result.Should().Be(expectedResult);
-        }
-
-        [Fact]
-        public void CreateCommand_should_throw_when_Collation_is_set_and_not_supported()
-        {
-            var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
-            {
-                Collation = new Collation("en_US")
-            };
-            var session = OperationTestHelper.CreateSession();
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion: Feature.Collation.LastNotSupportedVersion);
-
-            var exception = Record.Exception(() => subject.CreateCommand(session, connectionDescription));
-
-            exception.Should().BeOfType<NotSupportedException>();
         }
 
         [Theory]
@@ -426,9 +411,7 @@ namespace MongoDB.Driver.Core.Operations
         [ParameterAttributeData]
         public void CreateCommand_should_return_expected_result_when_WriteConcern_is_set(
             [Values(null, 1, 2)]
-            int? w,
-            [Values(false, true)]
-            bool isWriteConcernSupported)
+            int? w)
         {
             var writeConcern = w.HasValue ? new WriteConcern(w.Value) : null;
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
@@ -436,14 +419,14 @@ namespace MongoDB.Driver.Core.Operations
                 WriteConcern = writeConcern
             };
             var session = OperationTestHelper.CreateSession();
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion: Feature.CommandsThatWriteAcceptWriteConcern.SupportedOrNotSupportedVersion(isWriteConcernSupported));
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
             var result = subject.CreateCommand(session, connectionDescription);
 
             var expectedResult = new BsonDocument
             {
                 { "create", _collectionNamespace.CollectionName },
-                { "writeConcern", () => writeConcern.ToBsonDocument(), writeConcern != null && isWriteConcernSupported }
+                { "writeConcern", () => writeConcern.ToBsonDocument(), writeConcern != null }
             };
             result.Should().Be(expectedResult);
         }
@@ -532,7 +515,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.Collation);
+            RequireServer.Check();
             DropCollection();
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
             {
@@ -555,7 +538,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.IndexOptionsDefaults).ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet);
+            RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet);
             DropCollection();
             var storageEngine = CoreTestConfiguration.StorageEngine;
             var indexOptionDefaults = new BsonDocument
@@ -715,7 +698,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.DocumentValidation);
+            RequireServer.Check();
             DropCollection();
             var validator = new BsonDocument("_id", new BsonDocument("$exists", true));
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
@@ -739,33 +722,11 @@ namespace MongoDB.Driver.Core.Operations
 
         [SkippableTheory]
         [ParameterAttributeData]
-        public void Execute_should_throw_when_Collation_is_set_and_not_supported(
-            [Values(false, true)]
-            bool async)
-        {
-            RequireServer.Check().DoesNotSupport(Feature.Collation);
-            DropCollection();
-            var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
-            {
-                Collation = new Collation("en_US")
-            };
-
-            Exception exception;
-            using (var binding = CreateReadWriteBinding())
-            {
-                exception = Record.Exception(() => ExecuteOperation(subject, binding, async));
-            }
-
-            exception.Should().BeOfType<NotSupportedException>();
-        }
-
-        [SkippableTheory]
-        [ParameterAttributeData]
         public void Execute_should_throw_when_a_write_concern_error_occurs(
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.ReplicaSet);
+            RequireServer.Check().ClusterType(ClusterType.ReplicaSet);
             DropCollection();
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
             {

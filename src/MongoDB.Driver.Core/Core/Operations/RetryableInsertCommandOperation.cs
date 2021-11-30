@@ -109,7 +109,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <inheritdoc />
         protected override BsonDocument CreateCommand(ICoreSessionHandle session, ConnectionDescription connectionDescription, int attempt, long? transactionNumber)
         {
-            var writeConcern = WriteConcernHelper.GetWriteConcernForWriteCommand(session, WriteConcern);
+            var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(session, WriteConcern);
             return new BsonDocument
             {
                 { "insert", _collectionNamespace.CollectionName },

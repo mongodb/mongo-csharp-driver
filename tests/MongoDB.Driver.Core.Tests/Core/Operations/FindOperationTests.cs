@@ -533,7 +533,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.MaxStaleness);
+            RequireServer.Check();
             EnsureTestData();
             var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
             var readPreference = new ReadPreference(ReadPreferenceMode.SecondaryPreferred, maxStaleness: TimeSpan.FromSeconds(90));
@@ -630,7 +630,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.FindCommand, Feature.Collation);
+            RequireServer.Check();
             EnsureTestData();
             var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
@@ -662,10 +662,6 @@ namespace MongoDB.Driver.Core.Operations
             {
                 exception.Should().BeNull();
             }
-            else if (Feature.FindAllowDiskUse.DriverMustThrowIfNotSupported(serverVersion))
-            {
-                exception.Should().BeOfType<NotSupportedException>();
-            }
             else if (Feature.FindAllowDiskUse.IsSupported(serverVersion))
             {
                 exception.Should().BeNull();
@@ -674,24 +670,6 @@ namespace MongoDB.Driver.Core.Operations
             {
                 exception.Should().BeOfType<MongoCommandException>();
             }
-        }
-
-        [SkippableTheory]
-        [ParameterAttributeData]
-        public void Execute_should_throw_when_Collation_is_set_but_not_supported(
-            [Values(false, true)]
-            bool async)
-        {
-            RequireServer.Check().DoesNotSupport(Feature.Collation);
-            EnsureTestData();
-            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
-            {
-                Collation = new Collation("en_US")
-            };
-
-            var exception = Record.Exception(() => { ExecuteOperation(subject, async); });
-
-            exception.Should().BeOfType<NotSupportedException>();
         }
 
         [SkippableTheory]
@@ -709,24 +687,6 @@ namespace MongoDB.Driver.Core.Operations
 
                 exception.Should().BeOfType<MongoExecutionTimeoutException>();
             }
-        }
-
-        [SkippableTheory]
-        [ParameterAttributeData]
-        public void Execute_should_throw_when_ReadConcern_is_set_but_not_supported(
-            [Values(false, true)]
-            bool async)
-        {
-            RequireServer.Check().DoesNotSupport(Feature.ReadConcern);
-            EnsureTestData();
-            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
-            {
-                ReadConcern = ReadConcern.Majority
-            };
-
-            var exception = Record.Exception(() => { ExecuteOperation(subject, async); });
-
-            exception.Should().BeOfType<MongoClientException>();
         }
 
         [SkippableTheory]
@@ -758,7 +718,7 @@ namespace MongoDB.Driver.Core.Operations
         public void Execute_should_send_session_id_when_supported(
             [Values(false, true)] bool async)
         {
-            RequireServer.Check().Supports(Feature.FindCommand);
+            RequireServer.Check();
             EnsureTestData();
             var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 

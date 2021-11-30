@@ -264,24 +264,21 @@ namespace MongoDB.Driver.Core.Operations
 
         internal BsonDocument CreateCommand(ICoreSessionHandle session, ConnectionDescription connectionDescription)
         {
-            var serverVersion = connectionDescription.ServerVersion;
-            Feature.Collation.ThrowIfNotSupported(serverVersion, _collation);
-
             var readConcern = _readConcern != null
                 ? ReadConcernHelper.GetReadConcernForCommand(session, connectionDescription, _readConcern)
                 : null;
-            var writeConcern = WriteConcernHelper.GetWriteConcernForCommandThatWrites(session, _writeConcern, serverVersion);
+            var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(session, _writeConcern);
             return new BsonDocument
             {
                 { "aggregate", _collectionNamespace == null ? (BsonValue)1 : _collectionNamespace.CollectionName },
                 { "pipeline", new BsonArray(_pipeline) },
                 { "allowDiskUse", () => _allowDiskUse.Value, _allowDiskUse.HasValue },
-                { "bypassDocumentValidation", () => _bypassDocumentValidation.Value, _bypassDocumentValidation.HasValue && Feature.BypassDocumentValidation.IsSupported(serverVersion) },
+                { "bypassDocumentValidation", () => _bypassDocumentValidation.Value, _bypassDocumentValidation.HasValue },
                 { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(_maxTime.Value), _maxTime.HasValue },
                 { "collation", () => _collation.ToBsonDocument(), _collation != null },
                 { "readConcern", readConcern, readConcern != null },
                 { "writeConcern", writeConcern, writeConcern != null },
-                { "cursor", new BsonDocument(), serverVersion >= new SemanticVersion(3, 6, 0) },
+                { "cursor", new BsonDocument() },
                 { "hint", () => _hint, _hint != null },
                 { "let", () => _let, _let != null },
                 { "comment", () => _comment, _comment != null }

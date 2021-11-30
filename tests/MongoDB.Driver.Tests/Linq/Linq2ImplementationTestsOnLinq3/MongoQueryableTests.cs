@@ -552,7 +552,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3
         [SkippableFact]
         public void GroupJoin_method()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
+            RequireServer.Check();
             var query = CreateQuery()
                 .GroupJoin(
                     CreateOtherQuery(),
@@ -570,7 +570,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3
         [SkippableFact]
         public void GroupJoinForeignField_method()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
+            RequireServer.Check();
             var query = CreateQuery()
                 .GroupJoin(
                     CreateOtherQuery(),
@@ -588,7 +588,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3
         [SkippableFact]
         public void GroupJoin_syntax()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
+            RequireServer.Check();
             var query = from p in CreateQuery()
                         join o in CreateOtherQuery() on p.Id equals o.Id into joined
                         select new { A = p.A, SumCEF = joined.Sum(x => x.CEF) };
@@ -603,7 +603,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3
         [SkippableFact]
         public void GroupJoin_syntax_with_a_transparent_identifier()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
+            RequireServer.Check();
             var query = from p in CreateQuery()
                         join o in CreateOtherQuery() on p.Id equals o.Id into joined
                         orderby p.B
@@ -621,7 +621,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3
         [SkippableFact]
         public void GroupJoin_syntax_with_select_many()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
+            RequireServer.Check();
             var otherCollection = __otherCollection.AsQueryable();
             var query = from p in CreateQuery()
                         join o in otherCollection on p.Id equals o.Id into joined
@@ -640,7 +640,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3
         [SkippableFact]
         public void GroupJoin_syntax_with_select_many_and_DefaultIfEmpty()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
+            RequireServer.Check();
             var otherCollection = __otherCollection.AsQueryable();
             var query = from p in CreateQuery()
                         join o in otherCollection on p.Id equals o.Id into joined
@@ -659,7 +659,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3
         [SkippableFact]
         public void Join_method()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
+            RequireServer.Check();
             var query = CreateQuery()
                 .Join(
                     CreateOtherQuery(),
@@ -678,7 +678,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3
         [SkippableFact]
         public void JoinForeignField_method()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
+            RequireServer.Check();
             var query = CreateQuery()
                 .Join(
                     CreateOtherQuery(),
@@ -697,7 +697,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3
         [SkippableFact]
         public void Join_syntax()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
+            RequireServer.Check();
             var query = from p in CreateQuery()
                         join o in CreateOtherQuery() on p.Id equals o.Id
                         select new { A = p.A, CEF = o.CEF };
@@ -713,7 +713,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3
         [SkippableFact]
         public void Join_syntax_with_a_transparent_identifier()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
+            RequireServer.Check();
             var query = from p in CreateQuery()
                         join o in CreateOtherQuery() on p.Id equals o.Id
                         orderby p.B, o.Id
@@ -964,7 +964,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3
         [SkippableFact]
         public void Sample()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
+            RequireServer.Check();
             var query = CreateQuery().Sample(100);
 
             Assert(query,
@@ -975,7 +975,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3
         [SkippableFact]
         public void Sample_after_another_function()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
+            RequireServer.Check();
             var query = CreateQuery().Select(x => x.A).Sample(100);
 
             Assert(query,
@@ -1157,7 +1157,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3
         [SkippableFact]
         public void Select_method_array_index()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
+            RequireServer.Check();
             var query = CreateQuery().Select(x => x.M[0]);
 
             Assert(query,
@@ -1168,7 +1168,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3
         [SkippableFact]
         public void Select_syntax_array_index()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
+            RequireServer.Check();
             var query = from x in CreateQuery()
                         select x.M[0];
 
@@ -1180,7 +1180,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3
         [SkippableFact]
         public void Select_method_embedded_pipeline()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
+            RequireServer.Check();
             var query = CreateQuery().Select(x => x.M.First());
 
             Assert(query,
@@ -1648,7 +1648,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3
         [SkippableFact]
         public void StandardDeviationPopulation()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
+            RequireServer.Check();
 
             var result = CreateQuery().Select(x => x.C.E.F).StandardDeviationPopulation();
 
@@ -1658,7 +1658,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3
         [SkippableFact]
         public void StandardDeviationPopulation_with_selector()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
+            RequireServer.Check();
 
             var result = CreateQuery().StandardDeviationPopulation(x => x.C.E.F);
 
@@ -1668,7 +1668,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3
         [SkippableFact]
         public async Task StandardDeviationPopulationAsync()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
+            RequireServer.Check();
 
             var result = await CreateQuery().Select(x => x.C.E.F).StandardDeviationPopulationAsync();
 
@@ -1678,7 +1678,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3
         [SkippableFact]
         public async Task StandardDeviationPopulationAsync_with_selector()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
+            RequireServer.Check();
 
             var result = await CreateQuery().StandardDeviationPopulationAsync(x => x.C.E.F);
 
@@ -1688,7 +1688,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3
         [SkippableFact]
         public void StandardDeviationSample()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
+            RequireServer.Check();
 
             var result = CreateQuery().Select(x => x.C.E.F).StandardDeviationSample();
 
@@ -1698,7 +1698,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3
         [SkippableFact]
         public void StandardDeviationSample_with_selector()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
+            RequireServer.Check();
 
             var result = CreateQuery().StandardDeviationSample(x => x.C.E.F);
 
@@ -1708,7 +1708,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3
         [SkippableFact]
         public async Task StandardDeviationSampleAsync()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
+            RequireServer.Check();
 
             var result = await CreateQuery().Select(x => x.C.E.F).StandardDeviationSampleAsync();
 
@@ -1718,7 +1718,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3
         [SkippableFact]
         public async Task StandardDeviationSampleAsync_with_selector()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
+            RequireServer.Check();
 
             var result = await CreateQuery().StandardDeviationSampleAsync(x => x.C.E.F);
 

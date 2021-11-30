@@ -71,14 +71,6 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
         /// <inheritdoc/>
         public IEnumerable<ServerDescription> SelectServers(ClusterDescription cluster, IEnumerable<ServerDescription> servers)
         {
-            if (_maxStaleness.HasValue)
-            {
-                if (cluster.Servers.Any(s => s.Type != ServerType.Unknown && !Feature.MaxStaleness.IsSupported(s.Version)))
-                {
-                    throw new NotSupportedException("All servers must be version 3.4 or newer to use max staleness.");
-                }
-            }
-
             if (cluster.IsDirectConnection)
             {
                 return servers;

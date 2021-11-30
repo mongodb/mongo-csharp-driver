@@ -289,7 +289,7 @@ namespace MongoDB.Driver.Core.Operations
                 Collation = collation
             };
 
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.Collation.FirstSupportedVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             var session = OperationTestHelper.CreateSession();
 
             var result = subject.CreateCommand(connectionDescription, session);
@@ -314,7 +314,7 @@ namespace MongoDB.Driver.Core.Operations
                 DistanceMultiplier = distanceMultiplier
             };
 
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.Collation.FirstSupportedVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             var session = OperationTestHelper.CreateSession();
 
             var result = subject.CreateCommand(connectionDescription, session);
@@ -340,7 +340,7 @@ namespace MongoDB.Driver.Core.Operations
                 Filter = filter
             };
 
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.Collation.FirstSupportedVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             var session = OperationTestHelper.CreateSession();
 
             var result = subject.CreateCommand(connectionDescription, session);
@@ -365,7 +365,7 @@ namespace MongoDB.Driver.Core.Operations
                 IncludeLocs = includeLocs
             };
 
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.Collation.FirstSupportedVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             var session = OperationTestHelper.CreateSession();
 
             var result = subject.CreateCommand(connectionDescription, session);
@@ -390,7 +390,7 @@ namespace MongoDB.Driver.Core.Operations
                 Limit = limit
             };
 
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.Collation.FirstSupportedVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             var session = OperationTestHelper.CreateSession();
 
             var result = subject.CreateCommand(connectionDescription, session);
@@ -415,7 +415,7 @@ namespace MongoDB.Driver.Core.Operations
                 MaxDistance = maxDistance
             };
 
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.Collation.FirstSupportedVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             var session = OperationTestHelper.CreateSession();
 
             var result = subject.CreateCommand(connectionDescription, session);
@@ -443,7 +443,7 @@ namespace MongoDB.Driver.Core.Operations
                 MaxTime = TimeSpan.FromTicks(maxTimeTicks)
             };
 
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.Collation.FirstSupportedVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             var session = OperationTestHelper.CreateSession();
 
             var result = subject.CreateCommand(connectionDescription, session);
@@ -470,7 +470,7 @@ namespace MongoDB.Driver.Core.Operations
                 ReadConcern = readConcern
             };
 
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.ReadConcern.FirstSupportedVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             var session = OperationTestHelper.CreateSession();
 
             var result = subject.CreateCommand(connectionDescription, session);
@@ -495,7 +495,7 @@ namespace MongoDB.Driver.Core.Operations
                 Spherical = spherical
             };
 
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.Collation.FirstSupportedVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             var session = OperationTestHelper.CreateSession();
 
             var result = subject.CreateCommand(connectionDescription, session);
@@ -520,7 +520,7 @@ namespace MongoDB.Driver.Core.Operations
                 UniqueDocs = uniqueDocs
             };
 
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.Collation.FirstSupportedVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             var session = OperationTestHelper.CreateSession();
 
             var result = subject.CreateCommand(connectionDescription, session);
@@ -532,38 +532,6 @@ namespace MongoDB.Driver.Core.Operations
                 { "uniqueDocs", () => uniqueDocs.Value, uniqueDocs.HasValue }
             };
             result.Should().Be(expectedResult);
-        }
-
-        [Fact]
-        public void CreateCommand_should_throw_when_Collation_is_set_but_not_supported()
-        {
-            var subject = new GeoNearOperation<BsonDocument>(_collectionNamespace, _near, _resultSerializer, _messageEncoderSettings)
-            {
-                Collation = new Collation("en_US")
-            };
-
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.Collation.LastNotSupportedVersion);
-            var session = OperationTestHelper.CreateSession();
-
-            var exception = Record.Exception(() => subject.CreateCommand(connectionDescription, session));
-
-            exception.Should().BeOfType<NotSupportedException>();
-        }
-
-        [Fact]
-        public void CreateCommand_should_throw_when_ReadConcern_is_set_but_not_supported()
-        {
-            var subject = new GeoNearOperation<BsonDocument>(_collectionNamespace, _near, _resultSerializer, _messageEncoderSettings)
-            {
-                ReadConcern = new ReadConcern(ReadConcernLevel.Local)
-            };
-
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.ReadConcern.LastNotSupportedVersion);
-            var session = OperationTestHelper.CreateSession();
-
-            var exception = Record.Exception(() => subject.CreateCommand(connectionDescription, session));
-
-            exception.Should().BeOfType<MongoClientException>();
         }
 
         [Theory]
@@ -578,7 +546,7 @@ namespace MongoDB.Driver.Core.Operations
                 ReadConcern = readConcern
             };
 
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.ReadConcern.FirstSupportedVersion, supportsSessions: true);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(supportsSessions: true);
             var session = OperationTestHelper.CreateSession(true, new BsonTimestamp(100));
 
             var result = subject.CreateCommand(connectionDescription, session);
@@ -619,7 +587,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.Collation, Feature.GeoNearCommand);
+            RequireServer.Check().Supports(Feature.GeoNearCommand);
             EnsureTestData();
             var collation = new Collation("en_US", caseLevel: caseSensitive, strength: CollationStrength.Primary);
             var filter = BsonDocument.Parse("{ x : 'x' }");

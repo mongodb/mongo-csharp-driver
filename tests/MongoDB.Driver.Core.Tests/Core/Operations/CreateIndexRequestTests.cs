@@ -146,7 +146,7 @@ namespace MongoDB.Driver.Core.Operations
             var keys = new BsonDocument("x", 1);
             var subject = new CreateIndexRequest(keys);
 
-            var result = subject.CreateIndexDocument(null);
+            var result = subject.CreateIndexDocument();
 
             var expectedResult = new BsonDocument
             {
@@ -170,7 +170,7 @@ namespace MongoDB.Driver.Core.Operations
                 AdditionalOptions = additionalOptions
             };
 
-            var result = subject.CreateIndexDocument(null);
+            var result = subject.CreateIndexDocument();
 
             var expectedResult = new BsonDocument
             {
@@ -194,7 +194,7 @@ namespace MongoDB.Driver.Core.Operations
                 Background = background
             };
 
-            var result = subject.CreateIndexDocument(null);
+            var result = subject.CreateIndexDocument();
 
             var expectedResult = new BsonDocument
             {
@@ -217,7 +217,7 @@ namespace MongoDB.Driver.Core.Operations
                 Bits = bits
             };
 
-            var result = subject.CreateIndexDocument(null);
+            var result = subject.CreateIndexDocument();
 
             var expectedResult = new BsonDocument
             {
@@ -242,7 +242,7 @@ namespace MongoDB.Driver.Core.Operations
 #pragma warning restore 618
             };
 
-            var result = subject.CreateIndexDocument(null);
+            var result = subject.CreateIndexDocument();
 
             var expectedResult = new BsonDocument
             {
@@ -266,7 +266,7 @@ namespace MongoDB.Driver.Core.Operations
                 Collation = collation
             };
 
-            var result = subject.CreateIndexDocument(Feature.Collation.FirstSupportedVersion);
+            var result = subject.CreateIndexDocument();
 
             var expectedResult = new BsonDocument
             {
@@ -289,7 +289,7 @@ namespace MongoDB.Driver.Core.Operations
                 DefaultLanguage = defaultLanguage
             };
 
-            var result = subject.CreateIndexDocument(null);
+            var result = subject.CreateIndexDocument();
 
             var expectedResult = new BsonDocument
             {
@@ -313,7 +313,7 @@ namespace MongoDB.Driver.Core.Operations
                 ExpireAfter = expireAfter
             };
 
-            var result = subject.CreateIndexDocument(null);
+            var result = subject.CreateIndexDocument();
 
             var expectedResult = new BsonDocument
             {
@@ -334,7 +334,7 @@ namespace MongoDB.Driver.Core.Operations
                 Hidden = hidden
             };
 
-            var result = subject.CreateIndexDocument(null);
+            var result = subject.CreateIndexDocument();
 
             var expectedResult = new BsonDocument
             {
@@ -357,7 +357,7 @@ namespace MongoDB.Driver.Core.Operations
                 LanguageOverride = languageOverride
             };
 
-            var result = subject.CreateIndexDocument(null);
+            var result = subject.CreateIndexDocument();
 
             var expectedResult = new BsonDocument
             {
@@ -380,7 +380,7 @@ namespace MongoDB.Driver.Core.Operations
                 Max = max
             };
 
-            var result = subject.CreateIndexDocument(null);
+            var result = subject.CreateIndexDocument();
 
             var expectedResult = new BsonDocument
             {
@@ -403,7 +403,7 @@ namespace MongoDB.Driver.Core.Operations
                 Min = min
             };
 
-            var result = subject.CreateIndexDocument(null);
+            var result = subject.CreateIndexDocument();
 
             var expectedResult = new BsonDocument
             {
@@ -430,7 +430,7 @@ namespace MongoDB.Driver.Core.Operations
                 AdditionalOptions = additionalOptions // secondary source of name
             };
 
-            var result = subject.CreateIndexDocument(null);
+            var result = subject.CreateIndexDocument();
 
             var expectedResult = new BsonDocument
             {
@@ -453,7 +453,7 @@ namespace MongoDB.Driver.Core.Operations
                 PartialFilterExpression = partialFilterExpression
             };
 
-            var result = subject.CreateIndexDocument(null);
+            var result = subject.CreateIndexDocument();
 
             var expectedResult = new BsonDocument
             {
@@ -476,7 +476,7 @@ namespace MongoDB.Driver.Core.Operations
                 Sparse = sparse
             };
 
-            var result = subject.CreateIndexDocument(null);
+            var result = subject.CreateIndexDocument();
 
             var expectedResult = new BsonDocument
             {
@@ -499,7 +499,7 @@ namespace MongoDB.Driver.Core.Operations
                 SphereIndexVersion = sphereIndexVersion
             };
 
-            var result = subject.CreateIndexDocument(null);
+            var result = subject.CreateIndexDocument();
 
             var expectedResult = new BsonDocument
             {
@@ -523,7 +523,7 @@ namespace MongoDB.Driver.Core.Operations
                 StorageEngine = storageEngine
             };
 
-            var result = subject.CreateIndexDocument(null);
+            var result = subject.CreateIndexDocument();
 
             var expectedResult = new BsonDocument
             {
@@ -546,7 +546,7 @@ namespace MongoDB.Driver.Core.Operations
                 TextIndexVersion = textIndexVersion
             };
 
-            var result = subject.CreateIndexDocument(null);
+            var result = subject.CreateIndexDocument();
 
             var expectedResult = new BsonDocument
             {
@@ -569,7 +569,7 @@ namespace MongoDB.Driver.Core.Operations
                 Unique = unique
             };
 
-            var result = subject.CreateIndexDocument(null);
+            var result = subject.CreateIndexDocument();
 
             var expectedResult = new BsonDocument
             {
@@ -592,7 +592,7 @@ namespace MongoDB.Driver.Core.Operations
                 Version = version
             };
 
-            var result = subject.CreateIndexDocument(null);
+            var result = subject.CreateIndexDocument();
 
             var expectedResult = new BsonDocument
             {
@@ -616,7 +616,7 @@ namespace MongoDB.Driver.Core.Operations
                 Weights = weights
             };
 
-            var result = subject.CreateIndexDocument(null);
+            var result = subject.CreateIndexDocument();
 
             var expectedResult = new BsonDocument
             {
@@ -635,7 +635,7 @@ namespace MongoDB.Driver.Core.Operations
             var wildcardIndexKey = BsonDocument.Parse(wildcardIndexString);
             var subject = new CreateIndexRequest(wildcardIndexKey);
 
-            var result = subject.CreateIndexDocument(null);
+            var result = subject.CreateIndexDocument();
 
             var expectedResult = new BsonDocument
             {
@@ -657,7 +657,7 @@ namespace MongoDB.Driver.Core.Operations
                 WildcardProjection = wildcardProjection
             };
 
-            var result = subject.CreateIndexDocument(null);
+            var result = subject.CreateIndexDocument();
 
             var expectedResult = new BsonDocument
             {
@@ -666,20 +666,6 @@ namespace MongoDB.Driver.Core.Operations
                 { "wildcardProjection", wildcardProjection, wildcardProjection != null }
             };
             result.Should().Be(expectedResult);
-        }
-
-        [Fact]
-        public void CreateIndexDocument_should_throw_when_Collation__is_set_and_is_not_supported()
-        {
-            var keys = new BsonDocument("x", 1);
-            var subject = new CreateIndexRequest(keys)
-            {
-                Collation = new Collation("en_US")
-            };
-
-            var exception = Record.Exception(() => subject.CreateIndexDocument(Feature.Collation.LastNotSupportedVersion));
-
-            exception.Should().BeOfType<NotSupportedException>();
         }
 
         [Theory]

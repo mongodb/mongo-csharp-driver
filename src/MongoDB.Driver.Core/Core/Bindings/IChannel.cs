@@ -264,48 +264,6 @@ namespace MongoDB.Driver.Core.Bindings
             CancellationToken cancellationToken);
 
         /// <summary>
-        /// Executes a GetMore protocol.
-        /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <param name="collectionNamespace">The collection namespace.</param>
-        /// <param name="query">The query.</param>
-        /// <param name="cursorId">The cursor identifier.</param>
-        /// <param name="batchSize">Size of the batch.</param>
-        /// <param name="serializer">The serializer.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The result of the GetMore protocol.</returns>
-        CursorBatch<TDocument> GetMore<TDocument>(
-            CollectionNamespace collectionNamespace,
-            BsonDocument query,
-            long cursorId,
-            int batchSize,
-            IBsonSerializer<TDocument> serializer,
-            MessageEncoderSettings messageEncoderSettings,
-            CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Executes a GetMore protocol.
-        /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <param name="collectionNamespace">The collection namespace.</param>
-        /// <param name="query">The query.</param>
-        /// <param name="cursorId">The cursor identifier.</param>
-        /// <param name="batchSize">Size of the batch.</param>
-        /// <param name="serializer">The serializer.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A Task whose result is the result of the GetMore protocol.</returns>
-        Task<CursorBatch<TDocument>> GetMoreAsync<TDocument>(
-            CollectionNamespace collectionNamespace,
-            BsonDocument query,
-            long cursorId,
-            int batchSize,
-            IBsonSerializer<TDocument> serializer,
-            MessageEncoderSettings messageEncoderSettings,
-            CancellationToken cancellationToken);
-
-        /// <summary>
         /// Executes an Insert protocol.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
@@ -357,29 +315,6 @@ namespace MongoDB.Driver.Core.Bindings
             int? maxMessageSize,
             bool continueOnError,
             Func<bool> shouldSendGetLastError,
-            CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Executes a KillCursors protocol.
-        /// </summary>
-        /// <param name="cursorIds">The cursor ids.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        void KillCursors(
-            IEnumerable<long> cursorIds,
-            MessageEncoderSettings messageEncoderSettings,
-            CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Executes a KillCursors protocol.
-        /// </summary>
-        /// <param name="cursorIds">The cursor ids.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A Task that represents the KillCursors protocol.</returns>
-        Task KillCursorsAsync(
-            IEnumerable<long> cursorIds,
-            MessageEncoderSettings messageEncoderSettings,
             CancellationToken cancellationToken);
 
         /// <summary>

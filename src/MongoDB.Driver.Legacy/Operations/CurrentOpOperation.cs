@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Operations
             using (var channel = channelSource.GetChannel(cancellationToken))
             using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference, binding.Session.Fork()))
             {
-                var operation = CreateOperation(channel.ConnectionDescription.ServerVersion);
+                var operation = CreateOperation();
                 return operation.Execute(channelBinding, cancellationToken);
             }
         }
@@ -60,16 +60,6 @@ namespace MongoDB.Driver.Operations
         }
 
         // private methods
-        internal IReadOperation<BsonDocument> CreateOperation(SemanticVersion serverVersion)
-        {
-            if (Feature.CurrentOpCommand.IsSupported(serverVersion))
-            {
-                return new CurrentOpUsingCommandOperation(_databaseNamespace, _messageEncoderSettings);
-            }
-            else
-            {
-                return new CurrentOpUsingFindOperation(_databaseNamespace, _messageEncoderSettings);
-            }
-        }
+        internal IReadOperation<BsonDocument> CreateOperation() => new CurrentOpUsingCommandOperation(_databaseNamespace, _messageEncoderSettings);
     }
 }

@@ -131,19 +131,6 @@ namespace MongoDB.Driver.Core.Helpers
                 isMulti);
         }
 
-        public static GetMoreMessage BuildGetMore(
-            int requestId = 0,
-            CollectionNamespace collectionNamespace = null,
-            long cursorId = 0,
-            int batchSize = 0)
-        {
-            return new GetMoreMessage(
-                requestId,
-                collectionNamespace ?? __defaultCollectionNamespace,
-                cursorId,
-                batchSize);
-        }
-
         public static QueryMessage BuildGetLastError(
             WriteConcern writeConcern,
             int requestId = 0,
@@ -152,11 +139,6 @@ namespace MongoDB.Driver.Core.Helpers
             var command = writeConcern.ToBsonDocument();
             command.InsertAt(0, new BsonElement("getLastError", 1));
             return BuildCommand(command, requestId, databaseNamespace);
-        }
-
-        public static KillCursorsMessage BuildKillCursors(int requestId = 0, long cursorId = 1)
-        {
-            return new KillCursorsMessage(requestId, new[] { cursorId });
         }
 
         public static InsertMessage<T> BuildInsert<T>(

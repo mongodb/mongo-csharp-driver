@@ -149,7 +149,7 @@ namespace MongoDB.Driver.Core.Operations
                 Collation = collation
             };
             var session = OperationTestHelper.CreateSession();
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion: Feature.Collation.FirstSupportedVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
 
             var result = subject.CreateCommand(session, connectionDescription);
@@ -163,21 +163,6 @@ namespace MongoDB.Driver.Core.Operations
                 { "collation", () => collation.ToBsonDocument(), collation != null }
             };
             result.Should().Be(expectedResult);
-        }
-
-        [Fact]
-        public void CreateCommand_should_throw_when_Collation_is_provided_but_not_supported()
-        {
-            var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings)
-            {
-                Collation = new Collation("en_US")
-            };
-            var session = OperationTestHelper.CreateSession();
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion: Feature.Collation.LastNotSupportedVersion);
-
-            var exception = Record.Exception(() => subject.CreateCommand(session, connectionDescription));
-
-            exception.Should().BeOfType<NotSupportedException>();
         }
 
         [Theory]

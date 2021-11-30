@@ -45,11 +45,6 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
-        protected override bool RequestHasCollation(InsertRequest request)
-        {
-            return false;
-        }
-
         protected override bool RequestHasHint(InsertRequest request)
         {
             return false;

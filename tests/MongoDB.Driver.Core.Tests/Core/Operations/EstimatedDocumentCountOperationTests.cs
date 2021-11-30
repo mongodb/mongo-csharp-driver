@@ -158,28 +158,12 @@ namespace MongoDB.Driver.Core.Operations
                 ReadConcern = readConcern
             };
 
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.ReadConcern.FirstSupportedVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             var session = OperationTestHelper.CreateSession();
 
             var result = CreateCommand(subject, connectionDescription, session);
 
             AssertCommandDocument(result, readConcern: readConcern.IsServerDefault ? null : readConcern.ToBsonDocument());
-        }
-
-        [Fact]
-        public void CreateCommand_should_throw_when_ReadConcern_is_set_but_not_supported()
-        {
-            var subject = new EstimatedDocumentCountOperation(_collectionNamespace, _messageEncoderSettings)
-            {
-                ReadConcern = new ReadConcern(ReadConcernLevel.Linearizable)
-            };
-
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.ReadConcern.LastNotSupportedVersion);
-            var session = OperationTestHelper.CreateSession();
-
-            var exception = Record.Exception(() => CreateCommand(subject, connectionDescription, session));
-
-            exception.Should().BeOfType<MongoClientException>();
         }
 
         [Theory]
@@ -193,7 +177,7 @@ namespace MongoDB.Driver.Core.Operations
                 ReadConcern = readConcern
             };
 
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.ReadConcern.FirstSupportedVersion, supportsSessions: true);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(supportsSessions: true);
             var session = OperationTestHelper.CreateSession(true, new BsonTimestamp(100));
 
             var result = CreateCommand(subject, connectionDescription, session);
@@ -259,7 +243,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(null, ReadConcernLevel.Local)] ReadConcernLevel? level,
             [Values(false, true)] bool async)
         {
-            RequireServer.Check().Supports(Feature.ReadConcern);
+            RequireServer.Check();
 
             EnsureTestData();
             var readConcern = level == null ? ReadConcern.Default : new ReadConcern(level.Value);
@@ -271,22 +255,6 @@ namespace MongoDB.Driver.Core.Operations
             var result = ExecuteOperation(subject, async);
 
             result.Should().Be(2);
-        }
-
-        [SkippableTheory]
-        [ParameterAttributeData]
-        public void Execute_should_throw_when_ReadConcern_is_set_but_not_supported([Values(false, true)] bool async)
-        {
-            RequireServer.Check().DoesNotSupport(Feature.ReadConcern);
-
-            var subject = new EstimatedDocumentCountOperation(_collectionNamespace, _messageEncoderSettings)
-            {
-                ReadConcern = new ReadConcern(ReadConcernLevel.Local)
-            };
-
-            var exception = Record.Exception(() => ExecuteOperation(subject, async));
-
-            exception.Should().BeOfType<MongoClientException>();
         }
 
         [SkippableTheory]
@@ -353,7 +321,7 @@ namespace MongoDB.Driver.Core.Operations
             var currentServerVersion = CoreTestConfiguration.ServerVersion;
             if (Feature.EstimatedDocumentCountByCollStats.IsSupported(currentServerVersion))
             {
-                var aggregationOperation = (AggregateOperation<BsonDocument>)subject.CreateAggregationOperation(currentServerVersion);
+                var aggregationOperation = (AggregateOperation<BsonDocument>)subject.CreateAggregationOperation();
                 return aggregationOperation.CreateCommand(connectionDescription, session);
             }
             else
@@ -376,9 +344,9 @@ namespace MongoDB.Driver.Core.Operations
 
     internal static class EstimatedDocumentCountOperationReflector
     {
-        public static IExecutableInRetryableReadContext<IAsyncCursor<BsonDocument>> CreateAggregationOperation(this EstimatedDocumentCountOperation operation, SemanticVersion serverVersion)
+        public static IExecutableInRetryableReadContext<IAsyncCursor<BsonDocument>> CreateAggregationOperation(this EstimatedDocumentCountOperation operation)
         {
-            return (IExecutableInRetryableReadContext<IAsyncCursor<BsonDocument>>)Reflector.Invoke(operation, nameof(CreateAggregationOperation), serverVersion);
+            return (IExecutableInRetryableReadContext<IAsyncCursor<BsonDocument>>)Reflector.Invoke(operation, nameof(CreateAggregationOperation));
         }
 
         public static IExecutableInRetryableReadContext<long> CreateCountOperation(this EstimatedDocumentCountOperation operation)

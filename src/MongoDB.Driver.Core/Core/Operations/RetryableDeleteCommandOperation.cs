@@ -82,13 +82,6 @@ namespace MongoDB.Driver.Core.Operations
         protected override BsonDocument CreateCommand(ICoreSessionHandle session, ConnectionDescription connectionDescription, int attempt, long? transactionNumber)
         {
             var serverVersion = connectionDescription.ServerVersion;
-            if (!Feature.Collation.IsSupported(serverVersion))
-            {
-                if (_deletes.Items.Skip(_deletes.Offset).Take(_deletes.Count).Any(d => d.Collation != null))
-                {
-                    throw new NotSupportedException($"Server version {serverVersion} does not support collations.");
-                }
-            }
             if (Feature.HintForDeleteOperations.DriverMustThrowIfNotSupported(serverVersion) || (WriteConcern != null && !WriteConcern.IsAcknowledged))
             {
                 if (_deletes.Items.Skip(_deletes.Offset).Take(_deletes.Count).Any(u => u.Hint != null))
@@ -97,7 +90,7 @@ namespace MongoDB.Driver.Core.Operations
                 }
             }
 
-            var writeConcern = WriteConcernHelper.GetWriteConcernForWriteCommand(session, WriteConcern);
+            var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(session, WriteConcern);
             return new BsonDocument
             {
                 { "delete", _collectionNamespace.CollectionName },

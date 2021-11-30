@@ -69,9 +69,8 @@ namespace MongoDB.Driver.Core.Operations
                 { "drop", _collectionNamespace.CollectionName }
             };
             var session = OperationTestHelper.CreateSession();
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
-            var result = subject.CreateCommand(session, connectionDescription);
+            var result = subject.CreateCommand(session);
 
             result.Should().Be(expectedResult);
         }
@@ -80,25 +79,21 @@ namespace MongoDB.Driver.Core.Operations
         [ParameterAttributeData]
         public void CreateCommand_should_return_expected_result_when_WriteConcern_is_set(
             [Values(null, 1, 2)]
-            int? w,
-            [Values(false, true)]
-            bool isWriteConcernSupported)
+            int? w)
         {
             var writeConcern = w.HasValue ? new WriteConcern(w.Value) : null;
             var subject = new DropCollectionOperation(_collectionNamespace, _messageEncoderSettings)
             {
                 WriteConcern = writeConcern
             };
-            var serverVersion = Feature.CommandsThatWriteAcceptWriteConcern.SupportedOrNotSupportedVersion(isWriteConcernSupported);
             var session = OperationTestHelper.CreateSession();
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion: serverVersion);
 
-            var result = subject.CreateCommand(session, connectionDescription);
+            var result = subject.CreateCommand(session);
 
             var expectedResult = new BsonDocument
             {
                 { "drop", _collectionNamespace.CollectionName },
-                { "writeConcern", () => writeConcern.ToBsonDocument(), writeConcern != null && isWriteConcernSupported }
+                { "writeConcern", () => writeConcern.ToBsonDocument(), writeConcern != null }
             };
             result.Should().Be(expectedResult);
         }
@@ -141,7 +136,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.ReplicaSet);
+            RequireServer.Check().ClusterType(ClusterType.ReplicaSet);
             EnsureCollectionExists();
             var subject = new DropCollectionOperation(_collectionNamespace, _messageEncoderSettings)
             {

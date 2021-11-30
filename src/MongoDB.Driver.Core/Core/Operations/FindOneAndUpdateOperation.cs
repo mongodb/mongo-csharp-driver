@@ -185,7 +185,6 @@ namespace MongoDB.Driver.Core.Operations
         internal override BsonDocument CreateCommand(ICoreSessionHandle session, ConnectionDescription connectionDescription, long? transactionNumber)
         {
             var serverVersion = connectionDescription.ServerVersion;
-            Feature.Collation.ThrowIfNotSupported(serverVersion, Collation);
             if (Feature.HintForFindAndModifyFeature.DriverMustThrowIfNotSupported(serverVersion) || (WriteConcern != null && !WriteConcern.IsAcknowledged))
             {
                 if (_hint != null)
@@ -194,7 +193,7 @@ namespace MongoDB.Driver.Core.Operations
                 }
             }
 
-            var writeConcern = WriteConcernHelper.GetWriteConcernForCommand(session, WriteConcern, serverVersion, Feature.FindAndModifyWriteConcern);
+            var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(session, WriteConcern);
             return new BsonDocument
             {
                 { "findAndModify", CollectionNamespace.CollectionName },
@@ -206,7 +205,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "upsert", true, _isUpsert },
                 { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(_maxTime.Value), _maxTime.HasValue },
                 { "writeConcern", writeConcern, writeConcern != null },
-                { "bypassDocumentValidation", () => _bypassDocumentValidation.Value, _bypassDocumentValidation.HasValue && Feature.BypassDocumentValidation.IsSupported(serverVersion) },
+                { "bypassDocumentValidation", () => _bypassDocumentValidation.Value, _bypassDocumentValidation.HasValue },
                 { "collation", () => Collation.ToBsonDocument(), Collation != null },
                 { "hint", () => _hint, _hint != null },
                 { "arrayFilters", () => new BsonArray(_arrayFilters), _arrayFilters != null },

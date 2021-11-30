@@ -96,7 +96,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 if (Feature.EstimatedDocumentCountByCollStats.IsSupported(context.Channel.ConnectionDescription.ServerVersion))
                 {
-                    var operation = CreateAggregationOperation(context.Channel.ConnectionDescription.ServerVersion);
+                    var operation = CreateAggregationOperation();
                     IAsyncCursor<BsonDocument> cursor;
                     try
                     {
@@ -129,7 +129,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 if (Feature.EstimatedDocumentCountByCollStats.IsSupported(context.Channel.ConnectionDescription.ServerVersion))
                 {
-                    var operation = CreateAggregationOperation(context.Channel.ConnectionDescription.ServerVersion);
+                    var operation = CreateAggregationOperation();
                     IAsyncCursor<BsonDocument> cursor;
                     try
                     {
@@ -154,10 +154,8 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // private methods
-        private IExecutableInRetryableReadContext<IAsyncCursor<BsonDocument>> CreateAggregationOperation(SemanticVersion serverVersion)
+        private IExecutableInRetryableReadContext<IAsyncCursor<BsonDocument>> CreateAggregationOperation()
         {
-            Feature.ReadConcern.ThrowIfNotSupported(serverVersion, _readConcern);
-
             var pipeline = CreateAggregationPipeline();
             var aggregateOperation = new AggregateOperation<BsonDocument>(_collectionNamespace, pipeline, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {

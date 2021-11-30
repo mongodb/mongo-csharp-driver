@@ -30,50 +30,37 @@ namespace MongoDB.Driver.Core.Operations
     public class WriteConcernHelperTests
     {
         [Theory]
-        [InlineData(false, "{ }", false, null)]
-        [InlineData(false, "{ }", true, null)]
-        [InlineData(false, "{ w : 1 }", false, null)]
-        [InlineData(false, "{ w : 1 }", true, "{ w : 1 }")]
-        [InlineData(true, "{ }", false, null)]
-        [InlineData(true, "{ }", true, null)]
-        [InlineData(true, "{ w : 1 }", false, null)]
-        [InlineData(true, "{ w : 1 }", true, null)]
+        [InlineData(false, "{ }", null)]
+        [InlineData(false, "{ w : 1 }", "{ w : 1 }")]
+        [InlineData(true, "{ }", null)]
+        [InlineData(true, "{ w : 1 }", null)]
         public void GetWriteConcernForCommand_should_return_expected_result(
             bool isInTransaction,
             string writeConcernJson,
-            bool featureIsSupported,
             string expectedResult)
         {
             var session = CreateSession(isInTransaction: isInTransaction);
             var writeConcern = writeConcernJson == null ? null : WriteConcern.FromBsonDocument(BsonDocument.Parse(writeConcernJson));
-            var requiredFeature = Feature.CommandsThatWriteAcceptWriteConcern;
-            var serverVersion = requiredFeature.SupportedOrNotSupportedVersion(featureIsSupported);
 
-            var result = WriteConcernHelper.GetWriteConcernForCommand(session, writeConcern, serverVersion, requiredFeature);
+            var result = WriteConcernHelper.GetEffectiveWriteConcern(session, writeConcern);
 
             result.Should().Be(expectedResult);
         }
 
         [Theory]
-        [InlineData(false, "{ }", false, null)]
-        [InlineData(false, "{ }", true, null)]
-        [InlineData(false, "{ w : 1 }", false, null)]
-        [InlineData(false, "{ w : 1 }", true, "{ w : 1 }")]
-        [InlineData(true, "{ }", false, null)]
-        [InlineData(true, "{ }", true, null)]
-        [InlineData(true, "{ w : 1 }", false, null)]
-        [InlineData(true, "{ w : 1 }", true, null)]
+        [InlineData(false, "{ }", null)]
+        [InlineData(false, "{ w : 1 }", "{ w : 1 }")]
+        [InlineData(true, "{ }", null)]
+        [InlineData(true, "{ w : 1 }", null)]
         public void GetWriteConcernForCommandThatWrites_should_return_expected_result(
             bool isInTransaction,
             string writeConcernJson,
-            bool featureIsSupported,
             string expectedResult)
         {
             var session = CreateSession(isInTransaction: isInTransaction);
             var writeConcern = writeConcernJson == null ? null : WriteConcern.FromBsonDocument(BsonDocument.Parse(writeConcernJson));
-            var serverVersion = Feature.CommandsThatWriteAcceptWriteConcern.SupportedOrNotSupportedVersion(featureIsSupported);
 
-            var result = WriteConcernHelper.GetWriteConcernForCommandThatWrites(session, writeConcern, serverVersion);
+            var result = WriteConcernHelper.GetEffectiveWriteConcern(session, writeConcern);
 
             result.Should().Be(expectedResult);
         }
@@ -91,7 +78,7 @@ namespace MongoDB.Driver.Core.Operations
             var session = CreateSession(isInTransaction: isInTransaction);
             var writeConcern = writeConcernJson == null ? null : WriteConcern.FromBsonDocument(BsonDocument.Parse(writeConcernJson));
 
-            var result = WriteConcernHelper.GetWriteConcernForWriteCommand(session, writeConcern);
+            var result = WriteConcernHelper.GetEffectiveWriteConcern(session, writeConcern);
 
             result.Should().Be(expectedResult);
         }

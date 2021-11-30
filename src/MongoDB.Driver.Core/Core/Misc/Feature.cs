@@ -134,6 +134,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the aggregate bucket stage feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature AggregateBucketStage => __aggregateBucketStage;
 
         /// <summary>
@@ -144,6 +145,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the aggregate count stage feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature AggregateCountStage => __aggregateCountStage;
 
         /// <summary>
@@ -222,6 +224,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the bypass document validation feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature BypassDocumentValidation => __bypassDocumentValidation;
 
         /// <summary>
@@ -242,6 +245,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the collation feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static CollationFeature Collation => __collation;
 
         /// <summary>
@@ -252,6 +256,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the commands that write accept write concern feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static CommandsThatWriteAcceptWriteConcernFeature CommandsThatWriteAcceptWriteConcern => __commandsThatWriteAcceptWriteConcern;
 
         /// <summary>
@@ -273,11 +278,13 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the current op command feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature CurrentOpCommand => __currentOpCommand;
 
         /// <summary>
         /// Gets the document validation feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature DocumentValidation => __documentValidation;
 
         /// <summary>
@@ -330,11 +337,13 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the find and modify write concern feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature FindAndModifyWriteConcern => __findAndModifyWriteConcern;
 
         /// <summary>
         /// Gets the find command feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature FindCommand => __findCommand;
 
         /// <summary>
@@ -396,11 +405,13 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Get the killCursors command feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature KillCursorsCommand => __killCursorsCommand;
 
         /// <summary>
         /// Gets the index options defaults feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature IndexOptionsDefaults => __indexOptionsDefaults;
 
         /// <summary>
@@ -443,6 +454,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the maximum staleness feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature MaxStaleness => __maxStaleness;
 
         /// <summary>
@@ -459,11 +471,13 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the partial indexes feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature PartialIndexes => __partialIndexes;
 
         /// <summary>
         /// Gets the read concern feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static ReadConcernFeature ReadConcern => __readConcern;
 
         /// <summary>
@@ -532,6 +546,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the tailable cursor feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature TailableCursor => __tailableCursor;
 
         /// <summary>
@@ -548,6 +563,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the views feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature Views => __views;
 
         /// <summary>

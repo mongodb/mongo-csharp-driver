@@ -85,7 +85,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void TestCreateCollectionSetIndexOptionDefaults()
         {
-            RequireServer.Check().Supports(Feature.IndexOptionsDefaults).ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet);
+            RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet);
             var collection = _database.GetCollection("testindexoptiondefaults");
             collection.Drop();
             Assert.False(collection.Exists());
@@ -128,7 +128,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void TestCreateCollectionSetValidator()
         {
-            RequireServer.Check().Supports(Feature.DocumentValidation);
+            RequireServer.Check();
             var collection = _database.GetCollection("testvalidation");
             collection.Drop();
             Assert.False(collection.Exists());
@@ -149,7 +149,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void TestCreateCollectionWriteConcern()
         {
-            RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.ReplicaSet);
+            RequireServer.Check().ClusterType(ClusterType.ReplicaSet);
             var subject = _database;
             var collectionName = "Restricted Section";
             var writeConcern = new WriteConcern(9);
@@ -163,7 +163,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void TestCreateViewWriteConcern()
         {
-            RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.ReplicaSet);
+            RequireServer.Check().ClusterType(ClusterType.ReplicaSet);
             var subject = _database;
             var writeConcern = new WriteConcern(9);
             var pipeline = new BsonDocument[0];
@@ -192,7 +192,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void TestDropCollectionWriteConcern()
         {
-            RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.ReplicaSet);
+            RequireServer.Check().ClusterType(ClusterType.ReplicaSet);
             var subject = _database;
             var writeConcern = new WriteConcern(9);
             var collectionName = "MacGuffins";
@@ -455,7 +455,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void TestRenameCollectionWriteConcern()
         {
-            RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.ReplicaSet);
+            RequireServer.Check().ClusterType(ClusterType.ReplicaSet);
             var oldCollectionName = "oldcollectioname";
             var newCollectionName = "newcollectioname";
             EnsureCollectionExists(oldCollectionName);

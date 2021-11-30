@@ -609,46 +609,6 @@ namespace MongoDB.Driver.Core.Servers
                 return ExecuteProtocolAsync(protocol, cancellationToken);
             }
 
-            public CursorBatch<TDocument> GetMore<TDocument>(
-                CollectionNamespace collectionNamespace,
-                BsonDocument query,
-                long cursorId,
-                int batchSize,
-                IBsonSerializer<TDocument> serializer,
-                MessageEncoderSettings messageEncoderSettings,
-                CancellationToken cancellationToken)
-            {
-                var protocol = new GetMoreWireProtocol<TDocument>(
-                    collectionNamespace,
-                    query,
-                    cursorId,
-                    batchSize,
-                    serializer,
-                    messageEncoderSettings);
-
-                return ExecuteProtocol(protocol, cancellationToken);
-            }
-
-            public Task<CursorBatch<TDocument>> GetMoreAsync<TDocument>(
-              CollectionNamespace collectionNamespace,
-              BsonDocument query,
-              long cursorId,
-              int batchSize,
-              IBsonSerializer<TDocument> serializer,
-              MessageEncoderSettings messageEncoderSettings,
-              CancellationToken cancellationToken)
-            {
-                var protocol = new GetMoreWireProtocol<TDocument>(
-                    collectionNamespace,
-                    query,
-                    cursorId,
-                    batchSize,
-                    serializer,
-                    messageEncoderSettings);
-
-                return ExecuteProtocolAsync(protocol, cancellationToken);
-            }
-
             public WriteConcernResult Insert<TDocument>(
                 CollectionNamespace collectionNamespace,
                 WriteConcern writeConcern,
@@ -697,30 +657,6 @@ namespace MongoDB.Driver.Core.Servers
                     maxMessageSize,
                     continueOnError,
                     shouldSendGetLastError);
-
-                return ExecuteProtocolAsync(protocol, cancellationToken);
-            }
-
-            public void KillCursors(
-                IEnumerable<long> cursorIds,
-                MessageEncoderSettings messageEncoderSettings,
-                CancellationToken cancellationToken)
-            {
-                var protocol = new KillCursorsWireProtocol(
-                    cursorIds,
-                    messageEncoderSettings);
-
-                ExecuteProtocol(protocol, cancellationToken);
-            }
-
-            public Task KillCursorsAsync(
-              IEnumerable<long> cursorIds,
-              MessageEncoderSettings messageEncoderSettings,
-              CancellationToken cancellationToken)
-            {
-                var protocol = new KillCursorsWireProtocol(
-                    cursorIds,
-                    messageEncoderSettings);
 
                 return ExecuteProtocolAsync(protocol, cancellationToken);
             }

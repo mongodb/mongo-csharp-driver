@@ -1546,7 +1546,7 @@ namespace MongoDB.Driver.Examples
         [Fact]
         public void Index_Example_2()
         {
-            RequireServer.Check().Supports(Feature.PartialIndexes);
+            RequireServer.Check();
 
             //db.restaurants.createIndex(
             //{ cuisine: 1, name: 1 },

@@ -34,17 +34,9 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         /// </summary>
         Delete,
         /// <summary>
-        /// OP_GETMORE
-        /// </summary>
-        GetMore,
-        /// <summary>
         /// OP_INSERT
         /// </summary>
         Insert,
-        /// <summary>
-        /// OP_KILLCURSORS
-        /// </summary>
-        KillCursors,
         /// <summary>
         /// OP_QUERY
         /// </summary>

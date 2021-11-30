@@ -548,7 +548,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests.Translators
         [SkippableFact]
         public void BitsAllClear_with_bitwise_operators()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
+            RequireServer.Check();
 
             Assert(
                 x => (x.C.E.F & 20) == 0,
@@ -559,7 +559,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests.Translators
         [SkippableFact]
         public void BitsAllSet_with_bitwise_operators()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
+            RequireServer.Check();
 
             Assert(
                 x => (x.C.E.F & 7) == 7,
@@ -570,7 +570,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests.Translators
         [SkippableFact]
         public void BitsAllSet_with_HasFlag()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
+            RequireServer.Check();
 
             Assert(
                 x => x.Q.HasFlag(Q.One),
@@ -581,7 +581,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests.Translators
         [SkippableFact]
         public void BitsAnyClear_with_bitwise_operators()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
+            RequireServer.Check();
 
             Assert(
                 x => (x.C.E.F & 7) != 7,
@@ -592,7 +592,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests.Translators
         [SkippableFact]
         public void BitsAnySet_with_bitwise_operators()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
+            RequireServer.Check();
 
             Assert(
                 x => (x.C.E.F & 20) != 0,

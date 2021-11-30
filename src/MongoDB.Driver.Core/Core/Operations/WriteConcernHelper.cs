@@ -15,28 +15,12 @@
 
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Bindings;
-using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Operations
 {
     internal static class WriteConcernHelper
     {
-        public static BsonDocument GetWriteConcernForCommand(ICoreSession session, WriteConcern writeConcern, SemanticVersion serverVersion, Feature requiredFeature)
-        {
-            if (!session.IsInTransaction && writeConcern != null && !writeConcern.IsServerDefault && requiredFeature.IsSupported(serverVersion))
-            {
-                return writeConcern.ToBsonDocument();
-            }
-
-            return null;
-        }
-
-        public static BsonDocument GetWriteConcernForCommandThatWrites(ICoreSession session, WriteConcern writeConcern, SemanticVersion serverVersion)
-        {
-            return GetWriteConcernForCommand(session, writeConcern, serverVersion, Feature.CommandsThatWriteAcceptWriteConcern);
-        }
-
-        public static BsonDocument GetWriteConcernForWriteCommand(ICoreSession session, WriteConcern writeConcern)
+        public static BsonDocument GetEffectiveWriteConcern(ICoreSession session, WriteConcern writeConcern)
         {
             if (!session.IsInTransaction && writeConcern != null && !writeConcern.IsServerDefault)
             {

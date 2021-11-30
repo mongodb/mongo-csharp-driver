@@ -341,62 +341,6 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         [Fact]
-        public void Should_process_a_get_more()
-        {
-            var expectedCommand = new BsonDocument
-            {
-                { "getMore", 20L },
-                { "collection", MessageHelper.DefaultCollectionNamespace.CollectionName },
-                { "batchSize", 40 }
-            };
-            var expectedReplyDocuments = new[]
-            {
-                new BsonDocument("first", 1),
-                new BsonDocument("second", 2)
-            };
-            var expectedReply = new BsonDocument
-            {
-                { "cursor", new BsonDocument
-                            {
-                                { "id", expectedCommand["getMore"].ToInt64() },
-                                { "ns", MessageHelper.DefaultCollectionNamespace.FullName },
-                                { "nextBatch", new BsonArray(expectedReplyDocuments) }
-                            }},
-                { "ok", 1 }
-            };
-
-            var requestMessage = MessageHelper.BuildGetMore(
-                requestId: 10,
-                cursorId: expectedCommand["getMore"].ToInt64(),
-                batchSize: 40);
-            SendMessages(requestMessage);
-
-            var replyMessage = MessageHelper.BuildReply<BsonDocument>(
-                expectedReplyDocuments,
-                BsonDocumentSerializer.Instance,
-                responseTo: requestMessage.RequestId,
-                cursorId: expectedReply["cursor"]["id"].ToInt64());
-            ReceiveMessages(replyMessage);
-
-            var commandStartedEvent = (CommandStartedEvent)_capturedEvents.Next();
-            var commandSucceededEvent = (CommandSucceededEvent)_capturedEvents.Next();
-
-            commandStartedEvent.CommandName.Should().Be(expectedCommand.GetElement(0).Name);
-            commandStartedEvent.Command.Should().Be(expectedCommand);
-            commandStartedEvent.ConnectionId.Should().Be(_subject.ConnectionId);
-            commandStartedEvent.DatabaseNamespace.Should().Be(MessageHelper.DefaultDatabaseNamespace);
-            commandStartedEvent.OperationId.Should().Be(EventContext.OperationId);
-            commandStartedEvent.RequestId.Should().Be(requestMessage.RequestId);
-
-            commandSucceededEvent.CommandName.Should().Be(commandStartedEvent.CommandName);
-            commandSucceededEvent.ConnectionId.Should().Be(commandStartedEvent.ConnectionId);
-            commandSucceededEvent.Duration.Should().BeGreaterThan(TimeSpan.Zero);
-            commandSucceededEvent.OperationId.Should().Be(commandStartedEvent.OperationId);
-            commandSucceededEvent.Reply.Should().Be(expectedReply);
-            commandSucceededEvent.RequestId.Should().Be(commandStartedEvent.RequestId);
-        }
-
-        [Fact]
         public void Should_process_an_insert_without_gle()
         {
             var documents = new[]
@@ -477,36 +421,6 @@ namespace MongoDB.Driver.Core.Connections
             commandStartedEvent.DatabaseNamespace.Should().Be(MessageHelper.DefaultDatabaseNamespace);
             commandStartedEvent.OperationId.Should().Be(EventContext.OperationId);
             commandStartedEvent.RequestId.Should().Be(gleMessage.RequestId);
-
-            commandSucceededEvent.CommandName.Should().Be(commandStartedEvent.CommandName);
-            commandSucceededEvent.ConnectionId.Should().Be(commandStartedEvent.ConnectionId);
-            commandSucceededEvent.Duration.Should().BeGreaterThan(TimeSpan.Zero);
-            commandSucceededEvent.OperationId.Should().Be(commandStartedEvent.OperationId);
-            commandSucceededEvent.Reply.Should().Be(expectedReply);
-            commandSucceededEvent.RequestId.Should().Be(commandStartedEvent.RequestId);
-        }
-
-        [Fact]
-        public void Should_process_kill_cursors()
-        {
-            var expectedCommand = BsonDocument.Parse("{ killCursors: 'bar', cursors: [NumberLong(20)] }");
-            var expectedReply = BsonDocument.Parse("{ ok: 1, cursorsUnknown: [NumberLong(20)] }");
-
-            var requestMessage = MessageHelper.BuildKillCursors(10, 20);
-            using (EventContext.BeginKillCursors(MessageHelper.DefaultCollectionNamespace))
-            {
-                SendMessages(requestMessage);
-            }
-
-            var commandStartedEvent = (CommandStartedEvent)_capturedEvents.Next();
-            var commandSucceededEvent = (CommandSucceededEvent)_capturedEvents.Next();
-
-            commandStartedEvent.CommandName.Should().Be(expectedCommand.GetElement(0).Name);
-            commandStartedEvent.Command.Should().Be(expectedCommand);
-            commandStartedEvent.ConnectionId.Should().Be(_subject.ConnectionId);
-            commandStartedEvent.DatabaseNamespace.Should().Be(MessageHelper.DefaultDatabaseNamespace);
-            commandStartedEvent.OperationId.Should().Be(EventContext.OperationId);
-            commandStartedEvent.RequestId.Should().Be(requestMessage.RequestId);
 
             commandSucceededEvent.CommandName.Should().Be(commandStartedEvent.CommandName);
             commandSucceededEvent.ConnectionId.Should().Be(commandStartedEvent.ConnectionId);

@@ -40,14 +40,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var exception = Record.Exception(() => ExecuteOperation(subject, async));
 
-            if (Feature.Collation.IsSupported(CoreTestConfiguration.ServerVersion))
-            {
-                exception.Should().BeNull();
-            }
-            else
-            {
-                exception.Should().BeOfType<NotSupportedException>();
-            }
+            exception.Should().BeNull();
         }
 
         [Theory]

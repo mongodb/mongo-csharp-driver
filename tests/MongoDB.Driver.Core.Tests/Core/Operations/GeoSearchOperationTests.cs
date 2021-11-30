@@ -115,29 +115,20 @@ namespace MongoDB.Driver.Core.Operations
             var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion);
             var session = OperationTestHelper.CreateSession();
 
-            if (!readConcern.IsServerDefault && !Feature.ReadConcern.IsSupported(serverVersion))
-            {
-                var exception = Record.Exception(() => subject.CreateCommand(connectionDescription, session));
+            var result = subject.CreateCommand(connectionDescription, session);
 
-                exception.Should().BeOfType<MongoClientException>();
-            }
-            else
+            var expectedResult = new BsonDocument
             {
-                var result = subject.CreateCommand(connectionDescription, session);
-
-                var expectedResult = new BsonDocument
-                {
-                    { "geoSearch", _collectionNamespace.CollectionName },
-                    { "near", near },
-                    { "limit", limit },
-                    { "maxDistance", maxDistance },
-                    { "search", filter },
-                    { "maxTimeMS", (int)maxTime.TotalMilliseconds },
-                    { "readConcern", () => readConcern.ToBsonDocument(), !readConcern.IsServerDefault }
-                };
-                result.Should().Be(expectedResult);
-                result["maxTimeMS"].BsonType.Should().Be(BsonType.Int32);
-            }
+                { "geoSearch", _collectionNamespace.CollectionName },
+                { "near", near },
+                { "limit", limit },
+                { "maxDistance", maxDistance },
+                { "search", filter },
+                { "maxTimeMS", (int)maxTime.TotalMilliseconds },
+                { "readConcern", () => readConcern.ToBsonDocument(), !readConcern.IsServerDefault }
+            };
+            result.Should().Be(expectedResult);
+            result["maxTimeMS"].BsonType.Should().Be(BsonType.Int32);
         }
 
         [Theory]
@@ -154,8 +145,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 MaxTime = TimeSpan.FromTicks(maxTimeTicks)
             };
-            var serverVersion = new SemanticVersion(3, 2, 0);
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             var session = OperationTestHelper.CreateSession();
 
             var result = subject.CreateCommand(connectionDescription, session);

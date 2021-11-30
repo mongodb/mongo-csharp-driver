@@ -120,7 +120,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void TestDropDatabaseWriteConcern()
         {
-            RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.ReplicaSet);
+            RequireServer.Check().ClusterType(ClusterType.ReplicaSet);
             var subject = __server;
             var writeConcern = new WriteConcern(9);
 

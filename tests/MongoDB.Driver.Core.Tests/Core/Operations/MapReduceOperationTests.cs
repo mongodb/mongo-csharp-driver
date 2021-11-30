@@ -166,7 +166,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.Collation);
+            RequireServer.Check();
             EnsureTestData();
             var collation = new Collation("en_US", caseLevel: caseSensitive, strength: CollationStrength.Primary);
             var filter = BsonDocument.Parse("{ y : 'a' }");
@@ -337,7 +337,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.ReadConcern);
+            RequireServer.Check();
             EnsureTestData();
             var readConcern = new ReadConcern(readConcernLevel);
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -480,26 +480,6 @@ namespace MongoDB.Driver.Core.Operations
 
         [SkippableTheory]
         [ParameterAttributeData]
-        public void Execute_should_throw_when_ReadConcern_is_set_but_not_supported(
-            [Values(false, true)]
-            bool async)
-        {
-            RequireServer.Check().DoesNotSupport(Feature.ReadConcern);
-            EnsureTestData();
-#pragma warning disable CS0618 // Type or member is obsolete
-            var subject = new MapReduceOperation<BsonDocument>(_collectionNamespace, _mapFunction, _reduceFunction, _resultSerializer, _messageEncoderSettings)
-#pragma warning restore CS0618 // Type or member is obsolete
-            {
-                ReadConcern = new ReadConcern(ReadConcernLevel.Local)
-            };
-
-            var exception = Record.Exception(() => ExecuteOperation(subject, async));
-
-            exception.Should().BeOfType<MongoClientException>();
-        }
-
-        [SkippableTheory]
-        [ParameterAttributeData]
         public void Execute_should_send_session_id_when_supported(
             [Values(false, true)] bool async)
         {
@@ -526,7 +506,7 @@ namespace MongoDB.Driver.Core.Operations
                 ReadConcern = readConcern
             };
             var session = OperationTestHelper.CreateSession();
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion: Feature.ReadConcern.FirstSupportedVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
             var result = subject.CreateCommand(session, connectionDescription);
 
@@ -539,23 +519,6 @@ namespace MongoDB.Driver.Core.Operations
                 { "readConcern", () => readConcern.ToBsonDocument(), !readConcern.IsServerDefault }
             };
             result.Should().Be(expectedResult);
-        }
-
-        [Fact]
-        public void CreateCommand_should_throw_when_ReadConcern_is_set_but_not_supported()
-        {
-#pragma warning disable CS0618 // Type or member is obsolete
-            var subject = new MapReduceOperation<BsonDocument>(_collectionNamespace, _mapFunction, _reduceFunction, _resultSerializer, _messageEncoderSettings)
-#pragma warning restore CS0618 // Type or member is obsolete
-            {
-                ReadConcern = ReadConcern.Majority
-            };
-            var session = OperationTestHelper.CreateSession();
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion: Feature.ReadConcern.LastNotSupportedVersion);
-
-            var exception = Record.Exception(() => subject.CreateCommand(session, connectionDescription));
-
-            exception.Should().BeOfType<MongoClientException>();
         }
 
         [SkippableTheory]
@@ -572,7 +535,7 @@ namespace MongoDB.Driver.Core.Operations
                 ReadConcern = readConcern
             };
             var session = OperationTestHelper.CreateSession(isCausallyConsistent: true, operationTime: new BsonTimestamp(100));
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion: Feature.ReadConcern.FirstSupportedVersion, supportsSessions: true);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(supportsSessions: true);
 
             var result = subject.CreateCommand(session, connectionDescription);
 

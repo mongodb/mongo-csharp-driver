@@ -61,15 +61,11 @@ namespace MongoDB.Driver.Core.Operations
 
         [Theory]
         //sync
-        [InlineData(false, "3.1.0")]
         [InlineData(false, "3.2.0")]
         //async
-        [InlineData(true, "3.1.0")]
         [InlineData(true, "3.2.0")]
         public void Close_should_call_supported_kill_cursors(bool async, string version)
         {
-            bool isKillCursorsCommandSupported = Feature.KillCursorsCommand.IsSupported(SemanticVersion.Parse(version));
-
             var mockChannelHandle = new Mock<IChannelHandle>();
             int testCursorId = 1;
 
@@ -87,13 +83,9 @@ namespace MongoDB.Driver.Core.Operations
                 subject.Close();
             }
 
-            VerifyHowManyTimesKillCursorsWasCalled(
-                mockChannelHandle,
-                isKillCursorsCommandSupported ? Times.Never() : Times.Once(),
-                async);
             VerifyHowManyTimesKillCursorsCommandWasCalled(
                 mockChannelHandle,
-                isKillCursorsCommandSupported ? Times.Once() : Times.Never(),
+                Times.Once(),
                 async);
         }
 
@@ -392,7 +384,6 @@ namespace MongoDB.Driver.Core.Operations
             var subject = CreateSubject(cursorId: 0, channelSource: Optional.Create(mockChannelSource.Object));
             subject.Dispose();
 
-            VerifyHowManyTimesKillCursorsWasCalled(mockChannelHandle, Times.Never(), false);
             VerifyHowManyTimesKillCursorsCommandWasCalled(mockChannelHandle, Times.Never(), false);
         }
 
@@ -621,28 +612,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private void VerifyHowManyTimesKillCursorsWasCalled(Mock<IChannelHandle> mockChannelHandle, Times times, bool async)
-        {
-            if (async)
-            {
-                mockChannelHandle.Verify(
-                    s => s.KillCursorsAsync(
-                        It.IsAny<IEnumerable<long>>(),
-                        It.IsAny<MessageEncoderSettings>(),
-                        It.IsAny<CancellationToken>()),
-                    times);
-            }
-            else
-            {
-                mockChannelHandle.Verify(
-                    s => s.KillCursors(
-                        It.IsAny<IEnumerable<long>>(),
-                        It.IsAny<MessageEncoderSettings>(),
-                        It.IsAny<CancellationToken>()),
-                    times);
-            }
-        }
-
         private void VerifyHowManyTimesKillCursorsCommandWasCalled(Mock<IChannelHandle> mockChannelHandle, Times times, bool async)
         {
             if (async)
@@ -736,14 +705,7 @@ namespace MongoDB.Driver.Core.Operations
 
         private IReadOnlyList<BsonDocument> GetFirstBatch(IChannelHandle channel, BsonDocument query, int batchSize, CancellationToken cancellationToken, out long cursorId)
         {
-            if (Feature.FindCommand.IsSupported(channel.ConnectionDescription.ServerVersion))
-            {
-                return GetFirstBatchUsingFindCommand(channel, query, batchSize, cancellationToken, out cursorId);
-            }
-            else
-            {
-                return GetFirstBatchUsingQueryMessage(channel, query, batchSize, cancellationToken, out cursorId);
-            }
+            return GetFirstBatchUsingFindCommand(channel, query, batchSize, cancellationToken, out cursorId);
         }
 
         private IReadOnlyList<BsonDocument> GetFirstBatchUsingFindCommand(IChannelHandle channel, BsonDocument query, int batchSize, CancellationToken cancellationToken, out long cursorId)

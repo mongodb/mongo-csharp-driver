@@ -94,13 +94,6 @@ namespace MongoDB.Driver.Core.Operations
         protected override BsonDocument CreateCommand(ICoreSessionHandle session, ConnectionDescription connectionDescription, int attempt, long? transactionNumber)
         {
             var serverVersion = connectionDescription.ServerVersion;
-            if (!Feature.Collation.IsSupported(serverVersion))
-            {
-                if (_updates.Items.Skip(_updates.Offset).Take(_updates.Count).Any(u => u.Collation != null))
-                {
-                    throw new NotSupportedException($"Server version {serverVersion} does not support collations.");
-                }
-            }
             if (!Feature.ArrayFilters.IsSupported(serverVersion))
             {
                 if (_updates.Items.Skip(_updates.Offset).Take(_updates.Count).Any(u => u.ArrayFilters != null))
@@ -116,7 +109,7 @@ namespace MongoDB.Driver.Core.Operations
                 }
             }
 
-            var writeConcern = WriteConcernHelper.GetWriteConcernForWriteCommand(session, WriteConcern);
+            var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(session, WriteConcern);
             return new BsonDocument
             {
                 { "update", _collectionNamespace.CollectionName },

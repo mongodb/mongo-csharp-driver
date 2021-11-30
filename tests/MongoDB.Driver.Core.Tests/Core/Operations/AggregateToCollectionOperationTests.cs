@@ -314,17 +314,14 @@ namespace MongoDB.Driver.Core.Operations
         [ParameterAttributeData]
         public void CreateCommand_should_return_expected_result_when_BypassDocumentValidation_is_set(
             [Values(null, false, true)]
-            bool? bypassDocumentValidation,
-            [Values(false, true)]
-            bool useServerVersionSupportingBypassDocumentValidation)
+            bool? bypassDocumentValidation)
         {
             var subject = new AggregateToCollectionOperation(_collectionNamespace, __pipeline, _messageEncoderSettings)
             {
                 BypassDocumentValidation = bypassDocumentValidation
             };
-            var serverVersion = Feature.BypassDocumentValidation.SupportedOrNotSupportedVersion(useServerVersionSupportingBypassDocumentValidation);
             var session = OperationTestHelper.CreateSession();
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion: serverVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
             var result = subject.CreateCommand(session, connectionDescription);
 
@@ -332,8 +329,8 @@ namespace MongoDB.Driver.Core.Operations
             {
                 { "aggregate", _collectionNamespace.CollectionName },
                 { "pipeline", new BsonArray(__pipeline) },
-                { "bypassDocumentValidation", () => bypassDocumentValidation.Value, bypassDocumentValidation != null && Feature.BypassDocumentValidation.IsSupported(serverVersion) },
-                { "cursor", new BsonDocument(), serverVersion >= new SemanticVersion(3, 6, 0) }
+                { "bypassDocumentValidation", () => bypassDocumentValidation.Value, bypassDocumentValidation != null },
+                { "cursor", new BsonDocument() }
             };
             result.Should().Be(expectedResult);
         }
@@ -362,21 +359,6 @@ namespace MongoDB.Driver.Core.Operations
                 { "cursor", new BsonDocument() }
             };
             result.Should().Be(expectedResult);
-        }
-
-        [Fact]
-        public void CreateCommand_should_throw_when_Collation_is_set_but_not_supported()
-        {
-            var subject = new AggregateToCollectionOperation(_collectionNamespace, __pipeline, _messageEncoderSettings)
-            {
-                Collation = new Collation("en_US")
-            };
-            var session = OperationTestHelper.CreateSession();
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion: Feature.Collation.LastNotSupportedVersion);
-
-            var exception = Record.Exception(() => subject.CreateCommand(session, connectionDescription));
-
-            exception.Should().BeOfType<NotSupportedException>();
         }
 
         [Theory]
@@ -515,9 +497,7 @@ namespace MongoDB.Driver.Core.Operations
         [ParameterAttributeData]
         public void CreateCommand_should_return_expected_result_when_WriteConcern_is_set(
             [Values(null, 1, 2)]
-            int? w,
-            [Values(false, true)]
-            bool isWriteConcernSupported)
+            int? w)
         {
             var writeConcern = w.HasValue ? new WriteConcern(w.Value) : null;
             var subject = new AggregateToCollectionOperation(_collectionNamespace, __pipeline, _messageEncoderSettings)
@@ -525,7 +505,7 @@ namespace MongoDB.Driver.Core.Operations
                 WriteConcern = writeConcern
             };
             var session = OperationTestHelper.CreateSession();
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion: Feature.CommandsThatWriteAcceptWriteConcern.SupportedOrNotSupportedVersion(isWriteConcernSupported));
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
             var result = subject.CreateCommand(session, connectionDescription);
 
@@ -533,7 +513,8 @@ namespace MongoDB.Driver.Core.Operations
             {
                 { "aggregate", _collectionNamespace.CollectionName },
                 { "pipeline", new BsonArray(__pipeline) },
-                { "writeConcern", () => writeConcern.ToBsonDocument(), writeConcern != null && isWriteConcernSupported }
+                { "writeConcern", () => writeConcern.ToBsonDocument(), writeConcern != null },
+                { "cursor", new BsonDocument() }
             };
             result.Should().Be(expectedResult);
         }
@@ -646,7 +627,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.Collation);
+            RequireServer.Check();
             EnsureTestData();
             var pipeline = new[]
             {
@@ -664,23 +645,6 @@ namespace MongoDB.Driver.Core.Operations
 
             result.Should().NotBeNull();
             result.Should().HaveCount(caseSensitive ? 1 : 2);
-        }
-
-        [SkippableTheory]
-        [ParameterAttributeData]
-        public void Execute_should_throw_when_Collation_is_set(
-            [Values(false, true)]
-            bool async)
-        {
-            RequireServer.Check().DoesNotSupport(Feature.Collation);
-            var subject = new AggregateToCollectionOperation(_collectionNamespace, __pipeline, _messageEncoderSettings)
-            {
-                Collation = new Collation("en_US")
-            };
-
-            var exception = Record.Exception(() => ExecuteOperation(subject, async));
-
-            exception.Should().BeOfType<NotSupportedException>();
         }
 
         [SkippableTheory]
@@ -838,7 +802,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.ReplicaSet);
+            RequireServer.Check().ClusterType(ClusterType.ReplicaSet);
             EnsureTestData();
             var subject = new AggregateToCollectionOperation(_collectionNamespace, __pipeline, _messageEncoderSettings)
             {

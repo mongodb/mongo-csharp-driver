@@ -116,7 +116,7 @@ namespace MongoDB.Driver.Core.Connections
                     {
                         var @event = new CommandSucceededEvent(
                             state.CommandName,
-                            state.NoResponseResponse ?? new BsonDocument("ok", 1),
+                            new BsonDocument("ok", 1),
                             state.OperationId,
                             message.RequestId,
                             connectionId,
@@ -237,14 +237,8 @@ namespace MongoDB.Driver.Core.Connections
                 case MongoDBMessageType.Delete:
                     ProcessDeleteMessage((DeleteMessage)message, messageQueue, connectionId, new DeleteMessageBinaryEncoder(stream, encoderSettings), stopwatch);
                     break;
-                case MongoDBMessageType.GetMore:
-                    ProcessGetMoreMessage((GetMoreMessage)message, connectionId, stopwatch);
-                    break;
                 case MongoDBMessageType.Insert:
                     ProcessInsertMessage(message, messageQueue, connectionId, new InsertMessageBinaryEncoder<RawBsonDocument>(stream, encoderSettings, RawBsonDocumentSerializer.Instance), stopwatch);
-                    break;
-                case MongoDBMessageType.KillCursors:
-                    ProcessKillCursorsMessages((KillCursorsMessage)message, connectionId, stopwatch);
                     break;
                 case MongoDBMessageType.Query:
                     ProcessQueryMessage((QueryMessage)message, connectionId, new QueryMessageBinaryEncoder(stream, encoderSettings), stopwatch);
@@ -440,43 +434,6 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        private void ProcessGetMoreMessage(GetMoreMessage originalMessage, ConnectionId connectionId, Stopwatch stopwatch)
-        {
-            var commandName = "getMore";
-            var operationId = EventContext.OperationId;
-            if (_startedEvent != null)
-            {
-                var command = new BsonDocument
-                {
-                    { commandName, originalMessage.CursorId },
-                    { "collection",  originalMessage.CollectionNamespace.CollectionName },
-                    { "batchSize", originalMessage.BatchSize, originalMessage.BatchSize > 0 }
-                };
-
-                var @event = new CommandStartedEvent(
-                    "getMore",
-                    command,
-                    originalMessage.CollectionNamespace.DatabaseNamespace,
-                    operationId,
-                    originalMessage.RequestId,
-                    connectionId);
-
-                _startedEvent(@event);
-            }
-
-            if (_shouldTrackState)
-            {
-                _state.TryAdd(originalMessage.RequestId, new CommandState
-                {
-                    CommandName = commandName,
-                    OperationId = operationId,
-                    Stopwatch = stopwatch,
-                    QueryNamespace = originalMessage.CollectionNamespace,
-                    ExpectedResponseType = ExpectedResponseType.Query
-                });
-            }
-        }
-
         private void ProcessInsertMessage(RequestMessage message, Queue<RequestMessage> messageQueue, ConnectionId connectionId, InsertMessageBinaryEncoder<RawBsonDocument> encoder, Stopwatch stopwatch)
         {
             var commandName = "insert";
@@ -546,48 +503,6 @@ namespace MongoDB.Driver.Core.Connections
                     Stopwatch = stopwatch,
                     ExpectedResponseType = expectedResponseType,
                     NumberOfInsertedDocuments = numberOfDocuments
-                });
-            }
-        }
-
-        private void ProcessKillCursorsMessages(KillCursorsMessage originalMessage, ConnectionId connectionId, Stopwatch stopwatch)
-        {
-            const string commandName = "killCursors";
-            var operationId = EventContext.OperationId;
-
-            if (_startedEvent != null)
-            {
-                var collectionNamespace = EventContext.KillCursorsCollectionNamespace ?? DatabaseNamespace.Admin.CommandCollection;
-                var command = new BsonDocument
-                {
-                    { commandName, collectionNamespace.CollectionName },
-                    { "cursors", new BsonArray(originalMessage.CursorIds) }
-                };
-
-                var @event = new CommandStartedEvent(
-                    commandName,
-                    command,
-                    collectionNamespace.DatabaseNamespace,
-                    operationId,
-                    originalMessage.RequestId,
-                    connectionId);
-
-                _startedEvent(@event);
-            }
-
-            if (_shouldTrackState)
-            {
-                _state.TryAdd(originalMessage.RequestId, new CommandState
-                {
-                    CommandName = commandName,
-                    OperationId = operationId,
-                    Stopwatch = stopwatch,
-                    ExpectedResponseType = ExpectedResponseType.None,
-                    NoResponseResponse = new BsonDocument
-                    {
-                        { "ok", 1 },
-                        { "cursorsUnknown", new BsonArray(originalMessage.CursorIds) }
-                    }
                 });
             }
         }
@@ -1147,7 +1062,6 @@ namespace MongoDB.Driver.Core.Connections
             public CollectionNamespace QueryNamespace;
             public int NumberOfInsertedDocuments;
             public ExpectedResponseType ExpectedResponseType;
-            public BsonDocument NoResponseResponse;
             public BsonValue UpsertedId;
             public bool ShouldRedactReply;
         }

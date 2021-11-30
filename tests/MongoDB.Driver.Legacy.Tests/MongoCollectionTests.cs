@@ -265,7 +265,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void TestAggregateWriteConcern()
         {
-            RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.ReplicaSet);
+            RequireServer.Check().ClusterType(ClusterType.ReplicaSet);
             var writeConcern = new WriteConcern(9, wTimeout: TimeSpan.FromMilliseconds(1));
             var args = new AggregateArgs
             {
@@ -795,7 +795,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void TestCreateIndexWriteConcern()
         {
-            RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.ReplicaSet);
+            RequireServer.Check().ClusterType(ClusterType.ReplicaSet);
             var writeConcern = new WriteConcern(9, wTimeout: TimeSpan.FromMilliseconds(1));
             var keys = IndexKeys.Ascending("x");
 
@@ -932,7 +932,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void TestDropIndexWriteConcern()
         {
-            RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.ReplicaSet);
+            RequireServer.Check().ClusterType(ClusterType.ReplicaSet);
 
             _collection.Drop();
             _collection.CreateIndex("x");
@@ -1116,7 +1116,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void TestFindAndModifyReplaceWithWriteConcernError()
         {
-            RequireServer.Check().Supports(Feature.FindAndModifyWriteConcern).ClusterType(ClusterType.ReplicaSet);
+            RequireServer.Check().ClusterType(ClusterType.ReplicaSet);
             _collection.Drop();
             _collection.Insert(new BsonDocument { { "_id", 1 }, { "x", 1 } });
             var collectionSettings = new MongoCollectionSettings
@@ -1153,7 +1153,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void TestFindAndModifyUpdateWithWriteConcernError()
         {
-            RequireServer.Check().Supports(Feature.FindAndModifyWriteConcern).ClusterType(ClusterType.ReplicaSet);
+            RequireServer.Check().ClusterType(ClusterType.ReplicaSet);
             _collection.Drop();
             _collection.Insert(new BsonDocument { { "_id", 1 }, { "x", 1 } });
             var collectionSettings = new MongoCollectionSettings
@@ -1287,7 +1287,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void TestFindAndRemoveWithWriteConcernError()
         {
-            RequireServer.Check().Supports(Feature.FindAndModifyWriteConcern).ClusterType(ClusterType.ReplicaSet);
+            RequireServer.Check().ClusterType(ClusterType.ReplicaSet);
             _collection.Drop();
             _collection.Insert(new BsonDocument { { "_id", 1 }, { "x", 1 } });
             var collectionSettings = new MongoCollectionSettings
@@ -2950,7 +2950,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void TestMapReduceWriteConcern()
         {
-            RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.ReplicaSet);
+            RequireServer.Check().ClusterType(ClusterType.ReplicaSet);
             _collection.Drop();
             _collection.Insert(new BsonDocument { { "A", 1 }, { "B", 2 } });
             _collection.Insert(new BsonDocument { { "B", 1 }, { "C", 2 } });

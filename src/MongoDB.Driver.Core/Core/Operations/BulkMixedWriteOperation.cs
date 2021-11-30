@@ -213,7 +213,6 @@ namespace MongoDB.Driver.Core.Operations
             using (EventContext.BeginOperation())
             using (var context = RetryableWriteContext.Create(binding, _retryRequested, cancellationToken))
             {
-                EnsureCollationIsSupportedIfAnyRequestHasCollation(context);
                 EnsureHintIsSupportedIfAnyRequestHasHint(context);
                 context.DisableRetriesIfAnyWriteRequestIsNotRetryable(_requests);
                 var helper = new BatchHelper(_requests, _isOrdered, _writeConcern);
@@ -231,7 +230,6 @@ namespace MongoDB.Driver.Core.Operations
             using (EventContext.BeginOperation())
             using (var context = await RetryableWriteContext.CreateAsync(binding, _retryRequested, cancellationToken).ConfigureAwait(false))
             {
-                EnsureCollationIsSupportedIfAnyRequestHasCollation(context);
                 EnsureHintIsSupportedIfAnyRequestHasHint(context);
                 context.DisableRetriesIfAnyWriteRequestIsNotRetryable(_requests);
                 var helper = new BatchHelper(_requests, _isOrdered, _writeConcern);
@@ -297,21 +295,6 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private void EnsureCollationIsSupportedIfAnyRequestHasCollation(RetryableWriteContext context)
-        {
-            var serverVersion = context.Channel.ConnectionDescription.ServerVersion;
-            if (!Feature.Collation.IsSupported(serverVersion))
-            {
-                foreach (var request in _requests)
-                {
-                    if (RequestHasCollation(request))
-                    {
-                        throw new NotSupportedException($"Server version {serverVersion} does not support collations.");
-                    }
-                }
-            }
-        }
-
         private void EnsureHintIsSupportedIfAnyRequestHasHint(RetryableWriteContext context)
         {
             var serverVersion = context.Channel.ConnectionDescription.ServerVersion;
@@ -373,23 +356,6 @@ namespace MongoDB.Driver.Core.Operations
             }
 
             return true;
-        }
-
-        private bool RequestHasCollation(WriteRequest request)
-        {
-            DeleteRequest deleteRequest;
-            if ((deleteRequest = request as DeleteRequest) != null)
-            {
-                return deleteRequest.Collation != null;
-            }
-
-            UpdateRequest updateRequest;
-            if ((updateRequest = request as UpdateRequest) != null)
-            {
-                return updateRequest.Collation != null;
-            }
-
-            return false;
         }
 
         private bool RequestHasHint(WriteRequest request)

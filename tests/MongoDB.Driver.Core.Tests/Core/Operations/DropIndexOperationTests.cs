@@ -137,9 +137,8 @@ namespace MongoDB.Driver.Core.Operations
                 { "index", indexName }
             };
             var session = OperationTestHelper.CreateSession();
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
-            var result = subject.CreateCommand(session, connectionDescription);
+            var result = subject.CreateCommand(session);
 
             result.Should().Be(expectedResult);
         }
@@ -164,9 +163,8 @@ namespace MongoDB.Driver.Core.Operations
                 {"maxTimeMS", expectedMaxTimeMS }
             };
             var session = OperationTestHelper.CreateSession();
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
-            var result = subject.CreateCommand(session, connectionDescription);
+            var result = subject.CreateCommand(session);
 
             result.Should().Be(expectedResult);
             result["maxTimeMS"].BsonType.Should().Be(BsonType.Int32);
@@ -177,9 +175,7 @@ namespace MongoDB.Driver.Core.Operations
         [ParameterAttributeData]
         public void CreateCommand_should_return_expectedResult_when_WriteConcern_is_set(
             [Values(null, 1, 2)]
-            int? w,
-            [Values(false, true)]
-            bool isWriteConcernSupported)
+            int? w)
         {
             var indexName = "x_1";
             var writeConcern = w.HasValue ? new WriteConcern(w.Value) : null;
@@ -188,15 +184,15 @@ namespace MongoDB.Driver.Core.Operations
                 WriteConcern = writeConcern
             };
             var session = OperationTestHelper.CreateSession();
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion: Feature.CommandsThatWriteAcceptWriteConcern.SupportedOrNotSupportedVersion(isWriteConcernSupported));
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
-            var result = subject.CreateCommand(session, connectionDescription);
+            var result = subject.CreateCommand(session);
 
             var expectedResult = new BsonDocument
             {
                 { "dropIndexes", _collectionNamespace.CollectionName },
                 { "index", indexName },
-                { "writeConcern", () => writeConcern.ToBsonDocument(), writeConcern != null && isWriteConcernSupported }
+                { "writeConcern", () => writeConcern.ToBsonDocument(), writeConcern != null }
             };
             result.Should().Be(expectedResult);
         }
@@ -273,7 +269,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.ReplicaSet);
+            RequireServer.Check().ClusterType(ClusterType.ReplicaSet);
             EnsureIndexExists();
             var indexName = "x_1";
             var subject = new DropIndexOperation(_collectionNamespace, indexName, _messageEncoderSettings)

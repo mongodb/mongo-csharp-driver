@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -41,11 +40,6 @@ namespace MongoDB.Driver.Core.Operations
                 RetryRequested = RetryRequested,
                 WriteConcern = WriteConcern
             };
-        }
-
-        protected override bool RequestHasCollation(DeleteRequest request)
-        {
-            return request.Collation != null;
         }
 
         protected override bool RequestHasHint(DeleteRequest request)

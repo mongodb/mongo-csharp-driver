@@ -257,9 +257,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     .GetDatabase(databaseName)
                     .GetCollection<BsonDocument>(collectionName)
                     .WithReadPreference(ReadPreference.Primary);
-                collection = Feature.ReadConcern.IsSupported(CoreTestConfiguration.ServerVersion)
-                    ? collection.WithReadConcern(ReadConcern.Local)
-                    : collection;
+                collection = collection.WithReadConcern(ReadConcern.Local);
 
                 var actualData = collection
                     .FindSync(new EmptyFilterDefinition<BsonDocument>(), findOptions)
