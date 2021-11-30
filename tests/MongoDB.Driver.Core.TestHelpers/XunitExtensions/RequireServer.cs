@@ -208,29 +208,23 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
 
         public RequireServer MultipleMongosesIfSharded(bool required)
         {
-            var clusterDescription = CoreTestConfiguration.Cluster.Description;
-            if (clusterDescription.Type != Clusters.ClusterType.Sharded && clusterDescription.Type != Clusters.ClusterType.LoadBalanced)
+            var clusterType = CoreTestConfiguration.Cluster.Description.Type;
+            if (clusterType == Clusters.ClusterType.Sharded || clusterType == Clusters.ClusterType.LoadBalanced)
             {
-                // This option has no effect for topologies that are not sharded or load balanced.
-                return this;
+                MultipleMongoses(required);
             }
 
-            return MultipleMongoses(required);
+            return this;
         }
 
         public RequireServer MultipleMongoses(bool required)
         {
-            if (required)
+            if (!required || CoreTestConfiguration.NumberOfMongoses >= 2)
             {
-                if (CoreTestConfiguration.NumberOfMongoses >= 2)
-                {
-                    return this;
-                }
-
-                throw new SkipException($"Test skipped because the server has {CoreTestConfiguration.NumberOfMongoses} mongos, but expected number is greater than or equal 2.");
+                return this;
             }
 
-            return this;
+            throw new SkipException($"Test skipped because the cluster does not have multiple mongoses.");
         }
 
         public RequireServer VersionGreaterThanOrEqualTo(SemanticVersion version)
