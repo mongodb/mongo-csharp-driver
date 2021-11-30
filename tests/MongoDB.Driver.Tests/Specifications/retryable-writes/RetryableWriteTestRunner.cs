@@ -104,7 +104,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes
             Logger.Debug("Running test");
 
             var useMultipleShardRouters = test.GetValue("useMultipleMongoses", false).AsBoolean;
-            RequireServer.Check().UseMultipleMongoses(useMultipleShardRouters);
+            RequireServer.Check().MultipleMongosesIfSharded(required: useMultipleShardRouters);
 
             VerifyFields(test, "description", "clientOptions", "failPoint", "operation", "outcome", "useMultipleMongoses");
             var failPoint = (BsonDocument)test.GetValue("failPoint", null);

@@ -459,7 +459,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         break;
                     case "useMultipleMongoses":
                         useMultipleShardRouters = element.Value.AsBoolean;
-                        RequireServer.Check().UseMultipleMongoses(useMultipleShardRouters);
+                        RequireServer.Check().MultipleMongosesIfSharded(required: useMultipleShardRouters);
                         break;
                     case "observeEvents":
                         var observeEvents = element.Value.AsBsonArray.Select(x => x.AsString);

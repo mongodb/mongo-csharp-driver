@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Tests
             RequireServer.Check()
                 .Supports(Feature.ShardedTransactions, Feature.FailPointsBlockConnection)
                 .ClusterType(ClusterType.Sharded)
-                .UseMultipleMongoses(true);
+                .MultipleMongoses(true);
 
             // temporary disable the test on Auth envs due to operations timings irregularities
             RequireServer.Check().Authentication(false);

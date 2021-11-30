@@ -206,7 +206,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
                 $"and this test requires TLS={required}.");
         }
 
-        public RequireServer UseMultipleMongoses(bool useMultipleMongoses)
+        public RequireServer MultipleMongosesIfSharded(bool required)
         {
             var clusterDescription = CoreTestConfiguration.Cluster.Description;
             if (clusterDescription.Type != Clusters.ClusterType.Sharded && clusterDescription.Type != Clusters.ClusterType.LoadBalanced)
@@ -215,17 +215,19 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
                 return this;
             }
 
-            if (useMultipleMongoses)
+            return MultipleMongoses(required);
+        }
+
+        public RequireServer MultipleMongoses(bool required)
+        {
+            if (required)
             {
-                if (CoreTestConfiguration.MongosNumberIfSharded.HasValue && CoreTestConfiguration.MongosNumberIfSharded.Value >= 2)
+                if (CoreTestConfiguration.NumberOfMongoses >= 2)
                 {
                     return this;
                 }
 
-                var skipReason = CoreTestConfiguration.MongosNumberIfSharded.HasValue
-                    ? $"has {CoreTestConfiguration.MongosNumberIfSharded.Value} mongos, but expected number is greater than or equal 2"
-                    : "must be sharded"; // should not be reached due the above check on topology
-                throw new SkipException($"Test skipped because the server {skipReason}.");
+                throw new SkipException($"Test skipped because the server has {CoreTestConfiguration.NumberOfMongoses} mongos, but expected number is greater than or equal 2.");
             }
 
             return this;

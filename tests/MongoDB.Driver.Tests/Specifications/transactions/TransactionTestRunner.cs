@@ -137,7 +137,8 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
             }
 
             var useMultipleShardRouters = test.GetValue("useMultipleMongoses", false).ToBoolean();
-            RequireServer.Check().UseMultipleMongoses(useMultipleShardRouters);
+            RequireServer.Check().MultipleMongosesIfSharded(required: useMultipleShardRouters);
+
 
             JsonDrivenHelper.EnsureAllFieldsAreValid(shared,
                 "_path",

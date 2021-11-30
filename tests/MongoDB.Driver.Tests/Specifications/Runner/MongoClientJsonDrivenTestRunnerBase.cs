@@ -489,7 +489,7 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
         protected DisposableMongoClient CreateDisposableClient(BsonDocument test, EventCapturer eventCapturer)
         {
             var useMultipleShardRouters = test.GetValue("useMultipleMongoses", false).AsBoolean;
-            RequireServer.Check().UseMultipleMongoses(useMultipleShardRouters);
+            RequireServer.Check().MultipleMongosesIfSharded(required: useMultipleShardRouters);
 
             return DriverTestConfiguration.CreateDisposableClient(
                 settings =>
