@@ -137,17 +137,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         }
 
         [Fact]
-        public void GetGetMoreMessageEncoder_should_return_a_GetMoreMessageJsonEncoder()
-        {
-            using (var textWriter = new StringWriter())
-            {
-                var encoderFactory = new JsonMessageEncoderFactory(null, textWriter, __messageEncoderSettings);
-                var encoder = encoderFactory.GetGetMoreMessageEncoder();
-                encoder.Should().BeOfType<GetMoreMessageJsonEncoder>();
-            }
-        }
-
-        [Fact]
         public void GetInsertMessageEncoder_should_return_a_InsertMessageJsonEncoder()
         {
             using (var textWriter = new StringWriter())
@@ -155,17 +144,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
                 var encoderFactory = new JsonMessageEncoderFactory(null, textWriter, __messageEncoderSettings);
                 var encoder = encoderFactory.GetInsertMessageEncoder<BsonDocument>(BsonDocumentSerializer.Instance);
                 encoder.Should().BeOfType<InsertMessageJsonEncoder<BsonDocument>>();
-            }
-        }
-
-        [Fact]
-        public void GetKillCursorsMessageEncoder_should_return_a_KillCursorsMessageJsonEncoder()
-        {
-            using (var textWriter = new StringWriter())
-            {
-                var encoderFactory = new JsonMessageEncoderFactory(null, textWriter, __messageEncoderSettings);
-                var encoder = encoderFactory.GetKillCursorsMessageEncoder();
-                encoder.Should().BeOfType<KillCursorsMessageJsonEncoder>();
             }
         }
 

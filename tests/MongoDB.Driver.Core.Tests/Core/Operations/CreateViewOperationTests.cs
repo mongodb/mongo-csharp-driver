@@ -136,7 +136,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.Views);
+            RequireServer.Check();
             DropView(viewName);
             var subject = new CreateViewOperation(_databaseNamespace, viewName, _collectionNamespace.CollectionName, _pipeline, _messageEncoderSettings);
 
@@ -160,7 +160,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.Views);
+            RequireServer.Check();
             DropView(_viewName);
             var collation = locale == null ? null : new Collation(locale);
             var subject = new CreateViewOperation(_databaseNamespace, _viewName, _collectionNamespace.CollectionName, _pipeline, _messageEncoderSettings)
@@ -196,7 +196,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.Views);
+            RequireServer.Check();
             DropView(viewName);
             var subject = new CreateViewOperation(_databaseNamespace, viewName, _collectionNamespace.CollectionName, _pipeline, _messageEncoderSettings)
             {
@@ -221,7 +221,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.Views).ClusterType(ClusterType.ReplicaSet);
+            RequireServer.Check().ClusterType(ClusterType.ReplicaSet);
             DropView(_viewName);
             var subject = new CreateViewOperation(_databaseNamespace, _viewName, _collectionNamespace.CollectionName, _pipeline, _messageEncoderSettings)
             {
@@ -238,7 +238,7 @@ namespace MongoDB.Driver.Core.Operations
         public void Execute_should_send_session_id_when_supported(
             [Values(false, true)] bool async)
         {
-            RequireServer.Check().Supports(Feature.Views);
+            RequireServer.Check();
             var viewName = "view";
             DropView(viewName);
             var subject = new CreateViewOperation(_databaseNamespace, viewName, _collectionNamespace.CollectionName, _pipeline, _messageEncoderSettings);
@@ -254,7 +254,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new CreateViewOperation(_databaseNamespace, viewName, _collectionNamespace.CollectionName, _pipeline, _messageEncoderSettings);
             var session = OperationTestHelper.CreateSession();
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion: Feature.Views.FirstSupportedVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
             var result = subject.CreateCommand(session, connectionDescription);
 
@@ -279,7 +279,7 @@ namespace MongoDB.Driver.Core.Operations
                 Collation = collation
             };
             var session = OperationTestHelper.CreateSession();
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion: Feature.Views.FirstSupportedVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
             var result = subject.CreateCommand(session, connectionDescription);
 
@@ -304,7 +304,7 @@ namespace MongoDB.Driver.Core.Operations
                 WriteConcern = writeConcern
             };
             var session = OperationTestHelper.CreateSession();
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion: Feature.Views.FirstSupportedVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
             var result = subject.CreateCommand(session, connectionDescription);
             var expectedResult = new BsonDocument

@@ -57,9 +57,8 @@ namespace MongoDB.Driver.Core.Operations
                 { "dropDatabase", 1 }
             };
             var session = OperationTestHelper.CreateSession();
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
-            var result = subject.CreateCommand(session, connectionDescription);
+            var result = subject.CreateCommand(session);
 
             result.Should().Be(expectedResult);
         }
@@ -76,9 +75,8 @@ namespace MongoDB.Driver.Core.Operations
                 WriteConcern = writeConcern
             };
             var session = OperationTestHelper.CreateSession();
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion: Feature.CommandsThatWriteAcceptWriteConcern.FirstSupportedVersion);
 
-            var result = subject.CreateCommand(session, connectionDescription);
+            var result = subject.CreateCommand(session);
 
             var expectedResult = new BsonDocument
             {
@@ -126,7 +124,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.ReplicaSet);
+            RequireServer.Check().ClusterType(ClusterType.ReplicaSet);
             var subject = new DropDatabaseOperation(_databaseNamespace, _messageEncoderSettings)
             {
                 WriteConcern = new WriteConcern(9)

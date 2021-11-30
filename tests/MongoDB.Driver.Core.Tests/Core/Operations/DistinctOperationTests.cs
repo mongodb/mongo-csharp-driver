@@ -208,7 +208,7 @@ namespace MongoDB.Driver.Core.Operations
                 Collation = collation
             };
 
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.Collation.FirstSupportedVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             var session = OperationTestHelper.CreateSession();
 
             var result = subject.CreateCommand(connectionDescription, session);
@@ -289,7 +289,7 @@ namespace MongoDB.Driver.Core.Operations
                 ReadConcern = readConcern
             };
 
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.ReadConcern.FirstSupportedVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             var session = OperationTestHelper.CreateSession();
 
             var result = subject.CreateCommand(connectionDescription, session);
@@ -301,38 +301,6 @@ namespace MongoDB.Driver.Core.Operations
                 { "readConcern", () => readConcern.ToBsonDocument(), !readConcern.IsServerDefault }
             };
             result.Should().Be(expectedResult);
-        }
-
-        [Fact]
-        public void CreateCommand_should_throw_when_Collation_is_set_and_not_supported()
-        {
-            var subject = new DistinctOperation<int>(_collectionNamespace, _valueSerializer, _fieldName, _messageEncoderSettings)
-            {
-                Collation = new Collation("en_US")
-            };
-
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.Collation.LastNotSupportedVersion);
-            var session = OperationTestHelper.CreateSession();
-
-            var exception = Record.Exception(() => subject.CreateCommand(connectionDescription, session));
-
-            exception.Should().BeOfType<NotSupportedException>();
-        }
-
-        [Fact]
-        public void CreateCommand_should_throw_when_ReadConcern_is_set_and_not_supported()
-        {
-            var subject = new DistinctOperation<int>(_collectionNamespace, _valueSerializer, _fieldName, _messageEncoderSettings)
-            {
-                ReadConcern = new ReadConcern(ReadConcernLevel.Local)
-            };
-
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.ReadConcern.LastNotSupportedVersion);
-            var session = OperationTestHelper.CreateSession();
-
-            var exception = Record.Exception(() => subject.CreateCommand(connectionDescription, session));
-
-            exception.Should().BeOfType<MongoClientException>();
         }
 
         [Theory]
@@ -347,7 +315,7 @@ namespace MongoDB.Driver.Core.Operations
                 ReadConcern = readConcern
             };
 
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.ReadConcern.FirstSupportedVersion, supportsSessions: true);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(supportsSessions: true);
             var session = OperationTestHelper.CreateSession(true, new BsonTimestamp(100));
 
             var result = subject.CreateCommand(connectionDescription, session);
@@ -388,7 +356,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.Collation);
+            RequireServer.Check();
             EnsureTestData();
             var subject = new DistinctOperation<int>(_collectionNamespace, _valueSerializer, _fieldName, _messageEncoderSettings)
             {
@@ -452,7 +420,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.ReadConcern);
+            RequireServer.Check();
             EnsureTestData();
             var subject = new DistinctOperation<int>(_collectionNamespace, _valueSerializer, _fieldName, _messageEncoderSettings)
             {
@@ -469,23 +437,6 @@ namespace MongoDB.Driver.Core.Operations
 
         [SkippableTheory]
         [ParameterAttributeData]
-        public void Execute_should_throw_when_Collation_is_set_and_not_supported(
-            [Values(false, true)]
-            bool async)
-        {
-            RequireServer.Check().DoesNotSupport(Feature.Collation);
-            var subject = new DistinctOperation<int>(_collectionNamespace, _valueSerializer, _fieldName, _messageEncoderSettings)
-            {
-                Collation = new Collation("en_US")
-            };
-
-            var exception = Record.Exception(() => ExecuteOperation(subject, async));
-
-            exception.Should().BeOfType<NotSupportedException>();
-        }
-
-        [SkippableTheory]
-        [ParameterAttributeData]
         public void Execute_should_throw_when_maxTime_is_exceeded(
             [Values(false, true)] bool async)
         {
@@ -498,23 +449,6 @@ namespace MongoDB.Driver.Core.Operations
 
                 exception.Should().BeOfType<MongoExecutionTimeoutException>();
             }
-        }
-
-        [SkippableTheory]
-        [ParameterAttributeData]
-        public void Execute_should_throw_when_ReadConcern_is_set_and_not_supported(
-            [Values(false, true)]
-            bool async)
-        {
-            RequireServer.Check().DoesNotSupport(Feature.ReadConcern);
-            var subject = new DistinctOperation<int>(_collectionNamespace, _valueSerializer, _fieldName, _messageEncoderSettings)
-            {
-                ReadConcern = new ReadConcern(ReadConcernLevel.Local)
-            };
-
-            var exception = Record.Exception(() => ExecuteOperation(subject, async));
-
-            exception.Should().BeOfType<MongoClientException>();
         }
 
         [SkippableTheory]

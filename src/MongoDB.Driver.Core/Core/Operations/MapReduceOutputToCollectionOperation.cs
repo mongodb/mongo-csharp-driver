@@ -144,12 +144,11 @@ namespace MongoDB.Driver.Core.Operations
         {
             var command = base.CreateCommand(session, connectionDescription);
 
-            var serverVersion = connectionDescription.ServerVersion;
-            if (_bypassDocumentValidation.HasValue && Feature.BypassDocumentValidation.IsSupported(serverVersion))
+            if (_bypassDocumentValidation.HasValue)
             {
                 command.Add("bypassDocumentValidation", _bypassDocumentValidation.Value);
             }
-            var writeConcern = WriteConcernHelper.GetWriteConcernForCommandThatWrites(session, _writeConcern, serverVersion);
+            var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(session, _writeConcern);
             if (writeConcern != null)
             {
                 command.Add("writeConcern", writeConcern.ToBsonDocument());

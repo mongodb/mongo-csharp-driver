@@ -286,7 +286,7 @@ namespace MongoDB.Driver.Core.Operations
                 Collation = collation
             };
             var session = OperationTestHelper.CreateSession();
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion: Feature.Collation.FirstSupportedVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
             var result = subject.CreateCommand(session, connectionDescription, null);
 
@@ -393,7 +393,7 @@ namespace MongoDB.Driver.Core.Operations
                 WriteConcern = writeConcern
             };
             var session = OperationTestHelper.CreateSession();
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion: Feature.FindAndModifyWriteConcern.FirstSupportedVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
             var result = subject.CreateCommand(session, connectionDescription, null);
 
@@ -405,21 +405,6 @@ namespace MongoDB.Driver.Core.Operations
                 { "writeConcern", () => writeConcern.ToBsonDocument(), writeConcern != null }
             };
             result.Should().Be(expectedResult);
-        }
-
-        [Fact]
-        public void CreateCommand_should_throw_when_Collation_is_set_and_not_supported()
-        {
-            var subject = new FindOneAndDeleteOperation<BsonDocument>(_collectionNamespace, _filter, BsonDocumentSerializer.Instance, _messageEncoderSettings)
-            {
-                Collation = new Collation("en_US")
-            };
-            var session = OperationTestHelper.CreateSession();
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion: Feature.Collation.LastNotSupportedVersion);
-
-            var exception = Record.Exception(() => subject.CreateCommand(session, connectionDescription, null));
-
-            exception.Should().BeOfType<NotSupportedException>();
         }
 
         [SkippableTheory]
@@ -463,7 +448,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.Collation);
+            RequireServer.Check();
             EnsureTestData();
             var filter = BsonDocument.Parse("{ y : 'a' }");
             var subject = new FindOneAndDeleteOperation<BsonDocument>(_collectionNamespace, filter, _findAndModifyValueDeserializer, _messageEncoderSettings)
@@ -480,27 +465,10 @@ namespace MongoDB.Driver.Core.Operations
 
         [SkippableTheory]
         [ParameterAttributeData]
-        public void Execute_should_throw_when_Collation_is_set_and_not_supported(
-            [Values(false, true)]
-            bool async)
-        {
-            RequireServer.Check().DoesNotSupport(Feature.Collation);
-            var subject = new FindOneAndDeleteOperation<BsonDocument>(_collectionNamespace, _filter, _findAndModifyValueDeserializer, _messageEncoderSettings)
-            {
-                Collation = new Collation("en_US")
-            };
-
-            var exception = Record.Exception(() => ExecuteOperation(subject, async));
-
-            exception.Should().BeOfType<NotSupportedException>();
-        }
-
-        [SkippableTheory]
-        [ParameterAttributeData]
         public void Execute_should_throw_when_there_is_a_write_concern_error(
             [Values(false, true)] bool async)
         {
-            RequireServer.Check().Supports(Feature.FindAndModifyWriteConcern).ClusterType(ClusterType.ReplicaSet);
+            RequireServer.Check().ClusterType(ClusterType.ReplicaSet);
             EnsureTestData();
             var filter = BsonDocument.Parse("{ x : 1 }");
             var resultSerializer = new FindAndModifyValueDeserializer<BsonDocument>(BsonDocumentSerializer.Instance);

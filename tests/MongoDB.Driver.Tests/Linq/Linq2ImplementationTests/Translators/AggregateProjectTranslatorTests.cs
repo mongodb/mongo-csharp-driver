@@ -442,7 +442,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests.Translators
         [SkippableFact]
         public void Should_translate_dateToString()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.2.0");
+            RequireServer.Check();
 
             var result = Project(x => new { Result = x.J.ToString("%Y-%m-%d") });
 
@@ -602,7 +602,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests.Translators
         [SkippableFact]
         public void Should_translate_indexOfBytes()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.3.6");
+            RequireServer.Check();
 
             var result = Project(x => new { Result = x.A.IndexOf('e') });
             result.Projection.Should().Be("{ Result: { \"$indexOfBytes\": [\"$A\", \"e\"] }, _id: 0 }");
@@ -632,7 +632,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests.Translators
         [SkippableFact]
         public void Should_translate_indexOfCP()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.3.6");
+            RequireServer.Check();
 
             var result = Project(x => new { Result = x.A.IndexOf('e') }, __codePointTranslationOptions);
             result.Projection.Should().Be("{ Result: { \"$indexOfCP\": [\"$A\", \"e\"] }, _id: 0 }");
@@ -992,7 +992,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests.Translators
         [SkippableFact]
         public void Should_translate_range()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.3.4");
+            RequireServer.Check();
 
             var result = Project(x => new { Result = Enumerable.Range(x.C.E.F, 3) });
 
@@ -1004,7 +1004,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests.Translators
         [SkippableFact]
         public void Should_translate_reduce()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.3.5");
+            RequireServer.Check();
 
             var result = Project(x => new { Result = x.M.Aggregate((a, b) => a + b) });
             result.Projection.Should().Be("{ Result: { $reduce: { input: \"$M\", initialValue: 0, in: { $add: [\"$$value\", \"$$this\"] } } }, _id: 0 }");
@@ -1028,7 +1028,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests.Translators
         [SkippableFact]
         public void Should_translate_reverse()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.3.4");
+            RequireServer.Check();
 
             var result = Project(x => new { Result = x.M.Reverse() });
 
@@ -1321,7 +1321,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests.Translators
         [SkippableFact]
         public void Should_translate_strLenBytes()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.3.4");
+            RequireServer.Check();
 
             var result = Project(x => new { Result = x.A.Length });
 
@@ -1333,7 +1333,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests.Translators
         [SkippableFact]
         public void Should_translate_strLenCP()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.3.4");
+            RequireServer.Check();
 
             var result = Project(x => new { Result = x.A.Length }, __codePointTranslationOptions);
 
@@ -1345,7 +1345,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests.Translators
         [SkippableFact]
         public void Should_translate_split()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.3.6");
+            RequireServer.Check();
 
 #if NET472
             /* for implementations that don't support omitted optional parameters in expression trees
@@ -1481,7 +1481,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests.Translators
         [SkippableFact]
         public void Should_translate_substrCP()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.3.4");
+            RequireServer.Check();
 
             var result = Project(x => new { Result = x.B.Substring(3, 20) }, __codePointTranslationOptions);
 
@@ -1611,7 +1611,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests.Translators
         [SkippableFact]
         public void Should_translate_zip_with_operation()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.3.4");
+            RequireServer.Check();
 
             var result = Project(x => new { Result = x.M.Zip(x.O, (a, b) => a + b) });
 
@@ -1623,7 +1623,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests.Translators
         [SkippableFact]
         public void Should_translate_zip_with_anonymous_type()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.3.4");
+            RequireServer.Check();
 
             var result = Project(x => new { Result = x.M.Zip(x.O, (a, b) => new { a, b }) });
 

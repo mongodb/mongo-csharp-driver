@@ -236,7 +236,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.Collation);
+            RequireServer.Check();
             EnsureTestData();
             var subject = new CountDocumentsOperation(_collectionNamespace, _messageEncoderSettings)
             {
@@ -247,23 +247,6 @@ namespace MongoDB.Driver.Core.Operations
             var result = ExecuteOperation(subject, async);
 
             result.Should().Be(caseSensitive ? 1 : 2);
-        }
-
-        [SkippableTheory]
-        [ParameterAttributeData]
-        public void Execute_should_throw_when_Collation_is_set_but_not_supported(
-            [Values(false, true)]
-            bool async)
-        {
-            RequireServer.Check().DoesNotSupport(Feature.Collation);
-            var subject = new CountDocumentsOperation(_collectionNamespace, _messageEncoderSettings)
-            {
-                Collation = new Collation("en_US")
-            };
-
-            var exception = Record.Exception(() => ExecuteOperation(subject, async));
-
-            exception.Should().BeOfType<NotSupportedException>();
         }
 
         [SkippableTheory]
@@ -367,7 +350,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.ReadConcern);
+            RequireServer.Check();
             EnsureTestData();
             var readConcern = level == null ? ReadConcern.Default : new ReadConcern(level.Value);
             var subject = new CountDocumentsOperation(_collectionNamespace, _messageEncoderSettings)
@@ -378,23 +361,6 @@ namespace MongoDB.Driver.Core.Operations
             var result = ExecuteOperation(subject, async);
 
             result.Should().Be(2);
-        }
-
-        [SkippableTheory]
-        [ParameterAttributeData]
-        public void Execute_should_throw_when_ReadConcern_is_set_but_not_supported(
-            [Values(false, true)]
-            bool async)
-        {
-            RequireServer.Check().DoesNotSupport(Feature.ReadConcern);
-            var subject = new CountDocumentsOperation(_collectionNamespace, _messageEncoderSettings)
-            {
-                ReadConcern = new ReadConcern(ReadConcernLevel.Local)
-            };
-
-            var exception = Record.Exception(() => ExecuteOperation(subject, async));
-
-            exception.Should().BeOfType<MongoClientException>();
         }
 
         [SkippableTheory]

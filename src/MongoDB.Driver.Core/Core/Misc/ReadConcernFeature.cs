@@ -21,6 +21,7 @@ namespace MongoDB.Driver.Core.Misc
     /// Represents the read concern feature.
     /// </summary>
     /// <seealso cref="MongoDB.Driver.Core.Misc.Feature" />
+    [Obsolete("This class will be removed in a later release.")]
     public class ReadConcernFeature : Feature
     {
         /// <summary>

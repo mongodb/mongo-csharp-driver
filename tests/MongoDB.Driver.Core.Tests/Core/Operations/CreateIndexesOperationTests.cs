@@ -178,7 +178,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.PartialIndexes);
+            RequireServer.Check();
             DropCollection();
             var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) { PartialFilterExpression = new BsonDocument("x", new BsonDocument("$gt", 0)) } };
             var subject = new CreateIndexesOperation(_collectionNamespace, requests, _messageEncoderSettings);
@@ -220,7 +220,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.Collation);
+            RequireServer.Check();
             DropCollection();
             var collation = new Collation(locale);
             var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) { Collation = collation } };

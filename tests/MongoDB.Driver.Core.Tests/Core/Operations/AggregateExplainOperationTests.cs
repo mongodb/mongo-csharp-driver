@@ -151,7 +151,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new AggregateExplainOperation(_collectionNamespace, __pipeline, _messageEncoderSettings);
 
-            var result = subject.CreateCommand(null);
+            var result = subject.CreateCommand();
 
             var expectedResult = new BsonDocument
             {
@@ -173,7 +173,7 @@ namespace MongoDB.Driver.Core.Operations
                 AllowDiskUse = allowDiskUse
             };
 
-            var result = subject.CreateCommand(null);
+            var result = subject.CreateCommand();
 
             var expectedResult = new BsonDocument
             {
@@ -197,7 +197,7 @@ namespace MongoDB.Driver.Core.Operations
                 Collation = collation
             };
 
-            var result = subject.CreateCommand(Feature.Collation.FirstSupportedVersion);
+            var result = subject.CreateCommand();
 
             var expectedResult = new BsonDocument
             {
@@ -220,7 +220,7 @@ namespace MongoDB.Driver.Core.Operations
                 Comment = comment,
             };
 
-            var result = subject.CreateCommand(null);
+            var result = subject.CreateCommand();
 
             var expectedResult = new BsonDocument
             {
@@ -244,7 +244,7 @@ namespace MongoDB.Driver.Core.Operations
                 Hint = hint
             };
 
-            var result = subject.CreateCommand(null);
+            var result = subject.CreateCommand();
 
             var expectedResult = new BsonDocument
             {
@@ -270,7 +270,7 @@ namespace MongoDB.Driver.Core.Operations
                 MaxTime = TimeSpan.FromTicks(maxTimeTicks)
             };
 
-            var result = subject.CreateCommand(null);
+            var result = subject.CreateCommand();
 
             var expectedResult = new BsonDocument
             {
@@ -281,19 +281,6 @@ namespace MongoDB.Driver.Core.Operations
             };
             result.Should().Be(expectedResult);
             result["maxTimeMS"].BsonType.Should().Be(BsonType.Int32);
-        }
-
-        [Fact]
-        public void CreateCommand_should_throw_when_Collation_is_set_but_not_supported()
-        {
-            var subject = new AggregateExplainOperation(_collectionNamespace, __pipeline, _messageEncoderSettings)
-            {
-                Collation = new Collation("en_US")
-            };
-
-            var exception = Record.Exception(() => subject.CreateCommand(Feature.Collation.LastNotSupportedVersion));
-
-            exception.Should().BeOfType<NotSupportedException>();
         }
 
         [SkippableTheory]
@@ -333,7 +320,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.Collation);
+            RequireServer.Check();
             var subject = new AggregateExplainOperation(_collectionNamespace, __pipeline, _messageEncoderSettings)
             {
                 Collation = new Collation("en_US")
@@ -342,24 +329,6 @@ namespace MongoDB.Driver.Core.Operations
             var result = ExecuteOperation(subject, async);
 
             result.Should().NotBeNull();
-        }
-
-        [SkippableTheory]
-        [ParameterAttributeData]
-        public void Execute_should_throw_when_Collation_is_set_but_not_supported(
-            [Values(false, true)]
-            bool async)
-        {
-            RequireServer.Check().DoesNotSupport(Feature.Collation);
-
-            var subject = new AggregateExplainOperation(_collectionNamespace, __pipeline, _messageEncoderSettings)
-            {
-                Collation = new Collation("en_US")
-            };
-
-            var exception = Record.Exception(() => ExecuteOperation(subject, async));
-
-            exception.Should().BeOfType<NotSupportedException>();
         }
 
         [SkippableTheory]

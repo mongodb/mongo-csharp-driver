@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Tests
         [ParameterAttributeData]
         public void Cursor_should_not_throw_exception_after_double_close([Values(false, true)] bool async)
         {
-            RequireServer.Check().Supports(Feature.KillCursorsCommand);
+            RequireServer.Check();
 
             string testCollectionName = "test";
             string testDatabaseName = "test";
@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void KillCursor_should_actually_work()
         {
-            RequireServer.Check().Supports(Feature.KillCursorsCommand);
+            RequireServer.Check();
             var eventCapturer = new EventCapturer().Capture<CommandSucceededEvent>(x => x.CommandName.Equals("killCursors"));
             using (var client = DriverTestConfiguration.CreateDisposableClient(eventCapturer))
             {
@@ -94,7 +94,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void Tailable_cursor_should_be_able_to_be_cancelled_from_a_different_thread_with_expected_result()
         {
-            RequireServer.Check().Supports(Feature.TailableCursor);
+            RequireServer.Check();
 
             string testCollectionName = "test";
             string testDatabaseName = "test";

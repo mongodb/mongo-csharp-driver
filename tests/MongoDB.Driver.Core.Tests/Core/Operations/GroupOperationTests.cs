@@ -228,7 +228,7 @@ namespace MongoDB.Driver.Core.Operations
             var filter = useFilter ? _filter : null;
             var subject = new GroupOperation<BsonDocument>(_collectionNamespace, _key, _initial, _reduceFunction, filter, _messageEncoderSettings);
 
-            var result = subject.CreateCommand(null);
+            var result = subject.CreateCommand();
 
             var expectedResult = new BsonDocument
             {
@@ -254,7 +254,7 @@ namespace MongoDB.Driver.Core.Operations
             var filter = isFilterNull ? _filter : null;
             var subject = new GroupOperation<BsonDocument>(_collectionNamespace, _keyFunction, _initial, _reduceFunction, filter, _messageEncoderSettings);
 
-            var result = subject.CreateCommand(null);
+            var result = subject.CreateCommand();
 
             var expectedResult = new BsonDocument
             {
@@ -283,7 +283,7 @@ namespace MongoDB.Driver.Core.Operations
                 FinalizeFunction = finalizeFunction
             };
 
-            var result = subject.CreateCommand(null);
+            var result = subject.CreateCommand();
 
             var expectedResult = new BsonDocument
             {
@@ -312,7 +312,7 @@ namespace MongoDB.Driver.Core.Operations
                 Collation = collation
             };
 
-            var result = subject.CreateCommand(Feature.Collation.FirstSupportedVersion);
+            var result = subject.CreateCommand();
 
             var expectedResult = new BsonDocument
             {
@@ -343,7 +343,7 @@ namespace MongoDB.Driver.Core.Operations
                 MaxTime = TimeSpan.FromTicks(maxTimeTicks)
             };
 
-            var result = subject.CreateCommand(null);
+            var result = subject.CreateCommand();
 
             var expectedResult = new BsonDocument
             {
@@ -405,7 +405,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.GroupCommand, Feature.Collation);
+            RequireServer.Check().Supports(Feature.GroupCommand);
             EnsureTestData();
             var collation = new Collation("en_US", caseLevel: caseSensitive, strength: CollationStrength.Primary);
             var filter = BsonDocument.Parse("{ y : 'a' }");
@@ -524,24 +524,6 @@ namespace MongoDB.Driver.Core.Operations
 
             var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
             argumentNullException.ParamName.Should().Be("binding");
-        }
-
-        [SkippableTheory]
-        [ParameterAttributeData]
-        public void Execute_should_throw_when_Collation_is_set_but_not_supported(
-            [Values(false, true)]
-            bool async)
-        {
-            RequireServer.Check().Supports(Feature.GroupCommand).DoesNotSupport(Feature.Collation);
-            EnsureTestData();
-            var subject = new GroupOperation<BsonDocument>(_collectionNamespace, _key, _initial, _reduceFunction, null, _messageEncoderSettings)
-            {
-                Collation = new Collation("en_US")
-            };
-
-            var exception = Record.Exception(() => ExecuteOperation(subject, async));
-
-            exception.Should().BeOfType<NotSupportedException>();
         }
 
         [SkippableTheory]

@@ -171,7 +171,7 @@ namespace MongoDB.Driver.Tests
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.AggregateCountStage);
+            RequireServer.Check();
             var client = DriverTestConfiguration.Client;
             var databaseNamespace = CoreTestConfiguration.DatabaseNamespace;
             var collectionNamespace = CoreTestConfiguration.GetCollectionNamespaceForTestMethod(

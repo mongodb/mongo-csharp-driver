@@ -88,17 +88,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         }
 
         [Fact]
-        public void GetGetMoreMessageEncoder_should_return_a_GetMoreMessageBinaryEncoder()
-        {
-            using (var stream = new MemoryStream())
-            {
-                var encoderFactory = new BinaryMessageEncoderFactory(stream, null);
-                var encoder = encoderFactory.GetGetMoreMessageEncoder();
-                encoder.Should().BeOfType<GetMoreMessageBinaryEncoder>();
-            }
-        }
-
-        [Fact]
         public void GetInsertMessageEncoder_should_return_a_InsertMessageBinaryEncoder()
         {
             using (var stream = new MemoryStream())
@@ -106,17 +95,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 var encoderFactory = new BinaryMessageEncoderFactory(stream, null);
                 var encoder = encoderFactory.GetInsertMessageEncoder<BsonDocument>(BsonDocumentSerializer.Instance);
                 encoder.Should().BeOfType<InsertMessageBinaryEncoder<BsonDocument>>();
-            }
-        }
-
-        [Fact]
-        public void GetKillCursorsMessageEncoder_should_return_a_KillCursorsMessageBinaryEncoder()
-        {
-            using (var stream = new MemoryStream())
-            {
-                var encoderFactory = new BinaryMessageEncoderFactory(stream, null);
-                var encoder = encoderFactory.GetKillCursorsMessageEncoder();
-                encoder.Should().BeOfType<KillCursorsMessageBinaryEncoder>();
             }
         }
 

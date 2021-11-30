@@ -103,11 +103,6 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
         {
             var definition = testCase.Test;
 
-            if (CoreTestConfiguration.ServerVersion < new SemanticVersion(3, 2, 0))
-            {
-                throw new SkipException("Supporting of these servers are going to be removed soon, so skip them.");
-            }
-
             BsonValue bsonValue;
             if (definition.TryGetValue("ignore_if_server_version_greater_than", out bsonValue))
             {

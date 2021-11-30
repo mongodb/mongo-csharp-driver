@@ -342,10 +342,8 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // methods
-        internal BsonDocument CreateIndexDocument(SemanticVersion serverVersion)
+        internal BsonDocument CreateIndexDocument()
         {
-            Feature.Collation.ThrowIfNotSupported(serverVersion, _collation);
-
             var document = new BsonDocument
             {
                 { "key", _keys },

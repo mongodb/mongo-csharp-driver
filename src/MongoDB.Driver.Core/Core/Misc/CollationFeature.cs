@@ -21,6 +21,7 @@ namespace MongoDB.Driver.Core.Misc
     /// Represents the collation feature.
     /// </summary>
     /// <seealso cref="MongoDB.Driver.Core.Misc.Feature" />
+    [Obsolete("This class will be removed in a later release.")]
     public class CollationFeature : Feature
     {
         /// <summary>

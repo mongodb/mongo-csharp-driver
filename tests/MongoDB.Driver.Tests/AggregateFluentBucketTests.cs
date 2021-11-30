@@ -88,7 +88,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void Bucket_should_return_expected_result()
         {
-            RequireServer.Check().Supports(Feature.AggregateBucketStage);
+            RequireServer.Check();
             EnsureTestData();
             var collection = __database.GetCollection<BsonDocument>(__collectionNamespace.CollectionName);
             var subject = collection.Aggregate();
@@ -125,7 +125,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void Bucket_with_output_should_return_expected_result()
         {
-            RequireServer.Check().Supports(Feature.AggregateBucketStage);
+            RequireServer.Check();
             EnsureTestData();
             var collection = __database.GetCollection<BsonDocument>(__collectionNamespace.CollectionName);
             var subject = collection.Aggregate();
@@ -162,7 +162,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void Bucket_typed_should_return_expected_result()
         {
-            RequireServer.Check().Supports(Feature.AggregateBucketStage);
+            RequireServer.Check();
             EnsureTestData();
             var collection = __database.GetCollection<Exhibit>(__collectionNamespace.CollectionName);
             var subject = collection.Aggregate();
@@ -202,7 +202,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void Bucket_typed_with_output_should_return_expected_result()
         {
-            RequireServer.Check().Supports(Feature.AggregateBucketStage);
+            RequireServer.Check();
             EnsureTestData();
             var collection = __database.GetCollection<Exhibit>(__collectionNamespace.CollectionName);
             var subject = collection.Aggregate();

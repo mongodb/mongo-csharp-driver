@@ -285,35 +285,6 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().HaveCount(5);
         }
 
-        [SkippableTheory]
-        [ParameterAttributeData]
-        public async Task ExecuteAsync_should_find_all_the_documents_matching_the_query_when_limit_is_used(
-            [Values(1, 5, 6, 12)] int limit)
-        {
-            RequireServer.Check().VersionLessThan("3.2.0");
-            var collectionNamespace = CoreTestConfiguration.GetCollectionNamespaceForTestMethod(
-                className: GetType().Name,
-                methodName: nameof(ExecuteAsync_should_find_all_the_documents_matching_the_query_when_limit_is_used));
-            for (var id = 1; id <= limit + 1; id++)
-            {
-                var document = new BsonDocument { { "id", id }, { "filler", new string('x', 1000000) } }; // about 1MB big
-                var requests = new[] { new InsertRequest(document) };
-                var insertOperation = new BulkMixedWriteOperation(collectionNamespace, requests, new MessageEncoderSettings());
-                ExecuteOperation(insertOperation);
-            }
-            var subject = new FindOpcodeOperation<BsonDocument>(collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
-            {
-                Limit = limit
-            };
-
-            using (var cursor = await ExecuteOperationAsync(subject))
-            {
-                var result = await ReadCursorToEndAsync(cursor);
-
-                result.Should().HaveCount(limit);
-            }
-        }
-
         [SkippableFact]
         public async Task ExecuteAsync_should_find_all_the_documents_matching_the_query_when_split_across_batches()
         {

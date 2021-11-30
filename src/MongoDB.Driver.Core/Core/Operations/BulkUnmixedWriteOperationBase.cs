@@ -115,7 +115,6 @@ namespace MongoDB.Driver.Core.Operations
         // public methods
         public BulkWriteOperationResult Execute(RetryableWriteContext context, CancellationToken cancellationToken)
         {
-            EnsureCollationIsSupportedIfAnyRequestHasCollation(context, _requests);
             EnsureHintIsSupportedIfAnyRequestHasHint(context);
 
             return ExecuteBatches(context, cancellationToken);
@@ -133,7 +132,6 @@ namespace MongoDB.Driver.Core.Operations
 
         public Task<BulkWriteOperationResult> ExecuteAsync(RetryableWriteContext context, CancellationToken cancellationToken)
         {
-            EnsureCollationIsSupportedIfAnyRequestHasCollation(context, _requests);
             EnsureHintIsSupportedIfAnyRequestHasHint(context);
 
             return ExecuteBatchesAsync(context, cancellationToken);
@@ -152,8 +150,6 @@ namespace MongoDB.Driver.Core.Operations
         // protected methods
         protected abstract IRetryableWriteOperation<BsonDocument> CreateBatchOperation(Batch batch);
 
-        protected abstract bool RequestHasCollation(TWriteRequest request);
-
         protected abstract bool RequestHasHint(TWriteRequest request);
 
         // private methods
@@ -171,21 +167,6 @@ namespace MongoDB.Driver.Core.Operations
                 writeCommandResult,
                 indexMap,
                 writeConcernException);
-        }
-
-        private void EnsureCollationIsSupportedIfAnyRequestHasCollation(RetryableWriteContext context, IEnumerable<TWriteRequest> requests)
-        {
-            var serverVersion = context.Channel.ConnectionDescription.ServerVersion;
-            if (!Feature.Collation.IsSupported(serverVersion))
-            {
-                foreach (var request in requests)
-                {
-                    if (RequestHasCollation(request))
-                    {
-                        throw new NotSupportedException($"Server version {serverVersion} does not support collations.");
-                    }
-                }
-            }
         }
 
         private void EnsureHintIsSupportedIfAnyRequestHasHint(RetryableWriteContext context)

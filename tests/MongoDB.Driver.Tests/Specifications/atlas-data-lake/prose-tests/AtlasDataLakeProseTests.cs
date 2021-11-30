@@ -83,7 +83,7 @@ namespace MongoDB.Driver.Tests.Specifications.atlas_data_lake.prose_tests
         public void KillCursors_should_return_expected_result()
         {
             RequireEnvironment.Check().EnvironmentVariable("ATLAS_DATA_LAKE_TESTS_ENABLED");
-            RequireServer.Check().Supports(Feature.KillCursorsCommand);
+            RequireServer.Check();
 
             var databaseName = "test";
             var collectionName = "driverdata";

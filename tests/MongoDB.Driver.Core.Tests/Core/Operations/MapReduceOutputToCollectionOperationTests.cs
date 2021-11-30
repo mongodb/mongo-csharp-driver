@@ -205,9 +205,7 @@ namespace MongoDB.Driver.Core.Operations
         [ParameterAttributeData]
         public void CreateCommand_should_return_expected_result_when_BypassDocumentValidation_is_set(
             [Values(null, false, true)]
-            bool? bypassDocumentValidation,
-            [Values(false, true)]
-            bool useServerVersionSupportingBypassDocumentValidation)
+            bool? bypassDocumentValidation)
         {
 #pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings)
@@ -215,13 +213,10 @@ namespace MongoDB.Driver.Core.Operations
             {
                 BypassDocumentValidation = bypassDocumentValidation
             };
-            var subjectReflector = new Reflector(subject);
-            var serverVersion = Feature.BypassDocumentValidation.SupportedOrNotSupportedVersion(useServerVersionSupportingBypassDocumentValidation);
-
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             var session = OperationTestHelper.CreateSession();
 
-            var result = subjectReflector.CreateCommand(session, connectionDescription);
+            var result = subject.CreateCommand(session, connectionDescription);
 
             var expectedResult = new BsonDocument
             {
@@ -229,7 +224,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "map", _mapFunction },
                 { "reduce", _reduceFunction },
                 { "out", new BsonDocument { {"replace", _outputCollectionNamespace.CollectionName }, { "db", _databaseNamespace.DatabaseName } } },
-                { "bypassDocumentValidation", () => bypassDocumentValidation.Value, bypassDocumentValidation.HasValue && Feature.BypassDocumentValidation.IsSupported(serverVersion) }
+                { "bypassDocumentValidation", () => bypassDocumentValidation.Value, bypassDocumentValidation.HasValue }
             };
             result.Should().Be(expectedResult);
         }
@@ -238,9 +233,7 @@ namespace MongoDB.Driver.Core.Operations
         [ParameterAttributeData]
         public void CreateCommand_should_return_expected_result_when_WriteConcern_is_set(
             [Values(null, 1, 2)]
-            int? w,
-            [Values(false, true)]
-            bool isWriteConcernSupported)
+            int? w)
         {
             var writeConcern = w.HasValue ? new WriteConcern(w.Value) : null;
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -249,13 +242,10 @@ namespace MongoDB.Driver.Core.Operations
             {
                 WriteConcern = writeConcern
             };
-            var subjectReflector = new Reflector(subject);
-            var serverVersion = Feature.CommandsThatWriteAcceptWriteConcern.SupportedOrNotSupportedVersion(isWriteConcernSupported);
-
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             var session = OperationTestHelper.CreateSession();
 
-            var result = subjectReflector.CreateCommand(session, connectionDescription);
+            var result = subject.CreateCommand(session, connectionDescription);
 
             var expectedResult = new BsonDocument
             {
@@ -263,7 +253,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "map", _mapFunction },
                 { "reduce", _reduceFunction },
                 { "out", new BsonDocument { {"replace", _outputCollectionNamespace.CollectionName }, { "db", _databaseNamespace.DatabaseName } } },
-                { "writeConcern", () => writeConcern.ToBsonDocument(), writeConcern != null && isWriteConcernSupported }
+                { "writeConcern", () => writeConcern.ToBsonDocument(), writeConcern != null }
             };
             result.Should().Be(expectedResult);
         }
@@ -365,7 +355,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet).Supports(Feature.Collation);
+            RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet);
             EnsureTestData();
             var collation = new Collation("en_US", caseLevel: caseSensitive, strength: CollationStrength.Primary);
             var filter = BsonDocument.Parse("{ y : 'a' }");
@@ -609,7 +599,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.ReplicaSet);
+            RequireServer.Check().ClusterType(ClusterType.ReplicaSet);
 #pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings)
 #pragma warning restore CS0618 // Type or member is obsolete
@@ -660,12 +650,6 @@ namespace MongoDB.Driver.Core.Operations
             }
 
             // methods
-            public BsonDocument CreateCommand(ICoreSessionHandle session, ConnectionDescription connectionDescription)
-            {
-                var method = typeof(MapReduceOutputToCollectionOperation).GetMethod("CreateCommand", BindingFlags.NonPublic | BindingFlags.Instance);
-                return (BsonDocument)method.Invoke(_instance, new object[] { session, connectionDescription });
-            }
-
             public BsonDocument CreateOutputOptions()
             {
                 var method = typeof(MapReduceOutputToCollectionOperation).GetMethod("CreateOutputOptions", BindingFlags.NonPublic | BindingFlags.Instance);

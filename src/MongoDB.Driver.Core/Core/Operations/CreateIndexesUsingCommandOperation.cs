@@ -158,7 +158,7 @@ namespace MongoDB.Driver.Core.Operations
         internal BsonDocument CreateCommand(ICoreSessionHandle session, ConnectionDescription connectionDescription)
         {
             var serverVersion = connectionDescription.ServerVersion;
-            var writeConcern = WriteConcernHelper.GetWriteConcernForCommandThatWrites(session, _writeConcern, serverVersion);
+            var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(session, _writeConcern);
             if (_commitQuorum != null)
             {
                 Feature.CreateIndexCommitQuorum.ThrowIfNotSupported(serverVersion);
@@ -167,7 +167,7 @@ namespace MongoDB.Driver.Core.Operations
             return new BsonDocument
             {
                 { "createIndexes", _collectionNamespace.CollectionName },
-                { "indexes", new BsonArray(_requests.Select(request => request.CreateIndexDocument(serverVersion))) },
+                { "indexes", new BsonArray(_requests.Select(request => request.CreateIndexDocument())) },
                 { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(_maxTime.Value), _maxTime.HasValue },
                 { "writeConcern", writeConcern, writeConcern != null },
                 { "commitQuorum", () => _commitQuorum.ToBsonValue(), _commitQuorum != null }

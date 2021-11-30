@@ -126,7 +126,7 @@ namespace MongoDB.Driver.Core.Operations
                 ReadConcern = readConcern
             };
             var session = OperationTestHelper.CreateSession();
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion: Feature.ReadConcern.FirstSupportedVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
             var result = subject.CreateCommand(session, connectionDescription);
 
@@ -138,25 +138,6 @@ namespace MongoDB.Driver.Core.Operations
             {
                 result["readConcern"].Should().Be(readConcern.ToBsonDocument());
             }
-        }
-
-        [Fact]
-        public void CreateCommand_should_throw_when_read_concern_is_not_supported()
-        {
-            var mapFunction = "function() { emit(this.x, this.v); }";
-            var reduceFunction = "function(key, values) { var sum = 0; for (var i = 0; i < values.length; i++) { sum += values[i]; }; return sum; }";
-#pragma warning disable CS0618 // Type or member is obsolete
-            var subject = new MapReduceLegacyOperation(_collectionNamespace, mapFunction, reduceFunction, _messageEncoderSettings)
-#pragma warning restore CS0618 // Type or member is obsolete
-            {
-                ReadConcern = ReadConcern.Majority
-            };
-
-            var session = OperationTestHelper.CreateSession();
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion: Feature.ReadConcern.LastNotSupportedVersion);
-
-            Action act = () => subject.CreateCommand(session, connectionDescription);
-            act.ShouldThrow<MongoClientException>();
         }
 
         [Theory]
@@ -175,7 +156,7 @@ namespace MongoDB.Driver.Core.Operations
             };
 
             var session = OperationTestHelper.CreateSession(isCausallyConsistent: true, operationTime: new BsonTimestamp(100));
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion: Feature.ReadConcern.FirstSupportedVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
             var result = subject.CreateCommand(session, connectionDescription);
 

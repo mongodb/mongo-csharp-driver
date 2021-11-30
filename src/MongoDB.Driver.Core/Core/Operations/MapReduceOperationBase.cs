@@ -232,9 +232,6 @@ namespace MongoDB.Driver.Core.Operations
         /// </returns>
         protected internal virtual BsonDocument CreateCommand(ICoreSessionHandle session, ConnectionDescription connectionDescription)
         {
-            var serverVersion = connectionDescription.ServerVersion;
-            Feature.Collation.ThrowIfNotSupported(serverVersion, _collation);
-
             return new BsonDocument
             {
                 { "mapReduce", _collectionNamespace.CollectionName },

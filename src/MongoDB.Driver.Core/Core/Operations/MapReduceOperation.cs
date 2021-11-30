@@ -121,8 +121,6 @@ namespace MongoDB.Driver.Core.Operations
         /// <inheritdoc/>
         protected internal override BsonDocument CreateCommand(ICoreSessionHandle session, ConnectionDescription connectionDescription)
         {
-            Feature.ReadConcern.ThrowIfNotSupported(connectionDescription.ServerVersion, _readConcern);
-
             var command = base.CreateCommand(session, connectionDescription);
 
             var readConcern = ReadConcernHelper.GetReadConcernForCommand(session, connectionDescription, _readConcern);

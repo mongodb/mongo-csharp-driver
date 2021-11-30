@@ -96,7 +96,7 @@ namespace MongoDB.Driver.Core.Operations
             var expectedResult = new BsonDocument
             {
                 { "createIndexes", _collectionNamespace.CollectionName },
-                { "indexes", new BsonArray { requests[0].CreateIndexDocument(null) } }
+                { "indexes", new BsonArray { requests[0].CreateIndexDocument() } }
             };
             result.Should().Be(expectedResult);
         }
@@ -118,7 +118,7 @@ namespace MongoDB.Driver.Core.Operations
             var expectedResult = new BsonDocument
             {
                 { "createIndexes", _collectionNamespace.CollectionName },
-                { "indexes", new BsonArray { requests[0].CreateIndexDocument(null), requests[1].CreateIndexDocument(null) } }
+                { "indexes", new BsonArray { requests[0].CreateIndexDocument(), requests[1].CreateIndexDocument() } }
             };
             result.Should().Be(expectedResult);
         }
@@ -142,7 +142,7 @@ namespace MongoDB.Driver.Core.Operations
             var expectedResult = new BsonDocument
             {
                 { "createIndexes", _collectionNamespace.CollectionName },
-                { "indexes", new BsonArray { requests[0].CreateIndexDocument(null) } },
+                { "indexes", new BsonArray { requests[0].CreateIndexDocument() } },
                 { "commitQuorum", mode }
             };
             result.Should().Be(expectedResult);
@@ -168,7 +168,7 @@ namespace MongoDB.Driver.Core.Operations
             var expectedResult = new BsonDocument
             {
                 { "createIndexes", _collectionNamespace.CollectionName },
-                { "indexes", new BsonArray { requests[0].CreateIndexDocument(null) } },
+                { "indexes", new BsonArray { requests[0].CreateIndexDocument() } },
                 { "commitQuorum", w }
             };
             result.Should().Be(expectedResult);
@@ -195,7 +195,7 @@ namespace MongoDB.Driver.Core.Operations
             var expectedResult = new BsonDocument
             {
                 { "createIndexes", _collectionNamespace.CollectionName },
-                { "indexes", new BsonArray { requests[0].CreateIndexDocument(null) } },
+                { "indexes", new BsonArray { requests[0].CreateIndexDocument() } },
                 { "maxTimeMS", expectedMaxTimeMS },
             };
             result.Should().Be(expectedResult);
@@ -206,9 +206,7 @@ namespace MongoDB.Driver.Core.Operations
         [ParameterAttributeData]
         public void CreateCommand_should_return_expected_result_when_WriteConcern_is_set(
              [Values(1, 2)]
-            int w,
-             [Values(false, true)]
-            bool isWriteConcernSupported)
+            int w)
         {
             var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) };
             var writeConcern = new WriteConcern(w);
@@ -217,15 +215,15 @@ namespace MongoDB.Driver.Core.Operations
                 WriteConcern = writeConcern
             };
             var session = OperationTestHelper.CreateSession();
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion: Feature.CommandsThatWriteAcceptWriteConcern.SupportedOrNotSupportedVersion(isWriteConcernSupported));
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
             var result = subject.CreateCommand(session, connectionDescription);
 
             var expectedResult = new BsonDocument
             {
                 { "createIndexes", _collectionNamespace.CollectionName },
-                { "indexes", new BsonArray { requests[0].CreateIndexDocument(null) } },
-                { "writeConcern", () => writeConcern.ToBsonDocument(), isWriteConcernSupported }
+                { "indexes", new BsonArray { requests[0].CreateIndexDocument() } },
+                { "writeConcern", writeConcern.ToBsonDocument() }
             };
             result.Should().Be(expectedResult);
         }
@@ -361,7 +359,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.PartialIndexes);
+            RequireServer.Check();
             DropCollection();
             var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) { PartialFilterExpression = new BsonDocument("x", new BsonDocument("$gt", 0)) } };
             var subject = new CreateIndexesUsingCommandOperation(_collectionNamespace, requests, _messageEncoderSettings);
@@ -399,7 +397,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.Collation);
+            RequireServer.Check();
             DropCollection();
             var collation = new Collation(locale);
             var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) { Collation = collation } };
@@ -480,7 +478,7 @@ namespace MongoDB.Driver.Core.Operations
            [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.CommandsThatWriteAcceptWriteConcern).ClusterType(ClusterType.ReplicaSet);
+            RequireServer.Check().ClusterType(ClusterType.ReplicaSet);
             DropCollection();
             var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) };
             var subject = new CreateIndexesUsingCommandOperation(_collectionNamespace, requests, _messageEncoderSettings)

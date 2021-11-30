@@ -98,21 +98,9 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         }
 
         /// <inheritdoc/>
-        public IMessageEncoder GetGetMoreMessageEncoder()
-        {
-            return new GetMoreMessageJsonEncoder(_textReader, _textWriter, _encoderSettings);
-        }
-
-        /// <inheritdoc/>
         public IMessageEncoder GetInsertMessageEncoder<TDocument>(IBsonSerializer<TDocument> serializer)
         {
             return new InsertMessageJsonEncoder<TDocument>(_textReader, _textWriter, _encoderSettings, serializer);
-        }
-
-        /// <inheritdoc/>
-        public IMessageEncoder GetKillCursorsMessageEncoder()
-        {
-            return new KillCursorsMessageJsonEncoder(_textReader, _textWriter, _encoderSettings);
         }
 
         /// <inheritdoc/>

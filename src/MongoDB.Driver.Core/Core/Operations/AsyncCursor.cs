@@ -28,7 +28,6 @@ using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
-using MongoDB.Shared;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -326,34 +325,6 @@ namespace MongoDB.Driver.Core.Operations
             return CreateCursorBatch(result);
         }
 
-        private CursorBatch<TDocument> ExecuteGetMoreProtocol(IChannelHandle channel, CancellationToken cancellationToken)
-        {
-            var numberToReturn = CalculateGetMoreNumberToReturn();
-
-            return channel.GetMore<TDocument>(
-                _collectionNamespace,
-                _query,
-                _cursorId,
-                numberToReturn,
-                _serializer,
-                _messageEncoderSettings,
-                cancellationToken);
-        }
-
-        private Task<CursorBatch<TDocument>> ExecuteGetMoreProtocolAsync(IChannelHandle channel, CancellationToken cancellationToken)
-        {
-            var numberToReturn = CalculateGetMoreNumberToReturn();
-
-            return channel.GetMoreAsync<TDocument>(
-                _collectionNamespace,
-                _query,
-                _cursorId,
-                numberToReturn,
-                _serializer,
-                _messageEncoderSettings,
-                cancellationToken);
-        }
-
         private void ExecuteKillCursorsCommand(IChannelHandle channel, CancellationToken cancellationToken)
         {
             var command = CreateKillCursorsCommand();
@@ -393,22 +364,6 @@ namespace MongoDB.Driver.Core.Operations
                 .ConfigureAwait(false);
 
             ThrowIfKillCursorsCommandFailed(result, channel.ConnectionDescription.ConnectionId);
-        }
-
-        private void ExecuteKillCursorsProtocol(IChannelHandle channel, CancellationToken cancellationToken)
-        {
-            channel.KillCursors(
-                new[] { _cursorId },
-                _messageEncoderSettings,
-                cancellationToken);
-        }
-
-        private Task ExecuteKillCursorsProtocolAsync(IChannelHandle channel, CancellationToken cancellationToken)
-        {
-            return channel.KillCursorsAsync(
-                new[] { _cursorId },
-                _messageEncoderSettings,
-                cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -518,14 +473,7 @@ namespace MongoDB.Driver.Core.Operations
             using (EventContext.BeginOperation(_operationId))
             using (var channel = _channelSource.GetChannel(cancellationToken))
             {
-                if (Feature.FindCommand.IsSupported(channel.ConnectionDescription.ServerVersion))
-                {
-                    return ExecuteGetMoreCommand(channel, cancellationToken);
-                }
-                else
-                {
-                    return ExecuteGetMoreProtocol(channel, cancellationToken);
-                }
+                return ExecuteGetMoreCommand(channel, cancellationToken);
             }
         }
 
@@ -534,14 +482,7 @@ namespace MongoDB.Driver.Core.Operations
             using (EventContext.BeginOperation(_operationId))
             using (var channel = await _channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
             {
-                if (Feature.FindCommand.IsSupported(channel.ConnectionDescription.ServerVersion))
-                {
-                    return await ExecuteGetMoreCommandAsync(channel, cancellationToken).ConfigureAwait(false);
-                }
-                else
-                {
-                    return await ExecuteGetMoreProtocolAsync(channel, cancellationToken).ConfigureAwait(false);
-                }
+                return await ExecuteGetMoreCommandAsync(channel, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -559,14 +500,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 if (!channel.Connection.IsExpired)
                 {
-                    if (Feature.KillCursorsCommand.IsSupported(channel.ConnectionDescription.ServerVersion))
-                    {
-                        ExecuteKillCursorsCommand(channel, cancellationToken);
-                    }
-                    else
-                    {
-                        ExecuteKillCursorsProtocol(channel, cancellationToken);
-                    }
+                    ExecuteKillCursorsCommand(channel, cancellationToken);
                 }
             }
         }
@@ -580,14 +514,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 if (!channel.Connection.IsExpired)
                 {
-                    if (Feature.KillCursorsCommand.IsSupported(channel.ConnectionDescription.ServerVersion))
-                    {
-                        await ExecuteKillCursorsCommandAsync(channel, cancellationToken).ConfigureAwait(false);
-                    }
-                    else
-                    {
-                        await ExecuteKillCursorsProtocolAsync(channel, cancellationToken).ConfigureAwait(false);
-                    }
+                    await ExecuteKillCursorsCommandAsync(channel, cancellationToken).ConfigureAwait(false);
                 }
             }
         }
