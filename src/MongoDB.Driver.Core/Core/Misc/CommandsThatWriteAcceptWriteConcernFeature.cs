@@ -13,12 +13,15 @@
 * limitations under the License.
 */
 
+using System;
+
 namespace MongoDB.Driver.Core.Misc
 {
     /// <summary>
     /// Represents the commands that write accept write concern concern feature.
     /// </summary>
     /// <seealso cref="MongoDB.Driver.Core.Misc.Feature" />
+    [Obsolete("This class will be removed in a later release.")]
     public class CommandsThatWriteAcceptWriteConcernFeature : Feature
     {
         /// <summary>
