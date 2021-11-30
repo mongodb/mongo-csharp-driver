@@ -63,8 +63,8 @@ namespace MongoDB.Driver.Tests
         {
             RequireServer.Check()
                 .Supports(Feature.ShardedTransactions, Feature.FailPointsBlockConnection)
-                .ClusterType(ClusterType.Sharded);
-            RequireMultipleShardRouters();
+                .ClusterType(ClusterType.Sharded)
+                .MultipleMongoses(true);
 
             // temporary disable the test on Auth envs due to operations timings irregularities
             RequireServer.Check().Authentication(false);
@@ -184,16 +184,6 @@ namespace MongoDB.Driver.Tests
             var client = DriverTestConfiguration.Client;
             var database = client.GetDatabase(_databaseName).WithWriteConcern(WriteConcern.WMajority);
             database.DropCollection(_collectionName);
-        }
-
-        private void RequireMultipleShardRouters()
-        {
-            var connectionString = CoreTestConfiguration.ConnectionStringWithMultipleShardRouters.ToString();
-            var numberOfShardRouters = MongoClientSettings.FromUrl(new MongoUrl(connectionString)).Servers.Count();
-            if (numberOfShardRouters < 2)
-            {
-                throw new SkipException("Two or more shard routers are required.");
-            }
         }
     }
 }

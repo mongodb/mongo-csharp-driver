@@ -206,6 +206,27 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
                 $"and this test requires TLS={required}.");
         }
 
+        public RequireServer MultipleMongosesIfSharded(bool required)
+        {
+            var clusterType = CoreTestConfiguration.Cluster.Description.Type;
+            if (clusterType == Clusters.ClusterType.Sharded || clusterType == Clusters.ClusterType.LoadBalanced)
+            {
+                MultipleMongoses(required);
+            }
+
+            return this;
+        }
+
+        public RequireServer MultipleMongoses(bool required)
+        {
+            if (!required || CoreTestConfiguration.NumberOfMongoses >= 2)
+            {
+                return this;
+            }
+
+            throw new SkipException($"Test skipped because the cluster does not have multiple mongoses.");
+        }
+
         public RequireServer VersionGreaterThanOrEqualTo(SemanticVersion version)
         {
             var actualVersion = CoreTestConfiguration.ServerVersion;

@@ -21,6 +21,7 @@ using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.Logging;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.GridFS;
 using MongoDB.Driver.TestHelpers;
 
@@ -458,6 +459,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         break;
                     case "useMultipleMongoses":
                         useMultipleShardRouters = element.Value.AsBoolean;
+                        RequireServer.Check().MultipleMongosesIfSharded(required: useMultipleShardRouters);
                         break;
                     case "observeEvents":
                         var observeEvents = element.Value.AsBsonArray.Select(x => x.AsString);
