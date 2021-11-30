@@ -74,7 +74,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.ListIndexesCommand);
+            RequireServer.Check();
             EnsureCollectionExists(async);
             var subject = new ListIndexesUsingCommandOperation(_collectionNamespace, _messageEncoderSettings);
 
@@ -88,7 +88,7 @@ namespace MongoDB.Driver.Core.Operations
         [ParameterAttributeData]
         public void Execute_should_return_the_expected_result_when_batchSize_is_used([Values(false, true)] bool async)
         {
-            RequireServer.Check().Supports(Feature.ListIndexesCommand);
+            RequireServer.Check();
             EnsureCollectionExists(async);
             int batchSize = 3;
             var subject = new ListIndexesUsingCommandOperation(_collectionNamespace, _messageEncoderSettings)
@@ -108,7 +108,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.ListIndexesCommand);
+            RequireServer.Check();
             DropCollection(async);
             var subject = new ListIndexesUsingCommandOperation(_collectionNamespace, _messageEncoderSettings);
 
@@ -124,7 +124,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)]
             bool async)
         {
-            RequireServer.Check().Supports(Feature.ListIndexesCommand);
+            RequireServer.Check();
             DropDatabase(async);
             var subject = new ListIndexesUsingCommandOperation(_collectionNamespace, _messageEncoderSettings);
 
@@ -153,7 +153,7 @@ namespace MongoDB.Driver.Core.Operations
         public void Execute_should_send_session_id_when_supported(
             [Values(false, true)] bool async)
         {
-            RequireServer.Check().Supports(Feature.ListIndexesCommand);
+            RequireServer.Check();
             EnsureCollectionExists(async);
             var subject = new ListIndexesUsingCommandOperation(_collectionNamespace, _messageEncoderSettings);
 

@@ -636,7 +636,7 @@ namespace MongoDB.Driver.Tests
             [Values(false, true)]
             bool noPadding)
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.0").ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet).StorageEngine("mmapv1");
+            RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet).StorageEngine("mmapv1");
             var collection = _database.GetCollection("cappedcollection");
             collection.Drop();
             var userFlags = noPadding ? CollectionUserFlags.NoPadding : CollectionUserFlags.None;
@@ -3206,7 +3206,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void TestGetStatsNoPadding()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.0").ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet).StorageEngine("mmapv1");
+            RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet).StorageEngine("mmapv1");
             _collection.Drop();
             _database.CreateCollection(_collection.Name); // collMod command only works if collection exists
 

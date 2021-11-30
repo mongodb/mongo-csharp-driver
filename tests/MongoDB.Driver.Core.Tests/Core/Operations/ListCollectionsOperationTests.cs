@@ -169,16 +169,7 @@ namespace MongoDB.Driver.Core.Operations
 
             using (var result = ExecuteOperation(subject, async))
             {
-                AsyncCursor<BsonDocument> asyncCursor;
-                if (Feature.ListCollectionsCommand.IsSupported(CoreTestConfiguration.ServerVersion))
-                {
-                    asyncCursor = (AsyncCursor<BsonDocument>)result;
-                }
-                else
-                {
-                    var batchTransformingAsyncCursor = (BatchTransformingAsyncCursor<BsonDocument, BsonDocument>)result;
-                    asyncCursor = (AsyncCursor<BsonDocument>)batchTransformingAsyncCursor._wrapped();
-                }
+                var asyncCursor = (AsyncCursor<BsonDocument>)result;
                 asyncCursor._batchSize().Should().Be(batchSize);
             }
         }
@@ -204,7 +195,7 @@ namespace MongoDB.Driver.Core.Operations
         public void Execute_should_send_session_id_when_supported(
             [Values(false, true)] bool async)
         {
-            RequireServer.Check().Supports(Feature.ListCollectionsCommand);
+            RequireServer.Check();
             EnsureCollectionsExist();
             var subject = new ListCollectionsOperation(_databaseNamespace, _messageEncoderSettings);
             var expectedNames = new[] { "regular", "capped" };
@@ -214,7 +205,7 @@ namespace MongoDB.Driver.Core.Operations
 
         [Theory]
         [ParameterAttributeData]
-        public void CreateOperation_should_return_expected_result_when_list_collections_command_is_not_supported(
+        public void CreateOperation_should_return_expected_result(
             [Values(null, false, true)] bool? nameOnly)
         {
             var filter = new BsonDocument();
@@ -223,32 +214,7 @@ namespace MongoDB.Driver.Core.Operations
                 Filter = filter,
                 NameOnly = nameOnly
             };
-            var serverVersion = Feature.ListCollectionsCommand.LastNotSupportedVersion;
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion: serverVersion);
-            var mockChannel = new Mock<IChannel>();
-            mockChannel.SetupGet(m => m.ConnectionDescription).Returns(connectionDescription);
-
-            var result = subject.CreateOperation(mockChannel.Object);
-
-            var operation = result.Should().BeOfType<ListCollectionsUsingQueryOperation>().Subject;
-            operation.Filter.Should().BeSameAs(subject.Filter);
-            operation.DatabaseNamespace.Should().BeSameAs(subject.DatabaseNamespace);
-            operation.MessageEncoderSettings.Should().BeSameAs(subject.MessageEncoderSettings);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void CreateOperation_should_return_expected_result_when_list_collections_command_is_supported(
-            [Values(null, false, true)] bool? nameOnly)
-        {
-            var filter = new BsonDocument();
-            var subject = new ListCollectionsOperation(_databaseNamespace, _messageEncoderSettings)
-            {
-                Filter = filter,
-                NameOnly = nameOnly
-            };
-            var serverVersion = Feature.ListCollectionsCommand.FirstSupportedVersion;
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion: serverVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             var mockChannel = new Mock<IChannel>();
             mockChannel.SetupGet(m => m.ConnectionDescription).Returns(connectionDescription);
 

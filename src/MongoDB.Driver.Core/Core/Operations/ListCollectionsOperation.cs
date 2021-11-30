@@ -13,13 +13,9 @@
 * limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
@@ -155,25 +151,13 @@ namespace MongoDB.Driver.Core.Operations
         // private methods
         private IExecutableInRetryableReadContext<IAsyncCursor<BsonDocument>> CreateOperation(IChannel channel)
         {
-            if (Feature.ListCollectionsCommand.IsSupported(channel.ConnectionDescription.ServerVersion))
+            return new ListCollectionsUsingCommandOperation(_databaseNamespace, _messageEncoderSettings)
             {
-                return new ListCollectionsUsingCommandOperation(_databaseNamespace, _messageEncoderSettings)
-                {
-                    BatchSize = _batchSize,
-                    Filter = _filter,
-                    NameOnly = _nameOnly,
-                    RetryRequested = _retryRequested // might be overridden by retryable read context
-                };
-            }
-            else
-            {
-                return new ListCollectionsUsingQueryOperation(_databaseNamespace, _messageEncoderSettings)
-                {
-                    BatchSize = _batchSize,
-                    Filter = _filter,
-                    RetryRequested = _retryRequested // might be overridden by retryable read context
-                };
-            }
+                BatchSize = _batchSize,
+                Filter = _filter,
+                NameOnly = _nameOnly,
+                RetryRequested = _retryRequested // might be overridden by retryable read context
+            };
         }
     }
 }
