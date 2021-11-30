@@ -55,11 +55,11 @@ namespace MongoDB.Driver.Core.Connections
         {
             var doc = new BsonDocument
             {
-                { "version", "2.6.3" }
+                { "version", "3.6.0" }
             };
             var subject = new BuildInfoResult(doc);
 
-            subject.ServerVersion.Should().Be(new SemanticVersion(2, 6, 3));
+            subject.ServerVersion.Should().Be(new SemanticVersion(3, 6, 0));
         }
 
         [Fact]

@@ -16,8 +16,6 @@
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
 
@@ -28,7 +26,7 @@ namespace MongoDB.Driver.Examples
         [SkippableFact]
         public async Task UpdateTopLevelFields()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
+            RequireServer.Check();
             AltersCollection();
 
             // @begin: update-top-level-fields
@@ -79,7 +77,7 @@ namespace MongoDB.Driver.Examples
         [SkippableFact]
         public async Task UpdateMultipleDocuments()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
+            RequireServer.Check();
             AltersCollection();
 
             // @begin: update-multiple-documents

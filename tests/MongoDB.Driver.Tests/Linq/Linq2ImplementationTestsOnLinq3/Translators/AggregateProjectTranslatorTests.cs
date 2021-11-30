@@ -92,7 +92,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
         [SkippableFact]
         public void Should_translate_allElementsTrue()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
+            RequireServer.Check();
 
             var result = Project(x => new { Result = x.G.All(g => g.E.F > 30) });
 
@@ -104,7 +104,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
         [SkippableFact]
         public void Should_translate_anyElementTrue()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
+            RequireServer.Check();
 
             var result = Project(x => new { Result = x.G.Any() });
 
@@ -116,7 +116,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
         [SkippableFact]
         public void Should_translate_anyElementTrue_with_predicate()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
+            RequireServer.Check();
 
             var result = Project(x => new { Result = x.G.Any(g => g.E.F > 40) });
 
@@ -128,7 +128,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
         [SkippableFact]
         public void Should_translate_anyElementTrue_using_Contains()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
+            RequireServer.Check();
 
             var result = Project(x => new { Result = x.L.Contains(5) });
 
@@ -140,7 +140,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
         [SkippableFact]
         public void Should_translate_anyElementTrue_using_Contains_on_a_local_collection()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
+            RequireServer.Check();
 
             var local = new[] { 11, 33, 55 };
             var result = Project(x => new { Result = local.Contains(x.C.E.F) });
@@ -385,7 +385,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
         [SkippableFact]
         public void Should_translate_concat()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("2.4.0");
+            RequireServer.Check();
 
             var result = Project(x => new { Result = x.A + x.B });
 
@@ -397,7 +397,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
         [SkippableFact]
         public void Should_translate_concat_flattened()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("2.4.0");
+            RequireServer.Check();
 
             var result = Project(x => new { Result = x.A + " " + x.B });
 
@@ -683,7 +683,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
         [SkippableFact]
         public void Should_translate_literal_when_a_constant_strings_begins_with_a_dollar()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
+            RequireServer.Check();
 
             var result = Project(x => new { Result = x.A == "$1" });
 
@@ -743,7 +743,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
         [SkippableFact]
         public void Should_translate_map_with_document()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
+            RequireServer.Check();
 
             var result = Project(x => new { Result = x.G.Select(g => g.D + "0") });
 
@@ -755,7 +755,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
         [SkippableFact]
         public void Should_translate_map_with_value()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
+            RequireServer.Check();
 
             var result = Project(x => new { Result = x.C.E.I.Select(i => i + "0") });
 
@@ -791,7 +791,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
         [SkippableFact]
         public void Should_translate_millisecond()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("2.4.0");
+            RequireServer.Check();
 
             var result = Project(x => new { Result = x.J.Millisecond });
 
@@ -1136,7 +1136,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
         [SkippableFact]
         public void Should_translate_size_greater_than_zero_from_any()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
+            RequireServer.Check();
 
             var result = Project(x => new { Result = x.M.Any() });
 
@@ -1148,7 +1148,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
         [SkippableFact]
         public void Should_translate_size_from_an_array()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
+            RequireServer.Check();
 
             var result = Project(x => new { Result = x.M.Length });
 
@@ -1160,7 +1160,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
         [SkippableFact]
         public void Should_translate_size_from_Count_extension_method()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
+            RequireServer.Check();
 
             var result = Project(x => new { Result = x.M.Count() });
 
@@ -1172,7 +1172,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
         [SkippableFact]
         public void Should_translate_size_from_LongCount_extension_method()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
+            RequireServer.Check();
 
             var result = Project(x => new { Result = x.M.LongCount() });
 
@@ -1184,7 +1184,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
         [SkippableFact]
         public void Should_translate_size_from_Count_property_on_Generic_ICollection()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
+            RequireServer.Check();
 
             var result = Project(x => new { Result = x.L.Count });
 
@@ -1196,7 +1196,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
         [SkippableFact]
         public void Should_translate_set_difference()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
+            RequireServer.Check();
 
             var result = Project(x => new { Result = x.C.E.I.Except(new[] { "it", "not in here" }) });
 
@@ -1208,7 +1208,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
         [SkippableFact]
         public void Should_translate_set_difference_reversed()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
+            RequireServer.Check();
 
             var result = Project(x => new { Result = new[] { "it", "not in here" }.Except(x.C.E.I) });
 
@@ -1220,7 +1220,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
         [SkippableFact]
         public void Should_translate_set_equals()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
+            RequireServer.Check();
 
             var result = Project(x => new { Result = x.L.SetEquals(new[] { 1, 3, 5 }) });
 
@@ -1232,7 +1232,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
         [SkippableFact]
         public void Should_translate_set_equals_reversed()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
+            RequireServer.Check();
             var set = new HashSet<int>(new[] { 1, 3, 5 });
 
             var result = Project(x => new { Result = set.SetEquals(x.L) });
@@ -1245,7 +1245,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
         [SkippableFact]
         public void Should_translate_set_intersection()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
+            RequireServer.Check();
 
             var result = Project(x => new { Result = x.C.E.I.Intersect(new[] { "it", "not in here" }) });
 
@@ -1257,7 +1257,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
         [SkippableFact]
         public void Should_translate_set_intersection_reversed()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
+            RequireServer.Check();
 
             var result = Project(x => new { Result = new[] { "it", "not in here" }.Intersect(x.C.E.I) });
 
@@ -1269,7 +1269,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
         [SkippableFact]
         public void Should_translate_set_is_subset()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
+            RequireServer.Check();
 
             var result = Project(x => new { Result = x.L.IsSubsetOf(new[] { 1, 3, 5 }) });
 
@@ -1281,7 +1281,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
         [SkippableFact]
         public void Should_translate_set_is_subset_reversed()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
+            RequireServer.Check();
             var set = new HashSet<int>(new[] { 1, 3, 5 });
 
             var result = Project(x => new { Result = set.IsSubsetOf(x.L) });
@@ -1294,7 +1294,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
         [SkippableFact]
         public void Should_translate_set_union()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
+            RequireServer.Check();
 
             var result = Project(x => new { Result = x.C.E.I.Union(new[] { "it", "not in here" }) });
 
@@ -1306,7 +1306,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
         [SkippableFact]
         public void Should_translate_set_union_reversed()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
+            RequireServer.Check();
 
             var result = Project(x => new { Result = new[] { "it", "not in here" }.Union(x.C.E.I) });
 
@@ -1744,7 +1744,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
         [SkippableFact]
         public void Should_translate_array_projection_complex()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
+            RequireServer.Check();
 
             var result = Project(x => new { Result = x.G.Select(y => new { y.E.F, y.E.H }) });
 

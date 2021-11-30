@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Core.Connections
         public void CreateClientDocument_with_args_should_return_expected_result(
             [Values(null, "app1", "app2")]
             string applicationName,
-            [Values("{ name : 'mongo-csharp-driver', version : '2.4.0' }", "{ name : 'mongo-csharp-driver', version : '2.4.1' }")]
+            [Values("{ name : 'mongo-csharp-driver', version : '3.6.0' }", "{ name : 'mongo-csharp-driver', version : '3.6.1' }")]
             string driverDocumentString,
             [Values(
                 "{ type : 'Windows', name : 'Windows 10', architecture : 'x86_64', version : '10.0' }",
@@ -75,7 +75,7 @@ namespace MongoDB.Driver.Core.Connections
         [Theory]
         [ParameterAttributeData]
         public void CreateDriverDocument_with_args_should_return_expected_result(
-            [Values("2.4.0", "2.4.1")]
+            [Values("3.6.0", "3.6.1")]
             string driverVersion)
         {
             var result = ClientDocumentHelper.CreateDriverDocument(driverVersion);
@@ -184,7 +184,7 @@ namespace MongoDB.Driver.Core.Connections
                 { "driver", new BsonDocument
                     {
                         { "name", "mongo-csharp-driver" },
-                        { "version", "2.4.x" }
+                        { "version", "3.6.x" }
                     }
                 },
                 { "os", new BsonDocument

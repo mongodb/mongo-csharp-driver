@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Core.Authentication
         private static readonly ConnectionDescription __descriptionQueryWireProtocol = new ConnectionDescription(
             new ConnectionId(__serverId),
             new HelloResult(new BsonDocument("ok", 1).Add(OppressiveLanguageConstants.LegacyHelloResponseIsWritablePrimaryFieldName, 1)),
-            new BuildInfoResult(new BsonDocument("version", "2.6.0")));
+            new BuildInfoResult(new BsonDocument("version", "3.4.0")));
 
         [Fact]
         public void Constructor_should_throw_an_ArgumentNullException_when_credential_is_null()
@@ -94,80 +94,25 @@ namespace MongoDB.Driver.Core.Authentication
 
         [Theory]
         [ParameterAttributeData]
-        public void Authenticate_should_send_serverApi_with_command_wire_protocol_if_serverApi_is_provided(
-            [Values(false, true)] bool useServerApi,
-            [Values(false, true)] bool async)
-        {
-            var serverApi = useServerApi ? new ServerApi(ServerApiVersion.V1, true, true) : null;
-            var randomStringGenerator = new ConstantRandomStringGenerator("fyko+d2lbbFgONRv9qkxdawL");
-
-            var subject = new ScramSha1Authenticator(__credential, randomStringGenerator, serverApi);
-
-            var connection = new MockConnection(__serverId);
-            var saslStartReply = RawBsonDocumentHelper.FromJson("{ conversationId : 1, payload : BinData(0,'cj1meWtvK2QybGJiRmdPTlJ2OXFreGRhd0xIbytWZ2s3cXZVT0tVd3VXTElXZzRsLzlTcmFHTUhFRSxzPXJROVpZM01udEJldVAzRTFURFZDNHc9PSxpPTEwMDAw'), done : false, ok : 1 }");
-            var saslContinueReply = RawBsonDocumentHelper.FromJson("{ conversationId : 1, payload : BinData(0,'dj1VTVdlSTI1SkQxeU5ZWlJNcFo0Vkh2aFo5ZTA9'), done : true, ok : 1}");
-            if (useServerApi)
-            {
-                connection.EnqueueCommandResponseMessage(MessageHelper.BuildCommandResponse(saslStartReply));
-                connection.EnqueueCommandResponseMessage(MessageHelper.BuildCommandResponse(saslContinueReply));
-            }
-            else
-            {
-                connection.EnqueueReplyMessage(MessageHelper.BuildReply(saslStartReply));
-                connection.EnqueueReplyMessage(MessageHelper.BuildReply(saslContinueReply));
-            }
-
-            connection.Description = __descriptionQueryWireProtocol;
-
-            if (async)
-            {
-                subject.AuthenticateAsync(connection, __descriptionQueryWireProtocol, CancellationToken.None).GetAwaiter().GetResult();
-            }
-            else
-            {
-                subject.Authenticate(connection, __descriptionQueryWireProtocol, CancellationToken.None);
-            }
-
-            SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 2, TimeSpan.FromSeconds(5)).Should().BeTrue();
-
-            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
-            sentMessages.Count.Should().Be(2);
-
-            var actualRequestId0 = sentMessages[0]["requestId"].AsInt32;
-            var actualRequestId1 = sentMessages[1]["requestId"].AsInt32;
-
-            if (useServerApi)
-            {
-                sentMessages[0].Should().Be($"{{opcode : \"opmsg\", requestId : {actualRequestId0}, responseTo : 0, sections : [{{ payloadType : 0, document : {{ saslStart : 1, mechanism : \"SCRAM-SHA-1\", payload : new BinData(0, \"biwsbj11c2VyLHI9ZnlrbytkMmxiYkZnT05Sdjlxa3hkYXdM\"), options : {{ skipEmptyExchange : true }}, \"$db\" : \"source\", apiVersion : \"1\", apiStrict : true, apiDeprecationErrors : true }} }}]}}");
-                sentMessages[1].Should().Be($"{{opcode : \"opmsg\", requestId : {actualRequestId1}, responseTo : 0, sections : [{{ payloadType : 0, document : {{ saslContinue : 1, conversationId : 1, payload : new BinData(0, \"Yz1iaXdzLHI9ZnlrbytkMmxiYkZnT05Sdjlxa3hkYXdMSG8rVmdrN3F2VU9LVXd1V0xJV2c0bC85U3JhR01IRUUscD1NQzJUOEJ2Ym1XUmNrRHc4b1dsNUlWZ2h3Q1k9\"), \"$db\" : \"source\", apiVersion : \"1\", apiStrict : true, apiDeprecationErrors : true }} }}]}}");
-            }
-            else
-            {
-                sentMessages[0].Should().Be($"{{ opcode : \"query\", requestId : {actualRequestId0}, database : \"source\", collection : \"$cmd\", batchSize : -1, secondaryOk : true, query : {{ saslStart : 1, mechanism : \"SCRAM-SHA-1\", payload : new BinData(0, \"biwsbj11c2VyLHI9ZnlrbytkMmxiYkZnT05Sdjlxa3hkYXdM\"), options : {{ \"skipEmptyExchange\" : true }} }} }}");
-                sentMessages[1].Should().Be($"{{ opcode : \"query\", requestId : {actualRequestId1}, database : \"source\", collection : \"$cmd\", batchSize : -1, secondaryOk : true, query : {{ saslContinue : 1, conversationId : 1, payload : new BinData(0, \"Yz1iaXdzLHI9ZnlrbytkMmxiYkZnT05Sdjlxa3hkYXdMSG8rVmdrN3F2VU9LVXd1V0xJV2c0bC85U3JhR01IRUUscD1NQzJUOEJ2Ym1XUmNrRHc4b1dsNUlWZ2h3Q1k9\") }} }}");
-            }
-        }
-
-        [Theory]
-        [ParameterAttributeData]
         public void Authenticate_should_throw_an_AuthenticationException_when_authentication_fails(
             [Values("MongoConnectionException", "MongoNotPrimaryException")] string exceptionName,
             [Values(false, true)] bool async)
         {
             var subject = new ScramSha1Authenticator(__credential, serverApi: null);
 
-            var replyException = CoreExceptionHelper.CreateException(exceptionName);
+            var responseException = CoreExceptionHelper.CreateException(exceptionName);
             var connection = new MockConnection(__serverId);
-            connection.EnqueueReplyMessage(replyException);
+            connection.EnqueueCommandResponseMessage(responseException);
+            connection.Description = __descriptionCommandWireProtocol;
 
             Exception exception;
             if (async)
             {
-                exception = Record.Exception(() => subject.AuthenticateAsync(connection, __descriptionQueryWireProtocol, CancellationToken.None).GetAwaiter().GetResult());
+                exception = Record.Exception(() => subject.AuthenticateAsync(connection, __descriptionCommandWireProtocol, CancellationToken.None).GetAwaiter().GetResult());
             }
             else
             {
-                exception = Record.Exception(() => subject.Authenticate(connection, __descriptionQueryWireProtocol, CancellationToken.None));
+                exception = Record.Exception(() => subject.Authenticate(connection, __descriptionCommandWireProtocol, CancellationToken.None));
             }
 
             exception.Should().BeOfType<MongoAuthenticationException>();
@@ -182,20 +127,21 @@ namespace MongoDB.Driver.Core.Authentication
             var randomStringGenerator = new ConstantRandomStringGenerator("fyko+d2lbbFgONRv9qkxdawL");
             var subject = new ScramSha1Authenticator(__credential, randomStringGenerator, serverApi: null);
 
-            var saslStartReply = MessageHelper.BuildReply<RawBsonDocument>(
+            var saslStartResponse = MessageHelper.BuildCommandResponse(
                 RawBsonDocumentHelper.FromJson("{conversationId: 1, payload: BinData(0,'cj1meWtvLWQybGJiRmdPTlJ2OXFreGRhd0xIbytWZ2s3cXZVT0tVd3VXTElXZzRsLzlTcmFHTUhFRSxzPXJROVpZM01udEJldVAzRTFURFZDNHc9PSxpPTEwMDAw'), done: false, ok: 1}"));
 
             var connection = new MockConnection(__serverId);
-            connection.EnqueueReplyMessage(saslStartReply);
+            connection.EnqueueCommandResponseMessage(saslStartResponse);
+            connection.Description = __descriptionCommandWireProtocol;
 
             Action act;
             if (async)
             {
-                act = () => subject.AuthenticateAsync(connection, __descriptionQueryWireProtocol, CancellationToken.None).GetAwaiter().GetResult();
+                act = () => subject.AuthenticateAsync(connection, __descriptionCommandWireProtocol, CancellationToken.None).GetAwaiter().GetResult();
             }
             else
             {
-                act = () => subject.Authenticate(connection, __descriptionQueryWireProtocol, CancellationToken.None);
+                act = () => subject.Authenticate(connection, __descriptionCommandWireProtocol, CancellationToken.None);
             }
 
             act.ShouldThrow<MongoAuthenticationException>();
@@ -210,23 +156,24 @@ namespace MongoDB.Driver.Core.Authentication
             var randomStringGenerator = new ConstantRandomStringGenerator("fyko+d2lbbFgONRv9qkxdawL");
             var subject = new ScramSha1Authenticator(__credential, randomStringGenerator, serverApi: null);
 
-            var saslStartReply = MessageHelper.BuildReply<RawBsonDocument>(
+            var saslStartResponse = MessageHelper.BuildCommandResponse(
                 RawBsonDocumentHelper.FromJson("{conversationId: 1, payload: BinData(0,'cj1meWtvK2QybGJiRmdPTlJ2OXFreGRhd0xIbytWZ2s3cXZVT0tVd3VXTElXZzRsLzlTcmFHTUhFRSxzPXJROVpZM01udEJldVAzRTFURFZDNHc9PSxpPTEwMDAw'), done: false, ok: 1}"));
-            var saslContinueReply = MessageHelper.BuildReply<RawBsonDocument>(
+            var saslContinueResponse = MessageHelper.BuildCommandResponse(
                 RawBsonDocumentHelper.FromJson("{conversationId: 1, payload: BinData(0,'dj1VTVdlSTI1SkQxeU5ZWlJNcFo0Vkh2aFo5ZTBh'), done: true, ok: 1}"));
 
             var connection = new MockConnection(__serverId);
-            connection.EnqueueReplyMessage(saslStartReply);
-            connection.EnqueueReplyMessage(saslContinueReply);
+            connection.EnqueueCommandResponseMessage(saslStartResponse);
+            connection.EnqueueCommandResponseMessage(saslContinueResponse);
+            connection.Description = __descriptionCommandWireProtocol;
 
             Action act;
             if (async)
             {
-                act = () => subject.AuthenticateAsync(connection, __descriptionQueryWireProtocol, CancellationToken.None).GetAwaiter().GetResult();
+                act = () => subject.AuthenticateAsync(connection, __descriptionCommandWireProtocol, CancellationToken.None).GetAwaiter().GetResult();
             }
             else
             {
-                act = () => subject.Authenticate(connection, __descriptionQueryWireProtocol, CancellationToken.None);
+                act = () => subject.Authenticate(connection, __descriptionCommandWireProtocol, CancellationToken.None);
             }
 
             act.ShouldThrow<MongoAuthenticationException>();
@@ -374,27 +321,30 @@ namespace MongoDB.Driver.Core.Authentication
             var randomStringGenerator = new ConstantRandomStringGenerator("fyko+d2lbbFgONRv9qkxdawL");
             var subject = new ScramSha1Authenticator(__credential, randomStringGenerator, serverApi: null);
 
-            var saslStartReply = MessageHelper.BuildReply<RawBsonDocument>(
+            var saslStartResponse = MessageHelper.BuildCommandResponse(
                 RawBsonDocumentHelper.FromJson(
                     "{conversationId: 1, payload: BinData(0,'cj1meWtvK2QybGJiRmdPTlJ2OXFreGRhd0xIbytWZ2s3cXZVT0tVd3VXTElXZzRsLzlTcmFHTUhFRSxzPXJROVpZM01udEJldVAzRTFURFZDNHc9PSxpPTEwMDAw'), done: false, ok: 1}"));
-            var saslContinueReply = MessageHelper.BuildReply<RawBsonDocument>(
+            var saslContinueResponse = MessageHelper.BuildCommandResponse(
                 RawBsonDocumentHelper.FromJson(
                     "{conversationId: 1, payload: BinData(0,'dj1VTVdlSTI1SkQxeU5ZWlJNcFo0Vkh2aFo5ZTA9'), done: true, ok: 1}"));
             var connection = new MockConnection(__serverId);
-            connection.EnqueueReplyMessage(saslStartReply);
-            connection.EnqueueReplyMessage(saslContinueReply);
+            connection.EnqueueCommandResponseMessage(saslStartResponse);
+            connection.EnqueueCommandResponseMessage(saslContinueResponse);
+            connection.Description = __descriptionCommandWireProtocol;
 
             if (async)
             {
-                subject.AuthenticateAsync(connection, __descriptionQueryWireProtocol, CancellationToken.None).GetAwaiter()
+                subject.AuthenticateAsync(connection, __descriptionCommandWireProtocol, CancellationToken.None)
+                    .GetAwaiter()
                     .GetResult();
             }
             else
             {
-                subject.Authenticate(connection, __descriptionQueryWireProtocol, CancellationToken.None);
+                subject.Authenticate(connection, __descriptionCommandWireProtocol, CancellationToken.None);
             }
 
-            SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 2, TimeSpan.FromSeconds(5)).Should()
+            SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 2, TimeSpan.FromSeconds(5))
+                .Should()
                 .BeTrue();
 
             subject._cache().Should().NotBe(null);

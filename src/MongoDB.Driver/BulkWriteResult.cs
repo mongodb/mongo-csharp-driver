@@ -58,7 +58,7 @@ namespace MongoDB.Driver
         /// Gets a value indicating whether the modified count is available.
         /// </summary>
         /// <remarks>
-        /// The modified count is only available when all servers have been upgraded to 2.6 or above.
+        /// The available modified count.
         /// </remarks>
         public abstract bool IsModifiedCountAvailable { get; }
 

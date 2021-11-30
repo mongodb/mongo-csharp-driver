@@ -201,24 +201,6 @@ namespace MongoDB.Driver.Core.Operations
 
         [SkippableTheory]
         [ParameterAttributeData]
-        public void Execute_should_throw_when_filter_name_is_not_a_string_and_connected_to_older_server(
-            [Values(false, true)]
-            bool async)
-        {
-            RequireServer.Check().VersionLessThan("2.7.0");
-            var filter = new BsonDocument("name", new BsonRegularExpression("^abc"));
-            var subject = new ListCollectionsOperation(_databaseNamespace, _messageEncoderSettings)
-            {
-                Filter = filter
-            };
-
-            Action action = () => ExecuteOperation(subject, async);
-
-            action.ShouldThrow<NotSupportedException>();
-        }
-
-        [SkippableTheory]
-        [ParameterAttributeData]
         public void Execute_should_send_session_id_when_supported(
             [Values(false, true)] bool async)
         {

@@ -211,7 +211,6 @@ namespace MongoDB.Driver.Tests
             switch (lastStageName)
             {
                 case "$out":
-                    RequireServer.Check().Supports(Feature.AggregateOut);
                     BsonValue outValue;
                     if (usingDifferentOutputDatabase)
                     {

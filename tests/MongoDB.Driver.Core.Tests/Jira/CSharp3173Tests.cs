@@ -282,7 +282,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
             bool streamable)
         {
             var connectionId = new ConnectionId(serverId);
-            var serverVersion = streamable ? "4.4" : "2.6";
+            var serverVersion = streamable ? "4.4" : "3.6";
             var helloDocument = new BsonDocument
             {
                 { "ok", 1 },
@@ -311,7 +311,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
             }
             else
             {
-                commandResponseAction = () => { return MessageHelper.BuildReply(new RawBsonDocument(helloDocument.ToBson())); };
+                commandResponseAction = () => { return MessageHelper.BuildCommandResponse(new RawBsonDocument(helloDocument.ToBson())); };
             }
 
             if (isHealthy)

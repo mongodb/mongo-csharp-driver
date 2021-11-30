@@ -336,15 +336,7 @@ namespace MongoDB.Driver.Tests
             CreateX509DatabaseUser(DriverTestConfiguration.Client, userName);
 
             var settings = DriverTestConfiguration.GetClientSettings().Clone();
-            var serverVersion = CoreTestConfiguration.ServerVersion;
-            if (Feature.ServerExtractsUsernameFromX509Certificate.IsSupported(serverVersion))
-            {
-                settings.Credential = MongoCredential.CreateMongoX509Credential();
-            }
-            else
-            {
-                settings.Credential = MongoCredential.CreateMongoX509Credential(userName);
-            }
+            settings.Credential = MongoCredential.CreateMongoX509Credential();
             settings.SslSettings = settings.SslSettings.Clone();
             settings.SslSettings.ClientCertificates = new[] { clientCertificate };
 

@@ -1035,7 +1035,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3
         [SkippableFact]
         public void Select_method_with_predicated_any()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
+            RequireServer.Check();
             var query = CreateQuery()
                 .Select(x => x.G.Any(g => g.D == "Don't"));
 
@@ -1191,7 +1191,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3
         [SkippableFact]
         public void Select_method_computed_array()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
+            RequireServer.Check();
             var query = CreateQuery()
                 .Select(x => x.M.Select(i => i + 1));
 
@@ -1203,7 +1203,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3
         [SkippableFact]
         public void Select_syntax_computed_array()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0");
+            RequireServer.Check();
             var query = from x in CreateQuery()
                         select x.M.Select(i => i + 1);
 

@@ -273,7 +273,7 @@ namespace MongoDB.Driver.Core.Connections
             var legacyHelloReply = MessageHelper.BuildReply<RawBsonDocument>(
                 RawBsonDocumentHelper.FromJson($"{{ ok: 1, compression: ['{compressorType}'] }}"));
             var buildInfoReply = MessageHelper.BuildReply<RawBsonDocument>(
-                RawBsonDocumentHelper.FromJson("{ ok: 1, version: \"2.6.3\" }"));
+                RawBsonDocumentHelper.FromJson("{ ok: 1, version: \"3.6.0\" }"));
             var gleReply = MessageHelper.BuildReply<RawBsonDocument>(
                 RawBsonDocumentHelper.FromJson("{ ok: 1, connectionId: 10 }"));
 
@@ -285,7 +285,7 @@ namespace MongoDB.Driver.Core.Connections
             var subject = CreateSubject();
             var result = InitializeConnection(subject, connection, async, CancellationToken.None);
 
-            result.ServerVersion.Should().Be(new SemanticVersion(2, 6, 3));
+            result.ServerVersion.Should().Be(new SemanticVersion(3, 6, 0));
             result.ConnectionId.ServerValue.Should().Be(10);
             result.AvailableCompressors.Count.Should().Be(1);
             result.AvailableCompressors.Should().Contain(ToCompressorTypeEnum(compressorType));

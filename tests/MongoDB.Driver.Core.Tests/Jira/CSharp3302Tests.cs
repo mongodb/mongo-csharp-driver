@@ -277,7 +277,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
             ServerId serverId)
         {
             var connectionId = new ConnectionId(serverId);
-            var serverVersion = "2.6";
+            var serverVersion = "3.6";
             var baseDocument = new BsonDocument
             {
                 { "ok", 1 },
@@ -312,7 +312,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
             {
                 var helloDocument = primaries.Contains(serverId) ? primaryDocument : secondaryDocument;
 
-                ResponseMessage result = MessageHelper.BuildReply(new RawBsonDocument(helloDocument.ToBson()));
+                ResponseMessage result = MessageHelper.BuildCommandResponse(new RawBsonDocument(helloDocument.ToBson()));
                 return Task.FromResult(result);
             }
 

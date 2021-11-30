@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Core.Connections
             var serverId = new ServerId(new ClusterId(), _endPoint);
             var connectionId = new ConnectionId(serverId);
             var helloResult = new HelloResult(new BsonDocument { { "ok", 1 }, { "maxMessageSizeBytes", 48000000 } });
-            var buildInfoResult = new BuildInfoResult(new BsonDocument { { "ok", 1 }, { "version", "2.6.3" } });
+            var buildInfoResult = new BuildInfoResult(new BsonDocument { { "ok", 1 }, { "version", "3.6.0" } });
             _connectionDescription = new ConnectionDescription(connectionId, helloResult, buildInfoResult);
 
             _mockConnectionInitializer = new Mock<IConnectionInitializer>();

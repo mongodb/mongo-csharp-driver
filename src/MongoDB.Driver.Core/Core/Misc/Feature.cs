@@ -112,6 +112,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the aggregate feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature Aggregate => __aggregate;
 
         /// <summary>
@@ -127,6 +128,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the aggregate allow disk use feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature AggregateAllowDiskUse => __aggregateAllowDiskUse;
 
         /// <summary>
@@ -147,11 +149,13 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the aggregate cursor result feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature AggregateCursorResult => __aggregateCursorResult;
 
         /// <summary>
         /// Gets the aggregate explain feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature AggregateExplain => __aggregateExplain;
 
         /// <summary>
@@ -192,6 +196,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the aggregate out feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature AggregateOut => __aggregateOut;
 
         /// <summary>
@@ -257,6 +262,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the create indexes command feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature CreateIndexesCommand => __createIndexesCommand;
 
         /// <summary>
@@ -297,6 +303,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the fail points feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature FailPoints => __failPoints;
 
         /// <summary>
@@ -438,6 +445,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the maximum time feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature MaxTime => __maxTime;
 
         /// <summary>
@@ -478,6 +486,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the server extracts username from X509 certificate feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature ServerExtractsUsernameFromX509Certificate => __serverExtractsUsernameFromX509Certificate;
 
         /// <summary>
@@ -529,6 +538,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the user management commands feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature UserManagementCommands => __userManagementCommands;
 
         /// <summary>
@@ -544,6 +554,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the write commands feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature WriteCommands => __writeCommands;
         #endregion
 
@@ -624,6 +635,17 @@ namespace MongoDB.Driver.Core.Misc
                 var errorMessage = _notSupportedMessage ?? $"Server version {serverVersion} does not support the {_name} feature.";
                 throw new NotSupportedException(errorMessage);
             }
+        }
+
+        /// <inheritdoc/>
+        public override string ToString()
+        {
+            var message = $"{_name} feature added in {_firstSupportedVersion}";
+            if (_supportRemovedVersion != null)
+            {
+                message += $" and removed in {_supportRemovedVersion}";
+            }
+            return $"{message}.";
         }
 
         private SemanticVersion VersionBefore(SemanticVersion version)
