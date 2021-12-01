@@ -183,7 +183,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     return;
                 }
 
-                _cancellationTokenSource?.Cancel();
+                CancelAndDispose();
                 _cancellationTokenSource = null;
                 _maintenanceTask = null;
             }
@@ -195,14 +195,20 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     return;
                 }
 
-                _cancellationTokenSource?.Cancel();
+                CancelAndDispose();
                 _cancellationTokenSource = new CancellationTokenSource();
+                var cancellationToken = _cancellationTokenSource.Token;
 
-                _maintenanceTask = Task.Run(() => _maintenanceTaskCreator(_cancellationTokenSource.Token), _cancellationTokenSource.Token);
+                _maintenanceTask = Task.Run(() => _maintenanceTaskCreator(cancellationToken), cancellationToken);
                 _maintenanceTask.ConfigureAwait(false);
             }
 
             public void Dispose()
+            {
+                CancelAndDispose();
+            }
+
+            private void CancelAndDispose()
             {
                 _cancellationTokenSource?.Cancel();
                 _cancellationTokenSource?.Dispose();

@@ -32,24 +32,22 @@ namespace MongoDB.Driver.Core.Misc
         private readonly struct CancellationContext : IDisposable
         {
             public bool IsSignaled { get; }
-            public CancellationToken CancellationToken { get; }
             public CancellationTokenSource LinkedCancellationTokenSource { get; }
-            public CancellationTokenSource SignaledCancellationTokenSource { get; }
+            public CancellationTokenSource SignalCancellationTokenSource { get; }
 
-            public static CancellationContext Signaled { get; } = new CancellationContext(true, default, default, default);
+            public static CancellationContext Signaled { get; } = new CancellationContext(true, default, default);
 
             public CancellationContext(
                 bool isSignaled,
                 CancellationTokenSource linkedCancellationTokenSource,
-                CancellationTokenSource signaledCancellationTokenSource,
-                CancellationToken cancellationToken)
+                CancellationTokenSource signaledCancellationTokenSource)
             {
                 IsSignaled = isSignaled;
-                CancellationToken = cancellationToken;
                 LinkedCancellationTokenSource = linkedCancellationTokenSource;
-                SignaledCancellationTokenSource = signaledCancellationTokenSource;
+                SignalCancellationTokenSource = signaledCancellationTokenSource;
             }
 
+            public CancellationToken CancellationToken => LinkedCancellationTokenSource.Token;
             public void Dispose() => LinkedCancellationTokenSource?.Dispose();
         }
 
@@ -136,7 +134,7 @@ namespace MongoDB.Driver.Core.Misc
 
         public SemaphoreWaitResult WaitSignaled(TimeSpan timeout, CancellationToken cancellationToken)
         {
-            using var cancellationContext = GetCancelationTokenContext(cancellationToken);
+            using var cancellationContext = GetCancellationTokenContext(cancellationToken);
 
             if (cancellationContext.IsSignaled)
             {
@@ -145,13 +143,12 @@ namespace MongoDB.Driver.Core.Misc
 
             try
             {
-
                 var entered = _semaphore.Wait(timeout, cancellationContext.CancellationToken);
                 return entered ? SemaphoreWaitResult.Entered : SemaphoreWaitResult.TimedOut;
             }
             catch (OperationCanceledException)
             {
-                if (IsSignaled(cancellationContext.SignaledCancellationTokenSource, cancellationToken))
+                if (IsSignaled(cancellationContext.SignalCancellationTokenSource, cancellationToken))
                 {
                     return SemaphoreWaitResult.Signaled;
                 }
@@ -162,7 +159,7 @@ namespace MongoDB.Driver.Core.Misc
 
         public async Task<SemaphoreWaitResult> WaitSignaledAsync(TimeSpan timeout, CancellationToken cancellationToken)
         {
-            using var cancellationContext = GetCancelationTokenContext(cancellationToken);
+            using var cancellationContext = GetCancellationTokenContext(cancellationToken);
 
             if (cancellationContext.IsSignaled)
             {
@@ -177,7 +174,7 @@ namespace MongoDB.Driver.Core.Misc
             }
             catch (OperationCanceledException)
             {
-                if (IsSignaled(cancellationContext.SignaledCancellationTokenSource, cancellationToken))
+                if (IsSignaled(cancellationContext.SignalCancellationTokenSource, cancellationToken))
                 {
                     // Request task rescheduling, to avoid resuming execution on Signal thread
                     await TaskExtensions.YieldNoContext();
@@ -203,7 +200,7 @@ namespace MongoDB.Driver.Core.Misc
             _signalCancellationTokenSource.Dispose();
         }
 
-        private CancellationContext GetCancelationTokenContext(CancellationToken cancellationToken)
+        private CancellationContext GetCancellationTokenContext(CancellationToken cancellationToken)
         {
             var signalTokenSource = _signalCancellationTokenSource;
 
@@ -212,31 +209,19 @@ namespace MongoDB.Driver.Core.Misc
                 return CancellationContext.Signaled;
             }
 
-            CancellationTokenSource cancellationLinkedTokenSource = null;
-            CancellationToken cancellationTokenResult;
-
             try
             {
-                if (cancellationToken == default)
-                {
-                    cancellationTokenResult = signalTokenSource.Token;
-                }
-                else
-                {
-                    cancellationLinkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(
-                        signalTokenSource.Token,
-                        cancellationToken);
+                var cancellationLinkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(
+                    signalTokenSource.Token,
+                    cancellationToken);
 
-                    cancellationTokenResult = cancellationLinkedTokenSource.Token;
-                }
+                return new CancellationContext(false, cancellationLinkedTokenSource, signalTokenSource);
             }
             catch (ObjectDisposedException)
             {
                 // signalTokenSource was disposed, it will happen only when cancellation was requested for signalTokenSource or on Dispose
                 return CancellationContext.Signaled;
             }
-
-            return new CancellationContext(false, cancellationLinkedTokenSource, signalTokenSource, cancellationTokenResult);
         }
 
         private bool IsSignaled(CancellationTokenSource signalTokenSource, CancellationToken cancellationToken)
