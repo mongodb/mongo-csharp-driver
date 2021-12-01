@@ -29,6 +29,28 @@ namespace MongoDB.Driver.Core.Misc
             Entered
         }
 
+        private readonly struct CancellationContext : IDisposable
+        {
+            public bool IsSignaled { get; }
+            public CancellationTokenSource LinkedCancellationTokenSource { get; }
+            public CancellationTokenSource SignalCancellationTokenSource { get; }
+
+            public static CancellationContext Signaled { get; } = new CancellationContext(true, default, default);
+
+            public CancellationContext(
+                bool isSignaled,
+                CancellationTokenSource linkedCancellationTokenSource,
+                CancellationTokenSource signaledCancellationTokenSource)
+            {
+                IsSignaled = isSignaled;
+                LinkedCancellationTokenSource = linkedCancellationTokenSource;
+                SignalCancellationTokenSource = signaledCancellationTokenSource;
+            }
+
+            public CancellationToken CancellationToken => LinkedCancellationTokenSource.Token;
+            public void Dispose() => LinkedCancellationTokenSource?.Dispose();
+        }
+
         public sealed class SemaphoreSlimSignalableAwaiter : IDisposable
         {
             private readonly SemaphoreSlimSignalable _semaphoreSlimSignalable;
@@ -91,6 +113,7 @@ namespace MongoDB.Driver.Core.Misc
                 {
                     if (_signalCancellationTokenSource.IsCancellationRequested)
                     {
+                        _signalCancellationTokenSource.Dispose();
                         _signalCancellationTokenSource = new CancellationTokenSource();
                     }
                 }
@@ -111,21 +134,21 @@ namespace MongoDB.Driver.Core.Misc
 
         public SemaphoreWaitResult WaitSignaled(TimeSpan timeout, CancellationToken cancellationToken)
         {
-            var (tokenSourceLinked, signalTokenSource, signaled) = GetLinkedTokenAndCheckForSignaled(cancellationToken);
+            using var cancellationContext = GetCancellationTokenContext(cancellationToken);
 
-            if (signaled)
+            if (cancellationContext.IsSignaled)
             {
                 return SemaphoreWaitResult.Signaled;
             }
 
             try
             {
-                var entered = _semaphore.Wait(timeout, tokenSourceLinked.Token);
+                var entered = _semaphore.Wait(timeout, cancellationContext.CancellationToken);
                 return entered ? SemaphoreWaitResult.Entered : SemaphoreWaitResult.TimedOut;
             }
             catch (OperationCanceledException)
             {
-                if (IsSignaled(signalTokenSource.Token, cancellationToken))
+                if (IsSignaled(cancellationContext.SignalCancellationTokenSource, cancellationToken))
                 {
                     return SemaphoreWaitResult.Signaled;
                 }
@@ -136,22 +159,22 @@ namespace MongoDB.Driver.Core.Misc
 
         public async Task<SemaphoreWaitResult> WaitSignaledAsync(TimeSpan timeout, CancellationToken cancellationToken)
         {
-            var (tokenSourceLinked, signalTokenSource, signaled) = GetLinkedTokenAndCheckForSignaled(cancellationToken);
+            using var cancellationContext = GetCancellationTokenContext(cancellationToken);
 
-            if (signaled)
+            if (cancellationContext.IsSignaled)
             {
                 return SemaphoreWaitResult.Signaled;
             }
 
             try
             {
-                var entered = await _semaphore.WaitAsync(timeout, tokenSourceLinked.Token).ConfigureAwait(false);
+                var entered = await _semaphore.WaitAsync(timeout, cancellationContext.CancellationToken).ConfigureAwait(false);
 
                 return entered ? SemaphoreWaitResult.Entered : SemaphoreWaitResult.TimedOut;
             }
             catch (OperationCanceledException)
             {
-                if (IsSignaled(signalTokenSource.Token, cancellationToken))
+                if (IsSignaled(cancellationContext.SignalCancellationTokenSource, cancellationToken))
                 {
                     // Request task rescheduling, to avoid resuming execution on Signal thread
                     await TaskExtensions.YieldNoContext();
@@ -174,31 +197,46 @@ namespace MongoDB.Driver.Core.Misc
         public void Dispose()
         {
             _semaphore.Dispose();
+            _signalCancellationTokenSource.Dispose();
         }
 
-        private (CancellationTokenSource TokenSourceLinked, CancellationTokenSource SignalTokenSource, bool Signaled) GetLinkedTokenAndCheckForSignaled(CancellationToken cancellationToken)
+        private CancellationContext GetCancellationTokenContext(CancellationToken cancellationToken)
         {
             var signalTokenSource = _signalCancellationTokenSource;
 
-            if (IsSignaled(signalTokenSource.Token, cancellationToken))
+            if (IsSignaled(signalTokenSource, cancellationToken))
             {
-                return (default, default, true);
+                return CancellationContext.Signaled;
             }
 
-            var tokenSourceLinked = CancellationTokenSource.CreateLinkedTokenSource(
-                signalTokenSource.Token,
-                cancellationToken);
+            try
+            {
+                var cancellationLinkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(
+                    signalTokenSource.Token,
+                    cancellationToken);
 
-            return (tokenSourceLinked, signalTokenSource, false);
+                return new CancellationContext(false, cancellationLinkedTokenSource, signalTokenSource);
+            }
+            catch (ObjectDisposedException)
+            {
+                // signalTokenSource was disposed, it will happen only when cancellation was requested for signalTokenSource or on Dispose
+                return CancellationContext.Signaled;
+            }
         }
 
-#pragma warning disable CA1068 // CancellationToken parameters must come last
-        private bool IsSignaled(CancellationToken signalToken, CancellationToken cancellationToken)
-#pragma warning restore CA1068 // CancellationToken parameters must come last
+        private bool IsSignaled(CancellationTokenSource signalTokenSource, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return signalToken.IsCancellationRequested;
+            try
+            {
+                return signalTokenSource.Token.IsCancellationRequested;
+            }
+            catch (ObjectDisposedException)
+            {
+                // signalTokenSource was disposed, it will happen only when cancellation was requested for signalTokenSource or on Dispose
+                return true;
+            }
         }
     }
 }
