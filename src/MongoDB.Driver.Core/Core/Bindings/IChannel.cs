@@ -228,42 +228,6 @@ namespace MongoDB.Driver.Core.Bindings
             CancellationToken cancellationToken);
 
         /// <summary>
-        /// Executes a Delete protocol.
-        /// </summary>
-        /// <param name="collectionNamespace">The collection namespace.</param>
-        /// <param name="query">The query.</param>
-        /// <param name="isMulti">if set to <c>true</c> all matching documents are deleted.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        /// <param name="writeConcern">The write concern.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The result of the Delete protocol.</returns>
-        WriteConcernResult Delete(
-            CollectionNamespace collectionNamespace,
-            BsonDocument query,
-            bool isMulti,
-            MessageEncoderSettings messageEncoderSettings,
-            WriteConcern writeConcern,
-            CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Executes a Delete protocol.
-        /// </summary>
-        /// <param name="collectionNamespace">The collection namespace.</param>
-        /// <param name="query">The query.</param>
-        /// <param name="isMulti">if set to <c>true</c> all matching documents are deleted.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        /// <param name="writeConcern">The write concern.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A Task whose result is the result of the Delete protocol.</returns>
-        Task<WriteConcernResult> DeleteAsync(
-            CollectionNamespace collectionNamespace,
-            BsonDocument query,
-            bool isMulti,
-            MessageEncoderSettings messageEncoderSettings,
-            WriteConcern writeConcern,
-            CancellationToken cancellationToken);
-
-        /// <summary>
         /// Executes an Insert protocol.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
