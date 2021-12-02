@@ -211,6 +211,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters
             return new AstOrFilter(filters);
         }
 
+        public static AstRawFilter Raw(BsonDocument filter)
+        {
+            return new AstRawFilter(filter);
+        }
+
         public static AstFieldOperationFilter Regex(AstFilterField field, string pattern, string options)
         {
             return new AstFieldOperationFilter(field, new AstRegexFilterOperation(pattern, options));
