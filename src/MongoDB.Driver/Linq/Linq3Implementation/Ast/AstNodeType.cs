@@ -107,6 +107,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast
         ProjectStageIncludeFieldSpecification,
         ProjectStageSetFieldSpecification,
         RangeExpression,
+        RawFilter,
         RedactStage,
         ReduceExpression,
         RegexFilterOperation,

@@ -1115,27 +1115,27 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
             root.A.Should().Be("Awesome");
         }
 
-        //[Fact]
-        //public void Injecting_a_filter()
-        //{
-        //    var filter = Builders<Root>.Filter.Eq(x => x.B, "Balloon");
-        //    var root = __collection.FindSync(x => filter.Inject()).Single();
+        [Fact]
+        public void Injecting_a_filter()
+        {
+            var filter = Builders<Root>.Filter.Eq(x => x.B, "Balloon");
+            var root = __collection.FindSync(x => filter.Inject()).Single();
 
-        //    root.Should().NotBeNull();
-        //    root.A.Should().Be("Awesome");
-        //    root.B.Should().Be("Balloon");
-        //}
+            root.Should().NotBeNull();
+            root.A.Should().Be("Awesome");
+            root.B.Should().Be("Balloon");
+        }
 
-        //[Fact]
-        //public void Injecting_a_filter_with_a_conjunction()
-        //{
-        //    var filter = Builders<Root>.Filter.Eq(x => x.B, "Balloon");
-        //    var root = __collection.FindSync(x => x.A == "Awesome" && filter.Inject()).Single();
+        [Fact]
+        public void Injecting_a_filter_with_a_conjunction()
+        {
+            var filter = Builders<Root>.Filter.Eq(x => x.B, "Balloon");
+            var root = __collection.FindSync(x => x.A == "Awesome" && filter.Inject()).Single();
 
-        //    root.Should().NotBeNull();
-        //    root.A.Should().Be("Awesome");
-        //    root.B.Should().Be("Balloon");
-        //}
+            root.Should().NotBeNull();
+            root.A.Should().Be("Awesome");
+            root.B.Should().Be("Balloon");
+        }
 
         private TDocument FindFirstOrDefault<TDocument>(IMongoCollection<TDocument> collection, int id) where TDocument : IRoot
         {

@@ -569,6 +569,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors
             return node.Update(VisitAndConvert(node.Start), VisitAndConvert(node.End), VisitAndConvert(node.Step));
         }
 
+        public virtual AstNode VisitRawFilter(AstRawFilter node)
+        {
+            return node;
+        }
+
         public virtual AstNode VisitRedactStage(AstRedactStage node)
         {
             return node.Update(VisitAndConvert(node.Expression));

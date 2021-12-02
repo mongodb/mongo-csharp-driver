@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 {
@@ -26,6 +27,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
     internal static class PartialEvaluator
     {
         #region static
+        private static Type[] __customLinqExtensionMethodClasses = new[]
+        {
+            typeof(DateTimeExtensions),
+            typeof(LinqExtensions),
+            typeof(MongoEnumerable),
+            typeof(StringExtensions)
+        };
+
         public static Expression EvaluatePartially(Expression expression)
         {
             var nominator = new Nominator();
@@ -143,6 +152,24 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
                 base.Visit(node.NewExpression);
 
                 return node;
+            }
+
+            protected override Expression VisitMethodCall(MethodCallExpression node)
+            {
+                var result = base.VisitMethodCall(node);
+
+                var method = node.Method;
+                if (IsCustomLinqExtensionMethod(method))
+                {
+                    _cannotBeEvaluated = true;
+                }
+
+                return result;
+            }
+
+            private bool IsCustomLinqExtensionMethod(MethodInfo method)
+            {
+                return __customLinqExtensionMethodClasses.Contains(method.DeclaringType);
             }
         }
     }
