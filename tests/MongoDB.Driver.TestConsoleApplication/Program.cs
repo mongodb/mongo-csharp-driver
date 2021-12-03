@@ -15,7 +15,6 @@
 
 using System;
 using System.IO;
-using MongoDB.Bson;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events.Diagnostics;
 
@@ -25,11 +24,14 @@ namespace MongoDB.Driver.TestConsoleApplication
     {
         static void Main(string[] args)
         {
-            var client = new MongoClient("mongodb://localhost:27018");
-            var db = client.GetDatabase("d");
-            var coll = db.GetCollection<BsonDocument>("c").WithWriteConcern(WriteConcern.Unacknowledged);
-            coll.InsertOne(new BsonDocument());
-            var res = coll.Find("{}").ToList();
+            //FilterMeasuring.TestAsync().GetAwaiter().GetResult();
+            int numConcurrentWorkers = 50;
+            //new CoreApi().Run(numConcurrentWorkers, ConfigureCluster);
+            new CoreApiSync().Run(numConcurrentWorkers, ConfigureCluster);
+
+            new Api().Run(numConcurrentWorkers, ConfigureCluster);
+
+            //new LegacyApi().Run(numConcurrentWorkers, ConfigureCluster);
         }
 
         private static void ConfigureCluster(ClusterBuilder cb)

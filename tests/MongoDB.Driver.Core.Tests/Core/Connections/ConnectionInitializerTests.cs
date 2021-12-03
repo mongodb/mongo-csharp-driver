@@ -280,7 +280,8 @@ namespace MongoDB.Driver.Core.Connections
                     default:
                         throw new InvalidOperationException($"Unexpected compression {compressorType}.");
                 }
-            }}
+            }
+        }
 
         // private methods
         private IAuthenticator CreateAuthenticator(string authenticatorType, UsernamePasswordCredential credentials)
