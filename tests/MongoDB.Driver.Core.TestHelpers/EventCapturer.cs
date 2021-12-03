@@ -242,10 +242,7 @@ namespace MongoDB.Driver.Core
                     @event.OperationId,
                     @event.RequestId,
                     @event.ConnectionId,
-                    @event.ServiceId)
-                {
-                    WireProtocol = @event.WireProtocol
-                };
+                    @event.ServiceId);
                 _parent.Capture(@event);
             }
 
