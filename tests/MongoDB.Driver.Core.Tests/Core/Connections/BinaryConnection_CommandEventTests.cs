@@ -261,86 +261,6 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         [Fact]
-        public void Should_process_a_delete_without_gle()
-        {
-            var delete = BsonDocument.Parse("{ q: { x: 1 }, limit: 0 }");
-            var expectedCommand = new BsonDocument
-            {
-                { "delete", MessageHelper.DefaultCollectionNamespace.CollectionName },
-                { "deletes", new BsonArray(new [] { delete }) },
-                { "writeConcern", WriteConcern.Unacknowledged.ToBsonDocument() }
-            };
-            var expectedReply = BsonDocument.Parse("{ ok: 1 }");
-
-            var requestMessage = MessageHelper.BuildDelete(
-                (BsonDocument)delete["q"],
-                requestId: 10,
-                isMulti: true);
-            SendMessages(requestMessage);
-
-            var commandStartedEvent = (CommandStartedEvent)_capturedEvents.Next();
-            var commandSucceededEvent = (CommandSucceededEvent)_capturedEvents.Next();
-
-            commandStartedEvent.CommandName.Should().Be(expectedCommand.GetElement(0).Name);
-            commandStartedEvent.Command.Should().Be(expectedCommand);
-            commandStartedEvent.ConnectionId.Should().Be(_subject.ConnectionId);
-            commandStartedEvent.DatabaseNamespace.Should().Be(MessageHelper.DefaultDatabaseNamespace);
-            commandStartedEvent.OperationId.Should().Be(EventContext.OperationId);
-            commandStartedEvent.RequestId.Should().Be(requestMessage.RequestId);
-
-            commandSucceededEvent.CommandName.Should().Be(commandStartedEvent.CommandName);
-            commandSucceededEvent.ConnectionId.Should().Be(commandStartedEvent.ConnectionId);
-            commandSucceededEvent.Duration.Should().BeGreaterThan(TimeSpan.Zero);
-            commandSucceededEvent.OperationId.Should().Be(commandStartedEvent.OperationId);
-            commandSucceededEvent.Reply.Should().Be(expectedReply);
-            commandSucceededEvent.RequestId.Should().Be(commandStartedEvent.RequestId);
-        }
-
-        [Fact]
-        public void Should_process_a_delete_with_a_gle()
-        {
-            var delete = BsonDocument.Parse("{ q: { x: 1 }, limit: 0 }");
-            var expectedCommand = new BsonDocument
-            {
-                { "delete", MessageHelper.DefaultCollectionNamespace.CollectionName },
-                { "deletes", new BsonArray(new [] { delete }) }
-            };
-            var expectedReply = BsonDocument.Parse("{ ok: 1, n: 0 }");
-
-            var requestMessage = MessageHelper.BuildDelete(
-                (BsonDocument)delete["q"],
-                requestId: 10,
-                isMulti: true);
-            var gleMessage = MessageHelper.BuildCommand(
-                BsonDocument.Parse("{ getLastError: 1 }"),
-                requestId: requestMessage.RequestId + 1);
-            SendMessages(requestMessage, gleMessage);
-
-            var replyMessage = MessageHelper.BuildReply(
-                BsonDocument.Parse("{ ok: 1, n: 0 }"),
-                serializer: BsonDocumentSerializer.Instance,
-                responseTo: gleMessage.RequestId);
-            ReceiveMessages(replyMessage);
-
-            var commandStartedEvent = (CommandStartedEvent)_capturedEvents.Next();
-            var commandSucceededEvent = (CommandSucceededEvent)_capturedEvents.Next();
-
-            commandStartedEvent.CommandName.Should().Be(expectedCommand.GetElement(0).Name);
-            commandStartedEvent.Command.Should().Be(expectedCommand);
-            commandStartedEvent.ConnectionId.Should().Be(_subject.ConnectionId);
-            commandStartedEvent.DatabaseNamespace.Should().Be(MessageHelper.DefaultDatabaseNamespace);
-            commandStartedEvent.OperationId.Should().Be(EventContext.OperationId);
-            commandStartedEvent.RequestId.Should().Be(gleMessage.RequestId);
-
-            commandSucceededEvent.CommandName.Should().Be(commandStartedEvent.CommandName);
-            commandSucceededEvent.ConnectionId.Should().Be(commandStartedEvent.ConnectionId);
-            commandSucceededEvent.Duration.Should().BeGreaterThan(TimeSpan.Zero);
-            commandSucceededEvent.OperationId.Should().Be(commandStartedEvent.OperationId);
-            commandSucceededEvent.Reply.Should().Be(expectedReply);
-            commandSucceededEvent.RequestId.Should().Be(commandStartedEvent.RequestId);
-        }
-
-        [Fact]
         public void Should_process_an_insert_without_gle()
         {
             var documents = new[]
@@ -701,93 +621,93 @@ namespace MongoDB.Driver.Core.Connections
         //    commandSucceededEvent.RequestId.Should().Be(commandStartedEvent.RequestId);
         //}
 
-        [Fact]
-        public void Should_process_a_write_with_a_write_error()
-        {
-            var delete = BsonDocument.Parse("{ q: { x: 1 }, limit: 0 }");
-            var expectedCommand = new BsonDocument
-            {
-                { "delete", MessageHelper.DefaultCollectionNamespace.CollectionName },
-                { "deletes", new BsonArray(new [] { delete }) }
-            };
-            var expectedReply = BsonDocument.Parse("{ ok: 1, n: 0, writeErrors: [{ index: 0, code: 10, errmsg: 'oops' }] }");
+        //[Fact]
+        //public void Should_process_a_write_with_a_write_error()
+        //{
+        //    var delete = BsonDocument.Parse("{ q: { x: 1 }, limit: 0 }");
+        //    var expectedCommand = new BsonDocument
+        //    {
+        //        { "delete", MessageHelper.DefaultCollectionNamespace.CollectionName },
+        //        { "deletes", new BsonArray(new [] { delete }) }
+        //    };
+        //    var expectedReply = BsonDocument.Parse("{ ok: 1, n: 0, writeErrors: [{ index: 0, code: 10, errmsg: 'oops' }] }");
 
-            var requestMessage = MessageHelper.BuildDelete(
-                (BsonDocument)delete["q"],
-                requestId: 10,
-                isMulti: true);
-            var gleMessage = MessageHelper.BuildCommand(
-                BsonDocument.Parse("{ getLastError: 1 }"),
-                requestId: requestMessage.RequestId + 1);
-            SendMessages(requestMessage, gleMessage);
+        //    var requestMessage = MessageHelper.BuildDelete(
+        //        (BsonDocument)delete["q"],
+        //        requestId: 10,
+        //        isMulti: true);
+        //    var gleMessage = MessageHelper.BuildCommand(
+        //        BsonDocument.Parse("{ getLastError: 1 }"),
+        //        requestId: requestMessage.RequestId + 1);
+        //    SendMessages(requestMessage, gleMessage);
 
-            var replyMessage = MessageHelper.BuildReply(
-                BsonDocument.Parse("{ ok: 1, n: 0, code: 10, err: 'oops' }"),
-                serializer: BsonDocumentSerializer.Instance,
-                responseTo: gleMessage.RequestId);
-            ReceiveMessages(replyMessage);
+        //    var replyMessage = MessageHelper.BuildReply(
+        //        BsonDocument.Parse("{ ok: 1, n: 0, code: 10, err: 'oops' }"),
+        //        serializer: BsonDocumentSerializer.Instance,
+        //        responseTo: gleMessage.RequestId);
+        //    ReceiveMessages(replyMessage);
 
-            var commandStartedEvent = (CommandStartedEvent)_capturedEvents.Next();
-            var commandSucceededEvent = (CommandSucceededEvent)_capturedEvents.Next();
+        //    var commandStartedEvent = (CommandStartedEvent)_capturedEvents.Next();
+        //    var commandSucceededEvent = (CommandSucceededEvent)_capturedEvents.Next();
 
-            commandStartedEvent.CommandName.Should().Be(expectedCommand.GetElement(0).Name);
-            commandStartedEvent.Command.Should().Be(expectedCommand);
-            commandStartedEvent.ConnectionId.Should().Be(_subject.ConnectionId);
-            commandStartedEvent.DatabaseNamespace.Should().Be(MessageHelper.DefaultDatabaseNamespace);
-            commandStartedEvent.OperationId.Should().Be(EventContext.OperationId);
-            commandStartedEvent.RequestId.Should().Be(gleMessage.RequestId);
+        //    commandStartedEvent.CommandName.Should().Be(expectedCommand.GetElement(0).Name);
+        //    commandStartedEvent.Command.Should().Be(expectedCommand);
+        //    commandStartedEvent.ConnectionId.Should().Be(_subject.ConnectionId);
+        //    commandStartedEvent.DatabaseNamespace.Should().Be(MessageHelper.DefaultDatabaseNamespace);
+        //    commandStartedEvent.OperationId.Should().Be(EventContext.OperationId);
+        //    commandStartedEvent.RequestId.Should().Be(gleMessage.RequestId);
 
-            commandSucceededEvent.CommandName.Should().Be(commandStartedEvent.CommandName);
-            commandSucceededEvent.ConnectionId.Should().Be(commandStartedEvent.ConnectionId);
-            commandSucceededEvent.Duration.Should().BeGreaterThan(TimeSpan.Zero);
-            commandSucceededEvent.OperationId.Should().Be(commandStartedEvent.OperationId);
-            commandSucceededEvent.Reply.Should().Be(expectedReply);
-            commandSucceededEvent.RequestId.Should().Be(commandStartedEvent.RequestId);
-        }
+        //    commandSucceededEvent.CommandName.Should().Be(commandStartedEvent.CommandName);
+        //    commandSucceededEvent.ConnectionId.Should().Be(commandStartedEvent.ConnectionId);
+        //    commandSucceededEvent.Duration.Should().BeGreaterThan(TimeSpan.Zero);
+        //    commandSucceededEvent.OperationId.Should().Be(commandStartedEvent.OperationId);
+        //    commandSucceededEvent.Reply.Should().Be(expectedReply);
+        //    commandSucceededEvent.RequestId.Should().Be(commandStartedEvent.RequestId);
+        //}
 
-        [Fact]
-        public void Should_process_a_write_with_a_write_concern_error()
-        {
-            var delete = BsonDocument.Parse("{ q: { x: 1 }, limit: 0 }");
-            var expectedCommand = new BsonDocument
-            {
-                { "delete", MessageHelper.DefaultCollectionNamespace.CollectionName },
-                { "deletes", new BsonArray(new [] { delete }) }
-            };
-            var expectedReply = BsonDocument.Parse("{ ok: 1, n: 0, writeConcernError: { code: 10, errmsg: 'wnote indicates ...' } }");
+        //[Fact]
+        //public void Should_process_a_write_with_a_write_concern_error()
+        //{
+        //    var delete = BsonDocument.Parse("{ q: { x: 1 }, limit: 0 }");
+        //    var expectedCommand = new BsonDocument
+        //    {
+        //        { "delete", MessageHelper.DefaultCollectionNamespace.CollectionName },
+        //        { "deletes", new BsonArray(new [] { delete }) }
+        //    };
+        //    var expectedReply = BsonDocument.Parse("{ ok: 1, n: 0, writeConcernError: { code: 10, errmsg: 'wnote indicates ...' } }");
 
-            var requestMessage = MessageHelper.BuildDelete(
-                (BsonDocument)delete["q"],
-                requestId: 10,
-                isMulti: true);
-            var gleMessage = MessageHelper.BuildCommand(
-                BsonDocument.Parse("{ getLastError: 1 }"),
-                requestId: requestMessage.RequestId + 1);
-            SendMessages(requestMessage, gleMessage);
+        //    var requestMessage = MessageHelper.BuildDelete(
+        //        (BsonDocument)delete["q"],
+        //        requestId: 10,
+        //        isMulti: true);
+        //    var gleMessage = MessageHelper.BuildCommand(
+        //        BsonDocument.Parse("{ getLastError: 1 }"),
+        //        requestId: requestMessage.RequestId + 1);
+        //    SendMessages(requestMessage, gleMessage);
 
-            var replyMessage = MessageHelper.BuildReply(
-                BsonDocument.Parse("{ ok: 1, n: 0, code: 10, err: 'wnote indicates ...' }"),
-                serializer: BsonDocumentSerializer.Instance,
-                responseTo: gleMessage.RequestId);
-            ReceiveMessages(replyMessage);
+        //    var replyMessage = MessageHelper.BuildReply(
+        //        BsonDocument.Parse("{ ok: 1, n: 0, code: 10, err: 'wnote indicates ...' }"),
+        //        serializer: BsonDocumentSerializer.Instance,
+        //        responseTo: gleMessage.RequestId);
+        //    ReceiveMessages(replyMessage);
 
-            var commandStartedEvent = (CommandStartedEvent)_capturedEvents.Next();
-            var commandSucceededEvent = (CommandSucceededEvent)_capturedEvents.Next();
+        //    var commandStartedEvent = (CommandStartedEvent)_capturedEvents.Next();
+        //    var commandSucceededEvent = (CommandSucceededEvent)_capturedEvents.Next();
 
-            commandStartedEvent.CommandName.Should().Be(expectedCommand.GetElement(0).Name);
-            commandStartedEvent.Command.Should().Be(expectedCommand);
-            commandStartedEvent.ConnectionId.Should().Be(_subject.ConnectionId);
-            commandStartedEvent.DatabaseNamespace.Should().Be(MessageHelper.DefaultDatabaseNamespace);
-            commandStartedEvent.OperationId.Should().Be(EventContext.OperationId);
-            commandStartedEvent.RequestId.Should().Be(gleMessage.RequestId);
+        //    commandStartedEvent.CommandName.Should().Be(expectedCommand.GetElement(0).Name);
+        //    commandStartedEvent.Command.Should().Be(expectedCommand);
+        //    commandStartedEvent.ConnectionId.Should().Be(_subject.ConnectionId);
+        //    commandStartedEvent.DatabaseNamespace.Should().Be(MessageHelper.DefaultDatabaseNamespace);
+        //    commandStartedEvent.OperationId.Should().Be(EventContext.OperationId);
+        //    commandStartedEvent.RequestId.Should().Be(gleMessage.RequestId);
 
-            commandSucceededEvent.CommandName.Should().Be(commandStartedEvent.CommandName);
-            commandSucceededEvent.ConnectionId.Should().Be(commandStartedEvent.ConnectionId);
-            commandSucceededEvent.Duration.Should().BeGreaterThan(TimeSpan.Zero);
-            commandSucceededEvent.OperationId.Should().Be(commandStartedEvent.OperationId);
-            commandSucceededEvent.Reply.Should().Be(expectedReply);
-            commandSucceededEvent.RequestId.Should().Be(commandStartedEvent.RequestId);
-        }
+        //    commandSucceededEvent.CommandName.Should().Be(commandStartedEvent.CommandName);
+        //    commandSucceededEvent.ConnectionId.Should().Be(commandStartedEvent.ConnectionId);
+        //    commandSucceededEvent.Duration.Should().BeGreaterThan(TimeSpan.Zero);
+        //    commandSucceededEvent.OperationId.Should().Be(commandStartedEvent.OperationId);
+        //    commandSucceededEvent.Reply.Should().Be(expectedReply);
+        //    commandSucceededEvent.RequestId.Should().Be(commandStartedEvent.RequestId);
+        //}
 
         private void SendMessages(params RequestMessage[] messages)
         {

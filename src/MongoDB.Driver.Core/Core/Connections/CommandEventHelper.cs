@@ -234,9 +234,6 @@ namespace MongoDB.Driver.Core.Connections
                 case MongoDBMessageType.Command:
                     ProcessCommandRequestMessage((CommandRequestMessage)message, messageQueue, connectionId, serviceId, new CommandMessageBinaryEncoder(stream, encoderSettings), stopwatch);
                     break;
-                case MongoDBMessageType.Delete:
-                    ProcessDeleteMessage((DeleteMessage)message, messageQueue, connectionId, new DeleteMessageBinaryEncoder(stream, encoderSettings), stopwatch);
-                    break;
                 case MongoDBMessageType.Insert:
                     ProcessInsertMessage(message, messageQueue, connectionId, new InsertMessageBinaryEncoder<RawBsonDocument>(stream, encoderSettings, RawBsonDocumentSerializer.Instance), stopwatch);
                     break;
@@ -358,78 +355,6 @@ namespace MongoDB.Driver.Core.Connections
                         serviceId,
                         state.Stopwatch.Elapsed));
                 }
-            }
-        }
-
-        private void ProcessDeleteMessage(DeleteMessage originalMessage, Queue<RequestMessage> messageQueue, ConnectionId connectionId, DeleteMessageBinaryEncoder encoder, Stopwatch stopwatch)
-        {
-            var commandName = "delete";
-            var operationId = EventContext.OperationId;
-            int requestId = originalMessage.RequestId;
-            var expectedResponseType = ExpectedResponseType.None;
-            int gleRequestId;
-            WriteConcern writeConcern;
-            if (TryGetWriteConcernFromGLE(messageQueue, out gleRequestId, out writeConcern))
-            {
-                requestId = gleRequestId;
-                expectedResponseType = ExpectedResponseType.GLE;
-            }
-
-            if (_startedEvent != null)
-            {
-                var decodedMessage = encoder.ReadMessage(RawBsonDocumentSerializer.Instance);
-                try
-                {
-                    var entry = new BsonDocument
-                    {
-                        { "q", decodedMessage.Query },
-                        { "limit", decodedMessage.IsMulti ? 0 : 1 }
-                    };
-                    var command = new BsonDocument
-                    {
-                        { commandName, decodedMessage.CollectionNamespace.CollectionName },
-                        { "deletes", new BsonArray(new [] { entry }) }
-                    };
-
-                    if (writeConcern == null)
-                    {
-                        command["writeConcern"] = WriteConcern.Unacknowledged.ToBsonDocument();
-                    }
-                    else if (!writeConcern.IsServerDefault)
-                    {
-                        command["writeConcern"] = writeConcern.ToBsonDocument();
-                    }
-
-                    var @event = new CommandStartedEvent(
-                        commandName,
-                        command,
-                        decodedMessage.CollectionNamespace.DatabaseNamespace,
-                        operationId,
-                        requestId,
-                        connectionId);
-                    @event.WireProtocol = "Delete";
-
-                    _startedEvent(@event);
-                }
-                finally
-                {
-                    var disposable = decodedMessage.Query as IDisposable;
-                    if (disposable != null)
-                    {
-                        disposable.Dispose();
-                    }
-                }
-            }
-
-            if (_shouldTrackState)
-            {
-                _state.TryAdd(requestId, new CommandState
-                {
-                    CommandName = commandName,
-                    OperationId = operationId,
-                    Stopwatch = stopwatch,
-                    ExpectedResponseType = expectedResponseType
-                });
             }
         }
 

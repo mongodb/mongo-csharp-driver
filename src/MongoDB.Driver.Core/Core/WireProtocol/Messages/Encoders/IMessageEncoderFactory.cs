@@ -48,12 +48,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
         IMessageEncoder GetCompressedMessageEncoder(IMessageEncoderSelector originalEncoderSelector);
 
         /// <summary>
-        /// Gets an encoder for a Delete message.
-        /// </summary>
-        /// <returns>An encoder.</returns>
-        IMessageEncoder GetDeleteMessageEncoder();
-
-        /// <summary>
         /// Gets an encoder for an Insert message.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
