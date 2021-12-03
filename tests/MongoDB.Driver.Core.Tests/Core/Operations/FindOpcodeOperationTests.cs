@@ -286,24 +286,6 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [SkippableFact]
-        public async Task ExecuteAsync_should_find_all_the_documents_matching_the_query_when_split_across_batches()
-        {
-            RequireServer.Check();
-            EnsureTestData();
-            var subject = new FindOpcodeOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
-            {
-                BatchSize = 2
-            };
-
-            using (var cursor = await ExecuteOperationAsync(subject))
-            {
-                var result = await ReadCursorToEndAsync(cursor);
-
-                result.Should().HaveCount(5);
-            }
-        }
-
-        [SkippableFact]
         public async Task ExecuteAsync_should_find_documents_matching_options()
         {
             RequireServer.Check().Supports(Feature.LegacyWireProtocol);
