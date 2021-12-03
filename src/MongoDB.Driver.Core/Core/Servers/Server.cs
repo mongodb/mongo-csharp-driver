@@ -573,58 +573,6 @@ namespace MongoDB.Driver.Core.Servers
                 }
             }
 
-            public WriteConcernResult Insert<TDocument>(
-                CollectionNamespace collectionNamespace,
-                WriteConcern writeConcern,
-                IBsonSerializer<TDocument> serializer,
-                MessageEncoderSettings messageEncoderSettings,
-                BatchableSource<TDocument> documentSource,
-                int? maxBatchCount,
-                int? maxMessageSize,
-                bool continueOnError,
-                Func<bool> shouldSendGetLastError,
-                CancellationToken cancellationToken)
-            {
-                var protocol = new InsertWireProtocol<TDocument>(
-                    collectionNamespace,
-                    writeConcern,
-                    serializer,
-                    messageEncoderSettings,
-                    documentSource,
-                    maxBatchCount,
-                    maxMessageSize,
-                    continueOnError,
-                    shouldSendGetLastError);
-
-                return ExecuteProtocol(protocol, cancellationToken);
-            }
-
-            public Task<WriteConcernResult> InsertAsync<TDocument>(
-               CollectionNamespace collectionNamespace,
-               WriteConcern writeConcern,
-               IBsonSerializer<TDocument> serializer,
-               MessageEncoderSettings messageEncoderSettings,
-               BatchableSource<TDocument> documentSource,
-               int? maxBatchCount,
-               int? maxMessageSize,
-               bool continueOnError,
-               Func<bool> shouldSendGetLastError,
-               CancellationToken cancellationToken)
-            {
-                var protocol = new InsertWireProtocol<TDocument>(
-                    collectionNamespace,
-                    writeConcern,
-                    serializer,
-                    messageEncoderSettings,
-                    documentSource,
-                    maxBatchCount,
-                    maxMessageSize,
-                    continueOnError,
-                    shouldSendGetLastError);
-
-                return ExecuteProtocolAsync(protocol, cancellationToken);
-            }
-
             public CursorBatch<TDocument> Query<TDocument>(
                 CollectionNamespace collectionNamespace,
                 BsonDocument query,

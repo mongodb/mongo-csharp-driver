@@ -126,17 +126,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         }
 
         [Fact]
-        public void GetInsertMessageEncoder_should_return_a_InsertMessageJsonEncoder()
-        {
-            using (var textWriter = new StringWriter())
-            {
-                var encoderFactory = new JsonMessageEncoderFactory(null, textWriter, __messageEncoderSettings);
-                var encoder = encoderFactory.GetInsertMessageEncoder<BsonDocument>(BsonDocumentSerializer.Instance);
-                encoder.Should().BeOfType<InsertMessageJsonEncoder<BsonDocument>>();
-            }
-        }
-
-        [Fact]
         public void GetQueryMessageEncoder_should_return_a_QueryMessageJsonEncoder()
         {
             using (var textWriter = new StringWriter())

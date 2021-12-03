@@ -30,10 +30,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         /// </summary>
         Compressed,
         /// <summary>
-        /// OP_INSERT
-        /// </summary>
-        Insert,
-        /// <summary>
         /// OP_QUERY
         /// </summary>
         Query,

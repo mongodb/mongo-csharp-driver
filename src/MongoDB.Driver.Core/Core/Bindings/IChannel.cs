@@ -228,60 +228,6 @@ namespace MongoDB.Driver.Core.Bindings
             CancellationToken cancellationToken);
 
         /// <summary>
-        /// Executes an Insert protocol.
-        /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <param name="collectionNamespace">The collection namespace.</param>
-        /// <param name="writeConcern">The write concern.</param>
-        /// <param name="serializer">The serializer.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        /// <param name="documentSource">The document source.</param>
-        /// <param name="maxBatchCount">The maximum batch count.</param>
-        /// <param name="maxMessageSize">Maximum size of the message.</param>
-        /// <param name="continueOnError">if set to <c>true</c> the server will continue with subsequent Inserts even if errors occur.</param>
-        /// <param name="shouldSendGetLastError">A delegate that determines whether to piggy-back a GetLastError messsage with the Insert message.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The result of the Insert protocol.</returns>
-        WriteConcernResult Insert<TDocument>(
-            CollectionNamespace collectionNamespace,
-            WriteConcern writeConcern,
-            IBsonSerializer<TDocument> serializer,
-            MessageEncoderSettings messageEncoderSettings,
-            BatchableSource<TDocument> documentSource,
-            int? maxBatchCount,
-            int? maxMessageSize,
-            bool continueOnError,
-            Func<bool> shouldSendGetLastError,
-            CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Executes an Insert protocol.
-        /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <param name="collectionNamespace">The collection namespace.</param>
-        /// <param name="writeConcern">The write concern.</param>
-        /// <param name="serializer">The serializer.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        /// <param name="documentSource">The document source.</param>
-        /// <param name="maxBatchCount">The maximum batch count.</param>
-        /// <param name="maxMessageSize">Maximum size of the message.</param>
-        /// <param name="continueOnError">if set to <c>true</c> the server will continue with subsequent Inserts even if errors occur.</param>
-        /// <param name="shouldSendGetLastError">A delegate that determines whether to piggy-back a GetLastError messsage with the Insert message.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A Task whose result is the result of the Insert protocol.</returns>
-        Task<WriteConcernResult> InsertAsync<TDocument>(
-            CollectionNamespace collectionNamespace,
-            WriteConcern writeConcern,
-            IBsonSerializer<TDocument> serializer,
-            MessageEncoderSettings messageEncoderSettings,
-            BatchableSource<TDocument> documentSource,
-            int? maxBatchCount,
-            int? maxMessageSize,
-            bool continueOnError,
-            Func<bool> shouldSendGetLastError,
-            CancellationToken cancellationToken);
-
-        /// <summary>
         /// Executes a Query protocol.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>

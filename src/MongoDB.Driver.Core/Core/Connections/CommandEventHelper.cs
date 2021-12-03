@@ -234,9 +234,6 @@ namespace MongoDB.Driver.Core.Connections
                 case MongoDBMessageType.Command:
                     ProcessCommandRequestMessage((CommandRequestMessage)message, messageQueue, connectionId, serviceId, new CommandMessageBinaryEncoder(stream, encoderSettings), stopwatch);
                     break;
-                case MongoDBMessageType.Insert:
-                    ProcessInsertMessage(message, messageQueue, connectionId, new InsertMessageBinaryEncoder<RawBsonDocument>(stream, encoderSettings, RawBsonDocumentSerializer.Instance), stopwatch);
-                    break;
                 case MongoDBMessageType.Query:
                     ProcessQueryMessage((QueryMessage)message, connectionId, new QueryMessageBinaryEncoder(stream, encoderSettings), stopwatch);
                     break;
@@ -355,79 +352,6 @@ namespace MongoDB.Driver.Core.Connections
                         serviceId,
                         state.Stopwatch.Elapsed));
                 }
-            }
-        }
-
-        private void ProcessInsertMessage(RequestMessage message, Queue<RequestMessage> messageQueue, ConnectionId connectionId, InsertMessageBinaryEncoder<RawBsonDocument> encoder, Stopwatch stopwatch)
-        {
-            var commandName = "insert";
-            var operationId = EventContext.OperationId;
-            var requestId = message.RequestId;
-            var expectedResponseType = ExpectedResponseType.None;
-            int numberOfDocuments = 0;
-            int gleRequestId;
-            WriteConcern writeConcern;
-            if (TryGetWriteConcernFromGLE(messageQueue, out gleRequestId, out writeConcern))
-            {
-                requestId = gleRequestId;
-                expectedResponseType = ExpectedResponseType.GLE;
-            }
-
-            if (_startedEvent != null)
-            {
-                // InsertMessage is generic, and we don't know the generic type...
-                // Plus, for this we really want BsonDocuments, not whatever the generic type is.
-                var decodedMessage = encoder.ReadMessage();
-
-                var documents = decodedMessage.DocumentSource.GetBatchItems();
-                numberOfDocuments = documents.Count;
-                try
-                {
-                    var command = new BsonDocument
-                    {
-                        { commandName, decodedMessage.CollectionNamespace.CollectionName },
-                        { "documents", new BsonArray(documents) },
-                        { "ordered", !decodedMessage.ContinueOnError }
-                    };
-
-                    if (writeConcern == null)
-                    {
-                        command["writeConcern"] = WriteConcern.Unacknowledged.ToBsonDocument();
-                    }
-                    else if (!writeConcern.IsServerDefault)
-                    {
-                        command["writeConcern"] = writeConcern.ToBsonDocument();
-                    }
-
-                    var @event = new CommandStartedEvent(
-                        commandName,
-                        command,
-                        decodedMessage.CollectionNamespace.DatabaseNamespace,
-                        operationId,
-                        requestId,
-                        connectionId);
-                    @event.WireProtocol = "Insert";
-                    _startedEvent(@event);
-                }
-                finally
-                {
-                    foreach (var document in documents)
-                    {
-                        document.Dispose();
-                    }
-                }
-            }
-
-            if (_shouldTrackState)
-            {
-                _state.TryAdd(requestId, new CommandState
-                {
-                    CommandName = commandName,
-                    OperationId = operationId,
-                    Stopwatch = stopwatch,
-                    ExpectedResponseType = expectedResponseType,
-                    NumberOfInsertedDocuments = numberOfDocuments
-                });
             }
         }
 
@@ -683,7 +607,7 @@ namespace MongoDB.Driver.Core.Connections
                 }
                 else if (state.CommandName == "insert")
                 {
-                    fakeReply["n"] = state.NumberOfInsertedDocuments;
+                    //fakeReply["n"] = state.NumberOfInsertedDocuments;
                 }
                 else if (state.CommandName == "update")
                 {
@@ -894,7 +818,7 @@ namespace MongoDB.Driver.Core.Connections
             public long? OperationId;
             public Stopwatch Stopwatch;
             public CollectionNamespace QueryNamespace;
-            public int NumberOfInsertedDocuments;
+            //public int NumberOfInsertedDocuments;
             public ExpectedResponseType ExpectedResponseType;
             //public BsonValue UpsertedId; //TODO
             public bool ShouldRedactReply;

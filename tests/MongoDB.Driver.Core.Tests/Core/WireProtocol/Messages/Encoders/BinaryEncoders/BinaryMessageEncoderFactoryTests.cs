@@ -17,9 +17,7 @@ using System;
 using System.IO;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders;
 using Xunit;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
@@ -73,17 +71,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 var encoderFactory = new BinaryMessageEncoderFactory(stream, null);
                 var encoder = encoderFactory.GetCommandResponseMessageEncoder();
                 encoder.Should().BeOfType<CommandResponseMessageBinaryEncoder>();
-            }
-        }
-
-        [Fact]
-        public void GetInsertMessageEncoder_should_return_a_InsertMessageBinaryEncoder()
-        {
-            using (var stream = new MemoryStream())
-            {
-                var encoderFactory = new BinaryMessageEncoderFactory(stream, null);
-                var encoder = encoderFactory.GetInsertMessageEncoder<BsonDocument>(BsonDocumentSerializer.Instance);
-                encoder.Should().BeOfType<InsertMessageBinaryEncoder<BsonDocument>>();
             }
         }
 
