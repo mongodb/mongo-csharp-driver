@@ -137,6 +137,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the aggregate AddFields feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature AggregateAddFields => __aggregateAddFields;
 
         /// <summary>
@@ -154,6 +155,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the aggregate comment feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature AggregateComment => __aggregateComment;
 
         /// <summary>
@@ -177,6 +179,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the aggregate $facet stage feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature AggregateFacetStage => __aggregateFacetStage;
 
         /// <summary>
@@ -187,11 +190,13 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the aggregate $graphLookup stage feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature AggregateGraphLookupStage => __aggregateGraphLookupStage;
 
         /// <summary>
         /// Gets the aggregate hint feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature AggregateHint => __aggregateHint;
 
         /// <summary>
@@ -202,6 +207,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the aggregate lookup stage let feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature AggregateLet => __aggregateLet;
 
         /// <summary>
@@ -245,6 +251,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the aggregate $changeStream stage feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature ChangeStreamStage => __changeStreamStage;
 
         /// <summary>
@@ -266,6 +273,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the command message feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature CommandMessage => __commandMessage;
 
         /// <summary>
@@ -419,6 +427,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Get the killAllSessions feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature KillAllSessions => __killAllSessions;
 
         /// <summary>
@@ -446,11 +455,13 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the list databases filter feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature ListDatabasesFilter => __listDatabasesFilter;
 
         /// <summary>
         /// Get the list databases nameOnly feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature ListDatabasesNameOnlyOption => __listDatabasesNameOnlyOption;
 
         /// <summary>
@@ -502,11 +513,13 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the retryable reads feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature RetryableReads => __retryableReads;
 
         /// <summary>
         /// Gets the retryable writes feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature RetryableWrites => __retryableWrites;
 
         /// <summary>

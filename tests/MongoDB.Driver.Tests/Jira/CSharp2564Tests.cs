@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Tests.Jira
         [SkippableFact]
         public async Task Misbehaved_async_method_should_not_deadlock_server_selection()
         {
-            RequireServer.Check().ClusterType(ClusterType.ReplicaSet).VersionGreaterThanOrEqualTo("3.6");
+            RequireServer.Check().ClusterType(ClusterType.ReplicaSet);
 
             // note: the code below deadlocks because await StartSessionAsync continues when UpdateClusterDescription in Cluster called TrySetResult after finding the secondary
             // but then the sync call to RunCommand blocks waiting for a primary and the call to TrySetResult never returns

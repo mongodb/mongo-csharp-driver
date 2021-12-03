@@ -288,7 +288,7 @@ namespace MongoDB.Driver.Core.Operations
         [SkippableFact]
         public async Task ExecuteAsync_should_find_all_the_documents_matching_the_query_when_split_across_batches()
         {
-            RequireServer.Check().VersionLessThan("3.5.0"); // TODO: should work against 3.6.0 but doesn't in Evergreen (works locally)
+            RequireServer.Check();
             EnsureTestData();
             var subject = new FindOpcodeOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {

@@ -32,7 +32,6 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
             [Values(false, true)] bool async)
         {
             RequireServer.Check()
-                .VersionGreaterThanOrEqualTo("3.6.0")
                 .ClusterType(ClusterType.ReplicaSet)
                 .StorageEngine("mmapv1");
 

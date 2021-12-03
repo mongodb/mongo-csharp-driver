@@ -26,7 +26,7 @@ namespace MongoDB.Driver
         /// </summary>
         Bytes,
         /// <summary>
-        /// Translate to the code points variation. This is only supported in >= MongoDB 3.4.
+        /// Translate to the code points variation.
         /// </summary>
         CodePoints
     }

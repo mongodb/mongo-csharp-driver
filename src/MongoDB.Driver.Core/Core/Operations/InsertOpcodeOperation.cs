@@ -233,7 +233,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 var emulator = CreateEmulator();
                 var result = emulator.Execute(context, cancellationToken);
-                return new[] { result };
+                return result != null ? new[] { result } : null;
             }
         }
 
@@ -247,7 +247,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 var emulator = CreateEmulator();
                 var result = await emulator.ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
-                return new[] { result };
+                return result != null ? new[] { result } : null;
             }
         }
 

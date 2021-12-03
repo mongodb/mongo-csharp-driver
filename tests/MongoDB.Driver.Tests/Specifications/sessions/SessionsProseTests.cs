@@ -27,8 +27,7 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
         [SkippableFact]
         public void Snapshot_and_causal_consistent_session_is_not_allowed()
         {
-            var minVersion = new SemanticVersion(3, 6, 0, "");
-            RequireServer.Check().VersionGreaterThanOrEqualTo(minVersion);
+            RequireServer.Check();
 
             var sessionOptions = new ClientSessionOptions()
             {

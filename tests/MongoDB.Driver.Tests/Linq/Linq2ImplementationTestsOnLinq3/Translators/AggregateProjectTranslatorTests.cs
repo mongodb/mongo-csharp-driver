@@ -877,7 +877,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
         [SkippableFact]
         public void Should_translate_new_DateTime()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.6.0-rc0");
+            RequireServer.Check();
 
             var result = Project(x => new { Result = new DateTime(x.Id, 11, 12) });
             result.Projection.Should().Be("{ Result: { \"$dateFromParts\": { \"year\": \"$_id\", \"month\": 11, \"day\": 12 } }, _id: 0 }");
@@ -957,7 +957,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
         [SkippableFact]
         public void Should_translate_DateTime_parse()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.6.0-rc0");
+            RequireServer.Check();
 
             var result = Project(x => new { Result = DateTime.Parse(x.V) });
 
