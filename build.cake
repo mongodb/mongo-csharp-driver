@@ -66,7 +66,7 @@ Task("Restore")
 
 Task("Build")
     .IsDependentOn("Restore")
-    .Does<BuildData>((buildData) =>
+    .Does<BuildConfig >((buildConfig) =>
     {
        var settings = new DotNetCoreBuildSettings
        {
@@ -79,7 +79,7 @@ Task("Build")
            }
         };
 
-        if (buildData.IsReleaseMode)
+        if (buildConfig.IsReleaseMode)
         {
             Console.WriteLine("Build continuousIntegration is enabled");
             settings.MSBuildSettings = new DotNetCoreMSBuildSettings();
@@ -132,7 +132,7 @@ Task("Test")
     .IsDependentOn("Build")
     .DoesForEach(
         items: GetFiles("./**/*.Tests.csproj").Where(name => !name.ToString().Contains("Atlas")),
-        action: (BuildData buildData, Path testProject) =>
+        action: (BuildConfig buildConfig, Path testProject) =>
     {
         if (Environment.GetEnvironmentVariable("MONGODB_API_VERSION") != null &&
             testProject.ToString().Contains("Legacy"))
@@ -168,7 +168,7 @@ Task("Test")
             Configuration = configuration,
             Loggers = CreateLoggers(),
             ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64"),
-            Framework = buildData.Framework
+            Framework = buildConfig.Framework
         };
 
         DotNetCoreTest(
@@ -320,7 +320,7 @@ Task("TestGssapi")
     .IsDependentOn("Build")
     .DoesForEach(
         items: GetFiles("./**/MongoDB.Driver.Tests.csproj"),
-        action: (BuildData buildData, Path testProject) =>
+        action: (BuildConfig buildConfig, Path testProject) =>
     {
         var settings = new DotNetCoreTestSettings
         {
@@ -329,7 +329,7 @@ Task("TestGssapi")
             Configuration = configuration,
             ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64"),
             Filter = "Category=\"GssapiMechanism\"",
-            Framework = buildData.Framework
+            Framework = buildConfig.Framework
         };
 
         DotNetCoreTest(
@@ -346,7 +346,7 @@ Task("TestServerless")
     .IsDependentOn("Build")
     .DoesForEach(
         items: GetFiles("./**/MongoDB.Driver.Tests.csproj"),
-        action: (BuildData buildData, Path testProject) =>
+        action: (BuildConfig buildConfig, Path testProject) =>
         {
             var settings = new DotNetCoreTestSettings
             {
@@ -355,7 +355,7 @@ Task("TestServerless")
                 Configuration = configuration,
                 ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64"),
                 Filter = "Category=\"Serverless\"",
-                Framework = buildData.Framework
+                Framework = buildConfig.Framework
             };
 
             DotNetCoreTest(
@@ -372,7 +372,7 @@ Task("TestLoadBalanced")
     .IsDependentOn("Build")
     .DoesForEach(
         items: GetFiles("./**/*.Tests.csproj"),
-        action: (BuildData buildData, Path testProject) =>
+        action: (BuildConfig buildConfig, Path testProject) =>
      {
         var settings = new DotNetCoreTestSettings
         {
@@ -381,7 +381,7 @@ Task("TestLoadBalanced")
             Configuration = configuration,
             ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64"),
             Filter = "Category=\"SupportLoadBalancing\"",
-            Framework = buildData.Framework
+            Framework = buildConfig.Framework
         };
 
         DotNetCoreTest(
@@ -397,7 +397,7 @@ Task("TestCsfleWithMockedKms")
     .IsDependentOn("Build")
     .DoesForEach(
         items: GetFiles("./**/*.Tests.csproj"),
-        action: (BuildData buildData, Path testProject) =>
+        action: (BuildConfig buildConfig, Path testProject) =>
     {
         var settings = new DotNetCoreTestSettings
         {
@@ -407,7 +407,7 @@ Task("TestCsfleWithMockedKms")
             Loggers = CreateLoggers(),
             ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64"),
             Filter = "Category=\"CSFLE\"",
-            Framework = buildData.Framework
+            Framework = buildConfig.Framework
         };
 
         DotNetCoreTest(
@@ -783,7 +783,7 @@ Task("TestsPackaging")
     })
     .DeferOnError();
 
-Setup<BuildData>(
+Setup<BuildConfig >(
     setupContext => 
     {
         var lowerTarget = target.ToLowerInvariant();
@@ -796,17 +796,17 @@ Setup<BuildData>(
         };
         var isReleaseMode = lowerTarget.StartsWith("package") || lowerTarget == "release";
         Console.WriteLine($"Framework: {framework ?? "null (not set)"}, IsReleaseMode: {isReleaseMode}");
-        return new BuildData(isReleaseMode, framework);
+        return new BuildConfig (isReleaseMode, framework);
     });
 
 RunTarget(target);
 
-public class BuildData
+public class BuildConfig 
 {
     public bool IsReleaseMode { get; }
     public string Framework { get; }
 
-    public BuildData(bool isReleaseMode, string framework)
+    public BuildConfig (bool isReleaseMode, string framework)
     {
         IsReleaseMode = isReleaseMode;
         Framework = framework;
