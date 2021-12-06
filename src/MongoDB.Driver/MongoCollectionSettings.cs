@@ -35,6 +35,7 @@ namespace MongoDB.Driver
         private Setting<ReadPreference> _readPreference;
         private Setting<WriteConcern> _writeConcern;
         private Setting<UTF8Encoding> _writeEncoding;
+        private IBsonSerializerRegistry _serializerRegistry = BsonSerializer.SerializerRegistry;
 
         // the following fields are set when Freeze is called
         private bool _isFrozen;
@@ -144,7 +145,16 @@ namespace MongoDB.Driver
         /// </summary>
         public IBsonSerializerRegistry SerializerRegistry
         {
-            get { return BsonSerializer.SerializerRegistry; }
+            get { return _serializerRegistry; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoCollectionSettings is frozen."); }
+                if (value == null)
+                {
+                    throw new ArgumentNullException("value");
+                }
+                _serializerRegistry = value;
+            }
         }
 
         /// <summary>
