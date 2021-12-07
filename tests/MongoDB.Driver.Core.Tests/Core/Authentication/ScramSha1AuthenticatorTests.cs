@@ -257,66 +257,66 @@ namespace MongoDB.Driver.Core.Authentication
             var expectedMessages = new List<BsonDocument>();
 
             var saslStartMessage = BsonDocument.Parse(@$"
-{{
-    opcode : 'opmsg',
-    requestId : {actualRequestIds[0]},
-    responseTo : 0,
-    sections : [
-    {{
-        payloadType : 0,
-        document : {{
-            saslStart : 1,
-            mechanism : 'SCRAM-SHA-1',
-            payload : new BinData(0, 'biwsbj11c2VyLHI9ZnlrbytkMmxiYkZnT05Sdjlxa3hkYXdM'),
-            options : {{ skipEmptyExchange: true }},
-            '$db' : 'source'
-        }}
-    }}
-    ]
-}}");
+            {{
+                opcode : 'opmsg',
+                requestId : {actualRequestIds[0]},
+                responseTo : 0,
+                sections : [
+                {{
+                    payloadType : 0,
+                    document : {{
+                        saslStart : 1,
+                        mechanism : 'SCRAM-SHA-1',
+                        payload : new BinData(0, 'biwsbj11c2VyLHI9ZnlrbytkMmxiYkZnT05Sdjlxa3hkYXdM'),
+                        options : {{ skipEmptyExchange: true }},
+                        '$db' : 'source'
+                    }}
+                }}
+                ]
+            }}");
             if (!useSpeculativeAuthenticate)
             {
                 expectedMessages.Add(saslStartMessage);
             }
 
             var saslContinueMessage = BsonDocument.Parse(@$"
-{{
-    opcode : 'opmsg',
-    requestId : {(useSpeculativeAuthenticate ? actualRequestIds[0] : actualRequestIds[1])},
-    responseTo : 0,
-    sections : [
-    {{
-        payloadType : 0,
-        document : {{
-            saslContinue : 1,
-            conversationId : 1,
-            payload : new BinData(0, 'Yz1iaXdzLHI9ZnlrbytkMmxiYkZnT05Sdjlxa3hkYXdMSG8rVmdrN3F2VU9LVXd1V0xJV2c0bC85U3JhR01IRUUscD1NQzJUOEJ2Ym1XUmNrRHc4b1dsNUlWZ2h3Q1k9'),
-            '$db' : 'source'
-        }}
-    }}
-    ]
-}}");
+            {{
+                opcode : 'opmsg',
+                requestId : {(useSpeculativeAuthenticate ? actualRequestIds[0] : actualRequestIds[1])},
+                responseTo : 0,
+                sections : [
+                {{
+                    payloadType : 0,
+                    document : {{
+                        saslContinue : 1,
+                        conversationId : 1,
+                        payload : new BinData(0, 'Yz1iaXdzLHI9ZnlrbytkMmxiYkZnT05Sdjlxa3hkYXdMSG8rVmdrN3F2VU9LVXd1V0xJV2c0bC85U3JhR01IRUUscD1NQzJUOEJ2Ym1XUmNrRHc4b1dsNUlWZ2h3Q1k9'),
+                        '$db' : 'source'
+                    }}
+                }}
+                ]
+            }}");
             expectedMessages.Add(saslContinueMessage);
 
             if (useLongAuthentication)
             {
                 var saslOptionalFinalMessage = BsonDocument.Parse($@"
-{{
-    opcode : 'opmsg',
-    requestId : {(useSpeculativeAuthenticate ? actualRequestIds[1] : actualRequestIds[2])},
-    responseTo : 0,
-    sections : [
-    {{
-        payloadType : 0,
-        document : {{
-            saslContinue : 1,
-            conversationId : 1,
-            payload : new BinData(0, ''),
-            '$db' : 'source'
-        }}
-    }}
-    ]
-}}");
+                {{
+                    opcode : 'opmsg',
+                    requestId : {(useSpeculativeAuthenticate ? actualRequestIds[1] : actualRequestIds[2])},
+                    responseTo : 0,
+                    sections : [
+                    {{
+                        payloadType : 0,
+                        document : {{
+                            saslContinue : 1,
+                            conversationId : 1,
+                            payload : new BinData(0, ''),
+                            '$db' : 'source'
+                        }}
+                    }}
+                    ]
+                }}");
                 expectedMessages.Add(saslOptionalFinalMessage);
             }
 
