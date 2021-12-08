@@ -33,9 +33,9 @@ namespace MongoDB.Driver
         private Setting<ReadConcern> _readConcern;
         private Setting<UTF8Encoding> _readEncoding;
         private Setting<ReadPreference> _readPreference;
+        private Setting<IBsonSerializerRegistry> _serializerRegistry;
         private Setting<WriteConcern> _writeConcern;
         private Setting<UTF8Encoding> _writeEncoding;
-        private IBsonSerializerRegistry _serializerRegistry = BsonSerializer.SerializerRegistry;
 
         // the following fields are set when Freeze is called
         private bool _isFrozen;
@@ -145,7 +145,7 @@ namespace MongoDB.Driver
         /// </summary>
         public IBsonSerializerRegistry SerializerRegistry
         {
-            get { return _serializerRegistry; }
+            get { return _serializerRegistry.Value; }
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoCollectionSettings is frozen."); }
@@ -153,7 +153,7 @@ namespace MongoDB.Driver
                 {
                     throw new ArgumentNullException("value");
                 }
-                _serializerRegistry = value;
+                _serializerRegistry.Value = value;
             }
         }
 
@@ -200,6 +200,7 @@ namespace MongoDB.Driver
             clone._readConcern = _readConcern.Clone();
             clone._readEncoding = _readEncoding.Clone();
             clone._readPreference = _readPreference.Clone();
+            clone._serializerRegistry = _serializerRegistry.Clone();
             clone._writeConcern = _writeConcern.Clone();
             clone._writeEncoding = _writeEncoding.Clone();
             return clone;
@@ -343,6 +344,10 @@ namespace MongoDB.Driver
             if (!_readPreference.HasBeenSet)
             {
                 ReadPreference = databaseSettings.ReadPreference;
+            }
+            if (!_serializerRegistry.HasBeenSet)
+            {
+                SerializerRegistry = databaseSettings.SerializerRegistry;
             }
             if (!_writeConcern.HasBeenSet)
             {

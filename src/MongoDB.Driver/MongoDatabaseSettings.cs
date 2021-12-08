@@ -32,6 +32,7 @@ namespace MongoDB.Driver
         private Setting<ReadConcern> _readConcern;
         private Setting<UTF8Encoding> _readEncoding;
         private Setting<ReadPreference> _readPreference;
+        private Setting<IBsonSerializerRegistry> _serializerRegistry;
         private Setting<WriteConcern> _writeConcern;
         private Setting<UTF8Encoding> _writeEncoding;
 
@@ -130,7 +131,18 @@ namespace MongoDB.Driver
         /// </summary>
         public IBsonSerializerRegistry SerializerRegistry
         {
-            get { return BsonSerializer.SerializerRegistry; }
+            get { return _serializerRegistry.HasBeenSet ?
+                    _serializerRegistry.Value :
+                    BsonSerializer.SerializerRegistry; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoCollectionSettings is frozen."); }
+                if (value == null)
+                {
+                    throw new ArgumentNullException("value");
+                }
+                _serializerRegistry.Value = value;
+            }
         }
 
         /// <summary>
@@ -175,6 +187,7 @@ namespace MongoDB.Driver
             clone._readConcern = _readConcern.Clone();
             clone._readEncoding = _readEncoding.Clone();
             clone._readPreference = _readPreference.Clone();
+            clone._serializerRegistry = _serializerRegistry.Clone();
             clone._writeConcern = _writeConcern.Clone();
             clone._writeEncoding = _writeEncoding.Clone();
             return clone;
