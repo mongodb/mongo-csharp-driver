@@ -299,9 +299,9 @@ namespace MongoDB.Driver.Core.Connections
             catch (Exception ex)
             {
                 _description ??= handshakeDescription;
-                var wrappedException = WrapException(ex, "opening a connection to the server");
-                helper.FailedOpeningConnection(wrappedException);
-                throw wrappedException;
+                var wrappedException = WrapExceptionIfRequired(ex, "opening a connection to the server");
+                helper.FailedOpeningConnection(wrappedException ?? ex);
+                if (wrappedException == null) { throw; } else { throw wrappedException; }
             }
         }
 
@@ -324,9 +324,9 @@ namespace MongoDB.Driver.Core.Connections
             catch (Exception ex)
             {
                 _description ??= handshakeDescription;
-                var wrappedException = WrapException(ex, "opening a connection to the server");
-                helper.FailedOpeningConnection(wrappedException);
-                throw wrappedException;
+                var wrappedException = WrapExceptionIfRequired(ex, "opening a connection to the server");
+                helper.FailedOpeningConnection(wrappedException ?? ex);
+                if (wrappedException == null) { throw; } else { throw wrappedException; }
             }
         }
 
@@ -349,9 +349,9 @@ namespace MongoDB.Driver.Core.Connections
             }
             catch (Exception ex)
             {
-                var wrappedException = WrapException(ex, "receiving a message from the server");
-                ConnectionFailed(wrappedException);
-                throw wrappedException;
+                var wrappedException = WrapExceptionIfRequired(ex, "receiving a message from the server");
+                ConnectionFailed(wrappedException ?? ex);
+                if (wrappedException == null) { throw; } else { throw wrappedException; }
             }
         }
 
@@ -419,9 +419,9 @@ namespace MongoDB.Driver.Core.Connections
             }
             catch (Exception ex)
             {
-                var wrappedException = WrapException(ex, "receiving a message from the server");
-                ConnectionFailed(wrappedException);
-                throw wrappedException;
+                var wrappedException = WrapExceptionIfRequired(ex, "receiving a message from the server");
+                ConnectionFailed(wrappedException ?? ex);
+                if (wrappedException == null) { throw; } else { throw wrappedException; }
             }
         }
 
@@ -492,7 +492,8 @@ namespace MongoDB.Driver.Core.Connections
             catch (Exception ex)
             {
                 helper.FailedReceivingMessage(ex);
-                throw WrapInOperationCanceledExceptionIfRequired(ex, cancellationToken);
+                ThrowOperationCanceledExceptionIfRequired(ex);
+                throw;
             }
         }
 
@@ -519,7 +520,8 @@ namespace MongoDB.Driver.Core.Connections
             catch (Exception ex)
             {
                 helper.FailedReceivingMessage(ex);
-                throw WrapInOperationCanceledExceptionIfRequired(ex, cancellationToken);
+                ThrowOperationCanceledExceptionIfRequired(ex);
+                throw;
             }
         }
 
@@ -540,9 +542,9 @@ namespace MongoDB.Driver.Core.Connections
                 }
                 catch (Exception ex)
                 {
-                    var wrappedException = WrapException(ex, "sending a message to the server");
-                    ConnectionFailed(wrappedException);
-                    throw wrappedException;
+                    var wrappedException = WrapExceptionIfRequired(ex, "sending a message to the server");
+                    ConnectionFailed(wrappedException ?? ex);
+                    if (wrappedException == null) { throw; } else { throw wrappedException; }
                 }
             }
             finally
@@ -569,9 +571,9 @@ namespace MongoDB.Driver.Core.Connections
                 }
                 catch (Exception ex)
                 {
-                    var wrappedException = WrapException(ex, "sending a message to the server");
-                    ConnectionFailed(wrappedException);
-                    throw wrappedException;
+                    var wrappedException = WrapExceptionIfRequired(ex, "sending a message to the server");
+                    ConnectionFailed(wrappedException ?? ex);
+                    if (wrappedException == null) { throw; } else { throw wrappedException; }
                 }
             }
             finally
@@ -612,7 +614,8 @@ namespace MongoDB.Driver.Core.Connections
             catch (Exception ex)
             {
                 helper.FailedSendingMessages(ex);
-                throw WrapInOperationCanceledExceptionIfRequired(ex, cancellationToken);
+                ThrowOperationCanceledExceptionIfRequired(ex);
+                throw;
             }
         }
 
@@ -648,7 +651,8 @@ namespace MongoDB.Driver.Core.Connections
             catch (Exception ex)
             {
                 helper.FailedSendingMessages(ex);
-                throw WrapInOperationCanceledExceptionIfRequired(ex, cancellationToken);
+                ThrowOperationCanceledExceptionIfRequired(ex);
+                throw;
             }
         }
 
@@ -744,7 +748,7 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        private Exception WrapException(Exception ex, string action)
+        private Exception WrapExceptionIfRequired(Exception ex, string action)
         {
             if (
                 ex is ThreadAbortException ||
@@ -754,7 +758,7 @@ namespace MongoDB.Driver.Core.Connections
                 ex is OperationCanceledException ||
                 ex is ObjectDisposedException)
             {
-                return ex;
+                return null;
             }
             else
             {
@@ -763,7 +767,7 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        private Exception WrapInOperationCanceledExceptionIfRequired(Exception exception, CancellationToken cancellationToken)
+        private void ThrowOperationCanceledExceptionIfRequired(Exception exception)
         {
             if (exception is ObjectDisposedException objectDisposedException)
             {
@@ -772,11 +776,7 @@ namespace MongoDB.Driver.Core.Connections
                 //      objectDisposedException.Message == "The semaphore has been disposed."
                 // but since the last one is language-specific, the only option we have is avoiding any additional conditions for ObjectDisposedException
                 // TODO: this logic should be reviewed in the scope of https://jira.mongodb.org/browse/CSHARP-3165
-                return new OperationCanceledException($"The {nameof(BinaryConnection)} operation has been cancelled.", exception);
-            }
-            else
-            {
-                return exception;
+                throw new OperationCanceledException($"The {nameof(BinaryConnection)} operation has been cancelled.", exception);
             }
         }
 
