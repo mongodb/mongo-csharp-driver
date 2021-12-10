@@ -4,7 +4,7 @@ This is a beta release for the 2.14.0 version of the driver.
 
 The main new features in 2.14.0-beta1 include:
 
-* A beta version of the new LINQ provider (known as LINQ3, see: [LINQ3]({{< relref "reference\driver\crud\linq3.md" >}}))
+* A beta version of the new LINQ provider (known as LINQ3, see: [LINQ3](https://mongodb.github.io/mongo-csharp-driver/2.14/reference/driver/crud/linq3/))
 * The current LINQ provider (known as LINQ2) continues to be available and is still the default LINQ provider for now
 * Support for Zstandard and Snappy on Linux and MacOS
 * Added connection storm avoidance features
