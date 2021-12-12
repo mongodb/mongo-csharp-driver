@@ -66,7 +66,7 @@ Task("Restore")
 
 Task("Build")
     .IsDependentOn("Restore")
-    .Does<BuildConfig >((buildConfig) =>
+    .Does<BuildConfig>((buildConfig) =>
     {
        var settings = new DotNetCoreBuildSettings
        {
@@ -783,7 +783,7 @@ Task("TestsPackaging")
     })
     .DeferOnError();
 
-Setup<BuildConfig >(
+Setup<BuildConfig>(
     setupContext => 
     {
         var lowerTarget = target.ToLowerInvariant();
@@ -796,17 +796,17 @@ Setup<BuildConfig >(
         };
         var isReleaseMode = lowerTarget.StartsWith("package") || lowerTarget == "release";
         Console.WriteLine($"Framework: {framework ?? "null (not set)"}, IsReleaseMode: {isReleaseMode}");
-        return new BuildConfig (isReleaseMode, framework);
+        return new BuildConfig(isReleaseMode, framework);
     });
 
 RunTarget(target);
 
-public class BuildConfig 
+public class BuildConfig
 {
     public bool IsReleaseMode { get; }
     public string Framework { get; }
 
-    public BuildConfig (bool isReleaseMode, string framework)
+    public BuildConfig(bool isReleaseMode, string framework)
     {
         IsReleaseMode = isReleaseMode;
         Framework = framework;
