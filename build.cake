@@ -8,6 +8,7 @@ using System;
 using System.Text.RegularExpressions;
 using System.Linq;
 using Cake.Common.Tools.DotNetCore.DotNetCoreVerbosity;
+using Path = Cake.Core.IO.Path;
 
 const string defaultTarget = "Default";
 var target = Argument("target", defaultTarget);
@@ -65,7 +66,7 @@ Task("Restore")
 
 Task("Build")
     .IsDependentOn("Restore")
-    .Does(() =>
+    .Does<BuildConfig>((buildConfig) =>
     {
        var settings = new DotNetCoreBuildSettings
        {
@@ -77,6 +78,14 @@ Task("Build")
                { "SourceRevisionId", gitVersion.Sha }
            }
         };
+
+        if (buildConfig.IsReleaseMode)
+        {
+            Console.WriteLine("Build continuousIntegration is enabled");
+            settings.MSBuildSettings = new DotNetCoreMSBuildSettings();
+            // configure deterministic build for better compatibility with debug symbols (used in Package/Build tasks). Affects: *.nupkg
+            settings.MSBuildSettings.SetContinuousIntegrationBuild(continuousIntegrationBuild: true);
+        }
         DotNetCoreBuild(solutionFullPath, settings);
     });
 
@@ -122,9 +131,8 @@ Task("BuildArtifacts")
 Task("Test")
     .IsDependentOn("Build")
     .DoesForEach(
-        GetFiles("./**/*.Tests.csproj")
-        .Where(name => !name.ToString().Contains("Atlas")),
-        testProject =>
+        items: GetFiles("./**/*.Tests.csproj").Where(name => !name.ToString().Contains("Atlas")),
+        action: (BuildConfig buildConfig, Path testProject) =>
     {
         if (Environment.GetEnvironmentVariable("MONGODB_API_VERSION") != null &&
             testProject.ToString().Contains("Legacy"))
@@ -159,14 +167,10 @@ Task("Test")
             NoRestore = true,
             Configuration = configuration,
             Loggers = CreateLoggers(),
-            ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64")
+            ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64"),
+            Framework = buildConfig.Framework
         };
-        switch (target.ToLowerInvariant()) // target can be not only moniker related
-        {
-            case "testnet472": settings.Framework = "net472"; break;
-            case "testnetstandard20": settings.Framework = "netcoreapp2.1"; break;
-            case "testnetstandard21": settings.Framework = "netcoreapp3.1"; break;
-        }
+
         DotNetCoreTest(
             testProject.FullPath,
             settings
@@ -315,8 +319,8 @@ Task("TestOcsp")
 Task("TestGssapi")
     .IsDependentOn("Build")
     .DoesForEach(
-        GetFiles("./**/MongoDB.Driver.Tests.csproj"),
-        testProject =>
+        items: GetFiles("./**/MongoDB.Driver.Tests.csproj"),
+        action: (BuildConfig buildConfig, Path testProject) =>
     {
         var settings = new DotNetCoreTestSettings
         {
@@ -324,15 +328,10 @@ Task("TestGssapi")
             NoRestore = true,
             Configuration = configuration,
             ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64"),
-            Filter = "Category=\"GssapiMechanism\""
+            Filter = "Category=\"GssapiMechanism\"",
+            Framework = buildConfig.Framework
         };
 
-        switch (target.ToLowerInvariant()) // target can be not only moniker related
-        {
-            case "testgssapinet472": settings.Framework = "net472"; break;
-            case "testgssapinetstandard20": settings.Framework = "netcoreapp2.1"; break;
-            case "testgssapinetstandard21": settings.Framework = "netcoreapp3.1"; break;
-        }
         DotNetCoreTest(
             testProject.FullPath,
             settings
@@ -346,8 +345,8 @@ Task("TestGssapiNetStandard21").IsDependentOn("TestGssapi");
 Task("TestServerless")
     .IsDependentOn("Build")
     .DoesForEach(
-        GetFiles("./**/MongoDB.Driver.Tests.csproj"),
-        testProject =>
+        items: GetFiles("./**/MongoDB.Driver.Tests.csproj"),
+        action: (BuildConfig buildConfig, Path testProject) =>
         {
             var settings = new DotNetCoreTestSettings
             {
@@ -355,14 +354,10 @@ Task("TestServerless")
                 NoRestore = true,
                 Configuration = configuration,
                 ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64"),
-                Filter = "Category=\"Serverless\""
+                Filter = "Category=\"Serverless\"",
+                Framework = buildConfig.Framework
             };
-            switch (target.ToLowerInvariant()) // target can be not only moniker related
-            {
-                case "testserverlessnet472": settings.Framework = "net472"; break;
-                case "testserverlessnetstandard20": settings.Framework = "netcoreapp2.1"; break;
-                case "testserverlessnetstandard21": settings.Framework = "netcoreapp3.1"; break;
-            }
+
             DotNetCoreTest(
                 testProject.FullPath,
                 settings
@@ -376,8 +371,8 @@ Task("TestServerlessNetStandard21").IsDependentOn("TestServerless");
 Task("TestLoadBalanced")
     .IsDependentOn("Build")
     .DoesForEach(
-        GetFiles("./**/*.Tests.csproj"),
-        testProject =>
+        items: GetFiles("./**/*.Tests.csproj"),
+        action: (BuildConfig buildConfig, Path testProject) =>
      {
         var settings = new DotNetCoreTestSettings
         {
@@ -385,14 +380,9 @@ Task("TestLoadBalanced")
             NoRestore = true,
             Configuration = configuration,
             ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64"),
-            Filter = "Category=\"SupportLoadBalancing\""
+            Filter = "Category=\"SupportLoadBalancing\"",
+            Framework = buildConfig.Framework
         };
-
-        switch (target.ToLowerInvariant()) // target can be not only moniker related
-        {
-            case "testloadbalancednetstandard20": settings.Framework = "netcoreapp2.1"; break;
-            case "testloadbalancednetstandard21": settings.Framework = "netcoreapp3.1"; break;
-        }
 
         DotNetCoreTest(
             testProject.FullPath,
@@ -406,8 +396,8 @@ Task("TestLoadBalancedNetStandard21").IsDependentOn("TestLoadBalanced");
 Task("TestCsfleWithMockedKms")
     .IsDependentOn("Build")
     .DoesForEach(
-        GetFiles("./**/*.Tests.csproj"),
-        testProject =>
+        items: GetFiles("./**/*.Tests.csproj"),
+        action: (BuildConfig buildConfig, Path testProject) =>
     {
         var settings = new DotNetCoreTestSettings
         {
@@ -416,15 +406,9 @@ Task("TestCsfleWithMockedKms")
             Configuration = configuration,
             Loggers = CreateLoggers(),
             ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64"),
-            Filter = "Category=\"CSFLE\""
+            Filter = "Category=\"CSFLE\"",
+            Framework = buildConfig.Framework
         };
-
-        switch (target.ToLowerInvariant()) // target can be not only moniker related
-        {
-            case "testcsflewithmockedkmsnet472": settings.Framework = "net472"; break;
-            case "testcsflewithmockedkmsnetstandard20": settings.Framework = "netcoreapp2.1"; break;
-            case "testcsflewithmockedkmsnetstandard21": settings.Framework = "netcoreapp3.1"; break;
-        }
 
         DotNetCoreTest(
             testProject.FullPath,
@@ -535,9 +519,11 @@ Task("PackageNugetPackages")
             {
                 Configuration = configuration,
                 OutputDirectory = artifactsPackagesDirectory,
-                NoBuild = true,
+                NoBuild = true, // SetContinuousIntegrationBuild is enabled for nupkg on the Build step
                 IncludeSymbols = true,
                 MSBuildSettings = new DotNetCoreMSBuildSettings()
+                    // configure deterministic build for better compatibility with debug symbols (used in Package/Build tasks). Affects: *.snupkg
+                    .SetContinuousIntegrationBuild(continuousIntegrationBuild: true) 
                     .WithProperty("PackageVersion", gitVersion.LegacySemVer)
             };
             DotNetCorePack(projectPath, settings);
@@ -798,7 +784,35 @@ Task("TestsPackaging")
     })
     .DeferOnError();
 
+Setup<BuildConfig>(
+    setupContext => 
+    {
+        var lowerTarget = target.ToLowerInvariant();
+        var framework = lowerTarget switch
+        {
+            string s when s.StartsWith("test") && s.EndsWith("net472") => "net472",
+            string s when s.StartsWith("test") && s.EndsWith("netstandard20") => "netcoreapp2.1",
+            string s when s.StartsWith("test") && s.EndsWith("netstandard21") => "netcoreapp3.1",
+            _ => null
+        };
+        var isReleaseMode = lowerTarget.StartsWith("package") || lowerTarget == "release";
+        Console.WriteLine($"Framework: {framework ?? "null (not set)"}, IsReleaseMode: {isReleaseMode}");
+        return new BuildConfig(isReleaseMode, framework);
+    });
+
 RunTarget(target);
+
+public class BuildConfig
+{
+    public bool IsReleaseMode { get; }
+    public string Framework { get; }
+
+    public BuildConfig(bool isReleaseMode, string framework)
+    {
+        IsReleaseMode = isReleaseMode;
+        Framework = framework;
+    }
+}
 
 string[] CreateLoggers()
 {
