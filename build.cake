@@ -83,7 +83,7 @@ Task("Build")
         {
             Console.WriteLine("Build continuousIntegration is enabled");
             settings.MSBuildSettings = new DotNetCoreMSBuildSettings();
-            // needs to make nupkg package deterministic. Used for package release
+            // configure deterministic build for better compatibility with debug symbols (used in Package/Build tasks). Affects: *.nupkg
             settings.MSBuildSettings.SetContinuousIntegrationBuild(continuousIntegrationBuild: true);
         }
         DotNetCoreBuild(solutionFullPath, settings);
@@ -522,7 +522,8 @@ Task("PackageNugetPackages")
                 NoBuild = true, // SetContinuousIntegrationBuild is enabled for nupkg on the Build step
                 IncludeSymbols = true,
                 MSBuildSettings = new DotNetCoreMSBuildSettings()
-                    .SetContinuousIntegrationBuild(continuousIntegrationBuild: true) // needs to make snupkg package deterministic
+                    // configure deterministic build for better compatibility with debug symbols (used in Package/Build tasks). Affects: *.snupkg
+                    .SetContinuousIntegrationBuild(continuousIntegrationBuild: true) 
                     .WithProperty("PackageVersion", gitVersion.LegacySemVer)
             };
             DotNetCorePack(projectPath, settings);
