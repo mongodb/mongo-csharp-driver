@@ -152,8 +152,26 @@ namespace MongoDB.Driver.Core.Servers
                 // by using Task.Factory.StartNew we introduce a short delay before the MonitorServerAsync Task starts executing
                 // the delay is whatever time it takes for the new Task to be activated and scheduled
                 // and the delay is usually long enough for the test to get past the race condition (though not guaranteed)
-                _ = Task.Factory.StartNew(() => _ = MonitorServerAsync().ConfigureAwait(false)).ConfigureAwait(false);
-                _ = _roundTripTimeMonitor.RunAsync().ConfigureAwait(false);
+
+                AsyncFlowControl? flow = null;
+
+                try
+                {
+                    if (!ExecutionContext.IsFlowSuppressed())
+                    {
+                        flow = ExecutionContext.SuppressFlow();
+                    }
+
+                    _ = Task.Run(() => _ = MonitorServerAsync());
+                    _ = Task.Run(() => _roundTripTimeMonitor.RunAsync());
+                }
+                finally
+                {
+                    if (flow != null)
+                    {
+                        flow.Value.Dispose();
+                    }
+                }
             }
         }
 
