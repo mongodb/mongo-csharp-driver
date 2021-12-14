@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # DO NOT ECHO COMMANDS AS THEY CONTAIN SECRETS!
 

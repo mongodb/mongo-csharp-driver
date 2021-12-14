@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # Find the version of python on the system.
 # If the directory "venv" exists, start the virtual environment.
 # Otherwise, install a new virtual environment.

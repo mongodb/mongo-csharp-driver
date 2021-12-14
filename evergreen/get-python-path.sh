@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # Find the version of python on the system.
 #
 # Environment variables used as input:

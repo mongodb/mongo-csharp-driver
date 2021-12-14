@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -o xtrace
 set -o errexit  # Exit the script with error if any of the commands fail
