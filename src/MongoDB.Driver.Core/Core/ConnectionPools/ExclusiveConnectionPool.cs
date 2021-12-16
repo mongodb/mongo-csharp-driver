@@ -60,6 +60,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
         private readonly Action<ConnectionPoolClearedEvent> _clearedEventHandler;
         private readonly Action<ConnectionCreatedEvent> _connectionCreatedEventHandler;
 
+        private readonly Action<DiagnosticEvent> _connectionPoolDiagnosticEventHandler;
+
         // constructors
         public ExclusiveConnectionPool(
             ServerId serverId,
@@ -106,6 +108,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             eventSubscriber.TryGetEventHandler(out _clearingEventHandler);
             eventSubscriber.TryGetEventHandler(out _clearedEventHandler);
             eventSubscriber.TryGetEventHandler(out _connectionCreatedEventHandler);
+            eventSubscriber.TryGetEventHandler(out _connectionPoolDiagnosticEventHandler);
         }
 
         // properties
@@ -192,6 +195,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
                     _maxConnectionsQueue.Signal();
                     _maxConnectingQueue.Signal();
+
+                    _connectionHolder.Prune(CancellationToken.None); // force removing expired connections
 
                     _clearedEventHandler?.Invoke(new ConnectionPoolClearedEvent(_serverId, _settings));
                 }

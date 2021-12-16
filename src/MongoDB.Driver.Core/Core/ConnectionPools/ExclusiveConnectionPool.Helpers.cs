@@ -711,17 +711,22 @@ namespace MongoDB.Driver.Core.ConnectionPools
             private readonly SemaphoreSlimSignalable _semaphoreSlimSignalable;
             private readonly object _lock = new object();
             private readonly List<PooledConnection> _connections;
+            private readonly List<PooledConnection> _connectionsInUse; // TODO: refactor
 
             private readonly Action<ConnectionPoolRemovingConnectionEvent> _removingConnectionEventHandler;
             private readonly Action<ConnectionPoolRemovedConnectionEvent> _removedConnectionEventHandler;
+
+            private readonly Action<DiagnosticEvent> _connectionPoolDiagnosticEventHandler;
 
             public ListConnectionHolder(IEventSubscriber eventSubscriber, SemaphoreSlimSignalable semaphoreSlimSignalable)
             {
                 _semaphoreSlimSignalable = semaphoreSlimSignalable;
                 _connections = new List<PooledConnection>();
+                _connectionsInUse = new List<PooledConnection>();
 
                 eventSubscriber.TryGetEventHandler(out _removingConnectionEventHandler);
                 eventSubscriber.TryGetEventHandler(out _removedConnectionEventHandler);
+                eventSubscriber.TryGetEventHandler(out _connectionPoolDiagnosticEventHandler);
             }
 
             public int Count
@@ -744,6 +749,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                         RemoveConnection(connection);
                     }
                     _connections.Clear();
+                    _connectionsInUse.Clear();
 
                     SignalOrReset();
                 }
@@ -754,7 +760,12 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 PooledConnection[] expiredConnections;
                 lock (_lock)
                 {
-                    expiredConnections = _connections.Where(c => c.IsExpired).ToArray();
+                    expiredConnections = _connections
+                        .Where(c => c.IsExpired)
+                        .Concat(
+                            _connectionsInUse
+                            .Where(c=>c.IsExpired)
+                        ).ToArray();
                 }
 
                 foreach (var connection in expiredConnections)
@@ -772,6 +783,13 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
                         RemoveConnection(connection);
                         _connections.Remove(connection);
+
+                        var inUse = _connectionsInUse.Remove(connection);
+                        if (inUse && _connectionPoolDiagnosticEventHandler != null)
+                        {
+                            _connectionPoolDiagnosticEventHandler.Invoke(new DiagnosticEvent($"Removing connection in use is triggered. ConnectionId: {connection.ConnectionId}"));
+                        }
+
                         SignalOrReset();
                     }
                 }
@@ -788,6 +806,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                         var lastIndex = _connections.Count - 1;
                         var connection = _connections[lastIndex];
                         _connections.RemoveAt(lastIndex);
+                        _connectionsInUse.Add(connection);
                         if (connection.IsExpired)
                         {
                             RemoveConnection(connection);
@@ -808,6 +827,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 lock (_lock)
                 {
                     _connections.Add(connection);
+                    _connectionsInUse.Remove(connection);
                     SignalOrReset();
                 }
             }

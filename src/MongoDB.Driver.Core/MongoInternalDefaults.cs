@@ -13,13 +13,46 @@
 * limitations under the License.
 */
 
+using System;
+using MongoDB.Driver.Core.Misc;
+
 namespace MongoDB.Driver
 {
-    internal static class MongoInternalDefaults
+    /// <summary>
+    /// Temporary change.
+    /// </summary>
+    public static class MongoInternalDefaults
     {
+        private static TimeSpan? __rttTimeout;
+        private static TimeSpan? __rttReadTimeout;
+
+        /// <summary>
+        /// Temporary change.
+        /// </summary>
         public static class ConnectionPool
         {
+            /// <summary>
+            /// Temporary change.
+            /// </summary>
             public const int MaxConnecting = 2;
+        }
+
+        /// <summary>
+        /// Temporary change.
+        /// </summary>
+        public static TimeSpan? RttInterval
+        {
+            get { return __rttTimeout; }
+            set { __rttTimeout = Ensure.IsNullOrInfiniteOrGreaterThanOrEqualToZero(value, nameof(value)); }
+        }
+
+        /// <summary>
+        /// Temporary change.
+        /// </summary>
+        public static TimeSpan? RttReadTimeout
+        {
+            get { return __rttReadTimeout; }
+            set { __rttReadTimeout = Ensure.IsNullOrInfiniteOrGreaterThanOrEqualToZero(value, nameof(value)); }
         }
     }
 }

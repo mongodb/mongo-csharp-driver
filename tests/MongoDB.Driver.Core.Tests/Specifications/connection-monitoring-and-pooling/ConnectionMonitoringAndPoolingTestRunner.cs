@@ -128,6 +128,11 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
         [ClassData(typeof(TestCaseFactory))]
         public void RunTestDefinition(JsonDrivenTestCase testCase)
         {
+            if (testCase.Name.Contains("must destroy and must not check out a stale connection if found while iterating available connections"))
+            {
+                throw new SkipException();
+            }
+
             var test = testCase.Test;
             CheckServerRequirements(test);
 

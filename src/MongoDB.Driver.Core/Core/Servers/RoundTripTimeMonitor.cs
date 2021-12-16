@@ -19,6 +19,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Servers
@@ -29,6 +30,8 @@ namespace MongoDB.Driver.Core.Servers
         void AddSample(TimeSpan roundTripTime);
         void Reset();
         Task RunAsync();
+        // TODO: refactor
+        Action<Exception> OnSocketTimeout { get; set; }
     }
 
     internal sealed class RoundTripTimeMonitor : IRoundTripTimeMonitor
@@ -45,20 +48,25 @@ namespace MongoDB.Driver.Core.Servers
         private readonly ServerApi _serverApi;
         private readonly ServerId _serverId;
 
+        private readonly Action<DiagnosticEvent> _rttDiagnosticEventHandler;
+
         public RoundTripTimeMonitor(
             IConnectionFactory connectionFactory,
             ServerId serverId,
             EndPoint endpoint,
             TimeSpan heartbeatInterval,
-            ServerApi serverApi)
+            ServerApi serverApi,
+            IEventSubscriber eventSubscriber)
         {
             _connectionFactory = Ensure.IsNotNull(connectionFactory, nameof(connectionFactory));
             _serverId = Ensure.IsNotNull(serverId, nameof(serverId));
             _endPoint = Ensure.IsNotNull(endpoint, nameof(endpoint));
-            _heartbeatInterval = heartbeatInterval;
+            _heartbeatInterval = MongoInternalDefaults.RttInterval ?? heartbeatInterval;
             _serverApi = serverApi;
             _cancellationTokenSource = new CancellationTokenSource();
             _cancellationToken = _cancellationTokenSource.Token;
+
+            Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber)).TryGetEventHandler(out _rttDiagnosticEventHandler);
         }
 
         public TimeSpan Average
@@ -71,6 +79,9 @@ namespace MongoDB.Driver.Core.Servers
                 }
             }
         }
+
+        // TODO: refactor
+        public Action<Exception> OnSocketTimeout { get; set; }
 
         // public methods
         public void Dispose()
@@ -108,8 +119,13 @@ namespace MongoDB.Driver.Core.Servers
                         helloOk = helloResult.HelloOk;
                     }
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+                    OnSocketTimeout?.Invoke(ex);
+
+                    _rttDiagnosticEventHandler?.Invoke(
+                        new DiagnosticEvent($"Rtt is failed. ServerId:{_serverId}. Exception:{ex}"));
+
                     IConnection toDispose;
                     lock (_lock)
                     {
@@ -130,6 +146,7 @@ namespace MongoDB.Driver.Core.Servers
 
             var roundTripTimeConnection = _connectionFactory.CreateConnection(_serverId, _endPoint);
 
+
             var stopwatch = Stopwatch.StartNew();
             try
             {
@@ -145,6 +162,11 @@ namespace MongoDB.Driver.Core.Servers
                 throw;
             }
             stopwatch.Stop();
+
+            if (MongoInternalDefaults.RttReadTimeout.HasValue)
+            {
+                roundTripTimeConnection.SetReadTimeout(MongoInternalDefaults.RttReadTimeout.Value);
+            }
 
             lock (_lock)
             {

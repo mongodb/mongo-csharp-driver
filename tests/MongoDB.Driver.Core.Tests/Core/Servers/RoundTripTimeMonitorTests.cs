@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
         [Fact]
         public void Constructor_should_throw_connection_endpoint_is_null()
         {
-            var exception = Record.Exception(() => new RoundTripTimeMonitor(Mock.Of<IConnectionFactory>(), __serverId, endpoint: null, TimeSpan.Zero, serverApi: null));
+            var exception = Record.Exception(() => new RoundTripTimeMonitor(Mock.Of<IConnectionFactory>(), __serverId, endpoint: null, TimeSpan.Zero, serverApi: null, Mock.Of<IEventSubscriber>()));
             var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
             e.ParamName.Should().Be("endpoint");
         }
@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
         [Fact]
         public void Constructor_should_throw_connection_factory_is_null()
         {
-            var exception = Record.Exception(() => new RoundTripTimeMonitor(connectionFactory: null, __serverId, __endPoint, TimeSpan.Zero, serverApi: null));
+            var exception = Record.Exception(() => new RoundTripTimeMonitor(connectionFactory: null, __serverId, __endPoint, TimeSpan.Zero, serverApi: null, Mock.Of<IEventSubscriber>()));
             var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
             e.ParamName.Should().Be("connectionFactory");
         }
@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
         [Fact]
         public void Constructor_should_throw_connection_serverId_is_null()
         {
-            var exception = Record.Exception(() => new RoundTripTimeMonitor(Mock.Of<IConnectionFactory>(), serverId: null, __endPoint, TimeSpan.Zero, serverApi: null));
+            var exception = Record.Exception(() => new RoundTripTimeMonitor(Mock.Of<IConnectionFactory>(), serverId: null, __endPoint, TimeSpan.Zero, serverApi: null, Mock.Of<IEventSubscriber>()));
             var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
             e.ParamName.Should().Be("serverId");
         }
@@ -166,7 +166,8 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
                 __serverId,
                 __endPoint,
                 TimeSpan.FromMilliseconds(10),
-                serverApi))
+                serverApi,
+                Mock.Of<IEventSubscriber>()))
             {
                 subject.RunAsync().ConfigureAwait(false);
 
@@ -200,7 +201,8 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
                 __serverId,
                 __endPoint,
                 frequency,
-                serverApi: null);
+                serverApi: null,
+                Mock.Of<IEventSubscriber>());
         }
 
         private ConnectionDescription CreateConnectionDescription()
