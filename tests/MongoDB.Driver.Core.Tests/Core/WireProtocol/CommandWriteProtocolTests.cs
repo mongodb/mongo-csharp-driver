@@ -248,7 +248,7 @@ namespace MongoDB.Driver.Core.WireProtocol
 
             var mockConnection = new Mock<IConnection>();
 
-            var commandResponse = MessageHelper.BuildCommandResponse(CreateRawBsonDocument(new BsonDocument("ok", 1)));
+            var commandResponse = MessageHelper.BuildReply(CreateRawBsonDocument(new BsonDocument("ok", 1)));
             mockConnection
                 .Setup(c => c.ReceiveMessage(It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), messageEncoderSettings, CancellationToken.None))
                 .Returns(commandResponse);
@@ -282,7 +282,7 @@ namespace MongoDB.Driver.Core.WireProtocol
 
             mockConnection.Verify(
                 c => c.ReceiveMessageAsync(It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), messageEncoderSettings, CancellationToken.None),
-                Times.Never);
+                Times.Once);
         }
 
         [Fact]
@@ -305,7 +305,7 @@ namespace MongoDB.Driver.Core.WireProtocol
 
             var mockConnection = new Mock<IConnection>();
 
-            var commandResponse = MessageHelper.BuildCommandResponse(CreateRawBsonDocument(new BsonDocument("ok", 1)));
+            var commandResponse = MessageHelper.BuildReply(CreateRawBsonDocument(new BsonDocument("ok", 1)));
             mockConnection
                 .Setup(c => c.ReceiveMessageAsync(It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), messageEncoderSettings, CancellationToken.None))
                 .Returns(Task.FromResult<ResponseMessage>(commandResponse));
@@ -337,7 +337,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             var result = subject.ExecuteAsync(mockConnection.Object, CancellationToken.None).GetAwaiter().GetResult();
             result.Should().BeNull();
 
-            mockConnection.Verify(c => c.ReceiveMessageAsync(It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), messageEncoderSettings, CancellationToken.None), Times.Never);
+            mockConnection.Verify(c => c.ReceiveMessageAsync(It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), messageEncoderSettings, CancellationToken.None), Times.Once);
         }
 
         // private methods

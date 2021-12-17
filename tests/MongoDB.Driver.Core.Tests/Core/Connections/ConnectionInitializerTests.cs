@@ -137,21 +137,42 @@ namespace MongoDB.Driver.Core.Connections
 
         [Theory]
         [ParameterAttributeData]
+        public void InitializeConnection_should_acquire_connectionId_from_legacy_hello_response([Values(false, true)] bool async)
+        {
+            var legacyHelloReply = MessageHelper.BuildReply(
+                RawBsonDocumentHelper.FromJson("{ ok : 1, connectionId : 1 }"));
+            var buildInfoReply = MessageHelper.BuildReply(
+                RawBsonDocumentHelper.FromJson("{ ok : 1, version : \"4.2.0\" }"));
+
+            var connection = new MockConnection(__serverId);
+            connection.EnqueueReplyMessage(legacyHelloReply);
+            connection.EnqueueReplyMessage(buildInfoReply);
+
+            var subject = CreateSubject();
+            var result = InitializeConnection(subject, connection, async, CancellationToken.None);
+
+            var sentMessages = connection.GetSentMessages();
+            sentMessages.Should().HaveCount(2);
+            result.ConnectionId.ServerValue.Should().Be(1);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
         public void InitializeConnection_should_call_Authenticator_CustomizeInitialHelloCommand(
             [Values("default", "SCRAM-SHA-256", "SCRAM-SHA-1")] string authenticatorType,
             [Values(false, true)] bool async)
         {
-            var legacyHelloResponse = MessageHelper.BuildCommandResponse(
+            var legacyHelloReply = MessageHelper.BuildReply(
                 RawBsonDocumentHelper.FromJson("{ ok : 1, connectionId : 1 }"));
-            var buildInfoResponse = MessageHelper.BuildCommandResponse(
+            var buildInfoReply = MessageHelper.BuildReply(
                 RawBsonDocumentHelper.FromJson("{ ok : 1, version : \"4.2.0\" }"));
             var credentials = new UsernamePasswordCredential(
                 source: "Voyager", username: "Seven of Nine", password: "Omega-Phi-9-3");
             var authenticator = CreateAuthenticator(authenticatorType, credentials);
             var connectionSettings = new ConnectionSettings(new[] { new AuthenticatorFactory(() => authenticator) });
             var connection = new MockConnection(__serverId, connectionSettings, eventSubscriber: null);
-            connection.EnqueueCommandResponseMessage(legacyHelloResponse);
-            connection.EnqueueCommandResponseMessage(buildInfoResponse);
+            connection.EnqueueReplyMessage(legacyHelloReply);
+            connection.EnqueueReplyMessage(buildInfoReply);
 
             var subject = CreateSubject();
             // We expect authentication to fail since we have not enqueued the expected authentication replies
@@ -165,10 +186,10 @@ namespace MongoDB.Driver.Core.Connections
             }
 
             var sentMessages = connection.GetSentMessages();
-            var requestMessage = (CommandRequestMessage)sentMessages[0];
-            var requestMessageDocument = ((Type0CommandMessageSection<BsonDocument>)requestMessage.WrappedMessage.Sections[0]).Document;
-            requestMessageDocument.Should().Contain("speculativeAuthenticate");
-            var speculativeAuthenticateDocument = requestMessageDocument["speculativeAuthenticate"].AsBsonDocument;
+            var legacyHelloQuery = (QueryMessage)sentMessages[0];
+            var legacyHelloDocument = legacyHelloQuery.Query;
+            legacyHelloDocument.Should().Contain("speculativeAuthenticate");
+            var speculativeAuthenticateDocument = legacyHelloDocument["speculativeAuthenticate"].AsBsonDocument;
             speculativeAuthenticateDocument.Should().Contain("mechanism");
             var expectedMechanism = new BsonString(
                 authenticatorType == "default" ? "SCRAM-SHA-256" : authenticatorType);
@@ -217,10 +238,10 @@ namespace MongoDB.Driver.Core.Connections
         public void InitializeConnection_without_serverApi_should_send_legacy_hello_and_buildInfo([Values(false, true)] bool async)
         {
             var connection = new MockConnection(__serverId);
-            var helloResponse = RawBsonDocumentHelper.FromJson("{ ok : 1, connectionId : 1 }");
-            connection.EnqueueCommandResponseMessage(MessageHelper.BuildCommandResponse(helloResponse));
-            var buildInfoResponse = RawBsonDocumentHelper.FromJson("{ ok : 1, version : \"4.2.0\" }");
-            connection.EnqueueCommandResponseMessage(MessageHelper.BuildCommandResponse(buildInfoResponse));
+            var helloReply = RawBsonDocumentHelper.FromJson("{ ok : 1, connectionId : 1 }");
+            connection.EnqueueReplyMessage(MessageHelper.BuildReply(helloReply));
+            var buildInfoReply = RawBsonDocumentHelper.FromJson("{ ok : 1, version : \"4.2.0\" }");
+            connection.EnqueueReplyMessage(MessageHelper.BuildReply(buildInfoReply));
 
             var subject = CreateSubject();
 
@@ -235,12 +256,12 @@ namespace MongoDB.Driver.Core.Connections
 
             var actualRequestId1 = sentMessages[1]["requestId"].AsInt32;
 
-            sentMessages[0]["opcode"].AsString.Should().Be("opmsg");
-            sentMessages[0]["sections"].AsBsonArray[0].AsBsonDocument["document"][OppressiveLanguageConstants.LegacyHelloCommandName].AsInt32.Should().Be(1);
-            sentMessages[0]["sections"].AsBsonArray[0].AsBsonDocument["document"].AsBsonDocument.TryGetElement("apiVersion", out _).Should().BeFalse();
-            sentMessages[0]["sections"].AsBsonArray[0].AsBsonDocument["document"].AsBsonDocument.TryGetElement("apiStrict", out _).Should().BeFalse();
-            sentMessages[0]["sections"].AsBsonArray[0].AsBsonDocument["document"].AsBsonDocument.TryGetElement("apiDeprecationErrors", out _).Should().BeFalse();
-            sentMessages[1].Should().Be($"{{ opcode : 'opmsg', requestId : {actualRequestId1}, responseTo : 0, sections : [{{ payloadType : 0, document : {{ buildInfo : 1, '$db' : 'admin', '$readPreference' : {{ mode : 'primaryPreferred' }} }} }}] }}");
+            sentMessages[0]["opcode"].AsString.Should().Be("query");
+            sentMessages[0]["query"][OppressiveLanguageConstants.LegacyHelloCommandName].AsInt32.Should().Be(1);
+            sentMessages[0]["query"].AsBsonDocument.TryGetElement("apiVersion", out _).Should().BeFalse();
+            sentMessages[0]["query"].AsBsonDocument.TryGetElement("apiStrict", out _).Should().BeFalse();
+            sentMessages[0]["query"].AsBsonDocument.TryGetElement("apiDeprecationErrors", out _).Should().BeFalse();
+            sentMessages[1].Should().Be($"{{ opcode : \"query\", requestId : {actualRequestId1}, database : \"admin\", collection : \"$cmd\", batchSize : -1, secondaryOk : true, query : {{ buildInfo : 1 }}}}");
         }
 
         [Theory]
@@ -249,17 +270,17 @@ namespace MongoDB.Driver.Core.Connections
             [Values("noop", "zlib", "snappy", "zstd")] string compressorType,
             [Values(false, true)] bool async)
         {
-            var legacyHelloResponse = MessageHelper.BuildCommandResponse(
+            var legacyHelloReply = MessageHelper.BuildReply<RawBsonDocument>(
                 RawBsonDocumentHelper.FromJson($"{{ ok: 1, compression: ['{compressorType}'] }}"));
-            var buildInfoResponse = MessageHelper.BuildCommandResponse(
+            var buildInfoReply = MessageHelper.BuildReply<RawBsonDocument>(
                 RawBsonDocumentHelper.FromJson("{ ok: 1, version: \"3.6.0\" }"));
-            var gleResponse = MessageHelper.BuildCommandResponse(
+            var gleReply = MessageHelper.BuildReply<RawBsonDocument>(
                 RawBsonDocumentHelper.FromJson("{ ok: 1, connectionId: 10 }"));
 
             var connection = new MockConnection(__serverId);
-            connection.EnqueueCommandResponseMessage(legacyHelloResponse);
-            connection.EnqueueCommandResponseMessage(buildInfoResponse);
-            connection.EnqueueCommandResponseMessage(gleResponse);
+            connection.EnqueueReplyMessage(legacyHelloReply);
+            connection.EnqueueReplyMessage(buildInfoReply);
+            connection.EnqueueReplyMessage(gleReply);
 
             var subject = CreateSubject();
             var result = InitializeConnection(subject, connection, async, CancellationToken.None);
