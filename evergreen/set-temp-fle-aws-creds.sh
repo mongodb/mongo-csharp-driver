@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # Obtains temporary AWS credentials for CSFLE testing.
 #
 # Run with a . to add environment variables to the current shell:

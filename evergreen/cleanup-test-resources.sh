@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 set -o xtrace   # Write all commands first to stderr
 
 # Environment variables used as input:
