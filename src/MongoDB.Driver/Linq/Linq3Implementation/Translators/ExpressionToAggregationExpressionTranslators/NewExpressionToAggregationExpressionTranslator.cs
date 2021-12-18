@@ -50,7 +50,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var fieldExpression = expression.Arguments[i];
                 var fieldTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, fieldExpression);
                 var memberSerializer = fieldTranslation.Serializer ?? BsonSerializer.LookupSerializer(fieldExpression.Type);
-                classMap.MapProperty(member.Name).SetSerializer(memberSerializer);
+                var defaultValue = GetDefaultValue(memberSerializer.ValueType);
+                classMap.MapProperty(member.Name).SetSerializer(memberSerializer).SetDefaultValue(defaultValue);
                 computedFields.Add(AstExpression.ComputedField(member.Name, fieldTranslation.Ast));
             }
 
@@ -68,6 +69,18 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var serializer = (IBsonSerializer)Activator.CreateInstance(serializerType, classMap);
 
             return new AggregationExpression(expression, ast, serializer);
+        }
+
+        private static object GetDefaultValue(Type type)
+        {
+            if (type.IsValueType)
+            {
+                return Activator.CreateInstance(type);
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }

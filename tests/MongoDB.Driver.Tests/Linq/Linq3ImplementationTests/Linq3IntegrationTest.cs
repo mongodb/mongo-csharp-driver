@@ -29,6 +29,22 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests
             stages.Should().Equal(expectedStages.Select(json => BsonDocument.Parse(json)));
         }
 
+        protected void CreateCollection<TDocument>(IMongoCollection<TDocument> collection, IEnumerable<TDocument> documents = null)
+        {
+            var database = collection.Database;
+            var collectionName = collection.CollectionNamespace.CollectionName;
+            database.DropCollection(collectionName);
+
+            if (documents != null && documents.Any())
+            {
+                collection.InsertMany(documents);
+            }
+            else
+            {
+                database.CreateCollection(collectionName);
+            }
+        }
+
         protected IMongoCollection<TDocument> GetCollection<TDocument>(string collectionName = null)
         {
             var databaseName = DriverTestConfiguration.DatabaseNamespace.DatabaseName;
