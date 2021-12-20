@@ -122,10 +122,7 @@ namespace MongoDB.Driver.Core.Connections
                 throw new InvalidOperationException("Driver attempted to initialize in load balancing mode, but the server does not support this mode.");
             }
 
-            var buildInfoProtocol = CreateBuildInfoProtocol(_serverApi);
-            var buildInfoResult = new BuildInfoResult(buildInfoProtocol.Execute(connection, cancellationToken));
-
-            return new ConnectionDescription(connection.ConnectionId, helloResult, buildInfoResult);
+            return new ConnectionDescription(connection.ConnectionId, helloResult);
         }
 
         public async Task<ConnectionDescription> SendHelloAsync(IConnection connection, CancellationToken cancellationToken)
@@ -140,34 +137,10 @@ namespace MongoDB.Driver.Core.Connections
                 throw new InvalidOperationException("Driver attempted to initialize in load balancing mode, but the server does not support this mode.");
             }
 
-            var buildInfoProtocol = CreateBuildInfoProtocol(_serverApi);
-            var buildInfoResult = new BuildInfoResult(await buildInfoProtocol.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false));
-
-            return new ConnectionDescription(connection.ConnectionId, helloResult, buildInfoResult);
+            return new ConnectionDescription(connection.ConnectionId, helloResult);
         }
 
         // private methods
-        private CommandWireProtocol<BsonDocument> CreateBuildInfoProtocol(ServerApi serverApi)
-        {
-            var buildInfoServerApi =
-                serverApi != null
-                    ? new ServerApi(
-                        serverApi.Version,
-                        strict: false, // buildInfo is not part of server API version 1 so we must skip strict flag, otherwise initialize will fail
-                        deprecationErrors: serverApi.DeprecationErrors)
-                    : null;
-
-            var buildInfoCommand = new BsonDocument("buildInfo", 1);
-            var buildInfoProtocol = new CommandWireProtocol<BsonDocument>(
-                databaseNamespace: DatabaseNamespace.Admin,
-                command: buildInfoCommand,
-                secondaryOk: true,
-                resultSerializer: BsonDocumentSerializer.Instance,
-                messageEncoderSettings: null,
-                serverApi: buildInfoServerApi);
-            return buildInfoProtocol;
-        }
-
         private CommandWireProtocol<BsonDocument> CreateGetLastErrorProtocol(ServerApi serverApi)
         {
             var getLastErrorCommand = new BsonDocument("getLastError", 1);

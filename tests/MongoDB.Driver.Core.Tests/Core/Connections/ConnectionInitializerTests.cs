@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Core.Connections
         public void ConnectionAuthentication_should_throw_an_ArgumentNullException_if_required_arguments_missed(
             [Values(false, true)] bool async)
         {
-            var mockConnectionDescription = new ConnectionDescription(new ConnectionId(__serverId), new HelloResult(new BsonDocument()), new BuildInfoResult(new BsonDocument("version", "0.0.0")));
+            var mockConnectionDescription = new ConnectionDescription(new ConnectionId(__serverId), new HelloResult(new BsonDocument()));
             var subject = CreateSubject();
             if (async)
             {
@@ -120,18 +120,16 @@ namespace MongoDB.Driver.Core.Connections
         [ParameterAttributeData]
         public void InitializeConnection_should_acquire_connectionId_from_hello_response([Values(false, true)] bool async)
         {
-            var helloReply = MessageHelper.BuildCommandResponse(RawBsonDocumentHelper.FromJson("{ ok : 1, connectionId : 1 }"));
-            var buildInfoReply = MessageHelper.BuildCommandResponse(RawBsonDocumentHelper.FromJson("{ ok : 1, version : \"4.9.0\" }"));
+            var helloResponse = MessageHelper.BuildCommandResponse(RawBsonDocumentHelper.FromJson("{ ok : 1, connectionId : 1 }"));
 
             var connection = new MockConnection(__serverId);
-            connection.EnqueueCommandResponseMessage(helloReply);
-            connection.EnqueueCommandResponseMessage(buildInfoReply);
+            connection.EnqueueCommandResponseMessage(helloResponse);
 
             var subject = CreateSubject(withServerApi: true);
             var result = InitializeConnection(subject, connection, async, CancellationToken.None);
 
             var sentMessages = connection.GetSentMessages();
-            sentMessages.Should().HaveCount(2);
+            sentMessages.Should().HaveCount(1);
             result.ConnectionId.ServerValue.Should().Be(1);
         }
 
@@ -141,18 +139,15 @@ namespace MongoDB.Driver.Core.Connections
         {
             var legacyHelloReply = MessageHelper.BuildReply(
                 RawBsonDocumentHelper.FromJson("{ ok : 1, connectionId : 1 }"));
-            var buildInfoReply = MessageHelper.BuildReply(
-                RawBsonDocumentHelper.FromJson("{ ok : 1, version : \"4.2.0\" }"));
 
             var connection = new MockConnection(__serverId);
             connection.EnqueueReplyMessage(legacyHelloReply);
-            connection.EnqueueReplyMessage(buildInfoReply);
 
             var subject = CreateSubject();
             var result = InitializeConnection(subject, connection, async, CancellationToken.None);
 
             var sentMessages = connection.GetSentMessages();
-            sentMessages.Should().HaveCount(2);
+            sentMessages.Should().HaveCount(1);
             result.ConnectionId.ServerValue.Should().Be(1);
         }
 
@@ -164,15 +159,12 @@ namespace MongoDB.Driver.Core.Connections
         {
             var legacyHelloReply = MessageHelper.BuildReply(
                 RawBsonDocumentHelper.FromJson("{ ok : 1, connectionId : 1 }"));
-            var buildInfoReply = MessageHelper.BuildReply(
-                RawBsonDocumentHelper.FromJson("{ ok : 1, version : \"4.2.0\" }"));
             var credentials = new UsernamePasswordCredential(
                 source: "Voyager", username: "Seven of Nine", password: "Omega-Phi-9-3");
             var authenticator = CreateAuthenticator(authenticatorType, credentials);
             var connectionSettings = new ConnectionSettings(new[] { new AuthenticatorFactory(() => authenticator) });
             var connection = new MockConnection(__serverId, connectionSettings, eventSubscriber: null);
             connection.EnqueueReplyMessage(legacyHelloReply);
-            connection.EnqueueReplyMessage(buildInfoReply);
 
             var subject = CreateSubject();
             // We expect authentication to fail since we have not enqueued the expected authentication replies
@@ -200,15 +192,13 @@ namespace MongoDB.Driver.Core.Connections
 
         [Theory]
         [ParameterAttributeData]
-        public void InitializeConnection_with_serverApi_should_send_hello_and_buildInfo([Values(false, true)] bool async)
+        public void InitializeConnection_with_serverApi_should_send_hello([Values(false, true)] bool async)
         {
             var serverApi = new ServerApi(ServerApiVersion.V1, true, true);
 
             var connection = new MockConnection(__serverId);
-            var helloReply = RawBsonDocumentHelper.FromJson("{ ok : 1, connectionId : 1 }");
+            var helloReply = RawBsonDocumentHelper.FromJson("{ ok : 1, connectionId : 1, maxWireVersion : 8 }");
             connection.EnqueueCommandResponseMessage(MessageHelper.BuildCommandResponse(helloReply));
-            var buildInfoReply = RawBsonDocumentHelper.FromJson("{ ok : 1, version : \"4.2.0\" }");
-            connection.EnqueueCommandResponseMessage(MessageHelper.BuildCommandResponse(buildInfoReply));
 
             var subject = new ConnectionInitializer("test", new[] { new CompressorConfiguration(CompressorType.Zlib) }, serverApi);
 
@@ -216,12 +206,10 @@ namespace MongoDB.Driver.Core.Connections
 
             result.ConnectionId.ServerValue.Should().Be(1);
 
-            SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 2, TimeSpan.FromSeconds(5)).Should().BeTrue();
+            SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(5)).Should().BeTrue();
 
             var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
-            sentMessages.Count.Should().Be(2);
-
-            var actualRequestId1 = sentMessages[1]["requestId"].AsInt32;
+            sentMessages.Count.Should().Be(1);
 
             sentMessages[0]["opcode"].AsString.Should().Be("opmsg");
             var helloRequestDocument = sentMessages[0]["sections"][0]["document"];
@@ -229,19 +217,15 @@ namespace MongoDB.Driver.Core.Connections
             helloRequestDocument["apiVersion"].AsString.Should().Be("1");
             helloRequestDocument["apiStrict"].AsBoolean.Should().Be(true);
             helloRequestDocument["apiDeprecationErrors"].AsBoolean.Should().Be(true);
-
-            sentMessages[1].Should().Be($"{{ \"opcode\" : \"opmsg\", \"requestId\" : {actualRequestId1}, \"responseTo\" : 0, \"sections\" : [ {{ \"payloadType\" : 0, \"document\" : {{ \"buildInfo\" : 1, \"$db\" : \"admin\", \"$readPreference\" : {{ \"mode\" : \"primaryPreferred\" }}, \"apiVersion\" : \"1\", \"apiStrict\" : false, \"apiDeprecationErrors\" : true }} }}] }}");
         }
 
         [Theory]
         [ParameterAttributeData]
-        public void InitializeConnection_without_serverApi_should_send_legacy_hello_and_buildInfo([Values(false, true)] bool async)
+        public void InitializeConnection_without_serverApi_should_send_legacy_hello([Values(false, true)] bool async)
         {
             var connection = new MockConnection(__serverId);
-            var helloReply = RawBsonDocumentHelper.FromJson("{ ok : 1, connectionId : 1 }");
+            var helloReply = RawBsonDocumentHelper.FromJson("{ ok : 1, connectionId : 1, maxWireVersion : 8 }");
             connection.EnqueueReplyMessage(MessageHelper.BuildReply(helloReply));
-            var buildInfoReply = RawBsonDocumentHelper.FromJson("{ ok : 1, version : \"4.2.0\" }");
-            connection.EnqueueReplyMessage(MessageHelper.BuildReply(buildInfoReply));
 
             var subject = CreateSubject();
 
@@ -249,19 +233,16 @@ namespace MongoDB.Driver.Core.Connections
 
             result.ConnectionId.ServerValue.Should().Be(1);
 
-            SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 2, TimeSpan.FromSeconds(5)).Should().BeTrue();
+            SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(5)).Should().BeTrue();
 
             var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
-            sentMessages.Count.Should().Be(2);
-
-            var actualRequestId1 = sentMessages[1]["requestId"].AsInt32;
+            sentMessages.Count.Should().Be(1);
 
             sentMessages[0]["opcode"].AsString.Should().Be("query");
             sentMessages[0]["query"][OppressiveLanguageConstants.LegacyHelloCommandName].AsInt32.Should().Be(1);
             sentMessages[0]["query"].AsBsonDocument.TryGetElement("apiVersion", out _).Should().BeFalse();
             sentMessages[0]["query"].AsBsonDocument.TryGetElement("apiStrict", out _).Should().BeFalse();
             sentMessages[0]["query"].AsBsonDocument.TryGetElement("apiDeprecationErrors", out _).Should().BeFalse();
-            sentMessages[1].Should().Be($"{{ opcode : \"query\", requestId : {actualRequestId1}, database : \"admin\", collection : \"$cmd\", batchSize : -1, secondaryOk : true, query : {{ buildInfo : 1 }}}}");
         }
 
         [Theory]
@@ -271,21 +252,18 @@ namespace MongoDB.Driver.Core.Connections
             [Values(false, true)] bool async)
         {
             var legacyHelloReply = MessageHelper.BuildReply<RawBsonDocument>(
-                RawBsonDocumentHelper.FromJson($"{{ ok: 1, compression: ['{compressorType}'] }}"));
-            var buildInfoReply = MessageHelper.BuildReply<RawBsonDocument>(
-                RawBsonDocumentHelper.FromJson("{ ok: 1, version: \"3.6.0\" }"));
+                RawBsonDocumentHelper.FromJson($"{{ ok : 1, compression : ['{compressorType}'], maxWireVersion : 6 }}"));
             var gleReply = MessageHelper.BuildReply<RawBsonDocument>(
                 RawBsonDocumentHelper.FromJson("{ ok: 1, connectionId: 10 }"));
 
             var connection = new MockConnection(__serverId);
             connection.EnqueueReplyMessage(legacyHelloReply);
-            connection.EnqueueReplyMessage(buildInfoReply);
             connection.EnqueueReplyMessage(gleReply);
 
             var subject = CreateSubject();
             var result = InitializeConnection(subject, connection, async, CancellationToken.None);
 
-            result.ServerVersion.Should().Be(new SemanticVersion(3, 6, 0));
+            result.WireVersionRange.Max.Should().Be(6);
             result.ConnectionId.ServerValue.Should().Be(10);
             result.AvailableCompressors.Count.Should().Be(1);
             result.AvailableCompressors.Should().Contain(ToCompressorTypeEnum(compressorType));

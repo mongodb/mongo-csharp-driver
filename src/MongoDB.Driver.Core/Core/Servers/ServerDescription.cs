@@ -438,6 +438,7 @@ namespace MongoDB.Driver.Core.Servers
         /// <value>
         /// The server version.
         /// </value>
+        [Obsolete("This property will be removed in a later release.")]
         public SemanticVersion Version
         {
             get { return _version; }

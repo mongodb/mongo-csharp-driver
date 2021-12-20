@@ -328,7 +328,7 @@ namespace MongoDB.Driver.Core.Operations
                 Hint = hint
             };
             var session = OperationTestHelper.CreateSession();
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion: Feature.HintForFindAndModifyFeature.FirstSupportedVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.HintForFindAndModifyFeature.FirstSupportedMaxWireVersion);
 
             var result = subject.CreateCommand(session, connectionDescription, null);
 

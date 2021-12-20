@@ -39,8 +39,10 @@ namespace MongoDB.Driver.Core.Authentication
         private static readonly ServerId __serverId = new ServerId(__clusterId, new DnsEndPoint("localhost", 27017));
         private static readonly ConnectionDescription __descriptionCommandWireProtocol = new ConnectionDescription(
             new ConnectionId(__serverId),
-            new HelloResult(new BsonDocument("ok", 1).Add(OppressiveLanguageConstants.LegacyHelloResponseIsWritablePrimaryFieldName, 1)),
-            new BuildInfoResult(new BsonDocument("version", "4.7.0")));
+            new HelloResult(
+                new BsonDocument("ok", 1)
+                .Add(OppressiveLanguageConstants.LegacyHelloResponseIsWritablePrimaryFieldName, 1)
+                .Add("maxWireVersion", 10)));
 
         [Fact]
         public void Constructor_should_throw_an_ArgumentNullException_when_credential_is_null()
@@ -206,10 +208,7 @@ namespace MongoDB.Driver.Core.Authentication
                 helloResult.Add("speculativeAuthenticate", ((Type0CommandMessageSection<RawBsonDocument>)saslStartResponse.WrappedMessage.Sections[0]).Document);
             }
 
-            connection.Description = new ConnectionDescription(
-                __descriptionCommandWireProtocol.ConnectionId,
-                new HelloResult(helloResult),
-                __descriptionCommandWireProtocol.BuildInfoResult);
+            connection.Description = new ConnectionDescription(__descriptionCommandWireProtocol.ConnectionId, new HelloResult(helloResult));
 
             BsonDocument helloCommand = null;
             if (useSpeculativeAuthenticate)

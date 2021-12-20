@@ -57,7 +57,9 @@ namespace MongoDB.Driver.Core.Servers
             subject.State.Should().Be(ServerState.Disconnected);
             subject.Tags.Should().BeNull();
             subject.Type.Should().Be(ServerType.Unknown);
+#pragma warning disable CS0618 // Type or member is obsolete
             subject.Version.Should().BeNull();
+#pragma warning restore CS0618 // Type or member is obsolete
             subject.WireVersionRange.Should().BeNull();
         }
 

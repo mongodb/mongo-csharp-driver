@@ -49,7 +49,6 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
             "configureFailPoint",
             "hello",
             OppressiveLanguageConstants.LegacyHelloCommandName,
-            "buildInfo",
             "getLastError",
             "authenticate",
             "saslStart",

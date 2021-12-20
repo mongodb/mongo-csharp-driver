@@ -93,10 +93,9 @@ namespace MongoDB.Driver.Core.Operations
         [Theory]
         [ParameterAttributeData]
         public void CreateCommand_should_create_the_correct_command(
-            [Values("3.0.0", "3.2.0")] string serverVersionString,
+            [Values(4, 5)] int maxWireVersion,
             [Values(null, ReadConcernLevel.Local, ReadConcernLevel.Majority)] ReadConcernLevel? readConcernLevel)
         {
-            var serverVersion = SemanticVersion.Parse(serverVersionString);
             var filter = new BsonDocument("x", 1);
             var limit = 10;
             var maxDistance = 30;
@@ -112,7 +111,7 @@ namespace MongoDB.Driver.Core.Operations
                 ReadConcern = readConcern
             };
 
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(maxWireVersion);
             var session = OperationTestHelper.CreateSession();
 
             var result = subject.CreateCommand(connectionDescription, session);

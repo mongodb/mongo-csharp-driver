@@ -84,7 +84,7 @@ namespace MongoDB.Driver.Core.Authentication
             // hello or legacy hello request and should query the server (provided that the server >= 4.0), merging results into
             // a new ConnectionDescription
             if (!description.HelloResult.HasSaslSupportedMechs
-                && Feature.ScramSha256Authentication.IsSupported(description.ServerVersion))
+                && Feature.ScramSha256Authentication.IsSupported(description.WireVersionRange))
             {
                 var command = CustomizeInitialHelloCommand(HelloHelper.CreateCommand(_serverApi));
                 var helloProtocol = HelloHelper.CreateProtocol(command, _serverApi);
@@ -92,8 +92,7 @@ namespace MongoDB.Driver.Core.Authentication
                 var mergedHelloResult = new HelloResult(description.HelloResult.Wrapped.Merge(helloResult.Wrapped));
                 description = new ConnectionDescription(
                     description.ConnectionId,
-                    mergedHelloResult,
-                    description.BuildInfoResult);
+                    mergedHelloResult);
             }
 
             var authenticator = GetOrCreateAuthenticator(connection, description);
@@ -110,7 +109,7 @@ namespace MongoDB.Driver.Core.Authentication
             // hello or legacy hello request and should query the server (provided that the server >= 4.0), merging results into
             // a new ConnectionDescription
             if (!description.HelloResult.HasSaslSupportedMechs
-                && Feature.ScramSha256Authentication.IsSupported(description.ServerVersion))
+                && Feature.ScramSha256Authentication.IsSupported(description.WireVersionRange))
             {
                 var command = CustomizeInitialHelloCommand(HelloHelper.CreateCommand(_serverApi));
                 var helloProtocol = HelloHelper.CreateProtocol(command, _serverApi);
@@ -118,8 +117,7 @@ namespace MongoDB.Driver.Core.Authentication
                 var mergedHelloResult = new HelloResult(description.HelloResult.Wrapped.Merge(helloResult.Wrapped));
                 description = new ConnectionDescription(
                     description.ConnectionId,
-                    mergedHelloResult,
-                    description.BuildInfoResult);
+                    mergedHelloResult);
             }
 
             var authenticator = GetOrCreateAuthenticator(connection, description);

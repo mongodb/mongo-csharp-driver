@@ -23,7 +23,6 @@ using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations.ElementNameValidators;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
-using MongoDB.Shared;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -184,12 +183,12 @@ namespace MongoDB.Driver.Core.Operations
         // methods
         internal override BsonDocument CreateCommand(ICoreSessionHandle session, ConnectionDescription connectionDescription, long? transactionNumber)
         {
-            var serverVersion = connectionDescription.ServerVersion;
-            if (Feature.HintForFindAndModifyFeature.DriverMustThrowIfNotSupported(serverVersion) || (WriteConcern != null && !WriteConcern.IsAcknowledged))
+            var wireVersionRange = connectionDescription.WireVersionRange;
+            if (Feature.HintForFindAndModifyFeature.DriverMustThrowIfNotSupported(wireVersionRange) || (WriteConcern != null && !WriteConcern.IsAcknowledged))
             {
                 if (_hint != null)
                 {
-                    throw new NotSupportedException($"Server version {serverVersion} does not support hints.");
+                    WireVersion.ThrowNotSupportedException(wireVersionRange, "hint");
                 }
             }
 

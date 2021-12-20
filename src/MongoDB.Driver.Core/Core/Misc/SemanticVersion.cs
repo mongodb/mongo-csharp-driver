@@ -126,6 +126,11 @@ namespace MongoDB.Driver.Core.Misc
             get { return _preRelease; }
         }
 
+        internal int MaxWireVersion
+        {
+            get { return WireVersion.GetWireVersion(this).MaxWireVersion; }
+        }
+
         // methods
         /// <inheritdoc/>
         public int CompareTo(SemanticVersion other)

@@ -256,7 +256,7 @@ namespace MongoDB.Driver.Core.Servers
             }
         }
 
-        protected bool ShouldClearConnectionPoolForChannelException(Exception ex, SemanticVersion serverVersion)
+        protected bool ShouldClearConnectionPoolForChannelException(Exception ex, Range<int> wireVersionRange)
         {
             if (ex is MongoConnectionException mongoCommandException &&
                 mongoCommandException.IsNetworkException &&
@@ -268,7 +268,7 @@ namespace MongoDB.Driver.Core.Servers
             {
                 return
                     IsShutdownException(ex) ||
-                    !Feature.KeepConnectionPoolWhenNotPrimaryConnectionException.IsSupported(serverVersion); // i.e. serverVersion < 4.1.10
+                    !Feature.KeepConnectionPoolWhenNotPrimaryConnectionException.IsSupported(wireVersionRange);
             }
             return false;
         }

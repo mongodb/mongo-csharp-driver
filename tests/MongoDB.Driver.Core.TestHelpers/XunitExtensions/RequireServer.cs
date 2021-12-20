@@ -75,7 +75,9 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
 
         public RequireServer DoesNotSupport(Feature feature)
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             if (!feature.IsSupported(_serverVersion))
+#pragma warning restore CS0618 // Type or member is obsolete
             {
                 return this;
             }
@@ -140,7 +142,9 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
 
         public RequireServer Supports(Feature feature)
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             if (feature.IsSupported(_serverVersion))
+#pragma warning restore CS0618 // Type or member is obsolete
             {
                 return this;
             }

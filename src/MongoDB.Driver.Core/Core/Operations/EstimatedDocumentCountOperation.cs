@@ -94,7 +94,7 @@ namespace MongoDB.Driver.Core.Operations
 
             using (var context = RetryableReadContext.Create(binding, _retryRequested, cancellationToken))
             {
-                if (Feature.EstimatedDocumentCountByCollStats.IsSupported(context.Channel.ConnectionDescription.ServerVersion))
+                if (Feature.EstimatedDocumentCountByCollStats.IsSupported(context.Channel.ConnectionDescription.WireVersionRange))
                 {
                     var operation = CreateAggregationOperation();
                     IAsyncCursor<BsonDocument> cursor;
@@ -127,7 +127,7 @@ namespace MongoDB.Driver.Core.Operations
 
             using (var context = RetryableReadContext.Create(binding, _retryRequested, cancellationToken))
             {
-                if (Feature.EstimatedDocumentCountByCollStats.IsSupported(context.Channel.ConnectionDescription.ServerVersion))
+                if (Feature.EstimatedDocumentCountByCollStats.IsSupported(context.Channel.ConnectionDescription.WireVersionRange))
                 {
                     var operation = CreateAggregationOperation();
                     IAsyncCursor<BsonDocument> cursor;

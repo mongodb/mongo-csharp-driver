@@ -285,13 +285,13 @@ namespace MongoDB.Driver.Core.Bindings
                     var serverId = new ServerId(clusterId, endPoint);
                     var state = MapServerStateCode(scenario[0]);
                     var type = MapServerTypeCode(scenario[1]);
-                    var version = type switch
+                    var maxWireVersion = type switch
                     {
-                        ServerType.ShardRouter => Feature.ShardedTransactions.FirstSupportedVersion,
-                        ServerType.LoadBalanced => Feature.LoadBalancedMode.FirstSupportedVersion,
-                        _ => Feature.Transactions.FirstSupportedVersion,
+                        ServerType.ShardRouter => Feature.ShardedTransactions.FirstSupportedMaxWireVersion,
+                        ServerType.LoadBalanced => Feature.LoadBalancedMode.FirstSupportedMaxWireVersion,
+                        _ => Feature.Transactions.FirstSupportedMaxWireVersion,
                     };
-                    return CreateServerDescription(serverId, endPoint, state, type, version);
+                    return CreateServerDescription(serverId, endPoint, state, type, maxWireVersion);
                 })
                 .ToList();
             var cluster = CreateClusterDescription(clusterId, servers: servers);
@@ -336,12 +336,12 @@ namespace MongoDB.Driver.Core.Bindings
 
         [Theory]
         [InlineData("NT", "Standalone servers do not support transactions.")]
-        [InlineData("PN", "Server version 3.99.99 does not support the Transactions feature.")]
-        [InlineData("PN,ST", "Server version 3.99.99 does not support the Transactions feature.")]
-        [InlineData("PT,SN", "Server version 3.99.99 does not support the Transactions feature.")]
-        [InlineData("RN", "Server version 4.1.5 does not support the ShardedTransactions feature.")]
-        [InlineData("RN,RT", "Server version 4.1.5 does not support the ShardedTransactions feature.")]
-        [InlineData("RT,RN", "Server version 4.1.5 does not support the ShardedTransactions feature.")]
+        [InlineData("PN", "Server with reported max wire version 6 (Supported starting from MongoDB 3.6) does not support the Transactions feature.")]
+        [InlineData("PN,ST", "Server with reported max wire version 6 (Supported starting from MongoDB 3.6) does not support the Transactions feature.")]
+        [InlineData("PT,SN", "Server with reported max wire version 6 (Supported starting from MongoDB 3.6) does not support the Transactions feature.")]
+        [InlineData("RN", "Server with reported max wire version 7 (Supported starting from MongoDB 4.0) does not support the ShardedTransactions feature.")]
+        [InlineData("RN,RT", "Server with reported max wire version 7 (Supported starting from MongoDB 4.0) does not support the ShardedTransactions feature.")]
+        [InlineData("RT,RN", "Server with reported max wire version 7 (Supported starting from MongoDB 4.0) does not support the ShardedTransactions feature.")]
         public void EnsureTransactionsAreSupported_should_throw_when_any_connected_data_bearing_server_does_not_support_transactions(string scenarios, string expectedMesage)
         {
             var clusterId = new ClusterId(1);
@@ -359,8 +359,8 @@ namespace MongoDB.Driver.Core.Bindings
                     {
                         unsupportedFeatureName = feature.Name;
                     }
-                    var version = supportsTransactions ? feature.FirstSupportedVersion : feature.LastNotSupportedVersion;
-                    return CreateServerDescription(serverId, endPoint, ServerState.Connected, type, version);
+                    var maxWireVersion = supportsTransactions ? feature.FirstSupportedMaxWireVersion: feature.LastNotSupportedMaxWireVersion;
+                    return CreateServerDescription(serverId, endPoint, ServerState.Connected, type, maxWireVersion);
                 })
                 .ToList();
             var cluster = CreateClusterDescription(clusterId, servers: servers);
@@ -407,8 +407,8 @@ namespace MongoDB.Driver.Core.Bindings
             var clusterId = new ClusterId(1);
             var endPoint = new DnsEndPoint("localhost", 27017);
             var serverId = new ServerId(clusterId, endPoint);
-            var version = Feature.Transactions.FirstSupportedVersion;
-            var servers = new[] { new ServerDescription(serverId, endPoint, state: ServerState.Connected, type: ServerType.ReplicaSetPrimary, version: version) };
+            var maxWireVersion = Feature.Transactions.FirstSupportedMaxWireVersion;
+            var servers = new[] { new ServerDescription(serverId, endPoint, state: ServerState.Connected, type: ServerType.ReplicaSetPrimary, version: WireVersion.GetWireVersion(maxWireVersion).FirstSupportedVersion, wireVersionRange: new Range<int>(0, maxWireVersion)) };
 #pragma warning disable CS0618 // Type or member is obsolete
             var clusterDescription = new ClusterDescription(clusterId, ClusterConnectionMode.Automatic, ClusterType.ReplicaSet, servers);
 #pragma warning restore CS0618 // Type or member is obsolete
@@ -422,12 +422,14 @@ namespace MongoDB.Driver.Core.Bindings
             EndPoint endPoint = null,
             ServerState state = ServerState.Disconnected,
             ServerType type = ServerType.Unknown,
-            SemanticVersion version = null)
+            int? maxWireVersion = null)
         {
             endPoint = endPoint ?? new DnsEndPoint("localhost", 27017);
             serverId = serverId ?? new ServerId(new ClusterId(1), endPoint);
-            version = version ?? SemanticVersion.Parse("4.0.0");
-            return new ServerDescription(serverId, endPoint, state: state, type: type, version: version);
+
+            maxWireVersion = maxWireVersion ?? 7;
+            var emulatedServerVersion = WireVersion.GetWireVersion(maxWireVersion.Value).FirstSupportedVersion;
+            return new ServerDescription(serverId, endPoint, state: state, type: type, version: emulatedServerVersion, wireVersionRange: new Optional<Range<int>>(new Range<int>(0, maxWireVersion.Value)));
         }
 
         private CoreSession CreateSubject(

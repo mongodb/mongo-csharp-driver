@@ -45,7 +45,6 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
         {
             "hello",
             OppressiveLanguageConstants.LegacyHelloCommandName,
-            "buildInfo",
             "getLastError",
             "authenticate",
             "saslStart",

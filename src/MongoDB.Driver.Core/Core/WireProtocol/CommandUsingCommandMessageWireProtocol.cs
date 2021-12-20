@@ -147,7 +147,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             }
             catch (Exception exception)
             {
-                AddErrorLabelIfRequired(exception, connection.Description?.ServerVersion);
+                AddErrorLabelIfRequired(exception, connection.Description?.WireVersionRange);
 
                 TransactionHelper.UnpinServerIfNeededOnCommandException(_session, exception);
                 throw;
@@ -201,7 +201,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             }
             catch (Exception exception)
             {
-                AddErrorLabelIfRequired(exception, connection.Description?.ServerVersion);
+                AddErrorLabelIfRequired(exception, connection.Description?.WireVersionRange);
 
                 TransactionHelper.UnpinServerIfNeededOnCommandException(_session, exception);
                 throw;
@@ -209,7 +209,7 @@ namespace MongoDB.Driver.Core.WireProtocol
         }
 
         // private methods
-        private void AddErrorLabelIfRequired(Exception exception, SemanticVersion serverVersion)
+        private void AddErrorLabelIfRequired(Exception exception, Range<int> wireVersionRange)
         {
             if (exception is MongoException mongoException)
             {
@@ -220,7 +220,7 @@ namespace MongoDB.Driver.Core.WireProtocol
 
                 if (RetryabilityHelper.IsCommandRetryable(_command))
                 {
-                    RetryabilityHelper.AddRetryableWriteErrorLabelIfRequired(mongoException, serverVersion);
+                    RetryabilityHelper.AddRetryableWriteErrorLabelIfRequired(mongoException, wireVersionRange);
                 }
             }
         }

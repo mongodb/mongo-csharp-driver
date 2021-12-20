@@ -112,8 +112,10 @@ namespace MongoDB.Driver
             get
             {
                 var serverDescription = GetServerDescription();
-                var versionString = serverDescription.Version.ToString();
-                return new MongoServerBuildInfo(versionString);
+#pragma warning disable CS0618 // Type or member is obsolete
+                var serverVersion = serverDescription.Version;
+#pragma warning restore CS0618 // Type or member is obsolete
+                return new MongoServerBuildInfo(new SemanticVersion(serverVersion.Major, serverVersion.Minor, serverVersion.Patch).ToString());
             }
         }
 

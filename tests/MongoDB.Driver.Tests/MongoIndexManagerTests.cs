@@ -41,7 +41,9 @@ namespace MongoDB.Driver.Tests
             var collection = database.GetCollection<BsonDocument>(collectionName);
 
             var subject = collection.Indexes;
+#pragma warning disable CS0618 // Type or member is obsolete
             var isHiddenIndexSupported = Feature.HiddenIndex.IsSupported(CoreTestConfiguration.ServerVersion);
+#pragma warning restore CS0618 // Type or member is obsolete
 
             try
             {

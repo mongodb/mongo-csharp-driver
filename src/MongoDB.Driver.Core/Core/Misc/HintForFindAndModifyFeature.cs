@@ -13,6 +13,8 @@
 * limitations under the License.
 */
 
+using System;
+
 namespace MongoDB.Driver.Core.Misc
 {
     /// <summary>
@@ -20,7 +22,7 @@ namespace MongoDB.Driver.Core.Misc
     /// </summary>
     public class HintForFindAndModifyFeature : Feature
     {
-        private readonly SemanticVersion _firstServerVersionWhereWeRelyOnServerToReturnError = new SemanticVersion(4, 2, 0);
+        private readonly int _firstWireVersionWhereWeRelyOnServerToReturnError = WireVersion.Eight.MaxWireVersion;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="HintForFindAndModifyFeature"/> class.
@@ -37,9 +39,20 @@ namespace MongoDB.Driver.Core.Misc
         /// </summary>
         /// <param name="serverVersion">The server version.</param>
         /// <returns>Whether the driver must throw if feature is not supported.</returns>
+        [Obsolete("This property will be removed in a later release.")]
         public bool DriverMustThrowIfNotSupported(SemanticVersion serverVersion)
         {
-            return serverVersion < _firstServerVersionWhereWeRelyOnServerToReturnError;
+            return serverVersion < WireVersion.GetWireVersion(_firstWireVersionWhereWeRelyOnServerToReturnError).FirstSupportedVersion;
+        }
+
+        /// <summary>
+        /// Determines whether the driver must throw an exception if the feature is not supported by the server.
+        /// </summary>
+        /// <param name="wireVersionRange">The server version.</param>
+        /// <returns>Whether the driver must throw if feature is not supported.</returns>
+        public bool DriverMustThrowIfNotSupported(Range<int> wireVersionRange)
+        {
+            return wireVersionRange.Max < _firstWireVersionWhereWeRelyOnServerToReturnError;
         }
     }
 }

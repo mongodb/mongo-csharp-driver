@@ -34,6 +34,11 @@ namespace MongoDB.Driver.Core.Misc
         {
         }
 
+        internal CommandsThatWriteAcceptWriteConcernFeature(string name, WireVersion firstSupportedWireVersion)
+            : base(name, firstSupportedWireVersion)
+        {
+        }
+
         /// <summary>
         /// Returns true if the write concern value supplied is one that should be sent to the server and the server version supports the commands that write accept write concern feature.
         /// </summary>

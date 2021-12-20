@@ -89,9 +89,9 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // public static methods
-        public static void AddRetryableWriteErrorLabelIfRequired(MongoException exception, SemanticVersion serverVersion)
+        public static void AddRetryableWriteErrorLabelIfRequired(MongoException exception, Range<int> wireVersionRange)
         {
-            if (ShouldRetryableWriteExceptionLabelBeAdded(exception, serverVersion))
+            if (ShouldRetryableWriteExceptionLabelBeAdded(exception, wireVersionRange))
             {
                 exception.AddErrorLabel(RetryableWriteErrorLabel);
             }
@@ -105,7 +105,7 @@ namespace MongoDB.Driver.Core.Operations
                 command.Contains("abortTransaction");
         }
 
-        public static bool IsResumableChangeStreamException(Exception exception, SemanticVersion serverVersion)
+        public static bool IsResumableChangeStreamException(Exception exception, Range<int> wireVersionRange)
         {
             if (IsNetworkException(exception))
             {
@@ -120,7 +120,7 @@ namespace MongoDB.Driver.Core.Operations
                 return true;
             }
 
-            if (Feature.ServerReturnsResumableChangeStreamErrorLabel.IsSupported(serverVersion))
+            if (Feature.ServerReturnsResumableChangeStreamErrorLabel.IsSupported(wireVersionRange))
             {
                 return exception is MongoException mongoException ? mongoException.HasErrorLabel(ResumableChangeStreamErrorLabel) : false;
             }
@@ -171,14 +171,14 @@ namespace MongoDB.Driver.Core.Operations
             return exception is MongoConnectionException mongoConnectionException && mongoConnectionException.IsNetworkException;
         }
 
-        private static bool ShouldRetryableWriteExceptionLabelBeAdded(Exception exception, SemanticVersion serverVersion)
+        private static bool ShouldRetryableWriteExceptionLabelBeAdded(Exception exception, Range<int> wireVersionRange)
         {
             if (IsNetworkException(exception))
             {
                 return true;
             }
 
-            if (Feature.ServerReturnsRetryableWriteErrorLabel.IsSupported(serverVersion))
+            if (Feature.ServerReturnsRetryableWriteErrorLabel.IsSupported(wireVersionRange))
             {
                 return false;
             }

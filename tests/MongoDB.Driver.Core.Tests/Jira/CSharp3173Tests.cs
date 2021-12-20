@@ -282,14 +282,13 @@ namespace MongoDB.Driver.Core.Tests.Jira
             bool streamable)
         {
             var connectionId = new ConnectionId(serverId);
-            var serverVersion = streamable ? "4.4" : "3.6";
+            var maxWireVersion = streamable ? 9 : 6;
             var helloDocument = new BsonDocument
             {
                 { "ok", 1 },
-                { "minWireVersion", 6 },
-                { "maxWireVersion", 7 },
+                { "minWireVersion", 0 },
+                { "maxWireVersion", maxWireVersion },
                 { "msg", "isdbgrid" },
-                { "version", serverVersion },
                 { "topologyVersion", new TopologyVersion(ObjectId.Empty, 1).ToBsonDocument(), streamable }
             };
 
@@ -301,8 +300,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 .Returns(
                     new ConnectionDescription(
                         mockConnection.Object.ConnectionId,
-                        new HelloResult(helloDocument),
-                        new BuildInfoResult(new BsonDocument("version", serverVersion))));
+                        new HelloResult(helloDocument)));
 
             Func<ResponseMessage> commandResponseAction;
             if (streamable)

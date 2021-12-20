@@ -44,7 +44,9 @@ namespace MongoDB.Driver
         private static Lazy<ConnectionString> __connectionStringWithMultipleShardRouters = new Lazy<ConnectionString>(
             GetConnectionStringWithMultipleShardRouters, isThreadSafe: true);
         private static Lazy<DatabaseNamespace> __databaseNamespace = new Lazy<DatabaseNamespace>(GetDatabaseNamespace, isThreadSafe: true);
+#pragma warning disable CS0618 // Type or member is obsolete
         private static Lazy<BuildInfoResult> _buildInfo = new Lazy<BuildInfoResult>(RunBuildInfo, isThreadSafe: true);
+#pragma warning restore CS0618 // Type or member is obsolete
         private static MessageEncoderSettings __messageEncoderSettings = new MessageEncoderSettings();
         private static Lazy<int> __numberOfMongoses = new Lazy<int>(GetNumberOfMongoses, isThreadSafe: true);
         private static Lazy<ServerApi> __serverApi = new Lazy<ServerApi>(GetServerApi, isThreadSafe: true);
@@ -101,14 +103,20 @@ namespace MongoDB.Driver
         {
             get
             {
-                var server = __cluster.Value.SelectServer(WritableServerSelector.Instance, CancellationToken.None);
-                var description = server.Description;
-                var version = description.Version ?? (description.Type == ServerType.LoadBalanced ? _buildInfo.Value.ServerVersion : null);
+                var version = _buildInfo.Value.ServerVersion;
                 if (version == null)
                 {
                     throw new InvalidOperationException("ServerDescription.Version is unexpectedly null.");
                 }
                 return version;
+            }
+        }
+
+        public static int MaxWireVersion
+        {
+            get
+            {
+                return ServerVersion.MaxWireVersion;
             }
         }
 
@@ -330,6 +338,7 @@ namespace MongoDB.Driver
             return new DatabaseNamespace(databaseName);
         }
 
+#pragma warning disable CS0618 // Type or member is obsolete
         private static BuildInfoResult RunBuildInfo()
         {
             using (var session = StartSession())
@@ -341,6 +350,7 @@ namespace MongoDB.Driver
                 return new BuildInfoResult(response);
             }
         }
+#pragma warning restore CS0618 // Type or member is obsolete
 
         public static BsonDocument GetServerParameters()
         {

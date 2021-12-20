@@ -14,13 +14,6 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 
@@ -29,6 +22,7 @@ namespace MongoDB.Driver.Core.Connections
     /// <summary>
     /// Represents the result of a buildInfo command.
     /// </summary>
+    [Obsolete("This class will be removed in a later release.")]
     public sealed class BuildInfoResult : IEquatable<BuildInfoResult>
     {
         // fields

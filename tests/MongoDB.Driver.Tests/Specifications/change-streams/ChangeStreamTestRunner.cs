@@ -187,7 +187,6 @@ namespace MongoDB.Driver.Tests.Specifications.change_streams
             {
                 "hello",
                 OppressiveLanguageConstants.LegacyHelloCommandName,
-                "buildInfo",
                 "getLastError",
                 "authenticate",
                 "saslStart",

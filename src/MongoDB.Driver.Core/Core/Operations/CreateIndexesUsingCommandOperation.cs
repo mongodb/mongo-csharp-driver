@@ -16,7 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -26,7 +25,6 @@ using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
-using MongoDB.Shared;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -157,11 +155,11 @@ namespace MongoDB.Driver.Core.Operations
         // private methods
         internal BsonDocument CreateCommand(ICoreSessionHandle session, ConnectionDescription connectionDescription)
         {
-            var serverVersion = connectionDescription.ServerVersion;
+            var wireVersionRange = connectionDescription.WireVersionRange;
             var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(session, _writeConcern);
             if (_commitQuorum != null)
             {
-                Feature.CreateIndexCommitQuorum.ThrowIfNotSupported(serverVersion);
+                Feature.CreateIndexCommitQuorum.ThrowIfNotSupported(wireVersionRange);
             }
 
             return new BsonDocument

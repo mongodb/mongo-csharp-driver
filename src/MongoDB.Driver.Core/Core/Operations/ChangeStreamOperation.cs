@@ -313,7 +313,7 @@ namespace MongoDB.Driver.Core.Operations
                     _startAfter,
                     _resumeAfter,
                     _startAtOperationTime,
-                    context.Channel.ConnectionDescription.ServerVersion);
+                    context.Channel.ConnectionDescription.WireVersionRange);
             }
         }
 
@@ -348,7 +348,7 @@ namespace MongoDB.Driver.Core.Operations
                     _startAfter,
                     _resumeAfter,
                     _startAtOperationTime,
-                    context.Channel.ConnectionDescription.ServerVersion);
+                    context.Channel.ConnectionDescription.WireVersionRange);
             }
         }
 

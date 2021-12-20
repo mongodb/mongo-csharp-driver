@@ -35,8 +35,10 @@ namespace MongoDB.Driver.Core.Authentication
         private static readonly ServerId __serverId = new ServerId(__clusterId, new DnsEndPoint("localhost", 27017));
         private static readonly ConnectionDescription __descriptionCommandWireProtocol = new ConnectionDescription(
             new ConnectionId(__serverId),
-            new HelloResult(new BsonDocument("ok", 1).Add(OppressiveLanguageConstants.LegacyHelloResponseIsWritablePrimaryFieldName, 1)),
-            new BuildInfoResult(new BsonDocument("version", "4.7.0")));
+            new HelloResult(
+                new BsonDocument("ok", 1)
+                .Add(OppressiveLanguageConstants.LegacyHelloResponseIsWritablePrimaryFieldName, 1)
+                .Add("maxWireVersion", 10)));
 
         [Theory]
         [InlineData("")]
@@ -95,7 +97,7 @@ namespace MongoDB.Driver.Core.Authentication
 
             var response = MessageHelper.BuildCommandResponse(RawBsonDocumentHelper.FromJson("{ }"));
             var connection = new MockConnection(__serverId);
-            connection.Description = CreateConnectionDescription(new SemanticVersion(3, 6, 0));
+            connection.Description = CreateConnectionDescription(maxWireVersion: 6);
             connection.EnqueueCommandResponseMessage(response);
 
             Action act;
@@ -122,7 +124,7 @@ namespace MongoDB.Driver.Core.Authentication
             var response = MessageHelper.BuildCommandResponse(RawBsonDocumentHelper.FromJson("{ok: 1}"));
 
             var connection = new MockConnection(__serverId);
-            connection.Description = CreateConnectionDescription(new SemanticVersion(3, 6, 0));
+            connection.Description = CreateConnectionDescription(maxWireVersion: 6);
             connection.EnqueueCommandResponseMessage(response);
 
             Action act;
@@ -151,7 +153,7 @@ namespace MongoDB.Driver.Core.Authentication
 
             var connection = new MockConnection(__serverId);
             connection.EnqueueCommandResponseMessage(response);
-            var description = CreateConnectionDescription(new SemanticVersion(3, 6, 0));
+            var description = CreateConnectionDescription(maxWireVersion: 6);
             connection.Description = description;
 
             Exception exception;
@@ -168,17 +170,13 @@ namespace MongoDB.Driver.Core.Authentication
         }
 
         // private methods
-        private ConnectionDescription CreateConnectionDescription(SemanticVersion serverVersion)
+        private ConnectionDescription CreateConnectionDescription(int maxWireVersion)
         {
             var clusterId = new ClusterId(1);
             var serverId = new ServerId(clusterId, new DnsEndPoint("localhost", 27017));
             var connectionId = new ConnectionId(serverId, 1);
-            var helloResult = new HelloResult(new BsonDocument());
-            var buildInfoResult = new BuildInfoResult(new BsonDocument
-            {
-                { "version", serverVersion.ToString() }
-            });
-            return new ConnectionDescription(connectionId, helloResult, buildInfoResult);
+            var helloResult = new HelloResult(new BsonDocument("maxWireVersion", maxWireVersion));
+            return new ConnectionDescription(connectionId, helloResult);
         }
     }
 }

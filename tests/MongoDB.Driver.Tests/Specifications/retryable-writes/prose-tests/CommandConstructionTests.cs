@@ -452,7 +452,6 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
             {
                 "hello",
                 OppressiveLanguageConstants.LegacyHelloCommandName,
-                "buildInfo",
                 "getLastError",
                 "authenticate",
                 "saslStart",

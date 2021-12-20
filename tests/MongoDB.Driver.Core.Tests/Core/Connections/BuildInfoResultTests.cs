@@ -16,7 +16,6 @@
 using System;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using Xunit;
 
@@ -24,6 +23,7 @@ namespace MongoDB.Driver.Core.Connections
 {
     public class BuildInfoResultTests
     {
+#pragma warning disable CS0618 // Type or member is obsolete
         [Fact]
         public void Constructor_should_throw_an_ArgumentNullException_when_wrapped_is_null()
         {
@@ -70,5 +70,6 @@ namespace MongoDB.Driver.Core.Connections
 
             subject.Wrapped.Should().BeSameAs(doc);
         }
+#pragma warning restore CS0618 // Type or member is obsolete
     }
 }

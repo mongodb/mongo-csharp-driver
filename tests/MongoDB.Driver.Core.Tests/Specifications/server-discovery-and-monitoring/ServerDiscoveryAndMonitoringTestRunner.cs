@@ -105,12 +105,15 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
 
             var mockConnection = new Mock<IConnectionHandle>();
 
-            var helloResult = new HelloResult(new BsonDocument { { "compressors", new BsonArray() } });
-            var serverVersion = WireVersionHelper.MapWireVersionToServerVersion(maxWireVersion);
-            var buildInfoResult = new BuildInfoResult(new BsonDocument { { "version", serverVersion } });
+            var helloResult = new HelloResult(
+                new BsonDocument
+                {
+                    { "compressors", new BsonArray() },
+                    { "maxWireVersion", maxWireVersion }
+                });
             mockConnection
                 .SetupGet(c => c.Description)
-                .Returns(new ConnectionDescription(connectionId, helloResult, buildInfoResult));
+                .Returns(new ConnectionDescription(connectionId, helloResult));
 
             int generation = 0;
             if (applicationError.TryGetValue("generation", out var generationBsonValue))

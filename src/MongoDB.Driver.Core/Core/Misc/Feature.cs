@@ -24,12 +24,12 @@ namespace MongoDB.Driver.Core.Misc
     {
         #region static
         private static readonly Feature __aggregate = new Feature("Aggregate", new SemanticVersion(2, 2, 0));
-        private static readonly Feature __aggregateAccumulator = new Feature("AggregateAccumulator", new SemanticVersion(4, 3, 4));
+        private static readonly Feature __aggregateAccumulator = new Feature("AggregateAccumulator", new SemanticVersion(4, 4, 0));
         private static readonly Feature __aggregateAddFields = new Feature("AggregateAddFields", new SemanticVersion(3, 4, 0));
         private static readonly Feature __aggregateAllowDiskUse = new Feature("AggregateAllowDiskUse", new SemanticVersion(2, 6, 0));
-        private static readonly Feature __aggregateBucketStage = new Feature("AggregateBucketStage", new SemanticVersion(3, 3, 11));
+        private static readonly Feature __aggregateBucketStage = new Feature("AggregateBucketStage", new SemanticVersion(3, 4, 0));
         private static readonly Feature __aggregateComment = new Feature("AggregateComment", new SemanticVersion(3, 6, 0, "rc0"));
-        private static readonly Feature __aggregateCountStage = new Feature("AggregateCountStage", new SemanticVersion(3, 3, 11));
+        private static readonly Feature __aggregateCountStage = new Feature("AggregateCountStage", new SemanticVersion(3, 4, 0));
         private static readonly Feature __aggregateCursorResult = new Feature("AggregateCursorResult", new SemanticVersion(2, 6, 0));
         private static readonly Feature __aggregateExplain = new Feature("AggregateExplain", new SemanticVersion(2, 6, 0));
         private static readonly Feature __aggregateFacetStage = new Feature("AggregateFacetStage", new SemanticVersion(3, 4, 0, "rc0"));
@@ -40,23 +40,23 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __aggregateLet = new Feature("AggregateLet", new SemanticVersion(3, 6, 0));
         private static readonly Feature __aggregateMerge = new Feature("AggregateMerge", new SemanticVersion(4, 2, 0));
         private static readonly Feature __aggregateOut = new Feature("AggregateOut", new SemanticVersion(2, 6, 0));
-        private static readonly Feature __aggregateOutOnSecondary = new Feature("AggregateOutOnSecondary", new SemanticVersion(5, 0, 0));
-        private static readonly Feature __aggregateOutToDifferentDatabase = new Feature("AggregateOutToDifferentDatabase", new SemanticVersion(4, 3, 0));
+        private static readonly Feature __aggregateOutOnSecondary = new Feature("AggregateOutOnSecondary", WireVersion.Thirteen);
+        private static readonly Feature __aggregateOutToDifferentDatabase = new Feature("AggregateOutToDifferentDatabase", new SemanticVersion(4, 4, 0));
         private static readonly Feature __aggregateToString = new Feature("AggregateToString", new SemanticVersion(4, 0, 0));
-        private static readonly Feature __aggregateUnionWith = new Feature("AggregateUnionWith", new SemanticVersion(4, 3, 4));
+        private static readonly Feature __aggregateUnionWith = new Feature("AggregateUnionWith", new SemanticVersion(4, 4, 0));
 #pragma warning disable CS0618 // Type or member is obsolete
-        private static readonly ArrayFiltersFeature __arrayFilters = new ArrayFiltersFeature("ArrayFilters", new SemanticVersion(3, 5, 11));
+        private static readonly ArrayFiltersFeature __arrayFilters = new ArrayFiltersFeature("ArrayFilters", new SemanticVersion(3, 6, 0));
 #pragma warning restore CS0618 // Type or member is obsolete
         private static readonly Feature __bypassDocumentValidation = new Feature("BypassDocumentValidation", new SemanticVersion(3, 2, 0));
-        private static readonly Feature __changeStreamStage = new Feature("ChangeStreamStage", new SemanticVersion(3, 5, 11));
+        private static readonly Feature __changeStreamStage = new Feature("ChangeStreamStage", new SemanticVersion(3, 6, 0));
         private static readonly Feature __changeStreamPostBatchResumeToken = new Feature("ChangeStreamPostBatchResumeToken", new SemanticVersion(4, 0, 7));
-        private static readonly Feature __clientSideEncryption = new Feature("ClientSideEncryption", new SemanticVersion(4, 1, 9));
+        private static readonly Feature __clientSideEncryption = new Feature("ClientSideEncryption", WireVersion.Eight);
 #pragma warning disable CS0618 // Type or member is obsolete
-        private static readonly CollationFeature __collation = new CollationFeature("Collation", new SemanticVersion(3, 3, 11));
+        private static readonly CollationFeature __collation = new CollationFeature("Collation", new SemanticVersion(3, 4, 0));
 #pragma warning restore CS0618 // Type or member is obsolete
         private static readonly Feature __commandMessage = new Feature("CommandMessage", new SemanticVersion(3, 6, 0));
 #pragma warning disable CS0618 // Type or member is obsolete
-        private static readonly CommandsThatWriteAcceptWriteConcernFeature __commandsThatWriteAcceptWriteConcern = new CommandsThatWriteAcceptWriteConcernFeature("CommandsThatWriteAcceptWriteConcern", new SemanticVersion(3, 3, 11));
+        private static readonly CommandsThatWriteAcceptWriteConcernFeature __commandsThatWriteAcceptWriteConcern = new CommandsThatWriteAcceptWriteConcernFeature("CommandsThatWriteAcceptWriteConcern", WireVersion.Five);
 #pragma warning restore CS0618 // Type or member is obsolete
         private static readonly Feature __createIndexCommitQuorum = new Feature("CreateIndexCommitQuorum", new SemanticVersion(4, 4, 0, ""));
         private static readonly Feature __createIndexesCommand = new Feature("CreateIndexesCommand", new SemanticVersion(2, 6, 0));
@@ -78,7 +78,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __findCommand = new Feature("FindCommand", new SemanticVersion(3, 2, 0));
         private static readonly Feature __geoNearCommand = new Feature("GeoNearCommand", new SemanticVersion(1, 0, 0), new SemanticVersion(4, 1, 0, ""));
         private static readonly Feature __groupCommand = new Feature("GroupCommand", new SemanticVersion(1, 0, 0), new SemanticVersion(4, 1, 1, ""));
-        private static readonly Feature __hedgedReads = new Feature("HedgedReads", new SemanticVersion(4, 3, 1, ""));
+        private static readonly Feature __hedgedReads = new Feature("HedgedReads", new SemanticVersion(4, 4, 0));
         private static readonly Feature __hiddenIndex = new Feature("HiddenIndex", new SemanticVersion(4, 4, 0));
 #pragma warning disable CS0618 // Type or member is obsolete
         private static readonly HintForDeleteOperationsFeature __hintForDeleteOperations = new HintForDeleteOperationsFeature("HintForDeleteOperations", new SemanticVersion(4, 3, 4));
@@ -87,41 +87,41 @@ namespace MongoDB.Driver.Core.Misc
 #pragma warning disable CS0618 // Type or member is obsolete
         private static readonly HintForUpdateAndReplaceOperationsFeature __hintForUpdateAndReplaceOperations = new HintForUpdateAndReplaceOperationsFeature("HintForUpdateAndReplaceOperations", new SemanticVersion(4, 2, 0));
 #pragma warning restore CS0618 // Type or member is obsolete
-        private static readonly Feature __keepConnectionPoolWhenNotPrimaryConnectionException = new Feature("KeepConnectionPoolWhenNotWritablePrimaryConnectionException", new SemanticVersion(4, 1, 10));
-        private static readonly Feature __keepConnectionPoolWhenReplSetStepDown = new Feature("KeepConnectionPoolWhenReplSetStepDown", new SemanticVersion(4, 1, 10));
+        private static readonly Feature __keepConnectionPoolWhenNotPrimaryConnectionException = new Feature("KeepConnectionPoolWhenNotWritablePrimaryConnectionException", new SemanticVersion(4, 2, 0));
+        private static readonly Feature __keepConnectionPoolWhenReplSetStepDown = new Feature("KeepConnectionPoolWhenReplSetStepDown", new SemanticVersion(4, 2, 0));
         private static readonly Feature __killAllSessions = new Feature("KillAllSessions", new SemanticVersion(3, 6, 0));
         private static readonly Feature __killCursorsCommand = new Feature("KillCursorsCommand", new SemanticVersion(3, 2, 0));
-        private static readonly Feature __legacyWireProtocol = new Feature("LegacyWireProtocol", new SemanticVersion(0, 0, 0), new SemanticVersion(5, 1, 0, ""));
+        private static readonly Feature __legacyWireProtocol = new Feature("LegacyWireProtocol", WireVersion.Zero, WireVersion.Fourteen);
         private static readonly Feature __listCollectionsCommand = new Feature("ListCollectionsCommand", new SemanticVersion(3, 0, 0));
         private static readonly Feature __listDatabasesAuthorizedDatabases = new Feature("ListDatabasesAuthorizedDatabases", new SemanticVersion(4, 0, 5));
         private static readonly Feature __listDatabasesFilter = new Feature("ListDatabasesFilter", new SemanticVersion(3, 4, 2));
-        private static readonly Feature __listDatabasesNameOnlyOption = new Feature("ListDatabasesNameOnlyOption", new SemanticVersion(3, 4, 3));
+        private static readonly Feature __listDatabasesNameOnlyOption = new Feature("ListDatabasesNameOnlyOption", new SemanticVersion(3, 6, 0));
         private static readonly Feature __listIndexesCommand = new Feature("ListIndexesCommand", new SemanticVersion(3, 0, 0));
         private static readonly Feature __loadBalancedMode = new Feature("LoadBalancedMode", new SemanticVersion(5, 0, 0));
         private static readonly Feature __indexOptionsDefaults = new Feature("IndexOptionsDefaults", new SemanticVersion(3, 2, 0));
-        private static readonly Feature __maxStaleness = new Feature("MaxStaleness", new SemanticVersion(3, 3, 12));
+        private static readonly Feature __maxStaleness = new Feature("MaxStaleness", new SemanticVersion(3, 4, 0));
         private static readonly Feature __maxTime = new Feature("MaxTime", new SemanticVersion(2, 6, 0));
         private static readonly Feature __mmapV1StorageEngine = new Feature("MmapV1StorageEngine", new SemanticVersion(0, 0, 0), new SemanticVersion(4, 1, 0, ""));
         private static readonly Feature __partialIndexes = new Feature("PartialIndexes", new SemanticVersion(3, 2, 0));
 #pragma warning disable CS0618 // Type or member is obsolete
         private static readonly ReadConcernFeature __readConcern = new ReadConcernFeature("ReadConcern", new SemanticVersion(3, 2, 0));
 #pragma warning restore CS0618 // Type or member is obsolete
-        private static readonly Feature __retryableReads = new Feature("RetryableReads", new SemanticVersion(3, 6, 0));
-        private static readonly Feature __retryableWrites = new Feature("RetryableWrites", new SemanticVersion(3, 6, 0));
+        private static readonly Feature __retryableReads = new Feature("RetryableReads", WireVersion.Six);
+        private static readonly Feature __retryableWrites = new Feature("RetryableWrites", WireVersion.Six);
         private static readonly Feature __scramSha1Authentication = new Feature("ScramSha1Authentication", new SemanticVersion(3, 0, 0));
         private static readonly Feature __scramSha256Authentication = new Feature("ScramSha256Authentication", new SemanticVersion(4, 0, 0, ""));
-        private static readonly Feature __serverExtractsUsernameFromX509Certificate = new Feature("ServerExtractsUsernameFromX509Certificate", new SemanticVersion(3, 3, 12));
-        private static readonly Feature __serverReturnsResumableChangeStreamErrorLabel = new Feature("ServerReturnsResumableChangeStreamErrorLabel", new SemanticVersion(4, 3, 0));
-        private static readonly Feature __serverReturnsRetryableWriteErrorLabel = new Feature("ServerReturnsRetryableWriteErrorLabel", new SemanticVersion(4, 3, 0));
-        private static readonly Feature __shardedTransactions = new Feature("ShardedTransactions", new SemanticVersion(4, 1, 6));
-        private static readonly Feature __snapshotReads = new Feature("SnapshotReads", new SemanticVersion(5, 0, 0, ""), notSupportedMessage: "Snapshot reads require MongoDB 5.0 or later");
+        private static readonly Feature __serverExtractsUsernameFromX509Certificate = new Feature("ServerExtractsUsernameFromX509Certificate", new SemanticVersion(3, 4, 0));
+        private static readonly Feature __serverReturnsResumableChangeStreamErrorLabel = new Feature("ServerReturnsResumableChangeStreamErrorLabel", new SemanticVersion(4, 4, 0));
+        private static readonly Feature __serverReturnsRetryableWriteErrorLabel = new Feature("ServerReturnsRetryableWriteErrorLabel", new SemanticVersion(4, 4, 0));
+        private static readonly Feature __shardedTransactions = new Feature("ShardedTransactions", WireVersion.Eight);
+        private static readonly Feature __snapshotReads = new Feature("SnapshotReads", WireVersion.Thirteen, notSupportedMessage: "Snapshot reads require MongoDB 5.0 or later");
         private static readonly Feature __speculativeAuthentication = new Feature("SpeculativeAuthentication", new SemanticVersion(4, 4, 0, "rc0"));
         private static readonly Feature __streamingHello = new Feature("StreamingHello", new SemanticVersion(4, 4, 0, ""));
         private static readonly Feature __tailableCursor = new Feature("TailableCursor", new SemanticVersion(3, 2, 0));
-        private static readonly Feature __transactions = new Feature("Transactions", new SemanticVersion(4, 0, 0));
+        private static readonly Feature __transactions = new Feature("Transactions", WireVersion.Seven);
         private static readonly Feature __userManagementCommands = new Feature("UserManagementCommands", new SemanticVersion(2, 6, 0));
-        private static readonly Feature __views = new Feature("Views", new SemanticVersion(3, 3, 11));
-        private static readonly Feature __wildcardIndexes = new Feature("WildcardIndexes", new SemanticVersion(4, 1, 6));
+        private static readonly Feature __views = new Feature("Views", new SemanticVersion(3, 4, 0));
+        private static readonly Feature __wildcardIndexes = new Feature("WildcardIndexes", new SemanticVersion(4, 2, 0));
         private static readonly Feature __writeCommands = new Feature("WriteCommands", new SemanticVersion(2, 6, 0));
 
         /// <summary>
@@ -620,7 +620,6 @@ namespace MongoDB.Driver.Core.Misc
         private readonly SemanticVersion _supportRemovedVersion;
         private readonly string _notSupportedMessage;
 
-
         /// <summary>
         /// Initializes a new instance of the <see cref="Feature" /> class.
         /// </summary>
@@ -639,6 +638,19 @@ namespace MongoDB.Driver.Core.Misc
             _notSupportedMessage = notSupportedMessage;
         }
 
+        internal Feature(string name,
+            WireVersion firstSupportedWireVersion,
+            WireVersion supportRemovedWireVersion = null,
+            string notSupportedMessage = null)
+        {
+            _name = name;
+            _firstSupportedVersion = Ensure.IsNotNull(
+                Ensure.IsNotNull(firstSupportedWireVersion, nameof(firstSupportedWireVersion)).FirstSupportedVersion,
+                nameof(firstSupportedWireVersion.FirstSupportedVersion));
+            _supportRemovedVersion = supportRemovedWireVersion?.FirstSupportedVersion;
+            _notSupportedMessage = notSupportedMessage;
+        }
+
         /// <summary>
         /// Gets the name of the feature.
         /// </summary>
@@ -647,12 +659,25 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the first server version that supports the feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public SemanticVersion FirstSupportedVersion => _firstSupportedVersion;
+
+        internal int FirstSupportedMaxWireVersion => _firstSupportedVersion.MaxWireVersion;
 
         /// <summary>
         /// Gets the last server version that does not support the feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public SemanticVersion LastNotSupportedVersion => VersionBefore(_firstSupportedVersion);
+
+        internal int LastNotSupportedMaxWireVersion
+        {
+            get
+            {
+                var maxWireVersion = _firstSupportedVersion.MaxWireVersion;
+                return maxWireVersion > 0 ? maxWireVersion - 1 : throw new ArgumentException("There is no maxWireVersion before 0.");
+            }
+        }
 
         /// <summary>
         /// Gets the error message to be used by the feature support checks.
@@ -664,6 +689,7 @@ namespace MongoDB.Driver.Core.Misc
         /// </summary>
         /// <param name="serverVersion">The server version.</param>
         /// <returns>Whether a feature is supported by a version of the server.</returns>
+        [Obsolete("This method will be removed in later release.")]
         public bool IsSupported(SemanticVersion serverVersion)
         {
             return _supportRemovedVersion != null
@@ -671,11 +697,22 @@ namespace MongoDB.Driver.Core.Misc
                    : serverVersion >= _firstSupportedVersion;
         }
 
+        internal bool IsSupported(Range<int> wireVersionRange)
+        {
+            const int neverExpiredWireVersion = 999;
+            var firstSupportedMaxWireVersion = _firstSupportedVersion.MaxWireVersion;
+            var supportRemovedMaxWireVersion = _supportRemovedVersion != null ? _supportRemovedVersion.MaxWireVersion : (int?)null;
+            return supportRemovedMaxWireVersion.HasValue
+                ? wireVersionRange.Overlaps(new Range<int>(firstSupportedMaxWireVersion, supportRemovedMaxWireVersion.Value))
+                : wireVersionRange.Overlaps(new Range<int>(firstSupportedMaxWireVersion, neverExpiredWireVersion));
+        }
+
         /// <summary>
         /// Returns a version of the server where the feature is or is not supported.
         /// </summary>
         /// <param name="isSupported">Whether the feature is supported or not.</param>
         /// <returns>A version of the server where the feature is or is not supported.</returns>
+        [Obsolete("This method will be removed in a later release.")]
         public SemanticVersion SupportedOrNotSupportedVersion(bool isSupported)
         {
             return isSupported ? _firstSupportedVersion : VersionBefore(_firstSupportedVersion);
@@ -685,12 +722,28 @@ namespace MongoDB.Driver.Core.Misc
         /// Throws if the feature is not supported by a version of the server.
         /// </summary>
         /// <param name="serverVersion">The server version.</param>
+        [Obsolete("This method will be removed in a later release.")]
         public void ThrowIfNotSupported(SemanticVersion serverVersion)
         {
             if (!IsSupported(serverVersion))
             {
                 var errorMessage = _notSupportedMessage ?? $"Server version {serverVersion} does not support the {_name} feature.";
                 throw new NotSupportedException(errorMessage);
+            }
+        }
+
+        internal void ThrowIfNotSupported(Range<int> wireVersionRange)
+        {
+            if (!IsSupported(wireVersionRange))
+            {
+                if (_notSupportedMessage != null)
+                {
+                    throw new NotSupportedException(_notSupportedMessage);
+                }
+                else
+                {
+                    WireVersion.ThrowNotSupportedException(wireVersionRange, _name);
+                }
             }
         }
 

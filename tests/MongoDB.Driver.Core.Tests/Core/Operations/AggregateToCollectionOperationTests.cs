@@ -282,17 +282,16 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Theory]
-        [InlineData("4.99.99", false)]
-        [InlineData("5.0.0", true)]
-        [InlineData("5.0.1", true)]
-        public void CanUseSecondary_should_return_expected_result(string serverVersionString, bool expectedResult)
+        [InlineData(12, false)]
+        [InlineData(13, true)]
+        public void CanUseSecondary_should_return_expected_result(int maxWireVersion, bool expectedResult)
         {
             var subject = new AggregateToCollectionOperation.MayUseSecondary(ReadPreference.Secondary);
             var clusterId = new ClusterId(1);
             var endPoint = new DnsEndPoint("localhost", 27017);
             var serverId = new ServerId(clusterId, endPoint);
-            var serverVersion = SemanticVersion.Parse(serverVersionString);
-            var serverDescription = new ServerDescription(serverId, endPoint, version: serverVersion);
+
+            var serverDescription = new ServerDescription(serverId, endPoint, wireVersionRange: new Range<int>(0, maxWireVersion));
 
             var result = subject.CanUseSecondary(serverDescription);
 

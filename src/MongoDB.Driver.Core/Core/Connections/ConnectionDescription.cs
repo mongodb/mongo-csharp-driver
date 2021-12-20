@@ -28,7 +28,9 @@ namespace MongoDB.Driver.Core.Connections
     public sealed class ConnectionDescription : IEquatable<ConnectionDescription>
     {
         // fields
+#pragma warning disable CS0618 // Type or member is obsolete
         private readonly BuildInfoResult _buildInfoResult;
+#pragma warning restore CS0618 // Type or member is obsolete
         private readonly IReadOnlyList<CompressorType> _compressors;
         private readonly ConnectionId _connectionId;
         private readonly HelloResult _helloResult;
@@ -37,6 +39,7 @@ namespace MongoDB.Driver.Core.Connections
         private readonly int _maxMessageSize;
         private readonly SemanticVersion _serverVersion;
         private readonly ObjectId? _serviceId;
+        private readonly Range<int> _wireVersionRange;
 
         // constructors
         /// <summary>
@@ -45,6 +48,7 @@ namespace MongoDB.Driver.Core.Connections
         /// <param name="connectionId">The connection identifier.</param>
         /// <param name="helloResult">The hello result.</param>
         /// <param name="buildInfoResult">The buildInfo result.</param>
+        [Obsolete("Use ctor without buildInfoResult instead.")]
         public ConnectionDescription(ConnectionId connectionId, HelloResult helloResult, BuildInfoResult buildInfoResult)
         {
             _connectionId = Ensure.IsNotNull(connectionId, nameof(connectionId));
@@ -57,6 +61,27 @@ namespace MongoDB.Driver.Core.Connections
             _maxMessageSize = helloResult.MaxMessageSize;
             _serviceId = helloResult.ServiceId;
             _serverVersion = buildInfoResult.ServerVersion;
+            _wireVersionRange = new Range<int>(helloResult.MinWireVersion, helloResult.MaxWireVersion);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConnectionDescription"/> class.
+        /// </summary>
+        /// <param name="connectionId">The connection identifier.</param>
+        /// <param name="helloResult">The hello result.</param>
+        public ConnectionDescription(ConnectionId connectionId, HelloResult helloResult)
+        {
+            _connectionId = Ensure.IsNotNull(connectionId, nameof(connectionId));
+            _helloResult = Ensure.IsNotNull(helloResult, nameof(helloResult));
+
+            _compressors = Ensure.IsNotNull(_helloResult.Compressions, "compressions");
+            _maxBatchCount = helloResult.MaxBatchCount;
+            _maxDocumentSize = helloResult.MaxDocumentSize;
+            _maxMessageSize = helloResult.MaxMessageSize;
+            _serviceId = helloResult.ServiceId;
+            _wireVersionRange = new Range<int>(helloResult.MinWireVersion, helloResult.MaxWireVersion);
+            _serverVersion = WireVersion.GetWireVersion(_wireVersionRange).FirstSupportedVersion;
+            _buildInfoResult = CreateEmulatedBuildInfoResult(_serverVersion);
         }
 
         // properties
@@ -66,6 +91,7 @@ namespace MongoDB.Driver.Core.Connections
         /// <value>
         /// The buildInfo result.
         /// </value>
+        [Obsolete("This property will be removed in a later release.")]
         public BuildInfoResult BuildInfoResult
         {
             get { return _buildInfoResult; }
@@ -163,6 +189,7 @@ namespace MongoDB.Driver.Core.Connections
         /// <value>
         /// The server version.
         /// </value>
+        [Obsolete("Use WireVersionRange instead.")]
         public SemanticVersion ServerVersion
         {
             get { return _serverVersion; }
@@ -177,6 +204,17 @@ namespace MongoDB.Driver.Core.Connections
         public ObjectId? ServiceId
         {
             get { return _serviceId; }
+        }
+
+        /// <summary>
+        /// Gets the wire version range.
+        /// </summary>
+        /// <value>
+        /// The wire version range.
+        /// </value>
+        public Range<int> WireVersionRange
+        {
+            get { return _wireVersionRange; }
         }
 
         // methods
@@ -217,7 +255,14 @@ namespace MongoDB.Driver.Core.Connections
         /// <returns>A connection description.</returns>
         public ConnectionDescription WithConnectionId(ConnectionId value)
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             return _connectionId.StructurallyEquals(value) ? this : new ConnectionDescription(value, _helloResult, _buildInfoResult);
+#pragma warning restore CS0618 // Type or member is obsolete
         }
+
+        // private methods
+#pragma warning disable CS0618 // Type or member is obsolete
+        private BuildInfoResult CreateEmulatedBuildInfoResult(SemanticVersion serverVersion) => new BuildInfoResult(new BsonDocument("version", serverVersion.ToString()));
+#pragma warning restore CS0618 // Type or member is obsolete
     }
 }
