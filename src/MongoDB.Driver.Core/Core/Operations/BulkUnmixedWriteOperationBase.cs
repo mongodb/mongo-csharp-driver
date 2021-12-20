@@ -173,7 +173,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             foreach (var request in _requests)
             {
-                if (RequestHasHint(request) && !IsHintSupportedForRequestWithHint(request))
+                if (RequestHasHint(request) && !_writeConcern.IsAcknowledged)
                 {
                     throw new NotSupportedException($"Hint is not supported for unacknowledged writes.");
                 }
@@ -234,21 +234,6 @@ namespace MongoDB.Driver.Core.Operations
                 batch.Result = await ExecuteBatchAsync(context, batch, cancellationToken).ConfigureAwait(false);
             }
             return helper.CreateFinalResultOrThrow(context.Channel);
-        }
-
-        private bool IsHintSupportedForRequestWithHint(WriteRequest request)
-        {
-            if (request is DeleteRequest && !_writeConcern.IsAcknowledged)
-            {
-                return false;
-            }
-
-            if (request is UpdateRequest && !_writeConcern.IsAcknowledged)
-            {
-                return false;
-            }
-
-            return true;
         }
 
         // nested types

@@ -299,7 +299,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             foreach (var request in _requests)
             {
-                if (RequestHasHint(request) && !IsHintSupportedForRequestWithHint(request))
+                if (RequestHasHint(request) && !_writeConcern.IsAcknowledged)
                 {
                     throw new NotSupportedException($"Hint is not supported for unacknowledged writes.");
                 }
@@ -340,21 +340,6 @@ namespace MongoDB.Driver.Core.Operations
             }
 
             return BulkWriteBatchResult.Create(result, exception, batch.IndexMap);
-        }
-
-        private bool IsHintSupportedForRequestWithHint(WriteRequest request)
-        {
-            if (request is DeleteRequest && !_writeConcern.IsAcknowledged)
-            {
-                return false;
-            }
-
-            if (request is UpdateRequest && !_writeConcern.IsAcknowledged)
-            {
-                return false;
-            }
-
-            return true;
         }
 
         private bool RequestHasHint(WriteRequest request)
