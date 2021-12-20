@@ -107,7 +107,7 @@ namespace MongoDB.Driver.Core.Operations
 
         // protected methods
         /// <inheritdoc />
-        protected override BsonDocument CreateCommand(ICoreSessionHandle session, ConnectionDescription connectionDescription, int attempt, long? transactionNumber)
+        protected override BsonDocument CreateCommand(ICoreSessionHandle session, int attempt, long? transactionNumber)
         {
             var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(session, WriteConcern);
             return new BsonDocument

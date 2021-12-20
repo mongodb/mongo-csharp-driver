@@ -358,17 +358,15 @@ namespace MongoDB.Driver.Core.Operations
                 { "hint", () => _hint, _hint != null },
                 { "let", () => _let, _let != null },
                 { "comment", () => _comment, _comment != null },
-                { "readConcern", readConcern, readConcern != null }
-            };
-
-            var useCursor = _useCursor.GetValueOrDefault(true) || connectionDescription.ServerVersion >= new SemanticVersion(3, 6, 0);
-            if (useCursor)
-            {
-                command["cursor"] = new BsonDocument
+                { "readConcern", readConcern, readConcern != null },
                 {
-                    { "batchSize", () => _batchSize.Value, _batchSize.HasValue }
-                };
-            }
+                    "cursor",
+                    new BsonDocument
+                    {
+                        { "batchSize", () => _batchSize.Value, _batchSize.HasValue }
+                    }
+                }
+            };
 
             return command;
         }

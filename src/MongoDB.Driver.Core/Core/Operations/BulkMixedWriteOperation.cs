@@ -213,7 +213,7 @@ namespace MongoDB.Driver.Core.Operations
             using (EventContext.BeginOperation())
             using (var context = RetryableWriteContext.Create(binding, _retryRequested, cancellationToken))
             {
-                EnsureHintIsSupportedIfAnyRequestHasHint(context);
+                EnsureHintIsSupportedIfAnyRequestHasHint();
                 context.DisableRetriesIfAnyWriteRequestIsNotRetryable(_requests);
                 var helper = new BatchHelper(_requests, _isOrdered, _writeConcern);
                 foreach (var batch in helper.GetBatches())
@@ -230,7 +230,7 @@ namespace MongoDB.Driver.Core.Operations
             using (EventContext.BeginOperation())
             using (var context = await RetryableWriteContext.CreateAsync(binding, _retryRequested, cancellationToken).ConfigureAwait(false))
             {
-                EnsureHintIsSupportedIfAnyRequestHasHint(context);
+                EnsureHintIsSupportedIfAnyRequestHasHint();
                 context.DisableRetriesIfAnyWriteRequestIsNotRetryable(_requests);
                 var helper = new BatchHelper(_requests, _isOrdered, _writeConcern);
                 foreach (var batch in helper.GetBatches())
@@ -295,14 +295,13 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private void EnsureHintIsSupportedIfAnyRequestHasHint(RetryableWriteContext context)
+        private void EnsureHintIsSupportedIfAnyRequestHasHint()
         {
-            var serverVersion = context.Channel.ConnectionDescription.ServerVersion;
             foreach (var request in _requests)
             {
-                if (RequestHasHint(request) && !IsHintSupportedForRequestWithHint(request, serverVersion))
+                if (RequestHasHint(request) && !IsHintSupportedForRequestWithHint(request))
                 {
-                    throw new NotSupportedException($"Server version {serverVersion} does not support hints.");
+                    throw new NotSupportedException($"Hint is not supported for unacknowledged writes.");
                 }
             }
         }
@@ -343,7 +342,7 @@ namespace MongoDB.Driver.Core.Operations
             return BulkWriteBatchResult.Create(result, exception, batch.IndexMap);
         }
 
-        private bool IsHintSupportedForRequestWithHint(WriteRequest request, SemanticVersion serverVersion)
+        private bool IsHintSupportedForRequestWithHint(WriteRequest request)
         {
             if (request is DeleteRequest && !_writeConcern.IsAcknowledged)
             {

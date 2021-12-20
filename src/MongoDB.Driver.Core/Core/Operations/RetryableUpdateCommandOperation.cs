@@ -91,14 +91,13 @@ namespace MongoDB.Driver.Core.Operations
 
         // protected methods
         /// <inheritdoc />
-        protected override BsonDocument CreateCommand(ICoreSessionHandle session, ConnectionDescription connectionDescription, int attempt, long? transactionNumber)
+        protected override BsonDocument CreateCommand(ICoreSessionHandle session, int attempt, long? transactionNumber)
         {
-            var serverVersion = connectionDescription.ServerVersion;
             if (WriteConcern != null && !WriteConcern.IsAcknowledged)
             {
                 if (_updates.Items.Skip(_updates.Offset).Take(_updates.Count).Any(u => u.Hint != null))
                 {
-                    throw new NotSupportedException($"Server version {serverVersion} does not support hints.");
+                    throw new NotSupportedException($"Hint is not supported for unacknowledged writes.");
                 }
             }
 
