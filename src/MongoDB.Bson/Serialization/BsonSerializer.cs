@@ -387,41 +387,31 @@ namespace MongoDB.Bson.Serialization
                     {
                         // if there is no convention registered for object register the default one
                         convention = new ObjectDiscriminatorConvention("_t");
-                        RegisterDiscriminatorConvention(typeof(object), convention);
                     }
                     else if (typeInfo.IsInterface)
                     {
                         // TODO: should convention for interfaces be inherited from parent interfaces?
                         convention = LookupDiscriminatorConvention(typeof(object));
-                        RegisterDiscriminatorConvention(type, convention);
                     }
-                    else
+                    else // type is not typeof(object), or interface
                     {
-                        // inherit the discriminator convention from the closest parent (that isn't object) that has one
-                        // otherwise default to the standard hierarchical convention
                         Type parentType = typeInfo.BaseType;
-                        while (true)
-                        {
-                            if (parentType == typeof(object))
-                            {
-                                convention = StandardDiscriminatorConvention.Hierarchical;
-                                break;
-                            }
-                            if (__discriminatorConventions.TryGetValue(parentType, out convention))
-                            {
-                                break;
-                            }
-                            parentType = parentType.GetTypeInfo().BaseType;
-                        }
 
-                        // register this convention for all types between this and the parent type where we found the convention
-                        var unregisteredType = type;
-                        while (unregisteredType != parentType)
+                        if (parentType == typeof(object) &&
+                            !__discriminatorConventions.ContainsKey(typeof(object)))
                         {
-                            RegisterDiscriminatorConvention(unregisteredType, convention);
-                            unregisteredType = unregisteredType.GetTypeInfo().BaseType;
+                            // if parent type is object, and object isn't registered, default to standard hierarchical convention
+                            convention = StandardDiscriminatorConvention.Hierarchical;
+                        }
+                        else
+                        {
+                            // inherit the discriminator convention from the closest parent that has one
+                            convention = LookupDiscriminatorConvention(parentType);
                         }
                     }
+
+                    // register the convention for current type
+                    RegisterDiscriminatorConvention(type, convention);
                 }
 
                 return convention;
