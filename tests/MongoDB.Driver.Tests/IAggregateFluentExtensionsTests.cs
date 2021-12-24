@@ -18,11 +18,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Core.Bindings;
-using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -672,23 +668,6 @@ namespace MongoDB.Driver.Tests
                     mockCollection.SetupGet(c => c.CollectionNamespace).Returns(new CollectionNamespace(new DatabaseNamespace("test"), collectionName));
                     return mockCollection.Object;
                 });
-        }
-
-        private IAsyncCursor<Person> CreateCursor(params Person[] persons)
-        {
-            var firstBatch = persons ?? new Person[0];
-
-            return new AsyncCursor<Person>(
-                new Mock<IChannelSource>().Object,
-                new CollectionNamespace(new DatabaseNamespace("foo"), "bar"),
-                new BsonDocument(),
-                firstBatch,
-                0,
-                null,
-                null,
-                BsonSerializer.LookupSerializer<Person>(),
-                new MessageEncoderSettings(),
-                null);
         }
 
         // nested types

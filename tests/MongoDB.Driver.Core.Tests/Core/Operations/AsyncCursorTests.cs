@@ -186,7 +186,6 @@ namespace MongoDB.Driver.Core.Operations
             var channelSource = new Mock<IChannelSource>().Object;
             var databaseNamespace = new DatabaseNamespace("test");
             var collectionNamespace = new CollectionNamespace(databaseNamespace, "test");
-            var query = new BsonDocument("x", 1);
             var firstBatch = new BsonDocument[] { new BsonDocument("y", 2) };
             var cursorId = 1L;
             var batchSize = 2;
@@ -198,7 +197,6 @@ namespace MongoDB.Driver.Core.Operations
             var result = new AsyncCursor<BsonDocument>(
                 channelSource,
                 collectionNamespace,
-                query,
                 firstBatch,
                 cursorId,
                 batchSize,
@@ -218,7 +216,6 @@ namespace MongoDB.Driver.Core.Operations
             result._limit().Should().Be(limit);
             result._maxTime().Should().Be(maxTime);
             result._messageEncoderSettings().Should().BeEquivalentTo(messageEncoderSettings);
-            result._query().Should().Be(query);
             result._serializer().Should().Be(serializer);
         }
 
@@ -258,14 +255,6 @@ namespace MongoDB.Driver.Core.Operations
             Action action = () => CreateSubject(limit: value);
 
             action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("limit");
-        }
-
-        [Fact]
-        public void constructor_should_throw_when_query_is_null()
-        {
-            Action action = () => CreateSubject(query: null);
-
-            action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("query");
         }
 
         [Fact]
@@ -505,7 +494,6 @@ namespace MongoDB.Driver.Core.Operations
             Optional<IChannelSource> channelSource = default(Optional<IChannelSource>),
             Optional<CollectionNamespace> collectionNamespace = default(Optional<CollectionNamespace>),
             Optional<IBsonSerializer<BsonDocument>> serializer = default(Optional<IBsonSerializer<BsonDocument>>),
-            Optional<BsonDocument> query = default(Optional<BsonDocument>),
             Optional<IReadOnlyList<BsonDocument>> firstBatch = default(Optional<IReadOnlyList<BsonDocument>>),
             Optional<long> cursorId = default(Optional<long>),
             Optional<int?> batchSize = default(Optional<int?>),
@@ -515,7 +503,6 @@ namespace MongoDB.Driver.Core.Operations
             return new AsyncCursor<BsonDocument>(
                 channelSource.WithDefault(new Mock<IChannelSource>().Object),
                 collectionNamespace.WithDefault(new CollectionNamespace("test", "test")),
-                query.WithDefault(new BsonDocument()),
                 firstBatch.WithDefault(new List<BsonDocument>()),
                 cursorId.WithDefault(0),
                 batchSize.WithDefault(null),
@@ -681,7 +668,7 @@ namespace MongoDB.Driver.Core.Operations
                 long cursorId;
                 var firstBatch = GetFirstBatch(channel, query, batchSize, cancellationToken, out cursorId);
 
-                using (var cursor = new AsyncCursor<BsonDocument>(channelSource, _collectionNamespace, query, firstBatch, cursorId, batchSize, null, BsonDocumentSerializer.Instance, new MessageEncoderSettings()))
+                using (var cursor = new AsyncCursor<BsonDocument>(channelSource, _collectionNamespace, firstBatch, cursorId, batchSize, null, BsonDocumentSerializer.Instance, new MessageEncoderSettings()))
                 {
                     AssertExpectedSessionReferenceCount(_session, cursor);
                     while (cursor.MoveNext(cancellationToken))
@@ -775,7 +762,6 @@ namespace MongoDB.Driver.Core.Operations
         public static int _limit(this AsyncCursor<BsonDocument> obj) => (int)Reflector.GetFieldValue(obj, nameof(_limit));
         public static TimeSpan? _maxTime(this AsyncCursor<BsonDocument> obj) => (TimeSpan?)Reflector.GetFieldValue(obj, nameof(_maxTime));
         public static MessageEncoderSettings _messageEncoderSettings(this AsyncCursor<BsonDocument> obj) => (MessageEncoderSettings)Reflector.GetFieldValue(obj, nameof(_messageEncoderSettings));
-        public static BsonDocument _query(this AsyncCursor<BsonDocument> obj) => (BsonDocument)Reflector.GetFieldValue(obj, nameof(_query));
         public static IBsonSerializer<BsonDocument> _serializer(this AsyncCursor<BsonDocument> obj) => (IBsonSerializer<BsonDocument>)Reflector.GetFieldValue(obj, nameof(_serializer));
 
         // private methods

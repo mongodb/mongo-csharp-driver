@@ -59,11 +59,46 @@ namespace MongoDB.Driver.Core.Operations
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly long? _operationId;
         private BsonDocument _postBatchResumeToken;
-        private readonly BsonDocument _query;
         private readonly IBsonSerializer<TDocument> _serializer;
         private readonly bool _wasFirstBatchEmpty;
 
         // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AsyncCursor{TDocument}"/> class.
+        /// </summary>
+        /// <param name="channelSource">The channel source.</param>
+        /// <param name="collectionNamespace">The collection namespace.</param>
+        /// <param name="firstBatch">The first batch.</param>
+        /// <param name="cursorId">The cursor identifier.</param>
+        /// <param name="batchSize">The size of a batch.</param>
+        /// <param name="limit">The limit.</param>
+        /// <param name="serializer">The serializer.</param>
+        /// <param name="messageEncoderSettings">The message encoder settings.</param>
+        /// <param name="maxTime">The maxTime for each batch.</param>
+        public AsyncCursor(
+            IChannelSource channelSource,
+            CollectionNamespace collectionNamespace,
+            IReadOnlyList<TDocument> firstBatch,
+            long cursorId,
+            int? batchSize,
+            int? limit,
+            IBsonSerializer<TDocument> serializer,
+            MessageEncoderSettings messageEncoderSettings,
+            TimeSpan? maxTime = null)
+            : this(
+                channelSource,
+                collectionNamespace,
+                firstBatch,
+                cursorId,
+                null, // postBatchResumeToken
+                batchSize,
+                limit,
+                serializer,
+                messageEncoderSettings,
+                maxTime)
+        {
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="AsyncCursor{TDocument}"/> class.
         /// </summary>
@@ -77,6 +112,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <param name="serializer">The serializer.</param>
         /// <param name="messageEncoderSettings">The message encoder settings.</param>
         /// <param name="maxTime">The maxTime for each batch.</param>
+        [Obsolete("Use overload without query.")]
         public AsyncCursor(
             IChannelSource channelSource,
             CollectionNamespace collectionNamespace,
@@ -117,10 +153,49 @@ namespace MongoDB.Driver.Core.Operations
         /// <param name="serializer">The serializer.</param>
         /// <param name="messageEncoderSettings">The message encoder settings.</param>
         /// <param name="maxTime">The maxTime for each batch.</param>
+        [Obsolete("Use overload without query.")]
         public AsyncCursor(
             IChannelSource channelSource,
             CollectionNamespace collectionNamespace,
-            BsonDocument query,
+            BsonDocument query, // no longer used, so ingore it
+            IReadOnlyList<TDocument> firstBatch,
+            long cursorId,
+            BsonDocument postBatchResumeToken,
+            int? batchSize,
+            int? limit,
+            IBsonSerializer<TDocument> serializer,
+            MessageEncoderSettings messageEncoderSettings,
+            TimeSpan? maxTime)
+            : this(
+                  channelSource,
+                  collectionNamespace,
+                  firstBatch,
+                  cursorId,
+                  postBatchResumeToken,
+                  batchSize,
+                  limit,
+                  serializer,
+                  messageEncoderSettings,
+                  maxTime)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AsyncCursor{TDocument}"/> class.
+        /// </summary>
+        /// <param name="channelSource">The channel source.</param>
+        /// <param name="collectionNamespace">The collection namespace.</param>
+        /// <param name="firstBatch">The first batch.</param>
+        /// <param name="cursorId">The cursor identifier.</param>
+        /// <param name="postBatchResumeToken">The post batch resume token.</param>
+        /// <param name="batchSize">The size of a batch.</param>
+        /// <param name="limit">The limit.</param>
+        /// <param name="serializer">The serializer.</param>
+        /// <param name="messageEncoderSettings">The message encoder settings.</param>
+        /// <param name="maxTime">The maxTime for each batch.</param>
+        public AsyncCursor(
+            IChannelSource channelSource,
+            CollectionNamespace collectionNamespace,
             IReadOnlyList<TDocument> firstBatch,
             long cursorId,
             BsonDocument postBatchResumeToken,
@@ -133,7 +208,6 @@ namespace MongoDB.Driver.Core.Operations
             _operationId = EventContext.OperationId;
             _channelSource = channelSource;
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
-            _query = Ensure.IsNotNull(query, nameof(query));
             _firstBatch = Ensure.IsNotNull(firstBatch, nameof(firstBatch));
             _cursorId = cursorId;
             _postBatchResumeToken = postBatchResumeToken;
