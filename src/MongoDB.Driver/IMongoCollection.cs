@@ -1175,6 +1175,13 @@ namespace MongoDB.Driver
             CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
+        /// Returns a filtered collection that appears to contain only documents that pass the provided filter.
+        /// </summary>
+        /// <param name="filter">The filter.</param>
+        /// <returns>A filtered collection.</returns>
+        IFilteredMongoCollection<TDocument> WithFilter(FilterDefinition<TDocument> filter);
+
+        /// <summary>
         /// Returns a new IMongoCollection instance with a different read concern setting.
         /// </summary>
         /// <param name="readConcern">The read concern.</param>

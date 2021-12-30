@@ -646,6 +646,11 @@ namespace MongoDB.Driver
             return await ExecuteReadOperationAsync(session, operation, cancellationToken).ConfigureAwait(false);
         }
 
+        public override IFilteredMongoCollection<TDocument> WithFilter(FilterDefinition<TDocument> filter)
+        {
+            return new FilteredMongoCollection<TDocument>(this, filter);
+        }
+
         public override IMongoCollection<TDocument> WithReadConcern(ReadConcern readConcern)
         {
             var newSettings = _settings.Clone();

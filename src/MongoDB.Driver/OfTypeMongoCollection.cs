@@ -22,36 +22,59 @@ namespace MongoDB.Driver
     {
         // private fields
         private readonly IMongoCollection<TRootDocument> _rootDocumentCollection;
+        private readonly FilterDefinition<TDerivedDocument> _ofTypeFilter;
+        private readonly FilterDefinition<TDerivedDocument> _additionalFilter;
 
         // constructors
         public OfTypeMongoCollection(
             IMongoCollection<TRootDocument> rootDocumentCollection,
             IMongoCollection<TDerivedDocument> derivedDocumentCollection,
-            FilterDefinition<TDerivedDocument> ofTypeFilter)
-            : base(derivedDocumentCollection, ofTypeFilter)
+            FilterDefinition<TDerivedDocument> ofTypeFilter,
+            FilterDefinition<TDerivedDocument> additionalFilter = null)
+            : base(derivedDocumentCollection, additionalFilter == null ? ofTypeFilter : ofTypeFilter & additionalFilter)
         {
             _rootDocumentCollection = rootDocumentCollection;
+            _ofTypeFilter = ofTypeFilter;
+            _additionalFilter = additionalFilter;
         }
 
         // public methods
         public override IFilteredMongoCollection<TMoreDerivedDocument> OfType<TMoreDerivedDocument>()
         {
-            return _rootDocumentCollection.OfType<TMoreDerivedDocument>();
+            var ofTypeCollection = _rootDocumentCollection.OfType<TMoreDerivedDocument>();
+            if (_additionalFilter == null)
+            {
+                return ofTypeCollection;
+            }
+
+            var renderedAdditionalFilter = _additionalFilter.Render(DocumentSerializer, Settings.SerializerRegistry, Database.Client.Settings.LinqProvider);
+            var additionalFilter = new BsonDocumentFilterDefinition<TMoreDerivedDocument>(renderedAdditionalFilter);
+            return ofTypeCollection.WithFilter(additionalFilter);
+        }
+
+        public override IFilteredMongoCollection<TDerivedDocument> WithFilter(FilterDefinition<TDerivedDocument> filter)
+        {
+            if (_additionalFilter != null)
+            {
+                filter = _additionalFilter & filter;
+            }
+
+            return new OfTypeMongoCollection<TRootDocument, TDerivedDocument>(_rootDocumentCollection, WrappedCollection, _ofTypeFilter, filter);
         }
 
         public override IMongoCollection<TDerivedDocument> WithReadConcern(ReadConcern readConcern)
         {
-            return new OfTypeMongoCollection<TRootDocument, TDerivedDocument>(_rootDocumentCollection, WrappedCollection.WithReadConcern(readConcern), Filter);
+            return new OfTypeMongoCollection<TRootDocument, TDerivedDocument>(_rootDocumentCollection, WrappedCollection.WithReadConcern(readConcern), _ofTypeFilter, _additionalFilter);
         }
 
         public override IMongoCollection<TDerivedDocument> WithReadPreference(ReadPreference readPreference)
         {
-            return new OfTypeMongoCollection<TRootDocument, TDerivedDocument>(_rootDocumentCollection, WrappedCollection.WithReadPreference(readPreference), Filter);
+            return new OfTypeMongoCollection<TRootDocument, TDerivedDocument>(_rootDocumentCollection, WrappedCollection.WithReadPreference(readPreference), _ofTypeFilter, _additionalFilter);
         }
 
         public override IMongoCollection<TDerivedDocument> WithWriteConcern(WriteConcern writeConcern)
         {
-            return new OfTypeMongoCollection<TRootDocument, TDerivedDocument>(_rootDocumentCollection, WrappedCollection.WithWriteConcern(writeConcern), Filter);
+            return new OfTypeMongoCollection<TRootDocument, TDerivedDocument>(_rootDocumentCollection, WrappedCollection.WithWriteConcern(writeConcern), _ofTypeFilter, _additionalFilter);
         }
 
         protected override UpdateDefinition<TDerivedDocument> AdjustUpdateDefinition(UpdateDefinition<TDerivedDocument> updateDefinition, bool isUpsert)

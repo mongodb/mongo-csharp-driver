@@ -329,7 +329,7 @@ namespace MongoDB.Driver
         }
 
         // private methods
-        private FilterDefinition<TDocument> CombineFilters(FilterDefinition<TDocument> filter)
+        protected FilterDefinition<TDocument> CombineFilters(FilterDefinition<TDocument> filter)
         {
             if (_filter == null)
             {

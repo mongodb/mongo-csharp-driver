@@ -2322,6 +2322,20 @@ namespace MongoDB.Driver
             return collection.WatchAsync(session, emptyPipeline, options, cancellationToken);
         }
 
+        /// <summary>
+        /// Returns a filtered collection that appears to contain only documents that pass the provided filter.
+        /// </summary>
+        /// <param name="collection">The collection.</param>
+        /// <param name="filter">The filter.</param>
+        /// <returns>A filtered collection.</returns>
+        public static IFilteredMongoCollection<TDocument> WithFilter<TDocument>(this IMongoCollection<TDocument> collection, Expression<Func<TDocument, bool>> filter)
+        {
+            Ensure.IsNotNull(collection, nameof(collection));
+            Ensure.IsNotNull(filter, nameof(filter));
+
+            return collection.WithFilter(new ExpressionFilterDefinition<TDocument>(filter));
+        }
+
         // private static methods
         private static IMongoQueryable<TDocument> AsQueryableHelper<TDocument>(IMongoCollection<TDocument> collection, IClientSessionHandle session, AggregateOptions aggregateOptions)
         {
