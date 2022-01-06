@@ -612,6 +612,7 @@ namespace MongoDB.Driver
                 Let = options.Let,
                 MaxTime = options.MaxTime,
                 ReadConcern = _settings.ReadConcern,
+                ReadPreference = _settings.ReadPreference,
                 WriteConcern = _settings.WriteConcern
             };
         }

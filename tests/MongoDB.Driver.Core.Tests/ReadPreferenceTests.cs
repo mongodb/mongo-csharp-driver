@@ -17,8 +17,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using FluentAssertions;
+using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Tests;
 using Xunit;
@@ -27,6 +29,86 @@ namespace MongoDB.Driver
 {
     public class ReadPreferenceTests
     {
+        [Theory]
+        [InlineData("{ mode : 'primary' }", ReadPreferenceMode.Primary)]
+        [InlineData("{ mode : 'primaryPreferred' }", ReadPreferenceMode.PrimaryPreferred)]
+        [InlineData("{ mode : 'secondary' }", ReadPreferenceMode.Secondary)]
+        [InlineData("{ mode : 'secondaryPreferred' }", ReadPreferenceMode.SecondaryPreferred)]
+        [InlineData("{ mode : 'nearest' }", ReadPreferenceMode.Nearest)]
+        public void FromBsonDocument_should_parse_mode(string document, ReadPreferenceMode expectedMode)
+        {
+            var result = ReadPreference.FromBsonDocument(BsonDocument.Parse(document));
+
+            result.ReadPreferenceMode.Should().Be(expectedMode);
+        }
+
+        [Theory]
+        [InlineData("{ mode : 'secondary' }", "[]")]
+        [InlineData("{ mode : 'secondary', tags : [] }", "[]")]
+        [InlineData("{ mode : 'secondary', tags : [{ }] }", "[{}]")]
+        [InlineData("{ mode : 'secondary', tags : [{ k1 : 'v1' }] }", "[{k1:v1}]")]
+        [InlineData("{ mode : 'secondary', tags : [{ }, { k1 : 'v1' }] }", "[{}|{k1:v1}]")]
+        [InlineData("{ mode : 'secondary', tags : [{ k1 : 'v1' }, { }] }", "[{k1:v1}|{}]")]
+        [InlineData("{ mode : 'secondary', tags : [{ k1 : 'v1', k2 : 'v2' }] }", "[{k1:v1,k2:v2}]")]
+        [InlineData("{ mode : 'secondary', tags : [{ k1 : 'v1' }, { k2 : 'v2' }] }", "[{k1:v1|k2:v2}]")]
+        public void FromBsonDocument_should_parse_tags(string document, string tagSetsData)
+        {
+            var result = ReadPreference.FromBsonDocument(BsonDocument.Parse(document));
+
+            var expectedTagSets = ParseTagSetsData(tagSetsData);
+            result.TagSets.Should().Equal(expectedTagSets);
+
+            static List<TagSet> ParseTagSetsData(string tagSetsData)
+            {
+                var tagSets = new List<TagSet>();
+                if (tagSetsData != "[]")
+                {
+                    foreach (var tagSetData in tagSetsData.Trim('[', ']').Split('|'))
+                    {
+                        var tags = new List<Tag>();
+                        if (tagSetData != "{}")
+                        {
+                            foreach (var tagData in tagSetData.Trim('{', '}').Split(','))
+                            {
+                                var nameValuePair = tagData.Split(':');
+                                var tag = new Tag(name: nameValuePair[0], value: nameValuePair[1]);
+                                tags.Add(tag);
+                            }
+                        }
+                        var tagSet = new TagSet(tags);
+                        tagSets.Add(tagSet);
+                    }
+                }
+
+                return tagSets;
+            }
+        }
+
+        [Theory]
+        [InlineData("{ mode : 'secondary', maxStaleness : '1' }", 1)]
+        [InlineData("{ mode : 'secondary', maxStaleness : '1000ms' }", 1)]
+        [InlineData("{ mode : 'secondary', maxStaleness : '1s' }", 1)]
+        [InlineData("{ mode : 'secondary', maxStaleness : '1m' }", 60)]
+        [InlineData("{ mode : 'secondary', maxStaleness : '1h' }", 3600)]
+        [InlineData("{ mode : 'secondary', maxStaleness : '00:00:01' }", 1)]
+        [InlineData("{ mode : 'secondary', maxStalenessSeconds : '1' }", 1)]
+        public void FromBsonDocument_should_parse_maxStaleness(string document, int expectedSeconds)
+        {
+            var result = ReadPreference.FromBsonDocument(BsonDocument.Parse(document));
+
+            result.MaxStaleness.Value.TotalSeconds.Should().Be(expectedSeconds);
+        }
+
+        [Theory]
+        [InlineData("{ mode : 'secondary', hedge : { enabled : false } }", false)]
+        [InlineData("{ mode : 'secondary', hedge : { enabled : true } }", true)]
+        public void FromBsonDocument_should_parse_hedge(string document, bool expectedIsEnabled)
+        {
+            var result = ReadPreference.FromBsonDocument(BsonDocument.Parse(document));
+
+            result.Hedge.IsEnabled.Should().Be(expectedIsEnabled);
+        }
+
         [Fact]
         public void constructor_should_throw_when_tagSets_is_not_empty_and_mode_is_primary()
         {

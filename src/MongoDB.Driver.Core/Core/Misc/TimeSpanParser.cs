@@ -54,6 +54,16 @@ namespace MongoDB.Driver.Core.Misc
             }
         }
 
+        public static TimeSpan Parse(string value)
+        {
+            if (!TryParse(value, out var result))
+            {
+                throw new FormatException($"Invalid TimeSpan value: \"{value}\".");
+            }
+
+            return result;
+        }
+
         public static bool TryParse(string value, out TimeSpan result)
         {
             if (!string.IsNullOrEmpty(value))

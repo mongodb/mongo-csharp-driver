@@ -16,11 +16,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -252,6 +254,18 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().BeSameAs(value);
         }
 
+        [Fact]
+        public void ReadPreference_get_and_set_should_work()
+        {
+            var subject = new AggregateToCollectionOperation(_collectionNamespace, __pipeline, _messageEncoderSettings);
+            var value = new ReadPreference(ReadPreferenceMode.Primary);
+
+            subject.ReadPreference = value;
+            var result = subject.ReadPreference;
+
+            result.Should().BeSameAs(value);
+        }
+
         [Theory]
         [ParameterAttributeData]
         public void WriteConcern_get_and_set_should_work(
@@ -265,6 +279,24 @@ namespace MongoDB.Driver.Core.Operations
             var result = subject.WriteConcern;
 
             result.Should().BeSameAs(value);
+        }
+
+        [Theory]
+        [InlineData("4.99.99", false)]
+        [InlineData("5.0.0", true)]
+        [InlineData("5.0.1", true)]
+        public void CanUseSecondary_should_return_expected_result(string serverVersionString, bool expectedResult)
+        {
+            var subject = new AggregateToCollectionOperation.MayUseSecondary(ReadPreference.Secondary);
+            var clusterId = new ClusterId(1);
+            var endPoint = new DnsEndPoint("localhost", 27017);
+            var serverId = new ServerId(clusterId, endPoint);
+            var serverVersion = SemanticVersion.Parse(serverVersionString);
+            var serverDescription = new ServerDescription(serverId, endPoint, version: serverVersion);
+
+            var result = subject.CanUseSecondary(serverDescription);
+
+            result.Should().Be(expectedResult);
         }
 
         [Fact]

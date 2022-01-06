@@ -102,6 +102,9 @@ namespace MongoDB.Driver
         public static ReadPreference FromBsonDocument(BsonDocument document)
         {
             ReadPreferenceMode mode = ReadPreferenceMode.Primary;
+            TimeSpan? maxStaleness = null;
+            List<TagSet> tagSets = null;
+            ReadPreferenceHedge hedge = null;
 
             foreach (var element in document)
             {
@@ -111,12 +114,44 @@ namespace MongoDB.Driver
                         mode = (ReadPreferenceMode)Enum.Parse(typeof(ReadPreferenceMode), element.Value.AsString, ignoreCase: true);
                         break;
 
+                    case "tags":
+                        tagSets = new List<TagSet>();
+                        foreach (var tagsDocument in element.Value.AsBsonArray.Cast<BsonDocument>())
+                        {
+                            var tags = new List<Tag>();
+                            foreach (var tagElement in tagsDocument)
+                            {
+                                var tag = new Tag(tagElement.Name, tagElement.Value.AsString);
+                                tags.Add(tag);
+                            }
+                            var tagSet = new TagSet(tags);
+                            tagSets.Add(tagSet);
+                        }
+                        break;
+
+                    case "maxStaleness":
+                        maxStaleness = element.Value.BsonType switch
+                        {
+                            BsonType.String => TimeSpanParser.Parse(element.Value.AsString),
+                            _ => TimeSpan.FromSeconds(element.Value.ToDouble())
+                        };
+                        break;
+
+                    case "maxStalenessSeconds":
+                        maxStaleness = TimeSpan.FromSeconds(element.Value.ToDouble());
+                        break;
+
+                    case "hedge":
+                        var hedgeEnabled = element.Value.AsBsonDocument["enabled"].AsBoolean;
+                        hedge = new ReadPreferenceHedge(hedgeEnabled);
+                        break;
+
                     default:
-                        throw new ArgumentException($"Invalid element in ReadConcern document: {element.Name}.");
+                        throw new ArgumentException($"Invalid element in ReadPreference document: {element.Name}.");
                 }
             }
 
-            return new ReadPreference(mode);
+            return new ReadPreference(mode, tagSets, maxStaleness, hedge);
         }
         #endregion
 

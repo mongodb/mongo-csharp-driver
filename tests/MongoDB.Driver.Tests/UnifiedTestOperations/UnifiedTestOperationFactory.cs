@@ -110,7 +110,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     switch (operationName)
                     {
                         case "aggregate":
-                            return new UnifiedAggregateOnCollectionOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
+                            return new UnifiedAggregateOperationBuilder(_entityMap).BuildCollectionOperation(targetEntityId, operationArguments);
                         case "bulkWrite":
                             return new UnifiedBulkWriteOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
                         case "countDocuments":
@@ -157,7 +157,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     switch (operationName)
                     {
                         case "aggregate":
-                            return new UnifiedAggregateOnDatabaseOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
+                            return new UnifiedAggregateOperationBuilder(_entityMap).BuildDatabaseOperation(targetEntityId, operationArguments);
                         case "createCollection":
                             return new UnifiedCreateCollectionOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
                         case "dropCollection":

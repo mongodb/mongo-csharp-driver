@@ -200,6 +200,50 @@ namespace MongoDB.Driver.Core.Bindings
             }
         }
 
+        [Theory]
+        [ParameterAttributeData]
+        public void GetWriteChannelSource_with_mayUseSecondary_should_pass_mayUseSecondary_to_server_selector(
+             [Values(false, true)]
+            bool async)
+        {
+            var subject = new WritableServerBinding(_mockCluster.Object, NoCoreSession.NewHandle());
+            var selectedServer = new Mock<IServer>().Object;
+
+            var clusterId = new ClusterId();
+            var endPoint = new DnsEndPoint("localhost", 27017);
+#pragma warning disable CS0618 // Type or member is obsolete
+            var initialClusterDescription = new ClusterDescription(
+                clusterId,
+                ClusterConnectionMode.Automatic,
+                ClusterType.Unknown,
+                new[] { new ServerDescription(new ServerId(clusterId, endPoint), endPoint) });
+#pragma warning restore CS0618 // Type or member is obsolete
+            var finalClusterDescription = initialClusterDescription.WithType(ClusterType.Standalone);
+            _mockCluster.SetupSequence(c => c.Description).Returns(initialClusterDescription).Returns(finalClusterDescription);
+
+            var mockMayUseSecondary = new Mock<IMayUseSecondaryCriteria>();
+            mockMayUseSecondary.SetupGet(x => x.ReadPreference).Returns(ReadPreference.SecondaryPreferred);
+            mockMayUseSecondary.Setup(x => x.CanUseSecondary(It.IsAny<ServerDescription>())).Returns(true);
+            var mayUseSecondary = mockMayUseSecondary.Object;
+
+            if (async)
+            {
+                _mockCluster.Setup(c => c.SelectServerAsync(It.IsAny<WritableServerSelector>(), CancellationToken.None)).Returns(Task.FromResult(selectedServer));
+
+                subject.GetWriteChannelSourceAsync(mayUseSecondary, CancellationToken.None).GetAwaiter().GetResult();
+
+                _mockCluster.Verify(c => c.SelectServerAsync(It.Is<WritableServerSelector>(s => s.MayUseSecondary == mayUseSecondary), CancellationToken.None), Times.Once);
+            }
+            else
+            {
+                _mockCluster.Setup(c => c.SelectServer(It.IsAny<WritableServerSelector>(), CancellationToken.None)).Returns(selectedServer);
+
+                subject.GetWriteChannelSource(mayUseSecondary, CancellationToken.None);
+
+                _mockCluster.Verify(c => c.SelectServer(It.Is<WritableServerSelector>(s => s.MayUseSecondary == mayUseSecondary), CancellationToken.None), Times.Once);
+            }
+        }
+
         [Fact]
         public void Dispose_should_call_dispose_on_owned_resources()
         {

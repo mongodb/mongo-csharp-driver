@@ -268,7 +268,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
         public UnifiedEntityMapBuilder(Dictionary<string, IEventFormatter> eventFormatters, ILoggerFactory loggerFactory)
         {
-            _eventFormatters = eventFormatters ?? new ();
+            _eventFormatters = eventFormatters ?? new();
             _loggerFactory = loggerFactory;
         }
 
@@ -643,6 +643,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             IMongoClient client = null;
             string databaseName = null;
+            MongoDatabaseSettings databaseSettings = null;
 
             foreach (var element in entity)
             {
@@ -658,12 +659,26 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     case "databaseName":
                         databaseName = element.Value.AsString;
                         break;
+                    case "databaseOptions":
+                        databaseSettings = new MongoDatabaseSettings();
+                        foreach (var option in element.Value.AsBsonDocument)
+                        {
+                            switch (option.Name)
+                            {
+                                case "readPreference":
+                                    databaseSettings.ReadPreference = ReadPreference.FromBsonDocument(option.Value.AsBsonDocument);
+                                    break;
+                                default:
+                                    throw new FormatException($"Invalid database option argument name: '{option.Name}'.");
+                            }
+                        }
+                        break;
                     default:
                         throw new FormatException($"Invalid database argument name: '{element.Name}'.");
                 }
             }
 
-            return client.GetDatabase(databaseName);
+            return client.GetDatabase(databaseName, databaseSettings);
         }
 
         private EventCapturer CreateEventCapturer(IEnumerable<string> eventTypesToCapture, IEnumerable<string> commandNamesToSkip, IEventFormatter eventFormatter)

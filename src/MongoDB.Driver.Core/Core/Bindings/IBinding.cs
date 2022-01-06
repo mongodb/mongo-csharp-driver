@@ -16,7 +16,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Bindings
 {
@@ -76,11 +76,27 @@ namespace MongoDB.Driver.Core.Bindings
         IChannelSourceHandle GetWriteChannelSource(CancellationToken cancellationToken);
 
         /// <summary>
+        /// Gets a channel source for write operations that may use a secondary.
+        /// </summary>
+        /// <param name="mayUseSecondary">The may use secondary criteria.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A channel source.</returns>
+        IChannelSourceHandle GetWriteChannelSource(IMayUseSecondaryCriteria mayUseSecondary, CancellationToken cancellationToken);
+
+        /// <summary>
         /// Gets a channel source for write operations.
         /// </summary>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A channel source.</returns>
         Task<IChannelSourceHandle> GetWriteChannelSourceAsync(CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Gets a channel source for write operations that may use a secondary.
+        /// </summary>
+        /// <param name="mayUseSecondary">The may use secondary criteria.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A channel source.</returns>
+        Task<IChannelSourceHandle> GetWriteChannelSourceAsync(IMayUseSecondaryCriteria mayUseSecondary, CancellationToken cancellationToken);
     }
 
     /// <summary>
@@ -124,5 +140,28 @@ namespace MongoDB.Driver.Core.Bindings
         /// </summary>
         /// <returns>A read-write binding handle.</returns>
         new IReadWriteBindingHandle Fork();
+    }
+
+    /// <summary>
+    /// Represents the criteria for using a secondary for operations that may use a secondary.
+    /// </summary>
+    public interface IMayUseSecondaryCriteria
+    {
+        /// <summary>
+        /// The effective read preference (initially the same as ReadPreference but possibly altered by the server selector).
+        /// </summary>
+        ReadPreference EffectiveReadPreference { get; set; }
+
+        /// <summary>
+        /// The read preference.
+        /// </summary>
+        ReadPreference ReadPreference { get; }
+
+        /// <summary>
+        /// Whether a particular secondary can be used.
+        /// </summary>
+        /// <param name="server">The server.</param>
+        /// <returns>True if the server can be used.</returns>
+        bool CanUseSecondary(ServerDescription server);
     }
 }

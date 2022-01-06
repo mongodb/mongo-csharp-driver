@@ -16,9 +16,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using FluentAssertions;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.TestHelpers;
@@ -200,6 +203,32 @@ namespace MongoDB.Driver.Tests
             clientSettings.ServerApi = CoreTestConfiguration.ServerApi;
 
             return clientSettings;
+        }
+
+        public static bool IsReplicaSet(IMongoClient client)
+        {
+            var clusterTypeIsKnown = SpinWait.SpinUntil(() => client.Cluster.Description.Type != ClusterType.Unknown, TimeSpan.FromSeconds(10));
+            if (!clusterTypeIsKnown)
+            {
+                throw new InvalidOperationException($"Unable to determine cluster type: {client.Cluster.Description}.");
+            }
+            return client.Cluster.Description.Type == ClusterType.ReplicaSet;
+        }
+
+        public static int GetReplicaSetNumberOfDataBearingMembers(IMongoClient client)
+        {
+            if (!IsReplicaSet(client))
+            {
+                throw new InvalidOperationException($"Cluster is not a replica set: {client.Cluster.Description}.");
+            }
+
+            var allServersAreConnected = SpinWait.SpinUntil(() => client.Cluster.Description.Servers.All(s => s.State == ServerState.Connected), TimeSpan.FromSeconds(10));
+            if (!allServersAreConnected)
+            {
+                throw new InvalidOperationException($"Unable to connect to all members of the replica set: {client.Cluster.Description}.");
+            }
+
+            return client.Cluster.Description.Servers.Count(s => s.IsDataBearing);
         }
 
         private static void EnsureUniqueCluster(MongoClientSettings settings)
