@@ -2392,7 +2392,7 @@
 
 
     <li class="toctree-l1">
-    <a href="http://api.mongodb.org/csharp/2.2">
+    <a href="/mongo-csharp-driver/2.2/apidocs">
         <i class='fa fa-file-text-o'></i>
         API Documentation
     </a>
@@ -2534,9 +2534,9 @@
 
 <h3 id="find-and-findasync-methods">Find and FindAsync methods</h3>
 
-<p>If you don&rsquo;t know the Id, you can use the <a href="http://api.mongodb.org/csharp/2.2/html/M_MongoDB_Driver_GridFS_IGridFSBucket_Find.htm
-"><code>Find</code></a> or <a href="http://api.mongodb.org/csharp/2.2/html/M_MongoDB_Driver_GridFS_IGridFSBucket_FindAsync.htm
-"><code>FindAsync</code></a> method to find matching files using a filter. The filter must be of type <a href="http://api.mongodb.org/csharp/2.2/html/T_MongoDB_Driver_FilterDefinition_1.htm
+<p>If you don&rsquo;t know the Id, you can use the <a href="/mongo-csharp-driver/2.2/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_Find.htm
+"><code>Find</code></a> or <a href="/mongo-csharp-driver/2.2/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_FindAsync.htm
+"><code>FindAsync</code></a> method to find matching files using a filter. The filter must be of type <a href="/mongo-csharp-driver/2.2/apidocs/html/T_MongoDB_Driver_FilterDefinition_1.htm
 "><code>FilterDefinition&lt;GridFSFileInfo&gt;</code></a>.</p>
 
 <p>For example, to find the newest revision of the file named &ldquo;securityvideo&rdquo; uploaded in January 2015:</p>
@@ -2570,14 +2570,14 @@ var options = new GridFSFindOptions
 
 <h3 id="gridfsfileinfo-class">GridFSFileInfo class</h3>
 
-<p>The <a href="http://api.mongodb.org/csharp/2.2/html/T_MongoDB_Driver_GridFS_GridFSFileInfo.htm
+<p>The <a href="/mongo-csharp-driver/2.2/apidocs/html/T_MongoDB_Driver_GridFS_GridFSFileInfo.htm
 "><code>GridFSFileInfo</code></a> is a strongly typed class that represents the information about a GridFS file stored in the &ldquo;fs.files&rdquo; collection.</p>
 
-<p>This class is a strongly typed wrapper around a backing <a href="http://api.mongodb.org/csharp/2.2/html/T_MongoDB_Bson_BsonDocument.htm
+<p>This class is a strongly typed wrapper around a backing <a href="/mongo-csharp-driver/2.2/apidocs/html/T_MongoDB_Bson_BsonDocument.htm
 "><code>BsonDocument</code></a>. It makes it easier to extract the information available in a files collection documents.</p>
 
-<p>In older drivers it was possible to store arbitrary information at the root level of a files collection document. If you need to access that information you can use the <a href="http://api.mongodb.org/csharp/2.2/html/P_MongoDB_Driver_GridFS_GridFSFileInfo_BackingDocument.htm
-"><code>BackingDocument</code></a> property to get access to the complete backing document. When uploading new GridFS files you should store any additional information you want to associate with the uploaded file inside the <a href="http://api.mongodb.org/csharp/2.2/html/P_MongoDB_Driver_GridFS_GridFSFileInfo_Metadata.htm
+<p>In older drivers it was possible to store arbitrary information at the root level of a files collection document. If you need to access that information you can use the <a href="/mongo-csharp-driver/2.2/apidocs/html/P_MongoDB_Driver_GridFS_GridFSFileInfo_BackingDocument.htm
+"><code>BackingDocument</code></a> property to get access to the complete backing document. When uploading new GridFS files you should store any additional information you want to associate with the uploaded file inside the <a href="/mongo-csharp-driver/2.2/apidocs/html/P_MongoDB_Driver_GridFS_GridFSFileInfo_Metadata.htm
 "><code>Metadata</code></a> document.</p>
 
 

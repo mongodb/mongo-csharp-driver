@@ -1450,11 +1450,11 @@
 
 <h2 id="fields:ce6bd7650aa92e884a2bb6da9703168d">Fields</h2>
 
-<p><a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_FieldDefinition_1.htm
-"><code>FieldDefinition&lt;TDocument&gt;</code></a> and <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_FieldDefinition_2.htm
+<p><a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_FieldDefinition_1.htm
+"><code>FieldDefinition&lt;TDocument&gt;</code></a> and <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_FieldDefinition_2.htm
 "><code>FieldDefinition&lt;TDocument, TField&gt;</code></a> define how to get a field name. They are implicitly convertible from a string, so that you can simply pass the field name you&rsquo;d like.</p>
 
-<p>For instance, with a <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm
+<p>For instance, with a <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_BsonDocument.htm
 "><code>BsonDocument</code></a>, the following will be true:</p>
 
 <pre><code class="language-csharp">// method definition
@@ -1468,9 +1468,9 @@ fieldName.Should().Be(&quot;fun&quot;);
 
 <p>However, if you are working with a <a href="/mongo-csharp-driver/2.0/reference/bson/mapping/">mapped class</a>, then 2 further options exist.</p>
 
-<p>First, most locations that accept a <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_FieldDefinition_1.htm
-"><code>FieldDefinition&lt;TDocument&gt;</code></a> or <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_FieldDefinition_2.htm
-"><code>FieldDefinition&lt;TDocument, TField&gt;</code></a> will also have an overload (via extension method) that accepts a lambda expression. Given the following class definition marked with the <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_Attributes_BsonElementAttribute.htm
+<p>First, most locations that accept a <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_FieldDefinition_1.htm
+"><code>FieldDefinition&lt;TDocument&gt;</code></a> or <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_FieldDefinition_2.htm
+"><code>FieldDefinition&lt;TDocument, TField&gt;</code></a> will also have an overload (via extension method) that accepts a lambda expression. Given the following class definition marked with the <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_Attributes_BsonElementAttribute.htm
 "><code>BsonElementAttribute</code></a> instructing the use of a different field name:</p>
 
 <pre><code class="language-csharp">class Person
@@ -1518,8 +1518,8 @@ fieldName.Should().Be(&quot;fn&quot;);
 
 <h2 id="filters:ce6bd7650aa92e884a2bb6da9703168d">Filters</h2>
 
-<p><a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_FilterDefinition_1.htm
-"><code>FilterDefinition&lt;TDocument&gt;</code></a> defines a filter. It is implicity convertible from both a JSON string as well as a <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm
+<p><a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_FilterDefinition_1.htm
+"><code>FilterDefinition&lt;TDocument&gt;</code></a> defines a filter. It is implicity convertible from both a JSON string as well as a <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_BsonDocument.htm
 "><code>BsonDocument</code></a>. Given the following method, all the following are valid:</p>
 
 <pre><code class="language-csharp">// method definition
@@ -1538,7 +1538,7 @@ doc.ToJson().Should().Be(&quot;{ x: 1 }&quot;);
 <p><em>See the <a href="https://github.com/mongodb/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Tests/FilterDefinitionBuilderTests.cs
 ">tests</a> for examples.</em></p>
 
-<p>The <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_FilterDefinitionBuilder_1.htm
+<p>The <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_FilterDefinitionBuilder_1.htm
 "><code>FilterDefinitionBuilder&lt;TDocument&gt;</code></a> provides a nice API for building up both simple and complex <a href="http://docs.mongodb.org/manual/reference/operator/query/
 ">MongoDB queries</a>.</p>
 
@@ -1609,10 +1609,10 @@ var filter = builder.Eq(&quot;x&quot;, 10) &amp; builder.Lt(&quot;y&quot;, 20);
 
 <h2 id="pipelines:ce6bd7650aa92e884a2bb6da9703168d">Pipelines</h2>
 
-<p>A pipeline definition defines an entire aggregation pipeline. It is implicitly convertible from a <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm
-"><code>List&lt;BsonDocument&gt;</code></a>, a <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm
-"><code>BsonDocument[]</code></a>, a <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IPipelineStageDefinition.htm
-"><code>List&lt;IPipelineStageDefinition&gt;</code></a> , and a <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IPipelineStageDefinition.htm
+<p>A pipeline definition defines an entire aggregation pipeline. It is implicitly convertible from a <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_BsonDocument.htm
+"><code>List&lt;BsonDocument&gt;</code></a>, a <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_BsonDocument.htm
+"><code>BsonDocument[]</code></a>, a <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_IPipelineStageDefinition.htm
+"><code>List&lt;IPipelineStageDefinition&gt;</code></a> , and a <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_IPipelineStageDefinition.htm
 "><code>IPipelineStageDefinition[]</code></a>.</p>
 
 <p>For example:</p>
@@ -1626,15 +1626,15 @@ var filter = builder.Eq(&quot;x&quot;, 10) &amp; builder.Lt(&quot;y&quot;, 20);
 
 <p><div class="admonition note">
 <h5 class="admonition-title">Note</h5>
-<p>There is no builder for a PipelineDefinition. In most cases, the <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IAggregateFluent_1.htm"><code>IAggregateFluent&lt;TDocument&gt;</code></a> interface would be used which is returned from the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoCollectionExtensions_Aggregate__1.htm"><code>IMongoCollection&lt;TDocument&gt;.Aggregate</code></a> method.</p>
+<p>There is no builder for a PipelineDefinition. In most cases, the <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_IAggregateFluent_1.htm"><code>IAggregateFluent&lt;TDocument&gt;</code></a> interface would be used which is returned from the <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoCollectionExtensions_Aggregate__1.htm"><code>IMongoCollection&lt;TDocument&gt;.Aggregate</code></a> method.</p>
 
 </div>
 </p>
 
 <h2 id="projections:ce6bd7650aa92e884a2bb6da9703168d">Projections</h2>
 
-<p>There are two forms of a projection definition, one where the type of the projection is known (<a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_ProjectionDefinition_2.htm
-"><code>ProjectionDefinition&lt;TDocument, TProjection&gt;</code></a>) and one where the type of the projection is not yet known (<a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_ProjectionDefinition_1.htm
+<p>There are two forms of a projection definition, one where the type of the projection is known (<a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_ProjectionDefinition_2.htm
+"><code>ProjectionDefinition&lt;TDocument, TProjection&gt;</code></a>) and one where the type of the projection is not yet known (<a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_ProjectionDefinition_1.htm
 "><code>ProjectionDefinition&lt;TDocument&gt;</code></a>). The latter, while implicitly convertible to the first, is merely used as a building block. The <a href="/mongo-csharp-driver/2.0/reference/driver/crud/">high-level APIs</a> that take a projection will always take the former. This is because, when determining how to handle a projection client-side, it is not enough to know what fields and transformations will take place. It also requires that we know how to interpret the projected shape as a .NET type. Since the driver allows you to work with custom classes, it is imperative that any projection also include the &ldquo;interpretation instructions&rdquo; for projecting into a custom class.</p>
 
 <h3 id="projection-definition-builder:ce6bd7650aa92e884a2bb6da9703168d">Projection Definition Builder</h3>
@@ -1642,7 +1642,7 @@ var filter = builder.Eq(&quot;x&quot;, 10) &amp; builder.Lt(&quot;y&quot;, 20);
 <p><em>See the <a href="https://github.com/mongodb/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Tests/ProjectionDefinitionBuilderTests.cs
 ">tests</a> for examples.</em></p>
 
-<p>The <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_ProjectionDefinitionBuilder_1.htm
+<p>The <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_ProjectionDefinitionBuilder_1.htm
 "><code>ProjectionDefinitionBuilder&lt;TDocument&gt;</code></a> exists to make it easier to build up projections in MongoDB&rsquo;s syntax. To render the projection <code>{ x: 1, y: 1, _id: 0 }</code>, the following should be done:</p>
 
 <pre><code class="language-csharp">var projection = Builders&lt;BsonDocument&gt;.Projection.Include(&quot;x&quot;).Include(&quot;y&quot;).Exclude(&quot;_id&quot;);
@@ -1679,9 +1679,9 @@ var projection = Builders&lt;Widget&gt;.Projection.Include(x =&gt; x.X).Include(
 var projection = Builders&lt;Widget&gt;.Projection.Expression(x =&gt; new { X = x.X, Y = x.Y });
 </code></pre>
 
-<p>This last projection where we&rsquo;ve used the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_ProjectionDefinitionBuilder_1_Expression__1.htm
-"><code>Expression</code></a> method is subtly different as is explained below, and its return type is a (<a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_ProjectionDefinition_2.htm
-"><code>ProjectionDefinition&lt;TDocument, TProjection&gt;</code></a>) as opposed to the others which return a (<a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_ProjectionDefinition_1.htm
+<p>This last projection where we&rsquo;ve used the <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_ProjectionDefinitionBuilder_1_Expression__1.htm
+"><code>Expression</code></a> method is subtly different as is explained below, and its return type is a (<a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_ProjectionDefinition_2.htm
+"><code>ProjectionDefinition&lt;TDocument, TProjection&gt;</code></a>) as opposed to the others which return a (<a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_ProjectionDefinition_1.htm
 "><code>ProjectionDefinition&lt;TDocument&gt;</code></a>).</p>
 
 <h4 id="lambda-expressions:ce6bd7650aa92e884a2bb6da9703168d">Lambda Expressions</h4>
@@ -1742,8 +1742,8 @@ var projection = Builders&lt;Widget&gt;.Projection.Expression(x =&gt; (x.X + x.Y
 
 <h2 id="sorts:ce6bd7650aa92e884a2bb6da9703168d">Sorts</h2>
 
-<p><a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_SortDefinition_1.htm
-"><code>SortDefinition&lt;TDocument&gt;</code></a> defines how to render a valid sort document. It is implicity convertible from both a JSON string as well as a <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm
+<p><a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_SortDefinition_1.htm
+"><code>SortDefinition&lt;TDocument&gt;</code></a> defines how to render a valid sort document. It is implicity convertible from both a JSON string as well as a <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_BsonDocument.htm
 "><code>BsonDocument</code></a>. Given the following method, all the following are valid:</p>
 
 <pre><code class="language-csharp">// method definition
@@ -1762,7 +1762,7 @@ doc.ToJson().Should().Be(&quot;{ x: 1 }&quot;);
 <p><em>See the <a href="https://github.com/mongodb/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Tests/SortDefinitionBuilderTests.cs
 ">tests</a> for examples.</em></p>
 
-<p>The <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_SortDefinitionBuilder_1.htm
+<p>The <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_SortDefinitionBuilder_1.htm
 "><code>SortDefinitionBuilder&lt;TDocument&gt;</code></a> provides a nice API for building up <a href="http://docs.mongodb.org/manual/reference/method/cursor.sort/
 ">MongoDB sort syntax</a>.</p>
 
@@ -1800,8 +1800,8 @@ var sort = builder.Ascending(&quot;x&quot;).Descending(&quot;y&quot;);
 
 <h2 id="updates:ce6bd7650aa92e884a2bb6da9703168d">Updates</h2>
 
-<p><a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_UpdateDefinition_1.htm
-"><code>UpdateDefinition&lt;TDocument&gt;</code></a> defines how to render a valid update document. It is implicity convertible from both a JSON string as well as a <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm
+<p><a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_UpdateDefinition_1.htm
+"><code>UpdateDefinition&lt;TDocument&gt;</code></a> defines how to render a valid update document. It is implicity convertible from both a JSON string as well as a <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_BsonDocument.htm
 "><code>BsonDocument</code></a>. Given the following method, all the following are valid:</p>
 
 <pre><code class="language-csharp">// method definition
@@ -1820,7 +1820,7 @@ doc.ToJson().Should().Be(&quot;{ $set: { x: 1 } }&quot;);
 <p><em>See the <a href="https://github.com/mongodb/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Tests/UpdateDefinitionBuilderTests.cs
 ">tests</a> for examples.</em></p>
 
-<p>The <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_UpdateDefinitionBuilder_1.htm
+<p>The <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_UpdateDefinitionBuilder_1.htm
 "><code>UpdateDefinitionBuilder&lt;TDocument&gt;</code></a> provides a nice API for building the <a href="http://docs.mongodb.org/manual/reference/operator/update/
 ">MongoDB update specification</a>.</p>
 

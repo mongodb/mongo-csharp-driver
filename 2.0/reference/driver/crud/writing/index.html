@@ -1903,7 +1903,7 @@
 
 
     <li class="toctree-l1">
-    <a href="http://api.mongodb.org/csharp/2.0">
+    <a href="/mongo-csharp-driver/2.0/apidocs">
         <i class='fa fa-file-text-o'></i>
         API Documentation
     </a>
@@ -2041,9 +2041,9 @@
 
 <h2 id="insert">Insert</h2>
 
-<p>Use the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoCollection_1_InsertOneAsync.htm
-"><code>InsertOneAsync</code></a> method to insert a document. For example, when working with an <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IMongoCollection_1.htm
-"><code>IMongoCollection&lt;BsonDocument&gt;</code></a>., a <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm
+<p>Use the <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_InsertOneAsync.htm
+"><code>InsertOneAsync</code></a> method to insert a document. For example, when working with an <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_IMongoCollection_1.htm
+"><code>IMongoCollection&lt;BsonDocument&gt;</code></a>., a <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_BsonDocument.htm
 "><code>BsonDocument</code></a> would be used.</p>
 
 <pre><code class="language-csharp">var doc = new BsonDocument(&quot;x&quot;, 1);
@@ -2058,7 +2058,7 @@ For classes, it is possible to customize the Id generation process. See the refe
 </div>
 </p>
 
-<p>To insert multiple documents at the same time, the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoCollection_1_InsertManyAsync.htm
+<p>To insert multiple documents at the same time, the <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_InsertManyAsync.htm
 "><code>InsertManyAsync</code></a> method exists.</p>
 
 <pre><code class="language-csharp">var docs = Enumerable.Range(0, 10).Select(i =&gt; new BsonDocument(&quot;x&quot;, i));
@@ -2075,7 +2075,7 @@ MongoDB reserves fields that start with <code>_</code> and <code>$</code> for in
 
 <h2 id="update-and-replace">Update and Replace</h2>
 
-<p>There are 3 methods for updating documents. When intending to update an entire document, the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoCollection_1_ReplaceOneAsync.htm
+<p>There are 3 methods for updating documents. When intending to update an entire document, the <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_ReplaceOneAsync.htm
 "><code>ReplaceOneAsync</code></a> method should be used.</p>
 
 <pre><code class="language-csharp">var newDoc = new BsonDocument { { &quot;_id&quot;, 10 }, { &quot;x&quot;, 2 } };
@@ -2091,8 +2091,8 @@ var result = await collection.ReplaceOneAsync(
 </p>
 
 <p>When using a <a href="http://docs.mongodb.org/manual/reference/operator/update/
-">MongoDB update specification</a>, the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoCollection_1_UpdateOneAsync.htm
-"><code>UpdateOneAsync</code></a> and <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoCollection_1_UpdateManyAsync.htm
+">MongoDB update specification</a>, the <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_UpdateOneAsync.htm
+"><code>UpdateOneAsync</code></a> and <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_UpdateManyAsync.htm
 "><code>UpdateManyAsync</code></a> methods are available.</p>
 
 <pre><code class="language-csharp">var filter = new BsonDocument();
@@ -2113,7 +2113,7 @@ Even if multiple documents match the filter (as would be true in the above examp
 
 <h3 id="upserts">Upserts</h3>
 
-<p>To specify that you&rsquo;d like to upsert a document, each method provides an optional <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_UpdateOptions.htm
+<p>To specify that you&rsquo;d like to upsert a document, each method provides an optional <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_UpdateOptions.htm
 "><code>UpdateOptions</code></a> parameter.</p>
 
 <pre><code class="language-csharp">var filter = new BsonDocument();
@@ -2130,8 +2130,8 @@ If an identifier is not specified in the filter, replacement, or update, the ser
 
 <h2 id="delete">Delete</h2>
 
-<p>Deleting documents takes 2 forms, <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoCollection_1_DeleteOneAsync.htm
-"><code>DeleteOneAsync</code></a> and <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoCollection_1_DeleteManyAsync.htm
+<p>Deleting documents takes 2 forms, <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_DeleteOneAsync.htm
+"><code>DeleteOneAsync</code></a> and <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_DeleteManyAsync.htm
 "><code>DeleteManyAsync</code></a> which, respectively, delete one or many documents matching the provided <code>filter</code>.</p>
 
 <pre><code class="language-csharp">var filter = new BsonDocument();
@@ -2149,7 +2149,7 @@ var result = await collection.DeleteManyAsync(filter);
 
 <h3 id="findoneanddelete">FindOneAndDelete</h3>
 
-<p>A single document can be deleted atomically using <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoCollection_1_FindOneAndDeleteAsync__1.htm
+<p>A single document can be deleted atomically using <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_FindOneAndDeleteAsync__1.htm
 "><code>FindOneAndDeleteAsync</code></a>.</p>
 
 <pre><code class="language-csharp">var filter = new BsonDocument(&quot;FirstName&quot;, &quot;Jack&quot;);
@@ -2165,7 +2165,7 @@ if (result != null)
 
 <h3 id="findoneandreplace">FindOneAndReplace</h3>
 
-<p>A single document can be replaced atomically using <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoCollection_1_FindOneAndReplaceAsync__1.htm
+<p>A single document can be replaced atomically using <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_FindOneAndReplaceAsync__1.htm
 "><code>FindOneAndReplaceAsync</code></a>.</p>
 
 <pre><code class="language-csharp">var filter = new BsonDocument(&quot;FirstName&quot;, &quot;Jack&quot;);
@@ -2183,7 +2183,7 @@ if (result != null)
 
 <h3 id="findoneandupdate">FindOneAndUpdate</h3>
 
-<p>A single document can be updated atomically using <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoCollection_1_FindOneAndUpdateAsync__1.htm
+<p>A single document can be updated atomically using <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_FindOneAndUpdateAsync__1.htm
 "><code>FindOneAndUpdateAsync</code></a>.</p>
 
 <pre><code class="language-csharp">var filter = new BsonDocument(&quot;FirstName&quot;, &quot;Jack&quot;);
@@ -2205,7 +2205,7 @@ if (result != null)
 
 <h4 id="returndocument">ReturnDocument</h4>
 
-<p>For Replacing and Updating, the <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_ReturnDocument.htm
+<p>For Replacing and Updating, the <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_ReturnDocument.htm
 "><code>ReturnDocument</code></a> enum can be provided. It allows you to choose which version of the document to return, either the original version as it was before the operation, or the modified version as it became after the operation.</p>
 
 <p>For example:</p>

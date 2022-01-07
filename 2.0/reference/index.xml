@@ -19,18 +19,18 @@
 
 &lt;h2 id=&#34;adminstration&#34;&gt;Adminstration&lt;/h2&gt;
 
-&lt;p&gt;The administration operations exist in multiple places in the driver&amp;rsquo;s API. Database-related operations exist on the database object and collection-related operations exist on the collection object. If there isn&amp;rsquo;t a method for the admin operation you want to use, the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoDatabase_RunCommandAsync__1.htm
-&#34;&gt;&lt;code&gt;RunCommandAsync&lt;/code&gt;&lt;/a&gt; method on &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IMongoDatabase.htm
+&lt;p&gt;The administration operations exist in multiple places in the driver&amp;rsquo;s API. Database-related operations exist on the database object and collection-related operations exist on the collection object. If there isn&amp;rsquo;t a method for the admin operation you want to use, the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoDatabase_RunCommandAsync__1.htm
+&#34;&gt;&lt;code&gt;RunCommandAsync&lt;/code&gt;&lt;/a&gt; method on &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_IMongoDatabase.htm
 &#34;&gt;&lt;code&gt;IMongoDatabase&lt;/code&gt;&lt;/a&gt; is available.&lt;/p&gt;
 
 &lt;h2 id=&#34;databases&#34;&gt;Databases&lt;/h2&gt;
 
-&lt;p&gt;These operations exist on the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IMongoClient.htm
+&lt;p&gt;These operations exist on the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_IMongoClient.htm
 &#34;&gt;&lt;code&gt;IMongoClient&lt;/code&gt;&lt;/a&gt; interface.&lt;/p&gt;
 
 &lt;h3 id=&#34;getting-a-database&#34;&gt;Getting a database&lt;/h3&gt;
 
-&lt;p&gt;To get a database, use the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoClient_GetDatabase.htm
+&lt;p&gt;To get a database, use the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoClient_GetDatabase.htm
 &#34;&gt;&lt;code&gt;GetDatabase&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
@@ -46,7 +46,7 @@ var db = client.GetDatabase(&amp;quot;test&amp;quot;);
 
 &lt;h3 id=&#34;dropping-a-database&#34;&gt;Dropping a database&lt;/h3&gt;
 
-&lt;p&gt;Use the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoClient_DropDatabaseAsync.htm
+&lt;p&gt;Use the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoClient_DropDatabaseAsync.htm
 &#34;&gt;&lt;code&gt;DropDatabaseAsync&lt;/code&gt;&lt;/a&gt; method.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;// drops the test database
@@ -55,7 +55,7 @@ await client.DropDatabaseAsync(&amp;quot;test&amp;quot;);
 
 &lt;h3 id=&#34;listing-the-databases&#34;&gt;Listing the databases&lt;/h3&gt;
 
-&lt;p&gt;Use the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoClient_ListDatabasesAsync.htm
+&lt;p&gt;Use the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoClient_ListDatabasesAsync.htm
 &#34;&gt;&lt;code&gt;ListDatabasesAsync&lt;/code&gt;&lt;/a&gt; method.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var cursor = await client.ListDatabaseAsync())
@@ -67,13 +67,13 @@ await client.DropDatabaseAsync(&amp;quot;test&amp;quot;);
 
 &lt;h2 id=&#34;collections&#34;&gt;Collections&lt;/h2&gt;
 
-&lt;p&gt;These operations exists on the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IMongoDatabase.htm
+&lt;p&gt;These operations exists on the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_IMongoDatabase.htm
 &#34;&gt;&lt;code&gt;IMongoDatabase&lt;/code&gt;&lt;/a&gt; interface.&lt;/p&gt;
 
 &lt;h3 id=&#34;getting-a-collection&#34;&gt;Getting a collection&lt;/h3&gt;
 
-&lt;p&gt;The &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoDatabase_GetCollection__1.htm
-&#34;&gt;&lt;code&gt;GetCollection&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; method returns an &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IMongoCollection_1.htm
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoDatabase_GetCollection__1.htm
+&#34;&gt;&lt;code&gt;GetCollection&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; method returns an &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_IMongoCollection_1.htm
 &#34;&gt;&lt;code&gt;IMongoCollection&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;The generic parameter on the method defines the schema your application will use when working with the collection. Generally, this type will either be a &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/bson/bson_document/&#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt; which provides no schema enforcement or a &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/bson/mapping/&#34;&gt;mapped class (POCO)&lt;/a&gt;.&lt;/p&gt;
@@ -86,8 +86,8 @@ var collection = db.GetCollection&amp;lt;BsonDocument&amp;gt;(&amp;quot;foo&amp;
 
 &lt;h3 id=&#34;creating-a-collection&#34;&gt;Creating a collection&lt;/h3&gt;
 
-&lt;p&gt;Just like databases, there is no need to create a collection before working with it. It will be created upon first use. However, certain features of collections require explicit creation. The &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoDatabase_CreateCollectionAsync.htm
-&#34;&gt;&lt;code&gt;CreateCollectionAsync&lt;/code&gt;&lt;/a&gt; method allows you to specify not only a name, but also &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_CreateCollectionOptions.htm
+&lt;p&gt;Just like databases, there is no need to create a collection before working with it. It will be created upon first use. However, certain features of collections require explicit creation. The &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoDatabase_CreateCollectionAsync.htm
+&#34;&gt;&lt;code&gt;CreateCollectionAsync&lt;/code&gt;&lt;/a&gt; method allows you to specify not only a name, but also &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_CreateCollectionOptions.htm
 &#34;&gt;&lt;code&gt;CreateCollectionOptions&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;// creates a capped collection named &amp;quot;foo&amp;quot; with a maximum size of 10,000 bytes
@@ -102,7 +102,7 @@ await db.CreateCollectionAsync(
 
 &lt;h3 id=&#34;dropping-a-collection&#34;&gt;Dropping a collection&lt;/h3&gt;
 
-&lt;p&gt;Use the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoDatabase_DropCollectionAsync.htm
+&lt;p&gt;Use the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoDatabase_DropCollectionAsync.htm
 &#34;&gt;&lt;code&gt;DropCollectionAsync&lt;/code&gt;&lt;/a&gt; method.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;// drops the &amp;quot;foo&amp;quot; collection
@@ -111,7 +111,7 @@ await db.DropCollectionAsync(&amp;quot;test&amp;quot;);
 
 &lt;h3 id=&#34;listing-the-collections&#34;&gt;Listing the collections&lt;/h3&gt;
 
-&lt;p&gt;Use the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoDatabase_ListCollectionsAsync.htm
+&lt;p&gt;Use the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoDatabase_ListCollectionsAsync.htm
 &#34;&gt;&lt;code&gt;ListCollectionsAsync&lt;/code&gt;&lt;/a&gt; method.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var cursor = await db.ListCollectionsAsync())
@@ -123,7 +123,7 @@ await db.DropCollectionAsync(&amp;quot;test&amp;quot;);
 
 &lt;h3 id=&#34;renaming-a-collection&#34;&gt;Renaming a collection&lt;/h3&gt;
 
-&lt;p&gt;Use the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoDatabase_RenameCollectionAsync.htm
+&lt;p&gt;Use the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoDatabase_RenameCollectionAsync.htm
 &#34;&gt;&lt;code&gt;RenameCollectionAsync&lt;/code&gt;&lt;/a&gt; method.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;// rename the &amp;quot;foo&amp;quot; collection to &amp;quot;bar&amp;quot;
@@ -132,16 +132,16 @@ await db.RenameCollectionAsync(&amp;quot;foo&amp;quot;, &amp;quot;bar&amp;quot;)
 
 &lt;h2 id=&#34;indexes&#34;&gt;Indexes&lt;/h2&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IMongoCollection_1.htm
-&#34;&gt;&lt;code&gt;IMongoCollection&amp;lt;T&amp;gt;&lt;/code&gt;&lt;/a&gt; contains an &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/P_MongoDB_Driver_IMongoCollection_1_Indexes.htm
+&lt;p&gt;&lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_IMongoCollection_1.htm
+&#34;&gt;&lt;code&gt;IMongoCollection&amp;lt;T&amp;gt;&lt;/code&gt;&lt;/a&gt; contains an &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/P_MongoDB_Driver_IMongoCollection_1_Indexes.htm
 &#34;&gt;&lt;code&gt;Indexes&lt;/code&gt;&lt;/a&gt; property which gives access to all the index-related operations for a collection.&lt;/p&gt;
 
-&lt;p&gt;A number of the methods take an &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IndexKeysDefinition_1.htm
+&lt;p&gt;A number of the methods take an &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_IndexKeysDefinition_1.htm
 &#34;&gt;&lt;code&gt;IndexKeysDefinition&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt;. See the documentation on the &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/driver/definitions/#index-keys &#34;&gt;index keys builder&lt;/a&gt; for more information.&lt;/p&gt;
 
 &lt;h3 id=&#34;creating-an-index&#34;&gt;Creating an index&lt;/h3&gt;
 
-&lt;p&gt;Use the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoIndexManager_1_CreateOneAsync.htm
+&lt;p&gt;Use the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoIndexManager_1_CreateOneAsync.htm
 &#34;&gt;&lt;code&gt;CreateOneAsync&lt;/code&gt;&lt;/a&gt; to create a single index. For instance, to create an ascending index on the &amp;ldquo;x&amp;rdquo; and &amp;ldquo;y&amp;rdquo; fields,&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;await collection.Indexes.CreateOneAsync(&amp;quot;{x: 1, y: 1}&amp;quot;);
@@ -155,7 +155,7 @@ await collection.Indexes.CreateOneAsync(new BsonDocument(&amp;quot;x&amp;quot;, 
 await collection.Indexes.CreateOneAsync(Builders&amp;lt;BsonDocument&amp;gt;.IndexKeys.Ascending(&amp;quot;x&amp;quot;).Ascending(&amp;quot;y&amp;quot;));
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;In addition, there are a number of options available when creating index. These are present on the optional &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_CreateIndexOptions.htm
+&lt;p&gt;In addition, there are a number of options available when creating index. These are present on the optional &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_CreateIndexOptions.htm
 &#34;&gt;&lt;code&gt;CreateIndexOptions&lt;/code&gt;&lt;/a&gt; parameter. For instance, to create a unique ascending index on &amp;ldquo;x&amp;rdquo;:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;await collection.Indexes.CreateOneAsync(&amp;quot;{x: 1}&amp;quot;, new CreateIndexOptions { Unique = true });
@@ -163,8 +163,8 @@ await collection.Indexes.CreateOneAsync(Builders&amp;lt;BsonDocument&amp;gt;.Ind
 
 &lt;h3 id=&#34;dropping-an-index&#34;&gt;Dropping an index&lt;/h3&gt;
 
-&lt;p&gt;Use the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoIndexManager_1_DropOneAsync.htm
-&#34;&gt;&lt;code&gt;DropOneAsync&lt;/code&gt;&lt;/a&gt; to drop a single index or the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoIndexManager_1_DropAllAsync.htm
+&lt;p&gt;Use the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoIndexManager_1_DropOneAsync.htm
+&#34;&gt;&lt;code&gt;DropOneAsync&lt;/code&gt;&lt;/a&gt; to drop a single index or the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoIndexManager_1_DropAllAsync.htm
 &#34;&gt;&lt;code&gt;DropAllAsync&lt;/code&gt;&lt;/a&gt; to drop all indexes.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;// drop the index named &amp;quot;x_1&amp;quot;;
@@ -176,7 +176,7 @@ await collection.Indexes.DropAllAsync();
 
 &lt;h3 id=&#34;listing-indexes&#34;&gt;Listing indexes&lt;/h3&gt;
 
-&lt;p&gt;To see all the indexes in a collection, use the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoIndexManager_1_ListAsync.htm
+&lt;p&gt;To see all the indexes in a collection, use the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoIndexManager_1_ListAsync.htm
 &#34;&gt;&lt;code&gt;ListAsync&lt;/code&gt;&lt;/a&gt; method.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using(var cursor = await collection.Indexes.ListAsync())
@@ -202,9 +202,9 @@ await collection.Indexes.DropAllAsync();
 &#34;&gt;MongoDB authentication mechanisms&lt;/a&gt; including those in the &lt;a href=&#34;http://docs.mongodb.org/manual/administration/install-enterprise/
 &#34;&gt;Enterprise Edition&lt;/a&gt;.&lt;/p&gt;
 
-&lt;p&gt;Authentication credentials are created by the application as instances of &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoCredential.htm
-&#34;&gt;&lt;code&gt;MongoCredential&lt;/code&gt;&lt;/a&gt; which includes static factory methods for each of the supported authentication mechanisms. A list of these instances must be passed to the driver using the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_MongoClient__ctor_1.htm
-&#34;&gt;&lt;code&gt;MongoClient constructor&lt;/code&gt;&lt;/a&gt; that takes a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoClientSettings.htm
+&lt;p&gt;Authentication credentials are created by the application as instances of &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_MongoCredential.htm
+&#34;&gt;&lt;code&gt;MongoCredential&lt;/code&gt;&lt;/a&gt; which includes static factory methods for each of the supported authentication mechanisms. A list of these instances must be passed to the driver using the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_MongoClient__ctor_1.htm
+&#34;&gt;&lt;code&gt;MongoClient constructor&lt;/code&gt;&lt;/a&gt; that takes a &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_MongoClientSettings.htm
 &#34;&gt;&lt;code&gt;MongoClientSettings&lt;/code&gt;&lt;/a&gt;. When only one credential is necessary, it is possible to specify via the &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/driver/connecting/#connection-string&#34;&gt;connection string&lt;/a&gt;.&lt;/p&gt;
 
 &lt;h3 id=&#34;default&#34;&gt;Default&lt;/h3&gt;
@@ -381,12 +381,12 @@ Note that the method refers to the plain authentication mechanism instead of LDA
 
 &lt;h2 id=&#34;reading&#34;&gt;Reading&lt;/h2&gt;
 
-&lt;p&gt;The &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_IO_IBsonReader.htm
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_IO_IBsonReader.htm
 &#34;&gt;&lt;code&gt;IBsonReader&lt;/code&gt;&lt;/a&gt; interface contains all the methods necessary to read a &lt;a href=&#34;http://bsonspec.org&#34;&gt;BSON&lt;/a&gt; document or a &lt;a href=&#34;http://json.org&#34;&gt;JSON&lt;/a&gt; document. There is an implementation for each format.&lt;/p&gt;
 
 &lt;h3 id=&#34;bson&#34;&gt;BSON&lt;/h3&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_IO_BsonBinaryReader.htm
+&lt;p&gt;&lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_IO_BsonBinaryReader.htm
 &#34;&gt;&lt;code&gt;BsonBinaryReader&lt;/code&gt;&lt;/a&gt; is for reading binary BSON. For example, to read a BSON file containing the document &lt;code&gt;{ a: 1 }&lt;/code&gt;:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;string inputFileName; // initialize to a file containing BSON
@@ -403,7 +403,7 @@ using (var reader = new BsonBinaryReader(stream))
 
 &lt;h3 id=&#34;json&#34;&gt;JSON&lt;/h3&gt;
 
-&lt;p&gt;In the same way, we can read a JSON string using a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_IO_JsonReader.htm
+&lt;p&gt;In the same way, we can read a JSON string using a &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_IO_JsonReader.htm
 &#34;&gt;&lt;code&gt;JsonReader&lt;/code&gt;&lt;/a&gt;. For example, to read the document &lt;code&gt;{ a: 1 }&lt;/code&gt;:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var jsonString = &amp;quot;{ a: 1 }&amp;quot;;
@@ -416,18 +416,18 @@ using (var reader = new JsonReader(jsonString))
 }
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_IO_JsonReader.htm
+&lt;p&gt;&lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_IO_JsonReader.htm
 &#34;&gt;&lt;code&gt;JsonReader&lt;/code&gt;&lt;/a&gt; supports reading strict JSON as well as both flavors of &lt;a href=&#34;http://docs.mongodb.org/manual/reference/mongodb-extended-json/
 &#34;&gt;MongoDB Extended JSON&lt;/a&gt;.&lt;/p&gt;
 
 &lt;h2 id=&#34;writing&#34;&gt;Writing&lt;/h2&gt;
 
-&lt;p&gt;The &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_IO_IBsonWriter.htm
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_IO_IBsonWriter.htm
 &#34;&gt;&lt;code&gt;IBsonWriter&lt;/code&gt;&lt;/a&gt; interface contains all the methods necessary to write a &lt;a href=&#34;http://bsonspec.org&#34;&gt;BSON&lt;/a&gt; document or a &lt;a href=&#34;http://json.org&#34;&gt;JSON&lt;/a&gt; document. There is an implementation for each format.&lt;/p&gt;
 
 &lt;h3 id=&#34;bson-1&#34;&gt;BSON&lt;/h3&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_IO_BsonBinaryWriter.htm
+&lt;p&gt;&lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_IO_BsonBinaryWriter.htm
 &#34;&gt;&lt;code&gt;BsonBinaryWriter&lt;/code&gt;&lt;/a&gt; is for writing binary BSON. For example, to write the document &lt;code&gt;{ a: 1 }&lt;/code&gt; to a BSON file:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;string outputFileName; // initialize to the file to write to.
@@ -444,7 +444,7 @@ using (var writer = new BsonBinaryWriter(stream))
 
 &lt;h3 id=&#34;json-1&#34;&gt;JSON&lt;/h3&gt;
 
-&lt;p&gt;In the same way, we can write a JSON string using a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_IO_JsonWriter.htm
+&lt;p&gt;In the same way, we can write a JSON string using a &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_IO_JsonWriter.htm
 &#34;&gt;&lt;code&gt;JsonWriter&lt;/code&gt;&lt;/a&gt;. For example, to write the document &lt;code&gt;{ a: 1 }&lt;/code&gt;:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;string outputFileName; // initialize to the file to write to.
@@ -461,13 +461,13 @@ using (var writer = new JsonWriter(output))
 
 &lt;h4 id=&#34;settings&#34;&gt;Settings&lt;/h4&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_IO_JsonWriter.htm
+&lt;p&gt;&lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_IO_JsonWriter.htm
 &#34;&gt;&lt;code&gt;JsonWriter&lt;/code&gt;&lt;/a&gt; supports writing strict JSON as well as both flavors of &lt;a href=&#34;http://docs.mongodb.org/manual/reference/mongodb-extended-json/
-&#34;&gt;MongoDB Extended JSON&lt;/a&gt;. This, and other things, can be customized with the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_IO_JsonWriterSettings.htm
+&#34;&gt;MongoDB Extended JSON&lt;/a&gt;. This, and other things, can be customized with the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_IO_JsonWriterSettings.htm
 &#34;&gt;&lt;code&gt;JsonWriterSettings&lt;/code&gt;&lt;/a&gt; class.&lt;/p&gt;
 
-&lt;p&gt;For instance, to write in a format for the &lt;a href=&#34;http://docs.mongodb.org/manual/administration/scripting/&#34;&gt;MongoDB Shell&lt;/a&gt;, you can set the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/P_MongoDB_Bson_IO_JsonWriterSettings_OutputMode.htm
-&#34;&gt;&lt;code&gt;OutputMode&lt;/code&gt;&lt;/a&gt; to &lt;code&gt;Shell&lt;/code&gt; and also set the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/P_MongoDB_Bson_IO_JsonWriterSettings_ShellVersion.htm
+&lt;p&gt;For instance, to write in a format for the &lt;a href=&#34;http://docs.mongodb.org/manual/administration/scripting/&#34;&gt;MongoDB Shell&lt;/a&gt;, you can set the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/P_MongoDB_Bson_IO_JsonWriterSettings_OutputMode.htm
+&#34;&gt;&lt;code&gt;OutputMode&lt;/code&gt;&lt;/a&gt; to &lt;code&gt;Shell&lt;/code&gt; and also set the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/P_MongoDB_Bson_IO_JsonWriterSettings_ShellVersion.htm
 &#34;&gt;&lt;code&gt;ShellVersion&lt;/code&gt;&lt;/a&gt; to the desired shell version.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var settings = new JsonWriterSettings
@@ -489,7 +489,7 @@ using (var writer = new JsonWriter(output))
 
 &lt;h2 id=&#34;bsondocument&#34;&gt;BsonDocument&lt;/h2&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm
+&lt;p&gt;&lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_BsonDocument.htm
 &#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt; is the default type used for documents. It handles dynamic documents of any complexity. For instance, the document &lt;code&gt;{ a: 1, b: [{ c: 1 }] }&lt;/code&gt; can be built as follows:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var doc = new BsonDocument
@@ -502,7 +502,7 @@ using (var writer = new JsonWriter(output))
 };
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;In addition, there is a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Bson_BsonDocument_Parse.htm
+&lt;p&gt;In addition, there is a &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Bson_BsonDocument_Parse.htm
 &#34;&gt;&lt;code&gt;Parse&lt;/code&gt;&lt;/a&gt; method to make reading a JSON string simple.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var doc = BsonDocument.Parse(&amp;quot;{ a: 1, b: [{ c: 1 }] }&amp;quot;);
@@ -559,7 +559,7 @@ Some drivers utilize the database component to indicate which database to work w
 
 &lt;h3 id=&#34;options&#34;&gt;Options&lt;/h3&gt;
 
-&lt;p&gt;Many options can be provided via the connection string. The ones that cannot may be provided in a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoClientSettings.htm
+&lt;p&gt;Many options can be provided via the connection string. The ones that cannot may be provided in a &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_MongoClientSettings.htm
 &#34;&gt;&lt;code&gt;MongoClientSettings&lt;/code&gt;&lt;/a&gt; object. To provide an option on the connection string, append a &lt;code&gt;?&lt;/code&gt; and separate multiple options by an &lt;code&gt;&amp;amp;&lt;/code&gt;.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;mongodb://host:27017/?replicaSet=rs0&amp;amp;uuidRepresentation=standard
@@ -571,8 +571,8 @@ Some drivers utilize the database component to indicate which database to work w
 
 &lt;h2 id=&#34;mongo-client&#34;&gt;Mongo Client&lt;/h2&gt;
 
-&lt;p&gt;A &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoClient.htm
-&#34;&gt;&lt;code&gt;MongoClient&lt;/code&gt;&lt;/a&gt; object will be the root object. It is thread-safe and is all that is needed to handle connecting to servers, monitoring servers, and performing operations against those servers. Without any arguments, constructing a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoClient.htm
+&lt;p&gt;A &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_MongoClient.htm
+&#34;&gt;&lt;code&gt;MongoClient&lt;/code&gt;&lt;/a&gt; object will be the root object. It is thread-safe and is all that is needed to handle connecting to servers, monitoring servers, and performing operations against those servers. Without any arguments, constructing a &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_MongoClient.htm
 &#34;&gt;&lt;code&gt;MongoClient&lt;/code&gt;&lt;/a&gt; instance will connect to &amp;ldquo;localhost&amp;rdquo; port 27017.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;var client = new MongoClient();
@@ -583,7 +583,7 @@ Some drivers utilize the database component to indicate which database to work w
 &lt;pre&gt;&lt;code&gt;var client = new MongoClient(&amp;quot;mongodb://host:27017,host2:27017/?replicaSet=rs0&amp;quot;);
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;Finally, &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoClientSettings.htm
+&lt;p&gt;Finally, &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_MongoClientSettings.htm
 &#34;&gt;&lt;code&gt;MongoClientSettings&lt;/code&gt;&lt;/a&gt; provides an in code way to set the same options.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;var settings = new MongoClientSettings { ReplicaSetName = &amp;quot;rs0&amp;quot; };
@@ -592,74 +592,74 @@ var client = new MongoClient(settings);
 
 &lt;h3 id=&#34;re-use&#34;&gt;Re-use&lt;/h3&gt;
 
-&lt;p&gt;It is recommended to store a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoClient.htm
+&lt;p&gt;It is recommended to store a &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_MongoClient.htm
 &#34;&gt;&lt;code&gt;MongoClient&lt;/code&gt;&lt;/a&gt; instance in a global place, either as a static variable or in an IoC container with a singleton lifetime.&lt;/p&gt;
 
-&lt;p&gt;However, multiple &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoClient.htm
-&#34;&gt;&lt;code&gt;MongoClient&lt;/code&gt;&lt;/a&gt; instances created with the same settings will utilize the same connection pools underneath. Unfortunately, certain types of settings are not able to be compared for equality. For instance, the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/P_MongoDB_Driver_MongoClientSettings_ClusterConfigurator.htm
-&#34;&gt;&lt;code&gt;ClusterConfigurator&lt;/code&gt;&lt;/a&gt; property is a delegate and only its address is known for comparison. If you wish to construct multiple &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoClient.htm
+&lt;p&gt;However, multiple &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_MongoClient.htm
+&#34;&gt;&lt;code&gt;MongoClient&lt;/code&gt;&lt;/a&gt; instances created with the same settings will utilize the same connection pools underneath. Unfortunately, certain types of settings are not able to be compared for equality. For instance, the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/P_MongoDB_Driver_MongoClientSettings_ClusterConfigurator.htm
+&#34;&gt;&lt;code&gt;ClusterConfigurator&lt;/code&gt;&lt;/a&gt; property is a delegate and only its address is known for comparison. If you wish to construct multiple &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_MongoClient.htm
 &#34;&gt;&lt;code&gt;MongoClients&lt;/code&gt;&lt;/a&gt;, ensure that your delegates are all using the same address if the intent is to share connection pools.&lt;/p&gt;
 
 &lt;h3 id=&#34;monitoring&#34;&gt;Monitoring&lt;/h3&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoClient.htm
-&#34;&gt;&lt;code&gt;MongoClient&lt;/code&gt;&lt;/a&gt; utilizes an &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_Core_Clusters_ICluster.htm
+&lt;p&gt;&lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_MongoClient.htm
+&#34;&gt;&lt;code&gt;MongoClient&lt;/code&gt;&lt;/a&gt; utilizes an &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_Core_Clusters_ICluster.htm
 &#34;&gt;&lt;code&gt;ICluster&lt;/code&gt;&lt;/a&gt; from &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/driver_core/&#34;&gt;MongoDB.Driver.Core&lt;/a&gt; which handles monitoring the cluster.&lt;/p&gt;
 
 &lt;h2 id=&#34;mongo-database&#34;&gt;Mongo Database&lt;/h2&gt;
 
-&lt;p&gt;An &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IMongoDatabase.htm
-&#34;&gt;&lt;code&gt;IMongoDatabase&lt;/code&gt;&lt;/a&gt; represents a database in a MongoDB server. Databases are retrieved from an &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IMongoClient.htm
-&#34;&gt;&lt;code&gt;IMongoClient&lt;/code&gt;&lt;/a&gt; instance using the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoClient_GetDatabase.htm
+&lt;p&gt;An &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_IMongoDatabase.htm
+&#34;&gt;&lt;code&gt;IMongoDatabase&lt;/code&gt;&lt;/a&gt; represents a database in a MongoDB server. Databases are retrieved from an &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_IMongoClient.htm
+&#34;&gt;&lt;code&gt;IMongoClient&lt;/code&gt;&lt;/a&gt; instance using the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoClient_GetDatabase.htm
 &#34;&gt;&lt;code&gt;GetDatabase&lt;/code&gt;&lt;/a&gt; method:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var db = client.GetDatabase(&amp;quot;hr&amp;quot;);
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;Above, we have gotten the &amp;ldquo;hr&amp;rdquo; database. If the database does not exist on the server, it will be created automatically upon first use. If you want to use more than one database, call &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoClient_GetDatabase.htm
+&lt;p&gt;Above, we have gotten the &amp;ldquo;hr&amp;rdquo; database. If the database does not exist on the server, it will be created automatically upon first use. If you want to use more than one database, call &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoClient_GetDatabase.htm
 &#34;&gt;&lt;code&gt;GetDatabase&lt;/code&gt;&lt;/a&gt; once for each database you&amp;rsquo;d like to work with.&lt;/p&gt;
 
 &lt;h3 id=&#34;re-use-1&#34;&gt;Re-use&lt;/h3&gt;
 
-&lt;p&gt;The implementation of &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IMongoDatabase.htm
-&#34;&gt;&lt;code&gt;IMongoDatabase&lt;/code&gt;&lt;/a&gt; provided by a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoClient.htm
+&lt;p&gt;The implementation of &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_IMongoDatabase.htm
+&#34;&gt;&lt;code&gt;IMongoDatabase&lt;/code&gt;&lt;/a&gt; provided by a &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_MongoClient.htm
 &#34;&gt;&lt;code&gt;MongoClient&lt;/code&gt;&lt;/a&gt; is thread-safe and is safe to be stored globally or in an IoC container.&lt;/p&gt;
 
 &lt;h3 id=&#34;mongo-collection&#34;&gt;Mongo Collection&lt;/h3&gt;
 
-&lt;p&gt;An &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IMongoCollection_1.htm
-&#34;&gt;&lt;code&gt;IMongoCollection&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; represents a collection in a MongoDB database. Collections are retrieved from an &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IMongoDatabase.htm
-&#34;&gt;&lt;code&gt;IMongoDatabase&lt;/code&gt;&lt;/a&gt; with the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoDatabase_GetCollection__1.htm
+&lt;p&gt;An &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_IMongoCollection_1.htm
+&#34;&gt;&lt;code&gt;IMongoCollection&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; represents a collection in a MongoDB database. Collections are retrieved from an &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_IMongoDatabase.htm
+&#34;&gt;&lt;code&gt;IMongoDatabase&lt;/code&gt;&lt;/a&gt; with the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoDatabase_GetCollection__1.htm
 &#34;&gt;&lt;code&gt;GetCollection&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; method:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var collection = db.GetCollection&amp;lt;BsonDocument&amp;gt;(&amp;quot;people&amp;quot;);
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;Above, we have gotten the &amp;ldquo;people&amp;rdquo; collection. IF the collection does not exist on the server, it will be created automatically upon first use. If you want to use more than one database, call &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoDatabase_GetCollection__1.htm
+&lt;p&gt;Above, we have gotten the &amp;ldquo;people&amp;rdquo; collection. IF the collection does not exist on the server, it will be created automatically upon first use. If you want to use more than one database, call &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoDatabase_GetCollection__1.htm
 &#34;&gt;&lt;code&gt;GetCollection&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; once for each database you&amp;rsquo;d like to work with.&lt;/p&gt;
 
 &lt;p&gt;The generic parameter &lt;code&gt;TDocument&lt;/code&gt; is the type of document that is stored in your collection. It can, effectively, be any type that can be mapped to and from BSON. The driver utilizes the &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/bson/&#34;&gt;BSON library&lt;/a&gt; to handle this mapping. The most common types you will use are:&lt;/p&gt;
 
 &lt;ol&gt;
 &lt;li&gt;Custom Class - useful for representing known schemas. See the &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/bson/mapping/&#34;&gt;mapping section&lt;/a&gt; for more information. The majority of applications will not work with dynamic schemas, but rather with something more rigid. In addition, if you work in a static language, it is nice to work with static types that provide compile time type checking.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm
+&lt;li&gt;&lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_BsonDocument.htm
 &#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt; - useful for representing dynamic schemas.&lt;/li&gt;
 &lt;/ol&gt;
 
 &lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
 &lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
-&lt;p&gt;It is possible to mix both these models by utilizing a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm&#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt; inside your custom class.&lt;/p&gt;
+&lt;p&gt;It is possible to mix both these models by utilizing a &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_BsonDocument.htm&#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt; inside your custom class.&lt;/p&gt;
 
 &lt;/div&gt;
 &lt;/p&gt;
 
-&lt;p&gt;A majority of the methods and extension methods for an &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IMongoCollection_1.htm
+&lt;p&gt;A majority of the methods and extension methods for an &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_IMongoCollection_1.htm
 &#34;&gt;&lt;code&gt;IMongoCollection&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; utilize the &lt;code&gt;TDocument&lt;/code&gt; generic parameter in some fashion.&lt;/p&gt;
 
 &lt;h3 id=&#34;re-use-2&#34;&gt;Re-use&lt;/h3&gt;
 
-&lt;p&gt;The implementation of &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IMongoCollection_1.htm
-&#34;&gt;&lt;code&gt;IMongoCollection&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; ultimately provided by a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoClient.htm
+&lt;p&gt;The implementation of &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_IMongoCollection_1.htm
+&#34;&gt;&lt;code&gt;IMongoCollection&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; ultimately provided by a &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_MongoClient.htm
 &#34;&gt;&lt;code&gt;MongoClient&lt;/code&gt;&lt;/a&gt; is thread-safe and is safe to be stored globally or in an IoC container.&lt;/p&gt;
 </description>
     </item>
@@ -688,7 +688,7 @@ var client = new MongoClient(settings);
 
 &lt;p&gt;Answers to these questions are represented by a set of “conventions”. For each convention, there is a default convention that is the most likely one you will be using, but you can override individual conventions as necessary.&lt;/p&gt;
 
-&lt;p&gt;If you want to use your own conventions that differ from the defaults, simply create an instance of &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_Conventions_ConventionPack.htm
+&lt;p&gt;If you want to use your own conventions that differ from the defaults, simply create an instance of &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_Conventions_ConventionPack.htm
 &#34;&gt;&lt;code&gt;ConventionPack&lt;/code&gt;&lt;/a&gt;, add in the conventions you want to use, and then register that pack. For example:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var pack = new ConventionPack();
@@ -707,22 +707,22 @@ ConventionRegistry.Register(
 &lt;p&gt;In addition to pre-packaged conventions, it is possible to write your own. There are 4 classes of conventions which can be created and registered. These 4 classes of conventions correspond with the 4 stages in which they will be run.&lt;/p&gt;
 
 &lt;ol&gt;
-&lt;li&gt;&lt;p&gt;&lt;strong&gt;Class Stage:&lt;/strong&gt; &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_Conventions_IClassMapConvention.htm
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;Class Stage:&lt;/strong&gt; &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_Conventions_IClassMapConvention.htm
 &#34;&gt;&lt;code&gt;IClassMapConvention&lt;/code&gt;&lt;/a&gt;&lt;/p&gt;
 
 &lt;p&gt;Run against the class map.&lt;/p&gt;&lt;/li&gt;
 
-&lt;li&gt;&lt;p&gt;&lt;strong&gt;Member Stage:&lt;/strong&gt; &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_Conventions_IMemberMapConvention.htm
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;Member Stage:&lt;/strong&gt; &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_Conventions_IMemberMapConvention.htm
 &#34;&gt;&lt;code&gt;IMemberMapConvention&lt;/code&gt;&lt;/a&gt;&lt;/p&gt;
 
 &lt;p&gt;Run against each member map discovered during the Class stage.&lt;/p&gt;&lt;/li&gt;
 
-&lt;li&gt;&lt;p&gt;&lt;strong&gt;Creator Stage:&lt;/strong&gt; &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_Conventions_ICreatorMapConvention.htm
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;Creator Stage:&lt;/strong&gt; &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_Conventions_ICreatorMapConvention.htm
 &#34;&gt;&lt;code&gt;ICreatorMapConvention&lt;/code&gt;&lt;/a&gt;&lt;/p&gt;
 
 &lt;p&gt;Run against each CreatorMap discovered during the Class stage.&lt;/p&gt;&lt;/li&gt;
 
-&lt;li&gt;&lt;p&gt;&lt;strong&gt;Post Processing Stage:&lt;/strong&gt; &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_Conventions_IPostProcessingConvention.htm
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;Post Processing Stage:&lt;/strong&gt; &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_Conventions_IPostProcessingConvention.htm
 &#34;&gt;&lt;code&gt;IPostProcessingConvention&lt;/code&gt;&lt;/a&gt;&lt;/p&gt;
 
 &lt;p&gt;Run against the class map.&lt;/p&gt;&lt;/li&gt;
@@ -732,7 +732,7 @@ ConventionRegistry.Register(
 
 &lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
 &lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
-&lt;p&gt;If a custom implementation of an &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_Conventions_IPostProcessingConvention.htm&#34;&gt;&lt;code&gt;IPostProcessingConvention&lt;/code&gt;&lt;/a&gt; is registered before a customer implementation of an &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_Conventions_IClassMapConvention.htm&#34;&gt;&lt;code&gt;IClassMapConvention&lt;/code&gt;&lt;/a&gt;, the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_Conventions_IClassMapConvention.htm&#34;&gt;&lt;code&gt;IClassMapConvention&lt;/code&gt;&lt;/a&gt; will be run first because the Class Stage is before the Post Processing Stage.&lt;/p&gt;
+&lt;p&gt;If a custom implementation of an &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_Conventions_IPostProcessingConvention.htm&#34;&gt;&lt;code&gt;IPostProcessingConvention&lt;/code&gt;&lt;/a&gt; is registered before a customer implementation of an &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_Conventions_IClassMapConvention.htm&#34;&gt;&lt;code&gt;IClassMapConvention&lt;/code&gt;&lt;/a&gt;, the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_Conventions_IClassMapConvention.htm&#34;&gt;&lt;code&gt;IClassMapConvention&lt;/code&gt;&lt;/a&gt; will be run first because the Class Stage is before the Post Processing Stage.&lt;/p&gt;
 
 &lt;/div&gt;
 &lt;/p&gt;
@@ -774,14 +774,14 @@ pack.AddMemberMapConvention(
 
 &lt;p&gt;The driver has introduced a number of types related to the specification of filters, updates, projections, sorts, and index keys. These types are used throughout the &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/driver/crud/&#34;&gt;API&lt;/a&gt;.&lt;/p&gt;
 
-&lt;p&gt;Most of the definitions also have builders to aid in their creation. Each builder has a generic type parameter &lt;code&gt;TDocument&lt;/code&gt; which represents the type of document with which you are working. It will almost always match the generic &lt;code&gt;TDocument&lt;/code&gt; parameter used in an &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IMongoCollection_1.htm
+&lt;p&gt;Most of the definitions also have builders to aid in their creation. Each builder has a generic type parameter &lt;code&gt;TDocument&lt;/code&gt; which represents the type of document with which you are working. It will almost always match the generic &lt;code&gt;TDocument&lt;/code&gt; parameter used in an &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_IMongoCollection_1.htm
 &#34;&gt;&lt;code&gt;IMongoCollection&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
 
 &lt;h2 id=&#34;fields&#34;&gt;Fields&lt;/h2&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_FieldDefinition_1.htm
-&#34;&gt;&lt;code&gt;FieldDefinition&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; and &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_FieldDefinition_2.htm
-&#34;&gt;&lt;code&gt;FieldDefinition&amp;lt;TDocument, TField&amp;gt;&lt;/code&gt;&lt;/a&gt; define how to get a field name. They are implicitly convertible from a string, so that you can simply pass the field name you&amp;rsquo;d like. For instance, to use the field named &amp;ldquo;fn&amp;rdquo; with a &lt;code&gt;TDocument&lt;/code&gt; of &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm
+&lt;p&gt;&lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_FieldDefinition_1.htm
+&#34;&gt;&lt;code&gt;FieldDefinition&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; and &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_FieldDefinition_2.htm
+&#34;&gt;&lt;code&gt;FieldDefinition&amp;lt;TDocument, TField&amp;gt;&lt;/code&gt;&lt;/a&gt; define how to get a field name. They are implicitly convertible from a string, so that you can simply pass the field name you&amp;rsquo;d like. For instance, to use the field named &amp;ldquo;fn&amp;rdquo; with a &lt;code&gt;TDocument&lt;/code&gt; of &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_BsonDocument.htm
 &#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt;, do the following:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;FieldDefinition&amp;lt;BsonDocument&amp;gt; field = &amp;quot;fn&amp;quot;;
@@ -818,8 +818,8 @@ pack.AddMemberMapConvention(
 
 &lt;h2 id=&#34;filters&#34;&gt;Filters&lt;/h2&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_FilterDefinition_1.htm
-&#34;&gt;&lt;code&gt;FilterDefinition&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; defines a filter. It is implicity convertible from both a JSON string as well as a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm
+&lt;p&gt;&lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_FilterDefinition_1.htm
+&#34;&gt;&lt;code&gt;FilterDefinition&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; defines a filter. It is implicity convertible from both a JSON string as well as a &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_BsonDocument.htm
 &#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;FilterDefinition&amp;lt;BsonDocument&amp;gt; filter = &amp;quot;{ x: 1 }&amp;quot;;
@@ -836,7 +836,7 @@ FilterDefinition&amp;lt;BsonDocument&amp;gt; filter = new BsonDocument(&amp;quot
 &lt;p&gt;&lt;em&gt;See the &lt;a href=&#34;https://github.com/mongodb/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Tests/FilterDefinitionBuilderTests.cs
 &#34;&gt;tests&lt;/a&gt; for examples.&lt;/em&gt;&lt;/p&gt;
 
-&lt;p&gt;The &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_FilterDefinitionBuilder_1.htm
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_FilterDefinitionBuilder_1.htm
 &#34;&gt;&lt;code&gt;FilterDefinitionBuilder&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; provides a type-safe API for building up both simple and complex &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/query/
 &#34;&gt;MongoDB queries&lt;/a&gt;.&lt;/p&gt;
 
@@ -905,10 +905,10 @@ var filter = builder.Eq(&amp;quot;x&amp;quot;, 10) &amp;amp; builder.Lt(&amp;quo
 
 &lt;h2 id=&#34;pipelines&#34;&gt;Pipelines&lt;/h2&gt;
 
-&lt;p&gt;A pipeline definition defines an entire aggregation pipeline. It is implicitly convertible from a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm
-&#34;&gt;&lt;code&gt;List&amp;lt;BsonDocument&amp;gt;&lt;/code&gt;&lt;/a&gt;, a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm
-&#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt;, a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IPipelineStageDefinition.htm
-&#34;&gt;&lt;code&gt;List&amp;lt;IPipelineStageDefinition&amp;gt;&lt;/code&gt;&lt;/a&gt; , and a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IPipelineStageDefinition.htm
+&lt;p&gt;A pipeline definition defines an entire aggregation pipeline. It is implicitly convertible from a &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_BsonDocument.htm
+&#34;&gt;&lt;code&gt;List&amp;lt;BsonDocument&amp;gt;&lt;/code&gt;&lt;/a&gt;, a &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_BsonDocument.htm
+&#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt;, a &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_IPipelineStageDefinition.htm
+&#34;&gt;&lt;code&gt;List&amp;lt;IPipelineStageDefinition&amp;gt;&lt;/code&gt;&lt;/a&gt; , and a &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_IPipelineStageDefinition.htm
 &#34;&gt;&lt;code&gt;IPipelineStageDefinition[]&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;For example:&lt;/p&gt;
@@ -922,18 +922,18 @@ var filter = builder.Eq(&amp;quot;x&amp;quot;, 10) &amp;amp; builder.Lt(&amp;quo
 
 &lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
 &lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
-&lt;p&gt;There is no builder for a PipelineDefinition. In most cases, the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IAggregateFluent_1.htm&#34;&gt;&lt;code&gt;IAggregateFluent&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; interface would be used which is returned from the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoCollectionExtensions_Aggregate__1.htm&#34;&gt;&lt;code&gt;IMongoCollection&amp;lt;TDocument&amp;gt;.Aggregate&lt;/code&gt;&lt;/a&gt; method.&lt;/p&gt;
+&lt;p&gt;There is no builder for a PipelineDefinition. In most cases, the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_IAggregateFluent_1.htm&#34;&gt;&lt;code&gt;IAggregateFluent&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; interface would be used which is returned from the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoCollectionExtensions_Aggregate__1.htm&#34;&gt;&lt;code&gt;IMongoCollection&amp;lt;TDocument&amp;gt;.Aggregate&lt;/code&gt;&lt;/a&gt; method.&lt;/p&gt;
 
 &lt;/div&gt;
 &lt;/p&gt;
 
 &lt;h2 id=&#34;projections&#34;&gt;Projections&lt;/h2&gt;
 
-&lt;p&gt;There are two forms of a projection definition: one where the type of the projection is known, &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_ProjectionDefinition_2.htm
-&#34;&gt;&lt;code&gt;ProjectionDefinition&amp;lt;TDocument, TProjection&amp;gt;&lt;/code&gt;&lt;/a&gt;, and one where the type of the projection is not yet known, &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_ProjectionDefinition_1.htm
+&lt;p&gt;There are two forms of a projection definition: one where the type of the projection is known, &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_ProjectionDefinition_2.htm
+&#34;&gt;&lt;code&gt;ProjectionDefinition&amp;lt;TDocument, TProjection&amp;gt;&lt;/code&gt;&lt;/a&gt;, and one where the type of the projection is not yet known, &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_ProjectionDefinition_1.htm
 &#34;&gt;&lt;code&gt;ProjectionDefinition&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt;. The latter, while implicitly convertible to the first, is merely used as a building block. The &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/driver/crud/&#34;&gt;high-level APIs&lt;/a&gt; that take a projection will always take the former. This is because, when determining how to handle a projection client-side, it is not enough to know what fields and transformations will take place. It also requires that we know how to interpret the projected shape as a .NET type. Since the driver allows you to work with custom classes, it is imperative that any projection also include the &amp;ldquo;interpretation instructions&amp;rdquo; for projecting into a custom class.&lt;/p&gt;
 
-&lt;p&gt;Each projection definition is implicity convertible from both a JSON string as well as a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm
+&lt;p&gt;Each projection definition is implicity convertible from both a JSON string as well as a &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_BsonDocument.htm
 &#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;ProjectionDefinition&amp;lt;BsonDocument&amp;gt; projection = &amp;quot;{ x: 1 }&amp;quot;;
@@ -950,7 +950,7 @@ ProjectionDefinition&amp;lt;BsonDocument&amp;gt; projection = new BsonDocument(&
 &lt;p&gt;&lt;em&gt;See the &lt;a href=&#34;https://github.com/mongodb/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Tests/ProjectionDefinitionBuilderTests.cs
 &#34;&gt;tests&lt;/a&gt; for examples.&lt;/em&gt;&lt;/p&gt;
 
-&lt;p&gt;The &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_ProjectionDefinitionBuilder_1.htm
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_ProjectionDefinitionBuilder_1.htm
 &#34;&gt;&lt;code&gt;ProjectionDefinitionBuilder&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; exists to make it easier to build up projections in MongoDB&amp;rsquo;s syntax. For the projection &lt;code&gt;{ x: 1, y: 1, _id: 0 }&lt;/code&gt;:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var projection = Builders&amp;lt;BsonDocument&amp;gt;.Projection.Include(&amp;quot;x&amp;quot;).Include(&amp;quot;y&amp;quot;).Exclude(&amp;quot;_id&amp;quot;);
@@ -987,9 +987,9 @@ var projection = Builders&amp;lt;Widget&amp;gt;.Projection.Include(x =&amp;gt; x
 var projection = Builders&amp;lt;Widget&amp;gt;.Projection.Expression(x =&amp;gt; new { X = x.X, Y = x.Y });
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;This last projection where we&amp;rsquo;ve used the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_ProjectionDefinitionBuilder_1_Expression__1.htm
-&#34;&gt;&lt;code&gt;Expression&lt;/code&gt;&lt;/a&gt; method is subtly different as is explained below, and its return type is a (&lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_ProjectionDefinition_2.htm
-&#34;&gt;&lt;code&gt;ProjectionDefinition&amp;lt;TDocument, TProjection&amp;gt;&lt;/code&gt;&lt;/a&gt;) as opposed to the others which return a (&lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_ProjectionDefinition_1.htm
+&lt;p&gt;This last projection where we&amp;rsquo;ve used the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_ProjectionDefinitionBuilder_1_Expression__1.htm
+&#34;&gt;&lt;code&gt;Expression&lt;/code&gt;&lt;/a&gt; method is subtly different as is explained below, and its return type is a (&lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_ProjectionDefinition_2.htm
+&#34;&gt;&lt;code&gt;ProjectionDefinition&amp;lt;TDocument, TProjection&amp;gt;&lt;/code&gt;&lt;/a&gt;) as opposed to the others which return a (&lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_ProjectionDefinition_1.htm
 &#34;&gt;&lt;code&gt;ProjectionDefinition&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt;).&lt;/p&gt;
 
 &lt;h4 id=&#34;lambda-expressions&#34;&gt;Lambda Expressions&lt;/h4&gt;
@@ -1050,8 +1050,8 @@ var projection = Builders&amp;lt;Widget&amp;gt;.Projection.Expression(x =&amp;gt
 
 &lt;h2 id=&#34;sorts&#34;&gt;Sorts&lt;/h2&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_SortDefinition_1.htm
-&#34;&gt;&lt;code&gt;SortDefinition&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; defines how to render a valid sort document. It is implicity convertible from both a JSON string as well as a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm
+&lt;p&gt;&lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_SortDefinition_1.htm
+&#34;&gt;&lt;code&gt;SortDefinition&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; defines how to render a valid sort document. It is implicity convertible from both a JSON string as well as a &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_BsonDocument.htm
 &#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;SortDefinition&amp;lt;BsonDocument&amp;gt; sort = &amp;quot;{ x: 1 }&amp;quot;;
@@ -1068,7 +1068,7 @@ SortDefinition&amp;lt;BsonDocument&amp;gt; sort = new BsonDocument(&amp;quot;x&a
 &lt;p&gt;&lt;em&gt;See the &lt;a href=&#34;https://github.com/mongodb/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Tests/SortDefinitionBuilderTests.cs
 &#34;&gt;tests&lt;/a&gt; for examples.&lt;/em&gt;&lt;/p&gt;
 
-&lt;p&gt;The &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_SortDefinitionBuilder_1.htm
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_SortDefinitionBuilder_1.htm
 &#34;&gt;&lt;code&gt;SortDefinitionBuilder&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; provides a type-safe API for building up &lt;a href=&#34;http://docs.mongodb.org/manual/reference/method/cursor.sort/
 &#34;&gt;MongoDB sort syntax&lt;/a&gt;.&lt;/p&gt;
 
@@ -1106,8 +1106,8 @@ var sort = builder.Ascending(&amp;quot;x&amp;quot;).Descending(&amp;quot;y&amp;q
 
 &lt;h2 id=&#34;updates&#34;&gt;Updates&lt;/h2&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_UpdateDefinition_1.htm
-&#34;&gt;&lt;code&gt;UpdateDefinition&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; defines how to render a valid update document. It is implicity convertible from both a JSON string as well as a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm
+&lt;p&gt;&lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_UpdateDefinition_1.htm
+&#34;&gt;&lt;code&gt;UpdateDefinition&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; defines how to render a valid update document. It is implicity convertible from both a JSON string as well as a &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_BsonDocument.htm
 &#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;// invocation
@@ -1125,7 +1125,7 @@ UpdateDefinition&amp;lt;BsonDocument&amp;gt; update = new BsonDocument(&amp;quot
 &lt;p&gt;&lt;em&gt;See the &lt;a href=&#34;https://github.com/mongodb/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Tests/UpdateDefinitionBuilderTests.cs
 &#34;&gt;tests&lt;/a&gt; for examples.&lt;/em&gt;&lt;/p&gt;
 
-&lt;p&gt;The &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_UpdateDefinitionBuilder_1.htm
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_UpdateDefinitionBuilder_1.htm
 &#34;&gt;&lt;code&gt;UpdateDefinitionBuilder&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; provides a type-safe API for building the &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/update/
 &#34;&gt;MongoDB update specification&lt;/a&gt;.&lt;/p&gt;
 
@@ -1166,8 +1166,8 @@ var update = builder.Set(&amp;quot;x&amp;quot;, 1).Set(&amp;quot;y&amp;quot;, 3)
 
 &lt;h2 id=&#34;index-keys&#34;&gt;Index Keys&lt;/h2&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IndexKeysDefinition_1.htm
-&#34;&gt;&lt;code&gt;IndexKeysDefinition&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; defines the keys for index. It is implicity convertible from both a JSON string as well as a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm
+&lt;p&gt;&lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_IndexKeysDefinition_1.htm
+&#34;&gt;&lt;code&gt;IndexKeysDefinition&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; defines the keys for index. It is implicity convertible from both a JSON string as well as a &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_BsonDocument.htm
 &#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IndexKeysDefinition&amp;lt;BsonDocument&amp;gt; keys = &amp;quot;{ x: 1 }&amp;quot;;
@@ -1184,7 +1184,7 @@ IndexKeysDefinition&amp;lt;BsonDocument&amp;gt; keys = new BsonDocument(&amp;quo
 &lt;p&gt;&lt;em&gt;See the &lt;a href=&#34;https://github.com/mongodb/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Tests/IndexKeysDefinitionBuilderTests.cs
 &#34;&gt;tests&lt;/a&gt; for examples.&lt;/em&gt;&lt;/p&gt;
 
-&lt;p&gt;The &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IndexKeysDefinitionBuilder_1.htm
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_IndexKeysDefinitionBuilder_1.htm
 &#34;&gt;&lt;code&gt;IndexKeysDefinitionBuilder&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; provides a type-safe API to build an index keys definition.&lt;/p&gt;
 
 &lt;p&gt;For example, to build up the keys &lt;code&gt;{ x: 1, y: -1 }&lt;/code&gt;, do the following:&lt;/p&gt;
@@ -1301,7 +1301,7 @@ var keys = builder.Ascending(&amp;quot;x&amp;quot;).Descending(&amp;quot;y&amp;q
 &#34;&gt;automatic replica set failover&lt;/a&gt; and the driver supports multiple &lt;a href=&#34;http://docs.mongodb.org/manual/reference/program/mongos/
 &#34;&gt;mongos&lt;/a&gt;&amp;rsquo;s, this doesn&amp;rsquo;t make a program immune to errors.&lt;/p&gt;
 
-&lt;p&gt;Almost all errors will occur while attempting to perform an operation on the server. In other words, you will not receive an error when constructing a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoClient.htm
+&lt;p&gt;Almost all errors will occur while attempting to perform an operation on the server. In other words, you will not receive an error when constructing a &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_MongoClient.htm
 &#34;&gt;&lt;code&gt;MongoClient&lt;/code&gt;&lt;/a&gt;, getting a database, or getting a collection. This is because we are connecting to servers in the background and continually trying to reconnect when a problem occurs. Only when you attempt to perform an operation do those errors become apparent.&lt;/p&gt;
 
 &lt;p&gt;There are a few types of errors you will see.&lt;/p&gt;
@@ -1487,7 +1487,7 @@ Client view of cluster state is
 
 &lt;p&gt;We see that attempting to connect to &lt;code&gt;somefaroffplace:27017&lt;/code&gt; failed because we &amp;ldquo;Timed out connecting to Unspecified/somefaroffplace:27017. Timeout was 00:00:30.&amp;rdquo;&lt;/p&gt;
 
-&lt;p&gt;The default connection timeout is 30 seconds and can be changed using the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/P_MongoDB_Driver_MongoClientSettings_ConnectTimeout.htm
+&lt;p&gt;The default connection timeout is 30 seconds and can be changed using the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/P_MongoDB_Driver_MongoClientSettings_ConnectTimeout.htm
 &#34;&gt;&lt;code&gt;MongoClientSettings.ConnectTimeout&lt;/code&gt;&lt;/a&gt; property or the &lt;code&gt;connectTimeout&lt;/code&gt; option on a &lt;a href=&#34;http://docs.mongodb.org/manual/reference/connection-string/
 &#34;&gt;connection string&lt;/a&gt;.&lt;/p&gt;
 
@@ -1532,14 +1532,14 @@ Client view of cluster state is
 
 &lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
 &lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
-&lt;p&gt;Most of the exceptions that are thrown from an operation inherit from &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoException.htm&#34;&gt;&lt;code&gt;MongoException&lt;/code&gt;&lt;/a&gt;. In many cases, they also inherit from &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoServerException.htm&#34;&gt;&lt;code&gt;MongoServerException&lt;/code&gt;&lt;/a&gt;. The server exception contains a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/P_MongoDB_Driver_MongoServerException_ConnectionId.htm&#34;&gt;&lt;code&gt;ConnectionId&lt;/code&gt;&lt;/a&gt; which can be used to tie the operation back to a specific server and a specific connection on that server. It is then possible correllate the error you are seeing in your application with an error in the server logs.&lt;/p&gt;
+&lt;p&gt;Most of the exceptions that are thrown from an operation inherit from &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_MongoException.htm&#34;&gt;&lt;code&gt;MongoException&lt;/code&gt;&lt;/a&gt;. In many cases, they also inherit from &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_MongoServerException.htm&#34;&gt;&lt;code&gt;MongoServerException&lt;/code&gt;&lt;/a&gt;. The server exception contains a &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/P_MongoDB_Driver_MongoServerException_ConnectionId.htm&#34;&gt;&lt;code&gt;ConnectionId&lt;/code&gt;&lt;/a&gt; which can be used to tie the operation back to a specific server and a specific connection on that server. It is then possible correllate the error you are seeing in your application with an error in the server logs.&lt;/p&gt;
 
 &lt;/div&gt;
 &lt;/p&gt;
 
 &lt;h3 id=&#34;connection-errors-1&#34;&gt;Connection Errors&lt;/h3&gt;
 
-&lt;p&gt;A server may go down after it was selected, but before the operation was executed. These will always manifest as a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoConnectionException.htm
+&lt;p&gt;A server may go down after it was selected, but before the operation was executed. These will always manifest as a &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_MongoConnectionException.htm
 &#34;&gt;&lt;code&gt;MongoConnectionException&lt;/code&gt;&lt;/a&gt;. Inspecting the inner exception will provide the actual details of the error.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;MongoDB.Driver.MongoConnectionException: An exception occurred while receiving a message from the server. 
@@ -1552,21 +1552,21 @@ Client view of cluster state is
 
 &lt;p&gt;We see from this exception that a transport connection that was successfully open at one point has been aborted.&lt;/p&gt;
 
-&lt;p&gt;There are too many forms of this type of exception to enumerate. In general, it is not safe to retry operations that threw a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoConnectionException.htm
+&lt;p&gt;There are too many forms of this type of exception to enumerate. In general, it is not safe to retry operations that threw a &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_MongoConnectionException.htm
 &#34;&gt;&lt;code&gt;MongoConnectionException&lt;/code&gt;&lt;/a&gt; unless the operation was idempotent. Simply getting an exception of this type doesn&amp;rsquo;t give any insight into whether the operations was received by the server or what happened in the server if it was received.&lt;/p&gt;
 
 &lt;h3 id=&#34;write-exceptions&#34;&gt;Write Exceptions&lt;/h3&gt;
 
-&lt;p&gt;When performing a write, it is possible to receive a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoWriteException.htm
-&#34;&gt;&lt;code&gt;MongoWriteException&lt;/code&gt;&lt;/a&gt;. This exception has two important properties, &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/P_MongoDB_Driver_MongoWriteException_WriteError.htm
-&#34;&gt;&lt;code&gt;WriteError&lt;/code&gt;&lt;/a&gt; and &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/P_MongoDB_Driver_MongoWriteException_WriteConcernError.htm
+&lt;p&gt;When performing a write, it is possible to receive a &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_MongoWriteException.htm
+&#34;&gt;&lt;code&gt;MongoWriteException&lt;/code&gt;&lt;/a&gt;. This exception has two important properties, &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/P_MongoDB_Driver_MongoWriteException_WriteError.htm
+&#34;&gt;&lt;code&gt;WriteError&lt;/code&gt;&lt;/a&gt; and &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/P_MongoDB_Driver_MongoWriteException_WriteConcernError.htm
 &#34;&gt;&lt;code&gt;WriteConcernError&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
 
 &lt;h4 id=&#34;write-error&#34;&gt;Write Error&lt;/h4&gt;
 
-&lt;p&gt;A write error means that there was an error applying the write. The cause could be many different things. The &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_WriteError.htm
-&#34;&gt;&lt;code&gt;WriteError&lt;/code&gt;&lt;/a&gt; contains a number of properties which may help in the diagnosis of the problem. The &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/P_MongoDB_Driver_WriteError_Code.htm
-&#34;&gt;&lt;code&gt;Code&lt;/code&gt;&lt;/a&gt; property will indicate specifically what went wrong. For general categories of errors, the driver also provides a helpful &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/P_MongoDB_Driver_WriteError_Category..htm
+&lt;p&gt;A write error means that there was an error applying the write. The cause could be many different things. The &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_WriteError.htm
+&#34;&gt;&lt;code&gt;WriteError&lt;/code&gt;&lt;/a&gt; contains a number of properties which may help in the diagnosis of the problem. The &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/P_MongoDB_Driver_WriteError_Code.htm
+&#34;&gt;&lt;code&gt;Code&lt;/code&gt;&lt;/a&gt; property will indicate specifically what went wrong. For general categories of errors, the driver also provides a helpful &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/P_MongoDB_Driver_WriteError_Category..htm
 &#34;&gt;&lt;code&gt;Category&lt;/code&gt;&lt;/a&gt; property which classifies certain codes.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;MongoDB.Driver.MongoWriteException: A write operation resulted in an error. E11000 duplicate key error index: test.people.$_id_ dup key: { : 0 } 
@@ -1574,7 +1574,7 @@ Client view of cluster state is
    at MongoDB.Driver.MongoCollectionImpl`1.&amp;lt;BulkWriteAsync&amp;gt;d__11.MoveNext() in :\projects\mongo-csharp-driver\src\MongoDB.Driver\MongoCollectionImpl.cs:line 16
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;We see from this exception that we&amp;rsquo;ve attempted to insert a document with a duplicate _id field. In this case, the write error would contain the category &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_ServerErrorCategory.htm
+&lt;p&gt;We see from this exception that we&amp;rsquo;ve attempted to insert a document with a duplicate _id field. In this case, the write error would contain the category &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_ServerErrorCategory.htm
 &#34;&gt;&lt;code&gt;DuplicateKeyError&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
 
 &lt;h4 id=&#34;write-concern-error&#34;&gt;Write Concern Error&lt;/h4&gt;
@@ -1585,9 +1585,9 @@ Client view of cluster state is
 
 &lt;h3 id=&#34;bulk-write-exceptions&#34;&gt;Bulk Write Exceptions&lt;/h3&gt;
 
-&lt;p&gt;A &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoBulkWriteException_1.htm
-&#34;&gt;&lt;code&gt;MongoBulkWriteException&lt;/code&gt;&lt;/a&gt; will occur when using the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoCollection_1_InsertManyAsync.htm
-&#34;&gt;&lt;code&gt;InsertManyAsync&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoCollection_1_BulkWriteAsync.htm
+&lt;p&gt;A &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_MongoBulkWriteException_1.htm
+&#34;&gt;&lt;code&gt;MongoBulkWriteException&lt;/code&gt;&lt;/a&gt; will occur when using the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_InsertManyAsync.htm
+&#34;&gt;&lt;code&gt;InsertManyAsync&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_BulkWriteAsync.htm
 &#34;&gt;&lt;code&gt;BulkWriteAsync&lt;/code&gt;&lt;/a&gt;. This exception is just a rollup of a bunch of individual &lt;a href=&#34;#write-error&#34;&gt;write errors&lt;/a&gt;. It also includes a &lt;a href=&#34;#write-concern-error&#34;&gt;write concern error&lt;/a&gt; and a &lt;a href=&#34;No page found with path or logical name &#34;P_MongoDB_Driver_MongoBulkWriteException_1_Result&#34;.
 &#34;&gt;&lt;code&gt;Result&lt;/code&gt;&lt;/a&gt; property.&lt;/p&gt;
 
@@ -1596,12 +1596,12 @@ Client view of cluster state is
    at MongoDB.Driver.MongoCollectionImpl`1.&amp;lt;BulkWriteAsync&amp;gt;d__11.MoveNext() in c :\projects\mongo-csharp-driver\src\MongoDB.Driver\MongoCollectionImpl.cs:line 166
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;Above, we see that a duplicate key exception occured. In this case, two writes existed in the batch. Inspected the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/P_MongoDB_Driver_MongoBulkWriteException_WriteErrors.htm
+&lt;p&gt;Above, we see that a duplicate key exception occured. In this case, two writes existed in the batch. Inspected the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/P_MongoDB_Driver_MongoBulkWriteException_WriteErrors.htm
 &#34;&gt;&lt;code&gt;WriteErrors&lt;/code&gt;&lt;/a&gt; property would allow the identification of which write failed.&lt;/p&gt;
 
 &lt;h4 id=&#34;ordered-writes&#34;&gt;Ordered Writes&lt;/h4&gt;
 
-&lt;p&gt;Bulk writes are allowed to be processed either in order or without order. When processing in order, the first error that occurs will stop the processing of all subsequent writes. In this case, all of the unprocessed writes will be available via the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/P_MongoDB_Driver_MongoBulkWriteException_1_UnprocessedRequests.htm
+&lt;p&gt;Bulk writes are allowed to be processed either in order or without order. When processing in order, the first error that occurs will stop the processing of all subsequent writes. In this case, all of the unprocessed writes will be available via the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/P_MongoDB_Driver_MongoBulkWriteException_1_UnprocessedRequests.htm
 &#34;&gt;&lt;code&gt;UnprocessedRequests&lt;/code&gt;&lt;/a&gt; property.&lt;/p&gt;
 </description>
     </item>
@@ -2582,17 +2582,17 @@ These are only supported in a grouping expression.
 
 &lt;h2 id=&#34;mapping-classes&#34;&gt;Mapping Classes&lt;/h2&gt;
 
-&lt;p&gt;Using a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm
+&lt;p&gt;Using a &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_BsonDocument.htm
 &#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt; will work when a schema is fluid and dynamic. However, most applications are built with a schema modeled in the application itself rather than the database. In these cases, it is likely that the application uses classes.&lt;/p&gt;
 
-&lt;p&gt;The .NET BSON library supports mapping these classes to and from BSON/JSON using a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_BsonClassMap_1.htm
+&lt;p&gt;The .NET BSON library supports mapping these classes to and from BSON/JSON using a &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_BsonClassMap_1.htm
 &#34;&gt;&lt;code&gt;BsonClassMap&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
 
 &lt;h2 id=&#34;creating-a-class-map&#34;&gt;Creating a Class Map&lt;/h2&gt;
 
 &lt;p&gt;In a majority of cases, the driver will be able to automatically map your class for you. This will happen if you begin to use a class for which no &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/bson/serialization/#serializers&#34;&gt;serializer&lt;/a&gt; has yet been registered in the &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/bson/serialization/#serializer-registry&#34;&gt;serializer registry&lt;/a&gt;.&lt;/p&gt;
 
-&lt;p&gt;You can choose to register the class map using the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Bson_Serialization_BsonClassMap_RegisterClassMap__1_1.htm
+&lt;p&gt;You can choose to register the class map using the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Bson_Serialization_BsonClassMap_RegisterClassMap__1_1.htm
 &#34;&gt;&lt;code&gt;RegisterClassMap&lt;/code&gt;&lt;/a&gt; method:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;BsonClassMap.RegisterClassMap&amp;lt;MyClass&amp;gt;();
@@ -2613,12 +2613,12 @@ It is very important that the registration of class maps occur prior to them bei
 });
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;When your lambda expression is executed, the &lt;code&gt;cm&lt;/code&gt; (short for class map) parameter is passed an empty class map for you to fill in. In this example, two properties are added to the class map by calling the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Bson_Serialization_BsonClassMap_1_MapMember__1.htm
+&lt;p&gt;When your lambda expression is executed, the &lt;code&gt;cm&lt;/code&gt; (short for class map) parameter is passed an empty class map for you to fill in. In this example, two properties are added to the class map by calling the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Bson_Serialization_BsonClassMap_1_MapMember__1.htm
 &#34;&gt;&lt;code&gt;MapMember&lt;/code&gt;&lt;/a&gt; method. The arguments to the method are themselves lambda expressions which identify the member of the class. The advantage of using a lambda expression instead of just a string parameter with the name of the property is that Intellisense and compile time checking ensure that you can’t misspell the name of the property.&lt;/p&gt;
 
 &lt;h2 id=&#34;automap&#34;&gt;AutoMap&lt;/h2&gt;
 
-&lt;p&gt;It is also possible to use automapping and then override some of the results using the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Bson_Serialization_BsonClassMap_AutoMap.htm
+&lt;p&gt;It is also possible to use automapping and then override some of the results using the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Bson_Serialization_BsonClassMap_AutoMap.htm
 &#34;&gt;&lt;code&gt;AutoMap&lt;/code&gt;&lt;/a&gt; method. This method should be called first in the lambda expression.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;BsonClassMap.RegisterClassMap&amp;lt;MyClass&amp;gt;(cm =&amp;gt; 
@@ -2629,7 +2629,7 @@ It is very important that the registration of class maps occur prior to them bei
 });
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Bson_Serialization_BsonClassMap_AutoMap.htm
+&lt;p&gt;&lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Bson_Serialization_BsonClassMap_AutoMap.htm
 &#34;&gt;&lt;code&gt;AutoMap&lt;/code&gt;&lt;/a&gt; uses conventions to map the class and its members. See the &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/bson/mapping/conventions/&#34;&gt;convention documentation&lt;/a&gt; for more information.&lt;/p&gt;
 
 &lt;h2 id=&#34;class-customization&#34;&gt;Class Customization&lt;/h2&gt;
@@ -2638,7 +2638,7 @@ It is very important that the registration of class maps occur prior to them bei
 
 &lt;h3 id=&#34;ignoring-extra-elements&#34;&gt;Ignoring Extra Elements&lt;/h3&gt;
 
-&lt;p&gt;When a BSON document is deserialized, the name of each element is used to look up a matching member in the class map. Normally, if no matching member is found, an exception will be thrown. If you want to ignore extra elements during deserialization, use a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_Attributes_BsonIgnoreExtraElementsAttribute.htm
+&lt;p&gt;When a BSON document is deserialized, the name of each element is used to look up a matching member in the class map. Normally, if no matching member is found, an exception will be thrown. If you want to ignore extra elements during deserialization, use a &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_Attributes_BsonIgnoreExtraElementsAttribute.htm
 &#34;&gt;&lt;code&gt;BsonIgnoreExtraElementsAttribute&lt;/code&gt;&lt;/a&gt;:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;[BsonIgnoreExtraElements]
@@ -2665,7 +2665,7 @@ When you ignore extra elements, if the class is rendered back to BSON, those ext
 
 &lt;h3 id=&#34;supporting-extra-elements&#34;&gt;Supporting Extra Elements&lt;/h3&gt;
 
-&lt;p&gt;You can design your class to be capable of handling any extra elements that might be found in a BSON document during deserialization. To do so, you must have a property of type &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm
+&lt;p&gt;You can design your class to be capable of handling any extra elements that might be found in a BSON document during deserialization. To do so, you must have a property of type &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_BsonDocument.htm
 &#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt; (or &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/s4ys34ea.aspx&#34;&gt;&lt;code&gt;IDictionary&amp;lt;string, object&amp;gt;&lt;/code&gt;&lt;/a&gt;) and you must identify that property as the one that should hold any extra elements that are found. By &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/bson/mapping/conventions/&#34;&gt;convention&lt;/a&gt;, the member may be named &lt;code&gt;ExtraElements&lt;/code&gt;. For example:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;public MyClass 
@@ -2691,7 +2691,7 @@ When you ignore extra elements, if the class is rendered back to BSON, those ext
 
 &lt;p&gt;See the &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/bson/mapping/polymorphism/&#34;&gt;polymorphism&lt;/a&gt; section for documentation on discriminators and polymorphism.&lt;/p&gt;
 
-&lt;p&gt;To specify a discriminator, use a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_Attributes_BsonDiscriminatorAttribute.htm
+&lt;p&gt;To specify a discriminator, use a &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_Attributes_BsonDiscriminatorAttribute.htm
 &#34;&gt;&lt;code&gt;BsonDiscriminatorAttribute&lt;/code&gt;&lt;/a&gt;:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;[BsonDiscriminator(&amp;quot;myclass&amp;quot;)]
@@ -2789,7 +2789,7 @@ BsonClassMap.RegisterClassMap&amp;lt;Person&amp;gt;(cm =&amp;gt;
 
 &lt;h3 id=&#34;opt-in&#34;&gt;Opt-In&lt;/h3&gt;
 
-&lt;p&gt;A majority of classes will have their members &lt;a href=&#34;#automap&#34;&gt;mapped automatically&lt;/a&gt;. There are some circumstances where this does not happen. For instance, if your property is read-only, it will not get included in the automapping of a class by default. In order to include the member, you can use the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_Attributes_BsonElementAttribute.htm
+&lt;p&gt;A majority of classes will have their members &lt;a href=&#34;#automap&#34;&gt;mapped automatically&lt;/a&gt;. There are some circumstances where this does not happen. For instance, if your property is read-only, it will not get included in the automapping of a class by default. In order to include the member, you can use the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_Attributes_BsonElementAttribute.htm
 &#34;&gt;&lt;code&gt;BsonElementAttribute&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;class MyClass
@@ -2863,7 +2863,7 @@ When a readonly property is serialized, it value is persisted to the database, b
 
 &lt;h3 id=&#34;the-id-member&#34;&gt;The Id Member&lt;/h3&gt;
 
-&lt;p&gt;By &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/bson/mapping/conventions/&#34;&gt;convention&lt;/a&gt;, a public member called &lt;code&gt;Id&lt;/code&gt;, &lt;code&gt;id&lt;/code&gt;, or &lt;code&gt;_id&lt;/code&gt; will be used as the identifier. You can be specific about this using the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_Attributes_BsonIdAttribute.htm
+&lt;p&gt;By &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/bson/mapping/conventions/&#34;&gt;convention&lt;/a&gt;, a public member called &lt;code&gt;Id&lt;/code&gt;, &lt;code&gt;id&lt;/code&gt;, or &lt;code&gt;_id&lt;/code&gt; will be used as the identifier. You can be specific about this using the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_Attributes_BsonIdAttribute.htm
 &#34;&gt;&lt;code&gt;BsonIdAttribute&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;public class MyClass 
@@ -2884,36 +2884,36 @@ When a readonly property is serialized, it value is persisted to the database, b
 
 &lt;h4 id=&#34;id-generators&#34;&gt;Id Generators&lt;/h4&gt;
 
-&lt;p&gt;When you Insert a document, the driver checks to see if the &lt;code&gt;Id&lt;/code&gt; member has been assigned a value and, if not, generates a new unique value for it. Since the &lt;code&gt;Id&lt;/code&gt; member can be of any type, the driver requires the help of an &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_IIdGenerator.htm
+&lt;p&gt;When you Insert a document, the driver checks to see if the &lt;code&gt;Id&lt;/code&gt; member has been assigned a value and, if not, generates a new unique value for it. Since the &lt;code&gt;Id&lt;/code&gt; member can be of any type, the driver requires the help of an &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_IIdGenerator.htm
 &#34;&gt;&lt;code&gt;IIdGenerator&lt;/code&gt;&lt;/a&gt; to check whether the &lt;code&gt;Id&lt;/code&gt; has a value assigned to it and to generate a new value if necessary. The driver has the following Id generators built-in:&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_IdGenerators_ObjectIdGenerator.htm
+&lt;li&gt;&lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_IdGenerators_ObjectIdGenerator.htm
 &#34;&gt;&lt;code&gt;ObjectIdGenerator&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_IdGenerators_StringObjectIdGenerator.htm
+&lt;li&gt;&lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_IdGenerators_StringObjectIdGenerator.htm
 &#34;&gt;&lt;code&gt;StringObjectIdGenerator&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_IdGenerators_GuidGenerator.htm
+&lt;li&gt;&lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_IdGenerators_GuidGenerator.htm
 &#34;&gt;&lt;code&gt;GuidGenerator&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_IdGenerators_CombGuidGenerator.htm
+&lt;li&gt;&lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_IdGenerators_CombGuidGenerator.htm
 &#34;&gt;&lt;code&gt;CombGuidGenerator&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_IdGenerators_NullIdChecker.htm
+&lt;li&gt;&lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_IdGenerators_NullIdChecker.htm
 &#34;&gt;&lt;code&gt;NullIdChecker&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_IdGenerators_ZeroIdChecker_1.htm
+&lt;li&gt;&lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_IdGenerators_ZeroIdChecker_1.htm
 &#34;&gt;&lt;code&gt;ZeroIdChecker&amp;lt;T&amp;gt;&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_IdGenerators_BsonObjectIdGenerator.htm
+&lt;li&gt;&lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_IdGenerators_BsonObjectIdGenerator.htm
 &#34;&gt;&lt;code&gt;BsonObjectIdGenerator&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;p&gt;Some of these Id generators are used automatically for commonly used &lt;code&gt;Id&lt;/code&gt; types:&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_IdGenerators_GuidGenerator.htm
+&lt;li&gt;&lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_IdGenerators_GuidGenerator.htm
 &#34;&gt;&lt;code&gt;GuidGenerator&lt;/code&gt;&lt;/a&gt; is used for a &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.guid.aspx&#34;&gt;&lt;code&gt;Guid&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_IdGenerators_ObjectIdGenerator.htm
-&#34;&gt;&lt;code&gt;ObjectIdGenerator&lt;/code&gt;&lt;/a&gt; is used for an &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_ObjectId.htm
+&lt;li&gt;&lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_IdGenerators_ObjectIdGenerator.htm
+&#34;&gt;&lt;code&gt;ObjectIdGenerator&lt;/code&gt;&lt;/a&gt; is used for an &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_ObjectId.htm
 &#34;&gt;&lt;code&gt;ObjectId&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_IdGenerators_StringObjectIdGenerator.htm
-&#34;&gt;&lt;code&gt;StringObjectIdGenerator&lt;/code&gt;&lt;/a&gt; is used for a &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.string.aspx&#34;&gt;&lt;code&gt;string&lt;/code&gt;&lt;/a&gt; represented externally as &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_ObjectId.htm
+&lt;li&gt;&lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_IdGenerators_StringObjectIdGenerator.htm
+&#34;&gt;&lt;code&gt;StringObjectIdGenerator&lt;/code&gt;&lt;/a&gt; is used for a &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.string.aspx&#34;&gt;&lt;code&gt;string&lt;/code&gt;&lt;/a&gt; represented externally as &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_ObjectId.htm
 &#34;&gt;&lt;code&gt;ObjectId&lt;/code&gt;&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
@@ -2935,7 +2935,7 @@ When a readonly property is serialized, it value is persisted to the database, b
 });
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;You could also say that you want to use the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_IdGenerators_CombGuidGenerator.htm
+&lt;p&gt;You could also say that you want to use the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_IdGenerators_CombGuidGenerator.htm
 &#34;&gt;&lt;code&gt;CombGuidGenerator&lt;/code&gt;&lt;/a&gt; for all Guids.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;BsonSerializer.RegisterIdGenerator(
@@ -2946,7 +2946,7 @@ When a readonly property is serialized, it value is persisted to the database, b
 
 &lt;h3 id=&#34;ignoring-a-member&#34;&gt;Ignoring a Member&lt;/h3&gt;
 
-&lt;p&gt;When constructing a class map manually, you can ignore a field or property simply by not adding it to the class map. When using AutoMap, you need a way to specify that a field or property should be ignored. Use the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_Attributes_BsonIgnoreAttribute.htm
+&lt;p&gt;When constructing a class map manually, you can ignore a field or property simply by not adding it to the class map. When using AutoMap, you need a way to specify that a field or property should be ignored. Use the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_Attributes_BsonIgnoreAttribute.htm
 &#34;&gt;&lt;code&gt;BsonIgnoreAttribute&lt;/code&gt;&lt;/a&gt;:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;public class MyClass 
@@ -2965,13 +2965,13 @@ When a readonly property is serialized, it value is persisted to the database, b
 });
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;When using code, &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Bson_Serialization_BsonClassMap_AutoMap.htm
-&#34;&gt;&lt;code&gt;AutoMap&lt;/code&gt;&lt;/a&gt; will have initially added the property to the class map automatically. &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Bson_Serialization_BsonClassMap_1_UnmapMember__1.htm
+&lt;p&gt;When using code, &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Bson_Serialization_BsonClassMap_AutoMap.htm
+&#34;&gt;&lt;code&gt;AutoMap&lt;/code&gt;&lt;/a&gt; will have initially added the property to the class map automatically. &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Bson_Serialization_BsonClassMap_1_UnmapMember__1.htm
 &#34;&gt;&lt;code&gt;UnmapMember&lt;/code&gt;&lt;/a&gt; will remove it.&lt;/p&gt;
 
 &lt;h3 id=&#34;ignoring-default-values&#34;&gt;Ignoring Default Values&lt;/h3&gt;
 
-&lt;p&gt;By default, default values are serialized to the BSON document. An alternative is to serialize nothing to the BSON document when the member has a default value. For reference types, this value is &lt;code&gt;null&lt;/code&gt; and for value types, the default is whatever the default is for the value type. Use a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_Attributes_BsonIgnoreIfDefaultAttribute.htm
+&lt;p&gt;By default, default values are serialized to the BSON document. An alternative is to serialize nothing to the BSON document when the member has a default value. For reference types, this value is &lt;code&gt;null&lt;/code&gt; and for value types, the default is whatever the default is for the value type. Use a &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_Attributes_BsonIgnoreIfDefaultAttribute.htm
 &#34;&gt;&lt;code&gt;BsonIgnoreIfDefaultAttribute&lt;/code&gt;&lt;/a&gt;:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;public class MyClass 
@@ -2992,7 +2992,7 @@ When a readonly property is serialized, it value is persisted to the database, b
 
 &lt;h3 id=&#34;specifying-the-default-value&#34;&gt;Specifying the Default Value&lt;/h3&gt;
 
-&lt;p&gt;You can specify a default value for a member using a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_Attributes_BsonDefaultValueAttribute.htm
+&lt;p&gt;You can specify a default value for a member using a &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_Attributes_BsonDefaultValueAttribute.htm
 &#34;&gt;&lt;code&gt;BsonDefaultValueAttribute&lt;/code&gt;&lt;/a&gt;:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;public class MyClass 
@@ -3023,7 +3023,7 @@ When a readonly property is serialized, it value is persisted to the database, b
 
 &lt;h3 id=&#34;ignoring-a-member-at-runtime&#34;&gt;Ignoring a Member at Runtime&lt;/h3&gt;
 
-&lt;p&gt;Sometimes the decision whether to serialize a member or not is more complicated than just whether the value is &lt;code&gt;null&lt;/code&gt; or equal to the default value. In these cases, you can write a method that determines whether a value should be serialized. Usually the method for member Xyz is named ShouldSerializeXyz. If you follow this naming convention then &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Bson_Serialization_BsonClassMap_AutoMap.htm
+&lt;p&gt;Sometimes the decision whether to serialize a member or not is more complicated than just whether the value is &lt;code&gt;null&lt;/code&gt; or equal to the default value. In these cases, you can write a method that determines whether a value should be serialized. Usually the method for member Xyz is named ShouldSerializeXyz. If you follow this naming convention then &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Bson_Serialization_BsonClassMap_AutoMap.htm
 &#34;&gt;&lt;code&gt;AutoMap&lt;/code&gt;&lt;/a&gt; will automatically detect the method and use it. For example:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;public class Employee 
@@ -3053,7 +3053,7 @@ When a readonly property is serialized, it value is persisted to the database, b
 
 &lt;h3 id=&#34;specifying-the-serializer&#34;&gt;Specifying the Serializer&lt;/h3&gt;
 
-&lt;p&gt;There are times when a specific serializer needs to be used rather than letting the BSON library choose. This can be done using a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_Attributes_BsonSerializerAttribute.htm
+&lt;p&gt;There are times when a specific serializer needs to be used rather than letting the BSON library choose. This can be done using a &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_Attributes_BsonSerializerAttribute.htm
 &#34;&gt;&lt;code&gt;BsonSerializerAttribute&lt;/code&gt;&lt;/a&gt;:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;public class MyClass 
@@ -3080,7 +3080,7 @@ When a readonly property is serialized, it value is persisted to the database, b
 
 &lt;h4 id=&#34;datetime-serialization-options&#34;&gt;DateTime Serialization Options&lt;/h4&gt;
 
-&lt;p&gt;Using a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_Attributes_BsonDateTimeOptionsAttribute.htm
+&lt;p&gt;Using a &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_Attributes_BsonDateTimeOptionsAttribute.htm
 &#34;&gt;&lt;code&gt;BsonDateTimeOptionsAttribute&lt;/code&gt;&lt;/a&gt;:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;public class MyClass 
@@ -3093,7 +3093,7 @@ When a readonly property is serialized, it value is persisted to the database, b
 }
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;When done via code, a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_Serializers_DateTimeSerializer.htm
+&lt;p&gt;When done via code, a &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_Serializers_DateTimeSerializer.htm
 &#34;&gt;&lt;code&gt;DateTimeSerializer&lt;/code&gt;&lt;/a&gt; should be set:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;BsonClassMap.RegisterClassMap&amp;lt;MyClass&amp;gt;(cm =&amp;gt; 
@@ -3114,8 +3114,8 @@ DateTime values in MongoDB are always saved as UTC.
 
 &lt;h4 id=&#34;dictionary-serialization-options&#34;&gt;Dictionary Serialization Options&lt;/h4&gt;
 
-&lt;p&gt;When serializing dictionaries, there are several alternative ways that the contents of the dictionary can be represented. The &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_Options_DictionaryRepresentation.htm
-&#34;&gt;&lt;code&gt;DictionaryRepresentation&lt;/code&gt;&lt;/a&gt; enum indicates the supported methods. Using a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_Attributes_BsonDictionaryOptionsAttribute.htm
+&lt;p&gt;When serializing dictionaries, there are several alternative ways that the contents of the dictionary can be represented. The &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_Options_DictionaryRepresentation.htm
+&#34;&gt;&lt;code&gt;DictionaryRepresentation&lt;/code&gt;&lt;/a&gt; enum indicates the supported methods. Using a &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_Attributes_BsonDictionaryOptionsAttribute.htm
 &#34;&gt;&lt;code&gt;BsonDictionaryOptionsAttribute&lt;/code&gt;&lt;/a&gt;:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;public class C 
@@ -3127,7 +3127,7 @@ DateTime values in MongoDB are always saved as UTC.
 }
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;When done via code, a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_Serializers_DictionaryInterfaceImplementerSerializer_1.htm
+&lt;p&gt;When done via code, a &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_Serializers_DictionaryInterfaceImplementerSerializer_1.htm
 &#34;&gt;&lt;code&gt;DictionaryInterfaceImplementerSerializer&lt;/code&gt;&lt;/a&gt; should be set:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;BsonClassMap.RegisterClassMap&amp;lt;C&amp;gt;(cm =&amp;gt; 
@@ -3137,7 +3137,7 @@ DateTime values in MongoDB are always saved as UTC.
 });
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;The 3 options in the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_Options_DictionaryRepresentation.htm
+&lt;p&gt;The 3 options in the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_Options_DictionaryRepresentation.htm
 &#34;&gt;&lt;code&gt;DictionaryRepresentation&lt;/code&gt;&lt;/a&gt; enum are as follows:&lt;/p&gt;
 
 &lt;ul&gt;
@@ -3183,9 +3183,9 @@ DateTime values in MongoDB are always saved as UTC.
 }
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;In this case, the serializer will convert the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_ObjectId.htm
-&#34;&gt;&lt;code&gt;ObjectId&lt;/code&gt;&lt;/a&gt; to a &lt;code&gt;string&lt;/code&gt; when reading data from the database and will convert the &lt;code&gt;string&lt;/code&gt; back to an &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_ObjectId.htm
-&#34;&gt;&lt;code&gt;ObjectId&lt;/code&gt;&lt;/a&gt; when writing data to the database (the &lt;code&gt;string&lt;/code&gt; value must be a valid &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_ObjectId.htm
+&lt;p&gt;In this case, the serializer will convert the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_ObjectId.htm
+&#34;&gt;&lt;code&gt;ObjectId&lt;/code&gt;&lt;/a&gt; to a &lt;code&gt;string&lt;/code&gt; when reading data from the database and will convert the &lt;code&gt;string&lt;/code&gt; back to an &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_ObjectId.htm
+&#34;&gt;&lt;code&gt;ObjectId&lt;/code&gt;&lt;/a&gt; when writing data to the database (the &lt;code&gt;string&lt;/code&gt; value must be a valid &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_ObjectId.htm
 &#34;&gt;&lt;code&gt;ObjectId&lt;/code&gt;&lt;/a&gt;). Typically this is done when you want to keep your domain classes free of any dependencies on the driver. To keep your domain classes free of dependencies on the C# driver you also won’t want to use attributes, so you can accomplish the same thing using initialization code instead of attributes:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;BsonClassMap.RegisterClassMap&amp;lt;Employee&amp;gt;(cm =&amp;gt; 
@@ -3226,11 +3226,11 @@ public class Person
 &lt;p&gt;It is possible to implement custom attributes to contribute to the serialization infrastructure. There are 3 interfaces you might want to implement:&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_IBsonClassMapAttribute.htm
+&lt;li&gt;&lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_IBsonClassMapAttribute.htm
 &#34;&gt;&lt;code&gt;IBsonClassMapAttribute&lt;/code&gt;&lt;/a&gt; is used to contribute to a class map.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_IBsonMemberMapAttribute.htm
+&lt;li&gt;&lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_IBsonMemberMapAttribute.htm
 &#34;&gt;&lt;code&gt;IBsonMemberMapAttribute&lt;/code&gt;&lt;/a&gt; is used to contribute to a member map.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_IBsonCreatorMapAttribute.htm
+&lt;li&gt;&lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_IBsonCreatorMapAttribute.htm
 &#34;&gt;&lt;code&gt;IBsonCreatorMapAttribute&lt;/code&gt;&lt;/a&gt; is used to contribute to a creator map.&lt;/li&gt;
 &lt;/ul&gt;
 
@@ -3248,14 +3248,14 @@ public class Person
 
 &lt;h2 id=&#34;polymorphism&#34;&gt;Polymorphism&lt;/h2&gt;
 
-&lt;p&gt;When you have a class hierarchy and will be serializing instances of varying classes to the same collection you need a way to distinguish one from another. The normal way to do so is to write some kind of special value (called a “discriminator”) in the document along with the rest of the elements that you can later look at to tell them apart. Since there are potentially many ways you could discriminate between actual types, the default serializer uses conventions for discriminators. The default serializer provides two standard discriminators: &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_Conventions_ScalarDiscriminatorConvention.htm
-&#34;&gt;&lt;code&gt;ScalarDiscriminatorConvention&lt;/code&gt;&lt;/a&gt; and &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_Conventions_HierarchicalDiscriminatorConvention.htm
-&#34;&gt;&lt;code&gt;HierarchicalDiscriminatorConvention&lt;/code&gt;&lt;/a&gt;. The default is the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_Conventions_HierarchicalDiscriminatorConvention.htm
-&#34;&gt;&lt;code&gt;HierarchicalDiscriminatorConvention&lt;/code&gt;&lt;/a&gt;, but it behaves just like the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_Conventions_ScalarDiscriminatorConvention.htm
+&lt;p&gt;When you have a class hierarchy and will be serializing instances of varying classes to the same collection you need a way to distinguish one from another. The normal way to do so is to write some kind of special value (called a “discriminator”) in the document along with the rest of the elements that you can later look at to tell them apart. Since there are potentially many ways you could discriminate between actual types, the default serializer uses conventions for discriminators. The default serializer provides two standard discriminators: &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_Conventions_ScalarDiscriminatorConvention.htm
+&#34;&gt;&lt;code&gt;ScalarDiscriminatorConvention&lt;/code&gt;&lt;/a&gt; and &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_Conventions_HierarchicalDiscriminatorConvention.htm
+&#34;&gt;&lt;code&gt;HierarchicalDiscriminatorConvention&lt;/code&gt;&lt;/a&gt;. The default is the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_Conventions_HierarchicalDiscriminatorConvention.htm
+&#34;&gt;&lt;code&gt;HierarchicalDiscriminatorConvention&lt;/code&gt;&lt;/a&gt;, but it behaves just like the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_Conventions_ScalarDiscriminatorConvention.htm
 &#34;&gt;&lt;code&gt;ScalarDiscriminatorConvention&lt;/code&gt;&lt;/a&gt; until certain options are set to trigger its hierarchical behavior.&lt;/p&gt;
 
-&lt;p&gt;The default discriminator conventions both use an element named _t to store the discriminator value in the BSON document. This element will normally be the second element in the BSON document (right after the _id). In the case of the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_Conventions_ScalarDiscriminatorConvention.htm
-&#34;&gt;&lt;code&gt;ScalarDiscriminatorConvention&lt;/code&gt;&lt;/a&gt;, the value of _t will be a single string. In the case of the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_Conventions_HierarchicalDiscriminatorConvention.htm
+&lt;p&gt;The default discriminator conventions both use an element named _t to store the discriminator value in the BSON document. This element will normally be the second element in the BSON document (right after the _id). In the case of the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_Conventions_ScalarDiscriminatorConvention.htm
+&#34;&gt;&lt;code&gt;ScalarDiscriminatorConvention&lt;/code&gt;&lt;/a&gt;, the value of _t will be a single string. In the case of the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_Conventions_HierarchicalDiscriminatorConvention.htm
 &#34;&gt;&lt;code&gt;HierarchicalDiscriminatorConvention&lt;/code&gt;&lt;/a&gt; the value of _t will be an array of discriminator values, one for each level of the class inheritance tree.&lt;/p&gt;
 
 &lt;p&gt;While you will normally be just fine with the default discriminator convention, you might have to write a custom discriminator convention if you must work with data written by another driver or object mapper that uses a different convention for its discriminators.&lt;/p&gt;
@@ -3305,7 +3305,7 @@ public class Tiger : Cat
 }
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;The &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_Attributes_BsonKnownTypesAttribute.htm
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_Attributes_BsonKnownTypesAttribute.htm
 &#34;&gt;&lt;code&gt;BsonKnownTypesAttribute&lt;/code&gt;&lt;/a&gt; attribute lets the serializer know what subclasses it might encounter during deserialization, so when &lt;code&gt;Animal&lt;/code&gt; is &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/bson/mapping/#automap&#34;&gt;automapped&lt;/a&gt;, the serializer will also &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/bson/mapping/#automap&#34;&gt;automap&lt;/a&gt; &lt;code&gt;Cat&lt;/code&gt; and &lt;code&gt;Dog&lt;/code&gt;, and recursively, &lt;code&gt;Lion&lt;/code&gt; and &lt;code&gt;Tiger&lt;/code&gt; as well.&lt;/p&gt;
 
 &lt;p&gt;Or via code:&lt;/p&gt;
@@ -3328,11 +3328,11 @@ BsonClassMap.RegisterClassMap&amp;lt;Tiger&amp;gt;();
 { _id: ..., _t: &amp;quot;Tiger&amp;quot;, ... }
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;Sometimes it can be helpful to record a hierarchy of discriminator values, one for each level of the hierarchy. To do this, you must first mark a base class as being the root of a hierarchy, and then the default &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_Conventions_HierarchicalDiscriminatorConvention.htm
+&lt;p&gt;Sometimes it can be helpful to record a hierarchy of discriminator values, one for each level of the hierarchy. To do this, you must first mark a base class as being the root of a hierarchy, and then the default &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_Conventions_HierarchicalDiscriminatorConvention.htm
 &#34;&gt;&lt;code&gt;HierarchicalDiscriminatorConvention&lt;/code&gt;&lt;/a&gt; will automatically record discriminators as array values instead.&lt;/p&gt;
 
-&lt;p&gt;To identify &lt;code&gt;Animal&lt;/code&gt; as the root of a hierarchy use the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_Attributes_BsonDiscriminatorAttribute.htm
-&#34;&gt;&lt;code&gt;BsonDiscriminatorAttribute&lt;/code&gt;&lt;/a&gt; attribute with the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/P_MongoDB_Bson_Serialization_Attributes_BsonDiscriminatorAttribute_RootClass.htm
+&lt;p&gt;To identify &lt;code&gt;Animal&lt;/code&gt; as the root of a hierarchy use the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_Attributes_BsonDiscriminatorAttribute.htm
+&#34;&gt;&lt;code&gt;BsonDiscriminatorAttribute&lt;/code&gt;&lt;/a&gt; attribute with the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/P_MongoDB_Bson_Serialization_Attributes_BsonDiscriminatorAttribute_RootClass.htm
 &#34;&gt;&lt;code&gt;RootClass&lt;/code&gt;&lt;/a&gt; named parameter:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;[BsonDiscriminator(RootClass = true)]

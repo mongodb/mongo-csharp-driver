@@ -2125,7 +2125,7 @@
 
 
     <li class="toctree-l1">
-    <a href="http://api.mongodb.org/csharp/2.2">
+    <a href="/mongo-csharp-driver/2.2/apidocs">
         <i class='fa fa-file-text-o'></i>
         API Documentation
     </a>
@@ -2263,8 +2263,8 @@
 
 <h2 id="counting-documents">Counting Documents</h2>
 
-<p>The <a href="http://api.mongodb.org/csharp/2.2/html/M_MongoDB_Driver_IMongoCollection_1_Count.htm
-"><code>Count</code></a> and <a href="http://api.mongodb.org/csharp/2.2/html/M_MongoDB_Driver_IMongoCollection_1_CountAsync.htm
+<p>The <a href="/mongo-csharp-driver/2.2/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_Count.htm
+"><code>Count</code></a> and <a href="/mongo-csharp-driver/2.2/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_CountAsync.htm
 "><code>CountAsync</code></a> methods can be used to count all the documents matching a particular filter.</p>
 
 <pre><code class="language-csharp">var count = collection.Count(new BsonDocument(&quot;x&quot;, 10));
@@ -2291,8 +2291,8 @@ var count = await collection.CountAsync(x =&gt; x.Age &gt; 20);
 
 <h2 id="finding-documents">Finding Documents</h2>
 
-<p>Finding all the documents in a collection is done with an empty filter and the method <a href="http://api.mongodb.org/csharp/2.2/html/M_MongoDB_Driver_IMongoCollectionExtensions_Find__1.htm
-"><code>Find</code></a>. Once we have a cursor (of type <a href="http://api.mongodb.org/csharp/2.2/html/T_MongoDB_Driver_IAsyncCursor_1.htm
+<p>Finding all the documents in a collection is done with an empty filter and the method <a href="/mongo-csharp-driver/2.2/apidocs/html/M_MongoDB_Driver_IMongoCollectionExtensions_Find__1.htm
+"><code>Find</code></a>. Once we have a cursor (of type <a href="/mongo-csharp-driver/2.2/apidocs/html/T_MongoDB_Driver_IAsyncCursor_1.htm
 "><code>IAsyncCursor&lt;TDocument&gt;</code></a>), we can iterate it like we manually iterate an <a href="https://msdn.microsoft.com/en-us/library/9eekhta0.aspx"><code>IEnumerable&lt;TDocument&gt;</code></a>.</p>
 
 <pre><code class="language-csharp">var filter = new BsonDocument();
@@ -2327,7 +2327,7 @@ It is imperative that the cursor get disposed once you are finished with it to e
 </div>
 </p>
 
-<p>Some options are available in the optional <a href="http://api.mongodb.org/csharp/2.2/html/T_MongoDB_Driver_FindOptions.htm
+<p>Some options are available in the optional <a href="/mongo-csharp-driver/2.2/apidocs/html/T_MongoDB_Driver_FindOptions.htm
 "><code>FindOptions</code></a> parameter such as setting maxTimeMS, a batch size, or a comment. Others are available as part of the fluent interface such as skip, limit, and sort.</p>
 
 <pre><code class="language-csharp">var filter = new BsonDocument();
@@ -2359,8 +2359,8 @@ The order of the chained methods is unimportant. Limit followed by Skip is the s
 
 <p>Other methods of iteration besides using a cursor directly are available.</p>
 
-<p>First, the <a href="http://api.mongodb.org/csharp/2.2/html/M_MongoDB_Driver_IAsyncCursorSourceExtensions_ToList__1.htm
-"><code>ToList</code></a> and <a href="http://api.mongodb.org/csharp/2.2/html/M_MongoDB_Driver_IAsyncCursorSourceExtensions_ToListAsync__1.htm
+<p>First, the <a href="/mongo-csharp-driver/2.2/apidocs/html/M_MongoDB_Driver_IAsyncCursorSourceExtensions_ToList__1.htm
+"><code>ToList</code></a> and <a href="/mongo-csharp-driver/2.2/apidocs/html/M_MongoDB_Driver_IAsyncCursorSourceExtensions_ToListAsync__1.htm
 "><code>ToListAsync</code></a> methods are available. These methods are useful when the list will be small or you simply need them all as a list. If you are returning a large number of documents, then memory should be considered a factor.</p>
 
 <pre><code class="language-csharp">var list = collection.Find(filter)
@@ -2373,7 +2373,7 @@ The order of the chained methods is unimportant. Limit followed by Skip is the s
     .ToListAsync();
 </code></pre>
 
-<p>Second, <a href="http://api.mongodb.org/csharp/2.2/html/Overload_MongoDB_Driver_IAsyncCursorSourceExtensions_ForEachAsync.htm
+<p>Second, <a href="/mongo-csharp-driver/2.2/apidocs/html/Overload_MongoDB_Driver_IAsyncCursorSourceExtensions_ForEachAsync.htm
 "><code>ForEachAsync</code></a> is available. This method is useful when you just need to process each document and don&rsquo;t need to keep them around.</p>
 
 <pre><code class="language-csharp">await collection.Find(filter)
@@ -2407,14 +2407,14 @@ These iteration methods don&rsquo;t require you to dispose of the cursor. That w
 
 <h3 id="single-results">Single Results</h3>
 
-<p>When you only want to find one document, the <a href="http://api.mongodb.org/csharp/2.2/html/M_MongoDB_Driver_IAsyncCursorSourceExtensions_First__1.htm
-"><code>First</code></a>, <a href="http://api.mongodb.org/csharp/2.2/html/M_MongoDB_Driver_IAsyncCursorSourceExtensions_FirstOrDefault__1.htm
-"><code>FirstOrDefault</code></a>, <a href="http://api.mongodb.org/csharp/2.2/html/M_MongoDB_Driver_IAsyncCursorSourceExtensions_Single__1.htm
-"><code>Single</code></a>, <a href="http://api.mongodb.org/csharp/2.2/html/M_MongoDB_Driver_IAsyncCursorSourceExtensions_SingleOrDefault__1.htm
-"><code>SingleOrDefault</code></a> methods, and their asynchronous counterparts <a href="http://api.mongodb.org/csharp/2.2/html/M_MongoDB_Driver_IAsyncCursorSourceExtensions_FirstAsync__1.htm
-"><code>FirstAsync</code></a>, <a href="http://api.mongodb.org/csharp/2.2/html/M_MongoDB_Driver_IAsyncCursorSourceExtensions_FirstOrDefaultAsync__1.htm
-"><code>FirstOrDefaultAsync</code></a>, <a href="http://api.mongodb.org/csharp/2.2/html/M_MongoDB_Driver_IAsyncCursorSourceExtensions_SingleAsync__1.htm
-"><code>SingleAsync</code></a>, and <a href="http://api.mongodb.org/csharp/2.2/html/M_MongoDB_Driver_IAsyncCursorSourceExtensions_SingleOrDefaultAsync__1s.htm
+<p>When you only want to find one document, the <a href="/mongo-csharp-driver/2.2/apidocs/html/M_MongoDB_Driver_IAsyncCursorSourceExtensions_First__1.htm
+"><code>First</code></a>, <a href="/mongo-csharp-driver/2.2/apidocs/html/M_MongoDB_Driver_IAsyncCursorSourceExtensions_FirstOrDefault__1.htm
+"><code>FirstOrDefault</code></a>, <a href="/mongo-csharp-driver/2.2/apidocs/html/M_MongoDB_Driver_IAsyncCursorSourceExtensions_Single__1.htm
+"><code>Single</code></a>, <a href="/mongo-csharp-driver/2.2/apidocs/html/M_MongoDB_Driver_IAsyncCursorSourceExtensions_SingleOrDefault__1.htm
+"><code>SingleOrDefault</code></a> methods, and their asynchronous counterparts <a href="/mongo-csharp-driver/2.2/apidocs/html/M_MongoDB_Driver_IAsyncCursorSourceExtensions_FirstAsync__1.htm
+"><code>FirstAsync</code></a>, <a href="/mongo-csharp-driver/2.2/apidocs/html/M_MongoDB_Driver_IAsyncCursorSourceExtensions_FirstOrDefaultAsync__1.htm
+"><code>FirstOrDefaultAsync</code></a>, <a href="/mongo-csharp-driver/2.2/apidocs/html/M_MongoDB_Driver_IAsyncCursorSourceExtensions_SingleAsync__1.htm
+"><code>SingleAsync</code></a>, and <a href="/mongo-csharp-driver/2.2/apidocs/html/M_MongoDB_Driver_IAsyncCursorSourceExtensions_SingleOrDefaultAsync__1s.htm
 "><code>SingleOrDefaultAsync</code></a> are available.</p>
 
 <pre><code class="language-csharp">var result = collection.Find(filter)
@@ -2430,8 +2430,8 @@ These iteration methods don&rsquo;t require you to dispose of the cursor. That w
 <h2 id="aggregation">Aggregation</h2>
 
 <p>MongoDB offers the <a href="http://docs.mongodb.org/manual/core/aggregation-pipeline/
-">aggregation framework</a> which can be accessed via the <a href="http://api.mongodb.org/csharp/2.2/html/M_MongoDB_Driver_IMongoCollectionExtensions_Aggregate__1.htm
-"><code>Aggregate</code></a> method. The result type is <a href="http://api.mongodb.org/csharp/2.2/html/T_MongoDB_Driver_IAggregateFluent_1.htm
+">aggregation framework</a> which can be accessed via the <a href="/mongo-csharp-driver/2.2/apidocs/html/M_MongoDB_Driver_IMongoCollectionExtensions_Aggregate__1.htm
+"><code>Aggregate</code></a> method. The result type is <a href="/mongo-csharp-driver/2.2/apidocs/html/T_MongoDB_Driver_IAggregateFluent_1.htm
 "><code>IAggregateFluent</code></a> and provides access to a fluent API to build up an aggregation pipeline.</p>
 
 <p>The first example from <a href="http://docs.mongodb.org/manual/tutorial/aggregation-zip-code-data-set/#return-states-with-populations-above-10-million
@@ -2484,7 +2484,7 @@ You can call <code>ToString</code> on the pipeline to see what would be sent to 
 <h3 id="stage-operators">Stage Operators</h3>
 
 <p>All the <a href="http://docs.mongodb.org/manual/reference/operator/aggregation/#aggregation-pipeline-operator-reference
-">stage operators</a> are supported, however some of them must use the <a href="http://api.mongodb.org/csharp/2.2/html/M_MongoDB_Driver_IAggregateFluent_1_AppendStage__1.htm
+">stage operators</a> are supported, however some of them must use the <a href="/mongo-csharp-driver/2.2/apidocs/html/M_MongoDB_Driver_IAggregateFluent_1_AppendStage__1.htm
 "><code>AppendStage</code></a> method due to lack of support for certain projections in the language.</p>
 
 <p><div class="admonition important">
@@ -2495,7 +2495,7 @@ Unlike <code>Find</code>, the order that stages are defined in matters. <code>Sk
 
 <h4 id="project">$project</h4>
 
-<p>A <code>$project</code> is defined using the <a href="http://api.mongodb.org/csharp/2.2/html/M_MongoDB_Driver_IAggregateFluent_1_Project__1.htm
+<p>A <code>$project</code> is defined using the <a href="/mongo-csharp-driver/2.2/apidocs/html/M_MongoDB_Driver_IAggregateFluent_1_Project__1.htm
 "><code>Project</code></a> method and its overloads. Unlike in <code>Find</code>, an aggregate projection is not executed client-side and must be fully translatable to the server&rsquo;s supported expressions.  See <a href="/mongo-csharp-driver/2.2/reference/driver/expressions/#projections">expressions</a> for more detail about the expressions available inside a $project.</p>
 
 <pre><code class="language-csharp">Project(x =&gt; new { Name = x.FirstName + &quot; &quot; + x.LastName });
@@ -2512,7 +2512,7 @@ In an aggregation framework projection, a new type, either anonymous or named, m
 
 <h4 id="match">$match</h4>
 
-<p>A <code>$match</code> stage is defined using the <a href="http://api.mongodb.org/csharp/2.2/html/M_MongoDB_Driver_IAggregateFluent_1_Match.htm
+<p>A <code>$match</code> stage is defined using the <a href="/mongo-csharp-driver/2.2/apidocs/html/M_MongoDB_Driver_IAggregateFluent_1_Match.htm
 "><code>Match</code></a> method and its overloads. It follows the same requirements as that of <code>Find</code>.</p>
 
 <pre><code class="language-csharp">Match(x =&gt; x.Age &gt; 21);
@@ -2523,12 +2523,12 @@ In an aggregation framework projection, a new type, either anonymous or named, m
 
 <h4 id="redact">$redact</h4>
 
-<p>There is no method defined for a <code>$redact</code> stage. However, it can be added using <a href="http://api.mongodb.org/csharp/2.2/html/M_MongoDB_Driver_IAggregateFluent_1_AppendStage__1.htm
+<p>There is no method defined for a <code>$redact</code> stage. However, it can be added using <a href="/mongo-csharp-driver/2.2/apidocs/html/M_MongoDB_Driver_IAggregateFluent_1_AppendStage__1.htm
 "><code>AppendStage</code></a>.</p>
 
 <h4 id="limit">$limit</h4>
 
-<p>A <code>$limit</code> stage is defined using the <a href="http://api.mongodb.org/csharp/2.2/html/M_MongoDB_Driver_IAggregateFluent_1_Limit.htm
+<p>A <code>$limit</code> stage is defined using the <a href="/mongo-csharp-driver/2.2/apidocs/html/M_MongoDB_Driver_IAggregateFluent_1_Limit.htm
 "><code>Limit</code></a> method.</p>
 
 <pre><code class="language-csharp">Limit(20);
@@ -2539,7 +2539,7 @@ In an aggregation framework projection, a new type, either anonymous or named, m
 
 <h4 id="skip">$skip</h4>
 
-<p>A <code>$skip</code> stage is defined using the <a href="http://api.mongodb.org/csharp/2.2/html/M_MongoDB_Driver_IAggregateFluent_1_Skip.htm
+<p>A <code>$skip</code> stage is defined using the <a href="/mongo-csharp-driver/2.2/apidocs/html/M_MongoDB_Driver_IAggregateFluent_1_Skip.htm
 "><code>Skip</code></a> method.</p>
 
 <pre><code class="language-csharp">Skip(20);
@@ -2550,8 +2550,8 @@ In an aggregation framework projection, a new type, either anonymous or named, m
 
 <h4 id="unwind">$unwind</h4>
 
-<p>An <code>$unwind</code> stage is defined using the <a href="http://api.mongodb.org/csharp/2.2/html/M_MongoDB_Driver_IAggregateFluent_1_Unwind__1.htm
-"><code>Unwind</code></a> method and its overloads. Because $unwind is a type of projection, you must provide a return type, although not specifying one will use the overload that projects into a <a href="http://api.mongodb.org/csharp/2.2/html/T_MongoDB_Bson_BsonDocument.htm
+<p>An <code>$unwind</code> stage is defined using the <a href="/mongo-csharp-driver/2.2/apidocs/html/M_MongoDB_Driver_IAggregateFluent_1_Unwind__1.htm
+"><code>Unwind</code></a> method and its overloads. Because $unwind is a type of projection, you must provide a return type, although not specifying one will use the overload that projects into a <a href="/mongo-csharp-driver/2.2/apidocs/html/T_MongoDB_Bson_BsonDocument.htm
 "><code>BsonDocument</code></a>.</p>
 
 <pre><code class="language-csharp">Unwind(x =&gt; x.ArrayFieldToUnwind);
@@ -2562,7 +2562,7 @@ In an aggregation framework projection, a new type, either anonymous or named, m
 
 <h4 id="group">$group</h4>
 
-<p>A <code>$group</code> stage is defined using the <a href="http://api.mongodb.org/csharp/2.2/html/M_MongoDB_Driver_IAggregateFluent_1_Group__1.htm
+<p>A <code>$group</code> stage is defined using the <a href="/mongo-csharp-driver/2.2/apidocs/html/M_MongoDB_Driver_IAggregateFluent_1_Group__1.htm
 "><code>Group</code></a> method and its overloads. Because $unwind is a type of projection, you must provide a return type. The most useful of the overloads is where two lambda expressions are expressed, the first for the key and the second for the grouping. See <a href="/mongo-csharp-driver/2.2/reference/driver/expressions/#grouping">expressions</a> for more detail about the expressions available inside a $group.</p>
 
 <pre><code class="language-csharp">Group(x =&gt; x.Name, g =&gt; new { Name = g.Key, AverageAge = g.Average(x = x.Age) });
@@ -2575,7 +2575,7 @@ In an aggregation framework projection, a new type, either anonymous or named, m
 
 <h4 id="sort">$sort</h4>
 
-<p>A <code>$sort</code> stage is defined using the <a href="http://api.mongodb.org/csharp/2.2/html/M_MongoDB_Driver_IAggregateFluent_1_Sort.htm
+<p>A <code>$sort</code> stage is defined using the <a href="/mongo-csharp-driver/2.2/apidocs/html/M_MongoDB_Driver_IAggregateFluent_1_Sort.htm
 "><code>Sort</code></a> method. However, <code>SortBy</code>, <code>SortByDescending</code>, <code>ThenBy</code>, and <code>ThenByDescending</code> are also available.</p>
 
 <pre><code class="language-csharp">SortBy(x =&gt; x.LastName).ThenByDescending(x =&gt; x.Age);
@@ -2586,13 +2586,13 @@ In an aggregation framework projection, a new type, either anonymous or named, m
 
 <h4 id="geonear">$geoNear</h4>
 
-<p>There is no method defined for a <code>$geoNear</code> stage. However, it can be added using <a href="http://api.mongodb.org/csharp/2.2/html/M_MongoDB_Driver_IAggregateFluent_1_AppendStage__1.htm
+<p>There is no method defined for a <code>$geoNear</code> stage. However, it can be added using <a href="/mongo-csharp-driver/2.2/apidocs/html/M_MongoDB_Driver_IAggregateFluent_1_AppendStage__1.htm
 "><code>AppendStage</code></a>.</p>
 
 <h4 id="out">$out</h4>
 
-<p>A <code>$out</code> stage is defined using the <a href="http://api.mongodb.org/csharp/2.2/html/M_MongoDB_Driver_IAggregateFluent_1_Out.htm
-"><code>Out</code></a> or <a href="http://api.mongodb.org/csharp/2.2/html/M_MongoDB_Driver_IAggregateFluent_1_OutAsync.htm
+<p>A <code>$out</code> stage is defined using the <a href="/mongo-csharp-driver/2.2/apidocs/html/M_MongoDB_Driver_IAggregateFluent_1_Out.htm
+"><code>Out</code></a> or <a href="/mongo-csharp-driver/2.2/apidocs/html/M_MongoDB_Driver_IAggregateFluent_1_OutAsync.htm
 "><code>OutAsync</code></a> methods. It must be the final stage and it triggers execution of the operation.</p>
 
 <pre><code class="language-csharp">Out(&quot;myNewCollection&quot;);

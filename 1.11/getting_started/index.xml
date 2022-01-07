@@ -19,13 +19,13 @@
 
 &lt;h2 id=&#34;connecting:d67a243cdf521fafcb45cf3f560d3e12&#34;&gt;Connecting&lt;/h2&gt;
 
-&lt;p&gt;A &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoClient.htm
+&lt;p&gt;A &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_MongoClient.htm
 &#34;&gt;&lt;code&gt;MongoClient&lt;/code&gt;&lt;/a&gt; instance is the root object to handle connecting to the database.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var client = new MongoClient();
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;This will connect to a mongod or mongos running on localhost port 27017. If you&amp;rsquo;d like to use a remote host, you can provide a &lt;a href=&#34;http://docs.mongodb.org/manual/reference/connection-string/&#34;&gt;connection string&lt;/a&gt; to the constructor or construct a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoClientSettings.htm
+&lt;p&gt;This will connect to a mongod or mongos running on localhost port 27017. If you&amp;rsquo;d like to use a remote host, you can provide a &lt;a href=&#34;http://docs.mongodb.org/manual/reference/connection-string/&#34;&gt;connection string&lt;/a&gt; to the constructor or construct a &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_MongoClientSettings.htm
 &#34;&gt;&lt;code&gt;MongoClientSettings&lt;/code&gt;&lt;/a&gt; object and pass it in. To see more about connecting with a client, see the &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/driver/connecting/&#34;&gt;reference guide&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
@@ -36,7 +36,7 @@ There is no connecting or disconnecting. A connection pool is used and connectio
 
 &lt;h2 id=&#34;database:d67a243cdf521fafcb45cf3f560d3e12&#34;&gt;Database&lt;/h2&gt;
 
-&lt;p&gt;From here, you&amp;rsquo;ll want to retrieve an &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IMongoDatabase.htm
+&lt;p&gt;From here, you&amp;rsquo;ll want to retrieve an &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_IMongoDatabase.htm
 &#34;&gt;&lt;code&gt;IMongoDatabase&lt;/code&gt;&lt;/a&gt; instance.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var db = client.GetDatabase(&amp;quot;test&amp;quot;);
@@ -46,9 +46,9 @@ There is no connecting or disconnecting. A connection pool is used and connectio
 
 &lt;h2 id=&#34;collection:d67a243cdf521fafcb45cf3f560d3e12&#34;&gt;Collection&lt;/h2&gt;
 
-&lt;p&gt;From here, you&amp;rsquo;ll need to retrieve a reference to an &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IMongoCollection_1.htm
-&#34;&gt;&lt;code&gt;IMongoCollection&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; instance, where &lt;code&gt;TDocument&lt;/code&gt; is the type of document with which to work. This will be either a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm
-&#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt; or a custom class of your own. You would use a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm
+&lt;p&gt;From here, you&amp;rsquo;ll need to retrieve a reference to an &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_IMongoCollection_1.htm
+&#34;&gt;&lt;code&gt;IMongoCollection&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; instance, where &lt;code&gt;TDocument&lt;/code&gt; is the type of document with which to work. This will be either a &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_BsonDocument.htm
+&#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt; or a custom class of your own. You would use a &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_BsonDocument.htm
 &#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt; when the data you are working with is so free form that it would be difficult or impossible to define domain classes for it or because you want to handle the mapping yourself.&lt;/p&gt;
 
 &lt;p&gt;One constraint on your custom class is that it must contain an &lt;code&gt;Id&lt;/code&gt; field. You can read more about customizing classes in the &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/bson/mapping/&#34;&gt;reference guide&lt;/a&gt;.&lt;/p&gt;
@@ -143,7 +143,7 @@ var collection = db.GetCollection&amp;lt;Person&amp;gt;(&amp;quot;people&amp;quo
 
 &lt;h2 id=&#34;inserting-a-document:1b37fd24c24c59d59a5361df5b8a9d7f&#34;&gt;Inserting a document&lt;/h2&gt;
 
-&lt;p&gt;To insert a document, use the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoCollection_1_InsertOneAsync.htm
+&lt;p&gt;To insert a document, use the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_InsertOneAsync.htm
 &#34;&gt;&lt;code&gt;InsertOneAsync&lt;/code&gt;&lt;/a&gt; method.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var jane = new Person { Name = &amp;quot;Jane McJane&amp;quot;, Age = 24, Profession = &amp;quot;Hacker&amp;quot; };
@@ -155,7 +155,7 @@ await collection.InsertOneAsync(jane);
 
 &lt;h2 id=&#34;finding-a-document:1b37fd24c24c59d59a5361df5b8a9d7f&#34;&gt;Finding a Document&lt;/h2&gt;
 
-&lt;p&gt;To find all the people who are younger than 42, use the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoCollectionExtensions_Find__1_1.htm
+&lt;p&gt;To find all the people who are younger than 42, use the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoCollectionExtensions_Find__1_1.htm
 &#34;&gt;&lt;code&gt;Find&lt;/code&gt;&lt;/a&gt; method such as follows:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var people = await collection.Find(x =&amp;gt; x.Age &amp;lt; 42).ToListAsync();
@@ -172,11 +172,11 @@ await collection.InsertOneAsync(jane);
     Builders&amp;lt;Person&amp;gt;.Update.Set(x =&amp;gt; x.Profession, &amp;quot;Musician&amp;quot;));
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;This will generate a filter of &lt;code&gt;{ Name: &amp;quot;Tom&amp;quot; }&lt;/code&gt; and an update specification of &lt;code&gt;{ $set: { Profession: &amp;quot;Musician&amp;quot; } }&lt;/code&gt;. Only one document will get updated even if there is more than one person named &amp;ldquo;Tom&amp;rdquo; because we used &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoCollection_1_UpdateOneAsync.htm
-&#34;&gt;&lt;code&gt;UpdateOneAsync&lt;/code&gt;&lt;/a&gt; instead of &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoCollection_1_UpdateManyAsync.htm
+&lt;p&gt;This will generate a filter of &lt;code&gt;{ Name: &amp;quot;Tom&amp;quot; }&lt;/code&gt; and an update specification of &lt;code&gt;{ $set: { Profession: &amp;quot;Musician&amp;quot; } }&lt;/code&gt;. Only one document will get updated even if there is more than one person named &amp;ldquo;Tom&amp;rdquo; because we used &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_UpdateOneAsync.htm
+&#34;&gt;&lt;code&gt;UpdateOneAsync&lt;/code&gt;&lt;/a&gt; instead of &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_UpdateManyAsync.htm
 &#34;&gt;&lt;code&gt;UpdateManyAsync&lt;/code&gt;&lt;/a&gt;. More information on updates is available in the &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/driver/crud/writing/#update-and-replace:a65cffa9c73225e9b2db0699034df561&#34;&gt;reference guide&lt;/a&gt;.&lt;/p&gt;
 
-&lt;p&gt;Alternatively, if we want to replace a  document completely, we can use the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoCollection_1_ReplaceOneAsync.htm
+&lt;p&gt;Alternatively, if we want to replace a  document completely, we can use the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_ReplaceOneAsync.htm
 &#34;&gt;&lt;code&gt;ReplaceOneAsync&lt;/code&gt;&lt;/a&gt; method. Assuming Tom&amp;rsquo;s &lt;code&gt;Id&lt;/code&gt; value is &lt;code&gt;550c4aa98e59471bddf68eef&lt;/code&gt;:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var tom = await collection.Find(x =&amp;gt; x.Id == ObjectId.Parse(&amp;quot;550c4aa98e59471bddf68eef&amp;quot;))
@@ -197,8 +197,8 @@ Identifiers in MongoDB are immutable, so you can&amp;rsquo;t replace a document 
 
 &lt;h2 id=&#34;deleting:1b37fd24c24c59d59a5361df5b8a9d7f&#34;&gt;Deleting&lt;/h2&gt;
 
-&lt;p&gt;Finally, to delete Tom, you would use the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoCollection_1_DeleteOneAsync.htm
-&#34;&gt;&lt;code&gt;DeleteOneAsync&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoCollection_1_DeleteManyAsync.htm
+&lt;p&gt;Finally, to delete Tom, you would use the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_DeleteOneAsync.htm
+&#34;&gt;&lt;code&gt;DeleteOneAsync&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_DeleteManyAsync.htm
 &#34;&gt;&lt;code&gt;DeleteManyAsync&lt;/code&gt;&lt;/a&gt; methods, such as in the following:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var result = await collection.DeleteOneAsync(x =&amp;gt; x.Id == tom.Id);

@@ -1519,7 +1519,7 @@
 
 
     <li class="toctree-l1">
-    <a href="http://api.mongodb.org/csharp/2.0">
+    <a href="/mongo-csharp-driver/2.0/apidocs">
         <i class='fa fa-file-text-o'></i>
         API Documentation
     </a>
@@ -1657,17 +1657,17 @@
 
 <h2 id="mapping-classes">Mapping Classes</h2>
 
-<p>Using a <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm
+<p>Using a <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_BsonDocument.htm
 "><code>BsonDocument</code></a> will work when a schema is fluid and dynamic. However, most applications are built with a schema modeled in the application itself rather than the database. In these cases, it is likely that the application uses classes.</p>
 
-<p>The .NET BSON library supports mapping these classes to and from BSON/JSON using a <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_BsonClassMap_1.htm
+<p>The .NET BSON library supports mapping these classes to and from BSON/JSON using a <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_BsonClassMap_1.htm
 "><code>BsonClassMap</code></a>.</p>
 
 <h2 id="creating-a-class-map">Creating a Class Map</h2>
 
 <p>In a majority of cases, the driver will be able to automatically map your class for you. This will happen if you begin to use a class for which no <a href="/mongo-csharp-driver/2.0/reference/bson/serialization/#serializers">serializer</a> has yet been registered in the <a href="/mongo-csharp-driver/2.0/reference/bson/serialization/#serializer-registry">serializer registry</a>.</p>
 
-<p>You can choose to register the class map using the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Bson_Serialization_BsonClassMap_RegisterClassMap__1_1.htm
+<p>You can choose to register the class map using the <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Bson_Serialization_BsonClassMap_RegisterClassMap__1_1.htm
 "><code>RegisterClassMap</code></a> method:</p>
 
 <pre><code class="language-csharp">BsonClassMap.RegisterClassMap&lt;MyClass&gt;();
@@ -1688,12 +1688,12 @@ It is very important that the registration of class maps occur prior to them bei
 });
 </code></pre>
 
-<p>When your lambda expression is executed, the <code>cm</code> (short for class map) parameter is passed an empty class map for you to fill in. In this example, two properties are added to the class map by calling the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Bson_Serialization_BsonClassMap_1_MapMember__1.htm
+<p>When your lambda expression is executed, the <code>cm</code> (short for class map) parameter is passed an empty class map for you to fill in. In this example, two properties are added to the class map by calling the <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Bson_Serialization_BsonClassMap_1_MapMember__1.htm
 "><code>MapMember</code></a> method. The arguments to the method are themselves lambda expressions which identify the member of the class. The advantage of using a lambda expression instead of just a string parameter with the name of the property is that Intellisense and compile time checking ensure that you can’t misspell the name of the property.</p>
 
 <h2 id="automap">AutoMap</h2>
 
-<p>It is also possible to use automapping and then override some of the results using the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Bson_Serialization_BsonClassMap_AutoMap.htm
+<p>It is also possible to use automapping and then override some of the results using the <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Bson_Serialization_BsonClassMap_AutoMap.htm
 "><code>AutoMap</code></a> method. This method should be called first in the lambda expression.</p>
 
 <pre><code class="language-csharp">BsonClassMap.RegisterClassMap&lt;MyClass&gt;(cm =&gt; 
@@ -1704,7 +1704,7 @@ It is very important that the registration of class maps occur prior to them bei
 });
 </code></pre>
 
-<p><a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Bson_Serialization_BsonClassMap_AutoMap.htm
+<p><a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Bson_Serialization_BsonClassMap_AutoMap.htm
 "><code>AutoMap</code></a> uses conventions to map the class and its members. See the <a href="/mongo-csharp-driver/2.0/reference/bson/mapping/conventions/">convention documentation</a> for more information.</p>
 
 <h2 id="class-customization">Class Customization</h2>
@@ -1713,7 +1713,7 @@ It is very important that the registration of class maps occur prior to them bei
 
 <h3 id="ignoring-extra-elements">Ignoring Extra Elements</h3>
 
-<p>When a BSON document is deserialized, the name of each element is used to look up a matching member in the class map. Normally, if no matching member is found, an exception will be thrown. If you want to ignore extra elements during deserialization, use a <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_Attributes_BsonIgnoreExtraElementsAttribute.htm
+<p>When a BSON document is deserialized, the name of each element is used to look up a matching member in the class map. Normally, if no matching member is found, an exception will be thrown. If you want to ignore extra elements during deserialization, use a <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_Attributes_BsonIgnoreExtraElementsAttribute.htm
 "><code>BsonIgnoreExtraElementsAttribute</code></a>:</p>
 
 <pre><code class="language-csharp">[BsonIgnoreExtraElements]
@@ -1740,7 +1740,7 @@ When you ignore extra elements, if the class is rendered back to BSON, those ext
 
 <h3 id="supporting-extra-elements">Supporting Extra Elements</h3>
 
-<p>You can design your class to be capable of handling any extra elements that might be found in a BSON document during deserialization. To do so, you must have a property of type <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm
+<p>You can design your class to be capable of handling any extra elements that might be found in a BSON document during deserialization. To do so, you must have a property of type <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_BsonDocument.htm
 "><code>BsonDocument</code></a> (or <a href="https://msdn.microsoft.com/en-us/library/s4ys34ea.aspx"><code>IDictionary&lt;string, object&gt;</code></a>) and you must identify that property as the one that should hold any extra elements that are found. By <a href="/mongo-csharp-driver/2.0/reference/bson/mapping/conventions/">convention</a>, the member may be named <code>ExtraElements</code>. For example:</p>
 
 <pre><code class="language-csharp">public MyClass 
@@ -1766,7 +1766,7 @@ When you ignore extra elements, if the class is rendered back to BSON, those ext
 
 <p>See the <a href="/mongo-csharp-driver/2.0/reference/bson/mapping/polymorphism/">polymorphism</a> section for documentation on discriminators and polymorphism.</p>
 
-<p>To specify a discriminator, use a <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_Attributes_BsonDiscriminatorAttribute.htm
+<p>To specify a discriminator, use a <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_Attributes_BsonDiscriminatorAttribute.htm
 "><code>BsonDiscriminatorAttribute</code></a>:</p>
 
 <pre><code class="language-csharp">[BsonDiscriminator(&quot;myclass&quot;)]
@@ -1864,7 +1864,7 @@ BsonClassMap.RegisterClassMap&lt;Person&gt;(cm =&gt;
 
 <h3 id="opt-in">Opt-In</h3>
 
-<p>A majority of classes will have their members <a href="#automap">mapped automatically</a>. There are some circumstances where this does not happen. For instance, if your property is read-only, it will not get included in the automapping of a class by default. In order to include the member, you can use the <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_Attributes_BsonElementAttribute.htm
+<p>A majority of classes will have their members <a href="#automap">mapped automatically</a>. There are some circumstances where this does not happen. For instance, if your property is read-only, it will not get included in the automapping of a class by default. In order to include the member, you can use the <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_Attributes_BsonElementAttribute.htm
 "><code>BsonElementAttribute</code></a>.</p>
 
 <pre><code class="language-csharp">class MyClass
@@ -1938,7 +1938,7 @@ When a readonly property is serialized, it value is persisted to the database, b
 
 <h3 id="the-id-member">The Id Member</h3>
 
-<p>By <a href="/mongo-csharp-driver/2.0/reference/bson/mapping/conventions/">convention</a>, a public member called <code>Id</code>, <code>id</code>, or <code>_id</code> will be used as the identifier. You can be specific about this using the <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_Attributes_BsonIdAttribute.htm
+<p>By <a href="/mongo-csharp-driver/2.0/reference/bson/mapping/conventions/">convention</a>, a public member called <code>Id</code>, <code>id</code>, or <code>_id</code> will be used as the identifier. You can be specific about this using the <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_Attributes_BsonIdAttribute.htm
 "><code>BsonIdAttribute</code></a>.</p>
 
 <pre><code class="language-csharp">public class MyClass 
@@ -1959,36 +1959,36 @@ When a readonly property is serialized, it value is persisted to the database, b
 
 <h4 id="id-generators">Id Generators</h4>
 
-<p>When you Insert a document, the driver checks to see if the <code>Id</code> member has been assigned a value and, if not, generates a new unique value for it. Since the <code>Id</code> member can be of any type, the driver requires the help of an <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_IIdGenerator.htm
+<p>When you Insert a document, the driver checks to see if the <code>Id</code> member has been assigned a value and, if not, generates a new unique value for it. Since the <code>Id</code> member can be of any type, the driver requires the help of an <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_IIdGenerator.htm
 "><code>IIdGenerator</code></a> to check whether the <code>Id</code> has a value assigned to it and to generate a new value if necessary. The driver has the following Id generators built-in:</p>
 
 <ul>
-<li><a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_IdGenerators_ObjectIdGenerator.htm
+<li><a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_IdGenerators_ObjectIdGenerator.htm
 "><code>ObjectIdGenerator</code></a></li>
-<li><a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_IdGenerators_StringObjectIdGenerator.htm
+<li><a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_IdGenerators_StringObjectIdGenerator.htm
 "><code>StringObjectIdGenerator</code></a></li>
-<li><a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_IdGenerators_GuidGenerator.htm
+<li><a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_IdGenerators_GuidGenerator.htm
 "><code>GuidGenerator</code></a></li>
-<li><a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_IdGenerators_CombGuidGenerator.htm
+<li><a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_IdGenerators_CombGuidGenerator.htm
 "><code>CombGuidGenerator</code></a></li>
-<li><a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_IdGenerators_NullIdChecker.htm
+<li><a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_IdGenerators_NullIdChecker.htm
 "><code>NullIdChecker</code></a></li>
-<li><a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_IdGenerators_ZeroIdChecker_1.htm
+<li><a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_IdGenerators_ZeroIdChecker_1.htm
 "><code>ZeroIdChecker&lt;T&gt;</code></a></li>
-<li><a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_IdGenerators_BsonObjectIdGenerator.htm
+<li><a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_IdGenerators_BsonObjectIdGenerator.htm
 "><code>BsonObjectIdGenerator</code></a></li>
 </ul>
 
 <p>Some of these Id generators are used automatically for commonly used <code>Id</code> types:</p>
 
 <ul>
-<li><a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_IdGenerators_GuidGenerator.htm
+<li><a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_IdGenerators_GuidGenerator.htm
 "><code>GuidGenerator</code></a> is used for a <a href="https://msdn.microsoft.com/en-us/library/system.guid.aspx"><code>Guid</code></a></li>
-<li><a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_IdGenerators_ObjectIdGenerator.htm
-"><code>ObjectIdGenerator</code></a> is used for an <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_ObjectId.htm
+<li><a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_IdGenerators_ObjectIdGenerator.htm
+"><code>ObjectIdGenerator</code></a> is used for an <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_ObjectId.htm
 "><code>ObjectId</code></a></li>
-<li><a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_IdGenerators_StringObjectIdGenerator.htm
-"><code>StringObjectIdGenerator</code></a> is used for a <a href="https://msdn.microsoft.com/en-us/library/system.string.aspx"><code>string</code></a> represented externally as <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_ObjectId.htm
+<li><a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_IdGenerators_StringObjectIdGenerator.htm
+"><code>StringObjectIdGenerator</code></a> is used for a <a href="https://msdn.microsoft.com/en-us/library/system.string.aspx"><code>string</code></a> represented externally as <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_ObjectId.htm
 "><code>ObjectId</code></a></li>
 </ul>
 
@@ -2010,7 +2010,7 @@ When a readonly property is serialized, it value is persisted to the database, b
 });
 </code></pre>
 
-<p>You could also say that you want to use the <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_IdGenerators_CombGuidGenerator.htm
+<p>You could also say that you want to use the <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_IdGenerators_CombGuidGenerator.htm
 "><code>CombGuidGenerator</code></a> for all Guids.</p>
 
 <pre><code class="language-csharp">BsonSerializer.RegisterIdGenerator(
@@ -2021,7 +2021,7 @@ When a readonly property is serialized, it value is persisted to the database, b
 
 <h3 id="ignoring-a-member">Ignoring a Member</h3>
 
-<p>When constructing a class map manually, you can ignore a field or property simply by not adding it to the class map. When using AutoMap, you need a way to specify that a field or property should be ignored. Use the <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_Attributes_BsonIgnoreAttribute.htm
+<p>When constructing a class map manually, you can ignore a field or property simply by not adding it to the class map. When using AutoMap, you need a way to specify that a field or property should be ignored. Use the <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_Attributes_BsonIgnoreAttribute.htm
 "><code>BsonIgnoreAttribute</code></a>:</p>
 
 <pre><code class="language-csharp">public class MyClass 
@@ -2040,13 +2040,13 @@ When a readonly property is serialized, it value is persisted to the database, b
 });
 </code></pre>
 
-<p>When using code, <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Bson_Serialization_BsonClassMap_AutoMap.htm
-"><code>AutoMap</code></a> will have initially added the property to the class map automatically. <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Bson_Serialization_BsonClassMap_1_UnmapMember__1.htm
+<p>When using code, <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Bson_Serialization_BsonClassMap_AutoMap.htm
+"><code>AutoMap</code></a> will have initially added the property to the class map automatically. <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Bson_Serialization_BsonClassMap_1_UnmapMember__1.htm
 "><code>UnmapMember</code></a> will remove it.</p>
 
 <h3 id="ignoring-default-values">Ignoring Default Values</h3>
 
-<p>By default, default values are serialized to the BSON document. An alternative is to serialize nothing to the BSON document when the member has a default value. For reference types, this value is <code>null</code> and for value types, the default is whatever the default is for the value type. Use a <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_Attributes_BsonIgnoreIfDefaultAttribute.htm
+<p>By default, default values are serialized to the BSON document. An alternative is to serialize nothing to the BSON document when the member has a default value. For reference types, this value is <code>null</code> and for value types, the default is whatever the default is for the value type. Use a <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_Attributes_BsonIgnoreIfDefaultAttribute.htm
 "><code>BsonIgnoreIfDefaultAttribute</code></a>:</p>
 
 <pre><code class="language-csharp">public class MyClass 
@@ -2067,7 +2067,7 @@ When a readonly property is serialized, it value is persisted to the database, b
 
 <h3 id="specifying-the-default-value">Specifying the Default Value</h3>
 
-<p>You can specify a default value for a member using a <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_Attributes_BsonDefaultValueAttribute.htm
+<p>You can specify a default value for a member using a <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_Attributes_BsonDefaultValueAttribute.htm
 "><code>BsonDefaultValueAttribute</code></a>:</p>
 
 <pre><code class="language-csharp">public class MyClass 
@@ -2098,7 +2098,7 @@ When a readonly property is serialized, it value is persisted to the database, b
 
 <h3 id="ignoring-a-member-at-runtime">Ignoring a Member at Runtime</h3>
 
-<p>Sometimes the decision whether to serialize a member or not is more complicated than just whether the value is <code>null</code> or equal to the default value. In these cases, you can write a method that determines whether a value should be serialized. Usually the method for member Xyz is named ShouldSerializeXyz. If you follow this naming convention then <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Bson_Serialization_BsonClassMap_AutoMap.htm
+<p>Sometimes the decision whether to serialize a member or not is more complicated than just whether the value is <code>null</code> or equal to the default value. In these cases, you can write a method that determines whether a value should be serialized. Usually the method for member Xyz is named ShouldSerializeXyz. If you follow this naming convention then <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Bson_Serialization_BsonClassMap_AutoMap.htm
 "><code>AutoMap</code></a> will automatically detect the method and use it. For example:</p>
 
 <pre><code class="language-csharp">public class Employee 
@@ -2128,7 +2128,7 @@ When a readonly property is serialized, it value is persisted to the database, b
 
 <h3 id="specifying-the-serializer">Specifying the Serializer</h3>
 
-<p>There are times when a specific serializer needs to be used rather than letting the BSON library choose. This can be done using a <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_Attributes_BsonSerializerAttribute.htm
+<p>There are times when a specific serializer needs to be used rather than letting the BSON library choose. This can be done using a <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_Attributes_BsonSerializerAttribute.htm
 "><code>BsonSerializerAttribute</code></a>:</p>
 
 <pre><code class="language-csharp">public class MyClass 
@@ -2155,7 +2155,7 @@ When a readonly property is serialized, it value is persisted to the database, b
 
 <h4 id="datetime-serialization-options">DateTime Serialization Options</h4>
 
-<p>Using a <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_Attributes_BsonDateTimeOptionsAttribute.htm
+<p>Using a <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_Attributes_BsonDateTimeOptionsAttribute.htm
 "><code>BsonDateTimeOptionsAttribute</code></a>:</p>
 
 <pre><code class="language-csharp">public class MyClass 
@@ -2168,7 +2168,7 @@ When a readonly property is serialized, it value is persisted to the database, b
 }
 </code></pre>
 
-<p>When done via code, a <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_Serializers_DateTimeSerializer.htm
+<p>When done via code, a <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_Serializers_DateTimeSerializer.htm
 "><code>DateTimeSerializer</code></a> should be set:</p>
 
 <pre><code class="language-csharp">BsonClassMap.RegisterClassMap&lt;MyClass&gt;(cm =&gt; 
@@ -2189,8 +2189,8 @@ DateTime values in MongoDB are always saved as UTC.
 
 <h4 id="dictionary-serialization-options">Dictionary Serialization Options</h4>
 
-<p>When serializing dictionaries, there are several alternative ways that the contents of the dictionary can be represented. The <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_Options_DictionaryRepresentation.htm
-"><code>DictionaryRepresentation</code></a> enum indicates the supported methods. Using a <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_Attributes_BsonDictionaryOptionsAttribute.htm
+<p>When serializing dictionaries, there are several alternative ways that the contents of the dictionary can be represented. The <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_Options_DictionaryRepresentation.htm
+"><code>DictionaryRepresentation</code></a> enum indicates the supported methods. Using a <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_Attributes_BsonDictionaryOptionsAttribute.htm
 "><code>BsonDictionaryOptionsAttribute</code></a>:</p>
 
 <pre><code class="language-csharp">public class C 
@@ -2202,7 +2202,7 @@ DateTime values in MongoDB are always saved as UTC.
 }
 </code></pre>
 
-<p>When done via code, a <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_Serializers_DictionaryInterfaceImplementerSerializer_1.htm
+<p>When done via code, a <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_Serializers_DictionaryInterfaceImplementerSerializer_1.htm
 "><code>DictionaryInterfaceImplementerSerializer</code></a> should be set:</p>
 
 <pre><code class="language-csharp">BsonClassMap.RegisterClassMap&lt;C&gt;(cm =&gt; 
@@ -2212,7 +2212,7 @@ DateTime values in MongoDB are always saved as UTC.
 });
 </code></pre>
 
-<p>The 3 options in the <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_Options_DictionaryRepresentation.htm
+<p>The 3 options in the <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_Options_DictionaryRepresentation.htm
 "><code>DictionaryRepresentation</code></a> enum are as follows:</p>
 
 <ul>
@@ -2258,9 +2258,9 @@ DateTime values in MongoDB are always saved as UTC.
 }
 </code></pre>
 
-<p>In this case, the serializer will convert the <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_ObjectId.htm
-"><code>ObjectId</code></a> to a <code>string</code> when reading data from the database and will convert the <code>string</code> back to an <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_ObjectId.htm
-"><code>ObjectId</code></a> when writing data to the database (the <code>string</code> value must be a valid <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_ObjectId.htm
+<p>In this case, the serializer will convert the <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_ObjectId.htm
+"><code>ObjectId</code></a> to a <code>string</code> when reading data from the database and will convert the <code>string</code> back to an <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_ObjectId.htm
+"><code>ObjectId</code></a> when writing data to the database (the <code>string</code> value must be a valid <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_ObjectId.htm
 "><code>ObjectId</code></a>). Typically this is done when you want to keep your domain classes free of any dependencies on the driver. To keep your domain classes free of dependencies on the C# driver you also won’t want to use attributes, so you can accomplish the same thing using initialization code instead of attributes:</p>
 
 <pre><code class="language-csharp">BsonClassMap.RegisterClassMap&lt;Employee&gt;(cm =&gt; 
@@ -2301,11 +2301,11 @@ public class Person
 <p>It is possible to implement custom attributes to contribute to the serialization infrastructure. There are 3 interfaces you might want to implement:</p>
 
 <ul>
-<li><a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_IBsonClassMapAttribute.htm
+<li><a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_IBsonClassMapAttribute.htm
 "><code>IBsonClassMapAttribute</code></a> is used to contribute to a class map.</li>
-<li><a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_IBsonMemberMapAttribute.htm
+<li><a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_IBsonMemberMapAttribute.htm
 "><code>IBsonMemberMapAttribute</code></a> is used to contribute to a member map.</li>
-<li><a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_Serialization_IBsonCreatorMapAttribute.htm
+<li><a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_Serialization_IBsonCreatorMapAttribute.htm
 "><code>IBsonCreatorMapAttribute</code></a> is used to contribute to a creator map.</li>
 </ul>
 

@@ -1503,7 +1503,7 @@
 
 <h2 id="crud-operations:d680e8a854a7cbad6d490c445cba2eba">CRUD Operations</h2>
 
-<p>All the create, read, update, and delete (CRUD) operations take a similar form and are defined on the <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IMongoCollection_1.htm
+<p>All the create, read, update, and delete (CRUD) operations take a similar form and are defined on the <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_IMongoCollection_1.htm
 "><code>IMongoCollection&lt;TDocument&gt;</code></a> interface. All the required fields take the form of a positional parameter and, if any options exists, they are passed in as an instance of an options class. For example, the following method signature exists:</p>
 
 <pre><code class="language-csharp">Task&lt;long&gt; CountAsync(FilterDefinition&lt;TDocument&gt; filter, CountOptions options = null);
@@ -1511,7 +1511,7 @@
 
 <p>As described, the <code>filter</code> is required and the <code>options</code> can be omitted.</p>
 
-<p>A majority of the methods in the CRUD API take some form of a definition class. Many of these classes contain implicit conversions to make it easy to pass in common types of values like a JSON string or a <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm
+<p>A majority of the methods in the CRUD API take some form of a definition class. Many of these classes contain implicit conversions to make it easy to pass in common types of values like a JSON string or a <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_BsonDocument.htm
 "><code>BsonDocument</code></a>. In addition, most of the definition classes contain a definition builder that can make it easy to build MongoDB specific syntax. See the <a href="/mongo-csharp-driver/2.0/reference/driver/definitions/">Definitions and Builders</a> section for more information.</p>
 
 <h3 id="polymorphism:d680e8a854a7cbad6d490c445cba2eba">Polymorphism</h3>
@@ -1527,7 +1527,7 @@
   - Dog
 </code></pre>
 
-<p>The collection instance must be an <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IMongoCollection_1.htm
+<p>The collection instance must be an <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_IMongoCollection_1.htm
 "><code>IMongoCollection&lt;Animal&gt;</code></a>.</p>
 
 

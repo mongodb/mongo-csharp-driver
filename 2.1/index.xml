@@ -23,7 +23,7 @@
 
 &lt;h3 id=&#34;deleting-a-single-file&#34;&gt;Deleting a single file&lt;/h3&gt;
 
-&lt;p&gt;The &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_GridFS_GridFSBucket_DeleteAsync_1.htm
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_GridFS_GridFSBucket_DeleteAsync_1.htm
 &#34;&gt;&lt;code&gt;DeleteAsync&lt;/code&gt;&lt;/a&gt; method is used to delete a single file identified by its Id.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IGridFSBucket bucket;
@@ -34,7 +34,7 @@ await bucket.DeleteAsync(id);
 
 &lt;h3 id=&#34;dropping-an-entire-gridfs-bucket&#34;&gt;Dropping an entire GridFS bucket&lt;/h3&gt;
 
-&lt;p&gt;If you want to drop an entire GridFS bucket at once use the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_GridFS_GridFSBucket_DropAsync.htm
+&lt;p&gt;If you want to drop an entire GridFS bucket at once use the &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_GridFS_GridFSBucket_DropAsync.htm
 &#34;&gt;&lt;code&gt;DropAsync&lt;/code&gt;&lt;/a&gt; method.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IGridFSBucket bucket;
@@ -50,7 +50,7 @@ The &amp;ldquo;fs.files&amp;rdquo; collection will be dropped first, followed by
 
 &lt;h3 id=&#34;renaming-a-single-file&#34;&gt;Renaming a single file&lt;/h3&gt;
 
-&lt;p&gt;The &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_GridFS_GridFSBucket_RenameAsync_1.htm
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_GridFS_GridFSBucket_RenameAsync_1.htm
 &#34;&gt;&lt;code&gt;RenameAsync&lt;/code&gt;&lt;/a&gt; method is used to rename a single file identified by its Id.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IGridFSBucket bucket;
@@ -62,8 +62,8 @@ await bucket.RenameAsync(id, newFilename);
 
 &lt;h3 id=&#34;renaming-all-revisions-of-a-file&#34;&gt;Renaming all revisions of a file&lt;/h3&gt;
 
-&lt;p&gt;If you want to rename all revisions of a file you first use &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_GridFS_GridFSBucket_FindAsync.htm
-&#34;&gt;&lt;code&gt;FindAsync&lt;/code&gt;&lt;/a&gt; to find their ids and then call &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_GridFS_GridFSBucket_RenameAsync_1.htm
+&lt;p&gt;If you want to rename all revisions of a file you first use &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_GridFS_GridFSBucket_FindAsync.htm
+&#34;&gt;&lt;code&gt;FindAsync&lt;/code&gt;&lt;/a&gt; to find their ids and then call &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_GridFS_GridFSBucket_RenameAsync_1.htm
 &#34;&gt;&lt;code&gt;RenameAsync&lt;/code&gt;&lt;/a&gt; in a loop to rename them one at a time.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IGridFSBucket bucket;
@@ -99,17 +99,17 @@ foreach (var file in files)
 
 &lt;h3 id=&#34;gridfsbucket&#34;&gt;GridFSBucket&lt;/h3&gt;
 
-&lt;p&gt;A &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_GridFS_GridFSBucket.htm
+&lt;p&gt;A &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_GridFS_GridFSBucket.htm
 &#34;&gt;&lt;code&gt;GridFSBucket&lt;/code&gt;&lt;/a&gt; object is the root object representing a GridFS bucket.&lt;/p&gt;
 
 &lt;p&gt;&lt;div class=&#34;admonition warning&#34;&gt;
 &lt;h5 class=&#34;admonition-title&#34;&gt;warning&lt;/h5&gt;
-&lt;p&gt;You should always use a &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_GridFS_GridFSBucket.htm&#34;&gt;&lt;code&gt;GridFSBucket&lt;/code&gt;&lt;/a&gt; object to interact with GridFS instead of directly referencing the underlying collections.&lt;/p&gt;
+&lt;p&gt;You should always use a &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_GridFS_GridFSBucket.htm&#34;&gt;&lt;code&gt;GridFSBucket&lt;/code&gt;&lt;/a&gt; object to interact with GridFS instead of directly referencing the underlying collections.&lt;/p&gt;
 
 &lt;/div&gt;
 &lt;/p&gt;
 
-&lt;p&gt;You create a &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_GridFS_GridFSBucket.htm
+&lt;p&gt;You create a &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_GridFS_GridFSBucket.htm
 &#34;&gt;&lt;code&gt;GridFSBucket&lt;/code&gt;&lt;/a&gt; instance by calling its constructor:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IMongoDatabase database;
@@ -117,7 +117,7 @@ foreach (var file in files)
 var bucket = new GridFSBucket(database);
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;You can also provide options when instantiating the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_GridFS_GridFSBucket.htm
+&lt;p&gt;You can also provide options when instantiating the &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_GridFS_GridFSBucket.htm
 &#34;&gt;&lt;code&gt;GridFSBucket&lt;/code&gt;&lt;/a&gt; object:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IMongoDatabase database;
@@ -131,14 +131,14 @@ var bucket = new GridFSBucket(database, new GridFSOptions
 });
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;The &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/P_MongoDB_Driver_GridFS_GridFSBucketOptions_BucketName.htm
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/P_MongoDB_Driver_GridFS_GridFSBucketOptions_BucketName.htm
 &#34;&gt;&lt;code&gt;BucketName&lt;/code&gt;&lt;/a&gt; value is the root part of the files and chunks collection names, so in this example the two collections would be named &amp;ldquo;videos.files&amp;rdquo; and &amp;ldquo;videos.chunks&amp;rdquo; instead of &amp;ldquo;fs.files&amp;rdquo; and &amp;ldquo;fs.chunks&amp;rdquo;.&lt;/p&gt;
 
-&lt;p&gt;The &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/P_MongoDB_Driver_GridFS_GridFSBucketOptions_ChunkSizeBytes.htm
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/P_MongoDB_Driver_GridFS_GridFSBucketOptions_ChunkSizeBytes.htm
 &#34;&gt;&lt;code&gt;ChunkSizeBytes&lt;/code&gt;&lt;/a&gt; value defines the size of each chunk, and in this example we are overriding the default value of 261120 (255MB).&lt;/p&gt;
 
-&lt;p&gt;The &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/P_MongoDB_Driver_GridFS_GridFSBucketOptions_WriteConcern.htm
-&#34;&gt;&lt;code&gt;WriteConcern&lt;/code&gt;&lt;/a&gt; is used when uploading files to GridFS, and the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/P_MongoDB_Driver_GridFS_GridFSBucketOptions_ReadPreference.htm
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/P_MongoDB_Driver_GridFS_GridFSBucketOptions_WriteConcern.htm
+&#34;&gt;&lt;code&gt;WriteConcern&lt;/code&gt;&lt;/a&gt; is used when uploading files to GridFS, and the &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/P_MongoDB_Driver_GridFS_GridFSBucketOptions_ReadPreference.htm
 &#34;&gt;&lt;code&gt;ReadPreference&lt;/code&gt;&lt;/a&gt; is used when downloading files from GridFS.&lt;/p&gt;
 </description>
     </item>
@@ -203,8 +203,8 @@ using (var stream = await bucket.OpenDownloadStreamAsync(id))
 }
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;The &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.io.stream.aspx&#34;&gt;&lt;code&gt;Stream&lt;/code&gt;&lt;/a&gt; object returned by &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_GridFS_OpenDownloadStreamAsync_1..htm
-&#34;&gt;&lt;code&gt;OpenDownloadStreamAsync&lt;/code&gt;&lt;/a&gt; is actually a &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_GridFS_GridFSDownloadStream.htm
+&lt;p&gt;The &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.io.stream.aspx&#34;&gt;&lt;code&gt;Stream&lt;/code&gt;&lt;/a&gt; object returned by &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_GridFS_OpenDownloadStreamAsync_1..htm
+&#34;&gt;&lt;code&gt;OpenDownloadStreamAsync&lt;/code&gt;&lt;/a&gt; is actually a &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_GridFS_GridFSDownloadStream.htm
 &#34;&gt;&lt;code&gt;GridFSDownloadStream&lt;/code&gt;&lt;/a&gt; (a subclass of &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.io.stream.aspx&#34;&gt;&lt;code&gt;Stream&lt;/code&gt;&lt;/a&gt;), which has the following additional members in addition to those found in &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.io.stream.aspx&#34;&gt;&lt;code&gt;Stream&lt;/code&gt;&lt;/a&gt;:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;public abstract class GridFSDownloadStream : Stream
@@ -214,14 +214,14 @@ using (var stream = await bucket.OpenDownloadStreamAsync(id))
 };
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;The &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/P_MongoDB_Driver_GridFS_GridFSDownloadStream_FileInfo.htm
-&#34;&gt;&lt;code&gt;FileInfo&lt;/code&gt;&lt;/a&gt; property contains information about the GridFS file being dowloaded. See the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_GridFS_GridFSBucket_FindAsync.htm
-&#34;&gt;&lt;code&gt;FindAsync&lt;/code&gt;&lt;/a&gt; method for details about the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_GridFS_GridFSFileInfo.htm
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/P_MongoDB_Driver_GridFS_GridFSDownloadStream_FileInfo.htm
+&#34;&gt;&lt;code&gt;FileInfo&lt;/code&gt;&lt;/a&gt; property contains information about the GridFS file being dowloaded. See the &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_GridFS_GridFSBucket_FindAsync.htm
+&#34;&gt;&lt;code&gt;FindAsync&lt;/code&gt;&lt;/a&gt; method for details about the &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_GridFS_GridFSFileInfo.htm
 &#34;&gt;&lt;code&gt;GridFSFileInfo&lt;/code&gt;&lt;/a&gt; class.&lt;/p&gt;
 
 &lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
 &lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
-&lt;p&gt;Calling &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_GridFS_GridFSDownloadStream_CloseAsync..htm&#34;&gt;&lt;code&gt;CloseAsync&lt;/code&gt;&lt;/a&gt; is optional, but recommended. Since &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.io.stream.aspx&#34;&gt;&lt;code&gt;Stream&lt;/code&gt;&lt;/a&gt; is &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.idisposable.aspx&#34;&gt;&lt;code&gt;IDisposable&lt;/code&gt;&lt;/a&gt; and it is used inside a using statement, it would be closed automatically when &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.idisposable.dispose.aspx&#34;&gt;&lt;code&gt;Dispose&lt;/code&gt;&lt;/a&gt; is called. However, in async programming we want to avoid blocking and calling &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_GridFS_GridFSDownloadStream_CloseAsync..htm&#34;&gt;&lt;code&gt;CloseAsync&lt;/code&gt;&lt;/a&gt; first allows the &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.io.stream.aspx&#34;&gt;&lt;code&gt;Stream&lt;/code&gt;&lt;/a&gt; to be closed with an async call. If you call &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_GridFS_GridFSDownloadStream_CloseAsync..htm&#34;&gt;&lt;code&gt;CloseAsync&lt;/code&gt;&lt;/a&gt; first then &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.idisposable.dispose.aspx&#34;&gt;&lt;code&gt;Dispose&lt;/code&gt;&lt;/a&gt; will no longer block.&lt;/p&gt;
+&lt;p&gt;Calling &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_GridFS_GridFSDownloadStream_CloseAsync..htm&#34;&gt;&lt;code&gt;CloseAsync&lt;/code&gt;&lt;/a&gt; is optional, but recommended. Since &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.io.stream.aspx&#34;&gt;&lt;code&gt;Stream&lt;/code&gt;&lt;/a&gt; is &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.idisposable.aspx&#34;&gt;&lt;code&gt;IDisposable&lt;/code&gt;&lt;/a&gt; and it is used inside a using statement, it would be closed automatically when &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.idisposable.dispose.aspx&#34;&gt;&lt;code&gt;Dispose&lt;/code&gt;&lt;/a&gt; is called. However, in async programming we want to avoid blocking and calling &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_GridFS_GridFSDownloadStream_CloseAsync..htm&#34;&gt;&lt;code&gt;CloseAsync&lt;/code&gt;&lt;/a&gt; first allows the &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.io.stream.aspx&#34;&gt;&lt;code&gt;Stream&lt;/code&gt;&lt;/a&gt; to be closed with an async call. If you call &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_GridFS_GridFSDownloadStream_CloseAsync..htm&#34;&gt;&lt;code&gt;CloseAsync&lt;/code&gt;&lt;/a&gt; first then &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.idisposable.dispose.aspx&#34;&gt;&lt;code&gt;Dispose&lt;/code&gt;&lt;/a&gt; will no longer block.&lt;/p&gt;
 
 &lt;/div&gt;
 &lt;/p&gt;
@@ -325,11 +325,11 @@ using (var stream = await bucket.OpenDownloadStreamByNameAsync(filename, options
 
 &lt;h3 id=&#34;findasync-method&#34;&gt;FindAsync method&lt;/h3&gt;
 
-&lt;p&gt;If you don&amp;rsquo;t know the Id, you can use &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_GridFS_GridFSBucket_FindAsync.htm
-&#34;&gt;&lt;code&gt;FindAsync&lt;/code&gt;&lt;/a&gt; to find matching files using a filter. The filter must be of type &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_FilterDefinition_1.htm
+&lt;p&gt;If you don&amp;rsquo;t know the Id, you can use &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_GridFS_GridFSBucket_FindAsync.htm
+&#34;&gt;&lt;code&gt;FindAsync&lt;/code&gt;&lt;/a&gt; to find matching files using a filter. The filter must be of type &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_FilterDefinition_1.htm
 &#34;&gt;&lt;code&gt;FilterDefinition&amp;lt;GridFSFileInfo&amp;gt;&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
 
-&lt;p&gt;For example, to find the newest revision of the file named &amp;ldquo;securityvideo&amp;rdquo; uploaded in January 2015 we could use &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_GridFS_GridFSBucket_FindAsync.htm
+&lt;p&gt;For example, to find the newest revision of the file named &amp;ldquo;securityvideo&amp;rdquo; uploaded in January 2015 we could use &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_GridFS_GridFSBucket_FindAsync.htm
 &#34;&gt;&lt;code&gt;FindAsync&lt;/code&gt;&lt;/a&gt; like this:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IGridFSBucket bucket;
@@ -353,14 +353,14 @@ using (var cursor = await bucket.FindAsync(filter, options))
 
 &lt;h3 id=&#34;gridfsfileinfo-class&#34;&gt;GridFSFileInfo class&lt;/h3&gt;
 
-&lt;p&gt;The &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_GridFS_GridFSFileInfo.htm
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_GridFS_GridFSFileInfo.htm
 &#34;&gt;&lt;code&gt;GridFSFileInfo&lt;/code&gt;&lt;/a&gt; is a strongly typed class that represents the information about a GridFS file stored in the &amp;ldquo;fs.files&amp;rdquo; collection.&lt;/p&gt;
 
-&lt;p&gt;This class is a strongly typed wrapper around a backing &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Bson_BsonDocument.htm
+&lt;p&gt;This class is a strongly typed wrapper around a backing &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Bson_BsonDocument.htm
 &#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt;. It makes it easier to extract the information available in a files collection documents.&lt;/p&gt;
 
-&lt;p&gt;In older drivers it was possible to store arbitrary information at the root level of a files collection document. If you need to access that information you can use the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/P_MongoDB_Driver_GridFS_GridFSFileInfo_BackingDocument.htm
-&#34;&gt;&lt;code&gt;BackingDocument&lt;/code&gt;&lt;/a&gt; property to get access to the complete backing document. When uploading new GridFS files you should store any additional information you want to associate with the uploaded file inside the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/P_MongoDB_Driver_GridFS_GridFSFileInfo_Metadata.htm
+&lt;p&gt;In older drivers it was possible to store arbitrary information at the root level of a files collection document. If you need to access that information you can use the &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/P_MongoDB_Driver_GridFS_GridFSFileInfo_BackingDocument.htm
+&#34;&gt;&lt;code&gt;BackingDocument&lt;/code&gt;&lt;/a&gt; property to get access to the complete backing document. When uploading new GridFS files you should store any additional information you want to associate with the uploaded file inside the &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/P_MongoDB_Driver_GridFS_GridFSFileInfo_Metadata.htm
 &#34;&gt;&lt;code&gt;Metadata&lt;/code&gt;&lt;/a&gt; document.&lt;/p&gt;
 </description>
     </item>
@@ -382,8 +382,8 @@ using (var cursor = await bucket.FindAsync(filter, options))
 &lt;li&gt;The driver supplies a &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.io.stream.aspx&#34;&gt;&lt;code&gt;Stream&lt;/code&gt;&lt;/a&gt; object that the application can write the contents to&lt;/li&gt;
 &lt;/ol&gt;
 
-&lt;p&gt;Files uploaded to GridFS are identified either by Id or by Filename. Each uploaded file is assigned a unique Id of type &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Bson_ObjectId.htm
-&#34;&gt;&lt;code&gt;ObjectId&lt;/code&gt;&lt;/a&gt;. If multiple files are uploaded to GridFS with the same Filename, they are considered to be &amp;ldquo;revisions&amp;rdquo; of the same file, and the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/P_MongoDB_Driver_GridFS_GridFSFileInfo_UploadDateTime.htm
+&lt;p&gt;Files uploaded to GridFS are identified either by Id or by Filename. Each uploaded file is assigned a unique Id of type &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Bson_ObjectId.htm
+&#34;&gt;&lt;code&gt;ObjectId&lt;/code&gt;&lt;/a&gt;. If multiple files are uploaded to GridFS with the same Filename, they are considered to be &amp;ldquo;revisions&amp;rdquo; of the same file, and the &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/P_MongoDB_Driver_GridFS_GridFSFileInfo_UploadDateTime.htm
 &#34;&gt;&lt;code&gt;UploadDateTime&lt;/code&gt;&lt;/a&gt; is used to decide whether one revision is newer than another.&lt;/p&gt;
 
 &lt;h3 id=&#34;uploading-from-a-byte-array&#34;&gt;Uploading from a byte array&lt;/h3&gt;
@@ -396,10 +396,10 @@ bytes[] source;
 var id = await bucket.UploadFromBytesAsync(&amp;quot;filename&amp;quot;, source);
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;The id returned is the unique &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Bson_ObjectId.htm
+&lt;p&gt;The id returned is the unique &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Bson_ObjectId.htm
 &#34;&gt;&lt;code&gt;ObjectId&lt;/code&gt;&lt;/a&gt; assigned by the driver to represent this revision of &amp;ldquo;filename&amp;rdquo; in the GridFS bucket.&lt;/p&gt;
 
-&lt;p&gt;When using &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_GridFS_GridFSBucket_UploadFromBytesAsync.htm
+&lt;p&gt;When using &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_GridFS_GridFSBucket_UploadFromBytesAsync.htm
 &#34;&gt;&lt;code&gt;UploadFromBytesAsync&lt;/code&gt;&lt;/a&gt; you can also provide additional options.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IGridFSBucket bucket;
@@ -416,13 +416,13 @@ var id = await bucket.UploadFromBytesAsync(&amp;quot;filename&amp;quot;, source,
 });
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;In this example we are overriding the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/P_MongoDB_Driver_GridFS_GridFSUploadOptions_ChunkSizeBytes.htm
-&#34;&gt;&lt;code&gt;ChunkSizeBytes&lt;/code&gt;&lt;/a&gt; defined in the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_GridFS_GridFSBucket.htm
+&lt;p&gt;In this example we are overriding the &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/P_MongoDB_Driver_GridFS_GridFSUploadOptions_ChunkSizeBytes.htm
+&#34;&gt;&lt;code&gt;ChunkSizeBytes&lt;/code&gt;&lt;/a&gt; defined in the &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_GridFS_GridFSBucket.htm
 &#34;&gt;&lt;code&gt;GridFSBucket&lt;/code&gt;&lt;/a&gt; and providing additional metadata to be stored with the GridFS file.&lt;/p&gt;
 
 &lt;h3 id=&#34;uploading-from-a-stream&#34;&gt;Uploading from a Stream&lt;/h3&gt;
 
-&lt;p&gt;If the contents of the file you want to upload are more easily accessible using a &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.io.stream.aspx&#34;&gt;&lt;code&gt;Stream&lt;/code&gt;&lt;/a&gt; than a byte array (or are too large to load entirely into memory at once), you can use the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_GridFS_GridFSBucket_UploadFromStreamAsync.htm
+&lt;p&gt;If the contents of the file you want to upload are more easily accessible using a &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.io.stream.aspx&#34;&gt;&lt;code&gt;Stream&lt;/code&gt;&lt;/a&gt; than a byte array (or are too large to load entirely into memory at once), you can use the &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_GridFS_GridFSBucket_UploadFromStreamAsync.htm
 &#34;&gt;&lt;code&gt;UploadFromStreamAsync&lt;/code&gt;&lt;/a&gt; method instead.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IGridFSBucket bucket;
@@ -433,8 +433,8 @@ var id = await bucket.UploadFromStreamAsync(&amp;quot;filename&amp;quot;, source
 
 &lt;p&gt;The driver will read from the current position of the source &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.io.stream.aspx&#34;&gt;&lt;code&gt;Stream&lt;/code&gt;&lt;/a&gt; and upload everything read from the &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.io.stream.aspx&#34;&gt;&lt;code&gt;Stream&lt;/code&gt;&lt;/a&gt; until the &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.io.stream.aspx&#34;&gt;&lt;code&gt;Stream&lt;/code&gt;&lt;/a&gt; reaches end of file.&lt;/p&gt;
 
-&lt;p&gt;The &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_GridFS_GridFSBucket_UploadFromStreamAsync.htm
-&#34;&gt;&lt;code&gt;UploadFromStreamAsync&lt;/code&gt;&lt;/a&gt; method also supports providing additional options, just like the example above for &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_GridFS_GridFSBucket_UploadFromBytesAsync.htm
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_GridFS_GridFSBucket_UploadFromStreamAsync.htm
+&#34;&gt;&lt;code&gt;UploadFromStreamAsync&lt;/code&gt;&lt;/a&gt; method also supports providing additional options, just like the example above for &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_GridFS_GridFSBucket_UploadFromBytesAsync.htm
 &#34;&gt;&lt;code&gt;UploadFromBytesAsync&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
 
 &lt;h3 id=&#34;uploading-to-a-stream&#34;&gt;Uploading to a Stream&lt;/h3&gt;
@@ -451,8 +451,8 @@ using (var stream = await bucket.OpenUploadStreamAsync(&amp;quot;filename&amp;qu
 }
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;The &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.io.stream.aspx&#34;&gt;&lt;code&gt;Stream&lt;/code&gt;&lt;/a&gt; object returned by &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_GridFS_GridFSBucket_OpenUploadStreamAsync.htm
-&#34;&gt;&lt;code&gt;OpenUploadStreamAsync&lt;/code&gt;&lt;/a&gt; is actually a &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_GridFS_GridFSUploadStream.htm
+&lt;p&gt;The &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.io.stream.aspx&#34;&gt;&lt;code&gt;Stream&lt;/code&gt;&lt;/a&gt; object returned by &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_GridFS_GridFSBucket_OpenUploadStreamAsync.htm
+&#34;&gt;&lt;code&gt;OpenUploadStreamAsync&lt;/code&gt;&lt;/a&gt; is actually a &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_GridFS_GridFSUploadStream.htm
 &#34;&gt;&lt;code&gt;GridFSUploadStream&lt;/code&gt;&lt;/a&gt; (a subclass of &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.io.stream.aspx&#34;&gt;&lt;code&gt;Stream&lt;/code&gt;&lt;/a&gt;), which has the following additional members in addition to those found in &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.io.stream.aspx&#34;&gt;&lt;code&gt;Stream&lt;/code&gt;&lt;/a&gt;:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;public abstract class GridFSUploadStream : Stream
@@ -463,20 +463,20 @@ using (var stream = await bucket.OpenUploadStreamAsync(&amp;quot;filename&amp;qu
 };
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;The &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/P_MongoDB_Driver_GridFS_GridFSUploadStream_Id.htm
-&#34;&gt;&lt;code&gt;Id&lt;/code&gt;&lt;/a&gt; property allows the calling application to know the unique Id that was assigned to the file being uploaded. &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_GridFS_GridFSDownloadStream_AbortAsync..htm
-&#34;&gt;&lt;code&gt;AbortAsync&lt;/code&gt;&lt;/a&gt; allows the application to abort the upload operation part-way through if it needs to. &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_GridFS_GridFSUploadStream_CloseAsync..htm
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/P_MongoDB_Driver_GridFS_GridFSUploadStream_Id.htm
+&#34;&gt;&lt;code&gt;Id&lt;/code&gt;&lt;/a&gt; property allows the calling application to know the unique Id that was assigned to the file being uploaded. &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_GridFS_GridFSDownloadStream_AbortAsync..htm
+&#34;&gt;&lt;code&gt;AbortAsync&lt;/code&gt;&lt;/a&gt; allows the application to abort the upload operation part-way through if it needs to. &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_GridFS_GridFSUploadStream_CloseAsync..htm
 &#34;&gt;&lt;code&gt;CloseAsync&lt;/code&gt;&lt;/a&gt; can be called instead of &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.idisposable.dispose.aspx&#34;&gt;&lt;code&gt;Dispose&lt;/code&gt;&lt;/a&gt; to close the &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.io.stream.aspx&#34;&gt;&lt;code&gt;Stream&lt;/code&gt;&lt;/a&gt; in an async way.&lt;/p&gt;
 
 &lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
 &lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
-&lt;p&gt;Calling &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_GridFS_GridFSUploadStream_CloseAsync..htm&#34;&gt;&lt;code&gt;CloseAsync&lt;/code&gt;&lt;/a&gt; is optional, but recommended. Since &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.io.stream.aspx&#34;&gt;&lt;code&gt;Stream&lt;/code&gt;&lt;/a&gt; is &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.idisposable.aspx&#34;&gt;&lt;code&gt;IDisposable&lt;/code&gt;&lt;/a&gt; and it is used inside a using statement, it would be closed automatically when &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.idisposable.dispose.aspx&#34;&gt;&lt;code&gt;Dispose&lt;/code&gt;&lt;/a&gt; is called. However, in async programming we want to avoid blocking and calling &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_GridFS_GridFSUploadStream_CloseAsync..htm&#34;&gt;&lt;code&gt;CloseAsync&lt;/code&gt;&lt;/a&gt; first allows the &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.io.stream.aspx&#34;&gt;&lt;code&gt;Stream&lt;/code&gt;&lt;/a&gt; to be closed with an async call. If you call &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_GridFS_GridFSUploadStream_CloseAsync..htm&#34;&gt;&lt;code&gt;CloseAsync&lt;/code&gt;&lt;/a&gt; first then &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.idisposable.dispose.aspx&#34;&gt;&lt;code&gt;Dispose&lt;/code&gt;&lt;/a&gt; will no longer block.&lt;/p&gt;
+&lt;p&gt;Calling &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_GridFS_GridFSUploadStream_CloseAsync..htm&#34;&gt;&lt;code&gt;CloseAsync&lt;/code&gt;&lt;/a&gt; is optional, but recommended. Since &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.io.stream.aspx&#34;&gt;&lt;code&gt;Stream&lt;/code&gt;&lt;/a&gt; is &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.idisposable.aspx&#34;&gt;&lt;code&gt;IDisposable&lt;/code&gt;&lt;/a&gt; and it is used inside a using statement, it would be closed automatically when &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.idisposable.dispose.aspx&#34;&gt;&lt;code&gt;Dispose&lt;/code&gt;&lt;/a&gt; is called. However, in async programming we want to avoid blocking and calling &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_GridFS_GridFSUploadStream_CloseAsync..htm&#34;&gt;&lt;code&gt;CloseAsync&lt;/code&gt;&lt;/a&gt; first allows the &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.io.stream.aspx&#34;&gt;&lt;code&gt;Stream&lt;/code&gt;&lt;/a&gt; to be closed with an async call. If you call &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_GridFS_GridFSUploadStream_CloseAsync..htm&#34;&gt;&lt;code&gt;CloseAsync&lt;/code&gt;&lt;/a&gt; first then &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/system.idisposable.dispose.aspx&#34;&gt;&lt;code&gt;Dispose&lt;/code&gt;&lt;/a&gt; will no longer block.&lt;/p&gt;
 
 &lt;/div&gt;
 &lt;/p&gt;
 
-&lt;p&gt;When opening an upload stream using &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_GridFS_GridFSBucket_OpenUploadStreamAsync.htm
-&#34;&gt;&lt;code&gt;OpenUploadStreamAsync&lt;/code&gt;&lt;/a&gt; you can provide the same options that are supported by &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_GridFS_GridFSBucket_UploadFromStreamAsync.htm
+&lt;p&gt;When opening an upload stream using &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_GridFS_GridFSBucket_OpenUploadStreamAsync.htm
+&#34;&gt;&lt;code&gt;OpenUploadStreamAsync&lt;/code&gt;&lt;/a&gt; you can provide the same options that are supported by &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_GridFS_GridFSBucket_UploadFromStreamAsync.htm
 &#34;&gt;&lt;code&gt;UploadFromStreamAsync&lt;/code&gt;&lt;/a&gt;:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;IGridFSBucket bucket;
@@ -537,15 +537,15 @@ using (var stream = await bucket.OpenUploadStreamAsync(&amp;quot;filename&amp;qu
 
 &lt;h3 id=&#34;clusterbuilder&#34;&gt;ClusterBuilder&lt;/h3&gt;
 
-&lt;p&gt;The &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_Core_Configuration_ClusterBuilder.htm
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_Core_Configuration_ClusterBuilder.htm
 &#34;&gt;&lt;code&gt;ClusterBuilder&lt;/code&gt;&lt;/a&gt; class contains two methods for subscribing to events.&lt;/p&gt;
 
 &lt;h4 id=&#34;ieventsubscriber&#34;&gt;IEventSubscriber&lt;/h4&gt;
 
-&lt;p&gt;The first version of &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_Core_Configuration_ClusterBuilder_Subscribe.htm
-&#34;&gt;&lt;code&gt;Subscribe&lt;/code&gt;&lt;/a&gt; takes an &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_Core_Events_IEventSubscriber.htm
-&#34;&gt;&lt;code&gt;IEventSubscriber&lt;/code&gt;&lt;/a&gt;. &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_Core_Events_IEventSubscriber.htm
-&#34;&gt;&lt;code&gt;IEventSubscriber&lt;/code&gt;&lt;/a&gt; contains a single method to implement, &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_Core_Events_IEventSubscriber_TryGetEventHandler_1.htm
+&lt;p&gt;The first version of &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_Core_Configuration_ClusterBuilder_Subscribe.htm
+&#34;&gt;&lt;code&gt;Subscribe&lt;/code&gt;&lt;/a&gt; takes an &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_Core_Events_IEventSubscriber.htm
+&#34;&gt;&lt;code&gt;IEventSubscriber&lt;/code&gt;&lt;/a&gt;. &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_Core_Events_IEventSubscriber.htm
+&#34;&gt;&lt;code&gt;IEventSubscriber&lt;/code&gt;&lt;/a&gt; contains a single method to implement, &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_Core_Events_IEventSubscriber_TryGetEventHandler_1.htm
 &#34;&gt;&lt;code&gt;TryGetEventHandler&lt;/code&gt;&lt;/a&gt;. It takes a generic parameter indicating the type of event and sets an out parameter with the handler.&lt;/p&gt;
 
 &lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
@@ -554,7 +554,7 @@ This method will be invoked once on each subscriber per event type. Therefore, p
 &lt;/div&gt;
 &lt;/p&gt;
 
-&lt;p&gt;For instance, to handle the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_Core_Events_ConnectionPoolAddedConnectionEvent.htm
+&lt;p&gt;For instance, to handle the &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_Core_Events_ConnectionPoolAddedConnectionEvent.htm
 &#34;&gt;&lt;code&gt;ConnectionPoolAddedConnectionEvent&lt;/code&gt;&lt;/a&gt;, the following could be done:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;public class MyEventSubscriber : IEventSubscriber
@@ -578,7 +578,7 @@ This method will be invoked once on each subscriber per event type. Therefore, p
 }
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;This could quickly become unmaintainable with multiple events. To make this easier, we have implemented the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_Core_Events_ReflectionEventSubscriber.htm
+&lt;p&gt;This could quickly become unmaintainable with multiple events. To make this easier, we have implemented the &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_Core_Events_ReflectionEventSubscriber.htm
 &#34;&gt;&lt;code&gt;ReflectionEventSubscriber&lt;/code&gt;&lt;/a&gt;. It uses reflection to find all the event handler methods inside a class based on certain constructor parameters for the method name and the binding flags. For instance, we could change the above &lt;code&gt;MyEventSubscriber&lt;/code&gt; class as follows:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;public class MyEventSubscriber : IEventSubscriber
@@ -614,12 +614,12 @@ The default method name is &amp;ldquo;Handle&amp;rdquo; and the default binding 
 &lt;/p&gt;
 
 &lt;p&gt;The &lt;a href=&#34;https://github.com/mongodb/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Events/Diagnostics/PerformanceCounterEventSubscriber.cs
-&#34;&gt;&lt;code&gt;PerformanceCounterEventSubscriber&lt;/code&gt;&lt;/a&gt; is a good example of utilizing the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_Core_Events_ReflectionEventSubscriber.htm
+&#34;&gt;&lt;code&gt;PerformanceCounterEventSubscriber&lt;/code&gt;&lt;/a&gt; is a good example of utilizing the &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_Core_Events_ReflectionEventSubscriber.htm
 &#34;&gt;&lt;code&gt;ReflectionEventSubscriber&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
 
 &lt;h4 id=&#34;method&#34;&gt;Method&lt;/h4&gt;
 
-&lt;p&gt;The second version of &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_Core_Configuration_ClusterBuilder_Subscribe.htm
+&lt;p&gt;The second version of &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_Core_Configuration_ClusterBuilder_Subscribe.htm
 &#34;&gt;&lt;code&gt;Subscribe&lt;/code&gt;&lt;/a&gt; takes an &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/018hxwa8.aspx&#34;&gt;&lt;code&gt;Action&amp;lt;TEvent&amp;gt;&lt;/code&gt;&lt;/a&gt;. For example, to use a static method:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;static void Main() 
@@ -659,9 +659,9 @@ private static void Handle(ConnectionPoolAddedConnectionEvent @event)
 
 &lt;h3 id=&#34;command-events&#34;&gt;Command Events&lt;/h3&gt;
 
-&lt;p&gt;There are three events related to monitoring data sent on the wire. These are the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_Core_Events_CommandStartedEvent.htm
-&#34;&gt;&lt;code&gt;CommandStartedEvent&lt;/code&gt;&lt;/a&gt;, the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_Core_Events_CommandSucceededEvent.htm
-&#34;&gt;&lt;code&gt;CommandSucceededEvent&lt;/code&gt;&lt;/a&gt;, and the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_Core_Events_CommandFailedEvent.htm
+&lt;p&gt;There are three events related to monitoring data sent on the wire. These are the &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_Core_Events_CommandStartedEvent.htm
+&#34;&gt;&lt;code&gt;CommandStartedEvent&lt;/code&gt;&lt;/a&gt;, the &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_Core_Events_CommandSucceededEvent.htm
+&#34;&gt;&lt;code&gt;CommandSucceededEvent&lt;/code&gt;&lt;/a&gt;, and the &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_Core_Events_CommandFailedEvent.htm
 &#34;&gt;&lt;code&gt;CommandFailedEvent&lt;/code&gt;&lt;/a&gt;. For every started event, there will always be a succeeded or failed event.&lt;/p&gt;
 
 &lt;p&gt;In addition, any messages sent to the server that are not already commands will be upconverted for the sake of consumption. For instance, an &lt;code&gt;OP_DELETE&lt;/code&gt; wire protocol message on server 2.4 will appear as though it were a &lt;a href=&#34;http://docs.mongodb.org/manual/reference/command/delete/
@@ -682,17 +682,17 @@ These are heavy events to generate. Do not subscribe to these unless they provid
 
 &lt;h4 id=&#34;commandstartedevent&#34;&gt;CommandStartedEvent&lt;/h4&gt;
 
-&lt;p&gt;The &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_Core_Events_CommandStartedEvent.htm
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_Core_Events_CommandStartedEvent.htm
 &#34;&gt;&lt;code&gt;CommandStartedEvent&lt;/code&gt;&lt;/a&gt; contains, amoungst other information, the command name as well as the command itself. While the command also contains the command name, the command is potentially heavy to access and will not live beyond the lifetime of the event. Any information necessary from the command should be pulled out and used immediately or stored.&lt;/p&gt;
 
 &lt;h4 id=&#34;commandsucceededevent&#34;&gt;CommandSucceededEvent&lt;/h4&gt;
 
-&lt;p&gt;The &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_Core_Events_CommandSucceededEvent.htm
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_Core_Events_CommandSucceededEvent.htm
 &#34;&gt;&lt;code&gt;CommandSucceededEvent&lt;/code&gt;&lt;/a&gt; contains, amoungst other information, the command name, the duration of the command, and the reply. The reply is potentially heavy to access and will not live beyond the lifetime of the event.  Any information necessary from the reply should be pulled out and used immediately or stored.&lt;/p&gt;
 
 &lt;h4 id=&#34;commandfailedevent&#34;&gt;CommandFailedEvent&lt;/h4&gt;
 
-&lt;p&gt;The &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_Core_Events_CommandFailedEvent.htm
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_Core_Events_CommandFailedEvent.htm
 &#34;&gt;&lt;code&gt;CommandFailedEvent&lt;/code&gt;&lt;/a&gt; contains, amoungst other information, the command name, the duration of the command, and the exception. The exception is potentially heavy to access and will not live beyond the lifetime of the event.  Any information necessary from the exception should be pulled out and used immediately or stored.&lt;/p&gt;
 </description>
     </item>
@@ -736,8 +736,8 @@ class Pet
 
 &lt;h3 id=&#34;queryable&#34;&gt;Queryable&lt;/h3&gt;
 
-&lt;p&gt;Hooking into the LINQ provider requires getting access to an &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb351562.aspx&#34;&gt;&lt;code&gt;IQueryable&lt;/code&gt;&lt;/a&gt; instance. The driver provides an &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_IMongoCollectionExtensions_AsQueryable.htm
-&#34;&gt;&lt;code&gt;AsQueryable&lt;/code&gt;&lt;/a&gt; extension method on &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_IMongoCollection_1.htm
+&lt;p&gt;Hooking into the LINQ provider requires getting access to an &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb351562.aspx&#34;&gt;&lt;code&gt;IQueryable&lt;/code&gt;&lt;/a&gt; instance. The driver provides an &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_IMongoCollectionExtensions_AsQueryable.htm
+&#34;&gt;&lt;code&gt;AsQueryable&lt;/code&gt;&lt;/a&gt; extension method on &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_IMongoCollection_1.htm
 &#34;&gt;&lt;code&gt;IMongoCollection&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var collection = db.GetCollection&amp;lt;Person&amp;gt;(&amp;quot;people&amp;quot;);
@@ -1253,7 +1253,7 @@ var result = collection.AsQueryable().Select(p =&amp;gt; p.Age).Sum();
 &lt;h2 id=&#34;how-to-manage-users&#34;&gt;How to Manage Users&lt;/h2&gt;
 
 &lt;p&gt;While MongoDB supports many user management commands, the driver does not have any helpers for them because users are generally managed from the &lt;a href=&#34;http://docs.mongodb.org/manual/reference/mongo-shell/
-&#34;&gt;MongoDB shell&lt;/a&gt;. However, it is still possible to manage users from the driver by using the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_IMongoDatabase_RunCommandAsync__1.htm
+&#34;&gt;MongoDB shell&lt;/a&gt;. However, it is still possible to manage users from the driver by using the &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_IMongoDatabase_RunCommandAsync__1.htm
 &#34;&gt;&lt;code&gt;IMongoDatabase.RunCommandAsync&lt;/code&gt;&lt;/a&gt; method.&lt;/p&gt;
 
 &lt;h2 id=&#34;listing-users&#34;&gt;Listing Users&lt;/h2&gt;
@@ -1387,7 +1387,7 @@ Even though we used a string here for the command, it could have been a BsonDocu
 
 &lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
 &lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
-&lt;p&gt;Even though we are using &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Bson_BsonDocument.htm&#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt; below, it is possible to use an application defined class by replacing the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Bson_BsonDocument.htm&#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt; references with that of your application defined class.&lt;/p&gt;
+&lt;p&gt;Even though we are using &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Bson_BsonDocument.htm&#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt; below, it is possible to use an application defined class by replacing the &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Bson_BsonDocument.htm&#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt; references with that of your application defined class.&lt;/p&gt;
 
 &lt;/div&gt;
 &lt;/p&gt;
@@ -1479,7 +1479,7 @@ It is still possible to filter, sort, project, update, etc&amp;hellip; this dyna
 
 &lt;h3 id=&#34;bsondocument-property&#34;&gt;BsonDocument Property&lt;/h3&gt;
 
-&lt;p&gt;The first option is to include a &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Bson_BsonDocument.htm
+&lt;p&gt;The first option is to include a &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Bson_BsonDocument.htm
 &#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt;. Our class would then look as follows:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;class Post
@@ -1579,18 +1579,18 @@ There is a danger with this approach that dynamic field names could clash with n
 
 &lt;h2 id=&#34;adminstration&#34;&gt;Adminstration&lt;/h2&gt;
 
-&lt;p&gt;The administration operations exist in multiple places in the driver&amp;rsquo;s API. Database-related operations exist on the database object and collection-related operations exist on the collection object. If there isn&amp;rsquo;t a method for the admin operation you want to use, the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_IMongoDatabase_RunCommandAsync__1.htm
-&#34;&gt;&lt;code&gt;RunCommandAsync&lt;/code&gt;&lt;/a&gt; method on &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_IMongoDatabase.htm
+&lt;p&gt;The administration operations exist in multiple places in the driver&amp;rsquo;s API. Database-related operations exist on the database object and collection-related operations exist on the collection object. If there isn&amp;rsquo;t a method for the admin operation you want to use, the &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_IMongoDatabase_RunCommandAsync__1.htm
+&#34;&gt;&lt;code&gt;RunCommandAsync&lt;/code&gt;&lt;/a&gt; method on &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_IMongoDatabase.htm
 &#34;&gt;&lt;code&gt;IMongoDatabase&lt;/code&gt;&lt;/a&gt; is available.&lt;/p&gt;
 
 &lt;h2 id=&#34;databases&#34;&gt;Databases&lt;/h2&gt;
 
-&lt;p&gt;These operations exist on the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_IMongoClient.htm
+&lt;p&gt;These operations exist on the &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_IMongoClient.htm
 &#34;&gt;&lt;code&gt;IMongoClient&lt;/code&gt;&lt;/a&gt; interface.&lt;/p&gt;
 
 &lt;h3 id=&#34;getting-a-database&#34;&gt;Getting a database&lt;/h3&gt;
 
-&lt;p&gt;To get a database, use the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_IMongoClient_GetDatabase.htm
+&lt;p&gt;To get a database, use the &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_IMongoClient_GetDatabase.htm
 &#34;&gt;&lt;code&gt;GetDatabase&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
@@ -1606,7 +1606,7 @@ var db = client.GetDatabase(&amp;quot;test&amp;quot;);
 
 &lt;h3 id=&#34;dropping-a-database&#34;&gt;Dropping a database&lt;/h3&gt;
 
-&lt;p&gt;Use the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_IMongoClient_DropDatabaseAsync.htm
+&lt;p&gt;Use the &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_IMongoClient_DropDatabaseAsync.htm
 &#34;&gt;&lt;code&gt;DropDatabaseAsync&lt;/code&gt;&lt;/a&gt; method.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;// drops the test database
@@ -1615,7 +1615,7 @@ await client.DropDatabaseAsync(&amp;quot;test&amp;quot;);
 
 &lt;h3 id=&#34;listing-the-databases&#34;&gt;Listing the databases&lt;/h3&gt;
 
-&lt;p&gt;Use the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_IMongoClient_ListDatabasesAsync.htm
+&lt;p&gt;Use the &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_IMongoClient_ListDatabasesAsync.htm
 &#34;&gt;&lt;code&gt;ListDatabasesAsync&lt;/code&gt;&lt;/a&gt; method.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var cursor = await client.ListDatabaseAsync())
@@ -1627,13 +1627,13 @@ await client.DropDatabaseAsync(&amp;quot;test&amp;quot;);
 
 &lt;h2 id=&#34;collections&#34;&gt;Collections&lt;/h2&gt;
 
-&lt;p&gt;These operations exists on the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_IMongoDatabase.htm
+&lt;p&gt;These operations exists on the &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_IMongoDatabase.htm
 &#34;&gt;&lt;code&gt;IMongoDatabase&lt;/code&gt;&lt;/a&gt; interface.&lt;/p&gt;
 
 &lt;h3 id=&#34;getting-a-collection&#34;&gt;Getting a collection&lt;/h3&gt;
 
-&lt;p&gt;The &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_IMongoDatabase_GetCollection__1.htm
-&#34;&gt;&lt;code&gt;GetCollection&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; method returns an &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_IMongoCollection_1.htm
+&lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_IMongoDatabase_GetCollection__1.htm
+&#34;&gt;&lt;code&gt;GetCollection&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; method returns an &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_IMongoCollection_1.htm
 &#34;&gt;&lt;code&gt;IMongoCollection&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;The generic parameter on the method defines the schema your application will use when working with the collection. Generally, this type will either be a &lt;a href=&#34;/mongo-csharp-driver/2.1/mongo-csharp-driver/2.1/reference/bson/bson_document/&#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt; which provides no schema enforcement or a &lt;a href=&#34;/mongo-csharp-driver/2.1/mongo-csharp-driver/2.1/reference/bson/mapping/&#34;&gt;mapped class (POCO)&lt;/a&gt;.&lt;/p&gt;
@@ -1646,8 +1646,8 @@ var collection = db.GetCollection&amp;lt;BsonDocument&amp;gt;(&amp;quot;foo&amp;
 
 &lt;h3 id=&#34;creating-a-collection&#34;&gt;Creating a collection&lt;/h3&gt;
 
-&lt;p&gt;Just like databases, there is no need to create a collection before working with it. It will be created upon first use. However, certain features of collections require explicit creation. The &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_IMongoDatabase_CreateCollectionAsync.htm
-&#34;&gt;&lt;code&gt;CreateCollectionAsync&lt;/code&gt;&lt;/a&gt; method allows you to specify not only a name, but also &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_CreateCollectionOptions.htm
+&lt;p&gt;Just like databases, there is no need to create a collection before working with it. It will be created upon first use. However, certain features of collections require explicit creation. The &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_IMongoDatabase_CreateCollectionAsync.htm
+&#34;&gt;&lt;code&gt;CreateCollectionAsync&lt;/code&gt;&lt;/a&gt; method allows you to specify not only a name, but also &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_CreateCollectionOptions.htm
 &#34;&gt;&lt;code&gt;CreateCollectionOptions&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;// creates a capped collection named &amp;quot;foo&amp;quot; with a maximum size of 10,000 bytes
@@ -1662,7 +1662,7 @@ await db.CreateCollectionAsync(
 
 &lt;h3 id=&#34;dropping-a-collection&#34;&gt;Dropping a collection&lt;/h3&gt;
 
-&lt;p&gt;Use the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_IMongoDatabase_DropCollectionAsync.htm
+&lt;p&gt;Use the &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_IMongoDatabase_DropCollectionAsync.htm
 &#34;&gt;&lt;code&gt;DropCollectionAsync&lt;/code&gt;&lt;/a&gt; method.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;// drops the &amp;quot;foo&amp;quot; collection
@@ -1671,7 +1671,7 @@ await db.DropCollectionAsync(&amp;quot;test&amp;quot;);
 
 &lt;h3 id=&#34;listing-the-collections&#34;&gt;Listing the collections&lt;/h3&gt;
 
-&lt;p&gt;Use the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_IMongoDatabase_ListCollectionsAsync.htm
+&lt;p&gt;Use the &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_IMongoDatabase_ListCollectionsAsync.htm
 &#34;&gt;&lt;code&gt;ListCollectionsAsync&lt;/code&gt;&lt;/a&gt; method.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var cursor = await db.ListCollectionsAsync())
@@ -1683,7 +1683,7 @@ await db.DropCollectionAsync(&amp;quot;test&amp;quot;);
 
 &lt;h3 id=&#34;renaming-a-collection&#34;&gt;Renaming a collection&lt;/h3&gt;
 
-&lt;p&gt;Use the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_IMongoDatabase_RenameCollectionAsync.htm
+&lt;p&gt;Use the &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_IMongoDatabase_RenameCollectionAsync.htm
 &#34;&gt;&lt;code&gt;RenameCollectionAsync&lt;/code&gt;&lt;/a&gt; method.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;// rename the &amp;quot;foo&amp;quot; collection to &amp;quot;bar&amp;quot;
@@ -1692,16 +1692,16 @@ await db.RenameCollectionAsync(&amp;quot;foo&amp;quot;, &amp;quot;bar&amp;quot;)
 
 &lt;h2 id=&#34;indexes&#34;&gt;Indexes&lt;/h2&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_IMongoCollection_1.htm
-&#34;&gt;&lt;code&gt;IMongoCollection&amp;lt;T&amp;gt;&lt;/code&gt;&lt;/a&gt; contains an &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/P_MongoDB_Driver_IMongoCollection_1_Indexes.htm
+&lt;p&gt;&lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_IMongoCollection_1.htm
+&#34;&gt;&lt;code&gt;IMongoCollection&amp;lt;T&amp;gt;&lt;/code&gt;&lt;/a&gt; contains an &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/P_MongoDB_Driver_IMongoCollection_1_Indexes.htm
 &#34;&gt;&lt;code&gt;Indexes&lt;/code&gt;&lt;/a&gt; property which gives access to all the index-related operations for a collection.&lt;/p&gt;
 
-&lt;p&gt;A number of the methods take an &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_IndexKeysDefinition_1.htm
+&lt;p&gt;A number of the methods take an &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_IndexKeysDefinition_1.htm
 &#34;&gt;&lt;code&gt;IndexKeysDefinition&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt;. See the documentation on the &lt;a href=&#34;/mongo-csharp-driver/2.1/mongo-csharp-driver/2.1/reference/driver/definitions/#index-keys &#34;&gt;index keys builder&lt;/a&gt; for more information.&lt;/p&gt;
 
 &lt;h3 id=&#34;creating-an-index&#34;&gt;Creating an index&lt;/h3&gt;
 
-&lt;p&gt;Use the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_IMongoIndexManager_1_CreateOneAsync.htm
+&lt;p&gt;Use the &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_IMongoIndexManager_1_CreateOneAsync.htm
 &#34;&gt;&lt;code&gt;CreateOneAsync&lt;/code&gt;&lt;/a&gt; to create a single index. For instance, to create an ascending index on the &amp;ldquo;x&amp;rdquo; and &amp;ldquo;y&amp;rdquo; fields,&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;await collection.Indexes.CreateOneAsync(&amp;quot;{x: 1, y: 1}&amp;quot;);
@@ -1715,7 +1715,7 @@ await collection.Indexes.CreateOneAsync(new BsonDocument(&amp;quot;x&amp;quot;, 
 await collection.Indexes.CreateOneAsync(Builders&amp;lt;BsonDocument&amp;gt;.IndexKeys.Ascending(&amp;quot;x&amp;quot;).Ascending(&amp;quot;y&amp;quot;));
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;In addition, there are a number of options available when creating index. These are present on the optional &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_CreateIndexOptions.htm
+&lt;p&gt;In addition, there are a number of options available when creating index. These are present on the optional &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_CreateIndexOptions.htm
 &#34;&gt;&lt;code&gt;CreateIndexOptions&lt;/code&gt;&lt;/a&gt; parameter. For instance, to create a unique ascending index on &amp;ldquo;x&amp;rdquo;:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;await collection.Indexes.CreateOneAsync(&amp;quot;{x: 1}&amp;quot;, new CreateIndexOptions { Unique = true });
@@ -1723,8 +1723,8 @@ await collection.Indexes.CreateOneAsync(Builders&amp;lt;BsonDocument&amp;gt;.Ind
 
 &lt;h3 id=&#34;dropping-an-index&#34;&gt;Dropping an index&lt;/h3&gt;
 
-&lt;p&gt;Use the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_IMongoIndexManager_1_DropOneAsync.htm
-&#34;&gt;&lt;code&gt;DropOneAsync&lt;/code&gt;&lt;/a&gt; to drop a single index or the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_IMongoIndexManager_1_DropAllAsync.htm
+&lt;p&gt;Use the &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_IMongoIndexManager_1_DropOneAsync.htm
+&#34;&gt;&lt;code&gt;DropOneAsync&lt;/code&gt;&lt;/a&gt; to drop a single index or the &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_IMongoIndexManager_1_DropAllAsync.htm
 &#34;&gt;&lt;code&gt;DropAllAsync&lt;/code&gt;&lt;/a&gt; to drop all indexes.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;// drop the index named &amp;quot;x_1&amp;quot;;
@@ -1736,7 +1736,7 @@ await collection.Indexes.DropAllAsync();
 
 &lt;h3 id=&#34;listing-indexes&#34;&gt;Listing indexes&lt;/h3&gt;
 
-&lt;p&gt;To see all the indexes in a collection, use the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_IMongoIndexManager_1_ListAsync.htm
+&lt;p&gt;To see all the indexes in a collection, use the &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_IMongoIndexManager_1_ListAsync.htm
 &#34;&gt;&lt;code&gt;ListAsync&lt;/code&gt;&lt;/a&gt; method.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using(var cursor = await collection.Indexes.ListAsync())
@@ -1805,7 +1805,7 @@ await collection.Indexes.DropAllAsync();
 
 &lt;h2 id=&#34;importing-json&#34;&gt;Importing JSON&lt;/h2&gt;
 
-&lt;p&gt;The .NET BSON library supports reading JSON documents with the &lt;a href=&#34;http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Bson_IO_JsonReader.htm
+&lt;p&gt;The .NET BSON library supports reading JSON documents with the &lt;a href=&#34;/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Bson_IO_JsonReader.htm
 &#34;&gt;&lt;code&gt;JsonReader&lt;/code&gt;&lt;/a&gt; class.&lt;/p&gt;
 
 &lt;p&gt;The program below will import all documents from a file with one document per line into the collection.&lt;/p&gt;

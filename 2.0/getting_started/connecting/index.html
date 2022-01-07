@@ -1141,7 +1141,7 @@
 
 
     <li class="toctree-l1">
-    <a href="http://api.mongodb.org/csharp/2.0">
+    <a href="/mongo-csharp-driver/2.0/apidocs">
         <i class='fa fa-file-text-o'></i>
         API Documentation
     </a>
@@ -1279,13 +1279,13 @@
 
 <h2 id="connecting">Connecting</h2>
 
-<p>A <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoClient.htm
+<p>A <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_MongoClient.htm
 "><code>MongoClient</code></a> instance is the root object to handle connecting to the database.</p>
 
 <pre><code class="language-csharp">var client = new MongoClient();
 </code></pre>
 
-<p>This will connect to a mongod or mongos running on localhost port 27017. If you&rsquo;d like to use a remote host, you can provide a <a href="http://docs.mongodb.org/manual/reference/connection-string/">connection string</a> to the constructor or construct a <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoClientSettings.htm
+<p>This will connect to a mongod or mongos running on localhost port 27017. If you&rsquo;d like to use a remote host, you can provide a <a href="http://docs.mongodb.org/manual/reference/connection-string/">connection string</a> to the constructor or construct a <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_MongoClientSettings.htm
 "><code>MongoClientSettings</code></a> object and pass it in. To see more about connecting with a client, see the <a href="/mongo-csharp-driver/2.0/reference/driver/connecting/">reference guide</a>.</p>
 
 <p><div class="admonition note">
@@ -1296,7 +1296,7 @@ There is no connecting or disconnecting. A connection pool is used and connectio
 
 <h2 id="database">Database</h2>
 
-<p>From here, you&rsquo;ll want to retrieve an <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IMongoDatabase.htm
+<p>From here, you&rsquo;ll want to retrieve an <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_IMongoDatabase.htm
 "><code>IMongoDatabase</code></a> instance.</p>
 
 <pre><code class="language-csharp">var db = client.GetDatabase(&quot;test&quot;);
@@ -1306,9 +1306,9 @@ There is no connecting or disconnecting. A connection pool is used and connectio
 
 <h2 id="collection">Collection</h2>
 
-<p>From here, you&rsquo;ll need to retrieve a reference to an <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IMongoCollection_1.htm
-"><code>IMongoCollection&lt;TDocument&gt;</code></a> instance, where <code>TDocument</code> is the type of document with which to work. This will be either a <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm
-"><code>BsonDocument</code></a> or a custom class of your own. You would use a <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm
+<p>From here, you&rsquo;ll need to retrieve a reference to an <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_IMongoCollection_1.htm
+"><code>IMongoCollection&lt;TDocument&gt;</code></a> instance, where <code>TDocument</code> is the type of document with which to work. This will be either a <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_BsonDocument.htm
+"><code>BsonDocument</code></a> or a custom class of your own. You would use a <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_BsonDocument.htm
 "><code>BsonDocument</code></a> when the data you are working with is so free form that it would be difficult or impossible to define domain classes for it or because you want to handle the mapping yourself.</p>
 
 <p>One constraint on your custom class is that it must contain an <code>Id</code> field. You can read more about customizing classes in the <a href="/mongo-csharp-driver/2.0/reference/bson/mapping/">reference guide</a>.</p>

@@ -1542,7 +1542,7 @@
 
 <h2 id="counting-documents:529984d900619d993d91589767da4ddb">Counting Documents</h2>
 
-<p>The <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoCollection_1_CountAsync.htm
+<p>The <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_CountAsync.htm
 "><code>CountAsync</code></a> method can be used to count all the documents matching a particular filter.</p>
 
 <pre><code class="language-csharp">var count = await collection.CountAsync(new BsonDocument(&quot;x&quot;, 10));
@@ -1559,8 +1559,8 @@ var count = await collection.CountAsync(x =&gt; x.Age &gt; 20);
 
 <h2 id="finding-documents:529984d900619d993d91589767da4ddb">Finding Documents</h2>
 
-<p>Finding all the documents in a collection is done with an empty filter and the method <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoCollectionExtensions_Find__1.htm
-"><code>Find</code></a>. Once we have a cursor (of type <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IAsyncCursor_1.htm
+<p>Finding all the documents in a collection is done with an empty filter and the method <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoCollectionExtensions_Find__1.htm
+"><code>Find</code></a>. Once we have a cursor (of type <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_IAsyncCursor_1.htm
 "><code>IAsyncCursor&lt;TDocument&gt;</code></a>), we can iterate it like we manually iterate an <a href="https://msdn.microsoft.com/en-us/library/9eekhta0.aspx"><code>IEnumerable&lt;TDocument&gt;</code></a>.</p>
 
 <pre><code class="language-csharp">var filter = new BsonDocument();
@@ -1582,7 +1582,7 @@ It is imperative that the cursor get disposed once you are finished with it to e
 </div>
 </p>
 
-<p>Some options are available in the optional <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_FindOptions.htm
+<p>Some options are available in the optional <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_FindOptions.htm
 "><code>FindOptions</code></a> parameter such as setting maxTimeMS, a batch size, or a comment. Others are available as part of the fluent interface such as skip, limit, and sort.</p>
 
 <pre><code class="language-csharp">var filter = new BsonDocument();

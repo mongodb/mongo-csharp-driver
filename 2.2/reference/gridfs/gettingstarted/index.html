@@ -2320,7 +2320,7 @@
 
 
     <li class="toctree-l1">
-    <a href="http://api.mongodb.org/csharp/2.2">
+    <a href="/mongo-csharp-driver/2.2/apidocs">
         <i class='fa fa-file-text-o'></i>
         API Documentation
     </a>
@@ -2464,17 +2464,17 @@
 
 <h3 id="gridfsbucket">GridFSBucket</h3>
 
-<p>A <a href="http://api.mongodb.org/csharp/2.2/html/T_MongoDB_Driver_GridFS_GridFSBucket.htm
+<p>A <a href="/mongo-csharp-driver/2.2/apidocs/html/T_MongoDB_Driver_GridFS_GridFSBucket.htm
 "><code>GridFSBucket</code></a> object is the root object representing a GridFS bucket.</p>
 
 <p><div class="admonition warning">
 <h5 class="admonition-title">warning</h5>
-<p>You should always use a <a href="http://api.mongodb.org/csharp/2.2/html/T_MongoDB_Driver_GridFS_GridFSBucket.htm"><code>GridFSBucket</code></a> object to interact with GridFS instead of directly referencing the underlying collections.</p>
+<p>You should always use a <a href="/mongo-csharp-driver/2.2/apidocs/html/T_MongoDB_Driver_GridFS_GridFSBucket.htm"><code>GridFSBucket</code></a> object to interact with GridFS instead of directly referencing the underlying collections.</p>
 
 </div>
 </p>
 
-<p>You create a <a href="http://api.mongodb.org/csharp/2.2/html/T_MongoDB_Driver_GridFS_GridFSBucket.htm
+<p>You create a <a href="/mongo-csharp-driver/2.2/apidocs/html/T_MongoDB_Driver_GridFS_GridFSBucket.htm
 "><code>GridFSBucket</code></a> instance by calling its constructor:</p>
 
 <pre><code class="language-csharp">IMongoDatabase database;
@@ -2482,7 +2482,7 @@
 var bucket = new GridFSBucket(database);
 </code></pre>
 
-<p>You can also provide options when instantiating the <a href="http://api.mongodb.org/csharp/2.2/html/T_MongoDB_Driver_GridFS_GridFSBucket.htm
+<p>You can also provide options when instantiating the <a href="/mongo-csharp-driver/2.2/apidocs/html/T_MongoDB_Driver_GridFS_GridFSBucket.htm
 "><code>GridFSBucket</code></a> object:</p>
 
 <pre><code class="language-csharp">IMongoDatabase database;
@@ -2496,14 +2496,14 @@ var bucket = new GridFSBucket(database, new GridFSOptions
 });
 </code></pre>
 
-<p>The <a href="http://api.mongodb.org/csharp/2.2/html/P_MongoDB_Driver_GridFS_GridFSBucketOptions_BucketName.htm
+<p>The <a href="/mongo-csharp-driver/2.2/apidocs/html/P_MongoDB_Driver_GridFS_GridFSBucketOptions_BucketName.htm
 "><code>BucketName</code></a> value is the root part of the files and chunks collection names, so in this example the two collections would be named &ldquo;videos.files&rdquo; and &ldquo;videos.chunks&rdquo; instead of &ldquo;fs.files&rdquo; and &ldquo;fs.chunks&rdquo;.</p>
 
-<p>The <a href="http://api.mongodb.org/csharp/2.2/html/P_MongoDB_Driver_GridFS_GridFSBucketOptions_ChunkSizeBytes.htm
+<p>The <a href="/mongo-csharp-driver/2.2/apidocs/html/P_MongoDB_Driver_GridFS_GridFSBucketOptions_ChunkSizeBytes.htm
 "><code>ChunkSizeBytes</code></a> value defines the size of each chunk, and in this example we are overriding the default value of 261120 (255MB).</p>
 
-<p>The <a href="http://api.mongodb.org/csharp/2.2/html/P_MongoDB_Driver_GridFS_GridFSBucketOptions_WriteConcern.htm
-"><code>WriteConcern</code></a> is used when uploading files to GridFS, and the <a href="http://api.mongodb.org/csharp/2.2/html/P_MongoDB_Driver_GridFS_GridFSBucketOptions_ReadPreference.htm
+<p>The <a href="/mongo-csharp-driver/2.2/apidocs/html/P_MongoDB_Driver_GridFS_GridFSBucketOptions_WriteConcern.htm
+"><code>WriteConcern</code></a> is used when uploading files to GridFS, and the <a href="/mongo-csharp-driver/2.2/apidocs/html/P_MongoDB_Driver_GridFS_GridFSBucketOptions_ReadPreference.htm
 "><code>ReadPreference</code></a> is used when downloading files from GridFS.</p>
 
 

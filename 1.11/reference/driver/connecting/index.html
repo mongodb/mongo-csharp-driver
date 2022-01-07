@@ -1401,7 +1401,7 @@ Some drivers utilize the database component to indicate which database to work w
 
 <h3 id="options:d67a243cdf521fafcb45cf3f560d3e12">Options</h3>
 
-<p>Many options can be provided via the connection string. The ones that cannot may be provided in a <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoClientSettings.htm
+<p>Many options can be provided via the connection string. The ones that cannot may be provided in a <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_MongoClientSettings.htm
 "><code>MongoClientSettings</code></a> object. To provide an option on the connection string, append a <code>?</code> and separate multiple options by an <code>&amp;</code>.</p>
 
 <pre><code>mongodb://host:27017/?replicaSet=rs0&amp;uuidRepresentation=standard
@@ -1413,8 +1413,8 @@ Some drivers utilize the database component to indicate which database to work w
 
 <h2 id="mongo-client:d67a243cdf521fafcb45cf3f560d3e12">Mongo Client</h2>
 
-<p>A <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoClient.htm
-"><code>MongoClient</code></a> object will be the root object. It is thread-safe and is all that is needed to handle connecting to servers, monitoring servers, and performing operations against those servers. Without any arguments, constructing a <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoClient.htm
+<p>A <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_MongoClient.htm
+"><code>MongoClient</code></a> object will be the root object. It is thread-safe and is all that is needed to handle connecting to servers, monitoring servers, and performing operations against those servers. Without any arguments, constructing a <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_MongoClient.htm
 "><code>MongoClient</code></a> instance will connect to &ldquo;localhost&rdquo; port 27017.</p>
 
 <pre><code>var client = new MongoClient();
@@ -1425,7 +1425,7 @@ Some drivers utilize the database component to indicate which database to work w
 <pre><code>var client = new MongoClient(&quot;mongodb://host:27017,host2:27017/?replicaSet=rs0&quot;);
 </code></pre>
 
-<p>Finally, <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoClientSettings.htm
+<p>Finally, <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_MongoClientSettings.htm
 "><code>MongoClientSettings</code></a> provides an in code way to set the same options.</p>
 
 <pre><code>var settings = new MongoClientSettings { ReplicaSetName = &quot;rs0&quot; };
@@ -1434,74 +1434,74 @@ var client = new MongoClient(settings);
 
 <h3 id="re-use:d67a243cdf521fafcb45cf3f560d3e12">Re-use</h3>
 
-<p>It is recommended to store a <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoClient.htm
+<p>It is recommended to store a <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_MongoClient.htm
 "><code>MongoClient</code></a> instance in a global place, either as a static variable or in an IoC container with a singleton lifetime.</p>
 
-<p>However, multiple <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoClient.htm
-"><code>MongoClient</code></a> instances created with the same settings will utilize the same connection pools underneath. Unfortunately, certain types of settings are not able to be compared for equality. For instance, the <a href="http://api.mongodb.org/csharp/2.0/html/P_MongoDB_Driver_MongoClientSettings_ClusterConfigurator.htm
-"><code>ClusterConfigurator</code></a> property is a delegate and only its address is known for comparison. If you wish to construct multiple <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoClient.htm
+<p>However, multiple <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_MongoClient.htm
+"><code>MongoClient</code></a> instances created with the same settings will utilize the same connection pools underneath. Unfortunately, certain types of settings are not able to be compared for equality. For instance, the <a href="/mongo-csharp-driver/2.0/apidocs/html/P_MongoDB_Driver_MongoClientSettings_ClusterConfigurator.htm
+"><code>ClusterConfigurator</code></a> property is a delegate and only its address is known for comparison. If you wish to construct multiple <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_MongoClient.htm
 "><code>MongoClients</code></a>, ensure that your delegates are all using the same address if the intent is to share connection pools.</p>
 
 <h3 id="monitoring:d67a243cdf521fafcb45cf3f560d3e12">Monitoring</h3>
 
-<p><a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoClient.htm
-"><code>MongoClient</code></a> utilizes an <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_Core_Clusters_ICluster.htm
+<p><a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_MongoClient.htm
+"><code>MongoClient</code></a> utilizes an <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_Core_Clusters_ICluster.htm
 "><code>ICluster</code></a> from <a href="/mongo-csharp-driver/2.0/reference/driver_core/">MongoDB.Driver.Core</a> which handles monitoring the cluster.</p>
 
 <h2 id="mongo-database:d67a243cdf521fafcb45cf3f560d3e12">Mongo Database</h2>
 
-<p>An <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IMongoDatabase.htm
-"><code>IMongoDatabase</code></a> represents a database in a MongoDB server. Databases are retrieved from an <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IMongoClient.htm
-"><code>IMongoClient</code></a> instance using the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoClient_GetDatabase.htm
+<p>An <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_IMongoDatabase.htm
+"><code>IMongoDatabase</code></a> represents a database in a MongoDB server. Databases are retrieved from an <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_IMongoClient.htm
+"><code>IMongoClient</code></a> instance using the <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoClient_GetDatabase.htm
 "><code>GetDatabase</code></a> method:</p>
 
 <pre><code class="language-csharp">var db = client.GetDatabase(&quot;hr&quot;);
 </code></pre>
 
-<p>Above, we have gotten the &ldquo;hr&rdquo; database. If the database does not exist on the server, it will be created automatically upon first use. If you want to use more than one database, call <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoClient_GetDatabase.htm
+<p>Above, we have gotten the &ldquo;hr&rdquo; database. If the database does not exist on the server, it will be created automatically upon first use. If you want to use more than one database, call <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoClient_GetDatabase.htm
 "><code>GetDatabase</code></a> once for each database you&rsquo;d like to work with.</p>
 
 <h3 id="re-use-1:d67a243cdf521fafcb45cf3f560d3e12">Re-use</h3>
 
-<p>The implementation of <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IMongoDatabase.htm
-"><code>IMongoDatabase</code></a> provided by a <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoClient.htm
+<p>The implementation of <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_IMongoDatabase.htm
+"><code>IMongoDatabase</code></a> provided by a <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_MongoClient.htm
 "><code>MongoClient</code></a> is thread-safe and is safe to be stored globally or in an IoC container.</p>
 
 <h3 id="mongo-collection:d67a243cdf521fafcb45cf3f560d3e12">Mongo Collection</h3>
 
-<p>An <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IMongoCollection_1.htm
-"><code>IMongoCollection&lt;TDocument&gt;</code></a> represents a collection in a MongoDB database. Collections are retrieved from an <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IMongoDatabase.htm
-"><code>IMongoDatabase</code></a> with the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoDatabase_GetCollection__1.htm
+<p>An <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_IMongoCollection_1.htm
+"><code>IMongoCollection&lt;TDocument&gt;</code></a> represents a collection in a MongoDB database. Collections are retrieved from an <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_IMongoDatabase.htm
+"><code>IMongoDatabase</code></a> with the <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoDatabase_GetCollection__1.htm
 "><code>GetCollection&lt;TDocument&gt;</code></a> method:</p>
 
 <pre><code class="language-csharp">var collection = db.GetCollection&lt;BsonDocument&gt;(&quot;people&quot;);
 </code></pre>
 
-<p>Above, we have gotten the &ldquo;people&rdquo; collection. IF the collection does not exist on the server, it will be created automatically upon first use. If you want to use more than one database, call <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoDatabase_GetCollection__1.htm
+<p>Above, we have gotten the &ldquo;people&rdquo; collection. IF the collection does not exist on the server, it will be created automatically upon first use. If you want to use more than one database, call <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoDatabase_GetCollection__1.htm
 "><code>GetCollection&lt;TDocument&gt;</code></a> once for each database you&rsquo;d like to work with.</p>
 
 <p>The generic parameter <code>TDocument</code> is the type of document that is stored in your collection. It can, effectively, be any type that can be mapped to and from BSON. The driver utilizes the <a href="/mongo-csharp-driver/2.0/reference/bson/">BSON library</a> to handle this mapping. The most common types you will use are:</p>
 
 <ol>
 <li>Custom Class - useful for representing known schemas. See the <a href="/mongo-csharp-driver/2.0/reference/bson/mapping/">mapping section</a> for more information. The majority of applications will not work with dynamic schemas, but rather with something more rigid. In addition, if you work in a static language, it is nice to work with static types that provide compile time type checking.</li>
-<li><a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm
+<li><a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_BsonDocument.htm
 "><code>BsonDocument</code></a> - useful for representing dynamic schemas.</li>
 </ol>
 
 <p><div class="admonition note">
 <h5 class="admonition-title">Note</h5>
-<p>It is possible to mix both these models by utilizing a <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm"><code>BsonDocument</code></a> inside your custom class.</p>
+<p>It is possible to mix both these models by utilizing a <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_BsonDocument.htm"><code>BsonDocument</code></a> inside your custom class.</p>
 
 </div>
 </p>
 
-<p>A majority of the methods and extension methods for an <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IMongoCollection_1.htm
+<p>A majority of the methods and extension methods for an <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_IMongoCollection_1.htm
 "><code>IMongoCollection&lt;TDocument&gt;</code></a> utilize the <code>TDocument</code> generic parameter in some fashion.</p>
 
 <h3 id="re-use-2:d67a243cdf521fafcb45cf3f560d3e12">Re-use</h3>
 
-<p>The implementation of <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IMongoCollection_1.htm
-"><code>IMongoCollection&lt;TDocument&gt;</code></a> ultimately provided by a <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoClient.htm
+<p>The implementation of <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_IMongoCollection_1.htm
+"><code>IMongoCollection&lt;TDocument&gt;</code></a> ultimately provided by a <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_MongoClient.htm
 "><code>MongoClient</code></a> is thread-safe and is safe to be stored globally or in an IoC container.</p>
 
 

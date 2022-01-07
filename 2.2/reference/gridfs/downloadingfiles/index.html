@@ -2368,7 +2368,7 @@
 
 
     <li class="toctree-l1">
-    <a href="http://api.mongodb.org/csharp/2.2">
+    <a href="/mongo-csharp-driver/2.2/apidocs">
         <i class='fa fa-file-text-o'></i>
         API Documentation
     </a>
@@ -2572,9 +2572,9 @@ ObjectId id;
 }
 </code></pre>
 
-<p>The <a href="https://msdn.microsoft.com/en-us/library/system.io.stream.aspx"><code>Stream</code></a> object returned by <a href="http://api.mongodb.org/csharp/2.2/html/M_MongoDB_Driver_GridFS_IGridFSBucket_OpenDownloadStream.htm
-"><code>OpenDownloadStream</code></a> or <a href="http://api.mongodb.org/csharp/2.2/html/M_MongoDB_Driver_GridFS_IGridFSBucket_OpenDownloadStreamAsync.htm
-"><code>OpenDownloadStreamAsync</code></a> is actually a <a href="http://api.mongodb.org/csharp/2.2/html/T_MongoDB_Driver_GridFS_GridFSDownloadStream.htm
+<p>The <a href="https://msdn.microsoft.com/en-us/library/system.io.stream.aspx"><code>Stream</code></a> object returned by <a href="/mongo-csharp-driver/2.2/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_OpenDownloadStream.htm
+"><code>OpenDownloadStream</code></a> or <a href="/mongo-csharp-driver/2.2/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_OpenDownloadStreamAsync.htm
+"><code>OpenDownloadStreamAsync</code></a> is actually a <a href="/mongo-csharp-driver/2.2/apidocs/html/T_MongoDB_Driver_GridFS_GridFSDownloadStream.htm
 "><code>GridFSDownloadStream</code></a> (a subclass of <a href="https://msdn.microsoft.com/en-us/library/system.io.stream.aspx"><code>Stream</code></a>), which has the following additional members in addition to those found in <a href="https://msdn.microsoft.com/en-us/library/system.io.stream.aspx"><code>Stream</code></a>:</p>
 
 <pre><code class="language-csharp">public abstract class GridFSDownloadStream : Stream
@@ -2584,15 +2584,15 @@ ObjectId id;
 };
 </code></pre>
 
-<p>The <a href="http://api.mongodb.org/csharp/2.2/html/P_MongoDB_Driver_GridFS_GridFSDownloadStream_FileInfo.htm
-"><code>FileInfo</code></a> property contains information about the GridFS file being dowloaded. See the <a href="http://api.mongodb.org/csharp/2.2/html/M_MongoDB_Driver_GridFS_IGridFSBucket_Find.htm
-"><code>Find</code></a> or <a href="http://api.mongodb.org/csharp/2.2/html/M_MongoDB_Driver_GridFS_IGridFSBucket_FindAsync.htm
-"><code>FindAsync</code></a> method for details about the <a href="http://api.mongodb.org/csharp/2.2/html/T_MongoDB_Driver_GridFS_GridFSFileInfo.htm
+<p>The <a href="/mongo-csharp-driver/2.2/apidocs/html/P_MongoDB_Driver_GridFS_GridFSDownloadStream_FileInfo.htm
+"><code>FileInfo</code></a> property contains information about the GridFS file being dowloaded. See the <a href="/mongo-csharp-driver/2.2/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_Find.htm
+"><code>Find</code></a> or <a href="/mongo-csharp-driver/2.2/apidocs/html/M_MongoDB_Driver_GridFS_IGridFSBucket_FindAsync.htm
+"><code>FindAsync</code></a> method for details about the <a href="/mongo-csharp-driver/2.2/apidocs/html/T_MongoDB_Driver_GridFS_GridFSFileInfo.htm
 "><code>GridFSFileInfo</code></a> class.</p>
 
 <p><div class="admonition note">
 <h5 class="admonition-title">Note</h5>
-<p>Calling <a href="http://api.mongodb.org/csharp/2.2/html/M_MongoDB_Driver_GridFS_GridFSDownloadStream_CloseAsync..htm"><code>CloseAsync</code></a> is optional, but recommended. Since <a href="https://msdn.microsoft.com/en-us/library/system.io.stream.aspx"><code>Stream</code></a> is <a href="https://msdn.microsoft.com/en-us/library/system.idisposable.aspx"><code>IDisposable</code></a> and it is used inside a using statement, it would be closed automatically when <a href="https://msdn.microsoft.com/en-us/library/system.idisposable.dispose.aspx"><code>Dispose</code></a> is called. However, in async programming we want to avoid blocking and calling <a href="http://api.mongodb.org/csharp/2.2/html/M_MongoDB_Driver_GridFS_GridFSDownloadStream_CloseAsync..htm"><code>CloseAsync</code></a> first allows the <a href="https://msdn.microsoft.com/en-us/library/system.io.stream.aspx"><code>Stream</code></a> to be closed with an async call. If you call <a href="http://api.mongodb.org/csharp/2.2/html/M_MongoDB_Driver_GridFS_GridFSDownloadStream_CloseAsync..htm"><code>CloseAsync</code></a> first then <a href="https://msdn.microsoft.com/en-us/library/system.idisposable.dispose.aspx"><code>Dispose</code></a> will no longer block.</p>
+<p>Calling <a href="/mongo-csharp-driver/2.2/apidocs/html/M_MongoDB_Driver_GridFS_GridFSDownloadStream_CloseAsync..htm"><code>CloseAsync</code></a> is optional, but recommended. Since <a href="https://msdn.microsoft.com/en-us/library/system.io.stream.aspx"><code>Stream</code></a> is <a href="https://msdn.microsoft.com/en-us/library/system.idisposable.aspx"><code>IDisposable</code></a> and it is used inside a using statement, it would be closed automatically when <a href="https://msdn.microsoft.com/en-us/library/system.idisposable.dispose.aspx"><code>Dispose</code></a> is called. However, in async programming we want to avoid blocking and calling <a href="/mongo-csharp-driver/2.2/apidocs/html/M_MongoDB_Driver_GridFS_GridFSDownloadStream_CloseAsync..htm"><code>CloseAsync</code></a> first allows the <a href="https://msdn.microsoft.com/en-us/library/system.io.stream.aspx"><code>Stream</code></a> to be closed with an async call. If you call <a href="/mongo-csharp-driver/2.2/apidocs/html/M_MongoDB_Driver_GridFS_GridFSDownloadStream_CloseAsync..htm"><code>CloseAsync</code></a> first then <a href="https://msdn.microsoft.com/en-us/library/system.idisposable.dispose.aspx"><code>Dispose</code></a> will no longer block.</p>
 
 </div>
 </p>

@@ -1061,7 +1061,7 @@ var collection = db.GetCollection&lt;Person&gt;(&quot;people&quot;);
 
 <h2 id="inserting-a-document:1b37fd24c24c59d59a5361df5b8a9d7f">Inserting a document</h2>
 
-<p>To insert a document, use the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoCollection_1_InsertOneAsync.htm
+<p>To insert a document, use the <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_InsertOneAsync.htm
 "><code>InsertOneAsync</code></a> method.</p>
 
 <pre><code class="language-csharp">var jane = new Person { Name = &quot;Jane McJane&quot;, Age = 24, Profession = &quot;Hacker&quot; };
@@ -1073,7 +1073,7 @@ await collection.InsertOneAsync(jane);
 
 <h2 id="finding-a-document:1b37fd24c24c59d59a5361df5b8a9d7f">Finding a Document</h2>
 
-<p>To find all the people who are younger than 42, use the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoCollectionExtensions_Find__1_1.htm
+<p>To find all the people who are younger than 42, use the <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoCollectionExtensions_Find__1_1.htm
 "><code>Find</code></a> method such as follows:</p>
 
 <pre><code class="language-csharp">var people = await collection.Find(x =&gt; x.Age &lt; 42).ToListAsync();
@@ -1090,11 +1090,11 @@ await collection.InsertOneAsync(jane);
     Builders&lt;Person&gt;.Update.Set(x =&gt; x.Profession, &quot;Musician&quot;));
 </code></pre>
 
-<p>This will generate a filter of <code>{ Name: &quot;Tom&quot; }</code> and an update specification of <code>{ $set: { Profession: &quot;Musician&quot; } }</code>. Only one document will get updated even if there is more than one person named &ldquo;Tom&rdquo; because we used <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoCollection_1_UpdateOneAsync.htm
-"><code>UpdateOneAsync</code></a> instead of <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoCollection_1_UpdateManyAsync.htm
+<p>This will generate a filter of <code>{ Name: &quot;Tom&quot; }</code> and an update specification of <code>{ $set: { Profession: &quot;Musician&quot; } }</code>. Only one document will get updated even if there is more than one person named &ldquo;Tom&rdquo; because we used <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_UpdateOneAsync.htm
+"><code>UpdateOneAsync</code></a> instead of <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_UpdateManyAsync.htm
 "><code>UpdateManyAsync</code></a>. More information on updates is available in the <a href="/mongo-csharp-driver/2.0/reference/driver/crud/writing/#update-and-replace:a65cffa9c73225e9b2db0699034df561">reference guide</a>.</p>
 
-<p>Alternatively, if we want to replace a  document completely, we can use the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoCollection_1_ReplaceOneAsync.htm
+<p>Alternatively, if we want to replace a  document completely, we can use the <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_ReplaceOneAsync.htm
 "><code>ReplaceOneAsync</code></a> method. Assuming Tom&rsquo;s <code>Id</code> value is <code>550c4aa98e59471bddf68eef</code>:</p>
 
 <pre><code class="language-csharp">var tom = await collection.Find(x =&gt; x.Id == ObjectId.Parse(&quot;550c4aa98e59471bddf68eef&quot;))
@@ -1115,8 +1115,8 @@ Identifiers in MongoDB are immutable, so you can&rsquo;t replace a document with
 
 <h2 id="deleting:1b37fd24c24c59d59a5361df5b8a9d7f">Deleting</h2>
 
-<p>Finally, to delete Tom, you would use the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoCollection_1_DeleteOneAsync.htm
-"><code>DeleteOneAsync</code></a> or <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoCollection_1_DeleteManyAsync.htm
+<p>Finally, to delete Tom, you would use the <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_DeleteOneAsync.htm
+"><code>DeleteOneAsync</code></a> or <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_DeleteManyAsync.htm
 "><code>DeleteManyAsync</code></a> methods, such as in the following:</p>
 
 <pre><code class="language-csharp">var result = await collection.DeleteOneAsync(x =&gt; x.Id == tom.Id);

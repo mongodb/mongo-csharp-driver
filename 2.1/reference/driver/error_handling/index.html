@@ -2194,7 +2194,7 @@
 
 
     <li class="toctree-l1">
-    <a href="http://api.mongodb.org/csharp/2.1">
+    <a href="/mongo-csharp-driver/2.1/apidocs">
         <i class='fa fa-file-text-o'></i>
         API Documentation
     </a>
@@ -2336,7 +2336,7 @@
 ">automatic replica set failover</a> and the driver supports multiple <a href="http://docs.mongodb.org/manual/reference/program/mongos/
 ">mongos</a>&rsquo;s, this doesn&rsquo;t make a program immune to errors.</p>
 
-<p>Almost all errors will occur while attempting to perform an operation on the server. In other words, you will not receive an error when constructing a <a href="http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_MongoClient.htm
+<p>Almost all errors will occur while attempting to perform an operation on the server. In other words, you will not receive an error when constructing a <a href="/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_MongoClient.htm
 "><code>MongoClient</code></a>, getting a database, or getting a collection. This is because we are connecting to servers in the background and continually trying to reconnect when a problem occurs. Only when you attempt to perform an operation do those errors become apparent.</p>
 
 <p>There are a few types of errors you will see.</p>
@@ -2522,7 +2522,7 @@ Client view of cluster state is
 
 <p>We see that attempting to connect to <code>somefaroffplace:27017</code> failed because we &ldquo;Timed out connecting to Unspecified/somefaroffplace:27017. Timeout was 00:00:30.&rdquo;</p>
 
-<p>The default connection timeout is 30 seconds and can be changed using the <a href="http://api.mongodb.org/csharp/2.1/html/P_MongoDB_Driver_MongoClientSettings_ConnectTimeout.htm
+<p>The default connection timeout is 30 seconds and can be changed using the <a href="/mongo-csharp-driver/2.1/apidocs/html/P_MongoDB_Driver_MongoClientSettings_ConnectTimeout.htm
 "><code>MongoClientSettings.ConnectTimeout</code></a> property or the <code>connectTimeout</code> option on a <a href="http://docs.mongodb.org/manual/reference/connection-string/
 ">connection string</a>.</p>
 
@@ -2567,14 +2567,14 @@ Client view of cluster state is
 
 <p><div class="admonition note">
 <h5 class="admonition-title">Note</h5>
-<p>Most of the exceptions that are thrown from an operation inherit from <a href="http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_MongoException.htm"><code>MongoException</code></a>. In many cases, they also inherit from <a href="http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_MongoServerException.htm"><code>MongoServerException</code></a>. The server exception contains a <a href="http://api.mongodb.org/csharp/2.1/html/P_MongoDB_Driver_MongoServerException_ConnectionId.htm"><code>ConnectionId</code></a> which can be used to tie the operation back to a specific server and a specific connection on that server. It is then possible correllate the error you are seeing in your application with an error in the server logs.</p>
+<p>Most of the exceptions that are thrown from an operation inherit from <a href="/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_MongoException.htm"><code>MongoException</code></a>. In many cases, they also inherit from <a href="/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_MongoServerException.htm"><code>MongoServerException</code></a>. The server exception contains a <a href="/mongo-csharp-driver/2.1/apidocs/html/P_MongoDB_Driver_MongoServerException_ConnectionId.htm"><code>ConnectionId</code></a> which can be used to tie the operation back to a specific server and a specific connection on that server. It is then possible correllate the error you are seeing in your application with an error in the server logs.</p>
 
 </div>
 </p>
 
 <h3 id="connection-errors-1">Connection Errors</h3>
 
-<p>A server may go down after it was selected, but before the operation was executed. These will always manifest as a <a href="http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_MongoConnectionException.htm
+<p>A server may go down after it was selected, but before the operation was executed. These will always manifest as a <a href="/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_MongoConnectionException.htm
 "><code>MongoConnectionException</code></a>. Inspecting the inner exception will provide the actual details of the error.</p>
 
 <pre><code class="language-bash">MongoDB.Driver.MongoConnectionException: An exception occurred while receiving a message from the server. 
@@ -2587,21 +2587,21 @@ Client view of cluster state is
 
 <p>We see from this exception that a transport connection that was successfully open at one point has been aborted.</p>
 
-<p>There are too many forms of this type of exception to enumerate. In general, it is not safe to retry operations that threw a <a href="http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_MongoConnectionException.htm
+<p>There are too many forms of this type of exception to enumerate. In general, it is not safe to retry operations that threw a <a href="/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_MongoConnectionException.htm
 "><code>MongoConnectionException</code></a> unless the operation was idempotent. Simply getting an exception of this type doesn&rsquo;t give any insight into whether the operations was received by the server or what happened in the server if it was received.</p>
 
 <h3 id="write-exceptions">Write Exceptions</h3>
 
-<p>When performing a write, it is possible to receive a <a href="http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_MongoWriteException.htm
-"><code>MongoWriteException</code></a>. This exception has two important properties, <a href="http://api.mongodb.org/csharp/2.1/html/P_MongoDB_Driver_MongoWriteException_WriteError.htm
-"><code>WriteError</code></a> and <a href="http://api.mongodb.org/csharp/2.1/html/P_MongoDB_Driver_MongoWriteException_WriteConcernError.htm
+<p>When performing a write, it is possible to receive a <a href="/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_MongoWriteException.htm
+"><code>MongoWriteException</code></a>. This exception has two important properties, <a href="/mongo-csharp-driver/2.1/apidocs/html/P_MongoDB_Driver_MongoWriteException_WriteError.htm
+"><code>WriteError</code></a> and <a href="/mongo-csharp-driver/2.1/apidocs/html/P_MongoDB_Driver_MongoWriteException_WriteConcernError.htm
 "><code>WriteConcernError</code></a>.</p>
 
 <h4 id="write-error">Write Error</h4>
 
-<p>A write error means that there was an error applying the write. The cause could be many different things. The <a href="http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_WriteError.htm
-"><code>WriteError</code></a> contains a number of properties which may help in the diagnosis of the problem. The <a href="http://api.mongodb.org/csharp/2.1/html/P_MongoDB_Driver_WriteError_Code.htm
-"><code>Code</code></a> property will indicate specifically what went wrong. For general categories of errors, the driver also provides a helpful <a href="http://api.mongodb.org/csharp/2.1/html/P_MongoDB_Driver_WriteError_Category..htm
+<p>A write error means that there was an error applying the write. The cause could be many different things. The <a href="/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_WriteError.htm
+"><code>WriteError</code></a> contains a number of properties which may help in the diagnosis of the problem. The <a href="/mongo-csharp-driver/2.1/apidocs/html/P_MongoDB_Driver_WriteError_Code.htm
+"><code>Code</code></a> property will indicate specifically what went wrong. For general categories of errors, the driver also provides a helpful <a href="/mongo-csharp-driver/2.1/apidocs/html/P_MongoDB_Driver_WriteError_Category..htm
 "><code>Category</code></a> property which classifies certain codes.</p>
 
 <pre><code class="language-bash">MongoDB.Driver.MongoWriteException: A write operation resulted in an error. E11000 duplicate key error index: test.people.$_id_ dup key: { : 0 } 
@@ -2609,7 +2609,7 @@ Client view of cluster state is
    at MongoDB.Driver.MongoCollectionImpl`1.&lt;BulkWriteAsync&gt;d__11.MoveNext() in :\projects\mongo-csharp-driver\src\MongoDB.Driver\MongoCollectionImpl.cs:line 16
 </code></pre>
 
-<p>We see from this exception that we&rsquo;ve attempted to insert a document with a duplicate _id field. In this case, the write error would contain the category <a href="http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_ServerErrorCategory.htm
+<p>We see from this exception that we&rsquo;ve attempted to insert a document with a duplicate _id field. In this case, the write error would contain the category <a href="/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_ServerErrorCategory.htm
 "><code>DuplicateKeyError</code></a>.</p>
 
 <h4 id="write-concern-error">Write Concern Error</h4>
@@ -2620,10 +2620,10 @@ Client view of cluster state is
 
 <h3 id="bulk-write-exceptions">Bulk Write Exceptions</h3>
 
-<p>A <a href="http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_MongoBulkWriteException_1.htm
-"><code>MongoBulkWriteException</code></a> will occur when using the <a href="http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_IMongoCollection_1_InsertManyAsync.htm
-"><code>InsertManyAsync</code></a> or <a href="http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_IMongoCollection_1_BulkWriteAsync.htm
-"><code>BulkWriteAsync</code></a>. This exception is just a rollup of a bunch of individual <a href="#write-error">write errors</a>. It also includes a <a href="#write-concern-error">write concern error</a> and a <a href="http://api.mongodb.org/csharp/2.1/html/P_MongoDB_Driver_MongoBulkWriteException_1_Result.htm
+<p>A <a href="/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_MongoBulkWriteException_1.htm
+"><code>MongoBulkWriteException</code></a> will occur when using the <a href="/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_InsertManyAsync.htm
+"><code>InsertManyAsync</code></a> or <a href="/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_BulkWriteAsync.htm
+"><code>BulkWriteAsync</code></a>. This exception is just a rollup of a bunch of individual <a href="#write-error">write errors</a>. It also includes a <a href="#write-concern-error">write concern error</a> and a <a href="/mongo-csharp-driver/2.1/apidocs/html/P_MongoDB_Driver_MongoBulkWriteException_1_Result.htm
 "><code>Result</code></a> property.</p>
 
 <pre><code class="language-bash">MongoDB.Driver.MongoBulkWriteException`1[MongoDB.Bson.BsonDocument]: A bulk write operation resulted in one or more errors. 
@@ -2631,12 +2631,12 @@ Client view of cluster state is
    at MongoDB.Driver.MongoCollectionImpl`1.&lt;BulkWriteAsync&gt;d__11.MoveNext() in c :\projects\mongo-csharp-driver\src\MongoDB.Driver\MongoCollectionImpl.cs:line 166
 </code></pre>
 
-<p>Above, we see that a duplicate key exception occured. In this case, two writes existed in the batch. Inspected the <a href="http://api.mongodb.org/csharp/2.1/html/P_MongoDB_Driver_MongoBulkWriteException_WriteErrors.htm
+<p>Above, we see that a duplicate key exception occured. In this case, two writes existed in the batch. Inspected the <a href="/mongo-csharp-driver/2.1/apidocs/html/P_MongoDB_Driver_MongoBulkWriteException_WriteErrors.htm
 "><code>WriteErrors</code></a> property would allow the identification of which write failed.</p>
 
 <h4 id="ordered-writes">Ordered Writes</h4>
 
-<p>Bulk writes are allowed to be processed either in order or without order. When processing in order, the first error that occurs will stop the processing of all subsequent writes. In this case, all of the unprocessed writes will be available via the <a href="http://api.mongodb.org/csharp/2.1/html/P_MongoDB_Driver_MongoBulkWriteException_1_UnprocessedRequests.htm
+<p>Bulk writes are allowed to be processed either in order or without order. When processing in order, the first error that occurs will stop the processing of all subsequent writes. In this case, all of the unprocessed writes will be available via the <a href="/mongo-csharp-driver/2.1/apidocs/html/P_MongoDB_Driver_MongoBulkWriteException_1_UnprocessedRequests.htm
 "><code>UnprocessedRequests</code></a> property.</p>
 
 

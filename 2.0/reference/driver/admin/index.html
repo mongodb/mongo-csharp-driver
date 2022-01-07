@@ -1816,7 +1816,7 @@
 
 
     <li class="toctree-l1">
-    <a href="http://api.mongodb.org/csharp/2.0">
+    <a href="/mongo-csharp-driver/2.0/apidocs">
         <i class='fa fa-file-text-o'></i>
         API Documentation
     </a>
@@ -1954,18 +1954,18 @@
 
 <h2 id="adminstration">Adminstration</h2>
 
-<p>The administration operations exist in multiple places in the driver&rsquo;s API. Database-related operations exist on the database object and collection-related operations exist on the collection object. If there isn&rsquo;t a method for the admin operation you want to use, the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoDatabase_RunCommandAsync__1.htm
-"><code>RunCommandAsync</code></a> method on <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IMongoDatabase.htm
+<p>The administration operations exist in multiple places in the driver&rsquo;s API. Database-related operations exist on the database object and collection-related operations exist on the collection object. If there isn&rsquo;t a method for the admin operation you want to use, the <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoDatabase_RunCommandAsync__1.htm
+"><code>RunCommandAsync</code></a> method on <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_IMongoDatabase.htm
 "><code>IMongoDatabase</code></a> is available.</p>
 
 <h2 id="databases">Databases</h2>
 
-<p>These operations exist on the <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IMongoClient.htm
+<p>These operations exist on the <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_IMongoClient.htm
 "><code>IMongoClient</code></a> interface.</p>
 
 <h3 id="getting-a-database">Getting a database</h3>
 
-<p>To get a database, use the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoClient_GetDatabase.htm
+<p>To get a database, use the <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoClient_GetDatabase.htm
 "><code>GetDatabase</code></a>.</p>
 
 <p><div class="admonition note">
@@ -1981,7 +1981,7 @@ var db = client.GetDatabase(&quot;test&quot;);
 
 <h3 id="dropping-a-database">Dropping a database</h3>
 
-<p>Use the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoClient_DropDatabaseAsync.htm
+<p>Use the <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoClient_DropDatabaseAsync.htm
 "><code>DropDatabaseAsync</code></a> method.</p>
 
 <pre><code class="language-csharp">// drops the test database
@@ -1990,7 +1990,7 @@ await client.DropDatabaseAsync(&quot;test&quot;);
 
 <h3 id="listing-the-databases">Listing the databases</h3>
 
-<p>Use the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoClient_ListDatabasesAsync.htm
+<p>Use the <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoClient_ListDatabasesAsync.htm
 "><code>ListDatabasesAsync</code></a> method.</p>
 
 <pre><code class="language-csharp">using (var cursor = await client.ListDatabaseAsync())
@@ -2002,13 +2002,13 @@ await client.DropDatabaseAsync(&quot;test&quot;);
 
 <h2 id="collections">Collections</h2>
 
-<p>These operations exists on the <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IMongoDatabase.htm
+<p>These operations exists on the <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_IMongoDatabase.htm
 "><code>IMongoDatabase</code></a> interface.</p>
 
 <h3 id="getting-a-collection">Getting a collection</h3>
 
-<p>The <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoDatabase_GetCollection__1.htm
-"><code>GetCollection&lt;TDocument&gt;</code></a> method returns an <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IMongoCollection_1.htm
+<p>The <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoDatabase_GetCollection__1.htm
+"><code>GetCollection&lt;TDocument&gt;</code></a> method returns an <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_IMongoCollection_1.htm
 "><code>IMongoCollection&lt;TDocument&gt;</code></a>.</p>
 
 <p>The generic parameter on the method defines the schema your application will use when working with the collection. Generally, this type will either be a <a href="/mongo-csharp-driver/2.0/reference/bson/bson_document/"><code>BsonDocument</code></a> which provides no schema enforcement or a <a href="/mongo-csharp-driver/2.0/reference/bson/mapping/">mapped class (POCO)</a>.</p>
@@ -2021,8 +2021,8 @@ var collection = db.GetCollection&lt;BsonDocument&gt;(&quot;foo&quot;);
 
 <h3 id="creating-a-collection">Creating a collection</h3>
 
-<p>Just like databases, there is no need to create a collection before working with it. It will be created upon first use. However, certain features of collections require explicit creation. The <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoDatabase_CreateCollectionAsync.htm
-"><code>CreateCollectionAsync</code></a> method allows you to specify not only a name, but also <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_CreateCollectionOptions.htm
+<p>Just like databases, there is no need to create a collection before working with it. It will be created upon first use. However, certain features of collections require explicit creation. The <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoDatabase_CreateCollectionAsync.htm
+"><code>CreateCollectionAsync</code></a> method allows you to specify not only a name, but also <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_CreateCollectionOptions.htm
 "><code>CreateCollectionOptions</code></a>.</p>
 
 <pre><code class="language-csharp">// creates a capped collection named &quot;foo&quot; with a maximum size of 10,000 bytes
@@ -2037,7 +2037,7 @@ await db.CreateCollectionAsync(
 
 <h3 id="dropping-a-collection">Dropping a collection</h3>
 
-<p>Use the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoDatabase_DropCollectionAsync.htm
+<p>Use the <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoDatabase_DropCollectionAsync.htm
 "><code>DropCollectionAsync</code></a> method.</p>
 
 <pre><code class="language-csharp">// drops the &quot;foo&quot; collection
@@ -2046,7 +2046,7 @@ await db.DropCollectionAsync(&quot;test&quot;);
 
 <h3 id="listing-the-collections">Listing the collections</h3>
 
-<p>Use the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoDatabase_ListCollectionsAsync.htm
+<p>Use the <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoDatabase_ListCollectionsAsync.htm
 "><code>ListCollectionsAsync</code></a> method.</p>
 
 <pre><code class="language-csharp">using (var cursor = await db.ListCollectionsAsync())
@@ -2058,7 +2058,7 @@ await db.DropCollectionAsync(&quot;test&quot;);
 
 <h3 id="renaming-a-collection">Renaming a collection</h3>
 
-<p>Use the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoDatabase_RenameCollectionAsync.htm
+<p>Use the <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoDatabase_RenameCollectionAsync.htm
 "><code>RenameCollectionAsync</code></a> method.</p>
 
 <pre><code class="language-csharp">// rename the &quot;foo&quot; collection to &quot;bar&quot;
@@ -2067,16 +2067,16 @@ await db.RenameCollectionAsync(&quot;foo&quot;, &quot;bar&quot;);
 
 <h2 id="indexes">Indexes</h2>
 
-<p><a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IMongoCollection_1.htm
-"><code>IMongoCollection&lt;T&gt;</code></a> contains an <a href="http://api.mongodb.org/csharp/2.0/html/P_MongoDB_Driver_IMongoCollection_1_Indexes.htm
+<p><a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_IMongoCollection_1.htm
+"><code>IMongoCollection&lt;T&gt;</code></a> contains an <a href="/mongo-csharp-driver/2.0/apidocs/html/P_MongoDB_Driver_IMongoCollection_1_Indexes.htm
 "><code>Indexes</code></a> property which gives access to all the index-related operations for a collection.</p>
 
-<p>A number of the methods take an <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IndexKeysDefinition_1.htm
+<p>A number of the methods take an <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_IndexKeysDefinition_1.htm
 "><code>IndexKeysDefinition&lt;TDocument&gt;</code></a>. See the documentation on the <a href="/mongo-csharp-driver/2.0/reference/driver/definitions/#index-keys ">index keys builder</a> for more information.</p>
 
 <h3 id="creating-an-index">Creating an index</h3>
 
-<p>Use the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoIndexManager_1_CreateOneAsync.htm
+<p>Use the <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoIndexManager_1_CreateOneAsync.htm
 "><code>CreateOneAsync</code></a> to create a single index. For instance, to create an ascending index on the &ldquo;x&rdquo; and &ldquo;y&rdquo; fields,</p>
 
 <pre><code class="language-csharp">await collection.Indexes.CreateOneAsync(&quot;{x: 1, y: 1}&quot;);
@@ -2090,7 +2090,7 @@ await collection.Indexes.CreateOneAsync(new BsonDocument(&quot;x&quot;, 1).Add(&
 await collection.Indexes.CreateOneAsync(Builders&lt;BsonDocument&gt;.IndexKeys.Ascending(&quot;x&quot;).Ascending(&quot;y&quot;));
 </code></pre>
 
-<p>In addition, there are a number of options available when creating index. These are present on the optional <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_CreateIndexOptions.htm
+<p>In addition, there are a number of options available when creating index. These are present on the optional <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_CreateIndexOptions.htm
 "><code>CreateIndexOptions</code></a> parameter. For instance, to create a unique ascending index on &ldquo;x&rdquo;:</p>
 
 <pre><code class="language-csharp">await collection.Indexes.CreateOneAsync(&quot;{x: 1}&quot;, new CreateIndexOptions { Unique = true });
@@ -2098,8 +2098,8 @@ await collection.Indexes.CreateOneAsync(Builders&lt;BsonDocument&gt;.IndexKeys.A
 
 <h3 id="dropping-an-index">Dropping an index</h3>
 
-<p>Use the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoIndexManager_1_DropOneAsync.htm
-"><code>DropOneAsync</code></a> to drop a single index or the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoIndexManager_1_DropAllAsync.htm
+<p>Use the <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoIndexManager_1_DropOneAsync.htm
+"><code>DropOneAsync</code></a> to drop a single index or the <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoIndexManager_1_DropAllAsync.htm
 "><code>DropAllAsync</code></a> to drop all indexes.</p>
 
 <pre><code class="language-csharp">// drop the index named &quot;x_1&quot;;
@@ -2111,7 +2111,7 @@ await collection.Indexes.DropAllAsync();
 
 <h3 id="listing-indexes">Listing indexes</h3>
 
-<p>To see all the indexes in a collection, use the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoIndexManager_1_ListAsync.htm
+<p>To see all the indexes in a collection, use the <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoIndexManager_1_ListAsync.htm
 "><code>ListAsync</code></a> method.</p>
 
 <pre><code class="language-csharp">using(var cursor = await collection.Indexes.ListAsync())

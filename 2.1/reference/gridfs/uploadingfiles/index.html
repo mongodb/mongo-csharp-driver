@@ -2344,7 +2344,7 @@
 
 
     <li class="toctree-l1">
-    <a href="http://api.mongodb.org/csharp/2.1">
+    <a href="/mongo-csharp-driver/2.1/apidocs">
         <i class='fa fa-file-text-o'></i>
         API Documentation
     </a>
@@ -2489,8 +2489,8 @@
 <li>The driver supplies a <a href="https://msdn.microsoft.com/en-us/library/system.io.stream.aspx"><code>Stream</code></a> object that the application can write the contents to</li>
 </ol>
 
-<p>Files uploaded to GridFS are identified either by Id or by Filename. Each uploaded file is assigned a unique Id of type <a href="http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Bson_ObjectId.htm
-"><code>ObjectId</code></a>. If multiple files are uploaded to GridFS with the same Filename, they are considered to be &ldquo;revisions&rdquo; of the same file, and the <a href="http://api.mongodb.org/csharp/2.1/html/P_MongoDB_Driver_GridFS_GridFSFileInfo_UploadDateTime.htm
+<p>Files uploaded to GridFS are identified either by Id or by Filename. Each uploaded file is assigned a unique Id of type <a href="/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Bson_ObjectId.htm
+"><code>ObjectId</code></a>. If multiple files are uploaded to GridFS with the same Filename, they are considered to be &ldquo;revisions&rdquo; of the same file, and the <a href="/mongo-csharp-driver/2.1/apidocs/html/P_MongoDB_Driver_GridFS_GridFSFileInfo_UploadDateTime.htm
 "><code>UploadDateTime</code></a> is used to decide whether one revision is newer than another.</p>
 
 <h3 id="uploading-from-a-byte-array">Uploading from a byte array</h3>
@@ -2503,10 +2503,10 @@ bytes[] source;
 var id = await bucket.UploadFromBytesAsync(&quot;filename&quot;, source);
 </code></pre>
 
-<p>The id returned is the unique <a href="http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Bson_ObjectId.htm
+<p>The id returned is the unique <a href="/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Bson_ObjectId.htm
 "><code>ObjectId</code></a> assigned by the driver to represent this revision of &ldquo;filename&rdquo; in the GridFS bucket.</p>
 
-<p>When using <a href="http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_GridFS_GridFSBucket_UploadFromBytesAsync.htm
+<p>When using <a href="/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_GridFS_GridFSBucket_UploadFromBytesAsync.htm
 "><code>UploadFromBytesAsync</code></a> you can also provide additional options.</p>
 
 <pre><code class="language-csharp">IGridFSBucket bucket;
@@ -2523,13 +2523,13 @@ var id = await bucket.UploadFromBytesAsync(&quot;filename&quot;, source, new Gri
 });
 </code></pre>
 
-<p>In this example we are overriding the <a href="http://api.mongodb.org/csharp/2.1/html/P_MongoDB_Driver_GridFS_GridFSUploadOptions_ChunkSizeBytes.htm
-"><code>ChunkSizeBytes</code></a> defined in the <a href="http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_GridFS_GridFSBucket.htm
+<p>In this example we are overriding the <a href="/mongo-csharp-driver/2.1/apidocs/html/P_MongoDB_Driver_GridFS_GridFSUploadOptions_ChunkSizeBytes.htm
+"><code>ChunkSizeBytes</code></a> defined in the <a href="/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_GridFS_GridFSBucket.htm
 "><code>GridFSBucket</code></a> and providing additional metadata to be stored with the GridFS file.</p>
 
 <h3 id="uploading-from-a-stream">Uploading from a Stream</h3>
 
-<p>If the contents of the file you want to upload are more easily accessible using a <a href="https://msdn.microsoft.com/en-us/library/system.io.stream.aspx"><code>Stream</code></a> than a byte array (or are too large to load entirely into memory at once), you can use the <a href="http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_GridFS_GridFSBucket_UploadFromStreamAsync.htm
+<p>If the contents of the file you want to upload are more easily accessible using a <a href="https://msdn.microsoft.com/en-us/library/system.io.stream.aspx"><code>Stream</code></a> than a byte array (or are too large to load entirely into memory at once), you can use the <a href="/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_GridFS_GridFSBucket_UploadFromStreamAsync.htm
 "><code>UploadFromStreamAsync</code></a> method instead.</p>
 
 <pre><code class="language-csharp">IGridFSBucket bucket;
@@ -2540,8 +2540,8 @@ var id = await bucket.UploadFromStreamAsync(&quot;filename&quot;, source);
 
 <p>The driver will read from the current position of the source <a href="https://msdn.microsoft.com/en-us/library/system.io.stream.aspx"><code>Stream</code></a> and upload everything read from the <a href="https://msdn.microsoft.com/en-us/library/system.io.stream.aspx"><code>Stream</code></a> until the <a href="https://msdn.microsoft.com/en-us/library/system.io.stream.aspx"><code>Stream</code></a> reaches end of file.</p>
 
-<p>The <a href="http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_GridFS_GridFSBucket_UploadFromStreamAsync.htm
-"><code>UploadFromStreamAsync</code></a> method also supports providing additional options, just like the example above for <a href="http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_GridFS_GridFSBucket_UploadFromBytesAsync.htm
+<p>The <a href="/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_GridFS_GridFSBucket_UploadFromStreamAsync.htm
+"><code>UploadFromStreamAsync</code></a> method also supports providing additional options, just like the example above for <a href="/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_GridFS_GridFSBucket_UploadFromBytesAsync.htm
 "><code>UploadFromBytesAsync</code></a>.</p>
 
 <h3 id="uploading-to-a-stream">Uploading to a Stream</h3>
@@ -2558,8 +2558,8 @@ using (var stream = await bucket.OpenUploadStreamAsync(&quot;filename&quot;))
 }
 </code></pre>
 
-<p>The <a href="https://msdn.microsoft.com/en-us/library/system.io.stream.aspx"><code>Stream</code></a> object returned by <a href="http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_GridFS_GridFSBucket_OpenUploadStreamAsync.htm
-"><code>OpenUploadStreamAsync</code></a> is actually a <a href="http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_GridFS_GridFSUploadStream.htm
+<p>The <a href="https://msdn.microsoft.com/en-us/library/system.io.stream.aspx"><code>Stream</code></a> object returned by <a href="/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_GridFS_GridFSBucket_OpenUploadStreamAsync.htm
+"><code>OpenUploadStreamAsync</code></a> is actually a <a href="/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_GridFS_GridFSUploadStream.htm
 "><code>GridFSUploadStream</code></a> (a subclass of <a href="https://msdn.microsoft.com/en-us/library/system.io.stream.aspx"><code>Stream</code></a>), which has the following additional members in addition to those found in <a href="https://msdn.microsoft.com/en-us/library/system.io.stream.aspx"><code>Stream</code></a>:</p>
 
 <pre><code class="language-csharp">public abstract class GridFSUploadStream : Stream
@@ -2570,20 +2570,20 @@ using (var stream = await bucket.OpenUploadStreamAsync(&quot;filename&quot;))
 };
 </code></pre>
 
-<p>The <a href="http://api.mongodb.org/csharp/2.1/html/P_MongoDB_Driver_GridFS_GridFSUploadStream_Id.htm
-"><code>Id</code></a> property allows the calling application to know the unique Id that was assigned to the file being uploaded. <a href="http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_GridFS_GridFSDownloadStream_AbortAsync..htm
-"><code>AbortAsync</code></a> allows the application to abort the upload operation part-way through if it needs to. <a href="http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_GridFS_GridFSUploadStream_CloseAsync..htm
+<p>The <a href="/mongo-csharp-driver/2.1/apidocs/html/P_MongoDB_Driver_GridFS_GridFSUploadStream_Id.htm
+"><code>Id</code></a> property allows the calling application to know the unique Id that was assigned to the file being uploaded. <a href="/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_GridFS_GridFSDownloadStream_AbortAsync..htm
+"><code>AbortAsync</code></a> allows the application to abort the upload operation part-way through if it needs to. <a href="/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_GridFS_GridFSUploadStream_CloseAsync..htm
 "><code>CloseAsync</code></a> can be called instead of <a href="https://msdn.microsoft.com/en-us/library/system.idisposable.dispose.aspx"><code>Dispose</code></a> to close the <a href="https://msdn.microsoft.com/en-us/library/system.io.stream.aspx"><code>Stream</code></a> in an async way.</p>
 
 <p><div class="admonition note">
 <h5 class="admonition-title">Note</h5>
-<p>Calling <a href="http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_GridFS_GridFSUploadStream_CloseAsync..htm"><code>CloseAsync</code></a> is optional, but recommended. Since <a href="https://msdn.microsoft.com/en-us/library/system.io.stream.aspx"><code>Stream</code></a> is <a href="https://msdn.microsoft.com/en-us/library/system.idisposable.aspx"><code>IDisposable</code></a> and it is used inside a using statement, it would be closed automatically when <a href="https://msdn.microsoft.com/en-us/library/system.idisposable.dispose.aspx"><code>Dispose</code></a> is called. However, in async programming we want to avoid blocking and calling <a href="http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_GridFS_GridFSUploadStream_CloseAsync..htm"><code>CloseAsync</code></a> first allows the <a href="https://msdn.microsoft.com/en-us/library/system.io.stream.aspx"><code>Stream</code></a> to be closed with an async call. If you call <a href="http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_GridFS_GridFSUploadStream_CloseAsync..htm"><code>CloseAsync</code></a> first then <a href="https://msdn.microsoft.com/en-us/library/system.idisposable.dispose.aspx"><code>Dispose</code></a> will no longer block.</p>
+<p>Calling <a href="/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_GridFS_GridFSUploadStream_CloseAsync..htm"><code>CloseAsync</code></a> is optional, but recommended. Since <a href="https://msdn.microsoft.com/en-us/library/system.io.stream.aspx"><code>Stream</code></a> is <a href="https://msdn.microsoft.com/en-us/library/system.idisposable.aspx"><code>IDisposable</code></a> and it is used inside a using statement, it would be closed automatically when <a href="https://msdn.microsoft.com/en-us/library/system.idisposable.dispose.aspx"><code>Dispose</code></a> is called. However, in async programming we want to avoid blocking and calling <a href="/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_GridFS_GridFSUploadStream_CloseAsync..htm"><code>CloseAsync</code></a> first allows the <a href="https://msdn.microsoft.com/en-us/library/system.io.stream.aspx"><code>Stream</code></a> to be closed with an async call. If you call <a href="/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_GridFS_GridFSUploadStream_CloseAsync..htm"><code>CloseAsync</code></a> first then <a href="https://msdn.microsoft.com/en-us/library/system.idisposable.dispose.aspx"><code>Dispose</code></a> will no longer block.</p>
 
 </div>
 </p>
 
-<p>When opening an upload stream using <a href="http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_GridFS_GridFSBucket_OpenUploadStreamAsync.htm
-"><code>OpenUploadStreamAsync</code></a> you can provide the same options that are supported by <a href="http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_GridFS_GridFSBucket_UploadFromStreamAsync.htm
+<p>When opening an upload stream using <a href="/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_GridFS_GridFSBucket_OpenUploadStreamAsync.htm
+"><code>OpenUploadStreamAsync</code></a> you can provide the same options that are supported by <a href="/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_GridFS_GridFSBucket_UploadFromStreamAsync.htm
 "><code>UploadFromStreamAsync</code></a>:</p>
 
 <pre><code class="language-csharp">IGridFSBucket bucket;

@@ -1738,7 +1738,7 @@
 
 
     <li class="toctree-l1">
-    <a href="http://api.mongodb.org/csharp/2.1">
+    <a href="/mongo-csharp-driver/2.1/apidocs">
         <i class='fa fa-file-text-o'></i>
         API Documentation
     </a>
@@ -1882,9 +1882,9 @@
 
 <h2 id="serializer-registry">Serializer Registry</h2>
 
-<p>The serializer registry contains all the <a href="http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Bson_Serialization_IBsonSerializer.htm
-"><code>IBsonSerializers</code></a> that have been registered. It can be accessed via the <a href="http://api.mongodb.org/csharp/2.1/html/P_MongoDB_Bson_Serialization_BsonSerializer_SerializerRegistry.htm
-"><code>SerializerRegistry</code></a> property of the static class <a href="http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Bson_Serialization_BsonSerializer.htm
+<p>The serializer registry contains all the <a href="/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Bson_Serialization_IBsonSerializer.htm
+"><code>IBsonSerializers</code></a> that have been registered. It can be accessed via the <a href="/mongo-csharp-driver/2.1/apidocs/html/P_MongoDB_Bson_Serialization_BsonSerializer_SerializerRegistry.htm
+"><code>SerializerRegistry</code></a> property of the static class <a href="/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Bson_Serialization_BsonSerializer.htm
 "><code>BsonSerializer</code></a>.</p>
 
 <p><div class="admonition note">
@@ -1895,14 +1895,14 @@ This is a global registry. Currently, you cannot use multiple registries in a si
 
 <h2 id="serialization-provider">Serialization Provider</h2>
 
-<p>The <a href="#serializer-registry">serializer registry</a> is powered by a list of <a href="http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Bson_Serialization_IBsonSerializationProvider.htm
-"><code>IBsonSerializationProvider</code></a>. A serialization provider allows you to provide serializers on demand. The provider should be registered as soon as possible to ensure that the serializers provided are used. You can delegate handling of any types your custom provider isn&rsquo;t prepared to handle by returning null from <a href="http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Bson_Serialization_IBsonSerializationProvider_GetSerializer.htm
+<p>The <a href="#serializer-registry">serializer registry</a> is powered by a list of <a href="/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Bson_Serialization_IBsonSerializationProvider.htm
+"><code>IBsonSerializationProvider</code></a>. A serialization provider allows you to provide serializers on demand. The provider should be registered as soon as possible to ensure that the serializers provided are used. You can delegate handling of any types your custom provider isn&rsquo;t prepared to handle by returning null from <a href="/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Bson_Serialization_IBsonSerializationProvider_GetSerializer.htm
 "><code>GetSerializer</code></a>.</p>
 
 <h3 id="implementation">Implementation</h3>
 
-<p>To implement an <a href="http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Bson_Serialization_IBsonSerializationProvider.htm
-"><code>IBsonSerializationProvider</code></a>, create a class that implements the interface and register it using the <a href="http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Bson_Serialization_BsonSerializer_RegisterSerializationProvider.htm
+<p>To implement an <a href="/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Bson_Serialization_IBsonSerializationProvider.htm
+"><code>IBsonSerializationProvider</code></a>, create a class that implements the interface and register it using the <a href="/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Bson_Serialization_BsonSerializer_RegisterSerializationProvider.htm
 "><code>RegisterSerializationProvider</code></a> method.</p>
 
 <pre><code class="language-csharp">class MyProvider : IBsonSerializationProvider
@@ -1919,16 +1919,16 @@ This is a global registry. Currently, you cannot use multiple registries in a si
 }
 </code></pre>
 
-<p>Above, we have a custom implemention of a serializer for an <a href="https://msdn.microsoft.com/en-us/library/system.int32.aspx"><code>Int32</code></a>. If the type being requested is for an <a href="https://msdn.microsoft.com/en-us/library/system.int32.aspx"><code>Int32</code></a>, we return our serializer. Otherwise, we return null to let the next <a href="http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Bson_Serialization_IBsonSerializationProvider.htm
+<p>Above, we have a custom implemention of a serializer for an <a href="https://msdn.microsoft.com/en-us/library/system.int32.aspx"><code>Int32</code></a>. If the type being requested is for an <a href="https://msdn.microsoft.com/en-us/library/system.int32.aspx"><code>Int32</code></a>, we return our serializer. Otherwise, we return null to let the next <a href="/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Bson_Serialization_IBsonSerializationProvider.htm
 "><code>IBsonSerializationProvider</code></a> in line handle the request.</p>
 
 <h2 id="serializers">Serializers</h2>
 
-<p><a href="http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Bson_Serialization_IBsonSerializer.htm
+<p><a href="/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Bson_Serialization_IBsonSerializer.htm
 "><code>IBsonSerializer</code></a> is the main interface that is used to handle translating complex types. There are many serializers already built for handling primitive types, collection types, and <a href="/mongo-csharp-driver/2.1/reference/bson/mapping/">custom classes</a>.</p>
 
-<p>For example, to read a file containing the JSON <code>{ a: 1, b: [{ c: 1 }] }</code> into a <a href="http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Bson_BsonDocument.htm
-"><code>BsonDocument</code></a>, use the <a href="http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Bson_Serialization_Serializers_BsonDocumentSerializer.htm
+<p>For example, to read a file containing the JSON <code>{ a: 1, b: [{ c: 1 }] }</code> into a <a href="/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Bson_BsonDocument.htm
+"><code>BsonDocument</code></a>, use the <a href="/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Bson_Serialization_Serializers_BsonDocumentSerializer.htm
 "><code>BsonDocumentSerializer</code></a>:</p>
 
 <pre><code class="language-csharp">var jsonString = &quot;{ a: 1, b: [{ c: 1 }] }&quot;;
@@ -1947,10 +1947,10 @@ Writing custom serializers to handle both normal cases and edge cases can be ver
 </div>
 </p>
 
-<p>To implement a custom <a href="http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Bson_Serialization_IBsonSerializer.htm
-"><code>IBsonSerializer</code></a>, it is best to inherit from <a href="http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Bson_Serialization_Serializers_SerializerBase_1.htm
-"><code>SerializerBase&lt;T&gt;</code></a> and override the <a href="http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Bson_Serialization_Serializers_SerializerBase_1_Deserialize.htm
-"><code>Deserialize</code></a> and <a href="http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Bson_Serialization_Serializers_SerializerBase_1_Serialize.htm
+<p>To implement a custom <a href="/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Bson_Serialization_IBsonSerializer.htm
+"><code>IBsonSerializer</code></a>, it is best to inherit from <a href="/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Bson_Serialization_Serializers_SerializerBase_1.htm
+"><code>SerializerBase&lt;T&gt;</code></a> and override the <a href="/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Bson_Serialization_Serializers_SerializerBase_1_Deserialize.htm
+"><code>Deserialize</code></a> and <a href="/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Bson_Serialization_Serializers_SerializerBase_1_Serialize.htm
 "><code>Serialize</code></a> methods.</p>
 
 <p>For example, it implement a serializer that reads an <a href="https://msdn.microsoft.com/en-us/library/system.int32.aspx"><code>Int32</code></a>:</p>
@@ -2003,12 +2003,12 @@ Writing custom serializers to handle both normal cases and edge cases can be ver
 
 <p><div class="admonition note">
 <h5 class="admonition-title">Note</h5>
-<p>The built-in <a href="http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Bson_Serialization_Serializers_Int32Serializer.htm"><code>Int32Serializer</code></a> accounts for this as well as other such items.</p>
+<p>The built-in <a href="/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Bson_Serialization_Serializers_Int32Serializer.htm"><code>Int32Serializer</code></a> accounts for this as well as other such items.</p>
 
 </div>
 </p>
 
-<p>You can register your serializer using the <a href="http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Bson_Serialization_BsonSerializer_RegisterSerializer.htm
+<p>You can register your serializer using the <a href="/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Bson_Serialization_BsonSerializer_RegisterSerializer.htm
 "><code>RegisterSerializer</code></a> or implement a <a href="#serialization-provider">serialization provider</a>.</p>
 
 <h3 id="opt-in-interfaces">Opt-in Interfaces</h3>
@@ -2017,12 +2017,12 @@ Writing custom serializers to handle both normal cases and edge cases can be ver
 
 <h4 id="ibsonidprovider">IBsonIdProvider</h4>
 
-<p>If your class is used as a root document, you should implement the IBsonIdProvider interface in order for &ldquo;Inserting&rdquo; the document to function best, especially if the class your serializer is for uses an Id type other than <a href="http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Bson_ObjectId.htm
+<p>If your class is used as a root document, you should implement the IBsonIdProvider interface in order for &ldquo;Inserting&rdquo; the document to function best, especially if the class your serializer is for uses an Id type other than <a href="/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Bson_ObjectId.htm
 "><code>ObjectId</code></a>.</p>
 
 <h4 id="ibsondocumentserializer">IBsonDocumentSerializer</h4>
 
-<p>In order to enable the driver to properly construct type-safe queries using a custom serializer, it needs access to member information. If your custom serializer is for a class, then you should implement <a href="http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Bson_Serialization_IBsonDocumentSerializer.htm
+<p>In order to enable the driver to properly construct type-safe queries using a custom serializer, it needs access to member information. If your custom serializer is for a class, then you should implement <a href="/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Bson_Serialization_IBsonDocumentSerializer.htm
 "><code>IBsonDocumentSerializer</code></a>.</p>
 
 <pre><code class="language-csharp">class MyClass
@@ -2066,7 +2066,7 @@ class MyClassSerializer : SerializerBase&lt;MyClass&gt;, IBsonDocumentSerializer
 
 <h4 id="ibsonarrayserializer">IBsonArraySerializer</h4>
 
-<p>In the same way, if you have written a custom collection serializer, you should implement <a href="http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Bson_Serialization_IBsonArraySerializer.htm
+<p>In the same way, if you have written a custom collection serializer, you should implement <a href="/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Bson_Serialization_IBsonArraySerializer.htm
 "><code>IBsonArraySerializer</code></a>.</p>
 
 

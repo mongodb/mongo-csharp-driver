@@ -1804,7 +1804,7 @@
 
 
     <li class="toctree-l1">
-    <a href="http://api.mongodb.org/csharp/2.1">
+    <a href="/mongo-csharp-driver/2.1/apidocs">
         <i class='fa fa-file-text-o'></i>
         API Documentation
     </a>
@@ -1942,14 +1942,14 @@
 
 <h2 id="polymorphism">Polymorphism</h2>
 
-<p>When you have a class hierarchy and will be serializing instances of varying classes to the same collection you need a way to distinguish one from another. The normal way to do so is to write some kind of special value (called a “discriminator”) in the document along with the rest of the elements that you can later look at to tell them apart. Since there are potentially many ways you could discriminate between actual types, the default serializer uses conventions for discriminators. The default serializer provides two standard discriminators: <a href="http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Bson_Serialization_Conventions_ScalarDiscriminatorConvention.htm
-"><code>ScalarDiscriminatorConvention</code></a> and <a href="http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Bson_Serialization_Conventions_HierarchicalDiscriminatorConvention.htm
-"><code>HierarchicalDiscriminatorConvention</code></a>. The default is the <a href="http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Bson_Serialization_Conventions_HierarchicalDiscriminatorConvention.htm
-"><code>HierarchicalDiscriminatorConvention</code></a>, but it behaves just like the <a href="http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Bson_Serialization_Conventions_ScalarDiscriminatorConvention.htm
+<p>When you have a class hierarchy and will be serializing instances of varying classes to the same collection you need a way to distinguish one from another. The normal way to do so is to write some kind of special value (called a “discriminator”) in the document along with the rest of the elements that you can later look at to tell them apart. Since there are potentially many ways you could discriminate between actual types, the default serializer uses conventions for discriminators. The default serializer provides two standard discriminators: <a href="/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Bson_Serialization_Conventions_ScalarDiscriminatorConvention.htm
+"><code>ScalarDiscriminatorConvention</code></a> and <a href="/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Bson_Serialization_Conventions_HierarchicalDiscriminatorConvention.htm
+"><code>HierarchicalDiscriminatorConvention</code></a>. The default is the <a href="/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Bson_Serialization_Conventions_HierarchicalDiscriminatorConvention.htm
+"><code>HierarchicalDiscriminatorConvention</code></a>, but it behaves just like the <a href="/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Bson_Serialization_Conventions_ScalarDiscriminatorConvention.htm
 "><code>ScalarDiscriminatorConvention</code></a> until certain options are set to trigger its hierarchical behavior.</p>
 
-<p>The default discriminator conventions both use an element named _t to store the discriminator value in the BSON document. This element will normally be the second element in the BSON document (right after the _id). In the case of the <a href="http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Bson_Serialization_Conventions_ScalarDiscriminatorConvention.htm
-"><code>ScalarDiscriminatorConvention</code></a>, the value of _t will be a single string. In the case of the <a href="http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Bson_Serialization_Conventions_HierarchicalDiscriminatorConvention.htm
+<p>The default discriminator conventions both use an element named _t to store the discriminator value in the BSON document. This element will normally be the second element in the BSON document (right after the _id). In the case of the <a href="/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Bson_Serialization_Conventions_ScalarDiscriminatorConvention.htm
+"><code>ScalarDiscriminatorConvention</code></a>, the value of _t will be a single string. In the case of the <a href="/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Bson_Serialization_Conventions_HierarchicalDiscriminatorConvention.htm
 "><code>HierarchicalDiscriminatorConvention</code></a> the value of _t will be an array of discriminator values, one for each level of the class inheritance tree.</p>
 
 <p>While you will normally be just fine with the default discriminator convention, you might have to write a custom discriminator convention if you must work with data written by another driver or object mapper that uses a different convention for its discriminators.</p>
@@ -1999,7 +1999,7 @@ public class Tiger : Cat
 }
 </code></pre>
 
-<p>The <a href="http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Bson_Serialization_Attributes_BsonKnownTypesAttribute.htm
+<p>The <a href="/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Bson_Serialization_Attributes_BsonKnownTypesAttribute.htm
 "><code>BsonKnownTypesAttribute</code></a> attribute lets the serializer know what subclasses it might encounter during deserialization, so when <code>Animal</code> is <a href="/mongo-csharp-driver/2.1/reference/bson/mapping/#automap">automapped</a>, the serializer will also <a href="/mongo-csharp-driver/2.1/reference/bson/mapping/#automap">automap</a> <code>Cat</code> and <code>Dog</code>, and recursively, <code>Lion</code> and <code>Tiger</code> as well.</p>
 
 <p>Or via code:</p>
@@ -2022,11 +2022,11 @@ BsonClassMap.RegisterClassMap&lt;Tiger&gt;();
 { _id: ..., _t: &quot;Tiger&quot;, ... }
 </code></pre>
 
-<p>Sometimes it can be helpful to record a hierarchy of discriminator values, one for each level of the hierarchy. To do this, you must first mark a base class as being the root of a hierarchy, and then the default <a href="http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Bson_Serialization_Conventions_HierarchicalDiscriminatorConvention.htm
+<p>Sometimes it can be helpful to record a hierarchy of discriminator values, one for each level of the hierarchy. To do this, you must first mark a base class as being the root of a hierarchy, and then the default <a href="/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Bson_Serialization_Conventions_HierarchicalDiscriminatorConvention.htm
 "><code>HierarchicalDiscriminatorConvention</code></a> will automatically record discriminators as array values instead.</p>
 
-<p>To identify <code>Animal</code> as the root of a hierarchy use the <a href="http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Bson_Serialization_Attributes_BsonDiscriminatorAttribute.htm
-"><code>BsonDiscriminatorAttribute</code></a> attribute with the <a href="http://api.mongodb.org/csharp/2.1/html/P_MongoDB_Bson_Serialization_Attributes_BsonDiscriminatorAttribute_RootClass.htm
+<p>To identify <code>Animal</code> as the root of a hierarchy use the <a href="/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Bson_Serialization_Attributes_BsonDiscriminatorAttribute.htm
+"><code>BsonDiscriminatorAttribute</code></a> attribute with the <a href="/mongo-csharp-driver/2.1/apidocs/html/P_MongoDB_Bson_Serialization_Attributes_BsonDiscriminatorAttribute_RootClass.htm
 "><code>RootClass</code></a> named parameter:</p>
 
 <pre><code class="language-csharp">[BsonDiscriminator(RootClass = true)]

@@ -20,7 +20,7 @@
 &lt;h2 id=&#34;how-to-manage-users&#34;&gt;How to Manage Users&lt;/h2&gt;
 
 &lt;p&gt;While MongoDB supports many user management commands, the driver does not have any helpers for them because users are generally managed from the &lt;a href=&#34;http://docs.mongodb.org/manual/reference/mongo-shell/
-&#34;&gt;MongoDB shell&lt;/a&gt;. However, it is still possible to manage users from the driver by using the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoDatabase_RunCommandAsync__1.htm
+&#34;&gt;MongoDB shell&lt;/a&gt;. However, it is still possible to manage users from the driver by using the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoDatabase_RunCommandAsync__1.htm
 &#34;&gt;&lt;code&gt;IMongoDatabase.RunCommandAsync&lt;/code&gt;&lt;/a&gt; method.&lt;/p&gt;
 
 &lt;h2 id=&#34;listing-users&#34;&gt;Listing Users&lt;/h2&gt;
@@ -174,7 +174,7 @@ It is still possible to filter, sort, project, update, etc&amp;hellip; this dyna
 
 &lt;h3 id=&#34;bsondocument-property&#34;&gt;BsonDocument Property&lt;/h3&gt;
 
-&lt;p&gt;The first option is to include a &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm
+&lt;p&gt;The first option is to include a &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_BsonDocument.htm
 &#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt;. Our class would then look as follows:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;class Post
@@ -282,7 +282,7 @@ There is a danger with this approach that dynamic field names could clash with n
 
 &lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
 &lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
-&lt;p&gt;Even though we are using &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm&#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt; below, it is possible to use an application defined class by replacing the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm&#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt; references with that of your application defined class.&lt;/p&gt;
+&lt;p&gt;Even though we are using &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_BsonDocument.htm&#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt; below, it is possible to use an application defined class by replacing the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_BsonDocument.htm&#34;&gt;&lt;code&gt;BsonDocument&lt;/code&gt;&lt;/a&gt; references with that of your application defined class.&lt;/p&gt;
 
 &lt;/div&gt;
 &lt;/p&gt;
@@ -368,7 +368,7 @@ you could track all the documents you&amp;rsquo;ve seen by their identifiers for
 
 &lt;h2 id=&#34;exporting-json&#34;&gt;Exporting JSON&lt;/h2&gt;
 
-&lt;p&gt;The .NET BSON library supports writing JSON documents with the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_IO_JsonWriter.htm
+&lt;p&gt;The .NET BSON library supports writing JSON documents with the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_IO_JsonWriter.htm
 &#34;&gt;&lt;code&gt;JsonWriter&lt;/code&gt;&lt;/a&gt; class.&lt;/p&gt;
 
 &lt;p&gt;The program below will export all documents from a collection to a file with one document per line.&lt;/p&gt;
@@ -431,7 +431,7 @@ using (var streamWriter = new StreamWriter(outputFileName))
 
 &lt;h2 id=&#34;importing-json&#34;&gt;Importing JSON&lt;/h2&gt;
 
-&lt;p&gt;The .NET BSON library supports reading JSON documents with the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_IO_JsonReader.htm
+&lt;p&gt;The .NET BSON library supports reading JSON documents with the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_IO_JsonReader.htm
 &#34;&gt;&lt;code&gt;JsonReader&lt;/code&gt;&lt;/a&gt; class.&lt;/p&gt;
 
 &lt;p&gt;The program below will import all documents from a file with one document per line into the collection.&lt;/p&gt;

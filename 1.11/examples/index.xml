@@ -39,8 +39,8 @@
 
 &lt;h2 id=&#34;rewriting-mongoimport-and-mongoexport:ab44c56621a04c5cb0b008fe55298cd7&#34;&gt;Rewriting MongoImport and MongoExport&lt;/h2&gt;
 
-&lt;p&gt;The .NET BSON library supports reading and writing JSON documents with the &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_IO_JsonReader.htm
-&#34;&gt;&lt;code&gt;JsonReader&lt;/code&gt;&lt;/a&gt; and &lt;a href=&#34;http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_IO_JsonWriter.htm
+&lt;p&gt;The .NET BSON library supports reading and writing JSON documents with the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_IO_JsonReader.htm
+&#34;&gt;&lt;code&gt;JsonReader&lt;/code&gt;&lt;/a&gt; and &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_IO_JsonWriter.htm
 &#34;&gt;&lt;code&gt;JsonWriter&lt;/code&gt;&lt;/a&gt; classes. Both of these also handle both flavors of &lt;a href=&#34;http://docs.mongodb.org/manual/reference/mongodb-extended-json/
 &#34;&gt;MongoDB Extended JSON&lt;/a&gt;.&lt;/p&gt;
 

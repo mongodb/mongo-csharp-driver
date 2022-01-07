@@ -2414,7 +2414,7 @@
 
 
     <li class="toctree-l1">
-    <a href="http://api.mongodb.org/csharp/2.1">
+    <a href="/mongo-csharp-driver/2.1/apidocs">
         <i class='fa fa-file-text-o'></i>
         API Documentation
     </a>
@@ -2556,7 +2556,7 @@
 
 <h3 id="deleting-a-single-file">Deleting a single file</h3>
 
-<p>The <a href="http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_GridFS_GridFSBucket_DeleteAsync_1.htm
+<p>The <a href="/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_GridFS_GridFSBucket_DeleteAsync_1.htm
 "><code>DeleteAsync</code></a> method is used to delete a single file identified by its Id.</p>
 
 <pre><code class="language-csharp">IGridFSBucket bucket;
@@ -2567,7 +2567,7 @@ await bucket.DeleteAsync(id);
 
 <h3 id="dropping-an-entire-gridfs-bucket">Dropping an entire GridFS bucket</h3>
 
-<p>If you want to drop an entire GridFS bucket at once use the <a href="http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_GridFS_GridFSBucket_DropAsync.htm
+<p>If you want to drop an entire GridFS bucket at once use the <a href="/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_GridFS_GridFSBucket_DropAsync.htm
 "><code>DropAsync</code></a> method.</p>
 
 <pre><code class="language-csharp">IGridFSBucket bucket;
@@ -2583,7 +2583,7 @@ The &ldquo;fs.files&rdquo; collection will be dropped first, followed by the &ld
 
 <h3 id="renaming-a-single-file">Renaming a single file</h3>
 
-<p>The <a href="http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_GridFS_GridFSBucket_RenameAsync_1.htm
+<p>The <a href="/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_GridFS_GridFSBucket_RenameAsync_1.htm
 "><code>RenameAsync</code></a> method is used to rename a single file identified by its Id.</p>
 
 <pre><code class="language-csharp">IGridFSBucket bucket;
@@ -2595,8 +2595,8 @@ await bucket.RenameAsync(id, newFilename);
 
 <h3 id="renaming-all-revisions-of-a-file">Renaming all revisions of a file</h3>
 
-<p>If you want to rename all revisions of a file you first use <a href="http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_GridFS_GridFSBucket_FindAsync.htm
-"><code>FindAsync</code></a> to find their ids and then call <a href="http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_GridFS_GridFSBucket_RenameAsync_1.htm
+<p>If you want to rename all revisions of a file you first use <a href="/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_GridFS_GridFSBucket_FindAsync.htm
+"><code>FindAsync</code></a> to find their ids and then call <a href="/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_GridFS_GridFSBucket_RenameAsync_1.htm
 "><code>RenameAsync</code></a> in a loop to rename them one at a time.</p>
 
 <pre><code class="language-csharp">IGridFSBucket bucket;

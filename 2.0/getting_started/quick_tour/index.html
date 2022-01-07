@@ -1324,7 +1324,7 @@
 
 
     <li class="toctree-l1">
-    <a href="http://api.mongodb.org/csharp/2.0">
+    <a href="/mongo-csharp-driver/2.0/apidocs">
         <i class='fa fa-file-text-o'></i>
         API Documentation
     </a>
@@ -1489,19 +1489,19 @@ var client = new MongoClient(&quot;mongodb://localhost:27017,localhost:27018,loc
 
 <h2 id="mongoclient">MongoClient</h2>
 
-<p>The <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoClient.htm
+<p>The <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_MongoClient.htm
 "><code>MongoClient</code></a> instance actually represents a pool of connections to the database; you will only need one instance of class MongoClient even with multiple threads.</p>
 
 <p><div class="admonition important">
 <h5 class="admonition-title">important</h5>
-<p>Typically you only create one <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoClient.htm"><code>MongoClient</code></a> instance for a given cluster and use it across your application. Creating multiple <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_MongoClient.htm"><code>MongoClients</code></a> will, however, still share the same pool of connections if and only if the connection strings are identical.</p>
+<p>Typically you only create one <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_MongoClient.htm"><code>MongoClient</code></a> instance for a given cluster and use it across your application. Creating multiple <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_MongoClient.htm"><code>MongoClients</code></a> will, however, still share the same pool of connections if and only if the connection strings are identical.</p>
 
 </div>
 </p>
 
 <h2 id="get-a-database">Get a Database</h2>
 
-<p>To get a database, specify the name of the database to the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_MongoClient_GetDatabase.htm
+<p>To get a database, specify the name of the database to the <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_MongoClient_GetDatabase.htm
 "><code>GetDatabase</code></a> method on <code>client</code>. It&rsquo;s ok if the database doesn&rsquo;t yet exist. It will be created upon first use.</p>
 
 <pre><code class="language-csharp">var database = client.GetDatabase(&quot;foo&quot;);
@@ -1511,7 +1511,7 @@ var client = new MongoClient(&quot;mongodb://localhost:27017,localhost:27018,loc
 
 <h2 id="get-a-collection">Get a Collection</h2>
 
-<p>To get a collection to operate upon, specify the name of the collection to the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoDatabase_GetCollection__1.htm
+<p>To get a collection to operate upon, specify the name of the collection to the <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoDatabase_GetCollection__1.htm
 "><code>GetCollection&lt;TDocument&gt;</code></a> method on <code>database</code>. It&rsquo;s ok if the collection doesn&rsquo;t yet exist. It will be created upon first use.</p>
 
 <pre><code class="language-csharp">var collection = database.GetCollection&lt;BsonDocument&gt;(&quot;bar&quot;);
@@ -1521,7 +1521,7 @@ var client = new MongoClient(&quot;mongodb://localhost:27017,localhost:27018,loc
 
 <p><div class="admonition note">
 <h5 class="admonition-title">Note</h5>
-<p>The generic parameter <code>TDocument</code> represents the schema that exists in your collection. Above, we&rsquo;ve used a <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm"><code>BsonDocument</code></a> to indicate that we have no pre-defined schema. It is possible to use your plain-old-C#-objects (POCOs) as well. See the <a href="/mongo-csharp-driver/2.0/reference/bson/mapping/">mapping documentation</a> for more information.</p>
+<p>The generic parameter <code>TDocument</code> represents the schema that exists in your collection. Above, we&rsquo;ve used a <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_BsonDocument.htm"><code>BsonDocument</code></a> to indicate that we have no pre-defined schema. It is possible to use your plain-old-C#-objects (POCOs) as well. See the <a href="/mongo-csharp-driver/2.0/reference/bson/mapping/">mapping documentation</a> for more information.</p>
 
 </div>
 </p>
@@ -1541,7 +1541,7 @@ var client = new MongoClient(&quot;mongodb://localhost:27017,localhost:27018,loc
 }
 </code></pre>
 
-<p>To create the document using the .NET driver, use the <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm
+<p>To create the document using the .NET driver, use the <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_BsonDocument.htm
 "><code>BsonDocument</code></a> class. You can use this class to create the embedded document as well.</p>
 
 <pre><code class="language-csharp">var document = new BsonDocument
@@ -1557,7 +1557,7 @@ var client = new MongoClient(&quot;mongodb://localhost:27017,localhost:27018,loc
 };
 </code></pre>
 
-<p>To insert the document into the collection, use the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoCollection_1_InsertOneAsync.htm
+<p>To insert the document into the collection, use the <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_InsertOneAsync.htm
 "><code>InsertOneAsync</code></a> method.</p>
 
 <pre><code class="language-csharp">await collection.InsertOneAsync(doc);
@@ -1571,7 +1571,7 @@ The .NET driver is fully async. For more information on async and await, please 
 
 <h2 id="insert-multiple-documents">Insert Multiple Documents</h2>
 
-<p>To insert multiple documents, you can use the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoCollection_1_InsertManyAsync.htm
+<p>To insert multiple documents, you can use the <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_InsertManyAsync.htm
 "><code>InsertManyAsync</code></a> method.</p>
 
 <pre><code class="language-csharp">// generate 100 documents with a counter ranging from 0 - 99
@@ -1582,7 +1582,7 @@ await collection.InsertManyAsync(documents);
 
 <h2 id="counting-documents">Counting Documents</h2>
 
-<p>Now that we’ve inserted 101 documents (the 100 we did in the loop, plus the first one), we can check to see if we have them all using the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoCollection_1_CountAsync.htm
+<p>Now that we’ve inserted 101 documents (the 100 we did in the loop, plus the first one), we can check to see if we have them all using the <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_CountAsync.htm
 "><code>CountAsync</code></a> method. The following code should print 101.</p>
 
 <pre><code class="language-csharp">var count = await collection.CountAsync(new BsonDocument());
@@ -1592,21 +1592,21 @@ Console.WriteLine(count);
 
 <p><div class="admonition note">
 <h5 class="admonition-title">Note</h5>
-<p>The empty <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Bson_BsonDocument.htm"><code>BsonDocument</code></a> parameter to the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoCollection_1_CountAsync.htm"><code>CountAsync</code></a> method is a filter. In this case, it is an empty filter indicating to count all the documents.</p>
+<p>The empty <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_BsonDocument.htm"><code>BsonDocument</code></a> parameter to the <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_CountAsync.htm"><code>CountAsync</code></a> method is a filter. In this case, it is an empty filter indicating to count all the documents.</p>
 
 </div>
 </p>
 
 <h2 id="query-the-collection">Query the Collection</h2>
 
-<p>Use the <a href="http://api.mongodb.org/csharp/2.0/html/Overload_MongoDB_Driver_IMongoCollectionExtensions_Find.htm
-"><code>Find</code></a> method to query the collection. The <a href="http://api.mongodb.org/csharp/2.0/html/Overload_MongoDB_Driver_IMongoCollectionExtensions_Find.htm
-"><code>Find</code></a> method returns an <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_IFindFluent_2.htm
+<p>Use the <a href="/mongo-csharp-driver/2.0/apidocs/html/Overload_MongoDB_Driver_IMongoCollectionExtensions_Find.htm
+"><code>Find</code></a> method to query the collection. The <a href="/mongo-csharp-driver/2.0/apidocs/html/Overload_MongoDB_Driver_IMongoCollectionExtensions_Find.htm
+"><code>Find</code></a> method returns an <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_IFindFluent_2.htm
 "><code>IFindFluent&lt;TDocument, TProjection&gt;</code></a> instance that provides a fluent interface for chaining or controlling find operations.</p>
 
 <h3 id="find-the-first-document-in-a-collection">Find the First Document in a Collection</h3>
 
-<p>To get the first document in the collection, call the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IFindFluentExtensions_FirstOrDefaultAsync__2.htm
+<p>To get the first document in the collection, call the <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IFindFluentExtensions_FirstOrDefaultAsync__2.htm
 "><code>FirstOrDefaultAsync</code></a> method. <code>await collection.Find(new BsonDocument()).FirstOrDefaultAsync()</code> returns the first document or null. This is useful for queries that should only match a single document, or if you are interested in the first document only.</p>
 
 <p>The following example prints the first document found in the collection.</p>
@@ -1634,13 +1634,13 @@ The &ldquo;<em>id&rdquo; element has been added automatically by MongoDB to your
 
 <h3 id="find-all-documents-in-a-collection">Find All Documents in a Collection</h3>
 
-<p>To retrieve all the documents in the collection, call the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IAsyncCursorSourceExtensions_ToListAsync__1.htm
+<p>To retrieve all the documents in the collection, call the <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IAsyncCursorSourceExtensions_ToListAsync__1.htm
 "><code>ToListAsync</code></a> method. This is useful when the number of documents expected to be returned is small.</p>
 
 <pre><code class="language-csharp">var documents = await collection.Find(new BsonDocument()).ToListAsync();
 </code></pre>
 
-<p>If the number of documents is expected to be large or they can be processed iteratively, the <a href="http://api.mongodb.org/csharp/2.0/html/Overload_MongoDB_Driver_IAsyncCursorSourceExtensions_ForEachAsync.htm
+<p>If the number of documents is expected to be large or they can be processed iteratively, the <a href="/mongo-csharp-driver/2.0/apidocs/html/Overload_MongoDB_Driver_IAsyncCursorSourceExtensions_ForEachAsync.htm
 "><code>ForEachAsync</code></a> will invoke a callback for each document returned.</p>
 
 <pre><code class="language-csharp">await collection.Find(new BsonDocument()).ForEachAsync(d =&gt; Console.WriteLine(d));
@@ -1650,7 +1650,7 @@ The &ldquo;<em>id&rdquo; element has been added automatically by MongoDB to your
 
 <h2 id="get-a-single-document-with-a-filter">Get a Single Document with a Filter</h2>
 
-<p>We can create a filter to pass to the <a href="http://api.mongodb.org/csharp/2.0/html/Overload_MongoDB_Driver_IMongoCollectionExtensions_Find.htm
+<p>We can create a filter to pass to the <a href="/mongo-csharp-driver/2.0/apidocs/html/Overload_MongoDB_Driver_IMongoCollectionExtensions_Find.htm
 "><code>Find</code></a> method to get a subset of the documents in our collection. For example, if we wanted to find the document for which the value of the “i” field is 71, we would do the following:</p>
 
 <pre><code class="language-csharp">var filter = Builders&lt;BsonDocument&gt;.Filter.Eq(&quot;i&quot;, 71);
@@ -1689,9 +1689,9 @@ await collection.Find(filter).ForEachAsync(d =&gt; Console.WriteLine(d));
 
 <h2 id="sorting-documents">Sorting Documents</h2>
 
-<p>We add a sort to a find query by calling the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IFindFluent_2_Sort.htm
-"><code>Sort</code></a> method. Below we use the <a href="http://api.mongodb.org/csharp/2.0/html/Overload_MongoDB_Driver_FilterDefinitionBuilder_1_Exists.htm
-"><code>Exists</code></a> filter builder method and <a href="http://api.mongodb.org/csharp/2.0/html/Overload_MongoDB_Driver_SortDefinitionBuilder_1_Descending.htm
+<p>We add a sort to a find query by calling the <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IFindFluent_2_Sort.htm
+"><code>Sort</code></a> method. Below we use the <a href="/mongo-csharp-driver/2.0/apidocs/html/Overload_MongoDB_Driver_FilterDefinitionBuilder_1_Exists.htm
+"><code>Exists</code></a> filter builder method and <a href="/mongo-csharp-driver/2.0/apidocs/html/Overload_MongoDB_Driver_SortDefinitionBuilder_1_Descending.htm
 "><code>Descending</code></a> sort builder method to sort our documents:</p>
 
 <pre><code class="language-csharp">var filter = Builders&lt;BsonDocument&gt;.Filter.Exists(&quot;i&quot;);
@@ -1713,7 +1713,7 @@ Console.WriteLine(document.ToString());
 
 <p>There are numerous <a href="http://docs.mongodb.org/manual/reference/operator/update-field/">update operators</a> supported by MongoDB.</p>
 
-<p>To update at most 1 document (may be 0 if none match the filter), use the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoCollection_1_UpdateOneAsync.htm
+<p>To update at most 1 document (may be 0 if none match the filter), use the <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_UpdateOneAsync.htm
 "><code>UpdateOneAsync</code></a> method to specify the filter and the update document. Here we update the first document that meets the filter <code>i == 10</code> and set the value of <code>i</code> to <code>110</code>:</p>
 
 <pre><code class="language-csharp">var filter = Builders&lt;BsonDocument&gt;.Filter.Eq(&quot;i&quot;, 10);
@@ -1722,7 +1722,7 @@ var update = Builders&lt;BsonDocument&gt;.Update.Set(&quot;i&quot;, 110);
 await collection.UpdateOneAsync(filter, update);
 </code></pre>
 
-<p>To update all documents matching the filter use the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoCollection_1_UpdateManyAsync.htm
+<p>To update all documents matching the filter use the <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_UpdateManyAsync.htm
 "><code>UpdateManyAsync</code></a> method. Here we increment the value of <code>i</code> by <code>100</code> where <code>i &lt; 100</code>.</p>
 
 <pre><code class="language-csharp">var filter = Builders&lt;BsonDocument&gt;.Filter.Lt(&quot;i&quot;, 100);
@@ -1736,7 +1736,7 @@ if (result.IsModifiedCountAvailable)
 }
 </code></pre>
 
-<p>The update methods return an <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_UpdateResult.htm
+<p>The update methods return an <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_UpdateResult.htm
 "><code>UpdateResult</code></a> which provides information about the operation including the number of documents modified by the update.</p>
 
 <p><div class="admonition note">
@@ -1747,7 +1747,7 @@ Depending on the version of the server, certain features may not be available. I
 
 <h2 id="deleting-documents">Deleting Documents</h2>
 
-<p>To delete at most 1 document (may be 0 if none match the filter) use the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoCollection_1_DeleteOneAsync.htm
+<p>To delete at most 1 document (may be 0 if none match the filter) use the <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_DeleteOneAsync.htm
 "><code>DeleteOneAsync</code></a> method:</p>
 
 <pre><code class="language-csharp">var filter = Builders&lt;BsonDocument&gt;.Filter.Eq(&quot;i&quot;, 110));
@@ -1755,7 +1755,7 @@ Depending on the version of the server, certain features may not be available. I
 await collection.DeleteOneAsync(filter);
 </code></pre>
 
-<p>To delete all documents matching the filter use the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoCollection_1_DeleteManyAsync.htm
+<p>To delete all documents matching the filter use the <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoCollection_1_DeleteManyAsync.htm
 "><code>DeleteManyAsync</code></a> method method. Here we delete all documents where <code>i &gt;= 100</code>:</p>
 
 <pre><code class="language-csharp">var filter = Builders&lt;BsonDocument&gt;.Filter.Gte(&quot;i&quot;, 100));
@@ -1765,7 +1765,7 @@ var result = await collection.DeleteManyAsync(filter);
 Console.WriteLine(result.DeletedCount);
 </code></pre>
 
-<p>The delete methods return a <a href="http://api.mongodb.org/csharp/2.0/html/T_MongoDB_Driver_DeleteResult.htm
+<p>The delete methods return a <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_DeleteResult.htm
 "><code>DeleteResult</code></a> which provides information about the operation including the number of documents deleted.</p>
 
 <h2 id="bulk-writes">Bulk Writes</h2>

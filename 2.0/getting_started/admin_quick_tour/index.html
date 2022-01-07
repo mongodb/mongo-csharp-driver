@@ -1346,7 +1346,7 @@
 
 
     <li class="toctree-l1">
-    <a href="http://api.mongodb.org/csharp/2.0">
+    <a href="/mongo-csharp-driver/2.0/apidocs">
         <i class='fa fa-file-text-o'></i>
         API Documentation
     </a>
@@ -1503,14 +1503,14 @@ var collection = client.GetCollection&lt;BsonDocument&gt;(&quot;bar&quot;);
 
 <p><div class="admonition note">
 <h5 class="admonition-title">Note</h5>
-<p>Calling the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_MongoClient_GetDatabase.htm"><code>GetDatabase</code></a> method on <code>client</code> does not create a database. Likewise, calling the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoDatabase_GetCollection__1.htm"><code>GetCollection&lt;BsonDocument&gt;</code></a> method on <code>database</code> will not create a collection. Only when a database or collection are written to will they be created. Examples include the creation of an index or the insertion of a document into a previously non-existent collection.</p>
+<p>Calling the <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_MongoClient_GetDatabase.htm"><code>GetDatabase</code></a> method on <code>client</code> does not create a database. Likewise, calling the <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoDatabase_GetCollection__1.htm"><code>GetCollection&lt;BsonDocument&gt;</code></a> method on <code>database</code> will not create a collection. Only when a database or collection are written to will they be created. Examples include the creation of an index or the insertion of a document into a previously non-existent collection.</p>
 
 </div>
 </p>
 
 <h2 id="list-the-databases">List the Databases</h2>
 
-<p>You can list all the databases using the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoClient_ListDatabasesAsync.htm
+<p>You can list all the databases using the <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoClient_ListDatabasesAsync.htm
 "><code>ListDatabasesAsync</code></a> method.</p>
 
 <pre><code class="language-csharp">using (var cursor = await client.ListDatabasesAsync())
@@ -1521,7 +1521,7 @@ var collection = client.GetCollection&lt;BsonDocument&gt;(&quot;bar&quot;);
 
 <h2 id="drop-a-database">Drop a Database</h2>
 
-<p>You can drop a database using the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoClient_DropDatabaseAsync.htm
+<p>You can drop a database using the <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoClient_DropDatabaseAsync.htm
 "><code>DropDatabaseAsync</code></a> method.</p>
 
 <pre><code class="language-csharp">await client.DropDatabaseAsync(&quot;foo&quot;);
@@ -1529,7 +1529,7 @@ var collection = client.GetCollection&lt;BsonDocument&gt;(&quot;bar&quot;);
 
 <h2 id="create-a-collection">Create a Collection</h2>
 
-<p>A collections in MongoDB is created automatically simply by inserting a document into it. Using the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoDatabase_CreateCollectionAsync.htm
+<p>A collections in MongoDB is created automatically simply by inserting a document into it. Using the <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoDatabase_CreateCollectionAsync.htm
 "><code>CreateCollectionAsync</code></a> method, you can also create a collection explicitly in order to to customize its configuration. For example, to create a capped collection sized to 1 megabyte:</p>
 
 <pre><code class="language-csharp">var options = new CreateCollectionOptions { Capped = true, MaxSize = 1024 * 1024 };
@@ -1539,7 +1539,7 @@ await database.CreateCollectionAsync(&quot;cappedBar&quot;, options);
 
 <h2 id="drop-a-collection">Drop a Collection</h2>
 
-<p>You can drop a collection with the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoDatabase_DropCollectionAsync.htm
+<p>You can drop a collection with the <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoDatabase_DropCollectionAsync.htm
 "><code>DropCollectionAsync</code></a> method:</p>
 
 <pre><code class="language-csharp">await database.DropCollectionAsync(&quot;cappedBar&quot;);
@@ -1561,7 +1561,7 @@ await collection.Indexes.CreateOneAsync(keys);
 
 <h2 id="list-the-indexes-in-a-collection">List the Indexes in a Collection</h2>
 
-<p>Use the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoIndexManager_1_ListAsync.htm
+<p>Use the <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoIndexManager_1_ListAsync.htm
 "><code>ListAsync</code></a> method to list the indexes in a collection:</p>
 
 <pre><code class="language-csharp">using (var cursor = await collection.Indexes.ListAsync())
@@ -1627,7 +1627,7 @@ Highest scoring document: { &quot;_id&quot; : 1, &quot;content&quot; : &quot;add
 
 <h2 id="running-a-command">Running a Command</h2>
 
-<p>Not all commands have a specific helper, however you can run any command by using the <a href="http://api.mongodb.org/csharp/2.0/html/M_MongoDB_Driver_IMongoDatabase_RunCommandAsync__1.htm
+<p>Not all commands have a specific helper, however you can run any command by using the <a href="/mongo-csharp-driver/2.0/apidocs/html/M_MongoDB_Driver_IMongoDatabase_RunCommandAsync__1.htm
 "><code>RunCommandAsync</code></a> method. Here we call the <a href="http://docs.mongodb.org/manual/reference/command/buildInfo
 ">buildInfo</a> command:</p>
 

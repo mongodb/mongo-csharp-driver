@@ -2251,7 +2251,7 @@
 
 
     <li class="toctree-l1">
-    <a href="http://api.mongodb.org/csharp/2.1">
+    <a href="/mongo-csharp-driver/2.1/apidocs">
         <i class='fa fa-file-text-o'></i>
         API Documentation
     </a>
@@ -2393,15 +2393,15 @@
 
 <h3 id="clusterbuilder">ClusterBuilder</h3>
 
-<p>The <a href="http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_Core_Configuration_ClusterBuilder.htm
+<p>The <a href="/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_Core_Configuration_ClusterBuilder.htm
 "><code>ClusterBuilder</code></a> class contains two methods for subscribing to events.</p>
 
 <h4 id="ieventsubscriber">IEventSubscriber</h4>
 
-<p>The first version of <a href="http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_Core_Configuration_ClusterBuilder_Subscribe.htm
-"><code>Subscribe</code></a> takes an <a href="http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_Core_Events_IEventSubscriber.htm
-"><code>IEventSubscriber</code></a>. <a href="http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_Core_Events_IEventSubscriber.htm
-"><code>IEventSubscriber</code></a> contains a single method to implement, <a href="http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_Core_Events_IEventSubscriber_TryGetEventHandler_1.htm
+<p>The first version of <a href="/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_Core_Configuration_ClusterBuilder_Subscribe.htm
+"><code>Subscribe</code></a> takes an <a href="/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_Core_Events_IEventSubscriber.htm
+"><code>IEventSubscriber</code></a>. <a href="/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_Core_Events_IEventSubscriber.htm
+"><code>IEventSubscriber</code></a> contains a single method to implement, <a href="/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_Core_Events_IEventSubscriber_TryGetEventHandler_1.htm
 "><code>TryGetEventHandler</code></a>. It takes a generic parameter indicating the type of event and sets an out parameter with the handler.</p>
 
 <p><div class="admonition note">
@@ -2410,7 +2410,7 @@ This method will be invoked once on each subscriber per event type. Therefore, p
 </div>
 </p>
 
-<p>For instance, to handle the <a href="http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_Core_Events_ConnectionPoolAddedConnectionEvent.htm
+<p>For instance, to handle the <a href="/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_Core_Events_ConnectionPoolAddedConnectionEvent.htm
 "><code>ConnectionPoolAddedConnectionEvent</code></a>, the following could be done:</p>
 
 <pre><code class="language-csharp">public class MyEventSubscriber : IEventSubscriber
@@ -2434,7 +2434,7 @@ This method will be invoked once on each subscriber per event type. Therefore, p
 }
 </code></pre>
 
-<p>This could quickly become unmaintainable with multiple events. To make this easier, we have implemented the <a href="http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_Core_Events_ReflectionEventSubscriber.htm
+<p>This could quickly become unmaintainable with multiple events. To make this easier, we have implemented the <a href="/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_Core_Events_ReflectionEventSubscriber.htm
 "><code>ReflectionEventSubscriber</code></a>. It uses reflection to find all the event handler methods inside a class based on certain constructor parameters for the method name and the binding flags. For instance, we could change the above <code>MyEventSubscriber</code> class as follows:</p>
 
 <pre><code class="language-csharp">public class MyEventSubscriber : IEventSubscriber
@@ -2470,12 +2470,12 @@ The default method name is &ldquo;Handle&rdquo; and the default binding flags ar
 </p>
 
 <p>The <a href="https://github.com/mongodb/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Core/Core/Events/Diagnostics/PerformanceCounterEventSubscriber.cs
-"><code>PerformanceCounterEventSubscriber</code></a> is a good example of utilizing the <a href="http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_Core_Events_ReflectionEventSubscriber.htm
+"><code>PerformanceCounterEventSubscriber</code></a> is a good example of utilizing the <a href="/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_Core_Events_ReflectionEventSubscriber.htm
 "><code>ReflectionEventSubscriber</code></a>.</p>
 
 <h4 id="method">Method</h4>
 
-<p>The second version of <a href="http://api.mongodb.org/csharp/2.1/html/M_MongoDB_Driver_Core_Configuration_ClusterBuilder_Subscribe.htm
+<p>The second version of <a href="/mongo-csharp-driver/2.1/apidocs/html/M_MongoDB_Driver_Core_Configuration_ClusterBuilder_Subscribe.htm
 "><code>Subscribe</code></a> takes an <a href="https://msdn.microsoft.com/en-us/library/018hxwa8.aspx"><code>Action&lt;TEvent&gt;</code></a>. For example, to use a static method:</p>
 
 <pre><code class="language-csharp">static void Main() 
@@ -2515,9 +2515,9 @@ private static void Handle(ConnectionPoolAddedConnectionEvent @event)
 
 <h3 id="command-events">Command Events</h3>
 
-<p>There are three events related to monitoring data sent on the wire. These are the <a href="http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_Core_Events_CommandStartedEvent.htm
-"><code>CommandStartedEvent</code></a>, the <a href="http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_Core_Events_CommandSucceededEvent.htm
-"><code>CommandSucceededEvent</code></a>, and the <a href="http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_Core_Events_CommandFailedEvent.htm
+<p>There are three events related to monitoring data sent on the wire. These are the <a href="/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_Core_Events_CommandStartedEvent.htm
+"><code>CommandStartedEvent</code></a>, the <a href="/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_Core_Events_CommandSucceededEvent.htm
+"><code>CommandSucceededEvent</code></a>, and the <a href="/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_Core_Events_CommandFailedEvent.htm
 "><code>CommandFailedEvent</code></a>. For every started event, there will always be a succeeded or failed event.</p>
 
 <p>In addition, any messages sent to the server that are not already commands will be upconverted for the sake of consumption. For instance, an <code>OP_DELETE</code> wire protocol message on server 2.4 will appear as though it were a <a href="http://docs.mongodb.org/manual/reference/command/delete/
@@ -2538,17 +2538,17 @@ These are heavy events to generate. Do not subscribe to these unless they provid
 
 <h4 id="commandstartedevent">CommandStartedEvent</h4>
 
-<p>The <a href="http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_Core_Events_CommandStartedEvent.htm
+<p>The <a href="/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_Core_Events_CommandStartedEvent.htm
 "><code>CommandStartedEvent</code></a> contains, amoungst other information, the command name as well as the command itself. While the command also contains the command name, the command is potentially heavy to access and will not live beyond the lifetime of the event. Any information necessary from the command should be pulled out and used immediately or stored.</p>
 
 <h4 id="commandsucceededevent">CommandSucceededEvent</h4>
 
-<p>The <a href="http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_Core_Events_CommandSucceededEvent.htm
+<p>The <a href="/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_Core_Events_CommandSucceededEvent.htm
 "><code>CommandSucceededEvent</code></a> contains, amoungst other information, the command name, the duration of the command, and the reply. The reply is potentially heavy to access and will not live beyond the lifetime of the event.  Any information necessary from the reply should be pulled out and used immediately or stored.</p>
 
 <h4 id="commandfailedevent">CommandFailedEvent</h4>
 
-<p>The <a href="http://api.mongodb.org/csharp/2.1/html/T_MongoDB_Driver_Core_Events_CommandFailedEvent.htm
+<p>The <a href="/mongo-csharp-driver/2.1/apidocs/html/T_MongoDB_Driver_Core_Events_CommandFailedEvent.htm
 "><code>CommandFailedEvent</code></a> contains, amoungst other information, the command name, the duration of the command, and the exception. The exception is potentially heavy to access and will not live beyond the lifetime of the event.  Any information necessary from the exception should be pulled out and used immediately or stored.</p>
 
 

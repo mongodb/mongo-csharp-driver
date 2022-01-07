@@ -1828,7 +1828,7 @@
 
 
     <li class="toctree-l1">
-    <a href="http://api.mongodb.org/csharp/2.2">
+    <a href="/mongo-csharp-driver/2.2/apidocs">
         <i class='fa fa-file-text-o'></i>
         API Documentation
     </a>
@@ -1980,7 +1980,7 @@
 
 <p>Answers to these questions are represented by a set of “conventions”. For each convention, there is a default convention that is the most likely one you will be using, but you can override individual conventions as necessary.</p>
 
-<p>If you want to use your own conventions that differ from the defaults, simply create an instance of <a href="http://api.mongodb.org/csharp/2.2/html/T_MongoDB_Bson_Serialization_Conventions_ConventionPack.htm
+<p>If you want to use your own conventions that differ from the defaults, simply create an instance of <a href="/mongo-csharp-driver/2.2/apidocs/html/T_MongoDB_Bson_Serialization_Conventions_ConventionPack.htm
 "><code>ConventionPack</code></a>, add in the conventions you want to use, and then register that pack. For example:</p>
 
 <pre><code class="language-csharp">var pack = new ConventionPack();
@@ -1999,22 +1999,22 @@ ConventionRegistry.Register(
 <p>In addition to pre-packaged conventions, it is possible to write your own. There are 4 classes of conventions which can be created and registered. These 4 classes of conventions correspond with the 4 stages in which they will be run.</p>
 
 <ol>
-<li><p><strong>Class Stage:</strong> <a href="http://api.mongodb.org/csharp/2.2/html/T_MongoDB_Bson_Serialization_Conventions_IClassMapConvention.htm
+<li><p><strong>Class Stage:</strong> <a href="/mongo-csharp-driver/2.2/apidocs/html/T_MongoDB_Bson_Serialization_Conventions_IClassMapConvention.htm
 "><code>IClassMapConvention</code></a></p>
 
 <p>Run against the class map.</p></li>
 
-<li><p><strong>Member Stage:</strong> <a href="http://api.mongodb.org/csharp/2.2/html/T_MongoDB_Bson_Serialization_Conventions_IMemberMapConvention.htm
+<li><p><strong>Member Stage:</strong> <a href="/mongo-csharp-driver/2.2/apidocs/html/T_MongoDB_Bson_Serialization_Conventions_IMemberMapConvention.htm
 "><code>IMemberMapConvention</code></a></p>
 
 <p>Run against each member map discovered during the Class stage.</p></li>
 
-<li><p><strong>Creator Stage:</strong> <a href="http://api.mongodb.org/csharp/2.2/html/T_MongoDB_Bson_Serialization_Conventions_ICreatorMapConvention.htm
+<li><p><strong>Creator Stage:</strong> <a href="/mongo-csharp-driver/2.2/apidocs/html/T_MongoDB_Bson_Serialization_Conventions_ICreatorMapConvention.htm
 "><code>ICreatorMapConvention</code></a></p>
 
 <p>Run against each CreatorMap discovered during the Class stage.</p></li>
 
-<li><p><strong>Post Processing Stage:</strong> <a href="http://api.mongodb.org/csharp/2.2/html/T_MongoDB_Bson_Serialization_Conventions_IPostProcessingConvention.htm
+<li><p><strong>Post Processing Stage:</strong> <a href="/mongo-csharp-driver/2.2/apidocs/html/T_MongoDB_Bson_Serialization_Conventions_IPostProcessingConvention.htm
 "><code>IPostProcessingConvention</code></a></p>
 
 <p>Run against the class map.</p></li>
@@ -2024,7 +2024,7 @@ ConventionRegistry.Register(
 
 <p><div class="admonition note">
 <h5 class="admonition-title">Note</h5>
-<p>If a custom implementation of an <a href="http://api.mongodb.org/csharp/2.2/html/T_MongoDB_Bson_Serialization_Conventions_IPostProcessingConvention.htm"><code>IPostProcessingConvention</code></a> is registered before a customer implementation of an <a href="http://api.mongodb.org/csharp/2.2/html/T_MongoDB_Bson_Serialization_Conventions_IClassMapConvention.htm"><code>IClassMapConvention</code></a>, the <a href="http://api.mongodb.org/csharp/2.2/html/T_MongoDB_Bson_Serialization_Conventions_IClassMapConvention.htm"><code>IClassMapConvention</code></a> will be run first because the Class Stage is before the Post Processing Stage.</p>
+<p>If a custom implementation of an <a href="/mongo-csharp-driver/2.2/apidocs/html/T_MongoDB_Bson_Serialization_Conventions_IPostProcessingConvention.htm"><code>IPostProcessingConvention</code></a> is registered before a customer implementation of an <a href="/mongo-csharp-driver/2.2/apidocs/html/T_MongoDB_Bson_Serialization_Conventions_IClassMapConvention.htm"><code>IClassMapConvention</code></a>, the <a href="/mongo-csharp-driver/2.2/apidocs/html/T_MongoDB_Bson_Serialization_Conventions_IClassMapConvention.htm"><code>IClassMapConvention</code></a> will be run first because the Class Stage is before the Post Processing Stage.</p>
 
 </div>
 </p>
