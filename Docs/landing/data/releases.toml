@@ -64,22 +64,22 @@ current = "2.14.1"
 [[versions]]
   version = "2.2.4"
   docs = "./2.2/"
-  api = "http://api.mongodb.org/csharp/2.2"
+  api = "./2.2/apidocs"
 
 [[versions]]
   version = "2.1.1"
   docs = "./2.1/"
-  api = "http://api.mongodb.org/csharp/2.1"
+  api = "./2.1/apidocs"
 
 [[versions]]
   version = "2.0.2"
   docs = "./2.0/"
-  api = "http://api.mongodb.org/csharp/2.0"
+  api = "./2.0/apidocs"
 
 [[versions]]
   version = "1.11"
   docs = "./1.11"
-  api = "http://api.mongodb.org/csharp/1.11"
+  api = "./1.11/apidocs"
 
 [[drivers]]
   name = ".NET Driver"

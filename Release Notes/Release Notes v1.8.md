@@ -23,8 +23,7 @@ https://jira.mongodb.org/secure/IssueNavigator.jspa?mode=hide&requestId=13193
 
 Documentation on the C# driver can be found at:
 
-http://www.mongodb.org/display/DOCS/CSharp+Language+Center
-http://api.mongodb.org/csharp/current/
+https://mongodb.github.io/mongo-csharp-driver/
 
 General changes
 ===============

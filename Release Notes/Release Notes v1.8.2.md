@@ -18,8 +18,7 @@ https://jira.mongodb.org/secure/IssueNavigator.jspa?mode=hide&requestId=13830
 
 Documentation on the C#/.NET driver can be found at:
 
-http://docs.mongodb.org/ecosystem/drivers/csharp/
-http://api.mongodb.org/csharp/current/
+https://mongodb.github.io/mongo-csharp-driver/
 
 BSON Library Changes
 ====================
