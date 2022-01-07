@@ -1,0 +1,13 @@
+/* Support XLinks in Help 2 files */
+MSHelp\:link
+{
+ 	text-decoration: underline;
+	color: #0000ff;
+	hoverColor: #3366ff;
+	filterString: ;
+}
+
+/* Style adjustments for Help 2 */
+.OH_CodeSnippetToolBarText {
+	top: -14px;
+}
