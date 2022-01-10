@@ -119,6 +119,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         options ??= new UpdateOptions();
                         options.Hint = argument.Value;
                         break;
+                    case "let":
+                        options ??= new UpdateOptions();
+                        options.Let = argument.Value.AsBsonDocument;
+                        break;
                     case "session":
                         session = _entityMap.GetSession(argument.Value.AsString);
                         break;

@@ -37,6 +37,7 @@ namespace MongoDB.Driver.Core.Operations
         // private fields
         private bool? _bypassDocumentValidation;
         private readonly CollectionNamespace _collectionNamespace;
+        private BsonDocument _let;
         private readonly BatchableSource<UpdateRequest> _updates;
 
         // constructors
@@ -79,6 +80,16 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <summary>
+        /// Gets or sets a let document.
+        /// </summary>
+        /// <value>A let document.</value>
+        public BsonDocument Let
+        {
+            get { return _let; }
+            set { _let = value; }
+        }
+
+        /// <summary>
         /// Gets the updates.
         /// </summary>
         /// <value>
@@ -116,7 +127,8 @@ namespace MongoDB.Driver.Core.Operations
                 { "ordered", IsOrdered },
                 { "bypassDocumentValidation", () => _bypassDocumentValidation.Value, _bypassDocumentValidation.HasValue },
                 { "writeConcern", writeConcern, writeConcern != null },
-                { "txnNumber", () => transactionNumber.Value, transactionNumber.HasValue }
+                { "txnNumber", () => transactionNumber.Value, transactionNumber.HasValue },
+                { "let", _let, _let != null }
             };
         }
 

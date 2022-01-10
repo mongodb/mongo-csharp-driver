@@ -100,6 +100,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         options ??= new DeleteOptions();
                         options.Hint = argument.Value;
                         break;
+                    case "let":
+                        options ??= new DeleteOptions();
+                        options.Let = argument.Value.AsBsonDocument;
+                        break;
                     case "session":
                         session = _entityMap.GetSession(argument.Value.AsString);
                         break;

@@ -21,6 +21,8 @@ namespace MongoDB.Driver.Core.Operations
 {
     internal class BulkDeleteOperation : BulkUnmixedWriteOperationBase<DeleteRequest>
     {
+        private BsonDocument _let;
+
         // constructors
         public BulkDeleteOperation(
             CollectionNamespace collectionNamespace,
@@ -30,12 +32,20 @@ namespace MongoDB.Driver.Core.Operations
         {
         }
 
+        // public properties
+        public BsonDocument Let
+        {
+            get => _let;
+            set => _let = value;
+        }
+
         // methods
         protected override IRetryableWriteOperation<BsonDocument> CreateBatchOperation(Batch batch)
         {
             return new RetryableDeleteCommandOperation(CollectionNamespace, batch.Requests, MessageEncoderSettings)
             {
                 IsOrdered = IsOrdered,
+                Let = _let,
                 MaxBatchCount = MaxBatchCount,
                 RetryRequested = RetryRequested,
                 WriteConcern = WriteConcern

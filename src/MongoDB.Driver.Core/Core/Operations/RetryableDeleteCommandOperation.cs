@@ -36,6 +36,7 @@ namespace MongoDB.Driver.Core.Operations
         // private fields
         private readonly CollectionNamespace _collectionNamespace;
         private readonly BatchableSource<DeleteRequest> _deletes;
+        private BsonDocument _let;
 
         // constructors
         /// <summary>
@@ -55,6 +56,18 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // public properties
+        /// <summary>
+        /// Gets or sets the let document.
+        /// </summary>
+        /// <value>
+        /// The let document.
+        /// </value>
+        public BsonDocument Let
+        {
+            get { return _let; }
+            set { _let = value; }
+        }
+
         /// <summary>
         /// Gets the collection namespace.
         /// </summary>
@@ -96,7 +109,8 @@ namespace MongoDB.Driver.Core.Operations
                 { "delete", _collectionNamespace.CollectionName },
                 { "ordered", IsOrdered },
                 { "writeConcern", writeConcern, writeConcern != null },
-                { "txnNumber", () => transactionNumber.Value, transactionNumber.HasValue }
+                { "txnNumber", () => transactionNumber.Value, transactionNumber.HasValue },
+                { "let", _let, _let != null }
             };
         }
 

@@ -65,5 +65,26 @@ namespace MongoDB.Driver.Core.Operations
                 exception.Should().BeOfType<MongoCommandException>();
             }
         }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Let_get_and_set_should_work([Values(null, "{ name : 'name' }")] string let)
+        {
+            var requests = new List<DeleteRequest>
+            {
+                new DeleteRequest(new BsonDocument("x", 1))
+                {
+                    Hint = new BsonDocument("_id", 1)
+                }
+            };
+            var batch = new BatchableSource<DeleteRequest>(requests);
+            var subject = new RetryableDeleteCommandOperation(_collectionNamespace, batch, _messageEncoderSettings);
+            var value = let != null ? BsonDocument.Parse(let) : null;
+
+            subject.Let = value;
+            var result = subject.Let;
+
+            result.Should().Be(value);
+        }
     }
 }

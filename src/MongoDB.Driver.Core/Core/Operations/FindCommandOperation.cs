@@ -26,7 +26,6 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
-using MongoDB.Shared;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -54,6 +53,7 @@ namespace MongoDB.Driver.Core.Operations
         private BsonDocument _filter;
         private int? _firstBatchSize;
         private BsonValue _hint;
+        private BsonDocument _let;
         private int? _limit;
         private BsonDocument _max;
         private TimeSpan? _maxAwaitTime;
@@ -210,6 +210,18 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _hint; }
             set { _hint = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the let document.
+        /// </summary>
+        /// <value>
+        /// The let document.
+        /// </value>
+        public BsonDocument Let
+        {
+            get { return _let; }
+            set { _let = value; }
         }
 
         /// <summary>
@@ -472,7 +484,8 @@ namespace MongoDB.Driver.Core.Operations
                 { "allowDiskUse", () => _allowDiskUse.Value, _allowDiskUse.HasValue },
                 { "allowPartialResults", () => _allowPartialResults.Value, _allowPartialResults.HasValue && isShardRouter },
                 { "collation", () => _collation.ToBsonDocument(), _collation != null },
-                { "readConcern", readConcern, readConcern != null }
+                { "readConcern", readConcern, readConcern != null },
+                { "let", _let, _let != null }
             };
         }
 

@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Bson;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
@@ -35,6 +36,7 @@ namespace MongoDB.Driver.Core.Operations
         private bool? _bypassDocumentValidation;
         private readonly CollectionNamespace _collectionNamespace;
         private bool _isOrdered = true;
+        private BsonDocument _let;
         private int? _maxBatchCount;
         private int? _maxBatchLength;
         private int? _maxDocumentSize;
@@ -110,6 +112,18 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _isOrdered; }
             set { _isOrdered = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets a let document.
+        /// </summary>
+        /// <value>
+        /// A let document.
+        /// </value>
+        public BsonDocument Let
+        {
+            get { return _let; }
+            set { _let = value; }
         }
 
         /// <summary>
@@ -248,6 +262,7 @@ namespace MongoDB.Driver.Core.Operations
             return new BulkDeleteOperation(_collectionNamespace, requests, _messageEncoderSettings)
             {
                 IsOrdered = _isOrdered,
+                Let = _let,
                 MaxBatchCount = _maxBatchCount,
                 MaxBatchLength = _maxBatchLength,
                 WriteConcern = batch.WriteConcern,
@@ -277,6 +292,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 BypassDocumentValidation = _bypassDocumentValidation,
                 IsOrdered = _isOrdered,
+                Let = _let,
                 MaxBatchCount = _maxBatchCount,
                 MaxBatchLength = _maxBatchLength,
                 WriteConcern = batch.WriteConcern,
