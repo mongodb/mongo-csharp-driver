@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+﻿/* Copyright 2013-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,9 +13,11 @@
 * limitations under the License.
 */
 
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
@@ -26,9 +28,10 @@ namespace MongoDB.Driver.Core.Operations
     /// <summary>
     /// Represents a list collections operation.
     /// </summary>
-    public class ListCollectionsOperation : IReadOperation<IAsyncCursor<BsonDocument>>
+    public class ListCollectionsOperation : IReadOperation<IAsyncCursor<BsonDocument>>, IExecutableInRetryableReadContext<IAsyncCursor<BsonDocument>>
     {
         // fields
+        private bool? _authorizedCollections;
         private int? _batchSize;
         private BsonDocument _filter;
         private readonly DatabaseNamespace _databaseNamespace;
@@ -51,6 +54,18 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // properties
+        /// <summary>
+        /// Gets or sets the authorizedCollections.
+        /// </summary>
+        /// <value>
+        /// The authorizedCollections.
+        /// </value>
+        public bool? AuthorizedCollections
+        {
+            get => _authorizedCollections;
+            set => _authorizedCollections = value;
+        }
+
         /// <summary>
         /// Gets or sets the batch size.
         /// </summary>
@@ -117,8 +132,8 @@ namespace MongoDB.Driver.Core.Operations
         /// </value>
         public bool RetryRequested
         {
-            get => _retryRequested;
-            set => _retryRequested = value;
+            get { return _retryRequested; }
+            set { _retryRequested = value; }
         }
 
         // public methods
@@ -127,11 +142,22 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
-            using (EventContext.BeginOperation())
             using (var context = RetryableReadContext.Create(binding, _retryRequested, cancellationToken))
             {
-                var operation = CreateOperation(context.Channel);
-                return operation.Execute(context, cancellationToken);
+                return Execute(context, cancellationToken);
+            }
+        }
+
+        /// <inheritdoc/>
+        public IAsyncCursor<BsonDocument> Execute(RetryableReadContext context, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(context, nameof(context));
+
+            using (EventContext.BeginOperation())
+            {
+                var operation = CreateOperation();
+                var result = operation.Execute(context, cancellationToken);
+                return CreateCursor(context.ChannelSource, context.Channel, operation.Command, result);
             }
         }
 
@@ -140,24 +166,59 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
-            using (EventContext.BeginOperation())
             using (var context = await RetryableReadContext.CreateAsync(binding, _retryRequested, cancellationToken).ConfigureAwait(false))
             {
-                var operation = CreateOperation(context.Channel);
-                return await operation.ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
+                return Execute(context, cancellationToken);
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<IAsyncCursor<BsonDocument>> ExecuteAsync(RetryableReadContext context, CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(context, nameof(context));
+
+            using (EventContext.BeginOperation())
+            {
+                var operation = CreateOperation();
+                var result = await operation.ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
+                return CreateCursor(context.ChannelSource, context.Channel, operation.Command, result);
             }
         }
 
         // private methods
-        private IExecutableInRetryableReadContext<IAsyncCursor<BsonDocument>> CreateOperation(IChannel channel)
+        private ReadCommandOperation<BsonDocument> CreateOperation()
         {
-            return new ListCollectionsUsingCommandOperation(_databaseNamespace, _messageEncoderSettings)
+            var command = new BsonDocument
             {
-                BatchSize = _batchSize,
-                Filter = _filter,
-                NameOnly = _nameOnly,
+                { "listCollections", 1 },
+                { "filter", _filter, _filter != null },
+                { "nameOnly", () => _nameOnly.Value, _nameOnly.HasValue },
+                { "cursor", () => new BsonDocument("batchSize", _batchSize.Value), _batchSize.HasValue },
+                { "authorizedCollections", () => _authorizedCollections.Value, _authorizedCollections.HasValue }
+            };
+            return new ReadCommandOperation<BsonDocument>(_databaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            {
                 RetryRequested = _retryRequested // might be overridden by retryable read context
             };
+        }
+
+        private IAsyncCursor<BsonDocument> CreateCursor(IChannelSourceHandle channelSource, IChannelHandle channel, BsonDocument command, BsonDocument result)
+        {
+            var cursorDocument = result["cursor"].AsBsonDocument;
+            var cursorId = cursorDocument["id"].ToInt64();
+            var getMoreChannelSource = ChannelPinningHelper.CreateGetMoreChannelSource(channelSource, channel, cursorId);
+            var cursor = new AsyncCursor<BsonDocument>(
+                getMoreChannelSource,
+                CollectionNamespace.FromFullName(cursorDocument["ns"].AsString),
+                command,
+                cursorDocument["firstBatch"].AsBsonArray.OfType<BsonDocument>().ToList(),
+                cursorId,
+                batchSize: _batchSize ?? 0,
+                0,
+                BsonDocumentSerializer.Instance,
+                _messageEncoderSettings);
+
+            return cursor;
         }
     }
 }

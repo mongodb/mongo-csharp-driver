@@ -814,6 +814,7 @@ namespace MongoDB.Driver
             {
                 options = new ListCollectionNamesOptions
                 {
+                    AuthorizedCollections = true,
                     Filter = filterDefinition
                 };
             }
@@ -854,10 +855,12 @@ namespace MongoDB.Driver
             if (usingOptions)
             {
                 op.Filter.Should().Be(filterDocument);
+                op.AuthorizedCollections.Should().BeTrue();
             }
             else
             {
                 op.Filter.Should().BeNull();
+                op.AuthorizedCollections.Should().NotHaveValue();
             }
             op.RetryRequested.Should().BeTrue();
         }
@@ -866,13 +869,14 @@ namespace MongoDB.Driver
         [ParameterAttributeData]
         public void ListCollectionNames_should_return_expected_result(
             [Values(0, 1, 2, 10)] int numberOfCollections,
+            [Values(false, true)] bool usingAuthorizedCollection,
             [Values(false, true)] bool usingSession,
             [Values(false, true)] bool async)
         {
             RequireServer.Check();
-            if (usingSession)
+            if (usingAuthorizedCollection)
             {
-                RequireServer.Check().VersionGreaterThanOrEqualTo("3.6.0");
+                RequireServer.Check().VersionGreaterThanOrEqualTo("4.0.0");
             }
 
             var collectionNames = Enumerable.Range(1, numberOfCollections).Select(n => $"c{n}").ToArray();
@@ -888,26 +892,32 @@ namespace MongoDB.Driver
             using (var session = usingSession ? client.StartSession() : null)
             {
                 IAsyncCursor<string> cursor;
+                var listCollectionNamesOptions = new ListCollectionNamesOptions();
+                if (usingAuthorizedCollection)
+                {
+                    listCollectionNamesOptions.AuthorizedCollections = true;
+                }
+
                 if (usingSession)
                 {
                     if (async)
                     {
-                        cursor = database.ListCollectionNamesAsync(session).GetAwaiter().GetResult();
+                        cursor = database.ListCollectionNamesAsync(session, listCollectionNamesOptions).GetAwaiter().GetResult();
                     }
                     else
                     {
-                        cursor = database.ListCollectionNames(session);
+                        cursor = database.ListCollectionNames(session, listCollectionNamesOptions);
                     }
                 }
                 else
                 {
                     if (async)
                     {
-                        cursor = database.ListCollectionNamesAsync().GetAwaiter().GetResult();
+                        cursor = database.ListCollectionNamesAsync(listCollectionNamesOptions).GetAwaiter().GetResult();
                     }
                     else
                     {
-                        cursor = database.ListCollectionNames();
+                        cursor = database.ListCollectionNames(listCollectionNamesOptions);
                     }
                 }
 
@@ -920,6 +930,7 @@ namespace MongoDB.Driver
         [ParameterAttributeData]
         public void ListCollections_should_execute_a_ListCollectionsOperation(
             [Values(false, true)] bool usingSession,
+            [Values(null, false, true)] bool? authorizedCollections,
             [Values(false, true)] bool usingBatchSize,
             [Values(false, true)] bool usingFilter,
             [Values(false, true)] bool async)
@@ -928,10 +939,11 @@ namespace MongoDB.Driver
             var filterDocument = BsonDocument.Parse("{ name : \"awesome\" }");
             var filterDefinition = (FilterDefinition<BsonDocument>)filterDocument;
             ListCollectionsOptions options = null;
-            if (usingFilter || usingBatchSize)
+            if (usingFilter || usingBatchSize || authorizedCollections.HasValue)
             {
                 options = new ListCollectionsOptions
                 {
+                    AuthorizedCollections = authorizedCollections,
                     BatchSize = usingBatchSize ? 10 : (int?)null,
                     Filter = usingFilter ? filterDefinition : null
                 };
@@ -970,10 +982,11 @@ namespace MongoDB.Driver
             var op = call.Operation.Should().BeOfType<ListCollectionsOperation>().Subject;
             op.DatabaseNamespace.Should().Be(_subject.DatabaseNamespace);
             op.NameOnly.Should().NotHaveValue();
-            if (usingFilter || usingBatchSize)
+            if (usingFilter || usingBatchSize || authorizedCollections.HasValue)
             {
                 op.Should().Match<ListCollectionsOperation>(
                     (o) =>
+                        o.AuthorizedCollections == (authorizedCollections.HasValue ? authorizedCollections.Value : null) &&
                         o.BatchSize == (usingBatchSize ? 10 : (int?)null) &&
                         o.Filter == (usingFilter ? filterDocument : null)
                 );

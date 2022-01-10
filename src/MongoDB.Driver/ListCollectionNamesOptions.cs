@@ -23,9 +23,19 @@ namespace MongoDB.Driver
     public sealed class ListCollectionNamesOptions
     {
         // fields
+        private bool? authorizedCollections;
         private FilterDefinition<BsonDocument> _filter;
 
         // properties
+        /// <summary>
+        /// Gets or sets the authorizedCollections.
+        /// </summary>
+        public bool? AuthorizedCollections
+        {
+            get { return authorizedCollections; }
+            set { authorizedCollections = value; }
+        }
+
         /// <summary>
         /// Gets or sets the filter.
         /// </summary>
