@@ -28,7 +28,7 @@ namespace MongoDB.Driver
 
         // properties
         /// <summary>
-        /// Gets or sets the authorizedCollections.
+        /// Gets or sets the AuthorizedCollections flag.
         /// </summary>
         public bool? AuthorizedCollections
         {

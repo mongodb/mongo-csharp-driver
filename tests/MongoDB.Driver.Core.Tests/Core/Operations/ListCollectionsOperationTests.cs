@@ -65,7 +65,7 @@ namespace MongoDB.Driver.Core.Operations
         public void AuthorizedCollections_get_and_set_should_work()
         {
             var subject = new ListCollectionsOperation(_databaseNamespace, _messageEncoderSettings);
-            bool authorizedCollections = true;
+            var authorizedCollections = true;
 
             subject.AuthorizedCollections = authorizedCollections;
             var result = subject.AuthorizedCollections;
@@ -100,7 +100,7 @@ namespace MongoDB.Driver.Core.Operations
         [Theory]
         [ParameterAttributeData]
         public void NameOnly_get_and_set_should_work(
-           [Values(null, false, true)] bool? nameOnly)
+            [Values(null, false, true)] bool? nameOnly)
         {
             var subject = new ListCollectionsOperation(_databaseNamespace, _messageEncoderSettings);
 
@@ -113,7 +113,7 @@ namespace MongoDB.Driver.Core.Operations
         [Theory]
         [ParameterAttributeData]
         public void RetryRequested_get_and_set_should_work(
-           [Values(false, true)] bool value)
+            [Values(false, true)] bool value)
         {
             var subject = new ListCollectionsOperation(_databaseNamespace, _messageEncoderSettings);
 

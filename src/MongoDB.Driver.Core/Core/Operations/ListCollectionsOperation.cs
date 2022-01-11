@@ -55,7 +55,7 @@ namespace MongoDB.Driver.Core.Operations
 
         // properties
         /// <summary>
-        /// Gets or sets the authorizedCollections.
+        /// Gets or sets the AuthorizedCollections flag.
         /// </summary>
         /// <value>
         /// The authorizedCollections.
@@ -132,8 +132,8 @@ namespace MongoDB.Driver.Core.Operations
         /// </value>
         public bool RetryRequested
         {
-            get { return _retryRequested; }
-            set { _retryRequested = value; }
+            get => _retryRequested;
+            set => _retryRequested = value;
         }
 
         // public methods
@@ -168,7 +168,7 @@ namespace MongoDB.Driver.Core.Operations
 
             using (var context = await RetryableReadContext.CreateAsync(binding, _retryRequested, cancellationToken).ConfigureAwait(false))
             {
-                return Execute(context, cancellationToken);
+                return await ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
             }
         }
 

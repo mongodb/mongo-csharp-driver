@@ -986,7 +986,7 @@ namespace MongoDB.Driver
             {
                 op.Should().Match<ListCollectionsOperation>(
                     (o) =>
-                        o.AuthorizedCollections == (authorizedCollections.HasValue ? authorizedCollections.Value : null) &&
+                        o.AuthorizedCollections == authorizedCollections &&
                         o.BatchSize == (usingBatchSize ? 10 : (int?)null) &&
                         o.Filter == (usingFilter ? filterDocument : null)
                 );
