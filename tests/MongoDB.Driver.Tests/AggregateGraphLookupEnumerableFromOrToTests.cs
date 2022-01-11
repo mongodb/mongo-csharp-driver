@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void GraphLookup_with_many_to_one_parameters_should_return_expected_result()
         {
-            RequireServer.Check().Supports(Feature.AggregateGraphLookupStage);
+            RequireServer.Check();
             var database = GetDatabase();
             var collectionName = "collectionManyToOne";
             EnsureTestDataManyToOne(database, collectionName);
@@ -69,7 +69,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void GraphLookup_with_one_to_many_parameters_should_return_expected_result()
         {
-            RequireServer.Check().Supports(Feature.AggregateGraphLookupStage);
+            RequireServer.Check();
             var database = GetDatabase();
             var collectionName = "collectionOneToMany";
             EnsureTestDataOneToMany(database, collectionName);
@@ -110,7 +110,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void GraphLookup_with_one_to_one_parameters_should_return_expected_result()
         {
-            RequireServer.Check().Supports(Feature.AggregateGraphLookupStage);
+            RequireServer.Check();
             var database = GetDatabase();
             var collectionName = "collectionOneToOne";
             EnsureTestDataOneToOne(database, collectionName);

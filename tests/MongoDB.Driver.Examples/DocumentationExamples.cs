@@ -1406,7 +1406,7 @@ namespace MongoDB.Driver.Examples
         [Fact]
         public void Aggregation_Example_4()
         {
-            RequireServer.Check().Supports(Feature.AggregateLet);
+            RequireServer.Check();
 
             //db.air_alliances.aggregate( [
             //{
@@ -1570,7 +1570,7 @@ namespace MongoDB.Driver.Examples
         [Fact]
         public void Exploiting_The_Power_Of_Arrays_Example()
         {
-            RequireServer.Check().Supports(Feature.ArrayFilters);
+            RequireServer.Check();
 
             var document = new BsonDocument
             {

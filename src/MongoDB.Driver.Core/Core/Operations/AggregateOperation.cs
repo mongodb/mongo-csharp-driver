@@ -298,7 +298,7 @@ namespace MongoDB.Driver.Core.Operations
 
                 context.ChannelSource.Session.SetSnapshotTimeIfNeeded(result.AtClusterTime);
 
-                return CreateCursor(context.ChannelSource, context.Channel, operation.Command, result);
+                return CreateCursor(context.ChannelSource, context.Channel, result);
             }
         }
 
@@ -326,7 +326,7 @@ namespace MongoDB.Driver.Core.Operations
 
                 context.ChannelSource.Session.SetSnapshotTimeIfNeeded(result.AtClusterTime);
 
-                return CreateCursor(context.ChannelSource, context.Channel,operation.Command, result);
+                return CreateCursor(context.ChannelSource, context.Channel, result);
             }
         }
 
@@ -358,17 +358,15 @@ namespace MongoDB.Driver.Core.Operations
                 { "hint", () => _hint, _hint != null },
                 { "let", () => _let, _let != null },
                 { "comment", () => _comment, _comment != null },
-                { "readConcern", readConcern, readConcern != null }
-            };
-
-            var useCursor = _useCursor.GetValueOrDefault(true) || connectionDescription.ServerVersion >= new SemanticVersion(3, 6, 0);
-            if (useCursor)
-            {
-                command["cursor"] = new BsonDocument
+                { "readConcern", readConcern, readConcern != null },
                 {
-                    { "batchSize", () => _batchSize.Value, _batchSize.HasValue }
-                };
-            }
+                    "cursor",
+                    new BsonDocument
+                    {
+                        { "batchSize", () => _batchSize.Value, _batchSize.HasValue }
+                    }
+                }
+            };
 
             return command;
         }
@@ -384,27 +382,26 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
-        private AsyncCursor<TResult> CreateCursor(IChannelSourceHandle channelSource, IChannelHandle channel, BsonDocument command, AggregateResult result)
+        private AsyncCursor<TResult> CreateCursor(IChannelSourceHandle channelSource, IChannelHandle channel, AggregateResult result)
         {
             if (result.CursorId.HasValue)
             {
-                return CreateCursorFromCursorResult(channelSource, channel, command, result);
+                return CreateCursorFromCursorResult(channelSource, channel, result);
             }
             else
             {
                 // don't need connection pinning
-                return CreateCursorFromInlineResult(command, result);
+                return CreateCursorFromInlineResult(result);
             }
         }
 
-        private AsyncCursor<TResult> CreateCursorFromCursorResult(IChannelSourceHandle channelSource, IChannelHandle channel, BsonDocument command, AggregateResult result)
+        private AsyncCursor<TResult> CreateCursorFromCursorResult(IChannelSourceHandle channelSource, IChannelHandle channel, AggregateResult result)
         {
             var cursorId = result.CursorId.GetValueOrDefault(0);
             var getMoreChannelSource = ChannelPinningHelper.CreateGetMoreChannelSource(channelSource, channel, cursorId);
             return new AsyncCursor<TResult>(
                 getMoreChannelSource,
                 result.CollectionNamespace,
-                command,
                 result.Results,
                 cursorId,
                 result.PostBatchResumeToken,
@@ -415,12 +412,11 @@ namespace MongoDB.Driver.Core.Operations
                 _maxAwaitTime);
         }
 
-        private AsyncCursor<TResult> CreateCursorFromInlineResult(BsonDocument command, AggregateResult result)
+        private AsyncCursor<TResult> CreateCursorFromInlineResult(AggregateResult result)
         {
             return new AsyncCursor<TResult>(
                 null, // channelSource
                 CollectionNamespace,
-                command,
                 result.Results,
                 0, // cursorId
                 null, // postBatchResumeToken

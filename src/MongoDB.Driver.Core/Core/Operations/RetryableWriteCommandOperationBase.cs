@@ -200,13 +200,12 @@ namespace MongoDB.Driver.Core.Operations
         /// Creates the command.
         /// </summary>
         /// <param name="session">The session.</param>
-        /// <param name="connectionDescription">The connection description.</param>
         /// <param name="attempt">The attempt.</param>
         /// <param name="transactionNumber">The transaction number.</param>
         /// <returns>
         /// A command.
         /// </returns>
-        protected abstract BsonDocument CreateCommand(ICoreSessionHandle session, ConnectionDescription connectionDescription, int attempt, long? transactionNumber);
+        protected abstract BsonDocument CreateCommand(ICoreSessionHandle session, int attempt, long? transactionNumber);
 
         /// <summary>
         /// Creates the command payloads.
@@ -231,7 +230,7 @@ namespace MongoDB.Driver.Core.Operations
         private CommandArgs GetCommandArgs(RetryableWriteContext context, int attempt, long? transactionNumber)
         {
             var args = new CommandArgs();
-            args.Command = CreateCommand(context.Binding.Session, context.Channel.ConnectionDescription, attempt, transactionNumber);
+            args.Command = CreateCommand(context.Binding.Session, attempt, transactionNumber);
             args.CommandPayloads = CreateCommandPayloads(context.Channel, attempt).ToList();
             args.PostWriteAction = GetPostWriteAction(args.CommandPayloads);
             args.ResponseHandling = GetResponseHandling();

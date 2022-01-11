@@ -893,7 +893,7 @@ namespace MongoDB.Driver.Core.Servers
         [InlineData(2, 1, 2)]
         public void Command_should_send_the_greater_of_the_session_and_cluster_cluster_times(long sessionTimestamp, long clusterTimestamp, long expectedTimestamp)
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.6").ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded);
+            RequireServer.Check().ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded);
             var sessionClusterTime = new BsonDocument("clusterTime", new BsonTimestamp(sessionTimestamp));
             var clusterClusterTime = new BsonDocument("clusterTime", new BsonTimestamp(clusterTimestamp));
             var expectedClusterTime = new BsonDocument("clusterTime", new BsonTimestamp(expectedTimestamp));
@@ -944,7 +944,7 @@ namespace MongoDB.Driver.Core.Servers
         [SkippableFact]
         public void Command_should_update_the_session_and_cluster_cluster_times()
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.6").ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded);
+            RequireServer.Check().ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded);
 
             var eventCapturer = new EventCapturer().Capture<CommandSucceededEvent>(e => e.CommandName == "ping");
             using (var cluster = CoreTestConfiguration.CreateCluster(b => b.Subscribe(eventCapturer)))
@@ -982,7 +982,7 @@ namespace MongoDB.Driver.Core.Servers
         [ParameterAttributeData]
         public void Command_should_use_serverApi([Values(false, true)] bool async)
         {
-            RequireServer.Check().Supports(Feature.CommandMessage);
+            RequireServer.Check();
 
             var serverApi = new ServerApi(ServerApiVersion.V1);
             var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>(e => e.CommandName == "ping");

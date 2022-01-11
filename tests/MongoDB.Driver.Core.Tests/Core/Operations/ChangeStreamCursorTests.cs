@@ -278,7 +278,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)] bool async,
             [Values(false, true)] bool withResumeAfter)
         {
-            RequireServer.Check().Supports(Feature.ChangeStreamStage).ClusterTypes(ClusterType.ReplicaSet);
+            RequireServer.Check().ClusterTypes(ClusterType.ReplicaSet);
             var pipeline = new BsonDocument[0];
             var resultSerializer = new ChangeStreamDocumentSerializer<BsonDocument>(BsonDocumentSerializer.Instance);
             var messageEncoderSettings = new MessageEncoderSettings();
@@ -341,7 +341,7 @@ namespace MongoDB.Driver.Core.Operations
         public void GetResumeToken_should_return_expected_results_when_batch_is_not_empty_and_has_not_been_iterated(
             [Values(false, true)] bool async)
         {
-            RequireServer.Check().Supports(Feature.ChangeStreamStage).ClusterTypes(ClusterType.ReplicaSet);
+            RequireServer.Check().ClusterTypes(ClusterType.ReplicaSet);
             var pipeline = new BsonDocument[0];
             var resultSerializer = new ChangeStreamDocumentSerializer<BsonDocument>(BsonDocumentSerializer.Instance);
             var messageEncoderSettings = new MessageEncoderSettings();

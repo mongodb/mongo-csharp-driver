@@ -97,27 +97,6 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Theory]
-        [ParameterAttributeData]
-        public void AddRetryableWriteErrorLabelIfRequired_should_not_add_error_label_for_non_retryWrites_server(
-            [Values(false, true)] bool isNetworkError)
-        {
-            MongoException exception = null;
-            if (isNetworkError)
-            {
-                exception = (MongoException)CoreExceptionHelper.CreateException(typeof(MongoConnectionException));
-            }
-            else
-            {
-                exception = CoreExceptionHelper.CreateMongoCommandException((int)ServerErrorCode.HostNotFound);
-            }
-
-            RetryabilityHelper.AddRetryableWriteErrorLabelIfRequired(exception, Feature.RetryableWrites.LastNotSupportedVersion);
-
-            var hasRetryableWriteErrorLabel = exception.HasErrorLabel("RetryableWriteError");
-            hasRetryableWriteErrorLabel.Should().BeFalse();
-        }
-
-        [Theory]
         [InlineData("{ txnNumber : 1 }", true)]
         [InlineData("{ commitTransaction : 1 }", true)]
         [InlineData("{ abortTransaction : 1 }", true)]

@@ -118,19 +118,6 @@ namespace MongoDB.Driver.Core.Helpers
                 moreToCome: moreToCome));
         }
 
-        public static DeleteMessage BuildDelete(
-            BsonDocument query,
-            CollectionNamespace collectionNamespace = null,
-            int requestId = 0,
-            bool isMulti = false)
-        {
-            return new DeleteMessage(
-                requestId,
-                collectionNamespace ?? __defaultCollectionNamespace,
-                query,
-                isMulti);
-        }
-
         public static QueryMessage BuildGetLastError(
             WriteConcern writeConcern,
             int requestId = 0,
@@ -139,21 +126,6 @@ namespace MongoDB.Driver.Core.Helpers
             var command = writeConcern.ToBsonDocument();
             command.InsertAt(0, new BsonElement("getLastError", 1));
             return BuildCommand(command, requestId, databaseNamespace);
-        }
-
-        public static InsertMessage<T> BuildInsert<T>(
-            IEnumerable<T> documents,
-            CollectionNamespace collectionNamespace = null,
-            int requestId = 0)
-        {
-            return new InsertMessage<T>(
-                requestId,
-                collectionNamespace ?? __defaultCollectionNamespace,
-                BsonSerializer.SerializerRegistry.GetSerializer<T>(),
-                new BatchableSource<T>(documents.ToList()),
-                int.MaxValue,
-                int.MaxValue,
-                false);
         }
 
         public static ReplyMessage<T> BuildQueryFailedReply<T>(
@@ -232,24 +204,6 @@ namespace MongoDB.Driver.Core.Helpers
                 responseTo: responseTo,
                 serializer: new Mock<IBsonSerializer<T>>().Object,
                 startingFrom: startingFrom);
-        }
-
-        public static UpdateMessage BuildUpdate(
-            BsonDocument query,
-            BsonDocument update,
-            CollectionNamespace collectionNamespace = null,
-            int requestId = 0,
-            bool isMulti = false,
-            bool isUpsert = false)
-        {
-            return new UpdateMessage(
-                requestId,
-                collectionNamespace ?? __defaultCollectionNamespace,
-                query,
-                update,
-                NoOpElementNameValidator.Instance,
-                isMulti,
-                isUpsert);
         }
 
         public static List<BsonDocument> TranslateMessagesToBsonDocuments(IEnumerable<MongoDBMessage> requests)

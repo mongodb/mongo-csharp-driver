@@ -662,7 +662,9 @@ namespace MongoDB.Driver.Core.Operations
             {
                 exception.Should().BeNull();
             }
+#pragma warning disable CS0618 // Type or member is obsolete
             else if (Feature.FindAllowDiskUse.IsSupported(serverVersion))
+#pragma warning restore CS0618 // Type or member is obsolete
             {
                 exception.Should().BeNull();
             }

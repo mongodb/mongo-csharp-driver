@@ -459,7 +459,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(context, nameof(context));
 
-            var operation = CreateOperation(context.Channel.ConnectionDescription.ServerVersion);
+            var operation = CreateOperation();
             return operation.Execute(context, cancellationToken);
         }
 
@@ -479,7 +479,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(context, nameof(context));
 
-            var operation = CreateOperation(context.Channel.ConnectionDescription.ServerVersion);
+            var operation = CreateOperation();
             return await operation.ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
         }
 
@@ -604,7 +604,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 #pragma warning restore
 
-        private IExecutableInRetryableReadContext<IAsyncCursor<TDocument>> CreateOperation(SemanticVersion serverVersion)
+        private IExecutableInRetryableReadContext<IAsyncCursor<TDocument>> CreateOperation()
         {
             var hasExplainModifier = _modifiers != null && _modifiers.Contains("$explain");
             if (!hasExplainModifier)

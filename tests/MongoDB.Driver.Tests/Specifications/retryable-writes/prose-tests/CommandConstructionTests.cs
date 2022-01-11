@@ -262,7 +262,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
             [Values("insertOne", "updateOne", "replaceOne", "deleteOne", "findOneAndDelete", "findOneAndReplace", "findOneAndUpdate")] string operation,
             [Values(false, true)] bool async)
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.6.0").ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded);
+            RequireServer.Check().ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded);
 
             DropCollection();
             var eventCapturer = CreateEventCapturer();
@@ -376,7 +376,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
             [Values(false, true)] bool ordered,
             [Values(false, true)] bool async)
         {
-            RequireServer.Check().VersionGreaterThanOrEqualTo("3.6.0").ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded);
+            RequireServer.Check().ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded);
 
             DropCollection();
             var eventCapturer = CreateEventCapturer();

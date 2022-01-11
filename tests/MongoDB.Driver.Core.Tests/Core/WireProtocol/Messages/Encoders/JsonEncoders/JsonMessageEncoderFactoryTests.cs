@@ -126,28 +126,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         }
 
         [Fact]
-        public void GetDeleteMessageEncoder_should_return_a_DeleteMessageJsonEncoder()
-        {
-            using (var textWriter = new StringWriter())
-            {
-                var encoderFactory = new JsonMessageEncoderFactory(null, textWriter, __messageEncoderSettings);
-                var encoder = encoderFactory.GetDeleteMessageEncoder();
-                encoder.Should().BeOfType<DeleteMessageJsonEncoder>();
-            }
-        }
-
-        [Fact]
-        public void GetInsertMessageEncoder_should_return_a_InsertMessageJsonEncoder()
-        {
-            using (var textWriter = new StringWriter())
-            {
-                var encoderFactory = new JsonMessageEncoderFactory(null, textWriter, __messageEncoderSettings);
-                var encoder = encoderFactory.GetInsertMessageEncoder<BsonDocument>(BsonDocumentSerializer.Instance);
-                encoder.Should().BeOfType<InsertMessageJsonEncoder<BsonDocument>>();
-            }
-        }
-
-        [Fact]
         public void GetQueryMessageEncoder_should_return_a_QueryMessageJsonEncoder()
         {
             using (var textWriter = new StringWriter())
@@ -166,17 +144,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
                 var encoderFactory = new JsonMessageEncoderFactory(textReader, null, __messageEncoderSettings);
                 var encoder = encoderFactory.GetReplyMessageEncoder<BsonDocument>(BsonDocumentSerializer.Instance);
                 encoder.Should().BeOfType<ReplyMessageJsonEncoder<BsonDocument>>();
-            }
-        }
-
-        [Fact]
-        public void GetUpdateMessageEncoder_should_return_a_UpdateMessageJsonEncoder()
-        {
-            using (var textWriter = new StringWriter())
-            {
-                var encoderFactory = new JsonMessageEncoderFactory(null, textWriter, __messageEncoderSettings);
-                var encoder = encoderFactory.GetUpdateMessageEncoder();
-                encoder.Should().BeOfType<UpdateMessageJsonEncoder>();
             }
         }
 

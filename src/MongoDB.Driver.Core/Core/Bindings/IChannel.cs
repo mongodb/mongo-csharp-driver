@@ -21,7 +21,6 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Connections;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -53,62 +52,6 @@ namespace MongoDB.Driver.Core.Bindings
         /// Executes a Command protocol.
         /// </summary>
         /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="databaseNamespace">The database namespace.</param>
-        /// <param name="command">The command.</param>
-        /// <param name="commandValidator">The command validator.</param>
-        /// <param name="responseHandling">The response handling.</param>
-        /// <param name="secondaryOk">if set to <c>true</c> sets the SecondaryOk bit to true in the command message sent to the server.</param>
-        /// <param name="resultSerializer">The result serializer.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The result of the Command protocol.</returns>
-        [Obsolete("Use the newest overload instead.")]
-        TResult Command<TResult>(
-            DatabaseNamespace databaseNamespace,
-            BsonDocument command,
-            IElementNameValidator commandValidator,
-            Func<CommandResponseHandling> responseHandling,
-            bool secondaryOk,
-            IBsonSerializer<TResult> resultSerializer,
-            MessageEncoderSettings messageEncoderSettings,
-            CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Executes a Command protocol.
-        /// </summary>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="session">The session.</param>
-        /// <param name="readPreference">The read preference.</param>
-        /// <param name="databaseNamespace">The database namespace.</param>
-        /// <param name="command">The command.</param>
-        /// <param name="commandValidator">The command validator.</param>
-        /// <param name="additionalOptions">The additional options.</param>
-        /// <param name="responseHandling">The response handling.</param>
-        /// <param name="secondaryOk">if set to <c>true</c> sets the SecondaryOk bit to true in the command message sent to the server.</param>
-        /// <param name="resultSerializer">The result serializer.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// The result of the Command protocol.
-        /// </returns>
-        [Obsolete("Use the newest overload instead.")]
-        TResult Command<TResult>(
-            ICoreSession session,
-            ReadPreference readPreference,
-            DatabaseNamespace databaseNamespace,
-            BsonDocument command,
-            IElementNameValidator commandValidator,
-            BsonDocument additionalOptions,
-            Func<CommandResponseHandling> responseHandling,
-            bool secondaryOk,
-            IBsonSerializer<TResult> resultSerializer,
-            MessageEncoderSettings messageEncoderSettings,
-            CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Executes a Command protocol.
-        /// </summary>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
         /// <param name="session">The session.</param>
         /// <param name="readPreference">The read preference.</param>
         /// <param name="databaseNamespace">The database namespace.</param>
@@ -134,62 +77,6 @@ namespace MongoDB.Driver.Core.Bindings
             BsonDocument additionalOptions,
             Action<IMessageEncoderPostProcessor> postWriteAction,
             CommandResponseHandling responseHandling,
-            IBsonSerializer<TResult> resultSerializer,
-            MessageEncoderSettings messageEncoderSettings,
-            CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Executes a Command protocol.
-        /// </summary>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="databaseNamespace">The database namespace.</param>
-        /// <param name="command">The command.</param>
-        /// <param name="commandValidator">The command validator.</param>
-        /// <param name="responseHandling">The response handling.</param>
-        /// <param name="secondaryOk">if set to <c>true</c> sets the SecondaryOk bit to true in the command message sent to the server.</param>
-        /// <param name="resultSerializer">The result serializer.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A Task whose result is the result of the Command protocol.</returns>
-        [Obsolete("Use the newest overload instead.")]
-        Task<TResult> CommandAsync<TResult>(
-            DatabaseNamespace databaseNamespace,
-            BsonDocument command,
-            IElementNameValidator commandValidator,
-            Func<CommandResponseHandling> responseHandling,
-            bool secondaryOk,
-            IBsonSerializer<TResult> resultSerializer,
-            MessageEncoderSettings messageEncoderSettings,
-            CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Executes a Command protocol.
-        /// </summary>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="session">The session.</param>
-        /// <param name="readPreference">The read preference.</param>
-        /// <param name="databaseNamespace">The database namespace.</param>
-        /// <param name="command">The command.</param>
-        /// <param name="commandValidator">The command validator.</param>
-        /// <param name="additionalOptions">The additional options.</param>
-        /// <param name="responseHandling">The response handling.</param>
-        /// <param name="secondaryOk">if set to <c>true</c> sets the SecondaryOk bit to true in the command message sent to the server.</param>
-        /// <param name="resultSerializer">The result serializer.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// A Task whose result is the result of the Command protocol.
-        /// </returns>
-        [Obsolete("Use the newest overload instead.")]
-        Task<TResult> CommandAsync<TResult>(
-            ICoreSession session,
-            ReadPreference readPreference,
-            DatabaseNamespace databaseNamespace,
-            BsonDocument command,
-            IElementNameValidator commandValidator,
-            BsonDocument additionalOptions,
-            Func<CommandResponseHandling> responseHandling,
-            bool secondaryOk,
             IBsonSerializer<TResult> resultSerializer,
             MessageEncoderSettings messageEncoderSettings,
             CancellationToken cancellationToken);
@@ -225,96 +112,6 @@ namespace MongoDB.Driver.Core.Bindings
             CommandResponseHandling responseHandling,
             IBsonSerializer<TResult> resultSerializer,
             MessageEncoderSettings messageEncoderSettings,
-            CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Executes a Delete protocol.
-        /// </summary>
-        /// <param name="collectionNamespace">The collection namespace.</param>
-        /// <param name="query">The query.</param>
-        /// <param name="isMulti">if set to <c>true</c> all matching documents are deleted.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        /// <param name="writeConcern">The write concern.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The result of the Delete protocol.</returns>
-        WriteConcernResult Delete(
-            CollectionNamespace collectionNamespace,
-            BsonDocument query,
-            bool isMulti,
-            MessageEncoderSettings messageEncoderSettings,
-            WriteConcern writeConcern,
-            CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Executes a Delete protocol.
-        /// </summary>
-        /// <param name="collectionNamespace">The collection namespace.</param>
-        /// <param name="query">The query.</param>
-        /// <param name="isMulti">if set to <c>true</c> all matching documents are deleted.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        /// <param name="writeConcern">The write concern.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A Task whose result is the result of the Delete protocol.</returns>
-        Task<WriteConcernResult> DeleteAsync(
-            CollectionNamespace collectionNamespace,
-            BsonDocument query,
-            bool isMulti,
-            MessageEncoderSettings messageEncoderSettings,
-            WriteConcern writeConcern,
-            CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Executes an Insert protocol.
-        /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <param name="collectionNamespace">The collection namespace.</param>
-        /// <param name="writeConcern">The write concern.</param>
-        /// <param name="serializer">The serializer.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        /// <param name="documentSource">The document source.</param>
-        /// <param name="maxBatchCount">The maximum batch count.</param>
-        /// <param name="maxMessageSize">Maximum size of the message.</param>
-        /// <param name="continueOnError">if set to <c>true</c> the server will continue with subsequent Inserts even if errors occur.</param>
-        /// <param name="shouldSendGetLastError">A delegate that determines whether to piggy-back a GetLastError messsage with the Insert message.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The result of the Insert protocol.</returns>
-        WriteConcernResult Insert<TDocument>(
-            CollectionNamespace collectionNamespace,
-            WriteConcern writeConcern,
-            IBsonSerializer<TDocument> serializer,
-            MessageEncoderSettings messageEncoderSettings,
-            BatchableSource<TDocument> documentSource,
-            int? maxBatchCount,
-            int? maxMessageSize,
-            bool continueOnError,
-            Func<bool> shouldSendGetLastError,
-            CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Executes an Insert protocol.
-        /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <param name="collectionNamespace">The collection namespace.</param>
-        /// <param name="writeConcern">The write concern.</param>
-        /// <param name="serializer">The serializer.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        /// <param name="documentSource">The document source.</param>
-        /// <param name="maxBatchCount">The maximum batch count.</param>
-        /// <param name="maxMessageSize">Maximum size of the message.</param>
-        /// <param name="continueOnError">if set to <c>true</c> the server will continue with subsequent Inserts even if errors occur.</param>
-        /// <param name="shouldSendGetLastError">A delegate that determines whether to piggy-back a GetLastError messsage with the Insert message.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A Task whose result is the result of the Insert protocol.</returns>
-        Task<WriteConcernResult> InsertAsync<TDocument>(
-            CollectionNamespace collectionNamespace,
-            WriteConcern writeConcern,
-            IBsonSerializer<TDocument> serializer,
-            MessageEncoderSettings messageEncoderSettings,
-            BatchableSource<TDocument> documentSource,
-            int? maxBatchCount,
-            int? maxMessageSize,
-            bool continueOnError,
-            Func<bool> shouldSendGetLastError,
             CancellationToken cancellationToken);
 
         /// <summary>
@@ -461,54 +258,6 @@ namespace MongoDB.Driver.Core.Bindings
             bool awaitData,
             IBsonSerializer<TDocument> serializer,
             MessageEncoderSettings messageEncoderSettings,
-            CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Executes an Update protocol.
-        /// </summary>
-        /// <param name="collectionNamespace">The collection namespace.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        /// <param name="writeConcern">The write concern.</param>
-        /// <param name="query">The query.</param>
-        /// <param name="update">The update.</param>
-        /// <param name="updateValidator">The update validator.</param>
-        /// <param name="isMulti">if set to <c>true</c> the Update can affect multiple documents.</param>
-        /// <param name="isUpsert">if set to <c>true</c> the document will be inserted if it is not found.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The result of the Update protocol.</returns>
-        WriteConcernResult Update(
-            CollectionNamespace collectionNamespace,
-            MessageEncoderSettings messageEncoderSettings,
-            WriteConcern writeConcern,
-            BsonDocument query,
-            BsonDocument update,
-            IElementNameValidator updateValidator,
-            bool isMulti,
-            bool isUpsert,
-            CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Executes an Update protocol.
-        /// </summary>
-        /// <param name="collectionNamespace">The collection namespace.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        /// <param name="writeConcern">The write concern.</param>
-        /// <param name="query">The query.</param>
-        /// <param name="update">The update.</param>
-        /// <param name="updateValidator">The update validator.</param>
-        /// <param name="isMulti">if set to <c>true</c> the Update can affect multiple documents.</param>
-        /// <param name="isUpsert">if set to <c>true</c> the document will be inserted if it is not found.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A Task whose result is the result of the Update protocol.</returns>
-        Task<WriteConcernResult> UpdateAsync(
-            CollectionNamespace collectionNamespace,
-            MessageEncoderSettings messageEncoderSettings,
-            WriteConcern writeConcern,
-            BsonDocument query,
-            BsonDocument update,
-            IElementNameValidator updateValidator,
-            bool isMulti,
-            bool isUpsert,
             CancellationToken cancellationToken);
     }
 

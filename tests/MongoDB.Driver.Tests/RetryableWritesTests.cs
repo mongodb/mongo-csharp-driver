@@ -61,14 +61,14 @@ namespace MongoDB.Driver.Tests
             {
                 RequireServer
                     .Check()
-                    .Supports(Feature.RetryableWrites, Feature.FailPointsFailCommandForSharded)
+                    .Supports(Feature.FailPointsFailCommandForSharded)
                     .ClusterTypes(ClusterType.Sharded);
             }
             else
             {
                 RequireServer
                     .Check()
-                    .Supports(Feature.RetryableWrites, Feature.FailPointsFailCommand)
+                    .Supports(Feature.FailPointsFailCommand)
                     .ClusterTypes(ClusterType.ReplicaSet);
             }
 
@@ -279,9 +279,7 @@ namespace MongoDB.Driver.Tests
 
         private void RequireSupportForRetryableWrites()
         {
-            RequireServer.Check()
-                .VersionGreaterThanOrEqualTo("3.6.0-rc0")
-                .ClusterTypes(ClusterType.Sharded, ClusterType.ReplicaSet);
+            RequireServer.Check().ClusterTypes(ClusterType.Sharded, ClusterType.ReplicaSet);
         }
     }
 }

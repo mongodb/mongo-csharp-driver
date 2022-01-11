@@ -115,7 +115,7 @@ namespace MongoDB.Driver.Core.Operations
         // public methods
         public BulkWriteOperationResult Execute(RetryableWriteContext context, CancellationToken cancellationToken)
         {
-            EnsureHintIsSupportedIfAnyRequestHasHint(context);
+            EnsureHintIsSupportedIfAnyRequestHasHint();
 
             return ExecuteBatches(context, cancellationToken);
         }
@@ -132,7 +132,7 @@ namespace MongoDB.Driver.Core.Operations
 
         public Task<BulkWriteOperationResult> ExecuteAsync(RetryableWriteContext context, CancellationToken cancellationToken)
         {
-            EnsureHintIsSupportedIfAnyRequestHasHint(context);
+            EnsureHintIsSupportedIfAnyRequestHasHint();
 
             return ExecuteBatchesAsync(context, cancellationToken);
         }
@@ -169,14 +169,13 @@ namespace MongoDB.Driver.Core.Operations
                 writeConcernException);
         }
 
-        private void EnsureHintIsSupportedIfAnyRequestHasHint(RetryableWriteContext context)
+        private void EnsureHintIsSupportedIfAnyRequestHasHint()
         {
-            var serverVersion = context.Channel.ConnectionDescription.ServerVersion;
             foreach (var request in _requests)
             {
-                if (RequestHasHint(request) && !IsHintSupportedForRequestWithHint(request, serverVersion))
+                if (RequestHasHint(request) && !_writeConcern.IsAcknowledged)
                 {
-                    throw new NotSupportedException($"Server version {serverVersion} does not support hints.");
+                    throw new NotSupportedException("Hint is not supported for unacknowledged writes.");
                 }
             }
         }
@@ -235,21 +234,6 @@ namespace MongoDB.Driver.Core.Operations
                 batch.Result = await ExecuteBatchAsync(context, batch, cancellationToken).ConfigureAwait(false);
             }
             return helper.CreateFinalResultOrThrow(context.Channel);
-        }
-
-        private bool IsHintSupportedForRequestWithHint(WriteRequest request, SemanticVersion serverVersion)
-        {
-            if (request is DeleteRequest && (Feature.HintForDeleteOperations.DriverMustThrowIfNotSupported(serverVersion) || !_writeConcern.IsAcknowledged))
-            {
-                return false;
-            }
-
-            if (request is UpdateRequest && (Feature.HintForUpdateAndReplaceOperations.DriverMustThrowIfNotSupported(serverVersion) || !_writeConcern.IsAcknowledged))
-            {
-                return false;
-            }
-
-            return true;
         }
 
         // nested types

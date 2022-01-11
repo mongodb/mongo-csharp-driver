@@ -92,18 +92,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         }
 
         /// <inheritdoc/>
-        public IMessageEncoder GetDeleteMessageEncoder()
-        {
-            return new DeleteMessageJsonEncoder(_textReader, _textWriter, _encoderSettings);
-        }
-
-        /// <inheritdoc/>
-        public IMessageEncoder GetInsertMessageEncoder<TDocument>(IBsonSerializer<TDocument> serializer)
-        {
-            return new InsertMessageJsonEncoder<TDocument>(_textReader, _textWriter, _encoderSettings, serializer);
-        }
-
-        /// <inheritdoc/>
         public IMessageEncoder GetQueryMessageEncoder()
         {
             return new QueryMessageJsonEncoder(_textReader, _textWriter, _encoderSettings);
@@ -113,12 +101,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders
         public IMessageEncoder GetReplyMessageEncoder<TDocument>(IBsonSerializer<TDocument> serializer)
         {
             return new ReplyMessageJsonEncoder<TDocument>(_textReader, _textWriter, _encoderSettings, serializer);
-        }
-
-        /// <inheritdoc/>
-        public IMessageEncoder GetUpdateMessageEncoder()
-        {
-            return new UpdateMessageJsonEncoder(_textReader, _textWriter, _encoderSettings);
         }
     }
 }

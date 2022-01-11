@@ -870,10 +870,6 @@ namespace MongoDB.Driver
             [Values(false, true)] bool async)
         {
             RequireServer.Check();
-            if (usingSession)
-            {
-                RequireServer.Check().VersionGreaterThanOrEqualTo("3.6.0");
-            }
 
             var collectionNames = Enumerable.Range(1, numberOfCollections).Select(n => $"c{n}").ToArray();
 

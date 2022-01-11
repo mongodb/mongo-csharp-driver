@@ -329,25 +329,22 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         private void KillOpenTransactions(IMongoClient client)
         {
             var serverVersion = CoreTestConfiguration.ServerVersion;
-            if (Feature.KillAllSessions.IsSupported(serverVersion))
-            {
-                var command = new BsonDocument("killAllSessions", new BsonArray());
-                var adminDatabase = client.GetDatabase(DatabaseNamespace.Admin.DatabaseName);
+            var command = new BsonDocument("killAllSessions", new BsonArray());
+            var adminDatabase = client.GetDatabase(DatabaseNamespace.Admin.DatabaseName);
 
-                try
-                {
-                    adminDatabase.RunCommand<BsonDocument>(command);
-                }
-                catch (MongoCommandException ex) when (
-                    // SERVER-38335
-                    serverVersion < new SemanticVersion(4, 1, 9) && ex.Code == (int)ServerErrorCode.Interrupted ||
-                    // SERVER-54216
-                    ex.Code == (int)ServerErrorCode.Unauthorized ||
-                    // Serverless has a different code for Unauthorized error
-                    ex.Code == (int)ServerErrorCode.UnauthorizedServerless)
-                {
-                    // ignore errors
-                }
+            try
+            {
+                adminDatabase.RunCommand<BsonDocument>(command);
+            }
+            catch (MongoCommandException ex) when (
+                // SERVER-38335
+                serverVersion < new SemanticVersion(4, 1, 9) && ex.Code == (int)ServerErrorCode.Interrupted ||
+                // SERVER-54216
+                ex.Code == (int)ServerErrorCode.Unauthorized ||
+                // Serverless has a different code for Unauthorized error
+                ex.Code == (int)ServerErrorCode.UnauthorizedServerless)
+            {
+                // ignore errors
             }
         }
     }

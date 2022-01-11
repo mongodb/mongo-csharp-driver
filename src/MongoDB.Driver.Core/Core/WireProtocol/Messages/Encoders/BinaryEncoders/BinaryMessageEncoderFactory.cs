@@ -75,18 +75,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         }
 
         /// <inheritdoc/>
-        public IMessageEncoder GetDeleteMessageEncoder()
-        {
-            return new DeleteMessageBinaryEncoder(_stream, _encoderSettings);
-        }
-
-        /// <inheritdoc/>
-        public IMessageEncoder GetInsertMessageEncoder<TDocument>(IBsonSerializer<TDocument> serializer)
-        {
-            return new InsertMessageBinaryEncoder<TDocument>(_stream, _encoderSettings, serializer);
-        }
-
-        /// <inheritdoc/>
         public IMessageEncoder GetQueryMessageEncoder()
         {
             return new QueryMessageBinaryEncoder(_stream, _encoderSettings);
@@ -96,12 +84,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         public IMessageEncoder GetReplyMessageEncoder<TDocument>(IBsonSerializer<TDocument> serializer)
         {
             return new ReplyMessageBinaryEncoder<TDocument>(_stream, _encoderSettings, serializer);
-        }
-
-        /// <inheritdoc/>
-        public IMessageEncoder GetUpdateMessageEncoder()
-        {
-            return new UpdateMessageBinaryEncoder(_stream, _encoderSettings);
         }
     }
 }

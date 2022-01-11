@@ -48,20 +48,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
         IMessageEncoder GetCompressedMessageEncoder(IMessageEncoderSelector originalEncoderSelector);
 
         /// <summary>
-        /// Gets an encoder for a Delete message.
-        /// </summary>
-        /// <returns>An encoder.</returns>
-        IMessageEncoder GetDeleteMessageEncoder();
-
-        /// <summary>
-        /// Gets an encoder for an Insert message.
-        /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <param name="serializer">The serializer.</param>
-        /// <returns>An encoder.</returns>
-        IMessageEncoder GetInsertMessageEncoder<TDocument>(IBsonSerializer<TDocument> serializer);
-
-        /// <summary>
         /// Gets an encoder for a Query message.
         /// </summary>
         /// <returns>An encoder.</returns>
@@ -74,11 +60,5 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
         /// <param name="serializer">The serializer.</param>
         /// <returns>An encoder.</returns>
         IMessageEncoder GetReplyMessageEncoder<TDocument>(IBsonSerializer<TDocument> serializer);
-
-        /// <summary>
-        /// Gets an encoder for an Update message.
-        /// </summary>
-        /// <returns>An encoder.</returns>
-        IMessageEncoder GetUpdateMessageEncoder();
     }
 }

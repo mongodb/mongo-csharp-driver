@@ -19,10 +19,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
     {
         Reply = 1,
         Message = 1000,
-        Update = 2001,
-        Insert = 2002,
         Query = 2004,
-        Delete = 2006,
         Compressed = 2012,
         OpMsg = 2013
     }

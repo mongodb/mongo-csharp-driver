@@ -50,13 +50,11 @@ namespace MongoDB.Driver.Core.Operations
             {
                 exception.Should().BeOfType<NotSupportedException>();
             }
+#pragma warning disable CS0618 // Type or member is obsolete
             else if (Feature.HintForUpdateAndReplaceOperations.IsSupported(serverVersion))
+#pragma warning restore CS0618 // Type or member is obsolete
             {
                 exception.Should().BeNull();
-            }
-            else if (Feature.HintForUpdateAndReplaceOperations.DriverMustThrowIfNotSupported(serverVersion))
-            {
-                exception.Should().BeOfType<NotSupportedException>();
             }
             else
             {

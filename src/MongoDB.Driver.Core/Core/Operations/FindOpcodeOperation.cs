@@ -22,13 +22,11 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
-using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
-using MongoDB.Shared;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -467,7 +465,7 @@ namespace MongoDB.Driver.Core.Operations
                 var wrappedQuery = CreateWrappedQuery(serverDescription.Type, readPreference, out var secondaryOk);
 
                 var batch = ExecuteProtocol(context.Channel, wrappedQuery, secondaryOk, cancellationToken);
-                return CreateCursor(context.ChannelSource, context.Channel, wrappedQuery, batch);
+                return CreateCursor(context.ChannelSource, context.Channel, batch);
             }
         }
 
@@ -495,7 +493,7 @@ namespace MongoDB.Driver.Core.Operations
                 var wrappedQuery = CreateWrappedQuery(serverDescription.Type, readPreference, out var secondaryOk);
 
                 var batch = await ExecuteProtocolAsync(context.Channel, wrappedQuery, secondaryOk, cancellationToken).ConfigureAwait(false);
-                return CreateCursor(context.ChannelSource, context.Channel, wrappedQuery, batch);
+                return CreateCursor(context.ChannelSource, context.Channel, batch);
             }
         }
 
@@ -538,14 +536,13 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // private methods
-        private IAsyncCursor<TDocument> CreateCursor(IChannelSourceHandle channelSource, IChannelHandle channel, BsonDocument query, CursorBatch<TDocument> batch)
+        private IAsyncCursor<TDocument> CreateCursor(IChannelSourceHandle channelSource, IChannelHandle channel, CursorBatch<TDocument> batch)
         {
             var getMoreChannelSource = ChannelPinningHelper.CreateGetMoreChannelSource(channelSource, channel, batch.CursorId);
 
             return new AsyncCursor<TDocument>(
                 getMoreChannelSource,
                 _collectionNamespace,
-                query,
                 batch.Documents,
                 batch.CursorId,
                 _batchSize,

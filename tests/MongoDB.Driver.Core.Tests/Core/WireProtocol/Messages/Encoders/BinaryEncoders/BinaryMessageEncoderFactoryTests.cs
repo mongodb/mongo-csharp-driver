@@ -17,9 +17,7 @@ using System;
 using System.IO;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders;
 using Xunit;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
@@ -77,28 +75,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
         }
 
         [Fact]
-        public void GetDeleteMessageEncoder_should_return_a_DeleteMessageBinaryEncoder()
-        {
-            using (var stream = new MemoryStream())
-            {
-                var encoderFactory = new BinaryMessageEncoderFactory(stream, null);
-                var encoder = encoderFactory.GetDeleteMessageEncoder();
-                encoder.Should().BeOfType<DeleteMessageBinaryEncoder>();
-            }
-        }
-
-        [Fact]
-        public void GetInsertMessageEncoder_should_return_a_InsertMessageBinaryEncoder()
-        {
-            using (var stream = new MemoryStream())
-            {
-                var encoderFactory = new BinaryMessageEncoderFactory(stream, null);
-                var encoder = encoderFactory.GetInsertMessageEncoder<BsonDocument>(BsonDocumentSerializer.Instance);
-                encoder.Should().BeOfType<InsertMessageBinaryEncoder<BsonDocument>>();
-            }
-        }
-
-        [Fact]
         public void GetQueryMessageEncoder_should_return_a_QueryMessageBinaryEncoder()
         {
             using (var stream = new MemoryStream())
@@ -117,17 +93,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 var encoderFactory = new BinaryMessageEncoderFactory(stream, null);
                 var encoder = encoderFactory.GetReplyMessageEncoder<BsonDocument>(BsonDocumentSerializer.Instance);
                 encoder.Should().BeOfType<ReplyMessageBinaryEncoder<BsonDocument>>();
-            }
-        }
-
-        [Fact]
-        public void GetUpdateMessageEncoder_should_return_a_UpdateMessageBinaryEncoder()
-        {
-            using (var stream = new MemoryStream())
-            {
-                var encoderFactory = new BinaryMessageEncoderFactory(stream, null);
-                var encoder = encoderFactory.GetUpdateMessageEncoder();
-                encoder.Should().BeOfType<UpdateMessageBinaryEncoder>();
             }
         }
     }

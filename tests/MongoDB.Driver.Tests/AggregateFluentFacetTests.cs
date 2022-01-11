@@ -99,7 +99,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void Facet_with_1_facet_should_return_expected_result()
         {
-            RequireServer.Check().Supports(Feature.AggregateFacetStage);
+            RequireServer.Check();
             EnsureTestData();
             var collection = __database.GetCollection<BsonDocument>(__collectionNamespace.CollectionName);
             var subject = collection.Aggregate();
@@ -162,7 +162,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void Facet_with_2_facets_should_return_expected_result()
         {
-            RequireServer.Check().Supports(Feature.AggregateFacetStage);
+            RequireServer.Check();
             EnsureTestData();
             var collection = __database.GetCollection<BsonDocument>(__collectionNamespace.CollectionName);
             var subject = collection.Aggregate();
@@ -240,7 +240,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void Facet_with_3_facets_should_return_expected_result()
         {
-            RequireServer.Check().Supports(Feature.AggregateFacetStage);
+            RequireServer.Check();
             EnsureTestData();
             var collection = __database.GetCollection<BsonDocument>(__collectionNamespace.CollectionName);
             var subject = collection.Aggregate();
@@ -313,7 +313,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void Facet_typed_with_1_facet_should_return_expected_result()
         {
-            RequireServer.Check().Supports(Feature.AggregateFacetStage);
+            RequireServer.Check();
             EnsureTestData();
             var collection = __database.GetCollection<Exhibit>(__collectionNamespace.CollectionName);
             var subject = collection.Aggregate();
@@ -377,7 +377,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void Facet_typed_with_2_facets_should_return_expected_result()
         {
-            RequireServer.Check().Supports(Feature.AggregateFacetStage);
+            RequireServer.Check();
             EnsureTestData();
             var collection = __database.GetCollection<Exhibit>(__collectionNamespace.CollectionName);
             var subject = collection.Aggregate();
@@ -456,7 +456,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void Facet_typed_with_3_facets_should_return_expected_result()
         {
-            RequireServer.Check().Supports(Feature.AggregateFacetStage);
+            RequireServer.Check();
             EnsureTestData();
             var collection = __database.GetCollection<Exhibit>(__collectionNamespace.CollectionName);
             var subject = collection.Aggregate();

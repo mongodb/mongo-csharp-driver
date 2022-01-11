@@ -158,9 +158,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
 
         public RequireServer SupportsCausalConsistency()
         {
-            return VersionGreaterThanOrEqualTo("3.6.0-rc0")
-                .ClusterTypes(Clusters.ClusterType.Sharded, Clusters.ClusterType.ReplicaSet)
-                .SupportsSessions();
+            return ClusterTypes(Clusters.ClusterType.Sharded, Clusters.ClusterType.ReplicaSet).SupportsSessions();
         }
 
         public RequireServer SupportsSessions()

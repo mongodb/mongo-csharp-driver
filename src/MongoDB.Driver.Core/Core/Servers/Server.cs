@@ -356,77 +356,6 @@ namespace MongoDB.Driver.Core.Servers
             }
 
             // methods
-            [Obsolete("Use the newest overload instead.")]
-            public TResult Command<TResult>(
-                DatabaseNamespace databaseNamespace,
-                BsonDocument command,
-                IElementNameValidator commandValidator,
-                Func<CommandResponseHandling> responseHandling,
-                bool secondaryOk,
-                IBsonSerializer<TResult> resultSerializer,
-                MessageEncoderSettings messageEncoderSettings,
-                CancellationToken cancellationToken)
-            {
-                var readPreference = GetEffectiveReadPreference(secondaryOk, null);
-                var result = Command(
-                    NoCoreSession.Instance,
-                    readPreference,
-                    databaseNamespace,
-                    command,
-                    null, // commandPayloads
-                    commandValidator,
-                    null, // additionalOptions
-                    null, // postWriteAction
-                    CommandResponseHandling.Return,
-                    resultSerializer,
-                    messageEncoderSettings,
-                    cancellationToken);
-
-                if (responseHandling != null && responseHandling() != CommandResponseHandling.Return)
-                {
-                    throw new NotSupportedException("This overload requires responseHandling to be: Return.");
-                }
-
-                return result;
-            }
-
-            [Obsolete("Use the newest overload instead.")]
-            public TResult Command<TResult>(
-                ICoreSession session,
-                ReadPreference readPreference,
-                DatabaseNamespace databaseNamespace,
-                BsonDocument command,
-                IElementNameValidator commandValidator,
-                BsonDocument additionalOptions,
-                Func<CommandResponseHandling> responseHandling,
-                bool secondaryOk,
-                IBsonSerializer<TResult> resultSerializer,
-                MessageEncoderSettings messageEncoderSettings,
-                CancellationToken cancellationToken)
-            {
-                readPreference = GetEffectiveReadPreference(secondaryOk, readPreference);
-                var result = Command(
-                    session,
-                    readPreference,
-                    databaseNamespace,
-                    command,
-                    null, // commandPayloads
-                    commandValidator,
-                    additionalOptions,
-                    null, // postWriteActions
-                    CommandResponseHandling.Return,
-                    resultSerializer,
-                    messageEncoderSettings,
-                    cancellationToken);
-
-                if (responseHandling != null && responseHandling() != CommandResponseHandling.Return)
-                {
-                    throw new NotSupportedException("This overload requires responseHandling to be: Return.");
-                }
-
-                return result;
-            }
-
             public TResult Command<TResult>(
                 ICoreSession session,
                 ReadPreference readPreference,
@@ -456,77 +385,6 @@ namespace MongoDB.Driver.Core.Servers
                     _server._serverApi);
 
                 return ExecuteProtocol(protocol, session, cancellationToken);
-            }
-
-            [Obsolete("Use the newest overload instead.")]
-            public Task<TResult> CommandAsync<TResult>(
-                DatabaseNamespace databaseNamespace,
-                BsonDocument command,
-                IElementNameValidator commandValidator,
-                Func<CommandResponseHandling> responseHandling,
-                bool secondaryOk,
-                IBsonSerializer<TResult> resultSerializer,
-                MessageEncoderSettings messageEncoderSettings,
-                CancellationToken cancellationToken)
-            {
-                var readPreference = GetEffectiveReadPreference(secondaryOk, null);
-                var result = CommandAsync(
-                    NoCoreSession.Instance,
-                    readPreference,
-                    databaseNamespace,
-                    command,
-                    null, // commandPayloads
-                    commandValidator,
-                    null, // additionalOptions
-                    null, // postWriteAction
-                    CommandResponseHandling.Return,
-                    resultSerializer,
-                    messageEncoderSettings,
-                    cancellationToken);
-
-                if (responseHandling != null && responseHandling() != CommandResponseHandling.Return)
-                {
-                    throw new NotSupportedException("This overload requires responseHandling to be 'Return'.");
-                }
-
-                return result;
-            }
-
-            [Obsolete("Use the newest overload instead.")]
-            public Task<TResult> CommandAsync<TResult>(
-                ICoreSession session,
-                ReadPreference readPreference,
-                DatabaseNamespace databaseNamespace,
-                BsonDocument command,
-                IElementNameValidator commandValidator,
-                BsonDocument additionalOptions,
-                Func<CommandResponseHandling> responseHandling,
-                bool secondaryOk,
-                IBsonSerializer<TResult> resultSerializer,
-                MessageEncoderSettings messageEncoderSettings,
-                CancellationToken cancellationToken)
-            {
-                readPreference = GetEffectiveReadPreference(secondaryOk, readPreference);
-                var result = CommandAsync(
-                    session,
-                    readPreference,
-                    databaseNamespace,
-                    command,
-                    null, // commandPayloads
-                    commandValidator,
-                    additionalOptions,
-                    null, // postWriteAction
-                    CommandResponseHandling.Return,
-                    resultSerializer,
-                    messageEncoderSettings,
-                    cancellationToken);
-
-                if (responseHandling != null && responseHandling() != CommandResponseHandling.Return)
-                {
-                    throw new NotSupportedException("This overload requires responseHandling to be 'Return'.");
-                }
-
-                return result;
             }
 
             public Task<TResult> CommandAsync<TResult>(
@@ -571,94 +429,6 @@ namespace MongoDB.Driver.Core.Servers
 
                     _connection.Dispose();
                 }
-            }
-
-            public WriteConcernResult Delete(
-                CollectionNamespace collectionNamespace,
-                BsonDocument query,
-                bool isMulti,
-                MessageEncoderSettings messageEncoderSettings,
-                WriteConcern writeConcern,
-                CancellationToken cancellationToken)
-            {
-                var protocol = new DeleteWireProtocol(
-                    collectionNamespace,
-                    query,
-                    isMulti,
-                    messageEncoderSettings,
-                    writeConcern);
-
-                return ExecuteProtocol(protocol, cancellationToken);
-            }
-
-            public Task<WriteConcernResult> DeleteAsync(
-                CollectionNamespace collectionNamespace,
-                BsonDocument query,
-                bool isMulti,
-                MessageEncoderSettings messageEncoderSettings,
-                WriteConcern writeConcern,
-                CancellationToken cancellationToken)
-            {
-                var protocol = new DeleteWireProtocol(
-                    collectionNamespace,
-                    query,
-                    isMulti,
-                    messageEncoderSettings,
-                    writeConcern);
-
-                return ExecuteProtocolAsync(protocol, cancellationToken);
-            }
-
-            public WriteConcernResult Insert<TDocument>(
-                CollectionNamespace collectionNamespace,
-                WriteConcern writeConcern,
-                IBsonSerializer<TDocument> serializer,
-                MessageEncoderSettings messageEncoderSettings,
-                BatchableSource<TDocument> documentSource,
-                int? maxBatchCount,
-                int? maxMessageSize,
-                bool continueOnError,
-                Func<bool> shouldSendGetLastError,
-                CancellationToken cancellationToken)
-            {
-                var protocol = new InsertWireProtocol<TDocument>(
-                    collectionNamespace,
-                    writeConcern,
-                    serializer,
-                    messageEncoderSettings,
-                    documentSource,
-                    maxBatchCount,
-                    maxMessageSize,
-                    continueOnError,
-                    shouldSendGetLastError);
-
-                return ExecuteProtocol(protocol, cancellationToken);
-            }
-
-            public Task<WriteConcernResult> InsertAsync<TDocument>(
-               CollectionNamespace collectionNamespace,
-               WriteConcern writeConcern,
-               IBsonSerializer<TDocument> serializer,
-               MessageEncoderSettings messageEncoderSettings,
-               BatchableSource<TDocument> documentSource,
-               int? maxBatchCount,
-               int? maxMessageSize,
-               bool continueOnError,
-               Func<bool> shouldSendGetLastError,
-               CancellationToken cancellationToken)
-            {
-                var protocol = new InsertWireProtocol<TDocument>(
-                    collectionNamespace,
-                    writeConcern,
-                    serializer,
-                    messageEncoderSettings,
-                    documentSource,
-                    maxBatchCount,
-                    maxMessageSize,
-                    continueOnError,
-                    shouldSendGetLastError);
-
-                return ExecuteProtocolAsync(protocol, cancellationToken);
             }
 
             public CursorBatch<TDocument> Query<TDocument>(
@@ -813,70 +583,9 @@ namespace MongoDB.Driver.Core.Servers
                 return ExecuteProtocolAsync(protocol, cancellationToken);
             }
 
-            public WriteConcernResult Update(
-                CollectionNamespace collectionNamespace,
-                MessageEncoderSettings messageEncoderSettings,
-                WriteConcern writeConcern,
-                BsonDocument query,
-                BsonDocument update,
-                IElementNameValidator updateValidator,
-                bool isMulti,
-                bool isUpsert,
-                CancellationToken cancellationToken)
-            {
-                var protocol = new UpdateWireProtocol(
-                    collectionNamespace,
-                    messageEncoderSettings,
-                    writeConcern,
-                    query,
-                    update,
-                    updateValidator,
-                    isMulti,
-                    isUpsert);
-
-                return ExecuteProtocol(protocol, cancellationToken);
-            }
-
-            public Task<WriteConcernResult> UpdateAsync(
-               CollectionNamespace collectionNamespace,
-               MessageEncoderSettings messageEncoderSettings,
-               WriteConcern writeConcern,
-               BsonDocument query,
-               BsonDocument update,
-               IElementNameValidator updateValidator,
-               bool isMulti,
-               bool isUpsert,
-               CancellationToken cancellationToken)
-            {
-                var protocol = new UpdateWireProtocol(
-                    collectionNamespace,
-                    messageEncoderSettings,
-                    writeConcern,
-                    query,
-                    update,
-                    updateValidator,
-                    isMulti,
-                    isUpsert);
-
-                return ExecuteProtocolAsync(protocol, cancellationToken);
-            }
-
             private ICoreSession CreateClusterClockAdvancingCoreSession(ICoreSession session)
             {
                 return new ClusterClockAdvancingCoreSession(session, _server.ClusterClock);
-            }
-
-            private void ExecuteProtocol(IWireProtocol protocol, CancellationToken cancellationToken)
-            {
-                try
-                {
-                    protocol.Execute(_connection, cancellationToken);
-                }
-                catch (Exception ex)
-                {
-                    _server.HandleChannelException(_connection, ex);
-                    throw;
-                }
             }
 
             private TResult ExecuteProtocol<TResult>(IWireProtocol<TResult> protocol, CancellationToken cancellationToken)
@@ -901,19 +610,6 @@ namespace MongoDB.Driver.Core.Servers
                 catch (Exception ex)
                 {
                     MarkSessionDirtyIfNeeded(session, ex);
-                    _server.HandleChannelException(_connection, ex);
-                    throw;
-                }
-            }
-
-            private async Task ExecuteProtocolAsync(IWireProtocol protocol, CancellationToken cancellationToken)
-            {
-                try
-                {
-                    await protocol.ExecuteAsync(_connection, cancellationToken).ConfigureAwait(false);
-                }
-                catch (Exception ex)
-                {
                     _server.HandleChannelException(_connection, ex);
                     throw;
                 }
@@ -951,27 +647,6 @@ namespace MongoDB.Driver.Core.Servers
                 ThrowIfDisposed();
 
                 return new ServerChannel(_server, _connection.Fork(), false);
-            }
-
-            private ReadPreference GetEffectiveReadPreference(bool secondaryOk, ReadPreference readPreference)
-            {
-                if (_server.IsDirectConnection() && _server.Description.Type != ServerType.ShardRouter)
-                {
-                    return ReadPreference.PrimaryPreferred;
-                }
-
-                if (readPreference == null)
-                {
-                    return secondaryOk ? ReadPreference.SecondaryPreferred : ReadPreference.Primary;
-                }
-
-                var impliedSecondaryOk = readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary;
-                if (secondaryOk != impliedSecondaryOk)
-                {
-                    throw new ArgumentException($"secondaryOk {secondaryOk} is inconsistent with read preference mode: {readPreference.ReadPreferenceMode}.");
-                }
-
-                return readPreference;
             }
 
             private bool GetEffectiveSecondaryOk(bool secondaryOk)

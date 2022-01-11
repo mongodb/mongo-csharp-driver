@@ -148,7 +148,7 @@ namespace MongoDB.Driver.Core.Operations
         public void Execute_should_return_the_expected_result_when_filter_is_used(
             [Values(false, true)] bool async)
         {
-            RequireServer.Check().Supports(Feature.ListDatabasesFilter);
+            RequireServer.Check();
 
             var filterString = $"{{ name : \"{_databaseNamespace.DatabaseName}\" }}";
             var filter = BsonDocument.Parse(filterString);
@@ -168,7 +168,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)] bool nameOnly,
             [Values(false, true)] bool async)
         {
-            RequireServer.Check().Supports(Feature.ListDatabasesNameOnlyOption);
+            RequireServer.Check();
 
             var subject = new ListDatabasesOperation(_messageEncoderSettings)
             {

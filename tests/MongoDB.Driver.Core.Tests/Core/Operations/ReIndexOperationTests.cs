@@ -128,7 +128,7 @@ namespace MongoDB.Driver.Core.Operations
             var subject = new ReIndexOperation(_collectionNamespace, _messageEncoderSettings);
 #pragma warning restore 618
 
-            var result = subject.CreateCommand(null);
+            var result = subject.CreateCommand();
 
             var expectedResult = new BsonDocument
             {

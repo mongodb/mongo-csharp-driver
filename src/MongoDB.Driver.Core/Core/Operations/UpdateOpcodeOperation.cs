@@ -13,13 +13,11 @@
 * limitations under the License.
 */
 
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.Operations.ElementNameValidators;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
@@ -152,15 +150,8 @@ namespace MongoDB.Driver.Core.Operations
         {
             using (EventContext.BeginOperation())
             {
-                if (_writeConcern.IsAcknowledged)
-                {
-                    var emulator = CreateEmulator();
-                    return emulator.Execute(context, cancellationToken);
-                }
-                else
-                {
-                    return ExecuteProtocol(context.Channel, cancellationToken);
-                }
+                var emulator = CreateEmulator();
+                return emulator.Execute(context, cancellationToken);
             }
         }
 
@@ -180,15 +171,8 @@ namespace MongoDB.Driver.Core.Operations
         {
             using (EventContext.BeginOperation())
             {
-                if (_writeConcern.IsAcknowledged)
-                {
-                    var emulator = CreateEmulator();
-                    return await emulator.ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
-                }
-                else
-                {
-                    return await ExecuteProtocolAsync(context.Channel, cancellationToken).ConfigureAwait(false);
-                }
+                var emulator = CreateEmulator();
+                return await emulator.ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -202,60 +186,6 @@ namespace MongoDB.Driver.Core.Operations
                 RetryRequested = _retryRequested,
                 WriteConcern = _writeConcern
             };
-        }
-
-        private WriteConcernResult ExecuteProtocol(IChannelHandle channel, CancellationToken cancellationToken)
-        {
-            if (_request.Collation != null)
-            {
-                throw new NotSupportedException("OP_UPDATE does not support collations.");
-            }
-            if (_request.ArrayFilters != null)
-            {
-                throw new NotSupportedException("OP_UPDATE does not support arrayFilters.");
-            }
-            if (_request.Hint != null)
-            {
-                throw new NotSupportedException("OP_UPDATE does not support hints.");
-            }
-
-            return channel.Update(
-                _collectionNamespace,
-                _messageEncoderSettings,
-                _writeConcern,
-                _request.Filter,
-                _request.Update.AsBsonDocument,
-                ElementNameValidatorFactory.ForUpdateType(_request.UpdateType),
-                _request.IsMulti,
-                _request.IsUpsert,
-                cancellationToken);
-        }
-
-        private Task<WriteConcernResult> ExecuteProtocolAsync(IChannelHandle channel, CancellationToken cancellationToken)
-        {
-            if (_request.Collation != null)
-            {
-                throw new NotSupportedException("OP_UPDATE does not support collations.");
-            }
-            if (_request.ArrayFilters != null)
-            {
-                throw new NotSupportedException("OP_UPDATE does not support arrayFilters.");
-            }
-            if (_request.Hint != null)
-            {
-                throw new NotSupportedException("OP_UPDATE does not support hints.");
-            }
-
-            return channel.UpdateAsync(
-                _collectionNamespace,
-                _messageEncoderSettings,
-                _writeConcern,
-                _request.Filter,
-                _request.Update.AsBsonDocument,
-                ElementNameValidatorFactory.ForUpdateType(_request.UpdateType),
-                _request.IsMulti,
-                _request.IsUpsert,
-                cancellationToken);
         }
     }
 }

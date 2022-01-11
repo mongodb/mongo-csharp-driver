@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Bindings;
@@ -127,15 +126,8 @@ namespace MongoDB.Driver.Core.Operations
 
             using (EventContext.BeginOperation())
             {
-                if (_writeConcern.IsAcknowledged)
-                {
-                    var emulator = CreateEmulator();
-                    return emulator.Execute(context, cancellationToken);
-                }
-                else
-                {
-                    return ExecuteProtocol(context.Channel, cancellationToken);
-                }
+                var emulator = CreateEmulator();
+                return emulator.Execute(context, cancellationToken);
             }
         }
 
@@ -157,16 +149,8 @@ namespace MongoDB.Driver.Core.Operations
 
             using (EventContext.BeginOperation())
             {
-                if (_writeConcern.IsAcknowledged)
-                {
-                    var emulator = CreateEmulator();
-                    return await emulator.ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
-
-                }
-                else
-                {
-                    return await ExecuteProtocolAsync(context.Channel, cancellationToken).ConfigureAwait(false);
-                }
+                var emulator = CreateEmulator();
+                return await emulator.ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -178,46 +162,6 @@ namespace MongoDB.Driver.Core.Operations
                 RetryRequested = _retryRequested,
                 WriteConcern = _writeConcern
             };
-        }
-
-        private WriteConcernResult ExecuteProtocol(IChannelHandle channel, CancellationToken cancellationToken)
-        {
-            if (_request.Collation != null)
-            {
-                throw new NotSupportedException("OP_DELETE does not support collations.");
-            }
-            if (_request.Hint != null)
-            {
-                throw new NotSupportedException("OP_DELETE does not support hints.");
-            }
-
-            return channel.Delete(
-                _collectionNamespace,
-                _request.Filter,
-                _request.Limit != 1,
-                _messageEncoderSettings,
-                _writeConcern,
-                cancellationToken);
-        }
-
-        private Task<WriteConcernResult> ExecuteProtocolAsync(IChannelHandle channel, CancellationToken cancellationToken)
-        {
-            if (_request.Collation != null)
-            {
-                throw new NotSupportedException("OP_DELETE does not support collations.");
-            }
-            if (_request.Hint != null)
-            {
-                throw new NotSupportedException("OP_DELETE does not support hints.");
-            }
-
-            return channel.DeleteAsync(
-                _collectionNamespace,
-                _request.Filter,
-                _request.Limit != 1,
-                _messageEncoderSettings,
-                _writeConcern,
-                cancellationToken);
         }
     }
 }

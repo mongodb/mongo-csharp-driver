@@ -44,7 +44,9 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __aggregateOutToDifferentDatabase = new Feature("AggregateOutToDifferentDatabase", new SemanticVersion(4, 3, 0));
         private static readonly Feature __aggregateToString = new Feature("AggregateToString", new SemanticVersion(4, 0, 0));
         private static readonly Feature __aggregateUnionWith = new Feature("AggregateUnionWith", new SemanticVersion(4, 3, 4));
+#pragma warning disable CS0618 // Type or member is obsolete
         private static readonly ArrayFiltersFeature __arrayFilters = new ArrayFiltersFeature("ArrayFilters", new SemanticVersion(3, 5, 11));
+#pragma warning restore CS0618 // Type or member is obsolete
         private static readonly Feature __bypassDocumentValidation = new Feature("BypassDocumentValidation", new SemanticVersion(3, 2, 0));
         private static readonly Feature __changeStreamStage = new Feature("ChangeStreamStage", new SemanticVersion(3, 5, 11));
         private static readonly Feature __changeStreamPostBatchResumeToken = new Feature("ChangeStreamPostBatchResumeToken", new SemanticVersion(4, 0, 7));
@@ -69,16 +71,22 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __failPointsBlockConnection = new Feature("FailPointsBlockConnection", new SemanticVersion(4, 2, 9));
         private static readonly Feature __failPointsFailCommand = new Feature("FailPointsFailCommand", new SemanticVersion(4, 0, 0));
         private static readonly Feature __failPointsFailCommandForSharded = new Feature("FailPointsFailCommandForSharded", new SemanticVersion(4, 1, 5));
+#pragma warning disable CS0618 // Type or member is obsolete
         private static readonly FindAllowDiskUseFeature __findAllowDiskUse = new FindAllowDiskUseFeature("FindAllowDiskUse", new SemanticVersion(4, 4, 0, ""));
+#pragma warning restore CS0618 // Type or member is obsolete
         private static readonly Feature __findAndModifyWriteConcern = new Feature("FindAndModifyWriteConcern", new SemanticVersion(3, 2, 0));
         private static readonly Feature __findCommand = new Feature("FindCommand", new SemanticVersion(3, 2, 0));
         private static readonly Feature __geoNearCommand = new Feature("GeoNearCommand", new SemanticVersion(1, 0, 0), new SemanticVersion(4, 1, 0, ""));
         private static readonly Feature __groupCommand = new Feature("GroupCommand", new SemanticVersion(1, 0, 0), new SemanticVersion(4, 1, 1, ""));
         private static readonly Feature __hedgedReads = new Feature("HedgedReads", new SemanticVersion(4, 3, 1, ""));
         private static readonly Feature __hiddenIndex = new Feature("HiddenIndex", new SemanticVersion(4, 4, 0));
+#pragma warning disable CS0618 // Type or member is obsolete
         private static readonly HintForDeleteOperationsFeature __hintForDeleteOperations = new HintForDeleteOperationsFeature("HintForDeleteOperations", new SemanticVersion(4, 3, 4));
+#pragma warning restore CS0618 // Type or member is obsolete
         private static readonly HintForFindAndModifyFeature __hintForFindAndModifyFeature = new HintForFindAndModifyFeature("HintForFindAndModify", new SemanticVersion(4, 3, 4));
+#pragma warning disable CS0618 // Type or member is obsolete
         private static readonly HintForUpdateAndReplaceOperationsFeature __hintForUpdateAndReplaceOperations = new HintForUpdateAndReplaceOperationsFeature("HintForUpdateAndReplaceOperations", new SemanticVersion(4, 2, 0));
+#pragma warning restore CS0618 // Type or member is obsolete
         private static readonly Feature __keepConnectionPoolWhenNotPrimaryConnectionException = new Feature("KeepConnectionPoolWhenNotWritablePrimaryConnectionException", new SemanticVersion(4, 1, 10));
         private static readonly Feature __keepConnectionPoolWhenReplSetStepDown = new Feature("KeepConnectionPoolWhenReplSetStepDown", new SemanticVersion(4, 1, 10));
         private static readonly Feature __killAllSessions = new Feature("KillAllSessions", new SemanticVersion(3, 6, 0));
@@ -130,6 +138,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the aggregate AddFields feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature AggregateAddFields => __aggregateAddFields;
 
         /// <summary>
@@ -147,6 +156,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the aggregate comment feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature AggregateComment => __aggregateComment;
 
         /// <summary>
@@ -170,6 +180,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the aggregate $facet stage feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature AggregateFacetStage => __aggregateFacetStage;
 
         /// <summary>
@@ -180,11 +191,13 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the aggregate $graphLookup stage feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature AggregateGraphLookupStage => __aggregateGraphLookupStage;
 
         /// <summary>
         /// Gets the aggregate hint feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature AggregateHint => __aggregateHint;
 
         /// <summary>
@@ -195,6 +208,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the aggregate lookup stage let feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature AggregateLet => __aggregateLet;
 
         /// <summary>
@@ -231,6 +245,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the arrayFilters feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static ArrayFiltersFeature ArrayFilters => __arrayFilters;
 
         /// <summary>
@@ -242,6 +257,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the aggregate $changeStream stage feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature ChangeStreamStage => __changeStreamStage;
 
         /// <summary>
@@ -263,6 +279,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the command message feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature CommandMessage => __commandMessage;
 
         /// <summary>
@@ -344,6 +361,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the find allowDiskUse feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static FindAllowDiskUseFeature FindAllowDiskUse => __findAllowDiskUse;
 
         /// <summary>
@@ -381,6 +399,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the hint for delete operations feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static HintForDeleteOperationsFeature HintForDeleteOperations => __hintForDeleteOperations;
 
         /// <summary>
@@ -391,6 +410,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the hint for update and replace operations feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static HintForUpdateAndReplaceOperationsFeature HintForUpdateAndReplaceOperations => __hintForUpdateAndReplaceOperations;
 
         /// <summary>
@@ -412,6 +432,7 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Get the killAllSessions feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature KillAllSessions => __killAllSessions;
 
         /// <summary>
@@ -439,11 +460,13 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the list databases filter feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature ListDatabasesFilter => __listDatabasesFilter;
 
         /// <summary>
         /// Get the list databases nameOnly feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature ListDatabasesNameOnlyOption => __listDatabasesNameOnlyOption;
 
         /// <summary>
@@ -495,11 +518,13 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the retryable reads feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature RetryableReads => __retryableReads;
 
         /// <summary>
         /// Gets the retryable writes feature.
         /// </summary>
+        [Obsolete("This property will be removed in a later release.")]
         public static Feature RetryableWrites => __retryableWrites;
 
         /// <summary>

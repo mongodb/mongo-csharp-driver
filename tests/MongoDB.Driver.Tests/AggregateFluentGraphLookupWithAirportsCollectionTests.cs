@@ -113,7 +113,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void GraphLookup_should_return_expected_result()
         {
-            RequireServer.Check().Supports(Feature.AggregateGraphLookupStage);
+            RequireServer.Check();
             EnsureTestData();
             var subject = __travelersCollection.Aggregate();
             var connectFromField = (FieldDefinition<Airport, string[]>)"Connects";
@@ -193,7 +193,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void GraphLookup_typed_should_return_expected_result()
         {
-            RequireServer.Check().Supports(Feature.AggregateGraphLookupStage);
+            RequireServer.Check();
             EnsureTestData();
             var subject = __travelersCollection.Aggregate();
             var connectFromField = (FieldDefinition<Airport, string[]>)"Connects";
@@ -271,7 +271,7 @@ namespace MongoDB.Driver.Tests
         [SkippableFact]
         public void GraphLookup_typed_with_array_valued_start_with_should_return_expected_result()
         {
-            RequireServer.Check().Supports(Feature.AggregateGraphLookupStage);
+            RequireServer.Check();
             EnsureTestData();
             var subject = __airportsCollection.Aggregate();
             var options = new AggregateGraphLookupOptions<Airport, Airport, AirportDestinationsIncludingStops>

@@ -234,17 +234,8 @@ namespace MongoDB.Driver.Core.Connections
                 case MongoDBMessageType.Command:
                     ProcessCommandRequestMessage((CommandRequestMessage)message, messageQueue, connectionId, serviceId, new CommandMessageBinaryEncoder(stream, encoderSettings), stopwatch);
                     break;
-                case MongoDBMessageType.Delete:
-                    ProcessDeleteMessage((DeleteMessage)message, messageQueue, connectionId, new DeleteMessageBinaryEncoder(stream, encoderSettings), stopwatch);
-                    break;
-                case MongoDBMessageType.Insert:
-                    ProcessInsertMessage(message, messageQueue, connectionId, new InsertMessageBinaryEncoder<RawBsonDocument>(stream, encoderSettings, RawBsonDocumentSerializer.Instance), stopwatch);
-                    break;
                 case MongoDBMessageType.Query:
                     ProcessQueryMessage((QueryMessage)message, connectionId, new QueryMessageBinaryEncoder(stream, encoderSettings), stopwatch);
-                    break;
-                case MongoDBMessageType.Update:
-                    ProcessUpdateMessage((UpdateMessage)message, messageQueue, connectionId, new UpdateMessageBinaryEncoder(stream, encoderSettings), stopwatch);
                     break;
                 default:
                     throw new MongoInternalException("Invalid message type.");
@@ -360,150 +351,6 @@ namespace MongoDB.Driver.Core.Connections
                         serviceId,
                         state.Stopwatch.Elapsed));
                 }
-            }
-        }
-
-        private void ProcessDeleteMessage(DeleteMessage originalMessage, Queue<RequestMessage> messageQueue, ConnectionId connectionId, DeleteMessageBinaryEncoder encoder, Stopwatch stopwatch)
-        {
-            var commandName = "delete";
-            var operationId = EventContext.OperationId;
-            int requestId = originalMessage.RequestId;
-            var expectedResponseType = ExpectedResponseType.None;
-            int gleRequestId;
-            WriteConcern writeConcern;
-            if (TryGetWriteConcernFromGLE(messageQueue, out gleRequestId, out writeConcern))
-            {
-                requestId = gleRequestId;
-                expectedResponseType = ExpectedResponseType.GLE;
-            }
-
-            if (_startedEvent != null)
-            {
-                var decodedMessage = encoder.ReadMessage(RawBsonDocumentSerializer.Instance);
-                try
-                {
-                    var entry = new BsonDocument
-                    {
-                        { "q", decodedMessage.Query },
-                        { "limit", decodedMessage.IsMulti ? 0 : 1 }
-                    };
-                    var command = new BsonDocument
-                    {
-                        { commandName, decodedMessage.CollectionNamespace.CollectionName },
-                        { "deletes", new BsonArray(new [] { entry }) }
-                    };
-
-                    if (writeConcern == null)
-                    {
-                        command["writeConcern"] = WriteConcern.Unacknowledged.ToBsonDocument();
-                    }
-                    else if (!writeConcern.IsServerDefault)
-                    {
-                        command["writeConcern"] = writeConcern.ToBsonDocument();
-                    }
-
-                    var @event = new CommandStartedEvent(
-                        commandName,
-                        command,
-                        decodedMessage.CollectionNamespace.DatabaseNamespace,
-                        operationId,
-                        requestId,
-                        connectionId);
-
-                    _startedEvent(@event);
-                }
-                finally
-                {
-                    var disposable = decodedMessage.Query as IDisposable;
-                    if (disposable != null)
-                    {
-                        disposable.Dispose();
-                    }
-                }
-            }
-
-            if (_shouldTrackState)
-            {
-                _state.TryAdd(requestId, new CommandState
-                {
-                    CommandName = commandName,
-                    OperationId = operationId,
-                    Stopwatch = stopwatch,
-                    ExpectedResponseType = expectedResponseType
-                });
-            }
-        }
-
-        private void ProcessInsertMessage(RequestMessage message, Queue<RequestMessage> messageQueue, ConnectionId connectionId, InsertMessageBinaryEncoder<RawBsonDocument> encoder, Stopwatch stopwatch)
-        {
-            var commandName = "insert";
-            var operationId = EventContext.OperationId;
-            var requestId = message.RequestId;
-            var expectedResponseType = ExpectedResponseType.None;
-            int numberOfDocuments = 0;
-            int gleRequestId;
-            WriteConcern writeConcern;
-            if (TryGetWriteConcernFromGLE(messageQueue, out gleRequestId, out writeConcern))
-            {
-                requestId = gleRequestId;
-                expectedResponseType = ExpectedResponseType.GLE;
-            }
-
-            if (_startedEvent != null)
-            {
-                // InsertMessage is generic, and we don't know the generic type...
-                // Plus, for this we really want BsonDocuments, not whatever the generic type is.
-                var decodedMessage = encoder.ReadMessage();
-
-                var documents = decodedMessage.DocumentSource.GetBatchItems();
-                numberOfDocuments = documents.Count;
-                try
-                {
-                    var command = new BsonDocument
-                    {
-                        { commandName, decodedMessage.CollectionNamespace.CollectionName },
-                        { "documents", new BsonArray(documents) },
-                        { "ordered", !decodedMessage.ContinueOnError }
-                    };
-
-                    if (writeConcern == null)
-                    {
-                        command["writeConcern"] = WriteConcern.Unacknowledged.ToBsonDocument();
-                    }
-                    else if (!writeConcern.IsServerDefault)
-                    {
-                        command["writeConcern"] = writeConcern.ToBsonDocument();
-                    }
-
-                    var @event = new CommandStartedEvent(
-                        commandName,
-                        command,
-                        decodedMessage.CollectionNamespace.DatabaseNamespace,
-                        operationId,
-                        requestId,
-                        connectionId);
-
-                    _startedEvent(@event);
-                }
-                finally
-                {
-                    foreach (var document in documents)
-                    {
-                        document.Dispose();
-                    }
-                }
-            }
-
-            if (_shouldTrackState)
-            {
-                _state.TryAdd(requestId, new CommandState
-                {
-                    CommandName = commandName,
-                    OperationId = operationId,
-                    Stopwatch = stopwatch,
-                    ExpectedResponseType = expectedResponseType,
-                    NumberOfInsertedDocuments = numberOfDocuments
-                });
             }
         }
 
@@ -633,9 +480,6 @@ namespace MongoDB.Driver.Core.Connections
                         case ExpectedResponseType.Command:
                             ProcessCommandReplyMessage(state, replyMessage, connectionId);
                             break;
-                        case ExpectedResponseType.GLE:
-                            ProcessGLEReplyMessage(state, replyMessage, connectionId);
-                            break;
                         case ExpectedResponseType.Query:
                             ProcessQueryReplyMessage(state, replyMessage, connectionId);
                             break;
@@ -696,99 +540,6 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        private void ProcessGLEReplyMessage(CommandState state, ReplyMessage<RawBsonDocument> replyMessage, ConnectionId connectionId)
-        {
-            var reply = replyMessage.Documents[0];
-            BsonValue ok;
-            if (!reply.TryGetValue("ok", out ok))
-            {
-                // this is a degenerate case with the server and
-                // we don't really know what to do here...
-            }
-            else if (!ok.ToBoolean())
-            {
-                if (_failedEvent != null)
-                {
-                    _failedEvent(new CommandFailedEvent(
-                        state.CommandName,
-                        new MongoCommandException(
-                            connectionId,
-                            string.Format("{0} command failed", state.CommandName),
-                            null,
-                            reply),
-                        state.OperationId,
-                        replyMessage.ResponseTo,
-                        connectionId,
-                        state.Stopwatch.Elapsed));
-                }
-            }
-            else if (_succeededEvent != null)
-            {
-                var fakeReply = new BsonDocument("ok", 1);
-
-                BsonValue n;
-                if (reply.TryGetValue("n", out n))
-                {
-                    fakeReply["n"] = n;
-                }
-
-                BsonValue err;
-                if (reply.TryGetValue("err", out err) && err != BsonNull.Value)
-                {
-                    var code = reply.GetValue("code", -1);
-                    var errmsg = err.ToString();
-                    var isWriteConcernError = __writeConcernIndicators.Any(x => errmsg.Contains(x));
-                    if (isWriteConcernError)
-                    {
-                        fakeReply["writeConcernError"] = new BsonDocument
-                        {
-                            { "code", code },
-                            { "errmsg", err }
-                        };
-                    }
-                    else
-                    {
-                        fakeReply["writeErrors"] = new BsonArray(new[] { new BsonDocument
-                        {
-                            { "index", 0 },
-                            { "code", code },
-                            { "errmsg", err }
-                        }});
-                    }
-                }
-                else if (state.CommandName == "insert")
-                {
-                    fakeReply["n"] = state.NumberOfInsertedDocuments;
-                }
-                else if (state.CommandName == "update")
-                {
-                    // Unfortunately v2.4 GLE does not include the upserted field when
-                    // the upserted _id is non-OID type.  We can detect this by the
-                    // updatedExisting field + an n of 1
-                    BsonValue upsertedValue;
-                    var upserted = reply.TryGetValue("upserted", out upsertedValue) ||
-                        (n == 1 && !reply.GetValue("updatedExisting", false).ToBoolean());
-
-                    if (upserted)
-                    {
-                        fakeReply["upserted"] = new BsonArray(new[] { new BsonDocument
-                        {
-                            { "index", 0 },
-                            { "_id", upsertedValue ?? state.UpsertedId ?? BsonUndefined.Value }
-                        }});
-                    }
-                }
-
-                _succeededEvent(new CommandSucceededEvent(
-                    state.CommandName,
-                    fakeReply,
-                    state.OperationId,
-                    replyMessage.ResponseTo,
-                    connectionId,
-                    state.Stopwatch.Elapsed));
-            }
-        }
-
         private void ProcessQueryReplyMessage(CommandState state, ReplyMessage<RawBsonDocument> replyMessage, ConnectionId connectionId)
         {
             if (_succeededEvent != null)
@@ -821,97 +572,6 @@ namespace MongoDB.Driver.Core.Connections
                     replyMessage.ResponseTo,
                     connectionId,
                     state.Stopwatch.Elapsed));
-            }
-        }
-
-        private void ProcessUpdateMessage(UpdateMessage originalMessage, Queue<RequestMessage> messageQueue, ConnectionId connectionId, UpdateMessageBinaryEncoder encoder, Stopwatch stopwatch)
-        {
-            var commandName = "update";
-            int requestId = originalMessage.RequestId;
-            var operationId = EventContext.OperationId;
-            var expectedResponseType = ExpectedResponseType.None;
-            BsonValue upsertedId = null;
-            int gleRequestId;
-            WriteConcern writeConcern;
-            if (TryGetWriteConcernFromGLE(messageQueue, out gleRequestId, out writeConcern))
-            {
-                requestId = gleRequestId;
-                expectedResponseType = ExpectedResponseType.GLE;
-            }
-
-            if (_startedEvent != null)
-            {
-                var decodedMessage = encoder.ReadMessage(RawBsonDocumentSerializer.Instance);
-                try
-                {
-                    if (_shouldTrackState)
-                    {
-                        // GLE result on older versions of the server didn't return
-                        // the upserted id when it wasn't an object id, so we'll
-                        // attempt to get it from the messages.
-                        if (!decodedMessage.Update.TryGetValue("_id", out upsertedId))
-                        {
-                            decodedMessage.Query.TryGetValue("_id", out upsertedId);
-                        }
-                    }
-
-                    var entry = new BsonDocument
-                    {
-                        { "q", decodedMessage.Query },
-                        { "u", decodedMessage.Update },
-                        { "upsert", decodedMessage.IsUpsert },
-                        { "multi", decodedMessage.IsMulti }
-                    };
-                    var command = new BsonDocument
-                    {
-                        { commandName, decodedMessage.CollectionNamespace.CollectionName },
-                        { "updates", new BsonArray(new [] { entry }) }
-                    };
-
-                    if (writeConcern == null)
-                    {
-                        command["writeConcern"] = WriteConcern.Unacknowledged.ToBsonDocument();
-                    }
-                    else if (!writeConcern.IsServerDefault)
-                    {
-                        command["writeConcern"] = writeConcern.ToBsonDocument();
-                    }
-
-                    var @event = new CommandStartedEvent(
-                        commandName,
-                        command,
-                        decodedMessage.CollectionNamespace.DatabaseNamespace,
-                        operationId,
-                        requestId,
-                        connectionId);
-
-                    _startedEvent(@event);
-                }
-                finally
-                {
-                    var disposable = decodedMessage.Query as IDisposable;
-                    if (disposable != null)
-                    {
-                        disposable.Dispose();
-                    }
-                    disposable = decodedMessage.Update as IDisposable;
-                    if (disposable != null)
-                    {
-                        disposable.Dispose();
-                    }
-                }
-            }
-
-            if (_shouldTrackState)
-            {
-                _state.TryAdd(requestId, new CommandState
-                {
-                    CommandName = commandName,
-                    OperationId = operationId,
-                    Stopwatch = Stopwatch.StartNew(),
-                    ExpectedResponseType = expectedResponseType,
-                    UpsertedId = upsertedId
-                });
             }
         }
 
@@ -979,42 +639,6 @@ namespace MongoDB.Driver.Core.Connections
             return command;
         }
 
-        private bool TryGetWriteConcernFromGLE(Queue<RequestMessage> messageQueue, out int requestId, out WriteConcern writeConcern)
-        {
-            requestId = -1;
-            writeConcern = null;
-            if (messageQueue.Count == 0)
-            {
-                return false;
-            }
-
-            var message = messageQueue.Peek();
-            if (message.MessageType != MongoDBMessageType.Query)
-            {
-                return false;
-            }
-
-            var queryMessage = (QueryMessage)message;
-
-            if (!IsCommand(queryMessage.CollectionNamespace))
-            {
-                return false;
-            }
-
-            var query = queryMessage.Query;
-            var firstElement = query.GetElement(0);
-            if (firstElement.Name != "getLastError")
-            {
-                return false;
-            }
-
-            messageQueue.Dequeue(); // consume it so that we don't process it later...
-            requestId = queryMessage.RequestId;
-
-            writeConcern = WriteConcern.FromBsonDocument(query);
-            return true;
-        }
-
         private static bool IsCommand(CollectionNamespace collectionNamespace)
         {
             return collectionNamespace.Equals(collectionNamespace.DatabaseNamespace.CommandCollection);
@@ -1049,7 +673,6 @@ namespace MongoDB.Driver.Core.Connections
         private enum ExpectedResponseType
         {
             None,
-            GLE,
             Query,
             Command
         }
@@ -1060,9 +683,7 @@ namespace MongoDB.Driver.Core.Connections
             public long? OperationId;
             public Stopwatch Stopwatch;
             public CollectionNamespace QueryNamespace;
-            public int NumberOfInsertedDocuments;
             public ExpectedResponseType ExpectedResponseType;
-            public BsonValue UpsertedId;
             public bool ShouldRedactReply;
         }
     }
