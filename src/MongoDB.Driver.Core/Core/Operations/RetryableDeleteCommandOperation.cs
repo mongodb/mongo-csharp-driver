@@ -85,7 +85,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 if (_deletes.Items.Skip(_deletes.Offset).Take(_deletes.Count).Any(u => u.Hint != null))
                 {
-                    throw new NotSupportedException($"Hint is not supported for unacknowledged writes.");
+                    throw new NotSupportedException("Hint is not supported for unacknowledged writes.");
                 }
             }
 

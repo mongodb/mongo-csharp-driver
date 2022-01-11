@@ -116,9 +116,7 @@ namespace MongoDB.Driver.Core.Operations
         internal override BsonDocument CreateCommand(ICoreSessionHandle session, ConnectionDescription connectionDescription, long? transactionNumber)
         {
             var serverVersion = connectionDescription.ServerVersion;
-#pragma warning disable CS0618 // Type or member is obsolete
             if (Feature.HintForFindAndModifyFeature.DriverMustThrowIfNotSupported(serverVersion) || (WriteConcern != null && !WriteConcern.IsAcknowledged))
-#pragma warning restore CS0618 // Type or member is obsolete
             {
                 if (_hint != null)
                 {

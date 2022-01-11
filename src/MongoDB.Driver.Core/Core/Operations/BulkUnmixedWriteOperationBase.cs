@@ -175,7 +175,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 if (RequestHasHint(request) && !_writeConcern.IsAcknowledged)
                 {
-                    throw new NotSupportedException($"Hint is not supported for unacknowledged writes.");
+                    throw new NotSupportedException("Hint is not supported for unacknowledged writes.");
                 }
             }
         }

@@ -399,7 +399,6 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Gets the hint for find and modify operations feature.
         /// </summary>
-        [Obsolete("This property will be removed in a later release.")]
         public static HintForFindAndModifyFeature HintForFindAndModifyFeature => __hintForFindAndModifyFeature;
 
         /// <summary>

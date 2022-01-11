@@ -328,9 +328,7 @@ namespace MongoDB.Driver.Core.Operations
                 Hint = hint
             };
             var session = OperationTestHelper.CreateSession();
-#pragma warning disable CS0618 // Type or member is obsolete
             var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion: Feature.HintForFindAndModifyFeature.FirstSupportedVersion);
-#pragma warning restore CS0618 // Type or member is obsolete
 
             var result = subject.CreateCommand(session, connectionDescription, null);
 

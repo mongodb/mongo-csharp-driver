@@ -326,8 +326,8 @@ namespace MongoDB.Driver.Core.Authentication
                 helloCommand.Should().Contain("speculativeAuthenticate");
                 var speculativeAuthenticateDocument = helloCommand["speculativeAuthenticate"].AsBsonDocument;
                 var expectedSpeculativeAuthenticateDocument = saslStartMessage["sections"].AsBsonArray[0]["document"].AsBsonDocument;
-                var dbElement = expectedSpeculativeAuthenticateDocument.GetElement("$db");
-                expectedSpeculativeAuthenticateDocument.RemoveElement(dbElement); // $db is automatically added by wireProtocol processing that can be different from db specified in authenticator
+                var dollarsDbElement = expectedSpeculativeAuthenticateDocument.GetElement("$db");
+                expectedSpeculativeAuthenticateDocument.RemoveElement(dollarsDbElement); // $db is automatically added by wireProtocol processing that can be different from db specified in authenticator
                 expectedSpeculativeAuthenticateDocument.Add(new BsonElement("db", __credential.Source));
                 speculativeAuthenticateDocument.Should().Be(expectedSpeculativeAuthenticateDocument);
             }
