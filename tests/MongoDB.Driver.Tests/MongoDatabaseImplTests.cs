@@ -869,12 +869,12 @@ namespace MongoDB.Driver
         [ParameterAttributeData]
         public void ListCollectionNames_should_return_expected_result(
             [Values(0, 1, 2, 10)] int numberOfCollections,
-            [Values(false, true)] bool usingAuthorizedCollection,
+            [Values(null, false, true)] bool? usingAuthorizedCollections,
             [Values(false, true)] bool usingSession,
             [Values(false, true)] bool async)
         {
             RequireServer.Check();
-            if (usingAuthorizedCollection)
+            if (usingAuthorizedCollections.HasValue)
             {
                 RequireServer.Check().VersionGreaterThanOrEqualTo("4.0.0");
             }
@@ -893,9 +893,9 @@ namespace MongoDB.Driver
             {
                 IAsyncCursor<string> cursor;
                 var listCollectionNamesOptions = new ListCollectionNamesOptions();
-                if (usingAuthorizedCollection)
+                if (usingAuthorizedCollections.HasValue)
                 {
-                    listCollectionNamesOptions.AuthorizedCollections = true;
+                    listCollectionNamesOptions.AuthorizedCollections = usingAuthorizedCollections.Value;
                 }
 
                 if (usingSession)

@@ -58,7 +58,7 @@ namespace MongoDB.Driver.Core.Operations
         /// Gets or sets the AuthorizedCollections flag.
         /// </summary>
         /// <value>
-        /// The authorizedCollections.
+        /// Whether authorizedCollections flag is set.
         /// </value>
         public bool? AuthorizedCollections
         {
