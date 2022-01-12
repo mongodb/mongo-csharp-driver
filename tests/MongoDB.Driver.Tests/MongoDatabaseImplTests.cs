@@ -814,6 +814,7 @@ namespace MongoDB.Driver
             {
                 options = new ListCollectionNamesOptions
                 {
+                    AuthorizedCollections = true,
                     Filter = filterDefinition
                 };
             }
@@ -854,10 +855,12 @@ namespace MongoDB.Driver
             if (usingOptions)
             {
                 op.Filter.Should().Be(filterDocument);
+                op.AuthorizedCollections.Should().BeTrue();
             }
             else
             {
                 op.Filter.Should().BeNull();
+                op.AuthorizedCollections.Should().NotHaveValue();
             }
             op.RetryRequested.Should().BeTrue();
         }
@@ -866,10 +869,15 @@ namespace MongoDB.Driver
         [ParameterAttributeData]
         public void ListCollectionNames_should_return_expected_result(
             [Values(0, 1, 2, 10)] int numberOfCollections,
+            [Values(null, false, true)] bool? usingAuthorizedCollections,
             [Values(false, true)] bool usingSession,
             [Values(false, true)] bool async)
         {
             RequireServer.Check();
+            if (usingAuthorizedCollections.HasValue)
+            {
+                RequireServer.Check().VersionGreaterThanOrEqualTo("4.0.0");
+            }
 
             var collectionNames = Enumerable.Range(1, numberOfCollections).Select(n => $"c{n}").ToArray();
 
@@ -884,26 +892,32 @@ namespace MongoDB.Driver
             using (var session = usingSession ? client.StartSession() : null)
             {
                 IAsyncCursor<string> cursor;
+                var listCollectionNamesOptions = new ListCollectionNamesOptions();
+                if (usingAuthorizedCollections.HasValue)
+                {
+                    listCollectionNamesOptions.AuthorizedCollections = usingAuthorizedCollections.Value;
+                }
+
                 if (usingSession)
                 {
                     if (async)
                     {
-                        cursor = database.ListCollectionNamesAsync(session).GetAwaiter().GetResult();
+                        cursor = database.ListCollectionNamesAsync(session, listCollectionNamesOptions).GetAwaiter().GetResult();
                     }
                     else
                     {
-                        cursor = database.ListCollectionNames(session);
+                        cursor = database.ListCollectionNames(session, listCollectionNamesOptions);
                     }
                 }
                 else
                 {
                     if (async)
                     {
-                        cursor = database.ListCollectionNamesAsync().GetAwaiter().GetResult();
+                        cursor = database.ListCollectionNamesAsync(listCollectionNamesOptions).GetAwaiter().GetResult();
                     }
                     else
                     {
-                        cursor = database.ListCollectionNames();
+                        cursor = database.ListCollectionNames(listCollectionNamesOptions);
                     }
                 }
 

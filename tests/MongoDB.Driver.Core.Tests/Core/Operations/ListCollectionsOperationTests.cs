@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+﻿/* Copyright 2013-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,16 +15,12 @@
 
 using System;
 using System.Linq;
-using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Core.Bindings;
-using MongoDB.Driver.Core.Connections;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
@@ -66,11 +62,23 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Fact]
+        public void AuthorizedCollections_get_and_set_should_work()
+        {
+            var subject = new ListCollectionsOperation(_databaseNamespace, _messageEncoderSettings);
+            var authorizedCollections = true;
+
+            subject.AuthorizedCollections = authorizedCollections;
+            var result = subject.AuthorizedCollections;
+
+            result.Should().Be(authorizedCollections);
+        }
+
+        [Fact]
         public void BatchSize_get_and_set_should_work()
         {
             var subject = new ListCollectionsOperation(_databaseNamespace, _messageEncoderSettings);
+            int batchSize = 2;
 
-            int batchSize = 10;
             subject.BatchSize = batchSize;
             var result = subject.BatchSize;
 
@@ -167,10 +175,9 @@ namespace MongoDB.Driver.Core.Operations
                 BatchSize = batchSize
             };
 
-            using (var result = ExecuteOperation(subject, async))
+            using (var cursor = ExecuteOperation(subject, async) as AsyncCursor<BsonDocument>)
             {
-                var asyncCursor = (AsyncCursor<BsonDocument>)result;
-                asyncCursor._batchSize().Should().Be(batchSize);
+                cursor._batchSize().Should().Be(batchSize);
             }
         }
 
@@ -204,27 +211,33 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Theory]
-        [ParameterAttributeData]
-        public void CreateOperation_should_return_expected_result(
-            [Values(null, false, true)] bool? nameOnly)
+        [InlineData(null, null, null, "{ listCollections : 1 }")]
+        [InlineData(null, null, false, "{ listCollections : 1, nameOnly : false }")]
+        [InlineData(null, null, true, "{ listCollections : 1, nameOnly : true }")]
+        [InlineData(null, "{ x: 1 }", null, "{ listCollections : 1, filter : { x : 1 } }")]
+        [InlineData(null, "{ x: 1 }", false, "{ listCollections : 1, filter : { x : 1 }, nameOnly : false }")]
+        [InlineData(null, "{ x: 1 }", true, "{ listCollections : 1, filter : { x : 1 }, nameOnly : true }")]
+        [InlineData(true, "{ x: 1 }", true, "{ listCollections : 1, filter : { x : 1 }, nameOnly : true, authorizedCollections : true }")]
+        public void CreateCommand_should_return_expected_result(
+            bool? authorizedCollections,
+            string filterString,
+            bool? nameOnly,
+            string expectedCommand)
         {
-            var filter = new BsonDocument();
+            var filter = filterString == null ? null : BsonDocument.Parse(filterString);
             var subject = new ListCollectionsOperation(_databaseNamespace, _messageEncoderSettings)
             {
+                AuthorizedCollections = authorizedCollections,
                 Filter = filter,
                 NameOnly = nameOnly
             };
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
-            var mockChannel = new Mock<IChannel>();
-            mockChannel.SetupGet(m => m.ConnectionDescription).Returns(connectionDescription);
 
-            var result = subject.CreateOperation(mockChannel.Object);
+            var result = subject.CreateOperation();
 
-            var operation = result.Should().BeOfType<ListCollectionsUsingCommandOperation>().Subject;
-            operation.Filter.Should().BeSameAs(subject.Filter);
-            operation.DatabaseNamespace.Should().BeSameAs(subject.DatabaseNamespace);
-            operation.MessageEncoderSettings.Should().BeSameAs(subject.MessageEncoderSettings);
-            operation.NameOnly.Should().Be(subject.NameOnly);
+            result.Command.Should().Be(expectedCommand);
+            result.DatabaseNamespace.Should().BeSameAs(subject.DatabaseNamespace);
+            result.ResultSerializer.Should().BeSameAs(BsonDocumentSerializer.Instance);
+            result.MessageEncoderSettings.Should().BeSameAs(subject.MessageEncoderSettings);
         }
 
         // helper methods
@@ -274,6 +287,6 @@ namespace MongoDB.Driver.Core.Operations
 
     public static class ListCollectionsOperationReflector
     {
-        public static IReadOperation<IAsyncCursor<BsonDocument>> CreateOperation(this ListCollectionsOperation obj, IChannel channel) => (IReadOperation<IAsyncCursor<BsonDocument>>)Reflector.Invoke(obj, nameof(CreateOperation), channel);
+        public static ReadCommandOperation<BsonDocument> CreateOperation(this ListCollectionsOperation obj) => (ReadCommandOperation<BsonDocument>)Reflector.Invoke(obj, nameof(CreateOperation));
     }
 }
