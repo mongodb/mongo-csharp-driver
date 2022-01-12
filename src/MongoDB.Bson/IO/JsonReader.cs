@@ -862,6 +862,9 @@ namespace MongoDB.Bson.IO
                 case BsonType.Undefined:
                     ReadUndefined();
                     break;
+                case BsonType.Decimal128:
+                    ReadDecimal128();
+                    break;
                 default:
                     throw new BsonInternalException("Invalid BsonType.");
             }
