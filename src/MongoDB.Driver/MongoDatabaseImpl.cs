@@ -705,7 +705,6 @@ namespace MongoDB.Driver
             var messageEncoderSettings = GetMessageEncoderSettings();
             return new ListCollectionsOperation(_databaseNamespace, messageEncoderSettings)
             {
-                AuthorizedCollections = options?.AuthorizedCollections,
                 BatchSize = options?.BatchSize,
                 Filter = options?.Filter?.Render(_settings.SerializerRegistry.GetSerializer<BsonDocument>(), _settings.SerializerRegistry, _linqProvider),
                 RetryRequested = _client.Settings.RetryReads

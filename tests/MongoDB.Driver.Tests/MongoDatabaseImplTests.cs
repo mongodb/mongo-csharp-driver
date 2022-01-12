@@ -930,7 +930,6 @@ namespace MongoDB.Driver
         [ParameterAttributeData]
         public void ListCollections_should_execute_a_ListCollectionsOperation(
             [Values(false, true)] bool usingSession,
-            [Values(null, false, true)] bool? authorizedCollections,
             [Values(false, true)] bool usingBatchSize,
             [Values(false, true)] bool usingFilter,
             [Values(false, true)] bool async)
@@ -939,11 +938,10 @@ namespace MongoDB.Driver
             var filterDocument = BsonDocument.Parse("{ name : \"awesome\" }");
             var filterDefinition = (FilterDefinition<BsonDocument>)filterDocument;
             ListCollectionsOptions options = null;
-            if (usingFilter || usingBatchSize || authorizedCollections.HasValue)
+            if (usingFilter || usingBatchSize)
             {
                 options = new ListCollectionsOptions
                 {
-                    AuthorizedCollections = authorizedCollections,
                     BatchSize = usingBatchSize ? 10 : (int?)null,
                     Filter = usingFilter ? filterDefinition : null
                 };
@@ -982,11 +980,10 @@ namespace MongoDB.Driver
             var op = call.Operation.Should().BeOfType<ListCollectionsOperation>().Subject;
             op.DatabaseNamespace.Should().Be(_subject.DatabaseNamespace);
             op.NameOnly.Should().NotHaveValue();
-            if (usingFilter || usingBatchSize || authorizedCollections.HasValue)
+            if (usingFilter || usingBatchSize)
             {
                 op.Should().Match<ListCollectionsOperation>(
                     (o) =>
-                        o.AuthorizedCollections == authorizedCollections &&
                         o.BatchSize == (usingBatchSize ? 10 : (int?)null) &&
                         o.Filter == (usingFilter ? filterDocument : null)
                 );

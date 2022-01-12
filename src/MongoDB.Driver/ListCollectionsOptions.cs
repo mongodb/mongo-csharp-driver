@@ -23,20 +23,10 @@ namespace MongoDB.Driver
     public sealed class ListCollectionsOptions
     {
         // fields
-        private bool? _authorizedCollections;
         private int? _batchSize;
         private FilterDefinition<BsonDocument> _filter;
 
         // properties
-        /// <summary>
-        /// Gets or sets the AuthorizedCollections flag.
-        /// </summary>
-        public bool? AuthorizedCollections
-        {
-            get { return _authorizedCollections; }
-            set { _authorizedCollections = value; }
-        }
-
         /// <summary>
         /// Gets or sets the batch size.
         /// </summary>
