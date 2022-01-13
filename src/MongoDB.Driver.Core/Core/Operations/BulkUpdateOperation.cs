@@ -21,6 +21,8 @@ namespace MongoDB.Driver.Core.Operations
 {
     internal class BulkUpdateOperation : BulkUnmixedWriteOperationBase<UpdateRequest>
     {
+        private BsonDocument _let;
+
         // constructors
         public BulkUpdateOperation(
             CollectionNamespace collectionNamespace,
@@ -30,6 +32,12 @@ namespace MongoDB.Driver.Core.Operations
         {
         }
 
+        public BsonDocument Let
+        {
+            get => _let;
+            set => _let = value;
+        }
+
         // methods
         protected override IRetryableWriteOperation<BsonDocument> CreateBatchOperation(Batch batch)
         {
@@ -37,6 +45,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 BypassDocumentValidation = BypassDocumentValidation,
                 IsOrdered = IsOrdered,
+                Let = _let,
                 MaxBatchCount = MaxBatchCount,
                 RetryRequested = RetryRequested,
                 WriteConcern = WriteConcern

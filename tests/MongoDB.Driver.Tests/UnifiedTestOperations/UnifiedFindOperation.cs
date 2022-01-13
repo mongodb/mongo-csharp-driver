@@ -108,6 +108,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     case "filter":
                         filter = new BsonDocumentFilterDefinition<BsonDocument>(argument.Value.AsBsonDocument);
                         break;
+                    case "let":
+                        options ??= new FindOptions<BsonDocument>();
+                        options.Let = argument.Value.AsBsonDocument;
+                        break;
                     case "limit":
                         options ??= new FindOptions<BsonDocument>();
                         options.Limit = argument.Value.AsInt32;

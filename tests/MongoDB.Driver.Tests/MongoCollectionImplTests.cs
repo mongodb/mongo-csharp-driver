@@ -441,6 +441,7 @@ namespace MongoDB.Driver
         public void BulkWrite_should_execute_a_BulkMixedWriteOperation(
             [Values(false, true)] bool usingSession,
             [Values(null, false, true)] bool? bypassDocumentValidation,
+            [Values(null, "{ name : 'name' }")] string let,
             [Values(false, true)] bool isOrdered,
             [Values(false, true)] bool async)
         {
@@ -465,10 +466,12 @@ namespace MongoDB.Driver
                 new UpdateOneModel<BsonDocument>(new BsonDocument("t", 1), new BsonDocument("$set", new BsonDocument("u", 1))) { Collation = collation, Hint = hint },
                 new UpdateOneModel<BsonDocument>(new BsonDocument("v", 1), new BsonDocument("$set", new BsonDocument("w", 1))) { Collation = collation, IsUpsert = true },
             };
+            var letDocument = let != null ? BsonDocument.Parse(let) : null;
             var options = new BulkWriteOptions
             {
                 BypassDocumentValidation = bypassDocumentValidation,
-                IsOrdered = isOrdered
+                IsOrdered = isOrdered,
+                Let = letDocument
             };
             var cancellationToken = new CancellationTokenSource().Token;
 
@@ -507,6 +510,7 @@ namespace MongoDB.Driver
             operation.BypassDocumentValidation.Should().Be(bypassDocumentValidation);
             operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
             operation.IsOrdered.Should().Be(isOrdered);
+            operation.Let.Should().Be(letDocument);
             operation.Requests.Count().Should().Be(14);
 
             var convertedRequests = operation.Requests.ToList();
@@ -841,6 +845,7 @@ namespace MongoDB.Driver
         [ParameterAttributeData]
         public void DeleteMany_should_execute_a_BulkMixedOperation(
             [Values(false, true)] bool usingSession,
+            [Values(null, "{ name : 'name' }")] string let,
             [Values(false, true)] bool async)
         {
             var subject = CreateSubject<BsonDocument>();
@@ -848,7 +853,8 @@ namespace MongoDB.Driver
             var filter = new BsonDocument("a", 1);
             var collation = new Collation("en_US");
             var hint = new BsonDocument("_id", 1);
-            var options = new DeleteOptions { Collation = collation };
+            var letDocument = let != null ? BsonDocument.Parse(let) : null;
+            var options = new DeleteOptions { Collation = collation, Let = letDocument };
             var cancellationToken = new CancellationTokenSource().Token;
 
             var processedRequest = new DeleteRequest(filter) { Collation = collation, CorrelationId = 0, Hint = hint, Limit = 0 };
@@ -881,7 +887,7 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            VerifySingleWrite(call, null, true, processedRequest);
+            VerifySingleWrite(call, bypassDocumentValidation: null, isOrdered: true, let: letDocument, processedRequest);
         }
 
         [Theory]
@@ -946,6 +952,7 @@ namespace MongoDB.Driver
         [ParameterAttributeData]
         public void DeleteOne_should_execute_a_BulkMixedOperation(
             [Values(false, true)] bool usingSession,
+            [Values(null, "{ name : 'name' }")] string let,
             [Values(false, true)] bool async)
         {
             var subject = CreateSubject<BsonDocument>();
@@ -953,7 +960,8 @@ namespace MongoDB.Driver
             var filter = new BsonDocument("a", 1);
             var collation = new Collation("en_US");
             var hint = new BsonDocument("_id", 1);
-            var options = new DeleteOptions { Collation = collation };
+            var letDocument = let != null ? BsonDocument.Parse(let) : null;
+            var options = new DeleteOptions { Collation = collation, Let = letDocument };
             var cancellationToken = new CancellationTokenSource().Token;
 
             var processedRequest = new DeleteRequest(filter)
@@ -992,7 +1000,7 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            VerifySingleWrite(call, null, true, processedRequest);
+            VerifySingleWrite(call, bypassDocumentValidation: null, isOrdered: true, let: letDocument, processedRequest);
         }
 
         [Theory]
@@ -1272,6 +1280,7 @@ namespace MongoDB.Driver
         [ParameterAttributeData]
         public void Find_should_execute_a_FindOperation(
             [Values(false, true)] bool usingSession,
+            [Values(null, "{ name : 'name' }")] string let,
             [Values(false, true)] bool async)
         {
             var subject = CreateSubject<BsonDocument>();
@@ -1282,6 +1291,7 @@ namespace MongoDB.Driver
             var projectionDefinition = (ProjectionDefinition<BsonDocument, BsonDocument>)projectionDocument;
             var sortDocument = BsonDocument.Parse("{ a : 1 }");
             var sortDefinition = (SortDefinition<BsonDocument>)sortDocument;
+            var letDocument = let != null ? BsonDocument.Parse(let) : null;
             var options = new FindOptions<BsonDocument, BsonDocument>
             {
                 AllowDiskUse = true,
@@ -1290,6 +1300,7 @@ namespace MongoDB.Driver
                 Collation = new Collation("en_US"),
                 Comment = "funny",
                 CursorType = CursorType.TailableAwait,
+                Let = letDocument,
                 Limit = 30,
                 MaxAwaitTime = TimeSpan.FromSeconds(4),
                 MaxTime = TimeSpan.FromSeconds(3),
@@ -1342,6 +1353,7 @@ namespace MongoDB.Driver
             operation.Comment.Should().Be("funny");
             operation.CursorType.Should().Be(MongoDB.Driver.Core.Operations.CursorType.TailableAwait);
             operation.Filter.Should().Be(filterDocument);
+            operation.Let.Should().Be(options.Let);
             operation.Limit.Should().Be(options.Limit);
             operation.MaxAwaitTime.Should().Be(options.MaxAwaitTime);
             operation.MaxTime.Should().Be(options.MaxTime);
@@ -1373,6 +1385,7 @@ namespace MongoDB.Driver
             var projectionDefinition = (ProjectionDefinition<BsonDocument, BsonDocument>)projectionDocument;
             var sortDocument = BsonDocument.Parse("{ a : 1 }");
             var sortDefinition = (SortDefinition<BsonDocument>)sortDocument;
+            var letDocument = BsonDocument.Parse("{ name : 'name' }");
             var options = new FindOptions<BsonDocument, BsonDocument>
             {
                 AllowDiskUse = true,
@@ -1381,6 +1394,7 @@ namespace MongoDB.Driver
                 Collation = new Collation("en_US"),
                 Comment = "funny",
                 CursorType = CursorType.TailableAwait,
+                Let = letDocument,
                 Limit = 30,
                 MaxAwaitTime = TimeSpan.FromSeconds(4),
                 MaxTime = TimeSpan.FromSeconds(3),
@@ -1432,6 +1446,7 @@ namespace MongoDB.Driver
             operation.Comment.Should().Be("funny");
             operation.CursorType.Should().Be(MongoDB.Driver.Core.Operations.CursorType.TailableAwait);
             operation.Filter.Should().Be(new BsonDocument("x", 1));
+            operation.Let.Should().Be(options.Let);
             operation.Limit.Should().Be(options.Limit);
             operation.MaxAwaitTime.Should().Be(options.MaxAwaitTime);
             operation.MaxTime.Should().Be(options.MaxTime);
@@ -1459,9 +1474,11 @@ namespace MongoDB.Driver
             var subject = CreateSubject<A>();
             var session = CreateSession(usingSession);
             var filterDefinition = Builders<A>.Filter.Empty;
+            var letDocument = BsonDocument.Parse("{ name : 'name' }");
             var options = new FindOptions<A, BsonDocument>
             {
-                Projection = Builders<A>.Projection.As<BsonDocument>()
+                Projection = Builders<A>.Projection.As<BsonDocument>(),
+                Let = letDocument
             };
             var cancellationToken = new CancellationTokenSource().Token;
 
@@ -1493,6 +1510,7 @@ namespace MongoDB.Driver
 
             var operation = call.Operation.Should().BeOfType<FindOperation<BsonDocument>>().Subject;
             operation.Projection.Should().BeNull();
+            operation.Let.Should().Be(letDocument);
             operation.ResultSerializer.Should().BeOfType<BsonDocumentSerializer>();
             operation.ReadConcern.Should().Be(_readConcern);
         }
@@ -1501,6 +1519,7 @@ namespace MongoDB.Driver
         [ParameterAttributeData]
         public void FindOneAndDelete_should_execute_a_FindOneAndDeleteOperation(
             [Values(false, true)] bool usingSession,
+            [Values(null, "{ name : 'name' }")] string let,
             [Values(false, true)] bool async)
         {
             var subject = CreateSubject<BsonDocument>();
@@ -1511,9 +1530,11 @@ namespace MongoDB.Driver
             var projectionDefinition = (ProjectionDefinition<BsonDocument, BsonDocument>)projectionDocument;
             var sortDocument = BsonDocument.Parse("{ a : -1 } ");
             var sortDefinition = (SortDefinition<BsonDocument>)sortDocument;
+            var letDocument = let != null ? BsonDocument.Parse("{ name : 'name' }") : null;
             var options = new FindOneAndDeleteOptions<BsonDocument, BsonDocument>
             {
                 Collation = new Collation("en_US"),
+                Let = letDocument,
                 Projection = projectionDefinition,
                 Sort = sortDefinition,
                 MaxTime = TimeSpan.FromSeconds(2)
@@ -1550,6 +1571,7 @@ namespace MongoDB.Driver
             operation.Collation.Should().BeSameAs(options.Collation);
             operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
             operation.Filter.Should().Be(filterDocument);
+            operation.Let.Should().Be(letDocument);
             operation.MaxTime.Should().Be(options.MaxTime);
             operation.Projection.Should().Be(projectionDocument);
             operation.ResultSerializer.Should().BeOfType<FindAndModifyValueDeserializer<BsonDocument>>();
@@ -1566,10 +1588,12 @@ namespace MongoDB.Driver
             var subject = CreateSubject<A>();
             var session = CreateSession(usingSession);
             var filterDefinition = Builders<A>.Filter.Empty;
+            var letDocument = BsonDocument.Parse("{ name : 'name' }");
             var options = new FindOneAndDeleteOptions<A, BsonDocument>
             {
                 Collation = new Collation("en_US"),
                 Hint = new BsonDocument("_id", 1),
+                Let = letDocument,
                 Projection = Builders<A>.Projection.As<BsonDocument>()
             };
             var cancellationToken = new CancellationTokenSource().Token;
@@ -1602,7 +1626,8 @@ namespace MongoDB.Driver
 
             var operation = call.Operation.Should().BeOfType<FindOneAndDeleteOperation<BsonDocument>>().Subject;
             operation.Collation.Should().BeSameAs(options.Collation);
-            operation.Hint.Should().Be(operation.Hint);
+            operation.Hint.Should().Be(options.Hint);
+            operation.Let.Should().Be(options.Let);
             operation.Projection.Should().BeNull();
             operation.ResultSerializer.Should().BeOfType<FindAndModifyValueDeserializer<BsonDocument>>();
         }
@@ -1613,6 +1638,7 @@ namespace MongoDB.Driver
             [Values(false, true)] bool usingSession,
             [Values(null, false, true)] bool? bypassDocumentValidation,
             [Values(false, true)] bool isUpsert,
+            [Values(null, "{ name : 'name' }")] string let,
             [Values(ReturnDocument.After, ReturnDocument.Before)] ReturnDocument returnDocument,
             [Values(false, true)] bool async)
         {
@@ -1625,12 +1651,14 @@ namespace MongoDB.Driver
             var projectionDefinition = (ProjectionDefinition<BsonDocument, BsonDocument>)projectionDocument;
             var sortDocument = BsonDocument.Parse("{ a : -1 }");
             var sortDefinition = (SortDefinition<BsonDocument>)sortDocument;
+            var letDocument = BsonDocument.Parse("{ name : 'name' }");
             var options = new FindOneAndReplaceOptions<BsonDocument, BsonDocument>()
             {
                 BypassDocumentValidation = bypassDocumentValidation,
                 Collation = new Collation("en_US"),
                 Hint = new BsonDocument("_id", 1),
                 IsUpsert = isUpsert,
+                Let = letDocument,
                 MaxTime = TimeSpan.FromSeconds(2),
                 Projection = projectionDefinition,
                 ReturnDocument = returnDocument,
@@ -1671,6 +1699,7 @@ namespace MongoDB.Driver
             operation.Hint.Should().Be(options.Hint);
             operation.Filter.Should().Be(filterDocument);
             operation.IsUpsert.Should().Be(isUpsert);
+            operation.Let.Should().Be(options.Let);
             operation.MaxTime.Should().Be(options.MaxTime);
             operation.Projection.Should().Be(projectionDocument);
             operation.Replacement.Should().Be(replacement);
@@ -1690,9 +1719,11 @@ namespace MongoDB.Driver
             var session = CreateSession(usingSession);
             var filterDefinition = Builders<A>.Filter.Empty;
             var replacement = new A();
+            var letDocument = BsonDocument.Parse("{ name : 'name' }");
             var options = new FindOneAndReplaceOptions<A, BsonDocument>
             {
                 Collation = new Collation("en_US"),
+                Let = letDocument,
                 Projection = Builders<A>.Projection.As<BsonDocument>()
             };
             var cancellationToken = new CancellationTokenSource().Token;
@@ -1725,6 +1756,7 @@ namespace MongoDB.Driver
 
             var operation = call.Operation.Should().BeOfType<FindOneAndReplaceOperation<BsonDocument>>().Subject;
             operation.Collation.Should().BeSameAs(options.Collation);
+            operation.Let.Should().BeSameAs(options.Let);
             operation.Projection.Should().BeNull();
             operation.ResultSerializer.Should().BeOfType<FindAndModifyValueDeserializer<BsonDocument>>();
         }
@@ -1735,6 +1767,7 @@ namespace MongoDB.Driver
             [Values(false, true)] bool usingSession,
             [Values(null, false, true)] bool? bypassDocumentValidation,
             [Values(false, true)] bool isUpsert,
+            [Values(null, "{ name : 'name' }")] string let,
             [Values(ReturnDocument.After, ReturnDocument.Before)] ReturnDocument returnDocument,
             [Values(false, true)] bool async)
         {
@@ -1750,6 +1783,7 @@ namespace MongoDB.Driver
             var projectionDefinition = (ProjectionDefinition<BsonDocument, BsonDocument>)projectionDocument;
             var sortDocument = BsonDocument.Parse("{ a : -1 }");
             var sortDefinition = (SortDefinition<BsonDocument>)sortDocument;
+            var letDocument = let != null ? BsonDocument.Parse(let) : null;
             var options = new FindOneAndUpdateOptions<BsonDocument, BsonDocument>()
             {
                 ArrayFilters = new[] { arrayFilterDefinition },
@@ -1757,6 +1791,7 @@ namespace MongoDB.Driver
                 Collation = new Collation("en_US"),
                 Hint = new BsonDocument("_id", 1),
                 IsUpsert = isUpsert,
+                Let = letDocument,
                 MaxTime = TimeSpan.FromSeconds(2),
                 Projection = projectionDefinition,
                 ReturnDocument = returnDocument,
@@ -1798,6 +1833,7 @@ namespace MongoDB.Driver
             operation.Hint.Should().Be(options.Hint);
             operation.Filter.Should().Be(filterDocument);
             operation.IsUpsert.Should().Be(isUpsert);
+            operation.Let.Should().Be(options.Let);
             operation.MaxTime.Should().Be(options.MaxTime);
             operation.Projection.Should().Be(projectionDocument);
             operation.ResultSerializer.Should().BeOfType<FindAndModifyValueDeserializer<BsonDocument>>();
@@ -1850,9 +1886,11 @@ namespace MongoDB.Driver
             var session = CreateSession(usingSession);
             var filterDefinition = Builders<A>.Filter.Empty;
             var updateDefinition = Builders<A>.Update.Inc(x => x.PropA, 1);
+            var letDocument = BsonDocument.Parse("{ name : 'name' }");
             var options = new FindOneAndUpdateOptions<A, BsonDocument>
             {
-                Projection = Builders<A>.Projection.As<BsonDocument>()
+                Projection = Builders<A>.Projection.As<BsonDocument>(),
+                Let = letDocument
             };
             var cancellationToken = new CancellationTokenSource().Token;
 
@@ -1883,6 +1921,7 @@ namespace MongoDB.Driver
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
             var operation = call.Operation.Should().BeOfType<FindOneAndUpdateOperation<BsonDocument>>().Subject;
+            operation.Let.Should().Be(options.Let);
             operation.Projection.Should().BeNull();
             operation.ResultSerializer.Should().BeOfType<FindAndModifyValueDeserializer<BsonDocument>>();
         }
@@ -2414,7 +2453,7 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            VerifySingleWrite(call, null, true, processedRequest);
+            VerifySingleWrite(call, bypassDocumentValidation: null, isOrdered: true, let: null, processedRequest);
         }
 
         [Theory]
@@ -2519,7 +2558,7 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            VerifySingleWrite(call, null, true, processedRequest);
+            VerifySingleWrite(call, bypassDocumentValidation: null, isOrdered: true, let: null, processedRequest);
 
             var operation = call.Operation.Should().BeOfType<BulkMixedWriteOperation>().Subject;
             var requests = operation.Requests.ToList(); // call ToList to force evaluation
@@ -2582,7 +2621,7 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            VerifyBulkWrite(call, bypassDocumentValidation, isOrdered, processedRequests);
+            VerifyBulkWrite(call, bypassDocumentValidation: bypassDocumentValidation, isOrdered: isOrdered, let: null, processedRequests);
         }
 
         [Theory]
@@ -2629,7 +2668,7 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            VerifySingleWrite(call, null, true, processedRequest);
+            VerifySingleWrite(call, bypassDocumentValidation: null, isOrdered: true, let: null, processedRequest);
 
             var operation = (BulkMixedWriteOperation)call.Operation;
             var requests = operation.Requests.ToList(); // call ToList to force evaluation
@@ -2834,6 +2873,7 @@ namespace MongoDB.Driver
             [Values(false, true)] bool usingSession,
             [Values(null, false, true)] bool? bypassDocumentValidation,
             [Values(false, true)] bool isUpsert,
+            [Values(null, "{ name : 'name' }")] string let,
             [Values(false, true)] bool async)
         {
             var subject = CreateSubject<BsonDocument>();
@@ -2843,6 +2883,7 @@ namespace MongoDB.Driver
             var replacement = BsonDocument.Parse("{ a : 2 }");
             var collation = new Collation("en_US");
             var hint = new BsonDocument("x", 1);
+            var letDocument = let != null ? BsonDocument.Parse(let) : null;
             var cancellationToken = new CancellationTokenSource().Token;
 
             var processedRequest = new UpdateRequest(UpdateType.Replacement, filterDocument, replacement)
@@ -2865,7 +2906,8 @@ namespace MongoDB.Driver
                 BypassDocumentValidation = bypassDocumentValidation,
                 Collation = collation,
                 Hint = hint,
-                IsUpsert = isUpsert
+                IsUpsert = isUpsert,
+                Let = letDocument
             };
             assertReplaceOneWithReplaceOptions(replaceOptions);
 
@@ -2874,7 +2916,8 @@ namespace MongoDB.Driver
                 BypassDocumentValidation = bypassDocumentValidation,
                 Hint = hint,
                 Collation = collation,
-                IsUpsert = isUpsert
+                IsUpsert = isUpsert,
+                Let = letDocument
             };
             assertReplaceOneWithUpdateOptions(updateOptions);
 
@@ -2903,7 +2946,7 @@ namespace MongoDB.Driver
                     }
                 }
 
-                assertOperationResult(null);
+                assertOperationResult(expectedBypassDocumentValidation: null, expectedLet: null);
             }
 
             void assertReplaceOneWithReplaceOptions(ReplaceOptions options)
@@ -2931,7 +2974,7 @@ namespace MongoDB.Driver
                     }
                 }
 
-                assertOperationResult(bypassDocumentValidation);
+                assertOperationResult(expectedBypassDocumentValidation: bypassDocumentValidation, expectedLet: letDocument);
             }
 
             void assertReplaceOneWithUpdateOptions(UpdateOptions options)
@@ -2967,15 +3010,15 @@ namespace MongoDB.Driver
                     }
                 }
 
-                assertOperationResult(bypassDocumentValidation);
+                assertOperationResult(expectedBypassDocumentValidation: bypassDocumentValidation, expectedLet: letDocument);
             }
 
-            void assertOperationResult(bool? expectedBypassDocumentValidation)
+            void assertOperationResult(bool? expectedBypassDocumentValidation, BsonDocument expectedLet)
             {
                 var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
                 VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-                VerifySingleWrite(call, expectedBypassDocumentValidation, true, processedRequest);
+                VerifySingleWrite(call, bypassDocumentValidation: expectedBypassDocumentValidation, isOrdered: true, let: expectedLet, processedRequest);
             }
         }
 
@@ -2985,6 +3028,7 @@ namespace MongoDB.Driver
             [Values(false, true)] bool usingSession,
             [Values(null, false, true)] bool? bypassDocumentValidation,
             [Values(false, true)] bool isUpsert,
+            [Values(null, "{ name : 'name' }")] string let,
             [Values(false, true)] bool async)
         {
             var subject = CreateSubject<BsonDocument>();
@@ -2994,6 +3038,7 @@ namespace MongoDB.Driver
             var replacement = BsonDocument.Parse("{ a : 2 }");
             var collation = new Collation("en_US");
             var hint = new BsonDocument("x", 1);
+            var letDocument = let != null ? BsonDocument.Parse(let) : null;
             var cancellationToken = new CancellationTokenSource().Token;
 
             var processedRequest = new UpdateRequest(UpdateType.Replacement, filterDocument, replacement)
@@ -3028,7 +3073,8 @@ namespace MongoDB.Driver
                 Collation = collation,
                 Hint = hint,
                 BypassDocumentValidation = bypassDocumentValidation,
-                IsUpsert = isUpsert
+                IsUpsert = isUpsert,
+                Let = letDocument
             };
             assertReplaceOneWithReplaceOptions(replaceOptions);
 
@@ -3037,7 +3083,8 @@ namespace MongoDB.Driver
                 Collation = collation,
                 Hint = hint,
                 BypassDocumentValidation = bypassDocumentValidation,
-                IsUpsert = isUpsert
+                IsUpsert = isUpsert,
+                Let = letDocument
             };
             assertReplaceOneWithUpdateOptions(updateOptions);
 
@@ -3154,6 +3201,7 @@ namespace MongoDB.Driver
             [Values(false, true)] bool usingSession,
             [Values(null, false, true)] bool? bypassDocumentValidation,
             [Values(false, true)] bool isUpsert,
+            [Values(null, "{ name : 'name' }")] string let,
             [Values(false, true)] bool async)
         {
             var subject = CreateSubject<BsonDocument>();
@@ -3166,13 +3214,15 @@ namespace MongoDB.Driver
             var arrayFilterDefinition = (ArrayFilterDefinition<BsonDocument>)arrayFilterDocument;
             var collation = new Collation("en_US");
             var hint = new BsonDocument("x", 1);
+            var letDocument = let != null ? BsonDocument.Parse(let) : null;
             var options = new UpdateOptions
             {
                 ArrayFilters = new[] { arrayFilterDefinition },
                 BypassDocumentValidation = bypassDocumentValidation,
                 Collation = collation,
                 Hint = hint,
-                IsUpsert = isUpsert
+                IsUpsert = isUpsert,
+                Let = letDocument
             };
             var cancellationToken = new CancellationTokenSource().Token;
 
@@ -3214,7 +3264,7 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            VerifySingleWrite(call, bypassDocumentValidation, true, processedRequest);
+            VerifySingleWrite(call, bypassDocumentValidation: bypassDocumentValidation, isOrdered: true, let: letDocument, processedRequest);
         }
 
         [Theory]
@@ -3223,6 +3273,7 @@ namespace MongoDB.Driver
             [Values(false, true)] bool usingSession,
             [Values(null, false, true)] bool? bypassDocumentValidation,
             [Values(false, true)] bool isUpsert,
+            [Values(null, "{ name : 'name' }")] string let,
             [Values(false, true)] bool async)
         {
             var subject = CreateSubject<BsonDocument>();
@@ -3235,13 +3286,15 @@ namespace MongoDB.Driver
             var arrayFilterDefinition = (ArrayFilterDefinition<BsonDocument>)arrayFilterDocument;
             var collation = new Collation("en_US");
             var hint = new BsonDocument("x", 1);
+            var letDocument = let != null ? BsonDocument.Parse(let) : null;
             var updateOptions = new UpdateOptions
             {
                 ArrayFilters = new[] { arrayFilterDefinition },
                 BypassDocumentValidation = bypassDocumentValidation,
                 Collation = collation,
                 Hint = hint,
-                IsUpsert = isUpsert
+                IsUpsert = isUpsert,
+                Let = letDocument
             };
             var cancellationToken = new CancellationTokenSource().Token;
 
@@ -3305,6 +3358,7 @@ namespace MongoDB.Driver
             [Values(false, true)] bool usingSession,
             [Values(null, false, true)] bool? bypassDocumentValidation,
             [Values(false, true)] bool isUpsert,
+            [Values(null, "{ name : 'name' }")] string let,
             [Values(false, true)] bool async)
         {
             var subject = CreateSubject<BsonDocument>();
@@ -3317,13 +3371,15 @@ namespace MongoDB.Driver
             var arrayFilterDefinition = (ArrayFilterDefinition<BsonDocument>)arrayFilterDocument;
             var collation = new Collation("en_US");
             var hint = new BsonDocument("x", 1);
+            var letDocument = let != null ? BsonDocument.Parse(let) : null;
             var options = new UpdateOptions
             {
                 ArrayFilters = new[] { arrayFilterDefinition },
                 BypassDocumentValidation = bypassDocumentValidation,
                 Collation = collation,
                 Hint = hint,
-                IsUpsert = isUpsert
+                IsUpsert = isUpsert,
+                Let = letDocument
             };
             var cancellationToken = new CancellationTokenSource().Token;
 
@@ -3365,7 +3421,7 @@ namespace MongoDB.Driver
             var call = _operationExecutor.GetWriteCall<BulkWriteOperationResult>();
             VerifySessionAndCancellationToken(call, session, cancellationToken);
 
-            VerifySingleWrite(call, bypassDocumentValidation, true, processedRequest);
+            VerifySingleWrite(call, bypassDocumentValidation: bypassDocumentValidation, isOrdered: true, let: letDocument, processedRequest);
         }
 
         [Theory]
@@ -3374,6 +3430,7 @@ namespace MongoDB.Driver
             [Values(false, true)] bool usingSession,
             [Values(false, true)] bool? bypassDocumentValidation,
             [Values(false, true)] bool isUpsert,
+            [Values(null, "{ name : 'name' }")] string let,
             [Values(false, true)] bool async)
         {
             var subject = CreateSubject<BsonDocument>();
@@ -3386,13 +3443,16 @@ namespace MongoDB.Driver
             var arrayFilterDefinition = (ArrayFilterDefinition<BsonDocument>)arrayFilterDocument;
             var collation = new Collation("en_US");
             var hint = new BsonDocument("x", 1);
+            var letDocument = let != null ? BsonDocument.Parse(let) : null;
+
             var options = new UpdateOptions
             {
                 ArrayFilters = new[] { arrayFilterDefinition },
                 BypassDocumentValidation = bypassDocumentValidation,
                 Collation = collation,
                 Hint = hint,
-                IsUpsert = isUpsert
+                IsUpsert = isUpsert,
+                Let = letDocument
             };
             var cancellationToken = new CancellationTokenSource().Token;
 
@@ -3720,12 +3780,13 @@ namespace MongoDB.Driver
             return pipeline.Render(inputSerializer, serializerRegistry);
         }
 
-        private static void VerifyBulkWrite(MockOperationExecutor.WriteCall<BulkWriteOperationResult> call, bool? bypassDocumentValidation, bool isOrdered, WriteRequest[] expectedRequests)
+        private static void VerifyBulkWrite(MockOperationExecutor.WriteCall<BulkWriteOperationResult> call, bool? bypassDocumentValidation, bool isOrdered, BsonDocument let, WriteRequest[] expectedRequests)
         {
             var operation = call.Operation.Should().BeOfType<BulkMixedWriteOperation>().Subject;
             operation.BypassDocumentValidation.Should().Be(bypassDocumentValidation);
             operation.CollectionNamespace.FullName.Should().Be("foo.bar");
             operation.IsOrdered.Should().Be(isOrdered);
+            operation.Let.Should().Be(let);
 
             var actualRequests = operation.Requests.ToList();
             actualRequests.Count.Should().Be(expectedRequests.Length);
@@ -3762,10 +3823,10 @@ namespace MongoDB.Driver
             }
         }
 
-        private static void VerifySingleWrite<TRequest>(MockOperationExecutor.WriteCall<BulkWriteOperationResult> call, bool? bypassDocumentValidation, bool isOrdered, TRequest expectedRequest)
+        private static void VerifySingleWrite<TRequest>(MockOperationExecutor.WriteCall<BulkWriteOperationResult> call, bool? bypassDocumentValidation, bool isOrdered, BsonDocument let, TRequest expectedRequest)
             where TRequest : WriteRequest
         {
-            VerifyBulkWrite(call, bypassDocumentValidation, isOrdered, new[] { expectedRequest });
+            VerifyBulkWrite(call, bypassDocumentValidation, isOrdered, let, new[] { expectedRequest });
         }
 
         private class A

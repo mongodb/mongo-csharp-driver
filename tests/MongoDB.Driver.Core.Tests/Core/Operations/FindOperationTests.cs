@@ -602,21 +602,33 @@ namespace MongoDB.Driver.Core.Operations
         [SkippableTheory]
         [ParameterAttributeData]
         public void Execute_should_find_documents_matching_options(
-            [Values(false, true)]
-            bool async)
+            [Values(false, true)] bool withLet,
+            [Values(false, true)] bool async)
         {
             RequireServer.Check();
+            if (withLet)
+            {
+                RequireServer.Check().VersionGreaterThanOrEqualTo("5.0.0");
+            }
             EnsureTestData();
             var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
                 Comment = "funny",
-                Filter = BsonDocument.Parse("{ y : 1 }"),
                 Limit = 4,
                 MaxTime = TimeSpan.FromSeconds(20),
                 Projection = BsonDocument.Parse("{ y : 1 }"),
                 Skip = 1,
                 Sort = BsonDocument.Parse("{ _id : -1 }")
             };
+            if (withLet)
+            {
+                subject.Filter = BsonDocument.Parse("{ '$expr' : { $eq : [ '$y', '$$expectedY' ] } }");
+                subject.Let = BsonDocument.Parse("{ expectedY : 1 }");
+            }
+            else
+            {
+                subject.Filter = BsonDocument.Parse("{ y : 1 }");
+            }
 
             var cursor = ExecuteOperation(subject, async);
             var result = ReadCursorToEnd(cursor, async);

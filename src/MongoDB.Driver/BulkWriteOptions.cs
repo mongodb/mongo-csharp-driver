@@ -13,9 +13,7 @@
 * limitations under the License.
 */
 
-using System.Collections.Generic;
-using System.Linq;
-using MongoDB.Driver.Core.Misc;
+using MongoDB.Bson;
 
 namespace MongoDB.Driver
 {
@@ -27,6 +25,7 @@ namespace MongoDB.Driver
         // fields
         private bool? _bypassDocumentValidation;
         private bool _isOrdered;
+        private BsonDocument _let;
 
         // constructors
         /// <summary>
@@ -54,6 +53,15 @@ namespace MongoDB.Driver
         {
             get { return _isOrdered; }
             set { _isOrdered = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the let document.
+        /// </summary>
+        public BsonDocument Let
+        {
+            get { return _let; }
+            set { _let = value; }
         }
     }
 }

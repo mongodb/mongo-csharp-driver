@@ -32,6 +32,7 @@ namespace MongoDB.Driver
         private string _comment;
         private CursorType _cursorType;
         private BsonValue _hint;
+        private BsonDocument _let;
         private BsonDocument _max;
         private TimeSpan? _maxAwaitTime;
         private TimeSpan? _maxTime;
@@ -113,6 +114,15 @@ namespace MongoDB.Driver
         {
             get { return _hint; }
             set { _hint = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the let document.
+        /// </summary>
+        public BsonDocument Let
+        {
+            get { return _let; }
+            set { _let = value; }
         }
 
         /// <summary>
