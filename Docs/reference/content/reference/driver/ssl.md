@@ -135,3 +135,36 @@ the connection to continue (i.e. soft-fail).
 
 Industry best practices recommend, and some regulations require, the use of TLS 1.1 or newer. No application changes are required
 for the driver to make use of the newest TLS protocols.
+
+### Potential TLS Connection Issue with .NET 5 and later on Linux
+
+If you try to connect to an Atlas cluster running MongoDB 4.0 (or earlier)
+using a .NET 5 (or later) application on Linux, you may receive an error
+message similar to the following:
+
+```text
+Unhandled exception. System.TimeoutException: A timeout occurred after 30000ms selecting a server using CompositeServerSelector{ Selectors = MongoDB.Driver.MongoClient+AreSessionsSupportedServerSelector, LatencyLimitingServerSelector{ AllowedLatencyRange = 00:00:00.0150000 } }. Client view of cluster state is { ClusterId : "1", ConnectionMode : "ReplicaSet", Type : "ReplicaSet", State : "Disconnected", Servers : [{ ServerId: "{ ClusterId : 1, EndPoint : "Unspecified/mongodb40tlstest-shard-00-00.ebdql.mongodb.net:27017" }", EndPoint: "Unspecified/mongodb40tlstest-shard-00-00.ebdql.mongodb.net:27017", ReasonChanged: "Heartbeat", State: "Disconnected", ServerVersion: , TopologyVersion: , Type: "Unknown", HeartbeatException: "MongoDB.Driver.MongoConnectionException: An exception occurred while opening a connection to the server.
+ ---> System.IO.IOException:  Received an unexpected EOF or 0 bytes from the transport stream.
+... stack trace ...
+```
+
+The root cause of this problem is a TLS cipher suite mismatch.
+
+Atlas clusters running MongoDB 4.0 and earlier only support RSA ciphers.
+Atlas clusters running MongoDB 4.2 and later support both RSA and ECDHE ciphers.
+
+On Linux, .NET Core 3.1 and earlier use any cipher suite supported by OpenSSL
+for key exchange including RSA and ECDHE ciphers. Starting in .NET 5,
+Microsoft hardended the default TLS configuration to only allow ECDHE ciphers
+for key exchange. If you explicitly configure OpenSSL to allow the RSA cipher
+for key exchange, .NET 5.0 will respect it, but it will not use it by default.
+You can find out more in [Default TLS cipher suites for .NET on Linux](https://docs.microsoft.com/en-us/dotnet/core/compatibility/cryptography/5.0/default-cipher-suites-for-tls-on-linux).
+
+A .NET 5 (or later) application on Linux will only support ECDHE ciphers
+by default, but a MongoDB 4.0 (or earlier) Atlas cluster will only
+support RSA ciphers. The client and server were unable to negotiate a
+common cipher for key exchange, which results in the TLS handshake
+failing and the above EOF error message being returned.
+
+To resolve this issue, either connect to a MongoDB 4.2 (or later) Atlas cluster (recommended)
+or configure .NET 5 (or later) to allow RSA ciphers (not recommended).
