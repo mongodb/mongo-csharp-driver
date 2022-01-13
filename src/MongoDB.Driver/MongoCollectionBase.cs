@@ -190,7 +190,7 @@ namespace MongoDB.Driver
             };
             try
             {
-                var bulkWriteOptions = options == null ? null : new BulkWriteOptions
+                var bulkWriteOptions = new BulkWriteOptions
                 {
                     Let = options.Let
                 };
@@ -233,7 +233,7 @@ namespace MongoDB.Driver
             };
             try
             {
-                var bulkWriteOptions = options == null ? null : new BulkWriteOptions
+                var bulkWriteOptions = new BulkWriteOptions
                 {
                     Let = options.Let
                 };
@@ -276,7 +276,7 @@ namespace MongoDB.Driver
             };
             try
             {
-                var bulkWriteOptions = options == null ? null : new BulkWriteOptions
+                var bulkWriteOptions = new BulkWriteOptions
                 {
                     Let = options.Let
                 };
@@ -319,7 +319,7 @@ namespace MongoDB.Driver
             };
             try
             {
-                var bulkWriteOptions = options == null ? null : new BulkWriteOptions
+                var bulkWriteOptions = new BulkWriteOptions
                 {
                     Let = options.Let
                 };

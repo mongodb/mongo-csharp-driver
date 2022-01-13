@@ -80,9 +80,9 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <summary>
-        /// Gets or sets a let document.
+        /// Gets or sets the let document.
         /// </summary>
-        /// <value>A let document.</value>
+        /// <value>The let document.</value>
         public BsonDocument Let
         {
             get { return _let; }

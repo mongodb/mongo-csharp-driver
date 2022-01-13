@@ -56,7 +56,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets a let document.
+        /// Gets or sets the let document.
         /// </summary>
         public BsonDocument Let
         {
