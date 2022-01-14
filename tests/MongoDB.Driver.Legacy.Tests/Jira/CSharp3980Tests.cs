@@ -46,9 +46,9 @@ namespace MongoDB.Driver.Legacy.Tests.Jira
             var query = new QueryDocument("X", 1);
             var cursor = collection.Find(query);
 
-            var exception = Record.Exception(() => cursor.Explain());
+            var result = cursor.Explain();
 
-            exception.Should().BeOfType<NotSupportedException>();
+            result.Should().NotBeNull();
         }
 
         private MongoCollection<C> GetCollection()
