@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Core.Clusters
         private static readonly TimeSpan __minHeartbeatIntervalDefault = TimeSpan.FromMilliseconds(500);
         private static readonly SemanticVersion __minSupportedServerVersion = new SemanticVersion(3, 6, 0);
         private static readonly IServerSelector __randomServerSelector = new RandomServerSelector();
-        private static readonly Range<int> __supportedWireVersionRange = new Range<int>(6, 14);
+        private static readonly Range<int> __supportedWireVersionRange = new Range<int>(6, 15);
 
         // static properties
         /// <summary>
