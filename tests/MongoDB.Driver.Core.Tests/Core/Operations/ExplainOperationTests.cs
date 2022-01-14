@@ -14,38 +14,46 @@
 */
 
 using System;
+using System.Net;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
 {
     public class ExplainOperationTests : OperationTestBase
     {
-        private BsonDocument _command;
+        private IExplainableOperation _explainableOperation;
 
         public ExplainOperationTests()
         {
-            _command = new BsonDocument
-            {
-                { "count", _collectionNamespace.CollectionName }
-            };
+            var databaseNamespace = new DatabaseNamespace("test");
+            var collectionNamespace = new CollectionNamespace(databaseNamespace, "test");
+            var resultSerializer = BsonDocumentSerializer.Instance;
+            var messageEncoderSettings = new MessageEncoderSettings();
+            _explainableOperation = new FindOperation<BsonDocument>(collectionNamespace, resultSerializer, messageEncoderSettings);
         }
 
         [Fact]
         public void Constructor_should_throw_when_collection_namespace_is_null()
         {
-            Action action = () => new ExplainOperation(null, _command, _messageEncoderSettings);
+            Action action = () => new ExplainOperation(null, _explainableOperation, _messageEncoderSettings);
 
             action.ShouldThrow<ArgumentNullException>();
         }
 
         [Fact]
-        public void Constructor_should_throw_when_command_is_null()
+        public void Constructor_should_throw_when_explainableOperation_is_null()
         {
             Action action = () => new ExplainOperation(_databaseNamespace, null, _messageEncoderSettings);
 
@@ -55,7 +63,7 @@ namespace MongoDB.Driver.Core.Operations
         [Fact]
         public void Constructor_should_throw_when_message_encoder_settings_is_null()
         {
-            Action action = () => new ExplainOperation(_databaseNamespace, _command, null);
+            Action action = () => new ExplainOperation(_databaseNamespace, _explainableOperation, null);
 
             action.ShouldThrow<ArgumentNullException>();
         }
@@ -63,10 +71,10 @@ namespace MongoDB.Driver.Core.Operations
         [Fact]
         public void Constructor_should_initialize_subject()
         {
-            var subject = new ExplainOperation(_databaseNamespace, _command, _messageEncoderSettings);
+            var subject = new ExplainOperation(_databaseNamespace, _explainableOperation, _messageEncoderSettings);
 
             subject.DatabaseNamespace.Should().Be(_databaseNamespace);
-            subject.Command.Should().Be(_command);
+            subject.ExplainableOperation.Should().Be(_explainableOperation);
             subject.MessageEncoderSettings.Should().BeEquivalentTo(_messageEncoderSettings);
             subject.Verbosity.Should().Be(ExplainVerbosity.QueryPlanner);
         }
@@ -77,18 +85,26 @@ namespace MongoDB.Driver.Core.Operations
         [InlineData(ExplainVerbosity.QueryPlanner, "queryPlanner")]
         public void CreateCommand_should_return_expected_result(ExplainVerbosity verbosity, string verbosityString)
         {
-            var subject = new ExplainOperation(_databaseNamespace, _command, _messageEncoderSettings)
+            var subject = new ExplainOperation(_databaseNamespace, _explainableOperation, _messageEncoderSettings)
             {
                 Verbosity = verbosity
             };
 
             var expectedResult = new BsonDocument
             {
-                { "explain", _command },
+                { "explain", BsonDocument.Parse("{ find : 'test' }") },
                 { "verbosity", verbosityString }
             };
 
-            var result = subject.CreateCommand();
+            var endPoint = new DnsEndPoint("localhost", 27017);
+            var serverId = new ServerId(new ClusterId(), endPoint);
+            var connectionId = new ConnectionId(serverId);
+            var helloResult = new HelloResult(new BsonDocument { { "ok", 1 }, { "maxMessageSizeBytes", 48000000 } });
+            var buildInfoResult = new BuildInfoResult(new BsonDocument { { "ok", 1 }, { "version", "3.6.0" } });
+            var connectionDescription = new ConnectionDescription(connectionId, helloResult, buildInfoResult);
+            var session = NoCoreSession.Instance;
+
+            var result = subject.CreateExplainCommand(connectionDescription, session);
 
             result.Should().Be(expectedResult);
         }
@@ -101,7 +117,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             RequireServer.Check();
             EnsureCollectionExists();
-            var subject = new ExplainOperation(_databaseNamespace, _command, _messageEncoderSettings);
+            var subject = new ExplainOperation(_databaseNamespace, _explainableOperation, _messageEncoderSettings);
 
             var result = ExecuteOperation((IReadOperation<BsonDocument>)subject, async);
 

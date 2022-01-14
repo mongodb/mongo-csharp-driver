@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+﻿/* Copyright 2015-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,18 +18,30 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Servers;
+using MongoDB.Driver.Core.WireProtocol;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
     /// <summary>
-    /// Represents a Find operation.
+    /// Represents a Find command operation.
     /// </summary>
-    /// <typeparam name="TDocument">The type of the returned documents.</typeparam>
-    public class FindOperation<TDocument> : IReadOperation<IAsyncCursor<TDocument>>, IExecutableInRetryableReadContext<IAsyncCursor<TDocument>>
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
+    public class FindOperation<TDocument> : IReadOperation<IAsyncCursor<TDocument>>, IExecutableInRetryableReadContext<IAsyncCursor<TDocument>>, IExplainableOperation
     {
+        #region static
+        // private static fields
+        private static IBsonSerializer<BsonDocument> __findCommandResultSerializer = new PartiallyRawBsonDocumentSerializer(
+            "cursor", new PartiallyRawBsonDocumentSerializer(
+                "firstBatch", new RawBsonArraySerializer()));
+        #endregion
+
         // fields
         private bool? _allowDiskUse;
         private bool? _allowPartialResults;
@@ -44,8 +56,8 @@ namespace MongoDB.Driver.Core.Operations
         private BsonDocument _let;
         private int? _limit;
         private BsonDocument _max;
-        private int? _maxScan;
         private TimeSpan? _maxAwaitTime;
+        private int? _maxScan;
         private TimeSpan? _maxTime;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private BsonDocument _min;
@@ -259,7 +271,7 @@ namespace MongoDB.Driver.Core.Operations
         public int? MaxScan
         {
             get { return _maxScan; }
-            set { _maxScan = value; }
+            set { _maxScan = Ensure.IsNullOrGreaterThanZero(value, nameof(value)); }
         }
 
         /// <summary>
@@ -356,7 +368,7 @@ namespace MongoDB.Driver.Core.Operations
         public ReadConcern ReadConcern
         {
             get { return _readConcern; }
-            set { _readConcern = Ensure.IsNotNull(value, "value"); }
+            set { _readConcern = Ensure.IsNotNull(value, nameof(value)); }
         }
 
         /// <summary>
@@ -371,15 +383,13 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <summary>
-        /// Gets or sets whether or not retry was requested.
+        /// Gets or sets a value indicating whether to retry.
         /// </summary>
-        /// <value>
-        /// Whether retry was requested.
-        /// </value>
+        /// <value>Whether to retry.</value>
         public bool RetryRequested
         {
-            get { return _retryRequested; }
-            set { _retryRequested = value; }
+            get => _retryRequested;
+            set => _retryRequested = value;
         }
 
         /// <summary>
@@ -455,9 +465,117 @@ namespace MongoDB.Driver.Core.Operations
             set { _sort = value; }
         }
 
-        // public methods
+        // methods
         /// <inheritdoc/>
-        public IAsyncCursor<TDocument> Execute(IReadBinding binding, CancellationToken cancellationToken)
+        public BsonDocument CreateCommand(ConnectionDescription connectionDescription, ICoreSession session)
+        {
+            var firstBatchSize = _firstBatchSize ?? (_batchSize > 0 ? _batchSize : null);
+            var isShardRouter = connectionDescription.HelloResult.ServerType == ServerType.ShardRouter;
+
+            var effectiveComment = _comment;
+            var effectiveHint = _hint;
+            var effectiveMax = _max;
+            var effectiveMaxScan = _maxScan;
+            var effectiveMaxTime = _maxTime;
+            var effectiveMin = _min;
+            var effectiveReturnKey = _returnKey;
+            var effectiveShowRecordId = _showRecordId;
+            var effectiveSnapshot = _snapshot;
+            var effectiveSort = _sort;
+
+            if (_modifiers != null)
+            {
+                // modifiers don't override explicitly set properties
+                foreach (var element in _modifiers)
+                {
+                    var value = element.Value;
+                    switch (element.Name)
+                    {
+                        case "$comment": effectiveComment = _comment ?? value.AsString; break;
+                        case "$hint": effectiveHint = _hint ?? value; break;
+                        case "$max": effectiveMax = _max ?? value.AsBsonDocument; break;
+                        case "$maxScan": effectiveMaxScan = _maxScan ?? value.ToInt32(); break;
+                        case "$maxTimeMS": effectiveMaxTime = _maxTime ?? TimeSpan.FromMilliseconds(value.ToDouble()); break;
+                        case "$min": effectiveMin = _min ?? value.AsBsonDocument; break;
+                        case "$orderby": effectiveSort = _sort ?? value.AsBsonDocument; break;
+                        case "$returnKey": effectiveReturnKey = _returnKey ?? value.ToBoolean(); break;
+                        case "$showDiskLoc": effectiveShowRecordId = _showRecordId ?? value.ToBoolean(); break;
+                        case "$snapshot": effectiveSnapshot = _snapshot ?? value.ToBoolean(); break;
+                        default: throw new ArgumentException($"Modifier not supported by the Find command: '{element.Name}'.");
+                    }
+                }
+            }
+
+            var readConcern = ReadConcernHelper.GetReadConcernForCommand(session, connectionDescription, _readConcern);
+            return new BsonDocument
+            {
+                { "find", _collectionNamespace.CollectionName },
+                { "filter", _filter, _filter != null },
+                { "sort", effectiveSort, effectiveSort != null },
+                { "projection", _projection, _projection != null },
+                { "hint", effectiveHint, effectiveHint != null },
+                { "skip", () => _skip.Value, _skip.HasValue },
+                { "limit", () => Math.Abs(_limit.Value), _limit.HasValue && _limit != 0 },
+                { "batchSize", () => firstBatchSize.Value, firstBatchSize.HasValue },
+                { "singleBatch", () => _limit < 0 || _singleBatch.Value, _limit < 0 || _singleBatch.HasValue },
+                { "comment", effectiveComment, effectiveComment != null },
+                { "maxScan", () => effectiveMaxScan.Value, effectiveMaxScan.HasValue },
+                { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(effectiveMaxTime.Value), effectiveMaxTime.HasValue },
+                { "max", effectiveMax, effectiveMax != null },
+                { "min", effectiveMin, effectiveMin != null },
+                { "returnKey", () => effectiveReturnKey.Value, effectiveReturnKey.HasValue },
+                { "showRecordId", () => effectiveShowRecordId.Value, effectiveShowRecordId.HasValue },
+                { "snapshot", () => effectiveSnapshot.Value, effectiveSnapshot.HasValue },
+                { "tailable", true, _cursorType == CursorType.Tailable || _cursorType == CursorType.TailableAwait },
+                { "oplogReplay", () => _oplogReplay.Value, _oplogReplay.HasValue },
+                { "noCursorTimeout", () => _noCursorTimeout.Value, _noCursorTimeout.HasValue },
+                { "awaitData", true, _cursorType == CursorType.TailableAwait },
+                { "allowDiskUse", () => _allowDiskUse.Value, _allowDiskUse.HasValue },
+                { "allowPartialResults", () => _allowPartialResults.Value, _allowPartialResults.HasValue && isShardRouter },
+                { "collation", () => _collation.ToBsonDocument(), _collation != null },
+                { "readConcern", readConcern, readConcern != null },
+                { "let", _let, _let != null }
+            };
+        }
+
+        private AsyncCursor<TDocument> CreateCursor(IChannelSourceHandle channelSource, IChannelHandle channel, BsonDocument commandResult)
+        {
+            var cursorDocument = commandResult["cursor"].AsBsonDocument;
+            var collectionNamespace = CollectionNamespace.FromFullName(cursorDocument["ns"].AsString);
+            var firstBatch = CreateFirstCursorBatch(cursorDocument);
+            var getMoreChannelSource = ChannelPinningHelper.CreateGetMoreChannelSource(channelSource, channel, firstBatch.CursorId);
+
+            if (cursorDocument.TryGetValue("atClusterTime", out var atClusterTime))
+            {
+                channelSource.Session.SetSnapshotTimeIfNeeded(atClusterTime.AsBsonTimestamp);
+            }
+
+            return new AsyncCursor<TDocument>(
+                getMoreChannelSource,
+                collectionNamespace,
+                firstBatch.Documents,
+                firstBatch.CursorId,
+                _batchSize,
+                _limit < 0 ? Math.Abs(_limit.Value) : _limit,
+                _resultSerializer,
+                _messageEncoderSettings,
+                _cursorType == CursorType.TailableAwait ? _maxAwaitTime : null);
+        }
+
+        private CursorBatch<TDocument> CreateFirstCursorBatch(BsonDocument cursorDocument)
+        {
+            var cursorId = cursorDocument["id"].ToInt64();
+            var batch = (RawBsonArray)cursorDocument["firstBatch"];
+
+            using (batch)
+            {
+                var documents = CursorBatchDeserializationHelper.DeserializeBatch(batch, _resultSerializer, _messageEncoderSettings);
+                return new CursorBatch<TDocument>(cursorId, documents);
+            }
+        }
+
+        /// <inheritdoc/>
+        public IAsyncCursor<TDocument> Execute(IReadBinding binding, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
@@ -468,16 +586,21 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <inheritdoc/>
-        public IAsyncCursor<TDocument> Execute(RetryableReadContext context, CancellationToken cancellationToken)
+        public IAsyncCursor<TDocument> Execute(RetryableReadContext context, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(context, nameof(context));
 
-            var operation = CreateOperation();
-            return operation.Execute(context, cancellationToken);
+            using (EventContext.BeginOperation())
+            using (EventContext.BeginFind(_batchSize, _limit))
+            {
+                var operation = CreateOperation(context);
+                var commandResult = operation.Execute(context, cancellationToken);
+                return CreateCursor(context.ChannelSource, context.Channel, commandResult);
+            }
         }
 
         /// <inheritdoc/>
-        public async Task<IAsyncCursor<TDocument>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
+        public async Task<IAsyncCursor<TDocument>> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
@@ -488,147 +611,31 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <inheritdoc/>
-        public async Task<IAsyncCursor<TDocument>> ExecuteAsync(RetryableReadContext context, CancellationToken cancellationToken)
+        public async Task<IAsyncCursor<TDocument>> ExecuteAsync(RetryableReadContext context, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(context, nameof(context));
 
-            var operation = CreateOperation();
-            return await operation.ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
+            using (EventContext.BeginOperation())
+            using (EventContext.BeginFind(_batchSize, _limit))
+            {
+                var operation = CreateOperation(context);
+                var commandResult = await operation.ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
+                return CreateCursor(context.ChannelSource, context.Channel, commandResult);
+            }
         }
 
-        // private methods
-        internal FindCommandOperation<TDocument> CreateFindCommandOperation()
+        private ReadCommandOperation<BsonDocument> CreateOperation(RetryableReadContext context)
         {
-            var comment = _comment;
-            var hint = _hint;
-            var max = _max;
-            var maxScan = _maxScan;
-            var maxTime = _maxTime;
-            var min = _min;
-            var returnKey = _returnKey;
-            var showRecordId = _showRecordId;
-            var snapshot = _snapshot;
-            var sort = _sort;
-
-            if (_modifiers != null)
-            {
-                foreach (var element in _modifiers)
-                {
-                    var value = element.Value;
-                    switch (element.Name)
-                    {
-                        case "$comment": comment = _comment ?? value.AsString; break;
-                        case "$hint": hint = _hint ?? value; break;
-                        case "$max": max = _max ?? value.AsBsonDocument; break;
-                        case "$maxScan": maxScan = _maxScan ?? value.ToInt32(); break;
-                        case "$maxTimeMS": maxTime = _maxTime ?? TimeSpan.FromMilliseconds(value.ToDouble()); break;
-                        case "$min": min = _min ?? value.AsBsonDocument; break;
-                        case "$orderby": sort = _sort ?? value.AsBsonDocument; break;
-                        case "$returnKey": returnKey = _returnKey ?? value.ToBoolean(); break;
-                        case "$showDiskLoc": showRecordId = _showRecordId ?? value.ToBoolean(); break;
-                        case "$snapshot": snapshot = _snapshot ?? value.ToBoolean(); break;
-                        default: throw new ArgumentException($"Modifier not supported by the Find command: '{element.Name}'.");
-                    }
-                }
-            }
-
-#pragma warning disable 618
-            var operation = new FindCommandOperation<TDocument>(
-                _collectionNamespace,
-                _resultSerializer,
+            var command = CreateCommand(context.Channel.ConnectionDescription, context.Binding.Session);
+            var operation = new ReadCommandOperation<BsonDocument>(
+                _collectionNamespace.DatabaseNamespace,
+                command,
+                __findCommandResultSerializer,
                 _messageEncoderSettings)
             {
-                AllowDiskUse = _allowDiskUse,
-                AllowPartialResults = _allowPartialResults,
-                BatchSize = _batchSize,
-                Collation = _collation,
-                Comment = comment,
-                CursorType = _cursorType,
-                Filter = _filter,
-                Hint = hint,
-                FirstBatchSize = _firstBatchSize,
-                Let = _let,
-                Limit = _limit,
-                Max = max,
-                MaxAwaitTime = _maxAwaitTime,
-                MaxScan = maxScan,
-                MaxTime = maxTime,
-                Min = min,
-                NoCursorTimeout = _noCursorTimeout,
-                OplogReplay = _oplogReplay,
-                Projection = _projection,
-                ReadConcern = _readConcern,
-                RetryRequested = _retryRequested, // might be overridden by retryable read context
-                ReturnKey = returnKey,
-                ShowRecordId = showRecordId,
-                SingleBatch = _singleBatch,
-                Skip = _skip,
-                Snapshot = snapshot,
-                Sort = sort
+                RetryRequested = _retryRequested // might be overridden by retryable read context
             };
-#pragma warning restore
-
             return operation;
-        }
-
-        internal FindOpcodeOperation<TDocument> CreateFindOpcodeOperation()
-        {
-            if (!_readConcern.IsServerDefault)
-            {
-                throw new MongoClientException($"ReadConcern {_readConcern} is not supported by FindOpcodeOperation.");
-            }
-            if (_collation != null)
-            {
-                throw new NotSupportedException($"OP_QUERY does not support collations.");
-            }
-            if (_allowDiskUse.HasValue)
-            {
-                throw new NotSupportedException($"OP_QUERY does not support allowDiskUse.");
-            }
-
-#pragma warning disable 618
-            var operation = new FindOpcodeOperation<TDocument>(
-                _collectionNamespace,
-                _resultSerializer,
-                _messageEncoderSettings)
-            {
-                AllowPartialResults = _allowPartialResults,
-                BatchSize = _batchSize,
-                Comment = _comment,
-                CursorType = _cursorType,
-                Filter = _filter,
-                FirstBatchSize = _firstBatchSize,
-                Hint = _hint,
-                Limit = (_singleBatch ?? false) ? -Math.Abs(_limit.Value) : _limit,
-                Max = _max,
-                MaxScan = _maxScan,
-                MaxTime = _maxTime,
-                Min = _min,
-                Modifiers = _modifiers,
-                NoCursorTimeout = _noCursorTimeout,
-                OplogReplay = _oplogReplay,
-                Projection = _projection,
-                ShowRecordId = _showRecordId,
-                Skip = _skip,
-                Snapshot = _snapshot,
-                Sort = _sort
-            };
-
-            return operation;
-        }
-#pragma warning restore
-
-        private IExecutableInRetryableReadContext<IAsyncCursor<TDocument>> CreateOperation()
-        {
-            var hasExplainModifier = _modifiers != null && _modifiers.Contains("$explain");
-            if (!hasExplainModifier)
-            {
-                return CreateFindCommandOperation();
-            }
-            else
-            {
-                return CreateFindOpcodeOperation();
-            }
         }
     }
 }
