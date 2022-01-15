@@ -1030,7 +1030,7 @@ namespace MongoDB.Driver.Core.Operations
         public void Let_get_and_set_should_work(
             [Values(null, "{ name : 'name' }")] string let)
         {
-            var subject = new FindCommandOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
             var value = let != null ? BsonDocument.Parse(let) : null;
 
             subject.Let = value;
