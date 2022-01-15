@@ -45,7 +45,7 @@ namespace MongoDB.Driver
             GetConnectionStringWithMultipleShardRouters, isThreadSafe: true);
         private static Lazy<DatabaseNamespace> __databaseNamespace = new Lazy<DatabaseNamespace>(GetDatabaseNamespace, isThreadSafe: true);
 #pragma warning disable CS0618 // Type or member is obsolete
-        private static Lazy<BuildInfoResult> _buildInfo = new Lazy<BuildInfoResult>(RunBuildInfo, isThreadSafe: true);
+        private static Lazy<BsonDocument> _buildInfo = new Lazy<BsonDocument>(RunBuildInfo, isThreadSafe: true);
 #pragma warning restore CS0618 // Type or member is obsolete
         private static MessageEncoderSettings __messageEncoderSettings = new MessageEncoderSettings();
         private static Lazy<int> __numberOfMongoses = new Lazy<int>(GetNumberOfMongoses, isThreadSafe: true);
@@ -103,12 +103,8 @@ namespace MongoDB.Driver
         {
             get
             {
-                var version = _buildInfo.Value.ServerVersion;
-                if (version == null)
-                {
-                    throw new InvalidOperationException("ServerDescription.Version is unexpectedly null.");
-                }
-                return version;
+                var serverVersion = _buildInfo.Value["version"];
+                return SemanticVersion.Parse(serverVersion.ToString());
             }
         }
 
@@ -338,8 +334,7 @@ namespace MongoDB.Driver
             return new DatabaseNamespace(databaseName);
         }
 
-#pragma warning disable CS0618 // Type or member is obsolete
-        private static BuildInfoResult RunBuildInfo()
+        private static BsonDocument RunBuildInfo()
         {
             using (var session = StartSession())
             using (var binding = CreateReadBinding(session))
@@ -347,10 +342,9 @@ namespace MongoDB.Driver
                 var command = new BsonDocument("buildinfo", 1);
                 var operation = new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, __messageEncoderSettings);
                 var response = operation.Execute(binding, CancellationToken.None);
-                return new BuildInfoResult(response);
+                return new BsonDocument(response);
             }
         }
-#pragma warning restore CS0618 // Type or member is obsolete
 
         public static BsonDocument GetServerParameters()
         {
