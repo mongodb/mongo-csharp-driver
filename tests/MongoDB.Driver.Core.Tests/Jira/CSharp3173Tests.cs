@@ -29,6 +29,7 @@ using MongoDB.Driver.Core.ConnectionPools;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Helpers;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -282,7 +283,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
             bool streamable)
         {
             var connectionId = new ConnectionId(serverId);
-            var maxWireVersion = streamable ? 9 : 6;
+            var maxWireVersion = streamable ? WireVersion.Server44 : WireVersion.Server36;
             var helloDocument = new BsonDocument
             {
                 { "ok", 1 },

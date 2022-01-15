@@ -197,7 +197,7 @@ namespace MongoDB.Driver.Core.Connections
             var serverApi = new ServerApi(ServerApiVersion.V1, true, true);
 
             var connection = new MockConnection(__serverId);
-            var helloReply = RawBsonDocumentHelper.FromJson("{ ok : 1, connectionId : 1, maxWireVersion : 8 }");
+            var helloReply = RawBsonDocumentHelper.FromJson($"{{ ok : 1, connectionId : 1, maxWireVersion : {WireVersion.Server42} }}");
             connection.EnqueueCommandResponseMessage(MessageHelper.BuildCommandResponse(helloReply));
 
             var subject = new ConnectionInitializer("test", new[] { new CompressorConfiguration(CompressorType.Zlib) }, serverApi);
@@ -224,7 +224,7 @@ namespace MongoDB.Driver.Core.Connections
         public void InitializeConnection_without_serverApi_should_send_legacy_hello([Values(false, true)] bool async)
         {
             var connection = new MockConnection(__serverId);
-            var helloReply = RawBsonDocumentHelper.FromJson("{ ok : 1, connectionId : 1, maxWireVersion : 8 }");
+            var helloReply = RawBsonDocumentHelper.FromJson($"{{ ok : 1, connectionId : 1, maxWireVersion : {WireVersion.Server42} }}");
             connection.EnqueueReplyMessage(MessageHelper.BuildReply(helloReply));
 
             var subject = CreateSubject();
@@ -252,7 +252,7 @@ namespace MongoDB.Driver.Core.Connections
             [Values(false, true)] bool async)
         {
             var legacyHelloReply = MessageHelper.BuildReply<RawBsonDocument>(
-                RawBsonDocumentHelper.FromJson($"{{ ok : 1, compression : ['{compressorType}'], maxWireVersion : 6 }}"));
+                RawBsonDocumentHelper.FromJson($"{{ ok : 1, compression : ['{compressorType}'], maxWireVersion : {WireVersion.Server36} }}"));
             var gleReply = MessageHelper.BuildReply<RawBsonDocument>(
                 RawBsonDocumentHelper.FromJson("{ ok: 1, connectionId: 10 }"));
 
@@ -263,7 +263,7 @@ namespace MongoDB.Driver.Core.Connections
             var subject = CreateSubject();
             var result = InitializeConnection(subject, connection, async, CancellationToken.None);
 
-            result.WireVersionRange.Max.Should().Be(6);
+            result.MaxWireVersion.Should().Be(6);
             result.ConnectionId.ServerValue.Should().Be(10);
             result.AvailableCompressors.Count.Should().Be(1);
             result.AvailableCompressors.Should().Contain(ToCompressorTypeEnum(compressorType));

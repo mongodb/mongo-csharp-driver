@@ -443,7 +443,7 @@ namespace MongoDB.Driver.Core.Servers
 
             var operationUsingChannelException = new MongoConnectionException(connectionId, "Oops", new IOException("Cry", innerMostException));
             var mockConnection = new Mock<IConnectionHandle>();
-            var helloResult = new HelloResult(new BsonDocument { { "compressors", new BsonArray() }, { "maxWireVersion", 9 } });
+            var helloResult = new HelloResult(new BsonDocument { { "compressors", new BsonArray() }, { "maxWireVersion", WireVersion.Server44 } });
             mockConnection.SetupGet(c => c.Description)
                 .Returns(new ConnectionDescription(new ConnectionId(serverId, 0), helloResult));
             var mockConnectionPool = new Mock<IConnectionPool>();

@@ -116,7 +116,7 @@ namespace MongoDB.Driver
         {
             get
             {
-                return ServerVersion.MaxWireVersion;
+                return WireVersion.ToWireVersion(ServerVersion);
             }
         }
 

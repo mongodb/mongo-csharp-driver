@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             if (maxWireVersion == null)
             {
-                maxWireVersion = 6;
+                maxWireVersion = WireVersion.Server36;
             }
 
             var clusterId = new ClusterId();

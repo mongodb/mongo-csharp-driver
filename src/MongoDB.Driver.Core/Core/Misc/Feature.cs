@@ -23,106 +23,106 @@ namespace MongoDB.Driver.Core.Misc
     public class Feature
     {
         #region static
-        private static readonly Feature __aggregate = new Feature("Aggregate", new SemanticVersion(2, 2, 0));
-        private static readonly Feature __aggregateAccumulator = new Feature("AggregateAccumulator", new SemanticVersion(4, 4, 0));
-        private static readonly Feature __aggregateAddFields = new Feature("AggregateAddFields", new SemanticVersion(3, 4, 0));
-        private static readonly Feature __aggregateAllowDiskUse = new Feature("AggregateAllowDiskUse", new SemanticVersion(2, 6, 0));
-        private static readonly Feature __aggregateBucketStage = new Feature("AggregateBucketStage", new SemanticVersion(3, 4, 0));
-        private static readonly Feature __aggregateComment = new Feature("AggregateComment", new SemanticVersion(3, 6, 0, "rc0"));
-        private static readonly Feature __aggregateCountStage = new Feature("AggregateCountStage", new SemanticVersion(3, 4, 0));
-        private static readonly Feature __aggregateCursorResult = new Feature("AggregateCursorResult", new SemanticVersion(2, 6, 0));
-        private static readonly Feature __aggregateExplain = new Feature("AggregateExplain", new SemanticVersion(2, 6, 0));
-        private static readonly Feature __aggregateFacetStage = new Feature("AggregateFacetStage", new SemanticVersion(3, 4, 0, "rc0"));
-        private static readonly Feature __aggregateFunction = new Feature("AggregateFunction", new SemanticVersion(4, 3, 4));
-        private static readonly Feature __aggregateGraphLookupStage = new Feature("AggregateGraphLookupStage", new SemanticVersion(3, 4, 0, "rc0"));
-        private static readonly Feature __aggregateHint = new Feature("AggregateHint", new SemanticVersion(3, 6, 0, "rc0"));
-        private static readonly Feature __aggregateOptionsLet = new Feature("AggregateOptionsLet", new SemanticVersion(5, 0, 0, ""));
-        private static readonly Feature __aggregateLet = new Feature("AggregateLet", new SemanticVersion(3, 6, 0));
-        private static readonly Feature __aggregateMerge = new Feature("AggregateMerge", new SemanticVersion(4, 2, 0));
-        private static readonly Feature __aggregateOut = new Feature("AggregateOut", new SemanticVersion(2, 6, 0));
-        private static readonly Feature __aggregateOutOnSecondary = new Feature("AggregateOutOnSecondary", WireVersion.Thirteen);
-        private static readonly Feature __aggregateOutToDifferentDatabase = new Feature("AggregateOutToDifferentDatabase", new SemanticVersion(4, 4, 0));
-        private static readonly Feature __aggregateToString = new Feature("AggregateToString", new SemanticVersion(4, 0, 0));
-        private static readonly Feature __aggregateUnionWith = new Feature("AggregateUnionWith", new SemanticVersion(4, 4, 0));
+        private static readonly Feature __aggregate = new Feature("Aggregate", WireVersion.ServerBefore26);
+        private static readonly Feature __aggregateAccumulator = new Feature("AggregateAccumulator", WireVersion.Server44);
+        private static readonly Feature __aggregateAddFields = new Feature("AggregateAddFields", WireVersion.Server34);
+        private static readonly Feature __aggregateAllowDiskUse = new Feature("AggregateAllowDiskUse", WireVersion.Server26);
+        private static readonly Feature __aggregateBucketStage = new Feature("AggregateBucketStage", WireVersion.Server34);
+        private static readonly Feature __aggregateComment = new Feature("AggregateComment", WireVersion.Server36);
+        private static readonly Feature __aggregateCountStage = new Feature("AggregateCountStage", WireVersion.Server34);
+        private static readonly Feature __aggregateCursorResult = new Feature("AggregateCursorResult", WireVersion.Server26);
+        private static readonly Feature __aggregateExplain = new Feature("AggregateExplain", WireVersion.Server26);
+        private static readonly Feature __aggregateFacetStage = new Feature("AggregateFacetStage", WireVersion.Server34);
+        private static readonly Feature __aggregateFunction = new Feature("AggregateFunction", WireVersion.Server44);
+        private static readonly Feature __aggregateGraphLookupStage = new Feature("AggregateGraphLookupStage", WireVersion.Server34);
+        private static readonly Feature __aggregateHint = new Feature("AggregateHint", WireVersion.Server36);
+        private static readonly Feature __aggregateOptionsLet = new Feature("AggregateOptionsLet", WireVersion.Server50);
+        private static readonly Feature __aggregateLet = new Feature("AggregateLet", WireVersion.Server36);
+        private static readonly Feature __aggregateMerge = new Feature("AggregateMerge", WireVersion.Server42);
+        private static readonly Feature __aggregateOut = new Feature("AggregateOut", WireVersion.Server26);
+        private static readonly Feature __aggregateOutOnSecondary = new Feature("AggregateOutOnSecondary", WireVersion.Server50);
+        private static readonly Feature __aggregateOutToDifferentDatabase = new Feature("AggregateOutToDifferentDatabase", WireVersion.Server44);
+        private static readonly Feature __aggregateToString = new Feature("AggregateToString", WireVersion.Server40);
+        private static readonly Feature __aggregateUnionWith = new Feature("AggregateUnionWith", WireVersion.Server44);
 #pragma warning disable CS0618 // Type or member is obsolete
-        private static readonly ArrayFiltersFeature __arrayFilters = new ArrayFiltersFeature("ArrayFilters", new SemanticVersion(3, 6, 0));
+        private static readonly ArrayFiltersFeature __arrayFilters = new ArrayFiltersFeature("ArrayFilters", WireVersion.Server36);
 #pragma warning restore CS0618 // Type or member is obsolete
-        private static readonly Feature __bypassDocumentValidation = new Feature("BypassDocumentValidation", new SemanticVersion(3, 2, 0));
-        private static readonly Feature __changeStreamStage = new Feature("ChangeStreamStage", new SemanticVersion(3, 6, 0));
-        private static readonly Feature __changeStreamPostBatchResumeToken = new Feature("ChangeStreamPostBatchResumeToken", new SemanticVersion(4, 0, 7));
-        private static readonly Feature __clientSideEncryption = new Feature("ClientSideEncryption", WireVersion.Eight);
+        private static readonly Feature __bypassDocumentValidation = new Feature("BypassDocumentValidation", WireVersion.Server32);
+        private static readonly Feature __changeStreamStage = new Feature("ChangeStreamStage", WireVersion.Server36);
+        private static readonly Feature __changeStreamPostBatchResumeToken = new Feature("ChangeStreamPostBatchResumeToken", WireVersion.Server40);
+        private static readonly Feature __clientSideEncryption = new Feature("ClientSideEncryption", WireVersion.Server42);
 #pragma warning disable CS0618 // Type or member is obsolete
-        private static readonly CollationFeature __collation = new CollationFeature("Collation", new SemanticVersion(3, 4, 0));
+        private static readonly CollationFeature __collation = new CollationFeature("Collation", WireVersion.Server34);
 #pragma warning restore CS0618 // Type or member is obsolete
-        private static readonly Feature __commandMessage = new Feature("CommandMessage", new SemanticVersion(3, 6, 0));
+        private static readonly Feature __commandMessage = new Feature("CommandMessage", WireVersion.Server36);
 #pragma warning disable CS0618 // Type or member is obsolete
-        private static readonly CommandsThatWriteAcceptWriteConcernFeature __commandsThatWriteAcceptWriteConcern = new CommandsThatWriteAcceptWriteConcernFeature("CommandsThatWriteAcceptWriteConcern", WireVersion.Five);
+        private static readonly CommandsThatWriteAcceptWriteConcernFeature __commandsThatWriteAcceptWriteConcern = new CommandsThatWriteAcceptWriteConcernFeature("CommandsThatWriteAcceptWriteConcern", WireVersion.Server34);
 #pragma warning restore CS0618 // Type or member is obsolete
-        private static readonly Feature __createIndexCommitQuorum = new Feature("CreateIndexCommitQuorum", new SemanticVersion(4, 4, 0, ""));
-        private static readonly Feature __createIndexesCommand = new Feature("CreateIndexesCommand", new SemanticVersion(2, 6, 0));
-        private static readonly Feature __createIndexesUsingInsertOperations = new Feature("CreateIndexesUsingInsertOperations", new SemanticVersion(1, 0, 0), new SemanticVersion(4, 1, 1, ""));
-        private static readonly Feature __currentOpCommand = new Feature("CurrentOpCommand", new SemanticVersion(3, 2, 0));
-        private static readonly Feature __documentValidation = new Feature("DocumentValidation", new SemanticVersion(3, 2, 0));
-        private static readonly Feature __directConnectionSetting = new Feature("DirectConnectionSetting", new SemanticVersion(4, 4, 0));
-        private static readonly Feature __estimatedDocumentCountByCollStats = new Feature("EstimatedDocumentCountByCollStats", new SemanticVersion(4, 9, 0, ""));
-        private static readonly Feature __eval = new Feature("Eval", new SemanticVersion(0, 0, 0), new SemanticVersion(4, 1, 0, ""));
-        private static readonly Feature __explainCommand = new Feature("ExplainCommand", new SemanticVersion(3, 0, 0));
-        private static readonly Feature __failPoints = new Feature("FailPoints", new SemanticVersion(2, 4, 0));
-        private static readonly Feature __failPointsBlockConnection = new Feature("FailPointsBlockConnection", new SemanticVersion(4, 2, 9));
-        private static readonly Feature __failPointsFailCommand = new Feature("FailPointsFailCommand", new SemanticVersion(4, 0, 0));
-        private static readonly Feature __failPointsFailCommandForSharded = new Feature("FailPointsFailCommandForSharded", new SemanticVersion(4, 1, 5));
+        private static readonly Feature __createIndexCommitQuorum = new Feature("CreateIndexCommitQuorum", WireVersion.Server44);
+        private static readonly Feature __createIndexesCommand = new Feature("CreateIndexesCommand", WireVersion.Server26);
+        private static readonly Feature __createIndexesUsingInsertOperations = new Feature("CreateIndexesUsingInsertOperations", WireVersion.ServerBefore26, WireVersion.Server40);
+        private static readonly Feature __currentOpCommand = new Feature("CurrentOpCommand", WireVersion.Server32);
+        private static readonly Feature __documentValidation = new Feature("DocumentValidation", WireVersion.Server32);
+        private static readonly Feature __directConnectionSetting = new Feature("DirectConnectionSetting", WireVersion.Server44);
+        private static readonly Feature __estimatedDocumentCountByCollStats = new Feature("EstimatedDocumentCountByCollStats", WireVersion.Server49);
+        private static readonly Feature __eval = new Feature("Eval", WireVersion.ServerBefore26, WireVersion.Server40);
+        private static readonly Feature __explainCommand = new Feature("ExplainCommand", WireVersion.Server30);
+        private static readonly Feature __failPoints = new Feature("FailPoints", WireVersion.ServerBefore26);
+        private static readonly Feature __failPointsBlockConnection = new Feature("FailPointsBlockConnection", WireVersion.Server42);
+        private static readonly Feature __failPointsFailCommand = new Feature("FailPointsFailCommand", WireVersion.Server40);
+        private static readonly Feature __failPointsFailCommandForSharded = new Feature("FailPointsFailCommandForSharded", WireVersion.Server42);
 #pragma warning disable CS0618 // Type or member is obsolete
-        private static readonly FindAllowDiskUseFeature __findAllowDiskUse = new FindAllowDiskUseFeature("FindAllowDiskUse", new SemanticVersion(4, 4, 0, ""));
+        private static readonly FindAllowDiskUseFeature __findAllowDiskUse = new FindAllowDiskUseFeature("FindAllowDiskUse", WireVersion.Server44);
 #pragma warning restore CS0618 // Type or member is obsolete
-        private static readonly Feature __findAndModifyWriteConcern = new Feature("FindAndModifyWriteConcern", new SemanticVersion(3, 2, 0));
-        private static readonly Feature __findCommand = new Feature("FindCommand", new SemanticVersion(3, 2, 0));
-        private static readonly Feature __geoNearCommand = new Feature("GeoNearCommand", new SemanticVersion(1, 0, 0), new SemanticVersion(4, 1, 0, ""));
-        private static readonly Feature __groupCommand = new Feature("GroupCommand", new SemanticVersion(1, 0, 0), new SemanticVersion(4, 1, 1, ""));
-        private static readonly Feature __hedgedReads = new Feature("HedgedReads", new SemanticVersion(4, 4, 0));
-        private static readonly Feature __hiddenIndex = new Feature("HiddenIndex", new SemanticVersion(4, 4, 0));
+        private static readonly Feature __findAndModifyWriteConcern = new Feature("FindAndModifyWriteConcern", WireVersion.Server32);
+        private static readonly Feature __findCommand = new Feature("FindCommand", WireVersion.Server32);
+        private static readonly Feature __geoNearCommand = new Feature("GeoNearCommand", WireVersion.ServerBefore26, WireVersion.Server40);
+        private static readonly Feature __groupCommand = new Feature("GroupCommand", WireVersion.ServerBefore26, WireVersion.Server40);
+        private static readonly Feature __hedgedReads = new Feature("HedgedReads", WireVersion.Server44);
+        private static readonly Feature __hiddenIndex = new Feature("HiddenIndex", WireVersion.Server44);
 #pragma warning disable CS0618 // Type or member is obsolete
-        private static readonly HintForDeleteOperationsFeature __hintForDeleteOperations = new HintForDeleteOperationsFeature("HintForDeleteOperations", new SemanticVersion(4, 3, 4));
+        private static readonly HintForDeleteOperationsFeature __hintForDeleteOperations = new HintForDeleteOperationsFeature("HintForDeleteOperations", WireVersion.Server44);
 #pragma warning restore CS0618 // Type or member is obsolete
-        private static readonly HintForFindAndModifyFeature __hintForFindAndModifyFeature = new HintForFindAndModifyFeature("HintForFindAndModify", new SemanticVersion(4, 3, 4));
+        private static readonly HintForFindAndModifyFeature __hintForFindAndModifyFeature = new HintForFindAndModifyFeature("HintForFindAndModify", WireVersion.Server44);
 #pragma warning disable CS0618 // Type or member is obsolete
-        private static readonly HintForUpdateAndReplaceOperationsFeature __hintForUpdateAndReplaceOperations = new HintForUpdateAndReplaceOperationsFeature("HintForUpdateAndReplaceOperations", new SemanticVersion(4, 2, 0));
+        private static readonly HintForUpdateAndReplaceOperationsFeature __hintForUpdateAndReplaceOperations = new HintForUpdateAndReplaceOperationsFeature("HintForUpdateAndReplaceOperations", WireVersion.Server42);
 #pragma warning restore CS0618 // Type or member is obsolete
-        private static readonly Feature __keepConnectionPoolWhenNotPrimaryConnectionException = new Feature("KeepConnectionPoolWhenNotWritablePrimaryConnectionException", new SemanticVersion(4, 2, 0));
-        private static readonly Feature __keepConnectionPoolWhenReplSetStepDown = new Feature("KeepConnectionPoolWhenReplSetStepDown", new SemanticVersion(4, 2, 0));
-        private static readonly Feature __killAllSessions = new Feature("KillAllSessions", new SemanticVersion(3, 6, 0));
-        private static readonly Feature __killCursorsCommand = new Feature("KillCursorsCommand", new SemanticVersion(3, 2, 0));
-        private static readonly Feature __legacyWireProtocol = new Feature("LegacyWireProtocol", WireVersion.Zero, WireVersion.Fourteen);
-        private static readonly Feature __listCollectionsCommand = new Feature("ListCollectionsCommand", new SemanticVersion(3, 0, 0));
-        private static readonly Feature __listDatabasesAuthorizedDatabases = new Feature("ListDatabasesAuthorizedDatabases", new SemanticVersion(4, 0, 5));
-        private static readonly Feature __listDatabasesFilter = new Feature("ListDatabasesFilter", new SemanticVersion(3, 4, 2));
-        private static readonly Feature __listDatabasesNameOnlyOption = new Feature("ListDatabasesNameOnlyOption", new SemanticVersion(3, 6, 0));
-        private static readonly Feature __listIndexesCommand = new Feature("ListIndexesCommand", new SemanticVersion(3, 0, 0));
-        private static readonly Feature __loadBalancedMode = new Feature("LoadBalancedMode", new SemanticVersion(5, 0, 0));
-        private static readonly Feature __indexOptionsDefaults = new Feature("IndexOptionsDefaults", new SemanticVersion(3, 2, 0));
-        private static readonly Feature __maxStaleness = new Feature("MaxStaleness", new SemanticVersion(3, 4, 0));
-        private static readonly Feature __maxTime = new Feature("MaxTime", new SemanticVersion(2, 6, 0));
-        private static readonly Feature __mmapV1StorageEngine = new Feature("MmapV1StorageEngine", new SemanticVersion(0, 0, 0), new SemanticVersion(4, 1, 0, ""));
-        private static readonly Feature __partialIndexes = new Feature("PartialIndexes", new SemanticVersion(3, 2, 0));
+        private static readonly Feature __keepConnectionPoolWhenNotPrimaryConnectionException = new Feature("KeepConnectionPoolWhenNotWritablePrimaryConnectionException", WireVersion.Server42);
+        private static readonly Feature __keepConnectionPoolWhenReplSetStepDown = new Feature("KeepConnectionPoolWhenReplSetStepDown", WireVersion.Server42);
+        private static readonly Feature __killAllSessions = new Feature("KillAllSessions", WireVersion.Server36);
+        private static readonly Feature __killCursorsCommand = new Feature("KillCursorsCommand", WireVersion.Server32);
+        private static readonly Feature __legacyWireProtocol = new Feature("LegacyWireProtocol", WireVersion.ServerBefore26, WireVersion.Server51);
+        private static readonly Feature __listCollectionsCommand = new Feature("ListCollectionsCommand", WireVersion.Server30);
+        private static readonly Feature __listDatabasesAuthorizedDatabases = new Feature("ListDatabasesAuthorizedDatabases", WireVersion.Server40);
+        private static readonly Feature __listDatabasesFilter = new Feature("ListDatabasesFilter", WireVersion.Server34);
+        private static readonly Feature __listDatabasesNameOnlyOption = new Feature("ListDatabasesNameOnlyOption", WireVersion.Server34);
+        private static readonly Feature __listIndexesCommand = new Feature("ListIndexesCommand", WireVersion.Server30);
+        private static readonly Feature __loadBalancedMode = new Feature("LoadBalancedMode", WireVersion.Server50);
+        private static readonly Feature __indexOptionsDefaults = new Feature("IndexOptionsDefaults", WireVersion.Server32);
+        private static readonly Feature __maxStaleness = new Feature("MaxStaleness", WireVersion.Server34);
+        private static readonly Feature __maxTime = new Feature("MaxTime", WireVersion.Server26);
+        private static readonly Feature __mmapV1StorageEngine = new Feature("MmapV1StorageEngine", WireVersion.ServerBefore26, WireVersion.Server40);
+        private static readonly Feature __partialIndexes = new Feature("PartialIndexes", WireVersion.Server32);
 #pragma warning disable CS0618 // Type or member is obsolete
-        private static readonly ReadConcernFeature __readConcern = new ReadConcernFeature("ReadConcern", new SemanticVersion(3, 2, 0));
+        private static readonly ReadConcernFeature __readConcern = new ReadConcernFeature("ReadConcern", WireVersion.Server32);
 #pragma warning restore CS0618 // Type or member is obsolete
-        private static readonly Feature __retryableReads = new Feature("RetryableReads", WireVersion.Six);
-        private static readonly Feature __retryableWrites = new Feature("RetryableWrites", WireVersion.Six);
-        private static readonly Feature __scramSha1Authentication = new Feature("ScramSha1Authentication", new SemanticVersion(3, 0, 0));
-        private static readonly Feature __scramSha256Authentication = new Feature("ScramSha256Authentication", new SemanticVersion(4, 0, 0, ""));
-        private static readonly Feature __serverExtractsUsernameFromX509Certificate = new Feature("ServerExtractsUsernameFromX509Certificate", new SemanticVersion(3, 4, 0));
-        private static readonly Feature __serverReturnsResumableChangeStreamErrorLabel = new Feature("ServerReturnsResumableChangeStreamErrorLabel", new SemanticVersion(4, 4, 0));
-        private static readonly Feature __serverReturnsRetryableWriteErrorLabel = new Feature("ServerReturnsRetryableWriteErrorLabel", new SemanticVersion(4, 4, 0));
-        private static readonly Feature __shardedTransactions = new Feature("ShardedTransactions", WireVersion.Eight);
-        private static readonly Feature __snapshotReads = new Feature("SnapshotReads", WireVersion.Thirteen, notSupportedMessage: "Snapshot reads require MongoDB 5.0 or later");
-        private static readonly Feature __speculativeAuthentication = new Feature("SpeculativeAuthentication", new SemanticVersion(4, 4, 0, "rc0"));
-        private static readonly Feature __streamingHello = new Feature("StreamingHello", new SemanticVersion(4, 4, 0, ""));
-        private static readonly Feature __tailableCursor = new Feature("TailableCursor", new SemanticVersion(3, 2, 0));
-        private static readonly Feature __transactions = new Feature("Transactions", WireVersion.Seven);
-        private static readonly Feature __userManagementCommands = new Feature("UserManagementCommands", new SemanticVersion(2, 6, 0));
-        private static readonly Feature __views = new Feature("Views", new SemanticVersion(3, 4, 0));
-        private static readonly Feature __wildcardIndexes = new Feature("WildcardIndexes", new SemanticVersion(4, 2, 0));
-        private static readonly Feature __writeCommands = new Feature("WriteCommands", new SemanticVersion(2, 6, 0));
+        private static readonly Feature __retryableReads = new Feature("RetryableReads", WireVersion.Server36);
+        private static readonly Feature __retryableWrites = new Feature("RetryableWrites", WireVersion.Server36);
+        private static readonly Feature __scramSha1Authentication = new Feature("ScramSha1Authentication", WireVersion.Server30);
+        private static readonly Feature __scramSha256Authentication = new Feature("ScramSha256Authentication", WireVersion.Server40);
+        private static readonly Feature __serverExtractsUsernameFromX509Certificate = new Feature("ServerExtractsUsernameFromX509Certificate", WireVersion.Server34);
+        private static readonly Feature __serverReturnsResumableChangeStreamErrorLabel = new Feature("ServerReturnsResumableChangeStreamErrorLabel", WireVersion.Server44);
+        private static readonly Feature __serverReturnsRetryableWriteErrorLabel = new Feature("ServerReturnsRetryableWriteErrorLabel", WireVersion.Server44);
+        private static readonly Feature __shardedTransactions = new Feature("ShardedTransactions", WireVersion.Server42);
+        private static readonly Feature __snapshotReads = new Feature("SnapshotReads", WireVersion.Server50, notSupportedMessage: "Snapshot reads require MongoDB 5.0 or later");
+        private static readonly Feature __speculativeAuthentication = new Feature("SpeculativeAuthentication", WireVersion.Server44);
+        private static readonly Feature __streamingHello = new Feature("StreamingHello", WireVersion.Server44);
+        private static readonly Feature __tailableCursor = new Feature("TailableCursor", WireVersion.Server32);
+        private static readonly Feature __transactions = new Feature("Transactions", WireVersion.Server40);
+        private static readonly Feature __userManagementCommands = new Feature("UserManagementCommands", WireVersion.Server26);
+        private static readonly Feature __views = new Feature("Views", WireVersion.Server34);
+        private static readonly Feature __wildcardIndexes = new Feature("WildcardIndexes", WireVersion.Server42);
+        private static readonly Feature __writeCommands = new Feature("WriteCommands", WireVersion.Server26);
 
         /// <summary>
         /// Gets the aggregate feature.
@@ -616,8 +616,8 @@ namespace MongoDB.Driver.Core.Misc
         #endregion
 
         private readonly string _name;
-        private readonly SemanticVersion _firstSupportedVersion;
-        private readonly SemanticVersion _supportRemovedVersion;
+        private readonly int _firstSupportedWireVersion;
+        private readonly int? _supportRemovedWireVersion;
         private readonly string _notSupportedMessage;
 
         /// <summary>
@@ -633,21 +633,19 @@ namespace MongoDB.Driver.Core.Misc
             string notSupportedMessage = null)
         {
             _name = name;
-            _firstSupportedVersion = firstSupportedVersion;
-            _supportRemovedVersion = supportRemovedVersion;
+            _firstSupportedWireVersion = WireVersion.ToWireVersion(firstSupportedVersion);
+            _supportRemovedWireVersion = supportRemovedVersion != null ? WireVersion.ToWireVersion(supportRemovedVersion) : (int?)null;
             _notSupportedMessage = notSupportedMessage;
         }
 
         internal Feature(string name,
-            WireVersion firstSupportedWireVersion,
-            WireVersion supportRemovedWireVersion = null,
+            int firstSupportedWireVersion,
+            int? supportRemovedWireVersion = null,
             string notSupportedMessage = null)
         {
             _name = name;
-            _firstSupportedVersion = Ensure.IsNotNull(
-                Ensure.IsNotNull(firstSupportedWireVersion, nameof(firstSupportedWireVersion)).FirstSupportedVersion,
-                nameof(firstSupportedWireVersion.FirstSupportedVersion));
-            _supportRemovedVersion = supportRemovedWireVersion?.FirstSupportedVersion;
+            _firstSupportedWireVersion = Ensure.IsGreaterThanOrEqualToZero(firstSupportedWireVersion, nameof(firstSupportedWireVersion));
+            _supportRemovedWireVersion = Ensure.IsNullOrGreaterThanOrEqualToZero(supportRemovedWireVersion, nameof(supportRemovedWireVersion));
             _notSupportedMessage = notSupportedMessage;
         }
 
@@ -660,22 +658,21 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the first server version that supports the feature.
         /// </summary>
         [Obsolete("This property will be removed in a later release.")]
-        public SemanticVersion FirstSupportedVersion => _firstSupportedVersion;
+        public SemanticVersion FirstSupportedVersion => WireVersion.ToServerVersion(_firstSupportedWireVersion);
 
-        internal int FirstSupportedMaxWireVersion => _firstSupportedVersion.MaxWireVersion;
+        internal int FirstSupportedMaxWireVersion => _firstSupportedWireVersion;
 
         /// <summary>
         /// Gets the last server version that does not support the feature.
         /// </summary>
         [Obsolete("This property will be removed in a later release.")]
-        public SemanticVersion LastNotSupportedVersion => VersionBefore(_firstSupportedVersion);
+        public SemanticVersion LastNotSupportedVersion => WireVersion.ToServerVersion(LastNotSupportedMaxWireVersion);
 
         internal int LastNotSupportedMaxWireVersion
         {
             get
             {
-                var maxWireVersion = _firstSupportedVersion.MaxWireVersion;
-                return maxWireVersion > 0 ? maxWireVersion - 1 : throw new ArgumentException("There is no maxWireVersion before 0.");
+                return _firstSupportedWireVersion > 0 ? _firstSupportedWireVersion - 1 : throw new ArgumentException("There is no maxWireVersion before 0.");
             }
         }
 
@@ -692,19 +689,16 @@ namespace MongoDB.Driver.Core.Misc
         [Obsolete("This method will be removed in later release.")]
         public bool IsSupported(SemanticVersion serverVersion)
         {
-            return _supportRemovedVersion != null
-                   ? serverVersion >= _firstSupportedVersion && serverVersion < _supportRemovedVersion
-                   : serverVersion >= _firstSupportedVersion;
+            var maxWireVersion = WireVersion.ToWireVersion(serverVersion);
+
+            return IsSupported(maxWireVersion);
         }
 
-        internal bool IsSupported(Range<int> wireVersionRange)
+        internal bool IsSupported(int maxWireVersion)
         {
-            const int neverExpiredWireVersion = 999;
-            var firstSupportedMaxWireVersion = _firstSupportedVersion.MaxWireVersion;
-            var supportRemovedMaxWireVersion = _supportRemovedVersion != null ? _supportRemovedVersion.MaxWireVersion : (int?)null;
-            return supportRemovedMaxWireVersion.HasValue
-                ? wireVersionRange.Overlaps(new Range<int>(firstSupportedMaxWireVersion, supportRemovedMaxWireVersion.Value))
-                : wireVersionRange.Overlaps(new Range<int>(firstSupportedMaxWireVersion, neverExpiredWireVersion));
+            return _supportRemovedWireVersion.HasValue
+                ? _firstSupportedWireVersion <= maxWireVersion && _supportRemovedWireVersion > maxWireVersion
+                : _firstSupportedWireVersion <= maxWireVersion;
         }
 
         /// <summary>
@@ -715,7 +709,9 @@ namespace MongoDB.Driver.Core.Misc
         [Obsolete("This method will be removed in a later release.")]
         public SemanticVersion SupportedOrNotSupportedVersion(bool isSupported)
         {
-            return isSupported ? _firstSupportedVersion : VersionBefore(_firstSupportedVersion);
+            return isSupported
+                ? WireVersion.ToServerVersion(_firstSupportedWireVersion)
+                : WireVersion.ToServerVersion(LastNotSupportedMaxWireVersion);
         }
 
         /// <summary>
@@ -732,50 +728,33 @@ namespace MongoDB.Driver.Core.Misc
             }
         }
 
-        internal void ThrowIfNotSupported(Range<int> wireVersionRange)
+        internal void ThrowIfNotSupported(int maxWireVersion)
         {
-            if (!IsSupported(wireVersionRange))
+            if (!IsSupported(maxWireVersion))
             {
+                string errorMessage; 
                 if (_notSupportedMessage != null)
                 {
-                    throw new NotSupportedException(_notSupportedMessage);
+                    errorMessage = _notSupportedMessage; ;
                 }
                 else
                 {
-                    WireVersion.ThrowNotSupportedException(wireVersionRange, _name);
+                    var emulatedServerVersion = WireVersion.ToServerVersion(maxWireVersion);
+                    errorMessage = $"Server with reported max wire version {maxWireVersion} (Supported starting from MongoDB {emulatedServerVersion.Major}.{emulatedServerVersion.Minor}) does not support the {_name} feature.";
                 }
+                throw new NotSupportedException(errorMessage);
             }
         }
 
         /// <inheritdoc/>
         public override string ToString()
         {
-            var message = $"{_name} feature added in {_firstSupportedVersion}";
-            if (_supportRemovedVersion != null)
+            var message = $"{_name} feature added in {_firstSupportedWireVersion} wire protocol";
+            if (_supportRemovedWireVersion != null)
             {
-                message += $" and removed in {_supportRemovedVersion}";
+                message += $" and removed in {_supportRemovedWireVersion} wire protocol";
             }
             return $"{message}.";
-        }
-
-        private SemanticVersion VersionBefore(SemanticVersion version)
-        {
-            if (version.Patch > 0)
-            {
-                return new SemanticVersion(version.Major, version.Minor, version.Patch - 1);
-            }
-            else if (version.Minor > 0)
-            {
-                return new SemanticVersion(version.Major, version.Minor - 1, 99);
-            }
-            else if (version.Major > 0)
-            {
-                return new SemanticVersion(version.Major - 1, 99, 99);
-            }
-            else
-            {
-                throw new ArgumentException("There is no version before 0.0.0.", nameof(version));
-            }
         }
     }
 }

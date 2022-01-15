@@ -84,7 +84,7 @@ namespace MongoDB.Driver.Core.Authentication
             // hello or legacy hello request and should query the server (provided that the server >= 4.0), merging results into
             // a new ConnectionDescription
             if (!description.HelloResult.HasSaslSupportedMechs
-                && Feature.ScramSha256Authentication.IsSupported(description.WireVersionRange))
+                && Feature.ScramSha256Authentication.IsSupported(description.MaxWireVersion))
             {
                 var command = CustomizeInitialHelloCommand(HelloHelper.CreateCommand(_serverApi));
                 var helloProtocol = HelloHelper.CreateProtocol(command, _serverApi);
@@ -109,7 +109,7 @@ namespace MongoDB.Driver.Core.Authentication
             // hello or legacy hello request and should query the server (provided that the server >= 4.0), merging results into
             // a new ConnectionDescription
             if (!description.HelloResult.HasSaslSupportedMechs
-                && Feature.ScramSha256Authentication.IsSupported(description.WireVersionRange))
+                && Feature.ScramSha256Authentication.IsSupported(description.MaxWireVersion))
             {
                 var command = CustomizeInitialHelloCommand(HelloHelper.CreateCommand(_serverApi));
                 var helloProtocol = HelloHelper.CreateProtocol(command, _serverApi);

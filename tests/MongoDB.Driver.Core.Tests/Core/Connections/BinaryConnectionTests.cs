@@ -29,6 +29,7 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Helpers;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -55,7 +56,7 @@ namespace MongoDB.Driver.Core.Connections
             _endPoint = new DnsEndPoint("localhost", 27017);
             var serverId = new ServerId(new ClusterId(), _endPoint);
             var connectionId = new ConnectionId(serverId);
-            var helloResult = new HelloResult(new BsonDocument { { "ok", 1 }, { "maxMessageSizeBytes", 48000000 }, { "maxWireVersion", 6 } });
+            var helloResult = new HelloResult(new BsonDocument { { "ok", 1 }, { "maxMessageSizeBytes", 48000000 }, { "maxWireVersion", WireVersion.Server36 } });
             _connectionDescription = new ConnectionDescription(connectionId, helloResult);
 
             _mockConnectionInitializer = new Mock<IConnectionInitializer>();

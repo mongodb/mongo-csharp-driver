@@ -36,6 +36,11 @@ namespace MongoDB.Driver.Core.Misc
         {
         }
 
+        internal ArrayFiltersFeature(string name, int maxWireVersion)
+            : base(name, maxWireVersion)
+        {
+        }
+
         /// <summary>
         /// Throws if arrayFilters value is not null and arrayFilters are not supported.
         /// </summary>

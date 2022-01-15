@@ -182,11 +182,9 @@ namespace MongoDB.Driver.Core.Helpers
             }
             else
             {
-#pragma warning disable CS0618 // Type or member is obsolete
-                if (description.Version != null || description.WireVersionRange != null)
+                if (description.WireVersionRange != null)
                 {
-                    var maxWireVersion = description.WireVersionRange?.Max ?? description.Version.MaxWireVersion;
-#pragma warning restore CS0618 // Type or member is obsolete
+                    var maxWireVersion = description.WireVersionRange?.Max;
                     var server = (Server)result.Server;
                     var helloResult = new HelloResult(new BsonDocument { { "compressors", new BsonArray() }, { "maxWireVersion", maxWireVersion } });
                     var mockConnection = Mock.Get(server._connectionPool().AcquireConnection(CancellationToken.None));

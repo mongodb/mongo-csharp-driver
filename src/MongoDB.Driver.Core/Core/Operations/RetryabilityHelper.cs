@@ -89,9 +89,9 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // public static methods
-        public static void AddRetryableWriteErrorLabelIfRequired(MongoException exception, Range<int> wireVersionRange)
+        public static void AddRetryableWriteErrorLabelIfRequired(MongoException exception, int maxWireVersion)
         {
-            if (ShouldRetryableWriteExceptionLabelBeAdded(exception, wireVersionRange))
+            if (ShouldRetryableWriteExceptionLabelBeAdded(exception, maxWireVersion))
             {
                 exception.AddErrorLabel(RetryableWriteErrorLabel);
             }
@@ -105,7 +105,7 @@ namespace MongoDB.Driver.Core.Operations
                 command.Contains("abortTransaction");
         }
 
-        public static bool IsResumableChangeStreamException(Exception exception, Range<int> wireVersionRange)
+        public static bool IsResumableChangeStreamException(Exception exception, int maxWireVersion)
         {
             if (IsNetworkException(exception))
             {
@@ -120,7 +120,7 @@ namespace MongoDB.Driver.Core.Operations
                 return true;
             }
 
-            if (Feature.ServerReturnsResumableChangeStreamErrorLabel.IsSupported(wireVersionRange))
+            if (Feature.ServerReturnsResumableChangeStreamErrorLabel.IsSupported(maxWireVersion))
             {
                 return exception is MongoException mongoException ? mongoException.HasErrorLabel(ResumableChangeStreamErrorLabel) : false;
             }
@@ -171,14 +171,14 @@ namespace MongoDB.Driver.Core.Operations
             return exception is MongoConnectionException mongoConnectionException && mongoConnectionException.IsNetworkException;
         }
 
-        private static bool ShouldRetryableWriteExceptionLabelBeAdded(Exception exception, Range<int> wireVersionRange)
+        private static bool ShouldRetryableWriteExceptionLabelBeAdded(Exception exception, int maxWireVersion)
         {
             if (IsNetworkException(exception))
             {
                 return true;
             }
 
-            if (Feature.ServerReturnsRetryableWriteErrorLabel.IsSupported(wireVersionRange))
+            if (Feature.ServerReturnsRetryableWriteErrorLabel.IsSupported(maxWireVersion))
             {
                 return false;
             }

@@ -85,11 +85,11 @@ namespace MongoDB.Driver.Core.Connections
             _mockConnectionInitializer.Setup(i => i.SendHelloAsync(It.IsAny<IConnection>(), CancellationToken.None))
                 .Returns(() => Task.FromResult(new ConnectionDescription(
                     new ConnectionId(serverId),
-                    new HelloResult(new BsonDocument { { "maxWireVersion", 6 } }))));
+                    new HelloResult(new BsonDocument { { "maxWireVersion", WireVersion.Server36 } }))));
             _mockConnectionInitializer.Setup(i => i.AuthenticateAsync(It.IsAny<IConnection>(), It.IsAny<ConnectionDescription>(), CancellationToken.None))
                 .Returns(() => Task.FromResult(new ConnectionDescription(
                     new ConnectionId(serverId),
-                    new HelloResult(new BsonDocument { { "maxWireVersion", 6 } }))));
+                    new HelloResult(new BsonDocument { { "maxWireVersion", WireVersion.Server36 } }))));
 
             _subject = new BinaryConnection(
                 serverId: serverId,

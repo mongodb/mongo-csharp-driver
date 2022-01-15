@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Core.Authentication
             new HelloResult(
                 new BsonDocument("ok", 1)
                 .Add(OppressiveLanguageConstants.LegacyHelloResponseIsWritablePrimaryFieldName, 1)
-                .Add("maxWireVersion", 10)));
+                .Add("maxWireVersion", WireVersion.Server47)));
 
         [Fact]
         public void Constructor_should_throw_an_ArgumentNullException_when_credential_is_null()

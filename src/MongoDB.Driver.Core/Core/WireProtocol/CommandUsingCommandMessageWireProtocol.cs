@@ -147,7 +147,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             }
             catch (Exception exception)
             {
-                AddErrorLabelIfRequired(exception, connection.Description?.WireVersionRange);
+                AddErrorLabelIfRequired(exception, connection.Description?.MaxWireVersion);
 
                 TransactionHelper.UnpinServerIfNeededOnCommandException(_session, exception);
                 throw;
@@ -201,7 +201,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             }
             catch (Exception exception)
             {
-                AddErrorLabelIfRequired(exception, connection.Description?.WireVersionRange);
+                AddErrorLabelIfRequired(exception, connection.Description?.MaxWireVersion);
 
                 TransactionHelper.UnpinServerIfNeededOnCommandException(_session, exception);
                 throw;
@@ -209,7 +209,7 @@ namespace MongoDB.Driver.Core.WireProtocol
         }
 
         // private methods
-        private void AddErrorLabelIfRequired(Exception exception, Range<int> wireVersionRange)
+        private void AddErrorLabelIfRequired(Exception exception, int? maxWireVersion)
         {
             if (exception is MongoException mongoException)
             {
@@ -218,9 +218,9 @@ namespace MongoDB.Driver.Core.WireProtocol
                     mongoException.AddErrorLabel("TransientTransactionError");
                 }
 
-                if (RetryabilityHelper.IsCommandRetryable(_command))
+                if (RetryabilityHelper.IsCommandRetryable(_command) && maxWireVersion.HasValue)
                 {
-                    RetryabilityHelper.AddRetryableWriteErrorLabelIfRequired(mongoException, wireVersionRange);
+                    RetryabilityHelper.AddRetryableWriteErrorLabelIfRequired(mongoException, maxWireVersion.Value);
                 }
             }
         }

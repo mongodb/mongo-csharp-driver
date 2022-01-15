@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var exception = CoreExceptionHelper.CreateMongoWriteConcernException(BsonDocument.Parse($"{{ writeConcernError : {{ code : {errorCode} }} }}"));
 
-            RetryabilityHelper.AddRetryableWriteErrorLabelIfRequired(exception, new Range<int>(0, Feature.ServerReturnsRetryableWriteErrorLabel.LastNotSupportedMaxWireVersion));
+            RetryabilityHelper.AddRetryableWriteErrorLabelIfRequired(exception, Feature.ServerReturnsRetryableWriteErrorLabel.LastNotSupportedMaxWireVersion);
 
             var hasRetryableWriteErrorLabel = exception.HasErrorLabel("RetryableWriteError");
             hasRetryableWriteErrorLabel.Should().Be(shouldAddErrorLabel);
@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Core.Operations
             var feature = Feature.ServerReturnsRetryableWriteErrorLabel;
             var wireVersion = serverReturnsRetryableWriteErrorLabel ? feature.FirstSupportedMaxWireVersion : feature.LastNotSupportedMaxWireVersion;
 
-            RetryabilityHelper.AddRetryableWriteErrorLabelIfRequired(exception, new Range<int>(0, wireVersion));
+            RetryabilityHelper.AddRetryableWriteErrorLabelIfRequired(exception, wireVersion);
 
             var hasRetryableWriteErrorLabel = exception.HasErrorLabel("RetryableWriteError");
             hasRetryableWriteErrorLabel.Should().BeTrue();
@@ -90,7 +90,7 @@ namespace MongoDB.Driver.Core.Operations
                 exception = CoreExceptionHelper.CreateMongoCommandException((int)exceptionDescription);
             }
 
-            RetryabilityHelper.AddRetryableWriteErrorLabelIfRequired(exception, new Range<int>(0, Feature.ServerReturnsRetryableWriteErrorLabel.LastNotSupportedMaxWireVersion));
+            RetryabilityHelper.AddRetryableWriteErrorLabelIfRequired(exception, Feature.ServerReturnsRetryableWriteErrorLabel.LastNotSupportedMaxWireVersion);
 
             var hasRetryableWriteErrorLabel = exception.HasErrorLabel("RetryableWriteError");
             hasRetryableWriteErrorLabel.Should().Be(shouldAddErrorLabel);
@@ -152,7 +152,7 @@ namespace MongoDB.Driver.Core.Operations
                 exception = CoreExceptionHelper.CreateMongoCommandException((int)exceptionDescription);
             }
 
-            var result = RetryabilityHelper.IsResumableChangeStreamException(exception, new Range<int>(0, Feature.ServerReturnsResumableChangeStreamErrorLabel.LastNotSupportedMaxWireVersion));
+            var result = RetryabilityHelper.IsResumableChangeStreamException(exception, Feature.ServerReturnsResumableChangeStreamErrorLabel.LastNotSupportedMaxWireVersion);
 
             result.Should().Be(isResumable);
         }
@@ -167,7 +167,7 @@ namespace MongoDB.Driver.Core.Operations
                 exception.AddErrorLabel("ResumableChangeStreamError");
             }
 
-            var result = RetryabilityHelper.IsResumableChangeStreamException(exception, new Range<int>(0, Feature.ServerReturnsResumableChangeStreamErrorLabel.FirstSupportedMaxWireVersion));
+            var result = RetryabilityHelper.IsResumableChangeStreamException(exception, Feature.ServerReturnsResumableChangeStreamErrorLabel.FirstSupportedMaxWireVersion);
 
             result.Should().Be(hasResumableChangeStreamErrorLabel);
         }
@@ -181,7 +181,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var exception = (MongoException)CoreExceptionHelper.CreateException(exceptionType);
 
-            var result = RetryabilityHelper.IsResumableChangeStreamException(exception, new Range<int>(0, Feature.ServerReturnsResumableChangeStreamErrorLabel.FirstSupportedMaxWireVersion));
+            var result = RetryabilityHelper.IsResumableChangeStreamException(exception, Feature.ServerReturnsResumableChangeStreamErrorLabel.FirstSupportedMaxWireVersion);
 
             result.Should().Be(isResumable);
         }

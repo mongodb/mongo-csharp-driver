@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Core.Misc
         {
         }
 
-        internal CommandsThatWriteAcceptWriteConcernFeature(string name, WireVersion firstSupportedWireVersion)
+        internal CommandsThatWriteAcceptWriteConcernFeature(string name, int firstSupportedWireVersion)
             : base(name, firstSupportedWireVersion)
         {
         }

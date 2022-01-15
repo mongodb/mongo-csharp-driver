@@ -379,7 +379,7 @@ namespace MongoDB.Driver.Core.Servers
                         tags: heartbeatHelloResult.Tags,
                         topologyVersion: heartbeatHelloResult.TopologyVersion,
                         type: heartbeatHelloResult.ServerType,
-                        version: WireVersion.GetWireVersion(heartbeatHelloResult.MaxWireVersion).FirstSupportedVersion,
+                        version: WireVersion.ToServerVersion(heartbeatHelloResult.MaxWireVersion),
                         wireVersionRange: new Range<int>(heartbeatHelloResult.MinWireVersion, heartbeatHelloResult.MaxWireVersion));
                 }
                 else

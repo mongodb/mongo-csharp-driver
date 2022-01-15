@@ -155,11 +155,11 @@ namespace MongoDB.Driver.Core.Operations
         // private methods
         internal BsonDocument CreateCommand(ICoreSessionHandle session, ConnectionDescription connectionDescription)
         {
-            var wireVersionRange = connectionDescription.WireVersionRange;
+            var maxWireVersion = connectionDescription.MaxWireVersion;
             var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(session, _writeConcern);
             if (_commitQuorum != null)
             {
-                Feature.CreateIndexCommitQuorum.ThrowIfNotSupported(wireVersionRange);
+                Feature.CreateIndexCommitQuorum.ThrowIfNotSupported(maxWireVersion);
             }
 
             return new BsonDocument

@@ -93,7 +93,7 @@ namespace MongoDB.Driver.Core.Operations
         [Theory]
         [ParameterAttributeData]
         public void CreateCommand_should_create_the_correct_command(
-            [Values(4, 5)] int maxWireVersion,
+            [Values(WireVersion.Server30, WireVersion.Server32)] int maxWireVersion,
             [Values(null, ReadConcernLevel.Local, ReadConcernLevel.Majority)] ReadConcernLevel? readConcernLevel)
         {
             var filter = new BsonDocument("x", 1);

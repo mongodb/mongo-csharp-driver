@@ -21,25 +21,83 @@ namespace MongoDB.Driver.Core.Misc
 {
     internal class WireVersion
     {
+        /// <summary>
+        /// Wire version 0.
+        /// </summary>
+        public const int ServerBefore26 = 0;
+        /// <summary>
+        /// Wire version 2.
+        /// </summary>
+        public const int Server26 = 2;
+        /// <summary>
+        /// Wire version 3.
+        /// </summary>
+        public const int Server30 = 3;
+        /// <summary>
+        /// Wire version 4.
+        /// </summary>
+        public const int Server32 = 4;
+        /// <summary>
+        /// Wire version 5.
+        /// </summary>
+        public const int Server34 = 5;
+        /// <summary>
+        /// Wire version 6.
+        /// </summary>
+        public const int Server36 = 6;
+        /// <summary>
+        /// Wire version 7.
+        /// </summary>
+        public const int Server40 = 7;
+        /// <summary>
+        /// Wire version 8.
+        /// </summary>
+        public const int Server42 = 8;
+        /// <summary>
+        /// Wire version 9.
+        /// </summary>
+        public const int Server44 = 9;
+        /// <summary>
+        /// Wire version 10.
+        /// </summary>
+        public const int Server47 = 10;
+        /// <summary>
+        /// Wire version 11.
+        /// </summary>
+        public const int Server48 = 11;
+        /// <summary>
+        /// Wire version 12.
+        /// </summary>
+        public const int Server49 = 12;
+        /// <summary>
+        /// Wire version 13.
+        /// </summary>
+        public const int Server50 = 13;
+        /// <summary>
+        /// Wire version 14.
+        /// </summary>
+        public const int Server51 = 14;
+
         #region static
-        private static List<WireVersion> __wireVersionSemanticVersionsSet = new()
+        private static List<WireVersionInfo> __wireVersionSemanticVersionsSet = new()
         {
-            new WireVersion(maxWireVersion: 0, major: 0, minor: 0),
-            new WireVersion(maxWireVersion: 1, major: 0, minor: 0),
-            new WireVersion(maxWireVersion: 2, major: 2, minor: 6),
-            new WireVersion(maxWireVersion: 3, major: 3, minor: 0),
-            new WireVersion(maxWireVersion: 4, major: 3, minor: 2),
-            new WireVersion(maxWireVersion: 5, major: 3, minor: 4),
-            new WireVersion(maxWireVersion: 6, major: 3, minor: 6),
-            new WireVersion(maxWireVersion: 7, major: 4, minor: 0),
-            new WireVersion(maxWireVersion: 8, major: 4, minor: 2),
-            new WireVersion(maxWireVersion: 9, major: 4, minor: 4),
-            new WireVersion(maxWireVersion: 10, major: 4, minor: 7),
-            new WireVersion(maxWireVersion: 11, major: 4, minor: 8),
-            new WireVersion(maxWireVersion: 12, major: 4, minor: 9),
-            new WireVersion(maxWireVersion: 13, major: 5, minor: 0),
-            new WireVersion(maxWireVersion: 14, major: 5, minor: 1),
+            new WireVersionInfo(maxWireVersion: 0, major: 0, minor: 0),
+            new WireVersionInfo(maxWireVersion: 1, major: 0, minor: 0),
+            new WireVersionInfo(maxWireVersion: 2, major: 2, minor: 6),
+            new WireVersionInfo(maxWireVersion: 3, major: 3, minor: 0),
+            new WireVersionInfo(maxWireVersion: 4, major: 3, minor: 2),
+            new WireVersionInfo(maxWireVersion: 5, major: 3, minor: 4),
+            new WireVersionInfo(maxWireVersion: 6, major: 3, minor: 6),
+            new WireVersionInfo(maxWireVersion: 7, major: 4, minor: 0),
+            new WireVersionInfo(maxWireVersion: 8, major: 4, minor: 2),
+            new WireVersionInfo(maxWireVersion: 9, major: 4, minor: 4),
+            new WireVersionInfo(maxWireVersion: 10, major: 4, minor: 7),
+            new WireVersionInfo(maxWireVersion: 11, major: 4, minor: 8),
+            new WireVersionInfo(maxWireVersion: 12, major: 4, minor: 9),
+            new WireVersionInfo(maxWireVersion: 13, major: 5, minor: 0),
+            new WireVersionInfo(maxWireVersion: 14, major: 5, minor: 1),
         };
+
         private static Range<int> __supportedWireRange = new Range<int>(6, 14);
 
         // public static properties
@@ -60,94 +118,35 @@ namespace MongoDB.Driver.Core.Misc
         {
             get
             {
-                return __wireVersionSemanticVersionsSet[SupportedWireRange.Min].FirstSupportedVersion;
+                return __wireVersionSemanticVersionsSet[SupportedWireRange.Min].FirstSupportedServerVersion;
             }
         }
 
-        /// <summary>
-        /// Mongo server version 0.
-        /// </summary>
-        public static WireVersion Zero => __wireVersionSemanticVersionsSet.First(w => w.MaxWireVersion == 0);
-
-        /// <summary>
-        /// Mongo server version 3.4.
-        /// </summary>
-        public static WireVersion Five => __wireVersionSemanticVersionsSet.First(w => w.MaxWireVersion == 5);
-        /// <summary>
-        /// Mongo server version 3.6.
-        /// </summary>
-        public static WireVersion Six => __wireVersionSemanticVersionsSet.First(w => w.MaxWireVersion == 6);
-        /// <summary>
-        /// Mongo server version 4.0.
-        /// </summary>
-        public static WireVersion Seven => __wireVersionSemanticVersionsSet.First(w => w.MaxWireVersion == 7);
-        /// <summary>
-        /// Mongo server version 4.2.
-        /// </summary>
-        public static WireVersion Eight => __wireVersionSemanticVersionsSet.First(w => w.MaxWireVersion == 8);
-        /// <summary>
-        /// Mongo server version 4.4.
-        /// </summary>
-        public static WireVersion Nine => __wireVersionSemanticVersionsSet.First(w => w.MaxWireVersion == 9);
-        /// <summary>
-        /// Mongo server version 4.7.
-        /// </summary>
-        public static WireVersion Ten => __wireVersionSemanticVersionsSet.First(w => w.MaxWireVersion == 10);
-        /// <summary>
-        /// Mongo server version 4.8.
-        /// </summary>
-        public static WireVersion Eleven => __wireVersionSemanticVersionsSet.First(w => w.MaxWireVersion == 11);
-        /// <summary>
-        /// Mongo server version 4.9.
-        /// </summary>
-        public static WireVersion Twelve => __wireVersionSemanticVersionsSet.First(w => w.MaxWireVersion == 12);
-        /// <summary>
-        /// Mongo server version 5.0.
-        /// </summary>
-        public static WireVersion Thirteen => __wireVersionSemanticVersionsSet.First(w => w.MaxWireVersion == 13);
-        /// <summary>
-        /// Mongo server version 5.1.
-        /// </summary>
-        public static WireVersion Fourteen => __wireVersionSemanticVersionsSet.First(w => w.MaxWireVersion == 14);
-
         // public static methods
-        public static WireVersion GetWireVersion(int maxWireVersion)
+        public static SemanticVersion ToServerVersion(int maxWireVersion)
         {
-            return __wireVersionSemanticVersionsSet.FirstOrDefault(w => w.MaxWireVersion == maxWireVersion)
+            var wireVersionInfo = __wireVersionSemanticVersionsSet.FirstOrDefault(w => w.MaxWireVersion == maxWireVersion)
                     // take the last supported wire protocol and rely on server selecting compatibility check
                     ?? __wireVersionSemanticVersionsSet.Last();
+            return wireVersionInfo.FirstSupportedServerVersion;
         }
 
-        public static WireVersion GetWireVersion(Range<int> wireVersionRange)
+        public static int ToWireVersion(SemanticVersion semanticVersion)
         {
-            return GetWireVersion(wireVersionRange.Max);
-        }
-
-        public static WireVersion GetWireVersion(SemanticVersion semanticVersion)
-        {
-            return __wireVersionSemanticVersionsSet.Last(w => w.FirstSupportedVersion <= semanticVersion);
-        }
-
-        public static void ThrowNotSupportedException(Range<int> wireVersionRange, string featureName)
-        {
-            var emulateServerVersion = WireVersion.GetWireVersion(wireVersionRange).FirstSupportedVersion;
-            throw new NotSupportedException($"Server with reported max wire version {wireVersionRange.Max} (Supported starting from MongoDB {emulateServerVersion.Major}.{emulateServerVersion.Minor}) does not support the {featureName} feature.");
+            return __wireVersionSemanticVersionsSet.Last(w => w.FirstSupportedServerVersion <= semanticVersion).MaxWireVersion;
         }
         #endregion
 
-        private readonly int _maxWireVersion;
-        private readonly SemanticVersion _firstSupportedServerVersion;
-
-        public WireVersion(int maxWireVersion, int major, int minor)
+        private class WireVersionInfo
         {
-            _firstSupportedServerVersion = new SemanticVersion(
-                major: Ensure.IsGreaterThanOrEqualToZero(major, nameof(major)),
-                minor: Ensure.IsGreaterThanOrEqualToZero(minor, nameof(minor)),
-                patch: 0);
-            _maxWireVersion = Ensure.IsGreaterThanOrEqualToZero(maxWireVersion, nameof(maxWireVersion));
-        }
+            public WireVersionInfo(int maxWireVersion, int major, int minor)
+            {
+                MaxWireVersion = maxWireVersion;
+                FirstSupportedServerVersion = new SemanticVersion(major, minor, 0);
+            }
 
-        public SemanticVersion FirstSupportedVersion => _firstSupportedServerVersion;
-        public int MaxWireVersion => _maxWireVersion;
+            public int MaxWireVersion { get; }
+            public SemanticVersion FirstSupportedServerVersion { get; }
+        }
     }
 }

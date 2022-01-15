@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             new HelloResult(
                 new BsonDocument("ok", 1)
                 .Add(OppressiveLanguageConstants.LegacyHelloResponseIsWritablePrimaryFieldName, 1)
-                .Add("maxWireVersion", 12)));
+                .Add("maxWireVersion", WireVersion.Server49)));
 
         [Theory]
         [ParameterAttributeData]
@@ -124,7 +124,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                     .Returns(
                         new ConnectionDescription(
                             id,
-                            new HelloResult(new BsonDocument { { "ok", 1 }, { "maxWireVersion", 9 } })));
+                            new HelloResult(new BsonDocument { { "ok", 1 }, { "maxWireVersion", WireVersion.Server44 } })));
                 return id;
             }
         }

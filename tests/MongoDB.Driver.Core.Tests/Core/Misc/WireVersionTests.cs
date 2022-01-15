@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using FluentAssertions;
 using MongoDB.Driver.Core.Misc;
 using Xunit;
@@ -22,35 +21,6 @@ namespace MongoDB.Driver.Core.Tests.Core.Misc
 {
     public class WireVersionTests
     {
-        [Fact]
-        public void ctor_should_initialize_instance()
-        {
-            _ = new WireVersion(0, 0, 0);
-        }
-
-        [Fact]
-        public void ctor_should_throw_when_maxWireVersion_is_negative()
-        {
-            Record.Exception(() => { new WireVersion(-1, 0, 0); })
-                .Should().BeOfType<ArgumentOutOfRangeException>().Subject
-                .ParamName
-                .Should().Be("maxWireVersion");
-        }
-
-        [Fact]
-        public void ctor_should_throw_when_server_version_is_negative()
-        {
-            Record.Exception(() => { new WireVersion(0, -1, 0); })
-                .Should().BeOfType<ArgumentOutOfRangeException>().Subject
-                .ParamName
-                .Should().Be("major");
-
-            Record.Exception(() => { new WireVersion(0, 1, -1); })
-                .Should().BeOfType<ArgumentOutOfRangeException>().Subject
-                .ParamName
-                .Should().Be("minor");
-        }
-
         [Fact]
         public void FirstSupportedServerVersion_should_be_correct()
         {
@@ -103,13 +73,13 @@ namespace MongoDB.Driver.Core.Tests.Core.Misc
         [InlineData(5, 1, 0, 14)]
         [InlineData(5, 1, 99, 14)]
         // not specified servers in the mapping are mapped to the latest specified
-        [InlineData(5, 2, 0, 14)]
-        [InlineData(5, 2, 99, 14)]
+        [InlineData(10, 0, 0, 14)]
+        [InlineData(10, 0, 99, 14)]
         public void GetWireVersion_with_semanticVersion_should_get_correct_maxWireVersion(int major, int minor, int patch, int expectedMaxWireVersion)
         {
-            var subject = WireVersion.GetWireVersion(new SemanticVersion(major, minor, patch));
+            var wireVersion = WireVersion.ToWireVersion(new SemanticVersion(major, minor, patch));
 
-            subject.MaxWireVersion.Should().Be(expectedMaxWireVersion);
+            wireVersion.Should().Be(expectedMaxWireVersion);
         }
     }
 }

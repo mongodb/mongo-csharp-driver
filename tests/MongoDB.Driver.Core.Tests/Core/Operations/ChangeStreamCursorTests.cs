@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Core.Operations
     public class ChangeStreamCursorTests : OperationTestBase
     {
         #region static
-        private static readonly Range<int> __dummyWireVersionRange = new Range<int>(0, 0);
+        private static readonly int __dummyMaxWireVersion = 0;
         #endregion
 
         [Theory]
@@ -106,7 +106,7 @@ namespace MongoDB.Driver.Core.Operations
                 startAfter,
                 resumeAfter,
                 startAtOperationTime,
-                __dummyWireVersionRange);
+                __dummyMaxWireVersion);
 
             subject._binding().Should().BeSameAs(binding);
             subject._changeStreamOperation().Should().BeSameAs(changeStreamOperation);
@@ -119,7 +119,7 @@ namespace MongoDB.Driver.Core.Operations
             subject._initialStartAfter().Should().Be(startAfter);
             subject._initialResumeAfter().Should().Be(resumeAfter);
             subject._initialStartAtOperationTime().Should().Be(startAtOperationTime);
-            subject._wireVersionRange().Should().Be(__dummyWireVersionRange);
+            subject._maxWireVersion().Should().Be(__dummyMaxWireVersion);
         }
 
         [Fact]
@@ -131,7 +131,7 @@ namespace MongoDB.Driver.Core.Operations
             var postBatchResumeToken = Mock.Of<BsonDocument>();
             var changeStreamOperation = CreateChangeStreamOperation();
 
-            var exception = Record.Exception(() => new ChangeStreamCursor<BsonDocument>(null, documentSerializer, binding, changeStreamOperation, postBatchResumeToken, initialOperationTime, null, null, null, __dummyWireVersionRange));
+            var exception = Record.Exception(() => new ChangeStreamCursor<BsonDocument>(null, documentSerializer, binding, changeStreamOperation, postBatchResumeToken, initialOperationTime, null, null, null, __dummyMaxWireVersion));
 
             var argumnetNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
             argumnetNullException.ParamName.Should().Be("cursor");
@@ -146,7 +146,7 @@ namespace MongoDB.Driver.Core.Operations
             var postBatchResumeToken = Mock.Of<BsonDocument>();
             var changeStreamOperation = CreateChangeStreamOperation();
 
-            var exception = Record.Exception(() => new ChangeStreamCursor<BsonDocument>(cursor, null, binding, changeStreamOperation, postBatchResumeToken, initialOperationTime, null, null, null, __dummyWireVersionRange));
+            var exception = Record.Exception(() => new ChangeStreamCursor<BsonDocument>(cursor, null, binding, changeStreamOperation, postBatchResumeToken, initialOperationTime, null, null, null, __dummyMaxWireVersion));
 
             var argumnetNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
             argumnetNullException.ParamName.Should().Be("documentSerializer");
@@ -161,7 +161,7 @@ namespace MongoDB.Driver.Core.Operations
             var postBatchResumeToken = Mock.Of<BsonDocument>();
             var changeStreamOperation = CreateChangeStreamOperation();
 
-            var exception = Record.Exception(() => new ChangeStreamCursor<BsonDocument>(cursor, documentSerializer, null, changeStreamOperation, postBatchResumeToken, initialOperationTime, null, null, null, __dummyWireVersionRange));
+            var exception = Record.Exception(() => new ChangeStreamCursor<BsonDocument>(cursor, documentSerializer, null, changeStreamOperation, postBatchResumeToken, initialOperationTime, null, null, null, __dummyMaxWireVersion));
 
             var argumnetNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
             argumnetNullException.ParamName.Should().Be("binding");
@@ -176,14 +176,14 @@ namespace MongoDB.Driver.Core.Operations
             var postBatchResumeToken = Mock.Of<BsonDocument>();
             var binding = new Mock<IReadBinding>().Object;
 
-            var exception = Record.Exception(() => new ChangeStreamCursor<BsonDocument>(cursor, documentSerializer, binding, null, postBatchResumeToken, initialOperationTime, null, null, null, __dummyWireVersionRange));
+            var exception = Record.Exception(() => new ChangeStreamCursor<BsonDocument>(cursor, documentSerializer, binding, null, postBatchResumeToken, initialOperationTime, null, null, null, __dummyMaxWireVersion));
 
             var argumnetNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
             argumnetNullException.ParamName.Should().Be("changeStreamOperation");
         }
 
         [Fact]
-        public void constructor_should_throw_when_wireVersionRange_is_null()
+        public void constructor_should_throw_when_maxWireVersion_is_negative()
         {
             var cursor = new Mock<IAsyncCursor<RawBsonDocument>>().Object;
             var documentSerializer = new Mock<IBsonSerializer<BsonDocument>>().Object;
@@ -192,10 +192,10 @@ namespace MongoDB.Driver.Core.Operations
             var binding = new Mock<IReadBinding>().Object;
             var changeStreamOperation = CreateChangeStreamOperation();
 
-            var exception = Record.Exception(() => new ChangeStreamCursor<BsonDocument>(cursor, documentSerializer, binding, changeStreamOperation, postBatchResumeToken, initialOperationTime, null, null, null, null));
+            var exception = Record.Exception(() => new ChangeStreamCursor<BsonDocument>(cursor, documentSerializer, binding, changeStreamOperation, postBatchResumeToken, initialOperationTime, null, null, null, -1));
 
-            var argumnetNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
-            argumnetNullException.ParamName.Should().Be("wireVersionRange");
+            var argumnetNullException = exception.Should().BeOfType<ArgumentOutOfRangeException>().Subject;
+            argumnetNullException.ParamName.Should().Be("maxWireVersion");
         }
 
         [Fact]
@@ -653,7 +653,7 @@ namespace MongoDB.Driver.Core.Operations
             documentSerializer = documentSerializer ?? new Mock<IBsonSerializer<BsonDocument>>().Object;
             binding = binding ?? new Mock<IReadBinding>().Object;
             changeStreamOperation = changeStreamOperation ?? Mock.Of<IChangeStreamOperation<BsonDocument>>();
-            return new ChangeStreamCursor<BsonDocument>(cursor, documentSerializer, binding, changeStreamOperation, postBatchResumeToken, initialOperationTime, startAfter, resumeAfter, startAtOperationTime, __dummyWireVersionRange);
+            return new ChangeStreamCursor<BsonDocument>(cursor, documentSerializer, binding, changeStreamOperation, postBatchResumeToken, initialOperationTime, startAfter, resumeAfter, startAtOperationTime, __dummyMaxWireVersion);
         }
 
         private BsonDocument GenerateResumeAfterToken(bool async, bool shouldBeEmpty = false)
@@ -765,9 +765,9 @@ namespace MongoDB.Driver.Core.Operations
             return (BsonTimestamp)Reflector.GetFieldValue(cursor, nameof(_initialStartAtOperationTime));
         }
 
-        public static Range<int> _wireVersionRange<TDocument>(this IChangeStreamCursor<TDocument> cursor)
+        public static int _maxWireVersion<TDocument>(this IChangeStreamCursor<TDocument> cursor)
         {
-            return (Range<int>)Reflector.GetFieldValue(cursor, nameof(_wireVersionRange));
+            return (int)Reflector.GetFieldValue(cursor, nameof(_maxWireVersion));
         }
     }
 }

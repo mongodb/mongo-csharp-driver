@@ -36,6 +36,11 @@ namespace MongoDB.Driver.Core.Misc
         {
         }
 
+        internal FindAllowDiskUseFeature(string name, int maxWireVersion)
+            : base(name, maxWireVersion)
+        {
+        }
+
         /// <summary>
         /// Determines whether the driver must throw an exception if the feature is not supported by the server.
         /// </summary>

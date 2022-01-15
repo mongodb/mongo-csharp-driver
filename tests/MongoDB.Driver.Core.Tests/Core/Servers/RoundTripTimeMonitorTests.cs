@@ -208,7 +208,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
             var helloDocument = new BsonDocument
             {
                 { "ok", 1 },
-                { "maxWireVersion", 9 }
+                { "maxWireVersion", WireVersion.Server44 }
             };
             return new ConnectionDescription(
                     new ConnectionId(__serverId, 0),

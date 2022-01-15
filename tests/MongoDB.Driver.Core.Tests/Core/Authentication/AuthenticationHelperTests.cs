@@ -23,6 +23,7 @@ using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using Moq;
 using Xunit;
@@ -55,7 +56,7 @@ namespace MongoDB.Driver.Core.Authentication
         {
             var description = new ConnectionDescription(
                 new ConnectionId(new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27017))),
-                new HelloResult(new BsonDocument("ok", 1).Add(new BsonElement("maxWireVersion", 6))));
+                new HelloResult(new BsonDocument("ok", 1).Add(new BsonElement("maxWireVersion", WireVersion.Server36))));
             var serverApi = new ServerApi(ServerApiVersion.V1, true, true);
 
             var mockAuthenticator = new Mock<IAuthenticator>();
@@ -88,7 +89,7 @@ namespace MongoDB.Driver.Core.Authentication
         {
             var description = new ConnectionDescription(
                 new ConnectionId(new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27017))),
-                new HelloResult(new BsonDocument("ok", 1).Add("setName", "rs").Add("arbiterOnly", true).Add("maxWireVersion", 6)));
+                new HelloResult(new BsonDocument("ok", 1).Add("setName", "rs").Add("arbiterOnly", true).Add("maxWireVersion", WireVersion.Server36)));
             var serverApi = new ServerApi(ServerApiVersion.V1, true, true);
 
             var mockAuthenticator = new Mock<IAuthenticator>();

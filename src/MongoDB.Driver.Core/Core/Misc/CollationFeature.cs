@@ -34,6 +34,11 @@ namespace MongoDB.Driver.Core.Misc
         {
         }
 
+        internal CollationFeature(string name, int maxWireVersion)
+            : base(name, maxWireVersion)
+        {
+        }
+
         /// <summary>
         /// Throws if collation value is not null and collations are not supported.
         /// </summary>

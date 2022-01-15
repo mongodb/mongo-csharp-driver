@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication
                 new HelloResult(
                     new BsonDocument("ok", 1)
                     .Add(OppressiveLanguageConstants.LegacyHelloResponseIsWritablePrimaryFieldName, 1)
-                    .Add("maxWireVersion", 10)));
+                    .Add("maxWireVersion", WireVersion.Server47)));
         }
         #endregion
 

@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Core.Authentication
             new HelloResult(
                 new BsonDocument("ok", 1)
                 .Add(OppressiveLanguageConstants.LegacyHelloResponseIsWritablePrimaryFieldName, 1)
-                .Add("maxWireVersion", 10)));
+                .Add("maxWireVersion", WireVersion.Server47)));
 
         [Theory]
         [InlineData("")]
@@ -97,7 +97,7 @@ namespace MongoDB.Driver.Core.Authentication
 
             var response = MessageHelper.BuildCommandResponse(RawBsonDocumentHelper.FromJson("{ }"));
             var connection = new MockConnection(__serverId);
-            connection.Description = CreateConnectionDescription(maxWireVersion: 6);
+            connection.Description = CreateConnectionDescription(maxWireVersion: WireVersion.Server36);
             connection.EnqueueCommandResponseMessage(response);
 
             Action act;
@@ -124,7 +124,7 @@ namespace MongoDB.Driver.Core.Authentication
             var response = MessageHelper.BuildCommandResponse(RawBsonDocumentHelper.FromJson("{ok: 1}"));
 
             var connection = new MockConnection(__serverId);
-            connection.Description = CreateConnectionDescription(maxWireVersion: 6);
+            connection.Description = CreateConnectionDescription(maxWireVersion: WireVersion.Server36);
             connection.EnqueueCommandResponseMessage(response);
 
             Action act;
@@ -153,7 +153,7 @@ namespace MongoDB.Driver.Core.Authentication
 
             var connection = new MockConnection(__serverId);
             connection.EnqueueCommandResponseMessage(response);
-            var description = CreateConnectionDescription(maxWireVersion: 6);
+            var description = CreateConnectionDescription(maxWireVersion: WireVersion.Server36);
             connection.Description = description;
 
             Exception exception;

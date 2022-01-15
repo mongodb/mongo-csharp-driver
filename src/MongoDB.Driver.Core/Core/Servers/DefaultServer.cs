@@ -149,7 +149,7 @@ namespace MongoDB.Driver.Core.Servers
                 var description = _currentDescription;
                 if (ShouldInvalidateServer(connection, ex, description, out TopologyVersion responseTopologyVersion))
                 {
-                    var shouldClearConnectionPool = ShouldClearConnectionPoolForChannelException(ex, connection.Description.WireVersionRange);
+                    var shouldClearConnectionPool = ShouldClearConnectionPoolForChannelException(ex, connection.Description.MaxWireVersion);
                     Invalidate($"ChannelException:{ex}", shouldClearConnectionPool, responseTopologyVersion);
                 }
                 else

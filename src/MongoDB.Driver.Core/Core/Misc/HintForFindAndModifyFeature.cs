@@ -22,7 +22,7 @@ namespace MongoDB.Driver.Core.Misc
     /// </summary>
     public class HintForFindAndModifyFeature : Feature
     {
-        private readonly int _firstWireVersionWhereWeRelyOnServerToReturnError = WireVersion.Eight.MaxWireVersion;
+        private readonly int _firstWireVersionWhereWeRelyOnServerToReturnError = WireVersion.Server42;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="HintForFindAndModifyFeature"/> class.
@@ -34,6 +34,11 @@ namespace MongoDB.Driver.Core.Misc
         {
         }
 
+        internal HintForFindAndModifyFeature(string name, int maxWireVersion)
+            : base(name, maxWireVersion)
+        {
+        }
+
         /// <summary>
         /// Determines whether the driver must throw an exception if the feature is not supported by the server.
         /// </summary>
@@ -42,17 +47,18 @@ namespace MongoDB.Driver.Core.Misc
         [Obsolete("This property will be removed in a later release.")]
         public bool DriverMustThrowIfNotSupported(SemanticVersion serverVersion)
         {
-            return serverVersion < WireVersion.GetWireVersion(_firstWireVersionWhereWeRelyOnServerToReturnError).FirstSupportedVersion;
+            var maxWireVersion = WireVersion.ToWireVersion(serverVersion);
+            return maxWireVersion < _firstWireVersionWhereWeRelyOnServerToReturnError;
         }
 
         /// <summary>
         /// Determines whether the driver must throw an exception if the feature is not supported by the server.
         /// </summary>
-        /// <param name="wireVersionRange">The server version.</param>
+        /// <param name="maxWireVersion">The server version.</param>
         /// <returns>Whether the driver must throw if feature is not supported.</returns>
-        public bool DriverMustThrowIfNotSupported(Range<int> wireVersionRange)
+        public bool DriverMustThrowIfNotSupported(int maxWireVersion)
         {
-            return wireVersionRange.Max < _firstWireVersionWhereWeRelyOnServerToReturnError;
+            return maxWireVersion < _firstWireVersionWhereWeRelyOnServerToReturnError;
         }
     }
 }

@@ -408,7 +408,7 @@ namespace MongoDB.Driver.Core.Bindings
             var endPoint = new DnsEndPoint("localhost", 27017);
             var serverId = new ServerId(clusterId, endPoint);
             var maxWireVersion = Feature.Transactions.FirstSupportedMaxWireVersion;
-            var servers = new[] { new ServerDescription(serverId, endPoint, state: ServerState.Connected, type: ServerType.ReplicaSetPrimary, version: WireVersion.GetWireVersion(maxWireVersion).FirstSupportedVersion, wireVersionRange: new Range<int>(0, maxWireVersion)) };
+            var servers = new[] { new ServerDescription(serverId, endPoint, state: ServerState.Connected, type: ServerType.ReplicaSetPrimary, version: WireVersion.ToServerVersion(maxWireVersion), wireVersionRange: new Range<int>(0, maxWireVersion)) };
 #pragma warning disable CS0618 // Type or member is obsolete
             var clusterDescription = new ClusterDescription(clusterId, ClusterConnectionMode.Automatic, ClusterType.ReplicaSet, servers);
 #pragma warning restore CS0618 // Type or member is obsolete
@@ -427,8 +427,8 @@ namespace MongoDB.Driver.Core.Bindings
             endPoint = endPoint ?? new DnsEndPoint("localhost", 27017);
             serverId = serverId ?? new ServerId(new ClusterId(1), endPoint);
 
-            maxWireVersion = maxWireVersion ?? 7;
-            var emulatedServerVersion = WireVersion.GetWireVersion(maxWireVersion.Value).FirstSupportedVersion;
+            maxWireVersion = maxWireVersion ?? WireVersion.Server40;
+            var emulatedServerVersion = WireVersion.ToServerVersion(maxWireVersion.Value);
             return new ServerDescription(serverId, endPoint, state: state, type: type, version: emulatedServerVersion, wireVersionRange: new Optional<Range<int>>(new Range<int>(0, maxWireVersion.Value)));
         }
 

@@ -282,8 +282,8 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Theory]
-        [InlineData(12, false)]
-        [InlineData(13, true)]
+        [InlineData(WireVersion.Server49, false)]
+        [InlineData(WireVersion.Server50, true)]
         public void CanUseSecondary_should_return_expected_result(int maxWireVersion, bool expectedResult)
         {
             var subject = new AggregateToCollectionOperation.MayUseSecondary(ReadPreference.Secondary);

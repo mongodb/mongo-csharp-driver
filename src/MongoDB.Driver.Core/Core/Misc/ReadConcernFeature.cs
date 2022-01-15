@@ -34,6 +34,11 @@ namespace MongoDB.Driver.Core.Misc
         {
         }
 
+        internal ReadConcernFeature(string name, int maxWireVersion)
+            : base(name, maxWireVersion)
+        {
+        }
+
         /// <summary>
         /// Throws if the read concern value is not the server default and read concern is not supported.
         /// </summary>
