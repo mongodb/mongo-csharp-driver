@@ -361,6 +361,17 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         /// <summary>
+        /// Gets the maximum wire version.
+        /// </summary>
+        /// <value>
+        /// The maximum wire version.
+        /// </value>
+        public int? MaxWireVersion
+        {
+            get { return _wireVersionRange?.Max; }
+        }
+
+        /// <summary>
         /// The reason the server description was last changed.
         /// </summary>
         /// <value>The reason the server description was last changed.</value>

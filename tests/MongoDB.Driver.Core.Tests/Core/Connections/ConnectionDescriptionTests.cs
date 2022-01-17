@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Core.Connections
             new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27017)));
 
         private static readonly HelloResult __helloResult = new HelloResult(BsonDocument.Parse(
-            "{ ok : 1, maxWriteBatchSize : 10, maxBsonObjectSize : 20, maxMessageSizeBytes : 30, compression : ['zlib', 'zstd'], maxWireVersion : 14 }"
+            "{ ok : 1, maxWriteBatchSize : 10, maxBsonObjectSize : 20, maxMessageSizeBytes : 30, compression : ['zlib', 'zstd'], maxWireVersion : 14, minWireVersion : 6 }"
         ));
 
         private static readonly HelloResult __helloResultWithoutCompression = new HelloResult(BsonDocument.Parse(
@@ -122,6 +122,22 @@ namespace MongoDB.Driver.Core.Connections
             var subject = new ConnectionDescription(__connectionId, __helloResult);
 
             subject.MaxMessageSize.Should().Be(__helloResult.MaxMessageSize);
+        }
+
+        [Fact]
+        public void MaxWireVersion_should_return_helloResult_MaxWireVersion()
+        {
+            var subject = new ConnectionDescription(__connectionId, __helloResult);
+
+            subject.MaxWireVersion.Should().Be(__helloResult.MaxWireVersion);
+        }
+
+        [Fact]
+        public void MinWireVersion_should_return_helloResult_MinWireVersion()
+        {
+            var subject = new ConnectionDescription(__connectionId, __helloResult);
+
+            subject.MinWireVersion.Should().Be(__helloResult.MinWireVersion);
         }
 
         [Fact]

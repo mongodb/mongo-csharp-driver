@@ -290,6 +290,19 @@ namespace MongoDB.Driver.Core.Servers
             result.Should().Be(expectedResult);
         }
 
+        [Fact]
+        public void MaxWireVersion_should_be_the_same_as_wireVersionRange_max()
+        {
+            var clusterId = new ClusterId(1);
+            var endPoint = new DnsEndPoint("localhost", 27017);
+            var serverId = new ServerId(clusterId, endPoint);
+            var wireVersionRange = new Range<int>(0, 14);
+
+            var subject = new ServerDescription(serverId, endPoint, wireVersionRange: wireVersionRange, type: ServerType.Standalone);
+
+            subject.MaxWireVersion.Should().Be(wireVersionRange.Max);
+        }
+
         [Theory]
         [InlineData("AverageRoundTripTime")]
         [InlineData("CanonicalEndPoint")]
