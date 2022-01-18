@@ -135,7 +135,7 @@ namespace MongoDB.Driver.Core.Operations
                 CommitQuorum = commitQuorum
             };
             var session = OperationTestHelper.CreateSession();
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.CreateIndexCommitQuorum.FirstSupportedMaxWireVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.CreateIndexCommitQuorum.FirstSupportedWireVersion);
 
             var result = subject.CreateCommand(session, connectionDescription);
 
@@ -161,7 +161,7 @@ namespace MongoDB.Driver.Core.Operations
                 CommitQuorum = commitQuorum
             };
             var session = OperationTestHelper.CreateSession();
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.CreateIndexCommitQuorum.FirstSupportedMaxWireVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.CreateIndexCommitQuorum.FirstSupportedWireVersion);
 
             var result = subject.CreateCommand(session, connectionDescription);
 
@@ -238,7 +238,7 @@ namespace MongoDB.Driver.Core.Operations
                 CommitQuorum = commitQuorum
             };
             var session = OperationTestHelper.CreateSession();
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.CreateIndexCommitQuorum.LastNotSupportedMaxWireVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.CreateIndexCommitQuorum.LastNotSupportedWireVersion);
 
             var exception = Record.Exception(() => subject.CreateCommand(session, connectionDescription));
 

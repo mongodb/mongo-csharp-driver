@@ -620,24 +620,6 @@ namespace MongoDB.Driver.Core.Misc
         private readonly int? _supportRemovedWireVersion;
         private readonly string _notSupportedMessage;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Feature" /> class.
-        /// </summary>
-        /// <param name="name">The name of the feature.</param>
-        /// <param name="firstSupportedVersion">The first server version that supports the feature.</param>
-        /// <param name="supportRemovedVersion">The server version that stops support the feature.</param>
-        /// <param name="notSupportedMessage">The not supported error message.</param>
-        public Feature(string name,
-            SemanticVersion firstSupportedVersion,
-            SemanticVersion supportRemovedVersion = null,
-            string notSupportedMessage = null)
-        {
-            _name = name;
-            _firstSupportedWireVersion = WireVersion.ToWireVersion(firstSupportedVersion);
-            _supportRemovedWireVersion = supportRemovedVersion != null ? WireVersion.ToWireVersion(supportRemovedVersion) : (int?)null;
-            _notSupportedMessage = notSupportedMessage;
-        }
-
         internal Feature(string name,
             int firstSupportedWireVersion,
             int? supportRemovedWireVersion = null,
@@ -660,15 +642,15 @@ namespace MongoDB.Driver.Core.Misc
         [Obsolete("This property will be removed in a later release.")]
         public SemanticVersion FirstSupportedVersion => WireVersion.ToServerVersion(_firstSupportedWireVersion);
 
-        internal int FirstSupportedMaxWireVersion => _firstSupportedWireVersion;
+        internal int FirstSupportedWireVersion => _firstSupportedWireVersion;
 
         /// <summary>
         /// Gets the last server version that does not support the feature.
         /// </summary>
         [Obsolete("This property will be removed in a later release.")]
-        public SemanticVersion LastNotSupportedVersion => WireVersion.ToServerVersion(LastNotSupportedMaxWireVersion);
+        public SemanticVersion LastNotSupportedVersion => WireVersion.ToServerVersion(LastNotSupportedWireVersion);
 
-        internal int LastNotSupportedMaxWireVersion
+        internal int LastNotSupportedWireVersion
         {
             get
             {
@@ -694,11 +676,11 @@ namespace MongoDB.Driver.Core.Misc
             return IsSupported(maxWireVersion);
         }
 
-        internal bool IsSupported(int maxWireVersion)
+        internal bool IsSupported(int wireVersion)
         {
             return _supportRemovedWireVersion.HasValue
-                ? _firstSupportedWireVersion <= maxWireVersion && _supportRemovedWireVersion > maxWireVersion
-                : _firstSupportedWireVersion <= maxWireVersion;
+                ? _firstSupportedWireVersion <= wireVersion && _supportRemovedWireVersion > wireVersion
+                : _firstSupportedWireVersion <= wireVersion;
         }
 
         /// <summary>
@@ -711,7 +693,7 @@ namespace MongoDB.Driver.Core.Misc
         {
             return isSupported
                 ? WireVersion.ToServerVersion(_firstSupportedWireVersion)
-                : WireVersion.ToServerVersion(LastNotSupportedMaxWireVersion);
+                : WireVersion.ToServerVersion(LastNotSupportedWireVersion);
         }
 
         /// <summary>
@@ -739,8 +721,8 @@ namespace MongoDB.Driver.Core.Misc
                 }
                 else
                 {
-                    var emulatedServerVersion = WireVersion.ToServerVersion(maxWireVersion);
-                    errorMessage = $"Server with reported max wire version {maxWireVersion} (Supported starting from MongoDB {emulatedServerVersion.Major}.{emulatedServerVersion.Minor}) does not support the {_name} feature.";
+                    var approximateServerVersion = WireVersion.ToServerVersion(maxWireVersion);
+                    errorMessage = $"Server with reported max wire version {maxWireVersion} (Supported starting from MongoDB {approximateServerVersion.Major}.{approximateServerVersion.Minor}) does not support the {_name} feature.";
                 }
                 throw new NotSupportedException(errorMessage);
             }

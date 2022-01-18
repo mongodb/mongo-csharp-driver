@@ -173,8 +173,8 @@ namespace MongoDB.Driver.Core.Operations
             {
                 if (_hint != null)
                 {
-                    var emulatedServerVersion = WireVersion.ToServerVersion(maxWireVersion);
-                    throw new NotSupportedException($"Server with reported max wire version {maxWireVersion} (Supported starting from MongoDB {emulatedServerVersion.Major}.{emulatedServerVersion.Minor}) does not support hints.");
+                    var approximateServerVersion = WireVersion.ToServerVersion(maxWireVersion);
+                    throw new NotSupportedException($"Server with reported max wire version {maxWireVersion} (Supported starting from MongoDB {approximateServerVersion.Major}.{approximateServerVersion.Minor}) does not support hints.");
                 }
             }
 

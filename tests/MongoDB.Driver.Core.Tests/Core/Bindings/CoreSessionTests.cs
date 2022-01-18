@@ -287,9 +287,9 @@ namespace MongoDB.Driver.Core.Bindings
                     var type = MapServerTypeCode(scenario[1]);
                     var maxWireVersion = type switch
                     {
-                        ServerType.ShardRouter => Feature.ShardedTransactions.FirstSupportedMaxWireVersion,
-                        ServerType.LoadBalanced => Feature.LoadBalancedMode.FirstSupportedMaxWireVersion,
-                        _ => Feature.Transactions.FirstSupportedMaxWireVersion,
+                        ServerType.ShardRouter => Feature.ShardedTransactions.FirstSupportedWireVersion,
+                        ServerType.LoadBalanced => Feature.LoadBalancedMode.FirstSupportedWireVersion,
+                        _ => Feature.Transactions.FirstSupportedWireVersion,
                     };
                     return CreateServerDescription(serverId, endPoint, state, type, maxWireVersion);
                 })
@@ -359,7 +359,7 @@ namespace MongoDB.Driver.Core.Bindings
                     {
                         unsupportedFeatureName = feature.Name;
                     }
-                    var maxWireVersion = supportsTransactions ? feature.FirstSupportedMaxWireVersion: feature.LastNotSupportedMaxWireVersion;
+                    var maxWireVersion = supportsTransactions ? feature.FirstSupportedWireVersion: feature.LastNotSupportedWireVersion;
                     return CreateServerDescription(serverId, endPoint, ServerState.Connected, type, maxWireVersion);
                 })
                 .ToList();
@@ -407,7 +407,7 @@ namespace MongoDB.Driver.Core.Bindings
             var clusterId = new ClusterId(1);
             var endPoint = new DnsEndPoint("localhost", 27017);
             var serverId = new ServerId(clusterId, endPoint);
-            var maxWireVersion = Feature.Transactions.FirstSupportedMaxWireVersion;
+            var maxWireVersion = Feature.Transactions.FirstSupportedWireVersion;
             var servers = new[] { new ServerDescription(serverId, endPoint, state: ServerState.Connected, type: ServerType.ReplicaSetPrimary, version: WireVersion.ToServerVersion(maxWireVersion), wireVersionRange: new Range<int>(0, maxWireVersion)) };
 #pragma warning disable CS0618 // Type or member is obsolete
             var clusterDescription = new ClusterDescription(clusterId, ClusterConnectionMode.Automatic, ClusterType.ReplicaSet, servers);
@@ -428,8 +428,8 @@ namespace MongoDB.Driver.Core.Bindings
             serverId = serverId ?? new ServerId(new ClusterId(1), endPoint);
 
             maxWireVersion = maxWireVersion ?? WireVersion.Server40;
-            var emulatedServerVersion = WireVersion.ToServerVersion(maxWireVersion.Value);
-            return new ServerDescription(serverId, endPoint, state: state, type: type, version: emulatedServerVersion, wireVersionRange: new Optional<Range<int>>(new Range<int>(0, maxWireVersion.Value)));
+            var approximateServerVersion = WireVersion.ToServerVersion(maxWireVersion.Value);
+            return new ServerDescription(serverId, endPoint, state: state, type: type, version: approximateServerVersion, wireVersionRange: new Optional<Range<int>>(new Range<int>(0, maxWireVersion.Value)));
         }
 
         private CoreSession CreateSubject(

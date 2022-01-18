@@ -28,13 +28,8 @@ namespace MongoDB.Driver.Core.Misc
         /// Initializes a new instance of the <see cref="CommandsThatWriteAcceptWriteConcernFeature"/> class.
         /// </summary>
         /// <param name="name">The name of the feature.</param>
-        /// <param name="firstSupportedVersion">The first server version that supports the feature.</param>
-        public CommandsThatWriteAcceptWriteConcernFeature(string name, SemanticVersion firstSupportedVersion)
-            : base(name, firstSupportedVersion)
-        {
-        }
-
-        internal CommandsThatWriteAcceptWriteConcernFeature(string name, int firstSupportedWireVersion)
+        /// <param name="firstSupportedWireVersion">The first server version that supports the feature.</param>
+        public CommandsThatWriteAcceptWriteConcernFeature(string name, int firstSupportedWireVersion)
             : base(name, firstSupportedWireVersion)
         {
         }

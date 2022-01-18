@@ -402,7 +402,7 @@ namespace MongoDB.Driver.Core.Servers
         private void SetupHeartbeatConnection(MockConnection connection, bool isStreamable = false, bool autoFillStreamingResponses = true)
         {
             var streamingHello = Feature.StreamingHello;
-            var maxWireVersion = isStreamable ? streamingHello.FirstSupportedMaxWireVersion : streamingHello.LastNotSupportedMaxWireVersion;
+            var maxWireVersion = isStreamable ? streamingHello.FirstSupportedWireVersion : streamingHello.LastNotSupportedWireVersion;
             var helloDocument = new BsonDocument
             {
                 { "ok", 1 },

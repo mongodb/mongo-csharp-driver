@@ -465,7 +465,7 @@ namespace MongoDB.Driver.Core.Operations
                 Let = let
             };
 
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.AggregateOptionsLet.FirstSupportedMaxWireVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.AggregateOptionsLet.FirstSupportedWireVersion);
             var session = OperationTestHelper.CreateSession();
 
             var result = subject.CreateCommand(connectionDescription, session);

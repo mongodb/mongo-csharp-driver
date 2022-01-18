@@ -175,7 +175,7 @@ namespace MongoDB.Driver.Core.Connections
         /// <value>
         /// The server version.
         /// </value>
-        [Obsolete("Use MaxWireVersion and MinWireVersion instead.")]
+        [Obsolete("Use MaxWireVersion instead.")]
         public SemanticVersion ServerVersion
         {
             get { return _serverVersion; }

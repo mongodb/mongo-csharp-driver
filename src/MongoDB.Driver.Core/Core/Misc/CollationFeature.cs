@@ -28,14 +28,9 @@ namespace MongoDB.Driver.Core.Misc
         /// Initializes a new instance of the <see cref="CollationFeature"/> class.
         /// </summary>
         /// <param name="name">The name of the feature.</param>
-        /// <param name="firstSupportedVersion">The first server version that supports the feature.</param>
-        public CollationFeature(string name, SemanticVersion firstSupportedVersion)
-            : base(name, firstSupportedVersion)
-        {
-        }
-
-        internal CollationFeature(string name, int maxWireVersion)
-            : base(name, maxWireVersion)
+        /// <param name="firstSupportedWireVersion">The first server version that supports the feature.</param>
+        public CollationFeature(string name, int firstSupportedWireVersion)
+            : base(name, firstSupportedWireVersion)
         {
         }
 

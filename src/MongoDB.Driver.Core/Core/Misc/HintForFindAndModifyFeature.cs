@@ -28,14 +28,9 @@ namespace MongoDB.Driver.Core.Misc
         /// Initializes a new instance of the <see cref="HintForFindAndModifyFeature"/> class.
         /// </summary>
         /// <param name="name">The name of the feature.</param>
-        /// <param name="firstSupportedVersion">The first server version that supports the feature.</param>
-        public HintForFindAndModifyFeature(string name, SemanticVersion firstSupportedVersion)
-            : base(name, firstSupportedVersion)
-        {
-        }
-
-        internal HintForFindAndModifyFeature(string name, int maxWireVersion)
-            : base(name, maxWireVersion)
+        /// <param name="firstSupportedWireVersion">The first wire version that supports the feature.</param>
+        internal HintForFindAndModifyFeature(string name, int firstSupportedWireVersion)
+            : base(name, firstSupportedWireVersion)
         {
         }
 
@@ -54,11 +49,11 @@ namespace MongoDB.Driver.Core.Misc
         /// <summary>
         /// Determines whether the driver must throw an exception if the feature is not supported by the server.
         /// </summary>
-        /// <param name="maxWireVersion">The server version.</param>
+        /// <param name="wireVersion">The wire version.</param>
         /// <returns>Whether the driver must throw if feature is not supported.</returns>
-        public bool DriverMustThrowIfNotSupported(int maxWireVersion)
+        public bool DriverMustThrowIfNotSupported(int wireVersion)
         {
-            return maxWireVersion < _firstWireVersionWhereWeRelyOnServerToReturnError;
+            return wireVersion < _firstWireVersionWhereWeRelyOnServerToReturnError;
         }
     }
 }

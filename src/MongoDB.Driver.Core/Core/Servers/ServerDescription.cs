@@ -366,9 +366,16 @@ namespace MongoDB.Driver.Core.Servers
         /// <value>
         /// The maximum wire version.
         /// </value>
-        public int? MaxWireVersion
+        public int MaxWireVersion
         {
-            get { return _wireVersionRange?.Max; }
+            get
+            {
+                if (_wireVersionRange == null)
+                {
+                    throw new InvalidOperationException("MaxWireVersion is not known.");
+                }
+                return _wireVersionRange.Max;
+            }
         }
 
         /// <summary>

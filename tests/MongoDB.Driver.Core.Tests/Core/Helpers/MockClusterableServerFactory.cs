@@ -182,9 +182,9 @@ namespace MongoDB.Driver.Core.Helpers
             }
             else
             {
-                if (description.MaxWireVersion.HasValue)
+                if (description.WireVersionRange != null)
                 {
-                    var maxWireVersion = description.MaxWireVersion.Value;
+                    var maxWireVersion = description.MaxWireVersion;
                     var server = (Server)result.Server;
                     var helloResult = new HelloResult(new BsonDocument { { "compressors", new BsonArray() }, { "maxWireVersion", maxWireVersion } });
                     var mockConnection = Mock.Get(server._connectionPool().AcquireConnection(CancellationToken.None));

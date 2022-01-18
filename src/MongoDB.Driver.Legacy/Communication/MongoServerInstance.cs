@@ -112,8 +112,8 @@ namespace MongoDB.Driver
             get
             {
                 var serverDescription = GetServerDescription();
-                var emulateServerVersion = WireVersion.ToServerVersion(serverDescription.WireVersionRange.Max);
-                return new MongoServerBuildInfo(emulateServerVersion.ToString());
+                var approximateServerVersion = WireVersion.ToServerVersion(serverDescription.MaxWireVersion);
+                return new MongoServerBuildInfo(approximateServerVersion.ToString());
             }
         }
 

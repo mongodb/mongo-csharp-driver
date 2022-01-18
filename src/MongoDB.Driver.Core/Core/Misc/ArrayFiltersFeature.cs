@@ -30,14 +30,9 @@ namespace MongoDB.Driver.Core.Misc
         /// Initializes a new instance of the <see cref="ArrayFiltersFeature"/> class.
         /// </summary>
         /// <param name="name">The name of the feature.</param>
-        /// <param name="firstSupportedVersion">The first server version that supports the feature.</param>
-        public ArrayFiltersFeature(string name, SemanticVersion firstSupportedVersion)
-            : base(name, firstSupportedVersion)
-        {
-        }
-
-        internal ArrayFiltersFeature(string name, int maxWireVersion)
-            : base(name, maxWireVersion)
+        /// <param name="firstSupportedWireVersion">The first wire version that supports the feature.</param>
+        public ArrayFiltersFeature(string name, int firstSupportedWireVersion)
+            : base(name, firstSupportedWireVersion)
         {
         }
 
