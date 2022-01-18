@@ -620,7 +620,14 @@ namespace MongoDB.Driver.Core.Misc
         private readonly int? _supportRemovedWireVersion;
         private readonly string _notSupportedMessage;
 
-        internal Feature(string name,
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Feature" /> class.
+        /// </summary>
+        /// <param name="name">The name of the feature.</param>
+        /// <param name="firstSupportedWireVersion">The first wire version that supports the feature.</param>
+        /// <param name="supportRemovedWireVersion">The wire version that stops support the feature.</param>
+        /// <param name="notSupportedMessage">The not supported error message.</param>
+        public Feature(string name,
             int firstSupportedWireVersion,
             int? supportRemovedWireVersion = null,
             string notSupportedMessage = null)
