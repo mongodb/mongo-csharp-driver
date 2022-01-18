@@ -266,9 +266,7 @@ namespace MongoDB.Driver.Core.Operations
             EnsureTestData();
             var subject = new EstimatedDocumentCountOperation(_collectionNamespace, _messageEncoderSettings);
 
-#pragma warning disable CS0618 // Type or member is obsolete
-            if (Feature.EstimatedDocumentCountByCollStats.IsSupported(CoreTestConfiguration.ServerVersion))
-#pragma warning restore CS0618 // Type or member is obsolete
+            if (Feature.EstimatedDocumentCountByCollStats.IsSupported(CoreTestConfiguration.MaxWireVersion))
             {
                 VerifySessionIdWasSentWhenSupported(subject, "aggregate", async);
             }
@@ -281,10 +279,7 @@ namespace MongoDB.Driver.Core.Operations
         // private methods
         private void AssertCommandDocument(BsonDocument actualResult, int? expectedMaxTimeMS = null, BsonDocument readConcern = null)
         {
-            var currentServerVersion = CoreTestConfiguration.ServerVersion;
-#pragma warning disable CS0618 // Type or member is obsolete
-            if (Feature.EstimatedDocumentCountByCollStats.IsSupported(currentServerVersion))
-#pragma warning restore CS0618 // Type or member is obsolete
+            if (Feature.EstimatedDocumentCountByCollStats.IsSupported(CoreTestConfiguration.MaxWireVersion))
             {
                 var expectedResult = new BsonDocument
                 {
@@ -323,9 +318,7 @@ namespace MongoDB.Driver.Core.Operations
         private BsonDocument CreateCommand(EstimatedDocumentCountOperation subject, ConnectionDescription connectionDescription, ICoreSession session)
         {
             var currentServerVersion = CoreTestConfiguration.ServerVersion;
-#pragma warning disable CS0618 // Type or member is obsolete
-            if (Feature.EstimatedDocumentCountByCollStats.IsSupported(currentServerVersion))
-#pragma warning restore CS0618 // Type or member is obsolete
+            if (Feature.EstimatedDocumentCountByCollStats.IsSupported(CoreTestConfiguration.MaxWireVersion))
             {
                 var aggregationOperation = (AggregateOperation<BsonDocument>)subject.CreateAggregationOperation();
                 return aggregationOperation.CreateCommand(connectionDescription, session);

@@ -29,21 +29,9 @@ namespace MongoDB.Driver.Core.Misc
         /// </summary>
         /// <param name="name">The name of the feature.</param>
         /// <param name="firstSupportedWireVersion">The first wire version that supports the feature.</param>
-        internal HintForFindAndModifyFeature(string name, int firstSupportedWireVersion)
+        public HintForFindAndModifyFeature(string name, int firstSupportedWireVersion)
             : base(name, firstSupportedWireVersion)
         {
-        }
-
-        /// <summary>
-        /// Determines whether the driver must throw an exception if the feature is not supported by the server.
-        /// </summary>
-        /// <param name="serverVersion">The server version.</param>
-        /// <returns>Whether the driver must throw if feature is not supported.</returns>
-        [Obsolete("This property will be removed in a later release.")]
-        public bool DriverMustThrowIfNotSupported(SemanticVersion serverVersion)
-        {
-            var maxWireVersion = WireVersion.ToWireVersion(serverVersion);
-            return maxWireVersion < _firstWireVersionWhereWeRelyOnServerToReturnError;
         }
 
         /// <summary>

@@ -45,18 +45,18 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __aggregateToString = new Feature("AggregateToString", WireVersion.Server40);
         private static readonly Feature __aggregateUnionWith = new Feature("AggregateUnionWith", WireVersion.Server44);
 #pragma warning disable CS0618 // Type or member is obsolete
-        private static readonly ArrayFiltersFeature __arrayFilters = new ArrayFiltersFeature("ArrayFilters", WireVersion.Server36);
+        private static readonly Feature __arrayFilters = new Feature("ArrayFilters", WireVersion.Server36);
 #pragma warning restore CS0618 // Type or member is obsolete
         private static readonly Feature __bypassDocumentValidation = new Feature("BypassDocumentValidation", WireVersion.Server32);
         private static readonly Feature __changeStreamStage = new Feature("ChangeStreamStage", WireVersion.Server36);
         private static readonly Feature __changeStreamPostBatchResumeToken = new Feature("ChangeStreamPostBatchResumeToken", WireVersion.Server40);
         private static readonly Feature __clientSideEncryption = new Feature("ClientSideEncryption", WireVersion.Server42);
 #pragma warning disable CS0618 // Type or member is obsolete
-        private static readonly CollationFeature __collation = new CollationFeature("Collation", WireVersion.Server34);
+        private static readonly Feature __collation = new Feature("Collation", WireVersion.Server34);
 #pragma warning restore CS0618 // Type or member is obsolete
         private static readonly Feature __commandMessage = new Feature("CommandMessage", WireVersion.Server36);
 #pragma warning disable CS0618 // Type or member is obsolete
-        private static readonly CommandsThatWriteAcceptWriteConcernFeature __commandsThatWriteAcceptWriteConcern = new CommandsThatWriteAcceptWriteConcernFeature("CommandsThatWriteAcceptWriteConcern", WireVersion.Server34);
+        private static readonly Feature __commandsThatWriteAcceptWriteConcern = new Feature("CommandsThatWriteAcceptWriteConcern", WireVersion.Server34);
 #pragma warning restore CS0618 // Type or member is obsolete
         private static readonly Feature __createIndexCommitQuorum = new Feature("CreateIndexCommitQuorum", WireVersion.Server44);
         private static readonly Feature __createIndexesCommand = new Feature("CreateIndexesCommand", WireVersion.Server26);
@@ -71,22 +71,16 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __failPointsBlockConnection = new Feature("FailPointsBlockConnection", WireVersion.Server42);
         private static readonly Feature __failPointsFailCommand = new Feature("FailPointsFailCommand", WireVersion.Server40);
         private static readonly Feature __failPointsFailCommandForSharded = new Feature("FailPointsFailCommandForSharded", WireVersion.Server42);
-#pragma warning disable CS0618 // Type or member is obsolete
-        private static readonly FindAllowDiskUseFeature __findAllowDiskUse = new FindAllowDiskUseFeature("FindAllowDiskUse", WireVersion.Server44);
-#pragma warning restore CS0618 // Type or member is obsolete
+        private static readonly Feature __findAllowDiskUse = new Feature("FindAllowDiskUse", WireVersion.Server44);
         private static readonly Feature __findAndModifyWriteConcern = new Feature("FindAndModifyWriteConcern", WireVersion.Server32);
         private static readonly Feature __findCommand = new Feature("FindCommand", WireVersion.Server32);
         private static readonly Feature __geoNearCommand = new Feature("GeoNearCommand", WireVersion.ServerBefore26, WireVersion.Server40);
         private static readonly Feature __groupCommand = new Feature("GroupCommand", WireVersion.ServerBefore26, WireVersion.Server40);
         private static readonly Feature __hedgedReads = new Feature("HedgedReads", WireVersion.Server44);
         private static readonly Feature __hiddenIndex = new Feature("HiddenIndex", WireVersion.Server44);
-#pragma warning disable CS0618 // Type or member is obsolete
-        private static readonly HintForDeleteOperationsFeature __hintForDeleteOperations = new HintForDeleteOperationsFeature("HintForDeleteOperations", WireVersion.Server44);
-#pragma warning restore CS0618 // Type or member is obsolete
+        private static readonly Feature __hintForDeleteOperations = new Feature("HintForDeleteOperations", WireVersion.Server44);
         private static readonly HintForFindAndModifyFeature __hintForFindAndModifyFeature = new HintForFindAndModifyFeature("HintForFindAndModify", WireVersion.Server44);
-#pragma warning disable CS0618 // Type or member is obsolete
-        private static readonly HintForUpdateAndReplaceOperationsFeature __hintForUpdateAndReplaceOperations = new HintForUpdateAndReplaceOperationsFeature("HintForUpdateAndReplaceOperations", WireVersion.Server42);
-#pragma warning restore CS0618 // Type or member is obsolete
+        private static readonly Feature __hintForUpdateAndReplaceOperations = new Feature("HintForUpdateAndReplaceOperations", WireVersion.Server42);
         private static readonly Feature __keepConnectionPoolWhenNotPrimaryConnectionException = new Feature("KeepConnectionPoolWhenNotWritablePrimaryConnectionException", WireVersion.Server42);
         private static readonly Feature __keepConnectionPoolWhenReplSetStepDown = new Feature("KeepConnectionPoolWhenReplSetStepDown", WireVersion.Server42);
         private static readonly Feature __killAllSessions = new Feature("KillAllSessions", WireVersion.Server36);
@@ -103,9 +97,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __maxTime = new Feature("MaxTime", WireVersion.Server26);
         private static readonly Feature __mmapV1StorageEngine = new Feature("MmapV1StorageEngine", WireVersion.ServerBefore26, WireVersion.Server40);
         private static readonly Feature __partialIndexes = new Feature("PartialIndexes", WireVersion.Server32);
-#pragma warning disable CS0618 // Type or member is obsolete
-        private static readonly ReadConcernFeature __readConcern = new ReadConcernFeature("ReadConcern", WireVersion.Server32);
-#pragma warning restore CS0618 // Type or member is obsolete
+        private static readonly Feature __readConcern = new Feature("ReadConcern", WireVersion.Server32);
         private static readonly Feature __retryableReads = new Feature("RetryableReads", WireVersion.Server36);
         private static readonly Feature __retryableWrites = new Feature("RetryableWrites", WireVersion.Server36);
         private static readonly Feature __scramSha1Authentication = new Feature("ScramSha1Authentication", WireVersion.Server30);
@@ -246,7 +238,7 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the arrayFilters feature.
         /// </summary>
         [Obsolete("This property will be removed in a later release.")]
-        public static ArrayFiltersFeature ArrayFilters => __arrayFilters;
+        public static Feature ArrayFilters => __arrayFilters;
 
         /// <summary>
         /// Gets the bypass document validation feature.
@@ -274,7 +266,7 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the collation feature.
         /// </summary>
         [Obsolete("This property will be removed in a later release.")]
-        public static CollationFeature Collation => __collation;
+        public static Feature Collation => __collation;
 
         /// <summary>
         /// Gets the command message feature.
@@ -286,7 +278,7 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the commands that write accept write concern feature.
         /// </summary>
         [Obsolete("This property will be removed in a later release.")]
-        public static CommandsThatWriteAcceptWriteConcernFeature CommandsThatWriteAcceptWriteConcern => __commandsThatWriteAcceptWriteConcern;
+        public static Feature CommandsThatWriteAcceptWriteConcern => __commandsThatWriteAcceptWriteConcern;
 
         /// <summary>
         /// Gets the create index commit quorum feature.
@@ -362,7 +354,7 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the find allowDiskUse feature.
         /// </summary>
         [Obsolete("This property will be removed in a later release.")]
-        public static FindAllowDiskUseFeature FindAllowDiskUse => __findAllowDiskUse;
+        public static Feature FindAllowDiskUse => __findAllowDiskUse;
 
         /// <summary>
         /// Gets the find and modify write concern feature.
@@ -400,7 +392,7 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the hint for delete operations feature.
         /// </summary>
         [Obsolete("This property will be removed in a later release.")]
-        public static HintForDeleteOperationsFeature HintForDeleteOperations => __hintForDeleteOperations;
+        public static Feature HintForDeleteOperations => __hintForDeleteOperations;
 
         /// <summary>
         /// Gets the hint for find and modify operations feature.
@@ -411,7 +403,7 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the hint for update and replace operations feature.
         /// </summary>
         [Obsolete("This property will be removed in a later release.")]
-        public static HintForUpdateAndReplaceOperationsFeature HintForUpdateAndReplaceOperations => __hintForUpdateAndReplaceOperations;
+        public static Feature HintForUpdateAndReplaceOperations => __hintForUpdateAndReplaceOperations;
 
         /// <summary>
         /// Gets the keep connection pool when NotPrimary connection exception feature.
@@ -513,7 +505,7 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the read concern feature.
         /// </summary>
         [Obsolete("This property will be removed in a later release.")]
-        public static ReadConcernFeature ReadConcern => __readConcern;
+        public static Feature ReadConcern => __readConcern;
 
         /// <summary>
         /// Gets the retryable reads feature.
@@ -670,19 +662,6 @@ namespace MongoDB.Driver.Core.Misc
         /// </summary>
         public string NotSupportedMessage => _notSupportedMessage;
 
-        /// <summary>
-        /// Determines whether a feature is supported by a version of the server.
-        /// </summary>
-        /// <param name="serverVersion">The server version.</param>
-        /// <returns>Whether a feature is supported by a version of the server.</returns>
-        [Obsolete("This method will be removed in later release.")]
-        public bool IsSupported(SemanticVersion serverVersion)
-        {
-            var maxWireVersion = WireVersion.ToWireVersion(serverVersion);
-
-            return IsSupported(maxWireVersion);
-        }
-
         internal bool IsSupported(int wireVersion)
         {
             return _supportRemovedWireVersion.HasValue
@@ -701,20 +680,6 @@ namespace MongoDB.Driver.Core.Misc
             return isSupported
                 ? WireVersion.ToServerVersion(_firstSupportedWireVersion)
                 : WireVersion.ToServerVersion(LastNotSupportedWireVersion);
-        }
-
-        /// <summary>
-        /// Throws if the feature is not supported by a version of the server.
-        /// </summary>
-        /// <param name="serverVersion">The server version.</param>
-        [Obsolete("This method will be removed in a later release.")]
-        public void ThrowIfNotSupported(SemanticVersion serverVersion)
-        {
-            if (!IsSupported(serverVersion))
-            {
-                var errorMessage = _notSupportedMessage ?? $"Server version {serverVersion} does not support the {_name} feature.";
-                throw new NotSupportedException(errorMessage);
-            }
         }
 
         internal void ThrowIfNotSupported(int maxWireVersion)

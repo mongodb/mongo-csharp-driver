@@ -360,9 +360,7 @@ namespace MongoDB.Driver.Tests
                 {
                     _ = client.ListDatabaseNames().ToList();
                 }
-#pragma warning disable CS0618 // Type or member is obsolete
-                if (Feature.SpeculativeAuthentication.IsSupported(CoreTestConfiguration.ServerVersion) &&
-#pragma warning restore CS0618 // Type or member is obsolete
+                if (Feature.SpeculativeAuthentication.IsSupported(CoreTestConfiguration.MaxWireVersion) &&
                     speculativeAuthenticatationShouldSucceedIfPossible)
                 {
                     var cancellationToken = CancellationToken.None;

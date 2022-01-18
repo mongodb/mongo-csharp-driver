@@ -299,9 +299,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 var resumeResult = cursor.GetResumeToken();
                 // the batch is empty
-#pragma warning disable CS0618 // Type or member is obsolete
-                if (Feature.ChangeStreamPostBatchResumeToken.IsSupported(CoreTestConfiguration.ServerVersion))
-#pragma warning restore CS0618 // Type or member is obsolete
+                if (Feature.ChangeStreamPostBatchResumeToken.IsSupported(CoreTestConfiguration.MaxWireVersion))
                 {
                     var postBatchResumeToken = cursor._postBatchResumeToken();
                     postBatchResumeToken.Should().NotBeNull();
@@ -323,9 +321,7 @@ namespace MongoDB.Driver.Core.Operations
                 Insert("{ a : 1 }");
                 enumerator.MoveNext();
                 resumeResult = cursor.GetResumeToken();
-#pragma warning disable CS0618 // Type or member is obsolete
-                if (Feature.ChangeStreamPostBatchResumeToken.IsSupported(CoreTestConfiguration.ServerVersion))
-#pragma warning restore CS0618 // Type or member is obsolete
+                if (Feature.ChangeStreamPostBatchResumeToken.IsSupported(CoreTestConfiguration.MaxWireVersion))
                 {
                     var postBatchResumeToken = cursor._postBatchResumeToken();
                     postBatchResumeToken.Should().NotBeNull();
@@ -378,9 +374,7 @@ namespace MongoDB.Driver.Core.Operations
                 // The batch is not empty.
                 // The batch hasn’t been iterated at all.
                 // The stream has iterated beyond a previous batch and a getMore command has just been executed.
-#pragma warning disable CS0618 // Type or member is obsolete
-                if (Feature.ChangeStreamPostBatchResumeToken.IsSupported(CoreTestConfiguration.ServerVersion))
-#pragma warning restore CS0618 // Type or member is obsolete
+                if (Feature.ChangeStreamPostBatchResumeToken.IsSupported(CoreTestConfiguration.MaxWireVersion))
                 {
                     var postBatchResumeToken = cursor._postBatchResumeToken();
                     postBatchResumeToken.Should().NotBeNull();

@@ -157,7 +157,6 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)] bool async)
         {
             var writeConcern = new WriteConcern(w);
-            var serverVersion = CoreTestConfiguration.ServerVersion;
             var requests = new List<WriteRequest>
             {
                 new DeleteRequest(new BsonDocument("x", 1))
@@ -177,7 +176,7 @@ namespace MongoDB.Driver.Core.Operations
                 exception.Should().BeOfType<NotSupportedException>();
             }
 #pragma warning disable CS0618 // Type or member is obsolete
-            else if (Feature.HintForDeleteOperations.IsSupported(serverVersion))
+            else if (Feature.HintForDeleteOperations.IsSupported(CoreTestConfiguration.MaxWireVersion))
 #pragma warning restore CS0618 // Type or member is obsolete
             {
                 exception.Should().BeNull();
@@ -195,7 +194,6 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)] bool async)
         {
             var writeConcern = new WriteConcern(w);
-            var serverVersion = CoreTestConfiguration.ServerVersion;
             var requests = new List<WriteRequest>
             {
                 new UpdateRequest(
@@ -218,7 +216,7 @@ namespace MongoDB.Driver.Core.Operations
                 exception.Should().BeOfType<NotSupportedException>();
             }
 #pragma warning disable CS0618 // Type or member is obsolete
-            else if (Feature.HintForUpdateAndReplaceOperations.IsSupported(serverVersion))
+            else if (Feature.HintForUpdateAndReplaceOperations.IsSupported(CoreTestConfiguration.MaxWireVersion))
 #pragma warning restore CS0618 // Type or member is obsolete
             {
                 exception.Should().BeNull();

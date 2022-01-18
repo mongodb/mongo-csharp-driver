@@ -113,9 +113,7 @@ namespace MongoDB.Driver.Tests
             {
                 { "wiredTiger", new BsonDocument("configString", "block_compressor=zlib") }
             };
-#pragma warning disable CS0618 // Type or member is obsolete
-            if (Feature.MmapV1StorageEngine.IsSupported(CoreTestConfiguration.ServerVersion))
-#pragma warning restore CS0618 // Type or member is obsolete
+            if (Feature.MmapV1StorageEngine.IsSupported(CoreTestConfiguration.MaxWireVersion))
             {
                 storageEngineOptions.Add("mmapv1", new BsonDocument());
             }
