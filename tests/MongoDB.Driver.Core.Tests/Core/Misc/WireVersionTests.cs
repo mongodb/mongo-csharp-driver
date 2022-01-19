@@ -28,6 +28,14 @@ namespace MongoDB.Driver.Core.Tests.Core.Misc
             WireVersion.SupportedWireVersionRange.Should().Be(new Range<int>(6, 14));
         }
 
+        [Theory]
+        [InlineData(14, "5.1")]
+        [InlineData(1000, "Unknown (wire version 1000)")]
+        public void GetServerVersionForErrorMessage_should_return_expected_serverVersion_message(int wireVersion, string message)
+        {
+            WireVersion.GetServerVersionForErrorMessage(wireVersion).Should().Be(message);
+        }
+
         [Fact]
         public void ToServerVersion_should_throw_if_wireVersion_less_than_0()
         {

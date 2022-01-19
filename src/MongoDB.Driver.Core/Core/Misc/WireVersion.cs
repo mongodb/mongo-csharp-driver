@@ -120,6 +120,14 @@ namespace MongoDB.Driver.Core.Misc
         public static Range<int> SupportedWireVersionRange => __supportedWireVersionRange;
 
         // public static methods
+        public static string GetServerVersionForErrorMessage(int wireVersion)
+        {
+            var approximateServerVersion = WireVersion.ToServerVersion(wireVersion);
+            return approximateServerVersion != null
+                ? $"{approximateServerVersion.Major}.{approximateServerVersion.Minor}"
+                : $"Unknown (wire version {wireVersion})";
+        }
+
         public static SemanticVersion ToServerVersion(int wireVersion)
         {
             Ensure.IsGreaterThanOrEqualToZero(wireVersion, nameof(wireVersion));

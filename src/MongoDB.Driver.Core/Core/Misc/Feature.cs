@@ -662,8 +662,7 @@ namespace MongoDB.Driver.Core.Misc
                 }
                 else
                 {
-                    var approximateServerVersion = WireVersion.ToServerVersion(wireVersion);
-                    errorMessage = $"Server version {approximateServerVersion.Major}.{approximateServerVersion.Minor} does not support the {_name} feature.";
+                    errorMessage = $"Server version {WireVersion.GetServerVersionForErrorMessage(wireVersion)} does not support the {_name} feature.";
                 }
                 throw new NotSupportedException(errorMessage);
             }

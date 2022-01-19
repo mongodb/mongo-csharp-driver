@@ -178,7 +178,7 @@ namespace MongoDB.Driver.Core.Connections
         [Obsolete("Use MaxWireVersion instead.")]
         public SemanticVersion ServerVersion
         {
-            get { return _serverVersion ?? throw new InvalidOperationException("Server version is not known."); }
+            get { return _serverVersion; }
         }
 
         /// <summary>
