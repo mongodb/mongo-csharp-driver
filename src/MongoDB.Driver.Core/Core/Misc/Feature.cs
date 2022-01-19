@@ -23,7 +23,7 @@ namespace MongoDB.Driver.Core.Misc
     public class Feature
     {
         #region static
-        private static readonly Feature __aggregate = new Feature("Aggregate", WireVersion.ServerBefore26);
+        private static readonly Feature __aggregate = new Feature("Aggregate", WireVersion.Zero);
         private static readonly Feature __aggregateAccumulator = new Feature("AggregateAccumulator", WireVersion.Server44);
         private static readonly Feature __aggregateAddFields = new Feature("AggregateAddFields", WireVersion.Server34);
         private static readonly Feature __aggregateAllowDiskUse = new Feature("AggregateAllowDiskUse", WireVersion.Server26);
@@ -60,22 +60,22 @@ namespace MongoDB.Driver.Core.Misc
 #pragma warning restore CS0618 // Type or member is obsolete
         private static readonly Feature __createIndexCommitQuorum = new Feature("CreateIndexCommitQuorum", WireVersion.Server44);
         private static readonly Feature __createIndexesCommand = new Feature("CreateIndexesCommand", WireVersion.Server26);
-        private static readonly Feature __createIndexesUsingInsertOperations = new Feature("CreateIndexesUsingInsertOperations", WireVersion.ServerBefore26, WireVersion.Server40);
+        private static readonly Feature __createIndexesUsingInsertOperations = new Feature("CreateIndexesUsingInsertOperations", WireVersion.Zero, WireVersion.Server40);
         private static readonly Feature __currentOpCommand = new Feature("CurrentOpCommand", WireVersion.Server32);
         private static readonly Feature __documentValidation = new Feature("DocumentValidation", WireVersion.Server32);
         private static readonly Feature __directConnectionSetting = new Feature("DirectConnectionSetting", WireVersion.Server44);
         private static readonly Feature __estimatedDocumentCountByCollStats = new Feature("EstimatedDocumentCountByCollStats", WireVersion.Server49);
-        private static readonly Feature __eval = new Feature("Eval", WireVersion.ServerBefore26, WireVersion.Server40);
+        private static readonly Feature __eval = new Feature("Eval", WireVersion.Zero, WireVersion.Server40);
         private static readonly Feature __explainCommand = new Feature("ExplainCommand", WireVersion.Server30);
-        private static readonly Feature __failPoints = new Feature("FailPoints", WireVersion.ServerBefore26);
+        private static readonly Feature __failPoints = new Feature("FailPoints", WireVersion.Zero);
         private static readonly Feature __failPointsBlockConnection = new Feature("FailPointsBlockConnection", WireVersion.Server42);
         private static readonly Feature __failPointsFailCommand = new Feature("FailPointsFailCommand", WireVersion.Server40);
         private static readonly Feature __failPointsFailCommandForSharded = new Feature("FailPointsFailCommandForSharded", WireVersion.Server42);
         private static readonly Feature __findAllowDiskUse = new Feature("FindAllowDiskUse", WireVersion.Server44);
         private static readonly Feature __findAndModifyWriteConcern = new Feature("FindAndModifyWriteConcern", WireVersion.Server32);
         private static readonly Feature __findCommand = new Feature("FindCommand", WireVersion.Server32);
-        private static readonly Feature __geoNearCommand = new Feature("GeoNearCommand", WireVersion.ServerBefore26, WireVersion.Server40);
-        private static readonly Feature __groupCommand = new Feature("GroupCommand", WireVersion.ServerBefore26, WireVersion.Server40);
+        private static readonly Feature __geoNearCommand = new Feature("GeoNearCommand", WireVersion.Zero, WireVersion.Server40);
+        private static readonly Feature __groupCommand = new Feature("GroupCommand", WireVersion.Zero, WireVersion.Server40);
         private static readonly Feature __hedgedReads = new Feature("HedgedReads", WireVersion.Server44);
         private static readonly Feature __hiddenIndex = new Feature("HiddenIndex", WireVersion.Server44);
         private static readonly Feature __hintForDeleteOperations = new Feature("HintForDeleteOperations", WireVersion.Server44);
@@ -85,7 +85,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __keepConnectionPoolWhenReplSetStepDown = new Feature("KeepConnectionPoolWhenReplSetStepDown", WireVersion.Server42);
         private static readonly Feature __killAllSessions = new Feature("KillAllSessions", WireVersion.Server36);
         private static readonly Feature __killCursorsCommand = new Feature("KillCursorsCommand", WireVersion.Server32);
-        private static readonly Feature __legacyWireProtocol = new Feature("LegacyWireProtocol", WireVersion.ServerBefore26, WireVersion.Server51);
+        private static readonly Feature __legacyWireProtocol = new Feature("LegacyWireProtocol", WireVersion.Zero, WireVersion.Server51);
         private static readonly Feature __listCollectionsCommand = new Feature("ListCollectionsCommand", WireVersion.Server30);
         private static readonly Feature __listDatabasesAuthorizedDatabases = new Feature("ListDatabasesAuthorizedDatabases", WireVersion.Server40);
         private static readonly Feature __listDatabasesFilter = new Feature("ListDatabasesFilter", WireVersion.Server34);
@@ -95,7 +95,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __indexOptionsDefaults = new Feature("IndexOptionsDefaults", WireVersion.Server32);
         private static readonly Feature __maxStaleness = new Feature("MaxStaleness", WireVersion.Server34);
         private static readonly Feature __maxTime = new Feature("MaxTime", WireVersion.Server26);
-        private static readonly Feature __mmapV1StorageEngine = new Feature("MmapV1StorageEngine", WireVersion.ServerBefore26, WireVersion.Server40);
+        private static readonly Feature __mmapV1StorageEngine = new Feature("MmapV1StorageEngine", WireVersion.Zero, WireVersion.Server40);
         private static readonly Feature __partialIndexes = new Feature("PartialIndexes", WireVersion.Server32);
         private static readonly Feature __readConcern = new Feature("ReadConcern", WireVersion.Server32);
         private static readonly Feature __retryableReads = new Feature("RetryableReads", WireVersion.Server36);
@@ -694,7 +694,7 @@ namespace MongoDB.Driver.Core.Misc
                 else
                 {
                     var approximateServerVersion = WireVersion.ToServerVersion(maxWireVersion);
-                    errorMessage = $"Server with reported max wire version {maxWireVersion} (Supported starting from MongoDB {approximateServerVersion.Major}.{approximateServerVersion.Minor}) does not support the {_name} feature.";
+                    errorMessage = $"Server version {approximateServerVersion.Major}.{approximateServerVersion.Minor}.x does not support the {_name} feature.";
                 }
                 throw new NotSupportedException(errorMessage);
             }

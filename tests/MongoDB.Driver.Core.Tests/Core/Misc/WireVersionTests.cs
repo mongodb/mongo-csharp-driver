@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using FluentAssertions;
 using MongoDB.Driver.Core.Misc;
 using Xunit;
@@ -22,15 +23,38 @@ namespace MongoDB.Driver.Core.Tests.Core.Misc
     public class WireVersionTests
     {
         [Fact]
-        public void FirstSupportedServerVersion_should_be_correct()
+        public void SupportedWireRange_should_be_correct()
         {
-            WireVersion.FirstSupportedServerVersion.Should().Be(new SemanticVersion(3, 6, 0));
+            WireVersion.SupportedWireVersionRange.Should().Be(new Range<int>(6, 14));
         }
 
         [Fact]
-        public void SupportedWireRange_should_be_correct()
+        public void ToServerVersion_should_throw_if_wireVersion_less_than_0()
         {
-            WireVersion.SupportedWireRange.Should().Be(new Range<int>(6, 14));
+            var exception = Record.Exception(() => WireVersion.ToServerVersion(-1));
+
+            exception.Should().BeOfType<ArgumentOutOfRangeException>().Subject.ParamName.Should().Be("wireVersion");
+        }
+
+        [Theory]
+        [InlineData(99, 5, 1)]
+        [InlineData(15, 5, 1)]
+        [InlineData(14, 5, 1)]
+        [InlineData(10, 4, 7)]
+        [InlineData(0, 0, 0)]
+        public void ToServerVersion_with_semanticVersion_should_get_correct_serverVersion(int wireVersion, int expectedMajorVersion, int expectedMinorversion)
+        {
+            var serverVersion = WireVersion.ToServerVersion(wireVersion);
+
+            serverVersion.Should().Be(new SemanticVersion(expectedMajorVersion, expectedMinorversion, 0));
+        }
+
+        [Fact]
+        public void ToWireVersion_should_throw_when_semanticVersion_is_null()
+        {
+            var exception = Record.Exception(() => WireVersion.ToWireVersion(null));
+
+            exception.Should().BeOfType<ArgumentNullException>().Subject.ParamName.Should().Be("serverVersion");
         }
 
         [Theory]
@@ -75,7 +99,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Misc
         // not specified servers in the mapping are mapped to the latest specified
         [InlineData(10, 0, 0, 14)]
         [InlineData(10, 0, 99, 14)]
-        public void GetWireVersion_with_semanticVersion_should_get_correct_maxWireVersion(int major, int minor, int patch, int expectedMaxWireVersion)
+        public void ToWireVersion_with_semanticVersion_should_get_correct_wireVersion(int major, int minor, int patch, int expectedMaxWireVersion)
         {
             var wireVersion = WireVersion.ToWireVersion(new SemanticVersion(major, minor, patch));
 

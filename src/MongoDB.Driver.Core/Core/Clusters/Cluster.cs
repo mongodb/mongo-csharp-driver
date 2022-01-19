@@ -38,9 +38,9 @@ namespace MongoDB.Driver.Core.Clusters
         #region static
         // static fields
         private static readonly TimeSpan __minHeartbeatIntervalDefault = TimeSpan.FromMilliseconds(500);
-        private static readonly SemanticVersion __minSupportedServerVersion = WireVersion.FirstSupportedServerVersion;
+        private static readonly SemanticVersion __minSupportedServerVersion = WireVersion.ToServerVersion(WireVersion.SupportedWireVersionRange.Min);
         private static readonly IServerSelector __randomServerSelector = new RandomServerSelector();
-        private static readonly Range<int> __supportedWireVersionRange = WireVersion.SupportedWireRange;
+        private static readonly Range<int> __supportedWireVersionRange = WireVersion.SupportedWireVersionRange;
 
         // static properties
         /// <summary>

@@ -13,18 +13,17 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace MongoDB.Driver.Core.Misc
 {
-    internal class WireVersion
+    internal static class WireVersion
     {
         /// <summary>
         /// Wire version 0.
         /// </summary>
-        public const int ServerBefore26 = 0;
+        public const int Zero = 0;
         /// <summary>
         /// Wire version 2.
         /// </summary>
@@ -81,71 +80,74 @@ namespace MongoDB.Driver.Core.Misc
         #region static
         private static List<WireVersionInfo> __wireVersionSemanticVersionsSet = new()
         {
-            new WireVersionInfo(maxWireVersion: 0, major: 0, minor: 0),
-            new WireVersionInfo(maxWireVersion: 1, major: 0, minor: 0),
-            new WireVersionInfo(maxWireVersion: 2, major: 2, minor: 6),
-            new WireVersionInfo(maxWireVersion: 3, major: 3, minor: 0),
-            new WireVersionInfo(maxWireVersion: 4, major: 3, minor: 2),
-            new WireVersionInfo(maxWireVersion: 5, major: 3, minor: 4),
-            new WireVersionInfo(maxWireVersion: 6, major: 3, minor: 6),
-            new WireVersionInfo(maxWireVersion: 7, major: 4, minor: 0),
-            new WireVersionInfo(maxWireVersion: 8, major: 4, minor: 2),
-            new WireVersionInfo(maxWireVersion: 9, major: 4, minor: 4),
-            new WireVersionInfo(maxWireVersion: 10, major: 4, minor: 7),
-            new WireVersionInfo(maxWireVersion: 11, major: 4, minor: 8),
-            new WireVersionInfo(maxWireVersion: 12, major: 4, minor: 9),
-            new WireVersionInfo(maxWireVersion: 13, major: 5, minor: 0),
-            new WireVersionInfo(maxWireVersion: 14, major: 5, minor: 1),
+            // 1. Make sure that wireVersion value matches to the item index.
+            // 2. The below list contains all wire versions ever existed.
+            // 3. Wire versions less than 6 are not supported anymore.
+            // Wire versions 10-12 were only used in pre-release versions and will never be encountered in released versions of the server.
+            // They aren't necessary to be included here but are included for completeness
+            new WireVersionInfo(wireVersion: 0, major: 0, minor: 0),
+            new WireVersionInfo(wireVersion: 1, major: 0, minor: 0),
+            new WireVersionInfo(wireVersion: 2, major: 2, minor: 6),
+            new WireVersionInfo(wireVersion: 3, major: 3, minor: 0),
+            new WireVersionInfo(wireVersion: 4, major: 3, minor: 2),
+            new WireVersionInfo(wireVersion: 5, major: 3, minor: 4),
+            new WireVersionInfo(wireVersion: 6, major: 3, minor: 6),
+            new WireVersionInfo(wireVersion: 7, major: 4, minor: 0),
+            new WireVersionInfo(wireVersion: 8, major: 4, minor: 2),
+            new WireVersionInfo(wireVersion: 9, major: 4, minor: 4),
+            new WireVersionInfo(wireVersion: 10, major: 4, minor: 7),
+            new WireVersionInfo(wireVersion: 11, major: 4, minor: 8),
+            new WireVersionInfo(wireVersion: 12, major: 4, minor: 9),
+            new WireVersionInfo(wireVersion: 13, major: 5, minor: 0),
+            new WireVersionInfo(wireVersion: 14, major: 5, minor: 1),
         };
 
-        private static Range<int> __supportedWireRange = new Range<int>(6, 14);
+        private static Range<int> __supportedWireVersionRange = CreateSupportedWireVersionRange(minWireVersion: 6, maxWireVersion: 14);
+
+        private static Range<int> CreateSupportedWireVersionRange(int minWireVersion, int maxWireVersion)
+        {
+            Ensure.That(
+                __wireVersionSemanticVersionsSet.Exists(w => w.WireVersion == minWireVersion) &&
+                __wireVersionSemanticVersionsSet.Exists(w => w.WireVersion == maxWireVersion),
+                "Incorrect supported wire version range configuration."); // should not be reached
+
+            return new Range<int>(minWireVersion, maxWireVersion);
+        }
 
         // public static properties
-        public static Range<int> SupportedWireRange
-        {
-            get
-            {
-                Ensure.That(
-                    __wireVersionSemanticVersionsSet.Exists(w => __supportedWireRange.Min == w.MaxWireVersion) &&
-                    __wireVersionSemanticVersionsSet.Exists(w => __supportedWireRange.Max == w.MaxWireVersion),
-                    "Incorrect supported wire range configuration."); // should not be reached
-
-                return __supportedWireRange;
-            }
-        }
-
-        public static SemanticVersion FirstSupportedServerVersion
-        {
-            get
-            {
-                return __wireVersionSemanticVersionsSet[SupportedWireRange.Min].FirstSupportedServerVersion;
-            }
-        }
+        public static Range<int> SupportedWireVersionRange => __supportedWireVersionRange;
 
         // public static methods
-        public static SemanticVersion ToServerVersion(int maxWireVersion)
+        public static SemanticVersion ToServerVersion(int wireVersion)
         {
-            var wireVersionInfo = __wireVersionSemanticVersionsSet.FirstOrDefault(w => w.MaxWireVersion == maxWireVersion)
-                    // take the last supported wire protocol and rely on server selecting compatibility check
-                    ?? __wireVersionSemanticVersionsSet.Last();
-            return wireVersionInfo.FirstSupportedServerVersion;
+            Ensure.IsGreaterThanOrEqualToZero(wireVersion, nameof(wireVersion));
+
+            if (wireVersion > __wireVersionSemanticVersionsSet.Count - 1)
+            {
+                // take the last supported wire protocol and rely on server selecting compatibility check
+                wireVersion = __wireVersionSemanticVersionsSet.Count - 1;
+            }
+
+            return __wireVersionSemanticVersionsSet[wireVersion].FirstSupportedServerVersion;
         }
 
-        public static int ToWireVersion(SemanticVersion semanticVersion)
+        public static int ToWireVersion(SemanticVersion serverVersion)
         {
-            return __wireVersionSemanticVersionsSet.Last(w => w.FirstSupportedServerVersion <= semanticVersion).MaxWireVersion;
+            Ensure.IsNotNull(serverVersion, nameof(serverVersion));
+
+            return __wireVersionSemanticVersionsSet.Last(w => w.FirstSupportedServerVersion <= serverVersion).WireVersion;
         }
         #endregion
 
         private class WireVersionInfo
         {
-            public WireVersionInfo(int maxWireVersion, int major, int minor)
+            public WireVersionInfo(int wireVersion, int major, int minor)
             {
-                MaxWireVersion = maxWireVersion;
+                WireVersion = wireVersion;
                 FirstSupportedServerVersion = new SemanticVersion(major, minor, 0);
             }
 
-            public int MaxWireVersion { get; }
+            public int WireVersion { get; }
             public SemanticVersion FirstSupportedServerVersion { get; }
         }
     }

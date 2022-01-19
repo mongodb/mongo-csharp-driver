@@ -27,7 +27,6 @@ using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Configuration;
-using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
@@ -45,7 +44,7 @@ namespace MongoDB.Driver
             GetConnectionStringWithMultipleShardRouters, isThreadSafe: true);
         private static Lazy<DatabaseNamespace> __databaseNamespace = new Lazy<DatabaseNamespace>(GetDatabaseNamespace, isThreadSafe: true);
 #pragma warning disable CS0618 // Type or member is obsolete
-        private static Lazy<BsonDocument> _buildInfo = new Lazy<BsonDocument>(RunBuildInfo, isThreadSafe: true);
+        private static Lazy<SemanticVersion> _serverVersion = new Lazy<SemanticVersion>(GetServerVersion, isThreadSafe: true);
 #pragma warning restore CS0618 // Type or member is obsolete
         private static MessageEncoderSettings __messageEncoderSettings = new MessageEncoderSettings();
         private static Lazy<int> __numberOfMongoses = new Lazy<int>(GetNumberOfMongoses, isThreadSafe: true);
@@ -99,14 +98,7 @@ namespace MongoDB.Driver
             get { return __serverless.Value; }
         }
 
-        public static SemanticVersion ServerVersion
-        {
-            get
-            {
-                var serverVersion = _buildInfo.Value["version"];
-                return SemanticVersion.Parse(serverVersion.ToString());
-            }
-        }
+        public static SemanticVersion ServerVersion => _serverVersion.Value;
 
         public static int MaxWireVersion
         {
@@ -334,7 +326,7 @@ namespace MongoDB.Driver
             return new DatabaseNamespace(databaseName);
         }
 
-        private static BsonDocument RunBuildInfo()
+        private static SemanticVersion GetServerVersion()
         {
             using (var session = StartSession())
             using (var binding = CreateReadBinding(session))
@@ -342,7 +334,7 @@ namespace MongoDB.Driver
                 var command = new BsonDocument("buildinfo", 1);
                 var operation = new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, __messageEncoderSettings);
                 var response = operation.Execute(binding, CancellationToken.None);
-                return new BsonDocument(response);
+                return SemanticVersion.Parse(response["version"].AsString);
             }
         }
 

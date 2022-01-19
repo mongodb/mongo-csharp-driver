@@ -336,12 +336,12 @@ namespace MongoDB.Driver.Core.Bindings
 
         [Theory]
         [InlineData("NT", "Standalone servers do not support transactions.")]
-        [InlineData("PN", "Server with reported max wire version 6 (Supported starting from MongoDB 3.6) does not support the Transactions feature.")]
-        [InlineData("PN,ST", "Server with reported max wire version 6 (Supported starting from MongoDB 3.6) does not support the Transactions feature.")]
-        [InlineData("PT,SN", "Server with reported max wire version 6 (Supported starting from MongoDB 3.6) does not support the Transactions feature.")]
-        [InlineData("RN", "Server with reported max wire version 7 (Supported starting from MongoDB 4.0) does not support the ShardedTransactions feature.")]
-        [InlineData("RN,RT", "Server with reported max wire version 7 (Supported starting from MongoDB 4.0) does not support the ShardedTransactions feature.")]
-        [InlineData("RT,RN", "Server with reported max wire version 7 (Supported starting from MongoDB 4.0) does not support the ShardedTransactions feature.")]
+        [InlineData("PN", "Server version 3.6.x does not support the Transactions feature.")]
+        [InlineData("PN,ST", "Server version 3.6.x does not support the Transactions feature.")]
+        [InlineData("PT,SN", "Server version 3.6.x does not support the Transactions feature.")]
+        [InlineData("RN", "Server version 4.0.x does not support the ShardedTransactions feature.")]
+        [InlineData("RN,RT", "Server version 4.0.x does not support the ShardedTransactions feature.")]
+        [InlineData("RT,RN", "Server version 4.0.x does not support the ShardedTransactions feature.")]
         public void EnsureTransactionsAreSupported_should_throw_when_any_connected_data_bearing_server_does_not_support_transactions(string scenarios, string expectedMesage)
         {
             var clusterId = new ClusterId(1);
