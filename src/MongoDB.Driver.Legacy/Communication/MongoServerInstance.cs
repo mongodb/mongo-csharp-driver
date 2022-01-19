@@ -312,6 +312,7 @@ namespace MongoDB.Driver
                 // supported in 2.4.0 and newer
                 case FeatureId.GeoJson:
                 case FeatureId.TextSearchCommand:
+                    return true;
                 // supported in 2.6.0 and newer
                 case FeatureId.AggregateAllowDiskUse:
                 case FeatureId.AggregateCursor:
@@ -322,6 +323,7 @@ namespace MongoDB.Driver
                 case FeatureId.TextSearchQuery:
                 case FeatureId.UserManagementCommands:
                 case FeatureId.WriteCommands:
+                    return true;
                 // supported in 2.6.0 and newer but not on mongos
                 case FeatureId.ParallelScanCommand:
                     return MaxWireVersion < WireVersion.Server42 && InstanceType != MongoServerInstanceType.ShardRouter;
