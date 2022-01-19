@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -54,11 +53,13 @@ namespace MongoDB.Driver.Legacy.Tests.Jira
         private MongoCollection<C> GetCollection()
         {
             var client = DriverTestConfiguration.Client;
+            var collectionNamespace = DriverTestConfiguration.CollectionNamespace;
 #pragma warning disable CS0618 // Type or member is obsolete
             var server = client.GetServer();
 #pragma warning restore CS0618 // Type or member is obsolete
-            var database = server.GetDatabase("test");
-            return database.GetCollection<C>("test");
+            var database = server.GetDatabase(collectionNamespace.DatabaseNamespace.DatabaseName);
+            database.CreateCollection(collectionNamespace.CollectionName); // sharded cluster requires explicit collection creation
+            return database.GetCollection<C>(collectionNamespace.CollectionName);
         }
 
         private class C
