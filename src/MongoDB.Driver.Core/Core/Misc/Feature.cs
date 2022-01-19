@@ -44,20 +44,14 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __aggregateOutToDifferentDatabase = new Feature("AggregateOutToDifferentDatabase", WireVersion.Server44);
         private static readonly Feature __aggregateToString = new Feature("AggregateToString", WireVersion.Server40);
         private static readonly Feature __aggregateUnionWith = new Feature("AggregateUnionWith", WireVersion.Server44);
-#pragma warning disable CS0618 // Type or member is obsolete
         private static readonly Feature __arrayFilters = new Feature("ArrayFilters", WireVersion.Server36);
-#pragma warning restore CS0618 // Type or member is obsolete
         private static readonly Feature __bypassDocumentValidation = new Feature("BypassDocumentValidation", WireVersion.Server32);
         private static readonly Feature __changeStreamStage = new Feature("ChangeStreamStage", WireVersion.Server36);
         private static readonly Feature __changeStreamPostBatchResumeToken = new Feature("ChangeStreamPostBatchResumeToken", WireVersion.Server40);
         private static readonly Feature __clientSideEncryption = new Feature("ClientSideEncryption", WireVersion.Server42);
-#pragma warning disable CS0618 // Type or member is obsolete
         private static readonly Feature __collation = new Feature("Collation", WireVersion.Server34);
-#pragma warning restore CS0618 // Type or member is obsolete
         private static readonly Feature __commandMessage = new Feature("CommandMessage", WireVersion.Server36);
-#pragma warning disable CS0618 // Type or member is obsolete
         private static readonly Feature __commandsThatWriteAcceptWriteConcern = new Feature("CommandsThatWriteAcceptWriteConcern", WireVersion.Server34);
-#pragma warning restore CS0618 // Type or member is obsolete
         private static readonly Feature __createIndexCommitQuorum = new Feature("CreateIndexCommitQuorum", WireVersion.Server44);
         private static readonly Feature __createIndexesCommand = new Feature("CreateIndexesCommand", WireVersion.Server26);
         private static readonly Feature __createIndexesUsingInsertOperations = new Feature("CreateIndexesUsingInsertOperations", WireVersion.Zero, WireVersion.Server40);

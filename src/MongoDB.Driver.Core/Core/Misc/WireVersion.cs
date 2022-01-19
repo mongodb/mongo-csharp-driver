@@ -78,7 +78,7 @@ namespace MongoDB.Driver.Core.Misc
         public const int Server51 = 14;
 
         #region static
-        private static List<WireVersionInfo> __wireVersionSemanticVersionsSet = new()
+        private static List<WireVersionInfo> __knownWireVersions = new()
         {
             // 1. Make sure that wireVersion value matches to the item index.
             // 2. The below list contains all wire versions ever existed.
@@ -107,8 +107,8 @@ namespace MongoDB.Driver.Core.Misc
         private static Range<int> CreateSupportedWireVersionRange(int minWireVersion, int maxWireVersion)
         {
             Ensure.That(
-                __wireVersionSemanticVersionsSet.Exists(w => w.WireVersion == minWireVersion) &&
-                __wireVersionSemanticVersionsSet.Exists(w => w.WireVersion == maxWireVersion),
+                __knownWireVersions.Exists(w => w.WireVersion == minWireVersion) &&
+                __knownWireVersions.Exists(w => w.WireVersion == maxWireVersion),
                 "Incorrect supported wire version range configuration."); // should not be reached
 
             return new Range<int>(minWireVersion, maxWireVersion);
@@ -122,20 +122,19 @@ namespace MongoDB.Driver.Core.Misc
         {
             Ensure.IsGreaterThanOrEqualToZero(wireVersion, nameof(wireVersion));
 
-            if (wireVersion > __wireVersionSemanticVersionsSet.Count - 1)
+            if (wireVersion > __knownWireVersions.Count - 1)
             {
-                // take the last supported wire protocol and rely on server selecting compatibility check
-                wireVersion = __wireVersionSemanticVersionsSet.Count - 1;
+                return null;
             }
 
-            return __wireVersionSemanticVersionsSet[wireVersion].FirstSupportedServerVersion;
+            return __knownWireVersions[wireVersion].FirstSupportedServerVersion;
         }
 
         public static int ToWireVersion(SemanticVersion serverVersion)
         {
             Ensure.IsNotNull(serverVersion, nameof(serverVersion));
 
-            return __wireVersionSemanticVersionsSet.Last(w => w.FirstSupportedServerVersion <= serverVersion).WireVersion;
+            return __knownWireVersions.Last(w => w.FirstSupportedServerVersion <= serverVersion).WireVersion;
         }
         #endregion
 

@@ -43,13 +43,12 @@ namespace MongoDB.Driver
         private static Lazy<ConnectionString> __connectionStringWithMultipleShardRouters = new Lazy<ConnectionString>(
             GetConnectionStringWithMultipleShardRouters, isThreadSafe: true);
         private static Lazy<DatabaseNamespace> __databaseNamespace = new Lazy<DatabaseNamespace>(GetDatabaseNamespace, isThreadSafe: true);
-#pragma warning disable CS0618 // Type or member is obsolete
-        private static Lazy<SemanticVersion> _serverVersion = new Lazy<SemanticVersion>(GetServerVersion, isThreadSafe: true);
-#pragma warning restore CS0618 // Type or member is obsolete
+        private static Lazy<int> __maxWireVersion = new Lazy<int>(GetMaxWireVersion, isThreadSafe: true);
         private static MessageEncoderSettings __messageEncoderSettings = new MessageEncoderSettings();
         private static Lazy<int> __numberOfMongoses = new Lazy<int>(GetNumberOfMongoses, isThreadSafe: true);
         private static Lazy<ServerApi> __serverApi = new Lazy<ServerApi>(GetServerApi, isThreadSafe: true);
         private static Lazy<bool> __serverless = new Lazy<bool>(GetServerless, isThreadSafe: true);
+        private static Lazy<SemanticVersion> __serverVersion = new Lazy<SemanticVersion>(GetServerVersion, isThreadSafe: true);
         private static Lazy<string> __storageEngine = new Lazy<string>(GetStorageEngine, isThreadSafe: true);
         private static TraceSource __traceSource;
 
@@ -98,15 +97,9 @@ namespace MongoDB.Driver
             get { return __serverless.Value; }
         }
 
-        public static SemanticVersion ServerVersion => _serverVersion.Value;
+        public static SemanticVersion ServerVersion => __serverVersion.Value;
 
-        public static int MaxWireVersion
-        {
-            get
-            {
-                return WireVersion.ToWireVersion(ServerVersion);
-            }
-        }
+        public static int MaxWireVersion => __maxWireVersion.Value;
 
         public static string StorageEngine => __storageEngine.Value;
 
@@ -324,6 +317,18 @@ namespace MongoDB.Driver
                 databaseName = databaseName.Substring(0, 63);
             }
             return new DatabaseNamespace(databaseName);
+        }
+
+        private static int GetMaxWireVersion()
+        {
+            using (var session = StartSession())
+            using (var binding = CreateReadBinding(session))
+            {
+                var command = new BsonDocument("hello", 1);
+                var operation = new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, __messageEncoderSettings);
+                var response = operation.Execute(binding, CancellationToken.None);
+                return response["maxWireVersion"].AsInt32;
+            }
         }
 
         private static SemanticVersion GetServerVersion()

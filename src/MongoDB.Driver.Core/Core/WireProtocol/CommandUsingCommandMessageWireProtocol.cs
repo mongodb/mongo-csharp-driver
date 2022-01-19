@@ -147,7 +147,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             }
             catch (Exception exception)
             {
-                AddErrorLabelIfRequired(exception, connection?.Description?.MaxWireVersion);
+                AddErrorLabelIfRequired(exception, connection.Description?.MaxWireVersion);
 
                 TransactionHelper.UnpinServerIfNeededOnCommandException(_session, exception);
                 throw;
@@ -201,7 +201,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             }
             catch (Exception exception)
             {
-                AddErrorLabelIfRequired(exception, connection?.Description?.MaxWireVersion);
+                AddErrorLabelIfRequired(exception, connection.Description?.MaxWireVersion);
 
                 TransactionHelper.UnpinServerIfNeededOnCommandException(_session, exception);
                 throw;
