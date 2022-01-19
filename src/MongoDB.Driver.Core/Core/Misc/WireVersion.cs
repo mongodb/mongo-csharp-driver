@@ -139,13 +139,6 @@ namespace MongoDB.Driver.Core.Misc
 
             return __knownWireVersions[wireVersion].FirstSupportedServerVersion;
         }
-
-        public static int ToWireVersion(SemanticVersion serverVersion)
-        {
-            Ensure.IsNotNull(serverVersion, nameof(serverVersion));
-
-            return __knownWireVersions.Last(w => w.FirstSupportedServerVersion <= serverVersion).WireVersion;
-        }
         #endregion
 
         private class WireVersionInfo

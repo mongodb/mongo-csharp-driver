@@ -22,18 +22,18 @@ namespace MongoDB.Driver.Core.Tests.Core.Misc
 {
     public class WireVersionTests
     {
-        [Fact]
-        public void SupportedWireRange_should_be_correct()
-        {
-            WireVersion.SupportedWireVersionRange.Should().Be(new Range<int>(6, 14));
-        }
-
         [Theory]
         [InlineData(14, "5.1")]
         [InlineData(1000, "Unknown (wire version 1000)")]
         public void GetServerVersionForErrorMessage_should_return_expected_serverVersion_message(int wireVersion, string message)
         {
             WireVersion.GetServerVersionForErrorMessage(wireVersion).Should().Be(message);
+        }
+
+        [Fact]
+        public void SupportedWireRange_should_be_correct()
+        {
+            WireVersion.SupportedWireVersionRange.Should().Be(new Range<int>(6, 14));
         }
 
         [Fact]
@@ -55,63 +55,6 @@ namespace MongoDB.Driver.Core.Tests.Core.Misc
             var serverVersion = WireVersion.ToServerVersion(wireVersion);
 
             serverVersion.Should().Be(new SemanticVersion(expectedMajorVersion, expectedMinorversion, 0));
-        }
-
-        [Fact]
-        public void ToWireVersion_should_throw_when_semanticVersion_is_null()
-        {
-            var exception = Record.Exception(() => WireVersion.ToWireVersion(null));
-
-            exception.Should().BeOfType<ArgumentNullException>().Subject.ParamName.Should().Be("serverVersion");
-        }
-
-        [Theory]
-        // 6
-        [InlineData(3, 6, 0, 6)]
-        [InlineData(3, 6, 99, 6)]
-        [InlineData(3, 7, 0, 6)]
-        [InlineData(3, 8, 0, 6)]
-        [InlineData(3, 9, 9, 6)]
-        [InlineData(3, 99, 99, 6)]
-        // 7
-        [InlineData(4, 0, 0, 7)]
-        [InlineData(4, 0, 99, 7)]
-        [InlineData(4, 1, 0, 7)]
-        [InlineData(4, 1, 99, 7)]
-        // 8
-        [InlineData(4, 2, 0, 8)]
-        [InlineData(4, 2, 99, 8)]
-        [InlineData(4, 3, 0, 8)]
-        [InlineData(4, 3, 99, 8)]
-        // 9
-        [InlineData(4, 4, 0, 9)]
-        [InlineData(4, 4, 99, 9)]
-        [InlineData(4, 5, 0, 9)]
-        [InlineData(4, 6, 0, 9)]
-        [InlineData(4, 6, 99, 9)]
-        // 10
-        [InlineData(4, 7, 0, 10)]
-        [InlineData(4, 7, 99, 10)]
-        // 11
-        [InlineData(4, 8, 0, 11)]
-        [InlineData(4, 8, 99, 11)]
-        // 12
-        [InlineData(4, 9, 0, 12)]
-        [InlineData(4, 9, 99, 12)]
-        // 13
-        [InlineData(5, 0, 0, 13)]
-        [InlineData(5, 0, 99, 13)]
-        // 14
-        [InlineData(5, 1, 0, 14)]
-        [InlineData(5, 1, 99, 14)]
-        // not specified servers in the mapping are mapped to the latest specified
-        [InlineData(10, 0, 0, 14)]
-        [InlineData(10, 0, 99, 14)]
-        public void ToWireVersion_with_semanticVersion_should_get_correct_wireVersion(int major, int minor, int patch, int expectedMaxWireVersion)
-        {
-            var wireVersion = WireVersion.ToWireVersion(new SemanticVersion(major, minor, patch));
-
-            wireVersion.Should().Be(expectedMaxWireVersion);
         }
     }
 }
