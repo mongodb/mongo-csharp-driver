@@ -635,19 +635,7 @@ namespace MongoDB.Driver.Core.Misc
         /// </summary>
         public string Name => _name;
 
-        /// <summary>
-        /// Gets the first server version that supports the feature.
-        /// </summary>
-        [Obsolete("This property will be removed in a later release.")]
-        public SemanticVersion FirstSupportedVersion => WireVersion.ToServerVersion(_firstSupportedWireVersion);
-
         internal int FirstSupportedWireVersion => _firstSupportedWireVersion;
-
-        /// <summary>
-        /// Gets the last server version that does not support the feature.
-        /// </summary>
-        [Obsolete("This property will be removed in a later release.")]
-        public SemanticVersion LastNotSupportedVersion => WireVersion.ToServerVersion(LastNotSupportedWireVersion);
 
         internal int LastNotSupportedWireVersion
         {
@@ -667,19 +655,6 @@ namespace MongoDB.Driver.Core.Misc
             return _supportRemovedWireVersion.HasValue
                 ? _firstSupportedWireVersion <= wireVersion && _supportRemovedWireVersion > wireVersion
                 : _firstSupportedWireVersion <= wireVersion;
-        }
-
-        /// <summary>
-        /// Returns a version of the server where the feature is or is not supported.
-        /// </summary>
-        /// <param name="isSupported">Whether the feature is supported or not.</param>
-        /// <returns>A version of the server where the feature is or is not supported.</returns>
-        [Obsolete("This method will be removed in a later release.")]
-        public SemanticVersion SupportedOrNotSupportedVersion(bool isSupported)
-        {
-            return isSupported
-                ? WireVersion.ToServerVersion(_firstSupportedWireVersion)
-                : WireVersion.ToServerVersion(LastNotSupportedWireVersion);
         }
 
         internal void ThrowIfNotSupported(int maxWireVersion)
