@@ -45,16 +45,23 @@ namespace MongoDB.Driver.Core.Tests.Core.Misc
         }
 
         [Theory]
-        [InlineData(99, 5, 1)]
-        [InlineData(15, 5, 1)]
+        [InlineData(99, null, null)]
+        [InlineData(15, null, null)]
         [InlineData(14, 5, 1)]
         [InlineData(10, 4, 7)]
         [InlineData(0, 0, 0)]
-        public void ToServerVersion_with_semanticVersion_should_get_correct_serverVersion(int wireVersion, int expectedMajorVersion, int expectedMinorversion)
+        public void ToServerVersion_with_semanticVersion_should_get_correct_serverVersion(int wireVersion, int? expectedMajorVersion, int? expectedMinorVersion)
         {
             var serverVersion = WireVersion.ToServerVersion(wireVersion);
 
-            serverVersion.Should().Be(new SemanticVersion(expectedMajorVersion, expectedMinorversion, 0));
+            if (expectedMajorVersion.HasValue && expectedMinorVersion.HasValue)
+            {
+                serverVersion.Should().Be(new SemanticVersion(expectedMajorVersion.Value, expectedMinorVersion.Value, 0));
+            }
+            else
+            {
+                serverVersion.Should().BeNull();
+            }
         }
     }
 }
