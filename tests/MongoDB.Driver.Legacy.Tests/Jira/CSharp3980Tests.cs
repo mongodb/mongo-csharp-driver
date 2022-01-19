@@ -58,7 +58,10 @@ namespace MongoDB.Driver.Legacy.Tests.Jira
             var server = client.GetServer();
 #pragma warning restore CS0618 // Type or member is obsolete
             var database = server.GetDatabase(collectionNamespace.DatabaseNamespace.DatabaseName);
-            database.CreateCollection(collectionNamespace.CollectionName); // sharded cluster requires explicit collection creation
+            if (!database.CollectionExists(collectionNamespace.CollectionName))
+            {
+                database.CreateCollection(collectionNamespace.CollectionName); // sharded cluster requires explicit collection creation
+            }
             return database.GetCollection<C>(collectionNamespace.CollectionName);
         }
 
