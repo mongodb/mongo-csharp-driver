@@ -451,7 +451,7 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         /// <summary>
-        /// Gets the server version.
+        /// Gets the approximate server version (only the major and minor version numbers are known).
         /// </summary>
         /// <value>
         /// The server version.

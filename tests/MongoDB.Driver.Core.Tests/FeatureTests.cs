@@ -22,11 +22,11 @@ namespace MongoDB.Driver.Core.Tests
     public class FeatureTests
     {
         [Theory]
-        [InlineData(/*maxWireVersion*/7, /*feature*/8, 12, /*isSupported*/false)]
-        [InlineData(/*maxWireVersion*/14, /*feature*/8, 12, /*isSupported*/false)]
-        [InlineData(/*maxWireVersion*/7, /*feature*/0, 12, /*isSupported*/true)]
-        [InlineData(/*maxWireVersion*/6, /*feature*/5, 6, /*isSupported*/false)]
-        [InlineData(/*maxWireVersion*/6, /*feature*/6, 7, /*isSupported*/true)]
+        [InlineData(7, 8, 12, false)]
+        [InlineData(14, 8, 12, false)]
+        [InlineData(7, 0, 12, true)]
+        [InlineData(6, 5, 6, false)]
+        [InlineData(6, 6, 7, true)]
         public void IsSupported_should_return_correct_result(
             int maxSupportedWireVersion,
             int featureIsAddedWireVersion,

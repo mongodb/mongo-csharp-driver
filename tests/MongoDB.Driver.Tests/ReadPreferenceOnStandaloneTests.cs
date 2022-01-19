@@ -13,7 +13,9 @@
 * limitations under the License.
 */
 
+using System;
 using System.Linq;
+using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
@@ -50,11 +52,7 @@ namespace MongoDB.Driver.Tests
                 }
 
                 CommandStartedEvent sentCommand = ((CommandStartedEvent)eventCapturer.Events[0]);
-                _ = client
-                    .Cluster
-                    .Description
-                    .Servers
-                    .First(s => s.State == ServerState.Connected); // some of nodes may not be initialized yet. So, we need to take only the connected one
+                SpinWait.SpinUntil(() => client.Cluster.Description.Servers.Any(s => s.State == ServerState.Connected), TimeSpan.FromSeconds(5)).Should().BeTrue();
 
                 var clusterType = client.Cluster.Description.Type;
 
