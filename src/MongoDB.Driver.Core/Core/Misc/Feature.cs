@@ -635,7 +635,7 @@ namespace MongoDB.Driver.Core.Misc
         {
             get
             {
-                return _firstSupportedWireVersion > 0 ? _firstSupportedWireVersion - 1 : throw new ArgumentException("There is no maxWireVersion before 0.");
+                return _firstSupportedWireVersion > 0 ? _firstSupportedWireVersion - 1 : throw new InvalidOperationException("There is no wire version before 0.");
             }
         }
 
@@ -651,9 +651,9 @@ namespace MongoDB.Driver.Core.Misc
                 : _firstSupportedWireVersion <= wireVersion;
         }
 
-        internal void ThrowIfNotSupported(int maxWireVersion)
+        internal void ThrowIfNotSupported(int wireVersion)
         {
-            if (!IsSupported(maxWireVersion))
+            if (!IsSupported(wireVersion))
             {
                 string errorMessage; 
                 if (_notSupportedMessage != null)
@@ -662,8 +662,8 @@ namespace MongoDB.Driver.Core.Misc
                 }
                 else
                 {
-                    var approximateServerVersion = WireVersion.ToServerVersion(maxWireVersion);
-                    errorMessage = $"Server version {approximateServerVersion.Major}.{approximateServerVersion.Minor}.x does not support the {_name} feature.";
+                    var approximateServerVersion = WireVersion.ToServerVersion(wireVersion);
+                    errorMessage = $"Server version {approximateServerVersion.Major}.{approximateServerVersion.Minor} does not support the {_name} feature.";
                 }
                 throw new NotSupportedException(errorMessage);
             }

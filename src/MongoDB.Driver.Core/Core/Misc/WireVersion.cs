@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -106,10 +107,11 @@ namespace MongoDB.Driver.Core.Misc
 
         private static Range<int> CreateSupportedWireVersionRange(int minWireVersion, int maxWireVersion)
         {
-            Ensure.That(
-                __knownWireVersions.Exists(w => w.WireVersion == minWireVersion) &&
-                __knownWireVersions.Exists(w => w.WireVersion == maxWireVersion),
-                "Incorrect supported wire version range configuration."); // should not be reached
+            if (!__knownWireVersions.Exists(w => w.WireVersion == minWireVersion) ||
+               !__knownWireVersions.Exists(w => w.WireVersion == maxWireVersion))
+            {
+                throw new ApplicationException("Min or Max supported wire version is invalid.");
+            }
 
             return new Range<int>(minWireVersion, maxWireVersion);
         }

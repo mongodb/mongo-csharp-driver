@@ -120,7 +120,7 @@ namespace MongoDB.Driver.Core.Operations
                 if (_hint != null)
                 {
                     var approximateServerVersion = WireVersion.ToServerVersion(maxWireVersion);
-                    throw new NotSupportedException($"Server version {approximateServerVersion.Major}.{approximateServerVersion.Minor}.x does not support hints.");
+                    throw new NotSupportedException($"Server version {approximateServerVersion.Major}.{approximateServerVersion.Minor} does not support hints.");
                 }
             }
 
