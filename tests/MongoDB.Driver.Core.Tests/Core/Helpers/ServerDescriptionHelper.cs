@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Core.Helpers
                 tags: tags,
                 type: serverType,
                 version: new SemanticVersion(3, 6, 0),
-                wireVersionRange: wireVersionRange ?? new Range<int>(6, 14));
+                wireVersionRange: wireVersionRange ?? Cluster.SupportedWireVersionRange);
         }
     }
 }
