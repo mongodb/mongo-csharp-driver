@@ -6645,28 +6645,25 @@ namespace MongoDB.Driver.Tests.Linq
         [Fact]
         public void TestWhereTripleAnd()
         {
-            if (__server.BuildInfo.Version >= new Version(2, 0, 0))
-            {
-                // the query is a bit odd in order to force the built query to be promoted to $and form
-                var query = from c in __collection.AsQueryable<C>()
-                            where c.X >= 0 && c.X >= 1 && c.Y == 11
-                            select c;
+            // the query is a bit odd in order to force the built query to be promoted to $and form
+            var query = from c in __collection.AsQueryable<C>()
+                        where c.X >= 0 && c.X >= 1 && c.Y == 11
+                        select c;
 
-                var translatedQuery = MongoQueryTranslator.Translate(query);
-                Assert.IsType<SelectQuery>(translatedQuery);
-                Assert.Same(__collection, translatedQuery.Collection);
-                Assert.Same(typeof(C), translatedQuery.DocumentType);
+            var translatedQuery = MongoQueryTranslator.Translate(query);
+            Assert.IsType<SelectQuery>(translatedQuery);
+            Assert.Same(__collection, translatedQuery.Collection);
+            Assert.Same(typeof(C), translatedQuery.DocumentType);
 
-                var selectQuery = (SelectQuery)translatedQuery;
-                Assert.Equal("(C c) => (((c.X >= 0) && (c.X >= 1)) && (c.Y == 11))", ExpressionFormatter.ToString(selectQuery.Where));
-                Assert.Null(selectQuery.OrderBy);
-                Assert.Null(selectQuery.Projection);
-                Assert.Null(selectQuery.Skip);
-                Assert.Null(selectQuery.Take);
+            var selectQuery = (SelectQuery)translatedQuery;
+            Assert.Equal("(C c) => (((c.X >= 0) && (c.X >= 1)) && (c.Y == 11))", ExpressionFormatter.ToString(selectQuery.Where));
+            Assert.Null(selectQuery.OrderBy);
+            Assert.Null(selectQuery.Projection);
+            Assert.Null(selectQuery.Skip);
+            Assert.Null(selectQuery.Take);
 
-                Assert.Equal("{ \"$and\" : [{ \"x\" : { \"$gte\" : 0 } }, { \"x\" : { \"$gte\" : 1 } }, { \"y\" : 11 }] }", selectQuery.BuildQuery().ToJson());
-                Assert.Equal(2, Consume(query));
-            }
+            Assert.Equal("{ \"$and\" : [{ \"x\" : { \"$gte\" : 0 } }, { \"x\" : { \"$gte\" : 1 } }, { \"y\" : 11 }] }", selectQuery.BuildQuery().ToJson());
+            Assert.Equal(2, Consume(query));
         }
 
         [Fact]
