@@ -54,12 +54,12 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __commandsThatWriteAcceptWriteConcern = new Feature("CommandsThatWriteAcceptWriteConcern", WireVersion.Server34);
         private static readonly Feature __createIndexCommitQuorum = new Feature("CreateIndexCommitQuorum", WireVersion.Server44);
         private static readonly Feature __createIndexesCommand = new Feature("CreateIndexesCommand", WireVersion.Server26);
-        private static readonly Feature __createIndexesUsingInsertOperations = new Feature("CreateIndexesUsingInsertOperations", WireVersion.Zero, WireVersion.Server40);
+        private static readonly Feature __createIndexesUsingInsertOperations = new Feature("CreateIndexesUsingInsertOperations", WireVersion.Zero, WireVersion.Server42);
         private static readonly Feature __currentOpCommand = new Feature("CurrentOpCommand", WireVersion.Server32);
         private static readonly Feature __documentValidation = new Feature("DocumentValidation", WireVersion.Server32);
         private static readonly Feature __directConnectionSetting = new Feature("DirectConnectionSetting", WireVersion.Server44);
         private static readonly Feature __estimatedDocumentCountByCollStats = new Feature("EstimatedDocumentCountByCollStats", WireVersion.Server49);
-        private static readonly Feature __eval = new Feature("Eval", WireVersion.Zero, WireVersion.Server40);
+        private static readonly Feature __eval = new Feature("Eval", WireVersion.Zero, WireVersion.Server42);
         private static readonly Feature __explainCommand = new Feature("ExplainCommand", WireVersion.Server30);
         private static readonly Feature __failPoints = new Feature("FailPoints", WireVersion.Zero);
         private static readonly Feature __failPointsBlockConnection = new Feature("FailPointsBlockConnection", WireVersion.Server42);
@@ -68,8 +68,8 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __findAllowDiskUse = new Feature("FindAllowDiskUse", WireVersion.Server44);
         private static readonly Feature __findAndModifyWriteConcern = new Feature("FindAndModifyWriteConcern", WireVersion.Server32);
         private static readonly Feature __findCommand = new Feature("FindCommand", WireVersion.Server32);
-        private static readonly Feature __geoNearCommand = new Feature("GeoNearCommand", WireVersion.Zero, WireVersion.Server40);
-        private static readonly Feature __groupCommand = new Feature("GroupCommand", WireVersion.Zero, WireVersion.Server40);
+        private static readonly Feature __geoNearCommand = new Feature("GeoNearCommand", WireVersion.Zero, WireVersion.Server42);
+        private static readonly Feature __groupCommand = new Feature("GroupCommand", WireVersion.Zero, WireVersion.Server42);
         private static readonly Feature __hedgedReads = new Feature("HedgedReads", WireVersion.Server44);
         private static readonly Feature __hiddenIndex = new Feature("HiddenIndex", WireVersion.Server44);
         private static readonly Feature __hintForDeleteOperations = new Feature("HintForDeleteOperations", WireVersion.Server44);
@@ -89,7 +89,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __indexOptionsDefaults = new Feature("IndexOptionsDefaults", WireVersion.Server32);
         private static readonly Feature __maxStaleness = new Feature("MaxStaleness", WireVersion.Server34);
         private static readonly Feature __maxTime = new Feature("MaxTime", WireVersion.Server26);
-        private static readonly Feature __mmapV1StorageEngine = new Feature("MmapV1StorageEngine", WireVersion.Zero, WireVersion.Server40);
+        private static readonly Feature __mmapV1StorageEngine = new Feature("MmapV1StorageEngine", WireVersion.Zero, WireVersion.Server42);
         private static readonly Feature __partialIndexes = new Feature("PartialIndexes", WireVersion.Server32);
         private static readonly Feature __readConcern = new Feature("ReadConcern", WireVersion.Server32);
         private static readonly Feature __retryableReads = new Feature("RetryableReads", WireVersion.Server36);
