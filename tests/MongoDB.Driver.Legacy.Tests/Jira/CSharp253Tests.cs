@@ -13,9 +13,7 @@
 * limitations under the License.
 */
 
-using System;
 using MongoDB.Bson;
-using MongoDB.Driver;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira.CSharp253
@@ -65,16 +63,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp253
                     }
                 }
             };
-            if (_server.BuildInfo.Version < new Version(2, 6, 0))
-            {
-                // starting with version 2.5.2 the server got stricter about dollars in element names
-                // so the Code element below can only be added when testing against older servers
-                document["Code"] = new BsonDocument
-                {
-                    { "$code", "code" },
-                    { "$scope", "scope" }
-                };
-            }
+
             _collection.Insert(document);
         }
 

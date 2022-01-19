@@ -113,42 +113,28 @@ namespace MongoDB.Driver.Tests.Linq
 
             var query = __collection.AsQueryable().Where(o => o.b == 1);
             var plan = query.Explain();
-            if (LegacyTestConfiguration.Server.BuildInfo.Version < new Version(2, 7, 0))
-            {
-                Assert.Equal("BasicCursor", plan["cursor"].AsString); // Normally this query would use no index
-            }
-            else
-            {
-                var winningPlan = plan["queryPlanner"]["winningPlan"].AsBsonDocument;
-                var stage = winningPlan["stage"].AsString;
-                Assert.NotEqual("IXSCAN", stage);
-            }
+            var winningPlan = plan["queryPlanner"]["winningPlan"].AsBsonDocument;
+            var stage = winningPlan["stage"].AsString;
+            Assert.NotEqual("IXSCAN", stage);
 
             // Now check that we can force it to use our index
             query = __collection.AsQueryable().Where(o => o.a == 1).WithIndex("i");
             plan = query.Explain();
-            if (LegacyTestConfiguration.Server.BuildInfo.Version < new Version(2, 7, 0))
+            winningPlan = plan["queryPlanner"]["winningPlan"].AsBsonDocument;
+            if (winningPlan.Contains("shards"))
             {
-                Assert.Equal("BtreeCursor i", plan["cursor"].AsString);
-            }
-            else
-            {
-                var winningPlan = plan["queryPlanner"]["winningPlan"].AsBsonDocument;
-                if (winningPlan.Contains("shards"))
+                winningPlan = winningPlan["shards"][0]["winningPlan"].AsBsonDocument;
+                // MongoDB 5.0 changes the explain plan output to nest the shard's winningPlan 1 level deeper
+                if (winningPlan.Contains("queryPlan"))
                 {
-                    winningPlan = winningPlan["shards"][0]["winningPlan"].AsBsonDocument;
-                    // MongoDB 5.0 changes the explain plan output to nest the shard's winningPlan 1 level deeper
-                    if (winningPlan.Contains("queryPlan"))
-                    {
-                        winningPlan = winningPlan["queryPlan"].AsBsonDocument;
-                    }
+                    winningPlan = winningPlan["queryPlan"].AsBsonDocument;
                 }
-                var inputStage = winningPlan["inputStage"].AsBsonDocument;
-                var stage = inputStage["stage"].AsString;
-                var keyPattern = inputStage["keyPattern"].AsBsonDocument;
-                Assert.Equal("IXSCAN", stage);
-                Assert.Equal(BsonDocument.Parse("{ a : 1, b : 1 }"), keyPattern);
             }
+            var inputStage = winningPlan["inputStage"].AsBsonDocument;
+            stage = inputStage["stage"].AsString;
+            var keyPattern = inputStage["keyPattern"].AsBsonDocument;
+            Assert.Equal("IXSCAN", stage);
+            Assert.Equal(BsonDocument.Parse("{ a : 1, b : 1 }"), keyPattern);
         }
 
         [Fact]
@@ -205,44 +191,30 @@ namespace MongoDB.Driver.Tests.Linq
 
             var query = __collection.AsQueryable().Where(o => o.b == 1);
             var plan = query.Explain();
-            if (LegacyTestConfiguration.Server.BuildInfo.Version < new Version(2, 7, 0))
-            {
-                Assert.Equal("BasicCursor", plan["cursor"].AsString); // Normally this query would use no index
-            }
-            else
-            {
-                var winningPlan = plan["queryPlanner"]["winningPlan"].AsBsonDocument;
-                var stage = winningPlan["stage"].AsString;
-                Assert.NotEqual("IXSCAN", stage);
-            }
+            var winningPlan = plan["queryPlanner"]["winningPlan"].AsBsonDocument;
+            var stage = winningPlan["stage"].AsString;
+            Assert.NotEqual("IXSCAN", stage);
 
             // Now check that we can force it to use our index
             var indexDoc = new BsonDocument()
                 .AddRange(new[] { new BsonElement("a", 1), new BsonElement("b", 1) });
             query = __collection.AsQueryable().Where(o => o.a == 1).WithIndex(indexDoc);
             plan = query.Explain();
-            if (LegacyTestConfiguration.Server.BuildInfo.Version < new Version(2, 7, 0))
+            winningPlan = plan["queryPlanner"]["winningPlan"].AsBsonDocument;
+            if (winningPlan.Contains("shards"))
             {
-                Assert.Equal("BtreeCursor i", plan["cursor"].AsString);
-            }
-            else
-            {
-                var winningPlan = plan["queryPlanner"]["winningPlan"].AsBsonDocument;
-                if (winningPlan.Contains("shards"))
+                winningPlan = winningPlan["shards"][0]["winningPlan"].AsBsonDocument;
+                // MongoDB 5.0 changes the explain plan output to nest the shard's winningPlan 1 level deeper
+                if (winningPlan.Contains("queryPlan"))
                 {
-                    winningPlan = winningPlan["shards"][0]["winningPlan"].AsBsonDocument;
-                    // MongoDB 5.0 changes the explain plan output to nest the shard's winningPlan 1 level deeper
-                    if (winningPlan.Contains("queryPlan"))
-                    {
-                        winningPlan = winningPlan["queryPlan"].AsBsonDocument;
-                    }
+                    winningPlan = winningPlan["queryPlan"].AsBsonDocument;
                 }
-                var inputStage = winningPlan["inputStage"].AsBsonDocument;
-                var stage = inputStage["stage"].AsString;
-                var keyPattern = inputStage["keyPattern"].AsBsonDocument;
-                Assert.Equal("IXSCAN", stage);
-                Assert.Equal(BsonDocument.Parse("{ a : 1, b : 1 }"), keyPattern);
             }
+            var inputStage = winningPlan["inputStage"].AsBsonDocument;
+            stage = inputStage["stage"].AsString;
+            var keyPattern = inputStage["keyPattern"].AsBsonDocument;
+            Assert.Equal("IXSCAN", stage);
+            Assert.Equal(BsonDocument.Parse("{ a : 1, b : 1 }"), keyPattern);
         }
 
         [Fact]

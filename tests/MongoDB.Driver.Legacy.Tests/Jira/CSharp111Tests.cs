@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Driver.Builders;
@@ -62,16 +61,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp111
 
             var document = collection.FindOneAs<BsonDocument>();
             var json = document.ToJson();
-            string expected;
-            if (server.BuildInfo.Version >= new Version(2, 6, 0))
-            {
-                expected = "{ '_id' : ObjectId('#ID'), 'InnerObjects' : [1, { 'X' : 1 }, { 'X' : 2 }, { 'X' : 3 }] }";
-            }
-            else
-            {
-                // prior to version 2.5.2 the server would reorder the elements when Update was used
-                expected = "{ 'InnerObjects' : [1, { 'X' : 1 }, { 'X' : 2 }, { 'X' : 3 }], '_id' : ObjectId('#ID') }";
-            }
+            var expected = "{ '_id' : ObjectId('#ID'), 'InnerObjects' : [1, { 'X' : 1 }, { 'X' : 2 }, { 'X' : 3 }] }";
             expected = expected.Replace("#ID", id.ToString());
             expected = expected.Replace("'", "\"");
             Assert.Equal(expected, json);

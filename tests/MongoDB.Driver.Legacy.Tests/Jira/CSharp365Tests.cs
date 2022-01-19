@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using MongoDB.Bson;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Core.Misc;
@@ -29,45 +28,33 @@ namespace MongoDB.Driver.Tests.Jira.CSharp365
         {
             RequireServer.Check().Supports(Feature.LegacyWireProtocol);
 
-            var server = LegacyTestConfiguration.Server;
-            if (server.BuildInfo.Version >= new Version(1, 8, 0))
+            var collection = LegacyTestConfiguration.Collection;
+            collection.Drop();
+
+            collection.CreateIndex("A", "_id");
+            collection.Insert(new BsonDocument { { "_id", 1 }, { "A", 1 } });
+            collection.Insert(new BsonDocument { { "_id", 2 }, { "A", 2 } });
+            collection.Insert(new BsonDocument { { "_id", 3 }, { "A", 3 } });
+
+            var query = Query.EQ("A", 1);
+            var fields = Fields.Include("_id");
+            var cursor = collection.Find(query).SetFields(fields).SetHint("A_1__id_1"); // make sure it uses the index
+            var plan = cursor.Explain();
+            var winningPlan = plan["queryPlanner"]["winningPlan"].AsBsonDocument;
+            if (winningPlan.Contains("shards"))
             {
-                var database = LegacyTestConfiguration.Database;
-                var collection = LegacyTestConfiguration.Collection;
-                collection.Drop();
-
-                collection.CreateIndex("A", "_id");
-                collection.Insert(new BsonDocument { { "_id", 1 }, { "A", 1 } });
-                collection.Insert(new BsonDocument { { "_id", 2 }, { "A", 2 } });
-                collection.Insert(new BsonDocument { { "_id", 3 }, { "A", 3 } });
-
-                var query = Query.EQ("A", 1);
-                var fields = Fields.Include("_id");
-                var cursor = collection.Find(query).SetFields(fields).SetHint("A_1__id_1"); // make sure it uses the index
-                var plan = cursor.Explain();
-                if (server.BuildInfo.Version < new Version(2, 7, 0))
+                winningPlan = winningPlan["shards"][0]["winningPlan"].AsBsonDocument;
+                // MongoDB 5.0 changes the explain plan output to nest the shard's winningPlan 1 level deeper
+                if (winningPlan.Contains("queryPlan"))
                 {
-                    Assert.True(plan["indexOnly"].ToBoolean());
-                }
-                else
-                {
-                    var winningPlan = plan["queryPlanner"]["winningPlan"].AsBsonDocument;
-                    if (winningPlan.Contains("shards"))
-                    {
-                        winningPlan = winningPlan["shards"][0]["winningPlan"].AsBsonDocument;
-                        // MongoDB 5.0 changes the explain plan output to nest the shard's winningPlan 1 level deeper
-                        if (winningPlan.Contains("queryPlan"))
-                        {
-                            winningPlan = winningPlan["queryPlan"].AsBsonDocument;
-                        }
-                    }
-                    var inputStage = winningPlan["inputStage"].AsBsonDocument;
-                    var stage = inputStage["stage"].AsString;
-                    var keyPattern = inputStage["keyPattern"].AsBsonDocument;
-                    Assert.Equal("IXSCAN", stage);
-                    Assert.Equal(BsonDocument.Parse("{ A : 1, _id : 1 }"), keyPattern);
+                    winningPlan = winningPlan["queryPlan"].AsBsonDocument;
                 }
             }
+            var inputStage = winningPlan["inputStage"].AsBsonDocument;
+            var stage = inputStage["stage"].AsString;
+            var keyPattern = inputStage["keyPattern"].AsBsonDocument;
+            Assert.Equal("IXSCAN", stage);
+            Assert.Equal(BsonDocument.Parse("{ A : 1, _id : 1 }"), keyPattern);
         }
     }
 }

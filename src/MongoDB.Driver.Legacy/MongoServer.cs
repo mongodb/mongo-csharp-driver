@@ -30,7 +30,6 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
-using MongoDB.Driver.Support;
 
 namespace MongoDB.Driver
 {
@@ -166,6 +165,17 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets the maximum wire version.
+        /// </summary>
+        public int MaxWireVersion
+        {
+            get
+            {
+                return Primary.MaxWireVersion;
+            }
+        }
+
+        /// <summary>
         /// Gets the number of instances of MongoServer that have been created.
         /// </summary>
         public static int ServerCount
@@ -191,17 +201,6 @@ namespace MongoDB.Driver
                 {
                     return _serverInstances.Where(i => i.IsArbiter).ToArray();
                 }
-            }
-        }
-
-        /// <summary>
-        /// Gets the build info of the server.
-        /// </summary>
-        public virtual MongoServerBuildInfo BuildInfo
-        {
-            get
-            {
-                return Primary.BuildInfo;
             }
         }
 

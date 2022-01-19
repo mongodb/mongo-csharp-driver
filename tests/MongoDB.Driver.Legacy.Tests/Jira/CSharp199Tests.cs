@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using MongoDB.Bson;
 using MongoDB.Driver.Builders;
 using Xunit;
@@ -27,24 +26,22 @@ namespace MongoDB.Driver.Tests.Jira.CSharp199
         {
             var server = LegacyTestConfiguration.Server;
             server.Connect();
-            if (server.BuildInfo.Version >= new Version(1, 8, 0))
-            {
-                var database = LegacyTestConfiguration.Database;
-                var collection = LegacyTestConfiguration.Collection;
 
-                collection.RemoveAll();
-                collection.Insert(new BsonDocument { { "_id", 1 }, { "a", 2 } });
+            var database = LegacyTestConfiguration.Database;
+            var collection = LegacyTestConfiguration.Collection;
 
-                var query = Query.EQ("_id", 1);
-                var update = Update.Rename("a", "x");
-                collection.Update(query, update);
-                var document = collection.FindOne();
+            collection.RemoveAll();
+            collection.Insert(new BsonDocument { { "_id", 1 }, { "a", 2 } });
 
-                var expectedUpdate = "{ '$rename' : { 'a' : 'x' } }".Replace("'", "\"");
-                Assert.Equal(expectedUpdate, update.ToJson());
-                var expectedDocument = "{ '_id' : 1, 'x' : 2 }".Replace("'", "\"");
-                Assert.Equal(expectedDocument, document.ToJson());
-            }
+            var query = Query.EQ("_id", 1);
+            var update = Update.Rename("a", "x");
+            collection.Update(query, update);
+            var document = collection.FindOne();
+
+            var expectedUpdate = "{ '$rename' : { 'a' : 'x' } }".Replace("'", "\"");
+            Assert.Equal(expectedUpdate, update.ToJson());
+            var expectedDocument = "{ '_id' : 1, 'x' : 2 }".Replace("'", "\"");
+            Assert.Equal(expectedDocument, document.ToJson());
         }
 
         [Fact]
@@ -52,24 +49,22 @@ namespace MongoDB.Driver.Tests.Jira.CSharp199
         {
             var server = LegacyTestConfiguration.Server;
             server.Connect();
-            if (server.BuildInfo.Version >= new Version(1, 8, 0))
-            {
-                var database = LegacyTestConfiguration.Database;
-                var collection = LegacyTestConfiguration.Collection;
 
-                collection.RemoveAll();
-                collection.Insert(new BsonDocument { { "_id", 1 }, { "a", 2 }, { "b", 3 } });
+            var database = LegacyTestConfiguration.Database;
+            var collection = LegacyTestConfiguration.Collection;
 
-                var query = Query.EQ("_id", 1);
-                var update = Update.Rename("a", "x").Rename("b", "y");
-                collection.Update(query, update);
-                var document = collection.FindOne();
+            collection.RemoveAll();
+            collection.Insert(new BsonDocument { { "_id", 1 }, { "a", 2 }, { "b", 3 } });
 
-                var expectedUpdate = "{ '$rename' : { 'a' : 'x', 'b' : 'y' } }".Replace("'", "\"");
-                Assert.Equal(expectedUpdate, update.ToJson());
-                var expectedDocument = "{ '_id' : 1, 'x' : 2, 'y' : 3 }".Replace("'", "\"");
-                Assert.Equal(expectedDocument, document.ToJson());
-            }
+            var query = Query.EQ("_id", 1);
+            var update = Update.Rename("a", "x").Rename("b", "y");
+            collection.Update(query, update);
+            var document = collection.FindOne();
+
+            var expectedUpdate = "{ '$rename' : { 'a' : 'x', 'b' : 'y' } }".Replace("'", "\"");
+            Assert.Equal(expectedUpdate, update.ToJson());
+            var expectedDocument = "{ '_id' : 1, 'x' : 2, 'y' : 3 }".Replace("'", "\"");
+            Assert.Equal(expectedDocument, document.ToJson());
         }
 
         [Fact]
@@ -77,24 +72,22 @@ namespace MongoDB.Driver.Tests.Jira.CSharp199
         {
             var server = LegacyTestConfiguration.Server;
             server.Connect();
-            if (server.BuildInfo.Version >= new Version(1, 8, 0))
-            {
-                var database = LegacyTestConfiguration.Database;
-                var collection = LegacyTestConfiguration.Collection;
 
-                collection.RemoveAll();
-                collection.Insert(new BsonDocument { { "_id", 1 }, { "a", 2 }, { "b", 3 } });
+            var database = LegacyTestConfiguration.Database;
+            var collection = LegacyTestConfiguration.Collection;
 
-                var query = Query.EQ("_id", 1);
-                var update = Update.Rename("a", "x").Set("b", 4);
-                collection.Update(query, update);
-                var document = collection.FindOne();
+            collection.RemoveAll();
+            collection.Insert(new BsonDocument { { "_id", 1 }, { "a", 2 }, { "b", 3 } });
 
-                var expectedUpdate = "{ '$rename' : { 'a' : 'x' }, '$set' : { 'b' : 4 } }".Replace("'", "\"");
-                Assert.Equal(expectedUpdate, update.ToJson());
-                var expectedDocument = "{ '_id' : 1, 'b' : 4, 'x' : 2 }".Replace("'", "\""); // server rearranges elements
-                Assert.Equal(expectedDocument, document.ToJson());
-            }
+            var query = Query.EQ("_id", 1);
+            var update = Update.Rename("a", "x").Set("b", 4);
+            collection.Update(query, update);
+            var document = collection.FindOne();
+
+            var expectedUpdate = "{ '$rename' : { 'a' : 'x' }, '$set' : { 'b' : 4 } }".Replace("'", "\"");
+            Assert.Equal(expectedUpdate, update.ToJson());
+            var expectedDocument = "{ '_id' : 1, 'b' : 4, 'x' : 2 }".Replace("'", "\""); // server rearranges elements
+            Assert.Equal(expectedDocument, document.ToJson());
         }
     }
 }

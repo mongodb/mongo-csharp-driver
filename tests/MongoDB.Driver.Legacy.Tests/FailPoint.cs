@@ -15,7 +15,6 @@
 
 using System;
 using MongoDB.Bson;
-using MongoDB.Driver;
 
 namespace MongoDB.Driver.Tests
 {
@@ -58,7 +57,7 @@ namespace MongoDB.Driver.Tests
         // public methods
         public bool IsSupported()
         {
-            return AreFailPointsSupported() && IsThisFailPointSupported();
+            return IsThisFailPointSupported();
         }
 
         public void Dispose()
@@ -103,11 +102,6 @@ namespace MongoDB.Driver.Tests
         }
 
         // private methods
-        private bool AreFailPointsSupported()
-        {
-            return _serverInstance.BuildInfo.Version >= new Version(2, 4, 0);
-        }
-
         private bool IsThisFailPointSupported()
         {
             // some failpoints aren't supported everywhere

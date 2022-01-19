@@ -13,13 +13,8 @@
 * limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.GeoJsonObjectModel;
 using Xunit;
@@ -69,16 +64,14 @@ namespace MongoDB.Driver.Tests.Builders
         {
             var server = LegacyTestConfiguration.Server;
             server.Connect();
-            if (server.BuildInfo.Version >= new Version(2, 4, 0))
-            {
-                var point = GeoJson.Point(GeoJson.Geographic(40, 18));
 
-                var query = Query<GeoClass>.GeoIntersects(x => x.Surrounding, point);
+            var point = GeoJson.Point(GeoJson.Geographic(40, 18));
 
-                var results = _collection.Count(query);
+            var query = Query<GeoClass>.GeoIntersects(x => x.Surrounding, point);
 
-                Assert.Equal(1, results);
-            }
+            var results = _collection.Count(query);
+
+            Assert.Equal(1, results);
         }
 
         [Fact]
@@ -86,16 +79,14 @@ namespace MongoDB.Driver.Tests.Builders
         {
             var server = LegacyTestConfiguration.Server;
             server.Connect();
-            if (server.BuildInfo.Version >= new Version(2, 4, 0))
-            {
-                var point = GeoJson.Point(GeoJson.Geographic(40, 18));
 
-                var query = Query<GeoClass>.Near(x => x.Location, point);
+            var point = GeoJson.Point(GeoJson.Geographic(40, 18));
 
-                var results = _collection.Count(query);
+            var query = Query<GeoClass>.Near(x => x.Location, point);
 
-                Assert.Equal(1, results);
-            }
+            var results = _collection.Count(query);
+
+            Assert.Equal(1, results);
         }
 
         [Fact]
@@ -103,21 +94,19 @@ namespace MongoDB.Driver.Tests.Builders
         {
             var server = LegacyTestConfiguration.Server;
             server.Connect();
-            if (server.BuildInfo.Version >= new Version(2, 4, 0))
-            {
-                var polygon = GeoJson.Polygon(
-                        GeoJson.Geographic(40, 18),
-                        GeoJson.Geographic(40, 19),
-                        GeoJson.Geographic(41, 19),
-                        GeoJson.Geographic(41, 18),
-                        GeoJson.Geographic(40, 18));
 
-                var query = Query<GeoClass>.Within(x => x.Location, polygon);
+            var polygon = GeoJson.Polygon(
+                    GeoJson.Geographic(40, 18),
+                    GeoJson.Geographic(40, 19),
+                    GeoJson.Geographic(41, 19),
+                    GeoJson.Geographic(41, 18),
+                    GeoJson.Geographic(40, 18));
 
-                var results = _collection.Count(query);
+            var query = Query<GeoClass>.Within(x => x.Location, polygon);
 
-                Assert.Equal(1, results);
-            }
+            var results = _collection.Count(query);
+
+            Assert.Equal(1, results);
         }
 
         [Fact]
@@ -125,21 +114,19 @@ namespace MongoDB.Driver.Tests.Builders
         {
             var server = LegacyTestConfiguration.Server;
             server.Connect();
-            if (server.BuildInfo.Version >= new Version(2, 4, 0))
-            {
-                var polygon = GeoJson.Polygon(
-                        GeoJson.Geographic(41, 19),
-                        GeoJson.Geographic(41, 20),
-                        GeoJson.Geographic(42, 20),
-                        GeoJson.Geographic(42, 19),
-                        GeoJson.Geographic(41, 19));
 
-                var query = Query<GeoClass>.Within(x => x.Location, polygon);
+            var polygon = GeoJson.Polygon(
+                    GeoJson.Geographic(41, 19),
+                    GeoJson.Geographic(41, 20),
+                    GeoJson.Geographic(42, 20),
+                    GeoJson.Geographic(42, 19),
+                    GeoJson.Geographic(41, 19));
 
-                var results = _collection.Count(query);
+            var query = Query<GeoClass>.Within(x => x.Location, polygon);
 
-                Assert.Equal(0, results);
-            }
+            var results = _collection.Count(query);
+
+            Assert.Equal(0, results);
         }
     }
 }
