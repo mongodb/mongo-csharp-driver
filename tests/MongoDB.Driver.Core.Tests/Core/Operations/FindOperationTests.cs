@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-present MongoDB Inc.
+﻿/* Copyright 2015-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,17 +14,18 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
@@ -77,12 +78,12 @@ namespace MongoDB.Driver.Core.Operations
         [Theory]
         [ParameterAttributeData]
         public void BatchSize_set_should_throw_when_value_is_invalid(
-            [Values(-1)]
+            [Values(-2, -1)]
             int value)
         {
             var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
-            var exception = Record.Exception(() => { subject.BatchSize = value; });
+            var exception = Record.Exception(() => subject.BatchSize = value);
 
             var argumentOutOfRangeException = exception.Should().BeOfType<ArgumentOutOfRangeException>().Subject;
             argumentOutOfRangeException.ParamName.Should().Be("value");
@@ -100,22 +101,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.Collation = value;
             var result = subject.Collation;
 
-            result.Should().Be(value);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void CollectionNamespace_get_should_return_expected_result(
-            [Values("a", "b")]
-            string collectionName)
-        {
-            var databaseNamespace = new DatabaseNamespace("test");
-            var collectionNamespace = new CollectionNamespace(databaseNamespace, collectionName);
-            var subject = new FindOperation<BsonDocument>(collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
-
-            var result = subject.CollectionNamespace;
-
-            result.Should().Be(collectionNamespace);
+            result.Should().BeSameAs(value);
         }
 
         [Theory]
@@ -129,7 +115,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.Comment = value;
             var result = subject.Comment;
 
-            result.Should().Be(value);
+            result.Should().BeSameAs(value);
         }
 
         [Fact]
@@ -158,15 +144,12 @@ namespace MongoDB.Driver.Core.Operations
 #pragma warning restore
             subject.MaxTime.Should().NotHaveValue();
             subject.Min.Should().BeNull();
-#pragma warning disable 618
-            subject.Modifiers.Should().BeNull();
-#pragma warning restore 618
             subject.NoCursorTimeout.Should().NotHaveValue();
 #pragma warning disable 618
             subject.OplogReplay.Should().NotHaveValue();
 #pragma warning restore 618
             subject.Projection.Should().BeNull();
-            subject.ReadConcern.Should().Be(ReadConcern.Default);
+            subject.ReadConcern.Should().BeSameAs(ReadConcern.Default);
             subject.RetryRequested.Should().BeFalse();
             subject.ReturnKey.Should().NotHaveValue();
             subject.ShowRecordId.Should().NotHaveValue();
@@ -181,7 +164,7 @@ namespace MongoDB.Driver.Core.Operations
         [Fact]
         public void constructor_should_throw_when_collectionNamespace_is_null()
         {
-            var exception = Record.Exception(() => { new FindOperation<BsonDocument>(null, BsonDocumentSerializer.Instance, _messageEncoderSettings); });
+            var exception = Record.Exception(() => new FindOperation<BsonDocument>(null, BsonDocumentSerializer.Instance, _messageEncoderSettings));
 
             var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
             argumentNullException.ParamName.Should().Be("collectionNamespace");
@@ -190,7 +173,7 @@ namespace MongoDB.Driver.Core.Operations
         [Fact]
         public void constructor_should_throw_when_messageEncoderSettings_is_null()
         {
-            var exception = Record.Exception(() => { new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, null); });
+            var exception = Record.Exception(() => new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, null));
 
             var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
             argumentNullException.ParamName.Should().Be("messageEncoderSettings");
@@ -199,286 +182,639 @@ namespace MongoDB.Driver.Core.Operations
         [Fact]
         public void constructor_should_throw_when_resultSerializer_is_null()
         {
-            var exception = Record.Exception(() => { new FindOperation<BsonDocument>(_collectionNamespace, null, _messageEncoderSettings); });
+            var exception = Record.Exception(() => new FindOperation<BsonDocument>(_collectionNamespace, null, _messageEncoderSettings));
 
             var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
             argumentNullException.ParamName.Should().Be("resultSerializer");
         }
 
         [Fact]
-        public void CreateFindCommandOperation_should_prefer_top_level_fields_over_modifiers()
+        public void CreateCommand_should_return_expected_result()
         {
-            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subject.CreateCommand(connectionDescription, session);
+
+            var expectedResult = new BsonDocument
             {
-                Hint = "x_2",
-                Max = new BsonDocument("max", 5),
-#pragma warning disable 618
-                MaxScan = 7,
-#pragma warning restore 618
-                Min = new BsonDocument("min", 3),
-                ReturnKey = true,
-                ShowRecordId = true,
-#pragma warning disable 618
-                Snapshot = true,
-#pragma warning restore 618
-#pragma warning disable 618
-                Modifiers = new BsonDocument
-                {
-                    { "$hint", "x_1" },
-                    { "$max", new BsonDocument("max", 1) },
-                    { "$maxScan", 1 },
-                    { "$min", new BsonDocument("min", 1) },
-                    { "$returnKey", false },
-                    { "$showDiskLoc", false },
-                    { "$snapshot", false }
-                }
-#pragma warning restore 618
+                { "find", _collectionNamespace.CollectionName }
             };
-
-            var result = subject.CreateFindCommandOperation();
-
-            result.Hint.Should().Be(subject.Hint);
-            result.Max.Should().Be(subject.Max);
-#pragma warning disable 618
-            result.MaxScan.Should().Be(subject.MaxScan);
-#pragma warning restore 618
-            result.Min.Should().Be(subject.Min);
-            result.ReturnKey.Should().Be(subject.ReturnKey);
-            result.ShowRecordId.Should().Be(subject.ShowRecordId);
-#pragma warning disable 618
-            result.Snapshot.Should().Be(subject.Snapshot);
-#pragma warning restore 618
+            result.Should().Be(expectedResult);
         }
 
-        [Fact]
-        public void CreateFindCommandOperation_should_return_expected_result()
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_expected_result_when_AllowDiskUse_is_set(
+            [Values(null, false, true)]
+            bool? allowDiskUse,
+            [Values(ServerType.Standalone, ServerType.ShardRouter)]
+            ServerType serverType)
+        {
+            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            {
+                AllowDiskUse = allowDiskUse
+            };
+
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverType: serverType);
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subject.CreateCommand(connectionDescription, session);
+
+            var expectedResult = new BsonDocument
+            {
+                { "find", _collectionNamespace.CollectionName },
+                { "allowDiskUse", () => allowDiskUse.Value, allowDiskUse.HasValue }
+            };
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_expected_result_when_AllowPartialResults_is_set(
+            [Values(null, false, true)]
+            bool? allowPartialResults,
+            [Values(ServerType.Standalone, ServerType.ShardRouter)]
+            ServerType serverType)
+        {
+            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            {
+                AllowPartialResults = allowPartialResults
+            };
+
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverType: serverType);
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subject.CreateCommand(connectionDescription, session);
+
+            var expectedResult = new BsonDocument
+            {
+                { "find", _collectionNamespace.CollectionName },
+                { "allowPartialResults", () => allowPartialResults.Value, allowPartialResults.HasValue && serverType == ServerType.ShardRouter }
+            };
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_expected_result_when_Collation_is_set(
+            [Values(null, "en_US", "fr_CA")]
+            string locale)
+        {
+            var collation = locale == null ? null : new Collation(locale);
+            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            {
+                Collation = collation
+            };
+
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subject.CreateCommand(connectionDescription, session);
+
+            var expectedResult = new BsonDocument
+            {
+                { "find", _collectionNamespace.CollectionName },
+                { "collation", () => collation.ToBsonDocument(), collation != null }
+            };
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_expected_result_when_Comment_is_set(
+            [Values(null, "a", "b")]
+            string comment)
+        {
+            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            {
+                Comment = comment
+            };
+
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subject.CreateCommand(connectionDescription, session);
+
+            var expectedResult = new BsonDocument
+            {
+                { "find", _collectionNamespace.CollectionName },
+                { "comment", () => comment, comment != null }
+            };
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_expected_result_when_CursorType_is_Set(
+            [Values(CursorType.NonTailable, CursorType.Tailable, CursorType.TailableAwait)]
+            CursorType cursorType)
+        {
+            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            {
+                CursorType = cursorType
+            };
+
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subject.CreateCommand(connectionDescription, session);
+
+            var expectedResult = new BsonDocument
+            {
+                { "find", _collectionNamespace.CollectionName },
+                { "tailable", true, cursorType == CursorType.Tailable || cursorType == CursorType.TailableAwait },
+                { "awaitData", true, cursorType == CursorType.TailableAwait }
+            };
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_expected_result_when_Filter_is_set(
+            [Values(null, "{ x : 1 }", "{ x : 2 }")]
+            string filterString)
+        {
+            var filter = filterString == null ? null : BsonDocument.Parse(filterString);
+            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            {
+                Filter = filter
+            };
+
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subject.CreateCommand(connectionDescription, session);
+
+            var expectedResult = new BsonDocument
+            {
+                { "find", _collectionNamespace.CollectionName },
+                { "filter", filter, filter != null }
+            };
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_expected_result_when_FirstBatchSize_is_set(
+            [Values(null, 0, 1)]
+            int? firstBatchSize)
+        {
+            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            {
+                FirstBatchSize = firstBatchSize
+            };
+
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subject.CreateCommand(connectionDescription, session);
+
+            var expectedResult = new BsonDocument
+            {
+                { "find", _collectionNamespace.CollectionName },
+                { "batchSize", () => firstBatchSize.Value, firstBatchSize.HasValue }
+            };
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_expected_result_when_Hint_is_set(
+            [Values(null, "{ hint : 'x_1' }", "{ hint : { x : 1 } }")]
+            string hintString)
+        {
+            var hint = hintString == null ? null : BsonDocument.Parse(hintString)["hint"];
+            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            {
+                Hint = hint
+            };
+
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subject.CreateCommand(connectionDescription, session);
+
+            var expectedResult = new BsonDocument
+            {
+                { "find", _collectionNamespace.CollectionName },
+                { "hint", hint, hint != null }
+            };
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_expected_result_when_Limit_is_set(
+            [Values(null, -2, -1, 0, 1, 2)]
+            int? limit,
+            [Values(null, false, true)]
+            bool? singleBatch)
+        {
+            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            {
+                Limit = limit,
+                SingleBatch = singleBatch
+            };
+
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subject.CreateCommand(connectionDescription, session);
+
+            var expectedResult = new BsonDocument
+            {
+                { "find", _collectionNamespace.CollectionName },
+                { "limit", () => Math.Abs(limit.Value), limit.HasValue && limit.Value != 0 },
+                { "singleBatch", () => limit < 0 || singleBatch.Value, limit < 0 || singleBatch.HasValue }
+            };
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_expected_result_when_Max_is_set(
+            [Values(null, "{ x : 1 }", "{ x : 2 }")]
+            string maxString)
+        {
+            var max = maxString == null ? null : BsonDocument.Parse(maxString);
+            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            {
+                Max = max
+            };
+
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subject.CreateCommand(connectionDescription, session);
+
+            var expectedResult = new BsonDocument
+            {
+                { "find", _collectionNamespace.CollectionName },
+                { "max", max, max != null }
+            };
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_expected_result_when_MaxScan_is_set(
+            [Values(null, 1, 2)]
+            int? maxScan)
         {
 #pragma warning disable 618
             var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
-                AllowDiskUse = true,
-                AllowPartialResults = true,
-                BatchSize = 1,
-                Collation = new Collation("en_US"),
-                Comment = "comment",
-                CursorType = CursorType.Tailable,
-                Filter = new BsonDocument("filter", 1),
-                FirstBatchSize = 2,
-                Hint = "x_1",
-                Limit = 3,
-                Max = new BsonDocument("max", 1),
-                MaxAwaitTime = TimeSpan.FromSeconds(2),
-                MaxScan = 4,
-                MaxTime = TimeSpan.FromSeconds(1),
-                Min = new BsonDocument("min", 1),
-                NoCursorTimeout = true,
-                OplogReplay = true,
-                Projection = new BsonDocument("projection", 1),
-                ReadConcern = ReadConcern.Local,
-                RetryRequested = true,
-                ReturnKey = true,
-                ShowRecordId = true,
-                SingleBatch = true,
-                Skip = 6,
-                Snapshot = true,
-                Sort = new BsonDocument("sort", 1)
+                MaxScan = maxScan
             };
 #pragma warning restore
 
-            var result = subject.CreateFindCommandOperation();
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+            var session = OperationTestHelper.CreateSession();
 
-            result.AllowDiskUse.Should().Be(subject.AllowDiskUse);
-            result.AllowPartialResults.Should().Be(subject.AllowPartialResults);
-            result.BatchSize.Should().Be(subject.BatchSize);
-            result.Collation.Should().BeSameAs(subject.Collation);
-            result.CollectionNamespace.Should().BeSameAs(subject.CollectionNamespace);
-            result.Comment.Should().BeSameAs(subject.Comment);
-            result.CursorType.Should().Be(subject.CursorType);
-            result.Filter.Should().BeSameAs(subject.Filter);
-            result.FirstBatchSize.Should().Be(subject.FirstBatchSize);
-            result.Hint.Should().BeSameAs(subject.Hint);
-            result.Limit.Should().Be(subject.Limit);
-            result.Max.Should().BeSameAs(subject.Max);
-            result.MaxAwaitTime.Should().Be(subject.MaxAwaitTime);
+            var result = subject.CreateCommand(connectionDescription, session);
+
+            var expectedResult = new BsonDocument
+            {
+                { "find", _collectionNamespace.CollectionName },
+                { "maxScan", () => maxScan.Value, maxScan.HasValue }
+            };
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [InlineData(-10000, 0)]
+        [InlineData(0, 0)]
+        [InlineData(1, 1)]
+        [InlineData(9999, 1)]
+        [InlineData(10000, 1)]
+        [InlineData(10001, 2)]
+        public void CreateCommand_should_return_expected_result_when_MaxTime_is_set(long maxTimeTicks, int expectedMaxTimeMS)
+        {
+            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            {
+                MaxTime = TimeSpan.FromTicks(maxTimeTicks)
+            };
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subject.CreateCommand(connectionDescription, session);
+
+            var expectedResult = new BsonDocument
+            {
+                { "find", _collectionNamespace.CollectionName },
+                { "maxTimeMS", expectedMaxTimeMS }
+            };
+            result.Should().Be(expectedResult);
+            result["maxTimeMS"].BsonType.Should().Be(BsonType.Int32);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_expected_result_when_Min_is_set(
+            [Values(null, "{ x : 1 }", "{ x : 2 }")]
+            string minString)
+        {
+            var min = minString == null ? null : BsonDocument.Parse(minString);
+            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            {
+                Min = min
+            };
+
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subject.CreateCommand(connectionDescription, session);
+
+            var expectedResult = new BsonDocument
+            {
+                { "find", _collectionNamespace.CollectionName },
+                { "min", min, min != null }
+            };
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_expected_result_when_NoCursorTimeout_is_set(
+            [Values(null, false, true)]
+            bool? noCursorTimeout)
+        {
+            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            {
+                NoCursorTimeout = noCursorTimeout
+            };
+
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subject.CreateCommand(connectionDescription, session);
+
+            var expectedResult = new BsonDocument
+            {
+                { "find", _collectionNamespace.CollectionName },
+                { "noCursorTimeout", () => noCursorTimeout.Value, noCursorTimeout.HasValue }
+            };
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_expected_result_when_OplogReplay_is_set(
+            [Values(null, false, true)]
+            bool? oplogReplay)
+        {
+            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            {
 #pragma warning disable 618
-            result.MaxScan.Should().Be(subject.MaxScan);
-#pragma warning restore
-            result.MaxTime.Should().Be(subject.MaxTime);
-            result.MessageEncoderSettings.Should().BeSameAs(subject.MessageEncoderSettings);
-            result.Min.Should().BeSameAs(subject.Min);
-            result.NoCursorTimeout.Should().Be(subject.NoCursorTimeout);
-#pragma warning disable 618
-            result.OplogReplay.Should().Be(subject.OplogReplay);
+                OplogReplay = oplogReplay
 #pragma warning restore 618
-            result.Projection.Should().BeSameAs(subject.Projection);
-            result.ReadConcern.Should().BeSameAs(subject.ReadConcern);
-            result.ResultSerializer.Should().BeSameAs(subject.ResultSerializer);
-            result.RetryRequested.Should().Be(subject.RetryRequested);
-            result.ReturnKey.Should().Be(subject.ReturnKey);
-            result.ShowRecordId.Should().Be(subject.ShowRecordId);
-            result.SingleBatch.Should().Be(subject.SingleBatch);
-            result.Skip.Should().Be(subject.Skip);
+            };
+
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subject.CreateCommand(connectionDescription, session);
+
+            var expectedResult = new BsonDocument
+            {
+                { "find", _collectionNamespace.CollectionName },
+                { "oplogReplay", () => oplogReplay.Value, oplogReplay.HasValue }
+            };
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_expected_result_when_Projection_is_set(
+            [Values(null, "{ x : 1 }", "{ y : 1 }")]
+            string projectionString)
+        {
+            var projection = projectionString == null ? null : BsonDocument.Parse(projectionString);
+            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            {
+                Projection = projection
+            };
+
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subject.CreateCommand(connectionDescription, session);
+
+            var expectedResult = new BsonDocument
+            {
+                { "find", _collectionNamespace.CollectionName },
+                { "projection", projection, projection != null }
+            };
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_expected_result_when_ReadConcern_is_set(
+            [Values(null, ReadConcernLevel.Linearizable, ReadConcernLevel.Local)]
+            ReadConcernLevel? level)
+        {
+            var readConcern = level.HasValue ? new ReadConcern(level.Value) : ReadConcern.Default;
+            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            {
+                ReadConcern = readConcern
+            };
+
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subject.CreateCommand(connectionDescription, session);
+
+            var expectedResult = new BsonDocument
+            {
+                { "find", _collectionNamespace.CollectionName },
+                { "readConcern", () => readConcern.ToBsonDocument(), readConcern != null && !readConcern.IsServerDefault }
+            };
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_expected_result_when_ReturnKey_is_set(
+            [Values(null, false, true)]
+            bool? returnKey)
+        {
+            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            {
+                ReturnKey = returnKey
+            };
+
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subject.CreateCommand(connectionDescription, session);
+
+            var expectedResult = new BsonDocument
+            {
+                { "find", _collectionNamespace.CollectionName },
+                { "returnKey", () => returnKey.Value, returnKey.HasValue }
+            };
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_expected_result_when_ShowRecordId_is_set(
+            [Values(null, false, true)]
+            bool? showRecordId)
+        {
+            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            {
+                ShowRecordId = showRecordId
+            };
+
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subject.CreateCommand(connectionDescription, session);
+
+            var expectedResult = new BsonDocument
+            {
+                { "find", _collectionNamespace.CollectionName },
+                { "showRecordId", () => showRecordId.Value, showRecordId.HasValue }
+            };
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_expected_result_when_Skip_is_set(
+            [Values(null, 0, 1, 2)]
+            int? skip)
+        {
+            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            {
+                Skip = skip
+            };
+
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subject.CreateCommand(connectionDescription, session);
+
+            var expectedResult = new BsonDocument
+            {
+                { "find", _collectionNamespace.CollectionName },
+                { "skip", () => skip.Value, skip.HasValue }
+            };
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_expected_result_when_Snapshot_is_set(
+            [Values(null, false, true)]
+            bool? snapshot)
+        {
 #pragma warning disable 618
-            result.Snapshot.Should().Be(subject.Snapshot);
+            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            {
+                Snapshot = snapshot
+            };
 #pragma warning restore
-            result.Sort.Should().BeSameAs(subject.Sort);
+
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subject.CreateCommand(connectionDescription, session);
+
+            var expectedResult = new BsonDocument
+            {
+                { "find", _collectionNamespace.CollectionName },
+                { "snapshot", () => snapshot.Value, snapshot.HasValue }
+            };
+            result.Should().Be(expectedResult);
         }
 
-        [Fact]
-        public void CreateFindCommandOperation_should_return_expected_result_when_modifiers_are_provided()
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_expected_result_when_Sort_is_set(
+            [Values(null, "{ x : 1 }", "{ y : 1 }")]
+            string sortString)
         {
+            var sort = sortString == null ? null : BsonDocument.Parse(sortString);
             var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
-#pragma warning disable 618
-                Modifiers = new BsonDocument
-                {
-                    { "$comment", "comment" },
-                    { "$hint", "x_1" },
-                    { "$max", new BsonDocument("max", 1) },
-                    { "$maxScan", 1 },
-                    { "$maxTimeMS", 2000 },
-                    { "$min", new BsonDocument("min", 1) },
-                    { "$orderby", new BsonDocument("sort", 1) },
-                    { "$returnKey", true },
-                    { "$showDiskLoc", true },
-                    { "$snapshot", true }
-                }
-#pragma warning restore 618
+                Sort = sort
             };
 
-            var result = subject.CreateFindCommandOperation();
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+            var session = OperationTestHelper.CreateSession();
 
-#pragma warning disable 618
-            result.Comment.Should().Be(subject.Modifiers["$comment"].AsString);
-            result.Hint.Should().Be(subject.Modifiers["$hint"]);
-            result.Max.Should().Be(subject.Modifiers["$max"].AsBsonDocument);
-            result.MaxScan.Should().Be(subject.Modifiers["$maxScan"].AsInt32);
-            result.MaxTime.Should().Be(TimeSpan.FromMilliseconds(subject.Modifiers["$maxTimeMS"].AsInt32));
-            result.Min.Should().Be(subject.Modifiers["$min"].AsBsonDocument);
-            result.ReturnKey.Should().Be(subject.Modifiers["$returnKey"].ToBoolean());
-            result.ShowRecordId.Should().Be(subject.Modifiers["$showDiskLoc"].AsBoolean);
-            result.Snapshot.Should().Be(subject.Modifiers["$snapshot"].AsBoolean);
-            result.Sort.Should().Be(subject.Modifiers["$orderby"].AsBsonDocument);
-#pragma warning restore 618
+            var result = subject.CreateCommand(connectionDescription, session);
+
+            var expectedResult = new BsonDocument
+            {
+                { "find", _collectionNamespace.CollectionName },
+                { "sort", sort, sort != null }
+            };
+            result.Should().Be(expectedResult);
         }
 
-        [Fact]
-        public void CreateFindOpcodeOperation_should_return_expected_result()
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_the_expected_result_when_using_causal_consistency(
+            [Values(null, ReadConcernLevel.Linearizable, ReadConcernLevel.Local)]
+            ReadConcernLevel? level)
         {
-#pragma warning disable 618
+            var readConcern = level.HasValue ? new ReadConcern(level.Value) : ReadConcern.Default;
             var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
-                AllowPartialResults = true,
-                BatchSize = 1,
-                Comment = "comment",
-                CursorType = CursorType.Tailable,
-                Filter = new BsonDocument("filter", 1),
-                FirstBatchSize = 2,
-                Hint = "x_1",
-                Limit = 3,
-                Max = new BsonDocument("max", 1),
-                MaxScan = 4,
-                MaxTime = TimeSpan.FromSeconds(1),
-                Min = new BsonDocument("min", 1),
-                Modifiers = new BsonDocument("modifiers", 1),
-                NoCursorTimeout = true,
-                OplogReplay = true,
-                Projection = new BsonDocument("projection", 1),
-                ReturnKey = true,
-                ShowRecordId = true,
-                SingleBatch = false,
-                Skip = 6,
-                Snapshot = true,
-                Sort = new BsonDocument("sort", 1)
+                ReadConcern = readConcern
             };
-#pragma warning restore
 
-            var result = subject.CreateFindOpcodeOperation();
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(supportsSessions: true);
+            var session = OperationTestHelper.CreateSession(true, new BsonTimestamp(100));
 
-            result.AllowPartialResults.Should().Be(subject.AllowPartialResults);
-            result.BatchSize.Should().Be(subject.BatchSize);
-            result.CollectionNamespace.Should().Be(subject.CollectionNamespace);
-            result.Comment.Should().Be(subject.Comment);
-            result.CursorType.Should().Be(subject.CursorType);
-            result.Filter.Should().Be(subject.Filter);
-            result.FirstBatchSize.Should().Be(subject.FirstBatchSize);
-            result.Hint.Should().Be(subject.Hint);
-            result.Limit.Should().Be(subject.Limit);
-            result.Max.Should().Be(subject.Max);
-#pragma warning disable 618
-            result.MaxScan.Should().Be(subject.MaxScan);
-#pragma warning restore
-            result.MaxTime.Should().Be(subject.MaxTime);
-            result.MessageEncoderSettings.Should().BeSameAs(subject.MessageEncoderSettings);
-            result.Min.Should().Be(subject.Min);
-#pragma warning disable 618
-            result.Modifiers.Should().Be(subject.Modifiers);
-#pragma warning restore 618
-            result.NoCursorTimeout.Should().Be(subject.NoCursorTimeout);
-#pragma warning disable 618
-            result.OplogReplay.Should().Be(subject.OplogReplay);
-#pragma warning restore 618
-            result.Projection.Should().Be(subject.Projection);
-            result.ResultSerializer.Should().Be(subject.ResultSerializer);
-            result.ShowRecordId.Should().Be(subject.ShowRecordId);
-            result.Skip.Should().Be(subject.Skip);
-#pragma warning disable 618
-            result.Snapshot.Should().Be(subject.Snapshot);
-#pragma warning restore
-            result.Sort.Should().Be(subject.Sort);
+            var result = subject.CreateCommand(connectionDescription, session);
+
+            var expectedReadConcernDocument = readConcern.ToBsonDocument();
+            expectedReadConcernDocument["afterClusterTime"] = new BsonTimestamp(100);
+
+            var expectedResult = new BsonDocument
+            {
+                { "find", _collectionNamespace.CollectionName },
+                { "readConcern", expectedReadConcernDocument }
+            };
+            result.Should().Be(expectedResult);
         }
 
-        [Fact]
-        public void CreateFindOpcodeOperation_should_return_expected_result_when_singleBatch_is_true()
+        [SkippableFact]
+        public void CreateCursor_should_use_ns_field_instead_of_namespace_passed_in_constructor()
         {
-            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            var firstBatchSlice = new ByteArrayBuffer(new byte[] { 5, 0, 0, 0, 0 }, isReadOnly: true);
+            var cursorCollectionNamespace = CollectionNamespace.FromFullName("cursors.lkajlkasdf-3980238d908sdf");
+            var cursorDocument = new BsonDocument
             {
-                Limit = 1,
-                SingleBatch = true
+                { "id", 0 },
+                { "firstBatch", new RawBsonArray(firstBatchSlice) },
+                { "ns", cursorCollectionNamespace.FullName }
             };
-
-            var result = subject.CreateFindOpcodeOperation();
-
-            result.Limit.Should().Be(-subject.Limit);
-        }
-
-        [Fact]
-        public void CreateFindOpcodeOperation_should_throw_when_AllowDiskUse_is_set()
-        {
-            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            var commandResult = new BsonDocument
             {
-                AllowDiskUse = true
+                { "ok", 1 },
+                { "cursor", cursorDocument }
             };
+            var mockServer = new Mock<IServer>();
+            var mockSession = new Mock<ICoreSessionHandle>();
+            var mockSessionFork = new Mock<ICoreSessionHandle>();
+            mockSession.Setup(x => x.Fork()).Returns(mockSessionFork.Object);
+            var mockChannelSource = new Mock<IChannelSourceHandle>();
+            mockChannelSource.Setup(x => x.Server).Returns(mockServer.Object);
+            mockChannelSource.Setup(x => x.Session).Returns(mockSession.Object);
 
-            var exception = Record.Exception(() => { subject.CreateFindOpcodeOperation(); });
+            var cursor = subject.CreateCursor(mockChannelSource.Object, Mock.Of<IChannelHandle>(), commandResult);
 
-            exception.Should().BeOfType<NotSupportedException>();
-        }
-
-        [Fact]
-        public void CreateFindOpcodeOperation_should_throw_when_Collation_is_set()
-        {
-            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
-            {
-                Collation = new Collation("en_US")
-            };
-
-            var exception = Record.Exception(() => { subject.CreateFindOpcodeOperation(); });
-
-            exception.Should().BeOfType<NotSupportedException>();
-        }
-
-        [Fact]
-        public void CreateFindOpcodeOperation_should_throw_when_ReadConcern_is_not_server_default()
-        {
-            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
-            {
-                ReadConcern = new ReadConcern(ReadConcernLevel.Local)
-            };
-
-            var exception = Record.Exception(() => { subject.CreateFindOpcodeOperation(); });
-
-            exception.Should().BeOfType<MongoClientException>();
+            cursor._collectionNamespace().Should().Be(cursorCollectionNamespace);
         }
 
         [Theory]
@@ -506,74 +842,7 @@ namespace MongoDB.Driver.Core.Operations
             var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
             var cursor = ExecuteOperation(subject, async);
-            var result = ReadCursorToEnd(cursor, async);
-
-            result.Should().HaveCount(5);
-        }
-
-        [SkippableTheory]
-        [ParameterAttributeData]
-        public void Execute_should_find_all_the_documents_matching_the_query_when_read_preference_is_used(
-            [Values(false, true)]
-            bool async)
-        {
-            RequireServer.Check();
-            EnsureTestData();
-            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
-
-            var cursor = ExecuteOperation(subject, ReadPreference.PrimaryPreferred, async); // note: SecondaryPreferred doesn't test $readPreference because it is encoded as secondaryOk = true
-            var result = ReadCursorToEnd(cursor, async);
-
-            result.Should().HaveCount(5);
-        }
-
-        [SkippableTheory]
-        [ParameterAttributeData]
-        public void Execute_should_find_all_the_documents_matching_the_query_when_max_staleness_is_used(
-            [Values(false, true)]
-            bool async)
-        {
-            RequireServer.Check();
-            EnsureTestData();
-            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
-            var readPreference = new ReadPreference(ReadPreferenceMode.SecondaryPreferred, maxStaleness: TimeSpan.FromSeconds(90));
-
-            // the count could be short temporarily until replication catches up
-            List<BsonDocument> result = null;
-            SpinWait.SpinUntil(() =>
-                {
-                    var cursor = ExecuteOperation(subject, readPreference, async);
-                    result = ReadCursorToEnd(cursor, async);
-                    return result.Count >= 5;
-                },
-                TimeSpan.FromSeconds(10));
-
-            result.Should().HaveCount(5);
-        }
-
-        [SkippableTheory]
-        [ParameterAttributeData]
-        public void Execute_should_find_all_the_documents_matching_the_query_when_hedge_is_used(
-            [Values(null, false, true)]
-            bool? isEnabled,
-            [Values(false, true)]
-            bool async)
-        {
-            RequireServer.Check().ClusterType(ClusterType.Sharded).Supports(Feature.HedgedReads);
-            EnsureTestData();
-            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
-            var hedge = isEnabled.HasValue ? new ReadPreferenceHedge(isEnabled.Value) : null;
-            var readPreference = new ReadPreference(ReadPreferenceMode.SecondaryPreferred, hedge: hedge);
-
-            // the count could be short temporarily until replication catches up
-            List<BsonDocument> result = null;
-            SpinWait.SpinUntil(() =>
-                {
-                    var cursor = ExecuteOperation(subject, readPreference, async);
-                    result = ReadCursorToEnd(cursor, async);
-                    return result.Count >= 5;
-                },
-                TimeSpan.FromSeconds(10));
+            var result = ReadCursorToEnd(cursor);
 
             result.Should().HaveCount(5);
         }
@@ -593,7 +862,7 @@ namespace MongoDB.Driver.Core.Operations
 
             using (var cursor = ExecuteOperation(subject, async))
             {
-                var result = ReadCursorToEnd(cursor, async);
+                var result = ReadCursorToEnd(cursor);
 
                 result.Should().HaveCount(5);
             }
@@ -631,7 +900,7 @@ namespace MongoDB.Driver.Core.Operations
             }
 
             var cursor = ExecuteOperation(subject, async);
-            var result = ReadCursorToEnd(cursor, async);
+            var result = ReadCursorToEnd(cursor);
 
             result.Should().HaveCount(1);
         }
@@ -651,55 +920,9 @@ namespace MongoDB.Driver.Core.Operations
             };
 
             var cursor = ExecuteOperation(subject, async);
-
             var result = ReadCursorToEnd(cursor);
+
             result.Should().HaveCount(2);
-        }
-
-        [SkippableTheory]
-        [ParameterAttributeData]
-        public void Execute_should_throw_when_AllowDiskUse_is_not_supported(
-            [Values(false, true)] bool async,
-            [Values(null, false, true)] bool? allowDiskUse)
-        {
-            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
-            {
-                AllowDiskUse = allowDiskUse
-            };
-
-            var exception = Record.Exception(() => { ExecuteOperation(subject, async); });
-
-            if (!allowDiskUse.HasValue)
-            {
-                exception.Should().BeNull();
-            }
-#pragma warning disable CS0618 // Type or member is obsolete
-            else if (Feature.FindAllowDiskUse.IsSupported(CoreTestConfiguration.MaxWireVersion))
-#pragma warning restore CS0618 // Type or member is obsolete
-            {
-                exception.Should().BeNull();
-            }
-            else
-            {
-                exception.Should().BeOfType<MongoCommandException>();
-            }
-        }
-
-        [SkippableTheory]
-        [ParameterAttributeData]
-        public void Execute_should_throw_when_maxTime_is_exceeded(
-            [Values(false, true)] bool async)
-        {
-            RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet);
-            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
-            subject.MaxTime = TimeSpan.FromSeconds(9001);
-
-            using (var failPoint = FailPoint.ConfigureAlwaysOn(_cluster, _session, FailPointName.MaxTimeAlwaysTimeout))
-            {
-                var exception = Record.Exception(() => ExecuteOperation(subject, failPoint.Binding, async));
-
-                exception.Should().BeOfType<MongoExecutionTimeoutException>();
-            }
         }
 
         [SkippableTheory]
@@ -710,20 +933,26 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
-            var exception = Record.Exception(() =>
-            {
-                if (async)
-                {
-                    subject.ExecuteAsync(binding: null, CancellationToken.None).GetAwaiter().GetResult();
-                }
-                else
-                {
-                    subject.Execute(binding: null, CancellationToken.None);
-                }
-            });
+            var exception = Record.Exception(() => ExecuteOperation(subject, (IReadBinding)null, async));
 
             var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
             argumentNullException.ParamName.Should().Be("binding");
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_should_throw_when_maxTime_is_exceeded(
+            [Values(false, true)] bool async)
+        {
+            RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet);
+            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings) { MaxTime = TimeSpan.FromSeconds(9001) };
+
+            using (var failPoint = FailPoint.ConfigureAlwaysOn(_cluster, _session, FailPointName.MaxTimeAlwaysTimeout))
+            {
+                var exception = Record.Exception(() => ExecuteOperation(subject, failPoint.Binding, async));
+
+                exception.Should().BeOfType<MongoExecutionTimeoutException>();
+            }
         }
 
         [SkippableTheory]
@@ -741,7 +970,7 @@ namespace MongoDB.Driver.Core.Operations
         [Theory]
         [ParameterAttributeData]
         public void Filter_get_and_set_should_work(
-            [Values(null, "{ a : 1 }", "{ b : 2 }")]
+            [Values(null, "{ x : 1 }", "{ x : 2 }")]
             string valueString)
         {
             var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
@@ -750,13 +979,13 @@ namespace MongoDB.Driver.Core.Operations
             subject.Filter = value;
             var result = subject.Filter;
 
-            result.Should().Be(value);
+            result.Should().BeSameAs(value);
         }
 
         [Theory]
         [ParameterAttributeData]
         public void FirstBatchSize_get_and_set_should_work(
-            [Values(null, 0, 1)]
+            [Values(null, 0, 1, 2)]
             int? value)
         {
             var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
@@ -770,7 +999,7 @@ namespace MongoDB.Driver.Core.Operations
         [Theory]
         [ParameterAttributeData]
         public void FirstBatchSize_set_should_throw_when_value_is_invalid(
-            [Values(-1)]
+            [Values(-2, -1)]
             int value)
         {
             var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
@@ -784,7 +1013,7 @@ namespace MongoDB.Driver.Core.Operations
         [Theory]
         [ParameterAttributeData]
         public void Hint_get_and_set_should_work(
-            [Values(null, "{ hint : \"b_1\" }", "{ hint : { b : 1 } }")]
+            [Values(null, "{ hint : 'x_1' }", "{ hint : { x : 1 } }")]
             string valueString)
         {
             var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
@@ -793,13 +1022,27 @@ namespace MongoDB.Driver.Core.Operations
             subject.Hint = value;
             var result = subject.Hint;
 
+            result.Should().BeSameAs(value);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Let_get_and_set_should_work(
+            [Values(null, "{ name : 'name' }")] string let)
+        {
+            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            var value = let != null ? BsonDocument.Parse(let) : null;
+
+            subject.Let = value;
+            var result = subject.Let;
+
             result.Should().Be(value);
         }
 
         [Theory]
         [ParameterAttributeData]
         public void Limit_get_and_set_should_work(
-            [Values(-2, -1, 0, 1, 2)]
+            [Values(null, 1, 2)]
             int? value)
         {
             var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
@@ -813,7 +1056,7 @@ namespace MongoDB.Driver.Core.Operations
         [Theory]
         [ParameterAttributeData]
         public void Max_get_and_set_should_work(
-            [Values(null, "{ a : 1 }", "{ b : 2 }")]
+            [Values(null, "{ x : 1 }", "{ x : 2 }")]
             string valueString)
         {
             var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
@@ -822,13 +1065,13 @@ namespace MongoDB.Driver.Core.Operations
             subject.Max = value;
             var result = subject.Max;
 
-            result.Should().Be(value);
+            result.Should().BeSameAs(value);
         }
 
         [Theory]
         [ParameterAttributeData]
         public void MaxScan_get_and_set_should_work(
-            [Values(null, 1)]
+            [Values(null, 1, 2)]
             int? value)
         {
             var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
@@ -843,8 +1086,24 @@ namespace MongoDB.Driver.Core.Operations
 
         [Theory]
         [ParameterAttributeData]
+        public void MaxScan_should_throw_when_value_is_invalid(
+            [Values(-1, 0)]
+            int? value)
+        {
+            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+
+#pragma warning disable 618
+            var exception = Record.Exception(() => { subject.MaxScan = value; });
+#pragma warning restore
+
+            var argumentOutOfRangeException = exception.Should().BeOfType<ArgumentOutOfRangeException>().Subject;
+            argumentOutOfRangeException.ParamName.Should().Be("value");
+        }
+
+        [Theory]
+        [ParameterAttributeData]
         public void MaxAwaitTime_get_and_set_should_work(
-            [Values(null, 1)]
+            [Values(null, 1, 2)]
             int? seconds)
         {
             var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
@@ -886,22 +1145,8 @@ namespace MongoDB.Driver.Core.Operations
 
         [Theory]
         [ParameterAttributeData]
-        public void MessageEncoderSettings_get_should_return_expected_result(
-            [Values(GuidRepresentation.CSharpLegacy, GuidRepresentation.Standard)]
-            GuidRepresentation guidRepresentation)
-        {
-            var messageEncoderSettings = new MessageEncoderSettings { { "GuidRepresentation", guidRepresentation } };
-            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, messageEncoderSettings);
-
-            var result = subject.MessageEncoderSettings;
-
-            result.Should().BeSameAs(messageEncoderSettings);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
         public void Min_get_and_set_should_work(
-            [Values(null, "{ a : 1 }", "{ b : 2 }")]
+            [Values(null, "{ x : 1 }", "{ x : 2 }")]
             string valueString)
         {
             var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
@@ -910,23 +1155,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.Min = value;
             var result = subject.Min;
 
-            result.Should().Be(value);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void Modifiers_get_and_set_should_work(
-            [Values(null, "{ a : 1 }", "{ b : 2 }")]
-            string valueString)
-        {
-            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
-            var value = valueString == null ? null : BsonDocument.Parse(valueString);
-#pragma warning disable 618
-            subject.Modifiers = value;
-            var result = subject.Modifiers;
-#pragma warning restore 618
-
-            result.Should().Be(value);
+            result.Should().BeSameAs(value);
         }
 
         [Theory]
@@ -962,26 +1191,26 @@ namespace MongoDB.Driver.Core.Operations
         [Theory]
         [ParameterAttributeData]
         public void Projection_get_and_set_should_work(
-            [Values(null, "{ a : 1 }", "{ b : 1 }")]
-            string valueString)
+            [Values(null, "{ x : 1 }", "{ y : 1 }")]
+            string json)
         {
             var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
-            var value = valueString == null ? null : BsonDocument.Parse(valueString);
+            var value = json == null ? null : BsonDocument.Parse(json);
 
             subject.Projection = value;
             var result = subject.Projection;
 
-            result.Should().Be(value);
+            result.Should().BeSameAs(value);
         }
 
         [Theory]
         [ParameterAttributeData]
         public void ReadConcern_get_and_set_should_work(
-            [Values(null, ReadConcernLevel.Linearizable, ReadConcernLevel.Local)]
-            ReadConcernLevel? level)
+            [Values(ReadConcernLevel.Linearizable, ReadConcernLevel.Local)]
+            ReadConcernLevel level)
         {
             var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
-            var value = level.HasValue ? new ReadConcern(level.Value) : ReadConcern.Default;
+            var value = new ReadConcern(level);
 
             subject.ReadConcern = value;
             var result = subject.ReadConcern;
@@ -990,14 +1219,14 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Fact]
-        public void ResultSerializer_get_should_return_expected_result()
+        public void ReadConcern_set_should_throw_when_value_is_null()
         {
-            var resultSerializer = new BsonDocumentSerializer();
-            var subject = new FindOperation<BsonDocument>(_collectionNamespace, resultSerializer, _messageEncoderSettings);
+            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
-            var result = subject.ResultSerializer;
+            var exception = Record.Exception(() => { subject.ReadConcern = null; });
 
-            result.Should().BeSameAs(resultSerializer);
+            var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
+            argumentNullException.ParamName.Should().Be("value");
         }
 
         [Theory]
@@ -1059,7 +1288,7 @@ namespace MongoDB.Driver.Core.Operations
         [Theory]
         [ParameterAttributeData]
         public void Skip_get_and_set_should_work(
-            [Values(null, 0, 1)]
+            [Values(null, 0, 1, 2)]
             int? value)
         {
             var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
@@ -1073,12 +1302,12 @@ namespace MongoDB.Driver.Core.Operations
         [Theory]
         [ParameterAttributeData]
         public void Skip_set_should_throw_when_value_is_invalid(
-            [Values(-1)]
+            [Values(-2, -1)]
             int value)
         {
             var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
-            var exception = Record.Exception(() => { subject.Skip = value; });
+            var exception = Record.Exception(() => subject.Skip = value);
 
             var argumentOutOfRangeException = exception.Should().BeOfType<ArgumentOutOfRangeException>().Subject;
             argumentOutOfRangeException.ParamName.Should().Be("value");
@@ -1103,7 +1332,7 @@ namespace MongoDB.Driver.Core.Operations
         [Theory]
         [ParameterAttributeData]
         public void Sort_get_and_set_should_work(
-            [Values(null, "{ a : 1 }", "{ b : -1 }")]
+            [Values(null, "{ x : 1 }", "{ y : 1 }")]
             string valueString)
         {
             var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
@@ -1112,7 +1341,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.Sort = value;
             var result = subject.Sort;
 
-            result.Should().Be(value);
+            result.Should().BeSameAs(value);
         }
 
         // private methods
@@ -1128,6 +1357,18 @@ namespace MongoDB.Driver.Core.Operations
                     new BsonDocument { { "_id", 4 }, { "x", "d" }, { "y", 2 } },
                     new BsonDocument { { "_id", 5 }, { "x", "D" }, { "y", 3 } });
             });
+        }
+    }
+
+    public static class FindOperationReflector
+    {
+        public static AsyncCursor<BsonDocument> CreateCursor(
+            this FindOperation<BsonDocument> obj,
+            IChannelSourceHandle channelSource,
+            IChannelHandle channel,
+            BsonDocument commandResult)
+        {
+            return (AsyncCursor<BsonDocument>)Reflector.Invoke(obj, nameof(CreateCursor), channelSource, channel, commandResult);
         }
     }
 }

@@ -19,11 +19,26 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
 {
+    /// <summary>
+    /// Represents an explainable operation.
+    /// </summary>
+    public interface IExplainableOperation
+    {
+        /// <summary>
+        /// Creates the command to be explained.
+        /// </summary>
+        /// <param name="connectionDescription">The connection description.</param>
+        /// <param name="session">The session.</param>
+        /// <returns>The command.</returns>
+        BsonDocument CreateCommand(ConnectionDescription connectionDescription, ICoreSession session);
+    }
+
     /// <summary>
     /// Represents an explain operation.
     /// </summary>
@@ -31,7 +46,7 @@ namespace MongoDB.Driver.Core.Operations
     {
         // fields
         private readonly DatabaseNamespace _databaseNamespace;
-        private readonly BsonDocument _command;
+        private readonly IExplainableOperation _explainableOperation;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private ExplainVerbosity _verbosity;
 
@@ -40,12 +55,12 @@ namespace MongoDB.Driver.Core.Operations
         /// Initializes a new instance of the <see cref="ExplainOperation"/> class.
         /// </summary>
         /// <param name="databaseNamespace">The database namespace.</param>
-        /// <param name="command">The command.</param>
+        /// <param name="explainableOperation">The explainable operation.</param>
         /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        public ExplainOperation(DatabaseNamespace databaseNamespace, BsonDocument command, MessageEncoderSettings messageEncoderSettings)
+        public ExplainOperation(DatabaseNamespace databaseNamespace, IExplainableOperation explainableOperation, MessageEncoderSettings messageEncoderSettings)
         {
             _databaseNamespace = Ensure.IsNotNull(databaseNamespace, nameof(databaseNamespace));
-            _command = Ensure.IsNotNull(command, nameof(command));
+            _explainableOperation = Ensure.IsNotNull(explainableOperation, nameof(explainableOperation));
             _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, nameof(messageEncoderSettings));
             _verbosity = ExplainVerbosity.QueryPlanner;
         }
@@ -63,14 +78,14 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <summary>
-        /// Gets the command to be explained.
+        /// Gets the operation to be explained.
         /// </summary>
         /// <value>
-        /// The command to be explained.
+        /// The operation to be explained.
         /// </value>
-        public BsonDocument Command
+        public IExplainableOperation ExplainableOperation
         {
-            get { return _command; }
+            get { return _explainableOperation; }
         }
 
         /// <summary>
@@ -100,29 +115,49 @@ namespace MongoDB.Driver.Core.Operations
         /// <inheritdoc/>
         public BsonDocument Execute(IReadBinding binding, CancellationToken cancellationToken)
         {
-            var operation = CreateReadOperation();
-            return operation.Execute(binding, cancellationToken);
+            using (var channelSource = binding.GetReadChannelSource(cancellationToken))
+            using (var channel = channelSource.GetChannel(cancellationToken))
+            using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference, binding.Session))
+            {
+                var operation = CreateReadOperation(channel.ConnectionDescription, binding.Session);
+                return operation.Execute(channelBinding, cancellationToken);
+            }
         }
 
         /// <inheritdoc/>
         public BsonDocument Execute(IWriteBinding binding, CancellationToken cancellationToken)
         {
-            var operation = CreateWriteOperation();
-            return operation.Execute(binding, cancellationToken);
+            using (var channelSource = binding.GetWriteChannelSource(cancellationToken))
+            using (var channel = channelSource.GetChannel(cancellationToken))
+            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session))
+            {
+                var operation = CreateWriteOperation(channel.ConnectionDescription, binding.Session);
+                return operation.Execute(channelBinding, cancellationToken);
+            }
         }
 
         /// <inheritdoc/>
-        public Task<BsonDocument> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
+        public async Task<BsonDocument> ExecuteAsync(IReadBinding binding, CancellationToken cancellationToken)
         {
-            var operation = CreateReadOperation();
-            return operation.ExecuteAsync(binding, cancellationToken);
+            using (var channelSource = await binding.GetReadChannelSourceAsync(cancellationToken).ConfigureAwait(false))
+            using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
+            using (var channelBinding = new ChannelReadBinding(channelSource.Server, channel, binding.ReadPreference, binding.Session))
+            {
+                var operation = CreateReadOperation(channel.ConnectionDescription, binding.Session);
+                return await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
+            }
         }
 
         /// <inheritdoc/>
-        public Task<BsonDocument> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
+        public async Task<BsonDocument> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
-            var operation = CreateWriteOperation();
-            return operation.ExecuteAsync(binding, cancellationToken);
+            using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationToken).ConfigureAwait(false))
+            using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
+            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session))
+            {
+                var operation = CreateWriteOperation(channel.ConnectionDescription, binding.Session);
+                return await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
+            }
         }
 
         // private methods
@@ -142,21 +177,22 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        internal BsonDocument CreateCommand()
+        internal BsonDocument CreateExplainCommand(ConnectionDescription connectionDescription, ICoreSession session)
         {
+            var explainableCommand = _explainableOperation.CreateCommand(connectionDescription, session);
             return new BsonDocument
             {
-                { "explain", _command },
+                { "explain", explainableCommand },
                 { "verbosity", ConvertVerbosityToString(_verbosity) }
             };
         }
 
-        private ReadCommandOperation<BsonDocument> CreateReadOperation()
+        private ReadCommandOperation<BsonDocument> CreateReadOperation(ConnectionDescription connectionDescription, ICoreSession session)
         {
-            var command = CreateCommand();
+            var explainCommand = CreateExplainCommand(connectionDescription, session);
             return new ReadCommandOperation<BsonDocument>(
                 _databaseNamespace,
-                command,
+                explainCommand,
                 BsonDocumentSerializer.Instance,
                 _messageEncoderSettings)
             {
@@ -164,12 +200,12 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
-        private WriteCommandOperation<BsonDocument> CreateWriteOperation()
+        private WriteCommandOperation<BsonDocument> CreateWriteOperation(ConnectionDescription connectionDescription, ICoreSession session)
         {
-            var command = CreateCommand();
+            var explainCommand = CreateExplainCommand(connectionDescription, session);
             return new WriteCommandOperation<BsonDocument>(
                 _databaseNamespace,
-                command,
+                explainCommand,
                 BsonDocumentSerializer.Instance,
                 _messageEncoderSettings);
         }

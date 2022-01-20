@@ -18,6 +18,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
@@ -413,36 +414,21 @@ namespace MongoDB.Driver
         /// <returns>An explanation of thow the query was executed.</returns>
         public virtual BsonDocument Explain(bool verbose)
         {
-            _isFrozen = true;
-            var clone = Clone<BsonDocument>(BsonDocumentSerializer.Instance);
-            clone.SetOption("$explain", true);
-            clone._limit = -clone._limit; // TODO: should this be -1?
-            var explanation = clone.FirstOrDefault();
-            if (!verbose)
+            var verbosity = verbose ? ExplainVerbosity.AllPlansExecution : ExplainVerbosity.QueryPlanner;
+            var explainOperation = CreateExplainOperation(verbosity);
+            return Collection.UsingImplicitSession(session => ExecuteExplainOperation(session));
+
+            BsonDocument ExecuteExplainOperation(IClientSessionHandle session)
             {
-                explanation.Remove("allPlans");
-                explanation.Remove("oldPlan");
-                if (explanation.Contains("shards"))
-                {
-                    var shards = explanation["shards"];
-                    if (shards.BsonType == BsonType.Array)
-                    {
-                        foreach (BsonDocument shard in shards.AsBsonArray)
-                        {
-                            shard.Remove("allPlans");
-                            shard.Remove("oldPlan");
-                        }
-                    }
-                    else
-                    {
-                        var shard = shards.AsBsonDocument;
-                        shard.Remove("allPlans");
-                        shard.Remove("oldPlan");
-                    }
-                }
+                return Collection.ExecuteReadOperation(session, explainOperation, ReadPreference);
             }
-            return explanation;
         }
+
+        /// <summary>
+        /// Creates an explain operation for this cursor.
+        /// </summary>
+        /// <returns>An explain operation.</returns>
+        protected abstract ExplainOperation CreateExplainOperation(ExplainVerbosity verbosity);
 
         /// <summary>
         /// Sets the collation.
@@ -833,6 +819,13 @@ namespace MongoDB.Driver
         {
             IsFrozen = true;
 
+            var findOperation = CreateFindOperation();
+            var cursor = Collection.ExecuteReadOperation(session, findOperation, ReadPreference);
+            return cursor.ToEnumerable().GetEnumerator();
+        }
+
+        private FindOperation<TDocument> CreateFindOperation()
+        {
             var queryDocument = Query == null ? new BsonDocument() : Query.ToBsonDocument();
             var messageEncoderSettings = Collection.GetMessageEncoderSettings();
 
@@ -876,8 +869,21 @@ namespace MongoDB.Driver
                 Skip = Skip
             };
 
-            var cursor = Collection.ExecuteReadOperation(session, operation, ReadPreference);
-            return cursor.ToEnumerable().GetEnumerator();
+            return operation;
+        }
+
+        /// <inheritdoc/>
+        protected override ExplainOperation CreateExplainOperation(ExplainVerbosity verbosity)
+        {
+            var findOperation = CreateFindOperation();
+            var explainOperation = new ExplainOperation(
+                new DatabaseNamespace(Database.Name),
+                explainableOperation: findOperation,
+                findOperation.MessageEncoderSettings)
+            {
+                Verbosity = verbosity
+            };
+            return explainOperation;
         }
 
         /// <summary>
