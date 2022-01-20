@@ -96,6 +96,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         options ??= new ReplaceOptions();
                         options.Hint = argument.Value;
                         break;
+                    case "let":
+                        options ??= new ReplaceOptions();
+                        options.Let = argument.Value.AsBsonDocument;
+                        break;
                     case "replacement":
                         replacement = argument.Value.AsBsonDocument;
                         break;

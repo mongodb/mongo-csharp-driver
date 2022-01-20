@@ -38,6 +38,7 @@ namespace MongoDB.Driver.Core.Operations
         private readonly BsonDocument _filter;
         private BsonValue _hint;
         private bool _isUpsert;
+        private BsonDocument _let;
         private TimeSpan? _maxTime;
         private BsonDocument _projection;
         private ReturnDocument _returnDocument;
@@ -119,6 +120,18 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _isUpsert; }
             set { _isUpsert = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the let document.
+        /// </summary>
+        /// <value>
+        /// The let document.
+        /// </value>
+        public BsonDocument Let
+        {
+            get { return _let; }
+            set { _let = value; }
         }
 
         /// <summary>
@@ -208,7 +221,8 @@ namespace MongoDB.Driver.Core.Operations
                 { "collation", () => Collation.ToBsonDocument(), Collation != null },
                 { "hint", () => _hint, _hint != null },
                 { "arrayFilters", () => new BsonArray(_arrayFilters), _arrayFilters != null },
-                { "txnNumber", () => transactionNumber, transactionNumber.HasValue }
+                { "txnNumber", () => transactionNumber, transactionNumber.HasValue },
+                { "let", _let, _let != null }
             };
         }
 

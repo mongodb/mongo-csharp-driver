@@ -82,5 +82,29 @@ namespace MongoDB.Driver.Core.Operations
                 exception.Should().BeOfType<MongoCommandException>();
             }
         }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Let_get_and_set_should_work(
+            [Values(null, "{ name : 'name' }")] string let)
+        {
+            var requests = new List<UpdateRequest>
+            {
+                new UpdateRequest(
+                    UpdateType.Update,
+                    new BsonDocument("x", 1),
+                    new BsonDocument("$set", new BsonDocument("x", 2)))
+                {
+                    Hint = new BsonDocument("_id", 1)
+                }
+            };
+            var subject = new BulkUpdateOperation(_collectionNamespace, requests, _messageEncoderSettings);
+            var value = let != null ? BsonDocument.Parse(let) : null;
+
+            subject.Let = value;
+            var result = subject.Let;
+
+            result.Should().Be(value);
+        }
     }
 }

@@ -91,6 +91,19 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Fact]
+        public void Let_should_work()
+        {
+            var subject = new BulkMixedWriteOperation(_collectionNamespace, Enumerable.Empty<WriteRequest>(), _messageEncoderSettings);
+
+            subject.Let.Should().BeNull();
+
+            var value = new BsonDocument("name", "name");
+            subject.Let = value;
+
+            subject.Let.Should().Be(value);
+        }
+
+        [Fact]
         public void MaxBatchCount_should_work()
         {
             var subject = new BulkMixedWriteOperation(_collectionNamespace, Enumerable.Empty<WriteRequest>(), _messageEncoderSettings);
@@ -270,6 +283,35 @@ namespace MongoDB.Driver.Core.Operations
 
         [SkippableTheory]
         [ParameterAttributeData]
+        public void Execute_with_one_delete_and_let([Values(false, true)] bool async)
+        {
+            RequireServer.Check().VersionGreaterThanOrEqualTo("5.0.0");
+            EnsureTestData();
+            var requests = new[] { new DeleteRequest(BsonDocument.Parse("{ '$expr' : { $eq : [ '$x', '$$expectedX' ] } }")) };
+            var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings)
+            {
+                Let = new BsonDocument("expectedX", 1)
+            };
+
+            var result = ExecuteOperation(subject, async);
+
+            result.DeletedCount.Should().Be(1);
+            result.InsertedCount.Should().Be(0);
+            if (result.IsModifiedCountAvailable)
+            {
+                result.ModifiedCount.Should().Be(0);
+            }
+            result.MatchedCount.Should().Be(0);
+            result.ProcessedRequests.Should().HaveCount(1);
+            result.RequestCount.Should().Be(1);
+            result.Upserts.Should().BeEmpty();
+
+            var list = ReadAllFromCollection(async);
+            list.Should().HaveCount(5);
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void Execute_with_one_delete_against_a_matching_document(
             [Values(false, true)]
             bool async)
@@ -366,6 +408,43 @@ namespace MongoDB.Driver.Core.Operations
                 new DeleteRequest(BsonDocument.Parse("{_id: 2}"))
             };
             var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
+
+            var result = ExecuteOperation(subject, async);
+
+            result.DeletedCount.Should().Be(2);
+            result.InsertedCount.Should().Be(0);
+            if (result.IsModifiedCountAvailable)
+            {
+                result.ModifiedCount.Should().Be(0);
+            }
+            result.MatchedCount.Should().Be(0);
+            result.ProcessedRequests.Should().HaveCount(2);
+            result.RequestCount.Should().Be(2);
+            result.Upserts.Should().BeEmpty();
+
+            var list = ReadAllFromCollection(async);
+            list.Should().HaveCount(4);
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_with_multiple_deletes_and_let([Values(false, true)] bool async)
+        {
+            RequireServer.Check().VersionGreaterThanOrEqualTo("5.0.0");
+            EnsureTestData();
+            var requests = new[]
+            {
+                new DeleteRequest(BsonDocument.Parse("{ '$expr' : { $eq : [ '$x', '$$expectedX1' ] } }")),
+                new DeleteRequest(BsonDocument.Parse("{ '$expr' : { $eq : [ '$x', '$$expectedX2' ] } }"))
+            };
+            var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings)
+            {
+                Let = new BsonDocument
+                {
+                    { "expectedX1", 1 },
+                    { "expectedX2", 2 }
+                }
+            };
 
             var result = ExecuteOperation(subject, async);
 
@@ -579,6 +658,43 @@ namespace MongoDB.Driver.Core.Operations
                 result.ModifiedCount.Should().Be(1);
             }
             result.MatchedCount.Should().Be(1); // I don't understand this...
+            result.ProcessedRequests.Should().HaveCount(1);
+            result.RequestCount.Should().Be(1);
+            result.Upserts.Should().BeEmpty();
+
+            var list = ReadAllFromCollection(async);
+            list.Should().HaveCount(6);
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_with_one_update_and_let(
+            [Values(false, true)] bool async)
+        {
+            RequireServer.Check().VersionGreaterThanOrEqualTo("5.0.0");
+            EnsureTestData();
+            var requests = new[]
+            {
+                new UpdateRequest(
+                    UpdateType.Update,
+                    filter: BsonDocument.Parse("{ '$expr' : { $eq : [ '$x', '$$expectedX' ] } }"),
+                    update: BsonDocument.Parse("{ $set : { a : 1 } }"))
+            };
+            var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings)
+            {
+                BypassDocumentValidation = true,
+                Let = new BsonDocument("expectedX", 1)
+            };
+
+            var result = ExecuteOperation(subject, async);
+
+            result.DeletedCount.Should().Be(0);
+            result.InsertedCount.Should().Be(0);
+            if (result.IsModifiedCountAvailable)
+            {
+                result.ModifiedCount.Should().Be(1);
+            }
+            result.MatchedCount.Should().Be(1);
             result.ProcessedRequests.Should().HaveCount(1);
             result.RequestCount.Should().Be(1);
             result.Upserts.Should().BeEmpty();
@@ -877,6 +993,52 @@ namespace MongoDB.Driver.Core.Operations
 
             var list = ReadAllFromCollection(async);
             list.Should().HaveCount(6);
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_with_mixed_requests_and_let(
+            [Values(false, true)] bool async)
+        {
+            RequireServer.Check().VersionGreaterThanOrEqualTo("5.0.0");
+            EnsureTestData();
+            var requests = new WriteRequest[]
+            {
+                new UpdateRequest(
+                    UpdateType.Update,
+                    filter: BsonDocument.Parse("{ '$expr' : { $eq : [ '$x', '$$expectedX1' ] } }"),
+                    update: BsonDocument.Parse("{ $set : { y : 1 } }")),
+                new DeleteRequest(filter: BsonDocument.Parse("{ '$expr' : { $eq : [ '$x', '$$expectedX2' ] } }"))
+            };
+            var subject = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings)
+            {
+                Let = new BsonDocument
+                {
+                    { "expectedX1", 1 },
+                    { "expectedX2", 2 },
+                }
+            };
+
+            var result = ExecuteOperation(subject, async);
+
+            result.DeletedCount.Should().Be(1);
+            result.InsertedCount.Should().Be(0);
+            if (result.IsModifiedCountAvailable)
+            {
+                result.ModifiedCount.Should().Be(1);
+            }
+            result.MatchedCount.Should().Be(1);
+            result.ProcessedRequests.Should().HaveCount(2);
+            result.RequestCount.Should().Be(2);
+            result.Upserts.Should().HaveCount(0);
+
+            var list = ReadAllFromCollection(async);
+            list.Should().HaveCount(5);
+            list[0].Should().Be("{ _id : 1, x : 1, y : 1 }");
+            list[1].Should().Be("{ _id : 2, x : 1 }");
+            list[2].Should().Be("{ _id : 3, x : 1 }");
+            list[3].Should().Be("{ _id : 5, x : 2 }");
+            list[4].Should().Be("{ _id : 6, x : 3 }");
         }
 
         [SkippableTheory]

@@ -31,6 +31,7 @@ namespace MongoDB.Driver
         private Collation _collation;
         private BsonValue _hint;
         private bool _isUpsert;
+        private BsonDocument _let;
         private TimeSpan? _maxTime;
         private ProjectionDefinition<TDocument, TProjection> _projection;
         private ReturnDocument _returnDocument;
@@ -71,6 +72,15 @@ namespace MongoDB.Driver
         {
             get { return _hint; }
             set { _hint = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the let document.
+        /// </summary>
+        public BsonDocument Let
+        {
+            get { return _let; }
+            set { _let = value; }
         }
 
         /// <summary>

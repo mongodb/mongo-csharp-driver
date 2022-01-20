@@ -22,7 +22,6 @@ using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
@@ -873,21 +872,33 @@ namespace MongoDB.Driver.Core.Operations
         [SkippableTheory]
         [ParameterAttributeData]
         public void Execute_should_find_documents_matching_options(
-            [Values(false, true)]
-            bool async)
+            [Values(false, true)] bool withLet,
+            [Values(false, true)] bool async)
         {
             RequireServer.Check();
+            if (withLet)
+            {
+                RequireServer.Check().VersionGreaterThanOrEqualTo("5.0.0");
+            }
             EnsureTestData();
             var subject = new FindCommandOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
                 Comment = "funny",
-                Filter = BsonDocument.Parse("{ y : 1 }"),
                 Limit = 4,
                 MaxTime = TimeSpan.FromSeconds(20),
                 Projection = BsonDocument.Parse("{ y : 1 }"),
                 Skip = 1,
                 Sort = BsonDocument.Parse("{ _id : -1 }")
             };
+            if (withLet)
+            {
+                subject.Filter = BsonDocument.Parse("{ '$expr' : { $eq : [ '$y', '$$expectedY' ] } }");
+                subject.Let = BsonDocument.Parse("{ expectedY : 1 }");
+            }
+            else
+            {
+                subject.Filter = BsonDocument.Parse("{ y : 1 }");
+            }
 
             var cursor = ExecuteOperation(subject, async);
             var result = ReadCursorToEnd(cursor);
@@ -1013,6 +1024,20 @@ namespace MongoDB.Driver.Core.Operations
             var result = subject.Hint;
 
             result.Should().BeSameAs(value);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Let_get_and_set_should_work(
+            [Values(null, "{ name : 'name' }")] string let)
+        {
+            var subject = new FindCommandOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            var value = let != null ? BsonDocument.Parse(let) : null;
+
+            subject.Let = value;
+            var result = subject.Let;
+
+            result.Should().Be(value);
         }
 
         [Theory]

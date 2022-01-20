@@ -895,6 +895,7 @@ namespace MongoDB.Driver
             {
                 BypassDocumentValidation = options.BypassDocumentValidation,
                 IsOrdered = options.IsOrdered,
+                Let = options.Let,
                 RetryRequested = _database.Client.Settings.RetryWrites,
                 WriteConcern = effectiveWriteConcern
             };
@@ -985,6 +986,7 @@ namespace MongoDB.Driver
             {
                 Collation = options.Collation,
                 Hint = options.Hint,
+                Let = options.Let,
                 MaxTime = options.MaxTime,
                 Projection = renderedProjection.Document,
                 Sort = options.Sort == null ? null : options.Sort.Render(_documentSerializer, _settings.SerializerRegistry, _linqProvider),
@@ -1009,6 +1011,7 @@ namespace MongoDB.Driver
                 Collation = options.Collation,
                 Hint = options.Hint,
                 IsUpsert = options.IsUpsert,
+                Let = options.Let,
                 MaxTime = options.MaxTime,
                 Projection = renderedProjection.Document,
                 ReturnDocument = options.ReturnDocument.ToCore(),
@@ -1035,6 +1038,7 @@ namespace MongoDB.Driver
                 Collation = options.Collation,
                 Hint = options.Hint,
                 IsUpsert = options.IsUpsert,
+                Let = options.Let,
                 MaxTime = options.MaxTime,
                 Projection = renderedProjection.Document,
                 ReturnDocument = options.ReturnDocument.ToCore(),
@@ -1062,6 +1066,7 @@ namespace MongoDB.Driver
                 CursorType = options.CursorType.ToCore(),
                 Filter = filter.Render(_documentSerializer, _settings.SerializerRegistry, _linqProvider),
                 Hint = options.Hint,
+                Let = options.Let,
                 Limit = options.Limit,
                 Max = options.Max,
                 MaxAwaitTime = options.MaxAwaitTime,

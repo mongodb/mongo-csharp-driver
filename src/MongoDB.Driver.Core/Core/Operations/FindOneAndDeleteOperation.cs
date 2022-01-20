@@ -33,6 +33,7 @@ namespace MongoDB.Driver.Core.Operations
         // fields
         private readonly BsonDocument _filter;
         private BsonValue _hint;
+        private BsonDocument _let;
         private TimeSpan? _maxTime;
         private BsonDocument _projection;
         private BsonDocument _sort;
@@ -73,6 +74,18 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _hint; }
             set { _hint = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the let document.
+        /// </summary>
+        /// <value>
+        /// The let document.
+        /// </value>
+        public BsonDocument Let
+        {
+            get { return _let; }
+            set { _let = value; }
         }
 
         /// <summary>
@@ -135,7 +148,8 @@ namespace MongoDB.Driver.Core.Operations
                 { "writeConcern", writeConcern, writeConcern != null },
                 { "collation", () => Collation.ToBsonDocument(), Collation != null },
                 { "hint", _hint, _hint != null },
-                { "txnNumber", () => transactionNumber, transactionNumber.HasValue }
+                { "txnNumber", () => transactionNumber, transactionNumber.HasValue },
+                { "let", _let, _let != null }
             };
         }
 

@@ -160,6 +160,20 @@ namespace MongoDB.Driver.Core.Operations
 
         [Theory]
         [ParameterAttributeData]
+        public void Let_get_and_set_should_work(
+            [Values(null, "{ name : 'name' }")] string let)
+        {
+            var subject = new FindOneAndUpdateOperation<BsonDocument>(_collectionNamespace, _filter, _update, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            var value = let != null ? BsonDocument.Parse(let) : null;
+
+            subject.Let = value;
+            var result = subject.Let;
+
+            result.Should().Be(value);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
         public void MaxTime_get_and_set_should_work(
             [Values(-10000, 0, 1, 10000, 99999)] long maxTimeTicks)
         {
@@ -248,9 +262,14 @@ namespace MongoDB.Driver.Core.Operations
         [Theory]
         [ParameterAttributeData]
         public void CreateCommand_should_return_expected_result(
+            [Values(null, "{ name : 'name' }")] string let,
             [Values(null, 100L)]long? transactionNumber)
         {
-            var subject = new FindOneAndUpdateOperation<BsonDocument>(_collectionNamespace, _filter, _update, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            var letDocument = let != null ? BsonDocument.Parse(let) : null;
+            var subject = new FindOneAndUpdateOperation<BsonDocument>(_collectionNamespace, _filter, _update, BsonDocumentSerializer.Instance, _messageEncoderSettings)
+            {
+                Let = letDocument
+            };
             var session = OperationTestHelper.CreateSession();
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
@@ -261,7 +280,8 @@ namespace MongoDB.Driver.Core.Operations
                 { "findAndModify", _collectionNamespace.CollectionName },
                 { "query", _filter },
                 { "update", _update },
-                { "txnNumber", () => transactionNumber, transactionNumber != null }
+                { "txnNumber", () => transactionNumber, transactionNumber != null },
+                { "let", letDocument, letDocument != null }
             };
             result.Should().Be(expectedResult);
         }
@@ -734,6 +754,32 @@ namespace MongoDB.Driver.Core.Operations
             {
                 exception.Should().BeOfType<MongoCommandException>();
             }
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_should_return_expected_result_when_Let_is_set(
+            [Values(false, true)] bool async)
+        {
+            RequireServer.Check().VersionGreaterThanOrEqualTo("5.0.0");
+            EnsureTestData();
+            var subject = new FindOneAndUpdateOperation<BsonDocument>(
+                _collectionNamespace,
+                BsonDocument.Parse("{ '$expr' : { $eq : [ '$x', '$$expectedX' ] } }"),
+                _update,
+                _findAndModifyValueDeserializer,
+                _messageEncoderSettings)
+            {
+                Let = new BsonDocument("expectedX", 1),
+                ReturnDocument = ReturnDocument.Before,
+            };
+
+            var result = ExecuteOperation(subject, async);
+
+            result.Should().Be("{ _id : 10, x : 1, y : 'a' }");
+            ReadAllFromCollection().Should().BeEquivalentTo(
+                BsonDocument.Parse("{ _id : 10, x : 0, y : 'a' }"),
+                BsonDocument.Parse("{ _id : 11, x : 2, y : 'A' }"));
         }
 
         private void EnsureTestData()

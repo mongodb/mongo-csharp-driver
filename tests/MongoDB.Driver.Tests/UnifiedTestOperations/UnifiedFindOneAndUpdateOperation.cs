@@ -105,6 +105,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         options ??= new FindOneAndUpdateOptions<BsonDocument>();
                         options.Hint = argument.Value;
                         break;
+                    case "let":
+                        options ??= new FindOneAndUpdateOptions<BsonDocument>();
+                        options.Let = argument.Value.AsBsonDocument;
+                        break;
                     case "returnDocument":
                         options ??= new FindOneAndUpdateOptions<BsonDocument>();
                         options.ReturnDocument = (ReturnDocument)Enum.Parse(typeof(ReturnDocument), argument.Value.AsString);

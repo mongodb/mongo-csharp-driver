@@ -41,6 +41,7 @@ namespace MongoDB.Driver.Core.Operations
         private BsonDocument _filter;
         private int? _firstBatchSize;
         private BsonValue _hint;
+        private BsonDocument _let;
         private int? _limit;
         private BsonDocument _max;
         private int? _maxScan;
@@ -198,6 +199,18 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _hint; }
             set { _hint = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the let document.
+        /// </summary>
+        /// <value>
+        /// The let document.
+        /// </value>
+        public BsonDocument Let
+        {
+            get { return _let; }
+            set { _let = value; }
         }
 
         /// <summary>
@@ -534,6 +547,7 @@ namespace MongoDB.Driver.Core.Operations
                 Filter = _filter,
                 Hint = hint,
                 FirstBatchSize = _firstBatchSize,
+                Let = _let,
                 Limit = _limit,
                 Max = max,
                 MaxAwaitTime = _maxAwaitTime,

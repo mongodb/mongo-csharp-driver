@@ -92,6 +92,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         options ??= new DeleteOptions();
                         options.Hint = argument.Value;
                         break;
+                    case "let":
+                        options ??= new DeleteOptions();
+                        options.Let = argument.Value.AsBsonDocument;
+                        break;
                     default:
                         throw new FormatException($"Invalid DeleteManyOperation argument name: '{argument.Name}'.");
                 }
