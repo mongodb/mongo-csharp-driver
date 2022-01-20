@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
@@ -24,7 +23,6 @@ using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -362,7 +360,7 @@ namespace MongoDB.Driver.Tests
                 {
                     _ = client.ListDatabaseNames().ToList();
                 }
-                if (Feature.SpeculativeAuthentication.IsSupported(CoreTestConfiguration.ServerVersion) &&
+                if (Feature.SpeculativeAuthentication.IsSupported(CoreTestConfiguration.MaxWireVersion) &&
                     speculativeAuthenticatationShouldSucceedIfPossible)
                 {
                     var cancellationToken = CancellationToken.None;

@@ -361,7 +361,7 @@ namespace MongoDB.Driver.Core.Operations
 
             public bool CanUseSecondary(ServerDescription server)
             {
-                return Feature.AggregateOutOnSecondary.IsSupported(server.Version);
+                return Feature.AggregateOutOnSecondary.IsSupported(server.MaxWireVersion);
             }
         }
     }

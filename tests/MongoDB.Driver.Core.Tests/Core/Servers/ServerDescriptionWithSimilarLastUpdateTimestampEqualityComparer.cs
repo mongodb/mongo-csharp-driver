@@ -47,7 +47,9 @@ namespace MongoDB.Driver.Core.Servers
                 x.State.Equals(y.State) &&
                 object.Equals(x.Tags, y.Tags) &&
                 x.Type.Equals(y.Type) &&
+#pragma warning disable CS0618 // Type or member is obsolete
                 object.Equals(x.Version, y.Version) &&
+#pragma warning restore CS0618 // Type or member is obsolete
                 object.Equals(x.WireVersionRange, y.WireVersionRange);
         }
 

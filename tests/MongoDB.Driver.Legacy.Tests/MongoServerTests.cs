@@ -65,14 +65,6 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
-        public void TestBuildInfo()
-        {
-            var versionZero = new Version(0, 0, 0);
-            var buildInfo = __server.BuildInfo;
-            Assert.NotEqual(versionZero, buildInfo.Version);
-        }
-
-        [Fact]
         public void TestCreateMongoServerSettings()
         {
             var settings = new MongoServerSettings
@@ -283,13 +275,6 @@ namespace MongoDB.Driver.Tests
         public void TestSecondaries()
         {
             Assert.True(__server.Secondaries.Length < __server.Instances.Length);
-        }
-
-        [Fact]
-        public void TestVersion()
-        {
-            var versionZero = new Version(0, 0, 0);
-            Assert.NotEqual(versionZero, __server.BuildInfo.Version);
         }
 
         [Fact]

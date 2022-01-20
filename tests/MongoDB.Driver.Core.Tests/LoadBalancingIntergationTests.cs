@@ -602,7 +602,6 @@ namespace MongoDB.Driver.Core.Tests
                 if (shouldHelloBeCalled) // in other cases we will reuse the first connection
                 {
                     eventCapturer.Next().Should().BeOfType<CommandSucceededEvent>().Subject.CommandName.Should().Be(OppressiveLanguageConstants.LegacyHelloCommandName);
-                    eventCapturer.Next().Should().BeOfType<CommandSucceededEvent>().Subject.CommandName.Should().Be("buildInfo");
                 }
                 eventCapturer.Next().Should().BeOfType<ConnectionPoolCheckedOutConnectionEvent>();
             }

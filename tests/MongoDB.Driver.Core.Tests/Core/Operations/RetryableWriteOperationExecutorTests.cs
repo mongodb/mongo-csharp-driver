@@ -23,6 +23,7 @@ using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
 using Moq;
@@ -123,7 +124,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
             var endPoint = new DnsEndPoint("localhost", 27017);
             var serverId = new ServerId(clusterId, endPoint);
             var connectionId = new ConnectionId(serverId, 1);
-            var helloResultDocument = BsonDocument.Parse("{ ok : 1 }");
+            var helloResultDocument = BsonDocument.Parse($"{{ ok : 1, maxWireVersion : {WireVersion.Server42} }}");
             if (withLogicalSessionTimeout)
             {
                 helloResultDocument["logicalSessionTimeoutMinutes"] = 1;
@@ -134,8 +135,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
                 helloResultDocument["serviceId"] = ObjectId.Empty; // load balancing mode
             }
             var helloResult = new HelloResult(helloResultDocument);
-            var buildInfoResult = new BuildInfoResult(BsonDocument.Parse("{ ok : 1, version : '4.2.0' }"));
-            var connectionDescription = new ConnectionDescription(connectionId, helloResult, buildInfoResult);
+            var connectionDescription = new ConnectionDescription(connectionId, helloResult);
             return connectionDescription;
         }
 

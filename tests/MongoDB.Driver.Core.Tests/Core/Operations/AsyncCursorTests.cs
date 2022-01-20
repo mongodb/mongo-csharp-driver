@@ -60,17 +60,14 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Theory]
-        //sync
-        [InlineData(false, "3.2.0")]
-        //async
-        [InlineData(true, "3.2.0")]
-        public void Close_should_call_supported_kill_cursors(bool async, string version)
+        [ParameterAttributeData]
+        public void Close_should_call_supported_kill_cursors([Values(false, true)] bool async)
         {
             var mockChannelHandle = new Mock<IChannelHandle>();
             int testCursorId = 1;
 
             var mockChannelSource = new Mock<IChannelSource>();
-            SetupChannelMocks(mockChannelSource, mockChannelHandle, async, $"{{ 'ok' : true, 'cursorsNotFound' : [], 'cursorsKilled' : [{testCursorId}] }}", version);
+            SetupChannelMocks(mockChannelSource, mockChannelHandle, async, $"{{ 'ok' : true, 'cursorsNotFound' : [], 'cursorsKilled' : [{testCursorId}] }}", maxWireVersion: WireVersion.Server32);
 
             var subject = CreateSubject(cursorId: testCursorId, channelSource: Optional.Create(mockChannelSource.Object));
 
@@ -471,7 +468,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private ConnectionDescription CreateConnectionDescriptionSupportingSession(string version = "3.6.0")
+        private ConnectionDescription CreateConnectionDescriptionSupportingSession(int maxWireVersion = WireVersion.Server36)
         {
             var clusterId = new ClusterId(1);
             var endPoint = new DnsEndPoint("localhost", 27017);
@@ -479,15 +476,11 @@ namespace MongoDB.Driver.Core.Operations
             var connectionId = new ConnectionId(serverId, 1);
             var helloDocument = new BsonDocument
             {
-                { "logicalSessionTimeoutMinutes", 30 }
+                { "logicalSessionTimeoutMinutes", 30 },
+                { "maxWireVersion", maxWireVersion }
             };
             var helloResult = new HelloResult(helloDocument);
-            var buildInfoDocument = new BsonDocument
-            {
-                { "version", version }
-            };
-            var buildInfoResult = new BuildInfoResult(buildInfoDocument);
-            return new ConnectionDescription(connectionId, helloResult, buildInfoResult);
+            return new ConnectionDescription(connectionId, helloResult);
         }
 
         private AsyncCursor<BsonDocument> CreateSubject(
@@ -524,21 +517,21 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private void SetupChannelMocks(Mock<IChannelSource> mockChannelSource, Mock<IChannelHandle> mockChannelHandle, bool async, string commandResult, string version = "3.6.0", bool isChannelExpired = false)
+        private void SetupChannelMocks(Mock<IChannelSource> mockChannelSource, Mock<IChannelHandle> mockChannelHandle, bool async, string commandResult, int maxWireVersion = WireVersion.Server36, bool isChannelExpired = false)
         {
-            SetupChannelMocks(mockChannelSource, mockChannelHandle, async, BsonDocument.Parse(commandResult), version, isChannelExpired);
+            SetupChannelMocks(mockChannelSource, mockChannelHandle, async, BsonDocument.Parse(commandResult), maxWireVersion, isChannelExpired);
         }
 
-        private void SetupChannelMocks(Mock<IChannelSource> mockChannelSource, Mock<IChannelHandle> mockChannelHandle, bool async, BsonDocument commandResult, string version = "3.6.0", bool isChannelExpired = false)
+        private void SetupChannelMocks(Mock<IChannelSource> mockChannelSource, Mock<IChannelHandle> mockChannelHandle, bool async, BsonDocument commandResult, int maxWireVersion = WireVersion.Server36, bool isChannelExpired = false)
         {
-            SetupChannelMocks(mockChannelSource, mockChannelHandle, async, () => commandResult, version, isChannelExpired);
+            SetupChannelMocks(mockChannelSource, mockChannelHandle, async, () => commandResult, maxWireVersion, isChannelExpired);
         }
 
-        private void SetupChannelMocks(Mock<IChannelSource> mockChannelSource, Mock<IChannelHandle> mockChannelHandle, bool async, Func<BsonDocument> commandResultFunc, string version = "3.6.0", bool isChannelExpired = false)
+        private void SetupChannelMocks(Mock<IChannelSource> mockChannelSource, Mock<IChannelHandle> mockChannelHandle, bool async, Func<BsonDocument> commandResultFunc, int maxWireVersion = WireVersion.Server36, bool isChannelExpired = false)
         {
             mockChannelHandle
                 .Setup(c => c.ConnectionDescription)
-                .Returns(CreateConnectionDescriptionSupportingSession(version));
+                .Returns(CreateConnectionDescriptionSupportingSession(maxWireVersion));
             mockChannelHandle
                 .SetupGet(c => c.Connection)
                 .Returns(Mock.Of<IConnectionHandle>(ch => ch.IsExpired == isChannelExpired));

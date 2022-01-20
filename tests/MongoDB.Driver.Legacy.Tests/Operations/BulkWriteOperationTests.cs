@@ -530,16 +530,8 @@ namespace MongoDB.Driver.Tests.Operations
             bulk.Insert(documents[0]);
 
             var writeConcern = WriteConcern.W2;
-            if (_primary.BuildInfo.Version < new Version(2, 6, 0))
-            {
-                Assert.Throws<MongoBulkWriteException<BsonDocument>>(() => { bulk.Execute(writeConcern); });
-                Assert.Equal(1, _collection.Count());
-            }
-            else
-            {
-                Assert.Throws<MongoCommandException>(() => { bulk.Execute(writeConcern); });
-                Assert.Equal(0, _collection.Count());
-            }
+            Assert.Throws<MongoCommandException>(() => { bulk.Execute(writeConcern); });
+            Assert.Equal(0, _collection.Count());
         }
 
         [SkippableFact]
@@ -777,9 +769,7 @@ namespace MongoDB.Driver.Tests.Operations
             var expectedDocuments = new BsonDocument[]
             {
                 new BsonDocument { { "b", 1 }, { "a", 1 } },
-                _primary.BuildInfo.Version < new Version(2, 6, 0) ?
-                    new BsonDocument { { "a", 2 }, { "b", 3 } } : // servers prior to 2.6 rewrite field order on update
-                    new BsonDocument { { "b", 3 }, { "a", 2 } },
+                new BsonDocument { { "b", 3 }, { "a", 2 } },
                 new BsonDocument { { "b", 4 }, { "a", 3 } }
             };
             _collection.FindAll().SetFields(Fields.Exclude("_id")).Should().BeEquivalentTo(expectedDocuments);
@@ -926,28 +916,25 @@ namespace MongoDB.Driver.Tests.Operations
         {
             RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
 
-            if (_primary.BuildInfo.Version >= new Version(2, 6, 0))
+            _collection.Drop();
+
+            var bulk = InitializeBulkOperation(_collection, ordered);
+            var bigString = new string('x', 16 * 1024 * 1024 - 22);
+            bulk.Find(Query.EQ("_id", 1)).Upsert().Update(Update.Set("x", bigString)); // resulting document will be exactly 16MiB
+            var result = bulk.Execute();
+
+            var expectedResult = new ExpectedResult
             {
-                _collection.Drop();
+                UpsertsCount = 1,
+                IsModifiedCountAvailable = true
+            };
+            CheckExpectedResult(expectedResult, result);
 
-                var bulk = InitializeBulkOperation(_collection, ordered);
-                var bigString = new string('x', 16 * 1024 * 1024 - 22);
-                bulk.Find(Query.EQ("_id", 1)).Upsert().Update(Update.Set("x", bigString)); // resulting document will be exactly 16MiB
-                var result = bulk.Execute();
-
-                var expectedResult = new ExpectedResult
-                {
-                    UpsertsCount = 1,
-                    IsModifiedCountAvailable = true
-                };
-                CheckExpectedResult(expectedResult, result);
-
-                var expectedDocuments = new BsonDocument[]
-                {
-                    new BsonDocument { { "_id", 1 }, { "x", bigString } }
-                };
-                _collection.FindAll().Should().BeEquivalentTo(expectedDocuments);
-            }
+            var expectedDocuments = new BsonDocument[]
+            {
+                new BsonDocument { { "_id", 1 }, { "x", bigString } }
+            };
+            _collection.FindAll().Should().BeEquivalentTo(expectedDocuments);
         }
 
         [SkippableTheory]

@@ -24,6 +24,7 @@ using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.ConnectionPools;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using Moq;
 
@@ -181,16 +182,14 @@ namespace MongoDB.Driver.Core.Helpers
             }
             else
             {
-                if (description.Version != null || description.WireVersionRange != null)
+                if (description.WireVersionRange != null)
                 {
-                    var version = description.Version?.ToString() ??
-                        WireVersionHelper.MapWireVersionToServerVersion(description.WireVersionRange.Max);
+                    var maxWireVersion = description.MaxWireVersion;
                     var server = (Server)result.Server;
-                    var helloResult = new HelloResult(new BsonDocument { { "compressors", new BsonArray() } });
-                    var buildInfoResult = new BuildInfoResult(new BsonDocument { { "version", version } });
+                    var helloResult = new HelloResult(new BsonDocument { { "compressors", new BsonArray() }, { "maxWireVersion", maxWireVersion } });
                     var mockConnection = Mock.Get(server._connectionPool().AcquireConnection(CancellationToken.None));
                     mockConnection.SetupGet(c => c.Description)
-                        .Returns(new ConnectionDescription(new ConnectionId(description.ServerId, 0), helloResult, buildInfoResult));
+                        .Returns(new ConnectionDescription(new ConnectionId(description.ServerId, 0), helloResult));
                 }
                 var mockMonitor = Mock.Get(result.Monitor);
                 mockMonitor.SetupGet(m => m.Description).Returns(description);
@@ -211,29 +210,6 @@ namespace MongoDB.Driver.Core.Helpers
         public static IConnectionPool _connectionPool(this Server server)
         {
             return (IConnectionPool)Reflector.GetFieldValue(server, nameof(_connectionPool));
-        }
-    }
-
-    internal static class WireVersionHelper
-    {
-        public static string MapWireVersionToServerVersion(int wireVersion)
-        {
-            // loose mapping via https://github.com/mongodb/specifications/blob/master/source/wireversion-featurelist.rst
-            switch (wireVersion)
-            {
-                case 0:
-                case 1:
-                case 2: return "2.6.0";
-                case 3: return "3.0.0";
-                case 4: return "3.2.0";
-                case 5: return "3.4.0";
-                case 6: return "3.6.0";
-                case 7: return "4.0.0";
-                case 8: return "4.2.0";
-                case 9: return "4.4.0";
-                case 1000: return "9001.0.0";
-                default: throw new ArgumentException($"Unknown wire version: {wireVersion}");
-            }
         }
     }
 }

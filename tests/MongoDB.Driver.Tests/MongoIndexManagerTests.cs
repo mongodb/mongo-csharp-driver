@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Tests
             var collection = database.GetCollection<BsonDocument>(collectionName);
 
             var subject = collection.Indexes;
-            var isHiddenIndexSupported = Feature.HiddenIndex.IsSupported(CoreTestConfiguration.ServerVersion);
+            var isHiddenIndexSupported = Feature.HiddenIndex.IsSupported(CoreTestConfiguration.MaxWireVersion);
 
             try
             {

@@ -28,6 +28,7 @@ using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.ConnectionPools;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Helpers;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -277,15 +278,13 @@ namespace MongoDB.Driver.Core.Tests.Jira
             ServerId serverId)
         {
             var connectionId = new ConnectionId(serverId);
-            var serverVersion = "3.6";
             var baseDocument = new BsonDocument
             {
                 { "ok", 1 },
-                { "minWireVersion", 6 },
-                { "maxWireVersion", 7 },
+                { "minWireVersion", WireVersion.Server36 },
+                { "maxWireVersion", WireVersion.Server40 },
                 { "setName", "rs" },
                 { "hosts", new BsonArray(new [] { "localhost:27017", "localhost:27018" })},
-                { "version", serverVersion },
                 { "topologyVersion", new TopologyVersion(ObjectId.Empty, 1).ToBsonDocument(), false }
             };
 
@@ -322,8 +321,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
 
                 return new ConnectionDescription(
                     mockConnection.Object.ConnectionId,
-                    new HelloResult(helloDocument),
-                    new BuildInfoResult(new BsonDocument("version", serverVersion)));
+                    new HelloResult(helloDocument));
             }
         }
     }

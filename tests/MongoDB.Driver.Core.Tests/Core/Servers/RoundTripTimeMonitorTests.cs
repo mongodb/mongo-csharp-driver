@@ -208,11 +208,11 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
             var helloDocument = new BsonDocument
             {
                 { "ok", 1 },
+                { "maxWireVersion", WireVersion.Server44 }
             };
             return new ConnectionDescription(
                     new ConnectionId(__serverId, 0),
-                    new HelloResult(helloDocument),
-                    new BuildInfoResult(BsonDocument.Parse("{ ok : 1, version : '4.4.0' }")));
+                    new HelloResult(helloDocument));
         }
 
         private RoundTripTimeMonitor CreateSubject(TimeSpan frequency, Mock<IConnection> mockConnection)

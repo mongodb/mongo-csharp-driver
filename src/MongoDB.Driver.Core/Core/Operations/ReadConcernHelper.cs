@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             if (AreSessionsSupported(connectionDescription) && session.IsSnapshot)
             {
-                Feature.SnapshotReads.ThrowIfNotSupported(connectionDescription.ServerVersion);
+                Feature.SnapshotReads.ThrowIfNotSupported(connectionDescription.MaxWireVersion);
 
                 var readConcernDocument = ReadConcern.Snapshot.ToBsonDocument();
                 if (session.SnapshotTime != null)

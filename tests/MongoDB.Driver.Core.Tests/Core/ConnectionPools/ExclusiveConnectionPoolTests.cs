@@ -28,6 +28,7 @@ using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Helpers;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using Moq;
 using Xunit;
@@ -1055,8 +1056,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 .Returns(
                     new ConnectionDescription(
                         new ConnectionId(_serverId),
-                        new HelloResult(new BsonDocument("serviceId", serviceId)),
-                        new BuildInfoResult(new BsonDocument("version", "5.0.0").Add("ok", 1))));
+                        new HelloResult(new BsonDocument("serviceId", serviceId).Add("maxWireVersion", WireVersion.Server50))));
             connectionMock
                 .SetupGet(c => c.Settings)
                 .Returns(new ConnectionSettings());

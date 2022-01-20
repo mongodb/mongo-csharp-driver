@@ -57,7 +57,9 @@ namespace MongoDB.Driver.Core.Servers
             subject.State.Should().Be(ServerState.Disconnected);
             subject.Tags.Should().BeNull();
             subject.Type.Should().Be(ServerType.Unknown);
+#pragma warning disable CS0618 // Type or member is obsolete
             subject.Version.Should().BeNull();
+#pragma warning restore CS0618 // Type or member is obsolete
             subject.WireVersionRange.Should().BeNull();
         }
 
@@ -287,6 +289,19 @@ namespace MongoDB.Driver.Core.Servers
             var result = subject.IsCompatibleWithDriver;
 
             result.Should().Be(expectedResult);
+        }
+
+        [Fact]
+        public void MaxWireVersion_should_be_the_same_as_wireVersionRange_max()
+        {
+            var clusterId = new ClusterId(1);
+            var endPoint = new DnsEndPoint("localhost", 27017);
+            var serverId = new ServerId(clusterId, endPoint);
+            var wireVersionRange = new Range<int>(0, 14);
+
+            var subject = new ServerDescription(serverId, endPoint, wireVersionRange: wireVersionRange, type: ServerType.Standalone);
+
+            subject.MaxWireVersion.Should().Be(wireVersionRange.Max);
         }
 
         [Theory]

@@ -105,19 +105,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets the build info of this server instance.
-        /// </summary>
-        public MongoServerBuildInfo BuildInfo
-        {
-            get
-            {
-                var serverDescription = GetServerDescription();
-                var versionString = serverDescription.Version.ToString();
-                return new MongoServerBuildInfo(versionString);
-            }
-        }
-
-        /// <summary>
         /// Gets a value indicating whether this server instance is an arbiter instance.
         /// </summary>
         public bool IsArbiter
@@ -210,6 +197,18 @@ namespace MongoDB.Driver
             {
                 var serverDescription = GetServerDescription();
                 return serverDescription.MaxBatchCount;
+            }
+        }
+
+        /// <summary>
+        /// Gets the maximum wire version.
+        /// </summary>
+        public int MaxWireVersion
+        {
+            get
+            {
+                var serverDescription = GetServerDescription();
+                return serverDescription.MaxWireVersion;
             }
         }
 
@@ -313,8 +312,7 @@ namespace MongoDB.Driver
                 // supported in 2.4.0 and newer
                 case FeatureId.GeoJson:
                 case FeatureId.TextSearchCommand:
-                    return BuildInfo.Version >= new Version(2, 4, 0);
-
+                    return true;
                 // supported in 2.6.0 and newer
                 case FeatureId.AggregateAllowDiskUse:
                 case FeatureId.AggregateCursor:
@@ -325,11 +323,10 @@ namespace MongoDB.Driver
                 case FeatureId.TextSearchQuery:
                 case FeatureId.UserManagementCommands:
                 case FeatureId.WriteCommands:
-                    return BuildInfo.Version >= new Version(2, 6, 0);
-
+                    return true;
                 // supported in 2.6.0 and newer but not on mongos
                 case FeatureId.ParallelScanCommand:
-                    return BuildInfo.Version >= new Version(2, 6, 0) && BuildInfo.Version < new Version(4, 1, 0) && InstanceType != MongoServerInstanceType.ShardRouter;
+                    return MaxWireVersion < WireVersion.Server42 && InstanceType != MongoServerInstanceType.ShardRouter;
 
                 default:
                     return false;

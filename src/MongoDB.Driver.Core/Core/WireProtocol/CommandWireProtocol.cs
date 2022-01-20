@@ -188,7 +188,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             {
                 _cachedConnectionId = connection.ConnectionId;
                 // If server API versioning has been requested, then we SHOULD send the initial hello command
-                // using OP_MSG. Since this is the first message and buildInfo hasn't been sent yet,
+                // using OP_MSG. Since this is the first message and hello/legacy hello hasn't been sent yet,
                 // connection.Description will be null and we can't rely on the server check to determine if
                 // the server supports OP_MSG.
                 // As well since server API versioning is supported on MongoDB 5.0+, we also know that

@@ -1805,7 +1805,6 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             {
                 "hello",
                 OppressiveLanguageConstants.LegacyHelloCommandName,
-                "buildInfo",
                 "getLastError",
                 "authenticate",
                 "saslStart",

@@ -113,7 +113,7 @@ namespace MongoDB.Driver.Tests
             {
                 { "wiredTiger", new BsonDocument("configString", "block_compressor=zlib") }
             };
-            if (Feature.MmapV1StorageEngine.IsSupported(CoreTestConfiguration.ServerVersion))
+            if (Feature.MmapV1StorageEngine.IsSupported(CoreTestConfiguration.MaxWireVersion))
             {
                 storageEngineOptions.Add("mmapv1", new BsonDocument());
             }

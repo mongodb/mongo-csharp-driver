@@ -40,7 +40,6 @@ namespace MongoDB.Driver.Tests.Specifications.crud
             "configureFailPoint",
             "hello",
             OppressiveLanguageConstants.LegacyHelloCommandName,
-            "buildInfo",
             "getLastError",
             "authenticate",
             "saslStart",

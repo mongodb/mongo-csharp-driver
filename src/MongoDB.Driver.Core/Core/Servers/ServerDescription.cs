@@ -361,6 +361,24 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         /// <summary>
+        /// Gets the maximum wire version.
+        /// </summary>
+        /// <value>
+        /// The maximum wire version.
+        /// </value>
+        public int MaxWireVersion
+        {
+            get
+            {
+                if (_wireVersionRange == null)
+                {
+                    throw new InvalidOperationException("MaxWireVersion is not known.");
+                }
+                return _wireVersionRange.Max;
+            }
+        }
+
+        /// <summary>
         /// The reason the server description was last changed.
         /// </summary>
         /// <value>The reason the server description was last changed.</value>
@@ -433,11 +451,12 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         /// <summary>
-        /// Gets the server version.
+        /// Gets the approximate server version (only the major and minor version numbers are known).
         /// </summary>
         /// <value>
         /// The server version.
         /// </value>
+        [Obsolete("This property will be removed in a later release.")]
         public SemanticVersion Version
         {
             get { return _version; }

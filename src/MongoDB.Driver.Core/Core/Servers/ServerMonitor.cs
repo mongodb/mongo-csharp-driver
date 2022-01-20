@@ -34,7 +34,6 @@ namespace MongoDB.Driver.Core.Servers
         private CancellationTokenSource _heartbeatCancellationTokenSource; // used to cancel an ongoing heartbeat
         private ServerDescription _currentDescription;
         private readonly EndPoint _endPoint;
-        private BuildInfoResult _handshakeBuildInfoResult;
         private HeartbeatDelay _heartbeatDelay;
         private readonly object _lock = new object();
         private readonly CancellationTokenSource _monitorCancellationTokenSource; // used to cancel the entire monitor
@@ -314,7 +313,6 @@ namespace MongoDB.Driver.Core.Servers
                                 throw new OperationCanceledException("The ServerMonitor has been disposed.");
                             }
                             _connection = initializedConnection;
-                            _handshakeBuildInfoResult = _connection.Description.BuildInfoResult;
                             heartbeatHelloResult = _connection.Description.HelloResult;
                         }
                     }
@@ -363,12 +361,6 @@ namespace MongoDB.Driver.Core.Servers
                 ServerDescription newDescription;
                 if (heartbeatHelloResult != null)
                 {
-                    if (_handshakeBuildInfoResult == null)
-                    {
-                        // we can be here only if there is a bug in the driver
-                        throw new ArgumentNullException("BuildInfo has been lost.");
-                    }
-
                     var averageRoundTripTime = _roundTripTimeMonitor.Average;
                     var averageRoundTripTimeRounded = TimeSpan.FromMilliseconds(Math.Round(averageRoundTripTime.TotalMilliseconds));
 
@@ -387,7 +379,7 @@ namespace MongoDB.Driver.Core.Servers
                         tags: heartbeatHelloResult.Tags,
                         topologyVersion: heartbeatHelloResult.TopologyVersion,
                         type: heartbeatHelloResult.ServerType,
-                        version: _handshakeBuildInfoResult.ServerVersion,
+                        version: WireVersion.ToServerVersion(heartbeatHelloResult.MaxWireVersion),
                         wireVersionRange: new Range<int>(heartbeatHelloResult.MinWireVersion, heartbeatHelloResult.MaxWireVersion));
                 }
                 else

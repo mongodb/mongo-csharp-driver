@@ -510,13 +510,13 @@ namespace MongoDB.Driver.Core.Bindings
                     case ServerType.Standalone:
                         throw new NotSupportedException("Standalone servers do not support transactions.");
                     case ServerType.ShardRouter:
-                        Feature.ShardedTransactions.ThrowIfNotSupported(connectedDataBearingServer.Version);
+                        Feature.ShardedTransactions.ThrowIfNotSupported(connectedDataBearingServer.MaxWireVersion);
                         break;
                     case ServerType.LoadBalanced:
                         // do nothing, load balancing always supports transactions
                         break;
                     default:
-                        Feature.Transactions.ThrowIfNotSupported(connectedDataBearingServer.Version);
+                        Feature.Transactions.ThrowIfNotSupported(connectedDataBearingServer.MaxWireVersion);
                         break;
                 }
             }

@@ -149,7 +149,7 @@ namespace MongoDB.Driver.Core.Servers
                 var description = _currentDescription;
                 if (ShouldInvalidateServer(connection, ex, description, out TopologyVersion responseTopologyVersion))
                 {
-                    var shouldClearConnectionPool = ShouldClearConnectionPoolForChannelException(ex, connection.Description.ServerVersion);
+                    var shouldClearConnectionPool = ShouldClearConnectionPoolForChannelException(ex, connection.Description.MaxWireVersion);
                     Invalidate($"ChannelException:{ex}", shouldClearConnectionPool, responseTopologyVersion);
                 }
                 else
@@ -185,7 +185,7 @@ namespace MongoDB.Driver.Core.Servers
             var currentDescription = _currentDescription;
 
             var heartbeatException = e.NewServerDescription.HeartbeatException;
-            // The heartbeat commands are hello (or legacy hello) + buildInfo. These commands will throw a MongoCommandException on
+            // The heartbeat command is hello (or legacy hello). This command will throw a MongoCommandException on
             // {ok: 0}, but a reply (with a potential topologyVersion) will still have been received.
             // Not receiving a reply to the heartbeat commands implies a network error or a "HeartbeatFailed" type
             // exception (i.e. ServerDescription.WithHeartbeatException was called), in which case we should immediately

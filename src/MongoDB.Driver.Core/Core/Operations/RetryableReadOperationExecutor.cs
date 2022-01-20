@@ -17,7 +17,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Bindings;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Operations
@@ -40,7 +39,6 @@ namespace MongoDB.Driver.Core.Operations
                 return operation.ExecuteAttempt(context, attempt: 1, transactionNumber: null, cancellationToken);
             }
 
-            var initialServerVersion = context.Channel.ConnectionDescription.ServerVersion;
             Exception originalException;
             try
             {
@@ -58,11 +56,6 @@ namespace MongoDB.Driver.Core.Operations
                 context.ReplaceChannel(context.ChannelSource.GetChannel(cancellationToken));
             }
             catch
-            {
-                throw originalException;
-            }
-
-            if (context.Channel.ConnectionDescription.ServerVersion < initialServerVersion)
             {
                 throw originalException;
             }
@@ -92,7 +85,6 @@ namespace MongoDB.Driver.Core.Operations
                 return await operation.ExecuteAttemptAsync(context, attempt: 1, transactionNumber: null, cancellationToken).ConfigureAwait(false);
             }
 
-            var initialServerVersion = context.Channel.ConnectionDescription.ServerVersion;
             Exception originalException;
             try
             {
@@ -109,11 +101,6 @@ namespace MongoDB.Driver.Core.Operations
                 context.ReplaceChannel(context.ChannelSource.GetChannel(cancellationToken));
             }
             catch
-            {
-                throw originalException;
-            }
-
-            if (context.Channel.ConnectionDescription.ServerVersion < initialServerVersion)
             {
                 throw originalException;
             }

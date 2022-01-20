@@ -22,7 +22,6 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
@@ -402,19 +401,19 @@ namespace MongoDB.Driver.Core.Servers
 
         private void SetupHeartbeatConnection(MockConnection connection, bool isStreamable = false, bool autoFillStreamingResponses = true)
         {
+            var streamingHello = Feature.StreamingHello;
+            var maxWireVersion = isStreamable ? streamingHello.FirstSupportedWireVersion : streamingHello.LastNotSupportedWireVersion;
             var helloDocument = new BsonDocument
             {
                 { "ok", 1 },
                 { "topologyVersion", new TopologyVersion(new ObjectId(), 0).ToBsonDocument(), isStreamable },
-                { "maxAwaitTimeMS", 5000, isStreamable }
+                { "maxAwaitTimeMS", 5000, isStreamable },
+                { "maxWireVersion", maxWireVersion }
             };
 
-            var streamingHello = Feature.StreamingHello;
-            var version = isStreamable ? streamingHello.FirstSupportedVersion : streamingHello.LastNotSupportedVersion;
             connection.Description = new ConnectionDescription(
                 connection.ConnectionId,
-                new HelloResult(helloDocument),
-                new BuildInfoResult(BsonDocument.Parse($"{{ ok : 1, version : '{version}' }}")));
+                new HelloResult(helloDocument));
 
             if (autoFillStreamingResponses && isStreamable)
             {

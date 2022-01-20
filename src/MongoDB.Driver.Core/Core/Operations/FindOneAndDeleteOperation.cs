@@ -127,12 +127,12 @@ namespace MongoDB.Driver.Core.Operations
         // methods
         internal override BsonDocument CreateCommand(ICoreSessionHandle session, ConnectionDescription connectionDescription, long? transactionNumber)
         {
-            var serverVersion = connectionDescription.ServerVersion;
-            if (Feature.HintForFindAndModifyFeature.DriverMustThrowIfNotSupported(serverVersion) || (WriteConcern != null && !WriteConcern.IsAcknowledged))
+            var maxWireVersion = connectionDescription.MaxWireVersion;
+            if (Feature.HintForFindAndModifyFeature.DriverMustThrowIfNotSupported(maxWireVersion) || (WriteConcern != null && !WriteConcern.IsAcknowledged))
             {
                 if (_hint != null)
                 {
-                    throw new NotSupportedException($"Server version {serverVersion} does not support hints.");
+                    throw new NotSupportedException($"Server version {WireVersion.GetServerVersionForErrorMessage(maxWireVersion)} does not support hints.");
                 }
             }
 

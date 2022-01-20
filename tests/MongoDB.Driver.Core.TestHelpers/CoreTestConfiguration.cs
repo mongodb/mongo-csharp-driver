@@ -27,7 +27,6 @@ using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Configuration;
-using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
@@ -44,11 +43,12 @@ namespace MongoDB.Driver
         private static Lazy<ConnectionString> __connectionStringWithMultipleShardRouters = new Lazy<ConnectionString>(
             GetConnectionStringWithMultipleShardRouters, isThreadSafe: true);
         private static Lazy<DatabaseNamespace> __databaseNamespace = new Lazy<DatabaseNamespace>(GetDatabaseNamespace, isThreadSafe: true);
-        private static Lazy<BuildInfoResult> _buildInfo = new Lazy<BuildInfoResult>(RunBuildInfo, isThreadSafe: true);
+        private static Lazy<int> __maxWireVersion = new Lazy<int>(GetMaxWireVersion, isThreadSafe: true);
         private static MessageEncoderSettings __messageEncoderSettings = new MessageEncoderSettings();
         private static Lazy<int> __numberOfMongoses = new Lazy<int>(GetNumberOfMongoses, isThreadSafe: true);
         private static Lazy<ServerApi> __serverApi = new Lazy<ServerApi>(GetServerApi, isThreadSafe: true);
         private static Lazy<bool> __serverless = new Lazy<bool>(GetServerless, isThreadSafe: true);
+        private static Lazy<SemanticVersion> __serverVersion = new Lazy<SemanticVersion>(GetServerVersion, isThreadSafe: true);
         private static Lazy<string> __storageEngine = new Lazy<string>(GetStorageEngine, isThreadSafe: true);
         private static TraceSource __traceSource;
 
@@ -97,20 +97,9 @@ namespace MongoDB.Driver
             get { return __serverless.Value; }
         }
 
-        public static SemanticVersion ServerVersion
-        {
-            get
-            {
-                var server = __cluster.Value.SelectServer(WritableServerSelector.Instance, CancellationToken.None);
-                var description = server.Description;
-                var version = description.Version ?? (description.Type == ServerType.LoadBalanced ? _buildInfo.Value.ServerVersion : null);
-                if (version == null)
-                {
-                    throw new InvalidOperationException("ServerDescription.Version is unexpectedly null.");
-                }
-                return version;
-            }
-        }
+        public static SemanticVersion ServerVersion => __serverVersion.Value;
+
+        public static int MaxWireVersion => __maxWireVersion.Value;
 
         public static string StorageEngine => __storageEngine.Value;
 
@@ -330,7 +319,19 @@ namespace MongoDB.Driver
             return new DatabaseNamespace(databaseName);
         }
 
-        private static BuildInfoResult RunBuildInfo()
+        private static int GetMaxWireVersion()
+        {
+            using (var session = StartSession())
+            using (var binding = CreateReadBinding(session))
+            {
+                var command = new BsonDocument("hello", 1);
+                var operation = new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, __messageEncoderSettings);
+                var response = operation.Execute(binding, CancellationToken.None);
+                return response["maxWireVersion"].AsInt32;
+            }
+        }
+
+        private static SemanticVersion GetServerVersion()
         {
             using (var session = StartSession())
             using (var binding = CreateReadBinding(session))
@@ -338,7 +339,7 @@ namespace MongoDB.Driver
                 var command = new BsonDocument("buildinfo", 1);
                 var operation = new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, __messageEncoderSettings);
                 var response = operation.Execute(binding, CancellationToken.None);
-                return new BuildInfoResult(response);
+                return SemanticVersion.Parse(response["version"].AsString);
             }
         }
 

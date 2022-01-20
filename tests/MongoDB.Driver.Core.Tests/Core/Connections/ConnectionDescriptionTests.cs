@@ -20,6 +20,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Compression;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using Xunit;
 
@@ -27,17 +28,13 @@ namespace MongoDB.Driver.Core.Connections
 {
     public class ConnectionDescriptionTests
     {
-        private static readonly BuildInfoResult __buildInfoResult = new BuildInfoResult(BsonDocument.Parse(
-            "{ ok: 1, version: \"3.6.0\" }"
-        ));
-
         private static readonly IEnumerable<CompressorType> __compressors = new[] { CompressorType.Zlib, CompressorType.ZStandard };
 
         private static readonly ConnectionId __connectionId = new ConnectionId(
             new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27017)));
 
         private static readonly HelloResult __helloResult = new HelloResult(BsonDocument.Parse(
-            "{ ok: 1, maxWriteBatchSize: 10, maxBsonObjectSize: 20, maxMessageSizeBytes: 30, compression: ['zlib', 'zstd'] }"
+            "{ ok : 1, maxWriteBatchSize : 10, maxBsonObjectSize : 20, maxMessageSizeBytes : 30, compression : ['zlib', 'zstd'], maxWireVersion : 14, minWireVersion : 6 }"
         ));
 
         private static readonly HelloResult __helloResultWithoutCompression = new HelloResult(BsonDocument.Parse(
@@ -47,7 +44,7 @@ namespace MongoDB.Driver.Core.Connections
         [Fact]
         public void AvailableCompressors_should_not_be_null()
         {
-            var subject = new ConnectionDescription(__connectionId, __helloResultWithoutCompression, __buildInfoResult);
+            var subject = new ConnectionDescription(__connectionId, __helloResultWithoutCompression);
 
             subject.AvailableCompressors.Count.Should().Be(0);
         }
@@ -55,7 +52,7 @@ namespace MongoDB.Driver.Core.Connections
         [Fact]
         public void AvailableCompressors_should_return_expected_result()
         {
-            var subject = new ConnectionDescription(__connectionId, __helloResult, __buildInfoResult);
+            var subject = new ConnectionDescription(__connectionId, __helloResult);
 
             subject.AvailableCompressors.Count.Should().Be(2);
             subject.AvailableCompressors.Should().Equal(__compressors);
@@ -64,7 +61,7 @@ namespace MongoDB.Driver.Core.Connections
         [Fact]
         public void Constructor_should_throw_an_ArgumentNullException_when_connectionId_is_null()
         {
-            Action act = () => new ConnectionDescription(null, __helloResult, __buildInfoResult);
+            Action act = () => new ConnectionDescription(null, __helloResult);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -72,15 +69,7 @@ namespace MongoDB.Driver.Core.Connections
         [Fact]
         public void Constructor_should_throw_an_ArgumentNullException_when_helloResult_is_null()
         {
-            Action act = () => new ConnectionDescription(__connectionId, null, __buildInfoResult);
-
-            act.ShouldThrow<ArgumentNullException>();
-        }
-
-        [Fact]
-        public void Constructor_should_throw_an_ArgumentNullException_when_buildInfoResult_is_null()
-        {
-            Action act = () => new ConnectionDescription(__connectionId, __helloResult, null);
+            Action act = () => new ConnectionDescription(__connectionId, null);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -92,25 +81,21 @@ namespace MongoDB.Driver.Core.Connections
             var connectionId2 = new ConnectionId(new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27018)), 10);
             var helloResult1 = new HelloResult(new BsonDocument("x", 1));
             var helloResult2 = new HelloResult(new BsonDocument("x", 2));
-            var buildInfoResult1 = new BuildInfoResult(new BsonDocument("version", "3.6.0"));
-            var buildInfoResult2 = new BuildInfoResult(new BsonDocument("version", "4.0.0"));
 
-            var subject1 = new ConnectionDescription(connectionId1, helloResult1, buildInfoResult1);
-            var subject2 = new ConnectionDescription(connectionId1, helloResult1, buildInfoResult1);
-            var subject3 = new ConnectionDescription(connectionId1, helloResult1, buildInfoResult2);
-            var subject4 = new ConnectionDescription(connectionId1, helloResult2, buildInfoResult1);
-            var subject5 = new ConnectionDescription(connectionId2, helloResult1, buildInfoResult1);
+            var subject1 = new ConnectionDescription(connectionId1, helloResult1);
+            var subject2 = new ConnectionDescription(connectionId1, helloResult1);
+            var subject3 = new ConnectionDescription(connectionId1, helloResult2);
+            var subject4 = new ConnectionDescription(connectionId2, helloResult1);
 
             subject1.Equals(subject2).Should().BeTrue();
             subject1.Equals(subject3).Should().BeFalse();
             subject1.Equals(subject4).Should().BeFalse();
-            subject1.Equals(subject5).Should().BeFalse();
         }
 
         [Fact]
         public void ConnectionId_should_return_ConnectionId()
         {
-            var subject = new ConnectionDescription(__connectionId, __helloResult, __buildInfoResult);
+            var subject = new ConnectionDescription(__connectionId, __helloResult);
 
             subject.ConnectionId.Should().Be(__connectionId);
         }
@@ -118,7 +103,7 @@ namespace MongoDB.Driver.Core.Connections
         [Fact]
         public void MaxBatchCount_should_return_helloResult_MaxBatchCount()
         {
-            var subject = new ConnectionDescription(__connectionId, __helloResult, __buildInfoResult);
+            var subject = new ConnectionDescription(__connectionId, __helloResult);
 
             subject.MaxBatchCount.Should().Be(__helloResult.MaxBatchCount);
         }
@@ -126,7 +111,7 @@ namespace MongoDB.Driver.Core.Connections
         [Fact]
         public void MaxDocumentSize_should_return_helloResult_MaxDocumentSize()
         {
-            var subject = new ConnectionDescription(__connectionId, __helloResult, __buildInfoResult);
+            var subject = new ConnectionDescription(__connectionId, __helloResult);
 
             subject.MaxDocumentSize.Should().Be(__helloResult.MaxDocumentSize);
         }
@@ -134,17 +119,25 @@ namespace MongoDB.Driver.Core.Connections
         [Fact]
         public void MaxMessageSize_should_return_helloResult_MaxMessageSize()
         {
-            var subject = new ConnectionDescription(__connectionId, __helloResult, __buildInfoResult);
+            var subject = new ConnectionDescription(__connectionId, __helloResult);
 
             subject.MaxMessageSize.Should().Be(__helloResult.MaxMessageSize);
         }
 
         [Fact]
-        public void ServerVersion_should_return_buildInfoResult_ServerVersion()
+        public void MaxWireVersion_should_return_helloResult_MaxWireVersion()
         {
-            var subject = new ConnectionDescription(__connectionId, __helloResult, __buildInfoResult);
+            var subject = new ConnectionDescription(__connectionId, __helloResult);
 
-            subject.ServerVersion.Should().Be(__buildInfoResult.ServerVersion);
+            subject.MaxWireVersion.Should().Be(__helloResult.MaxWireVersion);
+        }
+
+        [Fact]
+        public void MinWireVersion_should_return_helloResult_MinWireVersion()
+        {
+            var subject = new ConnectionDescription(__connectionId, __helloResult);
+
+            subject.MinWireVersion.Should().Be(__helloResult.MinWireVersion);
         }
 
         [Fact]
@@ -154,9 +147,8 @@ namespace MongoDB.Driver.Core.Connections
             var serverId = new ServerId(clusterId, new DnsEndPoint("localhost", 1));
             var connectionId1 = new ConnectionId(serverId, 1);
             var connectionId2 = new ConnectionId(serverId, 1).WithServerValue(2);
-            var helloResult = new HelloResult(new BsonDocument());
-            var buildInfoResult = new BuildInfoResult(new BsonDocument("version", "3.6.0"));
-            var subject = new ConnectionDescription(connectionId1, helloResult, buildInfoResult);
+            var helloResult = new HelloResult(new BsonDocument("maxWireVersion", WireVersion.Server36));
+            var subject = new ConnectionDescription(connectionId1, helloResult);
 
             var result = subject.WithConnectionId(connectionId2);
 

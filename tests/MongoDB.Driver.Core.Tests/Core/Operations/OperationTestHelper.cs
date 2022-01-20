@@ -26,40 +26,22 @@ namespace MongoDB.Driver.Core.Operations
 {
     public static class OperationTestHelper
     {
-        public static IChannelHandle CreateChannel(
-            ConnectionDescription connectionDescription = null,
-            SemanticVersion serverVersion = null,
-            bool supportsSessions = true)
-        {
-            if (connectionDescription == null)
-            {
-                connectionDescription = CreateConnectionDescription(
-                    serverVersion: serverVersion,
-                    supportsSessions: supportsSessions);
-            }
-
-            var mock = new Mock<IChannelHandle>();
-            mock.SetupGet(m => m.ConnectionDescription).Returns(connectionDescription);
-            return mock.Object;
-        }
-
         public static ConnectionDescription CreateConnectionDescription(
-            SemanticVersion serverVersion = null,
+            int? maxWireVersion = null,
             ServerType serverType = ServerType.Standalone,
             bool supportsSessions = true)
         {
-            if (serverVersion == null)
+            if (maxWireVersion == null)
             {
-                serverVersion = new SemanticVersion(3, 6, 0);
+                maxWireVersion = WireVersion.Server36;
             }
 
             var clusterId = new ClusterId();
             var serverId = new ServerId(clusterId, new DnsEndPoint("localhost", 27017));
             var connectionId = new ConnectionId(serverId);
-            var buildInfoResult = new BuildInfoResult(new BsonDocument("ok", 1).Add("version", serverVersion.ToString()));
-            var helloResult = CreateHelloResult(serverVersion, serverType, supportsSessions);
+            var helloResult = CreateHelloResult(maxWireVersion, serverType, supportsSessions);
 
-            return new ConnectionDescription(connectionId, helloResult, buildInfoResult);
+            return new ConnectionDescription(connectionId, helloResult);
         }
 
         public static ICoreSessionHandle CreateSession(
@@ -74,15 +56,16 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         private static HelloResult CreateHelloResult(
-            SemanticVersion version = null,
+            int? maxWireVersion = null,
             ServerType serverType = ServerType.Standalone,
             bool supportsSessions = true)
         {
-            var helloDocument = BsonDocument.Parse("{ ok: 1 }");
-            if (supportsSessions)
+            var helloDocument = new BsonDocument
             {
-                helloDocument.Add("logicalSessionTimeoutMinutes", 10);
-            }
+                { "ok", 1 },
+                { "logicalSessionTimeoutMinutes", 10, supportsSessions },
+                { "maxWireVersion", () => maxWireVersion.Value, maxWireVersion.HasValue }
+            };
             switch (serverType)
             {
                 case ServerType.ReplicaSetArbiter:

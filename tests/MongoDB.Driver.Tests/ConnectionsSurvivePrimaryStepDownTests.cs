@@ -148,7 +148,7 @@ namespace MongoDB.Driver.Tests
         {
             RequireServer.Check().Supports(Feature.FailPointsFailCommand).ClusterType(ClusterType.ReplicaSet);
 
-            var shouldConnectionPoolBeCleared = !Feature.KeepConnectionPoolWhenNotPrimaryConnectionException.IsSupported(CoreTestConfiguration.ServerVersion);
+            var shouldConnectionPoolBeCleared = !Feature.KeepConnectionPoolWhenNotPrimaryConnectionException.IsSupported(CoreTestConfiguration.MaxWireVersion);
 
             var eventCapturer = new EventCapturer()
                 .Capture<ConnectionPoolClearedEvent>()

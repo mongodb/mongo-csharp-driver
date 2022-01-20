@@ -47,8 +47,10 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication
         {
             __descriptionCommandWireProtocol = new ConnectionDescription(
                 new ConnectionId(__serverId),
-                new HelloResult(new BsonDocument("ok", 1).Add(OppressiveLanguageConstants.LegacyHelloResponseIsWritablePrimaryFieldName, 1)),
-                new BuildInfoResult(new BsonDocument("version", "4.7.0")));
+                new HelloResult(
+                    new BsonDocument("ok", 1)
+                    .Add(OppressiveLanguageConstants.LegacyHelloResponseIsWritablePrimaryFieldName, 1)
+                    .Add("maxWireVersion", WireVersion.Server47)));
         }
         #endregion
 

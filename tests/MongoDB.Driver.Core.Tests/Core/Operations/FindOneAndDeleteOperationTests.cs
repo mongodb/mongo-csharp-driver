@@ -118,7 +118,7 @@ namespace MongoDB.Driver.Core.Operations
                 Hint = hint
             };
             var session = OperationTestHelper.CreateSession();
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription(serverVersion: Feature.HintForFindAndModifyFeature.FirstSupportedVersion);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.HintForFindAndModifyFeature.FirstSupportedWireVersion);
 
             var result = subject.CreateCommand(session, connectionDescription, null);
 
@@ -139,7 +139,7 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)] bool async)
         {
             var writeConcern = new WriteConcern(w);
-            var serverVersion = CoreTestConfiguration.ServerVersion;
+            var maxWireVersion = CoreTestConfiguration.MaxWireVersion;
             var subject = new FindOneAndDeleteOperation<BsonDocument>(_collectionNamespace, _filter, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
                 Hint = new BsonDocument("_id", 1),
@@ -152,11 +152,11 @@ namespace MongoDB.Driver.Core.Operations
             {
                 exception.Should().BeOfType<NotSupportedException>();
             }
-            else if (Feature.HintForFindAndModifyFeature.DriverMustThrowIfNotSupported(serverVersion))
+            else if (Feature.HintForFindAndModifyFeature.DriverMustThrowIfNotSupported(maxWireVersion))
             {
                 exception.Should().BeOfType<NotSupportedException>();
             }
-            else if (Feature.HintForFindAndModifyFeature.IsSupported(serverVersion))
+            else if (Feature.HintForFindAndModifyFeature.IsSupported(maxWireVersion))
             {
                 exception.Should().BeNull();
             }

@@ -42,7 +42,6 @@ namespace MongoDB.Driver.Tests
         {
             "hello",
             OppressiveLanguageConstants.LegacyHelloCommandName,
-            "buildInfo",
             "getLastError",
             "authenticate",
             "saslStart",

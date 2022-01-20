@@ -221,8 +221,7 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
 
         private SemanticVersion GetServerVersion()
         {
-            var server = __client.Cluster.SelectServer(WritableServerSelector.Instance, CancellationToken.None);
-            return server.Description.Version;
+            return CoreTestConfiguration.ServerVersion;
         }
 
         private void ExecuteOperation(IMongoDatabase database, string collectionName, BsonDocument operation, bool async)

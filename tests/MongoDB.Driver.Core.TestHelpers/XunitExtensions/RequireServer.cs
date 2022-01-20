@@ -35,10 +35,12 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
         }
         #endregion
 
-        private SemanticVersion _serverVersion;
+        private readonly int _maxWireVersion;
+        private readonly SemanticVersion _serverVersion;
 
         public RequireServer()
         {
+            _maxWireVersion = CoreTestConfiguration.MaxWireVersion;
             _serverVersion = CoreTestConfiguration.ServerVersion;
         }
 
@@ -75,7 +77,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
 
         public RequireServer DoesNotSupport(Feature feature)
         {
-            if (!feature.IsSupported(_serverVersion))
+            if (!feature.IsSupported(_maxWireVersion))
             {
                 return this;
             }
@@ -140,7 +142,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
 
         public RequireServer Supports(Feature feature)
         {
-            if (feature.IsSupported(_serverVersion))
+            if (feature.IsSupported(_maxWireVersion))
             {
                 return this;
             }
@@ -242,7 +244,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
 
         public RequireServer VersionLessThan(SemanticVersion version)
         {
-            var actualVersion = CoreTestConfiguration.ServerVersion;
+            var actualVersion = _serverVersion;
             if (actualVersion < version)
             {
                 return this;

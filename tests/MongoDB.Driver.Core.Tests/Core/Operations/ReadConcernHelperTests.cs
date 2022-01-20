@@ -19,6 +19,7 @@ using MongoDB.Bson;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using Moq;
 using Xunit;
@@ -108,14 +109,10 @@ namespace MongoDB.Driver.Core.Operations
             {
                 { "ok", 1 },
                 { "logicalSessionTimeoutMinutes", 30, logicalSessionTimeoutMinutes },
-                { "serviceId", ObjectId.GenerateNewId(), serviceId.HasValue }
+                { "serviceId", ObjectId.GenerateNewId(), serviceId.HasValue },
+                { "maxWireVersion", logicalSessionTimeoutMinutes ? WireVersion.Server40 : WireVersion.Server36 }
             };
-            var buildInfoResult = new BsonDocument
-            {
-                { "ok", 1 },
-                { "version", logicalSessionTimeoutMinutes ? "4.0" : "3.6" }
-            };
-            return new ConnectionDescription(connectionId, new HelloResult(helloResult), new BuildInfoResult(buildInfoResult));
+            return new ConnectionDescription(connectionId, new HelloResult(helloResult));
         }
 
         private ICoreSession CreateSession(

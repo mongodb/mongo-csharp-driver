@@ -28,13 +28,14 @@ namespace MongoDB.Driver.Core.Connections
     public sealed class ConnectionDescription : IEquatable<ConnectionDescription>
     {
         // fields
-        private readonly BuildInfoResult _buildInfoResult;
         private readonly IReadOnlyList<CompressorType> _compressors;
         private readonly ConnectionId _connectionId;
         private readonly HelloResult _helloResult;
         private readonly int _maxBatchCount;
         private readonly int _maxDocumentSize;
         private readonly int _maxMessageSize;
+        private readonly int _maxWireVersion;
+        private readonly int _minWireVersion;
         private readonly SemanticVersion _serverVersion;
         private readonly ObjectId? _serviceId;
 
@@ -44,33 +45,22 @@ namespace MongoDB.Driver.Core.Connections
         /// </summary>
         /// <param name="connectionId">The connection identifier.</param>
         /// <param name="helloResult">The hello result.</param>
-        /// <param name="buildInfoResult">The buildInfo result.</param>
-        public ConnectionDescription(ConnectionId connectionId, HelloResult helloResult, BuildInfoResult buildInfoResult)
+        public ConnectionDescription(ConnectionId connectionId, HelloResult helloResult)
         {
             _connectionId = Ensure.IsNotNull(connectionId, nameof(connectionId));
-            _buildInfoResult = Ensure.IsNotNull(buildInfoResult, nameof(buildInfoResult));
             _helloResult = Ensure.IsNotNull(helloResult, nameof(helloResult));
 
             _compressors = Ensure.IsNotNull(_helloResult.Compressions, "compressions");
             _maxBatchCount = helloResult.MaxBatchCount;
             _maxDocumentSize = helloResult.MaxDocumentSize;
             _maxMessageSize = helloResult.MaxMessageSize;
+            _maxWireVersion = helloResult.MaxWireVersion;
+            _minWireVersion = helloResult.MinWireVersion;
             _serviceId = helloResult.ServiceId;
-            _serverVersion = buildInfoResult.ServerVersion;
+            _serverVersion = WireVersion.ToServerVersion(_maxWireVersion);
         }
 
         // properties
-        /// <summary>
-        /// Gets the buildInfo result.
-        /// </summary>
-        /// <value>
-        /// The buildInfo result.
-        /// </value>
-        public BuildInfoResult BuildInfoResult
-        {
-            get { return _buildInfoResult; }
-        }
-
         /// <summary>
         /// Gets the available compressors.
         /// </summary>
@@ -158,11 +148,34 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         /// <summary>
+        /// Gets the maximum wire version.
+        /// </summary>
+        /// <value>
+        /// The maximum wire version.
+        /// </value>
+        public int MaxWireVersion
+        {
+            get { return _maxWireVersion; }
+        }
+
+        /// <summary>
+        /// Gets the minimum wire version.
+        /// </summary>
+        /// <value>
+        /// The minimum wire version.
+        /// </value>
+        public int MinWireVersion
+        {
+            get { return _minWireVersion; }
+        }
+
+        /// <summary>
         /// Gets the server version.
         /// </summary>
         /// <value>
         /// The server version.
         /// </value>
+        [Obsolete("Use MaxWireVersion instead.")]
         public SemanticVersion ServerVersion
         {
             get { return _serverVersion; }
@@ -189,7 +202,6 @@ namespace MongoDB.Driver.Core.Connections
             }
 
             return
-                _buildInfoResult.Equals(other._buildInfoResult) &&
                 _connectionId.StructurallyEquals(other._connectionId) &&
                 _helloResult.Equals(other._helloResult);
         }
@@ -204,7 +216,6 @@ namespace MongoDB.Driver.Core.Connections
         public override int GetHashCode()
         {
             return new Hasher()
-                .Hash(_buildInfoResult)
                 .Hash(_connectionId)
                 .Hash(_helloResult)
                 .GetHashCode();
@@ -217,7 +228,7 @@ namespace MongoDB.Driver.Core.Connections
         /// <returns>A connection description.</returns>
         public ConnectionDescription WithConnectionId(ConnectionId value)
         {
-            return _connectionId.StructurallyEquals(value) ? this : new ConnectionDescription(value, _helloResult, _buildInfoResult);
+            return _connectionId.StructurallyEquals(value) ? this : new ConnectionDescription(value, _helloResult);
         }
     }
 }

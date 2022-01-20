@@ -14,10 +14,8 @@
 */
 
 using System;
-using System.Collections.Generic;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Tests.Specifications.retryable_writes
 {
@@ -28,7 +26,6 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes
         private BsonDocument _replacement;
         private FindOneAndReplaceOptions<BsonDocument> _options = new FindOneAndReplaceOptions<BsonDocument>();
         private BsonDocument _result;
-        private SemanticVersion _serverVersion;
 
         // public methods
         public override void Initialize(BsonDocument operation)
@@ -81,27 +78,16 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes
         protected override void ExecuteAsync(IMongoCollection<BsonDocument> collection)
         {
             _result = collection.FindOneAndReplaceAsync(_filter, _replacement, _options).GetAwaiter().GetResult();
-            _serverVersion = collection.Database.Client.Cluster.Description.Servers[0].Version;
         }
 
         protected override void ExecuteSync(IMongoCollection<BsonDocument> collection)
         {
             _result = collection.FindOneAndReplace(_filter, _replacement, _options);
-            _serverVersion = collection.Database.Client.Cluster.Description.Servers[0].Version;
         }
 
         protected override void VerifyResult(BsonDocument result)
         {
             _result.Should().Be(result);
-        }
-
-        // private methods
-        private void RemoveIds(List<BsonDocument> documents)
-        {
-            foreach (var document in documents)
-            {
-                document.Remove("_id");
-            }
         }
     }
 }

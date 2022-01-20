@@ -534,7 +534,6 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
             var defaultCommandNamesToSkip = new List<string>
             {
-                "buildInfo",
                 "configureFailPoint",
                 "getLastError",
                 OppressiveLanguageConstants.LegacyHelloCommandName,  // skip handshake events, should be reconsidered in the scope of CSHARP-3823

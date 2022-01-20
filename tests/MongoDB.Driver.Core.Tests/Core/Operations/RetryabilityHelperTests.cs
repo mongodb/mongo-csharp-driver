@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var exception = CoreExceptionHelper.CreateMongoWriteConcernException(BsonDocument.Parse($"{{ writeConcernError : {{ code : {errorCode} }} }}"));
 
-            RetryabilityHelper.AddRetryableWriteErrorLabelIfRequired(exception, Feature.ServerReturnsRetryableWriteErrorLabel.LastNotSupportedVersion);
+            RetryabilityHelper.AddRetryableWriteErrorLabelIfRequired(exception, Feature.ServerReturnsRetryableWriteErrorLabel.LastNotSupportedWireVersion);
 
             var hasRetryableWriteErrorLabel = exception.HasErrorLabel("RetryableWriteError");
             hasRetryableWriteErrorLabel.Should().Be(shouldAddErrorLabel);
@@ -58,9 +58,9 @@ namespace MongoDB.Driver.Core.Operations
         {
             var exception = (MongoException)CoreExceptionHelper.CreateException(typeof(MongoConnectionException));
             var feature = Feature.ServerReturnsRetryableWriteErrorLabel;
-            var serverVersion = serverReturnsRetryableWriteErrorLabel ? feature.FirstSupportedVersion : feature.LastNotSupportedVersion;
+            var wireVersion = serverReturnsRetryableWriteErrorLabel ? feature.FirstSupportedWireVersion : feature.LastNotSupportedWireVersion;
 
-            RetryabilityHelper.AddRetryableWriteErrorLabelIfRequired(exception, serverVersion);
+            RetryabilityHelper.AddRetryableWriteErrorLabelIfRequired(exception, wireVersion);
 
             var hasRetryableWriteErrorLabel = exception.HasErrorLabel("RetryableWriteError");
             hasRetryableWriteErrorLabel.Should().BeTrue();
@@ -90,7 +90,7 @@ namespace MongoDB.Driver.Core.Operations
                 exception = CoreExceptionHelper.CreateMongoCommandException((int)exceptionDescription);
             }
 
-            RetryabilityHelper.AddRetryableWriteErrorLabelIfRequired(exception, Feature.ServerReturnsRetryableWriteErrorLabel.LastNotSupportedVersion);
+            RetryabilityHelper.AddRetryableWriteErrorLabelIfRequired(exception, Feature.ServerReturnsRetryableWriteErrorLabel.LastNotSupportedWireVersion);
 
             var hasRetryableWriteErrorLabel = exception.HasErrorLabel("RetryableWriteError");
             hasRetryableWriteErrorLabel.Should().Be(shouldAddErrorLabel);
@@ -152,7 +152,7 @@ namespace MongoDB.Driver.Core.Operations
                 exception = CoreExceptionHelper.CreateMongoCommandException((int)exceptionDescription);
             }
 
-            var result = RetryabilityHelper.IsResumableChangeStreamException(exception, Feature.ServerReturnsResumableChangeStreamErrorLabel.LastNotSupportedVersion);
+            var result = RetryabilityHelper.IsResumableChangeStreamException(exception, Feature.ServerReturnsResumableChangeStreamErrorLabel.LastNotSupportedWireVersion);
 
             result.Should().Be(isResumable);
         }
@@ -167,7 +167,7 @@ namespace MongoDB.Driver.Core.Operations
                 exception.AddErrorLabel("ResumableChangeStreamError");
             }
 
-            var result = RetryabilityHelper.IsResumableChangeStreamException(exception, Feature.ServerReturnsResumableChangeStreamErrorLabel.FirstSupportedVersion);
+            var result = RetryabilityHelper.IsResumableChangeStreamException(exception, Feature.ServerReturnsResumableChangeStreamErrorLabel.FirstSupportedWireVersion);
 
             result.Should().Be(hasResumableChangeStreamErrorLabel);
         }
@@ -181,7 +181,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var exception = (MongoException)CoreExceptionHelper.CreateException(exceptionType);
 
-            var result = RetryabilityHelper.IsResumableChangeStreamException(exception, Feature.ServerReturnsResumableChangeStreamErrorLabel.FirstSupportedVersion);
+            var result = RetryabilityHelper.IsResumableChangeStreamException(exception, Feature.ServerReturnsResumableChangeStreamErrorLabel.FirstSupportedWireVersion);
 
             result.Should().Be(isResumable);
         }

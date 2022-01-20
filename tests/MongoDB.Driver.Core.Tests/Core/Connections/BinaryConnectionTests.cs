@@ -29,6 +29,7 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Helpers;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -55,9 +56,8 @@ namespace MongoDB.Driver.Core.Connections
             _endPoint = new DnsEndPoint("localhost", 27017);
             var serverId = new ServerId(new ClusterId(), _endPoint);
             var connectionId = new ConnectionId(serverId);
-            var helloResult = new HelloResult(new BsonDocument { { "ok", 1 }, { "maxMessageSizeBytes", 48000000 } });
-            var buildInfoResult = new BuildInfoResult(new BsonDocument { { "ok", 1 }, { "version", "3.6.0" } });
-            _connectionDescription = new ConnectionDescription(connectionId, helloResult, buildInfoResult);
+            var helloResult = new HelloResult(new BsonDocument { { "ok", 1 }, { "maxMessageSizeBytes", 48000000 }, { "maxWireVersion", WireVersion.Server36 } });
+            _connectionDescription = new ConnectionDescription(connectionId, helloResult);
 
             _mockConnectionInitializer = new Mock<IConnectionInitializer>();
             _mockConnectionInitializer
@@ -100,8 +100,7 @@ namespace MongoDB.Driver.Core.Connections
             var serviceId = ObjectId.GenerateNewId();
             var connectionDescription = new ConnectionDescription(
                 new ConnectionId(new ServerId(new ClusterId(), _endPoint)),
-                new HelloResult(new BsonDocument("serviceId", serviceId)),
-                new BuildInfoResult(new BsonDocument("version", "0.0.0")));
+                new HelloResult(new BsonDocument("serviceId", serviceId)));
 
             var socketException = new SocketException();
             _mockConnectionInitializer

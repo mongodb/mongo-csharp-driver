@@ -31,7 +31,6 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)] bool async)
         {
             var writeConcern = new WriteConcern(w);
-            var serverVersion = CoreTestConfiguration.ServerVersion;
             var request = new UpdateRequest(
                 UpdateType.Update,
                 new BsonDocument("x", 1),
@@ -51,7 +50,7 @@ namespace MongoDB.Driver.Core.Operations
                 exception.Should().BeOfType<NotSupportedException>();
             }
 #pragma warning disable CS0618 // Type or member is obsolete
-            else if (Feature.HintForUpdateAndReplaceOperations.IsSupported(serverVersion))
+            else if (Feature.HintForUpdateAndReplaceOperations.IsSupported(CoreTestConfiguration.MaxWireVersion))
 #pragma warning restore CS0618 // Type or member is obsolete
             {
                 exception.Should().BeNull();

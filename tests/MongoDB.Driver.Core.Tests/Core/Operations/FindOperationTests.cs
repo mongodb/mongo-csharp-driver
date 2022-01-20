@@ -662,7 +662,6 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)] bool async,
             [Values(null, false, true)] bool? allowDiskUse)
         {
-            var serverVersion = CoreTestConfiguration.ServerVersion;
             var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
                 AllowDiskUse = allowDiskUse
@@ -675,7 +674,7 @@ namespace MongoDB.Driver.Core.Operations
                 exception.Should().BeNull();
             }
 #pragma warning disable CS0618 // Type or member is obsolete
-            else if (Feature.FindAllowDiskUse.IsSupported(serverVersion))
+            else if (Feature.FindAllowDiskUse.IsSupported(CoreTestConfiguration.MaxWireVersion))
 #pragma warning restore CS0618 // Type or member is obsolete
             {
                 exception.Should().BeNull();

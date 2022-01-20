@@ -16,9 +16,7 @@
 using System;
 using System.Linq;
 using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver;
-using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
@@ -67,14 +65,7 @@ namespace MongoDB.Driver.Tests.CommandResults
             Assert.True(result.StorageSize > 0);
             Assert.Equal(CollectionSystemFlags.HasIdIndex, result.SystemFlags);
             Assert.True(result.TotalIndexSize > 0);
-            if (_server.BuildInfo.Version < new Version(2, 6, 0))
-            {
-                Assert.Equal(CollectionUserFlags.None, result.UserFlags);
-            }
-            else
-            {
-                Assert.Equal(CollectionUserFlags.UsePowerOf2Sizes, result.UserFlags);
-            }
+            Assert.Equal(CollectionUserFlags.UsePowerOf2Sizes, result.UserFlags);
         }
     }
 }

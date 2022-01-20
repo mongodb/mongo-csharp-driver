@@ -44,8 +44,10 @@ namespace MongoDB.Driver.Core.WireProtocol
         private static readonly ServerId __serverId = new ServerId(__clusterId, new DnsEndPoint("localhost", 27017));
         private static readonly ConnectionDescription __connectionDescription = new ConnectionDescription(
             new ConnectionId(__serverId),
-            new HelloResult(new BsonDocument("ok", 1).Add(OppressiveLanguageConstants.LegacyHelloResponseIsWritablePrimaryFieldName, 1)),
-            new BuildInfoResult(new BsonDocument("version", "4.9.0")));
+            new HelloResult(
+                new BsonDocument("ok", 1)
+                .Add(OppressiveLanguageConstants.LegacyHelloResponseIsWritablePrimaryFieldName, 1)
+                .Add("maxWireVersion", WireVersion.Server49)));
 
         [Theory]
         [ParameterAttributeData]
@@ -122,8 +124,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                     .Returns(
                         new ConnectionDescription(
                             id,
-                            new HelloResult(new BsonDocument("ok", 1)),
-                            new BuildInfoResult(new BsonDocument("version", "4.4"))));
+                            new HelloResult(new BsonDocument { { "ok", 1 }, { "maxWireVersion", WireVersion.Server44 } })));
                 return id;
             }
         }
