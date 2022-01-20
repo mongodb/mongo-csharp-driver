@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading;
@@ -70,7 +71,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 ForceClusterId(cluster, __clusterId);
 
                 // 0. Initial heartbeat via `connection.Open`
-                // The next hello or legacy hello response will be delayed because the Task.WaitAny in the mock.Returns
+                // The next hello or legacy hello response will be delayed because the waiting in the mock.Callbacks
                 cluster.Initialize();
 
                 var selectedServer = cluster.SelectServer(CreateWritableServerAndEndPointSelector(__endPoint1), CancellationToken.None);
@@ -113,7 +114,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 // the 4th event is MongoConnectionException which will trigger the next hello or legacy hello check immediately
                 eventCapturer.WaitForOrThrowIfTimeout(events => events.Count() >= 4, TimeSpan.FromSeconds(5));
             }
-            hasClusterBeenDisposed.SetCanceled(); // Cut off not related events. Stop waiting in the latest mock.Returns for OpenAsync
+            hasClusterBeenDisposed.SetCanceled(); // Cut off not related events. Stop waiting in the latest mock.Callbacks for connection.Open
 
             // Events asserting
             var initialHeartbeatEvents = new[]
@@ -324,23 +325,31 @@ namespace MongoDB.Driver.Core.Tests.Jira
 
             void SetupFailedConnection(Mock<IConnection> mockFaultyConnection)
             {
-                // sync path is not used in serverMonitor
-                mockFaultyConnection
-                    .SetupSequence(c => c.OpenAsync(It.IsAny<CancellationToken>()))
-                    .Returns(Task.FromResult(true)) // the first hello or legacy hello configuration passes
-                    .Returns(Task.FromResult(true)) // RTT
-                    .Throws(CreateDnsException(mockConnection.Object.ConnectionId)) // the dns exception. Should be triggered after Invalidate
-                    .Returns(async () =>
+                // async path is not used in serverMonitor
+                var faultyConnectionResponses = new Queue<Action>(new[]
+                {
+                    () => { /* no action needed*/ }, // the first hello or legacy hello configuration passes
+                    () => { /* no action needed*/ }, // RTT
+                    (Action)(() => throw CreateDnsException(mockConnection.Object.ConnectionId)), // the dns exception. Should be triggered after Invalidate
+                    () =>
                     {
-                        await WaitForTaskOrTimeout(hasClusterBeenDisposed.Task, TimeSpan.FromMinutes(1), "cluster dispose").ConfigureAwait(false);
-                    }); // ensure that there is no unrelated events
+                        WaitForTaskOrTimeout(hasClusterBeenDisposed.Task, TimeSpan.FromMinutes(1), "cluster dispose");
+                    }
+                });
+                mockFaultyConnection
+                    .Setup(c => c.Open(It.IsAny<CancellationToken>()))
+                    .Callback(() =>
+                    {
+                        var responseAction = faultyConnectionResponses.Dequeue();
+                        responseAction();
+                    });
 
                 mockFaultyConnection
-                    .Setup(c => c.ReceiveMessageAsync(It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), It.IsAny<MessageEncoderSettings>(), It.IsAny<CancellationToken>()))
-                    .Returns(async () =>
+                    .Setup(c => c.ReceiveMessage(It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), It.IsAny<MessageEncoderSettings>(), It.IsAny<CancellationToken>()))
+                    .Returns(() =>
                     {
                         // wait until the command network error has been triggered
-                        await WaitForTaskOrTimeout(hasNetworkErrorBeenTriggered.Task, TimeSpan.FromMinutes(1), "network error").ConfigureAwait(false);
+                        WaitForTaskOrTimeout(hasNetworkErrorBeenTriggered.Task, TimeSpan.FromMinutes(1), "network error");
                         return commandResponseAction();
                     });
             }
@@ -358,10 +367,10 @@ namespace MongoDB.Driver.Core.Tests.Jira
             }
         }
 
-        private async Task WaitForTaskOrTimeout(Task task, TimeSpan timeout, string testTarget)
+        private void WaitForTaskOrTimeout(Task task, TimeSpan timeout, string testTarget)
         {
-            var resultedTask = await Task.WhenAny(task, Task.Delay(timeout)).ConfigureAwait(false);
-            if (resultedTask != task)
+            var resultedTask = Task.WaitAny(task, Task.Delay(timeout));
+            if (resultedTask != 0)
             {
                 throw new Exception($"The waiting for {testTarget} is exceeded timeout {timeout}.");
             }
