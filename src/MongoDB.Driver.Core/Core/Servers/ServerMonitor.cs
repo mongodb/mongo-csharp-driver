@@ -147,9 +147,20 @@ namespace MongoDB.Driver.Core.Servers
             if (_state.TryChange(State.Initial, State.Open))
             {
                 _roundTripTimeMonitor.Start();
-
-                _serverMonitorThread = new Thread(() => MonitorServer()) { IsBackground = true };
+                _serverMonitorThread = new Thread(ThreadStart) { IsBackground = true };
                 _serverMonitorThread.Start();
+            }
+
+            void ThreadStart()
+            {
+                try
+                {
+                    MonitorServer();
+                }
+                catch (OperationCanceledException)
+                {
+                    // ignore OperationCanceledException
+                }
             }
         }
 
@@ -273,7 +284,7 @@ namespace MongoDB.Driver.Core.Servers
                         }
                         _heartbeatDelay = newHeartbeatDelay;
                     }
-                    newHeartbeatDelay.Wait(monitorCancellationToken);
+                    newHeartbeatDelay.Wait(monitorCancellationToken); // corresponds to wait method in spec
                 }
                 catch
                 {

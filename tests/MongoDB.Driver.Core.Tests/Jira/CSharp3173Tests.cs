@@ -326,15 +326,12 @@ namespace MongoDB.Driver.Core.Tests.Jira
             void SetupFailedConnection(Mock<IConnection> mockFaultyConnection)
             {
                 // async path is not used in serverMonitor
-                var faultyConnectionResponses = new Queue<Action>(new[]
+                var faultyConnectionResponses = new Queue<Action>(new Action[]
                 {
                     () => { /* no action needed*/ }, // the first hello or legacy hello configuration passes
                     () => { /* no action needed*/ }, // RTT
-                    (Action)(() => throw CreateDnsException(mockConnection.Object.ConnectionId)), // the dns exception. Should be triggered after Invalidate
-                    () =>
-                    {
-                        WaitForTaskOrTimeout(hasClusterBeenDisposed.Task, TimeSpan.FromMinutes(1), "cluster dispose");
-                    }
+                    () => throw CreateDnsException(mockConnection.Object.ConnectionId), // the dns exception. Should be triggered after Invalidate
+                    () => WaitForTaskOrTimeout(hasClusterBeenDisposed.Task, TimeSpan.FromMinutes(1), "cluster dispose")
                 });
                 mockFaultyConnection
                     .Setup(c => c.Open(It.IsAny<CancellationToken>()))
