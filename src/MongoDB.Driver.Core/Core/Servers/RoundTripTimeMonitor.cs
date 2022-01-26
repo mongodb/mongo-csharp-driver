@@ -94,7 +94,7 @@ namespace MongoDB.Driver.Core.Servers
             {
                 try
                 {
-                    Monitor();
+                    MonitorServer();
                 }
                 catch (OperationCanceledException)
                 {
@@ -103,7 +103,8 @@ namespace MongoDB.Driver.Core.Servers
             }
         }
 
-        public void Monitor()
+        // private methods
+        private void MonitorServer()
         {
             var helloOk = false;
             while (!_cancellationToken.IsCancellationRequested)
@@ -140,7 +141,6 @@ namespace MongoDB.Driver.Core.Servers
             }
         }
 
-        // private methods
         private void InitializeConnection()
         {
             _cancellationToken.ThrowIfCancellationRequested();
