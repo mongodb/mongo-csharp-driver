@@ -75,6 +75,21 @@ namespace MongoDB.Driver
             get { return __databaseNamespace.Value; }
         }
 
+        public static ICluster FullyConnectedCluster
+        {
+            get
+            {
+                var timeout = TimeSpan.FromSeconds(30);
+                var cluster = __cluster.Value;
+                if (!SpinWait.SpinUntil(() => cluster.Description.Servers.Any(s => s.Type == ServerType.ReplicaSetPrimary), timeout))
+                {
+                    throw new Exception($"The cluster didn't find a primary during {timeout}. The current cluster description: {cluster.Description}.");
+                }
+
+                return cluster;
+            }
+        }
+
         public static MessageEncoderSettings MessageEncoderSettings
         {
             get { return __messageEncoderSettings; }

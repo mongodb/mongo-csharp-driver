@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Tests.Jira
             // but then the sync call to RunCommand blocks waiting for a primary and the call to TrySetResult never returns
             // which in turn prevents SDAM from unwinding back to process the next queued heartbeat event so the primary is never found
 
-            var primary = CoreTestConfiguration.Cluster.Description.Servers.Where(s => s.Type == ServerType.ReplicaSetPrimary).Single();
+            var primary = CoreTestConfiguration.FullyConnectedCluster.Description.Servers.Where(s => s.Type == ServerType.ReplicaSetPrimary).Single();
             void clusterConfigurator(ClusterBuilder builder)
             {
                 builder.Subscribe((ServerHeartbeatSucceededEvent heartbeatEvent) =>

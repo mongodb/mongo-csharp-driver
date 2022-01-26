@@ -14,9 +14,7 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -457,11 +455,7 @@ namespace MongoDB.Driver.Core.Connections
 
         [Theory]
         [ParameterAttributeData]
-        public void ReceiveMessage_should_handle_out_of_order_replies(
-            [Values(false, true)]
-            bool async1,
-            [Values(false, true)]
-            bool async2)
+        public void ReceiveMessage_should_throw_when_responseTo_incorrect([Values(false, true)] bool async)
         {
             using (var stream = new BlockingMemoryStream())
             {
@@ -470,46 +464,19 @@ namespace MongoDB.Driver.Core.Connections
                 _subject.Open(CancellationToken.None);
                 _capturedEvents.Clear();
 
-                var encoderSelector = new ReplyMessageEncoderSelector<BsonDocument>(BsonDocumentSerializer.Instance);
-
-                Task<ResponseMessage> receivedTask10;
-                if (async1)
-                {
-                    receivedTask10 = _subject.ReceiveMessageAsync(10, encoderSelector, _messageEncoderSettings, CancellationToken.None);
-                }
-                else
-                {
-                    receivedTask10 = Task.Run(() => _subject.ReceiveMessage(10, encoderSelector, _messageEncoderSettings, CancellationToken.None));
-                }
-
-                Task<ResponseMessage> receivedTask11;
-                if (async2)
-                {
-                    receivedTask11 = _subject.ReceiveMessageAsync(11, encoderSelector, _messageEncoderSettings, CancellationToken.None);
-                }
-                else
-                {
-                    receivedTask11 = Task.Run(() => _subject.ReceiveMessage(11, encoderSelector, _messageEncoderSettings, CancellationToken.None));
-                }
-
-                SpinWait.SpinUntil(() => _capturedEvents.Count >= 2, TimeSpan.FromSeconds(5)).Should().BeTrue();
-
-                var messageToReceive10 = MessageHelper.BuildReply<BsonDocument>(new BsonDocument("_id", 10), BsonDocumentSerializer.Instance, responseTo: 10);
                 var messageToReceive11 = MessageHelper.BuildReply<BsonDocument>(new BsonDocument("_id", 11), BsonDocumentSerializer.Instance, responseTo: 11);
-                MessageHelper.WriteResponsesToStream(stream, new[] { messageToReceive11, messageToReceive10 }); // out of order
+                MessageHelper.WriteResponsesToStream(stream, new[] { messageToReceive11 });
 
-                var received10 = receivedTask10.GetAwaiter().GetResult();
-                var received11 = receivedTask11.GetAwaiter().GetResult();
+                var encoderSelector = new ReplyMessageEncoderSelector<BsonDocument>(BsonDocumentSerializer.Instance);
+                Exception exception = Record.Exception(
+                    () => async
+                        ? _subject.ReceiveMessageAsync(10, encoderSelector, _messageEncoderSettings, CancellationToken.None).GetAwaiter().GetResult()
+                        : _subject.ReceiveMessage(10, encoderSelector, _messageEncoderSettings, CancellationToken.None));
 
-                var expected = MessageHelper.TranslateMessagesToBsonDocuments(new[] { messageToReceive10, messageToReceive11 });
-                var actual = MessageHelper.TranslateMessagesToBsonDocuments(new[] { received10, received11 });
-
-                actual.Should().BeEquivalentTo(expected);
+                exception.Should().BeOfType<InvalidOperationException>().Subject.Message.Should().Be("Expected responseTo to be 10 but was 11.");
 
                 _capturedEvents.Next().Should().BeOfType<ConnectionReceivingMessageEvent>();
-                _capturedEvents.Next().Should().BeOfType<ConnectionReceivingMessageEvent>();
-                _capturedEvents.Next().Should().BeOfType<ConnectionReceivedMessageEvent>();
-                _capturedEvents.Next().Should().BeOfType<ConnectionReceivedMessageEvent>();
+                _capturedEvents.Next().Should().BeOfType<ConnectionReceivingMessageFailedEvent>();
                 _capturedEvents.Any().Should().BeFalse();
             }
         }
