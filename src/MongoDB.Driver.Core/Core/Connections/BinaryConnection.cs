@@ -649,7 +649,7 @@ namespace MongoDB.Driver.Core.Connections
             var receivedResponseTo = GetResponseTo(message);
             if (receivedResponseTo != responseTo)
             {
-                throw new InvalidOperationException($"The received responseTo {receivedResponseTo} doesn't match with expected {responseTo}."); // should not be reached
+                throw new InvalidOperationException($"Expected responseTo to be {responseTo} but was {receivedResponseTo}."); // should not be reached
             }
 
             return message;
