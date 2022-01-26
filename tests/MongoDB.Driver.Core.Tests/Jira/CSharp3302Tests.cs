@@ -302,17 +302,15 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 .Returns(GetConnectionDescription);
 
             mockConnection.Setup(c => c.Open(It.IsAny<CancellationToken>())); // no action is required
-            mockConnection.Setup(c => c.OpenAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult(true)); // no action is required
             mockConnection
-                .Setup(c => c.ReceiveMessageAsync(It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), It.IsAny<MessageEncoderSettings>(), It.IsAny<CancellationToken>()))
+                .Setup(c => c.ReceiveMessage(It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), It.IsAny<MessageEncoderSettings>(), It.IsAny<CancellationToken>()))
                 .Returns(GetHelloResponse);
 
-            Task<ResponseMessage> GetHelloResponse()
+            ResponseMessage GetHelloResponse()
             {
                 var helloDocument = primaries.Contains(serverId) ? primaryDocument : secondaryDocument;
 
-                ResponseMessage result = MessageHelper.BuildCommandResponse(new RawBsonDocument(helloDocument.ToBson()));
-                return Task.FromResult(result);
+                return MessageHelper.BuildCommandResponse(new RawBsonDocument(helloDocument.ToBson()));
             }
 
             ConnectionDescription GetConnectionDescription()

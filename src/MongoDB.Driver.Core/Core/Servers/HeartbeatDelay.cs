@@ -74,6 +74,11 @@ namespace MongoDB.Driver.Core.Servers
             }
         }
 
+        public void Wait(CancellationToken cancellationToken)
+        {
+            _taskCompletionSource.Task.Wait();
+        }
+
         private void TimerCallback(object state)
         {
             _taskCompletionSource.TrySetResult(true);

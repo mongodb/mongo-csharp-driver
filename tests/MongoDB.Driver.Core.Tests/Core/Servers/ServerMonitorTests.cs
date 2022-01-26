@@ -18,7 +18,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading;
-using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
@@ -297,7 +296,7 @@ namespace MongoDB.Driver.Core.Servers
             subject.Initialize();
             subject.Initialize();
 
-            mockRoundTripTimeMonitor.Verify(m => m.RunAsync(), Times.Once);
+            mockRoundTripTimeMonitor.Verify(m => m.Start(), Times.Once);
         }
 
         [Fact]
@@ -374,7 +373,7 @@ namespace MongoDB.Driver.Core.Servers
             ServerApi serverApi = null)
         {
             mockRoundTripTimeMonitor = new Mock<IRoundTripTimeMonitor>();
-            mockRoundTripTimeMonitor.Setup(m => m.RunAsync()).Returns(Task.FromResult(true));
+            mockRoundTripTimeMonitor.Setup(m => m.Start());
 
             if (captureConnectionEvents)
             {

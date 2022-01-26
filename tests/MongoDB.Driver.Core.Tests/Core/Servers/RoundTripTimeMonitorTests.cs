@@ -22,9 +22,9 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
-using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
@@ -71,13 +71,15 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
 
             var subject = CreateSubject(TimeSpan.FromMilliseconds(10), mockConnection);
 
-            subject.RunAsync().ConfigureAwait(false);
+            subject.Start();
             SpinWait.SpinUntil(() => subject._roundTripTimeConnection() != null, TimeSpan.FromSeconds(2)).Should().BeTrue();
 
             subject.Dispose();
 
             mockConnection.Verify(c => c.Dispose(), Times.Once);
             subject._disposed().Should().BeTrue();
+
+            SpinWait.SpinUntil(() => subject._roundTripTimeMonitorThread().ThreadState == ThreadState.Stopped, TimeSpan.FromMilliseconds(500)).Should().BeTrue();
         }
 
         [Fact]
@@ -104,12 +106,12 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
                     });
 
             mockConnection
-                .SetupSequence(c => c.ReceiveMessageAsync(It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), It.IsAny<MessageEncoderSettings>(), It.IsAny<CancellationToken>()))
+                .SetupSequence(c => c.ReceiveMessage(It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), It.IsAny<MessageEncoderSettings>(), It.IsAny<CancellationToken>()))
                 .Returns(
                     () =>
                     {
                         steps.Enqueue((subject.Average, subject._roundTripTimeConnection()));
-                        return Task.FromResult(CreateResponseMessage());
+                        return CreateResponseMessage();
                     })
                 .Throws(new Exception("TestMessage"))
                 .Returns(
@@ -117,11 +119,16 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
                     {
                         subject.Dispose();
                         steps.Enqueue((subject.Average, subject._roundTripTimeConnection()));
-                        return Task.FromResult(CreateResponseMessage());
+                        return CreateResponseMessage();
                     });
 
-            var exception = Record.Exception(() => subject.RunAsync().GetAwaiter().GetResult());
-            exception.Should().BeOfType<TaskCanceledException>(); // Task.Delay has been cancelled
+            subject.Start();
+
+            var thread = subject._roundTripTimeMonitorThread();
+            if (!thread.Join(TimeSpan.FromSeconds(5)))
+            {
+                throw new Exception("Rtt monitor has not been stopped.");
+            }
 
             // initialize connection
             steps.TryDequeue(out (TimeSpan Average, IConnection RttConnection) step).Should().BeTrue();
@@ -151,7 +158,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
         }
 
         [Fact]
-        public void RunAsync_should_use_serverApi()
+        public void Start_should_use_serverApi()
         {
             var serverApi = new ServerApi(ServerApiVersion.V1);
             var connection = new MockConnection(__serverId);
@@ -161,6 +168,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
                 .Setup(x => x.CreateConnection(__serverId, __endPoint))
                 .Returns(connection);
 
+            Thread thread;
             using (var subject = new RoundTripTimeMonitor(
                 mockConnectionFactory.Object,
                 __serverId,
@@ -168,16 +176,25 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
                 TimeSpan.FromMilliseconds(10),
                 serverApi))
             {
-                subject.RunAsync().ConfigureAwait(false);
+                subject.Start();
+
+                thread = subject._roundTripTimeMonitorThread();
 
                 SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(5)).Should().BeTrue();
             }
 
+            SpinWait.SpinUntil(() => thread.ThreadState == ThreadState.Stopped, TimeSpan.FromMilliseconds(500)).Should().BeTrue();
+
             var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
-            sentMessages.Count.Should().Be(1);
+            sentMessages.Count.Should().BeInRange(1, 2);
 
             var requestId = sentMessages[0]["requestId"].AsInt32;
             sentMessages[0].Should().Be($"{{ \"opcode\" : \"opmsg\", \"requestId\" : {requestId}, \"responseTo\" : 0, \"sections\" : [{{ \"payloadType\" : 0, \"document\" : {{ \"hello\" : 1, \"helloOk\" : true, \"$db\" : \"admin\", \"$readPreference\" : {{ \"mode\" : \"primaryPreferred\" }}, \"apiVersion\" : \"1\" }} }}] }}");
+            if (sentMessages.Count > 1)
+            {
+                requestId = sentMessages[1]["requestId"].AsInt32;
+                sentMessages[1].Should().Be($"{{ \"opcode\" : \"opmsg\", \"requestId\" : {requestId}, \"responseTo\" : 0, \"sections\" : [{{ \"payloadType\" : 0, \"document\" : {{ \"hello\" : 1, \"helloOk\" : true, \"$db\" : \"admin\", \"$readPreference\" : {{ \"mode\" : \"primaryPreferred\" }}, \"apiVersion\" : \"1\" }} }}] }}");
+            }
         }
 
         // private methods
@@ -218,8 +235,8 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
         private RoundTripTimeMonitor CreateSubject(TimeSpan frequency, Mock<IConnection> mockConnection)
         {
             mockConnection
-                .Setup(c => c.ReceiveMessageAsync(It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), It.IsAny<MessageEncoderSettings>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(() => CreateResponseMessage());
+                .Setup(c => c.ReceiveMessage(It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), It.IsAny<MessageEncoderSettings>(), It.IsAny<CancellationToken>()))
+                .Returns(() => CreateResponseMessage());
 
             var mockConnectionFactory = new Mock<IConnectionFactory>();
             mockConnectionFactory
@@ -249,6 +266,11 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
         public static IConnection _roundTripTimeConnection(this RoundTripTimeMonitor roundTripTimeMonitor)
         {
             return (IConnection)Reflector.GetFieldValue(roundTripTimeMonitor, nameof(_roundTripTimeConnection));
+        }
+
+        public static Thread _roundTripTimeMonitorThread(this RoundTripTimeMonitor roundTripTimeMonitor)
+        {
+            return (Thread)Reflector.GetFieldValue(roundTripTimeMonitor, nameof(_roundTripTimeMonitorThread));
         }
     }
 }
