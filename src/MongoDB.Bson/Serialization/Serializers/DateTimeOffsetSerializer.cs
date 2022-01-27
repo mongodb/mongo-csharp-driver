@@ -14,10 +14,7 @@
 */
 
 using System;
-using System.IO;
 using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
@@ -58,6 +55,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             switch (representation)
             {
                 case BsonType.Array:
+                case BsonType.DateTime:
                 case BsonType.Document:
                 case BsonType.String:
                     break;
@@ -112,6 +110,10 @@ namespace MongoDB.Bson.Serialization.Serializers
                     bsonReader.ReadEndArray();
                     return new DateTimeOffset(ticks, offset);
 
+                case BsonType.DateTime:
+                    var millisecondsSinceEpoch = bsonReader.ReadDateTime();
+                    return DateTimeOffset.FromUnixTimeMilliseconds(millisecondsSinceEpoch);
+
                 case BsonType.Document:
                     ticks = 0;
                     offset = TimeSpan.Zero;
@@ -144,8 +146,6 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             var bsonWriter = context.Writer;
 
-            // note: the DateTime portion cannot be serialized as a BsonType.DateTime because it is NOT in UTC
-
             switch (_representation)
             {
                 case BsonType.Array:
@@ -153,6 +153,11 @@ namespace MongoDB.Bson.Serialization.Serializers
                     bsonWriter.WriteInt64(value.Ticks);
                     bsonWriter.WriteInt32((int)value.Offset.TotalMinutes);
                     bsonWriter.WriteEndArray();
+                    break;
+
+                case BsonType.DateTime:
+                    var millisecondsSinceEpoch = value.ToUnixTimeMilliseconds();
+                    bsonWriter.WriteDateTime(millisecondsSinceEpoch);
                     break;
 
                 case BsonType.Document:
