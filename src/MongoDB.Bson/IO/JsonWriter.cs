@@ -935,7 +935,7 @@ namespace MongoDB.Bson.IO
             }
         }
 
-        private bool NeedsEscaping(char c)
+        private static bool NeedsEscaping(char c)
         {
             switch (c)
             {
