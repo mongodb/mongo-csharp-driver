@@ -230,8 +230,7 @@ namespace MongoDB.Driver.Core.Clusters
             ThrowIfDisposed();
 
             options = options ?? new CoreSessionOptions();
-            var serverSession = AcquireServerSession();
-            var session = new CoreSession(this, serverSession, options);
+            var session = new CoreSession(this, _serverSessionPool, options);
             return new CoreSessionHandle(session);
         }
 

@@ -14,8 +14,14 @@
 */
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using FluentAssertions;
-using MongoDB.Driver.Core.Misc;
+using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers;
+using MongoDB.Driver.Core;
+using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
 
@@ -39,6 +45,58 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
 
             var exception = Record.Exception(() => mongoClient.StartSession(sessionOptions));
             exception.Should().BeOfType<NotSupportedException>();
+        }
+
+        [SkippableFact]
+        public async Task Ensure_server_session_are_allocated_only_on_connection_checkout()
+        {
+            var eventCapturer = new EventCapturer()
+               .Capture<ConnectionPoolCheckedOutConnectionEvent>()
+               .Capture<CommandStartedEvent>();
+
+            using var client = DriverTestConfiguration.CreateDisposableClient(
+                (MongoClientSettings settings) =>
+                {
+                    settings.MaxConnectionPoolSize = 1;
+                    settings.ClusterConfigurator = c => c.Subscribe(eventCapturer);
+                },
+                logger: null);
+
+            var database = client.GetDatabase("test");
+
+            var collection = database.GetCollection<BsonDocument>("inventory");
+            database.DropCollection("inventory");
+
+            collection.InsertOne(new BsonDocument("x", 0));
+
+            var serverSessionPool = (CoreServerSessionPool)Reflector.GetFieldValue(client.Cluster, "_serverSessionPool");
+            var serverSessionsList = (List<ICoreServerSession>)Reflector.GetFieldValue(serverSessionPool, "_pool");
+
+            var serverSession = serverSessionsList.Single();
+            eventCapturer.Clear();
+
+            var eventsTask = eventCapturer.NotifyWhen(events =>
+            {
+                var connectionCheckedOutEvent = events.OfType<ConnectionPoolCheckedOutConnectionEvent>().FirstOrDefault();
+                var commandStartedEvent = events.OfType<CommandStartedEvent>().FirstOrDefault();
+
+                if (commandStartedEvent.ConnectionId != null)
+                {
+                    serverSessionsList.Count.Should().Be(0);
+                    commandStartedEvent.Command["lsid"].Should().Be(serverSession.Id);
+
+                    return true;
+                }
+                else if (connectionCheckedOutEvent.ConnectionId != null)
+                {
+                    serverSessionsList.Single().Should().Be(serverSession);
+                }
+
+                return false;
+            });
+
+            collection.InsertOne(new BsonDocument("x", 1));
+            await TasksUtils.WithTimeout(eventsTask, 1000);
         }
     }
 }

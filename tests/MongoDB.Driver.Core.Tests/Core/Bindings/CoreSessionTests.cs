@@ -40,7 +40,9 @@ namespace MongoDB.Driver.Core.Bindings
             var serverSession = Mock.Of<ICoreServerSession>();
             var options = new CoreSessionOptions();
 
+#pragma warning disable CS0618 // Type or member is obsolete
             var result = new CoreSession(cluster, serverSession, options);
+#pragma warning restore CS0618 // Type or member is obsolete
 
             result.Cluster.Should().BeSameAs(cluster);
             result.CurrentTransaction.Should().BeNull();
@@ -440,7 +442,9 @@ namespace MongoDB.Driver.Core.Bindings
             cluster = cluster ?? CreateMockReplicaSetCluster();
             serverSession = serverSession ?? Mock.Of<ICoreServerSession>();
             options = options ?? new CoreSessionOptions();
+#pragma warning disable CS0618 // Type or member is obsolete
             return new CoreSession(cluster, serverSession, options);
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         private CoreSession CreateSubject(ClusterDescription clusterDescription)

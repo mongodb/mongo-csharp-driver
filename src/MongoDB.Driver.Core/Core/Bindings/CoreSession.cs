@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Core.Bindings
         private bool _isCommitTransactionInProgress;
         private readonly IOperationClock _operationClock = new OperationClock();
         private readonly CoreSessionOptions _options;
-        private readonly ICoreServerSession _serverSession;
+        private readonly Lazy<ICoreServerSession> _serverSession;
         private BsonTimestamp _snapshotTime;
 
         // constructors
@@ -49,13 +49,32 @@ namespace MongoDB.Driver.Core.Bindings
         /// <param name="cluster">The cluster.</param>
         /// <param name="serverSession">The server session.</param>
         /// <param name="options">The options.</param>
+        [Obsolete("This constructor is deprecated. Avoid using CoreSession directly.")]
         public CoreSession(
             ICluster cluster,
             ICoreServerSession serverSession,
             CoreSessionOptions options)
+            : this(cluster, options: options)
+        {
+            Ensure.IsNotNull(serverSession, nameof(serverSession));
+            _serverSession = new Lazy<ICoreServerSession>(() => serverSession);
+        }
+
+        internal CoreSession(
+            ICluster cluster,
+            ICoreServerSessionPool serverSessionPool,
+            CoreSessionOptions options)
+             : this(cluster, options)
+        {
+            Ensure.IsNotNull(serverSessionPool, nameof(serverSessionPool));
+            _serverSession = new Lazy<ICoreServerSession>(() => serverSessionPool.AcquireSession());
+        }
+
+        private CoreSession(
+           ICluster cluster,
+           CoreSessionOptions options)
         {
             _cluster = Ensure.IsNotNull(cluster, nameof(cluster));
-            _serverSession = Ensure.IsNotNull(serverSession, nameof(serverSession));
             _options = Ensure.IsNotNull(options, nameof(options));
         }
 
@@ -75,13 +94,13 @@ namespace MongoDB.Driver.Core.Bindings
         public CoreTransaction CurrentTransaction => _currentTransaction;
 
         /// <inheritdoc />
-        public BsonDocument Id => _serverSession.Id;
+        public BsonDocument Id => _serverSession.Value.Id;
 
         /// <inheritdoc />
         public bool IsCausallyConsistent => _options.IsCausallyConsistent;
 
         /// <inheritdoc />
-        public bool IsDirty => _serverSession.IsDirty;
+        public bool IsDirty => _serverSession.Value.IsDirty;
 
         /// <inheritdoc />
         public bool IsImplicit => _options.IsImplicit;
@@ -120,7 +139,7 @@ namespace MongoDB.Driver.Core.Bindings
         public CoreSessionOptions Options => _options;
 
         /// <inheritdoc />
-        public ICoreServerSession ServerSession => _serverSession;
+        public ICoreServerSession ServerSession => _serverSession.Value;
 
         /// <inheritdoc />
         public BsonTimestamp SnapshotTime => _snapshotTime;
@@ -270,7 +289,7 @@ namespace MongoDB.Driver.Core.Bindings
         /// <inheritdoc />
         public long AdvanceTransactionNumber()
         {
-            return _serverSession.AdvanceTransactionNumber();
+            return _serverSession.Value.AdvanceTransactionNumber();
         }
 
         /// <inheritdoc />
@@ -367,7 +386,7 @@ namespace MongoDB.Driver.Core.Bindings
                 }
 
                 _currentTransaction?.UnpinAll();
-                _serverSession.Dispose();
+                _serverSession.Value.Dispose();
                 _disposed = true;
             }
         }
@@ -375,7 +394,7 @@ namespace MongoDB.Driver.Core.Bindings
         /// <inheritdoc />
         public void MarkDirty()
         {
-            _serverSession.MarkDirty();
+            _serverSession.Value.MarkDirty();
         }
 
         /// <inheritdoc />
@@ -406,7 +425,7 @@ namespace MongoDB.Driver.Core.Bindings
         /// <inheritdoc />
         public void WasUsed()
         {
-            _serverSession.WasUsed();
+            _serverSession.Value.WasUsed();
         }
 
         // private methods

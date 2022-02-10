@@ -425,7 +425,9 @@ namespace MongoDB.Driver.Tests
             var options = new ClientSessionOptions();
             var cluster = Mock.Of<ICluster>();
             var coreServerSession = new CoreServerSession();
+#pragma warning disable CS0618 // Type or member is obsolete
             var coreSession = new CoreSession(cluster, coreServerSession, options.ToCore());
+#pragma warning restore CS0618 // Type or member is obsolete
             var coreSessionHandle = new CoreSessionHandle(coreSession);
             return new ClientSessionHandle(client, options, coreSessionHandle);
         }

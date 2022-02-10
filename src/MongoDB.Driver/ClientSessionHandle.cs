@@ -19,7 +19,6 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Support;
 
 namespace MongoDB.Driver
 {
@@ -35,7 +34,7 @@ namespace MongoDB.Driver
         private readonly ICoreSessionHandle _coreSession;
         private bool _disposed;
         private readonly ClientSessionOptions _options;
-        private readonly IServerSession _serverSession;
+        private IServerSession _serverSession;
 
         // constructors
         /// <summary>
@@ -54,7 +53,6 @@ namespace MongoDB.Driver
             _client = client;
             _options = options;
             _coreSession = coreSession;
-            _serverSession = new ServerSession(coreSession.ServerSession);
             _clock = clock;
         }
 
@@ -78,7 +76,18 @@ namespace MongoDB.Driver
         public ClientSessionOptions Options => _options;
 
         /// <inheritdoc />
-        public IServerSession ServerSession => _serverSession;
+        public IServerSession ServerSession
+        {
+            get
+            {
+                if (_serverSession == null)
+                {
+                    _serverSession = new ServerSession(_coreSession.ServerSession);
+                }
+
+                return _serverSession;
+            }
+        }
 
         /// <inheritdoc />
         public ICoreSessionHandle WrappedCoreSession => _coreSession;
@@ -126,7 +135,7 @@ namespace MongoDB.Driver
             if (!_disposed)
             {
                 _coreSession.Dispose();
-                _serverSession.Dispose();
+                _serverSession?.Dispose();
                 _disposed = true;
             }
         }
