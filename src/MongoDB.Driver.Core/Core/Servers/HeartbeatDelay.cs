@@ -16,6 +16,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Servers
 {
@@ -76,7 +77,7 @@ namespace MongoDB.Driver.Core.Servers
 
         public void Wait(CancellationToken cancellationToken)
         {
-            _taskCompletionSource.Task.Wait();
+            ThreadHelper.WaitTask(_taskCompletionSource.Task, cancellationToken);
         }
 
         private void TimerCallback(object state)

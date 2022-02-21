@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Net;
 using System.Threading;
@@ -158,6 +157,10 @@ namespace MongoDB.Driver.Core.Servers
                     MonitorServer();
                 }
                 catch (OperationCanceledException)
+                {
+                    // ignore OperationCanceledException
+                }
+                catch (ObjectDisposedException)
                 {
                     // ignore OperationCanceledException
                 }

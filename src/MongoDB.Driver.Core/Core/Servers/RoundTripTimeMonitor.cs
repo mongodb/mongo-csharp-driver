@@ -100,6 +100,10 @@ namespace MongoDB.Driver.Core.Servers
                 {
                     // ignore OperationCanceledException
                 }
+                catch (ObjectDisposedException)
+                {
+                    // ignore OperationCanceledException
+                }
             }
         }
 
