@@ -163,7 +163,7 @@ The example should print the following document:
 
 ```json
 { 
-	"_id": ObjectId("551582c558c7b4fbacf16735") },
+	"_id": ObjectId("551582c558c7b4fbacf16735"),
   	"name": "MongoDB", 
   	"type": "database", 
   	"count": 1,
