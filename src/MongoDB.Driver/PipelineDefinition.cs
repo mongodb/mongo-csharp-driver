@@ -101,9 +101,21 @@ namespace MongoDB.Driver
         /// <inheritdoc/>
         public override string ToString()
         {
+            return ToString(LinqProvider.V2);
+        }
+
+        /// <summary>
+        /// Returns a <see cref="System.String" /> that represents this instance.
+        /// </summary>
+        /// <param name="linqProvider">The LINQ provider.</param>
+        /// <returns>
+        /// A <see cref="System.String" /> that represents this instance.
+        /// </returns>
+        public string ToString(LinqProvider linqProvider)
+        {
             var serializerRegistry = BsonSerializer.SerializerRegistry;
             var inputSerializer = serializerRegistry.GetSerializer<TInput>();
-            return ToString(inputSerializer, serializerRegistry);
+            return ToString(inputSerializer, serializerRegistry, linqProvider);
         }
 
         /// <summary>

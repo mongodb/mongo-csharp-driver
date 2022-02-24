@@ -270,7 +270,8 @@ namespace MongoDB.Driver
 
         public override string ToString()
         {
-            return $"aggregate({_pipeline})";
+            var linqProvider = Database.Client.Settings.LinqProvider;
+            return $"aggregate({_pipeline.ToString(linqProvider)})";
         }
 
         protected abstract IAggregateFluent<TNewResult> WithPipeline<TNewResult>(PipelineDefinition<TInput, TNewResult> pipeline);
