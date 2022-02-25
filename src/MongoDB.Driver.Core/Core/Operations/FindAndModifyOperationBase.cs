@@ -13,9 +13,6 @@
 * limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -38,6 +35,7 @@ namespace MongoDB.Driver.Core.Operations
     {
         // fields
         private Collation _collation;
+        private BsonValue _comment;
         private readonly CollectionNamespace _collectionNamespace;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly IBsonSerializer<TResult> _resultSerializer;
@@ -69,6 +67,18 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _collation; }
             set { _collation = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the comment.
+        /// </summary>
+        /// <value>
+        /// The comment.
+        /// </value>
+        public BsonValue Comment
+        {
+            get { return _comment; }
+            set { _comment = value; }
         }
 
         /// <summary>

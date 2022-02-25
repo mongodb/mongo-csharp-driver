@@ -106,6 +106,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 { "delete", _collectionNamespace.CollectionName },
                 { "ordered", IsOrdered },
+                { "comment", Comment, Comment != null },
                 { "writeConcern", writeConcern, writeConcern != null },
                 { "txnNumber", () => transactionNumber.Value, transactionNumber.HasValue },
                 { "let", _let, _let != null }

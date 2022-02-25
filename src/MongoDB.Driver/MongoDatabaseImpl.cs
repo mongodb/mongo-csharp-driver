@@ -694,6 +694,7 @@ namespace MongoDB.Driver
             return new ListCollectionsOperation(_databaseNamespace, messageEncoderSettings)
             {
                 AuthorizedCollections = options?.AuthorizedCollections,
+                Comment = options?.Comment,
                 Filter = options?.Filter?.Render(_settings.SerializerRegistry.GetSerializer<BsonDocument>(), _settings.SerializerRegistry, _linqProvider),
                 NameOnly = true,
                 RetryRequested = _client.Settings.RetryReads
@@ -706,6 +707,7 @@ namespace MongoDB.Driver
             return new ListCollectionsOperation(_databaseNamespace, messageEncoderSettings)
             {
                 BatchSize = options?.BatchSize,
+                Comment = options?.Comment,
                 Filter = options?.Filter?.Render(_settings.SerializerRegistry.GetSerializer<BsonDocument>(), _settings.SerializerRegistry, _linqProvider),
                 RetryRequested = _client.Settings.RetryReads
             };

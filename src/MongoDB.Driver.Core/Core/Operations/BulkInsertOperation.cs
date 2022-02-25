@@ -38,6 +38,7 @@ namespace MongoDB.Driver.Core.Operations
             return new RetryableInsertCommandOperation<InsertRequest>(CollectionNamespace, batch.Requests, InsertRequestSerializer.Instance, MessageEncoderSettings)
             {
                 BypassDocumentValidation = BypassDocumentValidation,
+                Comment = Comment,
                 IsOrdered = IsOrdered,
                 MaxBatchCount = MaxBatchCount,
                 RetryRequested = RetryRequested,

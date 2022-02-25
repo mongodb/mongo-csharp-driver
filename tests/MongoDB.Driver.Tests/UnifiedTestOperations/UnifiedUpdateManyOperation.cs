@@ -112,6 +112,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             {
                 switch (argument.Name)
                 {
+                    case "comment":
+                        options ??= new UpdateOptions();
+                        options.Comment = argument.Value;
+                        break;
                     case "filter":
                         filter = argument.Value.AsBsonDocument;
                         break;

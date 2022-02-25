@@ -506,6 +506,7 @@ namespace MongoDB.Driver
             return new ListDatabasesOperation(messageEncoderSettings)
             {
                 AuthorizedDatabases = options.AuthorizedDatabases,
+                Comment = options.Comment,
                 Filter = options.Filter?.Render(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry, _linqProvider),
                 NameOnly = options.NameOnly,
                 RetryRequested = _settings.RetryReads
@@ -519,6 +520,7 @@ namespace MongoDB.Driver
             {
                 listDatabasesOptions.AuthorizedDatabases = options.AuthorizedDatabases;
                 listDatabasesOptions.Filter = options.Filter;
+                listDatabasesOptions.Comment = options.Comment;
             }
 
             return listDatabasesOptions;

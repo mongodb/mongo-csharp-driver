@@ -13,9 +13,9 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
-using System;
 
 namespace MongoDB.Driver
 {
@@ -27,6 +27,7 @@ namespace MongoDB.Driver
         // private fields
         private int? _batchSize;
         private Collation _collation;
+        private BsonValue _comment;
         private ChangeStreamFullDocumentOption _fullDocument = ChangeStreamFullDocumentOption.Default;
         private TimeSpan? _maxAwaitTime;
         private BsonDocument _resumeAfter;
@@ -56,6 +57,18 @@ namespace MongoDB.Driver
         {
             get { return _collation; }
             set { _collation = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the comment.
+        /// </summary>
+        /// <value>
+        /// The comment.
+        /// </value>
+        public BsonValue Comment
+        {
+            get { return _comment; }
+            set { _comment = value; }
         }
 
         /// <summary>

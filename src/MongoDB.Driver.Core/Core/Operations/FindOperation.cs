@@ -48,7 +48,7 @@ namespace MongoDB.Driver.Core.Operations
         private int? _batchSize;
         private Collation _collation;
         private readonly CollectionNamespace _collectionNamespace;
-        private string _comment;
+        private BsonValue _comment;
         private CursorType _cursorType;
         private BsonDocument _filter;
         private int? _firstBatchSize;
@@ -159,7 +159,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <value>
         /// The comment.
         /// </value>
-        public string Comment
+        public BsonValue Comment
         {
             get { return _comment; }
             set { _comment = value; }

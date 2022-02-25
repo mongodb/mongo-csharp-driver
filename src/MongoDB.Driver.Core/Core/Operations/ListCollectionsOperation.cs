@@ -33,6 +33,7 @@ namespace MongoDB.Driver.Core.Operations
         // fields
         private bool? _authorizedCollections;
         private int? _batchSize;
+        private BsonValue _comment;
         private BsonDocument _filter;
         private readonly DatabaseNamespace _databaseNamespace;
         private readonly MessageEncoderSettings _messageEncoderSettings;
@@ -76,6 +77,15 @@ namespace MongoDB.Driver.Core.Operations
         {
             get => _batchSize;
             set => _batchSize = value;
+        }
+
+        /// <summary>
+        /// Gets or sets the comment.
+        /// </summary>
+        public BsonValue Comment
+        {
+            get { return _comment; }
+            set { _comment = value; }
         }
 
         /// <summary>
@@ -194,7 +204,8 @@ namespace MongoDB.Driver.Core.Operations
                 { "filter", _filter, _filter != null },
                 { "nameOnly", () => _nameOnly.Value, _nameOnly.HasValue },
                 { "cursor", () => new BsonDocument("batchSize", _batchSize.Value), _batchSize.HasValue },
-                { "authorizedCollections", () => _authorizedCollections.Value, _authorizedCollections.HasValue }
+                { "authorizedCollections", () => _authorizedCollections.Value, _authorizedCollections.HasValue },
+                { "comment", _comment, _comment != null }
             };
             return new ReadCommandOperation<BsonDocument>(_databaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {

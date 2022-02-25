@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -21,7 +20,6 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
-using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -36,6 +34,7 @@ namespace MongoDB.Driver.Core.Operations
         // fields
         private int? _batchSize;
         private readonly CollectionNamespace _collectionNamespace;
+        private BsonValue _comment;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private bool _retryRequested;
 
@@ -75,6 +74,18 @@ namespace MongoDB.Driver.Core.Operations
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
+        }
+
+        /// <summary>
+        /// Gets or sets the comment.
+        /// </summary>
+        /// <value>
+        /// The comment.
+        /// </value>
+        public BsonValue Comment
+        {
+            get { return _comment; }
+            set { _comment = value; }
         }
 
         /// <summary>
@@ -170,7 +181,8 @@ namespace MongoDB.Driver.Core.Operations
             var command = new BsonDocument
             {
                 { "listIndexes", _collectionNamespace.CollectionName },
-                { "cursor", () => new BsonDocument("batchSize", _batchSize.Value), _batchSize.HasValue }
+                { "cursor", () => new BsonDocument("batchSize", _batchSize.Value), _batchSize.HasValue },
+                { "comment", _comment, _comment != null },
             };
             return new ReadCommandOperation<BsonDocument>(databaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {

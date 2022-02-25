@@ -104,8 +104,12 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 switch (argument.Name)
                 {
                     case "bypassDocumentValidation":
-                        options = options ?? new InsertOneOptions();
+                        options ??= new InsertOneOptions();
                         options.BypassDocumentValidation = argument.Value.AsBoolean;
+                        break;
+                    case "comment":
+                        options ??= new InsertOneOptions();
+                        options.Comment = argument.Value;
                         break;
                     case "document":
                         document = argument.Value.AsBsonDocument;

@@ -44,6 +44,7 @@ namespace MongoDB.Driver.Core.Operations
             return new RetryableUpdateCommandOperation(CollectionNamespace, batch.Requests, MessageEncoderSettings)
             {
                 BypassDocumentValidation = BypassDocumentValidation,
+                Comment = Comment,
                 IsOrdered = IsOrdered,
                 Let = _let,
                 MaxBatchCount = MaxBatchCount,

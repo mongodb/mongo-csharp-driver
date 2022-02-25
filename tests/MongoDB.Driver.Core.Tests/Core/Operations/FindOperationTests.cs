@@ -111,11 +111,12 @@ namespace MongoDB.Driver.Core.Operations
             string value)
         {
             var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            var bsonValue = (BsonValue)value;
 
-            subject.Comment = value;
+            subject.Comment = bsonValue;
             var result = subject.Comment;
 
-            result.Should().BeSameAs(value);
+            result.Should().BeSameAs(bsonValue);
         }
 
         [Fact]

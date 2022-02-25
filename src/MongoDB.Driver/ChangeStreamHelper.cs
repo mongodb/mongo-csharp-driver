@@ -149,6 +149,7 @@ namespace MongoDB.Driver
 
             operation.BatchSize = options.BatchSize;
             operation.Collation = options.Collation;
+            operation.Comment = options.Comment;
             operation.FullDocument = options.FullDocument;
             operation.MaxAwaitTime = options.MaxAwaitTime;
             operation.ReadConcern = readConcern;

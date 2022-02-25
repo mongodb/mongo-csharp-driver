@@ -32,6 +32,7 @@ namespace MongoDB.Driver.Core.Operations
         // fields
         private bool? _bypassDocumentValidation;
         private CollectionNamespace _collectionNamespace;
+        private BsonValue _comment;
         private bool _isOrdered = true;
         private int? _maxBatchCount;
         private int? _maxBatchLength;
@@ -69,6 +70,12 @@ namespace MongoDB.Driver.Core.Operations
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
+        }
+
+        public BsonValue Comment
+        {
+            get { return _comment; }
+            set { _comment = value; }
         }
 
         public bool IsOrdered

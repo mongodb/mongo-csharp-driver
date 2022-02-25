@@ -190,7 +190,7 @@ namespace MongoDB.Driver.Core.Operations
         public void Comment_get_and_set_should_work()
         {
             var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings);
-            var value = "test";
+            var value = (BsonValue)"test";
 
             subject.Comment = value;
             var result = subject.Comment;
@@ -731,7 +731,7 @@ namespace MongoDB.Driver.Core.Operations
 
                 var profileEntries = profile.Find(new BsonDocument("command.aggregate", new BsonDocument("$exists", true)));
                 profileEntries.Should().HaveCount(1);
-                profileEntries[0]["command"]["comment"].AsString.Should().Be(subject.Comment);
+                profileEntries[0]["command"]["comment"].Should().Be(subject.Comment);
             }
         }
 

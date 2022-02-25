@@ -98,6 +98,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             {
                 switch (argument.Name)
                 {
+                    case "comment":
+                        options ??= new FindOneAndUpdateOptions<BsonDocument>();
+                        options.Comment = argument.Value;
+                        break;
                     case "filter":
                         filter = new BsonDocumentFilterDefinition<BsonDocument>(argument.Value.AsBsonDocument);
                         break;

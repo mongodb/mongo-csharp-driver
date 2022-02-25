@@ -894,6 +894,7 @@ namespace MongoDB.Driver
                 _messageEncoderSettings)
             {
                 BypassDocumentValidation = options.BypassDocumentValidation,
+                Comment = options.Comment,
                 IsOrdered = options.IsOrdered,
                 Let = options.Let,
                 RetryRequested = _database.Client.Settings.RetryWrites,
@@ -920,6 +921,7 @@ namespace MongoDB.Driver
             return new CountDocumentsOperation(_collectionNamespace, _messageEncoderSettings)
             {
                 Collation = options.Collation,
+                Comment = options.Comment,
                 Filter = filter.Render(_documentSerializer, _settings.SerializerRegistry, _linqProvider),
                 Hint = options.Hint,
                 Limit = options.Limit,
@@ -935,6 +937,7 @@ namespace MongoDB.Driver
             return new CountOperation(_collectionNamespace, _messageEncoderSettings)
             {
                 Collation = options.Collation,
+                Comment = options.Comment,
                 Filter = filter.Render(_documentSerializer, _settings.SerializerRegistry, _linqProvider),
                 Hint = options.Hint,
                 Limit = options.Limit,
@@ -957,6 +960,7 @@ namespace MongoDB.Driver
                 _messageEncoderSettings)
             {
                 Collation = options.Collation,
+                Comment = options.Comment,
                 Filter = filter.Render(_documentSerializer, _settings.SerializerRegistry, _linqProvider),
                 MaxTime = options.MaxTime,
                 ReadConcern = _settings.ReadConcern,
@@ -985,6 +989,7 @@ namespace MongoDB.Driver
                 _messageEncoderSettings)
             {
                 Collation = options.Collation,
+                Comment = options.Comment,
                 Hint = options.Hint,
                 Let = options.Let,
                 MaxTime = options.MaxTime,
@@ -1009,6 +1014,7 @@ namespace MongoDB.Driver
             {
                 BypassDocumentValidation = options.BypassDocumentValidation,
                 Collation = options.Collation,
+                Comment = options.Comment,
                 Hint = options.Hint,
                 IsUpsert = options.IsUpsert,
                 Let = options.Let,
@@ -1036,6 +1042,7 @@ namespace MongoDB.Driver
                 ArrayFilters = RenderArrayFilters(options.ArrayFilters),
                 BypassDocumentValidation = options.BypassDocumentValidation,
                 Collation = options.Collation,
+                Comment = options.Comment,
                 Hint = options.Hint,
                 IsUpsert = options.IsUpsert,
                 Let = options.Let,
@@ -1596,6 +1603,7 @@ namespace MongoDB.Driver
             {
                 return new CreateIndexesOperation(_collection._collectionNamespace, requests, _collection._messageEncoderSettings)
                 {
+                    Comment = options?.Comment,
                     CommitQuorum = options?.CommitQuorum,
                     MaxTime = options?.MaxTime,
                     WriteConcern = _collection.Settings.WriteConcern
@@ -1643,6 +1651,7 @@ namespace MongoDB.Driver
             {
                 return new DropIndexOperation(_collection._collectionNamespace, "*", _collection._messageEncoderSettings)
                 {
+                    Comment = options?.Comment,
                     MaxTime = options?.MaxTime,
                     WriteConcern = _collection.Settings.WriteConcern
                 };
@@ -1652,6 +1661,7 @@ namespace MongoDB.Driver
             {
                 return new DropIndexOperation(_collection._collectionNamespace, name, _collection._messageEncoderSettings)
                 {
+                    Comment = options?.Comment,
                     MaxTime = options?.MaxTime,
                     WriteConcern = _collection.Settings.WriteConcern
                 };
@@ -1662,6 +1672,7 @@ namespace MongoDB.Driver
                 return new ListIndexesOperation(_collection._collectionNamespace, _collection._messageEncoderSettings)
                 {
                     BatchSize = options?.BatchSize,
+                    Comment = options?.Comment,
                     RetryRequested = _collection.Database.Client.Settings.RetryReads
                 };
             }

@@ -13,10 +13,7 @@
 * limitations under the License.
  * 
 */
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using MongoDB.Bson;
 
 namespace MongoDB.Driver
 {
@@ -25,6 +22,8 @@ namespace MongoDB.Driver
     /// </summary>
     public sealed class InsertOneOptions
     {
+        private BsonValue _comment;
+
         // private fields
         private bool? _bypassDocumentValidation;
 
@@ -36,6 +35,15 @@ namespace MongoDB.Driver
         {
             get { return _bypassDocumentValidation; }
             set { _bypassDocumentValidation = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the comment.
+        /// </summary>
+        public BsonValue Comment
+        {
+            get { return _comment; }
+            set { _comment = value; }
         }
     }
 }

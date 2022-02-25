@@ -34,6 +34,7 @@ namespace MongoDB.Driver.Core.Operations
         // fields
         private readonly CollectionNamespace _collectionNamespace;
         private CreateIndexCommitQuorum _commitQuorum;
+        private BsonValue _comment;
         private TimeSpan? _maxTime;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly IEnumerable<CreateIndexRequest> _requests;
@@ -66,6 +67,15 @@ namespace MongoDB.Driver.Core.Operations
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
+        }
+
+        /// <summary>
+        /// Gets or sets the comment.
+        /// </summary>
+        public BsonValue Comment
+        {
+            get { return _comment; }
+            set { _comment = value; }
         }
 
         /// <summary>
@@ -155,6 +165,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             return new CreateIndexesUsingCommandOperation(_collectionNamespace, _requests, _messageEncoderSettings)
             {
+                Comment = _comment,
                 CommitQuorum = _commitQuorum,
                 MaxTime = _maxTime,
                 WriteConcern = _writeConcern

@@ -20,7 +20,6 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
-using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -115,6 +114,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "insert", _collectionNamespace.CollectionName },
                 { "ordered", IsOrdered },
                 { "bypassDocumentValidation", () => _bypassDocumentValidation, _bypassDocumentValidation.HasValue },
+                { "comment", Comment, Comment != null },
                 { "writeConcern", writeConcern, writeConcern != null },
                 { "txnNumber", () => transactionNumber.Value, transactionNumber.HasValue }
             };

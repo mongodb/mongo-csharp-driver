@@ -27,6 +27,7 @@ namespace MongoDB.Driver
         private IEnumerable<ArrayFilterDefinition> _arrayFilters;
         private bool? _bypassDocumentValidation;
         private Collation _collation;
+        private BsonValue _comment;
         private BsonValue _hint;
         private bool _isUpsert;
         private BsonDocument _let;
@@ -60,6 +61,15 @@ namespace MongoDB.Driver
         {
             get { return _collation; }
             set { _collation = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the comment.
+        /// </summary>
+        public BsonValue Comment
+        {
+            get { return _comment; }
+            set { _comment = value; }
         }
 
         /// <summary>

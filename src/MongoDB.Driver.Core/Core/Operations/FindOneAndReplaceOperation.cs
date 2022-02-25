@@ -204,7 +204,8 @@ namespace MongoDB.Driver.Core.Operations
                 { "writeConcern", writeConcern, writeConcern != null },
                 { "bypassDocumentValidation", () => _bypassDocumentValidation.Value, _bypassDocumentValidation.HasValue },
                 { "collation", () => Collation.ToBsonDocument(), Collation != null },
-                { "hint", () => _hint, _hint != null },
+                { "comment", Comment, Comment != null },
+                { "hint", _hint, _hint != null },
                 { "txnNumber", () => transactionNumber, transactionNumber.HasValue },
                 { "let", _let, _let != null }
             };

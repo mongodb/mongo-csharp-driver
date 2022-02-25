@@ -188,6 +188,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         options ??= new AggregateOptions();
                         options.BatchSize = argument.Value.ToInt32();
                         break;
+                    case "comment":
+                        options ??= new AggregateOptions();
+                        options.Comment = argument.Value;
+                        break;
                     case "let":
                         options ??= new AggregateOptions();
                         options.Let = argument.Value.AsBsonDocument;

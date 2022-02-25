@@ -29,7 +29,7 @@ namespace MongoDB.Driver
         private bool? _allowPartialResults;
         private int? _batchSize;
         private Collation _collation;
-        private string _comment;
+        private BsonValue _comment;
         private CursorType _cursorType;
         private BsonValue _hint;
         private BsonDocument _let;
@@ -92,7 +92,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the comment.
         /// </summary>
-        public string Comment
+        public BsonValue Comment
         {
             get { return _comment; }
             set { _comment = value; }

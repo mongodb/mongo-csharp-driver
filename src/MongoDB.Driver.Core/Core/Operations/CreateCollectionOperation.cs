@@ -35,6 +35,7 @@ namespace MongoDB.Driver.Core.Operations
         private bool? _capped;
         private Collation _collation;
         private readonly CollectionNamespace _collectionNamespace;
+        private BsonValue _comment;
         private TimeSpan? _expireAfter;
         private BsonDocument _indexOptionDefaults;
         private long? _maxDocuments;
@@ -99,6 +100,18 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _collation; }
             set { _collation = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the comment.
+        /// </summary>
+        /// <value>
+        /// The comment.
+        /// </value>
+        public BsonValue Comment
+        {
+            get { return _comment; }
+            set { _comment = value; }
         }
 
         /// <summary>
@@ -281,12 +294,13 @@ namespace MongoDB.Driver.Core.Operations
                 { "size", () => _maxSize.Value, _maxSize.HasValue },
                 { "max", () => _maxDocuments.Value, _maxDocuments.HasValue },
                 { "flags", () => (int)flags.Value, flags.HasValue },
-                { "storageEngine", () => _storageEngine, _storageEngine != null },
+                { "storageEngine", _storageEngine, _storageEngine != null },
                 { "indexOptionDefaults", _indexOptionDefaults, _indexOptionDefaults != null },
                 { "validator", _validator, _validator != null },
                 { "validationAction", () => _validationAction.Value.ToString().ToLowerInvariant(), _validationAction.HasValue },
                 { "validationLevel", () => _validationLevel.Value.ToString().ToLowerInvariant(), _validationLevel.HasValue },
                 { "collation", () => _collation.ToBsonDocument(), _collation != null },
+                { "comment",  _comment, _comment != null },
                 { "writeConcern", writeConcern, writeConcern != null },
                 { "expireAfterSeconds", () => _expireAfter.Value.TotalSeconds, _expireAfter.HasValue },
                 { "timeseries", () => _timeSeriesOptions.ToBsonDocument(), _timeSeriesOptions != null }

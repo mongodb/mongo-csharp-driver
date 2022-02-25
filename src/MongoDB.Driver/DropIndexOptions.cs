@@ -14,6 +14,7 @@
 */
 
 using System;
+using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
@@ -23,7 +24,20 @@ namespace MongoDB.Driver
     /// </summary>
     public class DropIndexOptions
     {
+        private BsonValue _comment;
         private TimeSpan? _maxTime;
+
+        /// <summary>
+        /// Gets or sets the comment.
+        /// </summary>
+        /// <value>
+        /// The comment.
+        /// </value>
+        public BsonValue Comment
+        {
+            get { return _comment; }
+            set { _comment = value; }
+        }
 
         /// <summary>
         /// Gets or sets the maximum time.

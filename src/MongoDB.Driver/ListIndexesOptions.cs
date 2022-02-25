@@ -13,6 +13,8 @@
 * limitations under the License.
 */
 
+using MongoDB.Bson;
+
 namespace MongoDB.Driver
 {
     /// <summary>
@@ -21,6 +23,7 @@ namespace MongoDB.Driver
     public sealed class ListIndexesOptions
     {
         private int? _batchSize;
+        private BsonValue _comment;
 
         /// <summary>
         /// Gets or sets the batch size.
@@ -29,6 +32,15 @@ namespace MongoDB.Driver
         {
             get => _batchSize;
             set => _batchSize = value;
+        }
+
+        /// <summary>
+        /// Gets or sets the comment.
+        /// </summary>
+        public BsonValue Comment
+        {
+            get { return _comment; }
+            set { _comment = value; }
         }
     }
 }

@@ -44,6 +44,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             return new RetryableDeleteCommandOperation(CollectionNamespace, batch.Requests, MessageEncoderSettings)
             {
+                Comment = Comment,
                 IsOrdered = IsOrdered,
                 Let = _let,
                 MaxBatchCount = MaxBatchCount,

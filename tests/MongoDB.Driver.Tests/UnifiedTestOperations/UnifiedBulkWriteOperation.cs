@@ -107,6 +107,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             {
                 switch (argument.Name)
                 {
+                    case "comment":
+                        options ??= new BulkWriteOptions();
+                        options.Comment = argument.Value;
+                        break;
                     case "ordered":
                         options ??= new BulkWriteOptions();
                         options.IsOrdered = argument.Value.AsBoolean;

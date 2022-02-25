@@ -22,7 +22,6 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
-using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol;
 using MongoDB.Driver.Core.WireProtocol.Messages;
@@ -36,6 +35,7 @@ namespace MongoDB.Driver.Core.Operations
     public abstract class RetryableWriteCommandOperationBase : IWriteOperation<BsonDocument>, IRetryableWriteOperation<BsonDocument>
     {
         // private fields
+        private BsonValue _comment;
         private readonly DatabaseNamespace _databaseNamespace;
         private bool _isOrdered = true;
         private int? _maxBatchCount;
@@ -58,6 +58,18 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // public properties
+        /// <summary>
+        /// Gets or sets the comment.
+        /// </summary>
+        /// <value>
+        /// The comment.
+        /// </value>
+        public BsonValue Comment
+        {
+            get { return _comment; }
+            set { _comment = value; }
+        }
+
         /// <summary>
         /// Gets the database namespace.
         /// </summary>

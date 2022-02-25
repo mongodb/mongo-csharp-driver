@@ -25,7 +25,6 @@ using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
-using MongoDB.Shared;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -39,7 +38,7 @@ namespace MongoDB.Driver.Core.Operations
         private bool? _bypassDocumentValidation;
         private Collation _collation;
         private readonly CollectionNamespace _collectionNamespace;
-        private string _comment;
+        private BsonValue _comment;
         private readonly DatabaseNamespace _databaseNamespace;
         private BsonValue _hint;
         private BsonDocument _let;
@@ -133,7 +132,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <value>
         /// The comment.
         /// </value>
-        public string Comment
+        public BsonValue Comment
         {
             get { return _comment; }
             set { _comment = value; }
@@ -295,9 +294,9 @@ namespace MongoDB.Driver.Core.Operations
                 { "readConcern", readConcern, readConcern != null },
                 { "writeConcern", writeConcern, writeConcern != null },
                 { "cursor", new BsonDocument() },
-                { "hint", () => _hint, _hint != null },
-                { "let", () => _let, _let != null },
-                { "comment", () => _comment, _comment != null }
+                { "hint", _hint, _hint != null },
+                { "let", _let, _let != null },
+                { "comment", _comment, _comment != null }
             };
         }
 

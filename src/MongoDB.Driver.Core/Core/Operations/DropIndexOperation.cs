@@ -19,10 +19,8 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
-using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
-using MongoDB.Shared;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -33,6 +31,7 @@ namespace MongoDB.Driver.Core.Operations
     {
         // fields
         private readonly CollectionNamespace _collectionNamespace;
+        private BsonValue _comment;
         private readonly string _indexName;
         private TimeSpan? _maxTime;
         private readonly MessageEncoderSettings _messageEncoderSettings;
@@ -79,6 +78,18 @@ namespace MongoDB.Driver.Core.Operations
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
+        }
+
+        /// <summary>
+        /// Gets or sets the comment.
+        /// </summary>
+        /// <value>
+        /// The comment.
+        /// </value>
+        public BsonValue Comment
+        {
+            get { return _comment; }
+            set { _comment = value; }
         }
 
         /// <summary>
@@ -134,7 +145,8 @@ namespace MongoDB.Driver.Core.Operations
                 { "dropIndexes", _collectionNamespace.CollectionName },
                 { "index", _indexName },
                 { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(_maxTime.Value), _maxTime.HasValue },
-                { "writeConcern", writeConcern, writeConcern != null }
+                { "writeConcern", writeConcern, writeConcern != null },
+                { "comment", _comment, _comment != null }
             };
         }
 

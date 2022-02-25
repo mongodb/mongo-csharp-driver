@@ -31,6 +31,7 @@ namespace MongoDB.Driver.Core.Operations
         // fields
         private int? _batchSize;
         private readonly CollectionNamespace _collectionNamespace;
+        private BsonValue _comment;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private bool _retryRequested;
 
@@ -70,6 +71,18 @@ namespace MongoDB.Driver.Core.Operations
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
+        }
+
+        /// <summary>
+        /// Gets or sets the comment.
+        /// </summary>
+        /// <value>
+        /// The comment.
+        /// </value>
+        public BsonValue Comment
+        {
+            get { return _comment; }
+            set { _comment = value; }
         }
 
         /// <summary>
@@ -128,6 +141,7 @@ namespace MongoDB.Driver.Core.Operations
             return new ListIndexesUsingCommandOperation(_collectionNamespace, _messageEncoderSettings)
             {
                 BatchSize = _batchSize,
+                Comment = _comment,
                 RetryRequested = _retryRequested // might be overridden by retryable read context
             };
         }

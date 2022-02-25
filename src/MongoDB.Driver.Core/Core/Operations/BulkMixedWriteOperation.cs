@@ -35,6 +35,7 @@ namespace MongoDB.Driver.Core.Operations
         // fields
         private bool? _bypassDocumentValidation;
         private readonly CollectionNamespace _collectionNamespace;
+        private BsonValue _comment;
         private bool _isOrdered = true;
         private BsonDocument _let;
         private int? _maxBatchCount;
@@ -100,6 +101,18 @@ namespace MongoDB.Driver.Core.Operations
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
+        }
+
+        /// <summary>
+        /// Gets or sets the comment.
+        /// </summary>
+        /// <value>
+        /// The comment.
+        /// </value>
+        public BsonValue Comment
+        {
+            get { return _comment; }
+            set { _comment = value; }
         }
 
         /// <summary>
@@ -261,6 +274,7 @@ namespace MongoDB.Driver.Core.Operations
             var requests = batch.Requests.Cast<DeleteRequest>();
             return new BulkDeleteOperation(_collectionNamespace, requests, _messageEncoderSettings)
             {
+                Comment = _comment,
                 IsOrdered = _isOrdered,
                 Let = _let,
                 MaxBatchCount = _maxBatchCount,
@@ -276,6 +290,7 @@ namespace MongoDB.Driver.Core.Operations
             return new BulkInsertOperation(_collectionNamespace, requests, _messageEncoderSettings)
             {
                 BypassDocumentValidation = _bypassDocumentValidation,
+                Comment = _comment,
                 IsOrdered = _isOrdered,
                 MaxBatchCount = _maxBatchCount,
                 MaxBatchLength = _maxBatchLength,
@@ -291,6 +306,7 @@ namespace MongoDB.Driver.Core.Operations
             return new BulkUpdateOperation(_collectionNamespace, requests, _messageEncoderSettings)
             {
                 BypassDocumentValidation = _bypassDocumentValidation,
+                Comment = _comment,
                 IsOrdered = _isOrdered,
                 Let = _let,
                 MaxBatchCount = _maxBatchCount,

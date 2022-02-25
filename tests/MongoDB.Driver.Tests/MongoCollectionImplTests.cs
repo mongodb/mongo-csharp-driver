@@ -28,7 +28,6 @@ using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
@@ -1350,7 +1349,7 @@ namespace MongoDB.Driver
             operation.BatchSize.Should().Be(options.BatchSize);
             operation.Collation.Should().BeSameAs(options.Collation);
             operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
-            operation.Comment.Should().Be("funny");
+            operation.Comment.Should().Be((BsonValue)"funny");
             operation.CursorType.Should().Be(MongoDB.Driver.Core.Operations.CursorType.TailableAwait);
             operation.Filter.Should().Be(filterDocument);
             operation.Let.Should().Be(options.Let);
@@ -1443,7 +1442,7 @@ namespace MongoDB.Driver
             operation.BatchSize.Should().Be(options.BatchSize);
             operation.Collation.Should().BeSameAs(options.Collation);
             operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
-            operation.Comment.Should().Be("funny");
+            operation.Comment.Should().Be((BsonValue)"funny");
             operation.CursorType.Should().Be(MongoDB.Driver.Core.Operations.CursorType.TailableAwait);
             operation.Filter.Should().Be(new BsonDocument("x", 1));
             operation.Let.Should().Be(options.Let);

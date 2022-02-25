@@ -34,6 +34,7 @@ namespace MongoDB.Driver.Core.Operations
         // private fields
         private Collation _collation;
         private readonly CollectionNamespace _collectionNamespace;
+        private BsonValue _comment;
         private BsonDocument _filter;
         private BsonValue _hint;
         private long? _limit;
@@ -67,6 +68,19 @@ namespace MongoDB.Driver.Core.Operations
             get { return _collation; }
             set { _collation = value; }
         }
+
+        /// <summary>
+        /// Gets or sets the comment.
+        /// </summary>
+        /// <value>
+        /// The comment.
+        /// </value>
+        public BsonValue Comment
+        {
+            get { return _comment; }
+            set { _comment = value; }
+        }
+
         /// <summary>
         /// Gets the collection namespace.
         /// </summary>
@@ -201,6 +215,7 @@ namespace MongoDB.Driver.Core.Operations
             var operation = new AggregateOperation<BsonDocument>(_collectionNamespace, pipeline, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {
                 Collation = _collation,
+                Comment = _comment,
                 Hint = _hint,
                 MaxTime = _maxTime,
                 ReadConcern = _readConcern,

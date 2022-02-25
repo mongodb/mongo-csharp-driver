@@ -105,6 +105,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             {
                 switch (argument.Name)
                 {
+                    case "comment":
+                        options ??= new InsertManyOptions();
+                        options.Comment = argument.Value;
+                        break;
                     case "documents":
                         documents = argument.Value.AsBsonArray.Cast<BsonDocument>().ToList();
                         break;

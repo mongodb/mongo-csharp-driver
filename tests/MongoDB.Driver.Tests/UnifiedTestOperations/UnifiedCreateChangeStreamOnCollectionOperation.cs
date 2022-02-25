@@ -89,8 +89,12 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 switch (argument.Name)
                 {
                     case "batchSize":
-                        options = options ?? new ChangeStreamOptions();
+                        options ??= new ChangeStreamOptions();
                         options.BatchSize = argument.Value.AsInt32;
+                        break;
+                    case "comment":
+                        options ??= new ChangeStreamOptions();
+                        options.Comment = argument.Value;
                         break;
                     case "pipeline":
                         var stages = argument.Value.AsBsonArray.Cast<BsonDocument>();

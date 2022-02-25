@@ -162,7 +162,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(_maxTime.Value), _maxTime.HasValue },
                 { "collation", () => _collation.ToBsonDocument(), _collation != null },
                 { "hint", () => _hint, _hint != null },
-                { "comment", () => _comment, _comment != null }
+                { "comment", _comment, _comment != null }
             };
         }
 

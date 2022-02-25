@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
         {
             try
             {
-                AssertValuesMatch(actual, expected, isRoot: true);
+                AssertValuesMatch(actual, expected, isRoot: true, isRecursiveCall: false);
             }
             catch (XunitException exception)
             {
@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
             }
         }
 
-        private void AssertValuesMatch(BsonValue actual, BsonValue expected, bool isRoot)
+        private void AssertValuesMatch(BsonValue actual, BsonValue expected, bool isRoot, bool isRecursiveCall = true)
         {
             if (expected.IsBsonDocument &&
                 expected.AsBsonDocument.ElementCount == 1 &&
@@ -158,7 +158,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
 
                 for (int i = 0; i < expectedArray.Count; i++)
                 {
-                    AssertValuesMatch(actualArray[i], expectedArray[i], isRoot: false);
+                    AssertValuesMatch(actualArray[i], expectedArray[i], isRoot: isRoot && !isRecursiveCall);
                 }
             }
             else if (expected.IsNumeric)

@@ -24,6 +24,7 @@ namespace MongoDB.Driver
     {
         // fields
         private bool? authorizedCollections;
+        private BsonValue _comment;
         private FilterDefinition<BsonDocument> _filter;
 
         // properties
@@ -34,6 +35,15 @@ namespace MongoDB.Driver
         {
             get { return authorizedCollections; }
             set { authorizedCollections = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the comment.
+        /// </summary>
+        public BsonValue Comment
+        {
+            get { return _comment; }
+            set { _comment = value; }
         }
 
         /// <summary>

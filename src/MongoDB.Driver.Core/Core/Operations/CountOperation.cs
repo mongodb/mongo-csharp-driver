@@ -22,7 +22,6 @@ using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
-using MongoDB.Shared;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -34,6 +33,7 @@ namespace MongoDB.Driver.Core.Operations
         // fields
         private Collation _collation;
         private readonly CollectionNamespace _collectionNamespace;
+        private BsonValue _comment;
         private BsonDocument _filter;
         private BsonValue _hint;
         private long? _limit;
@@ -76,6 +76,18 @@ namespace MongoDB.Driver.Core.Operations
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
+        }
+
+        /// <summary>
+        /// Gets or sets the comment.
+        /// </summary>
+        /// <value>
+        /// The comment.
+        /// </value>
+        public BsonValue Comment
+        {
+            get { return _comment; }
+            set { _comment = value; }
         }
 
         /// <summary>
@@ -184,6 +196,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "hint", _hint, _hint != null },
                 { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(_maxTime.Value), _maxTime.HasValue },
                 { "collation", () => _collation.ToBsonDocument(), _collation != null },
+                { "comment", _comment, _comment != null },
                 { "readConcern", readConcern, readConcern != null }
             };
         }

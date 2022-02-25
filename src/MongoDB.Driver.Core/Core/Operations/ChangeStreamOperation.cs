@@ -85,6 +85,7 @@ namespace MongoDB.Driver.Core.Operations
         // private fields
         private int? _batchSize;
         private Collation _collation;
+        private BsonValue _comment;
         private readonly CollectionNamespace _collectionNamespace;
         private readonly DatabaseNamespace _databaseNamespace;
         private ChangeStreamFullDocumentOption _fullDocument = ChangeStreamFullDocumentOption.Default;
@@ -172,6 +173,15 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _collation; }
             set { _collation = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the comment.
+        /// </summary>
+        public BsonValue Comment
+        {
+            get { return _comment; }
+            set { _comment = value; }
         }
 
         /// <summary>
@@ -395,6 +405,7 @@ namespace MongoDB.Driver.Core.Operations
 
             operation.BatchSize = _batchSize;
             operation.Collation = _collation;
+            operation.Comment = _comment;
             operation.MaxAwaitTime = _maxAwaitTime;
             operation.ReadConcern = _readConcern;
 
