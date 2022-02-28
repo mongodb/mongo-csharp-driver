@@ -200,7 +200,7 @@ namespace MongoDB.Driver.Tests
         public void Authentication_succeeds_when_user_has_multiple_credentials_and_mechanism_is_not_specified(
             [Values(false, true)] bool async)
         {
-            RequireServer.Check().Supports(Feature.ScramSha256Authentication).Authentication(true);
+            RequireServer.Check().Supports(Feature.ScramSha256Authentication).Authentication(true).VersionLessThan("6.0.0-");
             var client = DriverTestConfiguration.Client;
             var source1 = "nyc-matrix";
             var userName1 = $"ThomasAnderson{Guid.NewGuid()}";
