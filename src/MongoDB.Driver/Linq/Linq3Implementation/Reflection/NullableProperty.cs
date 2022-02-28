@@ -21,14 +21,17 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
     {
         // private static fields
         private static readonly PropertyInfo __hasValue;
+        private static readonly PropertyInfo __value;
 
         // static constructor
         static NullableProperty()
         {
             __hasValue = ReflectionInfo.Property((int? n) => n.HasValue);
+            __value = ReflectionInfo.Property((int? n) => n.Value);
         }
 
         // public properties
         public static PropertyInfo HasValue => __hasValue;
+        public static PropertyInfo Value => __value;
     }
 }

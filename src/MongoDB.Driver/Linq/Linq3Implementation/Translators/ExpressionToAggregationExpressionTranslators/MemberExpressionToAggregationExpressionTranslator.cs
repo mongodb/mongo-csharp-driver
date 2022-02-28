@@ -36,6 +36,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var containerExpression = expression.Expression;
             var member = expression.Member;
 
+            if (member is PropertyInfo property)
+            {
+                switch (property.Name)
+                {
+                    case "HasValue": return HasValuePropertyToAggregationExpressionTranslator.Translate(context, expression);
+                    case "Value": return ValuePropertyToAggregationExpressionTranslator.Translate(context, expression);
+                    default: break;
+                }
+            }
+
             var containerTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, containerExpression);
             if (containerTranslation.Serializer is IWrappedValueSerializer wrappedValueSerializer)
             {
