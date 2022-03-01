@@ -13,7 +13,9 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors;
 
@@ -28,6 +30,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters
         {
             _field = Ensure.IsNotNull(field, nameof(field));
             _operation = Ensure.IsNotNull(operation, nameof(operation));
+
+            if (operation.NodeType == AstNodeType.RegexFilterOperation &&
+                field.Serializer is IRepresentationConfigurable representationConfigurable &&
+                representationConfigurable.Representation != BsonType.String)
+            {
+                // normally an ExpressionNotSupported should have been thrown before reaching here
+                throw new ArgumentException($"Field must be represented as a string for regex filter operations: {field.Path}", nameof(field));
+            }
         }
 
         public new AstFilterField Field => _field;

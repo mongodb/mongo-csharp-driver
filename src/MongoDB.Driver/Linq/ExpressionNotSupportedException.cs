@@ -29,9 +29,19 @@ namespace MongoDB.Driver.Linq
             return $"Expression not supported: {expression}.";
         }
 
+        private static string FormatMessage(Expression expression, string because)
+        {
+            return $"Expression not supported: {expression} because {because}.";
+        }
+
         private static string FormatMessage(Expression expression, Expression containingExpression)
         {
             return $"Expression not supported: {expression} in {containingExpression}.";
+        }
+
+        private static string FormatMessage(Expression expression, Expression containingExpression, string because)
+        {
+            return $"Expression not supported: {expression} in {containingExpression} because {because}.";
         }
         #endregion
 
@@ -58,9 +68,30 @@ namespace MongoDB.Driver.Linq
         /// Initializes an instance of an ExpressionNotSupportedException.
         /// </summary>
         /// <param name="expression">The expression.</param>
+        /// <param name="because">The reason.</param>
+        public ExpressionNotSupportedException(Expression expression, string because)
+            : base(FormatMessage(expression, because))
+        {
+        }
+
+        /// <summary>
+        /// Initializes an instance of an ExpressionNotSupportedException.
+        /// </summary>
+        /// <param name="expression">The expression.</param>
         /// <param name="containingExpression">The containing expression.</param>
         public ExpressionNotSupportedException(Expression expression, Expression containingExpression)
             : base(FormatMessage(expression, containingExpression))
+        {
+        }
+
+        /// <summary>
+        /// Initializes an instance of an ExpressionNotSupportedException.
+        /// </summary>
+        /// <param name="expression">The expression.</param>
+        /// <param name="containingExpression">The containing expression.</param>
+        /// <param name="because">The reason.</param>
+        public ExpressionNotSupportedException(Expression expression, Expression containingExpression, string because)
+            : base(FormatMessage(expression, containingExpression, because))
         {
         }
     }

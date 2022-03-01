@@ -65,9 +65,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 (fieldExpression, valueExpression) = (expression1, expression2);
             }
 
-            if (StringExpressionToRegexFilterTranslator.CanTranslateComparisonExpression(fieldExpression, AstComparisonFilterOperator.Eq, valueExpression))
+            if (StringExpressionToRegexFilterTranslator.TryTranslateComparisonExpression(context, expression, fieldExpression, AstComparisonFilterOperator.Eq, valueExpression, out var filter))
             {
-                return StringExpressionToRegexFilterTranslator.TranslateComparisonExpression(context, expression, fieldExpression, AstComparisonFilterOperator.Eq, valueExpression);
+                return filter;
             }
 
             var field = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);

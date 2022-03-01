@@ -16,6 +16,7 @@
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
@@ -30,7 +31,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
         {
             if (IsMatchMethod(expression, out var inputExpression, out var regularExpression))
             {
-                return Translate(context, inputExpression, regularExpression);
+                return Translate(context, expression, inputExpression, regularExpression);
             }
 
             throw new ExpressionNotSupportedException(expression);
@@ -92,10 +93,17 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             return false;
         }
 
-        private static AstFilter Translate(TranslationContext context, Expression inputExpression, Regex regex)
+        private static AstFilter Translate(TranslationContext context, Expression expression, Expression inputExpression, Regex regex)
         {
             var inputFieldAst = ExpressionToFilterFieldTranslator.Translate(context, inputExpression);
             var regularExpression = new BsonRegularExpression(regex);
+
+            if (inputFieldAst.Serializer is IRepresentationConfigurable representationConfigurable &&
+                representationConfigurable.Representation != BsonType.String)
+            {
+                throw new ExpressionNotSupportedException(inputExpression, expression, because: $"field \"{inputFieldAst.Path}\" is not represented as a string");
+            }
+
             return AstFilter.Regex(inputFieldAst, regularExpression.Pattern, regularExpression.Options);
         }
     }
