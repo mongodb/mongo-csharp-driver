@@ -32,6 +32,7 @@ namespace MongoDB.Driver.Core.Operations
             new AsyncCursor<BsonDocument>(
                 mockChannelSource.Object,
                 new CollectionNamespace("databaseName", "collectionName"),
+                comment: null,
                 new BsonDocument[0], // firstBatch
                 cursorId,
                 null, // batchSize

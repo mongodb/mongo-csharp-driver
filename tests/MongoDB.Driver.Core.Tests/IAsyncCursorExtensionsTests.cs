@@ -284,6 +284,7 @@ namespace MongoDB.Driver
             return new AsyncCursor<BsonDocument>(
                 channelSource: new Mock<IChannelSource>().Object,
                 collectionNamespace: new CollectionNamespace("foo", "bar"),
+                comment: null,
                 firstBatch: firstBatch,
                 cursorId: 0,
                 batchSize: null,

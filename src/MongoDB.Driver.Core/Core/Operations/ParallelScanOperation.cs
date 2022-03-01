@@ -180,10 +180,11 @@ namespace MongoDB.Driver.Core.Operations
                     var cursor = new AsyncCursor<TDocument>(
                         getMoreChannelSource.Fork(),
                         _collectionNamespace,
+                        comment: null,
                         firstBatch,
                         cursorId,
                         _batchSize ?? 0,
-                        0, // limit
+                        limit: 0,
                         _serializer,
                         _messageEncoderSettings);
 

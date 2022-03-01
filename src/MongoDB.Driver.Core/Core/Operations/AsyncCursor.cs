@@ -49,6 +49,7 @@ namespace MongoDB.Driver.Core.Operations
         private readonly CollectionNamespace _collectionNamespace;
         private IChannelSource _channelSource;
         private bool _closed;
+        private readonly BsonValue _comment;
         private int _count;
         private IReadOnlyList<TDocument> _currentBatch;
         private long _cursorId;
@@ -68,6 +69,7 @@ namespace MongoDB.Driver.Core.Operations
         /// </summary>
         /// <param name="channelSource">The channel source.</param>
         /// <param name="collectionNamespace">The collection namespace.</param>
+        /// <param name="comment">The comment.</param>
         /// <param name="firstBatch">The first batch.</param>
         /// <param name="cursorId">The cursor identifier.</param>
         /// <param name="batchSize">The size of a batch.</param>
@@ -78,6 +80,7 @@ namespace MongoDB.Driver.Core.Operations
         public AsyncCursor(
             IChannelSource channelSource,
             CollectionNamespace collectionNamespace,
+            BsonValue comment,
             IReadOnlyList<TDocument> firstBatch,
             long cursorId,
             int? batchSize,
@@ -88,6 +91,7 @@ namespace MongoDB.Driver.Core.Operations
             : this(
                 channelSource,
                 collectionNamespace,
+                comment,
                 firstBatch,
                 cursorId,
                 null, // postBatchResumeToken
@@ -169,6 +173,7 @@ namespace MongoDB.Driver.Core.Operations
             : this(
                   channelSource,
                   collectionNamespace,
+                  comment: null,
                   firstBatch,
                   cursorId,
                   postBatchResumeToken,
@@ -185,6 +190,7 @@ namespace MongoDB.Driver.Core.Operations
         /// </summary>
         /// <param name="channelSource">The channel source.</param>
         /// <param name="collectionNamespace">The collection namespace.</param>
+        /// <param name="comment">The comment.</param>
         /// <param name="firstBatch">The first batch.</param>
         /// <param name="cursorId">The cursor identifier.</param>
         /// <param name="postBatchResumeToken">The post batch resume token.</param>
@@ -196,6 +202,7 @@ namespace MongoDB.Driver.Core.Operations
         public AsyncCursor(
             IChannelSource channelSource,
             CollectionNamespace collectionNamespace,
+            BsonValue comment,
             IReadOnlyList<TDocument> firstBatch,
             long cursorId,
             BsonDocument postBatchResumeToken,
@@ -207,6 +214,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             _operationId = EventContext.OperationId;
             _channelSource = channelSource;
+            _comment = comment;
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
             _firstBatch = Ensure.IsNotNull(firstBatch, nameof(firstBatch));
             _cursorId = cursorId;
@@ -326,7 +334,8 @@ namespace MongoDB.Driver.Core.Operations
                 { "getMore", _cursorId },
                 { "collection", _collectionNamespace.CollectionName },
                 { "batchSize", () => CalculateGetMoreNumberToReturn(), _batchSize > 0 || _limit > 0 },
-                { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(_maxTime.Value), _maxTime.HasValue }
+                { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(_maxTime.Value), _maxTime.HasValue },
+                { "comment", _comment, _comment != null },
             };
 
             return command;

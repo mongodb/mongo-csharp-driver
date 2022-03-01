@@ -198,6 +198,7 @@ namespace MongoDB.Driver.Core.Operations
             var cursor = new AsyncCursor<BsonDocument>(
                 getMoreChannelSource,
                 CollectionNamespace.FromFullName(cursorDocument["ns"].AsString),
+                _comment,
                 cursorDocument["firstBatch"].AsBsonArray.OfType<BsonDocument>().ToList(),
                 cursorId,
                 batchSize: _batchSize ?? 0,

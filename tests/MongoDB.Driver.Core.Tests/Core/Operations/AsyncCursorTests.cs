@@ -194,6 +194,7 @@ namespace MongoDB.Driver.Core.Operations
             var result = new AsyncCursor<BsonDocument>(
                 channelSource,
                 collectionNamespace,
+                comment: null,
                 firstBatch,
                 cursorId,
                 batchSize,
@@ -496,6 +497,7 @@ namespace MongoDB.Driver.Core.Operations
             return new AsyncCursor<BsonDocument>(
                 channelSource.WithDefault(new Mock<IChannelSource>().Object),
                 collectionNamespace.WithDefault(new CollectionNamespace("test", "test")),
+                comment: null,
                 firstBatch.WithDefault(new List<BsonDocument>()),
                 cursorId.WithDefault(0),
                 batchSize.WithDefault(null),
@@ -661,7 +663,7 @@ namespace MongoDB.Driver.Core.Operations
                 long cursorId;
                 var firstBatch = GetFirstBatch(channel, query, batchSize, cancellationToken, out cursorId);
 
-                using (var cursor = new AsyncCursor<BsonDocument>(channelSource, _collectionNamespace, firstBatch, cursorId, batchSize, null, BsonDocumentSerializer.Instance, new MessageEncoderSettings()))
+                using (var cursor = new AsyncCursor<BsonDocument>(channelSource, _collectionNamespace, comment: null, firstBatch, cursorId, batchSize, null, BsonDocumentSerializer.Instance, new MessageEncoderSettings()))
                 {
                     AssertExpectedSessionReferenceCount(_session, cursor);
                     while (cursor.MoveNext(cancellationToken))

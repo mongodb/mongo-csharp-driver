@@ -401,6 +401,7 @@ namespace MongoDB.Driver.Core.Operations
             return new AsyncCursor<TResult>(
                 getMoreChannelSource,
                 result.CollectionNamespace,
+                _comment,
                 result.Results,
                 cursorId,
                 result.PostBatchResumeToken,
@@ -416,6 +417,7 @@ namespace MongoDB.Driver.Core.Operations
             return new AsyncCursor<TResult>(
                 null, // channelSource
                 CollectionNamespace,
+                _comment,
                 result.Results,
                 0, // cursorId
                 null, // postBatchResumeToken
