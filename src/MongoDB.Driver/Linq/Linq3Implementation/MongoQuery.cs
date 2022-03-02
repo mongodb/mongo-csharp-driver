@@ -20,8 +20,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
-using MongoDB.Bson;
-using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecutableQueryTranslators;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation
@@ -108,9 +106,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
                 var executableQuery = ExpressionToExecutableQueryTranslator.Translate<TDocument, TOutput>(_provider, _expression);
                 return executableQuery.ToString();
             }
-            catch (Exception ex)
+            catch (ExpressionNotSupportedException ex)
             {
                 return ex.Message;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
             }
         }
     }
