@@ -222,6 +222,27 @@ namespace MongoDB.Driver
             return WithPipeline(_pipeline.ReplaceWith(newRoot));
         }
 
+        public override IAggregateFluent<BsonDocument> SetWindowFields<TWindowFields>(
+            AggregateExpressionDefinition<ISetWindowFieldsPartition<TResult>, TWindowFields> output)
+        {
+            return WithPipeline(_pipeline.SetWindowFields(output));
+        }
+
+        public override IAggregateFluent<BsonDocument> SetWindowFields<TPartitionBy, TWindowFields>(
+            AggregateExpressionDefinition<TResult, TPartitionBy> partitionBy,
+            AggregateExpressionDefinition<ISetWindowFieldsPartition<TResult>, TWindowFields> output)
+        {
+            return WithPipeline(_pipeline.SetWindowFields(partitionBy, output));
+        }
+
+        public override IAggregateFluent<BsonDocument> SetWindowFields<TPartitionBy, TWindowFields>(
+            AggregateExpressionDefinition<TResult, TPartitionBy> partitionBy,
+            SortDefinition<TResult> sortBy,
+            AggregateExpressionDefinition<ISetWindowFieldsPartition<TResult>, TWindowFields> output)
+        {
+            return WithPipeline(_pipeline.SetWindowFields(partitionBy, sortBy, output));
+        }
+
         public override IAggregateFluent<TResult> Skip(int skip)
         {
             return WithPipeline(_pipeline.Skip(skip));

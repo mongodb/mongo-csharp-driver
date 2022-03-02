@@ -18,6 +18,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Linq.Linq3Implementation.Translators;
 
 namespace MongoDB.Driver.Linq
 {
@@ -38,7 +39,8 @@ namespace MongoDB.Driver.Linq
             Expression<Func<TSource, TResult>> expression,
             IBsonSerializer<TSource> sourceSerializer,
             IBsonSerializerRegistry serializerRegistry,
-            ExpressionTranslationOptions translationOptions);
+            ExpressionTranslationOptions translationOptions,
+            TranslationContextData contextData = null);
 
         internal abstract RenderedProjectionDefinition<TOutput> TranslateExpressionToBucketOutputProjection<TInput, TValue, TOutput>(
             Expression<Func<TInput, TValue>> valueExpression,

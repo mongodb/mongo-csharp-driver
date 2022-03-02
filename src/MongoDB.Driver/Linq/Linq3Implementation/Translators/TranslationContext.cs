@@ -18,6 +18,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
+using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Serializers.KnownSerializers;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
@@ -25,28 +26,39 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
     internal class TranslationContext
     {
         #region static
-        public static TranslationContext Create(Expression expression, IBsonSerializer serializer)
+        public static TranslationContext Create(Expression expression, IBsonSerializer serializer, TranslationContextData data = null)
         {
             var symbolTable = new SymbolTable();
             var nameGenerator = new NameGenerator();
+            if (serializer is ISetWindowFieldsPartitionSerializer partitionSerializer)
+            {
+                serializer = partitionSerializer.InputSerializer; // maybe this logic belongs in KnownSerializerFinder
+            }
             var knownSerializersRegistry = KnownSerializerFinder.FindKnownSerializers(expression, (IBsonDocumentSerializer)serializer);
-            return new TranslationContext(symbolTable, nameGenerator, knownSerializersRegistry);
+            return new TranslationContext(symbolTable, nameGenerator, knownSerializersRegistry, data);
         }
         #endregion
 
         // private fields
+        private TranslationContextData _data;
         private readonly KnownSerializersRegistry _knownKnownSerializersRegistry;
         private readonly NameGenerator _nameGenerator;
         private readonly SymbolTable _symbolTable;
 
-        private TranslationContext(SymbolTable symbolTable, NameGenerator nameGenerator, KnownSerializersRegistry knownSerializersRegistry)
+        private TranslationContext(
+            SymbolTable symbolTable,
+            NameGenerator nameGenerator,
+            KnownSerializersRegistry knownSerializersRegistry,
+            TranslationContextData data = null)
         {
             _symbolTable = Ensure.IsNotNull(symbolTable, nameof(symbolTable));
             _nameGenerator = Ensure.IsNotNull(nameGenerator, nameof(nameGenerator));
             _knownKnownSerializersRegistry = Ensure.IsNotNull(knownSerializersRegistry, nameof(knownSerializersRegistry));
+            _data = data; // can be null
         }
 
         // public properties
+        public TranslationContextData Data => _data;
         public KnownSerializersRegistry KnownSerializersRegistry => _knownKnownSerializersRegistry;
         public NameGenerator NameGenerator => _nameGenerator;
         public SymbolTable SymbolTable => _symbolTable;
@@ -112,7 +124,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators
 
         public TranslationContext WithSymbolTable(SymbolTable symbolTable)
         {
-            return new TranslationContext(symbolTable, _nameGenerator, _knownKnownSerializersRegistry);
+            return new TranslationContext(symbolTable, _nameGenerator, _knownKnownSerializersRegistry, _data);
         }
     }
 }

@@ -119,6 +119,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast
         RTrimExpression,
         SampleStage,
         SetStage,
+        SetWindowFieldsWindowExpression,
         SizeFilterOperation,
         SkipStage,
         SliceExpression,

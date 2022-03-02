@@ -647,6 +647,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             return new AstNaryExpression(AstNaryOperator.SetUnion, args);
         }
 
+        public static AstSetWindowFieldsWindowExpression SetWindowFieldsWindowExpression(AstSetWindowFieldsOperator @operator, IEnumerable<AstExpression> args, AstSetWindowFieldsWindow window)
+        {
+            return new AstSetWindowFieldsWindowExpression(@operator, args, window);
+        }
+
         public static AstExpression Size(AstExpression arg)
         {
             return new AstUnaryExpression(AstUnaryOperator.Size, arg);

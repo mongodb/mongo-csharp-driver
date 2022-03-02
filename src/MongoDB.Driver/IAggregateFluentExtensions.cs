@@ -521,6 +521,62 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Appends a $setWindowFields to the pipeline.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TWindowFields">The type of the added window fields.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="output">The window fields expression.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        public static IAggregateFluent<BsonDocument> SetWindowFields<TResult, TWindowFields>(
+            this IAggregateFluent<TResult> aggregate,
+            Expression<Func<ISetWindowFieldsPartition<TResult>, TWindowFields>> output)
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            return aggregate.AppendStage(PipelineStageDefinitionBuilder.SetWindowFields(output));
+        }
+
+        /// <summary>
+        /// Appends a $setWindowFields to the pipeline.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TPartitionBy">The type of the value to partition by.</typeparam>
+        /// <typeparam name="TWindowFields">The type of the added window fields.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="partitionBy">The partitionBy expression.</param>
+        /// <param name="output">The window fields expression.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        public static IAggregateFluent<BsonDocument> SetWindowFields<TResult, TPartitionBy, TWindowFields>(
+            this IAggregateFluent<TResult> aggregate,
+            Expression<Func<TResult, TPartitionBy>> partitionBy,
+            Expression<Func<ISetWindowFieldsPartition<TResult>, TWindowFields>> output)
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            return aggregate.AppendStage(PipelineStageDefinitionBuilder.SetWindowFields(partitionBy, output));
+        }
+
+        /// <summary>
+        /// Appends a $setWindowFields to the pipeline.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TPartitionBy">The type of the value to partition by.</typeparam>
+        /// <typeparam name="TWindowFields">The type of the added window fields.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="partitionBy">The partitionBy expression.</param>
+        /// <param name="sortBy">The sortBy expression.</param>
+        /// <param name="output">The window fields expression.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        public static IAggregateFluent<BsonDocument> SetWindowFields<TResult, TPartitionBy, TWindowFields>(
+            this IAggregateFluent<TResult> aggregate,
+            Expression<Func<TResult, TPartitionBy>> partitionBy,
+            SortDefinition<TResult> sortBy,
+            Expression<Func<ISetWindowFieldsPartition<TResult>, TWindowFields>> output)
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            return aggregate.AppendStage(PipelineStageDefinitionBuilder.SetWindowFields(partitionBy, sortBy, output));
+        }
+
+        /// <summary>
         /// Appends an ascending sort stage to the pipeline.
         /// </summary>
         /// <typeparam name="TResult">The type of the result.</typeparam>

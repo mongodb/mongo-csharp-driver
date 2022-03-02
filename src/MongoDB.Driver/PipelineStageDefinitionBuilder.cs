@@ -22,6 +22,8 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
+using MongoDB.Driver.Linq.Linq3Implementation.Translators;
 
 namespace MongoDB.Driver
 {
@@ -1244,6 +1246,187 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(newRoot, nameof(newRoot));
             return ReplaceWith(new ExpressionAggregateExpressionDefinition<TInput, TOutput>(newRoot, translationOptions));
+        }
+
+        /// <summary>
+        /// Create a $setWindowFields stage.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TWindowFields">The type of the added window fields.</typeparam>
+        /// <param name="output">The window fields expression.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<TInput, BsonDocument> SetWindowFields<TInput, TWindowFields>(
+            AggregateExpressionDefinition<ISetWindowFieldsPartition<TInput>, TWindowFields> output)
+        {
+            Ensure.IsNotNull(output, nameof(output));
+
+            const string operatorName = "$setWindowFields";
+            var stage = new DelegatedPipelineStageDefinition<TInput, BsonDocument>(
+                operatorName,
+                (inputSerializer, sr, linqProvider) =>
+                {
+                    var partitionSerializer = new ISetWindowFieldsPartitionSerializer<TInput>(inputSerializer);
+                    var document = new BsonDocument
+                    {
+                        { "$setWindowFields", new BsonDocument
+                            {
+                                { "output", output.Render(partitionSerializer, sr, linqProvider) }
+                            }
+                        }
+                    };
+                    var outputSerializer = sr.GetSerializer<BsonDocument>();
+                    return new RenderedPipelineStageDefinition<BsonDocument>(operatorName, document, outputSerializer);
+                });
+
+            return stage;
+        }
+
+        /// <summary>
+        /// Create a $setWindowFields stage.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TPartitionBy">The type of the value to partition by.</typeparam>
+        /// <typeparam name="TWindowFields">The type of the added window fields.</typeparam>
+        /// <param name="partitionBy">The partitionBy expression.</param>
+        /// <param name="output">The window fields expression.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<TInput, BsonDocument> SetWindowFields<TInput, TPartitionBy, TWindowFields>(
+            AggregateExpressionDefinition<TInput, TPartitionBy> partitionBy,
+            AggregateExpressionDefinition<ISetWindowFieldsPartition<TInput>, TWindowFields> output)
+        {
+            Ensure.IsNotNull(partitionBy, nameof(partitionBy));
+            Ensure.IsNotNull(output, nameof(output));
+
+            const string operatorName = "$setWindowFields";
+            var stage = new DelegatedPipelineStageDefinition<TInput, BsonDocument>(
+                operatorName,
+                (inputSerializer, sr, linqProvider) =>
+                {
+                    var partitionSerializer = new ISetWindowFieldsPartitionSerializer<TInput>(inputSerializer);
+                    var document = new BsonDocument
+                    {
+                        { "$setWindowFields", new BsonDocument
+                            {
+                                { "partitionBy", partitionBy.Render(inputSerializer, sr, linqProvider) },
+                                { "output", output.Render(partitionSerializer, sr, linqProvider) }
+                            }
+                        }
+                    };
+                    var outputSerializer = sr.GetSerializer<BsonDocument>();
+                    return new RenderedPipelineStageDefinition<BsonDocument>(operatorName, document, outputSerializer);
+                });
+
+            return stage;
+        }
+
+        /// <summary>
+        /// Create a $setWindowFields stage.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TPartitionBy">The type of the value to partition by.</typeparam>
+        /// <typeparam name="TWindowFields">The type of the added window fields.</typeparam>
+        /// <param name="partitionBy">The partitionBy expression.</param>
+        /// <param name="sortBy">The sortBy expression.</param>
+        /// <param name="output">The window fields expression.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<TInput, BsonDocument> SetWindowFields<TInput, TPartitionBy, TWindowFields>(
+            AggregateExpressionDefinition<TInput, TPartitionBy> partitionBy,
+            SortDefinition<TInput> sortBy,
+            AggregateExpressionDefinition<ISetWindowFieldsPartition<TInput>, TWindowFields> output)
+        {
+            Ensure.IsNotNull(partitionBy, nameof(partitionBy));
+            Ensure.IsNotNull(sortBy, nameof(sortBy));
+            Ensure.IsNotNull(output, nameof(output));
+
+            const string operatorName = "$setWindowFields";
+            var stage = new DelegatedPipelineStageDefinition<TInput, BsonDocument>(
+                operatorName,
+                (inputSerializer, sr, linqProvider) =>
+                {
+                    var partitionSerializer = new ISetWindowFieldsPartitionSerializer<TInput>(inputSerializer);
+                    var document = new BsonDocument
+                    {
+                        { "$setWindowFields", new BsonDocument
+                            {
+                                { "partitionBy", partitionBy.Render(inputSerializer, sr, linqProvider) },
+                                { "sortBy", sortBy.Render(inputSerializer, sr, linqProvider) },
+                                { "output", output.Render(partitionSerializer, sr, linqProvider) }
+                            }
+                        }
+                    };
+                    var outputSerializer = sr.GetSerializer<BsonDocument>();
+                    return new RenderedPipelineStageDefinition<BsonDocument>(operatorName, document, outputSerializer);
+                });
+
+            return stage;
+        }
+
+        /// <summary>
+        /// Create a $setWindowFields stage.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TWindowFields">The type of the added window fields.</typeparam>
+        /// <param name="output">The window fields expression.</param>
+        /// <param name="translationOptions">The translation options.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<TInput, BsonDocument> SetWindowFields<TInput, TWindowFields>(
+            Expression<Func<ISetWindowFieldsPartition<TInput>, TWindowFields>> output,
+            ExpressionTranslationOptions translationOptions = null)
+        {
+            Ensure.IsNotNull(output, nameof(output));
+            return SetWindowFields(
+                new ExpressionAggregateExpressionDefinition<ISetWindowFieldsPartition<TInput>, TWindowFields>(output, translationOptions));
+        }
+
+        /// <summary>
+        /// Create a $setWindowFields stage.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TPartitionBy">The type of the value to partition by.</typeparam>
+        /// <typeparam name="TWindowFields">The type of the added window fields.</typeparam>
+        /// <param name="partitionBy">The partitionBy expression.</param>
+        /// <param name="output">The window fields expression.</param>
+        /// <param name="translationOptions">The translation options.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<TInput, BsonDocument> SetWindowFields<TInput, TPartitionBy, TWindowFields>(
+            Expression<Func<TInput, TPartitionBy>> partitionBy,
+            Expression<Func<ISetWindowFieldsPartition<TInput>, TWindowFields>> output,
+            ExpressionTranslationOptions translationOptions = null)
+        {
+            Ensure.IsNotNull(partitionBy, nameof(partitionBy));
+            Ensure.IsNotNull(output, nameof(output));
+            return SetWindowFields(
+                new ExpressionAggregateExpressionDefinition<TInput, TPartitionBy>(partitionBy, translationOptions),
+                new ExpressionAggregateExpressionDefinition<ISetWindowFieldsPartition<TInput>, TWindowFields>(output, translationOptions));
+        }
+
+        /// <summary>
+        /// Create a $setWindowFields stage.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TPartitionBy">The type of the value to partition by.</typeparam>
+        /// <typeparam name="TWindowFields">The type of the added window fields.</typeparam>
+        /// <param name="partitionBy">The partitionBy expression.</param>
+        /// <param name="sortBy">The sortBy expression.</param>
+        /// <param name="output">The window fields expression.</param>
+        /// <param name="translationOptions">The translation options.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<TInput, BsonDocument> SetWindowFields<TInput, TPartitionBy, TWindowFields>(
+            Expression<Func<TInput, TPartitionBy>> partitionBy,
+            SortDefinition<TInput> sortBy,
+            Expression<Func<ISetWindowFieldsPartition<TInput>, TWindowFields>> output,
+            ExpressionTranslationOptions translationOptions = null)
+        {
+            Ensure.IsNotNull(partitionBy, nameof(partitionBy));
+            Ensure.IsNotNull(sortBy, nameof(sortBy));
+            Ensure.IsNotNull(output, nameof(output));
+
+            var contextData = new TranslationContextData().With("SortBy", sortBy);
+
+            return SetWindowFields(
+                new ExpressionAggregateExpressionDefinition<TInput, TPartitionBy>(partitionBy, translationOptions),
+                sortBy,
+                new ExpressionAggregateExpressionDefinition<ISetWindowFieldsPartition<TInput>, TWindowFields>(output, translationOptions, contextData));
         }
 
         /// <summary>

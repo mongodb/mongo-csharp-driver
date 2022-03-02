@@ -1037,6 +1037,131 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Create a $setWindowFields stage.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TIntermediate">The type of the intermediate documents.</typeparam>
+        /// <typeparam name="TWindowFields">The type of the added window fields.</typeparam>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <param name="output">The window fields expression.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineDefinition<TInput, BsonDocument> SetWindowFields<TInput, TIntermediate, TWindowFields>(
+            this PipelineDefinition<TInput, TIntermediate> pipeline,
+            AggregateExpressionDefinition<ISetWindowFieldsPartition<TIntermediate>, TWindowFields> output)
+        {
+            Ensure.IsNotNull(output, nameof(output));
+            return pipeline.AppendStage(PipelineStageDefinitionBuilder.SetWindowFields(output));
+        }
+
+        /// <summary>
+        /// Create a $setWindowFields stage.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TIntermediate">The type of the intermediate documents.</typeparam>
+        /// <typeparam name="TPartitionBy">The type of the value to partition by.</typeparam>
+        /// <typeparam name="TWindowFields">The type of the added window fields.</typeparam>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <param name="partitionBy">The partitionBy expression.</param>
+        /// <param name="output">The window fields expression.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineDefinition<TInput, BsonDocument> SetWindowFields<TInput, TIntermediate, TPartitionBy, TWindowFields>(
+            this PipelineDefinition<TInput, TIntermediate> pipeline,
+            AggregateExpressionDefinition<TIntermediate, TPartitionBy> partitionBy,
+            AggregateExpressionDefinition<ISetWindowFieldsPartition<TIntermediate>, TWindowFields> output)
+        {
+            Ensure.IsNotNull(partitionBy, nameof(partitionBy));
+            Ensure.IsNotNull(output, nameof(output));
+            return pipeline.AppendStage(PipelineStageDefinitionBuilder.SetWindowFields(partitionBy, output));
+        }
+
+        /// <summary>
+        /// Create a $setWindowFields stage.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TIntermediate">The type of the intermediate documents.</typeparam>
+        /// <typeparam name="TPartitionBy">The type of the value to partition by.</typeparam>
+        /// <typeparam name="TWindowFields">The type of the added window fields.</typeparam>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <param name="partitionBy">The partitionBy expression.</param>
+        /// <param name="sortBy">The sortBy expression.</param>
+        /// <param name="output">The window fields expression.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineDefinition<TInput, BsonDocument> SetWindowFields<TInput, TIntermediate, TPartitionBy, TWindowFields>(
+            this PipelineDefinition<TInput, TIntermediate> pipeline,
+            AggregateExpressionDefinition<TIntermediate, TPartitionBy> partitionBy,
+            SortDefinition<TIntermediate> sortBy,
+            AggregateExpressionDefinition<ISetWindowFieldsPartition<TIntermediate>, TWindowFields> output)
+        {
+            Ensure.IsNotNull(partitionBy, nameof(partitionBy));
+            Ensure.IsNotNull(sortBy, nameof(sortBy));
+            Ensure.IsNotNull(output, nameof(output));
+            return pipeline.AppendStage(PipelineStageDefinitionBuilder.SetWindowFields(partitionBy, sortBy, output));
+        }
+
+        /// <summary>
+        /// Create a $setWindowFields stage.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TIntermediate">The type of the intermediate documents.</typeparam>
+        /// <typeparam name="TPartitionBy">The type of the value to partition by.</typeparam>
+        /// <typeparam name="TWindowFields">The type of the added window fields.</typeparam>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <param name="output">The window fields expression.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineDefinition<TInput, BsonDocument> SetWindowFields<TInput, TIntermediate, TPartitionBy, TWindowFields>(
+            this PipelineDefinition<TInput, TIntermediate> pipeline,
+            Expression<Func<ISetWindowFieldsPartition<TIntermediate>, TWindowFields>> output)
+        {
+            Ensure.IsNotNull(output, nameof(output));
+            return pipeline.AppendStage(PipelineStageDefinitionBuilder.SetWindowFields(output));
+        }
+
+        /// <summary>
+        /// Create a $setWindowFields stage.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TIntermediate">The type of the intermediate documents.</typeparam>
+        /// <typeparam name="TPartitionBy">The type of the value to partition by.</typeparam>
+        /// <typeparam name="TWindowFields">The type of the added window fields.</typeparam>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <param name="partitionBy">The partitionBy expression.</param>
+        /// <param name="output">The window fields expression.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineDefinition<TInput, BsonDocument> SetWindowFields<TInput, TIntermediate, TPartitionBy, TWindowFields>(
+            this PipelineDefinition<TInput, TIntermediate> pipeline,
+            Expression<Func<TIntermediate, TPartitionBy>> partitionBy,
+            Expression<Func<ISetWindowFieldsPartition<TIntermediate>, TWindowFields>> output)
+        {
+            Ensure.IsNotNull(partitionBy, nameof(partitionBy));
+            Ensure.IsNotNull(output, nameof(output));
+            return pipeline.AppendStage(PipelineStageDefinitionBuilder.SetWindowFields(partitionBy, output));
+        }
+
+        /// <summary>
+        /// Create a $setWindowFields stage.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TIntermediate">The type of the intermediate documents.</typeparam>
+        /// <typeparam name="TPartitionBy">The type of the value to partition by.</typeparam>
+        /// <typeparam name="TWindowFields">The type of the added window fields.</typeparam>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <param name="partitionBy">The partitionBy expression.</param>
+        /// <param name="sortBy">The sortBy expression.</param>
+        /// <param name="output">The window fields expression.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineDefinition<TInput, BsonDocument> SetWindowFields<TInput, TIntermediate, TPartitionBy, TWindowFields>(
+            this PipelineDefinition<TInput, TIntermediate> pipeline,
+            Expression<Func<TIntermediate, TPartitionBy>> partitionBy,
+            SortDefinition<TIntermediate> sortBy,
+            Expression<Func<ISetWindowFieldsPartition<TIntermediate>, TWindowFields>> output)
+        {
+            Ensure.IsNotNull(partitionBy, nameof(partitionBy));
+            Ensure.IsNotNull(sortBy, nameof(sortBy));
+            Ensure.IsNotNull(output, nameof(output));
+            return pipeline.AppendStage(PipelineStageDefinitionBuilder.SetWindowFields(partitionBy, sortBy, output));
+        }
+
+        /// <summary>
         /// Appends a $skip stage to the pipeline.
         /// </summary>
         /// <typeparam name="TInput">The type of the input documents.</typeparam>

@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Linq3Implementation;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecutableQueryTranslators;
 
@@ -57,6 +58,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests
             var client = DriverTestConfiguration.Linq3Client;
             var database = client.GetDatabase(databaseName);
             return database.GetCollection<TDocument>(collectionName);
+        }
+
+        protected static List<BsonDocument> Translate<TDocument, TResult>(IMongoCollection<TDocument> collection, IAggregateFluent<TResult> aggregate)
+        {
+            var pipelineDefinition = ((AggregateFluent<TDocument, TResult>)aggregate).Pipeline;
+            var documentSerializer = collection.DocumentSerializer;
+            var serializerRegistry = BsonSerializer.SerializerRegistry;
+            var linqProvider = collection.Database.Client.Settings.LinqProvider;
+            var renderedPipeline = pipelineDefinition.Render(documentSerializer, serializerRegistry, linqProvider);
+            return renderedPipeline.Documents.ToList();
         }
 
         // in this overload the collection argument is used only to infer the TDocument type

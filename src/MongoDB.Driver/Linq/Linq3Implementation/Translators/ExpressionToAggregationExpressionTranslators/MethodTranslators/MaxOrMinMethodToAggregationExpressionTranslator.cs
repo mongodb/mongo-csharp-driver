@@ -18,6 +18,7 @@ using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
+using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
@@ -57,6 +58,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     serializer = selectorTranslation.Serializer;
                 }
                 return new AggregationExpression(expression, ast, serializer);
+            }
+
+            if (SetWindowFieldsMethodToAggregationExpressionTranslator.CanTranslate(expression))
+            {
+                return SetWindowFieldsMethodToAggregationExpressionTranslator.Translate(context, expression);
             }
 
             throw new ExpressionNotSupportedException(expression);

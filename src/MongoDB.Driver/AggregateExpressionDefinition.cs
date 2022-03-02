@@ -19,6 +19,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.Linq.Linq3Implementation.Translators;
 
 namespace MongoDB.Driver
 {
@@ -113,6 +114,7 @@ namespace MongoDB.Driver
     public sealed class ExpressionAggregateExpressionDefinition<TSource, TResult> : AggregateExpressionDefinition<TSource, TResult>
     {
         // private fields
+        private readonly TranslationContextData _contextData;
         private readonly Expression<Func<TSource, TResult>> _expression;
         private readonly ExpressionTranslationOptions _translationOptions;
 
@@ -122,17 +124,23 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="expression">The expression.</param>
         /// <param name="translationOptions">The translation options.</param>
-        public ExpressionAggregateExpressionDefinition(Expression<Func<TSource, TResult>> expression, ExpressionTranslationOptions translationOptions)
+        /// <param name="contextData">Any optional data for the TranslationContext.</param>
+        public ExpressionAggregateExpressionDefinition(
+            Expression<Func<TSource, TResult>> expression,
+            ExpressionTranslationOptions translationOptions,
+            TranslationContextData contextData = null)
         {
             _expression = Ensure.IsNotNull(expression, nameof(expression));
             _translationOptions = translationOptions; // can be null
+            _contextData = contextData; // can be null
         }
 
         // public methods
         /// <inheritdoc/>
         public override BsonValue Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
         {
-            return linqProvider.GetAdapter().TranslateExpressionToAggregateExpression(_expression, sourceSerializer, serializerRegistry, _translationOptions);
+            var contextData = _contextData?.With("SerializerRegistry", serializerRegistry);
+            return linqProvider.GetAdapter().TranslateExpressionToAggregateExpression(_expression, sourceSerializer, serializerRegistry, _translationOptions, contextData);
         }
     }
 }

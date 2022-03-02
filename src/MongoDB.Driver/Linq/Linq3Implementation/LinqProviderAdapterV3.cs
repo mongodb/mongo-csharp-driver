@@ -16,7 +16,6 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers;
@@ -45,10 +44,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
             Expression<Func<TSource, TResult>> expression,
             IBsonSerializer<TSource> sourceSerializer,
             IBsonSerializerRegistry serializerRegistry,
-            ExpressionTranslationOptions translationOptions)
+            ExpressionTranslationOptions translationOptions,
+            TranslationContextData contextData = null)
         {
             expression = (Expression<Func<TSource, TResult>>)PartialEvaluator.EvaluatePartially(expression);
-            var context = TranslationContext.Create(expression, sourceSerializer);
+            var context = TranslationContext.Create(expression, sourceSerializer, contextData);
             var translation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, expression, sourceSerializer, asRoot: true);
             var simplifiedAst = AstSimplifier.Simplify(translation.Ast);
 
