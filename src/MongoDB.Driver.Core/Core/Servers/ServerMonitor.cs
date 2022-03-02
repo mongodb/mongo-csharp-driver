@@ -146,21 +146,17 @@ namespace MongoDB.Driver.Core.Servers
             if (_state.TryChange(State.Initial, State.Open))
             {
                 _roundTripTimeMonitor.Start();
-                _serverMonitorThread = new Thread(ThreadStart) { IsBackground = true };
-                _serverMonitorThread.Start();
+                _serverMonitorThread = new Thread(new ParameterizedThreadStart(ThreadStart)) { IsBackground = true };
+                _serverMonitorThread.Start(_monitorCancellationTokenSource.Token);
             }
 
-            void ThreadStart()
+            void ThreadStart(object monitorCancellationToken)
             {
                 try
                 {
-                    MonitorServer();
+                    MonitorServer((CancellationToken)monitorCancellationToken);
                 }
                 catch (OperationCanceledException)
-                {
-                    // ignore OperationCanceledException
-                }
-                catch (ObjectDisposedException)
                 {
                     // ignore OperationCanceledException
                 }
@@ -221,10 +217,9 @@ namespace MongoDB.Driver.Core.Servers
             return connection;
         }
 
-        private void MonitorServer()
+        private void MonitorServer(CancellationToken monitorCancellationToken)
         {
             var metronome = new Metronome(_serverMonitorSettings.HeartbeatInterval);
-            var monitorCancellationToken = _monitorCancellationTokenSource.Token;
 
             while (!monitorCancellationToken.IsCancellationRequested)
             {

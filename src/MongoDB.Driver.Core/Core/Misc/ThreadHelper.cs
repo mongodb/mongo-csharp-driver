@@ -23,19 +23,7 @@ namespace MongoDB.Driver.Core.Misc
     {
         public static void Sleep(TimeSpan timeout, CancellationToken cancellationToken)
         {
-            WaitTask(Task.Delay(timeout), cancellationToken);
-        }
-
-        public static void WaitTask(Task task, CancellationToken cancellationToken)
-        {
-            try
-            {
-                task.Wait(cancellationToken);
-            }
-            catch (ObjectDisposedException)
-            {
-                // ignore it
-            }
+            Task.Delay(timeout, cancellationToken).Wait(cancellationToken);
         }
     }
 }
