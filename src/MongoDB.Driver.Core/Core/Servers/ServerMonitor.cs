@@ -152,14 +152,7 @@ namespace MongoDB.Driver.Core.Servers
 
             void ThreadStart(object monitorCancellationToken)
             {
-                try
-                {
-                    MonitorServer((CancellationToken)monitorCancellationToken);
-                }
-                catch (OperationCanceledException)
-                {
-                    // ignore OperationCanceledException
-                }
+                MonitorServer((CancellationToken)monitorCancellationToken);
             }
         }
 
