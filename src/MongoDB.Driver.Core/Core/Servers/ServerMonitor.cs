@@ -35,6 +35,7 @@ namespace MongoDB.Driver.Core.Servers
         private readonly EndPoint _endPoint;
         private HeartbeatDelay _heartbeatDelay;
         private readonly object _lock = new object();
+        private readonly CancellationToken _monitorCancellationToken; // used to cancel the entire monitor
         private readonly CancellationTokenSource _monitorCancellationTokenSource; // used to cancel the entire monitor
         private readonly IRoundTripTimeMonitor _roundTripTimeMonitor;
         private readonly ServerApi _serverApi;
@@ -100,7 +101,8 @@ namespace MongoDB.Driver.Core.Servers
             eventSubscriber.TryGetEventHandler(out _sdamInformationEventHandler);
             _serverApi = serverApi;
 
-            _heartbeatCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(_monitorCancellationTokenSource.Token);
+            _monitorCancellationToken = _monitorCancellationTokenSource.Token;
+            _heartbeatCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(_monitorCancellationToken);
         }
 
         public ServerDescription Description => Interlocked.CompareExchange(ref _currentDescription, null, null);
@@ -117,7 +119,7 @@ namespace MongoDB.Driver.Core.Servers
                 {
                     _heartbeatCancellationTokenSource.Cancel();
                     _heartbeatCancellationTokenSource.Dispose();
-                    _heartbeatCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(_monitorCancellationTokenSource.Token);
+                    _heartbeatCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(_monitorCancellationToken);
                     // the previous hello or legacy hello cancellation token is still cancelled
 
                     toDispose = _connection;
@@ -147,7 +149,7 @@ namespace MongoDB.Driver.Core.Servers
             {
                 _roundTripTimeMonitor.Start();
                 _serverMonitorThread = new Thread(new ParameterizedThreadStart(ThreadStart)) { IsBackground = true };
-                _serverMonitorThread.Start(_monitorCancellationTokenSource.Token);
+                _serverMonitorThread.Start(_monitorCancellationToken);
             }
 
             void ThreadStart(object monitorCancellationToken)
