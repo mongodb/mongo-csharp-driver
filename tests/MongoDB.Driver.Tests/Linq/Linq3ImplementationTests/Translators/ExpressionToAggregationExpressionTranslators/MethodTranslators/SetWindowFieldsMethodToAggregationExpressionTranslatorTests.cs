@@ -19,6 +19,8 @@ using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
 using Xunit;
 
@@ -29,6 +31,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_AddToSet()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -49,6 +52,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_Average_with_Decimal()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -68,6 +72,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_Average_with_Double()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -87,6 +92,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_Average_with_Int32()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -106,6 +112,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_Average_with_Int64()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -125,6 +132,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_Average_with_nullable_Decimal()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -144,6 +152,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_Average_with_nullable_Double()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -163,6 +172,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_Average_with_nullable_Int32()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -182,6 +192,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_Average_with_nullable_Int64()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -201,6 +212,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_Average_with_nullable_Single()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -220,6 +232,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_Average_with_Single()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -239,6 +252,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_Count()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -258,6 +272,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_CovariancePopulation_with_Decimal()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -277,6 +292,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_CovariancePopulation_with_Double()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -296,6 +312,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_CovariancePopulation_with_Int32()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -315,6 +332,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_CovariancePopulation_with_Int64()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -334,6 +352,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_CovariancePopulation_with_nullable_Decimal()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -353,6 +372,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_CovariancePopulation_with_nullable_Double()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -372,6 +392,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_CovariancePopulation_with_nullable_Int32()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -391,6 +412,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_CovariancePopulation_with_nullable_Int64()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -410,6 +432,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_CovariancePopulation_with_nullable_Single()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -429,6 +452,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_CovariancePopulation_with_Single()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -448,6 +472,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_CovarianceSample_with_Decimal()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -467,6 +492,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_CovarianceSample_with_Double()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -486,6 +512,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_CovarianceSample_with_Int32()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -505,6 +532,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_CovarianceSample_with_Int64()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -524,6 +552,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_CovarianceSample_with_nullable_Decimal()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -543,6 +572,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_CovarianceSample_with_nullable_Double()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -562,6 +592,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_CovarianceSample_with_nullable_Int32()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -581,6 +612,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_CovarianceSample_with_nullable_Int64()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -600,6 +632,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_CovarianceSample_with_nullable_Single()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -619,6 +652,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_CovarianceSample_with_Single()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -638,6 +672,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_DenseRank()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -661,6 +696,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_Derivative_with_Decimal()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -684,6 +720,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_Derivative_with_Decimal_and_unit()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -714,6 +751,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_Derivative_with_Double()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -737,6 +775,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_Derivative_with_Double_and_unit()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -767,6 +806,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_Derivative_with_Int32()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -790,6 +830,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_Derivative_with_Int32_and_unit()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -820,6 +861,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_Derivative_with_Int64()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -843,6 +885,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_Derivative_with_Int64_and_unit()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -873,6 +916,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_Derivative_with_Single()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -896,6 +940,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_Derivative_with_Single_and_unit()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -926,6 +971,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_DocumentNumber()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -949,6 +995,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_ExponentialMovingAverage_with_Decimal_and_alpha()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -972,6 +1019,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_ExponentialMovingAverage_with_Decimal_and_n()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -995,6 +1043,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_ExponentialMovingAverage_with_Double_and_alpha()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -1018,6 +1067,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_ExponentialMovingAverage_with_Double_and_n()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -1041,6 +1091,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_ExponentialMovingAverage_with_Int32_and_alpha()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -1064,6 +1115,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_ExponentialMovingAverage_with_Int32_and_n()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -1087,6 +1139,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_ExponentialMovingAverage_with_Int64_and_alpha()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -1110,6 +1163,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_ExponentialMovingAverage_with_Int64_and_n()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -1133,6 +1187,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_ExponentialMovingAverage_with_Single_and_alpha()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -1156,6 +1211,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_ExponentialMovingAverage_with_Single_and_n()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -1179,6 +1235,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_First()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -1198,6 +1255,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_Integral_with_Decimal()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -1221,6 +1279,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_Integral_with_Decimal_and_unit()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -1244,6 +1303,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_Integral_with_Double()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -1267,6 +1327,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_Integral_with_Double_and_unit()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -1290,6 +1351,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_Integral_with_Int32()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -1313,6 +1375,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_Integral_with_Int32_and_unit()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -1336,6 +1399,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_Integral_with_Int64()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -1359,6 +1423,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_Integral_with_Int64_and_unit()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -1382,6 +1447,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_Integral_with_Single()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -1405,6 +1471,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_Integral_with_Single_and_unit()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -1428,6 +1495,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_Last()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -1447,6 +1515,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_Max()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -1466,6 +1535,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_Min()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -1485,6 +1555,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_Push()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -1504,6 +1575,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_Rank()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -1527,6 +1599,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_Shift()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -1550,6 +1623,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_Shift_with_defaultValue()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -1573,6 +1647,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_StandardDeviationPopulation_with_Decimal()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -1592,6 +1667,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_StandardDeviationPopulation_with_Double()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -1611,6 +1687,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_StandardDeviationPopulation_with_Int32()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -1630,6 +1707,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_StandardDeviationPopulation_with_Int64()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -1649,6 +1727,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_StandardDeviationPopulation_with_nullable_Decimal()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -1668,6 +1747,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_StandardDeviationPopulation_with_nullable_Double()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -1687,6 +1767,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_StandardDeviationPopulation_with_nullable_Int32()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -1706,6 +1787,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_StandardDeviationPopulation_with_nullable_Int64()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -1725,6 +1807,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_StandardDeviationPopulation_with_nullable_Single()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -1744,6 +1827,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_StandardDeviationPopulation_with_Single()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -1763,6 +1847,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_StandardDeviationSample_with_Decimal()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -1782,6 +1867,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_StandardDeviationSample_with_Double()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -1801,6 +1887,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_StandardDeviationSample_with_Int32()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -1820,6 +1907,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_StandardDeviationSample_with_Int64()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -1839,6 +1927,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_StandardDeviationSample_with_nullable_Decimal()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -1858,6 +1947,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_StandardDeviationSample_with_nullable_Double()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -1877,6 +1967,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_StandardDeviationSample_with_nullable_Int32()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -1896,6 +1987,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_StandardDeviationSample_with_nullable_Int64()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -1915,6 +2007,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_StandardDeviationSample_with_nullable_Single()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -1934,6 +2027,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_StandardDeviationSample_with_Single()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -1953,6 +2047,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_Sum_with_Decimal()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -1972,6 +2067,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_Sum_with_Double()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -1991,6 +2087,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_Sum_with_Int32()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -2010,6 +2107,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_Sum_with_Int64()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -2029,6 +2127,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_Sum_with_nullable_Decimal()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -2048,6 +2147,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_Sum_with_nullable_Double()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -2067,6 +2167,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_Sum_with_nullable_Int32()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -2086,6 +2187,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_Sum_with_nullable_Int64()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -2105,6 +2207,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_Sum_with_nullable_Single()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()
@@ -2124,6 +2227,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         [Fact]
         public void Translate_should_return_expected_result_for_Sum_with_Single()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = CreateCollection();
 
             var aggregate = collection.Aggregate()

@@ -16,6 +16,8 @@
 using System;
 using System.Linq;
 using FluentAssertions;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.Tests.Linq.Linq3ImplementationTests;
 using Xunit;
@@ -29,6 +31,7 @@ namespace MongoDB.Driver.Tests.Jira
         [Fact]
         public void Use_documents_window_to_obtain_cumulative_quantity_for_each_state_example_should_work()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = Setup();
 
             var aggregate = collection
@@ -73,6 +76,7 @@ namespace MongoDB.Driver.Tests.Jira
         [Fact]
         public void Use_documents_window_to_obtain_cumulative_quantity_for_each_year_example_should_work()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = Setup();
 
             var aggregate = collection
@@ -117,6 +121,7 @@ namespace MongoDB.Driver.Tests.Jira
         [Fact]
         public void Use_documents_window_to_obtain_moving_average_quantity_for_each_year_example_should_work()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = Setup();
 
             var aggregate = collection
@@ -161,6 +166,7 @@ namespace MongoDB.Driver.Tests.Jira
         [Fact]
         public void Use_documents_window_to_obtain_cumulative_and_maximum_quantity_for_each_year_example_should_work()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = Setup();
 
             var aggregate = collection
@@ -215,6 +221,7 @@ namespace MongoDB.Driver.Tests.Jira
         [Fact]
         public void Range_window_example_should_work()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = Setup();
 
             var aggregate = collection
@@ -259,6 +266,7 @@ namespace MongoDB.Driver.Tests.Jira
         [Fact]
         public void Use_a_time_range_window_with_a_positive_upper_bound_example_should_work()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = Setup();
 
             var aggregate = collection
@@ -304,6 +312,7 @@ namespace MongoDB.Driver.Tests.Jira
         [Fact]
         public void Use_a_time_range_window_with_a_negative_upper_bound_example_should_work()
         {
+            RequireServer.Check().Supports(Feature.SetWindowFields);
             var collection = Setup();
 
             var aggregate = collection
