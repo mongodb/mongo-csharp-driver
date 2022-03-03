@@ -76,7 +76,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             _connectionExceptionHandler = Ensure.IsNotNull(connectionExceptionHandler, nameof(connectionExceptionHandler));
             Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
 
-            _maintenanceHelper = new MaintenanceHelper(token => MaintainSizeAsync(token), _settings.MaintenanceInterval);
+            _maintenanceHelper = new MaintenanceHelper(token => MaintainSize(token), _settings.MaintenanceInterval);
             _poolState = new PoolState(EndPointHelper.ToString(_endPoint));
             _checkOutReasonCounter = new CheckOutReasonCounter();
 
@@ -291,7 +291,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         }
 
         // private methods
-        private async Task MaintainSizeAsync(CancellationToken cancellationToken)
+        private void MaintainSize(CancellationToken cancellationToken)
         {
             try
             {
@@ -300,13 +300,13 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     try
                     {
                         _connectionHolder.Prune(cancellationToken);
-                        await EnsureMinSizeAsync(cancellationToken).ConfigureAwait(false);
+                        EnsureMinSize(cancellationToken);
                     }
                     catch
                     {
                         // ignore exceptions
                     }
-                    await Task.Delay(_settings.MaintenanceInterval, cancellationToken).ConfigureAwait(false);
+                    ThreadHelper.Sleep(_settings.MaintenanceInterval, cancellationToken);
                 }
             }
             catch
@@ -315,7 +315,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
         }
 
-        private async Task EnsureMinSizeAsync(CancellationToken cancellationToken)
+        private void EnsureMinSize(CancellationToken cancellationToken)
         {
             var minTimeout = TimeSpan.FromMilliseconds(20);
 
@@ -323,7 +323,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             {
                 using (var poolAwaiter = _maxConnectionsQueue.CreateAwaiter())
                 {
-                    var entered = await poolAwaiter.WaitSignaledAsync(minTimeout, cancellationToken).ConfigureAwait(false);
+                    var entered = poolAwaiter.WaitSignaled(minTimeout, cancellationToken);
                     if (!entered)
                     {
                         return;
@@ -331,7 +331,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
                     using (var connectionCreator = new ConnectionCreator(this, minTimeout))
                     {
-                        var connection = await connectionCreator.CreateOpenedAsync(cancellationToken).ConfigureAwait(false);
+                        var connection = connectionCreator.CreateOpened(cancellationToken);
                         _connectionHolder.Return(connection);
                     }
                 }
