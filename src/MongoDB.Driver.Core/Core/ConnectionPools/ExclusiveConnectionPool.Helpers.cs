@@ -164,7 +164,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         internal sealed class MaintenanceHelper : IDisposable
         {
             private CancellationTokenSource _cancellationTokenSource = null;
-            private Action<CancellationToken> _maintenanceAction;
+            private readonly Action<CancellationToken> _maintenanceAction;
             private Thread _maintenanceThread;
             private readonly TimeSpan _interval;
 
