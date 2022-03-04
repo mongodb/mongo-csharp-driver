@@ -1144,35 +1144,6 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
         }
 
-        [Fact]
-        public void MaintainSize_should_not_try_new_attempt_after_failing_without_delay()
-        {
-            var settings = _settings.With(maintenanceInterval: TimeSpan.FromSeconds(10));
-
-            using (var subject = CreateSubject(settings))
-            {
-                subject.Initialize();
-                subject.SetReady();
-
-                var tokenSource = new CancellationTokenSource();
-                _mockConnectionFactory
-                    .SetupSequence(f => f.CreateConnection(_serverId, _endPoint))
-                    .Throws<Exception>()    // failed attempt
-                    .Returns(() =>          // successful attempt which should be delayed
-                    {
-                        // break the loop. With this line the MaintainSize will contain only 2 iterations
-                        tokenSource.Cancel();
-                        return new MockConnection(_serverId);
-                    });
-
-                var testResult = Task.WaitAny(
-                    Task.Run(() => subject.MaintainSize(tokenSource.Token)),    // if this task is completed first, it will mean that there was no delay (10 sec) 
-                    Task.Delay(TimeSpan.FromSeconds(1)));                       // time to be sure that delay is happening,
-                                                                                // if the method is running more than 1 second, then delay is happening
-                testResult.Should().Be(1);
-            }
-        }
-
         [Theory]
         [ParameterAttributeData]
         public void Maintenance_should_run_with_finite_maintenanceInterval(
@@ -1658,11 +1629,6 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
     internal static class ExclusiveConnectionPoolReflector
     {
-        public static void MaintainSize(this ExclusiveConnectionPool obj, CancellationToken cancellationToken)
-        {
-            Reflector.Invoke(obj, nameof(MaintainSize), cancellationToken);
-        }
-
         public static int _waitQueueFreeSlots(this ExclusiveConnectionPool obj)
         {
             return (int)Reflector.GetFieldValue(obj, nameof(_waitQueueFreeSlots));
@@ -1673,11 +1639,6 @@ namespace MongoDB.Driver.Core.ConnectionPools
         public static ExclusiveConnectionPool.MaintenanceHelper _maintenanceHelper(this ExclusiveConnectionPool obj)
         {
             return (ExclusiveConnectionPool.MaintenanceHelper)Reflector.GetFieldValue(obj, nameof(_maintenanceHelper));
-        }
-
-        public static Thread _maintenanceThread(object maintanceHelper)
-        {
-            return (Thread)Reflector.GetFieldValue(maintanceHelper, nameof(_maintenanceThread));
         }
 
         public static ServiceStates _serviceStates(this ExclusiveConnectionPool obj)
