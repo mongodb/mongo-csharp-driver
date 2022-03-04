@@ -62,9 +62,9 @@ namespace MongoDB.Driver.Core.Misc
                 _enteredSemaphore = false;
             }
 
-            public async Task<bool> WaitSignaledAsync(TimeSpan timeout, CancellationToken cancellationToken)
+            public bool WaitSignaled(TimeSpan timeout, CancellationToken cancellationToken)
             {
-                var waitResult = await _semaphoreSlimSignalable.WaitSignaledAsync(timeout, cancellationToken).ConfigureAwait(false);
+                var waitResult = _semaphoreSlimSignalable.WaitSignaled(timeout, cancellationToken);
                 _enteredSemaphore = waitResult == SemaphoreWaitResult.Entered;
                 return _enteredSemaphore;
             }

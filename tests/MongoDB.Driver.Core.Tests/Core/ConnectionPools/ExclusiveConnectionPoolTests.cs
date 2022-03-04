@@ -1119,8 +1119,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
             var authenticationException = new MongoAuthenticationException(new ConnectionId(_serverId), "test message");
             var authenticationFailedConnection = new Mock<IConnection>();
             authenticationFailedConnection
-                .Setup(c => c.OpenAsync(It.IsAny<CancellationToken>())) // an authentication exception is thrown from _connectionInitializer.InitializeConnection
-                                                                        // that in turn is called from OpenAsync
+                .Setup(c => c.Open(It.IsAny<CancellationToken>())) // an authentication exception is thrown from _connectionInitializer.InitializeConnection
+                                                                   // that in turn is called from OpenAsync
                 .Throws(authenticationException);
 
             _mockConnectionExceptionHandler
@@ -1141,32 +1141,6 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
                 authenticationFailedConnection.Verify(conn => conn.Dispose(), Times.Once);
                 _mockConnectionExceptionHandler.Verify(c => c.HandleExceptionOnOpen(authenticationException), Times.Once);
-            }
-        }
-
-        [Fact]
-        public void MaintainSizeAsync_should_not_try_new_attempt_after_failing_without_delay()
-        {
-            var settings = _settings.With(maintenanceInterval: TimeSpan.FromSeconds(10));
-
-            using (var subject = CreateSubject(settings))
-            {
-                var tokenSource = new CancellationTokenSource();
-                _mockConnectionFactory
-                    .SetupSequence(f => f.CreateConnection(_serverId, _endPoint))
-                    .Throws<Exception>()    // failed attempt
-                    .Returns(() =>          // successful attempt which should be delayed
-                    {
-                        // break the loop. With this line the MaintainSizeAsync will contain only 2 iterations
-                        tokenSource.Cancel();
-                        return new MockConnection(_serverId);
-                    });
-
-                var testResult = Task.WaitAny(
-                    subject.MaintainSizeAsync(tokenSource.Token), // if this task is completed first, it will mean that there was no delay (10 sec) 
-                    Task.Delay(TimeSpan.FromSeconds(1)));         // time to be sure that delay is happening,
-                                                                  // if the method is running more than 1 second, then delay is happening
-                testResult.Should().Be(1);
             }
         }
 
@@ -1655,11 +1629,6 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
     internal static class ExclusiveConnectionPoolReflector
     {
-        public static Task MaintainSizeAsync(this ExclusiveConnectionPool obj, CancellationToken cancellationToken)
-        {
-            return (Task)Reflector.Invoke(obj, nameof(MaintainSizeAsync), cancellationToken);
-        }
-
         public static int _waitQueueFreeSlots(this ExclusiveConnectionPool obj)
         {
             return (int)Reflector.GetFieldValue(obj, nameof(_waitQueueFreeSlots));

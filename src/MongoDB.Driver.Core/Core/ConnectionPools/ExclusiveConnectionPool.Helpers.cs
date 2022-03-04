@@ -164,17 +164,17 @@ namespace MongoDB.Driver.Core.ConnectionPools
         internal sealed class MaintenanceHelper : IDisposable
         {
             private CancellationTokenSource _cancellationTokenSource = null;
-            private Func<CancellationToken, Task> _maintenanceTaskCreator;
-            private Task _maintenanceTask;
+            private readonly Action<CancellationToken> _maintenanceAction;
+            private Thread _maintenanceThread;
             private readonly TimeSpan _interval;
 
-            public MaintenanceHelper(Func<CancellationToken, Task> maintenanceTaskCreator, TimeSpan interval)
+            public MaintenanceHelper(Action<CancellationToken> maintenanceAction, TimeSpan interval)
             {
                 _interval = interval;
-                _maintenanceTaskCreator = Ensure.IsNotNull(maintenanceTaskCreator, nameof(maintenanceTaskCreator));
+                _maintenanceAction = Ensure.IsNotNull(maintenanceAction, nameof(maintenanceAction));
             }
 
-            public bool IsRunning => _maintenanceTask != null;
+            public bool IsRunning => _maintenanceThread != null;
 
             public void Cancel()
             {
@@ -185,7 +185,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
                 CancelAndDispose();
                 _cancellationTokenSource = null;
-                _maintenanceTask = null;
+                _maintenanceThread = null;
+                // the previous _maintenanceThread might not be stopped yet, but it will be soon
             }
 
             public void Start()
@@ -199,8 +200,13 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 _cancellationTokenSource = new CancellationTokenSource();
                 var cancellationToken = _cancellationTokenSource.Token;
 
-                _maintenanceTask = Task.Run(() => _maintenanceTaskCreator(cancellationToken), cancellationToken);
-                _maintenanceTask.ConfigureAwait(false);
+                _maintenanceThread = new Thread(new ParameterizedThreadStart(ThreadStart)) { IsBackground = true };
+                _maintenanceThread.Start(cancellationToken);
+
+                void ThreadStart(object cancellationToken)
+                {
+                    _maintenanceAction((CancellationToken)cancellationToken);
+                }
             }
 
             public void Dispose()
@@ -867,12 +873,12 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 _stopwatch = null;
             }
 
-            public async Task<PooledConnection> CreateOpenedAsync(CancellationToken cancellationToken)
+            public PooledConnection CreateOpened(CancellationToken cancellationToken)
             {
                 try
                 {
                     var stopwatch = Stopwatch.StartNew();
-                    _connectingWaitStatus = await _pool._maxConnectingQueue.WaitAsync(_connectingTimeout, cancellationToken).ConfigureAwait(false);
+                    _connectingWaitStatus = _pool._maxConnectingQueue.Wait(_connectingTimeout, cancellationToken);
                     stopwatch.Stop();
 
                     _pool._poolState.ThrowIfNotReady();
@@ -882,7 +888,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                         _pool.CreateTimeoutException(stopwatch, $"Timed out waiting for in connecting queue after {stopwatch.ElapsedMilliseconds}ms.");
                     }
 
-                    var connection = await CreateOpenedInternalAsync(cancellationToken).ConfigureAwait(false);
+                    var connection = CreateOpenedInternal(cancellationToken);
                     return connection;
                 }
                 catch (Exception ex)
