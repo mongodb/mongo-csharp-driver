@@ -1151,6 +1151,9 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             using (var subject = CreateSubject(settings))
             {
+                subject.Initialize();
+                subject.SetReady();
+
                 var tokenSource = new CancellationTokenSource();
                 _mockConnectionFactory
                     .SetupSequence(f => f.CreateConnection(_serverId, _endPoint))
@@ -1162,13 +1165,11 @@ namespace MongoDB.Driver.Core.ConnectionPools
                         return new MockConnection(_serverId);
                     });
 
-                var maintenanceHelper = subject._maintenanceHelper();
-                maintenanceHelper.Start();
-                var maintenanceThread = ExclusiveConnectionPoolReflector._maintenanceThread(maintenanceHelper);
-                var isStopped = maintenanceThread     // if this thread is completed first, it will mean that there was no delay (10 sec)
-                    .Join(TimeSpan.FromSeconds(1));   // time to be sure that delay is happening,
-                                                      // if the method is running more than 1 second, then delay is happening
-                isStopped.Should().BeFalse();
+                var testResult = Task.WaitAny(
+                    Task.Run(() => subject.MaintainSize(tokenSource.Token)),    // if this task is completed first, it will mean that there was no delay (10 sec) 
+                    Task.Delay(TimeSpan.FromSeconds(1)));                       // time to be sure that delay is happening,
+                                                                                // if the method is running more than 1 second, then delay is happening
+                testResult.Should().Be(1);
             }
         }
 

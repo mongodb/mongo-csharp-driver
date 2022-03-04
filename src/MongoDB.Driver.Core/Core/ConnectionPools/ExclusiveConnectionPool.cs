@@ -76,7 +76,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             _connectionExceptionHandler = Ensure.IsNotNull(connectionExceptionHandler, nameof(connectionExceptionHandler));
             Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
 
-            _maintenanceHelper = new MaintenanceHelper(token => MaintainSize(token), _settings.MaintenanceInterval);
+            _maintenanceHelper = new MaintenanceHelper(MaintainSize, _settings.MaintenanceInterval);
             _poolState = new PoolState(EndPointHelper.ToString(_endPoint));
             _checkOutReasonCounter = new CheckOutReasonCounter();
 

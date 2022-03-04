@@ -164,14 +164,14 @@ namespace MongoDB.Driver.Core.ConnectionPools
         internal sealed class MaintenanceHelper : IDisposable
         {
             private CancellationTokenSource _cancellationTokenSource = null;
-            private Action<CancellationToken> _maintenanceThreadCreator;
+            private Action<CancellationToken> _maintenanceAction;
             private Thread _maintenanceThread;
             private readonly TimeSpan _interval;
 
-            public MaintenanceHelper(Action<CancellationToken> maintenanceThreadCreator, TimeSpan interval)
+            public MaintenanceHelper(Action<CancellationToken> maintenanceAction, TimeSpan interval)
             {
                 _interval = interval;
-                _maintenanceThreadCreator = Ensure.IsNotNull(maintenanceThreadCreator, nameof(maintenanceThreadCreator));
+                _maintenanceAction = Ensure.IsNotNull(maintenanceAction, nameof(maintenanceAction));
             }
 
             public bool IsRunning => _maintenanceThread != null;
@@ -205,14 +205,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
                 void ThreadStart(object cancellationToken)
                 {
-                    try
-                    {
-                        _maintenanceThreadCreator((CancellationToken)cancellationToken);
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        // ignore OperationCanceledException
-                    }
+                    _maintenanceAction((CancellationToken)cancellationToken);
                 }
             }
 
