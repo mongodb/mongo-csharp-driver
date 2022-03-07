@@ -203,6 +203,7 @@ functions:
         script: |
           ${PREPARE_SHELL}
           REQUIRE_API_VERSION=${REQUIRE_API_VERSION} \
+          LOAD_BALANCER=${LOAD_BALANCER} \
           MONGODB_VERSION=${VERSION} \
           TOPOLOGY=${TOPOLOGY} \
           AUTH=${AUTH} \
@@ -865,6 +866,8 @@ tasks:
     - name: test-load-balancer-netstandard20
       commands:
         - func: bootstrap-mongo-orchestration
+          vars:
+            LOAD_BALANCER: 'true'
         - func: run-load-balancer
         - func: run-load-balancer-tests
           vars:
@@ -874,6 +877,8 @@ tasks:
     - name: test-load-balancer-netstandard21
       commands:
         - func: bootstrap-mongo-orchestration
+          vars:
+            LOAD_BALANCER: 'true'
         - func: run-load-balancer
         - func: run-load-balancer-tests
           vars:
@@ -1588,14 +1593,14 @@ buildvariants:
     - name: plain-auth-tests
 
 - matrix_name: load-balancer-tests
-  matrix_spec: { version: ["5.0", "latest"], auth: "noauth", ssl: "nossl", topology: "sharded-cluster", os: "ubuntu-1804" }
+  matrix_spec: { version: ["latest"], auth: "noauth", ssl: "nossl", topology: "sharded-cluster", os: "ubuntu-1804" }
   display_name: "Load Balancer ${version} ${auth} ${ssl} ${os}"
   tasks:
     - name: "test-load-balancer-netstandard20"
     - name: "test-load-balancer-netstandard21"
 
 - matrix_name: load-balancer-tests-secure
-  matrix_spec: { version: ["5.0", "latest"], auth: "auth", ssl: "ssl", topology: "sharded-cluster", os: "ubuntu-1804" }
+  matrix_spec: { version: ["latest"], auth: "auth", ssl: "ssl", topology: "sharded-cluster", os: "ubuntu-1804" }
   display_name: "Load Balancer ${version} ${auth} ${ssl} ${os}"
   tasks:
     - name: "test-load-balancer-netstandard20"

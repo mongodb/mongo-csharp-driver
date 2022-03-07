@@ -253,25 +253,13 @@ namespace MongoDB.Driver
                 }
             }
 
-            var connectionString = new ConnectionString(uri);
-            if (connectionString.LoadBalanced)
-            {
-                // TODO: temporary solution until server will actually support serviceId
-                ServiceIdHelper.IsServiceIdEmulationEnabled = true;
-            }
-            return connectionString;
+            return new ConnectionString(uri);
         }
 
         private static ConnectionString GetConnectionStringWithMultipleShardRouters()
         {
             var uri = Environment.GetEnvironmentVariable("MONGODB_URI_WITH_MULTIPLE_MONGOSES") ?? "mongodb://localhost,localhost:27018";
-            var connectionString = new ConnectionString(uri);
-            if (connectionString.LoadBalanced)
-            {
-                // TODO: temporary solution until server will actually support serviceId
-                ServiceIdHelper.IsServiceIdEmulationEnabled = true;
-            }
-            return connectionString;
+            return new ConnectionString(uri);
         }
 
         private static DatabaseNamespace GetDatabaseNamespace()

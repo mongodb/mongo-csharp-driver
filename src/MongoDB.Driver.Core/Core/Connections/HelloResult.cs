@@ -321,7 +321,7 @@ namespace MongoDB.Driver.Core.Connections
 
                 if (ServiceId != null)
                 {
-                    return ServerType.LoadBalanced; // TODO: change when Service Id will be supported by server
+                    return ServerType.LoadBalanced;
                 }
 
                 return ServerType.Standalone;
@@ -344,15 +344,7 @@ namespace MongoDB.Driver.Core.Connections
                 }
                 else
                 {
-                    if (ServiceIdHelper.IsServiceIdEmulationEnabled)
-                    {
-                        // TODO: temporary solution until server will actually support serviceId
-                        return TopologyVersion?.ProcessId;
-                    }
-                    else
-                    {
-                        return null;
-                    }
+                    return null;
                 }
             }
         }
