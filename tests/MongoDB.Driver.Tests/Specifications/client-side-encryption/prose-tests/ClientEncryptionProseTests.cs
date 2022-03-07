@@ -556,14 +556,14 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         [InlineData("aws", "kms.us-east-1.amazonaws.com:443", null, null)]
         [InlineData("aws", "kms.us-east-1.amazonaws.com:12345", "$ConnectionRefused$", null)]
         [InlineData("aws", "kms.us-east-2.amazonaws.com", "us-east-1", null)]
-        [InlineData("aws", "example.com", "parse error", null)]
+        [InlineData("aws", "doesnotexist.invalid", "$HostNotFound$", null)]
         // additional not spec tests
         [InlineData("aws", "$test$", "Invalid endpoint, expected dot separator in host, but got: $test$", null)]
         // azure
-        [InlineData("azure", "key-vault-csfle.vault.azure.net", null, "parse error")]
+        [InlineData("azure", "key-vault-csfle.vault.azure.net", null, "$HostNotFound$")]
         // gcp
-        [InlineData("gcp", "cloudkms.googleapis.com:443", null, "parse error")]
-        [InlineData("gcp", "example.com:443", "Invalid KMS response", null)]
+        [InlineData("gcp", "cloudkms.googleapis.com:443", null, "$HostNotFound$")]
+        [InlineData("gcp", "doesnotexist.invalid:443", "Invalid KMS response", null)]
         // kmip
         [InlineData("kmip", null, null, "$HostNotFound$")]
         [InlineData("kmip", "localhost:5698", null, null)]
@@ -665,10 +665,10 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 switch (kt)
                 {
                     case "azure":
-                        ko.Add("identityPlatformEndpoint", "example.com:443");
+                        ko.Add("identityPlatformEndpoint", "doesnotexist.invalid:443");
                         break;
                     case "gcp":
-                        ko.Add("endpoint", "example.com:443");
+                        ko.Add("endpoint", "doesnotexist.invalid:443");
                         break;
                     case "kmip":
                         AddOrReplace(ko, "endpoint", "doesnotexist.local:5698");
