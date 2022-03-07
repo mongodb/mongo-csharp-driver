@@ -74,9 +74,8 @@ namespace MongoDB.Driver.Tests.Jira
                     mongoConnectionException.ContainsSocketTimeoutException.Should().BeFalse();
 #pragma warning restore CS0618 // Type or member is obsolete
                     mongoConnectionException.ContainsTimeoutException.Should().BeTrue();
-                    mongoConnectionException
-                        .InnerException.Should().BeOfType<TimeoutException>().Subject
-                        .InnerException.Should().BeNull();
+                    var baseException = GetBaseException(mongoConnectionException);
+                    baseException.Should().BeOfType<TimeoutException>().Which.InnerException.Should().BeNull();
                 }
                 else
                 {
@@ -87,12 +86,22 @@ namespace MongoDB.Driver.Tests.Jira
                     mongoConnectionException.ContainsSocketTimeoutException.Should().BeTrue();
 #pragma warning restore CS0618 // Type or member is obsolete
                     mongoConnectionException.ContainsTimeoutException.Should().BeTrue();
-                    var socketException = mongoConnectionException
-                        .InnerException.Should().BeOfType<IOException>().Subject
-                        .InnerException.Should().BeOfType<SocketException>().Subject;
+                    var baseException = GetBaseException(mongoConnectionException);
+                    var socketException = baseException.Should().BeOfType<IOException>()
+                        .Which.InnerException.Should().BeOfType<SocketException>().Subject;
                     socketException.SocketErrorCode.Should().Be(SocketError.TimedOut);
                     socketException.InnerException.Should().BeNull();
                 }
+            }
+
+            Exception GetBaseException(MongoConnectionException mongoConnectionException)
+            {
+                while (mongoConnectionException.InnerException is MongoConnectionException innerException)
+                {
+                    // https://jira.mongodb.org/browse/CSHARP-3895
+                    mongoConnectionException = innerException;
+                }
+                return mongoConnectionException.InnerException;
             }
         }
     }
