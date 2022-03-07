@@ -259,7 +259,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes
         {
             public IEnumerator<object[]> GetEnumerator()
             {
-                const string prefix = "MongoDB.Driver.Tests.Specifications.retryable_writes.tests.";
+                const string prefix = "MongoDB.Driver.Tests.Specifications.retryable_writes.tests.legacy";
                 var definitions = typeof(TestCaseFactory).GetTypeInfo().Assembly
                     .GetManifestResourceNames()
                     .Where(path => path.StartsWith(prefix) && path.EndsWith(".json"))

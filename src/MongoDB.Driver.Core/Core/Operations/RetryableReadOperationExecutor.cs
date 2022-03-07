@@ -17,7 +17,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Bindings;
-using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -115,9 +114,11 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public static bool ShouldConnectionAcquireBeRetried(RetryableReadContext context, ServerDescription serverDescription)
+        public static bool ShouldConnectionAcquireBeRetried(RetryableReadContext context, Exception ex)
         {
-            return context.RetryRequested && !context.Binding.Session.IsInTransaction;
+            // According the spec error during handshake should be handle according to RetryableReads logic
+            var innerException = ex is MongoAuthenticationException mongoAuthenticationException ? mongoAuthenticationException.InnerException : ex;
+            return context.RetryRequested && !context.Binding.Session.IsInTransaction && RetryabilityHelper.IsRetryableReadException(innerException);
         }
 
         // private static methods

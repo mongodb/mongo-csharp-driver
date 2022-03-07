@@ -177,46 +177,30 @@ namespace MongoDB.Driver.Core.Operations
         private void Initialize(CancellationToken cancellationToken)
         {
             _channelSource = _binding.GetReadChannelSource(cancellationToken);
-            var serverDescription = _channelSource.ServerDescription;
 
             try
             {
                 _channel = _channelSource.GetChannel(cancellationToken);
             }
-            catch (MongoConnectionPoolPausedException)
+            catch (Exception ex) when (RetryableReadOperationExecutor.ShouldConnectionAcquireBeRetried(this, ex))
             {
-                if (RetryableReadOperationExecutor.ShouldConnectionAcquireBeRetried(this, serverDescription))
-                {
-                    ReplaceChannelSource(_binding.GetReadChannelSource(cancellationToken));
-                    ReplaceChannel(_channelSource.GetChannel(cancellationToken));
-                }
-                else
-                {
-                    throw;
-                }
+                ReplaceChannelSource(_binding.GetReadChannelSource(cancellationToken));
+                ReplaceChannel(_channelSource.GetChannel(cancellationToken));
             }
         }
 
         private async Task InitializeAsync(CancellationToken cancellationToken)
         {
             _channelSource = await _binding.GetReadChannelSourceAsync(cancellationToken).ConfigureAwait(false);
-            var serverDescription = _channelSource.ServerDescription;
 
             try
             {
                 _channel = await _channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false);
             }
-            catch (MongoConnectionPoolPausedException)
+            catch (Exception ex) when (RetryableReadOperationExecutor.ShouldConnectionAcquireBeRetried(this, ex))
             {
-                if (RetryableReadOperationExecutor.ShouldConnectionAcquireBeRetried(this, serverDescription))
-                {
-                    ReplaceChannelSource(await _binding.GetReadChannelSourceAsync(cancellationToken).ConfigureAwait(false));
-                    ReplaceChannel(await _channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false));
-                }
-                else
-                {
-                    throw;
-                }
+                ReplaceChannelSource(await _binding.GetReadChannelSourceAsync(cancellationToken).ConfigureAwait(false));
+                ReplaceChannel(await _channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false));
             }
         }
     }

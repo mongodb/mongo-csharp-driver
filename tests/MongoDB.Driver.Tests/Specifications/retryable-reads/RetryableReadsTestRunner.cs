@@ -481,7 +481,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
             #endregion
             // protected properties
             // the path is "retryable-reads" but the namespace is "retryable_reads"
-            protected override string PathPrefix => "MongoDB.Driver.Tests.Specifications.retryable_reads.tests.";
+            protected override string PathPrefix => "MongoDB.Driver.Tests.Specifications.retryable_reads.tests.legacy";
 
             // protected methods
             protected override IEnumerable<JsonDrivenTestCase> CreateTestCases(BsonDocument document)

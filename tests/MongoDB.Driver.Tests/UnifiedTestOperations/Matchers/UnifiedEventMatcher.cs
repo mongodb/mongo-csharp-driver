@@ -40,6 +40,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
             { typeof(ConnectionPoolCheckedOutConnectionEvent), EventType.Cmap },
             { typeof(ConnectionPoolCheckedInConnectionEvent), EventType.Cmap },
             { typeof(ConnectionClosedEvent), EventType.Cmap },
+            { typeof(ConnectionPoolCheckingOutConnectionEvent), EventType.Cmap },
             { typeof(ConnectionPoolCheckingOutConnectionFailedEvent), EventType.Cmap },
             { typeof(ConnectionPoolClearedEvent), EventType.Cmap },
         };
@@ -167,6 +168,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                         break;
                     case "connectionReadyEvent":
                         actualEvent.Should().BeOfType<ConnectionOpenedEvent>();
+                        expectedEventValue.ElementCount.Should().Be(0); // empty document
+                        break;
+                    case "connectionCheckOutStartedEvent":
+                        actualEvent.Should().BeOfType<ConnectionPoolCheckingOutConnectionEvent>();
                         expectedEventValue.ElementCount.Should().Be(0); // empty document
                         break;
                     case "connectionCheckedOutEvent":

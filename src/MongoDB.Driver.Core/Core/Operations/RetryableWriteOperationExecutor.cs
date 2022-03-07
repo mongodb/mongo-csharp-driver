@@ -127,12 +127,16 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public static bool ShouldConnectionAcquireBeRetried(RetryableWriteContext context, ServerDescription serverDescription)
+        public static bool ShouldConnectionAcquireBeRetried(RetryableWriteContext context, ServerDescription serverDescription, Exception exception)
         {
+            var innerException = exception is MongoAuthenticationException mongoAuthenticationException ? mongoAuthenticationException.InnerException : exception;
+
+            // According the spec error during handshake should be handle according to RetryableReads logic
             return context.RetryRequested &&
                 AreRetryableWritesSupported(serverDescription) &&
                 context.Binding.Session.Id != null &&
-                !context.Binding.Session.IsInTransaction;
+                !context.Binding.Session.IsInTransaction &&
+                RetryabilityHelper.IsRetryableReadException(innerException);
         }
 
         // private static methods

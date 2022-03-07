@@ -201,17 +201,10 @@ namespace MongoDB.Driver.Core.Operations
             {
                 _channel = _channelSource.GetChannel(cancellationToken);
             }
-            catch (MongoConnectionPoolPausedException)
+            catch (Exception ex) when (RetryableWriteOperationExecutor.ShouldConnectionAcquireBeRetried(this, serverDescription, ex))
             {
-                if (RetryableWriteOperationExecutor.ShouldConnectionAcquireBeRetried(this, serverDescription))
-                {
-                    ReplaceChannelSource(_binding.GetWriteChannelSource(cancellationToken));
-                    ReplaceChannel(_channelSource.GetChannel(cancellationToken));
-                }
-                else
-                {
-                    throw;
-                }
+                ReplaceChannelSource(_binding.GetWriteChannelSource(cancellationToken));
+                ReplaceChannel(_channelSource.GetChannel(cancellationToken));
             }
         }
 
@@ -224,17 +217,10 @@ namespace MongoDB.Driver.Core.Operations
             {
                 _channel = await _channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false);
             }
-            catch (MongoConnectionPoolPausedException)
+            catch (Exception ex) when (RetryableWriteOperationExecutor.ShouldConnectionAcquireBeRetried(this, serverDescription, ex))
             {
-                if (RetryableWriteOperationExecutor.ShouldConnectionAcquireBeRetried(this, serverDescription))
-                {
-                    ReplaceChannelSource(await _binding.GetWriteChannelSourceAsync(cancellationToken).ConfigureAwait(false));
-                    ReplaceChannel(await _channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false));
-                }
-                else
-                {
-                    throw;
-                }
+                ReplaceChannelSource(await _binding.GetWriteChannelSourceAsync(cancellationToken).ConfigureAwait(false));
+                ReplaceChannel(await _channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false));
             }
         }
     }
