@@ -6,7 +6,7 @@ The main new features in 2.15.0 include:
 
 * Reimplement CMAP Maintance and SDAM threads to use dedicated threads
 * Implement SetWindowFields stage
-* Support $merge and $out executing on secondariesy
+* Support $merge and $out executing on secondaries
 * Publish PDBs and sources on symbolsource
 * Switch to using maxWireVersion rather than buildInfo to determine feature support
 * Support 'let' option for multiple CRUD commands
