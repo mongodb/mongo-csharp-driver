@@ -8,6 +8,21 @@ title = "What's New"
   pre = "<i class='fa fa-star'></i>"
 +++
 
+## What's New in 2.15.0
+
+The main new features in 2.15.0 include:
+
+* Reimplement CMAP Maintance and SDAM threads to use dedicated threads
+* Implement SetWindowFields stage
+* Support $merge and $out executing on secondariesy
+* Publish PDBs and sources on symbolsource
+* Switch to using maxWireVersion rather than buildInfo to determine feature support
+* Support 'let' option for multiple CRUD commands
+* Support authorizedCollections option for listCollections helpers
+* Remove code that implements support for server versions less than 3.6
+* Add support for $comment for profiling
+* Upgrade DnsClient.NET up to 1.6.0. This should address problems that some users have had in containerized environments like Kubernetes
+
 ## What's New in 2.14.0
 
 The main new features in 2.14.0 include:
