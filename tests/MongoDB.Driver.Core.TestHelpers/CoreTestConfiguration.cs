@@ -43,6 +43,7 @@ namespace MongoDB.Driver
         private static Lazy<ConnectionString> __connectionStringWithMultipleShardRouters = new Lazy<ConnectionString>(
             GetConnectionStringWithMultipleShardRouters, isThreadSafe: true);
         private static Lazy<DatabaseNamespace> __databaseNamespace = new Lazy<DatabaseNamespace>(GetDatabaseNamespace, isThreadSafe: true);
+        private static Lazy<TimeSpan> __defaultServerSelectionTimeout = new Lazy<TimeSpan>(GetDefaultServerSelectionTimeout, isThreadSafe: true);
         private static Lazy<int> __maxWireVersion = new Lazy<int>(GetMaxWireVersion, isThreadSafe: true);
         private static MessageEncoderSettings __messageEncoderSettings = new MessageEncoderSettings();
         private static Lazy<int> __numberOfMongoses = new Lazy<int>(GetNumberOfMongoses, isThreadSafe: true);
@@ -73,6 +74,21 @@ namespace MongoDB.Driver
         public static DatabaseNamespace DatabaseNamespace
         {
             get { return __databaseNamespace.Value; }
+        }
+
+        public static ICluster ClusterWithConnectedPrimary
+        {
+            get
+            {
+                var timeout = __defaultServerSelectionTimeout.Value;
+                var cluster = __cluster.Value;
+                if (!SpinWait.SpinUntil(() => cluster.Description.Servers.Any(s => s.Type == ServerType.ReplicaSetPrimary), timeout))
+                {
+                    throw new Exception($"The cluster didn't find a primary during {timeout}. The current cluster description: {cluster.Description}.");
+                }
+
+                return cluster;
+            }
         }
 
         public static MessageEncoderSettings MessageEncoderSettings
@@ -116,15 +132,9 @@ namespace MongoDB.Driver
 
         public static ClusterBuilder ConfigureCluster(ClusterBuilder builder)
         {
-            var serverSelectionTimeoutString = Environment.GetEnvironmentVariable("MONGO_SERVER_SELECTION_TIMEOUT_MS");
-            if (serverSelectionTimeoutString == null)
-            {
-                serverSelectionTimeoutString = "30000";
-            }
-
             builder = builder
                 .ConfigureWithConnectionString(__connectionString.Value, __serverApi.Value)
-                .ConfigureCluster(c => c.With(serverSelectionTimeout: TimeSpan.FromMilliseconds(int.Parse(serverSelectionTimeoutString))));
+                .ConfigureCluster(c => c.With(serverSelectionTimeout: __defaultServerSelectionTimeout.Value));
 
             if (__connectionString.Value.Tls.HasValue &&
                 __connectionString.Value.Tls.Value &&
@@ -444,6 +454,17 @@ namespace MongoDB.Driver
             {
                 throw new InvalidOperationException("Cluster is not sharded or load balanced.");
             }
+        }
+
+        private static TimeSpan GetDefaultServerSelectionTimeout()
+        {
+            var serverSelectionTimeoutString = Environment.GetEnvironmentVariable("MONGO_SERVER_SELECTION_TIMEOUT_MS");
+            if (serverSelectionTimeoutString == null)
+            {
+                serverSelectionTimeoutString = "30000";
+            }
+
+            return TimeSpan.FromMilliseconds(int.Parse(serverSelectionTimeoutString));
         }
 
         private static string GetStorageEngine()
