@@ -15,7 +15,7 @@ The main new features in 2.15.0 include:
 * Reimplement CMAP Maintance and SDAM threads to use dedicated threads
 * Support for Window Functions using $setWindowFields
 * Support $merge and $out executing on secondaries
-* Publish symbols to NuGet.org Symbol Server and add GitLink support for improved debugging experience
+* Publish symbols to NuGet.org Symbol Server and add Source Link support for improved debugging experience
 * Switch to using maxWireVersion rather than buildInfo to determine feature support
 * Support 'let' option for multiple CRUD commands
 * Support authorizedCollections option for listCollections helpers
