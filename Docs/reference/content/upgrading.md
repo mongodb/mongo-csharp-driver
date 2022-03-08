@@ -16,7 +16,7 @@ title = "Upgrading"
 Starting from 2.15.0, feature detection is implemented through maxWireVersion 
 instead of buildInfo. This should have no user-visible impact.
 
-Driver version 2.14.0 only supports MongoDB 3.6 and later. It cannot connect to
+Driver version 2.14.0 and later only supports MongoDB 3.6+. It cannot connect to
 clusters running earlier versions of MongoDB. If you need to connect to
 an older cluster, please use driver version 2.13.x or earlier.
 
