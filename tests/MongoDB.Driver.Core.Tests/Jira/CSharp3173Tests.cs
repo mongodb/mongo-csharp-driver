@@ -41,7 +41,6 @@ namespace MongoDB.Driver.Core.Tests.Jira
 {
     public class CSharp3173Tests
     {
-#if WINDOWS
 #pragma warning disable CS0618 // Type or member is obsolete
         private readonly static ClusterConnectionMode __clusterConnectionMode = ClusterConnectionMode.Sharded;
         private readonly static ConnectionModeSwitch __connectionModeSwitch = ConnectionModeSwitch.UseConnectionMode;
@@ -93,7 +92,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 }
 
                 var e = exception.Should().BeOfType<MongoConnectionException>().Subject;
-                e.Message.Should().Be("DnsException");
+                e.Message.Should().Be("DnsException:pool");
 
                 // 2. Waiting for the hello or legacy hello check
                 hasNetworkErrorBeenTriggered.SetResult(true); // unlock the in-progress hello or legacy hello response
@@ -129,22 +128,23 @@ namespace MongoDB.Driver.Core.Tests.Jira
             AssertEvent(initialHeartbeatEvents[1], __endPoint2, ServerType.ShardRouter, "Heartbeat"); // the next 27018 events will be suppressed
 
             AssertNextEvent(eventCapturer, initialSelectedEndpoint, ServerType.Unknown, "InvalidatedBecause:ChannelException during handshake: MongoDB.Driver.MongoConnectionException: DnsException");
-            AssertNextEvent(eventCapturer, initialSelectedEndpoint, ServerType.Unknown, "Heartbeat", typeof(MongoConnectionException));
+            AssertNextEvent(eventCapturer, initialSelectedEndpoint, ServerType.Unknown, "Heartbeat", (typeof(MongoConnectionException), "DnsException:sdam"));
             eventCapturer.Any().Should().BeFalse();
 
             int GetPort(EndPoint endpoint) => ((DnsEndPoint)endpoint).Port;
         }
 
         // private method
-        private void AssertEvent(ServerDescriptionChangedEvent @event, EndPoint expectedEndPoint, ServerType expectedServerType, string expectedReasonStart, Type exceptionType = null)
+        private void AssertEvent(ServerDescriptionChangedEvent @event, EndPoint expectedEndPoint, ServerType expectedServerType, string expectedReasonStart, (Type ExceptionType, string ExceptionMessage)? exceptionInfo = null)
         {
             @event.ServerId.ClusterId.Should().Be(__clusterId);
             @event.NewDescription.EndPoint.Should().Be(expectedEndPoint);
             @event.NewDescription.Type.Should().Be(expectedServerType);
             @event.NewDescription.State.Should().Be(expectedServerType == ServerType.Unknown ? ServerState.Disconnected : ServerState.Connected);
-            if (exceptionType != null)
+            if (exceptionInfo.HasValue)
             {
-                @event.NewDescription.HeartbeatException.Should().BeOfType(exceptionType);
+                @event.NewDescription.HeartbeatException.Should().BeOfType(exceptionInfo.Value.ExceptionType);
+                @event.NewDescription.HeartbeatException.Message.Should().Be(exceptionInfo.Value.ExceptionMessage);
             }
             else
             {
@@ -153,10 +153,10 @@ namespace MongoDB.Driver.Core.Tests.Jira
             @event.NewDescription.ReasonChanged.Should().StartWith(expectedReasonStart);
         }
 
-        private void AssertNextEvent(EventCapturer eventCapturer, EndPoint expectedEndPoint, ServerType expectedServerType, string expectedReasonStart, Type exceptionType = null)
+        private void AssertNextEvent(EventCapturer eventCapturer, EndPoint expectedEndPoint, ServerType expectedServerType, string expectedReasonStart, (Type ExceptionType, string ExceptionMessage)? exceptionInfo = null)
         {
             var @event = eventCapturer.Next().Should().BeOfType<ServerDescriptionChangedEvent>().Subject;
-            AssertEvent(@event, expectedEndPoint, expectedServerType, expectedReasonStart, exceptionType);
+            AssertEvent(@event, expectedEndPoint, expectedServerType, expectedReasonStart, exceptionInfo);
         }
 
         private IConnectionPoolFactory CreateAndSetupConnectionPoolFactory(Func<ServerId, IConnectionExceptionHandler> exceptionHandlerProvider, params (ServerId ServerId, EndPoint Endpoint, bool IsHealthy)[] serverInfoCollection)
@@ -183,7 +183,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
 
             void SetupConnectionPool(Mock<IConnectionPool> mockConnectionPool, IConnectionHandle connection, Func<IConnectionExceptionHandler> exceptionHandlerProvider)
             {
-                var dnsException = CreateDnsException(connection.ConnectionId);
+                var dnsException = CreateDnsException(connection.ConnectionId, from: "pool");
                 mockConnectionPool
                     .Setup(c => c.AcquireConnection(It.IsAny<CancellationToken>()))
                     .Callback(() => exceptionHandlerProvider().HandleExceptionOnOpen(dnsException))
@@ -210,17 +210,33 @@ namespace MongoDB.Driver.Core.Tests.Jira
 
             foreach (var serverInfo in serverInfoCollection)
             {
+                // configure ServerMonitor connections
                 var mockServerMonitorConnection = new Mock<IConnection>();
                 SetupServerMonitorConnection(mockServerMonitorConnection, serverInfo.ServerId, serverInfo.IsHealthy, hasNetworkErrorBeenTriggered, hasClusterBeenDisposed, streamable);
                 mockConnectionFactory
+                    .When(() => !Environment.StackTrace.Contains(nameof(RoundTripTimeMonitor)))
                     .Setup(c => c.CreateConnection(serverInfo.ServerId, serverInfo.Endpoint))
                     .Returns(mockServerMonitorConnection.Object);
+
+                // configure healthy RTT connections
+                var mockRttConnection = new Mock<IConnection>();
+                SetupServerMonitorConnection(
+                    mockRttConnection,
+                    serverInfo.ServerId,
+                    isHealthy: true,
+                    hasNetworkErrorBeenTriggered: null, // has no role for RTT
+                    hasClusterBeenDisposed,
+                    streamable);
+                mockConnectionFactory
+                    .When(() => Environment.StackTrace.Contains(nameof(RoundTripTimeMonitor)))
+                    .Setup(c => c.CreateConnection(serverInfo.ServerId, serverInfo.Endpoint))
+                    .Returns(mockRttConnection.Object);
             }
 
             return mockConnectionFactory.Object;
         }
 
-        private MultiServerCluster CreateAndSetupCluster(TaskCompletionSource<bool> hasNetworkErrorBeenTriggered, TaskCompletionSource<bool> hasClusterBeenDisposed, EventCapturer eventCapturer, bool streamable)
+        private MultiServerCluster CreateAndSetupCluster(TaskCompletionSource<bool> hasNetworkErrorBeenTriggered, TaskCompletionSource<bool> hasClusterBeenDisposed, IEventSubscriber eventCapturer, bool streamable)
         {
             (ServerId ServerId, EndPoint Endpoint, bool IsHealthy)[] serverInfoCollection = new[]
             {
@@ -253,9 +269,9 @@ namespace MongoDB.Driver.Core.Tests.Jira
             return cluster = new MultiServerCluster(clusterSettings, serverFactory, eventCapturer);
         }
 
-        private Exception CreateDnsException(ConnectionId connectionId)
+        private Exception CreateDnsException(ConnectionId connectionId, string from)
         {
-            return new MongoConnectionException(connectionId, "DnsException");
+            return new MongoConnectionException(connectionId, $"DnsException:{from}");
         }
 
         private IServerSelector CreateWritableServerAndEndPointSelector(EndPoint endPoint)
@@ -325,12 +341,13 @@ namespace MongoDB.Driver.Core.Tests.Jira
 
             void SetupFailedConnection(Mock<IConnection> mockFaultyConnection)
             {
+                Ensure.IsNotNull(hasNetworkErrorBeenTriggered, nameof(hasNetworkErrorBeenTriggered));
+
                 // async path is not used in serverMonitor
                 var faultyConnectionResponses = new Queue<Action>(new Action[]
                 {
-                    () => { /* no action needed*/ }, // the first hello or legacy hello configuration passes
-                    () => { /* no action needed*/ }, // RTT
-                    () => throw CreateDnsException(mockConnection.Object.ConnectionId), // the dns exception. Should be triggered after Invalidate
+                    () => { }, // the first hello or legacy hello configuration passes
+                    () => throw CreateDnsException(mockConnection.Object.ConnectionId, from: "sdam"), // the dns exception. Should be triggered after Invalidate
                     () => WaitForTaskOrTimeout(hasClusterBeenDisposed.Task, TimeSpan.FromMinutes(1), "cluster dispose")
                 });
                 mockFaultyConnection
@@ -345,8 +362,10 @@ namespace MongoDB.Driver.Core.Tests.Jira
                     .Setup(c => c.ReceiveMessage(It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), It.IsAny<MessageEncoderSettings>(), It.IsAny<CancellationToken>()))
                     .Returns(() =>
                     {
-                        // wait until the command network error has been triggered
-                        WaitForTaskOrTimeout(hasNetworkErrorBeenTriggered.Task, TimeSpan.FromMinutes(1), "network error");
+                        WaitForTaskOrTimeout(
+                            hasNetworkErrorBeenTriggered.Task,
+                            TimeSpan.FromMinutes(1),
+                            testTarget: "network error");
                         return commandResponseAction();
                     });
             }
@@ -372,6 +391,5 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 throw new Exception($"The waiting for {testTarget} is exceeded timeout {timeout}.");
             }
         }
-#endif
     }
 }
