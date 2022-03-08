@@ -14,7 +14,7 @@
 */
 
 using System;
-using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading;
@@ -341,8 +341,10 @@ namespace MongoDB.Driver.Core.Tests.Jira
 
             void SetupFailedConnection(Mock<IConnection> mockFaultyConnection)
             {
+                Ensure.IsNotNull(hasNetworkErrorBeenTriggered, nameof(hasNetworkErrorBeenTriggered));
+
                 // async path is not used in serverMonitor
-                var faultyConnectionResponses = new ConcurrentQueue<Action>(new Action[]
+                var faultyConnectionResponses = new Queue<Action>(new Action[]
                 {
                     () => { }, // the first hello or legacy hello configuration passes
                     () => throw CreateDnsException(mockConnection.Object.ConnectionId, from: "sdam"), // the dns exception. Should be triggered after Invalidate
@@ -352,7 +354,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
                     .Setup(c => c.Open(It.IsAny<CancellationToken>()))
                     .Callback(() =>
                     {
-                        faultyConnectionResponses.TryDequeue(out var responseAction);
+                        var responseAction = faultyConnectionResponses.Dequeue();
                         responseAction();
                     });
 
@@ -361,7 +363,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
                     .Returns(() =>
                     {
                         WaitForTaskOrTimeout(
-                            Ensure.IsNotNull(hasNetworkErrorBeenTriggered, nameof(hasNetworkErrorBeenTriggered)).Task,
+                            hasNetworkErrorBeenTriggered.Task,
                             TimeSpan.FromMinutes(1),
                             testTarget: "network error");
                         return commandResponseAction();
