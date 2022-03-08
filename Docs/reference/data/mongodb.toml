@@ -1,5 +1,5 @@
 githubRepo = "mongo-csharp-driver"
 githubBranch = "master"
-currentVersion = "2.14"
+currentVersion = "2.15"
 highlightTheme = "idea.css"
 apiUrl = "apidocs/html"
