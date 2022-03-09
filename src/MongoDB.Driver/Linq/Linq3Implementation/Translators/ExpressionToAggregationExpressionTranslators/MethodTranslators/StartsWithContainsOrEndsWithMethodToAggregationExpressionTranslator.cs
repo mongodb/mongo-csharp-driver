@@ -14,12 +14,10 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Linq.Linq3Implementation.Ast;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
@@ -40,6 +38,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 StringMethod.StartsWithWithComparisonType,
                 StringMethod.StartsWithWithIgnoreCaseAndCulture,
                 StringMethod.Contains,
+#if NETSTANDARD2_1
+                StringMethod.ContainsWithComparisonType,
+#endif
                 StringMethod.EndsWith,
                 StringMethod.EndsWithWithComparisonType,
                 StringMethod.EndsWithWithIgnoreCaseAndCulture
@@ -48,6 +49,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             __withComparisonTypeMethods = new[]
             {
                 StringMethod.StartsWithWithComparisonType,
+#if NETSTANDARD2_1
+                StringMethod.ContainsWithComparisonType,
+#endif
                 StringMethod.EndsWithWithComparisonType
             };
 
@@ -86,7 +90,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 if (ignoreCase)
                 {
                     stringAst = AstExpression.ToLower(stringAst);
-                    substringAst = AstExpression.ToLower(stringAst);
+                    substringAst = AstExpression.ToLower(substringAst);
                 }
                 var ast = CreateAst(method.Name, stringAst, substringAst);
                 return new AggregationExpression(expression, ast, new BooleanSerializer());
@@ -118,7 +122,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 {
                     var (stringVar, stringSimpleAst) = AstExpression.UseVarIfNotSimple("string", stringAst);
                     var (substringVar, substringSimpleAst) = AstExpression.UseVarIfNotSimple("substring", substringAst);
-                    var startAst = AstExpression.Subtract(AstExpression.StrLenCP(stringSimpleAst), AstExpression.StrLenCP(substringSimpleAst));                      
+                    var startAst = AstExpression.Subtract(AstExpression.StrLenCP(stringSimpleAst), AstExpression.StrLenCP(substringSimpleAst));
                     var ast = AstExpression.Gte(AstExpression.IndexOfCP(stringSimpleAst, substringSimpleAst, startAst), 0);
                     return AstExpression.Let(stringVar, substringVar, ast);
                 }
