@@ -40,6 +40,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Creates a range window.
         /// </summary>
+        /// <typeparam name="TValue">The type of the boundary conditions.</typeparam>
         /// <param name="lowerBoundary">The lower boundary.</param>
         /// <param name="upperBoundary">The upper boundary.</param>
         /// <returns>A range window.</returns>
@@ -51,6 +52,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Creates a range window.
         /// </summary>
+        /// <typeparam name="TValue">The type of the lower boundary condition.</typeparam>
         /// <param name="lowerBoundary">The lower boundary.</param>
         /// <param name="upperBoundary">The upper boundary.</param>
         /// <returns>A range window.</returns>
@@ -62,6 +64,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Creates a range window.
         /// </summary>
+        /// <typeparam name="TValue">The type of the upper boundary condition.</typeparam>
         /// <param name="lowerBoundary">The lower boundary.</param>
         /// <param name="upperBoundary">The upper boundary.</param>
         /// <returns>A range window.</returns>

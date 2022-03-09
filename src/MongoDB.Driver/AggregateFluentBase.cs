@@ -215,7 +215,7 @@ namespace MongoDB.Driver
         /// <inheritdoc />
         public virtual IAggregateFluent<BsonDocument> SetWindowFields<TPartitionBy, TWindowFields>(
             AggregateExpressionDefinition<TResult, TPartitionBy> partitionBy,
-            SortDefinition<TResult> sort,
+            SortDefinition<TResult> sortBy,
             AggregateExpressionDefinition<ISetWindowFieldsPartition<TResult>, TWindowFields> output)
         {
             throw new NotImplementedException();
