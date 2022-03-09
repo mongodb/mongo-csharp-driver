@@ -124,11 +124,15 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="expression">The expression.</param>
         /// <param name="translationOptions">The translation options.</param>
-        /// <param name="contextData">Any optional data for the TranslationContext.</param>
-        public ExpressionAggregateExpressionDefinition(
+        public ExpressionAggregateExpressionDefinition(Expression<Func<TSource, TResult>> expression, ExpressionTranslationOptions translationOptions)
+            : this(expression, translationOptions, null)
+        {
+        }
+
+        internal ExpressionAggregateExpressionDefinition(
             Expression<Func<TSource, TResult>> expression,
             ExpressionTranslationOptions translationOptions,
-            TranslationContextData contextData = null)
+            TranslationContextData contextData)
         {
             _expression = Ensure.IsNotNull(expression, nameof(expression));
             _translationOptions = translationOptions; // can be null
