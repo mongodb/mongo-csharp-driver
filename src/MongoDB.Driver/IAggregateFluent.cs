@@ -325,7 +325,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TWindowFields">The type of the added window fields.</typeparam>
         /// <param name="output">The window fields definition.</param>
-        /// <returns></returns>
+        /// <returns>The fluent aggregate interface.</returns>
         IAggregateFluent<BsonDocument> SetWindowFields<TWindowFields>(
             AggregateExpressionDefinition<ISetWindowFieldsPartition<TResult>, TWindowFields> output);
 
@@ -336,7 +336,7 @@ namespace MongoDB.Driver
         /// <typeparam name="TWindowFields">The type of the added window fields.</typeparam>
         /// <param name="partitionBy">The partitionBy definition.</param>
         /// <param name="output">The window fields definition.</param>
-        /// <returns></returns>
+        /// <returns>The fluent aggregate interface.</returns>
         IAggregateFluent<BsonDocument> SetWindowFields<TPartitionBy, TWindowFields>(
             AggregateExpressionDefinition<TResult, TPartitionBy> partitionBy,
             AggregateExpressionDefinition<ISetWindowFieldsPartition<TResult>, TWindowFields> output);
@@ -349,7 +349,7 @@ namespace MongoDB.Driver
         /// <param name="partitionBy">The partitionBy definition.</param>
         /// <param name="sortBy">The sortBy definition.</param>
         /// <param name="output">The window fields definition.</param>
-        /// <returns></returns>
+        /// <returns>The fluent aggregate interface.</returns>
         IAggregateFluent<BsonDocument> SetWindowFields<TPartitionBy, TWindowFields>(
             AggregateExpressionDefinition<TResult, TPartitionBy> partitionBy,
             SortDefinition<TResult> sortBy,

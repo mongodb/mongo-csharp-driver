@@ -411,7 +411,7 @@ namespace MongoDB.Driver
         /// Returns an explanation of how the query was executed (instead of the results).
         /// </summary>
         /// <param name="verbose">Whether the explanation should contain more details.</param>
-        /// <returns>An explanation of thow the query was executed.</returns>
+        /// <returns>An explanation of throw the query was executed.</returns>
         public virtual BsonDocument Explain(bool verbose)
         {
             var verbosity = verbose ? ExplainVerbosity.AllPlansExecution : ExplainVerbosity.QueryPlanner;
@@ -427,6 +427,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Creates an explain operation for this cursor.
         /// </summary>
+        /// <param name="verbosity">The requested <see cref="ExplainVerbosity"/>.</param>
         /// <returns>An explain operation.</returns>
         protected abstract ExplainOperation CreateExplainOperation(ExplainVerbosity verbosity);
 

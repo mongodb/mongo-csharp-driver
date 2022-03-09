@@ -68,6 +68,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a value boundary for a range window in SetWindowFields.
     /// </summary>
+    /// <typeparam name="TValue">The type of the range window boundary.</typeparam>
     public sealed class ValueRangeWindowBoundary<TValue> : ValueRangeWindowBoundary
     {
         private readonly TValue _value;
