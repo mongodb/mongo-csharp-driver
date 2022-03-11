@@ -455,14 +455,11 @@ namespace MongoDB.Driver
                         {
                             var fullHosts = shards["host"].AsString; // for example: "shard01/localhost:27018,localhost:27019,localhost:27020"
                             var firstHost = fullHosts.Substring(fullHosts.IndexOf('/') + 1).Split(',')[0];
-                            Console.WriteLine("$$firstHost:" + firstHost);
                             using (var cluster = CreateCluster(
                                 configurator => configurator.ConfigureCluster(cs => cs.With(endPoints: new[] { EndPointHelper.Parse(firstHost) })),
                                 allowDataBearingServers: true))
                             {
-                                Console.WriteLine("$$cluster is created:" + firstHost);
                                 result = GetStorageEngineForCluster(cluster);
-                                Console.WriteLine("$$result:" + result);
                             }
                         }
                         else
