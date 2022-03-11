@@ -119,7 +119,6 @@ namespace MongoDB.Driver.Core.Connections
             var helloResult = HelloHelper.GetResult(connection, helloProtocol, cancellationToken);
             if (connection.Settings.LoadBalanced && !helloResult.ServiceId.HasValue)
             {
-                Console.WriteLine($"$$HelloResult:{helloResult.Wrapped}");
                 throw new InvalidOperationException("Driver attempted to initialize in load balancing mode, but the server does not support this mode.");
             }
 
@@ -135,7 +134,6 @@ namespace MongoDB.Driver.Core.Connections
             var helloResult = await HelloHelper.GetResultAsync(connection, helloProtocol, cancellationToken).ConfigureAwait(false);
             if (connection.Settings.LoadBalanced && !helloResult.ServiceId.HasValue)
             {
-                Console.WriteLine($"$$HelloResult:{helloResult.Wrapped}");
                 throw new InvalidOperationException("Driver attempted to initialize in load balancing mode, but the server does not support this mode.");
             }
 
