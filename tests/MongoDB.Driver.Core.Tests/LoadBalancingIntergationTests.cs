@@ -55,8 +55,6 @@ namespace MongoDB.Driver.Core.Tests
 
             SetupData();
 
-            ServiceIdHelper.IsServiceIdEmulationEnabled = true; // TODO: temporary solution to enable emulating serviceId in a server response
-
             var eventCapturer = new EventCapturer()
                 .Capture<ConnectionPoolCheckedOutConnectionEvent>()
                 .Capture<ConnectionPoolCheckingOutConnectionEvent>()
@@ -103,8 +101,6 @@ namespace MongoDB.Driver.Core.Tests
             KillOpenTransactions();
 
             SetupData();
-
-            ServiceIdHelper.IsServiceIdEmulationEnabled = true; // TODO: temporary solution to enable emulating serviceId in a server response
 
             var eventCapturer = new EventCapturer()
                 .Capture<ConnectionPoolCheckedOutConnectionEvent>()
@@ -179,8 +175,6 @@ namespace MongoDB.Driver.Core.Tests
 
             SetupData();
 
-            ServiceIdHelper.IsServiceIdEmulationEnabled = true; // TODO: temporary solution to enable emulating serviceId in a server response
-
             var eventCapturer = new EventCapturer()
                 .Capture<ConnectionPoolCheckedOutConnectionEvent>()
                 .Capture<ConnectionPoolCheckingOutConnectionEvent>()
@@ -248,8 +242,6 @@ namespace MongoDB.Driver.Core.Tests
             KillOpenTransactions();
 
             SetupData();
-
-            ServiceIdHelper.IsServiceIdEmulationEnabled = true; // TODO: temporary solution to enable emulating serviceId in a server response
 
             var eventCapturer = new EventCapturer()
                 .Capture<ConnectionPoolCheckedOutConnectionEvent>()
@@ -320,8 +312,6 @@ namespace MongoDB.Driver.Core.Tests
             KillOpenTransactions();
 
             SetupData();
-
-            ServiceIdHelper.IsServiceIdEmulationEnabled = true; // TODO: temporary solution to enable emulating serviceId in a server response
 
             var eventCapturer = new EventCapturer()
                 .Capture<ConnectionPoolCheckedOutConnectionEvent>()
@@ -396,8 +386,6 @@ namespace MongoDB.Driver.Core.Tests
             KillOpenTransactions();
 
             SetupData();
-
-            ServiceIdHelper.IsServiceIdEmulationEnabled = true; // TODO: temporary solution to enable emulating serviceId in a server response
 
             var eventCapturer = new EventCapturer()
                 .Capture<ConnectionPoolCheckedOutConnectionEvent>()
@@ -475,8 +463,6 @@ namespace MongoDB.Driver.Core.Tests
             KillOpenTransactions();
 
             SetupData();
-
-            ServiceIdHelper.IsServiceIdEmulationEnabled = true; // TODO: temporary solution to enable emulating serviceId in a server response
 
             var eventCapturer = new EventCapturer()
                 .Capture<ConnectionPoolCheckedOutConnectionEvent>()
