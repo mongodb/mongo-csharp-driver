@@ -263,25 +263,13 @@ namespace MongoDB.Driver
                 }
             }
 
-            var connectionString = new ConnectionString(uri);
-            if (connectionString.LoadBalanced)
-            {
-                // TODO: temporary solution until server will actually support serviceId
-                ServiceIdHelper.IsServiceIdEmulationEnabled = true;
-            }
-            return connectionString;
+            return new ConnectionString(uri);
         }
 
         private static ConnectionString GetConnectionStringWithMultipleShardRouters()
         {
             var uri = Environment.GetEnvironmentVariable("MONGODB_URI_WITH_MULTIPLE_MONGOSES") ?? "mongodb://localhost,localhost:27018";
-            var connectionString = new ConnectionString(uri);
-            if (connectionString.LoadBalanced)
-            {
-                // TODO: temporary solution until server will actually support serviceId
-                ServiceIdHelper.IsServiceIdEmulationEnabled = true;
-            }
-            return connectionString;
+            return new ConnectionString(uri);
         }
 
         private static DatabaseNamespace GetDatabaseNamespace()
@@ -472,37 +460,39 @@ namespace MongoDB.Driver
             string result;
 
             var clusterType = __cluster.Value.Description.Type;
-            if (clusterType == ClusterType.Sharded || clusterType == ClusterType.LoadBalanced)
+            switch (clusterType)
             {
-                // mongos cannot provide this data directly, so we need connection to a particular mongos shard
-                var shardsCollection = new CollectionNamespace("config", "shards");
-                var shards = FindDocuments(__cluster.Value, shardsCollection).FirstOrDefault();
-                if (shards != null)
-                {
-                    var fullHosts = shards["host"].AsString; // for example: "shard01/localhost:27018,localhost:27019,localhost:27020"
-                    var firstHost = fullHosts.Substring(fullHosts.IndexOf('/') + 1).Split(',')[0];
-                    using (var cluster = CreateCluster(
-                        configurator => configurator.ConfigureCluster(cs => cs.With(endPoints: new[] { EndPointHelper.Parse(firstHost) })),
-                        allowDataBearingServers: true))
+                case ClusterType.LoadBalanced:
+                case var _ when Serverless:
+                    // Load balancing and serverless are only supported for servers higher than 50
+                    result = "wiredTiger";
+                    break;
+                case ClusterType.Sharded:
                     {
-                        result = GetStorageEngineForCluster(cluster);
+                        // mongos cannot provide this data directly, so we need connection to a particular mongos shard
+                        var shardsCollection = new CollectionNamespace("config", "shards");
+                        var shards = FindDocuments(__cluster.Value, shardsCollection).FirstOrDefault();
+                        if (shards != null)
+                        {
+                            var fullHosts = shards["host"].AsString; // for example: "shard01/localhost:27018,localhost:27019,localhost:27020"
+                            var firstHost = fullHosts.Substring(fullHosts.IndexOf('/') + 1).Split(',')[0];
+                            using (var cluster = CreateCluster(
+                                configurator => configurator.ConfigureCluster(cs => cs.With(endPoints: new[] { EndPointHelper.Parse(firstHost) })),
+                                allowDataBearingServers: true))
+                            {
+                                result = GetStorageEngineForCluster(cluster);
+                            }
+                        }
+                        else
+                        {
+                            throw new InvalidOperationException("mongos has not been found.");
+                        }
+                        break;
                     }
-                }
-                else
-                {
-                    if (Serverless)
-                    {
-                        result = "wiredTiger";
-                    }
-                    else
-                    {
-                        throw new InvalidOperationException("mongos has not been found.");
-                    }
-                }
-            }
-            else
-            {
-                result = GetStorageEngineForCluster(__cluster.Value);
+
+                default:
+                    result = GetStorageEngineForCluster(__cluster.Value);
+                    break;
             }
 
             return result ?? "mmapv1";
