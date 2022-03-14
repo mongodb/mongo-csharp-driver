@@ -15,7 +15,6 @@
 
 using System;
 using FluentAssertions;
-using MongoDB.Bson;
 using MongoDB.Driver.Linq;
 using Xunit;
 
@@ -29,12 +28,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             var collection = GetCollection<C>();
             collection.Database.DropCollection(collection.CollectionNamespace.CollectionName);
 
-            var id = new ObjectId("0102030405060708090a0b0c");
             collection.InsertMany(
                 new[]
                 {
-                    new C { Id = id, Text = "Apple-Orange-Banana", Match = "apple" },
-                    new C { Id = new ObjectId("000000000000000000000000"), Text = "Apple-Kiwi-Pear", Match = "mango" }
+                    new C { Id = 100, Text = "Apple-Orange-Banana", Match = "apple" },
+                    new C { Id = 101, Text = "Apple-Kiwi-Pear", Match = "mango" }
                 });
 
             var find = collection.Find(x => x.Text.StartsWith(x.Match, StringComparison.CurrentCultureIgnoreCase));
@@ -44,7 +42,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
 
             var results = find.ToList();
             results.Count.Should().Be(1);
-            results[0].Id.Should().Be(id);
+            results[0].Id.Should().Be(100);
         }
 
         [Theory]
@@ -61,19 +59,18 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             exception.Should().BeOfType<ExpressionNotSupportedException>();
         }
 
-#if NETCOREAPP3_1
+#if NETCOREAPP3_1_OR_GREATER
         [Fact]
         public void String_contains_with_current_culture_ignore_case_should_work()
         {
             var collection = GetCollection<C>();
             collection.Database.DropCollection(collection.CollectionNamespace.CollectionName);
 
-            var id = new ObjectId("0102030405060708090a0b0c");
             collection.InsertMany(
                 new[]
                 {
-                    new C { Id = id, Text = "Apple-Orange-Banana", Match = "orange" },
-                    new C { Id = new ObjectId("000000000000000000000000"), Text = "Apple-Kiwi-Pear", Match = "mango" }
+                    new C { Id = 100, Text = "Apple-Orange-Banana", Match = "orange" },
+                    new C { Id = 101, Text = "Apple-Kiwi-Pear", Match = "mango" }
                 });
 
             var find = collection.Find(x => x.Text.Contains(x.Match, StringComparison.CurrentCultureIgnoreCase));
@@ -83,7 +80,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
 
             var results = find.ToList();
             results.Count.Should().Be(1);
-            results[0].Id.Should().Be(id);
+            results[0].Id.Should().Be(100);
         }
 
         [Theory]
@@ -107,12 +104,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             var collection = GetCollection<C>();
             collection.Database.DropCollection(collection.CollectionNamespace.CollectionName);
 
-            var id = new ObjectId("0102030405060708090a0b0c");
             collection.InsertMany(
                 new[]
                 {
-                    new C { Id = id, Text = "Apple-Orange-Banana", Match = "banana" },
-                    new C { Id = new ObjectId("000000000000000000000000"), Text = "Apple-Kiwi-Pear", Match = "mango" }
+                    new C { Id = 100, Text = "Apple-Orange-Banana", Match = "banana" },
+                    new C { Id = 101, Text = "Apple-Kiwi-Pear", Match = "mango" }
                 });
 
             var find = collection.Find(x => x.Text.EndsWith(x.Match, StringComparison.CurrentCultureIgnoreCase));
@@ -122,7 +118,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
 
             var results = find.ToList();
             results.Count.Should().Be(1);
-            results[0].Id.Should().Be(id);
+            results[0].Id.Should().Be(100);
         }
 
         [Theory]
@@ -141,7 +137,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
 
         public class C
         {
-            public ObjectId Id { get; set; }
+            public int Id { get; set; }
             public string Text { get; set; }
             public string Match { get; set; }
         }

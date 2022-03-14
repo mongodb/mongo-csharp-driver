@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             __containsMethods = new[]
             {
                 StringMethod.Contains,
-#if NETSTANDARD2_1
+#if NETSTANDARD2_1_OR_GREATER
                 StringMethod.ContainsWithComparisonType
 #endif
             };

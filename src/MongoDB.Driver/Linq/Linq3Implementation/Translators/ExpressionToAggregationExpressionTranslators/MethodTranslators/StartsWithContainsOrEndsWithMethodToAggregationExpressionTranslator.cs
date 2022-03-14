@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 StringMethod.StartsWithWithComparisonType,
                 StringMethod.StartsWithWithIgnoreCaseAndCulture,
                 StringMethod.Contains,
-#if NETSTANDARD2_1
+#if NETSTANDARD2_1_OR_GREATER
                 StringMethod.ContainsWithComparisonType,
 #endif
                 StringMethod.EndsWith,
@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             __withComparisonTypeMethods = new[]
             {
                 StringMethod.StartsWithWithComparisonType,
-#if NETSTANDARD2_1
+#if NETSTANDARD2_1_OR_GREATER
                 StringMethod.ContainsWithComparisonType,
 #endif
                 StringMethod.EndsWithWithComparisonType
