@@ -24,6 +24,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
     {
         // private static fields
         private static readonly MethodInfo __contains;
+#if NETSTANDARD2_1_OR_GREATER
+        private static readonly MethodInfo __containsWithComparisonType;
+#endif
         private static readonly MethodInfo __endsWith;
         private static readonly MethodInfo __endsWithWithComparisonType;
         private static readonly MethodInfo __endsWithWithIgnoreCaseAndCulture;
@@ -72,6 +75,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         static StringMethod()
         {
             __contains = ReflectionInfo.Method((string s, string value) => s.Contains(value));
+#if NETSTANDARD2_1_OR_GREATER
+            __containsWithComparisonType = ReflectionInfo.Method((string s, string value, StringComparison comparisonType) => s.Contains(value, comparisonType));
+#endif
             __endsWith = ReflectionInfo.Method((string s, string value) => s.EndsWith(value));
             __endsWithWithComparisonType = ReflectionInfo.Method((string s, string value, StringComparison comparisonType) => s.EndsWith(value, comparisonType));
             __endsWithWithIgnoreCaseAndCulture = ReflectionInfo.Method((string s, string value, bool ignoreCase, CultureInfo culture) => s.EndsWith(value, ignoreCase, culture));
@@ -119,6 +125,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 
         // public properties
         public static MethodInfo Contains => __contains;
+#if NETSTANDARD2_1_OR_GREATER
+        public static MethodInfo ContainsWithComparisonType => __containsWithComparisonType;
+#endif
         public static MethodInfo EndsWith => __endsWith;
         public static MethodInfo EndsWithWithComparisonType => __endsWithWithComparisonType;
         public static MethodInfo EndsWithWithIgnoreCaseAndCulture => __endsWithWithIgnoreCaseAndCulture;
