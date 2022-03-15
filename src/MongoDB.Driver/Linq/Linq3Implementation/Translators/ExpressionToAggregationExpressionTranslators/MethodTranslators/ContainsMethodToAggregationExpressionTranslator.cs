@@ -14,6 +14,7 @@
 */
 
 using System.Linq.Expressions;
+using System.Reflection;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
@@ -23,10 +24,23 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class ContainsMethodToAggregationExpressionTranslator
     {
+        private static readonly MethodInfo[] __containsMethods;
+
+        static ContainsMethodToAggregationExpressionTranslator()
+        {
+            __containsMethods = new[]
+            {
+                StringMethod.Contains,
+#if NETSTANDARD2_1_OR_GREATER
+                StringMethod.ContainsWithComparisonType
+#endif
+            };
+        }
+
         // public methods
         public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
-            if (expression.Method.Is(StringMethod.Contains))
+            if (expression.Method.IsOneOf(__containsMethods))
             {
                 return StartsWithContainsOrEndsWithMethodToAggregationExpressionTranslator.Translate(context, expression);
             }
