@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
     internal static class EnumerableMethod
     {
         // private static fields
-        private static readonly MethodInfo __aggregate;
+        private static readonly MethodInfo __aggregateWithFunc;
         private static readonly MethodInfo __aggregateWithSeedAndFunc;
         private static readonly MethodInfo __aggregateWithSeedFuncAndResultSelector;
         private static readonly MethodInfo __all;
@@ -173,7 +173,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         // static constructor
         static EnumerableMethod()
         {
-            __aggregate = ReflectionInfo.Method((IEnumerable<object> source, Func<object, object, object> func) => source.Aggregate(func));
+            __aggregateWithFunc = ReflectionInfo.Method((IEnumerable<object> source, Func<object, object, object> func) => source.Aggregate(func));
             __aggregateWithSeedAndFunc = ReflectionInfo.Method((IEnumerable<object> source, object seed, Func<object, object, object> func) => source.Aggregate(seed, func));
             __aggregateWithSeedFuncAndResultSelector = ReflectionInfo.Method((IEnumerable<object> source, object seed, Func<object, object, object> func, Func<object, object> resultSelector) => source.Aggregate(seed, func, resultSelector));
             __all = ReflectionInfo.Method((IEnumerable<object> source, Func<object, bool> predicate) => source.All(predicate));
@@ -321,7 +321,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         }
 
         // public properties
-        public static MethodInfo Aggregate => __aggregate;
+        public static MethodInfo AggregateWithFunc => __aggregateWithFunc;
         public static MethodInfo AggregateWithSeedAndFunc => __aggregateWithSeedAndFunc;
         public static MethodInfo AggregateWithSeedFuncAndResultSelector => __aggregateWithSeedFuncAndResultSelector;
         public static MethodInfo All => __all;

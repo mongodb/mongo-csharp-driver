@@ -82,7 +82,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
         private static AggregationExpression TranslateEnumerableContains(TranslationContext context, Expression expression, Expression sourceExpression, Expression valueExpression)
         {
-            var sourceTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, sourceExpression);
+            var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
             var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
             var ast = AstExpression.In(valueTranslation.Ast, sourceTranslation.Ast);
             return new AggregationExpression(expression, ast, new BooleanSerializer());

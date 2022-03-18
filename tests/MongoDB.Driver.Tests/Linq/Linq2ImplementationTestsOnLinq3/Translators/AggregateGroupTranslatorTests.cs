@@ -96,7 +96,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsTestsOnLinq3.Transla
             AssertStages(
                 result.Stages,
                 "{ $group : { _id : '$A', __agg0 : { $push : '$C.E.F' } } }",
-                "{ $project : { Result : { $setUnion : ['$__agg0'] }, _id : 0 } }");
+                "{ $project : { Result : { $setUnion : '$__agg0' }, _id : 0 } }");
 
             result.Value.Result.Should().Equal(111);
         }
@@ -109,7 +109,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsTestsOnLinq3.Transla
             AssertStages(
                 result.Stages,
                 "{ $group : { _id : '$A', __agg0 : { $push : '$C.E.F' } } }",
-                "{ $project : { Result : { $setIntersection : ['$__agg0'] }, _id : 0 } }");
+                "{ $project : { Result : { $setIntersection : '$__agg0' }, _id : 0 } }");
 
             result.Value.Result.Should().Equal(111);
         }
