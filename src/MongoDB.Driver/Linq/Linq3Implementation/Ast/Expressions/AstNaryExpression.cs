@@ -49,7 +49,20 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
 
         public override BsonValue Render()
         {
-            return new BsonDocument(_operator.Render(), new BsonArray(_args.Select(e => e.Render())));
+            BsonValue renderedArgs;
+            if (_args.Count == 1)
+            {
+                renderedArgs = _args[0].Render();
+                if (renderedArgs.BsonType == BsonType.Array)
+                {
+                    renderedArgs = new BsonArray { renderedArgs };
+                }
+            }
+            else
+            {
+                renderedArgs = new BsonArray(_args.Select(e => e.Render()));
+            }
+            return new BsonDocument(_operator.Render(), renderedArgs);
         }
 
         public AstNaryExpression Update(IEnumerable<AstExpression> args)

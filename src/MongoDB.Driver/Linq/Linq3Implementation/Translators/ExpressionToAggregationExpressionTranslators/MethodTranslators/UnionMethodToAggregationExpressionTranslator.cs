@@ -31,9 +31,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             if (method.Is(EnumerableMethod.Union))
             {
                 var firstExpression = arguments[0];
-                var firstTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, firstExpression);
+                var firstTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, firstExpression);
                 var secondExpression = arguments[1];
-                var secondTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, secondExpression);
+                var secondTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, secondExpression);
                 var ast = AstExpression.SetUnion(firstTranslation.Ast, secondTranslation.Ast);
                 var itemSerializer = ArraySerializerHelper.GetItemSerializer(firstTranslation.Serializer);
                 var serializer = IEnumerableSerializer.Create(itemSerializer);

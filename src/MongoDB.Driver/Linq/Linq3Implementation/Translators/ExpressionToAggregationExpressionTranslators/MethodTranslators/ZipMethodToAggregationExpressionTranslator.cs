@@ -32,9 +32,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             if (method.Is(EnumerableMethod.Zip))
             {
                 var firstExpression = arguments[0];
-                var firstTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, firstExpression);
+                var firstTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, firstExpression);
                 var secondExpression = arguments[1];
-                var secondTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, secondExpression);
+                var secondTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, secondExpression);
                 var resultSelectorLambda = (LambdaExpression)arguments[2];
                 var resultSelectorParameters = resultSelectorLambda.Parameters;
                 var resultSelectorParameter1 = resultSelectorParameters[0];
@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var resultSelectorSymbol2 = context.CreateSymbol(resultSelectorParameter2, BsonSerializer.LookupSerializer(resultSelectorParameter2.Type));
                 var resultSelectorContext = context.WithSymbols(resultSelectorSymbol1, resultSelectorSymbol2);
                 var resultSelectorTranslation = ExpressionToAggregationExpressionTranslator.Translate(resultSelectorContext, resultSelectorLambda.Body);
-                var @as = AstExpression.Var("z__");
+                var @as = AstExpression.Var("pair");
                 var ast = AstExpression.Map(
                     input: AstExpression.Zip(new[] { firstTranslation.Ast, secondTranslation.Ast }),
                     @as: @as,

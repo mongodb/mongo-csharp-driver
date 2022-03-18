@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             if (method.Is(EnumerableMethod.ToList))
             {
                 var sourceExpression = arguments[0];
-                var sourceTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, sourceExpression);
+                var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
                 var listItemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
                 var listItemType = listItemSerializer.ValueType;
                 var listType = typeof(List<>).MakeGenericType(listItemType);

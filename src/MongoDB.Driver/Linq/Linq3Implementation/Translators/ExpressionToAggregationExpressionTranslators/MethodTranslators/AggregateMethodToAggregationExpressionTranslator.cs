@@ -26,7 +26,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
     {
         private static readonly MethodInfo[] __aggregateMethods =
         {
-            EnumerableMethod.Aggregate,
+            EnumerableMethod.AggregateWithFunc,
             EnumerableMethod.AggregateWithSeedAndFunc,
             EnumerableMethod.AggregateWithSeedFuncAndResultSelector
         };
@@ -39,10 +39,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             if (method.IsOneOf(__aggregateMethods))
             {
                 var sourceExpression = arguments[0];
-                var sourceTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, sourceExpression);
+                var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
                 var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
 
-                if (method.Is(EnumerableMethod.Aggregate))
+                if (method.Is(EnumerableMethod.AggregateWithFunc))
                 {
                     var funcLambda = (LambdaExpression)arguments[1];
                     var funcParameters = funcLambda.Parameters;

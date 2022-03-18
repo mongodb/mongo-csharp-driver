@@ -1699,7 +1699,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
 
             var result = Project(x => new { Result = x.M.Zip(x.O, (a, b) => a + b) });
 
-            result.Projection.Should().Be("{ Result: { $map: { input: { $zip: { inputs: ['$M', '$O'] } }, as: 'z__', in: { $let : { vars : { a : { $arrayElemAt : ['$$z__', 0] }, b : { $arrayElemAt : ['$$z__', 1] } }, in : { $add : ['$$a', '$$b'] } } } } }, _id : 0 }");
+            result.Projection.Should().Be("{ Result: { $map: { input: { $zip: { inputs: ['$M', '$O'] } }, as: 'pair', in: { $let : { vars : { a : { $arrayElemAt : ['$$pair', 0] }, b : { $arrayElemAt : ['$$pair', 1] } }, in : { $add : ['$$a', '$$b'] } } } } }, _id : 0 }");
 
             result.Value.Result.Should().BeEquivalentTo(12L, 24L, 35L);
         }
@@ -1711,7 +1711,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
 
             var result = Project(x => new { Result = x.M.Zip(x.O, (a, b) => new { a, b }) });
 
-            result.Projection.Should().Be("{ Result: { $map: { input: { $zip: { inputs: ['$M', '$O'] } }, as: 'z__', in: { $let : { vars : { a : { $arrayElemAt : ['$$z__', 0] }, b : { $arrayElemAt : ['$$z__', 1] } }, in : { a : '$$a', b : '$$b' } } } } }, _id : 0 }");
+            result.Projection.Should().Be("{ Result: { $map: { input: { $zip: { inputs: ['$M', '$O'] } }, as: 'pair', in: { $let : { vars : { a : { $arrayElemAt : ['$$pair', 0] }, b : { $arrayElemAt : ['$$pair', 1] } }, in : { a : '$$a', b : '$$b' } } } } }, _id : 0 }");
 
             var aResults = result.Value.Result.Select(x => x.a);
             var bResults = result.Value.Result.Select(x => x.b);

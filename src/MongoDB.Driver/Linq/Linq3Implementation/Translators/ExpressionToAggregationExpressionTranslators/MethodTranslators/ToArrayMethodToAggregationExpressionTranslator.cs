@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             if (method.Is(EnumerableMethod.ToArray))
             {
                 var sourceExpression = arguments[0];
-                var sourceTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, sourceExpression);
+                var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
                 var arrayItemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
                 var arrayItemType = arrayItemSerializer.ValueType;
                 var arraySerializerType = typeof(ArraySerializer<>).MakeGenericType(arrayItemType);
