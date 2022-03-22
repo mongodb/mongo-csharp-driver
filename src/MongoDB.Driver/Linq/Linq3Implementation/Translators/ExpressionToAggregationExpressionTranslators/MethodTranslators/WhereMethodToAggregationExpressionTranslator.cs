@@ -17,6 +17,7 @@ using System.Linq.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
+using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
@@ -37,11 +38,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var predicateSymbol = context.CreateSymbol(predicateParameter, predicateParameterSerializer);
                 var predicateContext = context.WithSymbol(predicateSymbol);
                 var predicateTranslation = ExpressionToAggregationExpressionTranslator.Translate(predicateContext, predicateLambda.Body);
+                var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
+                var enumerableSerializer = IEnumerableSerializer.Create(itemSerializer);
                 var ast = AstExpression.Filter(
                     sourceTranslation.Ast,
                     predicateTranslation.Ast,
                     predicateParameter.Name);
-                return new AggregationExpression(expression, ast, sourceTranslation.Serializer);
+                return new AggregationExpression(expression, ast, enumerableSerializer);
             }
 
             throw new ExpressionNotSupportedException(expression);
