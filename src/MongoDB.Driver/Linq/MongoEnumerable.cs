@@ -34,6 +34,40 @@ namespace MongoDB.Driver.Linq
         }
 
         /// <summary>
+        /// Represents all elements in an array (corresponds to the server's "$[]" update operator).
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A source of values.</param>
+        /// <returns>Only meant to be used in Update specifications.</returns>
+        public static TSource AllElements<TSource>(this IEnumerable<TSource> source)
+        {
+            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+        }
+
+        /// <summary>
+        /// Represents all matching elements in an array when using an array filter (corresponds to the server's "$[identifier]" update operator).
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A source of values.</param>
+        /// <param name="identifier">The name of the identifier in the corresponding array filter.</param>
+        /// <returns>Only meant to be used in Update specifications.</returns>
+        public static TSource AllMatchingElements<TSource>(this IEnumerable<TSource> source, string identifier)
+        {
+            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+        }
+
+        /// <summary>
+        /// Represents the first matching element in an array used in a query (corresponds to the server's "$" update operator).
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A source of values.</param>
+        /// <returns>Only meant to be used in Update specifications.</returns>
+        public static TSource FirstMatchingElement<TSource>(this IEnumerable<TSource> source)
+        {
+            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+        }
+
+        /// <summary>
         /// Computes the population standard deviation of a sequence of values.
         /// </summary>
         /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>

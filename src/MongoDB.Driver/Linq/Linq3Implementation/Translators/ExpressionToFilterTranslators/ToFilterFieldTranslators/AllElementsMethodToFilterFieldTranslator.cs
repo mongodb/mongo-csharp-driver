@@ -16,42 +16,28 @@
 using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
-using MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilterTranslators.ToFilterFieldTranslators
 {
-    internal static class ElementAtMethodToFilterFieldTranslator
+    internal static class AllElementsMethodToFilterFieldTranslator
     {
         public static AstFilterField Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.Is(EnumerableMethod.ElementAt))
+            if (method.Is(MongoEnumerableMethod.AllElements))
             {
                 var sourceExpression = arguments[0];
                 var field = ExpressionToFilterFieldTranslator.Translate(context, sourceExpression);
-
-                var indexExpression = arguments[1];
-                var index = indexExpression.GetConstantValue<int>(containingExpression: expression);
-
-                if (index < 0)
-                {
-                    var reason = "negative indexes are not valid";
-                    if (index == -1)
-                    {
-                        reason += ". To use the positional operator $ use FirstMatchingElement instead of an index value of -1"; // closing period is added by exception
-                    }
-                    throw new ExpressionNotSupportedException(expression, because: reason);
-                }
 
                 if (field.Serializer is IBsonArraySerializer arraySerializer &&
                     arraySerializer.TryGetItemSerializationInfo(out var itemSerializationInfo))
                 {
                     var itemSerializer = itemSerializationInfo.Serializer;
-                    return field.SubField(index.ToString(), itemSerializer);
+                    return field.SubField($"$[]", itemSerializer);
                 }
             }
 

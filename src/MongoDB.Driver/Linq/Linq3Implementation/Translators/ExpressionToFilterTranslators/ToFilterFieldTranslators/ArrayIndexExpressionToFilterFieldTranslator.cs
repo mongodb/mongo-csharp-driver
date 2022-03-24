@@ -30,6 +30,17 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 var arrayField = ExpressionToFilterFieldTranslator.Translate(context, arrayExpression);
                 var indexExpression = expression.Right;
                 var index = indexExpression.GetConstantValue<int>(containingExpression: expression);
+
+                if (index < 0)
+                {
+                    var reason = "negative indexes are not valid";
+                    if (index == -1)
+                    {
+                        reason += ". To use the positional operator $ use FirstMatchingElement instead of an index value of -1"; // closing period is added by exception
+                    }
+                    throw new ExpressionNotSupportedException(expression, because: reason);
+                }
+
                 var itemSerializer = ArraySerializerHelper.GetItemSerializer(arrayField.Serializer);
                 return arrayField.SubField(index.ToString(), itemSerializer);
             }

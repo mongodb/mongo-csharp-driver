@@ -99,6 +99,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
             IBsonSerializerRegistry serializerRegistry,
             bool allowScalarValueForArrayField)
         {
+            expression = (Expression<Func<TDocument, TField>>)PartialEvaluator.EvaluatePartially(expression);
             var parameter = expression.Parameters.Single();
             var context = TranslationContext.Create(expression, documentSerializer);
             var symbol = context.CreateSymbol(parameter, documentSerializer, isCurrent: true);

@@ -22,36 +22,31 @@ using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilterTranslators.ToFilterFieldTranslators
 {
-    internal static class ElementAtMethodToFilterFieldTranslator
+    internal static class AllMatchingElementsMethodToFilterFieldTranslator
     {
         public static AstFilterField Translate(TranslationContext context, MethodCallExpression expression)
         {
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.Is(EnumerableMethod.ElementAt))
+            if (method.Is(MongoEnumerableMethod.AllMatchingElements))
             {
                 var sourceExpression = arguments[0];
                 var field = ExpressionToFilterFieldTranslator.Translate(context, sourceExpression);
 
-                var indexExpression = arguments[1];
-                var index = indexExpression.GetConstantValue<int>(containingExpression: expression);
+                var identifierExpression = arguments[1];
+                var identifier = identifierExpression.GetConstantValue<string>(containingExpression: expression);
 
-                if (index < 0)
+                if (identifier == "")
                 {
-                    var reason = "negative indexes are not valid";
-                    if (index == -1)
-                    {
-                        reason += ". To use the positional operator $ use FirstMatchingElement instead of an index value of -1"; // closing period is added by exception
-                    }
-                    throw new ExpressionNotSupportedException(expression, because: reason);
+                    throw new ExpressionNotSupportedException(expression, because: "identifier cannot be an empty string.");
                 }
 
                 if (field.Serializer is IBsonArraySerializer arraySerializer &&
                     arraySerializer.TryGetItemSerializationInfo(out var itemSerializationInfo))
                 {
                     var itemSerializer = itemSerializationInfo.Serializer;
-                    return field.SubField(index.ToString(), itemSerializer);
+                    return field.SubField($"$[{identifier}]", itemSerializer);
                 }
             }
 
