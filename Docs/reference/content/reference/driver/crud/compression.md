@@ -12,9 +12,9 @@ title = "Compression"
 
 The C# driver supports compression of messages to and from MongoDB servers. The driver implements the three algorithms that are supported by MongoDB servers:
 
-* [Snappy](https://google.github.io/snappy/): Snappy compression can be used when connecting to MongoDB servers starting with the 3.4 release.
-* [Zlib](https://zlib.net/): Zlib compression can be used when connecting to MongoDB servers starting with the 3.6 release.
-* [Zstandard](https://facebook.github.io/zstd/): Zstandard compression can be used when connecting to MongoDB servers starting with the 4.2 release.
+* [Snappy](https://google.github.io/snappy/): Snappy compression can be used when connecting to MongoDB servers starting with the 3.4 release. Supported platforms: Windows: x86 and x64, Linux/macOS: x64.
+* [Zlib](https://zlib.net/): Zlib compression can be used when connecting to MongoDB servers starting with the 3.6 release. Supported on all platforms and architectures.
+* [Zstandard](https://facebook.github.io/zstd/): Zstandard compression can be used when connecting to MongoDB servers starting with the 4.2 release. Supported platforms: Windows/Linux/macOS: x64 only.
 
 The driver will negotiate which, if any, compression algorithm is used based on capabilities advertised by the server in the [hello]({{<docsref "reference/command/hello/">}}) or legacy hello command response. 
 

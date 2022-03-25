@@ -254,13 +254,15 @@ namespace MongoDB.Driver.Core.Compression.Zstandard
 
         private class ZstandardLocator : RelativeLibraryLocatorBase
         {
-            public override string GetLibraryName(OperatingSystemPlatform currentPlatform) =>
+            public override string LibraryName => "Zstandard";
+
+            public override string GetLibraryFileName(OperatingSystemPlatform currentPlatform) =>
                 currentPlatform switch
                 {
                     OperatingSystemPlatform.Windows => "libzstd.dll",
                     OperatingSystemPlatform.Linux => "libzstd.so",
                     OperatingSystemPlatform.MacOS => "libzstd.dylib",
-                    _ => throw new InvalidOperationException($"Zstandard is not supported on the current platform: {currentPlatform}."),
+                    _ => throw new InvalidOperationException($"{LibraryName} is not supported on the current platform: {currentPlatform}."),
                 };
         }
     }
