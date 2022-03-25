@@ -28,13 +28,13 @@ namespace MongoDB.Driver.Core.Misc
     {
         [Theory]
         [ParameterAttributeData]
-        public void Constructor_should_check_arguments([Values(-2, -1, 1025)] int count)
+        public void Constructor_should_check_arguments([Values(-2, -1)] int count)
         {
             var exception = Record.Exception(() => new SemaphoreSlimSignalable(count));
 
             var e = exception.Should().BeOfType<ArgumentOutOfRangeException>().Subject;
             e.ParamName.Should().Be("initialCount");
-            e.Message.Should().StartWith("Value is not between");
+            e.Message.Should().StartWith("Value is not greater than or equal to 0");
         }
 
         [Theory]

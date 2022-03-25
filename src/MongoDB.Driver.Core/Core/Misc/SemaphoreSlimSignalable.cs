@@ -86,8 +86,7 @@ namespace MongoDB.Driver.Core.Misc
 
         public SemaphoreSlimSignalable(int initialCount)
         {
-            // reasonable upper bound for initialCount to ensure overall correctness
-            Ensure.IsBetween(initialCount, 0, 1024, nameof(initialCount));
+            Ensure.IsGreaterThanOrEqualToZero(initialCount, nameof(initialCount));
 
             _semaphore = new SemaphoreSlim(initialCount);
             _syncRoot = new object();
