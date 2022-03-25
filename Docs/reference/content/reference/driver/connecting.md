@@ -130,4 +130,4 @@ A majority of the methods and extension methods for an [`IMongoCollection<TDocum
 The implementation of [`IMongoCollection<TDocument>`]({{< apiref "T_MongoDB_Driver_IMongoCollection_1" >}}) ultimately provided by a [`MongoClient`]({{< apiref "T_MongoDB_Driver_MongoClient" >}}) is thread-safe and is safe to be stored globally or in an IoC container.
 
 ### Server API
-Starting from version 5.0 MongoDB servers support specifying API compatibility version. See [Versioned API]({{< relref "reference\driver\versioned_api.md" >}}).
+Starting from version 5.0 MongoDB servers support specifying API compatibility version. See [Stable API]({{< relref "reference\driver\stable_api.md" >}}).

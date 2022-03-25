@@ -930,7 +930,7 @@ tasks:
         - func: run-aws-auth-test-with-aws-EC2-credentials
         # ECS test is skipped untill testing on Linux becomes possible
 
-    - name: versioned-api-tests-net472
+    - name: stable-api-tests-net472
       commands:
         - func: bootstrap-mongo-orchestration
           vars:
@@ -940,7 +940,7 @@ tasks:
             FRAMEWORK: net472
             REQUIRE_API_VERSION: true
 
-    - name: versioned-api-tests-netstandard20
+    - name: stable-api-tests-netstandard20
       commands:
         - func: bootstrap-mongo-orchestration
           vars:
@@ -950,7 +950,7 @@ tasks:
             FRAMEWORK: netstandard20
             REQUIRE_API_VERSION: true
 
-    - name: versioned-api-tests-netstandard21
+    - name: stable-api-tests-netstandard21
       commands:
         - func: bootstrap-mongo-orchestration
           vars:
@@ -1576,15 +1576,15 @@ buildvariants:
   tasks:
     - name: aws-auth-tests
 
-- matrix_name: versioned-api-tests
+- matrix_name: stable-api-tests
   matrix_spec: { version: ["5.0", "latest"], topology: "standalone", auth: "auth", ssl: "nossl", os: "windows-64" }
-  display_name: "Versioned API ${version} ${topology} ${auth} ${ssl} ${os}"
+  display_name: "Stable API ${version} ${topology} ${auth} ${ssl} ${os}"
   run_on:
     - windows-64-vs2017-test
   tasks:
-    - name: versioned-api-tests-net472
-    - name: versioned-api-tests-netstandard20
-    - name: versioned-api-tests-netstandard21
+    - name: stable-api-tests-net472
+    - name: stable-api-tests-netstandard20
+    - name: stable-api-tests-netstandard21
 
 - matrix_name: plain-auth-tests
   matrix_spec: { os: "*" }
