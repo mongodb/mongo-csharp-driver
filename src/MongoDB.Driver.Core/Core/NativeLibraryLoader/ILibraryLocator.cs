@@ -20,6 +20,7 @@ namespace MongoDB.Driver.Core.NativeLibraryLoader
     internal interface ILibraryLocator
     {
         bool IsX32ModeSupported { get; }
+        string LibraryName { get; }
         string GetLibraryAbsolutePath(OperatingSystemPlatform currentPlatform);
     }
 }

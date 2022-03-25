@@ -94,10 +94,11 @@ namespace MongoDB.Driver.Core.Tests.Core.NativeLibraryLoader
                 _mockedAssemblyUri = mockedAssemblyUri; // can be null
             }
 
+            public override string LibraryName => "TestLibraryLocator";
             public override string GetBaseAssemblyUri() => _mockedAssemblyUri ?? base.GetBaseAssemblyUri();
 
             // not required for these tests yet
-            public override string GetLibraryName(OperatingSystemPlatform currentPlatform) => throw new NotImplementedException();
+            public override string GetLibraryFileName(OperatingSystemPlatform currentPlatform) => throw new NotImplementedException();
         }
     }
 }

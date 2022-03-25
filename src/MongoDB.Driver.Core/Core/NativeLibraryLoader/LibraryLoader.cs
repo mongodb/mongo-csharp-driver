@@ -13,10 +13,9 @@
 * limitations under the License.
 */
 
-using MongoDB.Driver.Core.Misc;
-using MongoDB.Shared;
 using System;
 using System.Runtime.InteropServices;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.NativeLibraryLoader
 {
@@ -29,7 +28,7 @@ namespace MongoDB.Driver.Core.NativeLibraryLoader
             Ensure.IsNotNull(libraryLocator, nameof(libraryLocator));
             if (!libraryLocator.IsX32ModeSupported)
             {
-                ThrowIfNot64BitProcess();
+                ThrowIfNot64BitProcess(libraryLocator);
             }
             _nativeLoader = CreateNativeLoader(libraryLocator);
         }
@@ -51,10 +50,10 @@ namespace MongoDB.Driver.Core.NativeLibraryLoader
         {
             var currentPlatform = OperatingSystemHelper.CurrentOperatingSystem;
             var absolutePath = libraryLocator.GetLibraryAbsolutePath(currentPlatform);
-            return CreateNativeLoader(currentPlatform, absolutePath);
+            return CreateNativeLoader(currentPlatform, absolutePath, libraryLocator.LibraryName);
         }
 
-        private INativeLibraryLoader CreateNativeLoader(OperatingSystemPlatform currentPlatform, string libraryPath)
+        private INativeLibraryLoader CreateNativeLoader(OperatingSystemPlatform currentPlatform, string libraryPath, string libraryName)
         {
             switch (currentPlatform)
             {
@@ -65,15 +64,15 @@ namespace MongoDB.Driver.Core.NativeLibraryLoader
                 case OperatingSystemPlatform.Windows:
                     return new WindowsLibraryLoader(libraryPath);
                 default:
-                    throw new PlatformNotSupportedException($"Unexpected platform {currentPlatform}.");
+                    throw new PlatformNotSupportedException($"Error loading library {libraryName}: Unexpected platform {currentPlatform}.");
             }
         }
 
-        private void ThrowIfNot64BitProcess()
+        private void ThrowIfNot64BitProcess(ILibraryLocator libraryLocator)
         {
             if (!Environment.Is64BitProcess)
             {
-                throw new PlatformNotSupportedException("Native libraries can be loaded only in a 64-bit process.");
+                throw new PlatformNotSupportedException($"{libraryLocator.LibraryName} can be loaded only in a 64-bit process.");
             }
         }
     }
