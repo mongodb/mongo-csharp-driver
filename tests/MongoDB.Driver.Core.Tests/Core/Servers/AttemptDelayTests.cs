@@ -23,12 +23,12 @@ using Xunit;
 
 namespace MongoDB.Driver.Core.Servers
 {
-    public class HeartbeatDelayTests
+    public class AttemptDelayTests
     {
         [Fact]
         public void Dispose_can_be_called_multiple_times()
         {
-            var subject = new HeartbeatDelay(TimeSpan.FromHours(10), TimeSpan.FromMilliseconds(1));
+            var subject = new AttemptDelay(TimeSpan.FromHours(10), TimeSpan.FromMilliseconds(1));
 
             subject.Dispose();
             subject.Dispose();
@@ -36,14 +36,14 @@ namespace MongoDB.Driver.Core.Servers
 
         [Theory]
         [ParameterAttributeData]
-        public void RequestHeartbeat_should_respect_to_minHeartbeatInterval([Values(10, -1)]int heartbeatIntervalInMinutes)
+        public void RequestNextAttempt_should_respect_to_minHeartbeatInterval([Values(10, -1)]int intervalInMinutes)
         {
-            var heartbeatInterval = heartbeatIntervalInMinutes == -1 ? Timeout.InfiniteTimeSpan : TimeSpan.FromMinutes(heartbeatIntervalInMinutes);
-            var minHeartbeatInterval = TimeSpan.FromSeconds(2);
+            var interval = intervalInMinutes == -1 ? Timeout.InfiniteTimeSpan : TimeSpan.FromMinutes(intervalInMinutes);
+            var minInterval = TimeSpan.FromSeconds(2);
 
             var stopwatch = Stopwatch.StartNew();
-            var subject = new HeartbeatDelay(heartbeatInterval, minHeartbeatInterval);
-            subject.RequestHeartbeat();
+            var subject = new AttemptDelay(interval, minInterval);
+            subject.RequestNextAttempt();
             var timeout = TimeSpan.FromMinutes(1);
             var result = Task.WaitAny(subject.Task, Task.Delay(timeout));
             if (result != 0)
@@ -52,23 +52,23 @@ namespace MongoDB.Driver.Core.Servers
             }
             stopwatch.Stop();
 
-            stopwatch.Elapsed.Should().BeGreaterOrEqualTo(minHeartbeatInterval - TimeSpan.FromMilliseconds(15));
+            stopwatch.Elapsed.Should().BeGreaterOrEqualTo(minInterval - TimeSpan.FromMilliseconds(15));
         }
 
         [Fact]
-        public void Task_should_complete_when_heartbeatInterval_has_expired()
+        public void Task_should_complete_when_interval_has_expired()
         {
-            var subject = new HeartbeatDelay(TimeSpan.FromMilliseconds(1), TimeSpan.FromMilliseconds(1));
+            var subject = new AttemptDelay(TimeSpan.FromMilliseconds(1), TimeSpan.FromMilliseconds(1));
 
             subject.Task.Wait(TimeSpan.FromSeconds(1)).Should().BeTrue();
         }
 
         [Fact]
-        public void Task_should_complete_when_early_heartbeat_is_requested()
+        public void Task_should_complete_when_early_attempt_is_requested()
         {
-            var subject = new HeartbeatDelay(TimeSpan.FromHours(10), TimeSpan.FromMilliseconds(1));
+            var subject = new AttemptDelay(TimeSpan.FromHours(10), TimeSpan.FromMilliseconds(1));
 
-            subject.RequestHeartbeat();
+            subject.RequestNextAttempt();
 
             subject.Task.Wait(TimeSpan.FromSeconds(1)).Should().BeTrue();
         }

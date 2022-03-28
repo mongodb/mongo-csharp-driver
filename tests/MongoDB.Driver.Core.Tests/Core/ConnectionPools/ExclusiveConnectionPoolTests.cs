@@ -977,7 +977,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     }
                     else if (operationIndex < clearOpMaxIndex)
                     {
-                        subject.Clear();
+                        subject.Clear(closeInProgressConnections: false);
                         Interlocked.Increment(ref clearedCount);
                     }
                     else
@@ -1004,7 +1004,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         [Fact]
         public void Clear_should_throw_an_InvalidOperationException_if_not_initialized()
         {
-            Action act = () => _subject.Clear();
+            Action act = () => _subject.Clear(closeInProgressConnections: false);
 
             act.ShouldThrow<InvalidOperationException>();
         }
@@ -1014,7 +1014,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         {
             _subject.Dispose();
 
-            Action act = () => _subject.Clear();
+            Action act = () => _subject.Clear(closeInProgressConnections: false);
 
             act.ShouldThrow<ObjectDisposedException>();
         }
@@ -1039,7 +1039,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
 
             connection.IsExpired.Should().BeFalse();
-            _subject.Clear();
+            _subject.Clear(closeInProgressConnections: false);
             connection.IsExpired.Should().BeTrue();
         }
 
@@ -1125,7 +1125,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             _mockConnectionExceptionHandler
                 .Setup(handler => handler.HandleExceptionOnOpen(authenticationException))
-                .Callback(() => _subject.Clear());
+                .Callback(() => _subject.Clear(closeInProgressConnections: false));
 
             using (var subject = CreateSubject())
             {
@@ -1159,7 +1159,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             subject._maintenanceHelper().IsRunning.Should().BeTrue();
         }
 
-        [Fact]
+        [Fact(Skip = "test")]
         public void Maintenance_should_not_run_with_infinite_maintenanceInterval()
         {
             var settings = _settings.With(maintenanceInterval: Timeout.InfiniteTimeSpan);
@@ -1170,6 +1170,23 @@ namespace MongoDB.Driver.Core.ConnectionPools
             subject.SetReady();
             
             subject._maintenanceHelper().IsRunning.Should().BeFalse();
+        }
+
+        [Fact]
+        public void Maintenance_should_call_()
+        {
+            var settings = _settings.With(maintenanceInterval: TimeSpan.FromMinutes(1), minConnections: 0);
+
+            using var subject = CreateSubject(settings);
+
+            subject.Initialize();
+            subject.SetReady();
+            Thread.Sleep(1000);
+            subject.Clear(closeInProgressConnections: false);
+
+            subject._maintenanceHelper().IsRunning.Should().BeFalse();
+
+            var t =_capturedEvents;
         }
 
         [Theory]
@@ -1250,7 +1267,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     allEstablishing.Wait();
 
                     // clear, all in maxConnecting queue should fail
-                    subject.Clear();
+                    subject.Clear(closeInProgressConnections: false);
 
                     // unblock after all in maxConnecting queue failed
                     allInQueueFailed.Wait();
@@ -1514,7 +1531,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     SpinWait.SpinUntil(() => subject._waitQueueFreeSlots() == 0);
 
                     // pause the pool, blockedInQueueCount threads waiting to establish should observe MongoPoolPausedException exception
-                    subject.Clear();
+                    subject.Clear(closeInProgressConnections: false);
 
                     SpinWait.SpinUntil(() => subject._waitQueueFreeSlots() >= blockedInQueueCount);
                     blockEstablishmentEvent.Set();
@@ -1629,6 +1646,11 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
     internal static class ExclusiveConnectionPoolReflector
     {
+        public static int _generation(this ExclusiveConnectionPool obj) => (int)Reflector.GetFieldValue(obj, nameof(_generation));
+
+
+        public static void _generation(this ExclusiveConnectionPool obj, int generation) => Reflector.SetFieldValue(obj, nameof(_generation), generation);
+
         public static int _waitQueueFreeSlots(this ExclusiveConnectionPool obj)
         {
             return (int)Reflector.GetFieldValue(obj, nameof(_waitQueueFreeSlots));

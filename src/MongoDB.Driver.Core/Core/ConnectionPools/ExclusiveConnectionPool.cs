@@ -76,13 +76,13 @@ namespace MongoDB.Driver.Core.ConnectionPools
             _connectionExceptionHandler = Ensure.IsNotNull(connectionExceptionHandler, nameof(connectionExceptionHandler));
             Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
 
-            _maintenanceHelper = new MaintenanceHelper(MaintainSize, _settings.MaintenanceInterval);
             _poolState = new PoolState(EndPointHelper.ToString(_endPoint));
             _checkOutReasonCounter = new CheckOutReasonCounter();
 
             _maxConnectingQueue = new SemaphoreSlimSignalable(settings.MaxConnecting);
             _connectionHolder = new ListConnectionHolder(eventSubscriber, _maxConnectingQueue);
             _maxConnectionsQueue = new SemaphoreSlimSignalable(settings.MaxConnections);
+            _maintenanceHelper = new MaintenanceHelper(this, _settings.MaintenanceInterval);
 
             _serviceStates = new ServiceStates();
 #pragma warning disable 618
@@ -177,7 +177,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             return await helper.AcquireConnectionAsync(cancellationToken).ConfigureAwait(false);
         }
 
-        public void Clear()
+        public void Clear(bool closeInProgressConnections)
         {
             lock (_poolState)
             {
@@ -187,8 +187,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 {
                     _clearingEventHandler?.Invoke(new ConnectionPoolClearingEvent(_serverId, _settings));
 
-                    _maintenanceHelper.Cancel();
                     _generation++;
+                    _maintenanceHelper.RequestCancel(closeInProgressConnections);
 
                     _maxConnectionsQueue.Signal();
                     _maxConnectingQueue.Signal();
@@ -291,55 +291,6 @@ namespace MongoDB.Driver.Core.ConnectionPools
         }
 
         // private methods
-        private void MaintainSize(CancellationToken cancellationToken)
-        {
-            try
-            {
-                while (!cancellationToken.IsCancellationRequested)
-                {
-                    try
-                    {
-                        _connectionHolder.Prune(cancellationToken);
-                        EnsureMinSize(cancellationToken);
-                    }
-                    catch
-                    {
-                        // ignore exceptions
-                    }
-                    ThreadHelper.Sleep(_settings.MaintenanceInterval, cancellationToken);
-                }
-            }
-            catch
-            {
-                // ignore exceptions
-            }
-        }
-
-        private void EnsureMinSize(CancellationToken cancellationToken)
-        {
-            var minTimeout = TimeSpan.FromMilliseconds(20);
-
-            while (CreatedCount < _settings.MinConnections && !cancellationToken.IsCancellationRequested)
-            {
-                using (var poolAwaiter = _maxConnectionsQueue.CreateAwaiter())
-                {
-                    var entered = poolAwaiter.WaitSignaled(minTimeout, cancellationToken);
-                    if (!entered)
-                    {
-                        return;
-                    }
-
-                    using (var connectionCreator = new ConnectionCreator(this, minTimeout))
-                    {
-                        var connection = connectionCreator.CreateOpened(cancellationToken);
-                        _connectionHolder.Return(connection);
-                    }
-                }
-
-                cancellationToken.ThrowIfCancellationRequested();
-            }
-        }
-
         private void ReleaseConnection(PooledConnection connection)
         {
             if (_checkingInConnectionEventHandler != null)

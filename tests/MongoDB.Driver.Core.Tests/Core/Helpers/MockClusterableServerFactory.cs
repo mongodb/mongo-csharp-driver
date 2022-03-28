@@ -97,7 +97,7 @@ namespace MongoDB.Driver.Core.Helpers
                         .Setup(p => p.AcquireConnectionAsync(It.IsAny<CancellationToken>()))
                         .Callback(acquireConnectionCallback)
                         .ReturnsAsync(mockConnection.Object);
-                    mockConnectionPool.Setup(p => p.Clear()).Callback(() => { ++poolGeneration; });
+                    mockConnectionPool.Setup(p => p.Clear(It.IsAny<bool>())).Callback(() => { ++poolGeneration; });
                     var mockConnectionPoolFactory = new Mock<IConnectionPoolFactory> { DefaultValue = DefaultValue.Mock };
                     mockConnectionPoolFactory
                         .Setup(f => f.CreateConnectionPool(It.IsAny<ServerId>(), endPoint, It.IsAny<IConnectionExceptionHandler>()))

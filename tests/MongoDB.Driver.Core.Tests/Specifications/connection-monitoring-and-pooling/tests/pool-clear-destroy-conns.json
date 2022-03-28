@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "style": "unit",
+  "description": "When a pool is cleared, it MUST destroy all available connections in that pool",
+  "poolOptions": {
+    "backgroundThreadIntervalMS": -1
+  },
+  "operations": [
+    {
+      "name": "ready"
+    },
+    {
+      "name": "checkOut"
+    },
+    {
+      "name": "checkOut",
+      "label": "conn"
+    },
+    {
+      "name": "clear"
+    }
+    {
+      "name": "close"
+    }
+  ],
+  "events": [
+    {
+      "type": "ConnectionCheckedOut",
+      "connectionId": 1,
+      "address": 42
+    },
+    {
+      "type": "ConnectionCheckedOut",
+      "connectionId": 2,
+      "address": 42
+    },
+    {
+      "type": "ConnectionClosed",
+      "connectionId": 1,
+      "reason": "stale",
+      "address": 42
+    },
+    {
+      "type": "ConnectionPoolCleared",
+      "address": 42
+    },
+    {
+      "type": "ConnectionClosed",
+      "connectionId": 2,
+      "reason": "stale",
+      "address": 42
+    },
+    {
+      "type": "ConnectionPoolClosed",
+      "address": 42
+    }
+  ],
+  "ignore": [
+    "ConnectionCreated",
+    "ConnectionPoolReady",
+    "ConnectionReady",
+    "ConnectionCheckOutStarted",
+    "ConnectionPoolCreated"
+  ]
+}

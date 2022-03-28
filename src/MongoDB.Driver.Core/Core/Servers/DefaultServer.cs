@@ -217,7 +217,7 @@ namespace MongoDB.Driver.Core.Servers
                 TriggerServerDescriptionChanged(this, serverDescriptionChangedEvent);
 
                 // pool must be cleared on after cluster update
-                ConnectionPool.Clear();
+                ConnectionPool.Clear(closeInProgressConnections: newDescription.HeartbeatException is MongoConnectionException mongoConnectionException && mongoConnectionException.IsNetworkException);
             }
             else
             {

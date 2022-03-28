@@ -19,23 +19,23 @@ using System.Threading.Tasks;
 
 namespace MongoDB.Driver.Core.Servers
 {
-    internal sealed class HeartbeatDelay : IDisposable
+    internal sealed class AttemptDelay : IDisposable
     {
         // fields
-        private readonly DateTime _earlyHeartbeatAt;
-        private int _earlyHeartbeatHasBeenRequested;
+        private readonly DateTime _earlyAttemptAt;
+        private int _earlyAttemptHasBeenRequested;
         private readonly TaskCompletionSource<bool> _taskCompletionSource = new TaskCompletionSource<bool>();
         private readonly Timer _timer;
 
         // constructors
-        public HeartbeatDelay(TimeSpan heartbeatInterval, TimeSpan minHeartbeatInterval)
+        public AttemptDelay(TimeSpan interval, TimeSpan minInterval)
         {
-            if (heartbeatInterval != Timeout.InfiniteTimeSpan && minHeartbeatInterval > heartbeatInterval)
+            if (interval != Timeout.InfiniteTimeSpan && minInterval > interval)
             {
-                minHeartbeatInterval = heartbeatInterval;
+                minInterval = interval;
             }
-            _timer = new Timer(TimerCallback, null, heartbeatInterval, Timeout.InfiniteTimeSpan);
-            _earlyHeartbeatAt = DateTime.UtcNow + minHeartbeatInterval;
+            _timer = new Timer(TimerCallback, null, interval, Timeout.InfiniteTimeSpan);
+            _earlyAttemptAt = DateTime.UtcNow + minInterval;
         }
 
         // properties
@@ -50,12 +50,12 @@ namespace MongoDB.Driver.Core.Servers
             _timer.Dispose();
         }
 
-        public void RequestHeartbeat()
+        public void RequestNextAttempt()
         {
-            if (Interlocked.CompareExchange(ref _earlyHeartbeatHasBeenRequested, 1, 0) == 0)
+            if (Interlocked.CompareExchange(ref _earlyAttemptHasBeenRequested, 1, 0) == 0)
             {
-                var earlyHeartbeatDelay = _earlyHeartbeatAt - DateTime.UtcNow;
-                if (earlyHeartbeatDelay <= TimeSpan.Zero)
+                var earlyAttemptDelay = _earlyAttemptAt - DateTime.UtcNow;
+                if (earlyAttemptDelay <= TimeSpan.Zero)
                 {
                     _timer.Dispose();
                     _taskCompletionSource.TrySetResult(true);
@@ -64,11 +64,11 @@ namespace MongoDB.Driver.Core.Servers
                 {
                     try
                     {
-                        _timer.Change(earlyHeartbeatDelay, Timeout.InfiniteTimeSpan);
+                        _timer.Change(earlyAttemptDelay, Timeout.InfiniteTimeSpan);
                     }
                     catch (ObjectDisposedException)
                     {
-                        // Allow timer to be disposed during RequestHeartbeat
+                        // Allow timer to be disposed during RequestNextAttempt
                     }
                 }
             }

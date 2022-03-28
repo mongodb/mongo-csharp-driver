@@ -148,6 +148,11 @@ namespace MongoDB.Driver.Core
             WaitForOrThrowIfTimeout(matchSequence, timeout, message);
         }
 
+        public void WaitForEventOrThrowIfTimeout<TExpectedEvent>(TimeSpan timeout, Func<TimeSpan, string> message = null)
+        {
+            WaitForOrThrowIfTimeout(new[] { typeof(TExpectedEvent) }, timeout, message);
+        }
+
         public void WaitForOrThrowIfTimeout(Func<object, bool>[] matchSequence, TimeSpan timeout, Func<TimeSpan, string> message = null)
         {
             Func<IEnumerable<object>, bool> condition = @events =>

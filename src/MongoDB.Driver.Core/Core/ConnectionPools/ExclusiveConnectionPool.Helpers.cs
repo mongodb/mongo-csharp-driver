@@ -24,6 +24,7 @@ using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
@@ -159,67 +160,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
 
             public override string ToString() => State.ToString();
-        }
-
-        internal sealed class MaintenanceHelper : IDisposable
-        {
-            private CancellationTokenSource _cancellationTokenSource = null;
-            private readonly Action<CancellationToken> _maintenanceAction;
-            private Thread _maintenanceThread;
-            private readonly TimeSpan _interval;
-
-            public MaintenanceHelper(Action<CancellationToken> maintenanceAction, TimeSpan interval)
-            {
-                _interval = interval;
-                _maintenanceAction = Ensure.IsNotNull(maintenanceAction, nameof(maintenanceAction));
-            }
-
-            public bool IsRunning => _maintenanceThread != null;
-
-            public void Cancel()
-            {
-                if (_interval == Timeout.InfiniteTimeSpan)
-                {
-                    return;
-                }
-
-                CancelAndDispose();
-                _cancellationTokenSource = null;
-                _maintenanceThread = null;
-                // the previous _maintenanceThread might not be stopped yet, but it will be soon
-            }
-
-            public void Start()
-            {
-                if (_interval == Timeout.InfiniteTimeSpan)
-                {
-                    return;
-                }
-
-                CancelAndDispose();
-                _cancellationTokenSource = new CancellationTokenSource();
-                var cancellationToken = _cancellationTokenSource.Token;
-
-                _maintenanceThread = new Thread(new ParameterizedThreadStart(ThreadStart)) { IsBackground = true };
-                _maintenanceThread.Start(cancellationToken);
-
-                void ThreadStart(object cancellationToken)
-                {
-                    _maintenanceAction((CancellationToken)cancellationToken);
-                }
-            }
-
-            public void Dispose()
-            {
-                CancelAndDispose();
-            }
-
-            private void CancelAndDispose()
-            {
-                _cancellationTokenSource?.Cancel();
-                _cancellationTokenSource?.Dispose();
-            }
-        }
+        }       
 
         private sealed class AcquireConnectionHelper : IDisposable
         {
@@ -717,6 +658,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             private readonly SemaphoreSlimSignalable _semaphoreSlimSignalable;
             private readonly object _lock = new object();
             private readonly List<PooledConnection> _connections;
+            private readonly List<PooledConnection> _connectionsInUse;
 
             private readonly Action<ConnectionPoolRemovingConnectionEvent> _removingConnectionEventHandler;
             private readonly Action<ConnectionPoolRemovedConnectionEvent> _removedConnectionEventHandler;
@@ -725,6 +667,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             {
                 _semaphoreSlimSignalable = semaphoreSlimSignalable;
                 _connections = new List<PooledConnection>();
+                _connectionsInUse = new List<PooledConnection>();
 
                 eventSubscriber.TryGetEventHandler(out _removingConnectionEventHandler);
                 eventSubscriber.TryGetEventHandler(out _removedConnectionEventHandler);
@@ -750,17 +693,21 @@ namespace MongoDB.Driver.Core.ConnectionPools
                         RemoveConnection(connection);
                     }
                     _connections.Clear();
+                    _connectionsInUse.Clear(); // TODO
 
                     SignalOrReset();
                 }
             }
 
-            public void Prune(CancellationToken cancellationToken)
+            public void Prune(bool closeInProgressConnections, CancellationToken cancellationToken)
             {
                 PooledConnection[] expiredConnections;
                 lock (_lock)
                 {
-                    expiredConnections = _connections.Where(c => c.IsExpired).ToArray();
+                    expiredConnections = _connections
+                        .Where(c => c.IsExpired)
+                        .Concat(_connectionsInUse.Where(c => c.IsExpired && closeInProgressConnections)) //TODO
+                        .ToArray();
                 }
 
                 foreach (var connection in expiredConnections)
@@ -778,6 +725,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
                         RemoveConnection(connection);
                         _connections.Remove(connection);
+                        _connectionsInUse.Remove(connection);
+
                         SignalOrReset();
                     }
                 }
@@ -814,6 +763,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 lock (_lock)
                 {
                     _connections.Add(connection);
+                    _connectionsInUse.Remove(connection);
                     SignalOrReset();
                 }
             }
@@ -847,6 +797,14 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 {
                     // signal that connections are available
                     _semaphoreSlimSignalable.Signal();
+                }
+            }
+
+            public void TrackAcquiredConnection(PooledConnection connection)
+            {
+                lock (_lock)
+                {
+                    _connectionsInUse.Add(connection);
                 }
             }
         }
@@ -889,6 +847,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     }
 
                     var connection = CreateOpenedInternal(cancellationToken);
+                    _pool._connectionHolder.TrackAcquiredConnection(connection);
                     return connection;
                 }
                 catch (Exception ex)
@@ -932,6 +891,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                         }
                     }
 
+                    _pool._connectionHolder.TrackAcquiredConnection(connection);
                     return connection;
                 }
                 catch (Exception ex)
@@ -976,6 +936,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                         }
                     }
 
+                    _pool._connectionHolder.TrackAcquiredConnection(connection);
                     return connection;
                 }
                 catch (Exception ex)
