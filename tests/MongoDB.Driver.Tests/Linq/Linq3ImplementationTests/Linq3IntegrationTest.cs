@@ -25,6 +25,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests
 {
     public abstract class Linq3IntegrationTest
     {
+        protected void AssertStages(IEnumerable<BsonDocument> stages, params string[] expectedStages)
+        {
+            AssertStages(stages, (IEnumerable<string>)expectedStages);
+        }
+
         protected void AssertStages(IEnumerable<BsonDocument> stages, IEnumerable<string> expectedStages)
         {
             stages.Should().Equal(expectedStages.Select(json => BsonDocument.Parse(json)));
