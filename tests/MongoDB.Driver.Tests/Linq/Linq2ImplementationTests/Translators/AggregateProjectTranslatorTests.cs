@@ -1446,6 +1446,26 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests.Translators
             result.Value.Result.Should().BeTrue();
         }
 
+        [Fact]
+        public void Should_translate_string_case_insensitive_compare()
+        {
+            var result = Project(x => new { Result = string.Compare(x.B, "balloon", StringComparison.OrdinalIgnoreCase) > 0});
+
+            result.Projection.Should().Be("{ Result: { \"gt\": [{ \"$strcasecmp\": [\"$B\", \"balloon\"] }, 0] }, _id: 0 }");
+
+            result.Value.Result.Should().BeTrue();
+        }
+
+        [Fact]
+        public void Should_translate_string_case_sensitive_compare()
+        {
+            var result = Project(x => new { Result = string.Compare(x.B, "balloon", StringComparison.Ordinal) > 0});
+
+            result.Projection.Should().Be("{ Result: { \"gt\": [{ \"$cmp\": [\"$B\", \"balloon\"] }, 0] }, _id: 0 }");
+
+            result.Value.Result.Should().BeTrue();
+        }
+
         [Theory]
         [InlineData(StringComparison.CurrentCulture)]
         [InlineData(StringComparison.CurrentCultureIgnoreCase)]
