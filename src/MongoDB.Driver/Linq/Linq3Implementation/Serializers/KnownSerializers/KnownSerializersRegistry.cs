@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers.KnownSerializers
             var possibleSerializers = _registry.TryGetValue(expression, out var knownSerializers) ? knownSerializers.GetPossibleSerializers(expressionType) : new HashSet<IBsonSerializer>();
             return possibleSerializers.Count switch
             {
-                0 => defaultSerializer ?? throw new InvalidOperationException($"Cannot find serializer for {expression}."),
+                0 => defaultSerializer ?? BsonSerializer.LookupSerializer(expressionType), // sometimes there is no known serializer from the context (e.g. CSHARP-4062)
                 > 1 => throw new InvalidOperationException($"More than one possible serializer found for {expression}."),
                 _ => possibleSerializers.First()
             };
