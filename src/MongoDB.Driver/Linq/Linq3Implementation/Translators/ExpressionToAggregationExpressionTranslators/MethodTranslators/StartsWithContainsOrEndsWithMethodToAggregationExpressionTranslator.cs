@@ -14,52 +14,70 @@
 */
 
 using System;
+using System.Collections.ObjectModel;
 using System.Globalization;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
+using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
     internal static class StartsWithContainsOrEndsWithMethodToAggregationExpressionTranslator
     {
-        private static readonly MethodInfo[] __startsWithContainsOrEndWithMethods;
+        private static readonly MethodInfo[] __startsWithContainsOrEndsWithMethods;
         private static readonly MethodInfo[] __withComparisonTypeMethods;
         private static readonly MethodInfo[] __withIgnoreCaseAndCultureMethods;
 
         static StartsWithContainsOrEndsWithMethodToAggregationExpressionTranslator()
         {
-            __startsWithContainsOrEndWithMethods = new[]
+            __startsWithContainsOrEndsWithMethods = new[]
             {
-                StringMethod.StartsWith,
-                StringMethod.StartsWithWithComparisonType,
-                StringMethod.StartsWithWithIgnoreCaseAndCulture,
-                StringMethod.Contains,
-#if NETSTANDARD2_1_OR_GREATER
-                StringMethod.ContainsWithComparisonType,
-#endif
-                StringMethod.EndsWith,
-                StringMethod.EndsWithWithComparisonType,
-                StringMethod.EndsWithWithIgnoreCaseAndCulture
+                StringMethod.StartsWithWithChar,
+                StringMethod.StartsWithWithString,
+                StringMethod.StartsWithWithStringAndComparisonType,
+                StringMethod.StartsWithWithStringAndIgnoreCaseAndCulture,
+                StringMethod.ContainsWithChar,
+                StringMethod.ContainsWithCharAndComparisonType,
+                StringMethod.ContainsWithString,
+                StringMethod.ContainsWithStringAndComparisonType,
+                StringMethod.EndsWithWithChar,
+                StringMethod.EndsWithWithString,
+                StringMethod.EndsWithWithStringAndComparisonType,
+                StringMethod.EndsWithWithStringAndIgnoreCaseAndCulture
             };
 
             __withComparisonTypeMethods = new[]
             {
-                StringMethod.StartsWithWithComparisonType,
-#if NETSTANDARD2_1_OR_GREATER
-                StringMethod.ContainsWithComparisonType,
-#endif
-                StringMethod.EndsWithWithComparisonType
+                StringMethod.StartsWithWithStringAndComparisonType,
+                StringMethod.ContainsWithCharAndComparisonType,
+                StringMethod.ContainsWithStringAndComparisonType,
+                StringMethod.EndsWithWithStringAndComparisonType
             };
 
             __withIgnoreCaseAndCultureMethods = new[]
             {
-                StringMethod.StartsWithWithIgnoreCaseAndCulture,
-                StringMethod.EndsWithWithIgnoreCaseAndCulture
+                StringMethod.StartsWithWithStringAndIgnoreCaseAndCulture,
+                StringMethod.EndsWithWithStringAndIgnoreCaseAndCulture
             };
+        }
+
+        public static bool CanTranslate(MethodCallExpression expression)
+        {
+            var method = expression.Method;
+
+            if (method.Is(EnumerableMethod.Contains) && expression.Arguments[0].Type == typeof(string))
+            {
+                return true;
+            }
+
+            return method.IsOneOf(__startsWithContainsOrEndsWithMethods);
         }
 
         public static AggregationExpression Translate(TranslationContext context, MethodCallExpression expression)
@@ -67,12 +85,43 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.IsOneOf(__startsWithContainsOrEndWithMethods))
+            if (CanTranslate(expression))
             {
-                var objectExpression = expression.Object;
+                Expression objectExpression;
+                if (method.Is(EnumerableMethod.Contains))
+                {
+                    objectExpression = arguments[0];
+                    arguments = new ReadOnlyCollection<Expression>(arguments.Skip(1).ToList());
+
+                    if (objectExpression.Type != typeof(string))
+                    {
+                        throw new ExpressionNotSupportedException(objectExpression, expression, because: "type implementing IEnumerable<char> is not string");
+                    }
+                }
+                else
+                {
+                    objectExpression = expression.Object;
+                }
+
                 var objectTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, objectExpression);
                 var valueExpression = arguments[0];
-                var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
+                AggregationExpression valueTranslation;
+                if (valueExpression.Type == typeof(char) &&
+                    valueExpression is ConstantExpression constantValueExpression)
+                {
+                    var c = (char)constantValueExpression.Value;
+                    var value = new string(c, 1);
+                    valueTranslation = new AggregationExpression(valueExpression, value, objectTranslation.Serializer);
+                }
+                else
+                {
+                    valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
+                    if (valueTranslation.Serializer is IRepresentationConfigurable representationConfigurable &&
+                        representationConfigurable.Representation != BsonType.String)
+                    {
+                        throw new ExpressionNotSupportedException(valueExpression, expression, because: "it is not serialized as a string");
+                    }
+                }
                 bool ignoreCase = false;
                 if (method.IsOneOf(__withComparisonTypeMethods))
                 {
@@ -123,7 +172,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     var (stringVar, stringSimpleAst) = AstExpression.UseVarIfNotSimple("string", stringAst);
                     var (substringVar, substringSimpleAst) = AstExpression.UseVarIfNotSimple("substring", substringAst);
                     var startAst = AstExpression.Subtract(AstExpression.StrLenCP(stringSimpleAst), AstExpression.StrLenCP(substringSimpleAst));
-                    var ast = AstExpression.Gte(AstExpression.IndexOfCP(stringSimpleAst, substringSimpleAst, startAst), 0);
+                    var startVar = AstExpression.Var("start");
+                    var ast = AstExpression.Let(
+                        var: AstExpression.VarBinding(startVar, startAst),
+                        @in: AstExpression.And(
+                            AstExpression.Gte(startVar, 0),
+                            AstExpression.Eq(AstExpression.IndexOfCP(stringSimpleAst, substringSimpleAst, startVar), startVar)));
                     return AstExpression.Let(stringVar, substringVar, ast);
                 }
             }
@@ -137,7 +191,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     case StringComparison.CurrentCultureIgnoreCase: return true;
                 }
 
-                throw new ExpressionNotSupportedException(comparisonTypeExpression, expression);
+                throw new ExpressionNotSupportedException(comparisonTypeExpression, expression, because: $"{comparisonType} is not supported");
             }
 
             bool GetIgnoreCaseFromIgnoreCaseAndCulture(Expression ignoreCaseExpression, Expression cultureExpression)
@@ -145,12 +199,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var ignoreCase = ignoreCaseExpression.GetConstantValue<bool>(containingExpression: expression);
                 var culture = cultureExpression.GetConstantValue<CultureInfo>(containingExpression: expression);
 
-                if (culture == CultureInfo.CurrentCulture)
+                if (culture != CultureInfo.CurrentCulture)
                 {
-                    return ignoreCase;
+                    throw new ExpressionNotSupportedException(cultureExpression, expression, because: "the supplied culture is not the current culture");
                 }
 
-                throw new ExpressionNotSupportedException(cultureExpression, expression);
+                return ignoreCase;
             }
         }
     }

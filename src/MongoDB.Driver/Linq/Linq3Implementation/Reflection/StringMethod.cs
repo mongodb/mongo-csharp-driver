@@ -23,13 +23,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
     internal static class StringMethod
     {
         // private static fields
-        private static readonly MethodInfo __contains;
-#if NETSTANDARD2_1_OR_GREATER
-        private static readonly MethodInfo __containsWithComparisonType;
-#endif
-        private static readonly MethodInfo __endsWith;
-        private static readonly MethodInfo __endsWithWithComparisonType;
-        private static readonly MethodInfo __endsWithWithIgnoreCaseAndCulture;
+        private static readonly MethodInfo __containsWithChar;
+        private static readonly MethodInfo __containsWithCharAndComparisonType;
+        private static readonly MethodInfo __containsWithString;
+        private static readonly MethodInfo __containsWithStringAndComparisonType;
+        private static readonly MethodInfo __endsWithWithChar;
+        private static readonly MethodInfo __endsWithWithString;
+        private static readonly MethodInfo __endsWithWithStringAndComparisonType;
+        private static readonly MethodInfo __endsWithWithStringAndIgnoreCaseAndCulture;
         private static readonly MethodInfo __getChars;
         private static readonly MethodInfo __indexOfAny;
         private static readonly MethodInfo __indexOfAnyWithStartIndex;
@@ -53,9 +54,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         private static readonly MethodInfo __splitWithCharsAndOptions;
         private static readonly MethodInfo __splitWithStringsAndCountAndOptions;
         private static readonly MethodInfo __splitWithStringsAndOptions;
-        private static readonly MethodInfo __startsWith;
-        private static readonly MethodInfo __startsWithWithComparisonType;
-        private static readonly MethodInfo __startsWithWithIgnoreCaseAndCulture;
+        private static readonly MethodInfo __startsWithWithChar;
+        private static readonly MethodInfo __startsWithWithString;
+        private static readonly MethodInfo __startsWithWithStringAndComparisonType;
+        private static readonly MethodInfo __startsWithWithStringAndIgnoreCaseAndCulture;
         private static readonly MethodInfo __strLenBytes;
         private static readonly MethodInfo __substrBytes;
         private static readonly MethodInfo __substring;
@@ -74,13 +76,24 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         // static constructor
         static StringMethod()
         {
-            __contains = ReflectionInfo.Method((string s, string value) => s.Contains(value));
 #if NETSTANDARD2_1_OR_GREATER
-            __containsWithComparisonType = ReflectionInfo.Method((string s, string value, StringComparison comparisonType) => s.Contains(value, comparisonType));
+            __containsWithChar = ReflectionInfo.Method((string s, char value) => s.Contains(value));
+            __containsWithCharAndComparisonType = ReflectionInfo.Method((string s, char value, StringComparison comparisonType) => s.Contains(value, comparisonType));
+            __containsWithStringAndComparisonType = ReflectionInfo.Method((string s, string value, StringComparison comparisonType) => s.Contains(value, comparisonType));
+            __endsWithWithChar = ReflectionInfo.Method((string s, char value) => s.EndsWith(value));
+            __startsWithWithChar = ReflectionInfo.Method((string s, char value) => s.StartsWith(value));
+#else
+            __containsWithChar = null;
+            __containsWithCharAndComparisonType = null;
+            __containsWithStringAndComparisonType = null;
+            __endsWithWithChar = null;
+            __startsWithWithChar = null;
 #endif
-            __endsWith = ReflectionInfo.Method((string s, string value) => s.EndsWith(value));
-            __endsWithWithComparisonType = ReflectionInfo.Method((string s, string value, StringComparison comparisonType) => s.EndsWith(value, comparisonType));
-            __endsWithWithIgnoreCaseAndCulture = ReflectionInfo.Method((string s, string value, bool ignoreCase, CultureInfo culture) => s.EndsWith(value, ignoreCase, culture));
+
+            __containsWithString = ReflectionInfo.Method((string s, string value) => s.Contains(value));
+            __endsWithWithString = ReflectionInfo.Method((string s, string value) => s.EndsWith(value));
+            __endsWithWithStringAndComparisonType = ReflectionInfo.Method((string s, string value, StringComparison comparisonType) => s.EndsWith(value, comparisonType));
+            __endsWithWithStringAndIgnoreCaseAndCulture = ReflectionInfo.Method((string s, string value, bool ignoreCase, CultureInfo culture) => s.EndsWith(value, ignoreCase, culture));
             __getChars = ReflectionInfo.Method((string s, int index) => s[index]);
             __indexOfAny = ReflectionInfo.Method((string s, char[] anyOf) => s.IndexOfAny(anyOf));
             __indexOfAnyWithStartIndex = ReflectionInfo.Method((string s, char[] anyOf, int startIndex) => s.IndexOfAny(anyOf, startIndex));
@@ -104,9 +117,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             __splitWithCharsAndOptions = ReflectionInfo.Method((string s, char[] separator, StringSplitOptions options) => s.Split(separator, options));
             __splitWithStringsAndCountAndOptions = ReflectionInfo.Method((string s, string[] separator, int count, StringSplitOptions options) => s.Split(separator, count, options));
             __splitWithStringsAndOptions = ReflectionInfo.Method((string s, string[] separator, StringSplitOptions options) => s.Split(separator, options));
-            __startsWith = ReflectionInfo.Method((string s, string value) => s.StartsWith(value));
-            __startsWithWithComparisonType = ReflectionInfo.Method((string s, string value, StringComparison comparisonType) => s.StartsWith(value, comparisonType));
-            __startsWithWithIgnoreCaseAndCulture = ReflectionInfo.Method((string s, string value, bool ignoreCase, CultureInfo culture) => s.StartsWith(value, ignoreCase, culture));
+            __startsWithWithString = ReflectionInfo.Method((string s, string value) => s.StartsWith(value));
+            __startsWithWithStringAndComparisonType = ReflectionInfo.Method((string s, string value, StringComparison comparisonType) => s.StartsWith(value, comparisonType));
+            __startsWithWithStringAndIgnoreCaseAndCulture = ReflectionInfo.Method((string s, string value, bool ignoreCase, CultureInfo culture) => s.StartsWith(value, ignoreCase, culture));
             __strLenBytes = ReflectionInfo.Method((string s) => s.StrLenBytes());
             __substrBytes = ReflectionInfo.Method((string s, int startIndex, int length) => s.SubstrBytes(startIndex, length));
             __substring = ReflectionInfo.Method((string s, int startIndex) => s.Substring(startIndex));
@@ -124,13 +137,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         }
 
         // public properties
-        public static MethodInfo Contains => __contains;
-#if NETSTANDARD2_1_OR_GREATER
-        public static MethodInfo ContainsWithComparisonType => __containsWithComparisonType;
-#endif
-        public static MethodInfo EndsWith => __endsWith;
-        public static MethodInfo EndsWithWithComparisonType => __endsWithWithComparisonType;
-        public static MethodInfo EndsWithWithIgnoreCaseAndCulture => __endsWithWithIgnoreCaseAndCulture;
+        public static MethodInfo ContainsWithChar => __containsWithChar;
+        public static MethodInfo ContainsWithCharAndComparisonType => __containsWithCharAndComparisonType;
+        public static MethodInfo ContainsWithString => __containsWithString;
+        public static MethodInfo ContainsWithStringAndComparisonType => __containsWithStringAndComparisonType;
+        public static MethodInfo EndsWithWithChar => __endsWithWithChar;
+        public static MethodInfo EndsWithWithString => __endsWithWithString;
+        public static MethodInfo EndsWithWithStringAndComparisonType => __endsWithWithStringAndComparisonType;
+        public static MethodInfo EndsWithWithStringAndIgnoreCaseAndCulture => __endsWithWithStringAndIgnoreCaseAndCulture;
         public static MethodInfo GetChars => __getChars;
         public static MethodInfo IndexOfAny => __indexOfAny;
         public static MethodInfo IndexOfAnyWithStartIndex => __indexOfAnyWithStartIndex;
@@ -154,11 +168,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         public static MethodInfo SplitWithCharsAndOptions => __splitWithCharsAndOptions;
         public static MethodInfo SplitWithStringsAndCountAndOptions => __splitWithStringsAndCountAndOptions;
         public static MethodInfo SplitWithStringsAndOptions => __splitWithStringsAndOptions;
-        public static MethodInfo StartsWith => __startsWith;
-        public static MethodInfo StartsWithWithComparisonType => __startsWithWithComparisonType;
+        public static MethodInfo StartsWithWithChar => __startsWithWithChar;
+        public static MethodInfo StartsWithWithString => __startsWithWithString;
+        public static MethodInfo StartsWithWithStringAndComparisonType => __startsWithWithStringAndComparisonType;
+        public static MethodInfo StartsWithWithStringAndIgnoreCaseAndCulture => __startsWithWithStringAndIgnoreCaseAndCulture;
         public static MethodInfo StrLenBytes => __strLenBytes;
         public static MethodInfo SubstrBytes => __substrBytes;
-        public static MethodInfo StartsWithWithIgnoreCaseAndCulture => __startsWithWithIgnoreCaseAndCulture;
         public static MethodInfo Substring => __substring;
         public static MethodInfo SubstringWithLength => __substringWithLength;
         public static MethodInfo ToLower => __toLower;

@@ -114,7 +114,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             var find = collection.Find(x => x.Text.EndsWith(x.Match, StringComparison.CurrentCultureIgnoreCase));
 
             var rendered = find.ToString();
-            rendered.Should().Be("find({ \"$expr\" : { \"$let\" : { \"vars\" : { \"string\" : { \"$toLower\" : \"$Text\" }, \"substring\" : { \"$toLower\" : \"$Match\" } }, \"in\" : { \"$gte\" : [{ \"$indexOfCP\" : [\"$$string\", \"$$substring\", { \"$subtract\" : [{ \"$strLenCP\" : \"$$string\" }, { \"$strLenCP\" : \"$$substring\" }] }] }, 0] } } } })");
+            rendered.Should().Be("find({ \"$expr\" : { \"$let\" : { \"vars\" : { \"string\" : { \"$toLower\" : \"$Text\" }, \"substring\" : { \"$toLower\" : \"$Match\" } }, \"in\" : { \"$let\" : { \"vars\" : { \"start\" : { \"$subtract\" : [{ \"$strLenCP\" : \"$$string\" }, { \"$strLenCP\" : \"$$substring\" }] } }, \"in\" : { \"$and\" : [{ \"$gte\" : [\"$$start\", 0] }, { \"$eq\" : [{ \"$indexOfCP\" : [\"$$string\", \"$$substring\", \"$$start\"] }, \"$$start\"] }] } } } } } })");
 
             var results = find.ToList();
             results.Count.Should().Be(1);

@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
@@ -42,6 +43,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
         private static readonly MethodInfo[] __indexOfWithStringMethods;
         private static readonly MethodInfo[] __modifierMethods;
         private static readonly MethodInfo[] __translatableMethods;
+        private static readonly MethodInfo[] __withComparisonTypeMethods;
+        private static readonly MethodInfo[] __withIgnoreCaseAndCultureMethods;
 
         // static constructor
         static StringExpressionToRegexFilterTranslator()
@@ -127,13 +130,32 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
 
             __translatableMethods = new[]
             {
-                StringMethod.Contains,
-                StringMethod.EndsWith,
-                StringMethod.EndsWithWithComparisonType,
-                StringMethod.EndsWithWithIgnoreCaseAndCulture,
-                StringMethod.StartsWith,
-                StringMethod.StartsWithWithComparisonType,
-                StringMethod.StartsWithWithIgnoreCaseAndCulture
+                StringMethod.ContainsWithChar,
+                StringMethod.ContainsWithCharAndComparisonType,
+                StringMethod.ContainsWithString,
+                StringMethod.ContainsWithStringAndComparisonType,
+                StringMethod.EndsWithWithChar,
+                StringMethod.EndsWithWithString,
+                StringMethod.EndsWithWithStringAndComparisonType,
+                StringMethod.EndsWithWithStringAndIgnoreCaseAndCulture,
+                StringMethod.StartsWithWithChar,
+                StringMethod.StartsWithWithString,
+                StringMethod.StartsWithWithStringAndComparisonType,
+                StringMethod.StartsWithWithStringAndIgnoreCaseAndCulture
+            };
+
+            __withComparisonTypeMethods = new[]
+            {
+                StringMethod.ContainsWithCharAndComparisonType,
+                StringMethod.ContainsWithStringAndComparisonType,
+                StringMethod.EndsWithWithStringAndComparisonType,
+                StringMethod.StartsWithWithStringAndComparisonType,
+            };
+
+            __withIgnoreCaseAndCultureMethods = new[]
+            {
+                StringMethod.EndsWithWithStringAndIgnoreCaseAndCulture,
+                StringMethod.StartsWithWithStringAndIgnoreCaseAndCulture
             };
         }
 
@@ -142,7 +164,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
         {
             if (expression is MethodCallExpression methodCallExpression)
             {
-                return methodCallExpression.Method.IsOneOf(__translatableMethods);
+                var method = methodCallExpression.Method;
+
+                if (method.Is(EnumerableMethod.Contains) && methodCallExpression.Arguments[0].Type == typeof(string))
+                {
+                    return true;
+                }
+
+                return method.IsOneOf(__translatableMethods);
             }
 
             return false;
@@ -179,11 +208,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
 
         public static AstFilter Translate(TranslationContext context, Expression expression)
         {
-            if (expression is MethodCallExpression methodCallExpression)
+            if (CanTranslate(expression))
             {
-                var method = methodCallExpression.Method;
-                if (method.IsOneOf(__translatableMethods))
+                if (expression is MethodCallExpression methodCallExpression)
                 {
+                    var method = methodCallExpression.Method;
                     switch (method.Name)
                     {
                         case "StartsWith":
@@ -432,13 +461,41 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            var (field, modifiers) = TranslateField(context, expression, expression.Object);
-            var value = arguments[0].GetConstantValue<string>(containingExpression: expression);
-            if (method.IsOneOf(StringMethod.StartsWithWithComparisonType, StringMethod.EndsWithWithComparisonType))
+            Expression objectExpression;
+            if (method.Is(EnumerableMethod.Contains))
+            {
+                objectExpression = arguments[0];
+                arguments = new ReadOnlyCollection<Expression>(arguments.Skip(1).ToList());
+
+                if (objectExpression.Type != typeof(string))
+                {
+                    throw new ExpressionNotSupportedException(objectExpression, expression, because: "type implementing IEnumerable<char> is not string");
+                }
+            }
+            else
+            {
+                objectExpression = expression.Object;
+            }
+
+            var (field, modifiers) = TranslateField(context, expression, objectExpression);
+
+            string value;
+            var valueExpression = arguments[0];
+            if (valueExpression.Type == typeof(char))
+            {
+                var c = valueExpression.GetConstantValue<char>(containingExpression: expression);
+                value = new string(c, 1);
+            }
+            else
+            {
+                value = valueExpression.GetConstantValue<string>(containingExpression: expression);
+            }
+
+            if (method.IsOneOf(__withComparisonTypeMethods))
             {
                 modifiers = TranslateComparisonType(modifiers, expression, arguments[1]);
             }
-            if (method.IsOneOf(StringMethod.StartsWithWithIgnoreCaseAndCulture, StringMethod.EndsWithWithIgnoreCaseAndCulture))
+            if (method.IsOneOf(__withIgnoreCaseAndCultureMethods))
             {
                 modifiers = TranslateIgnoreCase(modifiers, expression, arguments[1]);
                 modifiers = TranslateCulture(modifiers, expression, arguments[2]);
