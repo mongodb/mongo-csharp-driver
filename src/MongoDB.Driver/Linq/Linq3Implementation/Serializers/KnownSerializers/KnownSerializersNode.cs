@@ -77,7 +77,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers.KnownSerializers
             }
 
             Type itemType = null;
-            if (type.TryGetIEnumerableGenericInterface(out var ienumerableGenericInterface))
+            if (type != typeof(string) && type.TryGetIEnumerableGenericInterface(out var ienumerableGenericInterface))
             {
                 itemType = ienumerableGenericInterface.GetGenericArguments()[0];
             }
