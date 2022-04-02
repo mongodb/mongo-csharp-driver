@@ -24,79 +24,71 @@ namespace MongoDB.Driver.Core.ConnectionPools
     {
         internal sealed class MaintenanceHelper : IDisposable
         {
-            private CancellationTokenSource _cancellationTokenSource = null;
-            private bool _closeInProgressConnection;
             private readonly ExclusiveConnectionPool _connectionPool;
             private Thread _maintenanceThread;
-            private volatile MaintenanceDelayManager _maintenanceDelayManager;
+            private MaintenanceExecutingManager _maintenanceExecutingManager;
+            private readonly CancellationTokenSource _maintenanceHelperCancellationTokenSource;
+            private readonly CancellationToken _maintenanceHelperCancellationToken;
 
             public MaintenanceHelper(ExclusiveConnectionPool connectionPool, TimeSpan interval)
             {
                 _connectionPool = Ensure.IsNotNull(connectionPool, nameof(connectionPool));
-                _maintenanceDelayManager = new MaintenanceDelayManager(interval);
+                _maintenanceExecutingManager = new MaintenanceExecutingManager(interval);
+
+                _maintenanceHelperCancellationTokenSource = new CancellationTokenSource();
+                _maintenanceHelperCancellationToken = _maintenanceHelperCancellationTokenSource.Token;
             }
 
             public bool IsRunning => _maintenanceThread != null;
 
-            public void RequestCancel(bool closeInProgressConnection)
+            public void RequestStoppingMaintenance(bool closeInProgressConnection)
             {
-                _cancellationTokenSource = null;
                 _maintenanceThread = null;
 
-                _closeInProgressConnection = closeInProgressConnection;
-                _maintenanceDelayManager.RequestNextAttemptWithCallbackAfter(CancelAndDispose);
+                _maintenanceExecutingManager.RequestNextAttempt(closeInProgressConnection);
                 // the previous _maintenanceThread might not be stopped yet, but it will be soon
             }
 
             public void Start()
             {
-                CancelAndDispose();
-                _cancellationTokenSource = new CancellationTokenSource();
-                var cancellationToken = _cancellationTokenSource.Token;
+                _maintenanceThread = new Thread(ThreadStart) { IsBackground = true };
+                _maintenanceThread.Start();
 
-                _maintenanceThread = new Thread(new ParameterizedThreadStart(ThreadStart)) { IsBackground = true };
-                _maintenanceThread.Start(cancellationToken);
-
-                void ThreadStart(object cancellationToken)
+                void ThreadStart()
                 {
-                    MaintainSize((CancellationToken)cancellationToken);
+                    MaintainSize();
                 }
             }
 
             public void Dispose()
             {
-                CancelAndDispose();
-                _maintenanceDelayManager.Dispose();
+                _maintenanceExecutingManager.Dispose();
+                _maintenanceHelperCancellationTokenSource.Cancel();
+                _maintenanceHelperCancellationTokenSource.Dispose();
             }
 
             // private methods
-            private void CancelAndDispose()
+            private void MaintainSize()
             {
-                _cancellationTokenSource?.Cancel();
-                _cancellationTokenSource?.Dispose();
-            }
-
-            private void MaintainSize(CancellationToken cancellationToken)
-            {
-                _maintenanceDelayManager.Initialize();
+                _maintenanceExecutingManager.Refresh();
 
                 try
                 {
-                    while (!cancellationToken.IsCancellationRequested)
+                    while (!_maintenanceHelperCancellationTokenSource.IsCancellationRequested && !_maintenanceExecutingManager.StopLoop)
                     {
                         try
                         {
-                            _connectionPool._connectionHolder.Prune(_closeInProgressConnection, cancellationToken);
+                            _connectionPool._connectionHolder.Prune(_maintenanceExecutingManager.CloseInProgressConnections, _maintenanceHelperCancellationToken);
                             if (IsRunning)
                             {
-                                EnsureMinSize(cancellationToken);
+                                EnsureMinSize(_maintenanceHelperCancellationToken);
                             }
                         }
                         catch
                         {
                             // ignore exceptions
                         }
-                        _maintenanceDelayManager.Wait(cancellationToken);
+                        _maintenanceExecutingManager.Wait(_maintenanceHelperCancellationToken);
                     }
                 }
                 catch
@@ -131,66 +123,69 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
         }
 
-        internal sealed class MaintenanceDelayManager : IDisposable
+        internal sealed class MaintenanceExecutingManager : IDisposable
         {
+            private bool _closeInProgressConnections;
             private AttemptDelay _maintenanceDelay;
             private readonly object _lock = new object();
-            private Metronome _metronome;
             private readonly TimeSpan _interval;
-            private readonly TimeSpan _minInterval;
-            private bool _skipNextAttemptDelay = false;
+            private int _attemptsAfterCancellingRequested;
 
-            public MaintenanceDelayManager(TimeSpan interval)
+            public MaintenanceExecutingManager(TimeSpan interval)
             {
                 _interval = interval;
-                _minInterval = TimeSpan.FromMilliseconds(50);
+                _maintenanceDelay = new AttemptDelay(_interval, TimeSpan.Zero);
             }
 
-            public void Initialize()
+            public bool CloseInProgressConnections => _closeInProgressConnections;
+            public bool StopLoop => _attemptsAfterCancellingRequested > 1;
+
+            public void Refresh()
             {
-                _metronome = new Metronome(_interval);
                 lock (_lock)
                 {
-                    _maintenanceDelay = new AttemptDelay(_interval, _minInterval);
+                    _maintenanceDelay = new AttemptDelay(_interval, TimeSpan.Zero);
+                    _closeInProgressConnections = false;
                 }
             }
 
-            public void RequestNextAttemptWithCallbackAfter(Action callback)
+            public void RequestNextAttempt(bool closeInProgressConnections)
             {
-                try
+                lock (_lock)
                 {
-                    lock (_lock)
-                    {
-                        _skipNextAttemptDelay = true;
-                        if (_maintenanceDelay != null) // might not be initialized yet
-                        {
-                            _maintenanceDelay.Task.ContinueWith((task) => callback);
-                            _maintenanceDelay.RequestNextAttempt();
-                        }
-                    }
-                }
-                catch (Exception)
-                {
-                    throw;
+                    _closeInProgressConnections = closeInProgressConnections;
+                    _maintenanceDelay?.RequestNextAttempt();
                 }
             }
 
             public void Wait(CancellationToken cancellationToken)
             {
+                bool withWaiting = true;
                 AttemptDelay newMaintenanceDelay;
                 lock (_lock)
                 {
-                    if (_skipNextAttemptDelay)
-                    {
-                        _skipNextAttemptDelay = false;
-                        return; // do not wait
-                    }
+                    _closeInProgressConnections = false;
 
-                    newMaintenanceDelay = new AttemptDelay(_metronome.GetNextTickDelay(), _minInterval);
-                    _maintenanceDelay?.Dispose();
+                    var earlyAttemptHasBeenRequested = _maintenanceDelay.EarlyAttemptHasBeenRequested;
+                    newMaintenanceDelay = new AttemptDelay(_interval, TimeSpan.Zero);
+
+                    _maintenanceDelay.Dispose();
                     _maintenanceDelay = newMaintenanceDelay;
+
+                    if (earlyAttemptHasBeenRequested)
+                    {
+                        withWaiting = false;
+                    }
                 }
-                newMaintenanceDelay.Wait(cancellationToken); // corresponds to wait method in spec
+                if (withWaiting)
+                {
+                    newMaintenanceDelay.Wait(cancellationToken);
+                }
+
+                if (newMaintenanceDelay.EarlyAttemptHasBeenRequested)
+                {
+                    Interlocked.Increment(ref _attemptsAfterCancellingRequested);
+                }
             }
 
             public void Dispose()

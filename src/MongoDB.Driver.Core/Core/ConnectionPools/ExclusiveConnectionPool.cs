@@ -188,7 +188,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     _clearingEventHandler?.Invoke(new ConnectionPoolClearingEvent(_serverId, _settings));
 
                     _generation++;
-                    _maintenanceHelper.RequestCancel(closeInProgressConnections);
+                    _maintenanceHelper.RequestStoppingMaintenance(closeInProgressConnections);
 
                     _maxConnectionsQueue.Signal();
                     _maxConnectingQueue.Signal();

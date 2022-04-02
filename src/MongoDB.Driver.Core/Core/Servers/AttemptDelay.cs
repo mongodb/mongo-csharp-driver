@@ -39,6 +39,11 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         // properties
+        public bool EarlyAttemptHasBeenRequested
+        {
+            get { return _earlyAttemptHasBeenRequested == 1; }
+        }
+
         public Task Task
         {
             get { return _taskCompletionSource.Task; }

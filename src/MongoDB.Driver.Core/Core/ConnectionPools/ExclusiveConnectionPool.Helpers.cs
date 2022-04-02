@@ -160,7 +160,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
 
             public override string ToString() => State.ToString();
-        }       
+        }
 
         private sealed class AcquireConnectionHelper : IDisposable
         {
@@ -688,12 +688,12 @@ namespace MongoDB.Driver.Core.ConnectionPools
             {
                 lock (_lock)
                 {
-                    foreach (var connection in _connections)
+                    foreach (var connection in _connections.Concat(_connectionsInUse))
                     {
                         RemoveConnection(connection);
                     }
                     _connections.Clear();
-                    _connectionsInUse.Clear(); // TODO
+                    _connectionsInUse.Clear();
 
                     SignalOrReset();
                 }
@@ -704,10 +704,12 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 PooledConnection[] expiredConnections;
                 lock (_lock)
                 {
-                    expiredConnections = _connections
-                        .Where(c => c.IsExpired)
-                        .Concat(_connectionsInUse.Where(c => c.IsExpired && closeInProgressConnections)) //TODO
-                        .ToArray();
+                    var poolExpiredConnections = _connections.Where(c => c.IsExpired);
+                    if (closeInProgressConnections)
+                    {
+                        poolExpiredConnections = poolExpiredConnections.Concat(_connectionsInUse.Where(c => c.IsExpired));
+                    }
+                    expiredConnections = poolExpiredConnections.ToArray();
                 }
 
                 foreach (var connection in expiredConnections)

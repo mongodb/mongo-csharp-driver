@@ -440,7 +440,9 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
                     ExecuteCheckOut(connectionPool, operation, connectionMap, tasks, async, out exception);
                     break;
                 case "clear":
-                    connectionPool.Clear(closeInProgressConnections: false);
+                    JsonDrivenHelper.EnsureAllFieldsAreValid(operation, "name", "inUse");
+                    var inUse = operation.GetValue("inUse", defaultValue: false).ToBoolean();
+                    connectionPool.Clear(closeInProgressConnections: inUse);
                     break;
                 case "close":
                     connectionPool.Dispose();
@@ -777,7 +779,7 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
             var index = Task.WaitAny(new[] { notifyTask }, timeout);
             if (index != 0)
             {
-                throw new Exception($"{nameof(WaitForEvent)} {eventType} executing is too long.");
+                throw new Exception($"{nameof(WaitForEvent)} for {eventType}({expectedCount}) executing exceeded timeout: {timeout}. \n\nTriggered events:\n{eventCapturer}");
             }
         }
 

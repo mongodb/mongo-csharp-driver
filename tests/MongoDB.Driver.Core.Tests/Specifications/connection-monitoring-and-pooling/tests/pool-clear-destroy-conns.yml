@@ -7,6 +7,10 @@ operations:
   - name: checkOut
     label: conn
   - name: clear
+  - name: waitForEvent
+    event: ConnectionClosed
+    count: 2
+    timeout: 1000
   - name: close
 events:
   - type: ConnectionCheckedOut
@@ -15,11 +19,11 @@ events:
 - type: ConnectionCheckedOut
     connectionId: 2
     address: 42
+  - type: ConnectionPoolCleared
+    address: 42
   - type: ConnectionClosed
     connectionId: 1
     reason: stale
-    address: 42
-  - type: ConnectionPoolCleared
     address: 42
   - type: ConnectionClosed
     connectionId: 2
@@ -31,5 +35,5 @@ ignore:
   - ConnectionCreated
   - ConnectionPoolReady
   - ConnectionReady
-  - ConnectionPoolCreated
   - ConnectionCheckOutStarted
+  - ConnectionPoolCreated

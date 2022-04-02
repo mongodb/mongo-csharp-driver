@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
@@ -63,7 +64,7 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
                 }
 
                 IncrementGeneration(pool);
-                subject.RequestCancel(closeInProgressConnection: closeInProgressConnection);
+                subject.RequestStoppingMaintenance(closeInProgressConnection: closeInProgressConnection);
 
                 var requestInPlayTimeout = TimeSpan.FromMilliseconds(100);
                 if (!closeInProgressConnection && checkOutConnection)
@@ -114,8 +115,10 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
                 eventCapturer.Next().Should().BeOfType<ConnectionPoolAddedConnectionEvent>();  // minPoolSize has been enrolled
                 eventCapturer.Any().Should().BeFalse();
 
+                Reflector.SetFieldValue(Reflector.GetFieldValue(subject, "_maintenanceExecutingManager"), "_attemptsAfterCancellingRequested", 0); // refresh value
+
                 // emulate pool.clear (for connection 1 based on test setup)
-                subject.RequestCancel(closeInProgressConnection: false); // only first connection is expired yet
+                subject.RequestStoppingMaintenance(closeInProgressConnection: false); // only first connection is expired yet
 
                 // 2. connection1 is being removed, but waiting removeConnectionTaskCompletionSource for completion
                 var requestInPlayTimeout = TimeSpan.FromMilliseconds(1000);
@@ -128,7 +131,7 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
                 connection2IsExpiredTaskCompletionSource.SetResult(true);  // connection 2 is expired
 
                 // 3. emulate pool.clear (for connection 2 based on test setup)
-                subject.RequestCancel(closeInProgressConnection: false);
+                subject.RequestStoppingMaintenance(closeInProgressConnection: false);
 
                 removedConnection1TaskCompletionSource.SetResult(true); // removing connection 1 is done
 

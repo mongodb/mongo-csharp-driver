@@ -30,12 +30,14 @@ using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
+using MongoDB.Driver.Core.TestHelpers.Logging;
 using Moq;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Core.ConnectionPools
 {
-    public class ExclusiveConnectionPoolTests
+    public class ExclusiveConnectionPoolTests : LoggableTestClass
     {
         private Mock<IConnectionFactory> _mockConnectionFactory;
         private Mock<IConnectionExceptionHandler> _mockConnectionExceptionHandler;
@@ -45,7 +47,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         private ConnectionPoolSettings _settings;
         private ExclusiveConnectionPool _subject;
 
-        public ExclusiveConnectionPoolTests()
+        public ExclusiveConnectionPoolTests(ITestOutputHelper output) : base(output)
         {
             _mockConnectionFactory = new Mock<IConnectionFactory> { DefaultValue = DefaultValue.Mock };
             _mockConnectionExceptionHandler = new Mock<IConnectionExceptionHandler>();
@@ -1170,23 +1172,6 @@ namespace MongoDB.Driver.Core.ConnectionPools
             subject.SetReady();
             
             subject._maintenanceHelper().IsRunning.Should().BeFalse();
-        }
-
-        [Fact]
-        public void Maintenance_should_call_()
-        {
-            var settings = _settings.With(maintenanceInterval: TimeSpan.FromMinutes(1), minConnections: 0);
-
-            using var subject = CreateSubject(settings);
-
-            subject.Initialize();
-            subject.SetReady();
-            Thread.Sleep(1000);
-            subject.Clear(closeInProgressConnections: false);
-
-            subject._maintenanceHelper().IsRunning.Should().BeFalse();
-
-            var t =_capturedEvents;
         }
 
         [Theory]

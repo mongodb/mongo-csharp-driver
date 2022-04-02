@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
@@ -127,6 +128,13 @@ namespace MongoDB.Driver.Core
         {
             var notifier = new EventNotifier(this, condition);
             return notifier.Initialize();
+        }
+
+        public override string ToString()
+        {
+            var stringBuilder = new StringBuilder();
+            _capturedEvents.ToList().ForEach(e => stringBuilder.AppendLine(e.GetType().Name));
+            return stringBuilder.ToString();
         }
 
         public void WaitForOrThrowIfTimeout(Func<IEnumerable<object>, bool> condition, TimeSpan timeout, Func<TimeSpan, string> message = null)

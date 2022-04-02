@@ -3,7 +3,7 @@
   "style": "unit",
   "description": "When a pool is cleared, it MUST destroy all available connections in that pool",
   "poolOptions": {
-    "backgroundThreadIntervalMS": -1
+    "backgroundThreadIntervalMS": 20000
   },
   "operations": [
     {
@@ -17,8 +17,15 @@
       "label": "conn"
     },
     {
-      "name": "clear"
-    }
+      "name": "clear",
+      "inUse": true
+    },
+    {
+      "name": "waitForEvent",
+      "event": "ConnectionClosed",
+      "count": 2,
+      "timeout": 1000
+    },
     {
       "name": "close"
     }
@@ -35,13 +42,13 @@
       "address": 42
     },
     {
-      "type": "ConnectionClosed",
-      "connectionId": 1,
-      "reason": "stale",
+      "type": "ConnectionPoolCleared",
       "address": 42
     },
     {
-      "type": "ConnectionPoolCleared",
+      "type": "ConnectionClosed",
+      "connectionId": 1,
+      "reason": "stale",
       "address": 42
     },
     {
