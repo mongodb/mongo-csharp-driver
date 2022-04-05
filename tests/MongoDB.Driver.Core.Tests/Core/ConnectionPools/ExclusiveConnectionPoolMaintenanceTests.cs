@@ -115,7 +115,8 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
                 eventCapturer.Next().Should().BeOfType<ConnectionPoolAddedConnectionEvent>();  // minPoolSize has been enrolled
                 eventCapturer.Any().Should().BeFalse();
 
-                Reflector.SetFieldValue(Reflector.GetFieldValue(subject, "_maintenanceExecutingManager"), "_attemptsAfterCancellingRequested", 0); // refresh value
+                // refresh _attemptsAfterCancellingRequested
+                Reflector.SetFieldValue(Reflector.GetFieldValue(subject, "_maintenanceExecutingManager"), "_attemptsAfterCancellingRequested", 0);
 
                 // emulate pool.clear (for connection 1 based on test setup)
                 subject.RequestStoppingMaintenance(closeInProgressConnection: false); // only first connection is expired yet

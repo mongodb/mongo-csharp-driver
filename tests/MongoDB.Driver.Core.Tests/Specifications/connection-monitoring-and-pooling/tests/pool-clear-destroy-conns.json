@@ -3,7 +3,7 @@
   "style": "unit",
   "description": "When a pool is cleared, it MUST destroy all available connections in that pool",
   "poolOptions": {
-    "backgroundThreadIntervalMS": 20000
+    "backgroundThreadIntervalMS": 10000
   },
   "operations": [
     {

@@ -74,7 +74,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
                 try
                 {
-                    while (!_maintenanceHelperCancellationTokenSource.IsCancellationRequested && !_maintenanceExecutingManager.StopLoop)
+                    bool stopNextIteration = false;
+                    while (!_maintenanceHelperCancellationTokenSource.IsCancellationRequested && !stopNextIteration)
                     {
                         try
                         {
@@ -88,6 +89,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
                         {
                             // ignore exceptions
                         }
+
+                        stopNextIteration = _maintenanceExecutingManager.StopNextIteration;
                         _maintenanceExecutingManager.Wait(_maintenanceHelperCancellationToken);
                     }
                 }
@@ -138,7 +141,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
 
             public bool CloseInProgressConnections => _closeInProgressConnections;
-            public bool StopLoop => _attemptsAfterCancellingRequested > 1;
+            public bool StopNextIteration => _attemptsAfterCancellingRequested > 1;
 
             public void Refresh()
             {
@@ -146,6 +149,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 {
                     _maintenanceDelay = new AttemptDelay(_interval, TimeSpan.Zero);
                     _closeInProgressConnections = false;
+                    _attemptsAfterCancellingRequested = 0;
                 }
             }
 
@@ -182,10 +186,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     newMaintenanceDelay.Wait(cancellationToken);
                 }
 
-                if (newMaintenanceDelay.EarlyAttemptHasBeenRequested)
-                {
-                    Interlocked.Increment(ref _attemptsAfterCancellingRequested);
-                }
+                Interlocked.Increment(ref _attemptsAfterCancellingRequested);
             }
 
             public void Dispose()

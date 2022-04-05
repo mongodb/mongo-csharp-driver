@@ -688,12 +688,12 @@ namespace MongoDB.Driver.Core.ConnectionPools
             {
                 lock (_lock)
                 {
-                    foreach (var connection in _connections.Concat(_connectionsInUse))
+                    // In use Connections MUST be closed when they are checked in to the closed pool.
+                    foreach (var connection in _connections)
                     {
                         RemoveConnection(connection);
                     }
                     _connections.Clear();
-                    _connectionsInUse.Clear();
 
                     SignalOrReset();
                 }

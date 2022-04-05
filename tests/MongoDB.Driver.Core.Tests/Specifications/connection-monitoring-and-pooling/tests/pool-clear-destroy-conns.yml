@@ -1,6 +1,9 @@
 version: 1
 style: unit
 description: When a pool is cleared, it MUST destroy all available connections in that pool
+poolOptions:
+  # ensure it's not involved by default
+  backgroundThreadIntervalMS: 10000
 operations:
   - name: ready
   - name: checkOut
