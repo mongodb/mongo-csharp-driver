@@ -63,7 +63,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
         /// <summary>
         /// Clears the connection pool and marks it as paused.
         /// </summary>
-        void Clear(bool closeInProgressConnections);
+        /// <param name="closeInUseConnections">Determine whether in use connections should be closed.</param>
+        void Clear(bool closeInUseConnections);
 
         /// <summary>
         /// Clears the connection pool for the specified service.

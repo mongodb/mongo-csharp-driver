@@ -170,6 +170,9 @@ namespace MongoDB.Driver.Core.Misc
             {
                 var entered = await _semaphore.WaitAsync(timeout, cancellationContext.CancellationToken).ConfigureAwait(false);
 
+                // Request task rescheduling, to avoid resuming execution on Signal thread
+                await TaskExtensions.YieldNoContext();
+
                 return entered ? SemaphoreWaitResult.Entered : SemaphoreWaitResult.TimedOut;
             }
             catch (OperationCanceledException)

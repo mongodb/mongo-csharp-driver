@@ -442,7 +442,7 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
                 case "clear":
                     JsonDrivenHelper.EnsureAllFieldsAreValid(operation, "name", "inUse");
                     var inUse = operation.GetValue("inUse", defaultValue: false).ToBoolean();
-                    connectionPool.Clear(closeInProgressConnections: inUse);
+                    connectionPool.Clear(closeInUseConnections: inUse);
                     break;
                 case "close":
                     connectionPool.Dispose();
@@ -709,7 +709,7 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
                             return true;
                         };
 
-                        connectionPool.Clear(closeInProgressConnections: false);
+                        connectionPool.Clear(closeInUseConnections: false);
                         eventCapturer.WaitForOrThrowIfTimeout(events => events.Any(e => e is ConnectionPoolClearedEvent), TimeSpan.FromMilliseconds(500));
                     }
 

@@ -177,7 +177,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             return await helper.AcquireConnectionAsync(cancellationToken).ConfigureAwait(false);
         }
 
-        public void Clear(bool closeInProgressConnections)
+        public void Clear(bool closeInUseConnections)
         {
             lock (_poolState)
             {
@@ -188,7 +188,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     _clearingEventHandler?.Invoke(new ConnectionPoolClearingEvent(_serverId, _settings));
 
                     _generation++;
-                    _maintenanceHelper.RequestStoppingMaintenance(closeInProgressConnections);
+                    _maintenanceHelper.RequestStoppingMaintenance(closeInUseConnections);
 
                     _maxConnectionsQueue.Signal();
                     _maxConnectingQueue.Signal();

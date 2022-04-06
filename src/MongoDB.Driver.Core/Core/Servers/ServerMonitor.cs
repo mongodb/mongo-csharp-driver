@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Core.Servers
         private CancellationTokenSource _heartbeatCancellationTokenSource; // used to cancel an ongoing heartbeat
         private ServerDescription _currentDescription;
         private readonly EndPoint _endPoint;
-        private AttemptDelay _heartbeatDelay;
+        private HeartbeatDelay _heartbeatDelay;
         private readonly object _lock = new object();
         private readonly CancellationToken _monitorCancellationToken; // used to cancel the entire monitor
         private readonly CancellationTokenSource _monitorCancellationTokenSource; // used to cancel the entire monitor
@@ -164,7 +164,7 @@ namespace MongoDB.Driver.Core.Servers
 
             // CSHARP-3302: Accessing _heartbeatDelay inside _lock can lead to deadlock when processing concurrent heartbeats from old and new primaries.
             // Accessing _heartbeatDelay outside of _lock avoids the deadlock and will at worst reference the previous delay
-            _heartbeatDelay?.RequestNextAttempt();
+            _heartbeatDelay?.RequestHeartbeat();
         }
 
         // private methods
@@ -267,10 +267,10 @@ namespace MongoDB.Driver.Core.Servers
                         }
                     }
 
-                    AttemptDelay newHeartbeatDelay;
+                    HeartbeatDelay newHeartbeatDelay;
                     lock (_lock)
                     {
-                        newHeartbeatDelay = new AttemptDelay(metronome.GetNextTickDelay(), _serverMonitorSettings.MinHeartbeatInterval);
+                        newHeartbeatDelay = new HeartbeatDelay(metronome.GetNextTickDelay(), _serverMonitorSettings.MinHeartbeatInterval);
                         if (_heartbeatDelay != null)
                         {
                             _heartbeatDelay.Dispose();

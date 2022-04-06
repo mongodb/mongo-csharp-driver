@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Threading;
@@ -672,42 +673,68 @@ namespace MongoDB.Driver.Core.ConnectionPools
             {
                 if (threadIndex < maxConnecting)
                 {
-                    // maximize maxConnecting
-                    allAcquiringCountEvent.Signal();
-                    AcquireConnection(subject, async);
+                    try
+                    {
+                        // maximize maxConnecting
+                        var timer = Stopwatch.StartNew();
+                        allAcquiringCountEvent.Signal();
+                        timer.Stop();
+                        AcquireConnection(subject, async);
+                    }
+                    catch
+                    {
+                        throw;
+                    }
                 }
                 else if (threadIndex < maxConnecting + maxAcquiringCount)
                 {
-                    // wait until all maxConnecting maximized
-                    establishingCount.Wait();
-                    subject.PendingCount.Should().Be(maxConnecting);
-
-                    allAcquiringCountEvent.Signal();
-
                     try
                     {
-                        AcquireConnection(subject, async);
-                    }
-                    catch (TimeoutException)
-                    {
-                        Interlocked.Increment(ref actualTimeouts);
-                    }
+                        // wait until all maxConnecting maximized
+                        establishingCount.Wait();
+                        subject.PendingCount.Should().Be(maxConnecting);
 
-                    // speedup the test
-                    if (expectedTimeouts == actualTimeouts)
+                        var timer = Stopwatch.StartNew();
+                        allAcquiringCountEvent.Signal();
+                        timer.Stop();
+
+                        try
+                        {
+                            AcquireConnection(subject, async);
+                        }
+                        catch (TimeoutException)
+                        {
+                            Interlocked.Increment(ref actualTimeouts);
+                        }
+
+                        // speedup the test
+                        if (expectedTimeouts == actualTimeouts)
+                        {
+                            blockEstablishmentEvent.Set();
+                        }
+                    }
+                    catch
                     {
-                        blockEstablishmentEvent.Set();
+                        throw;
                     }
                 }
                 else
                 {
-                    // wait until all trying to acquire
-                    allAcquiringCountEvent.Wait();
-
-                    // return connections
-                    foreach (var connection in connectionsAcquired)
+                    try
                     {
-                        connection.Dispose();
+                        var timer = Stopwatch.StartNew();
+                        // wait until all trying to acquire
+                        allAcquiringCountEvent.Wait();
+                        timer.Stop();
+                        // return connections
+                        foreach (var connection in connectionsAcquired)
+                        {
+                            connection.Dispose();
+                        }
+                    }
+                    catch
+                    {
+                        throw;
                     }
                 }
             });
@@ -979,7 +1006,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     }
                     else if (operationIndex < clearOpMaxIndex)
                     {
-                        subject.Clear(closeInProgressConnections: false);
+                        subject.Clear(closeInUseConnections: false);
                         Interlocked.Increment(ref clearedCount);
                     }
                     else
@@ -1006,7 +1033,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         [Fact]
         public void Clear_should_throw_an_InvalidOperationException_if_not_initialized()
         {
-            Action act = () => _subject.Clear(closeInProgressConnections: false);
+            Action act = () => _subject.Clear(closeInUseConnections: false);
 
             act.ShouldThrow<InvalidOperationException>();
         }
@@ -1016,7 +1043,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         {
             _subject.Dispose();
 
-            Action act = () => _subject.Clear(closeInProgressConnections: false);
+            Action act = () => _subject.Clear(closeInUseConnections: false);
 
             act.ShouldThrow<ObjectDisposedException>();
         }
@@ -1041,7 +1068,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
 
             connection.IsExpired.Should().BeFalse();
-            _subject.Clear(closeInProgressConnections: false);
+            _subject.Clear(closeInUseConnections: false);
             connection.IsExpired.Should().BeTrue();
         }
 
@@ -1127,7 +1154,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             _mockConnectionExceptionHandler
                 .Setup(handler => handler.HandleExceptionOnOpen(authenticationException))
-                .Callback(() => _subject.Clear(closeInProgressConnections: false));
+                .Callback(() => _subject.Clear(closeInUseConnections: false));
 
             using (var subject = CreateSubject())
             {
@@ -1161,7 +1188,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             subject._maintenanceHelper().IsRunning.Should().BeTrue();
         }
 
-        [Fact(Skip = "test")]
+        [Fact]
         public void Maintenance_should_not_run_with_infinite_maintenanceInterval()
         {
             var settings = _settings.With(maintenanceInterval: Timeout.InfiniteTimeSpan);
@@ -1252,7 +1279,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     allEstablishing.Wait();
 
                     // clear, all in maxConnecting queue should fail
-                    subject.Clear(closeInProgressConnections: false);
+                    subject.Clear(closeInUseConnections: false);
 
                     // unblock after all in maxConnecting queue failed
                     allInQueueFailed.Wait();
@@ -1516,7 +1543,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     SpinWait.SpinUntil(() => subject._waitQueueFreeSlots() == 0);
 
                     // pause the pool, blockedInQueueCount threads waiting to establish should observe MongoPoolPausedException exception
-                    subject.Clear(closeInProgressConnections: false);
+                    subject.Clear(closeInUseConnections: false);
 
                     SpinWait.SpinUntil(() => subject._waitQueueFreeSlots() >= blockedInQueueCount);
                     blockEstablishmentEvent.Set();
@@ -1632,7 +1659,6 @@ namespace MongoDB.Driver.Core.ConnectionPools
     internal static class ExclusiveConnectionPoolReflector
     {
         public static int _generation(this ExclusiveConnectionPool obj) => (int)Reflector.GetFieldValue(obj, nameof(_generation));
-
 
         public static void _generation(this ExclusiveConnectionPool obj, int generation) => Reflector.SetFieldValue(obj, nameof(_generation), generation);
 

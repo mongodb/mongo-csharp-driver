@@ -107,7 +107,7 @@ namespace MongoDB.Driver.Core.TestHelpers.Logging
                     var methods = string.Join(",", clrThread
                         .EnumerateStackTrace()
                         .Where(f => f.Method != null)
-                        .Take(50)
+                        .Take(20)
                         .Select(f => f.Method.Type.Name + "." + f.Method.Name));
 
                     if (!string.IsNullOrWhiteSpace(methods))
