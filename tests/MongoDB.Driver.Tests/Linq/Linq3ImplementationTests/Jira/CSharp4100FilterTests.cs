@@ -99,7 +99,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             AssertStages(stages, "{ $match : { CC : { $in : [65, 66, 67] } } }");
         }
 
-#if NETCOREAPP3_1_OR_GREATER
+#if !NETFRAMEWORK
         [Theory]
         [InlineData(StringComparison.CurrentCulture, "{ $match : { S : /A/s } }")]
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $match : { S : /A/is } }")]
@@ -115,7 +115,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         }
 #endif
 
-#if NETCOREAPP3_1_OR_GREATER
+#if !NETFRAMEWORK
         [Theory]
         [InlineData(StringComparison.CurrentCulture)]
         [InlineData(StringComparison.CurrentCultureIgnoreCase)]
@@ -131,7 +131,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         }
 #endif
 
-#if NETCOREAPP3_1_OR_GREATER
+#if !NETFRAMEWORK
         [Theory]
         [InlineData(StringComparison.CurrentCulture, "{ $match : { $expr : { $gte : [{ $indexOfCP : ['$S', '$CS'] }, 0] } } }")]
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $match : { $expr : { $gte : [{ $indexOfCP : [{ $toLower :'$S' }, { $toLower : '$CS' }] }, 0] } } }")]
@@ -147,7 +147,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         }
 #endif
 
-#if NETCOREAPP3_1_OR_GREATER
+#if !NETFRAMEWORK
         [Theory]
         [InlineData(StringComparison.CurrentCulture, "{ $match : { $expr : { $gte : [{ $indexOfCP : ['ABC', '$CS'] }, 0] } } }")]
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $match : { $expr : { $gte : [{ $indexOfCP : ['abc', { $toLower : '$CS' }] }, 0] } } }")]
@@ -163,7 +163,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         }
 #endif
 
-#if NETCOREAPP3_1_OR_GREATER
+#if !NETFRAMEWORK
         [Theory]
         [InlineData(StringComparison.CurrentCulture)]
         [InlineData(StringComparison.CurrentCultureIgnoreCase)]
@@ -180,7 +180,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         }
 #endif
 
-#if NETCOREAPP3_1_OR_GREATER
+#if !NETFRAMEWORK
         [Theory]
         [InlineData(StringComparison.CurrentCulture)]
         [InlineData(StringComparison.CurrentCultureIgnoreCase)]
@@ -197,7 +197,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         }
 #endif
 
-#if NETCOREAPP3_1_OR_GREATER
+#if !NETFRAMEWORK
         [Theory]
         [InlineData(StringComparison.InvariantCulture)]
         [InlineData(StringComparison.InvariantCultureIgnoreCase)]
@@ -216,7 +216,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         }
 #endif
 
-#if NETCOREAPP3_1_OR_GREATER
+#if !NETFRAMEWORK
         [Theory]
         [InlineData(StringComparison.InvariantCulture)]
         [InlineData(StringComparison.InvariantCultureIgnoreCase)]
@@ -282,7 +282,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             AssertStages(stages, "{ $match : { $expr : { $gte : [{ $indexOfCP : ['ABC', '$T'] }, 0] } } }");
         }
 
-#if NETCOREAPP3_1_OR_GREATER
+#if !NETFRAMEWORK
         [Theory]
         [InlineData(StringComparison.CurrentCulture, "{ $match : { S : /aBc/s } }")]
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $match : { S : /aBc/is } }")]
@@ -298,7 +298,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         }
 #endif
 
-#if NETCOREAPP3_1_OR_GREATER
+#if !NETFRAMEWORK
         [Theory]
         [InlineData(StringComparison.CurrentCulture, "{ $match : { _id : { $type : -1 } } }")]
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $match : { } }")]
@@ -314,7 +314,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         }
 #endif
 
-#if NETCOREAPP3_1_OR_GREATER
+#if !NETFRAMEWORK
         [Theory]
         [InlineData(StringComparison.CurrentCulture, "{ $match : { $expr : { $gte : [{ $indexOfCP : ['$S', '$T'] }, 0] } } }")]
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $match : { $expr : { $gte : [{ $indexOfCP : [{ $toLower : '$S' }, { $toLower : '$T' }] }, 0] } } }")]
@@ -330,7 +330,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         }
 #endif
 
-#if NETCOREAPP3_1_OR_GREATER
+#if !NETFRAMEWORK
         [Theory]
         [InlineData(StringComparison.CurrentCulture, "{ $match : { $expr : { $gte : [{ $indexOfCP : ['ABC', '$T'] }, 0] } } }")]
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $match : { $expr : { $gte : [{ $indexOfCP : ['abc', { $toLower : '$T' }] }, 0] } } }")]
@@ -346,7 +346,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         }
 #endif
 
-#if NETCOREAPP3_1_OR_GREATER
+#if !NETFRAMEWORK
         [Theory]
         [InlineData(StringComparison.InvariantCulture)]
         [InlineData(StringComparison.InvariantCultureIgnoreCase)]
@@ -365,7 +365,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         }
 #endif
 
-#if NETCOREAPP3_1_OR_GREATER
+#if !NETFRAMEWORK
         [Theory]
         [InlineData(StringComparison.InvariantCulture, "{ $match : { _id : { $type : -1 } } }")]
         [InlineData(StringComparison.InvariantCultureIgnoreCase, "{ $match : { } }")]
@@ -383,7 +383,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         }
 #endif
 
-#if NETCOREAPP3_1_OR_GREATER
+#if !NETFRAMEWORK
         [Fact]
         public void EndsWith_with_string_field_and_char_constant_should_work()
         {
@@ -397,7 +397,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         }
 #endif
 
-#if NETCOREAPP3_1_OR_GREATER
+#if !NETFRAMEWORK
         [Fact]
         public void EndsWith_with_string_constant_and_char_constant_should_work()
         {
@@ -411,7 +411,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         }
 #endif
 
-#if NETCOREAPP3_1_OR_GREATER
+#if !NETFRAMEWORK
         [Fact]
         public void EndsWith_with_string_field_and_char_field_represented_as_string_should_work()
         {
@@ -425,7 +425,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         }
 #endif
 
-#if NETCOREAPP3_1_OR_GREATER
+#if !NETFRAMEWORK
         [Fact]
         public void EndsWith_with_string_constant_and_char_field_represented_as_string_should_work()
         {
@@ -439,7 +439,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         }
 #endif
 
-#if NETCOREAPP3_1_OR_GREATER
+#if !NETFRAMEWORK
         [Fact]
         public void EndsWith_with_string_field_and_char_field_not_represented_as_string_should_throw()
         {
@@ -454,7 +454,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         }
 #endif
 
-#if NETCOREAPP3_1_OR_GREATER
+#if !NETFRAMEWORK
         [Fact]
         public void EndsWith_with_string_constant_and_char_field_not_represented_as_string_should_throw()
         {
@@ -692,7 +692,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             exception.Message.Should().Contain($"{comparisonType} is not supported");
         }
 
-#if NETCOREAPP3_1_OR_GREATER
+#if !NETFRAMEWORK
         [Fact]
         public void StartsWith_with_string_field_and_char_constant_should_work()
         {
@@ -706,7 +706,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         }
 #endif
 
-#if NETCOREAPP3_1_OR_GREATER
+#if !NETFRAMEWORK
         [Fact]
         public void StartsWith_with_string_constant_and_char_constant_should_work()
         {
@@ -720,7 +720,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         }
 #endif
 
-#if NETCOREAPP3_1_OR_GREATER
+#if !NETFRAMEWORK
         [Fact]
         public void StartsWith_with_string_field_and_char_field_represented_as_string_should_work()
         {
@@ -734,7 +734,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         }
 #endif
 
-#if NETCOREAPP3_1_OR_GREATER
+#if !NETFRAMEWORK
         [Fact]
         public void StartsWith_with_string_constant_and_char_field_represented_as_string_should_work()
         {
@@ -748,7 +748,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         }
 #endif
 
-#if NETCOREAPP3_1_OR_GREATER
+#if !NETFRAMEWORK
         [Fact]
         public void StartsWith_with_string_field_and_char_field_not_represented_as_string_should_throw()
         {
@@ -763,7 +763,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         }
 #endif
 
-#if NETCOREAPP3_1_OR_GREATER
+#if !NETFRAMEWORK
         [Fact]
         public void StartsWith_with_string_constant_and_char_field_not_represented_as_string_should_throw()
         {

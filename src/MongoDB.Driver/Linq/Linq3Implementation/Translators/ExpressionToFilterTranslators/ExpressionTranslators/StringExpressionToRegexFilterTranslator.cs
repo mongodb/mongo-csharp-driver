@@ -166,12 +166,65 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             {
                 var method = methodCallExpression.Method;
 
+                if (method.IsOneOf(__translatableMethods))
+                {
+                    return true;
+                }
+
+                // on .NET Framework string.Contains(char) compiles to Enumerable.Contains<char>(string, char)
+                // on all frameworks we will translate Enumerable.Contains<char>(string, char) the same as string.Contains(char)
                 if (method.Is(EnumerableMethod.Contains) && methodCallExpression.Arguments[0].Type == typeof(string))
                 {
                     return true;
                 }
 
-                return method.IsOneOf(__translatableMethods);
+#if NETSTANDARD2_0
+                // some String methods are defined in .NET Core 2.1 but not in .NET Standard 2.0 so we have to identify them using reflection in .NET Standard 2.0
+                if (method.DeclaringType == typeof(string) && !method.IsStatic)
+                {
+                    var parameters = method.GetParameters();
+                    switch (method.Name)
+                    {
+                        case "Contains":
+                            switch (parameters.Length)
+                            {
+                                case 1:
+                                    if (parameters[0].ParameterType == typeof(char))
+                                    {
+                                        return true;
+                                    }
+                                    break;
+
+                                case 2:
+                                    if (parameters[0].ParameterType == typeof(char) &&
+                                        parameters[1].ParameterType == typeof(StringComparison))
+                                    {
+                                        return true;
+                                    }
+                                    if (parameters[0].ParameterType == typeof(string) &&
+                                        parameters[1].ParameterType == typeof(StringComparison))
+                                    {
+                                        return true;
+                                    }
+                                    break;
+                            }
+                            break;
+
+                        case "EndsWith":
+                        case "StartsWith":
+                            switch (parameters.Length)
+                            {
+                                case 1:
+                                    if (parameters[0].ParameterType == typeof(char))
+                                    {
+                                        return true;
+                                    }
+                                    break;
+                            }
+                            break;
+                    }
+                }
+#endif
             }
 
             return false;
@@ -360,6 +413,32 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 propertyInfo.Is(StringProperty.Length);
         }
 
+        private static bool IsWithComparisonTypeMethod(MethodInfo method)
+        {
+            if (method.IsOneOf(__withComparisonTypeMethods))
+            {
+                return true;
+            }
+
+#if NETSTANDARD2_0
+            // some String methods are defined in .NET Core 2.1 but not in .NET Standard 2.0 so we have to identify them using reflection in .NET Standard 2.0
+            if (method.DeclaringType == typeof(string) && !method.IsStatic)
+            {
+                var parameters = method.GetParameters();
+                if (parameters.Length > 0)
+                {
+                    var lastParameter = parameters[parameters.Length - 1];
+                    if (lastParameter.ParameterType == typeof(StringComparison))
+                    {
+                        return true;
+                    }
+                }
+            }
+#endif
+
+            return false;
+        }
+
         private static Modifiers TranslateComparisonType(Modifiers modifiers, Expression expression, Expression comparisonTypeExpression)
         {
             var comparisonType = comparisonTypeExpression.GetConstantValue<StringComparison>(containingExpression: expression);
@@ -491,7 +570,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 value = valueExpression.GetConstantValue<string>(containingExpression: expression);
             }
 
-            if (method.IsOneOf(__withComparisonTypeMethods))
+            if (IsWithComparisonTypeMethod(method))
             {
                 modifiers = TranslateComparisonType(modifiers, expression, arguments[1]);
             }
