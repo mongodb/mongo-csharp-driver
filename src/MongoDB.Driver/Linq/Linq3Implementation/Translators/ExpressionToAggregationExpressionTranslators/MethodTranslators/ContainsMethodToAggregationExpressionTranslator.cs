@@ -14,6 +14,7 @@
 */
 
 using System.Linq.Expressions;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
@@ -56,9 +57,15 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             {
                 sourceExpression = expression.Object;
                 valueExpression = arguments[0];
-                var ienumerableInterface = sourceExpression.Type.GetIEnumerableGenericInterface();
-                var itemType = ienumerableInterface.GetGenericArguments()[0];
-                return itemType == valueExpression.Type;
+                if (sourceExpression.Type.TryGetIEnumerableGenericInterface(out var ienumerableInterface))
+                {
+                    var itemType = ienumerableInterface.GetGenericArguments()[0];
+                    if (itemType == valueExpression.Type)
+                    {
+                        // string.Contains(char) is not translated like other Contains methods because string is not represented as an array
+                        return sourceExpression.Type != typeof(string) && valueExpression.Type != typeof(char);
+                    }
+                }
             }
 
             sourceExpression = null;
