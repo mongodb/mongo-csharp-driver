@@ -1,4 +1,4 @@
-﻿/* Copyright 2021-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Collections.Concurrent;
 using System.Threading;
 using MongoDB.Driver.Core.Misc;
 
@@ -59,7 +58,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
                 var newMaintenanceExecutingManager = new MaintenanceExecutingManager(_interval);
                 var oldMaintenanceExecutingManager = Interlocked.CompareExchange(ref _maintenanceExecutingManager, newMaintenanceExecutingManager, _maintenanceExecutingManager);
-                oldMaintenanceExecutingManager?.Dispose();
+                oldMaintenanceExecutingManager.Dispose();
 
                 _maintenanceThread = new Thread(new ParameterizedThreadStart(ThreadStart)) { IsBackground = true };
                 _maintenanceThread.Start(newMaintenanceExecutingManager);
@@ -141,7 +140,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             private readonly AutoResetEvent _autoResetEvent;
             private readonly CancellationToken _cancellationToken;
             private readonly CancellationTokenSource _cancellationTokenSource;
-            private bool? _closeInUseConnections;
+            private bool _closeInUseConnections;
             private readonly TimeSpan _interval;
 
             public MaintenanceExecutingManager(TimeSpan interval)
@@ -154,13 +153,15 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             // public properties
             public CancellationToken CancellationToken => _cancellationToken;
-            public bool CloseInUseConnections => _closeInUseConnections.GetValueOrDefault(defaultValue: false);
+            public bool CloseInUseConnections => _closeInUseConnections;
 
             // public methods
             public void Dispose()
             {
                 _cancellationTokenSource.Cancel();
                 _cancellationTokenSource.Dispose();
+
+                RequestCancelling(_closeInUseConnections); // stop waiting if any
                 _autoResetEvent.Dispose();
             }
 

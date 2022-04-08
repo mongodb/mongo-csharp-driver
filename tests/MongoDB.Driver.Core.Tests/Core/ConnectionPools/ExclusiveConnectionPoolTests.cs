@@ -673,68 +673,42 @@ namespace MongoDB.Driver.Core.ConnectionPools
             {
                 if (threadIndex < maxConnecting)
                 {
-                    try
-                    {
-                        // maximize maxConnecting
-                        var timer = Stopwatch.StartNew();
-                        allAcquiringCountEvent.Signal();
-                        timer.Stop();
-                        AcquireConnection(subject, async);
-                    }
-                    catch
-                    {
-                        throw;
-                    }
+                    // maximize maxConnecting
+                    allAcquiringCountEvent.Signal();
+                    AcquireConnection(subject, async);
                 }
                 else if (threadIndex < maxConnecting + maxAcquiringCount)
                 {
+                    // wait until all maxConnecting maximized
+                    establishingCount.Wait();
+                    subject.PendingCount.Should().Be(maxConnecting);
+
+                    allAcquiringCountEvent.Signal();
+
                     try
                     {
-                        // wait until all maxConnecting maximized
-                        establishingCount.Wait();
-                        subject.PendingCount.Should().Be(maxConnecting);
-
-                        var timer = Stopwatch.StartNew();
-                        allAcquiringCountEvent.Signal();
-                        timer.Stop();
-
-                        try
-                        {
-                            AcquireConnection(subject, async);
-                        }
-                        catch (TimeoutException)
-                        {
-                            Interlocked.Increment(ref actualTimeouts);
-                        }
-
-                        // speedup the test
-                        if (expectedTimeouts == actualTimeouts)
-                        {
-                            blockEstablishmentEvent.Set();
-                        }
+                        AcquireConnection(subject, async);
                     }
-                    catch
+                    catch (TimeoutException)
                     {
-                        throw;
+                        Interlocked.Increment(ref actualTimeouts);
+                    }
+
+                    // speedup the test
+                    if (expectedTimeouts == actualTimeouts)
+                    {
+                        blockEstablishmentEvent.Set();
                     }
                 }
                 else
                 {
-                    try
+                    // wait until all trying to acquire
+                    allAcquiringCountEvent.Wait();
+
+                    // return connections
+                    foreach (var connection in connectionsAcquired)
                     {
-                        var timer = Stopwatch.StartNew();
-                        // wait until all trying to acquire
-                        allAcquiringCountEvent.Wait();
-                        timer.Stop();
-                        // return connections
-                        foreach (var connection in connectionsAcquired)
-                        {
-                            connection.Dispose();
-                        }
-                    }
-                    catch
-                    {
-                        throw;
+                        connection.Dispose();
                     }
                 }
             });

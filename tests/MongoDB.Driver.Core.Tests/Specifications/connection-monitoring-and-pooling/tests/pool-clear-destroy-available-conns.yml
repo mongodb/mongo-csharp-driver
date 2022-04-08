@@ -1,6 +1,6 @@
 version: 1
 style: unit
-description: When a pool is cleared, it MUST destroy all available connections in that pool
+description: Pool MUST be able to destroy all available connections
 poolOptions:
   # ensure it's not involved by default
   backgroundThreadIntervalMS: 10000
@@ -9,24 +9,26 @@ operations:
   - name: checkOut
   - name: checkOut
     label: conn
+  - name: checkIn
+    connection: conn
   - name: clear
+    inUse: false
   - name: waitForEvent
     event: ConnectionClosed
-    count: 2
+    count: 1
     timeout: 1000
   - name: close
 events:
   - type: ConnectionCheckedOut
     connectionId: 1
     address: 42
-- type: ConnectionCheckedOut
+  - type: ConnectionCheckedOut
+    connectionId: 2
+    address: 42
+  - type: ConnectionCheckedIn
     connectionId: 2
     address: 42
   - type: ConnectionPoolCleared
-    address: 42
-  - type: ConnectionClosed
-    connectionId: 1
-    reason: stale
     address: 42
   - type: ConnectionClosed
     connectionId: 2
