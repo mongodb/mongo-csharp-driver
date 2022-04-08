@@ -555,7 +555,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         [InlineData("aws", "kms.us-east-1.amazonaws.com", null, null)]
         [InlineData("aws", "kms.us-east-1.amazonaws.com:443", null, null)]
         [InlineData("aws", "kms.us-east-1.amazonaws.com:12345", "$ConnectionRefused$", null)]
-        [InlineData("aws", "kms.us-east-2.amazonaws.com", "us-east-1", null)]
+        [InlineData("aws", "kms.us-east-2.amazonaws.com", "_GenericCryptException_", null)]
         [InlineData("aws", "doesnotexist.invalid", "$HostNotFound$", null)]
         // additional not spec tests
         [InlineData("aws", "$test$", "Invalid endpoint, expected dot separator in host, but got: $test$", null)]
@@ -645,7 +645,11 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                     else
                     {
                         var e = innerException.Should().BeOfType<CryptException>().Subject;
-                        e.Message.Should().Contain(expectedExceptionInfo.ToString());
+
+                        if (expectedExceptionInfo != "_GenericCryptException_")
+                        {
+                            e.Message.Should().Contain(expectedExceptionInfo.ToString());
+                        }
                     }
                 }
                 else
