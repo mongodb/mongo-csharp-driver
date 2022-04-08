@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Concurrent;
 using System.Threading;
 using MongoDB.Driver.Core.Misc;
 
@@ -27,16 +28,12 @@ namespace MongoDB.Driver.Core.ConnectionPools
             private readonly TimeSpan _interval;
             private MaintenanceExecutingManager _maintenanceExecutingManager;
             private Thread _maintenanceThread;
-            private readonly CancellationTokenSource _maintenanceHelperCancellationTokenSource;
-            private readonly CancellationToken _maintenanceHelperCancellationToken;
 
             public MaintenanceHelper(ExclusiveConnectionPool connectionPool, TimeSpan interval)
             {
                 _connectionPool = Ensure.IsNotNull(connectionPool, nameof(connectionPool));
                 _interval = interval;
-
-                _maintenanceHelperCancellationTokenSource = new CancellationTokenSource();
-                _maintenanceHelperCancellationToken = _maintenanceHelperCancellationTokenSource.Token;
+                _maintenanceExecutingManager = new MaintenanceExecutingManager(_interval); // no op until Start
             }
 
             public bool IsRunning => _maintenanceThread != null;
@@ -50,7 +47,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
                 _maintenanceThread = null;
 
-                _maintenanceExecutingManager?.RequestCancelling(closeInUseConnections); // null if called before Start
+                _maintenanceExecutingManager.RequestCancelling(closeInUseConnections); // might be no op if Start hasn't been called yet
             }
 
             public void Start()
@@ -60,7 +57,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     return;
                 }
 
-                var newMaintenanceExecutingManager = new MaintenanceExecutingManager(_interval, _maintenanceHelperCancellationToken);
+                var newMaintenanceExecutingManager = new MaintenanceExecutingManager(_interval);
                 var oldMaintenanceExecutingManager = Interlocked.CompareExchange(ref _maintenanceExecutingManager, newMaintenanceExecutingManager, _maintenanceExecutingManager);
                 oldMaintenanceExecutingManager?.Dispose();
 
@@ -72,15 +69,12 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     var maintenanceExecutingManager = (MaintenanceExecutingManager)maintenanceExecutingManagerObj;
 
                     MaintainSize(maintenanceExecutingManager);
-
-                    maintenanceExecutingManager.Dispose();
                 }
             }
 
             public void Dispose()
             {
-                _maintenanceHelperCancellationTokenSource.Cancel();
-                _maintenanceHelperCancellationTokenSource.Dispose();
+                _maintenanceExecutingManager.Dispose();
             }
 
             // private methods
@@ -150,13 +144,11 @@ namespace MongoDB.Driver.Core.ConnectionPools
             private bool? _closeInUseConnections;
             private readonly TimeSpan _interval;
 
-            public MaintenanceExecutingManager(TimeSpan interval, CancellationToken cancellationToken)
+            public MaintenanceExecutingManager(TimeSpan interval)
             {
                 _autoResetEvent = new AutoResetEvent(initialState: false);
-                _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                _cancellationTokenSource = new CancellationTokenSource();
                 _cancellationToken = _cancellationTokenSource.Token;
-
-                _cancellationToken.Register(CancelWaitingAndDisposeEvent);
                 _interval = interval;
             }
 
@@ -169,6 +161,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             {
                 _cancellationTokenSource.Cancel();
                 _cancellationTokenSource.Dispose();
+                _autoResetEvent.Dispose();
             }
 
             public void RequestCancelling(bool closeInUseConnections)
@@ -199,19 +192,6 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 {
                     return true;
                 }
-            }
-
-            // private methods
-            private void CancelWaitingAndDisposeEvent()
-            {
-                try
-                {
-                    _autoResetEvent.Set(); // interop waiting after maintenance.Dispose
-                }
-                catch (ObjectDisposedException)
-                {
-                }
-                _autoResetEvent.Dispose();
             }
         }
     }
