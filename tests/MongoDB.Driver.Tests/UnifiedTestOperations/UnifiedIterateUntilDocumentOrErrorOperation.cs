@@ -103,33 +103,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         public BsonDocument Convert<T>(T value) =>
             value switch
             {
-                ChangeStreamDocument<BsonDocument> changeStreamResult =>
-                    new BsonDocument
-                    {
-                        { "operationType", changeStreamResult.OperationType.ToString().ToLowerInvariant() },
-                        { "ns", ConvertNamespace(changeStreamResult.CollectionNamespace) },
-                        { "fullDocument", () => changeStreamResult.FullDocument, changeStreamResult.FullDocument != null },
-                        { "updateDescription", () => ConvertUpdateDescription(changeStreamResult.UpdateDescription), changeStreamResult.UpdateDescription != null }
-                    },
+                ChangeStreamDocument<BsonDocument> changeStreamResult => changeStreamResult.BackingDocument,
                 BsonDocument bsonDocument => bsonDocument,
                 _ => throw new FormatException($"Unsupported enumerator document {value.GetType().Name}.")
-            };
-
-        private BsonValue ConvertNamespace(CollectionNamespace collectionNamespace)
-        {
-            return new BsonDocument
-            {
-                { "db", collectionNamespace.DatabaseNamespace.DatabaseName },
-                { "coll", collectionNamespace.CollectionName }
-            };
-        }
-
-        private BsonDocument ConvertUpdateDescription(ChangeStreamUpdateDescription updateDescription) =>
-            new BsonDocument
-            {
-                { "updatedFields", () => updateDescription.UpdatedFields, updateDescription.UpdatedFields != null },
-                { "removedFields", () => new BsonArray(updateDescription.RemovedFields), updateDescription.RemovedFields != null },
-                { "truncatedArrays", () => updateDescription.TruncatedArrays, updateDescription.TruncatedArrays != null },
             };
     }
 }

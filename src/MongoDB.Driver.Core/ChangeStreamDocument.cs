@@ -62,6 +62,14 @@ namespace MongoDB.Driver
         public CollectionNamespace CollectionNamespace => GetValue<CollectionNamespace>(nameof(CollectionNamespace), null);
 
         /// <summary>
+        /// Gets the database namespace.
+        /// </summary>
+        /// <value>
+        /// The database namespace.
+        /// </value>
+        public DatabaseNamespace DatabaseNamespace => GetValue<DatabaseNamespace>(nameof(DatabaseNamespace), null);
+
+        /// <summary>
         /// Gets the document key.
         /// </summary>
         /// <value>

@@ -1,4 +1,4 @@
-﻿/* Copyright 2018-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -20,21 +20,20 @@ using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Driver
 {
-    internal class ChangeStreamDocumentCollectionNamespaceSerializer : SealedClassSerializerBase<CollectionNamespace>
+    internal class ChangeStreamDocumentDatabaseNamespaceSerializer : SealedClassSerializerBase<DatabaseNamespace>
     {
         #region static
         // private static fields
-        private static readonly ChangeStreamDocumentCollectionNamespaceSerializer __instance = new ChangeStreamDocumentCollectionNamespaceSerializer();
+        private static readonly ChangeStreamDocumentDatabaseNamespaceSerializer __instance = new ChangeStreamDocumentDatabaseNamespaceSerializer();
 
         // public static properties
-        public static ChangeStreamDocumentCollectionNamespaceSerializer Instance => __instance;
+        public static ChangeStreamDocumentDatabaseNamespaceSerializer Instance => __instance;
         #endregion
 
         // public methods
-        public override CollectionNamespace Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
+        public override DatabaseNamespace Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var reader = context.Reader;
-            string collectionName = null;
             string databaseName = null;
 
             reader.ReadStartDocument();
@@ -49,10 +48,6 @@ namespace MongoDB.Driver
                         databaseName = reader.ReadString();
                         break;
 
-                    case "coll" when reader.CurrentBsonType == BsonType.String:
-                        collectionName = reader.ReadString();
-                        break;
-
                     default:
                         reader.SkipValue();
                         break;
@@ -60,24 +55,21 @@ namespace MongoDB.Driver
             }
             reader.ReadEndDocument();
 
-            if (!string.IsNullOrWhiteSpace(databaseName) && !string.IsNullOrWhiteSpace(collectionName))
+            if (!string.IsNullOrWhiteSpace(databaseName))
             {
-                var databaseNamespace = new DatabaseNamespace(databaseName);
-                return new CollectionNamespace(databaseNamespace, collectionName);
+                return new DatabaseNamespace(databaseName);
             }
 
             return null;
         }
 
-        protected override void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, CollectionNamespace value)
+        protected override void SerializeValue(BsonSerializationContext context, BsonSerializationArgs args, DatabaseNamespace value)
         {
             var writer = context.Writer;
 
             writer.WriteStartDocument();
             writer.WriteName("db");
-            writer.WriteString(value.DatabaseNamespace.DatabaseName);
-            writer.WriteName("coll");
-            writer.WriteString(value.CollectionName);
+            writer.WriteString(value.DatabaseName);
             writer.WriteEndDocument();
         }
     }
