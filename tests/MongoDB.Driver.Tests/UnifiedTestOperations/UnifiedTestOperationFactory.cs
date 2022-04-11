@@ -143,6 +143,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                             return new UnifiedInsertOneOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
                         case "listIndexes":
                             return new UnifiedListIndexesOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
+                        case "rename":
+                            return new UnifiedRenameCollectionOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
                         case "replaceOne":
                             return new UnifiedReplaceOneOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
                         case "updateMany":

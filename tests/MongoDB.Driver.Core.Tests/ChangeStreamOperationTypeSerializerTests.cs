@@ -13,11 +13,11 @@
 * limitations under the License.
 */
 
+using System;
+using System.IO;
 using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using System;
-using System.IO;
 using Xunit;
 
 namespace MongoDB.Driver
@@ -32,6 +32,7 @@ namespace MongoDB.Driver
         [InlineData("\"update\"", ChangeStreamOperationType.Update)]
         [InlineData("\"rename\"", ChangeStreamOperationType.Rename)]
         [InlineData("\"drop\"", ChangeStreamOperationType.Drop)]
+        [InlineData("\"dropDatabase\"", ChangeStreamOperationType.DropDatabase)]
         public void Deserialize_should_return_expected_result(string json, ChangeStreamOperationType expectedResult)
         {
             var subject = CreateSubject();
@@ -47,20 +48,19 @@ namespace MongoDB.Driver
         }
 
         [Fact]
-        public void Deserialize_should_throw_when_input_is_invalid()
+        public void Deserialize_should_return_negative_one_when_input_is_invalid()
         {
             var subject = CreateSubject();
             var json = "\"invalid\"";
 
-            Exception exception;
+            ChangeStreamOperationType result;
             using (var reader = new JsonReader(json))
             {
                 var context = BsonDeserializationContext.CreateRoot(reader);
-                exception = Record.Exception(() => subject.Deserialize(context));
+                result = subject.Deserialize(context);
             }
 
-            var formatException = exception.Should().BeOfType<FormatException>().Subject;
-            formatException.Message.Should().Be("Invalid ChangeStreamOperationType: \"invalid\".");
+            result.Should().Be((ChangeStreamOperationType)(-1));
         }
 
         [Theory]
@@ -71,6 +71,7 @@ namespace MongoDB.Driver
         [InlineData(ChangeStreamOperationType.Update, "\"update\"")]
         [InlineData(ChangeStreamOperationType.Rename, "\"rename\"")]
         [InlineData(ChangeStreamOperationType.Drop, "\"drop\"")]
+        [InlineData(ChangeStreamOperationType.DropDatabase, "\"dropDatabase\"")]
         public void Serialize_should_have_expected_result(ChangeStreamOperationType value, string expectedResult)
         {
             var subject = CreateSubject();
@@ -89,7 +90,7 @@ namespace MongoDB.Driver
 
         [Theory]
         [InlineData(-1)]
-        [InlineData(7)]
+        [InlineData(8)]
         public void Serialize_should_throw_when_value_is_invalid(int valueAsInt)
         {
             var subject = CreateSubject();

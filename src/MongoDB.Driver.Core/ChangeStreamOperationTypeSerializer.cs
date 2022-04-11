@@ -13,9 +13,9 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
-using System;
 
 namespace MongoDB.Driver
 {
@@ -53,7 +53,8 @@ namespace MongoDB.Driver
                 case "update": return ChangeStreamOperationType.Update;
                 case "rename": return ChangeStreamOperationType.Rename;
                 case "drop": return ChangeStreamOperationType.Drop;
-                default: throw new FormatException($"Invalid ChangeStreamOperationType: \"{stringValue}\".");
+                case "dropDatabase": return ChangeStreamOperationType.DropDatabase;
+                default: return (ChangeStreamOperationType)(-1);
             }
         }
 
@@ -71,6 +72,7 @@ namespace MongoDB.Driver
                 case ChangeStreamOperationType.Update: writer.WriteString("update"); break;
                 case ChangeStreamOperationType.Rename: writer.WriteString("rename"); break;
                 case ChangeStreamOperationType.Drop: writer.WriteString("drop"); break;
+                case ChangeStreamOperationType.DropDatabase: writer.WriteString("dropDatabase"); break;
                 default: throw new ArgumentException($"Invalid ChangeStreamOperationType: {value}.", nameof(value));
             }
         }

@@ -126,11 +126,99 @@ namespace MongoDB.Driver
         [Fact]
         public void CollectionNamespace_should_return_null_when_not_present()
         {
-            var value = new BsonDocument("x", 1234);
             var backingDocument = new BsonDocument { { "other", 1 } };
             var subject = CreateSubject(backingDocument: backingDocument);
 
             var result = subject.CollectionNamespace;
+
+            result.Should().BeNull();
+        }
+
+        [Theory]
+        [InlineData("{}")]
+        [InlineData("{ db: \"db\" }")]
+        [InlineData("{ db: \"db\", coll : 1 }")]
+        [InlineData("{ db: \"db\", coll : { x : 1 } }")]
+        public void CollectionNamespace_should_return_null_if_invalid(string nsDocument)
+        {
+            var ns = BsonDocument.Parse(nsDocument);
+            var backingDocument = new BsonDocument { { "other", 1 }, { "ns", ns } };
+            var subject = CreateSubject(backingDocument: backingDocument);
+
+            var result = subject.CollectionNamespace;
+
+            result.Should().BeNull();
+        }
+
+        [Fact]
+        public void CollectionNamespace_should_allow_extra_elements()
+        {
+            var ns = new BsonDocument
+            {
+                { "db", "db" },
+                { "coll", "coll" },
+                { "newField1", "newFieldValue" },
+                { "newField2", new BsonDocument { { "x", 1 } } }
+            };
+            var backingDocument = new BsonDocument { { "other", 1 }, { "ns", ns } };
+            var subject = CreateSubject(backingDocument: backingDocument);
+
+            subject.CollectionNamespace.CollectionName.Should().Be("coll");
+            subject.CollectionNamespace.DatabaseNamespace.DatabaseName.Should().Be("db");
+            subject.BackingDocument["ns"]["newField1"].AsString.Should().Be("newFieldValue");
+            subject.BackingDocument["ns"]["newField2"]["x"].AsInt32.Should().Be(1);
+        }
+
+        [Fact]
+        public void DatabaseNamespace_should_return_expected_result()
+        {
+            var value = new DatabaseNamespace("database");
+            var ns = new BsonDocument { { "db", value.DatabaseName } };
+            var backingDocument = new BsonDocument { { "other", 1 }, { "ns", ns } };
+            var subject = CreateSubject(backingDocument: backingDocument);
+
+            var result = subject.DatabaseNamespace;
+
+            result.Should().Be(value);
+        }
+
+        [Fact]
+        public void DatabaseNamespace_should_be_same_as_in_CollectionNamespace()
+        {
+            var value = new CollectionNamespace(new DatabaseNamespace("database"), "collection");
+            var ns = new BsonDocument { { "db", value.DatabaseNamespace.DatabaseName }, { "coll", value.CollectionName } };
+            var backingDocument = new BsonDocument { { "other", 1 }, { "ns", ns } };
+            var subject = CreateSubject(backingDocument: backingDocument);
+
+            var collectionNamespace = subject.CollectionNamespace;
+            var databseNamespace = subject.DatabaseNamespace;
+
+            collectionNamespace.Should().Be(value);
+            databseNamespace.Should().Be(value.DatabaseNamespace);
+        }
+
+        [Fact]
+        public void DatabaseNamespace_should_return_null_if_not_present()
+        {
+            var backingDocument = new BsonDocument { { "other", 1 } };
+            var subject = CreateSubject(backingDocument: backingDocument);
+
+            var result = subject.DatabaseNamespace;
+
+            result.Should().BeNull();
+        }
+
+        [Theory]
+        [InlineData("{}")]
+        [InlineData("{ other : 1 }")]
+        [InlineData("{ db: { x : 1 } }")]
+        public void DatabaseNamespace_should_return_null_if_invalid(string databaseName)
+        {
+            var invalidDatabaseName = BsonDocument.Parse(databaseName);
+            var backingDocument = new BsonDocument { { "other", 1 }, { "ns", invalidDatabaseName } };
+            var subject = CreateSubject(backingDocument: backingDocument);
+
+            var result = subject.DatabaseNamespace;
 
             result.Should().BeNull();
         }
