@@ -265,22 +265,29 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
         {
             var actualEvents = GetFilteredEvents(eventCapturer, test, eventsFilter);
             var expectedEvents = GetExpectedEvents(test);
-            var minCount = Math.Min(actualEvents.Count, expectedEvents.Count);
-            for (var i = 0; i < minCount; i++)
+            try
             {
-                var expectedEvent = expectedEvents[i];
-                JsonDrivenHelper.EnsureAllFieldsAreValid(expectedEvent, "type", "address", "connectionId", "options", "reason");
-                AssertEvent(actualEvents[i], expectedEvent);
-            }
+                var minCount = Math.Min(actualEvents.Count, expectedEvents.Count);
+                for (var i = 0; i < minCount; i++)
+                {
+                    var expectedEvent = expectedEvents[i];
+                    JsonDrivenHelper.EnsureAllFieldsAreValid(expectedEvent, "type", "address", "connectionId", "options", "reason");
+                    AssertEvent(actualEvents[i], expectedEvent);
+                }
 
-            if (actualEvents.Count < expectedEvents.Count)
-            {
-                throw new Exception($"Missing event: {expectedEvents[actualEvents.Count]}.");
-            }
+                if (actualEvents.Count < expectedEvents.Count)
+                {
+                    throw new Exception($"Missing event: {expectedEvents[actualEvents.Count]}.");
+                }
 
-            if (actualEvents.Count > expectedEvents.Count)
+                if (actualEvents.Count > expectedEvents.Count)
+                {
+                    throw new Exception($"Unexpected event of type: {actualEvents[expectedEvents.Count].GetType().Name}.");
+                }
+            }
+            catch (Exception ex)
             {
-                throw new Exception($"Unexpected event of type: {actualEvents[expectedEvents.Count].GetType().Name}.");
+                throw new Exception($"Events asserting failed: {ex.Message}. Triggered events: {eventCapturer}.", ex);
             }
         }
 
