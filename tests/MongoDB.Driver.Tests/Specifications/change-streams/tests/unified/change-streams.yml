@@ -97,8 +97,7 @@ tests:
 
   - description: "Test with document comment - pre 4.4"
     runOnRequirements:
-      - minServerVersion: "3.6.0"
-        maxServerVersion: "4.2.99"
+      - maxServerVersion: "4.2.99"
     operations:
       - name: createChangeStream
         object: *collection0
@@ -118,8 +117,6 @@ tests:
                 comment: *comment0
 
   - description: "Test with string comment"
-    runOnRequirements:
-      - minServerVersion: "3.6.0"
     operations:
       - name: createChangeStream
         object: *collection0
@@ -140,7 +137,55 @@ tests:
   - description: "Test that comment is set on getMore"
     runOnRequirements:
       - minServerVersion: "4.4.0"
-        topologies: [ single, replicaset ]
+        # Topologies are limited because of potentially empty getMore responses
+        # on sharded clusters.
+        # See https://jira.mongodb.org/browse/DRIVERS-2248 for more details.
+        topologies: [ replicaset ]
+    operations:
+      - name: createChangeStream
+        object: *collection0
+        arguments:
+          pipeline: []
+          comment: &commentDoc
+            key: "value"
+        saveResultAsEntity: &changeStream0 changeStream0
+      - name: insertOne
+        object: *collection0
+        arguments:
+          document: &new_document
+            _id: 1
+            a: 1
+      - name: iterateUntilDocumentOrError
+        object: *changeStream0
+    expectEvents:
+      - client: *client0
+        events:
+          - commandStartedEvent:
+              command:
+                aggregate: *collection0
+                pipeline:
+                  - $changeStream: {}
+                comment: *commentDoc
+          - commandStartedEvent:
+              command:
+                insert: *collection0
+                documents:
+                  - *new_document
+          - commandStartedEvent:
+              command:
+                getMore: { $$type: [ int, long ] }
+                collection: *collection0
+                comment: *commentDoc
+              commandName: getMore
+              databaseName: *database0
+
+  - description: "Test that comment is not set on getMore - pre 4.4"
+    runOnRequirements:
+      - maxServerVersion: "4.3.99"
+        # Topologies are limited because of potentially empty getMore responses
+        # on sharded clusters.
+        # See https://jira.mongodb.org/browse/DRIVERS-2248 for more details.
+        topologies: [ replicaset ]
     operations:
       - name: createChangeStream
         object: *collection0
@@ -174,6 +219,160 @@ tests:
               command:
                 getMore: { $$type: [ int, long ] }
                 collection: *collection0
-                comment: "comment"
+                comment: { $$exists: false }
               commandName: getMore
               databaseName: *database0
+<<<<<<< HEAD
+=======
+
+  - description: "to field is set in a rename change event"
+    runOnRequirements:
+      - minServerVersion: "4.0.1"
+    operations:
+      - name: createChangeStream
+        object: *collection0
+        arguments:
+          pipeline: []
+        saveResultAsEntity: &changeStream0 changeStream0
+      - name: dropCollection
+        object: *database0
+        arguments:
+          collection: &collection1 collection1
+      - name: rename
+        object: *collection0
+        arguments:
+          to: *collection1
+      - name: iterateUntilDocumentOrError
+        object: *changeStream0
+        expectResult:
+          operationType: rename
+          ns:
+            db: *database0
+            coll: *collection0
+          to:
+            db: *database0
+            coll: *collection1
+
+  - description: "Test unknown operationType MUST NOT err"
+    operations:
+      - name: createChangeStream
+        object: *collection0
+        arguments:
+          # using $project to simulate future changes to ChangeStreamDocument structure
+          pipeline: [ { $project: { operationType: "addedInFutureMongoDBVersion", ns: 1 } } ]
+        saveResultAsEntity: &changeStream0 changeStream0
+      - name: insertOne
+        object: *collection0
+        arguments:
+          document: { "_id": 1, "a": 1 }
+      - name: iterateUntilDocumentOrError
+        object: *changeStream0
+        expectResult:
+          operationType: "addedInFutureMongoDBVersion"
+          ns:
+            db: *database0
+            coll: *collection0
+
+  - description: "Test newField added in response MUST NOT err"
+    operations:
+      - name: createChangeStream
+        object: *collection0
+        arguments:
+          # using $project to simulate future changes to ChangeStreamDocument structure
+          pipeline: [ { $project: { operationType: 1, ns: 1, newField: "newFieldValue" } } ]
+        saveResultAsEntity: &changeStream0 changeStream0
+      - name: insertOne
+        object: *collection0
+        arguments:
+          document: { "_id": 1, "a": 1 }
+      - name: iterateUntilDocumentOrError
+        object: *changeStream0
+        expectResult:
+          operationType: "insert"
+          ns:
+            db: *database0
+            coll: *collection0
+          newField: "newFieldValue"
+
+  - description: "Test new structure in ns document MUST NOT err"
+    operations:
+      - name: createChangeStream
+        object: *collection0
+        arguments:
+          # using $project to simulate future changes to ChangeStreamDocument structure
+          pipeline: [ { $project: { operationType: "insert", "ns.viewOn": "db.coll" } } ]
+        saveResultAsEntity: &changeStream0 changeStream0
+      - name: insertOne
+        object: *collection0
+        arguments:
+          document: { "_id": 1, "a": 1 }
+      - name: iterateUntilDocumentOrError
+        object: *changeStream0
+        expectResult:
+          operationType: "insert"
+          ns:
+            viewOn: "db.coll"
+
+  - description: "Test modified structure in ns document MUST NOT err"
+    operations:
+      - name: createChangeStream
+        object: *collection0
+        arguments:
+          # using $project to simulate future changes to ChangeStreamDocument structure
+          pipeline: [ { $project: { operationType: "insert", ns: { db: "$ns.db", coll: "$ns.coll", viewOn: "db.coll" } } } ]
+        saveResultAsEntity: &changeStream0 changeStream0
+      - name: insertOne
+        object: *collection0
+        arguments:
+          document: { "_id": 1, "a": 1 }
+      - name: iterateUntilDocumentOrError
+        object: *changeStream0
+        expectResult:
+          operationType: "insert"
+          ns:
+            db: *database0
+            coll: *collection0
+            viewOn: "db.coll"
+
+  - description: "Test server error on projecting out _id"
+    runOnRequirements:
+      - minServerVersion: "4.2"
+        # Server returns an error if _id is modified on versions 4.2 and higher
+    operations:
+      - name: createChangeStream
+        object: *collection0
+        arguments:
+          pipeline: [ { $project: { _id: 0 } } ]
+        saveResultAsEntity: &changeStream0 changeStream0
+      - name: insertOne
+        object: *collection0
+        arguments:
+          document: { "_id": 1, "a": 1 }
+      - name: iterateUntilDocumentOrError
+        object: *changeStream0
+        expectError:
+          errorCode: 280
+          errorCodeName: "ChangeStreamFatalError"
+          errorLabelsContain: [ "NonResumableChangeStreamError" ]
+
+
+  - description: "Test projection in change stream returns expected fields"
+    operations:
+      - name: createChangeStream
+        object: *collection0
+        arguments:
+          pipeline: [ { $project: { optype: "$operationType", ns: 1, newField: "value" } } ]
+        saveResultAsEntity: &changeStream0 changeStream0
+      - name: insertOne
+        object: *collection0
+        arguments:
+          document: { "_id": 1, "a": 1 }
+      - name: iterateUntilDocumentOrError
+        object: *changeStream0
+        expectResult:
+          optype: "insert"
+          ns:
+            db: *database0
+            coll: *collection0
+          newField: "value"
+>>>>>>> 7e7873d4f6 (CSHARP-4108: Inherited comment causes OperationFailure on MongoDB <4.4.0 (#766))

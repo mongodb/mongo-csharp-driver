@@ -268,7 +268,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = CreateSubject();
 
-            var result = subject.CreateGetMoreCommand();
+            var result = subject.CreateGetMoreCommand(CreateConnectionDescriptionSupportingSession());
 
             result.Should().Be("{ getMore : 0, collection : \"test\" }");
         }
@@ -278,7 +278,27 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = CreateSubject(batchSize: 2);
 
-            var result = subject.CreateGetMoreCommand();
+            var result = subject.CreateGetMoreCommand(CreateConnectionDescriptionSupportingSession());
+
+            result.Should().Be("{ getMore : 0, collection : \"test\", batchSize : 2 }");
+        }
+
+        [Fact]
+        public void CreateGetMoreCommand_should_include_comment_on_4_4_server_version()
+        {
+            var subject = CreateSubject(batchSize: 2, comment: "comment");
+
+            var result = subject.CreateGetMoreCommand(CreateConnectionDescriptionSupportingSession(WireVersion.Server44));
+
+            result.Should().Be("{ getMore : 0, collection : \"test\", batchSize : 2, comment: \"comment\" }");
+        }
+
+        [Fact]
+        public void CreateGetMoreCommand_should_not_include_comment_on_pre_4_4_server_versions()
+        {
+            var subject = CreateSubject(batchSize: 2, comment: "comment");
+
+            var result = subject.CreateGetMoreCommand(CreateConnectionDescriptionSupportingSession(WireVersion.Server42));
 
             result.Should().Be("{ getMore : 0, collection : \"test\", batchSize : 2 }");
         }
@@ -288,7 +308,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = CreateSubject(maxTime: TimeSpan.FromSeconds(2));
 
-            var result = subject.CreateGetMoreCommand();
+            var result = subject.CreateGetMoreCommand(CreateConnectionDescriptionSupportingSession());
 
             result.Should().Be("{ getMore : 0, collection : \"test\", maxTimeMS : 2000 }");
         }
@@ -492,12 +512,13 @@ namespace MongoDB.Driver.Core.Operations
             Optional<long> cursorId = default(Optional<long>),
             Optional<int?> batchSize = default(Optional<int?>),
             Optional<int?> limit = default(Optional<int?>),
-            Optional<TimeSpan?> maxTime = default(Optional<TimeSpan?>))
+            Optional<TimeSpan?> maxTime = default(Optional<TimeSpan?>),
+            Optional<string> comment = default(Optional<string>))
         {
             return new AsyncCursor<BsonDocument>(
                 channelSource.WithDefault(new Mock<IChannelSource>().Object),
                 collectionNamespace.WithDefault(new CollectionNamespace("test", "test")),
-                comment: null,
+                comment: comment.WithDefault(null),
                 firstBatch.WithDefault(new List<BsonDocument>()),
                 cursorId.WithDefault(0),
                 batchSize.WithDefault(null),
@@ -760,7 +781,7 @@ namespace MongoDB.Driver.Core.Operations
         public static IBsonSerializer<BsonDocument> _serializer(this AsyncCursor<BsonDocument> obj) => (IBsonSerializer<BsonDocument>)Reflector.GetFieldValue(obj, nameof(_serializer));
 
         // private methods
-        public static BsonDocument CreateGetMoreCommand(this AsyncCursor<BsonDocument> obj) => (BsonDocument)Reflector.Invoke(obj, nameof(CreateGetMoreCommand));
+        public static BsonDocument CreateGetMoreCommand(this AsyncCursor<BsonDocument> obj, ConnectionDescription connectionDescription) => (BsonDocument)Reflector.Invoke(obj, nameof(CreateGetMoreCommand), connectionDescription);
         public static BsonDocument CreateKillCursorsCommand(this AsyncCursor<BsonDocument> obj) => (BsonDocument)Reflector.Invoke(obj, nameof(CreateKillCursorsCommand));
     }
 }
