@@ -327,7 +327,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private BsonDocument CreateGetMoreCommand()
+        private BsonDocument CreateGetMoreCommand(ConnectionDescription connectionDescription)
         {
             var command = new BsonDocument
             {
@@ -335,7 +335,7 @@ namespace MongoDB.Driver.Core.Operations
                 { "collection", _collectionNamespace.CollectionName },
                 { "batchSize", () => CalculateGetMoreNumberToReturn(), _batchSize > 0 || _limit > 0 },
                 { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(_maxTime.Value), _maxTime.HasValue },
-                { "comment", _comment, _comment != null },
+                { "comment", _comment, _comment != null && Feature.GetMoreComment.IsSupported(connectionDescription.MaxWireVersion) },
             };
 
             return command;
@@ -354,7 +354,7 @@ namespace MongoDB.Driver.Core.Operations
 
         private CursorBatch<TDocument> ExecuteGetMoreCommand(IChannelHandle channel, CancellationToken cancellationToken)
         {
-            var command = CreateGetMoreCommand();
+            var command = CreateGetMoreCommand(channel.ConnectionDescription);
             BsonDocument result;
             try
             {
@@ -382,7 +382,7 @@ namespace MongoDB.Driver.Core.Operations
 
         private async Task<CursorBatch<TDocument>> ExecuteGetMoreCommandAsync(IChannelHandle channel, CancellationToken cancellationToken)
         {
-            var command = CreateGetMoreCommand();
+            var command = CreateGetMoreCommand(channel.ConnectionDescription);
             BsonDocument result;
             try
             {
