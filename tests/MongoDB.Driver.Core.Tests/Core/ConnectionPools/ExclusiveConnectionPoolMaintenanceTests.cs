@@ -125,7 +125,7 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
                 eventCapturer.Any().Should().BeFalse(); // waiting until removeConnectionTaskCompletionSource
 
                 // 3. Disable next regular maintenance calls
-                Reflector.SetFieldValue(subject._maintenanceExecutingManager(), "_interval", TimeSpan.FromMinutes(1));
+                Reflector.SetFieldValue(subject._maintenanceExecutingContext(), "_interval", TimeSpan.FromMinutes(1));
 
                 connection2IsExpiredTaskCompletionSource.SetResult(true);  // connection 2 is expired
 
@@ -209,9 +209,9 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
 
     public static class MaintenanceHelperReflector
     {
-        internal static MaintenanceExecutingManager _maintenanceExecutingManager(this MaintenanceHelper maintenanceHelper)
+        internal static MaintenanceExecutingContext _maintenanceExecutingContext(this MaintenanceHelper maintenanceHelper)
         {
-            return (MaintenanceExecutingManager)Reflector.GetFieldValue(maintenanceHelper, nameof(_maintenanceExecutingManager));
+            return (MaintenanceExecutingContext)Reflector.GetFieldValue(maintenanceHelper, nameof(_maintenanceExecutingContext));
         }
     }
 }

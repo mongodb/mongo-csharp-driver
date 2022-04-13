@@ -12,7 +12,7 @@ operations:
   - name: checkIn
     connection: conn
   - name: clear
-    inUse: false
+    closeInUseConnections: false
   - name: waitForEvent
     event: ConnectionClosed
     count: 1

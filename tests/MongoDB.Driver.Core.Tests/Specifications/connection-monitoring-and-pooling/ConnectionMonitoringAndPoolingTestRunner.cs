@@ -447,9 +447,9 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
                     ExecuteCheckOut(connectionPool, operation, connectionMap, tasks, async, out exception);
                     break;
                 case "clear":
-                    JsonDrivenHelper.EnsureAllFieldsAreValid(operation, "name", "inUse");
-                    var inUse = operation.GetValue("inUse", defaultValue: false).ToBoolean();
-                    connectionPool.Clear(closeInUseConnections: inUse);
+                    JsonDrivenHelper.EnsureAllFieldsAreValid(operation, "name", "closeInUseConnections");
+                    var closeInUseConnections = operation.GetValue("inUse", defaultValue: false).ToBoolean();
+                    connectionPool.Clear(closeInUseConnections: closeInUseConnections);
                     break;
                 case "close":
                     connectionPool.Dispose();

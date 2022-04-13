@@ -24,59 +24,59 @@ namespace MongoDB.Driver.Core.ConnectionPools
     {
         private readonly ExclusiveConnectionPool _connectionPool;
         private readonly TimeSpan _interval;
-        private MaintenanceExecutingManager _maintenanceExecutingManager;
+        private MaintenanceExecutingContext _maintenanceExecutingContext;
         private Thread _maintenanceThread;
 
         public MaintenanceHelper(ExclusiveConnectionPool connectionPool, TimeSpan interval)
         {
             _connectionPool = Ensure.IsNotNull(connectionPool, nameof(connectionPool));
             _interval = interval;
-            _maintenanceExecutingManager = new MaintenanceExecutingManager(_interval); // no op until Start
+            _maintenanceExecutingContext = new MaintenanceExecutingContext(_interval); // no op until Start
         }
 
         public bool IsRunning => _maintenanceThread != null;
 
         public void RequestStoppingMaintenance(bool closeInUseConnections)
         {
-            if (_interval == Timeout.InfiniteTimeSpan)
+            if (_interval == Timeout.InfiniteTimeSpan || !IsRunning)
             {
                 return;
             }
 
             _maintenanceThread = null;
 
-            _maintenanceExecutingManager.RequestCancelling(closeInUseConnections); // might be no op if Start hasn't been called yet
+            _maintenanceExecutingContext.RequestCancelling(closeInUseConnections); // might be no op if Start hasn't been called yet
         }
 
         public void Start()
         {
-            if (_interval == Timeout.InfiniteTimeSpan)
+            if (_interval == Timeout.InfiniteTimeSpan || IsRunning)
             {
                 return;
             }
 
-            var newMaintenanceExecutingManager = new MaintenanceExecutingManager(_interval);
-            var oldMaintenanceExecutingManager = Interlocked.CompareExchange(ref _maintenanceExecutingManager, newMaintenanceExecutingManager, _maintenanceExecutingManager);
-            oldMaintenanceExecutingManager.Dispose();
+            var newMaintenanceExecutingContext = new MaintenanceExecutingContext(_interval);
+            var oldMaintenanceExecutingContext = Interlocked.CompareExchange(ref _maintenanceExecutingContext, newMaintenanceExecutingContext, _maintenanceExecutingContext);
+            oldMaintenanceExecutingContext.Dispose();
 
             _maintenanceThread = new Thread(new ParameterizedThreadStart(ThreadStart)) { IsBackground = true };
-            _maintenanceThread.Start(newMaintenanceExecutingManager);
+            _maintenanceThread.Start(newMaintenanceExecutingContext);
 
-            void ThreadStart(object maintenanceExecutingManagerObj)
+            void ThreadStart(object maintenanceExecutingContextObj)
             {
-                var maintenanceExecutingManager = (MaintenanceExecutingManager)maintenanceExecutingManagerObj;
+                var maintenanceExecutingContext = (MaintenanceExecutingContext)maintenanceExecutingContextObj;
 
-                MaintainSize(maintenanceExecutingManager);
+                MaintainSize(maintenanceExecutingContext);
             }
         }
 
         public void Dispose()
         {
-            _maintenanceExecutingManager.Dispose();
+            _maintenanceExecutingContext.Dispose();
         }
 
         // private methods
-        private void MaintainSize(MaintenanceExecutingManager maintenanceExecutingManager)
+        private void MaintainSize(MaintenanceExecutingContext maintenanceExecutingContext)
         {
             bool shouldStopLoop;
             bool stopAfterNextIteration = false;
@@ -88,19 +88,19 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     shouldStopLoop = stopAfterNextIteration;
                     try
                     {
-                        _connectionPool.ConnectionHolder.Prune(maintenanceExecutingManager.CloseInUseConnections, maintenanceExecutingManager.CancellationToken);
-                        if (IsRunning)
+                        _connectionPool.ConnectionHolder.Prune(maintenanceExecutingContext.CloseInUseConnections, maintenanceExecutingContext.CancellationToken);
+                        if (!shouldStopLoop)
                         {
-                            EnsureMinSize(maintenanceExecutingManager.CancellationToken);
+                            EnsureMinSize(maintenanceExecutingContext.CancellationToken);
                         }
                     }
                     catch
                     {
                         // ignore exceptions
                     }
-                    stopAfterNextIteration = maintenanceExecutingManager.WaitAndSetStop(ignoreWaiting: shouldStopLoop);
+                    stopAfterNextIteration = maintenanceExecutingContext.WaitAndSetStop(ignoreWaiting: shouldStopLoop);
                 }
-                while (!maintenanceExecutingManager.CancellationToken.IsCancellationRequested && !shouldStopLoop);
+                while (!maintenanceExecutingContext.CancellationToken.IsCancellationRequested && !shouldStopLoop);
             }
             catch
             {
@@ -134,7 +134,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         }
     }
 
-    internal class MaintenanceExecutingManager : IDisposable
+    internal class MaintenanceExecutingContext : IDisposable
     {
         private readonly AutoResetEvent _autoResetEvent;
         private readonly CancellationToken _cancellationToken;
@@ -142,7 +142,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         private bool _closeInUseConnections;
         private readonly TimeSpan _interval;
 
-        public MaintenanceExecutingManager(TimeSpan interval)
+        public MaintenanceExecutingContext(TimeSpan interval)
         {
             _autoResetEvent = new AutoResetEvent(initialState: false);
             _cancellationTokenSource = new CancellationTokenSource();

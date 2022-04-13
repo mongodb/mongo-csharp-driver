@@ -10,7 +10,7 @@ operations:
   - name: checkOut
     label: conn
   - name: clear
-    inUse: true
+    closeInUseConnections: true
   - name: waitForEvent
     event: ConnectionClosed
     count: 2

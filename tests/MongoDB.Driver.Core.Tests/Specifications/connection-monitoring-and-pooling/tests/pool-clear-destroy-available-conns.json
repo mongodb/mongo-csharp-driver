@@ -22,7 +22,7 @@
     },
     {
       "name": "clear",
-      "inUse": false
+      "closeInUseConnections": false
     },
     {
       "name": "waitForEvent",

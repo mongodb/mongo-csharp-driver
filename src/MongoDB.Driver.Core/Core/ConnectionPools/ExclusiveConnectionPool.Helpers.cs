@@ -698,13 +698,13 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
             }
 
-            public void Prune(bool closeInProgressConnections, CancellationToken cancellationToken)
+            public void Prune(bool closeInUseConnections, CancellationToken cancellationToken)
             {
                 PooledConnection[] expiredConnections;
                 lock (_lock)
                 {
                     var poolExpiredConnections = _connections.Where(c => c.IsExpired);
-                    if (closeInProgressConnections)
+                    if (closeInUseConnections)
                     {
                         poolExpiredConnections = poolExpiredConnections.Concat(_connectionsInUse.Where(c => c.IsExpired));
                     }
