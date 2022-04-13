@@ -76,13 +76,13 @@ namespace MongoDB.Driver.Core.ConnectionPools
             _connectionExceptionHandler = Ensure.IsNotNull(connectionExceptionHandler, nameof(connectionExceptionHandler));
             Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
 
+            _maintenanceHelper = new MaintenanceHelper(this, _settings.MaintenanceInterval);
             _poolState = new PoolState(EndPointHelper.ToString(_endPoint));
             _checkOutReasonCounter = new CheckOutReasonCounter();
 
             _maxConnectingQueue = new SemaphoreSlimSignalable(settings.MaxConnecting);
             _connectionHolder = new ListConnectionHolder(eventSubscriber, _maxConnectingQueue);
             _maxConnectionsQueue = new SemaphoreSlimSignalable(settings.MaxConnections);
-            _maintenanceHelper = new MaintenanceHelper(this, _settings.MaintenanceInterval);
 
             _serviceStates = new ServiceStates();
 #pragma warning disable 618
