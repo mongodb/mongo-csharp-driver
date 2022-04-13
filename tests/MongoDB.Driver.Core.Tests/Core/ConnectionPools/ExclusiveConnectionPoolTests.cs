@@ -1518,9 +1518,9 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
         public static CheckOutReasonCounter _checkOutReasonCounter(this ExclusiveConnectionPool obj) => (CheckOutReasonCounter)Reflector.GetFieldValue(obj, nameof(_checkOutReasonCounter));
 
-        public static ExclusiveConnectionPool.MaintenanceHelper _maintenanceHelper(this ExclusiveConnectionPool obj)
+        public static MaintenanceHelper _maintenanceHelper(this ExclusiveConnectionPool obj)
         {
-            return (ExclusiveConnectionPool.MaintenanceHelper)Reflector.GetFieldValue(obj, nameof(_maintenanceHelper));
+            return (MaintenanceHelper)Reflector.GetFieldValue(obj, nameof(_maintenanceHelper));
         }
 
         public static ServiceStates _serviceStates(this ExclusiveConnectionPool obj)

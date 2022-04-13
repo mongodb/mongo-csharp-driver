@@ -118,6 +118,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
         }
 
+        internal ListConnectionHolder ConnectionHolder => _connectionHolder;
+
         public int CreatedCount
         {
             get
@@ -154,6 +156,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
         {
             get { return _serverId; }
         }
+
+        public ConnectionPoolSettings Settings => _settings;
 
         public int UsedCount
         {
@@ -288,6 +292,12 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             // fall back to not serviceId path
             return Generation;
+        }
+
+        // internal methods
+        internal SemaphoreSlimSignalable.SemaphoreSlimSignalableAwaiter CreateMaxConnectionsAwaiter()
+        {
+            return _maxConnectionsQueue.CreateAwaiter();
         }
 
         // private methods

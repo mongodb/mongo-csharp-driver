@@ -24,7 +24,6 @@ using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
@@ -347,7 +346,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
         }
 
-        private sealed class PooledConnection : IConnection, ICheckOutReasonTracker
+        internal sealed class PooledConnection : IConnection, ICheckOutReasonTracker
         {
             private CheckOutReason? _checkOutReason;
             private readonly IConnection _connection;
@@ -653,7 +652,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
         }
 
-        private sealed class ListConnectionHolder
+        internal sealed class ListConnectionHolder
         {
             private readonly SemaphoreSlimSignalable _semaphoreSlimSignalable;
             private readonly object _lock = new object();
@@ -811,7 +810,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
         }
 
-        private sealed class ConnectionCreator : IDisposable
+        internal sealed class ConnectionCreator : IDisposable
         {
             private readonly ExclusiveConnectionPool _pool;
             private readonly TimeSpan _connectingTimeout;
