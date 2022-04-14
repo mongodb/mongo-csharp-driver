@@ -448,7 +448,7 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
                     break;
                 case "clear":
                     JsonDrivenHelper.EnsureAllFieldsAreValid(operation, "name", "closeInUseConnections");
-                    var closeInUseConnections = operation.GetValue("inUse", defaultValue: false).ToBoolean();
+                    var closeInUseConnections = operation.GetValue("closeInUseConnections", defaultValue: false).ToBoolean();
                     connectionPool.Clear(closeInUseConnections: closeInUseConnections);
                     break;
                 case "close":
