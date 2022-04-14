@@ -20,6 +20,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
@@ -47,8 +48,143 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
             exception.Should().BeOfType<NotSupportedException>();
         }
 
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public async Task Ensure_server_session_are_allocated_only_on_connection_checkout([Values(true, false)]bool async)
+        {
+            var eventCapturer = new EventCapturer()
+               .Capture<CommandStartedEvent>();
+
+            using var client = DriverTestConfiguration.CreateDisposableClient(
+                (MongoClientSettings settings) =>
+                {
+                    settings.RetryWrites = true;
+                    settings.MaxConnectionPoolSize = 1;
+                    settings.ClusterConfigurator = c => c.Subscribe(eventCapturer);
+                },
+                logger: null);
+
+            var database = client.GetDatabase("test");
+
+            database.DropCollection("inventory");
+            var collection = database.GetCollection<BsonDocument>("inventory");
+
+            const int operationsCount = 8;
+            var singleSessionUsed = false;
+            for (int i = 0; i < 5; i++)
+            {
+                eventCapturer.Clear();
+                await ThreadingUtilities.ExecuteTasksOnNewThreads(operationsCount, async i =>
+                {
+                    switch (i)
+                    {
+                        case 0:
+                            if (async)
+                            {
+                                await collection.InsertOneAsync(new BsonDocument("x", 0));
+                            }
+                            else
+                            {
+                                collection.InsertOne(new BsonDocument("x", 0));
+                            }
+                            break;
+                        case 1:
+                            if (async)
+                            {
+                                await collection.DeleteOneAsync(Builders<BsonDocument>.Filter.Eq("_id", 1));
+                            }
+                            else
+                            {
+                                collection.DeleteOne(Builders<BsonDocument>.Filter.Eq("_id", 1));
+                            }
+                            break;
+                        case 2:
+                            if (async)
+                            {
+                                await collection.UpdateOneAsync(Builders<BsonDocument>.Filter.Empty, Builders<BsonDocument>.Update.Set("a", 1));
+                            }
+                            else
+                            {
+                                collection.UpdateOne(Builders<BsonDocument>.Filter.Empty, Builders<BsonDocument>.Update.Set("a", 1));
+                            }
+                            break;
+                        case 3:
+                            var bulkWriteRequests = new WriteModel<BsonDocument>[]
+                            {
+                                new UpdateOneModel<BsonDocument>(Builders<BsonDocument>.Filter.Empty, new BsonDocument("$set", new BsonDocument("1", 1)))
+                            };
+
+                            if (async)
+                            {
+                                await collection.BulkWriteAsync(bulkWriteRequests);
+                            }
+                            else
+                            {
+                                collection.BulkWrite(bulkWriteRequests);
+                            }
+                            break;
+                        case 4:
+                            if (async)
+                            {
+                                await collection.FindOneAndDeleteAsync(Builders<BsonDocument>.Filter.Empty);
+                            }
+                            else
+                            {
+                                collection.FindOneAndDelete(Builders<BsonDocument>.Filter.Empty);
+                            }
+                            break;
+                        case 5:
+                            if (async)
+                            {
+                                await collection.FindOneAndUpdateAsync(Builders<BsonDocument>.Filter.Empty, Builders<BsonDocument>.Update.Set("a", 1));
+                            }
+                            else
+                            {
+                                collection.FindOneAndUpdate(Builders<BsonDocument>.Filter.Empty, Builders<BsonDocument>.Update.Set("a", 1));
+                            }
+                            
+                            break;
+                        case 6:
+                            if (async)
+                            {
+                                await collection.FindOneAndReplaceAsync(Builders<BsonDocument>.Filter.Empty, new BsonDocument("x", 0));
+                            }
+                            else
+                            {
+                                collection.FindOneAndReplace(Builders<BsonDocument>.Filter.Empty, new BsonDocument("x", 0));
+                            }
+                            break;
+                        case 7:
+                            if (async)
+                            {
+                                var cursor = await collection.FindAsync(Builders<BsonDocument>.Filter.Empty);
+                                _ = await cursor.ToListAsync();
+                            }
+                            else
+                            {
+                                _ = collection.Find(Builders<BsonDocument>.Filter.Empty).ToList();
+                            }
+                            break;
+                    }
+                });
+
+                eventCapturer.WaitForOrThrowIfTimeout(e => e.OfType<CommandStartedEvent>().Count() >= operationsCount, TimeSpan.FromSeconds(10));
+                var lsids = eventCapturer.Events.OfType<CommandStartedEvent>().Select(c => c.Command["lsid"]).ToArray();
+                var distinctLsidsCount = lsids.Distinct().Count();
+
+                distinctLsidsCount.Should().BeLessThan(operationsCount);
+                if (distinctLsidsCount == 1)
+                {
+                    singleSessionUsed = true;
+                    break;
+                }
+            }
+
+            singleSessionUsed.Should().BeTrue("At least one iteration should use single session");
+        }
+
         [SkippableFact]
-        public async Task Ensure_server_session_are_allocated_only_on_connection_checkout()
+        public async Task Ensure_server_session_are_allocated_only_on_connection_checkout_deterministic()
         {
             var eventCapturer = new EventCapturer()
                .Capture<ConnectionPoolCheckedOutConnectionEvent>()
@@ -63,9 +199,8 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
                 logger: null);
 
             var database = client.GetDatabase("test");
-
-            var collection = database.GetCollection<BsonDocument>("inventory");
             database.DropCollection("inventory");
+            var collection = database.GetCollection<BsonDocument>("inventory");
 
             collection.InsertOne(new BsonDocument("x", 0));
 
