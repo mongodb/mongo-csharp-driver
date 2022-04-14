@@ -301,7 +301,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
 #if !NETFRAMEWORK
         [Theory]
         [InlineData(StringComparison.CurrentCulture, "{ $match : { _id : { $type : -1 } } }")]
+#if !NETCOREAPP2_1
+        // there are bugs related to case insensitive string comparisons in .NET Core 2.1
+        // https://github.com/dotnet/runtime/issues/27376
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $match : { } }")]
+#endif
         public void Contains_with_string_constant_and_string_constant_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
             var collection = GetCollection<Test>();
@@ -533,7 +537,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
 
         [Theory]
         [InlineData(false, "{ $match : { _id : { $type : -1 } } }")]
+#if !NETCOREAPP2_1
+        // there are bugs related to case insensitive string comparisons in .NET Core 2.1
+        // https://github.com/dotnet/runtime/issues/27376
         [InlineData(true, "{ $match : { } }")]
+#endif
         public void EndsWith_with_string_constant_and_string_constant_and_ignoreCase_and_culture_should_work(bool ignoreCase, string expectedStage)
         {
             var collection = GetCollection<Test>();
@@ -579,8 +587,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         public void EndsWith_with_string_field_and_string_value_and_ignoreCase_and_invalid_culture_should_throw(bool ignoreCase)
         {
             var collection = GetCollection<Test>();
+            var notCurrentCulture = GetACultureThatIsNotTheCurrentCulture();
             var queryable = collection.AsQueryable()
-                .Where(x => x.S.EndsWith("aBc", ignoreCase, CultureInfo.InvariantCulture));
+                .Where(x => x.S.EndsWith("aBc", ignoreCase, notCurrentCulture));
 
             var exception = Record.Exception(() => Translate(collection, queryable));
 
@@ -618,7 +627,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
 
         [Theory]
         [InlineData(StringComparison.CurrentCulture, "{ $match : { _id : { $type : -1 } } }")]
+#if !NETCOREAPP2_1
+        // there are bugs related to case insensitive string comparisons in .NET Core 2.1
+        // https://github.com/dotnet/runtime/issues/27376
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $match : { } }")]
+#endif
         public void EndsWith_with_string_constant_and_string_constant_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
             var collection = GetCollection<Test>();
@@ -842,7 +855,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
 
         [Theory]
         [InlineData(false, "{ $match : { _id : { $type : -1 } } }")]
+#if !NETCOREAPP2_1
+        // there are bugs related to case insensitive string comparisons in .NET Core 2.1
+        // https://github.com/dotnet/runtime/issues/27376
         [InlineData(true, "{ $match : { } }")]
+#endif
         public void StartsWith_with_string_constant_and_string_constant_and_ignoreCase_and_culture_should_work(bool ignoreCase, string expectedStage)
         {
             var collection = GetCollection<Test>();
@@ -888,8 +905,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         public void StartsWith_with_string_field_and_string_value_and_ignoreCase_and_invalid_culture_should_throw(bool ignoreCase)
         {
             var collection = GetCollection<Test>();
+            var notCurrentCulture = GetACultureThatIsNotTheCurrentCulture();
             var queryable = collection.AsQueryable()
-                .Where(x => x.S.StartsWith("aBc", ignoreCase, CultureInfo.InvariantCulture));
+                .Where(x => x.S.StartsWith("aBc", ignoreCase, notCurrentCulture));
 
             var exception = Record.Exception(() => Translate(collection, queryable));
 
@@ -927,7 +945,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
 
         [Theory]
         [InlineData(StringComparison.CurrentCulture, "{ $match : { _id : { $type : -1 } } }")]
+#if !NETCOREAPP2_1
+        // there are bugs related to case insensitive string comparisons in .NET Core 2.1
+        // https://github.com/dotnet/runtime/issues/27376
         [InlineData(StringComparison.CurrentCultureIgnoreCase, "{ $match : { } }")]
+#endif
         public void StartsWith_with_string_constant_and_string_constant_and_comparisonType_should_work(StringComparison comparisonType, string expectedStage)
         {
             var collection = GetCollection<Test>();
@@ -999,6 +1021,16 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
 
             exception.Should().BeOfType<ExpressionNotSupportedException>();
             exception.Message.Should().Contain($"{comparisonType} is not supported");
+        }
+
+        private CultureInfo GetACultureThatIsNotTheCurrentCulture()
+        {
+            var notCurrentCulture = CultureInfo.GetCultureInfo("zu-ZA");
+            if (notCurrentCulture.Equals(CultureInfo.CurrentCulture))
+            {
+                notCurrentCulture = CultureInfo.GetCultureInfo("yo-NG");
+            }
+            return notCurrentCulture;
         }
 
         public class Test
