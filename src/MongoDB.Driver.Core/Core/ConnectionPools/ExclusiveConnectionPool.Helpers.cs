@@ -751,6 +751,9 @@ namespace MongoDB.Driver.Core.ConnectionPools
                         else
                         {
                             result = connection;
+
+                            // same as ConnectionHolder.TrackInUseConnection(connection);
+                            _connectionsInUse.Add(connection);
                         }
                     }
 
@@ -801,7 +804,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
             }
 
-            public void TrackAcquiredConnection(PooledConnection connection)
+            public void TrackInUseConnection(PooledConnection connection)
             {
                 lock (_lock)
                 {
@@ -847,9 +850,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                         _pool.CreateTimeoutException(stopwatch, $"Timed out waiting for in connecting queue after {stopwatch.ElapsedMilliseconds}ms.");
                     }
 
-                    var connection = CreateOpenedInternal(cancellationToken);
-                    _pool._connectionHolder.TrackAcquiredConnection(connection);
-                    return connection;
+                    return CreateOpenedInternal(cancellationToken);
                 }
                 catch (Exception ex)
                 {
@@ -892,7 +893,6 @@ namespace MongoDB.Driver.Core.ConnectionPools
                         }
                     }
 
-                    _pool._connectionHolder.TrackAcquiredConnection(connection);
                     return connection;
                 }
                 catch (Exception ex)
@@ -937,7 +937,6 @@ namespace MongoDB.Driver.Core.ConnectionPools
                         }
                     }
 
-                    _pool._connectionHolder.TrackAcquiredConnection(connection);
                     return connection;
                 }
                 catch (Exception ex)
@@ -991,7 +990,10 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 cancellationToken.ThrowIfCancellationRequested();
 
                 _stopwatch = Stopwatch.StartNew();
-                _connection = _pool.CreateNewConnection();
+
+                var connection = _pool.CreateNewConnection();
+                _pool.ConnectionHolder.TrackInUseConnection(connection);
+                _connection = connection;
             }
 
             private void FinishCreating(ConnectionDescription description)
