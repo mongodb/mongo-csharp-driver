@@ -15,7 +15,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Threading;
@@ -32,9 +31,11 @@ using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers.Logging;
+using MongoDB.Driver.Specifications.connection_monitoring_and_pooling;
 using Moq;
 using Xunit;
 using Xunit.Abstractions;
+using static MongoDB.Driver.Core.ConnectionPools.ExclusiveConnectionPool;
 
 namespace MongoDB.Driver.Core.ConnectionPools
 {
@@ -59,11 +60,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 .Setup(c => c.CreateConnection(It.IsAny<ServerId>(), It.IsAny<EndPoint>()))
                 .Returns(() =>
                 {
-                    var connectionMock = new Mock<IConnection>();
-                    connectionMock
-                        .Setup(c => c.Settings)
-                        .Returns(new ConnectionSettings());
-                    return connectionMock.Object;
+                    return new MockConnection();
                 });
             _settings = new ConnectionPoolSettings(
                 maintenanceInterval: TimeSpan.FromDays(1),
@@ -328,7 +325,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                         .Throws(exception);
 
                     return connectionMock.Object;
-                 });
+                });
 
             var settings = new ConnectionPoolSettings(maxConnections: maxConnections, maintenanceInterval: Timeout.InfiniteTimeSpan);
             subject = CreateSubject(
@@ -991,6 +988,99 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
         }
 
+        public class EventFormatterWithWaiting : IEventFormatter
+        {
+            private Action<object> _eventWaitingAction;
+
+            public EventFormatterWithWaiting(Action<object> eventWaitingAction)
+            {
+                _eventWaitingAction = eventWaitingAction;
+            }
+
+            public object Format(object @event)
+            {
+                _eventWaitingAction?.Invoke(@event);
+                return @event;
+            }
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void In_use_marker_should_work_as_expected(
+            [Values(0, 1)] int minPoolSize,
+            [Values(true, false)] bool async)
+        {
+            var acquiredCompletionSource = new TaskCompletionSource<bool>();
+
+            // configure a moment when connection has been created but not opened yet
+            var formatterWithWaiting = new EventFormatterWithWaiting(
+                @event =>
+                {
+                    switch (@event)
+                    {
+                        case ConnectionOpeningEvent e when minPoolSize == 0 || e.ConnectionId.LocalValue == 2: // ignore connection 1 created in minPoolSize logic
+                            {
+                                Waiting(acquiredCompletionSource.Task);
+                            }
+                            break;
+                    }
+                });
+
+            var settings = _settings.With(minConnections: minPoolSize, waitQueueTimeout: TimeSpan.FromMinutes(1) /* no op */);
+            _capturedEvents = new EventCapturer(formatterWithWaiting);
+            int connectionIndex = 0;
+            _mockConnectionFactory
+                .Setup(c => c.CreateConnection(It.IsAny<ServerId>(), It.IsAny<EndPoint>()))
+                .Returns<ServerId, EndPoint>((serverId, endpoint) =>
+                {
+                    return new MockConnection(new ConnectionId(serverId, ++connectionIndex), new ConnectionSettings(), _capturedEvents);
+                });
+
+            _subject = CreateSubject(connectionPoolSettings: settings);
+            InitializeAndWait(poolSettings: settings);
+
+            // initial state
+            GetConnections(inUse: false).Count.Should().Be(settings.MinConnections);
+            GetConnections(inUse: true).Count.Should().Be(0);
+
+            IConnection connection = null;
+            var thread = new Thread(() => connection = AcquireConnection(_subject, async));
+            thread.Start();
+            Thread.Sleep(100);
+
+            // During First acquire
+            GetConnections(inUse: false).Count.Should().Be(0);
+            Thread.Sleep(100);
+            GetConnections(inUse: true).Count.Should().Be(1);
+
+            acquiredCompletionSource.SetResult(true); // connection is acquired
+            Thread.Sleep(100);
+
+            GetConnections(inUse: false).Count.Should().Be(0);
+            GetConnections(inUse: true).Count.Should().Be(1);
+
+            // return connection
+            connection.Dispose();
+            Thread.Sleep(100);
+            GetConnections(inUse: false).Count.Should().Be(1);
+            GetConnections(inUse: true).Count.Should().Be(0);
+
+            List<PooledConnection> GetConnections(bool inUse)
+            {
+                var methodName = inUse ? "_connectionsInUse" : "_connections";
+                return (List<PooledConnection>)Reflector.GetFieldValue(_subject.ConnectionHolder, methodName);
+            }
+
+            void Waiting(Task<bool> task)
+            {
+                var result = Task.WaitAny(task, Task.Delay(TimeSpan.FromSeconds(5)));
+                if (result != 0)
+                {
+                    throw new Exception("Waiting for event is too long.");
+                }
+            }
+        }
+
         [Fact]
         public void Maintenance_should_call_connection_dispose_when_connection_authentication_fail()
         {
@@ -1046,7 +1136,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             subject.Initialize();
             subject.SetReady();
-            
+
             subject._maintenanceHelper().IsRunning.Should().BeFalse();
         }
 
