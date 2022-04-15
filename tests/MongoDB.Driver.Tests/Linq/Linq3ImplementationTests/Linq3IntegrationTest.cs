@@ -51,6 +51,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests
             }
         }
 
+        protected void CreateCollection<TDocument>(IMongoCollection<TDocument> collection, params TDocument[] documents)
+        {
+            CreateCollection(collection, (IEnumerable<TDocument>)documents); ;
+        }
+
         protected IMongoCollection<TDocument> GetCollection<TDocument>(string collectionName = null)
         {
             var databaseName = DriverTestConfiguration.DatabaseNamespace.DatabaseName;
