@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
         {
             const int attempts = 100;
             var usedThreads = new List<Thread>();
-            var @saveThreadlock = new object();
+            var saveThreadlock = new object();
             var random = new Random();
 
             using (var pool = CreatePool())
@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
             {
                 subject.Start(); // run initial maintenance thread
 
-                for (int i=0; i < attempts; i++)
+                for (int i = 0; i < attempts; i++)
                 {
                     StepByState(subject, random.Next(minValue: 0, maxValue: 2)); // 0 - SetReady, 1 - Clear
                 };

@@ -20,18 +20,22 @@ using static MongoDB.Driver.Core.ConnectionPools.ExclusiveConnectionPool;
 
 namespace MongoDB.Driver.Core.ConnectionPools
 {
+    // Not thread safe class. Start and Stop MUST be synchronized.
     internal sealed class MaintenanceHelper : IDisposable
     {
         private readonly ExclusiveConnectionPool _connectionPool;
         private readonly TimeSpan _interval;
         private MaintenanceExecutingContext _maintenanceExecutingContext;
         private Thread _maintenanceThread;
+        private readonly CancellationToken _globalCancellationToken;
+        private readonly CancellationTokenSource _globalCancellationTokenSource;
 
         public MaintenanceHelper(ExclusiveConnectionPool connectionPool, TimeSpan interval)
         {
             _connectionPool = Ensure.IsNotNull(connectionPool, nameof(connectionPool));
+            _globalCancellationTokenSource = new CancellationTokenSource();
+            _globalCancellationToken = _globalCancellationTokenSource.Token;
             _interval = interval;
-            _maintenanceExecutingContext = new MaintenanceExecutingContext(_interval); // no op until Start
         }
 
         public bool IsRunning => _maintenanceThread != null;
@@ -45,7 +49,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             _maintenanceThread = null;
 
-            _maintenanceExecutingContext.RequestCancelling(closeInUseConnections); // might be no op if Start hasn't been called yet
+            _maintenanceExecutingContext?.RequestStopping(closeInUseConnections); // might be no op if Start hasn't been called yet
+            _maintenanceExecutingContext?.Dispose();
         }
 
         public void Start()
@@ -55,12 +60,10 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 return;
             }
 
-            var newMaintenanceExecutingContext = new MaintenanceExecutingContext(_interval);
-            var oldMaintenanceExecutingContext = Interlocked.CompareExchange(ref _maintenanceExecutingContext, newMaintenanceExecutingContext, _maintenanceExecutingContext);
-            oldMaintenanceExecutingContext.Dispose();
+            _maintenanceExecutingContext = new MaintenanceExecutingContext(_interval, _globalCancellationToken);
 
             _maintenanceThread = new Thread(new ParameterizedThreadStart(ThreadStart)) { IsBackground = true };
-            _maintenanceThread.Start(newMaintenanceExecutingContext);
+            _maintenanceThread.Start(_maintenanceExecutingContext);
 
             void ThreadStart(object maintenanceExecutingContextObj)
             {
@@ -72,35 +75,33 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
         public void Dispose()
         {
-            _maintenanceExecutingContext.Dispose();
+            _maintenanceExecutingContext?.Dispose();
+            _globalCancellationTokenSource.Cancel();
+            _globalCancellationTokenSource.Dispose();
         }
 
         // private methods
         private void MaintainSize(MaintenanceExecutingContext maintenanceExecutingContext)
         {
-            bool shouldStopLoop;
-            bool stopAfterNextIteration = false;
-
             try
             {
-                do
+                var cancellationToken = maintenanceExecutingContext.CancellationToken;
+
+                while (!cancellationToken.IsCancellationRequested)
                 {
-                    shouldStopLoop = stopAfterNextIteration;
                     try
                     {
-                        _connectionPool.ConnectionHolder.Prune(maintenanceExecutingContext.CloseInUseConnections, maintenanceExecutingContext.CancellationToken);
-                        if (!shouldStopLoop)
-                        {
-                            EnsureMinSize(maintenanceExecutingContext.CancellationToken);
-                        }
+                        _connectionPool.ConnectionHolder.Prune(closeInUseConnections: false, cancellationToken);
+                        EnsureMinSize(cancellationToken);
                     }
                     catch
                     {
-                        // ignore exceptions
                     }
-                    stopAfterNextIteration = maintenanceExecutingContext.WaitAndSetStop(ignoreWaiting: shouldStopLoop);
+
+                    maintenanceExecutingContext.Wait();
                 }
-                while (!maintenanceExecutingContext.CancellationToken.IsCancellationRequested && !shouldStopLoop);
+
+                _connectionPool.ConnectionHolder.Prune(maintenanceExecutingContext.CloseInUseConnections, _globalCancellationToken);
             }
             catch
             {
@@ -142,10 +143,10 @@ namespace MongoDB.Driver.Core.ConnectionPools
         private bool _closeInUseConnections;
         private readonly TimeSpan _interval;
 
-        public MaintenanceExecutingContext(TimeSpan interval)
+        public MaintenanceExecutingContext(TimeSpan interval, CancellationToken globalCancellationToken)
         {
             _autoResetEvent = new AutoResetEvent(initialState: false);
-            _cancellationTokenSource = new CancellationTokenSource();
+            _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(globalCancellationToken);
             _cancellationToken = _cancellationTokenSource.Token;
             _interval = interval;
         }
@@ -157,16 +158,20 @@ namespace MongoDB.Driver.Core.ConnectionPools
         // public methods
         public void Dispose()
         {
-            _cancellationTokenSource.Cancel();
+            RequestStopping(_closeInUseConnections); // stop waiting if any
             _cancellationTokenSource.Dispose();
-
-            RequestCancelling(_closeInUseConnections); // stop waiting if any
             _autoResetEvent.Dispose();
         }
 
-        public void RequestCancelling(bool closeInUseConnections)
+        public void RequestStopping(bool closeInUseConnections)
         {
+            if (_cancellationToken.IsCancellationRequested)
+            {
+                return;
+            }
+
             _closeInUseConnections = closeInUseConnections;
+            _cancellationTokenSource.Cancel();
 
             try
             {
@@ -174,23 +179,24 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
             catch (ObjectDisposedException)
             {
+                // ignore it
             }
         }
 
-        public bool WaitAndSetStop(bool ignoreWaiting)
+        public void Wait()
         {
-            if (ignoreWaiting)
+            if (_cancellationToken.IsCancellationRequested)
             {
-                return true;
+                return;
             }
 
             try
             {
-                return _autoResetEvent.WaitOne(_interval);
+                _autoResetEvent.WaitOne(_interval);
             }
             catch (ObjectDisposedException)
             {
-                return true;
+                // ignore it
             }
         }
     }
