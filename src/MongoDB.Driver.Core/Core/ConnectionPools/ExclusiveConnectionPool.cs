@@ -271,8 +271,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     _closingEventHandler(new ConnectionPoolClosingEvent(_serverId));
                 }
 
-                _connectionHolder.Clear();
                 _maintenanceHelper.Dispose();
+                _connectionHolder.Clear();
                 _maxConnectionsQueue.Dispose();
                 _maxConnectingQueue.Dispose();
                 if (_closedEventHandler != null)

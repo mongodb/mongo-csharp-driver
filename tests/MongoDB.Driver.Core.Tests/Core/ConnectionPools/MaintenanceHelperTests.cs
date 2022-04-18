@@ -14,6 +14,7 @@
 */
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -108,7 +109,7 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
 
         [Theory]
         [ParameterAttributeData]
-        public void RequestCancel_should_trigger_immidiate_maintenace_call(
+        public void RequestStoppingMaintenance_should_trigger_immidiate_maintenace_call(
             [Values(false, true)] bool checkOutConnection,
             [Values(false, true)] bool closeInProgressConnection)
         {
@@ -152,7 +153,7 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
         }
 
         [Fact]
-        public void RequestCancel_should_trigger_additional_request_when_there_is_in_progress_request()
+        public void RequestStoppingMaintenance_should_trigger_additional_prune_when_there_is_in_progress_request()
         {
             var removedConnection1TaskCompletionSource = new TaskCompletionSource<bool>();
             var connection2IsExpiredTaskCompletionSource = new TaskCompletionSource<bool>();
@@ -175,21 +176,25 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
                         .Returns(() => new MockConnection(new ConnectionId(__serverId, 2), new ConnectionSettings(), eventCapturer, connection2IsExpiredTaskCompletionSource));
                 }))
             {
-
                 var subject = pool._maintenanceHelper();
 
                 // 1. connections 1 (expired) and 2 (not expired yet) are created
-                var maitenanceInPlayTimeout = TimeSpan.FromMilliseconds(1000);
-                eventCapturer.WaitForOrThrowIfTimeout(new[] { typeof(ConnectionPoolAddedConnectionEvent), typeof(ConnectionPoolAddedConnectionEvent) }, maitenanceInPlayTimeout);
+                var maitenanceInPlayTimeout = TimeSpan.FromMilliseconds(100);
+                eventCapturer.WaitForOrThrowIfTimeout(
+                    new[]
+                    {
+                        typeof(ConnectionPoolAddedConnectionEvent),
+                        typeof(ConnectionPoolAddedConnectionEvent),
+                        typeof(ConnectionPoolRemovingConnectionEvent)
+                    },
+                    maitenanceInPlayTimeout);
                 eventCapturer.Next().Should().BeOfType<ConnectionPoolAddedConnectionEvent>();  // minPoolSize has been enrolled
                 eventCapturer.Next().Should().BeOfType<ConnectionPoolAddedConnectionEvent>();  // minPoolSize has been enrolled
+                eventCapturer.Next().Should().BeOfType<ConnectionPoolRemovingConnectionEvent>().Which.ConnectionId.LocalValue.Should().Be(1);  // start removing connection 1. 
                 eventCapturer.Any().Should().BeFalse();
 
                 // 2. connection1 is being removed, but waiting removeConnectionTaskCompletionSource for completion
-                var requestInPlayTimeout = TimeSpan.FromMilliseconds(1000);
-                eventCapturer.WaitForEventOrThrowIfTimeout<ConnectionPoolRemovingConnectionEvent>(maitenanceInPlayTimeout);
-                eventCapturer.Next().Should().BeOfType<ConnectionPoolRemovingConnectionEvent>()
-                    .Which.ConnectionId.LocalValue.Should().Be(1);  // connection 1 in the pool is being removed, but to finish it needs removedConnectionTaskCompletionSource
+                var requestInPlayTimeout = TimeSpan.FromMilliseconds(100);
                 Thread.Sleep(100); // ensure no more events
                 eventCapturer.Any().Should().BeFalse(); // waiting until removeConnectionTaskCompletionSource
 
@@ -202,11 +207,8 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
                 subject.RequestStoppingMaintenance(closeInUseConnections: false);
                 removedConnection1TaskCompletionSource.SetResult(true); // removing connection 1 is done
 
-                eventCapturer.WaitForEventOrThrowIfTimeout<ConnectionPoolRemovedConnectionEvent>(maitenanceInPlayTimeout);
-                eventCapturer.Next().Should().BeOfType<ConnectionPoolRemovedConnectionEvent>().Which.ConnectionId.LocalValue.Should().Be(1);  // connection 1 in the pool has been removed
-
-                // 5. new attempt to remove connection 2
-                eventCapturer.WaitForEventOrThrowIfTimeout<ConnectionPoolRemovedConnectionEvent>(maitenanceInPlayTimeout);
+                eventCapturer.WaitForOrThrowIfTimeout(capturer => capturer.OfType<ConnectionPoolRemovedConnectionEvent>().Count() >= 2, maitenanceInPlayTimeout);
+                eventCapturer.Next().Should().BeOfType<ConnectionPoolRemovedConnectionEvent>().Which.ConnectionId.LocalValue.Should().Be(1);
                 eventCapturer.Next().Should().BeOfType<ConnectionPoolRemovingConnectionEvent>().Which.ConnectionId.LocalValue.Should().Be(2);
                 eventCapturer.Next().Should().BeOfType<ConnectionPoolRemovedConnectionEvent>().Which.ConnectionId.LocalValue.Should().Be(2);  // connection 2 in the pool has been removed
                 eventCapturer.Any().Should().BeFalse();
