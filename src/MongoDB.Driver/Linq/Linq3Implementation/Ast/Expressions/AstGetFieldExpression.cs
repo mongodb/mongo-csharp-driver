@@ -67,7 +67,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
                 constantFieldName.Value is BsonString stringfieldName)
             {
                 fieldName = stringfieldName.Value;
-                if (fieldName.Length > 0 && IsSafeFirstChar(fieldName[0]) && fieldName.Skip(1).All(c => IsSafeSubsequentChar(c)))
+                if (fieldName.Length > 0 && fieldName[0] != '$' && !fieldName.Contains('.'))
                 {
                     return true;
                 }
@@ -75,9 +75,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
 
             fieldName = null;
             return false;
-
-            static bool IsSafeFirstChar(char c) => c == '_' || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
-            static bool IsSafeSubsequentChar(char c) => IsSafeFirstChar(c) || (c >= '0' && c <= '9');
         }
 
         public override BsonValue Render()
