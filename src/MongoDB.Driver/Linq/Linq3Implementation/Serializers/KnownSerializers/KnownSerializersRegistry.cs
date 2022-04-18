@@ -29,7 +29,15 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers.KnownSerializers
         // public methods
         public void Add(Expression expression, KnownSerializersNode knownSerializers)
         {
-            if (_registry.ContainsKey(expression)) return;
+            if (knownSerializers.Expression != expression)
+            {
+                throw new ArgumentException($"Expression {expression} does not match knownSerializers.Expression {knownSerializers.Expression}.");
+            }
+
+            if (_registry.ContainsKey(expression))
+            {
+                return;
+            }
 
             _registry.Add(expression, knownSerializers);
         }
@@ -41,8 +49,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers.KnownSerializers
             return possibleSerializers.Count switch
             {
                 0 => defaultSerializer ?? BsonSerializer.LookupSerializer(expressionType), // sometimes there is no known serializer from the context (e.g. CSHARP-4062)
-                > 1 => throw new InvalidOperationException($"More than one possible serializer found for {expression}."),
-                _ => possibleSerializers.First()
+                1 => possibleSerializers.First(),
+                _ => throw new InvalidOperationException($"More than one possible serializer found for {expression}.")
             };
         }
     }

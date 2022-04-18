@@ -16,25 +16,28 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
-using MongoDB.Driver.Support;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers.KnownSerializers
 {
     internal class KnownSerializersNode
     {
         // private fields
+        private readonly Expression _expression;
         private readonly Dictionary<Type, HashSet<IBsonSerializer>> _knownSerializers = new Dictionary<Type, HashSet<IBsonSerializer>>();
         private readonly KnownSerializersNode _parent;
 
         // constructors
-        public KnownSerializersNode(KnownSerializersNode parent)
+        public KnownSerializersNode(Expression expression, KnownSerializersNode parent)
         {
+            _expression = expression;
             _parent = parent; // will be null for the root node
         }
 
         // public properties
+        public Expression Expression => _expression;
         public Dictionary<Type, HashSet<IBsonSerializer>> KnownSerializers => _knownSerializers;
         public KnownSerializersNode Parent => _parent;
 
@@ -49,7 +52,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers.KnownSerializers
 
             set.Add(serializer);
 
-            _parent?.AddKnownSerializer(type, serializer);
+            if (ShouldPropagateKnownSerializerToParent())
+            {
+                _parent.AddKnownSerializer(type, serializer);
+            }
         }
 
         public HashSet<IBsonSerializer> GetPossibleSerializers(Type type)
@@ -108,6 +114,21 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers.KnownSerializers
             }
 
             return possibleSerializers;
+        }
+
+        private bool ShouldPropagateKnownSerializerToParent()
+        {
+            if (_parent == null)
+            {
+                return false;
+            }
+
+            return _parent.Expression.NodeType switch
+            {
+                ExpressionType.MemberInit => false,
+                ExpressionType.New => false,
+                _ => true
+            };
         }
     }
 }
