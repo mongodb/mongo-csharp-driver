@@ -1,9 +1,8 @@
 version: 1
 style: unit
-description: Pool MUST be able to destroy all available and in use connections
+description: Pool clear MUST support lazily closing in use connections
 poolOptions:
-  # ensure it's not involved by default
-  backgroundThreadIntervalMS: 10000
+  backgroundThreadIntervalMS: 100
 operations:
   - name: ready
   - name: checkOut
