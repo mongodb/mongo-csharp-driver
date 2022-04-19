@@ -133,7 +133,7 @@ namespace MongoDB.Driver.Core
         public override string ToString()
         {
             var stringBuilder = new StringBuilder();
-            _capturedEvents.ToList().ForEach(e => stringBuilder.AppendLine(e.GetType().Name));
+            Events.ForEach(e => stringBuilder.AppendLine(e.GetType().Name));
             return stringBuilder.ToString();
         }
 

@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -31,7 +32,6 @@ using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers.Logging;
-using MongoDB.Driver.Specifications.connection_monitoring_and_pooling;
 using Moq;
 using Xunit;
 using Xunit.Abstractions;
@@ -1008,9 +1008,12 @@ namespace MongoDB.Driver.Core.ConnectionPools
         [ParameterAttributeData]
         public void In_use_marker_should_work_as_expected(
             [Values(0, 1)] int minPoolSize,
+            [Values(false, true)] bool openConnectionFailed,
             [Values(true, false)] bool async)
         {
             var acquiredCompletionSource = new TaskCompletionSource<bool>();
+
+            var openException = new MongoConnectionException(new ConnectionId(_serverId), "OpenConnection failed");
 
             // configure a moment when connection has been created but not opened yet
             var formatterWithWaiting = new EventFormatterWithWaiting(
@@ -1021,6 +1024,10 @@ namespace MongoDB.Driver.Core.ConnectionPools
                         case ConnectionOpeningEvent e when minPoolSize == 0 || e.ConnectionId.LocalValue == 2: // ignore connection 1 created in minPoolSize logic
                             {
                                 Waiting(acquiredCompletionSource.Task);
+                                if (openConnectionFailed)
+                                {
+                                    throw openException;
+                                }
                             }
                             break;
                     }
@@ -1044,26 +1051,68 @@ namespace MongoDB.Driver.Core.ConnectionPools
             GetConnections(inUse: true).Count.Should().Be(0);
 
             IConnection connection = null;
-            var thread = new Thread(() => connection = AcquireConnection(_subject, async));
+            IConnection prepopulatedConnection = null;
+            Exception acquireException = null;
+            var thread = new Thread(() =>
+            {
+                if (minPoolSize > 0)
+                {
+                    prepopulatedConnection = AcquireConnection(_subject, async);
+                }
+
+                try
+                {
+                    connection = AcquireConnection(_subject, async);
+                }
+                catch (Exception ex)
+                {
+                    acquireException = ex;
+                }
+            });
             thread.Start();
             Thread.Sleep(100);
 
             // During First acquire
             GetConnections(inUse: false).Count.Should().Be(0);
             Thread.Sleep(100);
-            GetConnections(inUse: true).Count.Should().Be(1);
+            GetConnections(inUse: true).Count.Should().Be(settings.MinConnections + 1);
 
             acquiredCompletionSource.SetResult(true); // connection is acquired
             Thread.Sleep(100);
 
             GetConnections(inUse: false).Count.Should().Be(0);
-            GetConnections(inUse: true).Count.Should().Be(1);
+            GetConnections(inUse: true).Count.Should().Be(settings.MinConnections + (openConnectionFailed ? 0 : 1));
 
-            // return connection
-            connection.Dispose();
-            Thread.Sleep(100);
-            GetConnections(inUse: false).Count.Should().Be(1);
-            GetConnections(inUse: true).Count.Should().Be(0);
+            if (openConnectionFailed)
+            {
+                if (minPoolSize > 0)
+                {
+                    prepopulatedConnection.Dispose();
+                    Thread.Sleep(50);
+                    GetConnections(inUse: false).Count.Should().Be(settings.MinConnections);
+                    GetConnections(inUse: true).Count.Should().Be(0);
+                }
+
+                connection.Should().BeNull();
+                acquireException.Should().Be(openException);
+            }
+            else
+            {
+                // return connections
+                if (minPoolSize > 0)
+                {
+                    prepopulatedConnection.Dispose();
+                    Thread.Sleep(50);
+                    GetConnections(inUse: false).Count.Should().Be(settings.MinConnections);
+                    GetConnections(inUse: true).Count.Should().Be(1);
+                }
+
+                connection.Dispose();
+                Thread.Sleep(50);
+                GetConnections(inUse: false).Count.Should().Be(settings.MinConnections + 1);
+                GetConnections(inUse: true).Count.Should().Be(0);
+                acquireException.Should().BeNull();
+            }
 
             List<PooledConnection> GetConnections(bool inUse)
             {

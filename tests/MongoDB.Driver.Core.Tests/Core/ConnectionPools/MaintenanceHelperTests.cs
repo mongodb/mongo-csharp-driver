@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
                     StepByState(subject, random.Next(minValue: 0, maxValue: 2)); // 0 - SetReady, 1 - Clear
                 };
                 Thread.Sleep(100);
-                StepByState(subject, state: 0); // 0 - SetReady, should be stopepd by dispose
+                StepByState(subject, state: 0); // 0 - SetReady, should be stopped by dispose
             }
 
             Thread.Sleep(TimeSpan.FromSeconds(1));
@@ -224,7 +224,7 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
                 subject.Start();
                 var createdThread = subject._maintenanceThread();
                 subject.Start();
-                createdThread.ManagedThreadId.Should().Be(createdThread.ManagedThreadId); // same thread
+                createdThread.ManagedThreadId.Should().Be(subject._maintenanceThread().ManagedThreadId); // same thread
             }
         }
 

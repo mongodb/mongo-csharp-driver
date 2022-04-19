@@ -118,8 +118,6 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
         }
 
-        internal ListConnectionHolder ConnectionHolder => _connectionHolder;
-
         public int CreatedCount
         {
             get
@@ -167,6 +165,9 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 return _settings.MaxConnections - AvailableCount;
             }
         }
+
+        // internal properties
+        internal ListConnectionHolder ConnectionHolder => _connectionHolder;
 
         // public methods
         public IConnectionHandle AcquireConnection(CancellationToken cancellationToken)

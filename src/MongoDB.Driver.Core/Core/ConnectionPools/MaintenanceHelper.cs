@@ -24,11 +24,11 @@ namespace MongoDB.Driver.Core.ConnectionPools
     internal sealed class MaintenanceHelper : IDisposable
     {
         private readonly ExclusiveConnectionPool _connectionPool;
+        private readonly CancellationToken _globalCancellationToken;
+        private readonly CancellationTokenSource _globalCancellationTokenSource;
         private readonly TimeSpan _interval;
         private MaintenanceExecutingContext _maintenanceExecutingContext;
         private Thread _maintenanceThread;
-        private readonly CancellationToken _globalCancellationToken;
-        private readonly CancellationTokenSource _globalCancellationTokenSource;
 
         public MaintenanceHelper(ExclusiveConnectionPool connectionPool, TimeSpan interval)
         {
@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             _maintenanceThread = null;
 
-            _maintenanceExecutingContext?.RequestStopping(closeInUseConnections); // might be no op if Start hasn't been called yet
+            _maintenanceExecutingContext?.Cancel(closeInUseConnections); // might be no op if Start hasn't been called yet
             _maintenanceExecutingContext?.Dispose();
         }
 
@@ -135,7 +135,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         }
     }
 
-    internal class MaintenanceExecutingContext : IDisposable
+    internal sealed class MaintenanceExecutingContext : IDisposable
     {
         private readonly AutoResetEvent _autoResetEvent;
         private readonly CancellationToken _cancellationToken;
@@ -158,12 +158,12 @@ namespace MongoDB.Driver.Core.ConnectionPools
         // public methods
         public void Dispose()
         {
-            RequestStopping(_closeInUseConnections); // stop waiting if any
+            Cancel(_closeInUseConnections); // stop waiting if any
             _cancellationTokenSource.Dispose();
             _autoResetEvent.Dispose();
         }
 
-        public void RequestStopping(bool closeInUseConnections)
+        public void Cancel(bool closeInUseConnections)
         {
             if (_cancellationToken.IsCancellationRequested)
             {
@@ -171,7 +171,15 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
 
             _closeInUseConnections = closeInUseConnections;
-            _cancellationTokenSource.Cancel();
+
+            try
+            {
+                _cancellationTokenSource.Cancel();
+            }
+            catch (ObjectDisposedException)
+            {
+                // might be already cancelled and disposed in Dispose, ignore it
+            }
 
             try
             {

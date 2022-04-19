@@ -811,6 +811,14 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     _connectionsInUse.Add(connection);
                 }
             }
+
+            public void UntrackInUseConnection(PooledConnection connection)
+            {
+                lock (_lock)
+                {
+                    _connectionsInUse.Remove(connection);
+                }
+            }
         }
 
         internal sealed class ConnectionCreator : IDisposable
@@ -955,7 +963,11 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
                 if (_disposeConnection)
                 {
-                    _connection?.Dispose();
+                    if (_connection != null)
+                    {
+                        _pool.ConnectionHolder.UntrackInUseConnection(_connection);
+                        _connection.Dispose();
+                    }
                 }
             }
 
