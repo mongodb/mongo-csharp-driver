@@ -69,6 +69,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __findAndModifyWriteConcern = new Feature("FindAndModifyWriteConcern", WireVersion.Server32);
         private static readonly Feature __findCommand = new Feature("FindCommand", WireVersion.Server32);
         private static readonly Feature __geoNearCommand = new Feature("GeoNearCommand", WireVersion.Zero, WireVersion.Server42);
+        private static readonly Feature __getField = new Feature("GetField", WireVersion.Server50);
         private static readonly Feature __getMoreComment = new Feature("GetMoreComment", WireVersion.Server44);
         private static readonly Feature __groupCommand = new Feature("GroupCommand", WireVersion.Zero, WireVersion.Server42);
         private static readonly Feature __hedgedReads = new Feature("HedgedReads", WireVersion.Server44);
@@ -368,6 +369,11 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the geoNear command feature.
         /// </summary>
         public static Feature GeoNearCommand => __geoNearCommand;
+
+        /// <summary>
+        /// Gets the getField feature.
+        /// </summary>
+        public static Feature GetField => __getField;
 
         /// <summary>
         /// Gets the getMore comment feature.
