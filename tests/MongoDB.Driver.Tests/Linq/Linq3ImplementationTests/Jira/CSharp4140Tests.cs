@@ -16,6 +16,8 @@
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
@@ -48,6 +50,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [InlineData("a.")]
         public void Should_use_getField(string fieldName)
         {
+            RequireServer.Check().Supports(Feature.GetField);
+
             var collection = GetCollection<BsonDocument>();
             CreateCollection(collection, new BsonDocument(fieldName, 123));
             var queryable = collection.AsQueryable()
@@ -67,6 +71,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [InlineData("$a$")]
         public void Should_use_getField_with_literal(string fieldName)
         {
+            RequireServer.Check().Supports(Feature.GetField);
+
             var collection = GetCollection<BsonDocument>();
             CreateCollection(collection, new BsonDocument(fieldName, 123));
             var queryable = collection.AsQueryable()
