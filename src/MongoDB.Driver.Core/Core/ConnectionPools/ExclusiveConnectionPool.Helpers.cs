@@ -656,6 +656,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         {
             private readonly SemaphoreSlimSignalable _semaphoreSlimSignalable;
             private readonly object _lock = new object();
+            private readonly object _lockInUse = new object();
             private readonly List<PooledConnection> _connections;
             private readonly List<PooledConnection> _connectionsInUse;
 
@@ -700,35 +701,42 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             public void Prune(bool closeInUseConnections, CancellationToken cancellationToken)
             {
-                PooledConnection[] expiredConnections;
-                lock (_lock)
+                RemoveExpiredConnections(_connections, _lock, signal: true);
+
+                if (closeInUseConnections)
                 {
-                    var poolExpiredConnections = _connections.Where(c => c.IsExpired);
-                    if (closeInUseConnections)
-                    {
-                        poolExpiredConnections = poolExpiredConnections.Concat(_connectionsInUse.Where(c => c.IsExpired));
-                    }
-                    expiredConnections = poolExpiredConnections.ToArray();
+                    RemoveExpiredConnections(_connectionsInUse, _lockInUse, signal: false);
                 }
 
-                foreach (var connection in expiredConnections)
+                void RemoveExpiredConnections(List<PooledConnection> connections, object @lock, bool signal)
                 {
-                    cancellationToken.ThrowIfCancellationRequested();
-
-                    lock (_lock)
+                    PooledConnection[] expiredConnections;
+                    lock (@lock)
                     {
-                        // At this point connection is always expired and might be disposed
-                        // If connection is already disposed the removal logic was already executed
-                        if (connection.IsDisposed)
+                        expiredConnections = connections.Where(c => c.IsExpired).ToArray();
+                    }
+
+                    foreach (var connection in expiredConnections)
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+
+                        lock (@lock)
                         {
-                            continue;
+                            // At this point connection is always expired and might be disposed
+                            // If connection is already disposed the removal logic was already executed
+                            if (connection.IsDisposed)
+                            {
+                                continue;
+                            }
+
+                            RemoveConnection(connection);
+                            connections.Remove(connection);
+
+                            if (signal)
+                            {
+                                SignalOrReset();
+                            }
                         }
-
-                        RemoveConnection(connection);
-                        _connections.Remove(connection);
-                        _connectionsInUse.Remove(connection);
-
-                        SignalOrReset();
                     }
                 }
             }
@@ -751,23 +759,27 @@ namespace MongoDB.Driver.Core.ConnectionPools
                         else
                         {
                             result = connection;
-
-                            // same as ConnectionHolder.TrackInUseConnection(connection);
-                            _connectionsInUse.Add(connection);
                         }
                     }
 
                     SignalOrReset();
                 }
+
+                if (result != null)
+                {
+                    TrackInUseConnection(result);
+                }
+
                 return result;
             }
 
             public void Return(PooledConnection connection)
             {
+                UntrackInUseConnection(connection);
+
                 lock (_lock)
                 {
                     _connections.Add(connection);
-                    _connectionsInUse.Remove(connection);
                     SignalOrReset();
                 }
             }
@@ -814,7 +826,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             public void UntrackInUseConnection(PooledConnection connection)
             {
-                lock (_lock)
+                lock (_lockInUse)
                 {
                     _connectionsInUse.Remove(connection);
                 }
