@@ -699,21 +699,21 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
             }
 
-            public void Prune(bool closeInUseConnections, CancellationToken cancellationToken)
+            public void Prune(bool closeInUseConnections, int? failedPoolGeneration, CancellationToken cancellationToken)
             {
-                RemoveExpiredConnections(_connections, _lock, signal: true);
+                RemoveExpiredConnections(_connections, upToGeneration: null, _lock, signal: true);
 
                 if (closeInUseConnections)
                 {
-                    RemoveExpiredConnections(_connectionsInUse, _lockInUse, signal: false);
+                    RemoveExpiredConnections(_connectionsInUse, upToGeneration: failedPoolGeneration, _lockInUse, signal: false);
                 }
 
-                void RemoveExpiredConnections(List<PooledConnection> connections, object @lock, bool signal)
+                void RemoveExpiredConnections(List<PooledConnection> connections, int? upToGeneration, object @lock, bool signal)
                 {
                     PooledConnection[] expiredConnections;
                     lock (@lock)
                     {
-                        expiredConnections = connections.Where(c => c.IsExpired).ToArray();
+                        expiredConnections = connections.Where(c => c.IsExpired && (failedPoolGeneration == null || c.Generation <= failedPoolGeneration)).ToArray();
                     }
 
                     foreach (var connection in expiredConnections)

@@ -36,6 +36,7 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
     public class MaintenanceHelperTests
     {
         private static readonly TimeSpan __dummyInterval = TimeSpan.FromMinutes(1);
+        private static readonly int __dummyPoolGeneration = 1;
         private static readonly DnsEndPoint __endPoint = new DnsEndPoint("localhost", 27017);
         private static readonly ServerId __serverId = new ServerId(new ClusterId(), __endPoint);
 
@@ -85,7 +86,7 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
                     else
                     {
                         var dummyCloseInUseConnections = false;
-                        helper.RequestStoppingMaintenance(closeInUseConnections: dummyCloseInUseConnections);
+                        helper.RequestStoppingMaintenance(closeInUseConnections: dummyCloseInUseConnections, __dummyPoolGeneration);
                     }
                 }
             }
@@ -101,7 +102,7 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
                 subject.IsRunning.Should().BeFalse();
                 subject.Start();
                 subject.IsRunning.Should().BeTrue();
-                subject.RequestStoppingMaintenance(closeInUseConnections: false);
+                subject.RequestStoppingMaintenance(closeInUseConnections: false, __dummyPoolGeneration);
                 subject.IsRunning.Should().BeFalse();
             }
             subject.IsRunning.Should().BeFalse();
@@ -135,7 +136,7 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
                 }
 
                 IncrementGeneration(pool);
-                subject.RequestStoppingMaintenance(closeInUseConnections: closeInProgressConnection);
+                subject.RequestStoppingMaintenance(closeInUseConnections: closeInProgressConnection, __dummyPoolGeneration);
 
                 var requestInPlayTimeout = TimeSpan.FromMilliseconds(100);
                 if (!closeInProgressConnection && checkOutConnection)
@@ -204,7 +205,7 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
                 connection2IsExpiredTaskCompletionSource.SetResult(true);  // connection 2 is expired
 
                 // 4. emulate pool.clear (for connection 2 based on test setup)
-                subject.RequestStoppingMaintenance(closeInUseConnections: false);
+                subject.RequestStoppingMaintenance(closeInUseConnections: false, __dummyPoolGeneration);
                 removedConnection1TaskCompletionSource.SetResult(true); // removing connection 1 is done
 
                 eventCapturer.WaitForOrThrowIfTimeout(capturer => capturer.OfType<ConnectionPoolRemovedConnectionEvent>().Count() >= 2, maitenanceInPlayTimeout);
