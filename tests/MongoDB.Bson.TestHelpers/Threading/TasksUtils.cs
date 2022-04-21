@@ -50,7 +50,17 @@ namespace MongoDB.Bson.TestHelpers
             .Select(i => taskCreator(i))
             .ToArray();
 
-        public static async Task WithTimeout(this Task task, int timeoutMS)
+        public static void WithTimeout(this Task task, TimeSpan timeout)
+        {
+            var index = Task.WaitAny(task, Task.Delay(timeout));
+
+            if (index != 0)
+            {
+                throw new TimeoutException($"Task timed out after {timeout}.");
+            }
+        }
+
+        public static async Task WithTimeoutAsync(this Task task, int timeoutMS)
         {
             var firstFinishedTask = await Task.WhenAny(task, Task.Delay(timeoutMS));
 

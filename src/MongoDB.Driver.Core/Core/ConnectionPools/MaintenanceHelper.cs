@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
         public bool IsRunning => _maintenanceThread != null;
 
-        public void RequestStoppingMaintenance(bool closeInUseConnections, int failedPoolGeneration)
+        public void RequestStoppingMaintenance(bool closeInUseConnections, int healthyGeneration)
         {
             if (_interval == Timeout.InfiniteTimeSpan || !IsRunning)
             {
@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             _maintenanceThread = null;
 
-            _maintenanceExecutingContext?.Cancel(closeInUseConnections, failedPoolGeneration); // might be no op if Start hasn't been called yet
+            _maintenanceExecutingContext?.Cancel(closeInUseConnections, healthyGeneration); // might be no op if Start hasn't been called yet
             _maintenanceExecutingContext?.Dispose();
         }
 
@@ -91,7 +91,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 {
                     try
                     {
-                        _connectionPool.ConnectionHolder.Prune(closeInUseConnections: false, failedPoolGeneration: null, cancellationToken);
+                        _connectionPool.ConnectionHolder.Prune(closeInUseConnections: false, healthyGeneration: null, cancellationToken);
                         EnsureMinSize(cancellationToken);
                     }
                     catch
@@ -101,8 +101,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     maintenanceExecutingContext.Wait();
                 }
 
-                int? effectiveFailedPoolGeneration = maintenanceExecutingContext.CloseInUseConnections ? maintenanceExecutingContext.FailedPoolGeneration : null;
-                _connectionPool.ConnectionHolder.Prune(maintenanceExecutingContext.CloseInUseConnections, failedPoolGeneration: effectiveFailedPoolGeneration, _globalCancellationToken);
+                _connectionPool.ConnectionHolder.Prune(maintenanceExecutingContext.CloseInUseConnections, maintenanceExecutingContext.HealthyGeneration, _globalCancellationToken);
             }
             catch
             {
@@ -142,7 +141,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         private readonly CancellationToken _cancellationToken;
         private readonly CancellationTokenSource _cancellationTokenSource;
         private bool _closeInUseConnections;
-        private int _generation;
+        private int _healthyGeneration;
         private readonly TimeSpan _interval;
 
         public MaintenanceExecutingContext(TimeSpan interval, CancellationToken globalCancellationToken)
@@ -156,17 +155,17 @@ namespace MongoDB.Driver.Core.ConnectionPools
         // public properties
         public CancellationToken CancellationToken => _cancellationToken;
         public bool CloseInUseConnections => _closeInUseConnections;
-        public int FailedPoolGeneration => _generation;
+        public int HealthyGeneration => _healthyGeneration;
 
         // public methods
         public void Dispose()
         {
-            Cancel(_closeInUseConnections, _generation); // stop waiting if any
+            Cancel(_closeInUseConnections, _healthyGeneration); // stop waiting if any
             _cancellationTokenSource.Dispose();
             _autoResetEvent.Dispose();
         }
 
-        public void Cancel(bool closeInUseConnections, int generation)
+        public void Cancel(bool closeInUseConnections, int healthyGeneration)
         {
             if (_cancellationToken.IsCancellationRequested)
             {
@@ -174,7 +173,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
 
             _closeInUseConnections = closeInUseConnections;
-            _generation = generation;
+            _healthyGeneration = healthyGeneration;
 
             try
             {

@@ -699,21 +699,21 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
             }
 
-            public void Prune(bool closeInUseConnections, int? failedPoolGeneration, CancellationToken cancellationToken)
+            public void Prune(bool closeInUseConnections, int? healthyGeneration, CancellationToken cancellationToken)
             {
-                RemoveExpiredConnections(_connections, upToGeneration: null, _lock, signal: true);
+                RemoveExpiredConnections(_connections, generation: null, _lock, signal: true);
 
                 if (closeInUseConnections)
                 {
-                    RemoveExpiredConnections(_connectionsInUse, upToGeneration: failedPoolGeneration, _lockInUse, signal: false);
+                    RemoveExpiredConnections(_connectionsInUse, generation: healthyGeneration, _lockInUse, signal: false);
                 }
 
-                void RemoveExpiredConnections(List<PooledConnection> connections, int? upToGeneration, object @lock, bool signal)
+                void RemoveExpiredConnections(List<PooledConnection> connections, int? generation, object @lock, bool signal)
                 {
                     PooledConnection[] expiredConnections;
                     lock (@lock)
                     {
-                        expiredConnections = connections.Where(c => c.IsExpired && (failedPoolGeneration == null || c.Generation <= failedPoolGeneration)).ToArray();
+                        expiredConnections = connections.Where(c => c.IsExpired && (generation == null || c.Generation < generation)).ToArray();
                     }
 
                     foreach (var connection in expiredConnections)
@@ -792,6 +792,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
 
                 var stopwatch = Stopwatch.StartNew();
+                UntrackInUseConnection(connection); // no op if connection is not in use
                 connection.Dispose();
                 stopwatch.Stop();
 

@@ -33,6 +33,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
 {
+    [Trait("Category", "Pool")]
     public class MaintenanceHelperTests
     {
         private static readonly TimeSpan __dummyInterval = TimeSpan.FromMinutes(1);
@@ -158,7 +159,14 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
         {
             var removedConnection1TaskCompletionSource = new TaskCompletionSource<bool>();
             var connection2IsExpiredTaskCompletionSource = new TaskCompletionSource<bool>();
-            var formatterWithWaiting = new EventFormatterWithWaiting(removedConnection1TaskCompletionSource);
+            var formatterWithWaiting = new EventFormatterWithWaiting(
+                (@event) =>
+                {
+                    if (@event is ConnectionPoolRemovedConnectionEvent)
+                    {
+                        removedConnection1TaskCompletionSource.Task.WithTimeout(TimeSpan.FromSeconds(5));
+                    }
+                });
 
             var eventCapturer = new EventCapturer(formatterWithWaiting)
                 .Capture<ConnectionPoolAddedConnectionEvent>()
@@ -229,25 +237,18 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
             }
         }
 
-        private class EventFormatterWithWaiting : IEventFormatter
+        internal class EventFormatterWithWaiting : IEventFormatter
         {
-            private readonly TaskCompletionSource<bool> _taskCompletionSource;
+            private readonly Action<object> _eventAction;
 
-            public EventFormatterWithWaiting(TaskCompletionSource<bool> taskCompletionSource)
+            public EventFormatterWithWaiting(Action<object> eventAction)
             {
-                _taskCompletionSource = taskCompletionSource;
+                _eventAction = eventAction;
             }
 
             public object Format(object @event)
             {
-                if (@event is ConnectionPoolRemovedConnectionEvent)
-                {
-                    var index = Task.WaitAny(_taskCompletionSource.Task, Task.Delay(TimeSpan.FromSeconds(5)));
-                    if (index != 0)
-                    {
-                        throw new Exception("Waiting for ConnectionPoolRemovedConnectionEvent is too long.");
-                    }
-                }
+                _eventAction(@event);
                 return @event;
             }
         }
