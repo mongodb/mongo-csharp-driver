@@ -7,7 +7,6 @@ operations:
   - name: ready
   - name: checkOut
   - name: checkOut
-    label: conn
   - name: clear
     closeInUseConnections: true
   - name: waitForEvent
@@ -25,11 +24,9 @@ events:
   - type: ConnectionPoolCleared
     address: 42
   - type: ConnectionClosed
-    connectionId: 1
     reason: stale
     address: 42
   - type: ConnectionClosed
-    connectionId: 2
     reason: stale
     address: 42
   - type: ConnectionPoolClosed

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "style": "unit",
-  "description": "Pool MUST be able to destroy all available connections",
+  "description": "Pool clear SHOULD schedule the next background thread run immediately (closeInUseConnections: false)",
   "poolOptions": {
     "backgroundThreadIntervalMS": 10000
   },
