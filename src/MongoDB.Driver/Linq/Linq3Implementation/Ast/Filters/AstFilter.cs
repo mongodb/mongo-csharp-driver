@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
@@ -92,6 +93,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters
 
         public static AstFieldOperationFilter ElemMatch(AstFilterField field, AstFilter filter)
         {
+            if (!ServerSupportsElemMatchFilter(filter))
+            {
+                throw new ExpressionNotSupportedException($"$elemMatch does not support filter: {filter}");
+            }
+
             return new AstFieldOperationFilter(field, new AstElemMatchFilterOperation(filter));
         }
 
@@ -244,6 +250,22 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters
         public static AstFieldOperationFilter Type(AstFilterField field, BsonType type)
         {
             return new AstFieldOperationFilter(field, new AstTypeFilterOperation(type));
+        }
+
+        private static bool ServerSupportsElemMatchFilter(AstFilter filter)
+        {
+            if (filter is AstOrFilter orFilter &&
+                orFilter.Filters.Any(IsImpliedElementFilter))
+            {
+                return false;
+            }
+
+            return true;
+
+            static bool IsImpliedElementFilter(AstFilter filter)
+                =>
+                    filter is AstFieldOperationFilter fieldOperationFilter &&
+                    fieldOperationFilter.Field.Path == "@<elem>";
         }
         #endregion
 
