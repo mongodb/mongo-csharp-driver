@@ -71,6 +71,61 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
                 return base.Visit(expression);
             }
 
+            protected override Expression VisitBinary(BinaryExpression node)
+            {
+                if (node.NodeType == ExpressionType.AndAlso)
+                {
+                    var leftExpression = Visit(node.Left);
+                    if (leftExpression is ConstantExpression constantLeftExpression )
+                    {
+                        var value = (bool)constantLeftExpression.Value;
+                        return value ? Visit(node.Right) : Expression.Constant(false);
+                    }
+
+                    var rightExpression = Visit(node.Right);
+                    if (rightExpression is ConstantExpression constantRightExpression)
+                    {
+                        var value = (bool)constantRightExpression.Value;
+                        return value ? leftExpression : Expression.Constant(false);
+                    }
+
+                    return node.Update(leftExpression, conversion: null, rightExpression);
+                }
+
+                if (node.NodeType == ExpressionType.OrElse)
+                {
+                    var leftExpression = Visit(node.Left);
+                    if (leftExpression is ConstantExpression constantLeftExpression)
+                    {
+                        var value = (bool)constantLeftExpression.Value;
+                        return value ? Expression.Constant(true) : Visit(node.Right);
+                    }
+
+                    var rightExpression = Visit(node.Right);
+                    if (rightExpression is ConstantExpression constantRightExpression)
+                    {
+                        var value = (bool)constantRightExpression.Value;
+                        return value ? Expression.Constant(true) : leftExpression;
+                    }
+
+                    return node.Update(leftExpression, conversion: null, rightExpression);
+                }
+
+                return base.VisitBinary(node);
+            }
+
+            protected override Expression VisitConditional(ConditionalExpression node)
+            {
+                var test = base.Visit(node.Test);
+                if (test is ConstantExpression constantTestExpression)
+                {
+                    var value = (bool)constantTestExpression.Value;
+                    return value ? Visit(node.IfTrue) : Visit(node.IfFalse);
+                }
+
+                return node.Update(test, Visit(node.IfTrue), Visit(node.IfFalse));
+            }
+
             // private methods
             private Expression Evaluate(Expression expression)
             {
