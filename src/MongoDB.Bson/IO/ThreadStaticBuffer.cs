@@ -79,26 +79,32 @@ namespace MongoDB.Bson.IO
             {
                 throw new ArgumentOutOfRangeException(nameof(size), size, $"Valid buffer size range is [1..{MaxAllocationSize}] bytes.");
             }
-
-            __isBufferRented = true;
-
+            
             if (__threadId == default)
             {
                 __threadId = Thread.CurrentThread.ManagedThreadId;
             }
-
+            
+            // Allocate space
+            RentedBuffer ret;
             if (size > MaxSize)
             {
-                return new RentedBuffer(__threadId, new byte[size]);
+                ret = new RentedBuffer(__threadId, new byte[size]);
             }
-
-            if (__buffer == null || __buffer.Length < size)
+            else
             {
-                var newSize = size <= MinSize ? MinSize : PowerOf2.RoundUpToPowerOf2(size);
-                __buffer = new byte[newSize];
+                if (__buffer == null || __buffer.Length < size)
+                {
+                    var newSize = size <= MinSize ? MinSize : PowerOf2.RoundUpToPowerOf2(size);
+                    __buffer = new byte[newSize];
+                }
+
+                ret = new RentedBuffer(__threadId, __buffer);
             }
 
-            return new RentedBuffer(__threadId, __buffer);
+            // Set this last (in case of an exception in this method we want this to stay as-is.)
+            __isBufferRented = true;
+            return ret;
         }
     }
 }
