@@ -29,6 +29,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         private readonly TimeSpan _interval;
         private MaintenanceExecutingContext _maintenanceExecutingContext;
         private Thread _maintenanceThread;
+        private InterlockedInt32 _state;
 
         public MaintenanceHelper(ExclusiveConnectionPool connectionPool, TimeSpan interval)
         {
@@ -36,11 +37,12 @@ namespace MongoDB.Driver.Core.ConnectionPools
             _globalCancellationTokenSource = new CancellationTokenSource();
             _globalCancellationToken = _globalCancellationTokenSource.Token;
             _interval = interval;
+            _state = new InterlockedInt32(State.Open);
         }
 
         public bool IsRunning => _maintenanceThread != null;
 
-        public void RequestStoppingMaintenance(bool closeInUseConnections, int healthyGeneration)
+        public void RequestStoppingMaintenance(int? firstInUseHealthyGeneration)
         {
             if (_interval == Timeout.InfiniteTimeSpan || !IsRunning)
             {
@@ -49,7 +51,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             _maintenanceThread = null;
 
-            _maintenanceExecutingContext?.Cancel(closeInUseConnections, healthyGeneration); // might be no op if Start hasn't been called yet
+            _maintenanceExecutingContext?.Cancel(firstInUseHealthyGeneration); // might be no op if Start hasn't been called yet
             _maintenanceExecutingContext?.Dispose();
         }
 
@@ -75,9 +77,12 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
         public void Dispose()
         {
-            _maintenanceExecutingContext?.Dispose();
-            _globalCancellationTokenSource.Cancel();
-            _globalCancellationTokenSource.Dispose();
+            if (_state.TryChange(State.Disposed))
+            {
+                _maintenanceExecutingContext?.Dispose();
+                _globalCancellationTokenSource.Cancel();
+                _globalCancellationTokenSource.Dispose();
+            }
         }
 
         // private methods
@@ -91,7 +96,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 {
                     try
                     {
-                        _connectionPool.ConnectionHolder.Prune(closeInUseConnections: false, healthyGeneration: null, cancellationToken);
+                        _connectionPool.ConnectionHolder.Prune(firstInUseHealthyGeneration: null, cancellationToken);
                         EnsureMinSize(cancellationToken);
                     }
                     catch
@@ -101,7 +106,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     maintenanceExecutingContext.Wait();
                 }
 
-                _connectionPool.ConnectionHolder.Prune(maintenanceExecutingContext.CloseInUseConnections, maintenanceExecutingContext.HealthyGeneration, _globalCancellationToken);
+                _connectionPool.ConnectionHolder.Prune(maintenanceExecutingContext.FirstInUseHealthyGeneration, _globalCancellationToken);
             }
             catch
             {
@@ -133,6 +138,13 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 cancellationToken.ThrowIfCancellationRequested();
             }
         }
+
+        // nested type
+        private static class State
+        {
+            public static int Open = 0;
+            public static int Disposed = 1;
+        }
     }
 
     internal sealed class MaintenanceExecutingContext : IDisposable
@@ -140,8 +152,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         private readonly AutoResetEvent _autoResetEvent;
         private readonly CancellationToken _cancellationToken;
         private readonly CancellationTokenSource _cancellationTokenSource;
-        private bool _closeInUseConnections;
-        private int _healthyGeneration;
+        private int? _firstInUseHealthyGeneration;
         private readonly TimeSpan _interval;
 
         public MaintenanceExecutingContext(TimeSpan interval, CancellationToken globalCancellationToken)
@@ -154,26 +165,24 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
         // public properties
         public CancellationToken CancellationToken => _cancellationToken;
-        public bool CloseInUseConnections => _closeInUseConnections;
-        public int HealthyGeneration => _healthyGeneration;
-
+        public int? FirstInUseHealthyGeneration => _firstInUseHealthyGeneration;
+        
         // public methods
         public void Dispose()
         {
-            Cancel(_closeInUseConnections, _healthyGeneration); // stop waiting if any
+            Cancel(_firstInUseHealthyGeneration); // stop waiting if any
             _cancellationTokenSource.Dispose();
             _autoResetEvent.Dispose();
         }
 
-        public void Cancel(bool closeInUseConnections, int healthyGeneration)
+        public void Cancel(int? firstInUseHealthyGeneration)
         {
             if (_cancellationToken.IsCancellationRequested)
             {
                 return;
             }
 
-            _closeInUseConnections = closeInUseConnections;
-            _healthyGeneration = healthyGeneration;
+            _firstInUseHealthyGeneration = firstInUseHealthyGeneration;
 
             try
             {

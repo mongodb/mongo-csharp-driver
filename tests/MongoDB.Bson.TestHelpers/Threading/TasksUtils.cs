@@ -52,9 +52,7 @@ namespace MongoDB.Bson.TestHelpers
 
         public static void WithTimeout(this Task task, TimeSpan timeout)
         {
-            var index = Task.WaitAny(task, Task.Delay(timeout));
-
-            if (index != 0)
+            if (!task.Wait(timeout))
             {
                 throw new TimeoutException($"Task timed out after {timeout}.");
             }

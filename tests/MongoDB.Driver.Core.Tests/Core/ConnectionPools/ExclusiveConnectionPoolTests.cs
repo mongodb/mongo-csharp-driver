@@ -853,7 +853,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     }
                     else if (operationIndex < clearOpMaxIndex)
                     {
-                        subject.Clear(closeInUseConnections: false);
+                        subject.Clear(closeInUseConnections: random.NextDouble() < 0.5);
                         Interlocked.Increment(ref clearedCount);
                     }
                     else

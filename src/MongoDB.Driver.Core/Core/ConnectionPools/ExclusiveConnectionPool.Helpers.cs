@@ -699,13 +699,13 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
             }
 
-            public void Prune(bool closeInUseConnections, int? healthyGeneration, CancellationToken cancellationToken)
+            public void Prune(int? firstInUseHealthyGeneration, CancellationToken cancellationToken)
             {
                 RemoveExpiredConnections(_connections, generation: null, _lock, signal: true);
 
-                if (closeInUseConnections)
+                if (firstInUseHealthyGeneration.HasValue)
                 {
-                    RemoveExpiredConnections(_connectionsInUse, generation: healthyGeneration, _lockInUse, signal: false);
+                    RemoveExpiredConnections(_connectionsInUse, generation: firstInUseHealthyGeneration.Value, _lockInUse, signal: false);
                 }
 
                 void RemoveExpiredConnections(List<PooledConnection> connections, int? generation, object @lock, bool signal)
@@ -768,6 +768,13 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 if (result != null)
                 {
                     TrackInUseConnection(result);
+
+                    // This connection can be expired and not disposed by Prune. Dispose if needed
+                    if (result.IsExpired)
+                    {
+                        RemoveConnection(result);
+                        result = null;
+                    }
                 }
 
                 return result;
@@ -819,7 +826,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             public void TrackInUseConnection(PooledConnection connection)
             {
-                lock (_lock)
+                lock (_lockInUse)
                 {
                     _connectionsInUse.Add(connection);
                 }
