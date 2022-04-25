@@ -1008,7 +1008,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     {
                         case ConnectionOpeningEvent e when minPoolSize == 0 || e.ConnectionId.LocalValue == 2: // ignore connection 1 created in minPoolSize logic
                             {
-                                acquiredCompletionSource.Task.WithTimeout(TimeSpan.FromSeconds(5));
+                                acquiredCompletionSource.Task.WaitOrThrow(TimeSpan.FromSeconds(5));
                                 if (openConnectionFailed)
                                 {
                                     throw openException;
@@ -1264,7 +1264,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 {
                     if (@event is ConnectionPoolRemovingConnectionEvent)
                     {
-                        stopRemovingCompletionSource.Task.WithTimeout(TimeSpan.FromSeconds(5));
+                        stopRemovingCompletionSource.Task.WaitOrThrow(TimeSpan.FromSeconds(5));
                     }
                 });
             var capturedEvents = new EventCapturer(formatterWithWaiting)
@@ -1284,7 +1284,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 .Setup(c => c.CreateConnection(It.IsAny<ServerId>(), It.IsAny<EndPoint>()))
                 .Returns<ServerId, EndPoint>((serverId, endpoint) =>
                 {
-                    return CreateConnection(serverId);
+                    return CreateConnection(serverId, makeConnectionExpired: null);
                 });
 
             var subject = CreateSubject(connectionFactory: mockConnectionFactory.Object, connectionPoolSettings: noopSettings, eventCapturer: capturedEvents);
@@ -1310,7 +1310,9 @@ namespace MongoDB.Driver.Core.ConnectionPools
             GetConnections(inUse: false, subject).Should().ContainSingle().Which.ConnectionId.Should().Be(connection1InPool.ConnectionId);
             GetConnections(inUse: true, subject).Should().ContainSingle().Which.ConnectionId.Should().Be(connection2InUse.ConnectionId);
 
-            // run prunning, but do nothing since first removing are in stuck because of stopRemovingCompletionSource 
+            // run prunning, but do nothing since first removing are in stuck because of stopRemovingCompletionSource
+            // in this test we should ensure that this prune won't affect in use connections with Generation > 0
+            // in particular connection3 should be untouched
             subject.Clear(closeInUseConnections: true);
             capturedEvents.Next().Should().BeOfType<ConnectionPoolClearedEvent>();
             capturedEvents.Events.Should().BeEmpty();
@@ -1321,7 +1323,13 @@ namespace MongoDB.Driver.Core.ConnectionPools
             GetConnections(inUse: true, subject).Should().ContainSingle().Which.ConnectionId.Should().Be(connection2InUse.ConnectionId);
 
             // since we emulate next acquiring, we don't need subject.SetReady(), no events for the same reason;
-            var connection3InUse = EmulateAcquireConnection(subject);
+            var connection3IsExpiredCompletionSource = new TaskCompletionSource<bool>();
+            // connection3 is in use
+            var connection3InUse = EmulateAcquireConnection(subject, connection3IsExpiredCompletionSource);
+
+            // emulate next pool.Clear(closeInUseConnection: false) and make connection3 expired
+            // This prune call should be no op since there is no available connection anymore
+            connection3IsExpiredCompletionSource.SetResult(true);
 
             GetConnections(inUse: false, subject).Should().ContainSingle().Which.ConnectionId.Should().Be(connection1InPool.ConnectionId);
             GetConnections(inUse: true, subject).Select(c => c.ConnectionId)
@@ -1348,14 +1356,15 @@ namespace MongoDB.Driver.Core.ConnectionPools
             capturedEvents.Next().Should().BeOfType<ConnectionPoolRemovedConnectionEvent>().Which.ConnectionId.Should().Be(connection2InUse.ConnectionId);
             capturedEvents.Events.Should().BeEmpty();
 
-            IConnection CreateConnection(ServerId serverId) => new MockConnection(new ConnectionId(serverId, ++connectionIndex), new ConnectionSettings(), capturedEvents);
+            IConnection CreateConnection(ServerId serverId, TaskCompletionSource<bool> makeConnectionExpired) => new MockConnection(new ConnectionId(serverId, ++connectionIndex), new ConnectionSettings(), capturedEvents, makeConnectionExpired);
 
-            IConnection EmulateAcquireConnection(ExclusiveConnectionPool pool)
+            IConnection EmulateAcquireConnection(ExclusiveConnectionPool pool, TaskCompletionSource<bool> makeConnectionExpired)
             {
                 // due to a number of locks across pool, it's hard to call regular Acquire method with waiting in different code paths
-                var pooledConnection = new PooledConnection(pool, CreateConnection(_serverId));
+                var pooledConnection = new PooledConnection(pool, CreateConnection(_serverId, makeConnectionExpired));
                 var inUseConnections = pool.ConnectionHolder._connectionsInUse();
                 inUseConnections.Add(pooledConnection);
+                pooledConnection.Open(CancellationToken.None); // make connection Opened
                 return pooledConnection; // we don't need AcquireConnection for this test target
             }
         }

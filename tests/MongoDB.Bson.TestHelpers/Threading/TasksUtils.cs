@@ -50,7 +50,7 @@ namespace MongoDB.Bson.TestHelpers
             .Select(i => taskCreator(i))
             .ToArray();
 
-        public static void WithTimeout(this Task task, TimeSpan timeout)
+        public static void WaitOrThrow(this Task task, TimeSpan timeout)
         {
             if (!task.Wait(timeout))
             {
@@ -58,7 +58,7 @@ namespace MongoDB.Bson.TestHelpers
             }
         }
 
-        public static async Task WithTimeoutAsync(this Task task, int timeoutMS)
+        public static async Task WithTimeout(this Task task, int timeoutMS)
         {
             var firstFinishedTask = await Task.WhenAny(task, Task.Delay(timeoutMS));
 

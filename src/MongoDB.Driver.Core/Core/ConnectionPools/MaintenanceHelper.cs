@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
         public bool IsRunning => _maintenanceThread != null;
 
-        public void RequestStoppingMaintenance(int? firstInUseHealthyGeneration)
+        public void Stop(int? firstInUseHealthyGeneration)
         {
             if (_interval == Timeout.InfiniteTimeSpan || !IsRunning)
             {

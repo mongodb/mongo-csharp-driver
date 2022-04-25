@@ -113,7 +113,7 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
                 }
                 else
                 {
-                    helper.RequestStoppingMaintenance(firstInUseHealthyGeneration: null);
+                    helper.Stop(firstInUseHealthyGeneration: null);
                 }
             }
         }
@@ -128,15 +128,28 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
                 subject.IsRunning.Should().BeFalse();
                 subject.Start();
                 subject.IsRunning.Should().BeTrue();
-                subject.RequestStoppingMaintenance(__dummyPoolGeneration);
+                subject.Stop(__dummyPoolGeneration);
                 subject.IsRunning.Should().BeFalse();
             }
             subject.IsRunning.Should().BeFalse();
         }
 
+        [Fact]
+        public void Start_should_not_create_thread_if_already_running()
+        {
+            using (var pool = CreatePool())
+            using (var subject = CreateSubject(pool))
+            {
+                subject.Start();
+                var createdThread = subject._maintenanceThread();
+                subject.Start();
+                createdThread.ManagedThreadId.Should().Be(subject._maintenanceThread().ManagedThreadId); // same thread
+            }
+        }
+
         [Theory]
         [ParameterAttributeData]
-        public void RequestStoppingMaintenance_should_trigger_immidiate_maintenace_call(
+        public void Stop_should_trigger_immidiate_maintenace_call(
             [Values(false, true)] bool checkOutConnection,
             [Values(false, true)] bool closeInUseConnection)
         {
@@ -161,7 +174,7 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
                 }
 
                 IncrementGeneration(pool);
-                subject.RequestStoppingMaintenance(firstInUseHealthyGeneration: closeInUseConnection ? pool.Generation : null);
+                subject.Stop(firstInUseHealthyGeneration: closeInUseConnection ? pool.Generation : null);
 
                 var requestInPlayTimeout = TimeSpan.FromMilliseconds(100);
                 if (!closeInUseConnection && checkOutConnection)
@@ -185,7 +198,7 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
         }
 
         [Fact]
-        public void RequestStoppingMaintenance_should_trigger_additional_prune_when_there_is_in_progress_request()
+        public void Stop_should_trigger_additional_prune_when_there_is_in_progress_request()
         {
             var removedConnection1TaskCompletionSource = new TaskCompletionSource<bool>();
             var connection2IsExpiredTaskCompletionSource = new TaskCompletionSource<bool>();
@@ -194,7 +207,7 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
                 {
                     if (@event is ConnectionPoolRemovedConnectionEvent)
                     {
-                        removedConnection1TaskCompletionSource.Task.WithTimeout(TimeSpan.FromSeconds(5));
+                        removedConnection1TaskCompletionSource.Task.WaitOrThrow(TimeSpan.FromSeconds(5));
                     }
                 });
 
@@ -245,7 +258,7 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
                 connection2IsExpiredTaskCompletionSource.SetResult(true);
 
                 // 5. emulate pool.clear (for connection 2 based on test setup).
-                subject.RequestStoppingMaintenance(firstInUseHealthyGeneration: null);
+                subject.Stop(firstInUseHealthyGeneration: null);
                 // 6. Removing connection 1 is done. Prune 1 is unblocked, regular maintenance loop is cancelled. Prune 2 is running
                 removedConnection1TaskCompletionSource.SetResult(true);
 
@@ -255,19 +268,6 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
                 eventCapturer.Next().Should().BeOfType<ConnectionPoolRemovingConnectionEvent>().Which.ConnectionId.LocalValue.Should().Be(2);
                 eventCapturer.Next().Should().BeOfType<ConnectionPoolRemovedConnectionEvent>().Which.ConnectionId.LocalValue.Should().Be(2); // connection 2 in the pool has been removed
                 eventCapturer.Any().Should().BeFalse();
-            }
-        }
-
-        [Fact]
-        public void Start_should_not_create_thread_if_already_running()
-        {
-            using (var pool = CreatePool())
-            using (var subject = CreateSubject(pool))
-            {
-                subject.Start();
-                var createdThread = subject._maintenanceThread();
-                subject.Start();
-                createdThread.ManagedThreadId.Should().Be(subject._maintenanceThread().ManagedThreadId); // same thread
             }
         }
 
@@ -332,10 +332,10 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
         }
     }
 
-    public static class MaintenanceHelperReflector
+    internal static class MaintenanceHelperReflector
     {
-        internal static MaintenanceExecutingContext _maintenanceExecutingContext(this MaintenanceHelper maintenanceHelper) => (MaintenanceExecutingContext)Reflector.GetFieldValue(maintenanceHelper, nameof(_maintenanceExecutingContext));
+        public static MaintenanceExecutingContext _maintenanceExecutingContext(this MaintenanceHelper maintenanceHelper) => (MaintenanceExecutingContext)Reflector.GetFieldValue(maintenanceHelper, nameof(_maintenanceExecutingContext));
 
-        internal static Thread _maintenanceThread(this MaintenanceHelper maintenanceHelper) => (Thread)Reflector.GetFieldValue(maintenanceHelper, nameof(_maintenanceThread));
+        public static Thread _maintenanceThread(this MaintenanceHelper maintenanceHelper) => (Thread)Reflector.GetFieldValue(maintenanceHelper, nameof(_maintenanceThread));
     }
 }

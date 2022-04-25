@@ -96,7 +96,7 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
             });
 
             collection.InsertOne(new BsonDocument("x", 1));
-            await eventsTask.WithTimeoutAsync(1000);
+            await eventsTask.WithTimeout(1000);
         }
     }
 }
