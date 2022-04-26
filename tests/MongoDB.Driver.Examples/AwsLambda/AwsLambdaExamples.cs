@@ -15,6 +15,7 @@
 
 #if NETCOREAPP3_1_OR_GREATER
 using Amazon.Lambda.Core;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using System;
 
@@ -41,8 +42,10 @@ namespace LambdaTest
 
         public string HandleRequest(ILambdaContext context)
         {
-            var databases = MongoClient.ListDatabaseNames();
-            return string.Join(",", databases);
+            var database = MongoClient.GetDatabase("db");
+            var collection = database.GetCollection<BsonDocument>("coll");
+            var result = collection.Find(FilterDefinition<BsonDocument>.Empty).First();
+            return result.ToString();
         }
         // End AWS Lambda Example 1
     }
@@ -78,8 +81,10 @@ namespace LambdaTest
 
         public string HandleRequest(ILambdaContext context)
         {
-            var databases = MongoClient.ListDatabaseNames();
-            return string.Join(",", databases);
+            var database = MongoClient.GetDatabase("db");
+            var collection = database.GetCollection<BsonDocument>("coll");
+            var result = collection.Find(FilterDefinition<BsonDocument>.Empty).First();
+            return result.ToString();
         }
     }
 }
