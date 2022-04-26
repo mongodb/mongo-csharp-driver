@@ -229,6 +229,15 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                     case "keyVaultNamespace":
                         autoEncryptionOptions = autoEncryptionOptions.With(keyVaultNamespace: CollectionNamespace.FromFullName(option.Value.AsString));
                         break;
+                    case "encryptedFieldsMap":
+                        var encryptedFieldsMap = new Dictionary<string, BsonDocument>();
+                        var encryptedFieldsMapDocument = option.Value.AsBsonDocument;
+                        foreach (var encryptedFieldsMapElement in encryptedFieldsMapDocument.Elements)
+                        {
+                            encryptedFieldsMap.Add(encryptedFieldsMapElement.Name, encryptedFieldsMapElement.Value.AsBsonDocument);
+                        }
+                        autoEncryptionOptions = autoEncryptionOptions.With(encryptedFieldsMap:encryptedFieldsMap);
+                        break;
 
                     default:
                         throw new Exception($"Unexpected auto encryption option {option.Name}.");

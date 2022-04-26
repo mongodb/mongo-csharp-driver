@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Security.Cryptography.X509Certificates;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -29,7 +30,7 @@ namespace MongoDB.Driver.Tests
         private static CollectionNamespace __keyVaultNamespace = CollectionNamespace.FromFullName("db.coll");
 
         [Fact]
-        public void Ctor_should_throw_when_keyVaultNamespace_is_null()
+        public void constructor_should_throw_when_keyVaultNamespace_is_null()
         {
             Record.Exception(() => new AutoEncryptionOptions(keyVaultNamespace: null, Mock.Of<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>>>()))
                 .Should().BeOfType<ArgumentNullException>()
@@ -38,7 +39,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
-        public void Ctor_should_throw_when_kmsProviders_is_null()
+        public void constructor_should_throw_when_kmsProviders_is_null()
         {
             Record.Exception(() => new AutoEncryptionOptions(__keyVaultNamespace, kmsProviders: null))
                 .Should().BeOfType<ArgumentNullException>()
@@ -57,7 +58,7 @@ namespace MongoDB.Driver.Tests
         [InlineData("mongocryptdSpawnArgs", new[] { "test" }, false)]
         [InlineData("mongocryptdSpawnArgs", 1, true)]
         [InlineData("test", "test", true)]
-        public void Ctor_should_handle_extraOptions_correctly(string key, object value, bool shouldFail)
+        public void constructor_should_handle_extraOptions_correctly(string key, object value, bool shouldFail)
         {
             IReadOnlyDictionary<string, object> extraOptions = new Dictionary<string, object>()
             {
@@ -83,7 +84,7 @@ namespace MongoDB.Driver.Tests
         [InlineData(typeof(byte[]), false)]
         [InlineData(typeof(string), false)]
         [InlineData(typeof(int), true)]
-        public void Ctor_should_handle_kmsProviderOptions_type_correctly(Type optionType, bool shouldFail)
+        public void constructor_should_handle_kmsProviderOptions_type_correctly(Type optionType, bool shouldFail)
         {
             var exception = Record.Exception(() => new AutoEncryptionOptions(
                 keyVaultNamespace: __keyVaultNamespace,
@@ -99,8 +100,53 @@ namespace MongoDB.Driver.Tests
             }
         }
 
+        [Theory]
+        [InlineData(null, null, null, false)]
+        [InlineData("db.test", null, null, false)]
+        [InlineData(null, "db.test", null, false)]
+        [InlineData("db.test", "db.test1", null, false)]
+        [InlineData("db.test", "db.test", "db.test", true)]
+        [InlineData("db.test", "db.test;db.test1", "db.test", true)]
+        [InlineData("db.test;db.test1", "db.test;db.test1", "db.test, db.test1", true)]
+        [InlineData("db.test1;db.test", "db.test;db.test1", "db.test, db.test1", true)] // TODO: rely on libmongocrypt?
+        public void constructor_should_handle_schemaMap_and_encryptedFieldsMap_type_correctly(string schemaMapKey, string encryptedFieldsMapKey, string errorMessage, bool shouldFail)
+        {
+            var schemaMap = CreateMap(schemaMapKey);
+            var encryptedFieldsMap = CreateMap(encryptedFieldsMapKey);
+
+            var exception = Record.Exception(
+                () => new AutoEncryptionOptions(
+                    keyVaultNamespace: __keyVaultNamespace,
+                    kmsProviders: GetKmsProviders(),
+                    schemaMap: schemaMap,
+                    encryptedFieldsMap: encryptedFieldsMap));
+
+            if (shouldFail)
+            {
+                exception.Should().BeOfType<ArgumentException>().Which.Message.Should().Contain($"SchemaMap and EncryptedFieldsMap cannot both contain the same collections: {errorMessage}.");
+            }
+            else
+            {
+                exception.Should().BeNull();
+            }
+
+            Dictionary<string, BsonDocument> CreateMap(string key)
+            {
+                var dummyMapValue = new BsonDocument();
+                var map = new Dictionary<string, BsonDocument>();
+                if (key != null)
+                {
+                    foreach (var keyItem in key.Split(';'))
+                    {
+                        map.Add(keyItem, dummyMapValue);
+                    }
+                }
+                return map;
+            }
+        }
+
         [Fact]
-        public void Ctor_should_handle_tlsSettings_correctly()
+        public void constructor_should_handle_tlsSettings_correctly()
         {
             NegativeTestCase(new SslSettings() { ServerCertificateValidationCallback = new System.Net.Security.RemoteCertificateValidationCallback((a, b, c, d) => true) });
 

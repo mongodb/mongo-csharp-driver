@@ -189,8 +189,8 @@ namespace MongoDB.Driver.Core.Operations
         private void EnsureCollectionExists()
         {
             DropCollection();
-            var operation = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);
-            ExecuteOperation(operation, false);
+            //var operation = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings);
+            //ExecuteOperation(operation, false);
         }
     }
 }

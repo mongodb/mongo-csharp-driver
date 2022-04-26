@@ -25,29 +25,31 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
     {
         // private fields
         private string _collectionName;
+        private DropCollectionOptions _dropCollectionOptions;
 
         // public constructors
         public JsonDrivenDropCollectionTest(IMongoDatabase database, Dictionary<string, object> objectMap)
             : base(database, objectMap)
         {
+            _dropCollectionOptions = new DropCollectionOptions();
         }
 
         // public methods
         public override void Arrange(BsonDocument document)
         {
-            JsonDrivenHelper.EnsureAllFieldsAreValid(document, "name", "object", "arguments");
+            JsonDrivenHelper.EnsureAllFieldsAreValid(document, "name", "object", "arguments", "encryptedFields");
             base.Arrange(document);
         }
 
         // protected methods
         protected override void CallMethod(CancellationToken cancellationToken)
         {
-            _database.DropCollection(_collectionName, cancellationToken);
+            _database.DropCollection(_collectionName, options: _dropCollectionOptions, cancellationToken);
         }
 
         protected override async Task CallMethodAsync(CancellationToken cancellationToken)
         {
-            await _database.DropCollectionAsync(_collectionName, cancellationToken).ConfigureAwait(false);
+            await _database.DropCollectionAsync(_collectionName, options: _dropCollectionOptions, cancellationToken).ConfigureAwait(false);
         }
 
         protected override void SetArgument(string name, BsonValue value)
@@ -56,6 +58,9 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
             {
                 case "collection":
                     _collectionName = value.AsString;
+                    return;
+                case "encryptedFields":
+                    _dropCollectionOptions.EncryptedFields = value.AsBsonDocument;
                     return;
             }
 

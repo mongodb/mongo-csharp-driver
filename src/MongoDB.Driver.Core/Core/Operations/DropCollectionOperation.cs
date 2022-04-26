@@ -13,12 +13,12 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
-using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
@@ -29,23 +29,60 @@ namespace MongoDB.Driver.Core.Operations
     /// </summary>
     public class DropCollectionOperation : IWriteOperation<BsonDocument>
     {
+        #region static
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CreateCollectionOperation"/> class.
+        /// </summary>
+        /// <param name="collectionNamespace">The collection namespace.</param>
+        /// <param name="encryptedFields">The encrypted feilds.</param>
+        /// <param name="messageEncoderSettings">The message encoder settings.</param>
+        public static DropCollectionOperation CreateDropCollectionOperation(
+            CollectionNamespace collectionNamespace,
+            BsonDocument encryptedFields,
+            MessageEncoderSettings messageEncoderSettings)
+        {
+            DropCollectionOperation[] postOperations = null;
+            if (encryptedFields != null)
+            {
+                postOperations = new[]
+                {
+                    CreateInnerDropOperation(encryptedFields.TryGetValue("escCollection", out var escCollection) ? escCollection.ToString() : $"enxcol_.{collectionNamespace.CollectionName}.esc"),
+                    CreateInnerDropOperation(encryptedFields.TryGetValue("eccCollection", out var eccCollection) ? eccCollection.ToString() : $"enxcol_.{collectionNamespace.CollectionName}.ecc"),
+                    CreateInnerDropOperation(encryptedFields.TryGetValue("ecocCollection", out var ecocCollection) ? ecocCollection.ToString() : $"enxcol_.{collectionNamespace.CollectionName}.ecoc"),
+                };
+            }
+
+            var dropCollectionOperation = new DropCollectionOperation(
+                collectionNamespace,
+                messageEncoderSettings,
+                postOperations: postOperations)
+            {
+                EncryptedFields = encryptedFields
+            };
+
+            return dropCollectionOperation;
+
+            DropCollectionOperation CreateInnerDropOperation(string collectionName)
+                => new DropCollectionOperation(new CollectionNamespace(collectionNamespace.DatabaseNamespace.DatabaseName, collectionName), messageEncoderSettings);
+        }
+        #endregion
+
         // fields
         private readonly CollectionNamespace _collectionNamespace;
+        private BsonDocument _encryptedFields;
+        private readonly IEnumerable<DropCollectionOperation> _postOperations;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private WriteConcern _writeConcern;
 
         // constructors
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DropCollectionOperation"/> class.
-        /// </summary>
-        /// <param name="collectionNamespace">The collection namespace.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        public DropCollectionOperation(
+        internal DropCollectionOperation(
             CollectionNamespace collectionNamespace,
-            MessageEncoderSettings messageEncoderSettings)
+            MessageEncoderSettings messageEncoderSettings,
+            IEnumerable<DropCollectionOperation> postOperations = null)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
             _messageEncoderSettings = messageEncoderSettings;
+            _postOperations = postOperations;
         }
 
         // properties
@@ -58,6 +95,18 @@ namespace MongoDB.Driver.Core.Operations
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
+        }
+
+        ///<summary>
+        /// Gets the encrypted fields.
+        /// </summary>
+        /// <value>
+        /// The encrypted fields.
+        /// </value>
+        public BsonDocument EncryptedFields
+        {
+            get { return _encryptedFields; }
+            private set { _encryptedFields = value; }
         }
 
         /// <summary>
@@ -89,26 +138,35 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
-            using (var channelSource = binding.GetWriteChannelSource(cancellationToken))
-            using (var channel = channelSource.GetChannel(cancellationToken))
-            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
+            BsonDocument result = null;
+            foreach (var operation in CreateOperations(binding.Session))
             {
-                var operation = CreateOperation(channelBinding.Session);
-                BsonDocument result;
-                try
+                using (var channelSource = binding.GetWriteChannelSource(cancellationToken))
+                using (var channel = channelSource.GetChannel(cancellationToken))
+                using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
                 {
-                    result = operation.Execute(channelBinding, cancellationToken);
-                }
-                catch (MongoCommandException ex)
-                {
-                    if (!ShouldIgnoreException(ex))
+                    try
                     {
-                        throw;
+                        var itemResult = operation.Operation.Execute(channelBinding, cancellationToken);
+                        if (operation.IsMainOperation)
+                        {
+                            result = itemResult;
+                        }
                     }
-                    result = ex.Result;
+                    catch (MongoCommandException ex)
+                    {
+                        if (!ShouldIgnoreException(ex))
+                        {
+                            throw;
+                        }
+                        if (operation.IsMainOperation)
+                        {
+                            result = ex.Result;
+                        }
+                    }
                 }
-                return result;
             }
+            return result;
         }
 
         /// <inheritdoc/>
@@ -116,26 +174,35 @@ namespace MongoDB.Driver.Core.Operations
         {
             Ensure.IsNotNull(binding, nameof(binding));
 
-            using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationToken).ConfigureAwait(false))
-            using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
-            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
+            BsonDocument result = null;
+            foreach (var operation in CreateOperations(binding.Session))
             {
-                var operation = CreateOperation(channelBinding.Session);
-                BsonDocument result;
-                try
+                using (var channelSource = await binding.GetWriteChannelSourceAsync(cancellationToken).ConfigureAwait(false))
+                using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
+                using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
                 {
-                    result = await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
-                }
-                catch (MongoCommandException ex)
-                {
-                    if (!ShouldIgnoreException(ex))
+                    try
                     {
-                        throw;
+                        var itemResult = await operation.Operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
+                        if (operation.IsMainOperation)
+                        {
+                            result = itemResult;
+                        }
                     }
-                    result = ex.Result;
+                    catch (MongoCommandException ex)
+                    {
+                        if (!ShouldIgnoreException(ex))
+                        {
+                            throw;
+                        }
+                        if (operation.IsMainOperation)
+                        {
+                            result = ex.Result;
+                        }
+                    }
                 }
-                return result;
             }
+            return result;
         }
 
         // private methods
@@ -149,10 +216,18 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
-        private WriteCommandOperation<BsonDocument> CreateOperation(ICoreSessionHandle session)
+        private IEnumerable<(IWriteOperation<BsonDocument> Operation, bool IsMainOperation)> CreateOperations(ICoreSessionHandle session)
         {
             var command = CreateCommand(session);
-            return new WriteCommandOperation<BsonDocument>(_collectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
+            yield return (new WriteCommandOperation<BsonDocument>(_collectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings), IsMainOperation: true);
+
+            if (_postOperations != null)
+            {
+                foreach (var postOperation in _postOperations)
+                {
+                    yield return (postOperation, IsMainOperation: false);
+                }
+            }
         }
 
         private bool ShouldIgnoreException(MongoCommandException ex)

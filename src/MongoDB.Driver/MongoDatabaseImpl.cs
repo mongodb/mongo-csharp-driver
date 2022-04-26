@@ -291,27 +291,50 @@ namespace MongoDB.Driver
 
         public override void DropCollection(string name, CancellationToken cancellationToken)
         {
-            UsingImplicitSession(session => DropCollection(session, name, cancellationToken), cancellationToken);
+            UsingImplicitSession(session => DropCollection(session, name, options: null, cancellationToken), cancellationToken);
+        }
+
+        public override void DropCollection(string name, DropCollectionOptions options, CancellationToken cancellationToken = default)
+        {
+            UsingImplicitSession(session => DropCollection(session, name, options: options, cancellationToken), cancellationToken);
         }
 
         public override void DropCollection(IClientSessionHandle session, string name, CancellationToken cancellationToken)
         {
+            DropCollection(session, name, options: null, cancellationToken);
+        }
+
+        public override void DropCollection(IClientSessionHandle session, string name, DropCollectionOptions options, CancellationToken cancellationToken)
+        {
             Ensure.IsNotNull(session, nameof(session));
             Ensure.IsNotNullOrEmpty(name, nameof(name));
-            var operation = CreateDropCollectionOperation(name);
+            var operation = CreateDropCollectionOperation(name, options, getCurrentCollectionInfoFunc: (listCollectionOptions) => ListCollections(session, listCollectionOptions, cancellationToken).FirstOrDefault());
             ExecuteWriteOperation(session, operation, cancellationToken);
         }
 
         public override Task DropCollectionAsync(string name, CancellationToken cancellationToken)
         {
-            return UsingImplicitSessionAsync(session => DropCollectionAsync(session, name, cancellationToken), cancellationToken);
+            return UsingImplicitSessionAsync(session => DropCollectionAsync(session, name, options: null, cancellationToken), cancellationToken);
+        }
+
+        public override Task DropCollectionAsync(string name, DropCollectionOptions options, CancellationToken cancellationToken)
+        {
+            return UsingImplicitSessionAsync(session => DropCollectionAsync(session, name, options: options, cancellationToken), cancellationToken);
         }
 
         public override Task DropCollectionAsync(IClientSessionHandle session, string name, CancellationToken cancellationToken)
         {
+            return DropCollectionAsync(session, name, options: null, cancellationToken);
+        }
+
+        public override Task DropCollectionAsync(IClientSessionHandle session, string name, DropCollectionOptions options, CancellationToken cancellationToken)
+        {
             Ensure.IsNotNull(session, nameof(session));
             Ensure.IsNotNullOrEmpty(name, nameof(name));
-            var operation = CreateDropCollectionOperation(name);
+            var operation = CreateDropCollectionOperation(
+                name,
+                options,
+                getCurrentCollectionInfoFunc: (listCollectionOptions) => ListCollections(session, listCollectionOptions, cancellationToken).FirstOrDefault()); // async
             return ExecuteWriteOperationAsync(session, operation, cancellationToken);
         }
 
@@ -633,7 +656,7 @@ namespace MongoDB.Driver
             return ExecuteWriteOperationAsync(session, operation, cancellationToken);
         }
 
-        private CreateCollectionOperation CreateCreateCollectionOperation<TDocument>(string name, CreateCollectionOptions<TDocument> options)
+        private IWriteOperation<BsonDocument> CreateCreateCollectionOperation<TDocument>(string name, CreateCollectionOptions<TDocument> options)
         {
             var messageEncoderSettings = GetMessageEncoderSettings();
             BsonDocument validator = null;
@@ -644,26 +667,36 @@ namespace MongoDB.Driver
                 validator = options.Validator.Render(documentSerializer, serializerRegistry, _linqProvider);
             }
 
-#pragma warning disable 618
-            return new CreateCollectionOperation(new CollectionNamespace(_databaseNamespace, name), messageEncoderSettings)
+            var collectionNamespace = new CollectionNamespace(_databaseNamespace, name);
+
+            var encryptedFields = options.EncryptedFields;
+            if (encryptedFields == null)
             {
-                AutoIndexId = options.AutoIndexId,
-                Capped = options.Capped,
-                Collation = options.Collation,
-                ExpireAfter = options.ExpireAfter,
-                IndexOptionDefaults = options.IndexOptionDefaults?.ToBsonDocument(),
-                MaxDocuments = options.MaxDocuments,
-                MaxSize = options.MaxSize,
-                NoPadding = options.NoPadding,
-                StorageEngine = options.StorageEngine,
-                TimeSeriesOptions = options.TimeSeriesOptions,
-                UsePowerOf2Sizes = options.UsePowerOf2Sizes,
-                ValidationAction = options.ValidationAction,
-                ValidationLevel = options.ValidationLevel,
-                Validator = validator,
-                WriteConcern = _settings.WriteConcern
-            };
-#pragma warning restore
+                var encryptedFieldsMap = _client.Settings?.AutoEncryptionOptions?.EncryptedFieldsMap;
+                if (encryptedFieldsMap != null)
+                {
+                    _ = encryptedFieldsMap.TryGetValue(collectionNamespace.ToString(), out encryptedFields);
+                }
+            }
+            var createCollectionOperation = CreateCollectionOperation.CreateCreateCollectionOperation(collectionNamespace, encryptedFields, messageEncoderSettings);
+#pragma warning disable CS0618 // Type or member is obsolete
+            createCollectionOperation.AutoIndexId = options.AutoIndexId;
+#pragma warning restore CS0618 // Type or member is obsolete
+            createCollectionOperation.Capped = options.Capped;
+            createCollectionOperation.Collation = options.Collation;
+            createCollectionOperation.ExpireAfter = options.ExpireAfter;
+            createCollectionOperation.IndexOptionDefaults = options.IndexOptionDefaults?.ToBsonDocument();
+            createCollectionOperation.MaxDocuments = options.MaxDocuments;
+            createCollectionOperation.MaxSize = options.MaxSize;
+            createCollectionOperation.NoPadding = options.NoPadding;
+            createCollectionOperation.StorageEngine = options.StorageEngine;
+            createCollectionOperation.TimeSeriesOptions = options.TimeSeriesOptions;
+            createCollectionOperation.UsePowerOf2Sizes = options.UsePowerOf2Sizes;
+            createCollectionOperation.ValidationAction = options.ValidationAction;
+            createCollectionOperation.ValidationLevel = options.ValidationLevel;
+            createCollectionOperation.Validator = validator;
+            createCollectionOperation.WriteConcern = _settings.WriteConcern;
+            return createCollectionOperation;
         }
 
         private CreateViewOperation CreateCreateViewOperation<TDocument, TResult>(string viewName, string viewOn, PipelineDefinition<TDocument, TResult> pipeline, CreateViewOptions<TDocument> options)
@@ -678,14 +711,34 @@ namespace MongoDB.Driver
             };
         }
 
-        private DropCollectionOperation CreateDropCollectionOperation(string name)
+        private DropCollectionOperation CreateDropCollectionOperation(string name, DropCollectionOptions options, Func<ListCollectionsOptions, BsonDocument> getCurrentCollectionInfoFunc)
         {
             var collectionNamespace = new CollectionNamespace(_databaseNamespace, name);
-            var messageEncoderSettings = GetMessageEncoderSettings();
-            return new DropCollectionOperation(collectionNamespace, messageEncoderSettings)
+
+            options = options ?? new DropCollectionOptions();
+
+            var encryptedFields = options.EncryptedFields;
+            if (encryptedFields == null)
             {
-                WriteConcern = _settings.WriteConcern
-            };
+                var encryptedFieldsMap = _client.Settings?.AutoEncryptionOptions?.EncryptedFieldsMap;
+                if (encryptedFieldsMap != null)
+                {
+                    if (!encryptedFieldsMap.TryGetValue(collectionNamespace.ToString(), out encryptedFields))
+                    {
+                        var listCollectionOptions = new ListCollectionsOptions() { Filter = $"{{ name : '{collectionNamespace.CollectionName}' }}" };
+                        encryptedFields = getCurrentCollectionInfoFunc(listCollectionOptions)
+                            ?.GetValue("options", defaultValue: null)
+                            ?.AsBsonDocument
+                            ?.GetValue("encryptedFields", defaultValue: null)
+                            ?.ToBsonDocument();
+                    }
+                }
+            }
+
+            var messageEncoderSettings = GetMessageEncoderSettings();
+            var dropCollectionOperation = DropCollectionOperation.CreateDropCollectionOperation(collectionNamespace, encryptedFields, messageEncoderSettings);
+            dropCollectionOperation.WriteConcern = _settings.WriteConcern;
+            return dropCollectionOperation;
         }
 
         private ListCollectionsOperation CreateListCollectionNamesOperation(ListCollectionNamesOptions options)

@@ -598,10 +598,9 @@ namespace MongoDB.Driver.GridFS
 
         internal DropCollectionOperation CreateDropCollectionOperation(CollectionNamespace collectionNamespace, MessageEncoderSettings messageEncoderSettings)
         {
-            return new DropCollectionOperation(collectionNamespace, messageEncoderSettings)
-            {
-                WriteConcern = _options.WriteConcern ?? _database.Settings.WriteConcern
-            };
+            var dropCollectionOperation = DropCollectionOperation.CreateDropCollectionOperation(collectionNamespace, encryptedFields: null, messageEncoderSettings);
+            dropCollectionOperation.WriteConcern = _options.WriteConcern ?? _database.Settings.WriteConcern;
+            return dropCollectionOperation;
         }
 
         private BulkMixedWriteOperation CreateDeleteFileOperation(TFileId id)
