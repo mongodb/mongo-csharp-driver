@@ -198,7 +198,7 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
         }
 
         [Fact]
-        public void Stop_should_trigger_additional_prune_when_there_is_in_progress_request()
+        public void Stop_should_trigger_additional_prune_when_regular_maintenance_is_cancelled()
         {
             var removedConnection1TaskCompletionSource = new TaskCompletionSource<bool>();
             var connection2IsExpiredTaskCompletionSource = new TaskCompletionSource<bool>();
@@ -218,7 +218,8 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
 
             using (var pool = CreatePool(
                 eventCapturer,
-                TimeSpan.FromMilliseconds(1), // Run first attempt immediately, set 1 minute period for the second attempt in below steps
+                TimeSpan.FromMilliseconds(1), // Run second maintenance attempt with first noop Prune immediately after minPoolSize logis is launched in first loop iteration,
+                                              // set 1 minute period for the next attempt in below steps
                 minPoolSize: 2,
                 connectionFactoryConfigurator: (connectionFactoryMock) =>
                 {
