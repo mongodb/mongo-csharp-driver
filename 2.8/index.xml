@@ -248,7 +248,7 @@ your application. This differs from previous guidance which stated that it didn&
 
 &lt;h3 id=&#34;strongly-typed-changestreamdocument-lt-tdocument-gt-class&#34;&gt;Strongly typed ChangeStreamDocument&amp;lt;TDocument&amp;gt; class&lt;/h3&gt;
 
-&lt;p&gt;The cursor returned from the Watch methods returns the change stream events wrapped in a strongly typed C# class called ChangeStreamDocument&amp;lt;TDocument&amp;gt; (unless you used a pipeline that changed the shape of the results). The underlying change stream events are documented in the server documentation &lt;a href=&#34;https://docs.mongodb.com/manual/reference/change-events/&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;The cursor returned from the Watch methods returns the change stream events wrapped in a strongly typed C# class called ChangeStreamDocument&amp;lt;TDocument&amp;gt; (unless you used a pipeline that changed the shape of the results). The underlying change stream events are documented in the server documentation &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/change-events/&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;public class ChangeStreamDocument&amp;lt;TDocument&amp;gt;
 {
@@ -268,7 +268,7 @@ your application. This differs from previous guidance which stated that it didn&
 
 &lt;p&gt;DocumentKey contains the _id of the document created or modified by the operation. For sharded collections it also contains the shard key of the document.&lt;/p&gt;
 
-&lt;p&gt;For Insert and Replace operations,  FullDocument is the new document created by the operation. For Delete operations FullDocument is null as the document no longer exists. For Update operations FullDocument is only present if you set the FullDocument option in the options passed to Watch to ChangeStreamFullDocumentOption.UpdateLookup, in which case it contains the most current majority-committed version of the document modified by the Update operation (see the server documentation for fullDocument &lt;a href=&#34;https://docs.mongodb.com/manual/reference/change-events/&#34;&gt;here&lt;/a&gt; for details).&lt;/p&gt;
+&lt;p&gt;For Insert and Replace operations,  FullDocument is the new document created by the operation. For Delete operations FullDocument is null as the document no longer exists. For Update operations FullDocument is only present if you set the FullDocument option in the options passed to Watch to ChangeStreamFullDocumentOption.UpdateLookup, in which case it contains the most current majority-committed version of the document modified by the Update operation (see the server documentation for fullDocument &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/change-events/&#34;&gt;here&lt;/a&gt; for details).&lt;/p&gt;
 
 &lt;p&gt;OperationType is one of: Insert, Update, Replace, Delete or Invalidate.&lt;/p&gt;
 
@@ -280,7 +280,7 @@ your application. This differs from previous guidance which stated that it didn&
 
 &lt;p&gt;All the Watch and WatchAsync methods have overloads that take a pipeline argument. An application can pass in a pipeline to filter or modify the change stream in some way.&lt;/p&gt;
 
-&lt;p&gt;Only certain modifications are valid in a change stream pipeline. See the server documentation &lt;a href=&#34;https://docs.mongodb.com/manual/changeStreams/#modify-change-stream-output&#34;&gt;here&lt;/a&gt; for details.&lt;/p&gt;
+&lt;p&gt;Only certain modifications are valid in a change stream pipeline. See the server documentation &lt;a href=&#34;https://www.mongodb.com/docs/manual/changeStreams/#modify-change-stream-output&#34;&gt;here&lt;/a&gt; for details.&lt;/p&gt;
 
 &lt;p&gt;For example, if you are only interested in monitoring inserted documents, you could use a pipeline to filter the change stream to only include insert operations.&lt;/p&gt;
 
@@ -320,7 +320,7 @@ using (var cursor = collection.Watch(pipeline))
 
 &lt;p&gt;BatchSize determines the maximum number of change events the server will return at one time. The server might return fewer.&lt;/p&gt;
 
-&lt;p&gt;FullDocument can be set to ChangeStreamFullDocumentOption.UpdateLookup if you want the change stream event for Update operations to include a copy of the full document (the full document might include additional changes that are the result of subsequent change events, see the server documentation &lt;a href=&#34;https://docs.mongodb.com/manual/reference/change-events/#update-event&#34;&gt;here&lt;/a&gt;).&lt;/p&gt;
+&lt;p&gt;FullDocument can be set to ChangeStreamFullDocumentOption.UpdateLookup if you want the change stream event for Update operations to include a copy of the full document (the full document might include additional changes that are the result of subsequent change events, see the server documentation &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/change-events/#update-event&#34;&gt;here&lt;/a&gt;).&lt;/p&gt;
 
 &lt;p&gt;ResumeAfter and StartAtOperationTime are useful when you want to resume or start a change stream from some point in time.&lt;/p&gt;
 
@@ -356,8 +356,8 @@ using (var cursor = collection.Watch(pipeline, changeStreamOptions))
 
 &lt;h2 id=&#34;authentication&#34;&gt;Authentication&lt;/h2&gt;
 
-&lt;p&gt;The .NET driver supports all &lt;a href=&#34;http://docs.mongodb.org/manual/core/authentication/
-&#34;&gt;MongoDB authentication mechanisms&lt;/a&gt; including those in the &lt;a href=&#34;http://docs.mongodb.org/manual/administration/install-enterprise/
+&lt;p&gt;The .NET driver supports all &lt;a href=&#34;https://www.mongodb.com/docs/manual/core/authentication/
+&#34;&gt;MongoDB authentication mechanisms&lt;/a&gt; including those in the &lt;a href=&#34;https://www.mongodb.com/docs/manual/administration/install-enterprise/
 &#34;&gt;Enterprise Edition&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;Authentication credentials are created by the application as instances of &lt;a href=&#34;/mongo-csharp-driver/2.8/mongo-csharp-driver/2.8/apidocs/html/T_MongoDB_Driver_MongoCredential.htm
@@ -367,7 +367,7 @@ using (var cursor = collection.Watch(pipeline, changeStreamOptions))
 
 &lt;h3 id=&#34;default&#34;&gt;Default&lt;/h3&gt;
 
-&lt;p&gt;MongoDB 4.0 now uses &lt;a href=&#34;https://docs.mongodb.com/manual/core/security-scram/#authentication-scram&#34;&gt;SCRAM&lt;/a&gt; (Salted Challenge Response Authentication Mechanism) as the default mechanism and no longer supports &lt;a href=&#34;http://docs.mongodb.org/manual/core/authentication/#mongodb-cr-authentication&#34;&gt;MONGODB-CR&lt;/a&gt;. To create a credential that will authenticate properly regardless of server version, create a credential using the following static factory method.&lt;/p&gt;
+&lt;p&gt;MongoDB 4.0 now uses &lt;a href=&#34;https://www.mongodb.com/docs/manual/core/security-scram/#authentication-scram&#34;&gt;SCRAM&lt;/a&gt; (Salted Challenge Response Authentication Mechanism) as the default mechanism and no longer supports &lt;a href=&#34;https://www.mongodb.com/docs/manual/core/authentication/#mongodb-cr-authentication&#34;&gt;MONGODB-CR&lt;/a&gt;. To create a credential that will authenticate properly regardless of server version, create a credential using the following static factory method.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var credential = MongoCredential.CreateCredential(databaseName, username, password);
 &lt;/code&gt;&lt;/pre&gt;
@@ -377,7 +377,7 @@ using (var cursor = collection.Watch(pipeline, changeStreamOptions))
 &lt;pre&gt;&lt;code&gt;mongodb://username:password@myserver/databaseName
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;These are the recommended approaches as it will make upgrading from MongoDB 2.6 to MongoDB 3.0 seamless, before and after &lt;a href=&#34;http://docs.mongodb.org/manual/release-notes/3.0-scram/#upgrade-mongodb-cr-to-scram&#34;&gt;upgrading the authentication schema&lt;/a&gt;. For MongoDB 4.0, the above approaches will automatically determine which version of SCRAM should be used (SCRAM-SHA-1 or SCRAM-SHA-256).&lt;/p&gt;
+&lt;p&gt;These are the recommended approaches as it will make upgrading from MongoDB 2.6 to MongoDB 3.0 seamless, before and after &lt;a href=&#34;https://www.mongodb.com/docs/manual/release-notes/3.0-scram/#upgrade-mongodb-cr-to-scram&#34;&gt;upgrading the authentication schema&lt;/a&gt;. For MongoDB 4.0, the above approaches will automatically determine which version of SCRAM should be used (SCRAM-SHA-1 or SCRAM-SHA-256).&lt;/p&gt;
 
 &lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
 &lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
@@ -391,7 +391,7 @@ The databaseName part of the connection string indicates which database the cred
 
 &lt;h4 id=&#34;scram-sha-256&#34;&gt;SCRAM-SHA-256&lt;/h4&gt;
 
-&lt;p&gt;SCRAM-SHA-256 is the default authentication mechanism chosen as long as the user&amp;rsquo;s authentication mechanism supports it. (See the &lt;a href=&#34;https://docs.mongodb.com/manual/reference/method/db.createUser/#db.createUser&#34;&gt;mechanism parameter of createUser()&lt;/a&gt; and the &lt;a href=&#34;https://github.com/mongodb/specifications/blob/master/source/auth/auth.rst#defaults&#34;&gt;&amp;ldquo;Supported Authentication Methods: Defaults&amp;rdquo; section of the Driver Authentication Specification&lt;/a&gt; for additional information.&lt;/p&gt;
+&lt;p&gt;SCRAM-SHA-256 is the default authentication mechanism chosen as long as the user&amp;rsquo;s authentication mechanism supports it. (See the &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/method/db.createUser/#db.createUser&#34;&gt;mechanism parameter of createUser()&lt;/a&gt; and the &lt;a href=&#34;https://github.com/mongodb/specifications/blob/master/source/auth/auth.rst#defaults&#34;&gt;&amp;ldquo;Supported Authentication Methods: Defaults&amp;rdquo; section of the Driver Authentication Specification&lt;/a&gt; for additional information.&lt;/p&gt;
 
 &lt;h5 id=&#34;securestrings&#34;&gt;SecureStrings&lt;/h5&gt;
 
@@ -403,7 +403,7 @@ The databaseName part of the connection string indicates which database the cred
 
 &lt;h3 id=&#34;x-509-authentication&#34;&gt;x.509 Authentication&lt;/h3&gt;
 
-&lt;p&gt;The &lt;a href=&#34;http://docs.mongodb.org/manual/core/authentication/#x-509-certificate-authentication&#34;&gt;x.509&lt;/a&gt; mechanism authenticates a user whose name is derived from the distinguished subject name of the x.509 certificate presented by the driver during SSL negotiation. This authentication method requires the use of &lt;a href=&#34;/mongo-csharp-driver/2.8/mongo-csharp-driver/2.8/reference/driver/ssl/&#34;&gt;SSL connections&lt;/a&gt; with certificate validation and is available in MongoDB 2.6 and newer. To create a credential of this type, use the following static factory method:&lt;/p&gt;
+&lt;p&gt;The &lt;a href=&#34;https://www.mongodb.com/docs/manual/core/authentication/#x-509-certificate-authentication&#34;&gt;x.509&lt;/a&gt; mechanism authenticates a user whose name is derived from the distinguished subject name of the x.509 certificate presented by the driver during SSL negotiation. This authentication method requires the use of &lt;a href=&#34;/mongo-csharp-driver/2.8/mongo-csharp-driver/2.8/reference/driver/ssl/&#34;&gt;SSL connections&lt;/a&gt; with certificate validation and is available in MongoDB 2.6 and newer. To create a credential of this type, use the following static factory method:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var credential = MongoCredential.CreateX509Credential(username);
 &lt;/code&gt;&lt;/pre&gt;
@@ -433,7 +433,7 @@ var settings = new MongoClientSettings
 
 &lt;h3 id=&#34;gssapi-kerberos&#34;&gt;GSSAPI/Kerberos&lt;/h3&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://www.mongodb.com/products/mongodb-enterprise&#34;&gt;MongoDB Enterprise&lt;/a&gt; supports authentication using &lt;a href=&#34;http://docs.mongodb.org/manual/core/authentication/#kerberos-authentication&#34;&gt;Kerberos/GSSAPI&lt;/a&gt;. To create a Kerberos/GSSAPI credential, use the following method:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://www.mongodb.com/products/mongodb-enterprise&#34;&gt;MongoDB Enterprise&lt;/a&gt; supports authentication using &lt;a href=&#34;https://www.mongodb.com/docs/manual/core/authentication/#kerberos-authentication&#34;&gt;Kerberos/GSSAPI&lt;/a&gt;. To create a Kerberos/GSSAPI credential, use the following method:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var credential = MongoCredential.CreateGssapiCredential(username, password);
 &lt;/code&gt;&lt;/pre&gt;
@@ -506,7 +506,7 @@ Note that the username will need to have a REALM associated with it. When used i
 
 &lt;h3 id=&#34;ldap-plain&#34;&gt;LDAP (PLAIN)&lt;/h3&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://www.mongodb.com/products/mongodb-enterprise&#34;&gt;MongoDB Enterprise&lt;/a&gt; supports proxy authentication through a Lightweight Directory Access Protocol (LDAP) service. To create a credential of type LDAP use the following static factory method:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://www.mongodb.com/products/mongodb-enterprise&#34;&gt;MongoDB Enterprise&lt;/a&gt; supports proxy authentication through a Lightweight Directory Access Protocol (LDAP) service. To create a credential of type LDAP use the following static factory method:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var credential = MongoCredential.CreatePlainCredential(&amp;quot;$external&amp;quot;, username, password);
 &lt;/code&gt;&lt;/pre&gt;
@@ -1797,7 +1797,7 @@ private static void Handle(ConnectionPoolAddedConnectionEvent @event)
 &#34;&gt;&lt;code&gt;CommandSucceededEvent&lt;/code&gt;&lt;/a&gt;, and the &lt;a href=&#34;/mongo-csharp-driver/2.8/mongo-csharp-driver/2.8/apidocs/html/T_MongoDB_Driver_Core_Events_CommandFailedEvent.htm
 &#34;&gt;&lt;code&gt;CommandFailedEvent&lt;/code&gt;&lt;/a&gt;. For every started event, there will always be a succeeded or failed event.&lt;/p&gt;
 
-&lt;p&gt;In addition, any messages sent to the server that are not already commands will be upconverted for the sake of consumption. For instance, an &lt;code&gt;OP_DELETE&lt;/code&gt; wire protocol message on server 2.4 will appear as though it were a &lt;a href=&#34;http://docs.mongodb.org/manual/reference/command/delete/
+&lt;p&gt;In addition, any messages sent to the server that are not already commands will be upconverted for the sake of consumption. For instance, an &lt;code&gt;OP_DELETE&lt;/code&gt; wire protocol message on server 2.4 will appear as though it were a &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/command/delete/
 &#34;&gt;&lt;code&gt;delete&lt;/code&gt;&lt;/a&gt; command.&lt;/p&gt;
 
 &lt;p&gt;&lt;div class=&#34;admonition warning&#34;&gt;
@@ -1808,7 +1808,7 @@ These are heavy events to generate. Do not subscribe to these unless they provid
 
 &lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
 &lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
-&lt;p&gt;Certain information has been removed for security reasons. For instance, the &lt;a href=&#34;http://docs.mongodb.org/manual/reference/command/authenticate/&#34;&gt;&lt;code&gt;authenticate&lt;/code&gt;&lt;/a&gt; command will not contain the actual command or its reply. However, it will still contain the command name itself.&lt;/p&gt;
+&lt;p&gt;Certain information has been removed for security reasons. For instance, the &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/command/authenticate/&#34;&gt;&lt;code&gt;authenticate&lt;/code&gt;&lt;/a&gt; command will not contain the actual command or its reply. However, it will still contain the command name itself.&lt;/p&gt;
 
 &lt;/div&gt;
 &lt;/p&gt;
@@ -1844,7 +1844,7 @@ These are heavy events to generate. Do not subscribe to these unless they provid
 
 &lt;h2 id=&#34;linq&#34;&gt;LINQ&lt;/h2&gt;
 
-&lt;p&gt;The driver contains an implementation of &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb397926.aspx&#34;&gt;LINQ&lt;/a&gt; that targets the &lt;a href=&#34;http://docs.mongodb.org/manual/aggregation
+&lt;p&gt;The driver contains an implementation of &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb397926.aspx&#34;&gt;LINQ&lt;/a&gt; that targets the &lt;a href=&#34;https://www.mongodb.com/docs/manual/aggregation
 &#34;&gt;aggregation framework&lt;/a&gt;. The aggregation framework holds a rich query language that maps very easily from a LINQ expression tree making it straightforward to understand the translation from a LINQ statement into an aggregation framework pipeline. To see a more complicated uses of LINQ from the driver, see the &lt;a href=&#34;﻿https://github.com/mongodb/mongo-csharp-driver/blob/master/tests/MongoDB.Driver.Tests/Samples/AggregationSample.cs
 &#34;&gt;AggregationSample&lt;/a&gt; source code.&lt;/p&gt;
 
@@ -1908,7 +1908,7 @@ var query = collection.AsQueryable()
 
 &lt;h4 id=&#34;project&#34;&gt;$project&lt;/h4&gt;
 
-&lt;p&gt;To generate a &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/aggregation/project/
+&lt;p&gt;To generate a &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/operator/aggregation/project/
 &#34;&gt;&lt;code&gt;$project&lt;/code&gt;&lt;/a&gt; stage, use the &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb548743.aspx&#34;&gt;&lt;code&gt;Select&lt;/code&gt;&lt;/a&gt; method. To see the list of expressions supported in the &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb548743.aspx&#34;&gt;&lt;code&gt;Select&lt;/code&gt;&lt;/a&gt; method, see &lt;a href=&#34;/mongo-csharp-driver/2.8/mongo-csharp-driver/2.8/reference/driver/expressions/#aggregation-projections&#34;&gt;Aggregation Projections&lt;/a&gt;.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var query = from p in collection.AsQueryable()
@@ -1948,14 +1948,14 @@ var query = collection.AsQueryable()
 
 &lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
 &lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
-&lt;p&gt;&lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/aggregation/project/#suppress-the-id-field&#34;&gt;By default&lt;/a&gt;, MongoDB will include the &lt;code&gt;_id&lt;/code&gt; field in the output unless explicitly excluded. The driver will automatically add this exclusion when necessary.&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/operator/aggregation/project/#suppress-the-id-field&#34;&gt;By default&lt;/a&gt;, MongoDB will include the &lt;code&gt;_id&lt;/code&gt; field in the output unless explicitly excluded. The driver will automatically add this exclusion when necessary.&lt;/p&gt;
 
 &lt;/div&gt;
 &lt;/p&gt;
 
 &lt;h4 id=&#34;match&#34;&gt;$match&lt;/h4&gt;
 
-&lt;p&gt;The &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb535040.aspx&#34;&gt;&lt;code&gt;Where&lt;/code&gt;&lt;/a&gt; method is used to generate a &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/aggregation/match/
+&lt;p&gt;The &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb535040.aspx&#34;&gt;&lt;code&gt;Where&lt;/code&gt;&lt;/a&gt; method is used to generate a &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/operator/aggregation/match/
 &#34;&gt;&lt;code&gt;$match&lt;/code&gt;&lt;/a&gt; stage. To see the list of expressions supported inside a &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb535040.aspx&#34;&gt;&lt;code&gt;Where&lt;/code&gt;&lt;/a&gt;, see &lt;a href=&#34;/mongo-csharp-driver/2.8/mongo-csharp-driver/2.8/reference/driver/expressions/#filters&#34;&gt;Filters&lt;/a&gt;.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var query = from p in collection.AsQueryable()
@@ -1975,12 +1975,12 @@ var query = collection.AsQueryable()
 
 &lt;h4 id=&#34;redact&#34;&gt;$redact&lt;/h4&gt;
 
-&lt;p&gt;The &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/aggregation/redact/
+&lt;p&gt;The &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/operator/aggregation/redact/
 &#34;&gt;&lt;code&gt;$redact&lt;/code&gt;&lt;/a&gt; stage is not currently supported using LINQ.&lt;/p&gt;
 
 &lt;h4 id=&#34;limit&#34;&gt;$limit&lt;/h4&gt;
 
-&lt;p&gt;The &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb300906.aspx&#34;&gt;&lt;code&gt;Take&lt;/code&gt;&lt;/a&gt; method is used to generate a &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/aggregation/limit/
+&lt;p&gt;The &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb300906.aspx&#34;&gt;&lt;code&gt;Take&lt;/code&gt;&lt;/a&gt; method is used to generate a &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/operator/aggregation/limit/
 &#34;&gt;&lt;code&gt;$limit&lt;/code&gt;&lt;/a&gt; stage.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var query = collection.AsQueryable().Take(10);
@@ -1993,7 +1993,7 @@ var query = collection.AsQueryable()
 
 &lt;h4 id=&#34;skip&#34;&gt;$skip&lt;/h4&gt;
 
-&lt;p&gt;The &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb357513.aspx&#34;&gt;&lt;code&gt;Skip&lt;/code&gt;&lt;/a&gt; method is used to generate a &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/aggregation/skip/
+&lt;p&gt;The &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb357513.aspx&#34;&gt;&lt;code&gt;Skip&lt;/code&gt;&lt;/a&gt; method is used to generate a &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/operator/aggregation/skip/
 &#34;&gt;&lt;code&gt;$skip&lt;/code&gt;&lt;/a&gt; stage.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var query = collection.AsQueryable().Skip(10);
@@ -2006,9 +2006,9 @@ var query = collection.AsQueryable()
 
 &lt;h4 id=&#34;unwind&#34;&gt;$unwind&lt;/h4&gt;
 
-&lt;p&gt;The &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb548748.aspx&#34;&gt;&lt;code&gt;SelectMany&lt;/code&gt;&lt;/a&gt; method is used to generate an &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/aggregation/unwind/
-&#34;&gt;&lt;code&gt;$unwind&lt;/code&gt;&lt;/a&gt; stage. In addition, because of how &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/aggregation/unwind/
-&#34;&gt;&lt;code&gt;$unwind&lt;/code&gt;&lt;/a&gt; works, a &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/aggregation/project/
+&lt;p&gt;The &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb548748.aspx&#34;&gt;&lt;code&gt;SelectMany&lt;/code&gt;&lt;/a&gt; method is used to generate an &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/operator/aggregation/unwind/
+&#34;&gt;&lt;code&gt;$unwind&lt;/code&gt;&lt;/a&gt; stage. In addition, because of how &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/operator/aggregation/unwind/
+&#34;&gt;&lt;code&gt;$unwind&lt;/code&gt;&lt;/a&gt; works, a &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/operator/aggregation/project/
 &#34;&gt;&lt;code&gt;$project&lt;/code&gt;&lt;/a&gt; stage will also be rendered. To see the list of expressions supported in the &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb548748.aspx&#34;&gt;&lt;code&gt;SelectMany&lt;/code&gt;&lt;/a&gt; method, see &lt;a href=&#34;/mongo-csharp-driver/2.8/mongo-csharp-driver/2.8/reference/driver/expressions/#aggregation-projections&#34;&gt;Aggregation Projections&lt;/a&gt;.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var query = from p in collection.AsQueryable()
@@ -2047,7 +2047,7 @@ var query = collection.AsQueryable()
 
 &lt;h4 id=&#34;group&#34;&gt;$group&lt;/h4&gt;
 
-&lt;p&gt;The &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb534492.aspx&#34;&gt;&lt;code&gt;GroupBy&lt;/code&gt;&lt;/a&gt; method is used to generate a &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/aggregation/group/
+&lt;p&gt;The &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb534492.aspx&#34;&gt;&lt;code&gt;GroupBy&lt;/code&gt;&lt;/a&gt; method is used to generate a &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/operator/aggregation/group/
 &#34;&gt;&lt;code&gt;$group&lt;/code&gt;&lt;/a&gt; stage. In general, the &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb534492.aspx&#34;&gt;&lt;code&gt;GroupBy&lt;/code&gt;&lt;/a&gt; method will be followed by the &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb548743.aspx&#34;&gt;&lt;code&gt;Select&lt;/code&gt;&lt;/a&gt; containing the accumulators although that isn&amp;rsquo;t required. To see the list of supported accumulators, see &lt;a href=&#34;/mongo-csharp-driver/2.8/mongo-csharp-driver/2.8/reference/driver/expressions/#accumulators&#34;&gt;Accumulators&lt;/a&gt;.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var query = from p in collection.AsQueryable()
@@ -2080,7 +2080,7 @@ var query = collection.AsQueryable()
 
 &lt;h4 id=&#34;sort&#34;&gt;$sort&lt;/h4&gt;
 
-&lt;p&gt;The &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb549264.aspx&#34;&gt;&lt;code&gt;OrderBy&lt;/code&gt;&lt;/a&gt; and &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb535112.aspx&#34;&gt;&lt;code&gt;ThenBy&lt;/code&gt;&lt;/a&gt; methods are used to generate a &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/aggregation/sort/
+&lt;p&gt;The &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb549264.aspx&#34;&gt;&lt;code&gt;OrderBy&lt;/code&gt;&lt;/a&gt; and &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb535112.aspx&#34;&gt;&lt;code&gt;ThenBy&lt;/code&gt;&lt;/a&gt; methods are used to generate a &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/operator/aggregation/sort/
 &#34;&gt;&lt;code&gt;$sort&lt;/code&gt;&lt;/a&gt; stage.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var query = from p in collection.AsQueryable()
@@ -2101,17 +2101,17 @@ var query = collection.AsQueryable()
 
 &lt;h4 id=&#34;geonear&#34;&gt;$geoNear&lt;/h4&gt;
 
-&lt;p&gt;The &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/aggregation/geoNear/
+&lt;p&gt;The &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/operator/aggregation/geoNear/
 &#34;&gt;&lt;code&gt;$geoNear&lt;/code&gt;&lt;/a&gt; stage is not currently supported using LINQ.&lt;/p&gt;
 
 &lt;h4 id=&#34;out&#34;&gt;$out&lt;/h4&gt;
 
-&lt;p&gt;The &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/aggregation/out/
+&lt;p&gt;The &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/operator/aggregation/out/
 &#34;&gt;&lt;code&gt;$out&lt;/code&gt;&lt;/a&gt; stage is not currently supported using LINQ.&lt;/p&gt;
 
 &lt;h4 id=&#34;lookup&#34;&gt;$lookup&lt;/h4&gt;
 
-&lt;p&gt;The &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb549264.aspx&#34;&gt;&lt;code&gt;GroupJoin&lt;/code&gt;&lt;/a&gt; method is used to generate a &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/aggregation/lookup/
+&lt;p&gt;The &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb549264.aspx&#34;&gt;&lt;code&gt;GroupJoin&lt;/code&gt;&lt;/a&gt; method is used to generate a &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/operator/aggregation/lookup/
 &#34;&gt;&lt;code&gt;$lookup&lt;/code&gt;&lt;/a&gt; stage.&lt;/p&gt;
 
 &lt;p&gt;This operator can take on many forms, many of which are not supported by MongoDB. Therefore, only 2 forms are supported.&lt;/p&gt;
@@ -2443,14 +2443,14 @@ var result = collection.AsQueryable().Select(p =&amp;gt; p.Age).Sum();
 
 &lt;h2 id=&#34;how-to-manage-users&#34;&gt;How to Manage Users&lt;/h2&gt;
 
-&lt;p&gt;While MongoDB supports many user management commands, the driver does not have any helpers for them because users are generally managed from the &lt;a href=&#34;http://docs.mongodb.org/manual/reference/mongo-shell/
+&lt;p&gt;While MongoDB supports many user management commands, the driver does not have any helpers for them because users are generally managed from the &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/mongo-shell/
 &#34;&gt;MongoDB shell&lt;/a&gt;. However, it is still possible to manage users from the driver by using the &lt;a href=&#34;/mongo-csharp-driver/2.8/mongo-csharp-driver/2.8/apidocs/html/M_MongoDB_Driver_IMongoDatabase_RunCommand__1.htm
 &#34;&gt;&lt;code&gt;RunCommand&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;/mongo-csharp-driver/2.8/mongo-csharp-driver/2.8/apidocs/html/M_MongoDB_Driver_IMongoDatabase_RunCommandAsync__1.htm
 &#34;&gt;&lt;code&gt;RunCommandAsync&lt;/code&gt;&lt;/a&gt; methods.&lt;/p&gt;
 
 &lt;h2 id=&#34;listing-users&#34;&gt;Listing Users&lt;/h2&gt;
 
-&lt;p&gt;The &lt;a href=&#34;http://docs.mongodb.org/manual/reference/command/usersInfo/
+&lt;p&gt;The &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/command/usersInfo/
 &#34;&gt;&lt;code&gt;usersInfo&lt;/code&gt;&lt;/a&gt; command will provide information about users in a specific database.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;// get the database
@@ -2472,7 +2472,7 @@ var result = await db.RunCommandAsync&amp;lt;BsonDocument&amp;gt;(command);
 
 &lt;h2 id=&#34;creating-users&#34;&gt;Creating Users&lt;/h2&gt;
 
-&lt;p&gt;The following example uses the &lt;a href=&#34;http://docs.mongodb.org/manual/reference/command/createUser/
+&lt;p&gt;The following example uses the &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/command/createUser/
 &#34;&gt;&lt;code&gt;createUser&lt;/code&gt;&lt;/a&gt; command to add a user to a dataase.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;// get the database
@@ -2516,7 +2516,7 @@ await db.RunCommandAsync&amp;lt;BsonDocument&amp;gt;(command);
 
 &lt;h2 id=&#34;updating-users&#34;&gt;Updating Users&lt;/h2&gt;
 
-&lt;p&gt;The following example uses the &lt;a href=&#34;http://docs.mongodb.org/manual/reference/command/updateUser/
+&lt;p&gt;The following example uses the &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/command/updateUser/
 &#34;&gt;&lt;code&gt;updateUser&lt;/code&gt;&lt;/a&gt; command to update a user in a database.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;// get the database
@@ -2548,7 +2548,7 @@ await db.RunCommandAsync&amp;lt;BsonDocument&amp;gt;(command);
 
 &lt;h2 id=&#34;dropping-users&#34;&gt;Dropping Users&lt;/h2&gt;
 
-&lt;p&gt;The following example uses the &lt;a href=&#34;http://docs.mongodb.org/manual/reference/command/dropUser/
+&lt;p&gt;The following example uses the &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/command/dropUser/
 &#34;&gt;&lt;code&gt;dropUser&lt;/code&gt;&lt;/a&gt; command to drop a user from a database.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;// get the database
@@ -2578,7 +2578,7 @@ Even though we used a string here for the command, it could have been a BsonDocu
 
 &lt;h2 id=&#34;other-user-management-commands&#34;&gt;Other User Management Commands&lt;/h2&gt;
 
-&lt;p&gt;There are a number of &lt;a href=&#34;http://docs.mongodb.org/manual/reference/command/nav-user-management/
+&lt;p&gt;There are a number of &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/command/nav-user-management/
 &#34;&gt;other commands&lt;/a&gt; that exist for managing users and each would be run in a similar fashion to how ones demonstrated above.&lt;/p&gt;
 </description>
     </item>

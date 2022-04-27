@@ -28,7 +28,7 @@ rest of the documentation for more information.&lt;/p&gt;
 &lt;h2 id=&#34;downloading-the-c-driver&#34;&gt;Downloading the C# Driver&lt;/h2&gt;
 
 &lt;p&gt;The simplest way to get started is by using the nuget package. The
-&lt;a href=&#34;http://www.nuget.org/packages/mongocsharpdriver/&#34;&gt;package page&lt;/a&gt; will
+&lt;a href=&#34;https://www.nuget.org/packages/mongocsharpdriver/&#34;&gt;package page&lt;/a&gt; will
 provide details on using nuget.&lt;/p&gt;
 
 &lt;p&gt;You can also download the C# driver here:&lt;/p&gt;
@@ -308,7 +308,7 @@ Library can be used independently of the C# Driver they are both stored
 in the same repository.&lt;/p&gt;
 
 &lt;p&gt;The simplest way to get started is by using the nuget package. The
-&lt;a href=&#34;http://www.nuget.org/packages/mongocsharpdriver/&#34;&gt;package page&lt;/a&gt; will
+&lt;a href=&#34;https://www.nuget.org/packages/mongocsharpdriver/&#34;&gt;package page&lt;/a&gt; will
 provide details on using nuget.&lt;/p&gt;
 
 &lt;p&gt;The source may be downloaded from
@@ -1156,7 +1156,7 @@ the credential against the userDb database instead of db1.&lt;/p&gt;
 
 &lt;p&gt;Versions prior to 1.8 of the driver allowed the specification of an
 &lt;code&gt;admin&lt;/code&gt; credential by appending &lt;code&gt;(admin)&lt;/code&gt; to the username. This is not
-recognized as of version 1.8. Consult the official &lt;a href=&#34;http://docs.mongodb.org/manual/reference/connection-string/&#34;&gt;connection string
+recognized as of version 1.8. Consult the official &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/connection-string/&#34;&gt;connection string
 documentation&lt;/a&gt;
 for more information.&lt;/p&gt;
 &lt;/blockquote&gt;
@@ -1234,10 +1234,10 @@ only queries against it). You could use:&lt;/p&gt;
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;The full documentation for connection strings can be found at
-&lt;a href=&#34;http://docs.mongodb.org/manual/reference/connection-string/&#34;&gt;Connection
+&lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/connection-string/&#34;&gt;Connection
 String&lt;/a&gt; and
 read preferences at
-&lt;a href=&#34;http://docs.mongodb.org/manual/applications/replication/#replica-set-read-preference&#34;&gt;http://docs.mongodb.org/manual/applications/replication/#replica-set-read-preference&lt;/a&gt;.&lt;/p&gt;
+&lt;a href=&#34;https://www.mongodb.com/docs/manual/applications/replication/#replica-set-read-preference&#34;&gt;https://www.mongodb.com/docs/manual/applications/replication/#replica-set-read-preference&lt;/a&gt;.&lt;/p&gt;
 
 &lt;h3 id=&#34;ssl-support&#34;&gt;SSL Support&lt;/h3&gt;
 
@@ -1295,7 +1295,7 @@ below for more details:&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;&lt;strong&gt;warning&lt;/strong&gt;&lt;/p&gt;
 
-&lt;p&gt;Version 2.4 of the server supports &lt;a href=&#34;http://docs.mongodb.org/manual/reference/privilege-documents/#delegated-credentials-for-mongodb-authentication&#34;&gt;Delegated
+&lt;p&gt;Version 2.4 of the server supports &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/privilege-documents/#delegated-credentials-for-mongodb-authentication&#34;&gt;Delegated
 Authentication&lt;/a&gt;.
 Due to this change, the 1.8 release of the driver has some backwards
 breaking changes in order to support this feature. Most importantly,
@@ -1626,7 +1626,7 @@ is updated. In addition, &lt;code&gt;FindAndModify&lt;/code&gt; will return the 
 document (either as it was before the update or after) and if you wish
 you can specify which fields of the matching document to return.&lt;/p&gt;
 
-&lt;p&gt;Using the example documented here, &lt;a href=&#34;http://docs.mongodb.org/manual/reference/command/findAndModify/&#34;&gt;findAndModify
+&lt;p&gt;Using the example documented here, &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/command/findAndModify/&#34;&gt;findAndModify
 Command&lt;/a&gt;,
 the call to &lt;code&gt;FindAndModify&lt;/code&gt; would be written in C# as:&lt;/p&gt;
 

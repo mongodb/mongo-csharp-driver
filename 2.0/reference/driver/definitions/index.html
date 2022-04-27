@@ -41,11 +41,11 @@
     
     <div>
 <div class="nav-items pull-right">
-  <a href="http://try.mongodb.org/" data-toggle="tooltip" data-placement="bottom" title="Try MongoDB in the browser">Try it Out</a>
-  <a href="http://www.mongodb.org/downloads" data-toggle="tooltip" data-placement="bottom" title="Download MongoDB">Downloads</a>
-  <a href="http://www.mongodb.org/get-involved" data-toggle="tooltip" data-placement="bottom" title="Get involved with MongoDB">Community</a>
-  <a href="http://docs.mongodb.org" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Documentation">Docs</a>
-  <a href="http://blog.mongodb.org" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Blog">Blog</a>
+  <a href="https://university.mongodb.com" data-toggle="tooltip" data-placement="bottom" title="Try MongoDB in the browser">Try it Out</a>
+  <a href="https://www.mongodb.com/try" data-toggle="tooltip" data-placement="bottom" title="Download MongoDB">Downloads</a>
+  <a href="https://www.mongodb.com/community" data-toggle="tooltip" data-placement="bottom" title="Get involved with MongoDB">Community</a>
+  <a href="https://www.mongodb.com/docs" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Documentation">Docs</a>
+  <a href="https://www.mongodb.com/blog" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Blog">Blog</a>
   <div id="search">
 <form method="get" action="//www.google.com/search" target="_blank">
     <input type="text" name="searchQuery" size="20" value="" autocomplete="off" placeholder="Search docs">
@@ -1962,7 +1962,7 @@ FilterDefinition&lt;BsonDocument&gt; filter = new BsonDocument(&quot;x&quot;, 1)
 ">tests</a> for examples.</em></p>
 
 <p>The <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_FilterDefinitionBuilder_1.htm
-"><code>FilterDefinitionBuilder&lt;TDocument&gt;</code></a> provides a type-safe API for building up both simple and complex <a href="http://docs.mongodb.org/manual/reference/operator/query/
+"><code>FilterDefinitionBuilder&lt;TDocument&gt;</code></a> provides a type-safe API for building up both simple and complex <a href="https://www.mongodb.com/docs/manual/reference/operator/query/
 ">MongoDB queries</a>.</p>
 
 <p>For example, to build up the filter <code>{ x: 10, y: { $lt: 20 } }</code>, the following calls are all equivalent.</p>
@@ -2160,8 +2160,8 @@ var projection = Builders&lt;Widget&gt;.Projection.Expression(x =&gt; (x.X + x.Y
 <p><em>See the <a href="https://github.com/mongodb/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Tests/Linq/Translators/AggregateProjectionTranslatorTests_Project.cs
 ">tests</a> for examples.</em></p>
 
-<p>When an aggregate projection is defined using a lambda expression, a majority of the <a href="http://docs.mongodb.org/manual/reference/operator/aggregation/#expression-operators
-">aggregation expression operators</a> are supported and translated. Unlike a project for Find, no part of the lambda expression is run client-side. This means that all expressions in a projection for the <a href="http://docs.mongodb.org/manual/core/aggregation-pipeline/
+<p>When an aggregate projection is defined using a lambda expression, a majority of the <a href="https://www.mongodb.com/docs/manual/reference/operator/aggregation/#expression-operators
+">aggregation expression operators</a> are supported and translated. Unlike a project for Find, no part of the lambda expression is run client-side. This means that all expressions in a projection for the <a href="https://www.mongodb.com/docs/manual/core/aggregation-pipeline/
 ">Aggregation Framework</a> must be expressible on the server.</p>
 
 <h5 id="grouping">Grouping</h5>
@@ -2169,8 +2169,8 @@ var projection = Builders&lt;Widget&gt;.Projection.Expression(x =&gt; (x.X + x.Y
 <p><em>See the <a href="https://github.com/mongodb/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Tests/Linq/Translators/AggregateProjectionTranslatorTests_Group.cs
 ">tests</a> for examples.</em></p>
 
-<p>A projection is also used when performing grouping in the <a href="http://docs.mongodb.org/manual/core/aggregation-pipeline/
-">Aggregation Framework</a>. In addition to the expression operators used in an aggregate projection, the <a href="http://docs.mongodb.org/manual/reference/operator/aggregation/group/#accumulator-operator
+<p>A projection is also used when performing grouping in the <a href="https://www.mongodb.com/docs/manual/core/aggregation-pipeline/
+">Aggregation Framework</a>. In addition to the expression operators used in an aggregate projection, the <a href="https://www.mongodb.com/docs/manual/reference/operator/aggregation/group/#accumulator-operator
 ">aggregation accumulator operators</a> are also supported.</p>
 
 <h2 id="sorts">Sorts</h2>
@@ -2194,7 +2194,7 @@ SortDefinition&lt;BsonDocument&gt; sort = new BsonDocument(&quot;x&quot;, 1);
 ">tests</a> for examples.</em></p>
 
 <p>The <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_SortDefinitionBuilder_1.htm
-"><code>SortDefinitionBuilder&lt;TDocument&gt;</code></a> provides a type-safe API for building up <a href="http://docs.mongodb.org/manual/reference/method/cursor.sort/
+"><code>SortDefinitionBuilder&lt;TDocument&gt;</code></a> provides a type-safe API for building up <a href="https://www.mongodb.com/docs/manual/reference/method/cursor.sort/
 ">MongoDB sort syntax</a>.</p>
 
 <p>For example, to build up the sort <code>{ x: 1, y: -1 }</code>, do the following:</p>
@@ -2251,7 +2251,7 @@ UpdateDefinition&lt;BsonDocument&gt; update = new BsonDocument(&quot;$set&quot;,
 ">tests</a> for examples.</em></p>
 
 <p>The <a href="/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_UpdateDefinitionBuilder_1.htm
-"><code>UpdateDefinitionBuilder&lt;TDocument&gt;</code></a> provides a type-safe API for building the <a href="http://docs.mongodb.org/manual/reference/operator/update/
+"><code>UpdateDefinitionBuilder&lt;TDocument&gt;</code></a> provides a type-safe API for building the <a href="https://www.mongodb.com/docs/manual/reference/operator/update/
 ">MongoDB update specification</a>.</p>
 
 <p>For example, to build up the update <code>{ $set: { x: 1, y: 3 }, $inc: { z: 1 } }</code>, do the following:</p>

@@ -41,11 +41,11 @@
     
     <div>
 <div class="nav-items pull-right">
-  <a href="http://try.mongodb.org/" data-toggle="tooltip" data-placement="bottom" title="Try MongoDB in the browser">Try it Out</a>
-  <a href="http://www.mongodb.org/downloads" data-toggle="tooltip" data-placement="bottom" title="Download MongoDB">Downloads</a>
-  <a href="http://www.mongodb.org/get-involved" data-toggle="tooltip" data-placement="bottom" title="Get involved with MongoDB">Community</a>
-  <a href="http://docs.mongodb.org" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Documentation">Docs</a>
-  <a href="http://blog.mongodb.org" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Blog">Blog</a>
+  <a href="https://university.mongodb.com" data-toggle="tooltip" data-placement="bottom" title="Try MongoDB in the browser">Try it Out</a>
+  <a href="https://www.mongodb.com/try" data-toggle="tooltip" data-placement="bottom" title="Download MongoDB">Downloads</a>
+  <a href="https://www.mongodb.com/community" data-toggle="tooltip" data-placement="bottom" title="Get involved with MongoDB">Community</a>
+  <a href="https://www.mongodb.com/docs" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Documentation">Docs</a>
+  <a href="https://www.mongodb.com/blog" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Blog">Blog</a>
   <div id="search">
 <form method="get" action="//www.google.com/search" target="_blank">
     <input type="text" name="searchQuery" size="20" value="" autocomplete="off" placeholder="Search docs">
@@ -2287,7 +2287,7 @@
 
 <h2 id="linq">LINQ</h2>
 
-<p>The driver contains an implementation of <a href="https://msdn.microsoft.com/en-us/library/bb397926.aspx">LINQ</a> that targets the <a href="http://docs.mongodb.org/manual/aggregation
+<p>The driver contains an implementation of <a href="https://msdn.microsoft.com/en-us/library/bb397926.aspx">LINQ</a> that targets the <a href="https://www.mongodb.com/docs/manual/aggregation
 ">aggregation framework</a>. The aggregation framework holds a rich query language that maps very easily from a LINQ expression tree making it straightforward to understand the translation from a LINQ statement into an aggregation framework pipeline. To see a more complicated uses of LINQ from the driver, see the <a href="https://github.com/mongodb/mongo-csharp-driver/blob/master/tests/MongoDB.Driver.Tests/Samples/AggregationSample.cs
 ">AggregationSample</a> source code.</p>
 
@@ -2351,7 +2351,7 @@ var query = collection.AsQueryable()
 
 <h4 id="project">$project</h4>
 
-<p>To generate a <a href="http://docs.mongodb.org/manual/reference/operator/aggregation/project/
+<p>To generate a <a href="https://www.mongodb.com/docs/manual/reference/operator/aggregation/project/
 "><code>$project</code></a> stage, use the <a href="https://msdn.microsoft.com/en-us/library/bb548743.aspx"><code>Select</code></a> method. To see the list of expressions supported in the <a href="https://msdn.microsoft.com/en-us/library/bb548743.aspx"><code>Select</code></a> method, see <a href="/mongo-csharp-driver/2.6/reference/driver/expressions/#aggregation-projections">Aggregation Projections</a>.</p>
 
 <pre><code class="language-csharp">var query = from p in collection.AsQueryable()
@@ -2391,14 +2391,14 @@ var query = collection.AsQueryable()
 
 <p><div class="admonition note">
 <h5 class="admonition-title">Note</h5>
-<p><a href="http://docs.mongodb.org/manual/reference/operator/aggregation/project/#suppress-the-id-field">By default</a>, MongoDB will include the <code>_id</code> field in the output unless explicitly excluded. The driver will automatically add this exclusion when necessary.</p>
+<p><a href="https://www.mongodb.com/docs/manual/reference/operator/aggregation/project/#suppress-the-id-field">By default</a>, MongoDB will include the <code>_id</code> field in the output unless explicitly excluded. The driver will automatically add this exclusion when necessary.</p>
 
 </div>
 </p>
 
 <h4 id="match">$match</h4>
 
-<p>The <a href="https://msdn.microsoft.com/en-us/library/bb535040.aspx"><code>Where</code></a> method is used to generate a <a href="http://docs.mongodb.org/manual/reference/operator/aggregation/match/
+<p>The <a href="https://msdn.microsoft.com/en-us/library/bb535040.aspx"><code>Where</code></a> method is used to generate a <a href="https://www.mongodb.com/docs/manual/reference/operator/aggregation/match/
 "><code>$match</code></a> stage. To see the list of expressions supported inside a <a href="https://msdn.microsoft.com/en-us/library/bb535040.aspx"><code>Where</code></a>, see <a href="/mongo-csharp-driver/2.6/reference/driver/expressions/#filters">Filters</a>.</p>
 
 <pre><code class="language-csharp">var query = from p in collection.AsQueryable()
@@ -2418,12 +2418,12 @@ var query = collection.AsQueryable()
 
 <h4 id="redact">$redact</h4>
 
-<p>The <a href="http://docs.mongodb.org/manual/reference/operator/aggregation/redact/
+<p>The <a href="https://www.mongodb.com/docs/manual/reference/operator/aggregation/redact/
 "><code>$redact</code></a> stage is not currently supported using LINQ.</p>
 
 <h4 id="limit">$limit</h4>
 
-<p>The <a href="https://msdn.microsoft.com/en-us/library/bb300906.aspx"><code>Take</code></a> method is used to generate a <a href="http://docs.mongodb.org/manual/reference/operator/aggregation/limit/
+<p>The <a href="https://msdn.microsoft.com/en-us/library/bb300906.aspx"><code>Take</code></a> method is used to generate a <a href="https://www.mongodb.com/docs/manual/reference/operator/aggregation/limit/
 "><code>$limit</code></a> stage.</p>
 
 <pre><code class="language-csharp">var query = collection.AsQueryable().Take(10);
@@ -2436,7 +2436,7 @@ var query = collection.AsQueryable()
 
 <h4 id="skip">$skip</h4>
 
-<p>The <a href="https://msdn.microsoft.com/en-us/library/bb357513.aspx"><code>Skip</code></a> method is used to generate a <a href="http://docs.mongodb.org/manual/reference/operator/aggregation/skip/
+<p>The <a href="https://msdn.microsoft.com/en-us/library/bb357513.aspx"><code>Skip</code></a> method is used to generate a <a href="https://www.mongodb.com/docs/manual/reference/operator/aggregation/skip/
 "><code>$skip</code></a> stage.</p>
 
 <pre><code class="language-csharp">var query = collection.AsQueryable().Skip(10);
@@ -2449,9 +2449,9 @@ var query = collection.AsQueryable()
 
 <h4 id="unwind">$unwind</h4>
 
-<p>The <a href="https://msdn.microsoft.com/en-us/library/bb548748.aspx"><code>SelectMany</code></a> method is used to generate an <a href="http://docs.mongodb.org/manual/reference/operator/aggregation/unwind/
-"><code>$unwind</code></a> stage. In addition, because of how <a href="http://docs.mongodb.org/manual/reference/operator/aggregation/unwind/
-"><code>$unwind</code></a> works, a <a href="http://docs.mongodb.org/manual/reference/operator/aggregation/project/
+<p>The <a href="https://msdn.microsoft.com/en-us/library/bb548748.aspx"><code>SelectMany</code></a> method is used to generate an <a href="https://www.mongodb.com/docs/manual/reference/operator/aggregation/unwind/
+"><code>$unwind</code></a> stage. In addition, because of how <a href="https://www.mongodb.com/docs/manual/reference/operator/aggregation/unwind/
+"><code>$unwind</code></a> works, a <a href="https://www.mongodb.com/docs/manual/reference/operator/aggregation/project/
 "><code>$project</code></a> stage will also be rendered. To see the list of expressions supported in the <a href="https://msdn.microsoft.com/en-us/library/bb548748.aspx"><code>SelectMany</code></a> method, see <a href="/mongo-csharp-driver/2.6/reference/driver/expressions/#aggregation-projections">Aggregation Projections</a>.</p>
 
 <pre><code class="language-csharp">var query = from p in collection.AsQueryable()
@@ -2490,7 +2490,7 @@ var query = collection.AsQueryable()
 
 <h4 id="group">$group</h4>
 
-<p>The <a href="https://msdn.microsoft.com/en-us/library/bb534492.aspx"><code>GroupBy</code></a> method is used to generate a <a href="http://docs.mongodb.org/manual/reference/operator/aggregation/group/
+<p>The <a href="https://msdn.microsoft.com/en-us/library/bb534492.aspx"><code>GroupBy</code></a> method is used to generate a <a href="https://www.mongodb.com/docs/manual/reference/operator/aggregation/group/
 "><code>$group</code></a> stage. In general, the <a href="https://msdn.microsoft.com/en-us/library/bb534492.aspx"><code>GroupBy</code></a> method will be followed by the <a href="https://msdn.microsoft.com/en-us/library/bb548743.aspx"><code>Select</code></a> containing the accumulators although that isn&rsquo;t required. To see the list of supported accumulators, see <a href="/mongo-csharp-driver/2.6/reference/driver/expressions/#accumulators">Accumulators</a>.</p>
 
 <pre><code class="language-csharp">var query = from p in collection.AsQueryable()
@@ -2523,7 +2523,7 @@ var query = collection.AsQueryable()
 
 <h4 id="sort">$sort</h4>
 
-<p>The <a href="https://msdn.microsoft.com/en-us/library/bb549264.aspx"><code>OrderBy</code></a> and <a href="https://msdn.microsoft.com/en-us/library/bb535112.aspx"><code>ThenBy</code></a> methods are used to generate a <a href="http://docs.mongodb.org/manual/reference/operator/aggregation/sort/
+<p>The <a href="https://msdn.microsoft.com/en-us/library/bb549264.aspx"><code>OrderBy</code></a> and <a href="https://msdn.microsoft.com/en-us/library/bb535112.aspx"><code>ThenBy</code></a> methods are used to generate a <a href="https://www.mongodb.com/docs/manual/reference/operator/aggregation/sort/
 "><code>$sort</code></a> stage.</p>
 
 <pre><code class="language-csharp">var query = from p in collection.AsQueryable()
@@ -2544,17 +2544,17 @@ var query = collection.AsQueryable()
 
 <h4 id="geonear">$geoNear</h4>
 
-<p>The <a href="http://docs.mongodb.org/manual/reference/operator/aggregation/geoNear/
+<p>The <a href="https://www.mongodb.com/docs/manual/reference/operator/aggregation/geoNear/
 "><code>$geoNear</code></a> stage is not currently supported using LINQ.</p>
 
 <h4 id="out">$out</h4>
 
-<p>The <a href="http://docs.mongodb.org/manual/reference/operator/aggregation/out/
+<p>The <a href="https://www.mongodb.com/docs/manual/reference/operator/aggregation/out/
 "><code>$out</code></a> stage is not currently supported using LINQ.</p>
 
 <h4 id="lookup">$lookup</h4>
 
-<p>The <a href="https://msdn.microsoft.com/en-us/library/bb549264.aspx"><code>GroupJoin</code></a> method is used to generate a <a href="http://docs.mongodb.org/manual/reference/operator/aggregation/lookup/
+<p>The <a href="https://msdn.microsoft.com/en-us/library/bb549264.aspx"><code>GroupJoin</code></a> method is used to generate a <a href="https://www.mongodb.com/docs/manual/reference/operator/aggregation/lookup/
 "><code>$lookup</code></a> stage.</p>
 
 <p>This operator can take on many forms, many of which are not supported by MongoDB. Therefore, only 2 forms are supported.</p>

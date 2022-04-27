@@ -41,11 +41,11 @@
     
     <div>
 <div class="nav-items pull-right">
-  <a href="http://try.mongodb.org/" data-toggle="tooltip" data-placement="bottom" title="Try MongoDB in the browser">Try it Out</a>
-  <a href="http://www.mongodb.org/downloads" data-toggle="tooltip" data-placement="bottom" title="Download MongoDB">Downloads</a>
-  <a href="http://www.mongodb.org/get-involved" data-toggle="tooltip" data-placement="bottom" title="Get involved with MongoDB">Community</a>
-  <a href="http://docs.mongodb.org" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Documentation">Docs</a>
-  <a href="http://blog.mongodb.org" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Blog">Blog</a>
+  <a href="https://university.mongodb.com" data-toggle="tooltip" data-placement="bottom" title="Try MongoDB in the browser">Try it Out</a>
+  <a href="https://www.mongodb.com/try" data-toggle="tooltip" data-placement="bottom" title="Download MongoDB">Downloads</a>
+  <a href="https://www.mongodb.com/community" data-toggle="tooltip" data-placement="bottom" title="Get involved with MongoDB">Community</a>
+  <a href="https://www.mongodb.com/docs" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Documentation">Docs</a>
+  <a href="https://www.mongodb.com/blog" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Blog">Blog</a>
   <div id="search">
 <form method="get" action="//www.google.com/search" target="_blank">
     <input type="text" name="searchQuery" size="20" value="" autocomplete="off" placeholder="Search docs">
@@ -2213,8 +2213,8 @@
 
 <h2 id="authentication">Authentication</h2>
 
-<p>The .NET driver supports all <a href="http://docs.mongodb.org/manual/core/authentication/
-">MongoDB authentication mechanisms</a> including those in the <a href="http://docs.mongodb.org/manual/administration/install-enterprise/
+<p>The .NET driver supports all <a href="https://www.mongodb.com/docs/manual/core/authentication/
+">MongoDB authentication mechanisms</a> including those in the <a href="https://www.mongodb.com/docs/manual/administration/install-enterprise/
 ">Enterprise Edition</a>.</p>
 
 <p>Authentication credentials are created by the application as instances of <a href="/mongo-csharp-driver/2.9/apidocs/html/T_MongoDB_Driver_MongoCredential.htm
@@ -2224,7 +2224,7 @@
 
 <h3 id="default">Default</h3>
 
-<p>MongoDB 4.0 now uses <a href="https://docs.mongodb.com/manual/core/security-scram/#authentication-scram">SCRAM</a> (Salted Challenge Response Authentication Mechanism) as the default mechanism and no longer supports <a href="http://docs.mongodb.org/manual/core/authentication/#mongodb-cr-authentication">MONGODB-CR</a>. To create a credential that will authenticate properly regardless of server version, create a credential using the following static factory method.</p>
+<p>MongoDB 4.0 now uses <a href="https://www.mongodb.com/docs/manual/core/security-scram/#authentication-scram">SCRAM</a> (Salted Challenge Response Authentication Mechanism) as the default mechanism and no longer supports <a href="https://www.mongodb.com/docs/manual/core/authentication/#mongodb-cr-authentication">MONGODB-CR</a>. To create a credential that will authenticate properly regardless of server version, create a credential using the following static factory method.</p>
 
 <pre><code class="language-csharp">var credential = MongoCredential.CreateCredential(databaseName, username, password);
 </code></pre>
@@ -2234,7 +2234,7 @@
 <pre><code>mongodb://username:password@myserver/databaseName
 </code></pre>
 
-<p>These are the recommended approaches as it will make upgrading from MongoDB 2.6 to MongoDB 3.0 seamless, before and after <a href="http://docs.mongodb.org/manual/release-notes/3.0-scram/#upgrade-mongodb-cr-to-scram">upgrading the authentication schema</a>. For MongoDB 4.0, the above approaches will automatically determine which version of SCRAM should be used (SCRAM-SHA-1 or SCRAM-SHA-256).</p>
+<p>These are the recommended approaches as it will make upgrading from MongoDB 2.6 to MongoDB 3.0 seamless, before and after <a href="https://www.mongodb.com/docs/manual/release-notes/3.0-scram/#upgrade-mongodb-cr-to-scram">upgrading the authentication schema</a>. For MongoDB 4.0, the above approaches will automatically determine which version of SCRAM should be used (SCRAM-SHA-1 or SCRAM-SHA-256).</p>
 
 <p><div class="admonition note">
 <h5 class="admonition-title">Note</h5>
@@ -2248,7 +2248,7 @@ The databaseName part of the connection string indicates which database the cred
 
 <h4 id="scram-sha-256">SCRAM-SHA-256</h4>
 
-<p>SCRAM-SHA-256 is the default authentication mechanism chosen as long as the user&rsquo;s authentication mechanism supports it. (See the <a href="https://docs.mongodb.com/manual/reference/method/db.createUser/#db.createUser">mechanism parameter of createUser()</a> and the <a href="https://github.com/mongodb/specifications/blob/master/source/auth/auth.rst#defaults">&ldquo;Supported Authentication Methods: Defaults&rdquo; section of the Driver Authentication Specification</a> for additional information.</p>
+<p>SCRAM-SHA-256 is the default authentication mechanism chosen as long as the user&rsquo;s authentication mechanism supports it. (See the <a href="https://www.mongodb.com/docs/manual/reference/method/db.createUser/#db.createUser">mechanism parameter of createUser()</a> and the <a href="https://github.com/mongodb/specifications/blob/master/source/auth/auth.rst#defaults">&ldquo;Supported Authentication Methods: Defaults&rdquo; section of the Driver Authentication Specification</a> for additional information.</p>
 
 <h5 id="securestrings">SecureStrings</h5>
 
@@ -2260,7 +2260,7 @@ The databaseName part of the connection string indicates which database the cred
 
 <h3 id="x-509-authentication">x.509 Authentication</h3>
 
-<p>The <a href="http://docs.mongodb.org/manual/core/authentication/#x-509-certificate-authentication">x.509</a> mechanism authenticates a user whose name is derived from the distinguished subject name of the x.509 certificate presented by the driver during SSL negotiation. This authentication method requires the use of <a href="/mongo-csharp-driver/2.9/reference/driver/ssl/">SSL connections</a> with certificate validation and is available in MongoDB 2.6 and newer. To create a credential of this type, use the following static factory method:</p>
+<p>The <a href="https://www.mongodb.com/docs/manual/core/authentication/#x-509-certificate-authentication">x.509</a> mechanism authenticates a user whose name is derived from the distinguished subject name of the x.509 certificate presented by the driver during SSL negotiation. This authentication method requires the use of <a href="/mongo-csharp-driver/2.9/reference/driver/ssl/">SSL connections</a> with certificate validation and is available in MongoDB 2.6 and newer. To create a credential of this type, use the following static factory method:</p>
 
 <pre><code class="language-csharp">var credential = MongoCredential.CreateX509Credential(username);
 </code></pre>
@@ -2290,7 +2290,7 @@ var settings = new MongoClientSettings
 
 <h3 id="gssapi-kerberos">GSSAPI/Kerberos</h3>
 
-<p><a href="http://www.mongodb.com/products/mongodb-enterprise">MongoDB Enterprise</a> supports authentication using <a href="http://docs.mongodb.org/manual/core/authentication/#kerberos-authentication">Kerberos/GSSAPI</a>. To create a Kerberos/GSSAPI credential, use the following method:</p>
+<p><a href="https://www.mongodb.com/products/mongodb-enterprise">MongoDB Enterprise</a> supports authentication using <a href="https://www.mongodb.com/docs/manual/core/authentication/#kerberos-authentication">Kerberos/GSSAPI</a>. To create a Kerberos/GSSAPI credential, use the following method:</p>
 
 <pre><code class="language-csharp">var credential = MongoCredential.CreateGssapiCredential(username, password);
 </code></pre>
@@ -2363,7 +2363,7 @@ Note that the username will need to have a REALM associated with it. When used i
 
 <h3 id="ldap-plain">LDAP (PLAIN)</h3>
 
-<p><a href="http://www.mongodb.com/products/mongodb-enterprise">MongoDB Enterprise</a> supports proxy authentication through a Lightweight Directory Access Protocol (LDAP) service. To create a credential of type LDAP use the following static factory method:</p>
+<p><a href="https://www.mongodb.com/products/mongodb-enterprise">MongoDB Enterprise</a> supports proxy authentication through a Lightweight Directory Access Protocol (LDAP) service. To create a credential of type LDAP use the following static factory method:</p>
 
 <pre><code class="language-csharp">var credential = MongoCredential.CreatePlainCredential(&quot;$external&quot;, username, password);
 </code></pre>

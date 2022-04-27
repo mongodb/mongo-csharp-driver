@@ -798,7 +798,7 @@ private static void Handle(ConnectionPoolAddedConnectionEvent @event)
 &#34;&gt;&lt;code&gt;CommandSucceededEvent&lt;/code&gt;&lt;/a&gt;, and the &lt;a href=&#34;/mongo-csharp-driver/2.2/apidocs/html/T_MongoDB_Driver_Core_Events_CommandFailedEvent.htm
 &#34;&gt;&lt;code&gt;CommandFailedEvent&lt;/code&gt;&lt;/a&gt;. For every started event, there will always be a succeeded or failed event.&lt;/p&gt;
 
-&lt;p&gt;In addition, any messages sent to the server that are not already commands will be upconverted for the sake of consumption. For instance, an &lt;code&gt;OP_DELETE&lt;/code&gt; wire protocol message on server 2.4 will appear as though it were a &lt;a href=&#34;http://docs.mongodb.org/manual/reference/command/delete/
+&lt;p&gt;In addition, any messages sent to the server that are not already commands will be upconverted for the sake of consumption. For instance, an &lt;code&gt;OP_DELETE&lt;/code&gt; wire protocol message on server 2.4 will appear as though it were a &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/command/delete/
 &#34;&gt;&lt;code&gt;delete&lt;/code&gt;&lt;/a&gt; command.&lt;/p&gt;
 
 &lt;p&gt;&lt;div class=&#34;admonition warning&#34;&gt;
@@ -809,7 +809,7 @@ These are heavy events to generate. Do not subscribe to these unless they provid
 
 &lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
 &lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
-&lt;p&gt;Certain information has been removed for security reasons. For instance, the &lt;a href=&#34;http://docs.mongodb.org/manual/reference/command/authenticate/&#34;&gt;&lt;code&gt;authenticate&lt;/code&gt;&lt;/a&gt; command will not contain the actual command or its reply. However, it will still contain the command name itself.&lt;/p&gt;
+&lt;p&gt;Certain information has been removed for security reasons. For instance, the &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/command/authenticate/&#34;&gt;&lt;code&gt;authenticate&lt;/code&gt;&lt;/a&gt; command will not contain the actual command or its reply. However, it will still contain the command name itself.&lt;/p&gt;
 
 &lt;/div&gt;
 &lt;/p&gt;
@@ -841,7 +841,7 @@ These are heavy events to generate. Do not subscribe to these unless they provid
 
 &lt;h2 id=&#34;linq&#34;&gt;LINQ&lt;/h2&gt;
 
-&lt;p&gt;The driver contains an implementation of &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb397926.aspx&#34;&gt;LINQ&lt;/a&gt; that targets the &lt;a href=&#34;http://docs.mongodb.org/manual/aggregation
+&lt;p&gt;The driver contains an implementation of &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb397926.aspx&#34;&gt;LINQ&lt;/a&gt; that targets the &lt;a href=&#34;https://www.mongodb.com/docs/manual/aggregation
 &#34;&gt;aggregation framework&lt;/a&gt;. The aggregation framework holds a rich query language that maps very easily from a LINQ expression tree making it straightforward to understand the translation from a LINQ statement into an aggregation framework pipeline. To see a more complicated uses of LINQ from the driver, see the &lt;a href=&#34;https://github.com/mongodb/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Tests/Samples/AggregationSample.cs
 &#34;&gt;AggregationSample&lt;/a&gt; source code.&lt;/p&gt;
 
@@ -905,7 +905,7 @@ var query = collection.AsQueryable()
 
 &lt;h4 id=&#34;project&#34;&gt;$project&lt;/h4&gt;
 
-&lt;p&gt;To generate a &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/aggregation/project/
+&lt;p&gt;To generate a &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/operator/aggregation/project/
 &#34;&gt;&lt;code&gt;$project&lt;/code&gt;&lt;/a&gt; stage, use the &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb548743.aspx&#34;&gt;&lt;code&gt;Select&lt;/code&gt;&lt;/a&gt; method. To see the list of expressions supported in the &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb548743.aspx&#34;&gt;&lt;code&gt;Select&lt;/code&gt;&lt;/a&gt; method, see &lt;a href=&#34;/mongo-csharp-driver/2.2/mongo-csharp-driver/2.2/reference/driver/expressions/#aggregation-projections&#34;&gt;Aggregation Projections&lt;/a&gt;.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var query = from p in collection.AsQueryable()
@@ -945,14 +945,14 @@ var query = collection.AsQueryable()
 
 &lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
 &lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
-&lt;p&gt;&lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/aggregation/project/#suppress-the-id-field&#34;&gt;By default&lt;/a&gt;, MongoDB will include the &lt;code&gt;_id&lt;/code&gt; field in the output unless explicitly excluded. The driver will automatically add this exclusion when necessary.&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/operator/aggregation/project/#suppress-the-id-field&#34;&gt;By default&lt;/a&gt;, MongoDB will include the &lt;code&gt;_id&lt;/code&gt; field in the output unless explicitly excluded. The driver will automatically add this exclusion when necessary.&lt;/p&gt;
 
 &lt;/div&gt;
 &lt;/p&gt;
 
 &lt;h4 id=&#34;match&#34;&gt;$match&lt;/h4&gt;
 
-&lt;p&gt;The &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb535040.aspx&#34;&gt;&lt;code&gt;Where&lt;/code&gt;&lt;/a&gt; method is used to generate a &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/aggregation/match/
+&lt;p&gt;The &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb535040.aspx&#34;&gt;&lt;code&gt;Where&lt;/code&gt;&lt;/a&gt; method is used to generate a &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/operator/aggregation/match/
 &#34;&gt;&lt;code&gt;$match&lt;/code&gt;&lt;/a&gt; stage. To see the list of expressions supported inside a &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb535040.aspx&#34;&gt;&lt;code&gt;Where&lt;/code&gt;&lt;/a&gt;, see &lt;a href=&#34;/mongo-csharp-driver/2.2/mongo-csharp-driver/2.2/reference/driver/expressions/#filters&#34;&gt;Filters&lt;/a&gt;.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var query = from p in collection.AsQueryable()
@@ -972,12 +972,12 @@ var query = collection.AsQueryable()
 
 &lt;h4 id=&#34;redact&#34;&gt;$redact&lt;/h4&gt;
 
-&lt;p&gt;The &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/aggregation/redact/
+&lt;p&gt;The &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/operator/aggregation/redact/
 &#34;&gt;&lt;code&gt;$redact&lt;/code&gt;&lt;/a&gt; stage is not currently supported using LINQ.&lt;/p&gt;
 
 &lt;h4 id=&#34;limit&#34;&gt;$limit&lt;/h4&gt;
 
-&lt;p&gt;The &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb300906.aspx&#34;&gt;&lt;code&gt;Take&lt;/code&gt;&lt;/a&gt; method is used to generate a &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/aggregation/limit/
+&lt;p&gt;The &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb300906.aspx&#34;&gt;&lt;code&gt;Take&lt;/code&gt;&lt;/a&gt; method is used to generate a &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/operator/aggregation/limit/
 &#34;&gt;&lt;code&gt;$limit&lt;/code&gt;&lt;/a&gt; stage.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var query = collection.AsQueryable().Take(10);
@@ -990,7 +990,7 @@ var query = collection.AsQueryable()
 
 &lt;h4 id=&#34;skip&#34;&gt;$skip&lt;/h4&gt;
 
-&lt;p&gt;The &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb357513.aspx&#34;&gt;&lt;code&gt;Skip&lt;/code&gt;&lt;/a&gt; method is used to generate a &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/aggregation/skip/
+&lt;p&gt;The &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb357513.aspx&#34;&gt;&lt;code&gt;Skip&lt;/code&gt;&lt;/a&gt; method is used to generate a &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/operator/aggregation/skip/
 &#34;&gt;&lt;code&gt;$skip&lt;/code&gt;&lt;/a&gt; stage.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var query = collection.AsQueryable().Skip(10);
@@ -1003,9 +1003,9 @@ var query = collection.AsQueryable()
 
 &lt;h4 id=&#34;unwind&#34;&gt;$unwind&lt;/h4&gt;
 
-&lt;p&gt;The &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb548748.aspx&#34;&gt;&lt;code&gt;SelectMany&lt;/code&gt;&lt;/a&gt; method is used to generate an &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/aggregation/unwind/
-&#34;&gt;&lt;code&gt;$unwind&lt;/code&gt;&lt;/a&gt; stage. In addition, because of how &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/aggregation/unwind/
-&#34;&gt;&lt;code&gt;$unwind&lt;/code&gt;&lt;/a&gt; works, a &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/aggregation/project/
+&lt;p&gt;The &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb548748.aspx&#34;&gt;&lt;code&gt;SelectMany&lt;/code&gt;&lt;/a&gt; method is used to generate an &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/operator/aggregation/unwind/
+&#34;&gt;&lt;code&gt;$unwind&lt;/code&gt;&lt;/a&gt; stage. In addition, because of how &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/operator/aggregation/unwind/
+&#34;&gt;&lt;code&gt;$unwind&lt;/code&gt;&lt;/a&gt; works, a &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/operator/aggregation/project/
 &#34;&gt;&lt;code&gt;$project&lt;/code&gt;&lt;/a&gt; stage will also be rendered. To see the list of expressions supported in the &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb548748.aspx&#34;&gt;&lt;code&gt;SelectMany&lt;/code&gt;&lt;/a&gt; method, see &lt;a href=&#34;/mongo-csharp-driver/2.2/mongo-csharp-driver/2.2/reference/driver/expressions/#aggregation-projections&#34;&gt;Aggregation Projections&lt;/a&gt;.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var query = from p in collection.AsQueryable()
@@ -1044,7 +1044,7 @@ var query = collection.AsQueryable()
 
 &lt;h4 id=&#34;group&#34;&gt;$group&lt;/h4&gt;
 
-&lt;p&gt;The &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb534492.aspx&#34;&gt;&lt;code&gt;GroupBy&lt;/code&gt;&lt;/a&gt; method is used to generate a &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/aggregation/group/
+&lt;p&gt;The &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb534492.aspx&#34;&gt;&lt;code&gt;GroupBy&lt;/code&gt;&lt;/a&gt; method is used to generate a &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/operator/aggregation/group/
 &#34;&gt;&lt;code&gt;$group&lt;/code&gt;&lt;/a&gt; stage. In general, the &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb534492.aspx&#34;&gt;&lt;code&gt;GroupBy&lt;/code&gt;&lt;/a&gt; method will be followed by the &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb548743.aspx&#34;&gt;&lt;code&gt;Select&lt;/code&gt;&lt;/a&gt; containing the accumulators although that isn&amp;rsquo;t required. To see the list of supported accumulators, see &lt;a href=&#34;/mongo-csharp-driver/2.2/mongo-csharp-driver/2.2/reference/driver/expressions/#accumulators&#34;&gt;Accumulators&lt;/a&gt;.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var query = from p in collection.AsQueryable()
@@ -1077,7 +1077,7 @@ var query = collection.AsQueryable()
 
 &lt;h4 id=&#34;sort&#34;&gt;$sort&lt;/h4&gt;
 
-&lt;p&gt;The &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb549264.aspx&#34;&gt;&lt;code&gt;OrderBy&lt;/code&gt;&lt;/a&gt; and &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb535112.aspx&#34;&gt;&lt;code&gt;ThenBy&lt;/code&gt;&lt;/a&gt; methods are used to generate a &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/aggregation/sort/
+&lt;p&gt;The &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb549264.aspx&#34;&gt;&lt;code&gt;OrderBy&lt;/code&gt;&lt;/a&gt; and &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb535112.aspx&#34;&gt;&lt;code&gt;ThenBy&lt;/code&gt;&lt;/a&gt; methods are used to generate a &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/operator/aggregation/sort/
 &#34;&gt;&lt;code&gt;$sort&lt;/code&gt;&lt;/a&gt; stage.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var query = from p in collection.AsQueryable()
@@ -1098,17 +1098,17 @@ var query = collection.AsQueryable()
 
 &lt;h4 id=&#34;geonear&#34;&gt;$geoNear&lt;/h4&gt;
 
-&lt;p&gt;The &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/aggregation/geoNear/
+&lt;p&gt;The &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/operator/aggregation/geoNear/
 &#34;&gt;&lt;code&gt;$geoNear&lt;/code&gt;&lt;/a&gt; stage is not currently supported using LINQ.&lt;/p&gt;
 
 &lt;h4 id=&#34;out&#34;&gt;$out&lt;/h4&gt;
 
-&lt;p&gt;The &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/aggregation/out/
+&lt;p&gt;The &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/operator/aggregation/out/
 &#34;&gt;&lt;code&gt;$out&lt;/code&gt;&lt;/a&gt; stage is not currently supported using LINQ.&lt;/p&gt;
 
 &lt;h4 id=&#34;lookup&#34;&gt;$lookup&lt;/h4&gt;
 
-&lt;p&gt;The &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb549264.aspx&#34;&gt;&lt;code&gt;GroupJoin&lt;/code&gt;&lt;/a&gt; method is used to generate a &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/aggregation/lookup/
+&lt;p&gt;The &lt;a href=&#34;https://msdn.microsoft.com/en-us/library/bb549264.aspx&#34;&gt;&lt;code&gt;GroupJoin&lt;/code&gt;&lt;/a&gt; method is used to generate a &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/operator/aggregation/lookup/
 &#34;&gt;&lt;code&gt;$lookup&lt;/code&gt;&lt;/a&gt; stage.&lt;/p&gt;
 
 &lt;p&gt;This operator can take on many forms, many of which are not supported by MongoDB. Therefore, only 2 forms are supported.&lt;/p&gt;
@@ -1440,14 +1440,14 @@ var result = collection.AsQueryable().Select(p =&amp;gt; p.Age).Sum();
 
 &lt;h2 id=&#34;how-to-manage-users&#34;&gt;How to Manage Users&lt;/h2&gt;
 
-&lt;p&gt;While MongoDB supports many user management commands, the driver does not have any helpers for them because users are generally managed from the &lt;a href=&#34;http://docs.mongodb.org/manual/reference/mongo-shell/
+&lt;p&gt;While MongoDB supports many user management commands, the driver does not have any helpers for them because users are generally managed from the &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/mongo-shell/
 &#34;&gt;MongoDB shell&lt;/a&gt;. However, it is still possible to manage users from the driver by using the &lt;a href=&#34;/mongo-csharp-driver/2.2/apidocs/html/M_MongoDB_Driver_IMongoDatabase_RunCommand__1.htm
 &#34;&gt;&lt;code&gt;RunCommand&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;/mongo-csharp-driver/2.2/apidocs/html/M_MongoDB_Driver_IMongoDatabase_RunCommandAsync__1.htm
 &#34;&gt;&lt;code&gt;RunCommandAsync&lt;/code&gt;&lt;/a&gt; methods.&lt;/p&gt;
 
 &lt;h2 id=&#34;listing-users&#34;&gt;Listing Users&lt;/h2&gt;
 
-&lt;p&gt;The &lt;a href=&#34;http://docs.mongodb.org/manual/reference/command/usersInfo/
+&lt;p&gt;The &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/command/usersInfo/
 &#34;&gt;&lt;code&gt;usersInfo&lt;/code&gt;&lt;/a&gt; command will provide information about users in a specific database.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;// get the database
@@ -1469,7 +1469,7 @@ var result = await db.RunCommandAsync&amp;lt;BsonDocument&amp;gt;(command);
 
 &lt;h2 id=&#34;creating-users&#34;&gt;Creating Users&lt;/h2&gt;
 
-&lt;p&gt;The following example uses the &lt;a href=&#34;http://docs.mongodb.org/manual/reference/command/createUser/
+&lt;p&gt;The following example uses the &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/command/createUser/
 &#34;&gt;&lt;code&gt;createUser&lt;/code&gt;&lt;/a&gt; command to add a user to a dataase.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;// get the database
@@ -1513,7 +1513,7 @@ await db.RunCommandAsync&amp;lt;BsonDocument&amp;gt;(command);
 
 &lt;h2 id=&#34;updating-users&#34;&gt;Updating Users&lt;/h2&gt;
 
-&lt;p&gt;The following example uses the &lt;a href=&#34;http://docs.mongodb.org/manual/reference/command/updateUser/
+&lt;p&gt;The following example uses the &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/command/updateUser/
 &#34;&gt;&lt;code&gt;updateUser&lt;/code&gt;&lt;/a&gt; command to update a user in a database.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;// get the database
@@ -1545,7 +1545,7 @@ await db.RunCommandAsync&amp;lt;BsonDocument&amp;gt;(command);
 
 &lt;h2 id=&#34;dropping-users&#34;&gt;Dropping Users&lt;/h2&gt;
 
-&lt;p&gt;The following example uses the &lt;a href=&#34;http://docs.mongodb.org/manual/reference/command/dropUser/
+&lt;p&gt;The following example uses the &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/command/dropUser/
 &#34;&gt;&lt;code&gt;dropUser&lt;/code&gt;&lt;/a&gt; command to drop a user from a database.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;// get the database
@@ -1575,7 +1575,7 @@ Even though we used a string here for the command, it could have been a BsonDocu
 
 &lt;h2 id=&#34;other-user-management-commands&#34;&gt;Other User Management Commands&lt;/h2&gt;
 
-&lt;p&gt;There are a number of &lt;a href=&#34;http://docs.mongodb.org/manual/reference/command/nav-user-management/
+&lt;p&gt;There are a number of &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/command/nav-user-management/
 &#34;&gt;other commands&lt;/a&gt; that exist for managing users and each would be run in a similar fashion to how ones demonstrated above.&lt;/p&gt;
 </description>
     </item>
@@ -1590,8 +1590,8 @@ Even though we used a string here for the command, it could have been a BsonDocu
 
 &lt;h2 id=&#34;using-a-tailable-cursor&#34;&gt;Using a Tailable Cursor&lt;/h2&gt;
 
-&lt;p&gt;MongoDB offers the option to watch a &lt;a href=&#34;http://docs.mongodb.org/manual/core/capped-collections/
-&#34;&gt;capped collection&lt;/a&gt; for changes using a &lt;a href=&#34;http://docs.mongodb.org/manual/tutorial/create-tailable-cursor/
+&lt;p&gt;MongoDB offers the option to watch a &lt;a href=&#34;https://www.mongodb.com/docs/manual/core/capped-collections/
+&#34;&gt;capped collection&lt;/a&gt; for changes using a &lt;a href=&#34;https://www.mongodb.com/docs/manual/tutorial/create-tailable-cursor/
 &#34;&gt;tailable cursor&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;The code below &amp;ldquo;tails&amp;rdquo; a capped collection and outputs documents to the console as they are added. The method also handles the possibility of a dead cursor by tracking the field &lt;code&gt;insertDate&lt;/code&gt;. New documents are added with increasing values of &lt;code&gt;insertDate&lt;/code&gt;.&lt;/p&gt;
@@ -2099,7 +2099,7 @@ await collection.Indexes.DropAllAsync();
 &lt;li&gt;&lt;a href=&#34;https://jira.mongodb.org/browse/CSHARP&#34;&gt;JIRA&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;If you’ve identified a security vulnerability in a driver or any other MongoDB project, please report it according to the &lt;a href=&#34;http://docs.mongodb.org/manual/tutorial/create-a-vulnerability-report&#34;&gt;instructions here&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;If you’ve identified a security vulnerability in a driver or any other MongoDB project, please report it according to the &lt;a href=&#34;https://www.mongodb.com/docs/manual/tutorial/create-a-vulnerability-report&#34;&gt;instructions here&lt;/a&gt;.&lt;/p&gt;
 </description>
     </item>
     

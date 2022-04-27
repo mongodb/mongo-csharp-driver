@@ -404,7 +404,7 @@ data it is acceptable for different Guid fields in the same document to be repre
 &lt;li&gt;&lt;a href=&#34;https://facebook.github.io/zstd/&#34;&gt;Zstandard&lt;/a&gt;: Zstandard compression can be used when connecting to MongoDB servers starting with the 4.2 release.&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;The driver will negotiate which, if any, compression algorithm is used based on capabilities advertised by the server in the &lt;a href=&#34;http://docs.mongodb.org/manual/reference/command/hello/
+&lt;p&gt;The driver will negotiate which, if any, compression algorithm is used based on capabilities advertised by the server in the &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/command/hello/
 &#34;&gt;hello&lt;/a&gt; or legacy hello command response.&lt;/p&gt;
 
 &lt;h3 id=&#34;specify-compression-via-connection-string&#34;&gt;Specify compression via &lt;code&gt;Connection String&lt;/code&gt;&lt;/h3&gt;
@@ -1085,7 +1085,7 @@ your application. This differs from previous guidance which stated that it didn&
 
 &lt;h3 id=&#34;strongly-typed-changestreamdocument-lt-tdocument-gt-class&#34;&gt;Strongly typed ChangeStreamDocument&amp;lt;TDocument&amp;gt; class&lt;/h3&gt;
 
-&lt;p&gt;The cursor returned from the Watch methods returns the change stream events wrapped in a strongly typed C# class called ChangeStreamDocument&amp;lt;TDocument&amp;gt; (unless you used a pipeline that changed the shape of the results). The underlying change stream events are documented in the server documentation &lt;a href=&#34;https://docs.mongodb.com/manual/reference/change-events/&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;The cursor returned from the Watch methods returns the change stream events wrapped in a strongly typed C# class called ChangeStreamDocument&amp;lt;TDocument&amp;gt; (unless you used a pipeline that changed the shape of the results). The underlying change stream events are documented in the server documentation &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/change-events/&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;public class ChangeStreamDocument&amp;lt;TDocument&amp;gt;
 {
@@ -1105,7 +1105,7 @@ your application. This differs from previous guidance which stated that it didn&
 
 &lt;p&gt;DocumentKey contains the _id of the document created or modified by the operation. For sharded collections it also contains the shard key of the document.&lt;/p&gt;
 
-&lt;p&gt;For Insert and Replace operations,  FullDocument is the new document created by the operation. For Delete operations FullDocument is null as the document no longer exists. For Update operations FullDocument is only present if you set the FullDocument option in the options passed to Watch to ChangeStreamFullDocumentOption.UpdateLookup, in which case it contains the most current majority-committed version of the document modified by the Update operation (see the server documentation for fullDocument &lt;a href=&#34;https://docs.mongodb.com/manual/reference/change-events/&#34;&gt;here&lt;/a&gt; for details).&lt;/p&gt;
+&lt;p&gt;For Insert and Replace operations,  FullDocument is the new document created by the operation. For Delete operations FullDocument is null as the document no longer exists. For Update operations FullDocument is only present if you set the FullDocument option in the options passed to Watch to ChangeStreamFullDocumentOption.UpdateLookup, in which case it contains the most current majority-committed version of the document modified by the Update operation (see the server documentation for fullDocument &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/change-events/&#34;&gt;here&lt;/a&gt; for details).&lt;/p&gt;
 
 &lt;p&gt;OperationType is one of: Insert, Update, Replace, Delete or Invalidate.&lt;/p&gt;
 
@@ -1117,7 +1117,7 @@ your application. This differs from previous guidance which stated that it didn&
 
 &lt;p&gt;All the Watch and WatchAsync methods have overloads that take a pipeline argument. An application can pass in a pipeline to filter or modify the change stream in some way.&lt;/p&gt;
 
-&lt;p&gt;Only certain modifications are valid in a change stream pipeline. See the server documentation &lt;a href=&#34;https://docs.mongodb.com/manual/changeStreams/#modify-change-stream-output&#34;&gt;here&lt;/a&gt; for details.&lt;/p&gt;
+&lt;p&gt;Only certain modifications are valid in a change stream pipeline. See the server documentation &lt;a href=&#34;https://www.mongodb.com/docs/manual/changeStreams/#modify-change-stream-output&#34;&gt;here&lt;/a&gt; for details.&lt;/p&gt;
 
 &lt;p&gt;For example, if you are only interested in monitoring inserted documents, you could use a pipeline to filter the change stream to only include insert operations.&lt;/p&gt;
 
@@ -1157,7 +1157,7 @@ using (var cursor = collection.Watch(pipeline))
 
 &lt;p&gt;BatchSize determines the maximum number of change events the server will return at one time. The server might return fewer.&lt;/p&gt;
 
-&lt;p&gt;FullDocument can be set to ChangeStreamFullDocumentOption.UpdateLookup if you want the change stream event for Update operations to include a copy of the full document (the full document might include additional changes that are the result of subsequent change events, see the server documentation &lt;a href=&#34;https://docs.mongodb.com/manual/reference/change-events/#update-event&#34;&gt;here&lt;/a&gt;).&lt;/p&gt;
+&lt;p&gt;FullDocument can be set to ChangeStreamFullDocumentOption.UpdateLookup if you want the change stream event for Update operations to include a copy of the full document (the full document might include additional changes that are the result of subsequent change events, see the server documentation &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/change-events/#update-event&#34;&gt;here&lt;/a&gt;).&lt;/p&gt;
 
 &lt;p&gt;ResumeAfter and StartAtOperationTime are useful when you want to resume or start a change stream from some point in time.&lt;/p&gt;
 
@@ -1193,8 +1193,8 @@ using (var cursor = collection.Watch(pipeline, changeStreamOptions))
 
 &lt;h2 id=&#34;authentication&#34;&gt;Authentication&lt;/h2&gt;
 
-&lt;p&gt;The .NET driver supports all &lt;a href=&#34;http://docs.mongodb.org/manual/core/authentication/
-&#34;&gt;MongoDB authentication mechanisms&lt;/a&gt; including those in the &lt;a href=&#34;http://docs.mongodb.org/manual/administration/install-enterprise/
+&lt;p&gt;The .NET driver supports all &lt;a href=&#34;https://www.mongodb.com/docs/manual/core/authentication/
+&#34;&gt;MongoDB authentication mechanisms&lt;/a&gt; including those in the &lt;a href=&#34;https://www.mongodb.com/docs/manual/administration/install-enterprise/
 &#34;&gt;Enterprise Edition&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;Authentication credentials are created by the application as instances of &lt;a href=&#34;/mongo-csharp-driver/2.14/mongo-csharp-driver/2.14/apidocs/html/T_MongoDB_Driver_MongoCredential.htm
@@ -1204,7 +1204,7 @@ using (var cursor = collection.Watch(pipeline, changeStreamOptions))
 
 &lt;h3 id=&#34;default&#34;&gt;Default&lt;/h3&gt;
 
-&lt;p&gt;MongoDB 4.0 now uses &lt;a href=&#34;https://docs.mongodb.com/manual/core/security-scram/#authentication-scram&#34;&gt;SCRAM&lt;/a&gt; (Salted Challenge Response Authentication Mechanism) as the default mechanism and no longer supports &lt;a href=&#34;http://docs.mongodb.org/manual/core/authentication/#mongodb-cr-authentication&#34;&gt;MONGODB-CR&lt;/a&gt;. To create a credential that will authenticate properly regardless of server version, create a credential using the following static factory method.&lt;/p&gt;
+&lt;p&gt;MongoDB 4.0 now uses &lt;a href=&#34;https://www.mongodb.com/docs/manual/core/security-scram/#authentication-scram&#34;&gt;SCRAM&lt;/a&gt; (Salted Challenge Response Authentication Mechanism) as the default mechanism and no longer supports &lt;a href=&#34;https://www.mongodb.com/docs/manual/core/authentication/#mongodb-cr-authentication&#34;&gt;MONGODB-CR&lt;/a&gt;. To create a credential that will authenticate properly regardless of server version, create a credential using the following static factory method.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var credential = MongoCredential.CreateCredential(databaseName, username, password);
 &lt;/code&gt;&lt;/pre&gt;
@@ -1214,7 +1214,7 @@ using (var cursor = collection.Watch(pipeline, changeStreamOptions))
 &lt;pre&gt;&lt;code&gt;mongodb://username:password@myserver/databaseName
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;These are the recommended approaches as it will make upgrading from MongoDB 2.6 to MongoDB 3.0 seamless, before and after &lt;a href=&#34;http://docs.mongodb.org/manual/release-notes/3.0-scram/#upgrade-mongodb-cr-to-scram&#34;&gt;upgrading the authentication schema&lt;/a&gt;. For MongoDB 4.0, the above approaches will automatically determine which version of SCRAM should be used (SCRAM-SHA-1 or SCRAM-SHA-256).&lt;/p&gt;
+&lt;p&gt;These are the recommended approaches as it will make upgrading from MongoDB 2.6 to MongoDB 3.0 seamless, before and after &lt;a href=&#34;https://www.mongodb.com/docs/manual/release-notes/3.0-scram/#upgrade-mongodb-cr-to-scram&#34;&gt;upgrading the authentication schema&lt;/a&gt;. For MongoDB 4.0, the above approaches will automatically determine which version of SCRAM should be used (SCRAM-SHA-1 or SCRAM-SHA-256).&lt;/p&gt;
 
 &lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
 &lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
@@ -1228,7 +1228,7 @@ The databaseName part of the connection string indicates which database the cred
 
 &lt;h4 id=&#34;scram-sha-256&#34;&gt;SCRAM-SHA-256&lt;/h4&gt;
 
-&lt;p&gt;SCRAM-SHA-256 is the default authentication mechanism chosen as long as the user&amp;rsquo;s authentication mechanism supports it. (See the &lt;a href=&#34;https://docs.mongodb.com/manual/reference/method/db.createUser/#db.createUser&#34;&gt;mechanism parameter of createUser()&lt;/a&gt; and the &lt;a href=&#34;https://github.com/mongodb/specifications/blob/master/source/auth/auth.rst#defaults&#34;&gt;&amp;ldquo;Supported Authentication Methods: Defaults&amp;rdquo; section of the Driver Authentication Specification&lt;/a&gt; for additional information.&lt;/p&gt;
+&lt;p&gt;SCRAM-SHA-256 is the default authentication mechanism chosen as long as the user&amp;rsquo;s authentication mechanism supports it. (See the &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/method/db.createUser/#db.createUser&#34;&gt;mechanism parameter of createUser()&lt;/a&gt; and the &lt;a href=&#34;https://github.com/mongodb/specifications/blob/master/source/auth/auth.rst#defaults&#34;&gt;&amp;ldquo;Supported Authentication Methods: Defaults&amp;rdquo; section of the Driver Authentication Specification&lt;/a&gt; for additional information.&lt;/p&gt;
 
 &lt;h5 id=&#34;securestrings&#34;&gt;SecureStrings&lt;/h5&gt;
 
@@ -1240,7 +1240,7 @@ The databaseName part of the connection string indicates which database the cred
 
 &lt;h3 id=&#34;x-509-authentication&#34;&gt;x.509 Authentication&lt;/h3&gt;
 
-&lt;p&gt;The &lt;a href=&#34;http://docs.mongodb.org/manual/core/authentication/#x-509-certificate-authentication&#34;&gt;x.509&lt;/a&gt; mechanism authenticates a user whose name is derived from the distinguished subject name of the x.509 certificate presented by the driver during SSL negotiation. This authentication method requires the use of &lt;a href=&#34;/mongo-csharp-driver/2.14/mongo-csharp-driver/2.14/reference/driver/ssl/&#34;&gt;SSL connections&lt;/a&gt; with certificate validation and is available in MongoDB 2.6 and newer.&lt;/p&gt;
+&lt;p&gt;The &lt;a href=&#34;https://www.mongodb.com/docs/manual/core/authentication/#x-509-certificate-authentication&#34;&gt;x.509&lt;/a&gt; mechanism authenticates a user whose name is derived from the distinguished subject name of the x.509 certificate presented by the driver during SSL negotiation. This authentication method requires the use of &lt;a href=&#34;/mongo-csharp-driver/2.14/mongo-csharp-driver/2.14/reference/driver/ssl/&#34;&gt;SSL connections&lt;/a&gt; with certificate validation and is available in MongoDB 2.6 and newer.&lt;/p&gt;
 
 &lt;p&gt;There are two ways to create a credential of this type:&lt;/p&gt;
 
@@ -1250,9 +1250,9 @@ The databaseName part of the connection string indicates which database the cred
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var credential = MongoCredential.CreateX509Credential(username);
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;When configuring x.509 authentication programmatically, the &lt;code&gt;username&lt;/code&gt; parameter provided to &lt;code&gt;CreateX509Credential&lt;/code&gt; must match the distinguished subject name of your x.509 certificate &lt;em&gt;exactly&lt;/em&gt;. To determine the exact &lt;code&gt;username&lt;/code&gt; required for your x.509 connection, consult &lt;a href=&#34;http://docs.mongodb.org/manual/tutorial/configure-x509-client-authentication/#add-x-509-certificate-subject-as-a-user&#34;&gt;the MongoDB server x.509 tutorial&lt;/a&gt;. Alternatively, any &lt;code&gt;null&lt;/code&gt; &lt;code&gt;username&lt;/code&gt; parameter provided to &lt;code&gt;CreateX509Credential&lt;/code&gt; will cause the MongoDB server to infer a username based on the distinguished subject name of the x.509 certificate. Using a &lt;code&gt;null&lt;/code&gt; username value can help prevent issues when certificates are updated, since you can avoid managing a &lt;code&gt;username&lt;/code&gt; value and a certificate as separate entities in your environment.&lt;/p&gt;&lt;/li&gt;
+&lt;p&gt;When configuring x.509 authentication programmatically, the &lt;code&gt;username&lt;/code&gt; parameter provided to &lt;code&gt;CreateX509Credential&lt;/code&gt; must match the distinguished subject name of your x.509 certificate &lt;em&gt;exactly&lt;/em&gt;. To determine the exact &lt;code&gt;username&lt;/code&gt; required for your x.509 connection, consult &lt;a href=&#34;https://www.mongodb.com/docs/manual/tutorial/configure-x509-client-authentication/#add-x-509-certificate-subject-as-a-user&#34;&gt;the MongoDB server x.509 tutorial&lt;/a&gt;. Alternatively, any &lt;code&gt;null&lt;/code&gt; &lt;code&gt;username&lt;/code&gt; parameter provided to &lt;code&gt;CreateX509Credential&lt;/code&gt; will cause the MongoDB server to infer a username based on the distinguished subject name of the x.509 certificate. Using a &lt;code&gt;null&lt;/code&gt; username value can help prevent issues when certificates are updated, since you can avoid managing a &lt;code&gt;username&lt;/code&gt; value and a certificate as separate entities in your environment.&lt;/p&gt;&lt;/li&gt;
 
-&lt;li&gt;&lt;p&gt;Manually, using &lt;a href=&#34;https://docs.mongodb.com/manual/reference/connection-string/#connection-string-options&#34;&gt;connection string options&lt;/a&gt;:&lt;/p&gt;
+&lt;li&gt;&lt;p&gt;Manually, using &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/connection-string/#connection-string-options&#34;&gt;connection string options&lt;/a&gt;:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code&gt;mongodb://myserver/?authMechanism=MONGODB-X509
 &lt;/code&gt;&lt;/pre&gt;
@@ -1307,7 +1307,7 @@ settings.AllowInsecureTls = true;
 
 &lt;h3 id=&#34;gssapi-kerberos&#34;&gt;GSSAPI/Kerberos&lt;/h3&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://www.mongodb.com/products/mongodb-enterprise&#34;&gt;MongoDB Enterprise&lt;/a&gt; supports authentication using &lt;a href=&#34;http://docs.mongodb.org/manual/core/authentication/#kerberos-authentication&#34;&gt;Kerberos/GSSAPI&lt;/a&gt;. The .NET driver supports Kerberos/GSSAPI authentication on Windows and Linux.&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://www.mongodb.com/products/mongodb-enterprise&#34;&gt;MongoDB Enterprise&lt;/a&gt; supports authentication using &lt;a href=&#34;https://www.mongodb.com/docs/manual/core/authentication/#kerberos-authentication&#34;&gt;Kerberos/GSSAPI&lt;/a&gt;. The .NET driver supports Kerberos/GSSAPI authentication on Windows and Linux.&lt;/p&gt;
 
 &lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
 &lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
@@ -1393,7 +1393,7 @@ Note that the username will need to have a REALM associated with it. When used i
 
 &lt;h3 id=&#34;ldap-plain&#34;&gt;LDAP (PLAIN)&lt;/h3&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://www.mongodb.com/products/mongodb-enterprise&#34;&gt;MongoDB Enterprise&lt;/a&gt; supports proxy authentication through a Lightweight Directory Access Protocol (LDAP) service. To create a credential of type LDAP use the following static factory method:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://www.mongodb.com/products/mongodb-enterprise&#34;&gt;MongoDB Enterprise&lt;/a&gt; supports proxy authentication through a Lightweight Directory Access Protocol (LDAP) service. To create a credential of type LDAP use the following static factory method:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var credential = MongoCredential.CreatePlainCredential(&amp;quot;$external&amp;quot;, username, password);
 &lt;/code&gt;&lt;/pre&gt;
