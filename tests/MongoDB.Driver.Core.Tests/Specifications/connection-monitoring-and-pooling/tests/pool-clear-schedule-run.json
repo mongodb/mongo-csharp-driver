@@ -22,6 +22,12 @@
     },
     {
       "name": "waitForEvent",
+      "event": "ConnectionPoolCleared",
+      "count": 1,
+      "timeout": 1000      
+    },
+    {
+      "name": "waitForEvent",
       "event": "ConnectionClosed",
       "count": 2,
       "timeout": 1000
@@ -39,10 +45,6 @@
     {
       "type": "ConnectionCheckedOut",
       "connectionId": 2,
-      "address": 42
-    },
-    {
-      "type": "ConnectionPoolCleared",
       "address": 42
     },
     {
@@ -67,6 +69,7 @@
     "ConnectionPoolReady",
     "ConnectionReady",
     "ConnectionCheckOutStarted",
-    "ConnectionPoolCreated"
+    "ConnectionPoolCreated",
+    "ConnectionPoolCleared"
   ]
 }

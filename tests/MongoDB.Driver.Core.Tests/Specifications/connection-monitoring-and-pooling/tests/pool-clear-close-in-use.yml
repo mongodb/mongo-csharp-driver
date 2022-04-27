@@ -10,6 +10,10 @@ operations:
   - name: clear
     closeInUseConnections: true
   - name: waitForEvent
+    event: ConnectionPoolCleared
+    count: 1
+    timeout: 1000
+  - name: waitForEvent
     event: ConnectionClosed
     count: 2
     timeout: 1000
@@ -20,8 +24,6 @@ events:
     address: 42
   - type: ConnectionCheckedOut
     connectionId: 2
-    address: 42
-  - type: ConnectionPoolCleared
     address: 42
   - type: ConnectionClosed
     reason: stale
@@ -37,3 +39,4 @@ ignore:
   - ConnectionReady
   - ConnectionCheckOutStarted
   - ConnectionPoolCreated
+  - ConnectionPoolCleared
