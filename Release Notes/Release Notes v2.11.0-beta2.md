@@ -5,7 +5,7 @@ This is a beta release for the 2.11.0 version of the driver.
 The main new features in 2.11.0-beta2 support new features in MongoDB 4.4.0. These features include:
 
 * Support for all new
-  [``$meta``](https://docs.mongodb.com/manual/reference/operator/projection/meta/)
+  [``$meta``](https://www.mongodb.com/docs/manual/reference/operator/projection/meta/)
   projections: `randVal`, `searchScore`, `searchHighlights`,
   `geoNearDistance`, `geoNearPoint`, `recordId`, `indexKey` and
   `sortKey`
@@ -18,7 +18,7 @@ The main new features in 2.11.0-beta2 support new features in MongoDB 4.4.0. The
 * Support for shorter SCRAM (Salted Challenge Response Authentication Mechanism) conversations
 * Support for speculative SCRAM and MONGODB-X509 authentication
 * Support for the `CommitQuorum` option in `createIndexes`
-* Support for [hedged reads](https://docs.mongodb.com/master/core/read-preference-hedge-option/index.html)
+* Support for [hedged reads](https://www.mongodb.com/docs/master/core/read-preference-hedge-option/index.html)
 
 Other new additions and updates in this beta include:
 
@@ -48,7 +48,7 @@ The list may change as we approach the release date.
 
 Documentation on the .NET driver can be found at:
 
-http://mongodb.github.io/mongo-csharp-driver/
+https://mongodb.github.io/mongo-csharp-driver/
 
 ## Upgrading
 

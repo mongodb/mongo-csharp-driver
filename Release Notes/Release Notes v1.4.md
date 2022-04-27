@@ -32,7 +32,7 @@ As stated previously, the major feature of this release is support for LINQ
 queries. These release notes don't describe the new LINQ support, for that
 please refer to the online LINQ tutorial at:
 
-http://www.mongodb.org/display/DOCS/CSharp+Driver+LINQ+Tutorial
+https://mongodb.github.io/mongo-csharp-driver/2.15/reference/driver/crud/linq
 
 (Please note that the LINQ tutorial won't be available until several weeks 
 after the 1.4 release has been shipped. Sorry.)
@@ -262,7 +262,7 @@ LINQ query support
 As mentioned earlier in the release notes more information about the new
 support for LINQ queries can be found in the forthcoming LINQ tutorial:
 
-http://www.mongodb.org/display/DOCS/CSharp+Driver+LINQ+Tutorial
+https://mongodb.github.io/mongo-csharp-driver/2.15/reference/driver/crud/linq
 
 Locking issues
 --------------

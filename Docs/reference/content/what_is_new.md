@@ -73,7 +73,7 @@ The main new features in 2.12.0 include:
 The main new features in 2.11.0 support new features in MongoDB 4.4.0. These features include:
 
 * Support for all new
-  [``$meta``](https://docs.mongodb.com/manual/reference/operator/projection/meta/)
+  [``$meta``](https://www.mongodb.com/docs/manual/reference/operator/projection/meta/)
   projections: `randVal`, `searchScore`, `searchHighlights`,
   `geoNearDistance`, `geoNearPoint`, `recordId`, `indexKey` and
   `sortKey`
@@ -86,7 +86,7 @@ The main new features in 2.11.0 support new features in MongoDB 4.4.0. These fea
 * Support for shorter SCRAM (Salted Challenge Response Authentication Mechanism) conversations
 * Support for speculative SCRAM and MONGODB-X509 authentication
 * Support for the `CommitQuorum` option in `createIndexes`
-* Support for [hedged reads](https://docs.mongodb.com/manual/core/read-preference-hedge-option/)
+* Support for [hedged reads](https://www.mongodb.com/docs/manual/core/read-preference-hedge-option/)
 
 Other new additions and updates in this beta include:
 
@@ -160,7 +160,7 @@ The 2.5.0 driver adds support for many of the new features introduced by the 3.6
 
 ### Change streams
 
-The 2.5.0 driver adds support for [change streams](http://dochub.mongodb.org/core/changestreams).
+The 2.5.0 driver adds support for [change streams](https://www.mongodb.com/docs/manual/changeStreams).
 See the `Watch` and `WatchAsync` methods in [`IMongoCollection`]({{< apiref "T_MongoDB_Driver_IMongoCollection_1" >}}).
 
 ### Retryable writes
@@ -170,7 +170,7 @@ The 2.5.0 driver adds support for retryable writes using the `RetryWrites` setti
 
 ### Causal consistency
 
-The 2.5.0 driver adds support for [causal consistency](http://dochub.mongodb.org/core/causal-consistency) via the new
+The 2.5.0 driver adds support for [causal consistency](https://www.mongodb.com/docs/manual/core/read-isolation-consistency-recency/#causal-consistency) via the new
 [`IClientSession`]({{< apiref "T_MongoDB_Driver_IClientSession" >}}) API. To start a new causally consistent session
 set the `CausalConsistency` property to true in [`ClientSessionOptions`]({{< apiref "T_MongoDB_Driver_ClientSessionOptions" >}})
 when calling the `StartSession` or `StartSessionAsync` methods in [`IMongoClient`]({{< apiref "T_MongoDB_Driver_IMongoClient" >}}).

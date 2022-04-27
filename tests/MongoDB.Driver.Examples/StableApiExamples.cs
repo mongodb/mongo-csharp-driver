@@ -19,58 +19,58 @@ using Xunit;
 
 namespace MongoDB.Driver.Examples
 {
-    public class VersionedApiExamples
+    public class StableApiExamples
     {
         [Fact]
         public void ConfigureServerApi()
         {
-            // Start Versioned API Example 1
+            // Start Stable API Example 1
             var connectionString = "mongodb://localhost";
             var serverApi = new ServerApi(ServerApiVersion.V1);
             var mongoClientSettings = MongoClientSettings.FromConnectionString(connectionString);
             mongoClientSettings.ServerApi = serverApi;
             var mongoClient = new MongoClient(mongoClientSettings);
-            // End Versioned API Example 1
+            // End Stable API Example 1
         }
 
         [Fact]
         public void ConfigureServerApiStrict()
         {
-            // Start Versioned API Example 2
+            // Start Stable API Example 2
             var connectionString = "mongodb://localhost";
             var serverApi = new ServerApi(ServerApiVersion.V1, strict: true);
             var mongoClientSettings = MongoClientSettings.FromConnectionString(connectionString);
             mongoClientSettings.ServerApi = serverApi;
             var mongoClient = new MongoClient(mongoClientSettings);
-            // End Versioned API Example 2
+            // End Stable API Example 2
         }
 
         [Fact]
         public void ConfigureServerApiNonStrict()
         {
-            // Start Versioned API Example 3
+            // Start Stable API Example 3
             var connectionString = "mongodb://localhost";
             var serverApi = new ServerApi(ServerApiVersion.V1, strict: false);
             var mongoClientSettings = MongoClientSettings.FromConnectionString(connectionString);
             mongoClientSettings.ServerApi = serverApi;
             var mongoClient = new MongoClient(mongoClientSettings);
-            // End Versioned API Example 3
+            // End Stable API Example 3
         }
 
         [Fact]
         public void ConfigureServerApiDeprecationErrors()
         {
-            // Start Versioned API Example 4
+            // Start Stable API Example 4
             var connectionString = "mongodb://localhost";
             var serverApi = new ServerApi(ServerApiVersion.V1, deprecationErrors: true);
             var mongoClientSettings = MongoClientSettings.FromConnectionString(connectionString);
             mongoClientSettings.ServerApi = serverApi;
             var mongoClient = new MongoClient(mongoClientSettings);
-            // End Versioned API Example 4
+            // End Stable API Example 4
         }
 
         [Fact]
-        public void VersionedAPI_Strict_Migration_Example()
+        public void StableAPI_Strict_Migration_Example()
         {
             var connectionString = "mongodb://localhost";
             var serverApi = new ServerApi(ServerApiVersion.V1, strict: true);
@@ -106,7 +106,7 @@ namespace MongoDB.Driver.Examples
             {
                 Console.WriteLine(ex.Code); // 323
                 Console.WriteLine(ex.CodeName); // APIStrictError
-                Console.WriteLine(ex.Message); // Command count failed: Provided apiStrict:true, but the command count is not in API Version 1. Information on supported commands and migrations in API Version 1 can be found at https://dochub.mongodb.org/core/manual-versioned-api.
+                Console.WriteLine(ex.Message); // Command count failed: Provided apiStrict:true, but the command count is not in API Version 1. Information on supported commands and migrations in API Version 1 can be found at https://www.mongodb.com/docs/manual/reference/stable-api.
             }
 
             // 3. An alternative, accepted command to count the number of documents:

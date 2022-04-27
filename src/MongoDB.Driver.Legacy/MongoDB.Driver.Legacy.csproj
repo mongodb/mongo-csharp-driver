@@ -17,13 +17,13 @@
     <Product>MongoDB.Driver.Legacy</Product>
     <Company>MongoDB Inc.</Company>
     <Copyright>Copyright © 2010-present MongoDB Inc.</Copyright>
-    <Description>Legacy MongoDB supported driver for MongoDB. See https://docs.mongodb.com/drivers/csharp/ for more details.</Description>
+    <Description>Legacy MongoDB supported driver for MongoDB. See https://www.mongodb.com/docs/drivers/csharp/ for more details.</Description>
     <Authors>MongoDB Inc.</Authors>
     <PackageId>mongocsharpdriver</PackageId>
     <PackageIcon>packageIcon.png</PackageIcon>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageDescription>This package contains the legacy driver. The new driver's package name is MongoDB.Driver</PackageDescription>
-    <PackageProjectUrl>https://docs.mongodb.com/drivers/csharp/</PackageProjectUrl>
+    <PackageProjectUrl>https://www.mongodb.com/docs/drivers/csharp/</PackageProjectUrl>
     <PackageLicenseFile>License.txt</PackageLicenseFile>
     <PackageTags></PackageTags>
     <PackageLanguage>en-US</PackageLanguage>
