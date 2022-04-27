@@ -382,6 +382,103 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Creates a $densify stage.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <param name="field">The field.</param>
+        /// <param name="range">The range.</param>
+        /// <param name="partitionByFields">The partition by fields.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<TInput, TInput> Densify<TInput>(
+            FieldDefinition<TInput> field,
+            DensifyRange range, // can be null
+            IEnumerable<FieldDefinition<TInput>> partitionByFields = null)
+        {
+            Ensure.IsNotNull(field, nameof(field));
+            Ensure.IsNotNull(range, nameof(range));
+
+            const string operatorName = "$densify";
+            var stage = new DelegatedPipelineStageDefinition<TInput, TInput>(
+                operatorName,
+                //(s, sr, linqProvider) => new RenderedPipelineStageDefinition<TInput>(operatorName, new BsonDocument(operatorName, filter.Render(s, sr, linqProvider)), s));
+                (s, sr, linqProvider) =>
+                {
+                    var renderedPartitionByFields = partitionByFields?.Select(f => f.Render(s, sr, linqProvider).FieldName).ToList();
+                    var document = new BsonDocument
+                    {
+                        {
+                            operatorName, new BsonDocument
+                            {
+                                { "field", field.Render(s, sr, linqProvider).FieldName },
+                                { "partitionByFields", () => new BsonArray(renderedPartitionByFields), partitionByFields != null && renderedPartitionByFields.Count > 0 },
+                                { "range", range.Render() }
+                            }
+                        }
+                    };
+                    return new RenderedPipelineStageDefinition<TInput>(operatorName, document, s);
+                });
+
+            return stage;
+        }
+
+        /// <summary>
+        /// Creates a $densify stage.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <param name="field">The field.</param>
+        /// <param name="range">The range.</param>
+        /// <param name="partitionByFields">The partition by fields.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<TInput, TInput> Densify<TInput>(
+            FieldDefinition<TInput> field,
+            DensifyRange range, // can be null
+            params FieldDefinition<TInput>[] partitionByFields)
+        {
+            Ensure.IsNotNull(field, nameof(field));
+            Ensure.IsNotNull(range, nameof(range));
+            return Densify(field, range, (IEnumerable<FieldDefinition<TInput>>)partitionByFields);
+        }
+
+        /// <summary>
+        /// Creates a $densify stage.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <param name="field">The field.</param>
+        /// <param name="range">The range.</param>
+        /// <param name="partitionByFields">The partition by fields.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<TInput, TInput> Densify<TInput>(
+            Expression<Func<TInput, object>> field,
+            DensifyRange range, // can be null
+            IEnumerable<Expression<Func<TInput, object>>> partitionByFields = null)
+        {
+            Ensure.IsNotNull(field, nameof(field));
+            Ensure.IsNotNull(range, nameof(range));
+            return Densify(
+                new ExpressionFieldDefinition<TInput>(field),
+                range,
+                partitionByFields?.Select(f => new ExpressionFieldDefinition<TInput>(f)));
+        }
+
+        /// <summary>
+        /// Creates a $densify stage.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <param name="field">The field.</param>
+        /// <param name="range">The range.</param>
+        /// <param name="partitionByFields">The partition by fields.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<TInput, TInput> Densify<TInput>(
+            Expression<Func<TInput, object>> field,
+            DensifyRange range, // can be null
+            params Expression<Func<TInput, object>>[] partitionByFields)
+        {
+            Ensure.IsNotNull(field, nameof(field));
+            Ensure.IsNotNull(range, nameof(range));
+            return Densify(field, range, (IEnumerable<Expression<Func<TInput, object>>>)partitionByFields);
+        }
+
+        /// <summary>
         /// Creates a $facet stage.
         /// </summary>
         /// <typeparam name="TInput">The type of the input documents.</typeparam>

@@ -106,6 +106,22 @@ namespace MongoDB.Driver
             return WithPipeline(_pipeline.Count());
         }
 
+        public override IAggregateFluent<TResult> Densify(
+            FieldDefinition<TResult> field,
+            DensifyRange range,
+            IEnumerable<FieldDefinition<TResult>> partitionByFields = null)
+        {
+            return WithPipeline(_pipeline.Densify(field, range, partitionByFields));
+        }
+
+        public override IAggregateFluent<TResult> Densify(
+            FieldDefinition<TResult> field,
+            DensifyRange range,
+            params FieldDefinition<TResult>[] partitionByFields)
+        {
+            return WithPipeline(_pipeline.Densify(field, range, partitionByFields));
+        }
+
         public override IAggregateFluent<TNewResult> Facet<TNewResult>(
             IEnumerable<AggregateFacet<TResult>> facets,
             AggregateFacetOptions<TNewResult> options = null)

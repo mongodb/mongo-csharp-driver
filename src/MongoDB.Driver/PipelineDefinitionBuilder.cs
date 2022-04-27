@@ -310,6 +310,94 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Appends a $densify stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <param name="field">The field.</param>
+        /// <param name="range">The range.</param>
+        /// <param name="partitionByFields">The partition by fields.</param>
+        /// <returns>
+        /// A new pipeline with an additional stage.
+        /// </returns>
+        public static PipelineDefinition<TInput, TOutput> Densify<TInput, TOutput>(
+            this PipelineDefinition<TInput, TOutput> pipeline,
+            FieldDefinition<TOutput> field,
+            DensifyRange range,
+            IEnumerable<FieldDefinition<TOutput>> partitionByFields = null)
+        {
+            Ensure.IsNotNull(pipeline, nameof(pipeline));
+            return pipeline.AppendStage(PipelineStageDefinitionBuilder.Densify(field, range, partitionByFields));
+        }
+
+        /// <summary>
+        /// Appends a $densify stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <param name="field">The field.</param>
+        /// <param name="range">The range.</param>
+        /// <param name="partitionByFields">The partition by fields.</param>
+        /// <returns>
+        /// A new pipeline with an additional stage.
+        /// </returns>
+        public static PipelineDefinition<TInput, TOutput> Densify<TInput, TOutput>(
+            this PipelineDefinition<TInput, TOutput> pipeline,
+            FieldDefinition<TOutput> field,
+            DensifyRange range,
+            params FieldDefinition<TOutput>[] partitionByFields)
+        {
+            Ensure.IsNotNull(pipeline, nameof(pipeline));
+            return pipeline.AppendStage(PipelineStageDefinitionBuilder.Densify(field, range, partitionByFields));
+        }
+
+        /// <summary>
+        /// Appends a $densify stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <param name="field">The field.</param>
+        /// <param name="range">The range.</param>
+        /// <param name="partitionByFields">The partition by fields.</param>
+        /// <returns>
+        /// A new pipeline with an additional stage.
+        /// </returns>
+        public static PipelineDefinition<TInput, TOutput> Densify<TInput, TOutput>(
+            this PipelineDefinition<TInput, TOutput> pipeline,
+            Expression<Func<TOutput, object>> field,
+            DensifyRange range,
+            IEnumerable<Expression<Func<TOutput, object>>> partitionByFields = null)
+        {
+            Ensure.IsNotNull(pipeline, nameof(pipeline));
+            return pipeline.AppendStage(PipelineStageDefinitionBuilder.Densify(field, range, partitionByFields));
+        }
+
+        /// <summary>
+        /// Appends a $densify stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <param name="field">The field.</param>
+        /// <param name="range">The range.</param>
+        /// <param name="partitionByFields">The partition by fields.</param>
+        /// <returns>
+        /// A new pipeline with an additional stage.
+        /// </returns>
+        public static PipelineDefinition<TInput, TOutput> Densify<TInput, TOutput>(
+            this PipelineDefinition<TInput, TOutput> pipeline,
+            Expression<Func<TOutput, object>> field,
+            DensifyRange range,
+            params Expression<Func<TOutput, object>>[] partitionByFields)
+        {
+            Ensure.IsNotNull(pipeline, nameof(pipeline));
+            return pipeline.AppendStage(PipelineStageDefinitionBuilder.Densify(field, range, partitionByFields));
+        }
+
+        /// <summary>
         /// Appends a $facet stage to the pipeline.
         /// </summary>
         /// <typeparam name="TInput">The type of the input documents.</typeparam>
