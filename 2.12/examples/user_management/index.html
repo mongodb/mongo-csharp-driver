@@ -41,11 +41,11 @@
     
     <div>
 <div class="nav-items pull-right">
-  <a href="http://try.mongodb.org/" data-toggle="tooltip" data-placement="bottom" title="Try MongoDB in the browser">Try it Out</a>
-  <a href="http://www.mongodb.org/downloads" data-toggle="tooltip" data-placement="bottom" title="Download MongoDB">Downloads</a>
-  <a href="http://www.mongodb.org/get-involved" data-toggle="tooltip" data-placement="bottom" title="Get involved with MongoDB">Community</a>
-  <a href="http://docs.mongodb.org" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Documentation">Docs</a>
-  <a href="http://blog.mongodb.org" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Blog">Blog</a>
+  <a href="https://university.mongodb.com" data-toggle="tooltip" data-placement="bottom" title="Try MongoDB in the browser">Try it Out</a>
+  <a href="https://www.mongodb.com/try" data-toggle="tooltip" data-placement="bottom" title="Download MongoDB">Downloads</a>
+  <a href="https://www.mongodb.com/community" data-toggle="tooltip" data-placement="bottom" title="Get involved with MongoDB">Community</a>
+  <a href="https://www.mongodb.com/docs" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Documentation">Docs</a>
+  <a href="https://www.mongodb.com/blog" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Blog">Blog</a>
   <div id="search">
 <form method="get" action="//www.google.com/search" target="_blank">
     <input type="text" name="searchQuery" size="20" value="" autocomplete="off" placeholder="Search docs">
@@ -3439,14 +3439,14 @@
 
 <h2 id="how-to-manage-users">How to Manage Users</h2>
 
-<p>While MongoDB supports many user management commands, the driver does not have any helpers for them because users are generally managed from the <a href="http://docs.mongodb.org/manual/reference/mongo-shell/
+<p>While MongoDB supports many user management commands, the driver does not have any helpers for them because users are generally managed from the <a href="https://www.mongodb.com/docs/manual/reference/mongo-shell/
 ">MongoDB shell</a>. However, it is still possible to manage users from the driver by using the <a href="/mongo-csharp-driver/2.12/apidocs/html/M_MongoDB_Driver_IMongoDatabase_RunCommand__1.htm
 "><code>RunCommand</code></a> or <a href="/mongo-csharp-driver/2.12/apidocs/html/M_MongoDB_Driver_IMongoDatabase_RunCommandAsync__1.htm
 "><code>RunCommandAsync</code></a> methods.</p>
 
 <h2 id="listing-users">Listing Users</h2>
 
-<p>The <a href="http://docs.mongodb.org/manual/reference/command/usersInfo/
+<p>The <a href="https://www.mongodb.com/docs/manual/reference/command/usersInfo/
 "><code>usersInfo</code></a> command will provide information about users in a specific database.</p>
 
 <pre><code class="language-csharp">// get the database
@@ -3468,7 +3468,7 @@ var result = await db.RunCommandAsync&lt;BsonDocument&gt;(command);
 
 <h2 id="creating-users">Creating Users</h2>
 
-<p>The following example uses the <a href="http://docs.mongodb.org/manual/reference/command/createUser/
+<p>The following example uses the <a href="https://www.mongodb.com/docs/manual/reference/command/createUser/
 "><code>createUser</code></a> command to add a user to a dataase.</p>
 
 <pre><code class="language-csharp">// get the database
@@ -3512,7 +3512,7 @@ await db.RunCommandAsync&lt;BsonDocument&gt;(command);
 
 <h2 id="updating-users">Updating Users</h2>
 
-<p>The following example uses the <a href="http://docs.mongodb.org/manual/reference/command/updateUser/
+<p>The following example uses the <a href="https://www.mongodb.com/docs/manual/reference/command/updateUser/
 "><code>updateUser</code></a> command to update a user in a database.</p>
 
 <pre><code class="language-csharp">// get the database
@@ -3544,7 +3544,7 @@ await db.RunCommandAsync&lt;BsonDocument&gt;(command);
 
 <h2 id="dropping-users">Dropping Users</h2>
 
-<p>The following example uses the <a href="http://docs.mongodb.org/manual/reference/command/dropUser/
+<p>The following example uses the <a href="https://www.mongodb.com/docs/manual/reference/command/dropUser/
 "><code>dropUser</code></a> command to drop a user from a database.</p>
 
 <pre><code class="language-csharp">// get the database
@@ -3574,7 +3574,7 @@ Even though we used a string here for the command, it could have been a BsonDocu
 
 <h2 id="other-user-management-commands">Other User Management Commands</h2>
 
-<p>There are a number of <a href="http://docs.mongodb.org/manual/reference/command/nav-user-management/
+<p>There are a number of <a href="https://www.mongodb.com/docs/manual/reference/command/nav-user-management/
 ">other commands</a> that exist for managing users and each would be run in a similar fashion to how ones demonstrated above.</p>
 
 

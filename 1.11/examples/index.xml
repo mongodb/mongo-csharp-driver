@@ -22,8 +22,8 @@
 &lt;p&gt;A number of examples have been compiled to show a more thorough usage of certain features and how they interact.&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;http://localhost:1313/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/examples/import_export/&#34;&gt;Importing and Exporting&lt;/a&gt;: Sample implementations of &lt;a href=&#34;http://docs.mongodb.org/manual/reference/program/mongoimport/
-&#34;&gt;mongoimport&lt;/a&gt; and &lt;a href=&#34;http://docs.mongodb.org/manual/reference/program/mongoexport/
+&lt;li&gt;&lt;a href=&#34;http://localhost:1313/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/examples/import_export/&#34;&gt;Importing and Exporting&lt;/a&gt;: Sample implementations of &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/program/mongoimport/
+&#34;&gt;mongoimport&lt;/a&gt; and &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/program/mongoexport/
 &#34;&gt;mongoexport&lt;/a&gt;.&lt;/li&gt;
 &lt;/ul&gt;
 </description>
@@ -41,7 +41,7 @@
 
 &lt;p&gt;The .NET BSON library supports reading and writing JSON documents with the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_IO_JsonReader.htm
 &#34;&gt;&lt;code&gt;JsonReader&lt;/code&gt;&lt;/a&gt; and &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_IO_JsonWriter.htm
-&#34;&gt;&lt;code&gt;JsonWriter&lt;/code&gt;&lt;/a&gt; classes. Both of these also handle both flavors of &lt;a href=&#34;http://docs.mongodb.org/manual/reference/mongodb-extended-json/
+&#34;&gt;&lt;code&gt;JsonWriter&lt;/code&gt;&lt;/a&gt; classes. Both of these also handle both flavors of &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/mongodb-extended-json/
 &#34;&gt;MongoDB Extended JSON&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;Neither of these implementations are the most performant solutions, but they illustrate using multiple features of the driver together.&lt;/p&gt;

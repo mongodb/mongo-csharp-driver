@@ -25,7 +25,7 @@
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var client = new MongoClient();
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;This will connect to a mongod or mongos running on localhost port 27017. If you&amp;rsquo;d like to use a remote host, you can provide a &lt;a href=&#34;http://docs.mongodb.org/manual/reference/connection-string/&#34;&gt;connection string&lt;/a&gt; to the constructor or construct a &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_MongoClientSettings.htm
+&lt;p&gt;This will connect to a mongod or mongos running on localhost port 27017. If you&amp;rsquo;d like to use a remote host, you can provide a &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/connection-string/&#34;&gt;connection string&lt;/a&gt; to the constructor or construct a &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_MongoClientSettings.htm
 &#34;&gt;&lt;code&gt;MongoClientSettings&lt;/code&gt;&lt;/a&gt; object and pass it in. To see more about connecting with a client, see the &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/driver/connecting/&#34;&gt;reference guide&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
@@ -94,13 +94,13 @@ There is no connecting or disconnecting. A connection pool is used and connectio
 
 &lt;h2 id=&#34;nuget-installation:d680e8a854a7cbad6d490c445cba2eba&#34;&gt;Nuget Installation&lt;/h2&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://www.nuget.org/&#34;&gt;Nuget&lt;/a&gt; is the simplest way to get the driver. There are 4 packages available on nuget.&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://www.nuget.org/&#34;&gt;Nuget&lt;/a&gt; is the simplest way to get the driver. There are 4 packages available on nuget.&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;http://www.nuget.org/packages/mongodb.driver&#34;&gt;MongoDB.Driver&lt;/a&gt;: The new driver. It is mostly free of any legacy code and should be used for all new projects. More documentation can be found in the &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/driver/&#34;&gt;reference guide&lt;/a&gt;.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://www.nuget.org/packages/mongodb.driver.core&#34;&gt;MongoDB.Driver.Core&lt;/a&gt;: The core of the driver and a dependency of MongoDB.Driver. You will probably not use this package directly. More documentation can be found in the &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/driver_core/&#34;&gt;reference guide&lt;/a&gt;.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://www.nuget.org/packages/mongodb.bson&#34;&gt;MongoDB.Bson&lt;/a&gt;: The BSON layer. It is a dependency of MongoDB.Driver.Core. It may be used by itself. More documentation can be found in the &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/bson/&#34;&gt;reference guide&lt;/a&gt;.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://www.nuget.org/packages/mongocsharpdriver&#34;&gt;mongocsharpdriver&lt;/a&gt;: The compatibility layer for those upgrading from our 1.x series. This should not be used for new projects. More information can be found in the &lt;a href=&#34;http://mongodb.github.io/mongo-csharp-driver/1.x&#34;&gt;1.x documentation&lt;/a&gt;;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.nuget.org/packages/mongodb.driver&#34;&gt;MongoDB.Driver&lt;/a&gt;: The new driver. It is mostly free of any legacy code and should be used for all new projects. More documentation can be found in the &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/driver/&#34;&gt;reference guide&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.nuget.org/packages/mongodb.driver.core&#34;&gt;MongoDB.Driver.Core&lt;/a&gt;: The core of the driver and a dependency of MongoDB.Driver. You will probably not use this package directly. More documentation can be found in the &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/driver_core/&#34;&gt;reference guide&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.nuget.org/packages/mongodb.bson&#34;&gt;MongoDB.Bson&lt;/a&gt;: The BSON layer. It is a dependency of MongoDB.Driver.Core. It may be used by itself. More documentation can be found in the &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/bson/&#34;&gt;reference guide&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.nuget.org/packages/mongocsharpdriver&#34;&gt;mongocsharpdriver&lt;/a&gt;: The compatibility layer for those upgrading from our 1.x series. This should not be used for new projects. More information can be found in the &lt;a href=&#34;https://mongodb.github.io/mongo-csharp-driver/1.x&#34;&gt;1.x documentation&lt;/a&gt;;&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;h2 id=&#34;binary-installation:d680e8a854a7cbad6d490c445cba2eba&#34;&gt;Binary Installation&lt;/h2&gt;

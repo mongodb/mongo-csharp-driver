@@ -41,11 +41,11 @@
     
     <div>
 <div class="nav-items pull-right">
-  <a href="http://try.mongodb.org/" data-toggle="tooltip" data-placement="bottom" title="Try MongoDB in the browser">Try it Out</a>
-  <a href="http://www.mongodb.org/downloads" data-toggle="tooltip" data-placement="bottom" title="Download MongoDB">Downloads</a>
-  <a href="http://www.mongodb.org/get-involved" data-toggle="tooltip" data-placement="bottom" title="Get involved with MongoDB">Community</a>
-  <a href="http://docs.mongodb.org" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Documentation">Docs</a>
-  <a href="http://blog.mongodb.org" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Blog">Blog</a>
+  <a href="https://university.mongodb.com" data-toggle="tooltip" data-placement="bottom" title="Try MongoDB in the browser">Try it Out</a>
+  <a href="https://www.mongodb.com/try" data-toggle="tooltip" data-placement="bottom" title="Download MongoDB">Downloads</a>
+  <a href="https://www.mongodb.com/community" data-toggle="tooltip" data-placement="bottom" title="Get involved with MongoDB">Community</a>
+  <a href="https://www.mongodb.com/docs" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Documentation">Docs</a>
+  <a href="https://www.mongodb.com/blog" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Blog">Blog</a>
   <div id="search">
 <form method="get" action="//www.google.com/search" target="_blank">
     <input type="text" name="searchQuery" size="20" value="" autocomplete="off" placeholder="Search docs">
@@ -2537,7 +2537,7 @@
 
 <h3 id="strongly-typed-changestreamdocument-lt-tdocument-gt-class">Strongly typed ChangeStreamDocument&lt;TDocument&gt; class</h3>
 
-<p>The cursor returned from the Watch methods returns the change stream events wrapped in a strongly typed C# class called ChangeStreamDocument&lt;TDocument&gt; (unless you used a pipeline that changed the shape of the results). The underlying change stream events are documented in the server documentation <a href="https://docs.mongodb.com/manual/reference/change-events/">here</a>.</p>
+<p>The cursor returned from the Watch methods returns the change stream events wrapped in a strongly typed C# class called ChangeStreamDocument&lt;TDocument&gt; (unless you used a pipeline that changed the shape of the results). The underlying change stream events are documented in the server documentation <a href="https://www.mongodb.com/docs/manual/reference/change-events/">here</a>.</p>
 
 <pre><code class="language-csharp">public class ChangeStreamDocument&lt;TDocument&gt;
 {
@@ -2557,7 +2557,7 @@
 
 <p>DocumentKey contains the _id of the document created or modified by the operation. For sharded collections it also contains the shard key of the document.</p>
 
-<p>For Insert and Replace operations,  FullDocument is the new document created by the operation. For Delete operations FullDocument is null as the document no longer exists. For Update operations FullDocument is only present if you set the FullDocument option in the options passed to Watch to ChangeStreamFullDocumentOption.UpdateLookup, in which case it contains the most current majority-committed version of the document modified by the Update operation (see the server documentation for fullDocument <a href="https://docs.mongodb.com/manual/reference/change-events/">here</a> for details).</p>
+<p>For Insert and Replace operations,  FullDocument is the new document created by the operation. For Delete operations FullDocument is null as the document no longer exists. For Update operations FullDocument is only present if you set the FullDocument option in the options passed to Watch to ChangeStreamFullDocumentOption.UpdateLookup, in which case it contains the most current majority-committed version of the document modified by the Update operation (see the server documentation for fullDocument <a href="https://www.mongodb.com/docs/manual/reference/change-events/">here</a> for details).</p>
 
 <p>OperationType is one of: Insert, Update, Replace, Delete or Invalidate.</p>
 
@@ -2569,7 +2569,7 @@
 
 <p>All the Watch and WatchAsync methods have overloads that take a pipeline argument. An application can pass in a pipeline to filter or modify the change stream in some way.</p>
 
-<p>Only certain modifications are valid in a change stream pipeline. See the server documentation <a href="https://docs.mongodb.com/manual/changeStreams/#modify-change-stream-output">here</a> for details.</p>
+<p>Only certain modifications are valid in a change stream pipeline. See the server documentation <a href="https://www.mongodb.com/docs/manual/changeStreams/#modify-change-stream-output">here</a> for details.</p>
 
 <p>For example, if you are only interested in monitoring inserted documents, you could use a pipeline to filter the change stream to only include insert operations.</p>
 
@@ -2609,7 +2609,7 @@ using (var cursor = collection.Watch(pipeline))
 
 <p>BatchSize determines the maximum number of change events the server will return at one time. The server might return fewer.</p>
 
-<p>FullDocument can be set to ChangeStreamFullDocumentOption.UpdateLookup if you want the change stream event for Update operations to include a copy of the full document (the full document might include additional changes that are the result of subsequent change events, see the server documentation <a href="https://docs.mongodb.com/manual/reference/change-events/#update-event">here</a>).</p>
+<p>FullDocument can be set to ChangeStreamFullDocumentOption.UpdateLookup if you want the change stream event for Update operations to include a copy of the full document (the full document might include additional changes that are the result of subsequent change events, see the server documentation <a href="https://www.mongodb.com/docs/manual/reference/change-events/#update-event">here</a>).</p>
 
 <p>ResumeAfter and StartAtOperationTime are useful when you want to resume or start a change stream from some point in time.</p>
 

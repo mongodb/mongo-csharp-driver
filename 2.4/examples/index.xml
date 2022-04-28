@@ -19,14 +19,14 @@
 
 &lt;h2 id=&#34;how-to-manage-users&#34;&gt;How to Manage Users&lt;/h2&gt;
 
-&lt;p&gt;While MongoDB supports many user management commands, the driver does not have any helpers for them because users are generally managed from the &lt;a href=&#34;http://docs.mongodb.org/manual/reference/mongo-shell/
+&lt;p&gt;While MongoDB supports many user management commands, the driver does not have any helpers for them because users are generally managed from the &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/mongo-shell/
 &#34;&gt;MongoDB shell&lt;/a&gt;. However, it is still possible to manage users from the driver by using the &lt;a href=&#34;/mongo-csharp-driver/2.4/mongo-csharp-driver/2.4/apidocs/html/M_MongoDB_Driver_IMongoDatabase_RunCommand__1.htm
 &#34;&gt;&lt;code&gt;RunCommand&lt;/code&gt;&lt;/a&gt; or &lt;a href=&#34;/mongo-csharp-driver/2.4/mongo-csharp-driver/2.4/apidocs/html/M_MongoDB_Driver_IMongoDatabase_RunCommandAsync__1.htm
 &#34;&gt;&lt;code&gt;RunCommandAsync&lt;/code&gt;&lt;/a&gt; methods.&lt;/p&gt;
 
 &lt;h2 id=&#34;listing-users&#34;&gt;Listing Users&lt;/h2&gt;
 
-&lt;p&gt;The &lt;a href=&#34;http://docs.mongodb.org/manual/reference/command/usersInfo/
+&lt;p&gt;The &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/command/usersInfo/
 &#34;&gt;&lt;code&gt;usersInfo&lt;/code&gt;&lt;/a&gt; command will provide information about users in a specific database.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;// get the database
@@ -48,7 +48,7 @@ var result = await db.RunCommandAsync&amp;lt;BsonDocument&amp;gt;(command);
 
 &lt;h2 id=&#34;creating-users&#34;&gt;Creating Users&lt;/h2&gt;
 
-&lt;p&gt;The following example uses the &lt;a href=&#34;http://docs.mongodb.org/manual/reference/command/createUser/
+&lt;p&gt;The following example uses the &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/command/createUser/
 &#34;&gt;&lt;code&gt;createUser&lt;/code&gt;&lt;/a&gt; command to add a user to a dataase.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;// get the database
@@ -92,7 +92,7 @@ await db.RunCommandAsync&amp;lt;BsonDocument&amp;gt;(command);
 
 &lt;h2 id=&#34;updating-users&#34;&gt;Updating Users&lt;/h2&gt;
 
-&lt;p&gt;The following example uses the &lt;a href=&#34;http://docs.mongodb.org/manual/reference/command/updateUser/
+&lt;p&gt;The following example uses the &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/command/updateUser/
 &#34;&gt;&lt;code&gt;updateUser&lt;/code&gt;&lt;/a&gt; command to update a user in a database.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;// get the database
@@ -124,7 +124,7 @@ await db.RunCommandAsync&amp;lt;BsonDocument&amp;gt;(command);
 
 &lt;h2 id=&#34;dropping-users&#34;&gt;Dropping Users&lt;/h2&gt;
 
-&lt;p&gt;The following example uses the &lt;a href=&#34;http://docs.mongodb.org/manual/reference/command/dropUser/
+&lt;p&gt;The following example uses the &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/command/dropUser/
 &#34;&gt;&lt;code&gt;dropUser&lt;/code&gt;&lt;/a&gt; command to drop a user from a database.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;// get the database
@@ -154,7 +154,7 @@ Even though we used a string here for the command, it could have been a BsonDocu
 
 &lt;h2 id=&#34;other-user-management-commands&#34;&gt;Other User Management Commands&lt;/h2&gt;
 
-&lt;p&gt;There are a number of &lt;a href=&#34;http://docs.mongodb.org/manual/reference/command/nav-user-management/
+&lt;p&gt;There are a number of &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/command/nav-user-management/
 &#34;&gt;other commands&lt;/a&gt; that exist for managing users and each would be run in a similar fashion to how ones demonstrated above.&lt;/p&gt;
 </description>
     </item>
@@ -297,8 +297,8 @@ There is a danger with this approach that dynamic field names could clash with n
 
 &lt;h2 id=&#34;using-a-tailable-cursor&#34;&gt;Using a Tailable Cursor&lt;/h2&gt;
 
-&lt;p&gt;MongoDB offers the option to watch a &lt;a href=&#34;http://docs.mongodb.org/manual/core/capped-collections/
-&#34;&gt;capped collection&lt;/a&gt; for changes using a &lt;a href=&#34;http://docs.mongodb.org/manual/tutorial/create-tailable-cursor/
+&lt;p&gt;MongoDB offers the option to watch a &lt;a href=&#34;https://www.mongodb.com/docs/manual/core/capped-collections/
+&#34;&gt;capped collection&lt;/a&gt; for changes using a &lt;a href=&#34;https://www.mongodb.com/docs/manual/tutorial/create-tailable-cursor/
 &#34;&gt;tailable cursor&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;The code below &amp;ldquo;tails&amp;rdquo; a capped collection and outputs documents to the console as they are added. The method also handles the possibility of a dead cursor by tracking the field &lt;code&gt;insertDate&lt;/code&gt;. New documents are added with increasing values of &lt;code&gt;insertDate&lt;/code&gt;.&lt;/p&gt;

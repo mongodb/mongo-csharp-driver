@@ -41,11 +41,11 @@
     
     <div>
 <div class="nav-items pull-right">
-  <a href="http://try.mongodb.org/" data-toggle="tooltip" data-placement="bottom" title="Try MongoDB in the browser">Try it Out</a>
-  <a href="http://www.mongodb.org/downloads" data-toggle="tooltip" data-placement="bottom" title="Download MongoDB">Downloads</a>
-  <a href="http://www.mongodb.org/get-involved" data-toggle="tooltip" data-placement="bottom" title="Get involved with MongoDB">Community</a>
-  <a href="http://docs.mongodb.org" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Documentation">Docs</a>
-  <a href="http://blog.mongodb.org" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Blog">Blog</a>
+  <a href="https://university.mongodb.com" data-toggle="tooltip" data-placement="bottom" title="Try MongoDB in the browser">Try it Out</a>
+  <a href="https://www.mongodb.com/try" data-toggle="tooltip" data-placement="bottom" title="Download MongoDB">Downloads</a>
+  <a href="https://www.mongodb.com/community" data-toggle="tooltip" data-placement="bottom" title="Get involved with MongoDB">Community</a>
+  <a href="https://www.mongodb.com/docs" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Documentation">Docs</a>
+  <a href="https://www.mongodb.com/blog" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Blog">Blog</a>
   <div id="search">
 <form method="get" action="//www.google.com/search" target="_blank">
     <input type="text" name="searchQuery" size="20" value="" autocomplete="off" placeholder="Search docs">
@@ -3068,12 +3068,12 @@ These iteration methods don&rsquo;t require you to dispose of the cursor. That w
 
 <h2 id="aggregation">Aggregation</h2>
 
-<p>MongoDB offers the <a href="http://docs.mongodb.org/manual/core/aggregation-pipeline/
+<p>MongoDB offers the <a href="https://www.mongodb.com/docs/manual/core/aggregation-pipeline/
 ">aggregation framework</a> which can be accessed via the <a href="/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_IMongoCollectionExtensions_Aggregate__1.htm
 "><code>Aggregate</code></a> method. The result type is <a href="/mongo-csharp-driver/2.11/apidocs/html/T_MongoDB_Driver_IAggregateFluent_1.htm
 "><code>IAggregateFluent</code></a> and provides access to a fluent API to build up an aggregation pipeline.</p>
 
-<p>The first example from <a href="http://docs.mongodb.org/manual/tutorial/aggregation-zip-code-data-set/#return-states-with-populations-above-10-million
+<p>The first example from <a href="https://www.mongodb.com/docs/manual/tutorial/aggregation-zip-code-data-set/#return-states-with-populations-above-10-million
 ">MongoDB&rsquo;s documentation</a> is done in a type-safe manner below:</p>
 
 <pre><code class="language-csharp">[BsonIgnoreExtraElements]
@@ -3122,7 +3122,7 @@ You can call <code>ToString</code> on the pipeline to see what would be sent to 
 
 <h3 id="stage-operators">Stage Operators</h3>
 
-<p>All the <a href="http://docs.mongodb.org/manual/reference/operator/aggregation/#aggregation-pipeline-operator-reference
+<p>All the <a href="https://www.mongodb.com/docs/manual/reference/operator/aggregation/#aggregation-pipeline-operator-reference
 ">stage operators</a> are supported, however some of them must use the <a href="/mongo-csharp-driver/2.11/apidocs/html/M_MongoDB_Driver_IAggregateFluent_1_AppendStage__1.htm
 "><code>AppendStage</code></a> method due to lack of support for certain projections in the language.</p>
 

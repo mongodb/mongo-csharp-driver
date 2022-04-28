@@ -19,8 +19,8 @@
 
 &lt;h2 id=&#34;authentication:6b57b661b9236f856cd4f0afa1bed671&#34;&gt;Authentication&lt;/h2&gt;
 
-&lt;p&gt;The .NET driver supports all &lt;a href=&#34;http://docs.mongodb.org/manual/core/authentication/
-&#34;&gt;MongoDB authentication mechanisms&lt;/a&gt; including those in the &lt;a href=&#34;http://docs.mongodb.org/manual/administration/install-enterprise/
+&lt;p&gt;The .NET driver supports all &lt;a href=&#34;https://www.mongodb.com/docs/manual/core/authentication/
+&#34;&gt;MongoDB authentication mechanisms&lt;/a&gt; including those in the &lt;a href=&#34;https://www.mongodb.com/docs/manual/administration/install-enterprise/
 &#34;&gt;Enterprise Edition&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;Authentication credentials are created by the application as instances of &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_MongoCredential.htm
@@ -30,7 +30,7 @@
 
 &lt;h3 id=&#34;default:6b57b661b9236f856cd4f0afa1bed671&#34;&gt;Default&lt;/h3&gt;
 
-&lt;p&gt;MongoDB 3.0 changed the default authentication mechanism from &lt;a href=&#34;http://docs.mongodb.org/manual/core/authentication/#mongodb-cr-authentication&#34;&gt;MONGODB-CR&lt;/a&gt; to &lt;a href=&#34;http://docs.mongodb.org/manual/core/authentication/#scram-sha-1-authentication&#34;&gt;SCRAM-SHA-1&lt;/a&gt;. To create a credential that will authenticate properly regardless of server version, create a credential using the following static factory method.&lt;/p&gt;
+&lt;p&gt;MongoDB 3.0 changed the default authentication mechanism from &lt;a href=&#34;https://www.mongodb.com/docs/manual/core/authentication/#mongodb-cr-authentication&#34;&gt;MONGODB-CR&lt;/a&gt; to &lt;a href=&#34;https://www.mongodb.com/docs/manual/core/authentication/#scram-sha-1-authentication&#34;&gt;SCRAM-SHA-1&lt;/a&gt;. To create a credential that will authenticate properly regardless of server version, create a credential using the following static factory method.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var credential = MongoCredential.CreateCredential(databaseName, username, password);
 &lt;/code&gt;&lt;/pre&gt;
@@ -40,7 +40,7 @@
 &lt;pre&gt;&lt;code&gt;mongodb://username:password@myserver/databaseName
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;This is the recommended approach as it will make upgrading from MongoDB 2.6 to MongoDB 3.0 seamless, even after &lt;a href=&#34;http://docs.mongodb.org/manual/release-notes/3.0-scram/#upgrade-mongodb-cr-to-scram&#34;&gt;upgrading the authentication schema&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;This is the recommended approach as it will make upgrading from MongoDB 2.6 to MongoDB 3.0 seamless, even after &lt;a href=&#34;https://www.mongodb.com/docs/manual/release-notes/3.0-scram/#upgrade-mongodb-cr-to-scram&#34;&gt;upgrading the authentication schema&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
 &lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
@@ -50,7 +50,7 @@ The databaseName part of the connection string indicates which database the cred
 
 &lt;h3 id=&#34;x-509-authentication:6b57b661b9236f856cd4f0afa1bed671&#34;&gt;x.509 Authentication&lt;/h3&gt;
 
-&lt;p&gt;The &lt;a href=&#34;http://docs.mongodb.org/manual/core/authentication/#x-509-certificate-authentication&#34;&gt;x.509&lt;/a&gt; mechanism authenticates a user whose name is derived from the distinguished subject name of the x.509 certificate presented by the driver during SSL negotiation. This authentication method requires the use of &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/driver/ssl/&#34;&gt;SSL connections&lt;/a&gt; with certificate validation and is available in MongoDB 2.6 and newer. To create a credential of this type, use the following static factory method:&lt;/p&gt;
+&lt;p&gt;The &lt;a href=&#34;https://www.mongodb.com/docs/manual/core/authentication/#x-509-certificate-authentication&#34;&gt;x.509&lt;/a&gt; mechanism authenticates a user whose name is derived from the distinguished subject name of the x.509 certificate presented by the driver during SSL negotiation. This authentication method requires the use of &lt;a href=&#34;/mongo-csharp-driver/2.0/mongo-csharp-driver/2.0/reference/driver/ssl/&#34;&gt;SSL connections&lt;/a&gt; with certificate validation and is available in MongoDB 2.6 and newer. To create a credential of this type, use the following static factory method:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var credential = MongoCredential.CreateX509Credential(username);
 &lt;/code&gt;&lt;/pre&gt;
@@ -80,7 +80,7 @@ var settings = new MongoClientSettings
 
 &lt;h3 id=&#34;gssapi-kerberos:6b57b661b9236f856cd4f0afa1bed671&#34;&gt;GSSAPI/Kerberos&lt;/h3&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://www.mongodb.com/products/mongodb-enterprise&#34;&gt;MongoDB Enterprise&lt;/a&gt; supports authentication using &lt;a href=&#34;http://docs.mongodb.org/manual/core/authentication/#kerberos-authentication&#34;&gt;Kerberos/GSSAPI&lt;/a&gt;. To create a Kerberos/GSSAPI credential, use the following method:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://www.mongodb.com/products/mongodb-enterprise&#34;&gt;MongoDB Enterprise&lt;/a&gt; supports authentication using &lt;a href=&#34;https://www.mongodb.com/docs/manual/core/authentication/#kerberos-authentication&#34;&gt;Kerberos/GSSAPI&lt;/a&gt;. To create a Kerberos/GSSAPI credential, use the following method:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var credential = MongoCredential.CreateGssapiCredential(username, password);
 &lt;/code&gt;&lt;/pre&gt;
@@ -153,7 +153,7 @@ Note that the username will need to have a REALM associated with it. When used i
 
 &lt;h3 id=&#34;ldap-plain:6b57b661b9236f856cd4f0afa1bed671&#34;&gt;LDAP (PLAIN)&lt;/h3&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://www.mongodb.com/products/mongodb-enterprise&#34;&gt;MongoDB Enterprise&lt;/a&gt; supports proxy authentication through a Lightweight Directory Access Protocol (LDAP) service. To create a credential of type LDAP use the following static factory method:&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://www.mongodb.com/products/mongodb-enterprise&#34;&gt;MongoDB Enterprise&lt;/a&gt; supports proxy authentication through a Lightweight Directory Access Protocol (LDAP) service. To create a credential of type LDAP use the following static factory method:&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var credential = MongoCredential.CreatePlainCredential(&amp;quot;$external&amp;quot;, username, password);
 &lt;/code&gt;&lt;/pre&gt;
@@ -272,7 +272,7 @@ Note that the method refers to the plain authentication mechanism instead of LDA
 
 &lt;h2 id=&#34;connection-string:d67a243cdf521fafcb45cf3f560d3e12&#34;&gt;Connection String&lt;/h2&gt;
 
-&lt;p&gt;The &lt;a href=&#34;http://docs.mongodb.org/manual/reference/connection-string/&#34;&gt;connection string&lt;/a&gt; is the simplest way to connect to one or more MongoDB servers. A connection string mostly follows &lt;a href=&#34;http://tools.ietf.org/html/rfc3986&#34;&gt;RFC 3986&lt;/a&gt; with the exception of the domain name. For MongoDB, it is possible to list multiple domain names separated by a comma. Below are some example connection strings&lt;/p&gt;
+&lt;p&gt;The &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/connection-string/&#34;&gt;connection string&lt;/a&gt; is the simplest way to connect to one or more MongoDB servers. A connection string mostly follows &lt;a href=&#34;http://tools.ietf.org/html/rfc3986&#34;&gt;RFC 3986&lt;/a&gt; with the exception of the domain name. For MongoDB, it is possible to list multiple domain names separated by a comma. Below are some example connection strings&lt;/p&gt;
 
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;For a standalone mongod, mongos, or a direct connection to a member of a replica set:&lt;/p&gt;
@@ -319,7 +319,7 @@ Some drivers utilize the database component to indicate which database to work w
 
 &lt;p&gt;The above connection string sets the &lt;code&gt;replicaSet&lt;/code&gt; value to &lt;code&gt;rs0&lt;/code&gt; and the &lt;code&gt;uuidRepresentation&lt;/code&gt; to &lt;code&gt;standard&lt;/code&gt;.&lt;/p&gt;
 
-&lt;p&gt;For a comprehensive list of the available options, see the MongoDB &lt;a href=&#34;http://docs.mongodb.org/manual/reference/connection-string/&#34;&gt;connection string&lt;/a&gt; documentation.&lt;/p&gt;
+&lt;p&gt;For a comprehensive list of the available options, see the MongoDB &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/connection-string/&#34;&gt;connection string&lt;/a&gt; documentation.&lt;/p&gt;
 
 &lt;h2 id=&#34;mongo-client:d67a243cdf521fafcb45cf3f560d3e12&#34;&gt;Mongo Client&lt;/h2&gt;
 
@@ -617,7 +617,7 @@ doc.ToJson().Should().Be(&amp;quot;{ x: 1 }&amp;quot;);
 &#34;&gt;tests&lt;/a&gt; for examples.&lt;/em&gt;&lt;/p&gt;
 
 &lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_FilterDefinitionBuilder_1.htm
-&#34;&gt;&lt;code&gt;FilterDefinitionBuilder&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; provides a nice API for building up both simple and complex &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/query/
+&#34;&gt;&lt;code&gt;FilterDefinitionBuilder&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; provides a nice API for building up both simple and complex &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/operator/query/
 &#34;&gt;MongoDB queries&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;For example, to build up the filter &lt;code&gt;{ x: 10, y: { $lt: 20 } }&lt;/code&gt;, the following calls are all comparable.&lt;/p&gt;
@@ -805,8 +805,8 @@ var projection = Builders&amp;lt;Widget&amp;gt;.Projection.Expression(x =&amp;gt
 &lt;p&gt;&lt;em&gt;See the &lt;a href=&#34;https://github.com/mongodb/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Tests/Linq/Translators/AggregateProjectionTranslatorTests_Project.cs
 &#34;&gt;tests&lt;/a&gt; for examples.&lt;/em&gt;&lt;/p&gt;
 
-&lt;p&gt;When an aggregate projection is defined using a lambda expression, a majority of the &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/aggregation/#expression-operators
-&#34;&gt;aggregation expression operators&lt;/a&gt; are supported and translated. Unlike a project for Find, no part of the lambda expression is run client-side. This means that all expressions in a projection for the &lt;a href=&#34;http://docs.mongodb.org/manual/core/aggregation-pipeline/
+&lt;p&gt;When an aggregate projection is defined using a lambda expression, a majority of the &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/operator/aggregation/#expression-operators
+&#34;&gt;aggregation expression operators&lt;/a&gt; are supported and translated. Unlike a project for Find, no part of the lambda expression is run client-side. This means that all expressions in a projection for the &lt;a href=&#34;https://www.mongodb.com/docs/manual/core/aggregation-pipeline/
 &#34;&gt;Aggregation Framework&lt;/a&gt; must be expressible on the server.&lt;/p&gt;
 
 &lt;h5 id=&#34;grouping:ce6bd7650aa92e884a2bb6da9703168d&#34;&gt;Grouping&lt;/h5&gt;
@@ -814,8 +814,8 @@ var projection = Builders&amp;lt;Widget&amp;gt;.Projection.Expression(x =&amp;gt
 &lt;p&gt;&lt;em&gt;See the &lt;a href=&#34;https://github.com/mongodb/mongo-csharp-driver/blob/master/src/MongoDB.Driver.Tests/Linq/Translators/AggregateProjectionTranslatorTests_Group.cs
 &#34;&gt;tests&lt;/a&gt; for examples.&lt;/em&gt;&lt;/p&gt;
 
-&lt;p&gt;A projection is also used when performing grouping in the &lt;a href=&#34;http://docs.mongodb.org/manual/core/aggregation-pipeline/
-&#34;&gt;Aggregation Framework&lt;/a&gt;. In addition to the expression operators used in an aggregate projection, the &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/aggregation/group/#accumulator-operator
+&lt;p&gt;A projection is also used when performing grouping in the &lt;a href=&#34;https://www.mongodb.com/docs/manual/core/aggregation-pipeline/
+&#34;&gt;Aggregation Framework&lt;/a&gt;. In addition to the expression operators used in an aggregate projection, the &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/operator/aggregation/group/#accumulator-operator
 &#34;&gt;aggregation accumulator operators&lt;/a&gt; are also supported.&lt;/p&gt;
 
 &lt;h2 id=&#34;sorts:ce6bd7650aa92e884a2bb6da9703168d&#34;&gt;Sorts&lt;/h2&gt;
@@ -841,7 +841,7 @@ doc.ToJson().Should().Be(&amp;quot;{ x: 1 }&amp;quot;);
 &#34;&gt;tests&lt;/a&gt; for examples.&lt;/em&gt;&lt;/p&gt;
 
 &lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_SortDefinitionBuilder_1.htm
-&#34;&gt;&lt;code&gt;SortDefinitionBuilder&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; provides a nice API for building up &lt;a href=&#34;http://docs.mongodb.org/manual/reference/method/cursor.sort/
+&#34;&gt;&lt;code&gt;SortDefinitionBuilder&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; provides a nice API for building up &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/method/cursor.sort/
 &#34;&gt;MongoDB sort syntax&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;For example, to build up the sort &lt;code&gt;{ x: 1, y: -1 }&lt;/code&gt;, do the following:&lt;/p&gt;
@@ -899,7 +899,7 @@ doc.ToJson().Should().Be(&amp;quot;{ $set: { x: 1 } }&amp;quot;);
 &#34;&gt;tests&lt;/a&gt; for examples.&lt;/em&gt;&lt;/p&gt;
 
 &lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Driver_UpdateDefinitionBuilder_1.htm
-&#34;&gt;&lt;code&gt;UpdateDefinitionBuilder&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; provides a nice API for building the &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/update/
+&#34;&gt;&lt;code&gt;UpdateDefinitionBuilder&amp;lt;TDocument&amp;gt;&lt;/code&gt;&lt;/a&gt; provides a nice API for building the &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/operator/update/
 &#34;&gt;MongoDB update specification&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;For example, to build up the update &lt;code&gt;{ $set: { x: 1, y: 3 }, $inc: { z: 1 } }&lt;/code&gt;, do the following:&lt;/p&gt;
@@ -1040,7 +1040,7 @@ class Pet
 
 &lt;h3 id=&#34;comparison:ccf7e9e64ce1a51aa79e6eb1314d9467&#34;&gt;Comparison&lt;/h3&gt;
 
-&lt;p&gt;See the &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/query/#comparison
+&lt;p&gt;See the &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/operator/query/#comparison
 &#34;&gt;MongoDB documentation&lt;/a&gt; for more information on each operator.&lt;/p&gt;
 
 &lt;h4 id=&#34;eq:ccf7e9e64ce1a51aa79e6eb1314d9467&#34;&gt;$eq&lt;/h4&gt;
@@ -1119,7 +1119,7 @@ Find(p =&amp;gt; !localAges.Contains(p.Age));
 
 &lt;h3 id=&#34;logical:ccf7e9e64ce1a51aa79e6eb1314d9467&#34;&gt;Logical&lt;/h3&gt;
 
-&lt;p&gt;See the &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/query/#logical
+&lt;p&gt;See the &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/operator/query/#logical
 &#34;&gt;MongoDB documentation&lt;/a&gt; for more information on each operator.&lt;/p&gt;
 
 &lt;h4 id=&#34;or:ccf7e9e64ce1a51aa79e6eb1314d9467&#34;&gt;$or&lt;/h4&gt;
@@ -1166,7 +1166,7 @@ Find(p =&amp;gt; !localAges.Contains(p.Age));
 
 &lt;h3 id=&#34;element:ccf7e9e64ce1a51aa79e6eb1314d9467&#34;&gt;Element&lt;/h3&gt;
 
-&lt;p&gt;See the &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/query/#element
+&lt;p&gt;See the &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/operator/query/#element
 &#34;&gt;MongoDB documentation&lt;/a&gt; for more information on each operator.&lt;/p&gt;
 
 &lt;h4 id=&#34;exists:ccf7e9e64ce1a51aa79e6eb1314d9467&#34;&gt;$exists&lt;/h4&gt;
@@ -1181,7 +1181,7 @@ Find(p =&amp;gt; !localAges.Contains(p.Age));
 
 &lt;h3 id=&#34;evaluation:ccf7e9e64ce1a51aa79e6eb1314d9467&#34;&gt;Evaluation&lt;/h3&gt;
 
-&lt;p&gt;See the &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/query/#evaluation
+&lt;p&gt;See the &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/operator/query/#evaluation
 &#34;&gt;MongoDB documentation&lt;/a&gt; for more information on each operator.&lt;/p&gt;
 
 &lt;h4 id=&#34;mod:ccf7e9e64ce1a51aa79e6eb1314d9467&#34;&gt;$mod&lt;/h4&gt;
@@ -1206,7 +1206,7 @@ Find(p =&amp;gt; !localAges.Contains(p.Age));
 
 &lt;h3 id=&#34;geospatial:ccf7e9e64ce1a51aa79e6eb1314d9467&#34;&gt;Geospatial&lt;/h3&gt;
 
-&lt;p&gt;See the &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/query/#geospatial
+&lt;p&gt;See the &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/operator/query/#geospatial
 &#34;&gt;MongoDB documentation&lt;/a&gt; for more information on each operator.&lt;/p&gt;
 
 &lt;h4 id=&#34;geowithin:ccf7e9e64ce1a51aa79e6eb1314d9467&#34;&gt;$geoWithin&lt;/h4&gt;
@@ -1231,7 +1231,7 @@ Find(p =&amp;gt; !localAges.Contains(p.Age));
 
 &lt;h3 id=&#34;geospatial-1:ccf7e9e64ce1a51aa79e6eb1314d9467&#34;&gt;Geospatial&lt;/h3&gt;
 
-&lt;p&gt;See the &lt;a href=&#34;http://docs.mongodb.org/manual/reference/operator/query/#array
+&lt;p&gt;See the &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/operator/query/#array
 &#34;&gt;MongoDB documentation&lt;/a&gt; for more information on each operator.&lt;/p&gt;
 
 &lt;h4 id=&#34;all:ccf7e9e64ce1a51aa79e6eb1314d9467&#34;&gt;$all&lt;/h4&gt;
@@ -2316,7 +2316,7 @@ using (var reader = new JsonReader(jsonString))
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;&lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_IO_JsonReader.htm
-&#34;&gt;&lt;code&gt;JsonReader&lt;/code&gt;&lt;/a&gt; supports reading strict JSON as well as both flavors of &lt;a href=&#34;http://docs.mongodb.org/manual/reference/mongodb-extended-json/
+&#34;&gt;&lt;code&gt;JsonReader&lt;/code&gt;&lt;/a&gt; supports reading strict JSON as well as both flavors of &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/mongodb-extended-json/
 &#34;&gt;MongoDB Extended JSON&lt;/a&gt;.&lt;/p&gt;
 
 &lt;h2 id=&#34;writing:9a3f4a06c5e6703b45401d6d4a0f6eef&#34;&gt;Writing&lt;/h2&gt;
@@ -2361,11 +2361,11 @@ using (var writer = new JsonWriter(output))
 &lt;h4 id=&#34;settings:9a3f4a06c5e6703b45401d6d4a0f6eef&#34;&gt;Settings&lt;/h4&gt;
 
 &lt;p&gt;&lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_IO_JsonWriter.htm
-&#34;&gt;&lt;code&gt;JsonWriter&lt;/code&gt;&lt;/a&gt; supports writing strict JSON as well as both flavors of &lt;a href=&#34;http://docs.mongodb.org/manual/reference/mongodb-extended-json/
+&#34;&gt;&lt;code&gt;JsonWriter&lt;/code&gt;&lt;/a&gt; supports writing strict JSON as well as both flavors of &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/mongodb-extended-json/
 &#34;&gt;MongoDB Extended JSON&lt;/a&gt;. This, and other things, can be customized with the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/T_MongoDB_Bson_IO_JsonWriterSettings.htm
 &#34;&gt;&lt;code&gt;JsonWriterSettings&lt;/code&gt;&lt;/a&gt; class.&lt;/p&gt;
 
-&lt;p&gt;For instance, to write in a format for the &lt;a href=&#34;http://docs.mongodb.org/manual/administration/scripting/&#34;&gt;MongoDB Shell&lt;/a&gt;, you can set the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/P_MongoDB_Bson_IO_JsonWriterSettings_OutputMode.htm
+&lt;p&gt;For instance, to write in a format for the &lt;a href=&#34;https://www.mongodb.com/docs/manual/administration/scripting/&#34;&gt;MongoDB Shell&lt;/a&gt;, you can set the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/P_MongoDB_Bson_IO_JsonWriterSettings_OutputMode.htm
 &#34;&gt;&lt;code&gt;OutputMode&lt;/code&gt;&lt;/a&gt; to &lt;code&gt;Shell&lt;/code&gt; and also set the &lt;a href=&#34;/mongo-csharp-driver/2.0/apidocs/html/P_MongoDB_Bson_IO_JsonWriterSettings_ShellVersion.htm
 &#34;&gt;&lt;code&gt;ShellVersion&lt;/code&gt;&lt;/a&gt; to the desired shell version.&lt;/p&gt;
 

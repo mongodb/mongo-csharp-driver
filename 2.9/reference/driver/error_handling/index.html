@@ -41,11 +41,11 @@
     
     <div>
 <div class="nav-items pull-right">
-  <a href="http://try.mongodb.org/" data-toggle="tooltip" data-placement="bottom" title="Try MongoDB in the browser">Try it Out</a>
-  <a href="http://www.mongodb.org/downloads" data-toggle="tooltip" data-placement="bottom" title="Download MongoDB">Downloads</a>
-  <a href="http://www.mongodb.org/get-involved" data-toggle="tooltip" data-placement="bottom" title="Get involved with MongoDB">Community</a>
-  <a href="http://docs.mongodb.org" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Documentation">Docs</a>
-  <a href="http://blog.mongodb.org" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Blog">Blog</a>
+  <a href="https://university.mongodb.com" data-toggle="tooltip" data-placement="bottom" title="Try MongoDB in the browser">Try it Out</a>
+  <a href="https://www.mongodb.com/try" data-toggle="tooltip" data-placement="bottom" title="Download MongoDB">Downloads</a>
+  <a href="https://www.mongodb.com/community" data-toggle="tooltip" data-placement="bottom" title="Get involved with MongoDB">Community</a>
+  <a href="https://www.mongodb.com/docs" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Documentation">Docs</a>
+  <a href="https://www.mongodb.com/blog" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Blog">Blog</a>
   <div id="search">
 <form method="get" action="//www.google.com/search" target="_blank">
     <input type="text" name="searchQuery" size="20" value="" autocomplete="off" placeholder="Search docs">
@@ -2477,8 +2477,8 @@
 
 <h2 id="error-handling">Error Handling</h2>
 
-<p>Error handling using the .NET driver is a requirement for a fault-tolerant system. While MongoDB supports <a href="http://docs.mongodb.org/manual/core/replica-set-high-availability/
-">automatic replica set failover</a> and the driver supports multiple <a href="http://docs.mongodb.org/manual/reference/program/mongos/
+<p>Error handling using the .NET driver is a requirement for a fault-tolerant system. While MongoDB supports <a href="https://www.mongodb.com/docs/manual/core/replica-set-high-availability/
+">automatic replica set failover</a> and the driver supports multiple <a href="https://www.mongodb.com/docs/manual/reference/program/mongos/
 ">mongos</a>&rsquo;s, this doesn&rsquo;t make a program immune to errors.</p>
 
 <p>Almost all errors will occur while attempting to perform an operation on the server. In other words, you will not receive an error when constructing a <a href="/mongo-csharp-driver/2.9/apidocs/html/T_MongoDB_Driver_MongoClient.htm
@@ -2488,8 +2488,8 @@
 
 <h2 id="server-selection-errors">Server Selection Errors</h2>
 
-<p>Even when some servers are available, it might not be possible to satisfy a request. For example, using <a href="http://docs.mongodb.org/manual/core/read-preference/#tag-sets
-">tag sets</a> in a read preference when no server exists with those tags or attempting to write to a <a href="http://docs.mongodb.org/manual/core/replication-introduction/
+<p>Even when some servers are available, it might not be possible to satisfy a request. For example, using <a href="https://www.mongodb.com/docs/manual/core/read-preference/#tag-sets
+">tag sets</a> in a read preference when no server exists with those tags or attempting to write to a <a href="https://www.mongodb.com/docs/manual/core/replication-introduction/
 ">replica set</a> when the Primary is unavailable. Both of these would result in a <a href="https://msdn.microsoft.com/en-us/library/system.timeoutexception.aspx"><code>TimeoutException</code></a>. Below is an example exception (formatted for readability) when attempting to insert into a replica set without a primary.</p>
 
 <pre><code class="language-bash">System.TimeoutException: A timeout occured after 30000ms selecting a server using 
@@ -2668,7 +2668,7 @@ Client view of cluster state is
 <p>We see that attempting to connect to <code>somefaroffplace:27017</code> failed because we &ldquo;Timed out connecting to Unspecified/somefaroffplace:27017. Timeout was 00:00:30.&rdquo;</p>
 
 <p>The default connection timeout is 30 seconds and can be changed using the <a href="/mongo-csharp-driver/2.9/apidocs/html/P_MongoDB_Driver_MongoClientSettings_ConnectTimeout.htm
-"><code>MongoClientSettings.ConnectTimeout</code></a> property or the <code>connectTimeout</code> option on a <a href="http://docs.mongodb.org/manual/reference/connection-string/
+"><code>MongoClientSettings.ConnectTimeout</code></a> property or the <code>connectTimeout</code> option on a <a href="https://www.mongodb.com/docs/manual/reference/connection-string/
 ">connection string</a>.</p>
 
 <h3 id="authentication-errors">Authentication Errors</h3>
@@ -2759,8 +2759,8 @@ Client view of cluster state is
 
 <h4 id="write-concern-error">Write Concern Error</h4>
 
-<p>A <a href="http://docs.mongodb.org/manual/core/write-concern/
-">write concern</a> error indicates that the server was unable to guarantee the write operation to the level specified. See the <a href="http://docs.mongodb.org/manual/core/write-concern/
+<p>A <a href="https://www.mongodb.com/docs/manual/core/write-concern/
+">write concern</a> error indicates that the server was unable to guarantee the write operation to the level specified. See the <a href="https://www.mongodb.com/docs/manual/core/write-concern/
 ">server&rsquo;s documentation</a> for more information.</p>
 
 <h3 id="bulk-write-exceptions">Bulk Write Exceptions</h3>
