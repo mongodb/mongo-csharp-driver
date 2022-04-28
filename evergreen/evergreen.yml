@@ -1330,6 +1330,10 @@ axes:
         display_name: "latest"
         variables:
            VERSION: "latest"
+      - id: "6.0"
+        display_name: "6.0"
+        variables:
+           VERSION: "6.0"
       - id: "5.0"
         display_name: "5.0"
         variables:
