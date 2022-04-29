@@ -294,7 +294,7 @@ Console.WriteLine(document.ToString());
 
 ## Updating Documents
 
-There are numerous [update operators](http://docs.mongodb.org/manual/reference/operator/update-field/) supported by MongoDB.
+There are numerous [update operators](https://www.mongodb.com/docs/manual/reference/operator/update-field/) supported by MongoDB.
 
 To update at most 1 document (may be 0 if none match the filter), use the [`UpdateOne`]({{< apiref "M_MongoDB_Driver_IMongoCollection_1_UpdateOne" >}}) or [`UpdateOneAsync`]({{< apiref "M_MongoDB_Driver_IMongoCollection_1_UpdateOneAsync" >}}) methods to specify the filter and the update document. Here we update the first document that meets the filter `i == 10` and set the value of `i` to `110`:
 

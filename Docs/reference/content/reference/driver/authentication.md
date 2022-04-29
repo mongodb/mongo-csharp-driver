@@ -18,7 +18,7 @@ Authentication credentials are created by the application as instances of [`Mong
 
 ### Default
 
-MongoDB 4.0 now uses [SCRAM](https://docs.mongodb.com/manual/core/security-scram/#authentication-scram) (Salted Challenge Response Authentication Mechanism) as the default mechanism and no longer supports [MONGODB-CR](http://docs.mongodb.org/manual/core/authentication/#mongodb-cr-authentication). To create a credential that will authenticate properly regardless of server version, create a credential using the following static factory method.
+MongoDB 4.0 now uses [SCRAM](https://www.mongodb.com/docs/manual/core/security-scram/#authentication-scram) (Salted Challenge Response Authentication Mechanism) as the default mechanism and no longer supports [MONGODB-CR](https://www.mongodb.com/docs/manual/core/authentication/#mongodb-cr-authentication). To create a credential that will authenticate properly regardless of server version, create a credential using the following static factory method.
 
 ```csharp
 var credential = MongoCredential.CreateCredential(databaseName, username, password);
@@ -30,7 +30,7 @@ Or via the connection string:
 mongodb://username:password@myserver/databaseName
 ```
 
-These are the recommended approaches as it will make upgrading from MongoDB 2.6 to MongoDB 3.0 seamless, before and after [upgrading the authentication schema](http://docs.mongodb.org/manual/release-notes/3.0-scram/#upgrade-mongodb-cr-to-scram). For MongoDB 4.0, the above approaches will automatically determine which version of SCRAM should be used (SCRAM-SHA-1 or SCRAM-SHA-256).
+These are the recommended approaches as it will make upgrading from MongoDB 2.6 to MongoDB 3.0 seamless, before and after [upgrading the authentication schema](https://www.mongodb.com/docs/manual/release-notes/3.0-scram/#upgrade-mongodb-cr-to-scram). For MongoDB 4.0, the above approaches will automatically determine which version of SCRAM should be used (SCRAM-SHA-1 or SCRAM-SHA-256).
 
 {{% note %}}The databaseName part of the connection string indicates which database the credentials are located in. See the [connection string section]({{< relref "connecting.md#connection-string" >}}) for more information on connection strings.{{% /note %}}
 
@@ -40,7 +40,7 @@ When connecting to a MongoDB 4.0 server without specifying an authentication mec
 
 #### SCRAM-SHA-256
 
-SCRAM-SHA-256 is the default authentication mechanism chosen as long as the user's authentication mechanism supports it. (See the [mechanism parameter of createUser()](https://docs.mongodb.com/manual/reference/method/db.createUser/#db.createUser) and the ["Supported Authentication Methods: Defaults" section of the Driver Authentication Specification](https://github.com/mongodb/specifications/blob/master/source/auth/auth.rst#defaults) for additional information.
+SCRAM-SHA-256 is the default authentication mechanism chosen as long as the user's authentication mechanism supports it. (See the [mechanism parameter of createUser()](https://www.mongodb.com/docs/manual/reference/method/db.createUser/#db.createUser) and the ["Supported Authentication Methods: Defaults" section of the Driver Authentication Specification](https://github.com/mongodb/specifications/blob/master/source/auth/auth.rst#defaults) for additional information.
 
 ##### SecureStrings
 
@@ -52,7 +52,7 @@ In .NET Standard, authenticating via SCRAM-SHA-256 may not work with non-ASCII p
 
 ### x.509 Authentication
 
-The [x.509](http://docs.mongodb.org/manual/core/authentication/#x-509-certificate-authentication) mechanism authenticates a user whose name is derived from the distinguished subject name of the x.509 certificate presented by the driver during SSL negotiation. This authentication method requires the use of [SSL connections]({{< relref "reference\driver\ssl.md" >}}) with certificate validation and is available in MongoDB 2.6 and newer. 
+The [x.509](https://www.mongodb.com/docs/manual/core/authentication/#x-509-certificate-authentication) mechanism authenticates a user whose name is derived from the distinguished subject name of the x.509 certificate presented by the driver during SSL negotiation. This authentication method requires the use of [SSL connections]({{< relref "reference\driver\ssl.md" >}}) with certificate validation and is available in MongoDB 2.6 and newer. 
 
 There are two ways to create a credential of this type:
 
@@ -62,10 +62,10 @@ There are two ways to create a credential of this type:
     var credential = MongoCredential.CreateX509Credential(username);
     ```
 
-    When configuring x.509 authentication programmatically, the `username` parameter provided to `CreateX509Credential` must match the distinguished subject name of your x.509 certificate *exactly*. To determine the exact `username` required for your x.509 connection, consult [the MongoDB server x.509 tutorial](http://docs.mongodb.org/manual/tutorial/configure-x509-client-authentication/#add-x-509-certificate-subject-as-a-user). Alternatively, any `null` `username` parameter provided to `CreateX509Credential` will cause the MongoDB server to infer a username based on the distinguished subject name of the x.509 certificate. Using a `null` username value can help prevent issues when certificates are updated, since you can avoid managing a `username` value and a certificate as separate entities in your environment.
+    When configuring x.509 authentication programmatically, the `username` parameter provided to `CreateX509Credential` must match the distinguished subject name of your x.509 certificate *exactly*. To determine the exact `username` required for your x.509 connection, consult [the MongoDB server x.509 tutorial](https://www.mongodb.com/docs/manual/tutorial/configure-x509-client-authentication/#add-x-509-certificate-subject-as-a-user). Alternatively, any `null` `username` parameter provided to `CreateX509Credential` will cause the MongoDB server to infer a username based on the distinguished subject name of the x.509 certificate. Using a `null` username value can help prevent issues when certificates are updated, since you can avoid managing a `username` value and a certificate as separate entities in your environment.
 
 
-2. Manually, using [connection string options](https://docs.mongodb.com/manual/reference/connection-string/#connection-string-options):
+2. Manually, using [connection string options](https://www.mongodb.com/docs/manual/reference/connection-string/#connection-string-options):
 
     ```
     mongodb://myserver/?authMechanism=MONGODB-X509
@@ -122,7 +122,7 @@ var settings = new MongoClientSettings
 
 ### GSSAPI/Kerberos
 
-[MongoDB Enterprise](http://www.mongodb.com/products/mongodb-enterprise) supports authentication using [Kerberos/GSSAPI](http://docs.mongodb.org/manual/core/authentication/#kerberos-authentication). The .NET driver supports Kerberos/GSSAPI authentication on Windows and Linux.
+[MongoDB Enterprise](https://www.mongodb.com/products/mongodb-enterprise) supports authentication using [Kerberos/GSSAPI](https://www.mongodb.com/docs/manual/core/authentication/#kerberos-authentication). The .NET driver supports Kerberos/GSSAPI authentication on Windows and Linux.
 
 {{% note %}}Support for Kerberos/GSSAPI on Linux requires the shared library `libgssapi_krb5.so`. Please refer to your Linux package manager documentation for how to install this dependency if it is not already present on your system.{{% /note %}}
 
@@ -208,7 +208,7 @@ mongodb://username%40REALM.com@myserver/?authMechanism=GSSAPI&authMechanismPrope
 
 ### LDAP (PLAIN)
 
-[MongoDB Enterprise](http://www.mongodb.com/products/mongodb-enterprise) supports proxy authentication through a Lightweight Directory Access Protocol (LDAP) service. To create a credential of type LDAP use the following static factory method:
+[MongoDB Enterprise](https://www.mongodb.com/products/mongodb-enterprise) supports proxy authentication through a Lightweight Directory Access Protocol (LDAP) service. To create a credential of type LDAP use the following static factory method:
 
 ```csharp
 var credential = MongoCredential.CreatePlainCredential("$external", username, password);

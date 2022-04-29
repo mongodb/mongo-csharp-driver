@@ -16,4 +16,4 @@ If you require assistance with this driver, please see our paid support resource
 - Bug Reports that are reproducible can be filed in [JIRA](https://jira.mongodb.org/browse/CSHARP)
 - Feature requests for the driver can be requested in our [Feedback Engine](https://feedback.mongodb.com/forums/924286-drivers)
 
-If you’ve identified a security vulnerability in a driver or any other MongoDB project, please report it according to the [instructions here](http://docs.mongodb.org/manual/tutorial/create-a-vulnerability-report).
+If you’ve identified a security vulnerability in a driver or any other MongoDB project, please report it according to the [instructions here](https://www.mongodb.com/docs/manual/tutorial/create-a-vulnerability-report).

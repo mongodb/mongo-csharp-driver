@@ -14,7 +14,7 @@ https://jira.mongodb.org/issues/?filter=18283
 
 Documentation on the .NET driver can be found at:
 
-http://mongodb.github.io/mongo-csharp-driver/
+https://mongodb.github.io/mongo-csharp-driver/
 
 
 ## New Features
