@@ -61,15 +61,15 @@ foreach(var person in list)
 
 Documentation
 -------------
-* [MongoDB](http://www.mongodb.org/)
-* [Documentation](http://mongodb.github.io/mongo-csharp-driver/)
+* [MongoDB](https://www.mongodb.com/docs)
+* [Documentation](https://mongodb.github.io/mongo-csharp-driver/)
 
 Questions/Bug Reports
 ---------------------
 * [MongoDB Community Forum](https://developer.mongodb.com/community/forums/tags/c/drivers-odms-connectors/7/dot-net-driver)
 * [Jira](https://jira.mongodb.org/browse/CSHARP)
 
-If you’ve identified a security vulnerability in a driver or any other MongoDB project, please report it according to the [instructions here](http://docs.mongodb.org/manual/tutorial/create-a-vulnerability-report).
+If you’ve identified a security vulnerability in a driver or any other MongoDB project, please report it according to the [instructions here](https://www.mongodb.com/docs/manual/tutorial/create-a-vulnerability-report).
 
 Contributing
 ------------
@@ -80,7 +80,6 @@ Please see our [guidelines](CONTRIBUTING.md) for contributing to the driver.
 * Boris Dogadov             boris.dogadov@mongodb.com
 * Dmitry Lukyanov           dmitry.lukyanov@mongodb.com
 * James Kovacs              james.kovacs@mongodb.com
-* Mikalai Mazurenka         mikalai.mazurenka@mongodb.com
 * Robert Stam               robert@mongodb.com
 
 ### Contributors:
@@ -129,6 +128,7 @@ Please see our [guidelines](CONTRIBUTING.md) for contributing to the driver.
 * Chuck Lu                  https://github.com/chucklu
 * Alex Lyman                mail.alex.lyman@gmail.com
 * Tomasz Masternak          https://github.com/tmasternak
+* Mikalai Mazurenka         mikalai.mazurenka@mongodb.com
 * John Murphy               https://github.com/jsmurphy
 * Alexander Nagy            optimiz3@gmail.com
 * Sridhar Nanjundeswaran    https://github.com/sridharn

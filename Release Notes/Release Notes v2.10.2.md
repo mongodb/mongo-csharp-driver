@@ -16,7 +16,7 @@ https://jira.mongodb.org/issues/?jql=project%20%3D%20CSHARP%20AND%20fixVersion%2
 
 Documentation on the .NET driver can be found at:
 
-http://mongodb.github.io/mongo-csharp-driver/
+https://mongodb.github.io/mongo-csharp-driver/
 
 ## Upgrading
 

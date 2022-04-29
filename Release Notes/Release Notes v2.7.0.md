@@ -17,7 +17,7 @@ The list of JIRA tickets resolved in this release is available at:
 
 Documentation on the .NET driver can be found at:
 
-<http://mongodb.github.io/mongo-csharp-driver/>
+<https://mongodb.github.io/mongo-csharp-driver/>
 
 ## Upgrading
 

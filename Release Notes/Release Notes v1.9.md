@@ -23,17 +23,17 @@ Additionally, this will be the last non-bug fix release supporting .NET 3.5.
 
 Some of the notable features:
 
-* [Bulk Write Commands](http://docs.mongodb.org/master/release-notes/2.6/#new-write-commands)
-* [Text Search](http://docs.mongodb.org/master/release-notes/2.6/#text-search-changes)
-* [$out for aggregation](http://docs.mongodb.org/master/release-notes/2.6/#out-stage-to-write-data-to-a-collection)
-* [Aggregation cursors](http://docs.mongodb.org/master/release-notes/2.6/#aggregation-operations-now-return-cursors)
-* [Improved sorting in aggregation](http://docs.mongodb.org/master/release-notes/2.6/#improved-sorting)
-* [Aggregation explain](http://docs.mongodb.org/master/release-notes/2.6/#explain-option-for-the-aggregation-pipeline)
-* [x.509 Authentication](http://docs.mongodb.org/master/release-notes/2.6/#x-509-authentication)
-* [LDAP Support for Authentication](http://docs.mongodb.org/master/release-notes/2.6/#x-509-authentication)
+* [Bulk Write Commands](https://www.mongodb.com/docs/master/release-notes/2.6/#new-write-commands)
+* [Text Search](https://www.mongodb.com/docs/master/release-notes/2.6/#text-search-changes)
+* [$out for aggregation](https://www.mongodb.com/docs/master/release-notes/2.6/#out-stage-to-write-data-to-a-collection)
+* [Aggregation cursors](https://www.mongodb.com/docs/master/release-notes/2.6/#aggregation-operations-now-return-cursors)
+* [Improved sorting in aggregation](https://www.mongodb.com/docs/master/release-notes/2.6/#improved-sorting)
+* [Aggregation explain](https://www.mongodb.com/docs/master/release-notes/2.6/#explain-option-for-the-aggregation-pipeline)
+* [x.509 Authentication](https://www.mongodb.com/docs/master/release-notes/2.6/#x-509-authentication)
+* [LDAP Support for Authentication](https://www.mongodb.com/docs/master/release-notes/2.6/#x-509-authentication)
 * [Max execution time enforcement](https://jira.mongodb.org/browse/SERVER-2212)
 
-A full set of server changes in server 2.6 can be found [here](http://docs.mongodb.org/master/release-notes/2.6/).
+A full set of server changes in server 2.6 can be found [here](https://www.mongodb.com/docs/master/release-notes/2.6/).
 
 Compatibility Changes
 ---------------------

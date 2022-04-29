@@ -21,7 +21,7 @@ https://jira.mongodb.org/secure/IssueNavigator.jspa?mode=hide&requestId=12011
 
 Information about read preferences is available online at:
 
-http://docs.mongodb.org/manual/applications/replication/#read-preference
+https://www.mongodb.com/docs/manual/applications/replication/#read-preference
 
 These release notes describe the changes at a higher level, and omits describing
 some of the minor changes.

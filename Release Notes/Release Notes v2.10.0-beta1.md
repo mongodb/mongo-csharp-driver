@@ -18,7 +18,7 @@ The list may change as we approach the release date.
 
 Documentation on the .NET driver can be found at:
 
-http://mongodb.github.io/mongo-csharp-driver/
+https://mongodb.github.io/mongo-csharp-driver/
 
 ## Upgrading
 
