@@ -15,9 +15,9 @@
 
 using System;
 using System.Linq;
-using System.Linq.Expressions;
 using FluentAssertions;
 using MongoDB.Bson.IO;
+using MongoDB.Driver.Linq;
 using MongoDB.Driver.Tests.Linq.Linq3ImplementationTests;
 using Xunit;
 
@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Tests.Jira
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
-        public void Densify_time_series_data_example_with_field_names_example_should_work(bool usingExpressions)
+        public void Densify_time_series_data_example_using_aggregate_should_work(bool usingExpressions)
         {
             var collection = CreateWeatherCollection();
             var subject = collection.Aggregate();
@@ -73,10 +73,45 @@ namespace MongoDB.Driver.Tests.Jira
         }
 
         // this example is from: https://www.mongodb.com/docs/v5.2/reference/operator/aggregation/densify
+        [Fact]
+        public void Densify_time_series_data_example_using_linq_should_work()
+        {
+            var collection = CreateWeatherCollection();
+            var subject = collection.AsQueryable();
+
+            var lowerBound = DateTime.Parse("2021-05-18T00:00:00.000Z");
+            var upperBound = DateTime.Parse("2021-05-18T08:00:00.000Z");
+
+            var queryable = subject.Densify(
+                field: x => x.Timestamp,
+                range: DensifyRange.DateTime(lowerBound, upperBound, step: 1, DensifyDateTimeUnit.Hours));
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $densify : { field : 'Timestamp', range : { step : 1, unit : 'hour', bounds : [ISODate('2021-05-18T00:00:00.000Z'), ISODate('2021-05-18T08:00:00.000Z')] } } }");
+
+            var results = queryable.ToList();
+            var timestamps = results.Select(r => r.Timestamp).OrderBy(t => t).ToList();
+            var expectedTimestamps = new[]
+            {
+                "2021-05-18T00:00:00.000Z",
+                "2021-05-18T01:00:00.000Z",
+                "2021-05-18T02:00:00.000Z",
+                "2021-05-18T03:00:00.000Z",
+                "2021-05-18T04:00:00.000Z",
+                "2021-05-18T05:00:00.000Z",
+                "2021-05-18T06:00:00.000Z",
+                "2021-05-18T07:00:00.000Z",
+                "2021-05-18T08:00:00.000Z",
+                "2021-05-18T12:00:00.000Z"
+            };
+            timestamps.Should().Equal(expectedTimestamps.Select(t => JsonConvert.ToDateTime(t)));
+        }
+
+        // this example is from: https://www.mongodb.com/docs/v5.2/reference/operator/aggregation/densify
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
-        public void Densify_the_full_range_of_values_example_should_work(bool usingExpressions)
+        public void Densify_the_full_range_of_values_example_using_aggregate_should_work(bool usingExpressions)
         {
             var collection = CreateCoffeeCollection();
             var subject = collection.Aggregate();
@@ -124,10 +159,48 @@ namespace MongoDB.Driver.Tests.Jira
         }
 
         // this example is from: https://www.mongodb.com/docs/v5.2/reference/operator/aggregation/densify
+        [Fact]
+        public void Densify_the_full_range_of_values_example_using_linq_should_work()
+        {
+            var collection = CreateCoffeeCollection();
+            var subject = collection.AsQueryable();
+
+            var queryable = subject.Densify(
+                field: x => x.Altitude,
+                range: DensifyRange.Numeric(DensifyBounds.Full, step: 200),
+                partitionByFields: x => x.Variety);
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $densify : { field : 'Altitude', partitionByFields : ['Variety'], range : { step : 200, bounds : 'full' } } }");
+
+            var results = queryable.ToList().Select(r => new { Variety = r.Variety, Altitude = r.Altitude }).OrderBy(r => r.Variety).ThenBy(r => r.Altitude).ToList();
+            var expectedResults = new[]
+            {
+                new { Variety = "Arabica Typica", Altitude = 600 },
+                new { Variety = "Arabica Typica", Altitude = 750 },
+                new { Variety = "Arabica Typica", Altitude = 800 },
+                new { Variety = "Arabica Typica", Altitude = 950 },
+                new { Variety = "Arabica Typica", Altitude = 1000 },
+                new { Variety = "Arabica Typica", Altitude = 1200 },
+                new { Variety = "Arabica Typica", Altitude = 1400 },
+                new { Variety = "Arabica Typica", Altitude = 1600 },
+                new { Variety = "Gesha", Altitude = 600 },
+                new { Variety = "Gesha", Altitude = 800 },
+                new { Variety = "Gesha", Altitude = 1000 },
+                new { Variety = "Gesha", Altitude = 1200 },
+                new { Variety = "Gesha", Altitude = 1250 },
+                new { Variety = "Gesha", Altitude = 1400 },
+                new { Variety = "Gesha", Altitude = 1600 },
+                new { Variety = "Gesha", Altitude = 1700 }
+           };
+            results.Should().Equal(expectedResults);
+        }
+
+        // this example is from: https://www.mongodb.com/docs/v5.2/reference/operator/aggregation/densify
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
-        public void Densify_values_within_each_partition_example_should_work(bool usingExpressions)
+        public void Densify_values_within_each_partition_example_using_aggregate_should_work(bool usingExpressions)
         {
             var collection = CreateCoffeeCollection();
             var subject = collection.Aggregate();
@@ -152,6 +225,36 @@ namespace MongoDB.Driver.Tests.Jira
             AssertStages(stages, "{ $densify : { field : 'Altitude', partitionByFields : ['Variety'], range : { step : 200, bounds : 'partition' } } }");
 
             var results = aggregate.ToList().Select(r => new { Variety = r.Variety, Altitude = r.Altitude }).OrderBy(r => r.Variety).ThenBy(r => r.Altitude).ToList();
+            var expectedResults = new[]
+            {
+                new { Variety = "Arabica Typica", Altitude = 600 },
+                new { Variety = "Arabica Typica", Altitude = 750 },
+                new { Variety = "Arabica Typica", Altitude = 800 },
+                new { Variety = "Arabica Typica", Altitude = 950 },
+                new { Variety = "Gesha", Altitude = 1250 },
+                new { Variety = "Gesha", Altitude = 1450 },
+                new { Variety = "Gesha", Altitude = 1650 },
+                new { Variety = "Gesha", Altitude = 1700 }
+           };
+            results.Should().Equal(expectedResults);
+        }
+
+        // this example is from: https://www.mongodb.com/docs/v5.2/reference/operator/aggregation/densify
+        [Fact]
+        public void Densify_values_within_each_partition_example_using_linq_should_work()
+        {
+            var collection = CreateCoffeeCollection();
+            var subject = collection.AsQueryable();
+
+            var queryable = subject.Densify(
+                field: x => x.Altitude,
+                range: DensifyRange.Numeric(DensifyBounds.Partition, step: 200),
+                partitionByFields: x => x.Variety);
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $densify : { field : 'Altitude', partitionByFields : ['Variety'], range : { step : 200, bounds : 'partition' } } }");
+
+            var results = queryable.ToList().Select(r => new { Variety = r.Variety, Altitude = r.Altitude }).OrderBy(r => r.Variety).ThenBy(r => r.Altitude).ToList();
             var expectedResults = new[]
             {
                 new { Variety = "Arabica Typica", Altitude = 600 },

@@ -92,6 +92,22 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             throw new ExpressionNotSupportedException(expression);
         }
 
+        public static Expression RemoveConvertToBaseType(Expression expression)
+        {
+            if (expression.NodeType == ExpressionType.Convert)
+            {
+                var convertExpression = (UnaryExpression)expression;
+                var sourceType = convertExpression.Operand.Type;
+                var targetType = convertExpression.Type;
+                if (targetType.IsAssignableFrom(sourceType))
+                {
+                    return convertExpression.Operand;
+                }
+            }
+
+            return expression;
+        }
+
         public static Expression RemoveConvertToEnumUnderlyingType(Expression expression)
         {
             if (expression.NodeType == ExpressionType.Convert)

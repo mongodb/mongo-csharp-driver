@@ -20,71 +20,75 @@ using MongoDB.Driver.Core.Misc;
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// 
+    /// Represents a range for the $densify stage.
     /// </summary>
     public abstract class DensifyRange
     {
         #region static
         /// <summary>
-        /// 
+        /// Creates a DensifyRange with DateTime bounds.
         /// </summary>
-        /// <param name="lowerBound"></param>
-        /// <param name="upperBound"></param>
-        /// <param name="step"></param>
-        /// <param name="unit"></param>
-        /// <returns></returns>
+        /// <param name="lowerBound">The lower bound.</param>
+        /// <param name="upperBound">The upper bound.</param>
+        /// <param name="step">The step.</param>
+        /// <param name="unit">The unit.</param>
+        /// <returns>A DensifyRange with DateTime bounds.</returns>
         public static DensifyRange DateTime(DateTime lowerBound, DateTime upperBound, int step, DensifyDateTimeUnit unit)
+
         {
-            return new DensifyDateTimeRange(new DensifyValuesDateTimeBounds(lowerBound, upperBound), step, unit);
+            return new DensifyDateTimeRange(new DensifyLowerUpperDateTimeBounds(lowerBound, upperBound), step, unit);
         }
 
         /// <summary>
-        /// 
+        /// Creates a DensifyRange with DateTime bounds.
         /// </summary>
-        /// <param name="bounds"></param>
-        /// <param name="step"></param>
-        /// <param name="unit"></param>
-        /// <returns></returns>
+        /// <param name="bounds">The bounds.</param>
+        /// <param name="step">The step.</param>
+        /// <param name="unit">The unit.</param>
+        /// <returns>A DensifyRange with DateTime bounds.</returns>
         public static DensifyRange DateTime(DensifyBounds bounds, int step, DensifyDateTimeUnit unit)
         {
-            return new DensifyDateTimeRange(new DensifyKeywordDateTimeBounds(bounds.Keyword), step, unit);
+            return new DensifyDateTimeRange(bounds.ToDateTimeBounds(), step, unit);
         }
 
         /// <summary>
-        /// 
+        /// Creates a DensifyRange with numeric bounds.
         /// </summary>
-        /// <typeparam name="TNumber"></typeparam>
-        /// <param name="lowerBound"></param>
-        /// <param name="upperBound"></param>
-        /// <param name="step"></param>
-        /// <returns></returns>
+        /// <typeparam name="TNumber">The numeric type.</typeparam>
+        /// <param name="lowerBound">The lower bound.</param>
+        /// <param name="upperBound">The upper bound.</param>
+        /// <param name="step">The step.</param>
+        /// <returns>A DensifyRange with numeric bounds.</returns>
         public static DensifyRange Numeric<TNumber>(TNumber lowerBound, TNumber upperBound, TNumber step)
         {
-            return new DensifyNumericRange<TNumber>(new DensifyValuesNumericBounds<TNumber>(lowerBound, upperBound), step);
+            return new DensifyNumericRange<TNumber>(new DensifyLowerUpperNumericBounds<TNumber>(lowerBound, upperBound), step);
         }
 
         /// <summary>
-        /// 
+        /// Creates a DensifyRange with numeric bounds.
         /// </summary>
-        /// <typeparam name="TNumber"></typeparam>
-        /// <param name="bounds"></param>
-        /// <param name="step"></param>
-        /// <returns></returns>
+        /// <typeparam name="TNumber">The numeric type.</typeparam>
+        /// <param name="bounds">The bounds.</param>
+        /// <param name="step">The step.</param>
+        /// <returns>A DensifyRange with numeric bounds.</returns>
         public static DensifyRange Numeric<TNumber>(DensifyBounds bounds, TNumber step)
         {
-            return new DensifyNumericRange<TNumber>(new DensifyKeywordNumericBounds<TNumber>(bounds.Keyword), step);
+            return new DensifyNumericRange<TNumber>(bounds.ToNumericBounds<TNumber>(), step);
         }
         #endregion
 
         /// <summary>
-        /// 
+        /// Renders the range as a BsonDocument.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The rendered range.</returns>
         public abstract BsonDocument Render();
+
+        /// <inheritdoc/>
+        public override string ToString() => Render().ToJson();
     }
 
     /// <summary>
-    /// 
+    /// Represents keyword densify bounds.
     /// </summary>
     public sealed class DensifyBounds
     {
@@ -93,12 +97,12 @@ namespace MongoDB.Driver
         private static readonly DensifyBounds __partition = new DensifyBounds("partition");
 
         /// <summary>
-        /// 
+        /// Gets a DensifyBounds representing the "full" bounds.
         /// </summary>
         public static DensifyBounds Full => __full;
 
         /// <summary>
-        /// 
+        /// Gets a DensifyBounds representing the "partition" bounds.
         /// </summary>
         public static DensifyBounds Partition => __partition;
         #endregion
@@ -111,19 +115,39 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// 
+        /// Gets the keyword.
         /// </summary>
         public string Keyword => _keyword;
+
+        internal DensifyKeywordDateTimeBounds ToDateTimeBounds()
+        {
+            return _keyword switch
+            {
+                "full" => DensifyKeywordDateTimeBounds.Full,
+                "partition" => DensifyKeywordDateTimeBounds.Partition,
+                _ => throw new ArgumentException($"Invalid DensifyBounds keyword: {_keyword}.", nameof(_keyword))
+            };
+        }
+
+        internal DensifyKeywordNumericBounds<TNumber> ToNumericBounds<TNumber>()
+        {
+            return _keyword switch
+            {
+                "full" => DensifyKeywordNumericBounds<TNumber>.Full,
+                "partition" => DensifyKeywordNumericBounds<TNumber>.Partition,
+                _ => throw new ArgumentException($"Invalid DensifyBounds keyword: {_keyword}.", nameof(_keyword))
+            };
+        }
     }
 
     /// <summary>
-    /// 
+    /// Represents a numeric densify range.
     /// </summary>
-    /// <typeparam name="TNumber"></typeparam>
+    /// <typeparam name="TNumber">The numeric type.</typeparam>
     public sealed class DensifyNumericRange<TNumber> : DensifyRange
     {
         #region static
-        internal static void EnsureTNumberIsValidNumericType()
+        internal static void EnsureIsValidNumericType()
         {
             switch (Type.GetTypeCode(typeof(TNumber)))
             {
@@ -157,24 +181,24 @@ namespace MongoDB.Driver
         private readonly TNumber _step;
 
         /// <summary>
-        /// 
+        /// Initializes a new instance of DensifyNumericRange.
         /// </summary>
-        /// <param name="bounds"></param>
-        /// <param name="step"></param>
+        /// <param name="bounds">The bounds.</param>
+        /// <param name="step">The step.</param>
         public DensifyNumericRange(DensifyNumericBounds<TNumber> bounds, TNumber step)
         {
-            EnsureTNumberIsValidNumericType();
+            EnsureIsValidNumericType();
             _bounds = Ensure.IsNotNull(bounds, nameof(bounds));
             _step = step;
         }
 
         /// <summary>
-        /// 
+        /// Gets the bounds.
         /// </summary>
         public DensifyNumericBounds<TNumber> Bounds => _bounds;
 
         /// <summary>
-        /// 
+        /// Gets the step.
         /// </summary>
         public TNumber Step => _step;
 
@@ -190,24 +214,32 @@ namespace MongoDB.Driver
     }
 
     /// <summary>
-    /// 
+    /// Represents a numeric densify bounds.
     /// </summary>
-    /// <typeparam name="TNumber"></typeparam>
+    /// <typeparam name="TNumber">The numeric type.</typeparam>
     public abstract class DensifyNumericBounds<TNumber>
     {
         /// <summary>
-        /// 
+        /// Renders the bounds as a BsonValue.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The rendered bounds.</returns>
         public abstract BsonValue Render();
     }
 
     /// <summary>
-    /// 
+    /// Represents a keyword numeric densify bounds.
     /// </summary>
-    /// <typeparam name="TNumber"></typeparam>
+    /// <typeparam name="TNumber">The numeric type.</typeparam>
     public sealed class DensifyKeywordNumericBounds<TNumber> : DensifyNumericBounds<TNumber>
     {
+        #region static
+        private readonly static DensifyKeywordNumericBounds<TNumber> __full = new DensifyKeywordNumericBounds<TNumber>("full");
+        private readonly static DensifyKeywordNumericBounds<TNumber> __partition = new DensifyKeywordNumericBounds<TNumber>("partition");
+
+        internal static DensifyKeywordNumericBounds<TNumber> Full => __full;
+        internal static DensifyKeywordNumericBounds<TNumber> Partition => __partition;
+        #endregion
+
         private readonly string _keyword;
 
         internal DensifyKeywordNumericBounds(string keyword)
@@ -216,7 +248,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// 
+        /// Gets the keyword.
         /// </summary>
         public string Keyword => _keyword;
 
@@ -225,32 +257,32 @@ namespace MongoDB.Driver
     }
 
     /// <summary>
-    /// 
+    /// Represents a numeric densify bounds with lower and upper bounds.
     /// </summary>
-    /// <typeparam name="TNumber"></typeparam>
-    public sealed class DensifyValuesNumericBounds<TNumber> : DensifyNumericBounds<TNumber>
+    /// <typeparam name="TNumber">The numeric type.</typeparam>
+    public sealed class DensifyLowerUpperNumericBounds<TNumber> : DensifyNumericBounds<TNumber>
     {
         private readonly TNumber _lowerBound;
         private readonly TNumber _upperBound;
 
         /// <summary>
-        /// 
+        /// Initializes an instance of DensifyLowerUpperNumericBounds.
         /// </summary>
-        /// <param name="lowerBound"></param>
-        /// <param name="upperBound"></param>
-        public DensifyValuesNumericBounds(TNumber lowerBound, TNumber upperBound)
+        /// <param name="lowerBound">The lower bound.</param>
+        /// <param name="upperBound">The upper bound.</param>
+        public DensifyLowerUpperNumericBounds(TNumber lowerBound, TNumber upperBound)
         {
             _lowerBound = lowerBound;
             _upperBound = upperBound;
         }
 
         /// <summary>
-        /// 
+        /// Gets the lower bound.
         /// </summary>
         public TNumber LowerBound => _lowerBound;
 
         /// <summary>
-        /// 
+        /// Gets the upper bound.
         /// </summary>
         public TNumber UpperBound => _upperBound;
 
@@ -261,7 +293,7 @@ namespace MongoDB.Driver
     }
 
     /// <summary>
-    /// 
+    /// Represents a DateTime densify range.
     /// </summary>
     public sealed class DensifyDateTimeRange : DensifyRange
     {
@@ -270,11 +302,11 @@ namespace MongoDB.Driver
         private readonly DensifyDateTimeUnit _unit;
 
         /// <summary>
-        /// 
+        /// Initializes an instance of DensifyDateTimeRange.
         /// </summary>
-        /// <param name="bounds"></param>
-        /// <param name="step"></param>
-        /// <param name="unit"></param>
+        /// <param name="bounds">The bounds.</param>
+        /// <param name="step">The step.</param>
+        /// <param name="unit">The unit.</param>
         public DensifyDateTimeRange(DensifyDateTimeBounds bounds, int step, DensifyDateTimeUnit unit)
         {
             _bounds = Ensure.IsNotNull(bounds, nameof(bounds));
@@ -283,17 +315,17 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// 
+        /// Gets the bounds.
         /// </summary>
         public DensifyDateTimeBounds Bounds => _bounds;
 
         /// <summary>
-        /// 
+        /// Gets the step.
         /// </summary>
         public long Step => _step;
 
         /// <summary>
-        /// 
+        /// Gets the unit.
         /// </summary>
         public DensifyDateTimeUnit Unit => _unit;
 
@@ -327,35 +359,43 @@ namespace MongoDB.Driver
     }
 
     /// <summary>
-    /// 
+    /// Represents a DateTime densify bounds.
     /// </summary>
     public abstract class DensifyDateTimeBounds
     {
         /// <summary>
-        /// 
+        /// Renders the bounds as a BsonValue.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The rendered bounds.</returns>
         public abstract BsonValue Render();
     }
 
     /// <summary>
-    /// 
+    /// Represents a keyword DateTime densify bounds.
     /// </summary>
     public sealed class DensifyKeywordDateTimeBounds : DensifyDateTimeBounds
     {
+        #region static
+        private readonly static DensifyKeywordDateTimeBounds __full = new DensifyKeywordDateTimeBounds("full");
+        private readonly static DensifyKeywordDateTimeBounds __partition = new DensifyKeywordDateTimeBounds("partition");
+
+        internal static DensifyKeywordDateTimeBounds Full => __full;
+        internal static DensifyKeywordDateTimeBounds Partition => __partition;
+        #endregion
+
         private readonly string _keyword;
 
         /// <summary>
-        /// 
+        /// Initializes an instance of DensifyKeywordDateTimeBounds.
         /// </summary>
-        /// <param name="keyword"></param>
+        /// <param name="keyword">The keyword.</param>
         internal DensifyKeywordDateTimeBounds(string keyword)
         {
             _keyword = Ensure.IsNotNullOrEmpty(keyword, nameof(keyword));
         }
 
         /// <summary>
-        /// 
+        /// Gets the keyword.
         /// </summary>
         public string Keyword => _keyword;
 
@@ -364,31 +404,31 @@ namespace MongoDB.Driver
     }
 
     /// <summary>
-    /// 
+    /// Represents a DateTime densify bounds with lower and upper bounds.
     /// </summary>
-    public sealed class DensifyValuesDateTimeBounds : DensifyDateTimeBounds
+    public sealed class DensifyLowerUpperDateTimeBounds : DensifyDateTimeBounds
     {
         private readonly DateTime _lowerBound;
         private readonly DateTime _upperBound;
 
         /// <summary>
-        /// 
+        /// Initializes an instance of DensifyLowerUpperDateTimeBounds.
         /// </summary>
-        /// <param name="lowerBound"></param>
-        /// <param name="upperBound"></param>
-        public DensifyValuesDateTimeBounds(DateTime lowerBound, DateTime upperBound)
+        /// <param name="lowerBound">The lower bound.</param>
+        /// <param name="upperBound">The upper bound.</param>
+        public DensifyLowerUpperDateTimeBounds(DateTime lowerBound, DateTime upperBound)
         {
             _lowerBound = lowerBound;
             _upperBound = upperBound;
         }
 
         /// <summary>
-        /// 
+        /// Gets the lower bound.
         /// </summary>
         public DateTime LowerBound => _lowerBound;
 
         /// <summary>
-        /// 
+        /// Gets the upper bound.
         /// </summary>
         public DateTime UpperBound => _upperBound;
 
@@ -397,52 +437,52 @@ namespace MongoDB.Driver
     }
 
     /// <summary>
-    /// 
+    /// Represents a densify DateTime unit.
     /// </summary>
     public enum DensifyDateTimeUnit
     {
         /// <summary>
-        /// 
+        /// Milliseconds.
         /// </summary>
         Milliseconds = 1,
 
         /// <summary>
-        /// 
+        /// Seconds.
         /// </summary>
         Seconds,
 
         /// <summary>
-        /// 
+        /// Minutes.
         /// </summary>
         Minutes,
 
         /// <summary>
-        /// 
+        /// Hours.
         /// </summary>
         Hours,
 
         /// <summary>
-        /// 
+        /// Days.
         /// </summary>
         Days,
 
         /// <summary>
-        /// 
+        /// Weeks.
         /// </summary>
         Weeks,
 
         /// <summary>
-        /// 
+        /// Months.
         /// </summary>
         Months,
 
         /// <summary>
-        /// 
+        /// Quarters.
         /// </summary>
         Quarters,
 
         /// <summary>
-        /// 
+        /// Years.
         /// </summary>
         Years
     }
