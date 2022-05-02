@@ -80,6 +80,14 @@ namespace MongoDB.Driver.Core.Misc
         /// Wire version 15.
         /// </summary>
         public const int Server52 = 15;
+        /// <summary>
+        /// Wire version 16.
+        /// </summary>
+        public const int Server53 = 16;
+        /// <summary>
+        /// Wire version 17.
+        /// </summary>
+        public const int Server60 = 17;
 
         #region static
         private static List<WireVersionInfo> __knownWireVersions = new()
@@ -105,6 +113,8 @@ namespace MongoDB.Driver.Core.Misc
             new WireVersionInfo(wireVersion: 13, major: 5, minor: 0),
             new WireVersionInfo(wireVersion: 14, major: 5, minor: 1),
             new WireVersionInfo(wireVersion: 15, major: 5, minor: 2),
+            new WireVersionInfo(wireVersion: 16, major: 5, minor: 3),
+            new WireVersionInfo(wireVersion: 17, major: 6, minor: 0),
         };
 
         private static Range<int> __supportedWireVersionRange = CreateSupportedWireVersionRange(minWireVersion: 6, maxWireVersion: 15);

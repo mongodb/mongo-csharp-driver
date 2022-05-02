@@ -46,7 +46,9 @@ namespace MongoDB.Driver.Core.Tests.Core.Misc
 
         [Theory]
         [InlineData(99, null, null)]
-        [InlineData(16, null, null)]
+        [InlineData(18, null, null)]
+        [InlineData(17, 6, 0)]
+        [InlineData(16, 5, 3)]
         [InlineData(15, 5, 2)]
         [InlineData(14, 5, 1)]
         [InlineData(10, 4, 7)]

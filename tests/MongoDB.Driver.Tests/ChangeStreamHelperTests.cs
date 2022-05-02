@@ -35,6 +35,7 @@ namespace MongoDB.Driver.Tests
                 BatchSize = 123,
                 Collation = new Collation("en-us"),
                 FullDocument = ChangeStreamFullDocumentOption.UpdateLookup,
+                FullDocumentBeforeChange = ChangeStreamFullDocumentBeforeChangeOption.WhenAvailable,
                 MaxAwaitTime = TimeSpan.FromSeconds(123),
                 ResumeAfter = new BsonDocument(),
                 StartAfter = new BsonDocument(),
@@ -51,6 +52,7 @@ namespace MongoDB.Driver.Tests
             result.CollectionNamespace.Should().BeNull();
             result.DatabaseNamespace.Should().BeNull();
             result.FullDocument.Should().Be(options.FullDocument);
+            result.FullDocumentBeforeChange.Should().Be(options.FullDocumentBeforeChange);
             result.MaxAwaitTime.Should().Be(options.MaxAwaitTime);
             result.MessageEncoderSettings.Should().BeSameAs(messageEncoderSettings);
             result.Pipeline.Should().Equal(renderedPipeline.Documents);
@@ -74,6 +76,7 @@ namespace MongoDB.Driver.Tests
                 BatchSize = 123,
                 Collation = new Collation("en-us"),
                 FullDocument = ChangeStreamFullDocumentOption.UpdateLookup,
+                FullDocumentBeforeChange = ChangeStreamFullDocumentBeforeChangeOption.Required,
                 MaxAwaitTime = TimeSpan.FromSeconds(123),
                 ResumeAfter = new BsonDocument(),
                 StartAfter = new BsonDocument(),
@@ -90,6 +93,7 @@ namespace MongoDB.Driver.Tests
             result.CollectionNamespace.Should().BeNull();
             result.DatabaseNamespace.Should().BeSameAs(databaseNamespace);
             result.FullDocument.Should().Be(options.FullDocument);
+            result.FullDocumentBeforeChange.Should().Be(options.FullDocumentBeforeChange);
             result.MaxAwaitTime.Should().Be(options.MaxAwaitTime);
             result.MessageEncoderSettings.Should().BeSameAs(messageEncoderSettings);
             result.Pipeline.Should().Equal(renderedPipeline.Documents);
@@ -115,6 +119,7 @@ namespace MongoDB.Driver.Tests
                 BatchSize = 123,
                 Collation = new Collation("en-us"),
                 FullDocument = ChangeStreamFullDocumentOption.UpdateLookup,
+                FullDocumentBeforeChange = ChangeStreamFullDocumentBeforeChangeOption.Off,
                 MaxAwaitTime = TimeSpan.FromSeconds(123),
                 ResumeAfter = new BsonDocument(),
                 StartAfter = new BsonDocument(),
@@ -131,6 +136,7 @@ namespace MongoDB.Driver.Tests
             result.CollectionNamespace.Should().BeSameAs(collectionNamespace);
             result.DatabaseNamespace.Should().BeNull();
             result.FullDocument.Should().Be(options.FullDocument);
+            result.FullDocumentBeforeChange.Should().Be(options.FullDocumentBeforeChange);
             result.MaxAwaitTime.Should().Be(options.MaxAwaitTime);
             result.MessageEncoderSettings.Should().BeSameAs(messageEncoderSettings);
             result.Pipeline.Should().Equal(renderedPipeline.Documents);

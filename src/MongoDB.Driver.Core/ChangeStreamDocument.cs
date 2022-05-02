@@ -100,6 +100,28 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets the full document before change.
+        /// </summary>
+        /// <value>
+        /// The full document before change.
+        /// </value>
+        public TDocument FullDocumentBeforeChange
+        {
+            get
+            {
+                // if TDocument is BsonDocument avoid deserializing it again to prevent possible duplicate element name errors
+                if (typeof(TDocument) == typeof(BsonDocument) && BackingDocument.TryGetValue("fullDocumentBeforeChange", out var fullDocumentBeforeChange))
+                {
+                    return (TDocument)(object)fullDocumentBeforeChange.AsBsonDocument;
+                }
+                else
+                {
+                    return GetValue<TDocument>(nameof(FullDocumentBeforeChange), default(TDocument));
+                }
+            }
+        }
+
+        /// <summary>
         /// Gets the type of the operation.
         /// </summary>
         /// <value>

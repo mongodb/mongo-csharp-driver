@@ -13,15 +13,14 @@
 * limitations under the License.
 */
 
+using System;
+using System.Collections.Generic;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Moq;
-using System;
-using System.Collections.Generic;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -32,8 +31,12 @@ namespace MongoDB.Driver.Tests
         [Theory]
         [InlineData(ChangeStreamFullDocumentOption.Default, null, "{ $changeStream : { } }")]
         [InlineData(ChangeStreamFullDocumentOption.UpdateLookup, null, "{ $changeStream : { fullDocument : \"updateLookup\" } }")]
+        [InlineData(ChangeStreamFullDocumentOption.WhenAvailable, null, "{ $changeStream : { fullDocument : \"whenAvailable\" } }")]
+        [InlineData(ChangeStreamFullDocumentOption.Required, null, "{ $changeStream : { fullDocument : \"required\" } }")]
         [InlineData(ChangeStreamFullDocumentOption.Default, "{ a : 1 }", "{ $changeStream : { resumeAfter : { a : 1 } } }")]
         [InlineData(ChangeStreamFullDocumentOption.UpdateLookup, "{ a : 1 }", "{ $changeStream : { fullDocument : \"updateLookup\", resumeAfter : { a : 1 } } }")]
+        [InlineData(ChangeStreamFullDocumentOption.WhenAvailable, "{ a : 1 }", "{ $changeStream : { fullDocument : \"whenAvailable\", resumeAfter : { a : 1 } } }")]
+        [InlineData(ChangeStreamFullDocumentOption.Required, "{ a : 1 }", "{ $changeStream : { fullDocument : \"required\", resumeAfter : { a : 1 } } }")]
         public void ChangeStream_should_add_the_expected_stage(
             ChangeStreamFullDocumentOption fullDocument,
             string resumeAfterString,
