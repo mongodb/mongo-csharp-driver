@@ -852,6 +852,20 @@ namespace MongoDB.Driver.Linq
         }
 
         /// <summary>
+        /// Returns the last observation carried forward.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents in the partition.</typeparam>
+        /// <typeparam name="TValue">The type of the selected values.</typeparam>
+        /// <param name="partition">The partition.</param>
+        /// <param name="selector">The selector that selects a value from the input document.</param>
+        /// <param name="window">The window boundaries.</param>
+        /// <returns>The last observation carried forward.</returns>
+        public static TValue Locf<TInput, TValue>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, TValue> selector, SetWindowFieldsWindow window = null)
+        {
+            throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
+        }
+
+        /// <summary>
         /// Returns the maximum value.
         /// </summary>
         /// <typeparam name="TInput">The type of the input documents in the partition.</typeparam>

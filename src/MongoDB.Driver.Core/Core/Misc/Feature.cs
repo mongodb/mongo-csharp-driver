@@ -103,6 +103,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __serverReturnsResumableChangeStreamErrorLabel = new Feature("ServerReturnsResumableChangeStreamErrorLabel", WireVersion.Server44);
         private static readonly Feature __serverReturnsRetryableWriteErrorLabel = new Feature("ServerReturnsRetryableWriteErrorLabel", WireVersion.Server44);
         private static readonly Feature __setWindowFields = new Feature("SetWindowFields", WireVersion.Server50);
+        private static readonly Feature __setWindowFieldsLocf = new Feature("SetWindowFieldsLocf", WireVersion.Server52);
         private static readonly Feature __shardedTransactions = new Feature("ShardedTransactions", WireVersion.Server42);
         private static readonly Feature __snapshotReads = new Feature("SnapshotReads", WireVersion.Server50, notSupportedMessage: "Snapshot reads require MongoDB 5.0 or later");
         private static readonly Feature __speculativeAuthentication = new Feature("SpeculativeAuthentication", WireVersion.Server44);
@@ -564,6 +565,11 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the set window fields feature.
         /// </summary>
         public static Feature SetWindowFields => __setWindowFields;
+
+        /// <summary>
+        /// Gets the set window fields $locf feature.
+        /// </summary>
+        public static Feature SetWindowFieldsLocf => __setWindowFieldsLocf;
 
         /// <summary>
         /// Gets the sharded transactions feature.

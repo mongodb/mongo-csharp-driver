@@ -1513,6 +1513,23 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.Express
         }
 
         [Fact]
+        public void Translate_should_return_expected_result_for_Locf()
+        {
+            RequireServer.Check().Supports(Feature.SetWindowFieldsLocf);
+            var collection = CreateCollection();
+
+            var aggregate = collection.Aggregate()
+                .SetWindowFields(output: p => new { Result = p.Locf(x => x.Int32Field, null) });
+
+            var stages = Translate(collection, aggregate);
+            var expectedStages = new[] { "{ $setWindowFields : { output : { Result : { $locf : '$Int32Field' } } } }" };
+            AssertStages(stages, expectedStages);
+
+            var results = aggregate.ToList();
+            results.Select(r => r["Result"].AsInt32).Should().Equal(1, 2, 3);
+        }
+
+        [Fact]
         public void Translate_should_return_expected_result_for_Max()
         {
             RequireServer.Check().Supports(Feature.SetWindowFields);
