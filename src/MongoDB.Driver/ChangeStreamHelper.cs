@@ -151,6 +151,7 @@ namespace MongoDB.Driver
             operation.Collation = options.Collation;
             operation.Comment = options.Comment;
             operation.FullDocument = options.FullDocument;
+            operation.FullDocumentBeforeChange = options.FullDocumentBeforeChange;
             operation.MaxAwaitTime = options.MaxAwaitTime;
             operation.ReadConcern = readConcern;
             operation.ResumeAfter = options.ResumeAfter;

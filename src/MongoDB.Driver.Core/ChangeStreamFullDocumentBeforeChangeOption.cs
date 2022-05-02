@@ -1,4 +1,4 @@
-﻿/* Copyright 2017-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,32 +16,30 @@
 namespace MongoDB.Driver
 {
     /// <summary>
-    /// Change stream FullDocument option.
+    /// Change stream FullDocumentBeforeChange option.
     /// </summary>
-    public enum ChangeStreamFullDocumentOption
+    public enum ChangeStreamFullDocumentBeforeChangeOption
     {
         /// <summary>
         /// Do not send this option to the server.
-        /// Server's default is to not return the full document.
+        /// Server's default is to not return the full document before change.
         /// </summary>
         Default = 0,
 
         /// <summary>
-        /// The change stream for partial updates will include both a delta describing the
-        /// changes to the document as well as a copy of the entire document that was
-        /// changed from some time after the change occurred.
+        /// Do not return the full document before change.
         /// </summary>
-        UpdateLookup,
+        Off,
 
         /// <summary>
-        /// Returns the post-image of the modified document for replace and update change events
-        /// if the post-image for this event is available.
+        /// Returns the pre-image of the modified document for replace, update and delete
+        /// change events if the pre-image for this event is available.
         /// </summary>
         WhenAvailable,
 
         /// <summary>
         /// Same behavior as 'whenAvailable' except that
-        /// an error is raised if the post-image is not available.
+        /// an error is raised if the pre-image is not available.
         /// </summary>
         Required
     }

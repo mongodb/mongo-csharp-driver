@@ -48,6 +48,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __bypassDocumentValidation = new Feature("BypassDocumentValidation", WireVersion.Server32);
         private static readonly Feature __changeStreamStage = new Feature("ChangeStreamStage", WireVersion.Server36);
         private static readonly Feature __changeStreamPostBatchResumeToken = new Feature("ChangeStreamPostBatchResumeToken", WireVersion.Server40);
+        private static readonly Feature __changeStreamPrePostImages = new Feature("ChangeStreamPrePostImages", WireVersion.Server60);
         private static readonly Feature __clientSideEncryption = new Feature("ClientSideEncryption", WireVersion.Server42);
         private static readonly Feature __collation = new Feature("Collation", WireVersion.Server34);
         private static readonly Feature __commandMessage = new Feature("CommandMessage", WireVersion.Server36);
@@ -253,6 +254,12 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the change stream post batch resume token feature.
         /// </summary>
         public static Feature ChangeStreamPostBatchResumeToken => __changeStreamPostBatchResumeToken;
+
+        /// <summary>
+        /// Gets the change stream pre post images feature.
+        /// </summary>
+        public static Feature ChangeStreamPrePostImages => __changeStreamPrePostImages;
+        
 
         /// <summary>
         /// Gets the client side encryption feature.

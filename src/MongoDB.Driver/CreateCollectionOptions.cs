@@ -69,7 +69,6 @@ namespace MongoDB.Driver
             set { _capped = value; }
         }
 
-
         /// <summary>
         /// Gets or sets a timespan indicating how long documents in a time series collection should be retained.
         /// </summary>

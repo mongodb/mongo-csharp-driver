@@ -96,6 +96,14 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         options ??= new ChangeStreamOptions();
                         options.Comment = argument.Value;
                         break;
+                    case "fullDocument":
+                        options ??= new ChangeStreamOptions();
+                        options.FullDocument = (ChangeStreamFullDocumentOption)Enum.Parse(typeof(ChangeStreamFullDocumentOption), argument.Value.AsString, true);
+                        break;
+                    case "fullDocumentBeforeChange":
+                        options ??= new ChangeStreamOptions();
+                        options.FullDocumentBeforeChange = (ChangeStreamFullDocumentBeforeChangeOption)Enum.Parse(typeof(ChangeStreamFullDocumentBeforeChangeOption), argument.Value.AsString, true);
+                        break;
                     case "pipeline":
                         var stages = argument.Value.AsBsonArray.Cast<BsonDocument>();
                         pipeline = new BsonDocumentStagePipelineDefinition<ChangeStreamDocument<BsonDocument>, ChangeStreamDocument<BsonDocument>>(stages);

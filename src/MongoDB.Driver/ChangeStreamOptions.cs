@@ -29,6 +29,7 @@ namespace MongoDB.Driver
         private Collation _collation;
         private BsonValue _comment;
         private ChangeStreamFullDocumentOption _fullDocument = ChangeStreamFullDocumentOption.Default;
+        private ChangeStreamFullDocumentBeforeChangeOption _fullDocumentBeforeChange = ChangeStreamFullDocumentBeforeChangeOption.Default;
         private TimeSpan? _maxAwaitTime;
         private BsonDocument _resumeAfter;
         private BsonDocument _startAfter;
@@ -81,6 +82,18 @@ namespace MongoDB.Driver
         {
             get { return _fullDocument; }
             set { _fullDocument = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the full document before change.
+        /// </summary>
+        /// <value>
+        /// The full document before change.
+        /// </value>
+        public ChangeStreamFullDocumentBeforeChangeOption FullDocumentBeforeChange
+        {
+            get { return _fullDocumentBeforeChange; }
+            set { _fullDocumentBeforeChange = value; }
         }
 
         /// <summary>
