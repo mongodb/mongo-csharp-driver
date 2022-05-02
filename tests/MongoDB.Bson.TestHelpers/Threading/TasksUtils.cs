@@ -58,6 +58,11 @@ namespace MongoDB.Bson.TestHelpers
             }
         }
 
+        public static Task WithTimeout(this Task task, TimeSpan timeout)
+        {
+            return WithTimeout(task, (int)timeout.TotalMilliseconds);
+        }
+
         public static async Task WithTimeout(this Task task, int timeoutMS)
         {
             var firstFinishedTask = await Task.WhenAny(task, Task.Delay(timeoutMS));
