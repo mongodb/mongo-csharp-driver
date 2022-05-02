@@ -299,22 +299,24 @@ namespace MongoDB.Driver
                 }
             }
 
-            var operation = CreateCollectionOperation.CreateCreateCollectionOperation(collectionNamespace, encryptedFields: null, messageEncoderSettings);
-#pragma warning disable CS0618 // Type or member is obsolete
-            operation.AutoIndexId = autoIndexId;
-#pragma warning restore CS0618 // Type or member is obsolete
-            operation.Capped = capped;
-            operation.Collation = collation;
-            operation.IndexOptionDefaults = indexOptionDefaults;
-            operation.MaxDocuments = maxDocuments;
-            operation.MaxSize = maxSize;
-            operation.NoPadding = noPadding;
-            operation.StorageEngine = storageEngine;
-            operation.UsePowerOf2Sizes = usePowerOf2Sizes;
-            operation.ValidationAction = validationAction;
-            operation.ValidationLevel = validationLevel;
-            operation.Validator = validator;
-            operation.WriteConcern = _settings.WriteConcern;
+#pragma warning disable 618
+            var operation = new CreateCollectionOperation(collectionNamespace, messageEncoderSettings)
+            {
+                AutoIndexId = autoIndexId,
+                Capped = capped,
+                Collation = collation,
+                IndexOptionDefaults = indexOptionDefaults,
+                MaxDocuments = maxDocuments,
+                MaxSize = maxSize,
+                NoPadding = noPadding,
+                StorageEngine = storageEngine,
+                UsePowerOf2Sizes = usePowerOf2Sizes,
+                ValidationAction = validationAction,
+                ValidationLevel = validationLevel,
+                Validator = validator,
+                WriteConcern = _settings.WriteConcern
+            };
+#pragma warning restore
 
             var response = ExecuteWriteOperation(session, operation);
             return new CommandResult(response);

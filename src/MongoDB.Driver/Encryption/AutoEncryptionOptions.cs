@@ -73,7 +73,7 @@ namespace MongoDB.Driver.Encryption
             EncryptionExtraOptionsValidator.EnsureThatExtraOptionsAreValid(_extraOptions);
             KmsProvidersHelper.EnsureKmsProvidersAreValid(_kmsProviders);
             KmsProvidersHelper.EnsureKmsProvidersTlsSettingsAreValid(_tlsOptions);
-            EnsureCollectionsValid(_schemaMap, _encryptedFieldsMap);
+            EncryptedCollectionHelper.EnsureCollectionsValid(_schemaMap, _encryptedFieldsMap);
         }
 
         // public properties
@@ -274,20 +274,6 @@ namespace MongoDB.Driver.Encryption
             else
             {
                 return x.Equals(y);
-            }
-        }
-
-        private void EnsureCollectionsValid(IReadOnlyDictionary<string, BsonDocument> schemaMap, IReadOnlyDictionary<string, BsonDocument> encryptedFieldsMap)
-        {
-            if (schemaMap == null || encryptedFieldsMap == null || schemaMap.Count == 0 || encryptedFieldsMap.Count == 0)
-            {
-                return;
-            }
-
-            var joined = schemaMap.Join(encryptedFieldsMap, o => o.Key, i => i.Key, (kv, i) => new { KeyValue = kv, Inner = i }).ToList();
-            if (joined.Count > 0)
-            {
-                throw new ArgumentException($"SchemaMap and EncryptedFieldsMap cannot both contain the same collections: {string.Join(", ", joined.Select(c => c.KeyValue.Key))}.");
             }
         }
     }

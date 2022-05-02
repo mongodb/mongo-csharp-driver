@@ -28,6 +28,7 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
+using MongoDB.Driver.Encryption;
 using MongoDB.Driver.Linq;
 
 namespace MongoDB.Driver
@@ -308,7 +309,7 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(session, nameof(session));
             Ensure.IsNotNullOrEmpty(name, nameof(name));
-            var operation = CreateDropCollectionOperation(name, options, getCurrentCollectionInfoFunc: (listCollectionOptions) => ListCollections(session, listCollectionOptions, cancellationToken).FirstOrDefault());
+            var operation = CreateDropCollectionOperation(name, options, session, cancellationToken);
             ExecuteWriteOperation(session, operation, cancellationToken);
         }
 
@@ -327,15 +328,12 @@ namespace MongoDB.Driver
             return DropCollectionAsync(session, name, options: null, cancellationToken);
         }
 
-        public override Task DropCollectionAsync(IClientSessionHandle session, string name, DropCollectionOptions options, CancellationToken cancellationToken)
+        public override async Task DropCollectionAsync(IClientSessionHandle session, string name, DropCollectionOptions options, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(session, nameof(session));
             Ensure.IsNotNullOrEmpty(name, nameof(name));
-            var operation = CreateDropCollectionOperation(
-                name,
-                options,
-                getCurrentCollectionInfoFunc: (listCollectionOptions) => ListCollections(session, listCollectionOptions, cancellationToken).FirstOrDefault()); // async
-            return ExecuteWriteOperationAsync(session, operation, cancellationToken);
+            var operation = await CreateDropCollectionOperationAsync(name, options, session, cancellationToken).ConfigureAwait(false);
+            await ExecuteWriteOperationAsync(session, operation, cancellationToken).ConfigureAwait(false);
         }
 
         public override IMongoCollection<TDocument> GetCollection<TDocument>(string name, MongoCollectionSettings settings)
@@ -658,7 +656,6 @@ namespace MongoDB.Driver
 
         private IWriteOperation<BsonDocument> CreateCreateCollectionOperation<TDocument>(string name, CreateCollectionOptions<TDocument> options)
         {
-            var messageEncoderSettings = GetMessageEncoderSettings();
             BsonDocument validator = null;
             if (options.Validator != null)
             {
@@ -669,34 +666,33 @@ namespace MongoDB.Driver
 
             var collectionNamespace = new CollectionNamespace(_databaseNamespace, name);
 
-            var encryptedFields = options.EncryptedFields;
-            if (encryptedFields == null)
-            {
-                var encryptedFieldsMap = _client.Settings?.AutoEncryptionOptions?.EncryptedFieldsMap;
-                if (encryptedFieldsMap != null)
+            _ = EncryptedCollectionHelper.TryGetEffectiveEncryptedFields(collectionNamespace, options.EncryptedFields, _client.Settings?.AutoEncryptionOptions, out var effectiveEncryptedFields);
+            var messageEncoderSettings = GetMessageEncoderSettings(withEncryption: effectiveEncryptedFields != null);
+
+            return CreateCollectionOperation.CreateCreateCollectionOperation(
+                collectionNamespace,
+                effectiveEncryptedFields,
+                messageEncoderSettings,
+                createCollectionOperationConfigurator: ccp =>
                 {
-                    _ = encryptedFieldsMap.TryGetValue(collectionNamespace.ToString(), out encryptedFields);
-                }
-            }
-            var createCollectionOperation = CreateCollectionOperation.CreateCreateCollectionOperation(collectionNamespace, encryptedFields, messageEncoderSettings);
 #pragma warning disable CS0618 // Type or member is obsolete
-            createCollectionOperation.AutoIndexId = options.AutoIndexId;
+                    ccp.AutoIndexId = options.AutoIndexId;
 #pragma warning restore CS0618 // Type or member is obsolete
-            createCollectionOperation.Capped = options.Capped;
-            createCollectionOperation.Collation = options.Collation;
-            createCollectionOperation.ExpireAfter = options.ExpireAfter;
-            createCollectionOperation.IndexOptionDefaults = options.IndexOptionDefaults?.ToBsonDocument();
-            createCollectionOperation.MaxDocuments = options.MaxDocuments;
-            createCollectionOperation.MaxSize = options.MaxSize;
-            createCollectionOperation.NoPadding = options.NoPadding;
-            createCollectionOperation.StorageEngine = options.StorageEngine;
-            createCollectionOperation.TimeSeriesOptions = options.TimeSeriesOptions;
-            createCollectionOperation.UsePowerOf2Sizes = options.UsePowerOf2Sizes;
-            createCollectionOperation.ValidationAction = options.ValidationAction;
-            createCollectionOperation.ValidationLevel = options.ValidationLevel;
-            createCollectionOperation.Validator = validator;
-            createCollectionOperation.WriteConcern = _settings.WriteConcern;
-            return createCollectionOperation;
+                    ccp.Capped = options.Capped;
+                    ccp.Collation = options.Collation;
+                    ccp.ExpireAfter = options.ExpireAfter;
+                    ccp.IndexOptionDefaults = options.IndexOptionDefaults?.ToBsonDocument();
+                    ccp.MaxDocuments = options.MaxDocuments;
+                    ccp.MaxSize = options.MaxSize;
+                    ccp.NoPadding = options.NoPadding;
+                    ccp.StorageEngine = options.StorageEngine;
+                    ccp.TimeSeriesOptions = options.TimeSeriesOptions;
+                    ccp.UsePowerOf2Sizes = options.UsePowerOf2Sizes;
+                    ccp.ValidationAction = options.ValidationAction;
+                    ccp.ValidationLevel = options.ValidationLevel;
+                    ccp.Validator = validator;
+                    ccp.WriteConcern = _settings.WriteConcern;
+                });
         }
 
         private CreateViewOperation CreateCreateViewOperation<TDocument, TResult>(string viewName, string viewOn, PipelineDefinition<TDocument, TResult> pipeline, CreateViewOptions<TDocument> options)
@@ -711,34 +707,67 @@ namespace MongoDB.Driver
             };
         }
 
-        private DropCollectionOperation CreateDropCollectionOperation(string name, DropCollectionOptions options, Func<ListCollectionsOptions, BsonDocument> getCurrentCollectionInfoFunc)
+        private IWriteOperation<BsonDocument> CreateDropCollectionOperation(string name, DropCollectionOptions options, IClientSessionHandle session, CancellationToken cancellationToken)
         {
             var collectionNamespace = new CollectionNamespace(_databaseNamespace, name);
 
             options = options ?? new DropCollectionOptions();
 
-            var encryptedFields = options.EncryptedFields;
-            if (encryptedFields == null)
+            var autoEncryptionOptions = _client.Settings?.AutoEncryptionOptions;
+            if (!EncryptedCollectionHelper.TryGetEffectiveEncryptedFields(collectionNamespace, options.EncryptedFields, autoEncryptionOptions, out var effectiveEncryptedFields))
             {
-                var encryptedFieldsMap = _client.Settings?.AutoEncryptionOptions?.EncryptedFieldsMap;
-                if (encryptedFieldsMap != null)
+                if (autoEncryptionOptions != null)
                 {
-                    if (!encryptedFieldsMap.TryGetValue(collectionNamespace.ToString(), out encryptedFields))
-                    {
-                        var listCollectionOptions = new ListCollectionsOptions() { Filter = $"{{ name : '{collectionNamespace.CollectionName}' }}" };
-                        encryptedFields = getCurrentCollectionInfoFunc(listCollectionOptions)
-                            ?.GetValue("options", defaultValue: null)
-                            ?.AsBsonDocument
-                            ?.GetValue("encryptedFields", defaultValue: null)
-                            ?.ToBsonDocument();
-                    }
+                    var listCollectionOptions = new ListCollectionsOptions() { Filter = $"{{ name : '{collectionNamespace.CollectionName}' }}" };
+                    var currrentCollectionInfo = ListCollections(session, listCollectionOptions, cancellationToken).FirstOrDefault();
+                    effectiveEncryptedFields = currrentCollectionInfo
+                        ?.GetValue("options", defaultValue: null)
+                        ?.AsBsonDocument
+                        ?.GetValue("encryptedFields", defaultValue: null)
+                        ?.ToBsonDocument();
                 }
             }
+            var messageEncoderSettings = GetMessageEncoderSettings(withEncryption: effectiveEncryptedFields != null);
+            return DropCollectionOperation.CreateDropCollectionOperation(
+                collectionNamespace,
+                effectiveEncryptedFields,
+                messageEncoderSettings,
+                (dco) =>
+                {
+                    dco.WriteConcern = _settings.WriteConcern;
+                });
+        }
 
-            var messageEncoderSettings = GetMessageEncoderSettings();
-            var dropCollectionOperation = DropCollectionOperation.CreateDropCollectionOperation(collectionNamespace, encryptedFields, messageEncoderSettings);
-            dropCollectionOperation.WriteConcern = _settings.WriteConcern;
-            return dropCollectionOperation;
+        private async Task<IWriteOperation<BsonDocument>> CreateDropCollectionOperationAsync(string name, DropCollectionOptions options, IClientSessionHandle session, CancellationToken cancellationToken)
+        {
+            var collectionNamespace = new CollectionNamespace(_databaseNamespace, name);
+
+            options = options ?? new DropCollectionOptions();
+
+            var autoEncryptionOptions = _client.Settings?.AutoEncryptionOptions;
+            if (!EncryptedCollectionHelper.TryGetEffectiveEncryptedFields(collectionNamespace, options.EncryptedFields, autoEncryptionOptions, out var effectiveEncryptedFields))
+            {
+                if (autoEncryptionOptions != null)
+                {
+                    var listCollectionOptions = new ListCollectionsOptions() { Filter = $"{{ name : '{collectionNamespace.CollectionName}' }}" };
+                    var currentCollectionsInfo = await ListCollectionsAsync(session, listCollectionOptions, cancellationToken).ConfigureAwait(false);
+                    var currentCollectionInfo = await currentCollectionsInfo.FirstOrDefaultAsync(cancellationToken).ConfigureAwait(false);
+                    effectiveEncryptedFields = currentCollectionInfo
+                        ?.GetValue("options", defaultValue: null)
+                        ?.AsBsonDocument
+                        ?.GetValue("encryptedFields", defaultValue: null)
+                        ?.ToBsonDocument();
+                }
+            }
+            var messageEncoderSettings = GetMessageEncoderSettings(withEncryption: effectiveEncryptedFields != null);
+            return DropCollectionOperation.CreateDropCollectionOperation(
+                collectionNamespace,
+                effectiveEncryptedFields,
+                messageEncoderSettings,
+                (dco) =>
+                {
+                    dco.WriteConcern = _settings.WriteConcern;
+                });
         }
 
         private ListCollectionsOperation CreateListCollectionNamesOperation(ListCollectionNamesOptions options)
@@ -867,7 +896,7 @@ namespace MongoDB.Driver
             }
         }
 
-        private MessageEncoderSettings GetMessageEncoderSettings()
+        private MessageEncoderSettings GetMessageEncoderSettings(bool withEncryption = false)
         {
             var messageEncoderSettings = new MessageEncoderSettings
             {
@@ -877,7 +906,7 @@ namespace MongoDB.Driver
 #pragma warning disable 618
             if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
             {
-                messageEncoderSettings.Add(MessageEncoderSettingsName.GuidRepresentation, _settings.GuidRepresentation);
+                messageEncoderSettings.Add(MessageEncoderSettingsName.GuidRepresentation, withEncryption ? GuidRepresentation.Unspecified : _settings.GuidRepresentation);
             }
 #pragma warning restore 618
 
