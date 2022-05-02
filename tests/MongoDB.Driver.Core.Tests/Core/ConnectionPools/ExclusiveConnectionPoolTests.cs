@@ -1358,6 +1358,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 var connection = new Mock<IConnection>();
                 var ci = ++connectionIndex;
                 connection.SetupGet(c => c.ConnectionId).Returns(() => new ConnectionId(_serverId, ci));
+                connection.SetupGet(c => c.IsExpired).Returns(() => makeConnectionExpired?.Task?.IsCompleted ?? false);
                 connection
                     .Setup(c => c.Dispose())
                     .Callback(() =>
