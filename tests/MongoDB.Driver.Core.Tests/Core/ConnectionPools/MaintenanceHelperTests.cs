@@ -197,22 +197,6 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
             }
         }
 
-        internal class EventFormatterWithWaiting : IEventFormatter
-        {
-            private readonly Action<object> _eventAction;
-
-            public EventFormatterWithWaiting(Action<object> eventAction)
-            {
-                _eventAction = eventAction;
-            }
-
-            public object Format(object @event)
-            {
-                _eventAction(@event);
-                return @event;
-            }
-        }
-
         // private methods
         private MaintenanceHelper CreateSubject(ExclusiveConnectionPool pool)
         {
