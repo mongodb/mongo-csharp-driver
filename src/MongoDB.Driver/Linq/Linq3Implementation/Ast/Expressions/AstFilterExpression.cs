@@ -24,20 +24,24 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
         private readonly string _as;
         private readonly AstExpression _cond;
         private readonly AstExpression _input;
+        private readonly AstExpression _limit;
 
         public AstFilterExpression(
             AstExpression input,
             AstExpression cond,
-            string @as = null)
+            string @as = null,
+            AstExpression limit = null)
         {
             _input = Ensure.IsNotNull(input, nameof(input));
             _cond = Ensure.IsNotNull(cond, nameof(cond));
             _as = @as;
+            _limit = limit;
         }
 
         public string As => _as;
         public new AstExpression Cond => _cond;
         public AstExpression Input => _input;
+        public AstExpression Limit => _limit;
         public override AstNodeType NodeType => AstNodeType.FilterExpression;
 
         public override AstNode Accept(AstNodeVisitor visitor)
@@ -53,7 +57,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
                     {
                         { "input", _input.Render() },
                         { "as", _as, _as != null },
-                        { "cond", _cond.Render() }
+                        { "cond", _cond.Render() },
+                        { "limit", () => _limit.Render(), _limit != null }
                     }
                 }
             };
@@ -61,14 +66,15 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
 
         public AstFilterExpression Update(
             AstExpression input,
-            AstExpression cond)
+            AstExpression cond,
+            AstExpression limit)
         {
             if (input == _input && cond == _cond)
             {
                 return this;
             }
 
-            return new AstFilterExpression(input, cond, _as);
+            return new AstFilterExpression(input, cond, _as, limit);
         }
     }
 }

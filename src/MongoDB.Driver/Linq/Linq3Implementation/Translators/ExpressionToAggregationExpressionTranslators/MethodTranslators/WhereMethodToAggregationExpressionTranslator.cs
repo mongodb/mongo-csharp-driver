@@ -28,22 +28,32 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.Is(EnumerableMethod.Where))
+            if (method.IsOneOf(EnumerableMethod.Where, MongoEnumerableMethod.WhereWithLimit))
             {
                 var sourceExpression = arguments[0];
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, sourceExpression);
+                var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
+
                 var predicateLambda = (LambdaExpression)arguments[1];
                 var predicateParameter = predicateLambda.Parameters[0];
-                var predicateParameterSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
-                var predicateSymbol = context.CreateSymbol(predicateParameter, predicateParameterSerializer);
+                var predicateSymbol = context.CreateSymbol(predicateParameter, itemSerializer);
                 var predicateContext = context.WithSymbol(predicateSymbol);
                 var predicateTranslation = ExpressionToAggregationExpressionTranslator.Translate(predicateContext, predicateLambda.Body);
-                var itemSerializer = ArraySerializerHelper.GetItemSerializer(sourceTranslation.Serializer);
-                var enumerableSerializer = IEnumerableSerializer.Create(itemSerializer);
+
+                AggregationExpression limitTranslation = null;
+                if (method.Is(MongoEnumerableMethod.WhereWithLimit))
+                {
+                    var limitExpression = arguments[2];
+                    limitTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, limitExpression);
+                }
+
                 var ast = AstExpression.Filter(
                     sourceTranslation.Ast,
                     predicateTranslation.Ast,
-                    predicateParameter.Name);
+                    predicateParameter.Name,
+                    limitTranslation?.Ast);
+
+                var enumerableSerializer = IEnumerableSerializer.Create(itemSerializer);
                 return new AggregationExpression(expression, ast, enumerableSerializer);
             }
 

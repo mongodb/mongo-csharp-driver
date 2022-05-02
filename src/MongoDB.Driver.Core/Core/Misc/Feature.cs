@@ -66,6 +66,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __failPointsBlockConnection = new Feature("FailPointsBlockConnection", WireVersion.Server42);
         private static readonly Feature __failPointsFailCommand = new Feature("FailPointsFailCommand", WireVersion.Server40);
         private static readonly Feature __failPointsFailCommandForSharded = new Feature("FailPointsFailCommandForSharded", WireVersion.Server42);
+        private static readonly Feature __filterLimit = new Feature("FilterLimit", WireVersion.Server60);
         private static readonly Feature __findAllowDiskUse = new Feature("FindAllowDiskUse", WireVersion.Server44);
         private static readonly Feature __findAndModifyWriteConcern = new Feature("FindAndModifyWriteConcern", WireVersion.Server32);
         private static readonly Feature __findCommand = new Feature("FindCommand", WireVersion.Server32);
@@ -354,6 +355,12 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the fail points fail command for sharded feature.
         /// </summary>
         public static Feature FailPointsFailCommandForSharded => __failPointsFailCommandForSharded;
+
+
+        /// <summary>
+        /// Gets filter limit feature.
+        /// </summary>
+        public static Feature FilterLimit => __filterLimit;
 
         /// <summary>
         /// Gets the find allowDiskUse feature.

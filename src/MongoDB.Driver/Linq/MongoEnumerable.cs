@@ -17,6 +17,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq
@@ -585,6 +586,19 @@ namespace MongoDB.Driver.Linq
         public static decimal? StandardDeviationSample<TSource>(this IEnumerable<TSource> source, Func<TSource, decimal?> selector)
         {
             return source.Select(selector).StandardDeviationSample();
+        }
+
+        /// <summary>
+        /// Filters a sequence of values based on a predicate and limits the number of results.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">The source values.</param>
+        /// <param name="predicate">The predicate.</param>
+        /// <param name="limit">The limit.</param>
+        /// <returns>The filtered results.</returns>
+        public static IEnumerable<TSource> Where<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate, int limit)
+        {
+            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
         }
     }
 }
