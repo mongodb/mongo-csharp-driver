@@ -1032,8 +1032,9 @@ namespace MongoDB.Driver.Core.ConnectionPools
             InitializeAndWait(poolSettings: settings);
 
             // initial state
-            GetConnections(inUse: false).Count.Should().Be(settings.MinConnections);
-            GetConnections(inUse: true).Count.Should().Be(0);
+            // MinPoolSize creates collections and immediately returns them to the pool, so no "in use" connections should be after first maintenance iteration
+            ValidateConnectionsCount(inUse: false, expectedCount: settings.MinConnections);
+            ValidateConnectionsCount(inUse: true, expectedCount: 0);
 
             IConnection connection = null;
             IConnection prepopulatedConnection = null;
@@ -1053,29 +1054,30 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 {
                     acquireException = ex;
                 }
-            });
+            })
+            {
+                IsBackground = true
+            };
             thread.Start();
             Thread.Sleep(100);
 
             // During First acquire
-            GetConnections(inUse: false).Count.Should().Be(0);
-            Thread.Sleep(100);
-            GetConnections(inUse: true).Count.Should().Be(settings.MinConnections + 1);
+            ValidateConnectionsCount(inUse: false, expectedCount: 0);
+            ValidateConnectionsCount(inUse: true, expectedCount: settings.MinConnections + 1);
 
             acquiredCompletionSource.SetResult(true); // connection is acquired
             Thread.Sleep(100);
 
-            GetConnections(inUse: false).Count.Should().Be(0);
-            GetConnections(inUse: true).Count.Should().Be(settings.MinConnections + (openConnectionFailed ? 0 : 1));
+            ValidateConnectionsCount(inUse: false, expectedCount: 0);
+            ValidateConnectionsCount(inUse: true, expectedCount: settings.MinConnections + (openConnectionFailed ? 0 : 1));
 
             if (openConnectionFailed)
             {
                 if (minPoolSize > 0)
                 {
                     prepopulatedConnection.Dispose();
-                    Thread.Sleep(50);
-                    GetConnections(inUse: false).Count.Should().Be(settings.MinConnections);
-                    GetConnections(inUse: true).Count.Should().Be(0);
+                    ValidateConnectionsCount(inUse: false, expectedCount: settings.MinConnections);
+                    ValidateConnectionsCount(inUse: true, expectedCount: 0);
                 }
 
                 connection.Should().BeNull();
@@ -1087,15 +1089,13 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 if (minPoolSize > 0)
                 {
                     prepopulatedConnection.Dispose();
-                    Thread.Sleep(50);
-                    GetConnections(inUse: false).Count.Should().Be(settings.MinConnections);
-                    GetConnections(inUse: true).Count.Should().Be(1);
+                    ValidateConnectionsCount(inUse: false, expectedCount: settings.MinConnections);
+                    ValidateConnectionsCount(inUse: true, expectedCount: 1);
                 }
 
                 connection.Dispose();
-                Thread.Sleep(50);
-                GetConnections(inUse: false).Count.Should().Be(settings.MinConnections + 1);
-                GetConnections(inUse: true).Count.Should().Be(0);
+                ValidateConnectionsCount(inUse: false, expectedCount: settings.MinConnections + 1);
+                ValidateConnectionsCount(inUse: true, expectedCount: 0);
                 acquireException.Should().BeNull();
             }
         }
@@ -1254,7 +1254,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
         [Theory]
         [ParameterAttributeData]
-        public void Prune_should_consider_generation_for_closeInUseConnections_true_when_clear_has_been_requested([Values(false, true)] bool async)
+        public void Prune_should_respect_generation_when_closing_inUse_connections([Values(false, true)] bool async)
         {
             int connectionIndex = 0;
             var stopRemovingCompletionSource = new TaskCompletionSource<bool>();
@@ -1290,8 +1290,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
             var subject = CreateSubject(connectionFactory: mockConnectionFactory.Object, connectionPoolSettings: noopSettings, eventCapturer: capturedEvents);
             InitializeAndWait(subject, noopSettings);
 
-            GetConnections(inUse: false, subject).Should().HaveCount(0);
-            GetConnections(inUse: true, subject).Should().HaveCount(0);
+            ValidateConnectionsCount(inUse: false, expectedCount: 0, subject);
+            ValidateConnectionsCount(inUse: true, expectedCount: 0, subject);
             capturedEvents.Events.Should().BeEmpty();
 
             var connection1InPool = AcquireConnection(subject, async);
@@ -1306,9 +1306,9 @@ namespace MongoDB.Driver.Core.ConnectionPools
             capturedEvents.Next().Should().BeOfType<ConnectionPoolCheckedInConnectionEvent>().Which.ConnectionId.LocalValue.Should().Be(1);
             capturedEvents.Events.Should().BeEmpty();
 
-            // test setup is ready, now: connection1 is avaialable, connection 2 is "in use"
-            GetConnections(inUse: false, subject).Should().ContainSingle().Which.ConnectionId.Should().Be(connection1InPool.ConnectionId);
-            GetConnections(inUse: true, subject).Should().ContainSingle().Which.ConnectionId.Should().Be(connection2InUse.ConnectionId);
+            // test setup is ready, now: connection1 is available, connection 2 is "in use"
+            ValidateConnectionsCount(inUse: false, expectedCount: 1, subject, expectedConnectionIds: connection1InPool.ConnectionId);
+            ValidateConnectionsCount(inUse: true, expectedCount: 1, subject, connection2InUse.ConnectionId);
 
             // run prunning, but do nothing since first removing are in stuck because of stopRemovingCompletionSource
             // in this test we should ensure that this prune won't affect in use connections with Generation > 0
@@ -1316,11 +1316,10 @@ namespace MongoDB.Driver.Core.ConnectionPools
             subject.Clear(closeInUseConnections: true);
             capturedEvents.Next().Should().BeOfType<ConnectionPoolClearedEvent>();
             capturedEvents.Events.Should().BeEmpty();
-            Thread.Sleep(100);
 
             // still no op
-            GetConnections(inUse: false, subject).Should().ContainSingle().Which.ConnectionId.Should().Be(connection1InPool.ConnectionId);
-            GetConnections(inUse: true, subject).Should().ContainSingle().Which.ConnectionId.Should().Be(connection2InUse.ConnectionId);
+            ValidateConnectionsCount(inUse: false, expectedCount: 1, subject, expectedConnectionIds: connection1InPool.ConnectionId);
+            ValidateConnectionsCount(inUse: true, expectedCount: 1, subject, expectedConnectionIds: connection2InUse.ConnectionId);
 
             // since we emulate next acquiring, we don't need subject.SetReady(), no events for the same reason;
             var connection3IsExpiredCompletionSource = new TaskCompletionSource<bool>();
@@ -1331,16 +1330,10 @@ namespace MongoDB.Driver.Core.ConnectionPools
             // This prune call should be no op since there is no available connection anymore
             connection3IsExpiredCompletionSource.SetResult(true);
 
-            GetConnections(inUse: false, subject).Should().ContainSingle().Which.ConnectionId.Should().Be(connection1InPool.ConnectionId);
-            GetConnections(inUse: true, subject).Select(c => c.ConnectionId)
-                .Should()
-                .Contain(new[]
-                {
-                    connection2InUse.ConnectionId,
-                    connection3InUse.ConnectionId
-                });
+            ValidateConnectionsCount(inUse: false, expectedCount: 1, subject, expectedConnectionIds: connection1InPool.ConnectionId);
+            ValidateConnectionsCount(inUse: true, expectedCount: 2, subject, connection2InUse.ConnectionId, connection3InUse.ConnectionId);
 
-            // now, first prunning run is unlocked. So:
+            // now, first pruning run is unlocked. So:
             // * connection1InPool is disposed and removed
             // * connection2InUse is disposed and removed
             // * connection3InUse is still "in use", since unlocked prunning knows that connection3 is not expired yet
@@ -1348,8 +1341,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             Thread.Sleep(100);
 
-            GetConnections(inUse: false, subject).Should().HaveCount(0);
-            GetConnections(inUse: true, subject).Should().ContainSingle().Which.ConnectionId.Should().Be(connection3InUse.ConnectionId);
+            ValidateConnectionsCount(inUse: false, expectedCount: 0, subject);
+            ValidateConnectionsCount(inUse: true, expectedCount: 1, subject, connection3InUse.ConnectionId);
             capturedEvents.Next().Should().BeOfType<ConnectionPoolRemovingConnectionEvent>().Which.ConnectionId.Should().Be(connection1InPool.ConnectionId);
             capturedEvents.Next().Should().BeOfType<ConnectionPoolRemovedConnectionEvent>().Which.ConnectionId.Should().Be(connection1InPool.ConnectionId);
             capturedEvents.Next().Should().BeOfType<ConnectionPoolRemovingConnectionEvent>().Which.ConnectionId.Should().Be(connection2InUse.ConnectionId);
@@ -1731,10 +1724,24 @@ namespace MongoDB.Driver.Core.ConnectionPools
             connectionPool.UsedCount.Should().Be(0);
         }
 
-        private List<PooledConnection> GetConnections(bool inUse, ExclusiveConnectionPool pool = null)
+        private void ValidateConnectionsCount(bool inUse, int expectedCount, ExclusiveConnectionPool pool = null, params ConnectionId[] expectedConnectionIds)
         {
+            if (expectedConnectionIds.Length > 0)
+            {
+                Ensure.That(expectedCount == expectedConnectionIds.Count(), "ExpectedCount must be the same as expectedConnectionIds.Count");
+            }
+
             var connectionHolder = (pool ?? _subject).ConnectionHolder;
-            return inUse ? connectionHolder._connectionsInUse() : connectionHolder._connections();
+            var connections = inUse ? connectionHolder._connectionsInUse() : connectionHolder._connections();
+            connections.Should().HaveCount(expectedCount);
+            for (int i = 0; i < connections.Count; i++)
+            {
+                PooledConnection connection = connections[i];
+                if (expectedConnectionIds.Length > 0)
+                {
+                    connection.ConnectionId.Should().Be(expectedConnectionIds[i]);
+                }
+            }
         }
     }
 
