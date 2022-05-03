@@ -18,7 +18,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading;
-using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
@@ -157,20 +156,31 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
                 .Capture<ConnectionPoolAddedConnectionEvent>()
                 .Capture<ConnectionPoolRemovedConnectionEvent>();
 
+            int connectionId = 0;
             using (var pool = CreatePool(
                 eventCapturer,
-                minPoolSize: 1)) // use to ensure that Maintenance attempt has been called
+                minPoolSize: 1,
+                connectionFactoryConfigurator: (factory) =>
+                {
+                    factory
+                        .Setup(f => f.CreateConnection(__serverId, __endPoint))
+                        .Returns(() => new MockConnection(new ConnectionId(__serverId, ++connectionId), new ConnectionSettings(), eventCapturer));
+                })) // use to ensure that Maintenance attempt has been called
             {
                 var subject = pool._maintenanceHelper();
 
                 var maitenanceInPlayTimeout = TimeSpan.FromMilliseconds(50);
                 eventCapturer.WaitForEventOrThrowIfTimeout<ConnectionPoolAddedConnectionEvent>(maitenanceInPlayTimeout);
-                eventCapturer.Next().Should().BeOfType<ConnectionPoolAddedConnectionEvent>();  // minPoolSize has been enrolled
+                eventCapturer.Next().Should().BeOfType<ConnectionPoolAddedConnectionEvent>().Which.ConnectionId.LocalValue.Should().Be(1);  // minPoolSize has been enrolled
                 eventCapturer.Any().Should().BeFalse();
 
+                SpinWait.SpinUntil(() => pool.ConnectionHolder._connections().Count > 0, TimeSpan.FromSeconds(1)).Should().BeTrue(); // wait until connection 1 has been returned to the pool after minPoolSize logic
+
+                IConnection acquiredConnection = null;
                 if (checkOutConnection)
                 {
-                    _ = pool.AcquireConnection(CancellationToken.None);
+                    acquiredConnection = pool.AcquireConnection(CancellationToken.None);
+                    acquiredConnection.ConnectionId.LocalValue.Should().Be(1);
                 }
 
                 IncrementGeneration(pool);
@@ -184,7 +194,7 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
                 }
                 else
                 {
-                    eventCapturer.WaitForEventOrThrowIfTimeout<ConnectionPoolRemovedConnectionEvent>(requestInPlayTimeout);
+                    eventCapturer.WaitForOrThrowIfTimeout((events) => events.OfType<ConnectionPoolRemovedConnectionEvent>().Count() >= 1, requestInPlayTimeout);
                     eventCapturer.Next().Should().BeOfType<ConnectionPoolRemovedConnectionEvent>();
                 }
                 eventCapturer.Any().Should().BeFalse();
@@ -204,7 +214,7 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
         }
 
         private ExclusiveConnectionPool CreatePool(
-            EventCapturer eventCapturer = null,
+            IEventSubscriber eventCapturer = null,
             TimeSpan? maintenanceInterval = null,
             int minPoolSize = 0,
             Action<Mock<IConnectionFactory>> connectionFactoryConfigurator = null)
