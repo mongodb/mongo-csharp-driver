@@ -1269,8 +1269,25 @@ namespace MongoDB.Driver.Core.ConnectionPools
         [ParameterAttributeData]
         public void Prune_should_respect_generation_when_closing_inUse_connections([Values(false, true)] bool async)
         {
+            // Workflow:
+            // 0. Initial maitenance iteration just makes no op run and starts waiting default maintenance interval
+            // 1. Create 2 connections:
+            //    * connection1InPool - available in pool
+            //    * connection2InUse  - in use
+            // 2. call pool.Clear(closeInUseConnections: true)
+            //    * This will request immediate background check that will be in stuck in "connection1InPool.Dispose" due to stopRemovingCompletionSource
+            //    * This prune call should also remove connection2InUse after stopRemovingCompletionSource will be unblocked
+            // 3. Create connection3InUse via "EmulateAcquireConnection". This is not done with regular steps, because we're still waiting in connection1InPool.Dispose which is under global lock
+            //    The key point here that this method adds connection3InUse into "_connectionsInUse" in pool.ConnectionHolder collection.
+            // 4. Emulate next pool.Clear(closeInUseConnection: false) which just makes 3rd connection expired via connection3IsExpiredCompletionSource.
+            //    It's not neccessary to actually schedule next background check since there are no available connections that should be affected by this run.
+            //    The key point here that connection3InUse is expired, but this connection should not be affected by initial prune call when It will be unlocked after "connection1InPool.Dispose"
+            // 5. Unclock "connection1InPool.Dispose" via stopRemovingCompletionSource. Now first Prune is starting to remove connections "in use". It will process connection2InUse but not connection3InUse
+            // 6. Remove connection3InUse via regular pool.Clear(closeInUseConnections: true)
+
             int connectionIndex = 0;
             var stopRemovingCompletionSource = new TaskCompletionSource<bool>();
+            var timeout = TimeSpan.FromMilliseconds(500);
 
             var capturedEvents = new EventCapturer()
                 .Capture<ConnectionPoolAddedConnectionEvent>()
@@ -1298,6 +1315,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             ValidateConnectionsCount(inUse: true, expectedCount: 0, subject);
             capturedEvents.Events.Should().BeEmpty();
 
+            // 1. Create initial collections
             var connection1InPool = AcquireConnection(subject, async);
             capturedEvents.Next().Should().BeOfType<ConnectionPoolAddedConnectionEvent>().Which.ConnectionId.LocalValue.Should().Be(1);
             capturedEvents.Events.Should().BeEmpty();
@@ -1314,7 +1332,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             ValidateConnectionsCount(inUse: false, expectedCount: 1, subject, expectedConnectionIds: connection1InPool.ConnectionId);
             ValidateConnectionsCount(inUse: true, expectedCount: 1, subject, connection2InUse.ConnectionId);
 
-            // run prunning, but do nothing since first removing are in stuck because of stopRemovingCompletionSource
+            // 2. run prunning, but do nothing since first removing of avaialble connection1InPool will be in stuck because of stopRemovingCompletionSource
             // in this test we should ensure that this prune won't affect in use connections with Generation > 0
             // in particular connection3 should be untouched
             subject.Clear(closeInUseConnections: true);
@@ -1327,31 +1345,48 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             // since we emulate next acquiring, we don't need subject.SetReady(), no events for the same reason;
             var connection3IsExpiredCompletionSource = new TaskCompletionSource<bool>();
-            // connection3 is in use
+            // 3. connection3 is in use
             var connection3InUse = EmulateAcquireConnection(subject, connection3IsExpiredCompletionSource);
 
-            // emulate next pool.Clear(closeInUseConnection: false) and make connection3 expired
+            // 4. emulate next pool.Clear(closeInUseConnection: false) and make connection3 expired
             // This prune call should be no op since there is no available connection anymore
             connection3IsExpiredCompletionSource.SetResult(true);
 
             ValidateConnectionsCount(inUse: false, expectedCount: 1, subject, expectedConnectionIds: connection1InPool.ConnectionId);
             ValidateConnectionsCount(inUse: true, expectedCount: 2, subject, connection2InUse.ConnectionId, connection3InUse.ConnectionId);
 
-            // now, first pruning run is unlocked. So:
+            // 5. now, first pruning run is unlocked. So:
             // * connection1InPool is disposed and removed
             // * connection2InUse is disposed and removed
             // * connection3InUse is still "in use", since unlocked prunning knows that connection3 is not expired yet
             stopRemovingCompletionSource.SetResult(true);
 
-            Thread.Sleep(100);
+            capturedEvents.WaitForOrThrowIfTimeout(events => events.OfType<ConnectionPoolRemovedConnectionEvent>().Count() >= 2, timeout);
+            capturedEvents.Next().Should().BeOfType<ConnectionPoolRemovedConnectionEvent>().Which.ConnectionId.Should().Be(connection1InPool.ConnectionId);
+            capturedEvents.Next().Should().BeOfType<ConnectionPoolRemovedConnectionEvent>().Which.ConnectionId.Should().Be(connection2InUse.ConnectionId);
+            capturedEvents.Events.Should().BeEmpty();
 
             ValidateConnectionsCount(inUse: false, expectedCount: 0, subject);
             ValidateConnectionsCount(inUse: true, expectedCount: 1, subject, connection3InUse.ConnectionId);
-            //capturedEvents.Next().Should().BeOfType<ConnectionPoolRemovingConnectionEvent>().Which.ConnectionId.Should().Be(connection1InPool.ConnectionId);
-            capturedEvents.Next().Should().BeOfType<ConnectionPoolRemovedConnectionEvent>().Which.ConnectionId.Should().Be(connection1InPool.ConnectionId);
-            //capturedEvents.Next().Should().BeOfType<ConnectionPoolRemovingConnectionEvent>().Which.ConnectionId.Should().Be(connection2InUse.ConnectionId);
-            capturedEvents.Next().Should().BeOfType<ConnectionPoolRemovedConnectionEvent>().Which.ConnectionId.Should().Be(connection2InUse.ConnectionId);
+
+            // 6. remove connection3InUse
+            subject.SetReady();
+            subject.Clear(closeInUseConnections: true);
+            capturedEvents.WaitForOrThrowIfTimeout(events => events.Count() >= 2, timeout);
+            var removingConnection3InUseEvents = new[]
+            {
+                capturedEvents.Next(),
+                capturedEvents.Next()  
+            };
+            removingConnection3InUseEvents
+                .Should()
+                .Match(events => // doing it in this way because we don't guarantee the events order here
+                    events.Any(e => e is ConnectionPoolClearedEvent) &&
+                    events.OfType<ConnectionPoolRemovedConnectionEvent>().Any(e => e.ConnectionId.Equals(connection3InUse.ConnectionId)));
             capturedEvents.Events.Should().BeEmpty();
+
+            ValidateConnectionsCount(inUse: false, expectedCount: 0, subject);
+            ValidateConnectionsCount(inUse: true, expectedCount: 0, subject);
 
             IConnection CreateConnection(ServerId serverId, TaskCompletionSource<bool> makeConnectionExpired, TaskCompletionSource<bool> taskCompletionSource)
             {
@@ -1363,7 +1398,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     .Setup(c => c.Dispose())
                     .Callback(() =>
                     {
-                        taskCompletionSource?.Task.WaitOrThrow(TimeSpan.FromSeconds(500));
+                        taskCompletionSource?.Task.WaitOrThrow(timeout);
                     });
                 return connection.Object;
             }
