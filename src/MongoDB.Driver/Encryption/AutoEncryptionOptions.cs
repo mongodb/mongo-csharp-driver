@@ -87,6 +87,7 @@ namespace MongoDB.Driver.Encryption
 
         /// <summary>
         /// Gets the encrypted fields map.
+        /// Supplying an encryptedFieldsMap provides more security than relying on an encryptedFields obtained from the server. It protects against a malicious server advertising a false encryptedFields.
         /// </summary>
         public IReadOnlyDictionary<string, BsonDocument> EncryptedFieldsMap => _encryptedFieldsMap;
 
