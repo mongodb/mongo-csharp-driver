@@ -192,6 +192,33 @@ not possible to mix use of both modes in the same application.&lt;/p&gt;
     </item>
     
     <item>
+      <title>V3 mode</title>
+      <link>/mongo-csharp-driver/2.15/reference/bson/guidserialization/guidrepresentationmode/v3mode/</link>
+      <pubDate>Thu, 23 Jul 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.15/reference/bson/guidserialization/guidrepresentationmode/v3mode/</guid>
+      <description>
+
+&lt;h2 id=&#34;v3-guidrepresentationmode&#34;&gt;V3 GuidRepresentationMode&lt;/h2&gt;
+
+&lt;p&gt;In V3 mode the central principle is that the representation of Guids is controlled at the level of each individual
+property of a document by configuring the serializer for that property. The recommendation is that all Guids in a
+collection be represented uniformly using the standard BsonBinaryData subtype 4, but when working with historical
+data it is acceptable for different Guid fields in the same document to be represented differently.&lt;/p&gt;
+
+&lt;p&gt;The following existing methods behave differently in V3 mode:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;BsonBinaryReader.ReadBinaryData method ignores readerSettings.GuidRepresentation&lt;/li&gt;
+&lt;li&gt;BsonBinaryWriter.WriteBinaryData method ignores writerSettings.GuidRepresentation&lt;/li&gt;
+&lt;li&gt;JsonReader ReadBinaryData method ignores readerSettings.GuidRepresentation&lt;/li&gt;
+&lt;li&gt;JsonWriter ignores writerSettings.GuidRepresentation&lt;/li&gt;
+&lt;li&gt;BsonBinaryData ToGuid without GuidRepresentation argument is only valid for sub type 4&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
       <title>V2 mode</title>
       <link>/mongo-csharp-driver/2.15/reference/bson/guidserialization/guidrepresentationmode/v2mode/</link>
       <pubDate>Thu, 23 Jul 2020 00:00:00 +0000</pubDate>
@@ -230,6 +257,30 @@ level since the same reader/writer is used to read/write an entire document.&lt;
 
 &lt;p&gt;Note: the BsonDefaults GuidRepresentationMode property is itself deprecated even though it is new because it is only
 intended to be use during the transition period and will be removed when support for V2 mode is removed.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Guid Serialization</title>
+      <link>/mongo-csharp-driver/2.15/reference/bson/guidserialization/</link>
+      <pubDate>Thu, 23 Jul 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.15/reference/bson/guidserialization/</guid>
+      <description>
+
+&lt;h1 id=&#34;guid-serialization&#34;&gt;Guid serialization&lt;/h1&gt;
+
+&lt;p&gt;We are making changes to how Guids will be serialized in the future. For the time being the driver will
+continue to serialize Guids as it has in the past, in order to not break backward compatibility. You
+can opt-in to the new way of serializing Guids by setting the GuidRepresentationMode to V3.&lt;/p&gt;
+
+&lt;p&gt;The folowing sections contain more information:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;- &lt;a href=&#34;/mongo-csharp-driver/2.15/mongo-csharp-driver/2.15/reference/bson/guidserialization/background/&#34;&gt;Background&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;- &lt;a href=&#34;/mongo-csharp-driver/2.15/mongo-csharp-driver/2.15/reference/bson/guidserialization/guidrepresentationmode/guidrepresentationmode/&#34;&gt;GuidRepresentationMode&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;- &lt;a href=&#34;/mongo-csharp-driver/2.15/mongo-csharp-driver/2.15/reference/bson/guidserialization/serializerchanges/serializerchanges/&#34;&gt;Serializer changes&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
 </description>
     </item>
     
@@ -283,76 +334,6 @@ to mark the ones that use a different representation.&lt;/p&gt;
     </item>
     
     <item>
-      <title>Serializer changes</title>
-      <link>/mongo-csharp-driver/2.15/reference/bson/guidserialization/serializerchanges/serializerchanges/</link>
-      <pubDate>Thu, 23 Jul 2020 00:00:00 +0000</pubDate>
-      
-      <guid>/mongo-csharp-driver/2.15/reference/bson/guidserialization/serializerchanges/serializerchanges/</guid>
-      <description>
-
-&lt;h1 id=&#34;serializer-changes&#34;&gt;Serializer changes&lt;/h1&gt;
-
-&lt;p&gt;The following sections describe changes to the two serializers to handle Guids differently:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;- &lt;a href=&#34;/mongo-csharp-driver/2.15/mongo-csharp-driver/2.15/reference/bson/guidserialization/serializerchanges/guidserializerchanges/&#34;&gt;GuidSerializer changes&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;- &lt;a href=&#34;/mongo-csharp-driver/2.15/mongo-csharp-driver/2.15/reference/bson/guidserialization/serializerchanges/objectserializerchanges/&#34;&gt;ObjectSerializer changes&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Guid Serialization</title>
-      <link>/mongo-csharp-driver/2.15/reference/bson/guidserialization/</link>
-      <pubDate>Thu, 23 Jul 2020 00:00:00 +0000</pubDate>
-      
-      <guid>/mongo-csharp-driver/2.15/reference/bson/guidserialization/</guid>
-      <description>
-
-&lt;h1 id=&#34;guid-serialization&#34;&gt;Guid serialization&lt;/h1&gt;
-
-&lt;p&gt;We are making changes to how Guids will be serialized in the future. For the time being the driver will
-continue to serialize Guids as it has in the past, in order to not break backward compatibility. You
-can opt-in to the new way of serializing Guids by setting the GuidRepresentationMode to V3.&lt;/p&gt;
-
-&lt;p&gt;The folowing sections contain more information:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;- &lt;a href=&#34;/mongo-csharp-driver/2.15/mongo-csharp-driver/2.15/reference/bson/guidserialization/background/&#34;&gt;Background&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;- &lt;a href=&#34;/mongo-csharp-driver/2.15/mongo-csharp-driver/2.15/reference/bson/guidserialization/guidrepresentationmode/guidrepresentationmode/&#34;&gt;GuidRepresentationMode&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;- &lt;a href=&#34;/mongo-csharp-driver/2.15/mongo-csharp-driver/2.15/reference/bson/guidserialization/serializerchanges/serializerchanges/&#34;&gt;Serializer changes&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>V3 mode</title>
-      <link>/mongo-csharp-driver/2.15/reference/bson/guidserialization/guidrepresentationmode/v3mode/</link>
-      <pubDate>Thu, 23 Jul 2020 00:00:00 +0000</pubDate>
-      
-      <guid>/mongo-csharp-driver/2.15/reference/bson/guidserialization/guidrepresentationmode/v3mode/</guid>
-      <description>
-
-&lt;h2 id=&#34;v3-guidrepresentationmode&#34;&gt;V3 GuidRepresentationMode&lt;/h2&gt;
-
-&lt;p&gt;In V3 mode the central principle is that the representation of Guids is controlled at the level of each individual
-property of a document by configuring the serializer for that property. The recommendation is that all Guids in a
-collection be represented uniformly using the standard BsonBinaryData subtype 4, but when working with historical
-data it is acceptable for different Guid fields in the same document to be represented differently.&lt;/p&gt;
-
-&lt;p&gt;The following existing methods behave differently in V3 mode:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;BsonBinaryReader.ReadBinaryData method ignores readerSettings.GuidRepresentation&lt;/li&gt;
-&lt;li&gt;BsonBinaryWriter.WriteBinaryData method ignores writerSettings.GuidRepresentation&lt;/li&gt;
-&lt;li&gt;JsonReader ReadBinaryData method ignores readerSettings.GuidRepresentation&lt;/li&gt;
-&lt;li&gt;JsonWriter ignores writerSettings.GuidRepresentation&lt;/li&gt;
-&lt;li&gt;BsonBinaryData ToGuid without GuidRepresentation argument is only valid for sub type 4&lt;/li&gt;
-&lt;/ul&gt;
-</description>
-    </item>
-    
-    <item>
       <title>ObjectSerializer changes</title>
       <link>/mongo-csharp-driver/2.15/reference/bson/guidserialization/serializerchanges/objectserializerchanges/</link>
       <pubDate>Thu, 23 Jul 2020 00:00:00 +0000</pubDate>
@@ -387,6 +368,25 @@ BsonSerializer.RegisterSerializer(objectSerializer);
     </item>
     
     <item>
+      <title>Serializer changes</title>
+      <link>/mongo-csharp-driver/2.15/reference/bson/guidserialization/serializerchanges/serializerchanges/</link>
+      <pubDate>Thu, 23 Jul 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.15/reference/bson/guidserialization/serializerchanges/serializerchanges/</guid>
+      <description>
+
+&lt;h1 id=&#34;serializer-changes&#34;&gt;Serializer changes&lt;/h1&gt;
+
+&lt;p&gt;The following sections describe changes to the two serializers to handle Guids differently:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;- &lt;a href=&#34;/mongo-csharp-driver/2.15/mongo-csharp-driver/2.15/reference/bson/guidserialization/serializerchanges/guidserializerchanges/&#34;&gt;GuidSerializer changes&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;- &lt;a href=&#34;/mongo-csharp-driver/2.15/mongo-csharp-driver/2.15/reference/bson/guidserialization/serializerchanges/objectserializerchanges/&#34;&gt;ObjectSerializer changes&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
       <title>Compression</title>
       <link>/mongo-csharp-driver/2.15/reference/driver/crud/compression/</link>
       <pubDate>Wed, 29 Jan 2020 22:05:03 -0400</pubDate>
@@ -399,9 +399,9 @@ BsonSerializer.RegisterSerializer(objectSerializer);
 &lt;p&gt;The C# driver supports compression of messages to and from MongoDB servers. The driver implements the three algorithms that are supported by MongoDB servers:&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://google.github.io/snappy/&#34;&gt;Snappy&lt;/a&gt;: Snappy compression can be used when connecting to MongoDB servers starting with the 3.4 release.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://zlib.net/&#34;&gt;Zlib&lt;/a&gt;: Zlib compression can be used when connecting to MongoDB servers starting with the 3.6 release.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://facebook.github.io/zstd/&#34;&gt;Zstandard&lt;/a&gt;: Zstandard compression can be used when connecting to MongoDB servers starting with the 4.2 release.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://google.github.io/snappy/&#34;&gt;Snappy&lt;/a&gt;: Snappy compression can be used when connecting to MongoDB servers starting with the 3.4 release. Supported platforms: Windows: x86 and x64, Linux/macOS: x64.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://zlib.net/&#34;&gt;Zlib&lt;/a&gt;: Zlib compression can be used when connecting to MongoDB servers starting with the 3.6 release. Supported on all platforms and architectures.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://facebook.github.io/zstd/&#34;&gt;Zstandard&lt;/a&gt;: Zstandard compression can be used when connecting to MongoDB servers starting with the 4.2 release. Supported platforms: Windows/Linux/macOS: x64 only.&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;p&gt;The driver will negotiate which, if any, compression algorithm is used based on capabilities advertised by the server in the &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/command/hello/
