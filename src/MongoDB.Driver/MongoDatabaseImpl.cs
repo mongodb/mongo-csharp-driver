@@ -669,7 +669,7 @@ namespace MongoDB.Driver
             _ = EncryptedCollectionHelper.TryGetEffectiveEncryptedFields(collectionNamespace, options.EncryptedFields, _client.Settings?.AutoEncryptionOptions, out var effectiveEncryptedFields);
             var messageEncoderSettings = GetMessageEncoderSettings(withEncryption: effectiveEncryptedFields != null);
 
-            return CreateCollectionOperation.CreateCreateCollectionOperation(
+            return CreateCollectionOperation.CreateEncryptedCreateCollectionOperationIfConfigured(
                 collectionNamespace,
                 effectiveEncryptedFields,
                 messageEncoderSettings,
@@ -727,8 +727,9 @@ namespace MongoDB.Driver
                         ?.ToBsonDocument();
                 }
             }
+
             var messageEncoderSettings = GetMessageEncoderSettings(withEncryption: effectiveEncryptedFields != null);
-            return DropCollectionOperation.CreateDropCollectionOperation(
+            return DropCollectionOperation.CreateEncryptedDropCollectionOperationIfConfigured(
                 collectionNamespace,
                 effectiveEncryptedFields,
                 messageEncoderSettings,
@@ -759,8 +760,9 @@ namespace MongoDB.Driver
                         ?.ToBsonDocument();
                 }
             }
+
             var messageEncoderSettings = GetMessageEncoderSettings(withEncryption: effectiveEncryptedFields != null);
-            return DropCollectionOperation.CreateDropCollectionOperation(
+            return DropCollectionOperation.CreateEncryptedDropCollectionOperationIfConfigured(
                 collectionNamespace,
                 effectiveEncryptedFields,
                 messageEncoderSettings,

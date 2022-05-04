@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Linq;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -21,6 +22,7 @@ using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.Tests.Core.Operations;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
@@ -86,6 +88,7 @@ namespace MongoDB.Driver.Core.Operations
 #pragma warning restore
             subject.Capped.Should().NotHaveValue();
             subject.Collation.Should().BeNull();
+            subject.EncryptedFields.Should().BeNull();
             subject.IndexOptionDefaults.Should().BeNull();
             subject.MaxDocuments.Should().NotHaveValue();
             subject.MaxSize.Should().NotHaveValue();
@@ -155,7 +158,7 @@ namespace MongoDB.Driver.Core.Operations
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
             {
                 Capped = capped
-            };
+             };
             var session = OperationTestHelper.CreateSession();
 
             var result = subject.CreateCommand(session);
@@ -413,6 +416,133 @@ namespace MongoDB.Driver.Core.Operations
                 { "writeConcern", () => writeConcern.ToBsonDocument(), writeConcern != null }
             };
             result.Should().Be(expectedResult);
+        }
+
+        [Fact]
+        public void CreateEncryptedCreateCollectionOperationIfConfigured_should_return_expected_result_when_EncryptedFields_is_null()
+        {
+            var subject = CreateCollectionOperation.CreateEncryptedCreateCollectionOperationIfConfigured(_collectionNamespace, encryptedFields: null, _messageEncoderSettings, null);
+            var session = OperationTestHelper.CreateSession();
+
+            var s = subject.Should().BeOfType<CreateCollectionOperation>().Subject;
+
+            var command = s.CreateCommand(session);
+
+            var expectedResult = new BsonDocument
+            {
+                { "create", _collectionNamespace.CollectionName },
+            };
+            command.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [InlineData(new[] { "'escCollection' : 'escCollectionName'", "escCollectionName" }, new[] { "'eccCollection' : 'eccCollectionName'", "eccCollectionName" }, new[] { "'ecocCollection' : 'ecocCollectionName'", "ecocCollectionName" })]
+        [InlineData(new[] { null, "esc" }, new[] { null, "ecc" }, new[] { null, "ecoc" })]
+        public void CreateEncryptedCreateCollectionOperationIfConfigured_should_return_expected_result_when_EncryptedFields_is_set(string[] escCollectionStrElement, string[] eccCollectionStrElement, string[] ecocCollectionStrElement)
+        {
+            var encryptedFields = BsonDocument.Parse($@"
+            {{
+                {GetFirstElementWithCommaOrEmpty(escCollectionStrElement)}
+                {GetFirstElementWithCommaOrEmpty(eccCollectionStrElement)}
+                {GetFirstElementWithCommaOrEmpty(ecocCollectionStrElement)}
+                ""fields"" :
+                [{{
+                    ""path"" : ""firstName"",
+                    ""keyId"" : {{ ""$binary"" : {{ ""subType"" : ""04"", ""base64"" : ""AAAAAAAAAAAAAAAAAAAAAA=="" }} }},
+                    ""bsonType"" : ""string"",
+                    ""queries"" : {{ ""queryType"" : ""equality"" }}
+                }},
+                {{
+                    ""path"" : ""ssn"",
+                    ""keyId"" : {{ ""$binary"" : {{ ""subType"" : ""04"", ""base64"": ""BBBBBBBBBBBBBBBBBBBBBB=="" }} }},
+                    ""bsonType"" : ""string""
+                }}]
+            }}");
+
+            var subject = CreateCollectionOperation.CreateEncryptedCreateCollectionOperationIfConfigured(_collectionNamespace, encryptedFields, _messageEncoderSettings, null);
+            var session = OperationTestHelper.CreateSession();
+
+            var operations = ((CompositeWriteOperation<BsonDocument>)subject)._operations<BsonDocument>();
+
+            // esc
+            AssertCreateCollectionCommand(
+                operations[0],
+                new CollectionNamespace(_collectionNamespace.DatabaseNamespace.DatabaseName, GetExpectedCollectionName(escCollectionStrElement)),
+                encryptedFields: null,
+                isMainOperation: false);
+            // ecc
+            AssertCreateCollectionCommand(
+                operations[1],
+                new CollectionNamespace(_collectionNamespace.DatabaseNamespace.DatabaseName, GetExpectedCollectionName(eccCollectionStrElement)),
+                encryptedFields: null,
+                isMainOperation: false);
+            // eco
+            AssertCreateCollectionCommand(
+                operations[2],
+                new CollectionNamespace(_collectionNamespace.DatabaseNamespace.DatabaseName, GetExpectedCollectionName(ecocCollectionStrElement)),
+                encryptedFields: null,
+                isMainOperation: false);
+            // main
+            AssertCreateCollectionCommand(
+                operations[3],
+                _collectionNamespace,
+                encryptedFields,
+                isMainOperation: true);
+            // __safeContent__
+            AssertIndex(operations[4], _collectionNamespace, index: new BsonDocument("__safeContent__", 1));
+
+            void AssertCreateCollectionCommand((IWriteOperation<BsonDocument> Operation, bool IsMainOperation) operationInfo, CollectionNamespace collectionNamespace, BsonDocument encryptedFields, bool isMainOperation)
+            {
+                var expectedResult = new BsonDocument
+                {
+                    { "create", collectionNamespace.CollectionName },
+                    { "encryptedFields", encryptedFields, encryptedFields != null }
+                };
+                AssertCommand(operationInfo, isMainOperation, expectedResult);
+            }
+
+            void AssertIndex((IWriteOperation<BsonDocument> Operation, bool IsMainOperation) operationInfo, CollectionNamespace collectionNamespace, BsonDocument index)
+            {
+                var expectedResult = new BsonDocument
+                {
+                    { "createIndexes", collectionNamespace.CollectionName },
+                    {
+                        "indexes",
+                        BsonArray.Create(new [] { new BsonDocument { { "key", index }, { "name", IndexNameHelper.GetIndexName(index) } } })
+                    }
+                };
+                AssertCommand(operationInfo, isMainOperation: false, expectedResult);
+            }
+
+            void AssertCommand((IWriteOperation<BsonDocument> Operation, bool IsMainOperation) operationInfo, bool isMainOperation, BsonDocument expectedResult)
+            {
+                operationInfo.IsMainOperation.Should().Be(isMainOperation);
+                var operation = operationInfo.Operation;
+
+                var result = operation switch
+                {
+                    CreateCollectionOperation createCollectionOperation => createCollectionOperation.CreateCommand(session),
+                    CreateIndexesOperation createIndexesOperation => createIndexesOperation.CreateCommand(session, OperationTestHelper.CreateConnectionDescription()),
+                    _ => throw new Exception($"Unexpected operation {operation}."),
+                };
+                result.Should().Be(expectedResult);
+            }
+
+            string GetFirstElementWithCommaOrEmpty(string[] array) => array.First() != null ? $"{array.First()}," : string.Empty;
+
+            string GetExpectedCollectionName(string[] array)
+            {
+                var first = array.First();
+                var last = array.Last();
+                if (first != null)
+                {
+                    return last;
+                }
+                else
+                {
+                    return $"enxcol_.{_collectionNamespace.CollectionName}.{last}";
+                }
+            }
         }
 
         [SkippableTheory]

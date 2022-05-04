@@ -233,7 +233,7 @@ namespace MongoDB.Driver.Encryption
             }
             if (_tlsOptions != null)
             {
-                sb.AppendFormat("TlsOptions: {0}", _tlsOptions.Select(t => new BsonDocument(t.Key, "<hidden>")).ToJson(jsonWriterSettings));
+                sb.AppendFormat("TlsOptions: {0}, ", _tlsOptions.Select(t => new BsonDocument(t.Key, "<hidden>")).ToJson(jsonWriterSettings));
             }
             if (_encryptedFieldsMap != null)
             {

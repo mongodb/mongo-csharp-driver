@@ -17,7 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
-using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Encryption
 {
@@ -58,7 +57,13 @@ namespace MongoDB.Driver.Encryption
 
             if (encryptedFields == null)
             {
-                return EncryptedCollectionHelper.TryGetEncryptedFieldsFromAutoEncryptionOptions(collectionNamespace, autoEncryptionOptions, out effectiveEncryptedFields);
+                var encryptedFieldsMap = autoEncryptionOptions?.EncryptedFieldsMap;
+                if (encryptedFieldsMap != null)
+                {
+                    return encryptedFieldsMap.TryGetValue(collectionNamespace.ToString(), out effectiveEncryptedFields);
+                }
+
+                return false;
             }
 
             return true;

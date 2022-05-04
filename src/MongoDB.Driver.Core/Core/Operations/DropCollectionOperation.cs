@@ -37,19 +37,18 @@ namespace MongoDB.Driver.Core.Operations
         /// <param name="encryptedFields">The encrypted feilds.</param>
         /// <param name="messageEncoderSettings">The message encoder settings.</param>
         /// <param name="configureDropCollectionConfigurator">The dropCollection operation configurator.</param>
-        internal static IWriteOperation<BsonDocument> CreateDropCollectionOperation(
+        internal static IWriteOperation<BsonDocument> CreateEncryptedDropCollectionOperationIfConfigured(
             CollectionNamespace collectionNamespace,
             BsonDocument encryptedFields,
             MessageEncoderSettings messageEncoderSettings,
             Action<DropCollectionOperation> configureDropCollectionConfigurator)
         {
-            Ensure.IsNotNull(configureDropCollectionConfigurator, nameof(configureDropCollectionConfigurator));
             var mainOperation = new DropCollectionOperation(collectionNamespace, messageEncoderSettings)
             {
                 EncryptedFields = encryptedFields
             };
 
-            configureDropCollectionConfigurator(mainOperation);
+            configureDropCollectionConfigurator?.Invoke(mainOperation);
 
             if (encryptedFields != null)
             {

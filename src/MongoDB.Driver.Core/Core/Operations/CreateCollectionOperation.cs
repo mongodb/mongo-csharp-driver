@@ -37,14 +37,12 @@ namespace MongoDB.Driver.Core.Operations
         /// <param name="encryptedFields">The encrypted feilds.</param>
         /// <param name="messageEncoderSettings">The message encoder settings.</param>
         /// <param name="createCollectionOperationConfigurator">The createCollection operation configurator.</param>
-        internal static IWriteOperation<BsonDocument> CreateCreateCollectionOperation(
+        internal static IWriteOperation<BsonDocument> CreateEncryptedCreateCollectionOperationIfConfigured(
             CollectionNamespace collectionNamespace,
             BsonDocument encryptedFields,
             MessageEncoderSettings messageEncoderSettings,
             Action<CreateCollectionOperation> createCollectionOperationConfigurator)
         {
-            Ensure.IsNotNull(createCollectionOperationConfigurator, nameof(createCollectionOperationConfigurator));
-
             var mainOperation = new CreateCollectionOperation(
                 collectionNamespace,
                 messageEncoderSettings)
@@ -52,7 +50,7 @@ namespace MongoDB.Driver.Core.Operations
                 EncryptedFields = encryptedFields
             };
 
-            createCollectionOperationConfigurator(mainOperation);
+            createCollectionOperationConfigurator?.Invoke(mainOperation);
 
             if (encryptedFields != null)
             {

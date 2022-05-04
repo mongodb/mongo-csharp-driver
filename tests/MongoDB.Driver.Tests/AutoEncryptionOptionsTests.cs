@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -108,7 +109,7 @@ namespace MongoDB.Driver.Tests
         [InlineData("db.test", "db.test", "db.test", true)]
         [InlineData("db.test", "db.test;db.test1", "db.test", true)]
         [InlineData("db.test;db.test1", "db.test;db.test1", "db.test, db.test1", true)]
-        [InlineData("db.test1;db.test", "db.test;db.test1", "db.test, db.test1", true)] // TODO: rely on libmongocrypt?
+        [InlineData("db.test1;db.test", "db.test;db.test1", "db.test1, db.test", true)]
         public void constructor_should_handle_schemaMap_and_encryptedFieldsMap_type_correctly(string schemaMapKey, string encryptedFieldsMapKey, string errorMessage, bool shouldFail)
         {
             var schemaMap = CreateMap(schemaMapKey);
@@ -163,37 +164,105 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void Equals_should_work_correctly()
         {
-            var options1 = CreateAutoEncryptionOptions();
-            var options2 = CreateAutoEncryptionOptions();
+            // collectionNamespace
+            Assert(
+                CreateSubject(collectionNamespace: __keyVaultNamespace),
+                CreateSubject(collectionNamespace: __keyVaultNamespace),
+                expectedResult: true);
+
+            Assert(
+                CreateSubject(collectionNamespace: __keyVaultNamespace),
+                CreateSubject(collectionNamespace: CollectionNamespace.FromFullName("db.temp")),
+                expectedResult: false);
+
+            // extraOptions
+            Assert(
+                CreateSubject(extraOptions: GetDictionary<object>(("mongocryptdURI", "key"))),
+                CreateSubject(extraOptions: GetDictionary<object>(("mongocryptdSpawnPath", "key"))),
+                expectedResult: false);
+
+            Assert(
+                CreateSubject(extraOptions: GetDictionary<object>(("mongocryptdURI", "key"))),
+                CreateSubject(extraOptions: GetDictionary<object>(("mongocryptdURI", "key1"))),
+                expectedResult: false);
+
+            Assert(
+                CreateSubject(extraOptions: GetDictionary<object>(("mongocryptdSpawnArgs", "key1"))),
+                CreateSubject(extraOptions: GetDictionary<object>(("mongocryptdSpawnArgs", "key1"), ("mongocryptdSpawnPath", "key12"))),
+                expectedResult: false);
+
+            Assert(
+                CreateSubject(extraOptions: GetDictionary<object>(("mongocryptdSpawnArgs", "key1"), ("mongocryptdSpawnPath", "key12"))),
+                CreateSubject(extraOptions: GetDictionary<object>(("mongocryptdSpawnArgs", "key1"), ("mongocryptdSpawnPath", "key12"))),
+                expectedResult: true);
+
+            // schemaMap
+            Assert(
+                CreateSubject(schemaMap: GetDictionary(("coll1", new BsonDocument()))),
+                CreateSubject(schemaMap: GetDictionary(("coll2", new BsonDocument()))),
+                expectedResult: false);
+
+            Assert(
+                CreateSubject(schemaMap: GetDictionary(("coll1", new BsonDocument()))),
+                CreateSubject(schemaMap: GetDictionary(("coll1", new BsonDocument("key", "value")))),
+                expectedResult: false);
+
+            Assert(
+                CreateSubject(schemaMap: GetDictionary(("coll1", new BsonDocument()))),
+                CreateSubject(schemaMap: GetDictionary(("coll1", new BsonDocument()), ("coll2", new BsonDocument("key", "value")))),
+                expectedResult: false);
+
+            Assert(
+                CreateSubject(schemaMap: GetDictionary(("coll1", new BsonDocument()), ("coll2", new BsonDocument("key", "value")))),
+                CreateSubject(schemaMap: GetDictionary(("coll1", new BsonDocument()), ("coll2", new BsonDocument("key", "value")))),
+                expectedResult: true);
+
+            // encryptedFieldsMap
+            Assert(
+                CreateSubject(encryptedFieldsMap: GetDictionary(("coll1", new BsonDocument()))),
+                CreateSubject(encryptedFieldsMap: GetDictionary(("coll2", new BsonDocument()))),
+                expectedResult: false);
+
+            Assert(
+                CreateSubject(encryptedFieldsMap: GetDictionary(("coll1", new BsonDocument()))),
+                CreateSubject(encryptedFieldsMap: GetDictionary(("coll1", new BsonDocument("key", "value")))),
+                expectedResult: false);
+
+            Assert(
+                CreateSubject(encryptedFieldsMap: GetDictionary(("coll1", new BsonDocument()))),
+                CreateSubject(encryptedFieldsMap: GetDictionary(("coll1", new BsonDocument()), ("coll2", new BsonDocument("key", "value")))),
+                expectedResult: false);
+
+            Assert(
+                CreateSubject(encryptedFieldsMap: GetDictionary(("coll1", new BsonDocument()), ("coll2", new BsonDocument("key", "value")))),
+                CreateSubject(encryptedFieldsMap: GetDictionary(("coll1", new BsonDocument()), ("coll2", new BsonDocument("key", "value")))),
+                expectedResult: true);
+
+            void Assert(AutoEncryptionOptions subject1, AutoEncryptionOptions subject2, bool expectedResult) => subject1.Equals(subject2).Should().Be(expectedResult);
+        }
+
+        [Fact]
+        public void Equals_with_tls_should_work_correctly()
+        {
+            var options1 = CreateSubject();
+            var options2 = CreateSubject();
             options1.Equals(options2).Should().BeTrue();
 
-            options1 = CreateAutoEncryptionOptions(tlsOptions: new SslSettings());
-            options2 = CreateAutoEncryptionOptions(tlsOptions: new SslSettings());
+            options1 = CreateSubject(tlsOptions: new SslSettings());
+            options2 = CreateSubject(tlsOptions: new SslSettings());
             options1.Equals(options2).Should().BeTrue();
 
-            options1 = CreateAutoEncryptionOptions(tlsOptions: new SslSettings());
-            options2 = CreateAutoEncryptionOptions(tlsOptions: new SslSettings(), collectionNamespace: CollectionNamespace.FromFullName("d.c"));
+            options1 = CreateSubject(tlsOptions: new SslSettings());
+            options2 = CreateSubject(tlsOptions: new SslSettings(), collectionNamespace: CollectionNamespace.FromFullName("d.c"));
             options1.Equals(options2).Should().BeFalse();
 
-            options1 = CreateAutoEncryptionOptions(tlsOptions: new SslSettings(), tlsKey: "test1");
-            options2 = CreateAutoEncryptionOptions(tlsOptions: new SslSettings());
+            options1 = CreateSubject(tlsOptions: new SslSettings(), tlsKey: "test1");
+            options2 = CreateSubject(tlsOptions: new SslSettings());
             options1.Equals(options2).Should().BeFalse();
 
-            options1 = CreateAutoEncryptionOptions(tlsOptions: new SslSettings() { EnabledSslProtocols = System.Security.Authentication.SslProtocols.None });
-            options2 = CreateAutoEncryptionOptions(tlsOptions: new SslSettings());
+            options1 = CreateSubject(tlsOptions: new SslSettings() { EnabledSslProtocols = System.Security.Authentication.SslProtocols.None });
+            options2 = CreateSubject(tlsOptions: new SslSettings());
             options1.Equals(options2).Should().BeFalse();
-
-            AutoEncryptionOptions CreateAutoEncryptionOptions(SslSettings tlsOptions = null, string tlsKey = "test", CollectionNamespace collectionNamespace = null)
-            {
-                var autoEncryptionOptions = new AutoEncryptionOptions(
-                    keyVaultNamespace: collectionNamespace ?? __keyVaultNamespace,
-                    kmsProviders: GetKmsProviders());
-                if (tlsOptions != null)
-                {
-                    autoEncryptionOptions = autoEncryptionOptions.With(tlsOptions: new Dictionary<string, SslSettings> { { tlsKey, tlsOptions } });
-                }
-                return autoEncryptionOptions;
-            }
         }
 
         [Fact]
@@ -221,6 +290,13 @@ namespace MongoDB.Driver.Tests
             {
                 { "local", new SslSettings { ClientCertificates = new [] { Mock.Of<X509Certificate2>() } } }
             };
+            var encryptedFieldsMap = new Dictionary<string, BsonDocument>
+            {
+                {
+                    "db.test",
+                    BsonDocument.Parse("{ dummy : 'doc' }")
+                }
+            };
 
             var subject = new AutoEncryptionOptions(
                 keyVaultNamespace: __keyVaultNamespace,
@@ -228,10 +304,11 @@ namespace MongoDB.Driver.Tests
                 bypassAutoEncryption: true,
                 extraOptions: extraOptions,
                 schemaMap: schemaMap,
-                tlsOptions: tlsOptions);
+                tlsOptions: tlsOptions,
+                encryptedFieldsMap: encryptedFieldsMap);
 
             var result = subject.ToString();
-            result.Should().Be("{ BypassAutoEncryption : True, KmsProviders : { \"provider1\" : { \"string\" : \"test\" }, \"provider2\" : { \"binary\" : { \"_t\" : \"System.Byte[]\", \"_v\" : new BinData(0, \"ABEiM0RVZneImaq7zN3u/w==\") } } }, KeyVaultNamespace : \"db.coll\", ExtraOptions : { \"mongocryptdURI\" : \"testURI\" }, SchemaMap : { \"coll1\" : { \"string\" : \"test\" }, \"coll2\" : { \"binary\" : UUID(\"00112233-4455-6677-8899-aabbccddeeff\") } }, TlsOptions: [{ \"local\" : \"<hidden>\"  }");
+            result.Should().Be("{ BypassAutoEncryption : True, KmsProviders : { \"provider1\" : { \"string\" : \"test\" }, \"provider2\" : { \"binary\" : { \"_t\" : \"System.Byte[]\", \"_v\" : new BinData(0, \"ABEiM0RVZneImaq7zN3u/w==\") } } }, KeyVaultNamespace : \"db.coll\", ExtraOptions : { \"mongocryptdURI\" : \"testURI\" }, SchemaMap : { \"coll1\" : { \"string\" : \"test\" }, \"coll2\" : { \"binary\" : UUID(\"00112233-4455-6677-8899-aabbccddeeff\") } }, TlsOptions: [{ \"local\" : \"<hidden>\" }], EncryptedFieldsMap : { \"db.test\" : { \"dummy\" : \"doc\" } } }");
         }
 
         // private methods
@@ -247,6 +324,27 @@ namespace MongoDB.Driver.Tests
             }
         }
 
+        private AutoEncryptionOptions CreateSubject(
+            SslSettings tlsOptions = null,
+            string tlsKey = "test",
+            CollectionNamespace collectionNamespace = null,
+            Dictionary<string, BsonDocument> schemaMap = null,
+            Dictionary<string, BsonDocument> encryptedFieldsMap = null,
+            Dictionary<string, object> extraOptions = null)
+        {
+            var autoEncryptionOptions = new AutoEncryptionOptions(
+                keyVaultNamespace: collectionNamespace ?? __keyVaultNamespace,
+                kmsProviders: GetKmsProviders(),
+                schemaMap: schemaMap,
+                encryptedFieldsMap: encryptedFieldsMap,
+                extraOptions: extraOptions);
+            if (tlsOptions != null)
+            {
+                autoEncryptionOptions = autoEncryptionOptions.With(tlsOptions: new Dictionary<string, SslSettings> { { tlsKey, tlsOptions } });
+            }
+            return autoEncryptionOptions;
+        }
+
         private Dictionary<string, IReadOnlyDictionary<string, object>> GetKmsProviders(Type optionType = null)
         {
             var localOptions = new Dictionary<string, object>
@@ -258,6 +356,16 @@ namespace MongoDB.Driver.Tests
                 { "local", localOptions }
             };
             return kmsProviders;
+        }
+
+        private Dictionary<string, TValue> GetDictionary<TValue>(params (string Key, TValue Document)[] map)
+        {
+            if (map.Length == 0)
+            {
+                return null;
+            }
+
+            return map.ToDictionary(k => k.Key, v => v.Document);
         }
     }
 }
