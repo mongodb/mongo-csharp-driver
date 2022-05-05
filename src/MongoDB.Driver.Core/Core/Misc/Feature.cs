@@ -261,7 +261,6 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the change stream pre post images feature.
         /// </summary>
         public static Feature ChangeStreamPrePostImages => __changeStreamPrePostImages;
-        
 
         /// <summary>
         /// Gets the client side encryption feature.

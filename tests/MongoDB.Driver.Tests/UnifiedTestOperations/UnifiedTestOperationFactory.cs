@@ -162,6 +162,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                             return new UnifiedAggregateOperationBuilder(_entityMap).BuildDatabaseOperation(targetEntityId, operationArguments);
                         case "createCollection":
                             return new UnifiedCreateCollectionOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
+                        case "createChangeStream":
+                            return new UnifiedCreateChangeStreamOnDatabaseOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
                         case "dropCollection":
                             return new UnifiedDropCollectionOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
                         case "listCollections":

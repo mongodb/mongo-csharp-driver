@@ -265,7 +265,7 @@ namespace MongoDB.Driver.Core.Operations
         [Theory]
         [ParameterAttributeData]
         public void FullDocumentBeforeChange_get_and_set_should_work(
-          [Values(ChangeStreamFullDocumentBeforeChangeOption.Default, ChangeStreamFullDocumentBeforeChangeOption.WhenAvailable)] ChangeStreamFullDocumentBeforeChangeOption value)
+            [Values(ChangeStreamFullDocumentBeforeChangeOption.Default, ChangeStreamFullDocumentBeforeChangeOption.WhenAvailable)] ChangeStreamFullDocumentBeforeChangeOption value)
         {
             var subject = CreateSubject();
 

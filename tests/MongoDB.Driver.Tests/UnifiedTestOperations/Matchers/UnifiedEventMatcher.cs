@@ -58,18 +58,18 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
         }
         #endregion
 
-        private UnifiedValueMatcher _valueMatcher;
+        private readonly UnifiedValueMatcher _valueMatcher;
 
         public UnifiedEventMatcher(UnifiedValueMatcher valueMatcher)
         {
             _valueMatcher = valueMatcher;
         }
 
-        public void AssertEventsMatch(List<object> actualEvents, BsonArray expectedEventsDocuments)
+        public void AssertEventsMatch(List<object> actualEvents, BsonArray expectedEventsDocuments, bool ignoreExtraEvents)
         {
             try
             {
-                AssertEvents(actualEvents, expectedEventsDocuments);
+                AssertEvents(actualEvents, expectedEventsDocuments, ignoreExtraEvents);
             }
             catch (XunitException exception)
             {
@@ -80,11 +80,18 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
         }
 
         // private methods
-        private void AssertEvents(List<object> actualEvents, BsonArray expectedEventsDocuments)
+        private void AssertEvents(List<object> actualEvents, BsonArray expectedEventsDocuments, bool ignoreExtraEvents)
         {
-            actualEvents.Should().HaveSameCount(expectedEventsDocuments);
+            if (ignoreExtraEvents)
+            {
+                actualEvents.Count.Should().BeGreaterOrEqualTo(expectedEventsDocuments.Count);
+            }
+            else
+            {
+                actualEvents.Should().HaveSameCount(expectedEventsDocuments);
+            }
 
-            for (int i = 0; i < actualEvents.Count; i++)
+            for (int i = 0; i < expectedEventsDocuments.Count; i++)
             {
                 var actualEvent = actualEvents[i];
                 var expectedEventDocument = expectedEventsDocuments[i].AsBsonDocument;

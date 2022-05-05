@@ -95,7 +95,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
             var schemaSemanticVersion = SemanticVersion.Parse(schemaVersion);
             if (schemaSemanticVersion < new SemanticVersion(1, 0, 0) ||
-                schemaSemanticVersion > new SemanticVersion(1, 6, 0))
+                schemaSemanticVersion > new SemanticVersion(1, 7, 0))
             {
                 throw new FormatException($"Schema version '{schemaVersion}' is not supported.");
             }
@@ -200,11 +200,12 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             foreach (var eventItem in eventItems.Cast<BsonDocument>())
             {
                 var clientId = eventItem["client"].AsString;
+                var ignoreExtraEvents = eventItem.GetValue("ignoreExtraEvents", false).AsBoolean;
                 var eventCapturer = entityMap.EventCapturers[clientId];
                 var eventType = eventItem.GetValue("eventType", defaultValue: "command").AsString;
                 var actualEvents = UnifiedEventMatcher.FilterEventsByType(eventCapturer.Events, eventType);
 
-                unifiedEventMatcher.AssertEventsMatch(actualEvents, eventItem["events"].AsBsonArray);
+                unifiedEventMatcher.AssertEventsMatch(actualEvents, eventItem["events"].AsBsonArray, ignoreExtraEvents);
             }
         }
 
