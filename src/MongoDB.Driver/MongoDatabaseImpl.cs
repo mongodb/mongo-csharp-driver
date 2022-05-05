@@ -666,7 +666,7 @@ namespace MongoDB.Driver
 
             var collectionNamespace = new CollectionNamespace(_databaseNamespace, name);
 
-            _ = EncryptedCollectionHelper.TryGetEffectiveEncryptedFields(collectionNamespace, options.EncryptedFields, _client.Settings?.AutoEncryptionOptions, out var effectiveEncryptedFields);
+            _ = EncryptedCollectionHelper.TryGetEffectiveEncryptedFields(collectionNamespace, options.EncryptedFields, _client.Settings?.AutoEncryptionOptions?.EncryptedFieldsMap, out var effectiveEncryptedFields);
             var messageEncoderSettings = GetMessageEncoderSettings(withEncryption: effectiveEncryptedFields != null);
 
             return CreateCollectionOperation.CreateEncryptedCreateCollectionOperationIfConfigured(
@@ -714,7 +714,7 @@ namespace MongoDB.Driver
             options = options ?? new DropCollectionOptions();
 
             var autoEncryptionOptions = _client.Settings?.AutoEncryptionOptions;
-            if (!EncryptedCollectionHelper.TryGetEffectiveEncryptedFields(collectionNamespace, options.EncryptedFields, autoEncryptionOptions, out var effectiveEncryptedFields))
+            if (!EncryptedCollectionHelper.TryGetEffectiveEncryptedFields(collectionNamespace, options.EncryptedFields, autoEncryptionOptions?.EncryptedFieldsMap, out var effectiveEncryptedFields))
             {
                 if (autoEncryptionOptions != null)
                 {
@@ -746,7 +746,7 @@ namespace MongoDB.Driver
             options = options ?? new DropCollectionOptions();
 
             var autoEncryptionOptions = _client.Settings?.AutoEncryptionOptions;
-            if (!EncryptedCollectionHelper.TryGetEffectiveEncryptedFields(collectionNamespace, options.EncryptedFields, autoEncryptionOptions, out var effectiveEncryptedFields))
+            if (!EncryptedCollectionHelper.TryGetEffectiveEncryptedFields(collectionNamespace, options.EncryptedFields, autoEncryptionOptions?.EncryptedFieldsMap, out var effectiveEncryptedFields))
             {
                 if (autoEncryptionOptions != null)
                 {

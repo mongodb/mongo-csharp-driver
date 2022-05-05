@@ -14,9 +14,12 @@
 */
 
 using System;
+using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Operations;
 using Moq;
 using Xunit;
@@ -51,6 +54,89 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
                     (Mock.Of<IWriteOperation<BsonDocument>>(), IsMainOperation: true),
                     (Mock.Of<IWriteOperation<BsonDocument>>(), IsMainOperation: true)))
                 .Should().BeOfType<ArgumentException>().Which.Message.Should().Be($"{nameof(CompositeWriteOperation<BsonDocument>)} must have a single main operation.");
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Enumerating_operations_should_be_stopped_when_error([Values(false, true)] bool async)
+        {
+            var testException = new Exception("test");
+
+            var healthyOperation1 = CreateHealthyOperation(new BsonDocument("operation", 1));
+            var faultyOperation2 = CreateFaultyOperation(testException);
+            var healthyOperation3= CreateHealthyOperation(new BsonDocument("operation", 3));
+
+            var subject = new CompositeWriteOperation<BsonDocument>((healthyOperation1.Object, IsMainOperation: false), (faultyOperation2.Object, IsMainOperation: false), (healthyOperation3.Object, IsMainOperation: true));
+
+            var resultedException = async
+                ? Record.Exception(() => subject.ExecuteAsync(Mock.Of<IWriteBinding>(), CancellationToken.None).GetAwaiter().GetResult())
+                : Record.Exception(() => subject.Execute(Mock.Of<IWriteBinding>(), CancellationToken.None));
+
+            resultedException.Should().Be(testException);
+
+            VeryfyOperation(healthyOperation1, true, async);
+            VeryfyOperation(faultyOperation2, true, async);
+            VeryfyOperation(healthyOperation3, false, async);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Enumerating_operations_should_return_result_of_main_operation([Values(false, true)] bool async)
+        {
+            var operation2Result = new BsonDocument("operation", 2);
+
+            var operation1 = CreateHealthyOperation(new BsonDocument("operation", 1));
+            var operation2 = CreateHealthyOperation(operation2Result);
+            var operation3 = CreateHealthyOperation(new BsonDocument("operation", 3));
+
+            var subject = new CompositeWriteOperation<BsonDocument>((operation1.Object, IsMainOperation: false), (operation2.Object, IsMainOperation: true), (operation3.Object, IsMainOperation: false));
+
+            var result = async
+                ? subject.ExecuteAsync(Mock.Of<IWriteBinding>(), CancellationToken.None).GetAwaiter().GetResult()
+                : subject.Execute(Mock.Of<IWriteBinding>(), CancellationToken.None);
+
+            result.Should().Be(operation2Result);
+
+            VeryfyOperation(operation1, true, async);
+            VeryfyOperation(operation2, true, async);
+            VeryfyOperation(operation3, true, async);
+        }
+
+        // private methods
+        private Mock<IWriteOperation<BsonDocument>> CreateFaultyOperation(Exception testException)
+        {
+            var mockedOperation = new Mock<IWriteOperation<BsonDocument>>();
+            mockedOperation
+                .Setup(c => c.Execute(It.IsAny<IWriteBinding>(), It.IsAny<CancellationToken>()))
+                .Throws(testException);
+            mockedOperation
+                .Setup(c => c.ExecuteAsync(It.IsAny<IWriteBinding>(), It.IsAny<CancellationToken>()))
+                .Throws(testException);
+            return mockedOperation;
+        }
+
+        private Mock<IWriteOperation<BsonDocument>> CreateHealthyOperation(BsonDocument response)
+        {
+            var mockedOperation = new Mock<IWriteOperation<BsonDocument>>();
+            mockedOperation
+                .Setup(c => c.Execute(It.IsAny<IWriteBinding>(), It.IsAny<CancellationToken>()))
+                .Returns(response);
+            mockedOperation
+                .Setup(c => c.ExecuteAsync(It.IsAny<IWriteBinding>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(response);
+            return mockedOperation;
+        }
+
+        private void VeryfyOperation(Mock<IWriteOperation<BsonDocument>> mockedOperation, bool hasBeenCalled, bool async)
+        {
+            if (async)
+            {
+                mockedOperation.Verify(c => c.ExecuteAsync(It.IsAny<IWriteBinding>(), It.IsAny<CancellationToken>()), hasBeenCalled ? Times.Once : Times.Never);
+            }
+            else
+            {
+                mockedOperation.Verify(c => c.Execute(It.IsAny<IWriteBinding>(), It.IsAny<CancellationToken>()), hasBeenCalled ? Times.Once : Times.Never);
+            }
         }
     }
 

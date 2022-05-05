@@ -21,6 +21,8 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
+using MongoDB.Driver.Encryption;
+using static MongoDB.Driver.Encryption.EncryptedCollectionHelper;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -54,9 +56,9 @@ namespace MongoDB.Driver.Core.Operations
             {
                 return new CompositeWriteOperation<BsonDocument>(
                     (mainOperation, IsMainOperation: true),
-                    (CreateInnerDropOperation(encryptedFields.TryGetValue("escCollection", out var escCollection) ? escCollection.ToString() : $"enxcol_.{collectionNamespace.CollectionName}.esc"), IsMainOperation: false),
-                    (CreateInnerDropOperation(encryptedFields.TryGetValue("eccCollection", out var eccCollection) ? eccCollection.ToString() : $"enxcol_.{collectionNamespace.CollectionName}.ecc"), IsMainOperation: false),
-                    (CreateInnerDropOperation(encryptedFields.TryGetValue("ecocCollection", out var ecocCollection) ? ecocCollection.ToString() : $"enxcol_.{collectionNamespace.CollectionName}.ecoc"), IsMainOperation: false));
+                    (CreateInnerDropOperation(EncryptedCollectionHelper.GetAdditionalCollectionName(encryptedFields, collectionNamespace, HelperCollectionForEncryption.Esc)), IsMainOperation: false),
+                    (CreateInnerDropOperation(EncryptedCollectionHelper.GetAdditionalCollectionName(encryptedFields, collectionNamespace, HelperCollectionForEncryption.Ecc)), IsMainOperation: false),
+                    (CreateInnerDropOperation(EncryptedCollectionHelper.GetAdditionalCollectionName(encryptedFields, collectionNamespace, HelperCollectionForEncryption.Ecos)), IsMainOperation: false));
             }
             else
             {
@@ -64,7 +66,7 @@ namespace MongoDB.Driver.Core.Operations
             }
 
             DropCollectionOperation CreateInnerDropOperation(string collectionName)
-                => new DropCollectionOperation(new CollectionNamespace(collectionNamespace.DatabaseNamespace.DatabaseName, collectionName), messageEncoderSettings);
+                => new DropCollectionOperation(new CollectionNamespace(collectionNamespace.DatabaseNamespace.DatabaseName, collectionName.ToString()), messageEncoderSettings);
         }
         #endregion
 

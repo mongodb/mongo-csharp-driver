@@ -178,7 +178,6 @@ namespace MongoDB.Driver.Core.Operations
                 result.Should().Be(expectedResult);
             }
 
-
             string GetFirstElementWithCommaOrEmpty(string[] array) => array.First() != null ? $"{array.First()}," : string.Empty;
 
             string GetExpectedCollectionName(string[] array)

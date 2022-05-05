@@ -22,6 +22,9 @@ namespace MongoDB.Driver.Encryption
 {
     internal static class EncryptedCollectionHelper
     {
+        private static BsonDocument __additionalCreateIndexDocument = new BsonDocument("__safeContent__", 1);
+        public static BsonDocument AdditionalCreateIndexDocument => __additionalCreateIndexDocument;
+
         public static void EnsureCollectionsValid(IReadOnlyDictionary<string, BsonDocument> schemaMap, IReadOnlyDictionary<string, BsonDocument> encryptedFieldsMap)
         {
             if (schemaMap == null || encryptedFieldsMap == null || schemaMap.Count == 0 || encryptedFieldsMap.Count == 0)
@@ -36,28 +39,21 @@ namespace MongoDB.Driver.Encryption
             }
         }
 
-        public static bool TryGetEncryptedFieldsFromAutoEncryptionOptions(CollectionNamespace collectionNamespace, AutoEncryptionOptions autoEncryptionOptions, out BsonDocument encryptedFields)
-        {
-            var encryptedFieldsMap = autoEncryptionOptions?.EncryptedFieldsMap;
-            if (encryptedFieldsMap != null)
+        public static string GetAdditionalCollectionName(BsonDocument encryptedFields, CollectionNamespace mainCollectionNamespace, HelperCollectionForEncryption helperCollection) =>
+            helperCollection switch
             {
-                if (encryptedFieldsMap.TryGetValue(collectionNamespace.ToString(), out encryptedFields))
-                {
-                    return true;                   
-                }
-            }
+                HelperCollectionForEncryption.Esc => encryptedFields.GetValue("escCollection", defaultValue: $"enxcol_.{mainCollectionNamespace.CollectionName}.esc").ToString(),
+                HelperCollectionForEncryption.Ecc => encryptedFields.GetValue("eccCollection", defaultValue: $"enxcol_.{mainCollectionNamespace.CollectionName}.ecc").ToString(),
+                HelperCollectionForEncryption.Ecos => encryptedFields.GetValue("ecocCollection", defaultValue: $"enxcol_.{mainCollectionNamespace.CollectionName}.ecoc").ToString(),
+                _ => throw new InvalidOperationException($"Not supported encryption helper collection {helperCollection}."),
+            };
 
-            encryptedFields = null;
-            return false;
-        }
-
-        public static bool TryGetEffectiveEncryptedFields(CollectionNamespace collectionNamespace, BsonDocument encryptedFields, AutoEncryptionOptions autoEncryptionOptions, out BsonDocument effectiveEncryptedFields)
+        public static bool TryGetEffectiveEncryptedFields(CollectionNamespace collectionNamespace, BsonDocument encryptedFields, IReadOnlyDictionary<string, BsonDocument> encryptedFieldsMap, out BsonDocument effectiveEncryptedFields)
         {
             effectiveEncryptedFields = encryptedFields;
 
             if (encryptedFields == null)
             {
-                var encryptedFieldsMap = autoEncryptionOptions?.EncryptedFieldsMap;
                 if (encryptedFieldsMap != null)
                 {
                     return encryptedFieldsMap.TryGetValue(collectionNamespace.ToString(), out effectiveEncryptedFields);
@@ -67,6 +63,13 @@ namespace MongoDB.Driver.Encryption
             }
 
             return true;
+        }
+
+        public enum HelperCollectionForEncryption
+        {
+            Esc,
+            Ecc,
+            Ecos
         }
     }
 }
