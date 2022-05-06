@@ -81,6 +81,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             {
                 switch (argument.Name)
                 {
+                    case "comment":
+                        options.Comment = argument.Value.AsBsonValue;
+                        break;
                     case "maxTimeMS":
                         options.MaxTime = TimeSpan.FromMilliseconds(argument.Value.AsInt32);
                         break;
