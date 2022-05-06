@@ -1266,151 +1266,73 @@ namespace MongoDB.Driver.Core.ConnectionPools
         }
 
         [Theory]
-        [ParameterAttributeData]
-        public void Prune_should_respect_generation_when_closing_inUse_connections([Values(false, true)] bool async)
+        [InlineData(1, 10)]
+        [InlineData(9, 10)]
+        [InlineData(50, 100)]
+        [InlineData(99, 100)]
+        public void Prune_should_respect_generation_when_closing_inUse_connections(int maxExpiredGeneration, int maxGeneration)
         {
-            // Workflow:
-            // 0. Initial maitenance iteration just makes no op run and starts waiting default maintenance interval
-            // 1. Create 2 connections:
-            //    * connection1InPool - available in pool
-            //    * connection2InUse  - in use
-            // 2. call pool.Clear(closeInUseConnections: true)
-            //    * This will request immediate background check that will be in stuck in "connection1InPool.Dispose" due to stopRemovingCompletionSource
-            //    * This prune call should also remove connection2InUse after stopRemovingCompletionSource will be unblocked
-            // 3. Create connection3InUse via "EmulateAcquireConnection". This is not done with regular steps, because we're still waiting in connection1InPool.Dispose which is under global lock
-            //    The key point here that this method adds connection3InUse into "_connectionsInUse" in pool.ConnectionHolder collection.
-            // 4. Emulate next pool.Clear(closeInUseConnection: false) which just makes 3rd connection expired via connection3IsExpiredCompletionSource.
-            //    It's not neccessary to actually schedule next background check since there are no available connections that should be affected by this run.
-            //    The key point here that connection3InUse is expired, but this connection should not be affected by initial prune call when It will be unlocked after "connection1InPool.Dispose"
-            // 5. Unclock "connection1InPool.Dispose" via stopRemovingCompletionSource. Now first Prune is starting to remove connections "in use". It will process connection2InUse but not connection3InUse
-            // 6. Remove connection3InUse via regular pool.Clear(closeInUseConnections: true)
-
+            var random = new Random();
             int connectionIndex = 0;
-            var stopRemovingCompletionSource = new TaskCompletionSource<bool>();
-            var timeout = TimeSpan.FromMilliseconds(500);
+            var connectionsCount = maxGeneration + 1; // generations are 0-based
+            var connectionsToBeRemovedCount = maxExpiredGeneration + 1; // generations are 0-based
 
-            var capturedEvents = new EventCapturer()
-                .Capture<ConnectionPoolAddedConnectionEvent>()
-                .Capture<ConnectionPoolRemovedConnectionEvent>()
-                .Capture<ConnectionPoolCheckedInConnectionEvent>()
-                .Capture<ConnectionPoolClearedEvent>();
-
-            var noopSettings = _settings.With(
+            var capturedEvents = new EventCapturer().Capture<ConnectionPoolRemovedConnectionEvent>();
+            var poolSettings = _settings.With(
                 maintenanceInterval: TimeSpan.FromMinutes(1),
                 minConnections: 0,
+                maxConnections: connectionsCount,
                 waitQueueTimeout: TimeSpan.FromMinutes(1));
 
             var mockConnectionFactory = new Mock<IConnectionFactory> { DefaultValue = DefaultValue.Mock };
             mockConnectionFactory
-                .Setup(c => c.CreateConnection(It.IsAny<ServerId>(), It.IsAny<EndPoint>()))
-                .Returns<ServerId, EndPoint>((serverId, endpoint) =>
-                {
-                    return CreateConnection(serverId, makeConnectionExpired: null, stopRemovingCompletionSource);
-                });
+              .Setup(c => c.CreateConnection(It.IsAny<ServerId>(), It.IsAny<EndPoint>()))
+              .Returns<ServerId, EndPoint>(CreateConnection);
 
-            var subject = CreateSubject(connectionFactory: mockConnectionFactory.Object, connectionPoolSettings: noopSettings, eventCapturer: capturedEvents);
-            InitializeAndWait(subject, noopSettings);
+            var subject = CreateSubject(poolSettings, mockConnectionFactory.Object, eventCapturer: capturedEvents);
+            InitializeAndWait(subject, poolSettings);
 
-            ValidateConnectionsCount(inUse: false, expectedCount: 0, subject);
-            ValidateConnectionsCount(inUse: true, expectedCount: 0, subject);
-            capturedEvents.Events.Should().BeEmpty();
-
-            // 1. Create initial collections
-            var connection1InPool = AcquireConnection(subject, async);
-            capturedEvents.Next().Should().BeOfType<ConnectionPoolAddedConnectionEvent>().Which.ConnectionId.LocalValue.Should().Be(1);
-            capturedEvents.Events.Should().BeEmpty();
-
-            var connection2InUse = AcquireConnection(subject, async);
-            capturedEvents.Next().Should().BeOfType<ConnectionPoolAddedConnectionEvent>().Which.ConnectionId.LocalValue.Should().Be(2);
-            capturedEvents.Events.Should().BeEmpty();
-
-            connection1InPool.Dispose();
-            capturedEvents.Next().Should().BeOfType<ConnectionPoolCheckedInConnectionEvent>().Which.ConnectionId.LocalValue.Should().Be(1);
-            capturedEvents.Events.Should().BeEmpty();
-
-            // test setup is ready, now: connection1 is available, connection 2 is "in use"
-            ValidateConnectionsCount(inUse: false, expectedCount: 1, subject, expectedConnectionIds: connection1InPool.ConnectionId);
-            ValidateConnectionsCount(inUse: true, expectedCount: 1, subject, connection2InUse.ConnectionId);
-
-            // 2. run prunning, but do nothing since first removing of avaialble connection1InPool will be in stuck because of stopRemovingCompletionSource
-            // in this test we should ensure that this prune won't affect in use connections with Generation > 0
-            // in particular connection3 should be untouched
-            subject.Clear(closeInUseConnections: true);
-            capturedEvents.Next().Should().BeOfType<ConnectionPoolClearedEvent>();
-            capturedEvents.Events.Should().BeEmpty();
-
-            // still no op
-            ValidateConnectionsCount(inUse: false, expectedCount: 1, subject, expectedConnectionIds: connection1InPool.ConnectionId);
-            ValidateConnectionsCount(inUse: true, expectedCount: 1, subject, expectedConnectionIds: connection2InUse.ConnectionId);
-
-            // since we emulate next acquiring, we don't need subject.SetReady(), no events for the same reason;
-            var connection3IsExpiredCompletionSource = new TaskCompletionSource<bool>();
-            // 3. connection3 is in use
-            var connection3InUse = EmulateAcquireConnection(subject, connection3IsExpiredCompletionSource);
-
-            // 4. emulate next pool.Clear(closeInUseConnection: false) and make connection3 expired
-            // This prune call should be no op since there is no available connection anymore
-            connection3IsExpiredCompletionSource.SetResult(true);
-
-            ValidateConnectionsCount(inUse: false, expectedCount: 1, subject, expectedConnectionIds: connection1InPool.ConnectionId);
-            ValidateConnectionsCount(inUse: true, expectedCount: 2, subject, connection2InUse.ConnectionId, connection3InUse.ConnectionId);
-
-            // 5. now, first pruning run is unlocked. So:
-            // * connection1InPool is disposed and removed
-            // * connection2InUse is disposed and removed
-            // * connection3InUse is still "in use", since unlocked prunning knows that connection3 is not expired yet
-            stopRemovingCompletionSource.SetResult(true);
-
-            capturedEvents.WaitForOrThrowIfTimeout(events => events.OfType<ConnectionPoolRemovedConnectionEvent>().Count() >= 2, timeout);
-            capturedEvents.Next().Should().BeOfType<ConnectionPoolRemovedConnectionEvent>().Which.ConnectionId.Should().Be(connection1InPool.ConnectionId);
-            capturedEvents.Next().Should().BeOfType<ConnectionPoolRemovedConnectionEvent>().Which.ConnectionId.Should().Be(connection2InUse.ConnectionId);
-            capturedEvents.Events.Should().BeEmpty();
-
-            ValidateConnectionsCount(inUse: false, expectedCount: 0, subject);
-            ValidateConnectionsCount(inUse: true, expectedCount: 1, subject, connection3InUse.ConnectionId);
-
-            // 6. remove connection3InUse
-            subject.SetReady();
-            subject.Clear(closeInUseConnections: true);
-            capturedEvents.WaitForOrThrowIfTimeout(events => events.Count() >= 2, timeout);
-            var removingConnection3InUseEvents = new[]
+            // Acquire connections with incrementing generations
+            // allConnections[i].Generation == i;
+            var allConnections = new List<IConnection>();
+            for (int i = 0; i < connectionsCount; i++)
             {
-                capturedEvents.Next(),
-                capturedEvents.Next()  
-            };
-            removingConnection3InUseEvents
-                .Should()
-                .Match(events => // doing it in this way because we don't guarantee the events order here
-                    events.Any(e => e is ConnectionPoolClearedEvent) &&
-                    events.OfType<ConnectionPoolRemovedConnectionEvent>().Any(e => e.ConnectionId.Equals(connection3InUse.ConnectionId)));
-            capturedEvents.Events.Should().BeEmpty();
+                var connection = AcquireConnection(subject, random.NextDouble() > 0.5);
+                connection.Generation.Should().Be(i);
 
-            ValidateConnectionsCount(inUse: false, expectedCount: 0, subject);
-            ValidateConnectionsCount(inUse: true, expectedCount: 0, subject);
-
-            IConnection CreateConnection(ServerId serverId, TaskCompletionSource<bool> makeConnectionExpired, TaskCompletionSource<bool> taskCompletionSource)
-            {
-                var connection = new Mock<IConnection>();
-                var ci = ++connectionIndex;
-                connection.SetupGet(c => c.ConnectionId).Returns(() => new ConnectionId(_serverId, ci));
-                connection.SetupGet(c => c.IsExpired).Returns(() => makeConnectionExpired?.Task?.IsCompleted ?? false);
-                connection
-                    .Setup(c => c.Dispose())
-                    .Callback(() =>
-                    {
-                        taskCompletionSource?.Task.WaitOrThrow(timeout);
-                    });
-                return connection.Object;
+                allConnections.Add(connection);
+                subject._generation(subject.Generation + 1);
             }
 
-            IConnection EmulateAcquireConnection(ExclusiveConnectionPool pool, TaskCompletionSource<bool> makeConnectionExpired)
+            // All connections in-use are expired
+            // connections with generation <= maxExpiredGeneration should be removed by next Prune
+            // connections with generation > maxExpiredGeneration should be removed only upon return
+            subject._generation(maxExpiredGeneration);
+            subject.Clear(true);
+
+            capturedEvents.WaitForOrThrowIfTimeout(events => events.Count() >= connectionsToBeRemovedCount, TimeSpan.FromSeconds(5));
+            var removedConnections = new HashSet<int>(
+                capturedEvents
+                    .Events
+                    .OfType<ConnectionPoolRemovedConnectionEvent>()
+                    .Select(c => c.ConnectionId.LocalValue));
+
+            foreach (var connection in allConnections)
             {
-                // due to a number of locks across pool, it's hard to call regular Acquire method with waiting in different code paths
-                var pooledConnection = new PooledConnection(pool, CreateConnection(_serverId, makeConnectionExpired, null));
-                var inUseConnections = pool.ConnectionHolder._connectionsInUse();
-                inUseConnections.Add(pooledConnection);
-                pooledConnection.Open(CancellationToken.None); // make connection Opened
-                return pooledConnection; // we don't need AcquireConnection for this test target
+                connection.IsExpired.Should().BeTrue();
+
+                removedConnections
+                    .Contains(connection.ConnectionId.LocalValue)
+                    .Should().Be(connection.Generation <= maxExpiredGeneration);
+            }
+
+            IConnection CreateConnection(ServerId serverId, EndPoint _)
+            {
+                var connection = new Mock<IConnection>();
+                connection.SetupGet(c => c.ConnectionId).Returns(new ConnectionId(_serverId, ++connectionIndex));
+                connection.SetupGet(c => c.IsExpired).Returns(true);
+
+                return connection.Object;
             }
         }
 
