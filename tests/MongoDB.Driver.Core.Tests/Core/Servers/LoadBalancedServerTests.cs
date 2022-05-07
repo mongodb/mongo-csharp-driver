@@ -399,6 +399,19 @@ namespace MongoDB.Driver.Core.Servers
             _mockConnectionPool.Verify(p => p.Clear(It.IsAny<ObjectId>()), Times.Never);
         }
 
+        [Fact]
+        public void InitializeSubClass_should_initialize_ConnectionPool_before_cluster_updating()
+        {
+            bool setReadyHasBeenCalled = false;
+            _subject.DescriptionChanged += (s, args) =>
+            {
+                _mockConnectionPool.Verify(c => c.SetReady(), Times.Once());
+                setReadyHasBeenCalled = true; // can be called only if the above check passed
+            };
+            _subject.Initialize();
+            setReadyHasBeenCalled.Should().BeTrue();
+        }
+
         // private methods
         private Server SetupServer(bool exceptionOnConnectionOpen, bool exceptionOnConnectionAcquire)
         {
