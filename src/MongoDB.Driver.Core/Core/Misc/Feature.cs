@@ -1,4 +1,4 @@
-﻿/* Copyright 2016-present MongoDB Inc.
+/* Copyright 2016-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -59,7 +59,6 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __currentOpCommand = new Feature("CurrentOpCommand", WireVersion.Server32);
         private static readonly Feature __documentValidation = new Feature("DocumentValidation", WireVersion.Server32);
         private static readonly Feature __directConnectionSetting = new Feature("DirectConnectionSetting", WireVersion.Server44);
-        private static readonly Feature __estimatedDocumentCountByCollStats = new Feature("EstimatedDocumentCountByCollStats", WireVersion.Server49);
         private static readonly Feature __eval = new Feature("Eval", WireVersion.Zero, WireVersion.Server42);
         private static readonly Feature __explainCommand = new Feature("ExplainCommand", WireVersion.Server30);
         private static readonly Feature __failPoints = new Feature("FailPoints", WireVersion.Zero);
@@ -317,11 +316,6 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the directConnection setting feature.
         /// </summary>
         public static Feature DirectConnectionSetting => __directConnectionSetting;
-
-        /// <summary>
-        /// Gets the estimatedDocumentCountByCollStats feature.
-        /// </summary>
-        public static Feature EstimatedDocumentCountByCollStats => __estimatedDocumentCountByCollStats;
 
         /// <summary>
         /// Gets the eval feature.
@@ -692,7 +686,7 @@ namespace MongoDB.Driver.Core.Misc
         {
             if (!IsSupported(wireVersion))
             {
-                string errorMessage; 
+                string errorMessage;
                 if (_notSupportedMessage != null)
                 {
                     errorMessage = _notSupportedMessage; ;

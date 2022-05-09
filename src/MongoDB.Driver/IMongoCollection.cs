@@ -242,7 +242,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <remarks>
         /// Note: when migrating from Count to CountDocuments the following query operations must be replaced:
-        /// 
+        ///
         /// <code>
         /// +-------------+--------------------------------+
         /// | Operator    | Replacement                    |
@@ -269,7 +269,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <remarks>
         /// Note: when migrating from Count to CountDocuments the following query operations must be replaced:
-        /// 
+        ///
         /// <code>
         /// +-------------+--------------------------------+
         /// | Operator    | Replacement                    |
@@ -297,7 +297,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <remarks>
         /// Note: when migrating from CountAsync to CountDocumentsAsync the following query operations must be replaced:
-        /// 
+        ///
         /// <code>
         /// +-------------+--------------------------------+
         /// | Operator    | Replacement                    |
@@ -324,7 +324,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <remarks>
         /// Note: when migrating from CountAsync to CountDocumentsAsync the following query operations must be replaced:
-        /// 
+        ///
         /// <code>
         /// +-------------+--------------------------------+
         /// | Operator    | Replacement                    |
@@ -536,6 +536,12 @@ namespace MongoDB.Driver
         /// <returns>
         /// An estimate of the number of documents in the collection.
         /// </returns>
+        /// <remarks>
+        /// Due to an oversight in versions 5.0.0-5.0.8 of MongoDB, the count command, which estimatedDocumentCount uses
+        /// in its implementation, was not included in v1 of the Stable API. If you are using the Stable API with
+        /// estimatedDocumentCount, you must upgrade to server version 5.0.9+ or set strict: false when configuring
+        /// ServerApi to avoid encountering errors.
+        /// </remarks>
         long EstimatedDocumentCount(EstimatedDocumentCountOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
