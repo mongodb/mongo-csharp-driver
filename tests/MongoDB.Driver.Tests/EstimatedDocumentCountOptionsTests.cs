@@ -27,6 +27,7 @@ namespace MongoDB.Driver.Tests
         {
             var result = new EstimatedDocumentCountOptions();
 
+            result.Comment.Should().BeNull();
             result.MaxTime.Should().NotHaveValue();
         }
 

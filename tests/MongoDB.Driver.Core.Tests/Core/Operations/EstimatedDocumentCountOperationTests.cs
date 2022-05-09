@@ -37,6 +37,7 @@ namespace MongoDB.Driver.Core.Operations
 
             subject.CollectionNamespace.Should().BeSameAs(_collectionNamespace);
             subject.MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
+            subject.Comment.Should().BeNull();
             subject.MaxTime.Should().NotHaveValue();
             subject.ReadConcern.IsServerDefault.Should().BeTrue();
             subject.RetryRequested.Should().BeFalse();
@@ -58,6 +59,35 @@ namespace MongoDB.Driver.Core.Operations
 
             var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
             argumentNullException.ParamName.Should().Be("messageEncoderSettings");
+        }
+
+        [Fact]
+        public void Comment_get_and_set_should_work()
+        {
+            var subject = new EstimatedDocumentCountOperation(_collectionNamespace, _messageEncoderSettings);
+            var value = new BsonString("comment");
+
+            subject.Comment = value;
+            var result = subject.Comment;
+
+            result.Should().Be(value);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCountOperation_should_return_expected_result_when_Comment_is_set(
+            [Values(null, "test")] string comment)
+        {
+            var value = (BsonValue)comment;
+            var subject = new EstimatedDocumentCountOperation(_collectionNamespace, _messageEncoderSettings)
+            {
+                Comment = value
+            };
+
+            var result = subject.CreateCountOperation();
+
+            result.Should().BeOfType<CountOperation>()
+                .Subject.Comment.Should().BeSameAs(value);
         }
 
         [Theory]

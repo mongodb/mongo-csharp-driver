@@ -32,6 +32,7 @@ namespace MongoDB.Driver.Core.Operations
     {
         // private fields
         private readonly CollectionNamespace _collectionNamespace;
+        private BsonValue _comment;
         private TimeSpan? _maxTime;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private ReadConcern _readConcern = ReadConcern.Default;
@@ -54,6 +55,15 @@ namespace MongoDB.Driver.Core.Operations
         /// Gets the collection namespace.
         /// </summary>
         public CollectionNamespace CollectionNamespace => _collectionNamespace;
+
+        /// <summary>
+        /// Gets or sets the comment.
+        /// </summary>
+        public BsonValue Comment
+        {
+            get => _comment;
+            set => _comment = value;
+        }
 
         /// <summary>
         /// Gets or sets the maximum time the server should spend on this operation.
@@ -183,6 +193,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var countOperation = new CountOperation(_collectionNamespace, _messageEncoderSettings)
             {
+                Comment = _comment,
                 MaxTime = _maxTime,
                 ReadConcern = _readConcern,
                 RetryRequested = _retryRequested
