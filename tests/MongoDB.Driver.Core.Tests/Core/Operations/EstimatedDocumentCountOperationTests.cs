@@ -75,6 +75,23 @@ namespace MongoDB.Driver.Core.Operations
 
         [Theory]
         [ParameterAttributeData]
+        public void CreateCountOperation_should_return_expected_result_when_Comment_is_set(
+            [Values(null, "test")] string comment)
+        {
+            var value = (BsonValue)comment;
+            var subject = new EstimatedDocumentCountOperation(_collectionNamespace, _messageEncoderSettings)
+            {
+                Comment = value
+            };
+
+            var result = subject.CreateCountOperation();
+
+            result.Should().BeOfType<CountOperation>()
+                .Subject.Comment.Should().BeSameAs(value);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
         public void MaxTime_get_and_set_should_work(
             [Values(-10000, 0, 1, 10000, 99999)] long maxTimeTicks)
         {
