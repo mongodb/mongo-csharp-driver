@@ -55,11 +55,6 @@ namespace MongoDB.Driver.Tests.Specifications.crud
             {
                 foreach (var testCase in base.CreateTestCases(document))
                 {
-                    if (testCase.Name.Contains("-hint-unacknowledged"))
-                    {
-                        // Skipping until CSHARP-3791 is implemented
-                        continue;
-                    }
                     foreach (var async in new[] { false, true })
                     {
                         var name = $"{testCase.Name}:async={async}";
