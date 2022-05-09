@@ -32,13 +32,6 @@ namespace MongoDB.Driver.Core.Operations
     public class CreateCollectionOperation : IWriteOperation<BsonDocument>
     {
         #region static
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CreateCollectionOperation"/> class.
-        /// </summary>
-        /// <param name="collectionNamespace">The collection namespace.</param>
-        /// <param name="encryptedFields">The encrypted feilds.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        /// <param name="createCollectionOperationConfigurator">The createCollection operation configurator.</param>
         internal static IWriteOperation<BsonDocument> CreateEncryptedCreateCollectionOperationIfConfigured(
             CollectionNamespace collectionNamespace,
             BsonDocument encryptedFields,
@@ -95,12 +88,17 @@ namespace MongoDB.Driver.Core.Operations
         private WriteConcern _writeConcern;
 
         // constructors
-        internal CreateCollectionOperation(
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CreateCollectionOperation"/> class.
+        /// </summary>
+        /// <param name="collectionNamespace">The collection namespace.</param>
+        /// <param name="messageEncoderSettings">The message encoder settings.</param>
+        public CreateCollectionOperation(
             CollectionNamespace collectionNamespace,
             MessageEncoderSettings messageEncoderSettings)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
-            _messageEncoderSettings = messageEncoderSettings; // can be null
+            _messageEncoderSettings = messageEncoderSettings;
         }
 
         // properties

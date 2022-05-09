@@ -297,7 +297,7 @@ namespace MongoDB.Driver
 
         public override void DropCollection(string name, DropCollectionOptions options, CancellationToken cancellationToken = default)
         {
-            UsingImplicitSession(session => DropCollection(session, name, options: options, cancellationToken), cancellationToken);
+            UsingImplicitSession(session => DropCollection(session, name, options, cancellationToken), cancellationToken);
         }
 
         public override void DropCollection(IClientSessionHandle session, string name, CancellationToken cancellationToken)
@@ -320,7 +320,7 @@ namespace MongoDB.Driver
 
         public override Task DropCollectionAsync(string name, DropCollectionOptions options, CancellationToken cancellationToken)
         {
-            return UsingImplicitSessionAsync(session => DropCollectionAsync(session, name, options: options, cancellationToken), cancellationToken);
+            return UsingImplicitSessionAsync(session => DropCollectionAsync(session, name, options, cancellationToken), cancellationToken);
         }
 
         public override Task DropCollectionAsync(IClientSessionHandle session, string name, CancellationToken cancellationToken)
@@ -673,25 +673,25 @@ namespace MongoDB.Driver
                 collectionNamespace,
                 effectiveEncryptedFields,
                 messageEncoderSettings,
-                createCollectionOperationConfigurator: ccp =>
+                createCollectionOperationConfigurator: cco =>
                 {
 #pragma warning disable CS0618 // Type or member is obsolete
-                    ccp.AutoIndexId = options.AutoIndexId;
+                    cco.AutoIndexId = options.AutoIndexId;
 #pragma warning restore CS0618 // Type or member is obsolete
-                    ccp.Capped = options.Capped;
-                    ccp.Collation = options.Collation;
-                    ccp.ExpireAfter = options.ExpireAfter;
-                    ccp.IndexOptionDefaults = options.IndexOptionDefaults?.ToBsonDocument();
-                    ccp.MaxDocuments = options.MaxDocuments;
-                    ccp.MaxSize = options.MaxSize;
-                    ccp.NoPadding = options.NoPadding;
-                    ccp.StorageEngine = options.StorageEngine;
-                    ccp.TimeSeriesOptions = options.TimeSeriesOptions;
-                    ccp.UsePowerOf2Sizes = options.UsePowerOf2Sizes;
-                    ccp.ValidationAction = options.ValidationAction;
-                    ccp.ValidationLevel = options.ValidationLevel;
-                    ccp.Validator = validator;
-                    ccp.WriteConcern = _settings.WriteConcern;
+                    cco.Capped = options.Capped;
+                    cco.Collation = options.Collation;
+                    cco.ExpireAfter = options.ExpireAfter;
+                    cco.IndexOptionDefaults = options.IndexOptionDefaults?.ToBsonDocument();
+                    cco.MaxDocuments = options.MaxDocuments;
+                    cco.MaxSize = options.MaxSize;
+                    cco.NoPadding = options.NoPadding;
+                    cco.StorageEngine = options.StorageEngine;
+                    cco.TimeSeriesOptions = options.TimeSeriesOptions;
+                    cco.UsePowerOf2Sizes = options.UsePowerOf2Sizes;
+                    cco.ValidationAction = options.ValidationAction;
+                    cco.ValidationLevel = options.ValidationLevel;
+                    cco.Validator = validator;
+                    cco.WriteConcern = _settings.WriteConcern;
                 });
         }
 

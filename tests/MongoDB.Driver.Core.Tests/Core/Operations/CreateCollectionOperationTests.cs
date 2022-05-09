@@ -158,7 +158,7 @@ namespace MongoDB.Driver.Core.Operations
             var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
             {
                 Capped = capped
-             };
+            };
             var session = OperationTestHelper.CreateSession();
 
             var result = subject.CreateCommand(session);

@@ -22,8 +22,7 @@ namespace MongoDB.Driver.Encryption
 {
     internal static class EncryptedCollectionHelper
     {
-        private static BsonDocument __additionalCreateIndexDocument = new BsonDocument("__safeContent__", 1);
-        public static BsonDocument AdditionalCreateIndexDocument => __additionalCreateIndexDocument;
+        public static BsonDocument AdditionalCreateIndexDocument { get; } = new BsonDocument("__safeContent__", 1);
 
         public static void EnsureCollectionsValid(IReadOnlyDictionary<string, BsonDocument> schemaMap, IReadOnlyDictionary<string, BsonDocument> encryptedFieldsMap)
         {
@@ -32,10 +31,10 @@ namespace MongoDB.Driver.Encryption
                 return;
             }
 
-            var joined = schemaMap.Join(encryptedFieldsMap, o => o.Key, i => i.Key, (kv, i) => new { KeyValue = kv, Inner = i }).ToList();
-            if (joined.Count > 0)
+            var mutualKeys = schemaMap.Keys.Where(k => encryptedFieldsMap.ContainsKey(k));
+            if (mutualKeys.Any())
             {
-                throw new ArgumentException($"SchemaMap and EncryptedFieldsMap cannot both contain the same collections: {string.Join(", ", joined.Select(c => c.KeyValue.Key))}.");
+                throw new ArgumentException($"SchemaMap and EncryptedFieldsMap cannot both contain the same collections: {string.Join(", ", mutualKeys)}.");
             }
         }
 

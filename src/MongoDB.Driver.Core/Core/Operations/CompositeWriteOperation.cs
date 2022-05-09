@@ -21,7 +21,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Operations
 {
-    internal class CompositeWriteOperation<TResult> : IWriteOperation<TResult>
+    internal sealed class CompositeWriteOperation<TResult> : IWriteOperation<TResult>
     {
         private readonly (IWriteOperation<TResult> Operation, bool IsMainOperation)[] _operations;
 
@@ -46,6 +46,7 @@ namespace MongoDB.Driver.Core.Operations
 
             return result;
         }
+
         public async Task<TResult> ExecuteAsync(IWriteBinding binding, CancellationToken cancellationToken)
         {
             TResult result = default;

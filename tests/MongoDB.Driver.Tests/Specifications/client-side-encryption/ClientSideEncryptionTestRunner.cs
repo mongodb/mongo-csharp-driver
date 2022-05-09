@@ -215,12 +215,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                         }
                         break;
                     case "schemaMap":
-                        var schemaMaps = new Dictionary<string, BsonDocument>();
                         var schemaMapsDocument = option.Value.AsBsonDocument;
-                        foreach (var schemaMapElement in schemaMapsDocument.Elements)
-                        {
-                            schemaMaps.Add(schemaMapElement.Name, schemaMapElement.Value.AsBsonDocument);
-                        }
+                        var schemaMaps = schemaMapsDocument.Elements.ToDictionary(e => e.Name, e => e.Value.AsBsonDocument);
                         autoEncryptionOptions = autoEncryptionOptions.With(schemaMap: schemaMaps);
                         break;
                     case "bypassAutoEncryption":
@@ -230,13 +226,9 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                         autoEncryptionOptions = autoEncryptionOptions.With(keyVaultNamespace: CollectionNamespace.FromFullName(option.Value.AsString));
                         break;
                     case "encryptedFieldsMap":
-                        var encryptedFieldsMap = new Dictionary<string, BsonDocument>();
                         var encryptedFieldsMapDocument = option.Value.AsBsonDocument;
-                        foreach (var encryptedFieldsMapElement in encryptedFieldsMapDocument.Elements)
-                        {
-                            encryptedFieldsMap.Add(encryptedFieldsMapElement.Name, encryptedFieldsMapElement.Value.AsBsonDocument);
-                        }
-                        autoEncryptionOptions = autoEncryptionOptions.With(encryptedFieldsMap:encryptedFieldsMap);
+                        var encryptedFieldsMap = encryptedFieldsMapDocument.Elements.ToDictionary(e => e.Name, e => e.Value.AsBsonDocument);
+                        autoEncryptionOptions = autoEncryptionOptions.With(encryptedFieldsMap: encryptedFieldsMap);
                         break;
 
                     default:

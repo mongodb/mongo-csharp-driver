@@ -32,13 +32,6 @@ namespace MongoDB.Driver.Core.Operations
     public class DropCollectionOperation : IWriteOperation<BsonDocument>
     {
         #region static
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CreateCollectionOperation"/> class.
-        /// </summary>
-        /// <param name="collectionNamespace">The collection namespace.</param>
-        /// <param name="encryptedFields">The encrypted feilds.</param>
-        /// <param name="messageEncoderSettings">The message encoder settings.</param>
-        /// <param name="configureDropCollectionConfigurator">The dropCollection operation configurator.</param>
         internal static IWriteOperation<BsonDocument> CreateEncryptedDropCollectionOperationIfConfigured(
             CollectionNamespace collectionNamespace,
             BsonDocument encryptedFields,
@@ -66,7 +59,7 @@ namespace MongoDB.Driver.Core.Operations
             }
 
             DropCollectionOperation CreateInnerDropOperation(string collectionName)
-                => new DropCollectionOperation(new CollectionNamespace(collectionNamespace.DatabaseNamespace.DatabaseName, collectionName.ToString()), messageEncoderSettings);
+                => new DropCollectionOperation(new CollectionNamespace(collectionNamespace.DatabaseNamespace.DatabaseName, collectionName), messageEncoderSettings);
         }
         #endregion
 

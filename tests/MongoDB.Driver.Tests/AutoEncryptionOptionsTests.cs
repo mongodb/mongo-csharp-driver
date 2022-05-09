@@ -15,7 +15,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using FluentAssertions;
@@ -102,15 +101,15 @@ namespace MongoDB.Driver.Tests
         }
 
         [Theory]
-        [InlineData(null, null, null, false)]
-        [InlineData("db.test", null, null, false)]
-        [InlineData(null, "db.test", null, false)]
-        [InlineData("db.test", "db.test1", null, false)]
-        [InlineData("db.test", "db.test", "db.test", true)]
-        [InlineData("db.test", "db.test;db.test1", "db.test", true)]
-        [InlineData("db.test;db.test1", "db.test;db.test1", "db.test, db.test1", true)]
-        [InlineData("db.test1;db.test", "db.test;db.test1", "db.test1, db.test", true)]
-        public void constructor_should_handle_schemaMap_and_encryptedFieldsMap_type_correctly(string schemaMapKey, string encryptedFieldsMapKey, string errorMessage, bool shouldFail)
+        [InlineData(null, null, null)]
+        [InlineData("db.test", null, null)]
+        [InlineData(null, "db.test", null)]
+        [InlineData("db.test", "db.test1", null)]
+        [InlineData("db.test", "db.test", "db.test")]
+        [InlineData("db.test", "db.test;db.test1", "db.test")]
+        [InlineData("db.test;db.test1", "db.test;db.test1", "db.test, db.test1")]
+        [InlineData("db.test1;db.test", "db.test;db.test1", "db.test1, db.test")]
+        public void constructor_should_handle_schemaMap_and_encryptedFieldsMap_type_correctly(string schemaMapKey, string encryptedFieldsMapKey, string errorMessage)
         {
             var schemaMap = CreateMap(schemaMapKey);
             var encryptedFieldsMap = CreateMap(encryptedFieldsMapKey);
@@ -122,7 +121,7 @@ namespace MongoDB.Driver.Tests
                     schemaMap: schemaMap,
                     encryptedFieldsMap: encryptedFieldsMap));
 
-            if (shouldFail)
+            if (errorMessage != null)
             {
                 exception.Should().BeOfType<ArgumentException>().Which.Message.Should().Contain($"SchemaMap and EncryptedFieldsMap cannot both contain the same collections: {errorMessage}.");
             }
@@ -134,15 +133,7 @@ namespace MongoDB.Driver.Tests
             Dictionary<string, BsonDocument> CreateMap(string key)
             {
                 var dummyMapValue = new BsonDocument();
-                var map = new Dictionary<string, BsonDocument>();
-                if (key != null)
-                {
-                    foreach (var keyItem in key.Split(';'))
-                    {
-                        map.Add(keyItem, dummyMapValue);
-                    }
-                }
-                return map;
+                return key?.Split(';')?.ToDictionary(k => k, k => dummyMapValue) ?? new Dictionary<string, BsonDocument>();
             }
         }
 
@@ -358,14 +349,6 @@ namespace MongoDB.Driver.Tests
             return kmsProviders;
         }
 
-        private Dictionary<string, TValue> GetDictionary<TValue>(params (string Key, TValue Document)[] map)
-        {
-            if (map.Length == 0)
-            {
-                return null;
-            }
-
-            return map.ToDictionary(k => k.Key, v => v.Document);
-        }
+        private Dictionary<string, TValue> GetDictionary<TValue>(params (string Key, TValue Document)[] map) => map.ToDictionary(k => k.Key, v => v.Document);
     }
 }
