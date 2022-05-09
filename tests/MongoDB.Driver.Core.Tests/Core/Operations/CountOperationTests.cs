@@ -18,7 +18,6 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
@@ -36,6 +35,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.MessageEncoderSettings.Should().BeSameAs(_messageEncoderSettings);
 
             subject.Collation.Should().BeNull();
+            subject.Comment.Should().BeNull();
             subject.Filter.Should().BeNull();
             subject.Hint.Should().BeNull();
             subject.Limit.Should().NotHaveValue();
@@ -206,6 +206,30 @@ namespace MongoDB.Driver.Core.Operations
             var expectedResult = new BsonDocument
             {
                 { "count", _collectionNamespace.CollectionName }
+            };
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_expected_result_when_Comment_is_set(
+            [Values(null, "comment")]
+            string comment)
+        {
+            var subject = new CountOperation(_collectionNamespace, _messageEncoderSettings)
+            {
+                Comment = comment
+            };
+
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subject.CreateCommand(connectionDescription, session);
+
+            var expectedResult = new BsonDocument
+            {
+                { "count", _collectionNamespace.CollectionName },
+                { "comment", comment, comment != null }
             };
             result.Should().Be(expectedResult);
         }
