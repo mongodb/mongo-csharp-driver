@@ -713,10 +713,10 @@ namespace MongoDB.Driver
 
             options = options ?? new DropCollectionOptions();
 
-            var autoEncryptionOptions = _client.Settings?.AutoEncryptionOptions;
-            if (!EncryptedCollectionHelper.TryGetEffectiveEncryptedFields(collectionNamespace, options.EncryptedFields, autoEncryptionOptions?.EncryptedFieldsMap, out var effectiveEncryptedFields))
+            var encryptedFieldsMap = _client.Settings?.AutoEncryptionOptions?.EncryptedFieldsMap;
+            if (!EncryptedCollectionHelper.TryGetEffectiveEncryptedFields(collectionNamespace, options.EncryptedFields, encryptedFieldsMap, out var effectiveEncryptedFields))
             {
-                if (autoEncryptionOptions != null)
+                if (encryptedFieldsMap != null)
                 {
                     var listCollectionOptions = new ListCollectionsOptions() { Filter = $"{{ name : '{collectionNamespace.CollectionName}' }}" };
                     var currrentCollectionInfo = ListCollections(session, listCollectionOptions, cancellationToken).FirstOrDefault();
@@ -745,10 +745,10 @@ namespace MongoDB.Driver
 
             options = options ?? new DropCollectionOptions();
 
-            var autoEncryptionOptions = _client.Settings?.AutoEncryptionOptions;
-            if (!EncryptedCollectionHelper.TryGetEffectiveEncryptedFields(collectionNamespace, options.EncryptedFields, autoEncryptionOptions?.EncryptedFieldsMap, out var effectiveEncryptedFields))
+            var encryptedFieldsMap = _client.Settings?.AutoEncryptionOptions?.EncryptedFieldsMap;
+            if (!EncryptedCollectionHelper.TryGetEffectiveEncryptedFields(collectionNamespace, options.EncryptedFields, encryptedFieldsMap, out var effectiveEncryptedFields))
             {
-                if (autoEncryptionOptions != null)
+                if (encryptedFieldsMap != null)
                 {
                     var listCollectionOptions = new ListCollectionsOptions() { Filter = $"{{ name : '{collectionNamespace.CollectionName}' }}" };
                     var currentCollectionsInfo = await ListCollectionsAsync(session, listCollectionOptions, cancellationToken).ConfigureAwait(false);
