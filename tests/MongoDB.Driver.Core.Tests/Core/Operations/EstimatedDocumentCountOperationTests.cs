@@ -1,4 +1,4 @@
-﻿/* Copyright 2021-present MongoDB Inc.
+/* Copyright 2021-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
@@ -296,68 +295,29 @@ namespace MongoDB.Driver.Core.Operations
             EnsureTestData();
             var subject = new EstimatedDocumentCountOperation(_collectionNamespace, _messageEncoderSettings);
 
-            if (Feature.EstimatedDocumentCountByCollStats.IsSupported(CoreTestConfiguration.MaxWireVersion))
-            {
-                VerifySessionIdWasSentWhenSupported(subject, "aggregate", async);
-            }
-            else
-            {
-                VerifySessionIdWasSentWhenSupported(subject, "count", async);
-            }
+            VerifySessionIdWasSentWhenSupported(subject, "count", async);
         }
 
         // private methods
         private void AssertCommandDocument(BsonDocument actualResult, int? expectedMaxTimeMS = null, BsonDocument readConcern = null)
         {
-            if (Feature.EstimatedDocumentCountByCollStats.IsSupported(CoreTestConfiguration.MaxWireVersion))
+            var expectedResult = new BsonDocument
             {
-                var expectedResult = new BsonDocument
-                {
-                    { "aggregate", _collectionNamespace.CollectionName },
-                    {
-                        "pipeline",
-                        BsonArray.Create(
-                            new []
-                            {
-                                BsonDocument.Parse("{ $collStats : { count : { } } }"),
-                                BsonDocument.Parse("{ $group : { _id : 1, n : { $sum : '$count' } } } ")
-                            })
-                    },
-                    { "maxTimeMS", () => expectedMaxTimeMS.Value, expectedMaxTimeMS.HasValue },
-                    { "readConcern", () => readConcern, readConcern != null },
-                    { "cursor", new BsonDocument() }
-                };
-                actualResult.Should().Be(expectedResult);
-            }
-            else
+                { "count", _collectionNamespace.CollectionName },
+                { "maxTimeMS", () => expectedMaxTimeMS.Value, expectedMaxTimeMS.HasValue },
+                { "readConcern", () => readConcern, readConcern != null }
+            };
+            actualResult.Should().Be(expectedResult);
+            if (actualResult.TryGetValue("maxTimeMS", out var maxTimeMS))
             {
-                var expectedResult = new BsonDocument
-                {
-                    { "count", _collectionNamespace.CollectionName },
-                    { "maxTimeMS", () => expectedMaxTimeMS.Value, expectedMaxTimeMS.HasValue },
-                    { "readConcern", () => readConcern, readConcern != null }
-                };
-                actualResult.Should().Be(expectedResult);
-                if (actualResult.TryGetValue("maxTimeMS", out var maxTimeMS))
-                {
-                    maxTimeMS.BsonType.Should().Be(BsonType.Int32);
-                }
+                maxTimeMS.BsonType.Should().Be(BsonType.Int32);
             }
         }
 
         private BsonDocument CreateCommand(EstimatedDocumentCountOperation subject, ConnectionDescription connectionDescription, ICoreSession session)
         {
-            var currentServerVersion = CoreTestConfiguration.ServerVersion;
-            if (Feature.EstimatedDocumentCountByCollStats.IsSupported(CoreTestConfiguration.MaxWireVersion))
-            {
-                var aggregationOperation = (AggregateOperation<BsonDocument>)subject.CreateAggregationOperation();
-                return aggregationOperation.CreateCommand(connectionDescription, session);
-            }
-            else
-            {
-                var countOperation = (CountOperation)subject.CreateCountOperation();
-                return countOperation.CreateCommand(connectionDescription, session);
-            }
+            var countOperation = (CountOperation)subject.CreateCountOperation();
+            return countOperation.CreateCommand(connectionDescription, session);
         }
 
         private void EnsureTestData()
@@ -373,11 +333,6 @@ namespace MongoDB.Driver.Core.Operations
 
     internal static class EstimatedDocumentCountOperationReflector
     {
-        public static IExecutableInRetryableReadContext<IAsyncCursor<BsonDocument>> CreateAggregationOperation(this EstimatedDocumentCountOperation operation)
-        {
-            return (IExecutableInRetryableReadContext<IAsyncCursor<BsonDocument>>)Reflector.Invoke(operation, nameof(CreateAggregationOperation));
-        }
-
         public static IExecutableInRetryableReadContext<long> CreateCountOperation(this EstimatedDocumentCountOperation operation)
         {
             return (IExecutableInRetryableReadContext<long>)Reflector.Invoke(operation, nameof(CreateCountOperation));

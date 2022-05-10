@@ -1,55 +1,37 @@
-# This file was created automatically using mongodb-spec-converter.
-# Please review the generated file, then remove this notice.
+description: "updateOne-validation"
 
-description: updateOne-validation
-schemaVersion: '1.1'
+schemaVersion: "1.0"
+
 createEntities:
-  -
-    client:
+  - client:
       id: &client0 client0
-      observeEvents:
-        - commandStartedEvent
-  -
-    database:
+      observeEvents: [ commandStartedEvent ]
+  - database:
       id: &database0 database0
-      client: client0
-      databaseName: &database_name crud-v2
-  -
-    collection:
+      client: *client0
+      databaseName: &database0Name crud-tests
+  - collection:
       id: &collection0 collection0
-      database: database0
-      collectionName: &collection_name crud-v2
-initialData:
-  -
-    collectionName: *collection_name
-    databaseName: *database_name
+      database: *database0
+      collectionName: &collection0Name coll0
+
+initialData: &initialData
+  - collectionName: *collection0Name
+    databaseName: *database0Name
     documents:
-      -
-        _id: 1
-        x: 11
+      - { _id: 1, x: 11 }
+
 tests:
-  -
-    description: 'UpdateOne requires atomic modifiers'
+  - description: "UpdateOne requires atomic modifiers"
     operations:
-      -
+      - name: updateOne
         object: *collection0
-        name: updateOne
         arguments:
-          filter:
-            _id: 1
-          update:
-            x: 22
+          filter: { _id: 1 }
+          update: { x: 22 }
         expectError:
-          isError: true
+          isClientError: true
     expectEvents:
-      -
-        client: *client0
+      - client: *client0
         events: []
-    outcome:
-      -
-        collectionName: *collection_name
-        databaseName: *database_name
-        documents:
-          -
-            _id: 1
-            x: 11
+    outcome: *initialData

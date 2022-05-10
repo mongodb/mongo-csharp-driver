@@ -126,9 +126,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             var document = new BsonDocument
             {
-                { "matchedCount", result.MatchedCount },
-                { "modifiedCount", result.ModifiedCount },
-                { "upsertedCount", result.UpsertedId == null ? 0 : 1 },
+                { "matchedCount", () => result.MatchedCount, result.IsAcknowledged },
+                { "modifiedCount", () => result.ModifiedCount, result.IsModifiedCountAvailable },
+                { "upsertedCount", () => result.UpsertedId == null ? 0 : 1, result.IsAcknowledged },
             };
 
             return OperationResult.FromResult(document);

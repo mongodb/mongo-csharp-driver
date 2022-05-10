@@ -67,3 +67,12 @@ var database = client.GetDatabase("db");
 var result = database.RunCommand<BsonDocument>(new BsonDocument("commandDeprecatedInV1", 1)); // Example fail:
 // MongoDB.Driver.MongoCommandException : Command commandDeprecatedInV1 failed: Provided deprecationErrors:true, but the command commandDeprecatedInV1 is deprecated in API Version 1.
 ```
+
+### EstimatedDocumentCount and Stable API
+
+`EstimatedDocumentCount` is implemented using the `count` server command. Due to an oversight in versions
+5.0.0-5.0.8 of MongoDB, the `count` command, which `EstimatedDocumentCount` uses in its implementation,
+was not included in v1 of the Stable API. If you are using the Stable API with `EstimatedDocumentCount`,
+you must upgrade to server version 5.0.9+ or set `strict: false` when configuring `ServerApi` to avoid
+encountering errors.
+

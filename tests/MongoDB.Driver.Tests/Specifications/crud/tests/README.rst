@@ -21,12 +21,12 @@ Subdirectories for Test Formats
 
 This document describes a legacy format for CRUD tests: legacy-v1, which dates back
 to the first version of the CRUD specification. New CRUD tests should be written
-in the `unified test format <../../../../unified-test-format/unified-test-format.rst>`_
+in the `unified test format <../../unified-test-format/unified-test-format.rst>`_
 and placed under ``unified/``. Until such time that all original tests have been ported
 to the unified test format, tests in each format will be grouped in their own subdirectory:
 
 - ``v1/``: Legacy-v1 format tests
-- ``unified/``: Tests using the `unified test format <../../../../unified-test-format/unified-test-format.rst>`_
+- ``unified/``: Tests using the `unified test format <../../unified-test-format/unified-test-format.rst>`_
 
 Since some drivers may not have a unified test runner capable of executing tests
 in all two formats, segregating tests in this manner will make it easier for
@@ -52,11 +52,13 @@ single operation. Notable differences from the legacy-v2 format are as follows:
   fields.
 
 - Instead of a top-level ``runOn`` field, server requirements are denoted by
-  separate top-level ``minServerVersion`` and ``maxServerVersion`` fields. The
-  minimum server version is an inclusive lower bound for running the test. The
-  maximum server version is an exclusive upper bound for running the test. If a
-  field is not present, it should be assumed that there is no corresponding bound
-  on the required server version.
+  separate top-level ``minServerVersion``, ``maxServerVersion``, and
+  ``serverless`` fields. The minimum server version is an inclusive lower bound
+  for running the test. The maximum server version is an exclusive upper bound
+  for running the test. If a field is not present, it should be assumed that
+  there is no corresponding bound on the required server version. The
+  ``serverless`` requirement behaves the same as the ``serverless`` field of the
+  `unified test format's runOnRequirement <../../unified-test-format/unified-test-format.rst#runonrequirement>`_.
 
 The legacy-v1 format should not conflict with the newer, multi-operation format
 used by other specs (e.g. Transactions). It is possible to create a unified test
@@ -255,7 +257,7 @@ Test that ``writeErrors[].errInfo`` in a command response is propagated as
 ``WriteError.details`` (or equivalent) in the driver.
 
 Using a 5.0+ server, create a collection with
-`document validation <https://docs.mongodb.com/manual/core/schema-validation/>`_
+`document validation <https://www.mongodb.com/docs/manual/core/schema-validation/>`_
 like so:
 
 .. code:: javascript
