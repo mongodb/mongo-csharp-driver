@@ -292,7 +292,7 @@ namespace MongoDB.Driver
 
         public override void DropCollection(string name, CancellationToken cancellationToken)
         {
-            UsingImplicitSession(session => DropCollection(session, name, options: null, cancellationToken), cancellationToken);
+            DropCollection(name, options: null, cancellationToken);
         }
 
         public override void DropCollection(string name, DropCollectionOptions options, CancellationToken cancellationToken = default)
@@ -315,7 +315,7 @@ namespace MongoDB.Driver
 
         public override Task DropCollectionAsync(string name, CancellationToken cancellationToken)
         {
-            return UsingImplicitSessionAsync(session => DropCollectionAsync(session, name, options: null, cancellationToken), cancellationToken);
+            return DropCollectionAsync(name, options: null, cancellationToken);
         }
 
         public override Task DropCollectionAsync(string name, DropCollectionOptions options, CancellationToken cancellationToken)
@@ -666,7 +666,7 @@ namespace MongoDB.Driver
 
             var collectionNamespace = new CollectionNamespace(_databaseNamespace, name);
 
-            _ = EncryptedCollectionHelper.TryGetEffectiveEncryptedFields(collectionNamespace, options.EncryptedFields, _client.Settings?.AutoEncryptionOptions?.EncryptedFieldsMap, out var effectiveEncryptedFields);
+            var effectiveEncryptedFields = EncryptedCollectionHelper.GetEffectiveEncryptedFields(collectionNamespace, options.EncryptedFields, _client.Settings?.AutoEncryptionOptions?.EncryptedFieldsMap);
             var messageEncoderSettings = GetMessageEncoderSettings(withEncryption: effectiveEncryptedFields != null);
 
             return CreateCollectionOperation.CreateEncryptedCreateCollectionOperationIfConfigured(

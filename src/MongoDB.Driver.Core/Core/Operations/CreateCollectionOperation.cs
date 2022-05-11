@@ -53,7 +53,7 @@ namespace MongoDB.Driver.Core.Operations
                     (CreateInnerCollectionOperation(EncryptedCollectionHelper.GetAdditionalCollectionName(encryptedFields, collectionNamespace, HelperCollectionForEncryption.Esc)), IsMainOperation: false),
                     (CreateInnerCollectionOperation(EncryptedCollectionHelper.GetAdditionalCollectionName(encryptedFields, collectionNamespace, HelperCollectionForEncryption.Ecc)), IsMainOperation: false),
                     (CreateInnerCollectionOperation(EncryptedCollectionHelper.GetAdditionalCollectionName(encryptedFields, collectionNamespace, HelperCollectionForEncryption.Ecos)), IsMainOperation: false),
-                    (mainOperation, true),
+                    (mainOperation, IsMainOperation: true),
                     (new CreateIndexesOperation(collectionNamespace, new[] { new CreateIndexRequest(EncryptedCollectionHelper.AdditionalCreateIndexDocument) }, messageEncoderSettings), IsMainOperation: false));
             }
             else

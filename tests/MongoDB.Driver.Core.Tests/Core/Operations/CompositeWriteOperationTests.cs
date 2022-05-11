@@ -15,6 +15,7 @@
 
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
@@ -58,7 +59,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
 
         [Theory]
         [ParameterAttributeData]
-        public void Enumerating_operations_should_be_stopped_when_error([Values(false, true)] bool async)
+        public async Task Enumerating_operations_should_be_stopped_when_error([Values(false, true)] bool async)
         {
             var testException = new Exception("test");
 
@@ -69,7 +70,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
             var subject = new CompositeWriteOperation<BsonDocument>((healthyOperation1.Object, IsMainOperation: false), (faultyOperation2.Object, IsMainOperation: false), (healthyOperation3.Object, IsMainOperation: true));
 
             var resultedException = async
-                ? Record.Exception(() => subject.ExecuteAsync(Mock.Of<IWriteBinding>(), CancellationToken.None).GetAwaiter().GetResult())
+                ? await Record.ExceptionAsync(() => subject.ExecuteAsync(Mock.Of<IWriteBinding>(), CancellationToken.None))
                 : Record.Exception(() => subject.Execute(Mock.Of<IWriteBinding>(), CancellationToken.None));
 
             resultedException.Should().Be(testException);

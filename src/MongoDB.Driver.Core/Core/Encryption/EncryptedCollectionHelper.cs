@@ -49,19 +49,31 @@ namespace MongoDB.Driver.Encryption
 
         public static bool TryGetEffectiveEncryptedFields(CollectionNamespace collectionNamespace, BsonDocument encryptedFields, IReadOnlyDictionary<string, BsonDocument> encryptedFieldsMap, out BsonDocument effectiveEncryptedFields)
         {
-            effectiveEncryptedFields = encryptedFields;
-
-            if (encryptedFields == null)
+            if (encryptedFields != null)
             {
-                if (encryptedFieldsMap != null)
-                {
-                    return encryptedFieldsMap.TryGetValue(collectionNamespace.ToString(), out effectiveEncryptedFields);
-                }
-
-                return false;
+                effectiveEncryptedFields = encryptedFields;
+                return true;
             }
 
-            return true;
+            if (encryptedFieldsMap != null)
+            {
+                return encryptedFieldsMap.TryGetValue(collectionNamespace.ToString(), out effectiveEncryptedFields);
+            }
+
+            effectiveEncryptedFields = null;
+            return false;
+        }
+
+        public static BsonDocument GetEffectiveEncryptedFields(CollectionNamespace collectionNamespace, BsonDocument encryptedFields, IReadOnlyDictionary<string, BsonDocument> encryptedFieldsMap)
+        {
+            if (TryGetEffectiveEncryptedFields(collectionNamespace, encryptedFields, encryptedFieldsMap, out var effectiveEncryptedFields))
+            {
+                return effectiveEncryptedFields;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public enum HelperCollectionForEncryption
