@@ -75,12 +75,13 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
             }
         }
 
-        [Fact]
-        public void MaintenanceHelper_should_not_leak_threads_after_stopping()
+        [Theory]
+        [ParameterAttributeData]
+        public void MaintenanceHelper_should_not_leak_threads_after_stopping([RandomSeed(new[] { 0 })] int seed)
         {
             const int attempts = 100;
             var usedThreads = new HashSet<Thread>();
-            var random = new Random();
+            var random = new Random(seed);
 
             using (var pool = CreatePool())
             using (var subject = CreateSubject(pool: pool))
@@ -245,11 +246,7 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
             return exclusiveConnectionPool;
         }
 
-        private void IncrementGeneration(ExclusiveConnectionPool pool)
-        {
-            var generation = pool._generation();
-            pool._generation(++generation);
-        }
+        private void IncrementGeneration(ExclusiveConnectionPool pool) => pool._generation(pool._generation() + 1);
     }
 
     internal static class MaintenanceHelperReflector

@@ -51,8 +51,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             _maintenanceThread = null;
 
-            _maintenanceExecutingContext?.Cancel(firstInUseHealthyGeneration); // might be no op if Start hasn't been called yet
-            _maintenanceExecutingContext?.Dispose();
+            _maintenanceExecutingContext.Cancel(firstInUseHealthyGeneration);
+            _maintenanceExecutingContext.Dispose();
         }
 
         public void Start()
@@ -71,7 +71,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             {
                 var maintenanceExecutingContext = (MaintenanceExecutingContext)maintenanceExecutingContextObj;
 
-                MaintainSize(maintenanceExecutingContext);
+                RunMaintenance(maintenanceExecutingContext);
             }
         }
 
@@ -86,7 +86,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         }
 
         // private methods
-        private void MaintainSize(MaintenanceExecutingContext maintenanceExecutingContext)
+        private void RunMaintenance(MaintenanceExecutingContext maintenanceExecutingContext)
         {
             try
             {
@@ -96,7 +96,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 {
                     try
                     {
-                        _connectionPool.ConnectionHolder.Prune(firstInUseHealthyGeneration: null, cancellationToken);
+                        _connectionPool.ConnectionHolder.Prune(maxExpiredGenerationInUse: null, cancellationToken);
                         EnsureMinSize(cancellationToken);
                     }
                     catch

@@ -699,13 +699,13 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
             }
 
-            public void Prune(int? firstInUseHealthyGeneration, CancellationToken cancellationToken)
+            public void Prune(int? maxExpiredGenerationInUse, CancellationToken cancellationToken)
             {
                 RemoveExpiredConnections(_connections, generation: null, _lock, signal: true);
 
-                if (firstInUseHealthyGeneration.HasValue)
+                if (maxExpiredGenerationInUse.HasValue)
                 {
-                    RemoveExpiredConnections(_connectionsInUse, generation: firstInUseHealthyGeneration.Value, _lockInUse, signal: false);
+                    RemoveExpiredConnections(_connectionsInUse, generation: maxExpiredGenerationInUse.Value, _lockInUse, signal: false);
                 }
 
                 void RemoveExpiredConnections(List<PooledConnection> connections, int? generation, object @lock, bool signal)
@@ -713,7 +713,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     PooledConnection[] expiredConnections;
                     lock (@lock)
                     {
-                        expiredConnections = connections.Where(c => c.IsExpired && (generation == null || c.Generation < generation)).ToArray();
+                        expiredConnections = connections.Where(c => c.IsExpired && (generation == null || c.Generation <= generation)).ToArray();
                     }
 
                     foreach (var connection in expiredConnections)
@@ -981,13 +981,10 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     _pool._maxConnectingQueue.Release();
                 }
 
-                if (_disposeConnection)
+                if (_disposeConnection && _connection != null)
                 {
-                    if (_connection != null)
-                    {
-                        _pool.ConnectionHolder.UntrackInUseConnection(_connection);
-                        _connection.Dispose();
-                    }
+                    _pool.ConnectionHolder.UntrackInUseConnection(_connection);
+                    _connection.Dispose();
                 }
             }
 

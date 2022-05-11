@@ -1052,7 +1052,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             IConnection connection = null;
             IConnection prepopulatedConnection = null;
             Exception acquireException = null;
-            var thread = new Thread(() =>
+            _ = Task.Run(() =>
             {
                 if (minPoolSize > 0)
                 {
@@ -1067,12 +1067,9 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 {
                     acquireException = ex;
                 }
-            })
-            {
-                IsBackground = true
-            };
-            thread.Start();
-            Thread.Sleep(100);
+            });
+
+            SpinWait.SpinUntil(() => _subject.ConnectionHolder._connectionsInUse().Count >= settings.MinConnections + 1, TimeSpan.FromMilliseconds(100)).Should().BeTrue();
 
             // During First acquire
             ValidateConnectionsCount(inUse: false, expectedCount: 0);
@@ -1702,7 +1699,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         {
             if (expectedConnectionIds.Length > 0)
             {
-                Ensure.That(expectedCount == expectedConnectionIds.Count(), "ExpectedCount must be the same as expectedConnectionIds.Count");
+                Ensure.That(expectedCount == expectedConnectionIds.Length, "ExpectedCount must be the same as expectedConnectionIds.Count");
             }
 
             var connectionHolder = (pool ?? _subject).ConnectionHolder;

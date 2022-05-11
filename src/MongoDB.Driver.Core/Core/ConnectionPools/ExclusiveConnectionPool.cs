@@ -192,9 +192,9 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 {
                     _clearingEventHandler?.Invoke(new ConnectionPoolClearingEvent(_serverId, _settings));
 
+                    int? maxGenerationToReap = closeInUseConnections ? _generation : null;
                     _generation++;
-                    int? firstInUseHealthyGeneration = closeInUseConnections ? _generation : null;
-                    _maintenanceHelper.Stop(firstInUseHealthyGeneration);
+                    _maintenanceHelper.Stop(maxGenerationToReap);
 
                     _maxConnectionsQueue.Signal();
                     _maxConnectingQueue.Signal();
