@@ -95,13 +95,7 @@ namespace MongoDB.Driver.Core.Operations
             get { return _collectionNamespace; }
         }
 
-        ///<summary>
-        /// Gets the encrypted fields.
-        /// </summary>
-        /// <value>
-        /// The encrypted fields.
-        /// </value>
-        public BsonDocument EncryptedFields
+        internal BsonDocument EncryptedFields
         {
             get { return _encryptedFields; }
             private set { _encryptedFields = value; }
