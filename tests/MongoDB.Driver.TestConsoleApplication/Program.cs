@@ -15,6 +15,7 @@
 
 using System;
 using System.IO;
+using MongoDB.Bson;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events.Diagnostics;
 

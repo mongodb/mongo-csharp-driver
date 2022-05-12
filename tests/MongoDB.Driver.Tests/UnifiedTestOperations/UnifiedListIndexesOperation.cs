@@ -45,9 +45,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     ? _collection.Indexes.List(_listIndexesOptions, cancellationToken)
                     : _collection.Indexes.List(_session, _listIndexesOptions, cancellationToken);
 
-                _ = cursor.ToList(cancellationToken);
+                var indexes = cursor.ToList(cancellationToken);
 
-                return OperationResult.Empty();
+                return OperationResult.FromResult(new BsonArray(indexes));
             }
             catch (Exception ex)
             {
@@ -63,9 +63,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     ? await _collection.Indexes.ListAsync(_listIndexesOptions, cancellationToken)
                     : await _collection.Indexes.ListAsync(_session, _listIndexesOptions, cancellationToken);
 
-                _ = await cursor.ToListAsync(cancellationToken);
+                var indexes = await cursor.ToListAsync(cancellationToken);
 
-                return OperationResult.Empty();
+                return OperationResult.FromResult(new BsonArray(indexes));
             }
             catch (Exception ex)
             {

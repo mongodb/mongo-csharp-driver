@@ -64,7 +64,7 @@ using (var cursor = await client.ListDatabaseAsync())
 
 ## Collections
 
-These operations exists on the [`IMongoDatabase`]({{< apiref "T_MongoDB_Driver_IMongoDatabase" >}}) interface.
+These operations exist on the [`IMongoDatabase`]({{< apiref "T_MongoDB_Driver_IMongoDatabase" >}}) interface.
 
 ### Getting a collection
 
@@ -88,7 +88,7 @@ var options = new CreateCollectionOptions
 {
     Capped = true,
     MaxSize = 10000
-});
+};
 ```
 ```csharp
 // creates a capped collection named "foo" with a maximum size of 10,000 bytes
@@ -97,6 +97,19 @@ db.CreateCollection("foo", options);
 ```csharp
 // creates a capped collection named "foo" with a maximum size of 10,000 bytes
 await db.CreateCollectionAsync("foo", options); 
+```
+
+### Creating a clustered collection
+
+*New in MongoDB 5.3.* [Clustered collections](https://www.mongodb.com/docs/upcoming/core/clustered-collections/) are collections created
+with a clustered index. Documents in a clustered collection are ordered by the clustered index key value. To create a clustered collection:
+
+```csharp
+var options = new CreateCollectionOptions<Product>
+{
+    ClusteredIndex = new ClusteredIndexOptions<Product>()
+};
+db.CreateCollection("product", options);
 ```
 
 ### Dropping a collection
