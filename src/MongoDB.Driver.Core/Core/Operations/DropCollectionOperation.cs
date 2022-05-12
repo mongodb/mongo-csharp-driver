@@ -13,14 +13,16 @@
 * limitations under the License.
 */
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
-using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
+using MongoDB.Driver.Encryption;
+using static MongoDB.Driver.Encryption.EncryptedCollectionHelper;
 
 namespace MongoDB.Driver.Core.Operations
 {
@@ -29,8 +31,41 @@ namespace MongoDB.Driver.Core.Operations
     /// </summary>
     public class DropCollectionOperation : IWriteOperation<BsonDocument>
     {
+        #region static
+        internal static IWriteOperation<BsonDocument> CreateEncryptedDropCollectionOperationIfConfigured(
+            CollectionNamespace collectionNamespace,
+            BsonDocument encryptedFields,
+            MessageEncoderSettings messageEncoderSettings,
+            Action<DropCollectionOperation> configureDropCollectionConfigurator)
+        {
+            var mainOperation = new DropCollectionOperation(collectionNamespace, messageEncoderSettings)
+            {
+                EncryptedFields = encryptedFields
+            };
+
+            configureDropCollectionConfigurator?.Invoke(mainOperation);
+
+            if (encryptedFields != null)
+            {
+                return new CompositeWriteOperation<BsonDocument>(
+                    (mainOperation, IsMainOperation: true),
+                    (CreateInnerDropOperation(EncryptedCollectionHelper.GetAdditionalCollectionName(encryptedFields, collectionNamespace, HelperCollectionForEncryption.Esc)), IsMainOperation: false),
+                    (CreateInnerDropOperation(EncryptedCollectionHelper.GetAdditionalCollectionName(encryptedFields, collectionNamespace, HelperCollectionForEncryption.Ecc)), IsMainOperation: false),
+                    (CreateInnerDropOperation(EncryptedCollectionHelper.GetAdditionalCollectionName(encryptedFields, collectionNamespace, HelperCollectionForEncryption.Ecos)), IsMainOperation: false));
+            }
+            else
+            {
+                return mainOperation;
+            }
+
+            DropCollectionOperation CreateInnerDropOperation(string collectionName)
+                => new DropCollectionOperation(new CollectionNamespace(collectionNamespace.DatabaseNamespace.DatabaseName, collectionName), messageEncoderSettings);
+        }
+        #endregion
+
         // fields
         private readonly CollectionNamespace _collectionNamespace;
+        private BsonDocument _encryptedFields;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private WriteConcern _writeConcern;
 
@@ -58,6 +93,12 @@ namespace MongoDB.Driver.Core.Operations
         public CollectionNamespace CollectionNamespace
         {
             get { return _collectionNamespace; }
+        }
+
+        internal BsonDocument EncryptedFields
+        {
+            get { return _encryptedFields; }
+            private set { _encryptedFields = value; }
         }
 
         /// <summary>

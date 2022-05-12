@@ -28,6 +28,7 @@ namespace MongoDB.Driver
         private bool? _autoIndexId;
         private bool? _capped;
         private Collation _collation;
+        private BsonDocument _encryptedFields;
         private TimeSpan? _expireAfter;
         private IndexOptionDefaults _indexOptionDefaults;
         private long? _maxDocuments;
@@ -67,6 +68,15 @@ namespace MongoDB.Driver
         {
             get { return _capped; }
             set { _capped = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets encrypted fields.
+        /// </summary>
+        public BsonDocument EncryptedFields
+        {
+            get { return _encryptedFields; }
+            set { _encryptedFields = value; }
         }
 
         /// <summary>
@@ -206,6 +216,7 @@ namespace MongoDB.Driver
                     AutoIndexId = options.AutoIndexId,
                     Capped = options.Capped,
                     Collation = options.Collation,
+                    EncryptedFields = options.EncryptedFields,
                     ExpireAfter = options.ExpireAfter,
                     IndexOptionDefaults = options.IndexOptionDefaults,
                     MaxDocuments = options.MaxDocuments,

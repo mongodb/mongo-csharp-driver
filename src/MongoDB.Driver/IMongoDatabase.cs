@@ -234,10 +234,27 @@ namespace MongoDB.Driver
         /// <summary>
         /// Drops the collection with the specified name.
         /// </summary>
+        /// <param name="name">The name of the collection to drop.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        void DropCollection(string name, DropCollectionOptions options, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Drops the collection with the specified name.
+        /// </summary>
         /// <param name="session">The session.</param>
         /// <param name="name">The name of the collection to drop.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         void DropCollection(IClientSessionHandle session, string name, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Drops the collection with the specified name.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="name">The name of the collection to drop.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        void DropCollection(IClientSessionHandle session, string name, DropCollectionOptions options, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Drops the collection with the specified name.
@@ -250,6 +267,15 @@ namespace MongoDB.Driver
         /// <summary>
         /// Drops the collection with the specified name.
         /// </summary>
+        /// <param name="name">The name of the collection to drop.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A task.</returns>
+        Task DropCollectionAsync(string name, DropCollectionOptions options, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Drops the collection with the specified name.
+        /// </summary>
         /// <param name="session">The session.</param>
         /// <param name="name">The name of the collection to drop.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
@@ -257,6 +283,18 @@ namespace MongoDB.Driver
         /// A task.
         /// </returns>
         Task DropCollectionAsync(IClientSessionHandle session, string name, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Drops the collection with the specified name.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="name">The name of the collection to drop.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// A task.
+        /// </returns>
+        Task DropCollectionAsync(IClientSessionHandle session, string name, DropCollectionOptions options, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Gets a collection.

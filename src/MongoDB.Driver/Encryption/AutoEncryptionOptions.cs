@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -30,6 +31,7 @@ namespace MongoDB.Driver.Encryption
     {
         // private fields
         private readonly bool _bypassAutoEncryption;
+        private readonly IReadOnlyDictionary<string, BsonDocument> _encryptedFieldsMap;
         private readonly IReadOnlyDictionary<string, object> _extraOptions;
         private readonly IMongoClient _keyVaultClient;
         private readonly CollectionNamespace _keyVaultNamespace;
@@ -48,6 +50,7 @@ namespace MongoDB.Driver.Encryption
         /// <param name="keyVaultClient">The keyVault client.</param>
         /// <param name="schemaMap">The schema map.</param>
         /// <param name="tlsOptions">The tls options.</param>
+        /// <param name="encryptedFieldsMap">The encryptedFields map.</param>
         public AutoEncryptionOptions(
             CollectionNamespace keyVaultNamespace,
             IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> kmsProviders,
@@ -55,7 +58,8 @@ namespace MongoDB.Driver.Encryption
             Optional<IReadOnlyDictionary<string, object>> extraOptions = default,
             Optional<IMongoClient> keyVaultClient = default,
             Optional<IReadOnlyDictionary<string, BsonDocument>> schemaMap = default,
-            Optional<IReadOnlyDictionary<string, SslSettings>> tlsOptions = default)
+            Optional<IReadOnlyDictionary<string, SslSettings>> tlsOptions = default,
+            Optional<IReadOnlyDictionary<string, BsonDocument>> encryptedFieldsMap = default)
         {
             _keyVaultNamespace = Ensure.IsNotNull(keyVaultNamespace, nameof(keyVaultNamespace));
             _kmsProviders = Ensure.IsNotNull(kmsProviders, nameof(kmsProviders));
@@ -64,10 +68,12 @@ namespace MongoDB.Driver.Encryption
             _keyVaultClient = keyVaultClient.WithDefault(null);
             _schemaMap = schemaMap.WithDefault(null);
             _tlsOptions = tlsOptions.WithDefault(new Dictionary<string, SslSettings>());
+            _encryptedFieldsMap = encryptedFieldsMap.WithDefault(null);
 
             EncryptionExtraOptionsValidator.EnsureThatExtraOptionsAreValid(_extraOptions);
             KmsProvidersHelper.EnsureKmsProvidersAreValid(_kmsProviders);
             KmsProvidersHelper.EnsureKmsProvidersTlsSettingsAreValid(_tlsOptions);
+            EncryptedCollectionHelper.EnsureCollectionsValid(_schemaMap, _encryptedFieldsMap);
         }
 
         // public properties
@@ -78,6 +84,17 @@ namespace MongoDB.Driver.Encryption
         ///   <c>true</c> if automatic encryption should be bypasssed; otherwise, <c>false</c>.
         /// </value>
         public bool BypassAutoEncryption => _bypassAutoEncryption;
+
+        /// <summary>
+        /// Gets the encrypted fields map.
+        /// </summary>
+        /// <value>
+        /// The encrypted fields map.
+        /// </value>
+        /// <remarks>
+        /// Supplying an encryptedFieldsMap provides more security than relying on an encryptedFields obtained from the server. It protects against a malicious server advertising a false encryptedFields.
+        /// </remarks>
+        public IReadOnlyDictionary<string, BsonDocument> EncryptedFieldsMap => _encryptedFieldsMap;
 
         /// <summary>
         /// Gets the extra options.
@@ -137,6 +154,7 @@ namespace MongoDB.Driver.Encryption
         /// <param name="keyVaultClient">The keyVault client.</param>
         /// <param name="schemaMap">The schema map.</param>
         /// <param name="tlsOptions">The tls options.</param>
+        /// <param name="encryptedFieldsMap">The encryptedFields map.</param>
         /// <returns>A new instance of <see cref="AutoEncryptionOptions"/>.</returns>
         public AutoEncryptionOptions With(
             Optional<CollectionNamespace> keyVaultNamespace = default,
@@ -145,7 +163,8 @@ namespace MongoDB.Driver.Encryption
             Optional<IReadOnlyDictionary<string, object>> extraOptions = default,
             Optional<IMongoClient> keyVaultClient = default,
             Optional<IReadOnlyDictionary<string, BsonDocument>> schemaMap = default,
-            Optional<IReadOnlyDictionary<string, SslSettings>> tlsOptions = default)
+            Optional<IReadOnlyDictionary<string, SslSettings>> tlsOptions = default,
+            Optional<IReadOnlyDictionary<string, BsonDocument>> encryptedFieldsMap = default)
         {
             return new AutoEncryptionOptions(
                 keyVaultNamespace.WithDefault(_keyVaultNamespace),
@@ -154,7 +173,8 @@ namespace MongoDB.Driver.Encryption
                 Optional.Create(extraOptions.WithDefault(_extraOptions)),
                 Optional.Create(keyVaultClient.WithDefault(_keyVaultClient)),
                 Optional.Create(schemaMap.WithDefault(_schemaMap)),
-                Optional.Create(tlsOptions.WithDefault(_tlsOptions)));
+                Optional.Create(tlsOptions.WithDefault(_tlsOptions)),
+                Optional.Create(encryptedFieldsMap.WithDefault(_encryptedFieldsMap)));
         }
 
         /// <inheritdoc />
@@ -170,7 +190,8 @@ namespace MongoDB.Driver.Encryption
                 _keyVaultNamespace.Equals(rhs._keyVaultNamespace) &&
                 KmsProvidersHelper.Equals(_kmsProviders, rhs._kmsProviders) &&
                 _schemaMap.IsEquivalentTo(rhs._schemaMap, object.Equals) &&
-               _tlsOptions.IsEquivalentTo(rhs._tlsOptions, object.Equals);
+               _tlsOptions.IsEquivalentTo(rhs._tlsOptions, object.Equals) &&
+               _encryptedFieldsMap.IsEquivalentTo(rhs._encryptedFieldsMap, object.Equals);
         }
 
         /// <inheritdoc />
@@ -184,6 +205,7 @@ namespace MongoDB.Driver.Encryption
                 .HashElements(_kmsProviders)
                 .HashElements(_tlsOptions)
                 .HashElements(_schemaMap)
+                .HashElements(_encryptedFieldsMap)
                 .GetHashCode();
         }
 
@@ -216,7 +238,11 @@ namespace MongoDB.Driver.Encryption
             }
             if (_tlsOptions != null)
             {
-                sb.AppendFormat("TlsOptions: {0}", _tlsOptions.Select(t => new BsonDocument(t.Key, "<hidden>")).ToJson(jsonWriterSettings));
+                sb.AppendFormat("TlsOptions: {0}, ", _tlsOptions.Select(t => new BsonDocument(t.Key, "<hidden>")).ToJson(jsonWriterSettings));
+            }
+            if (_encryptedFieldsMap != null)
+            {
+                sb.AppendFormat("EncryptedFieldsMap : {0}, ", _encryptedFieldsMap.ToJson(jsonWriterSettings));
             }
             sb.Remove(sb.Length - 2, 2);
             sb.Append(" }");

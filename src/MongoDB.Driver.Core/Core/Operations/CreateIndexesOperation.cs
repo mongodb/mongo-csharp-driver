@@ -19,7 +19,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -33,8 +35,8 @@ namespace MongoDB.Driver.Core.Operations
     {
         // fields
         private readonly CollectionNamespace _collectionNamespace;
-        private CreateIndexCommitQuorum _commitQuorum;
         private BsonValue _comment;
+        private CreateIndexCommitQuorum _commitQuorum;
         private TimeSpan? _maxTime;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private readonly IEnumerable<CreateIndexRequest> _requests;
@@ -72,6 +74,9 @@ namespace MongoDB.Driver.Core.Operations
         /// <summary>
         /// Gets or sets the comment.
         /// </summary>
+        /// <value>
+        /// The comment.
+        /// </value>
         public BsonValue Comment
         {
             get { return _comment; }
@@ -122,10 +127,10 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <summary>
-        /// Gets or sets the max time.
+        /// Gets or sets the MaxTime.
         /// </summary>
-        /// <value>
-        /// The max time
+        /// <value> 
+        /// The maxtime.
         /// </value>
         public TimeSpan? MaxTime
         {
@@ -142,7 +147,7 @@ namespace MongoDB.Driver.Core.Operations
             using (var channel = channelSource.GetChannel(cancellationToken))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
-                var operation = CreateOperation();
+                var operation = CreateOperation(channelBinding.Session, channel.ConnectionDescription);
                 return operation.Execute(channelBinding, cancellationToken);
             }
         }
@@ -155,21 +160,38 @@ namespace MongoDB.Driver.Core.Operations
             using (var channel = await channelSource.GetChannelAsync(cancellationToken).ConfigureAwait(false))
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
             {
-                var operation = CreateOperation();
+                var operation = CreateOperation(channelBinding.Session, channel.ConnectionDescription);
                 return await operation.ExecuteAsync(channelBinding, cancellationToken).ConfigureAwait(false);
             }
         }
 
-        // internal methods
-        internal IWriteOperation<BsonDocument> CreateOperation()
+        // private methods
+        internal BsonDocument CreateCommand(ICoreSessionHandle session, ConnectionDescription connectionDescription)
         {
-            return new CreateIndexesUsingCommandOperation(_collectionNamespace, _requests, _messageEncoderSettings)
+            var maxWireVersion = connectionDescription.MaxWireVersion;
+            var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(session, _writeConcern);
+            if (_commitQuorum != null)
             {
-                Comment = _comment,
-                CommitQuorum = _commitQuorum,
-                MaxTime = _maxTime,
-                WriteConcern = _writeConcern
+                Feature.CreateIndexCommitQuorum.ThrowIfNotSupported(maxWireVersion);
+            }
+
+            return new BsonDocument
+            {
+                { "createIndexes", _collectionNamespace.CollectionName },
+                { "indexes", new BsonArray(_requests.Select(request => request.CreateIndexDocument())) },
+                { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(_maxTime.Value), _maxTime.HasValue },
+                { "writeConcern", writeConcern, writeConcern != null },
+                { "comment", _comment, _comment != null },
+                { "commitQuorum", () => _commitQuorum.ToBsonValue(), _commitQuorum != null }
             };
+        }
+
+        private WriteCommandOperation<BsonDocument> CreateOperation(ICoreSessionHandle session, ConnectionDescription connectionDescription)
+        {
+            var databaseNamespace = _collectionNamespace.DatabaseNamespace;
+            var command = CreateCommand(session, connectionDescription);
+            var resultSerializer = BsonDocumentSerializer.Instance;
+            return new WriteCommandOperation<BsonDocument>(databaseNamespace, command, resultSerializer, _messageEncoderSettings);
         }
     }
 }
