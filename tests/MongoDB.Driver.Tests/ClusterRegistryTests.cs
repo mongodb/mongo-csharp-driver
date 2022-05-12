@@ -58,7 +58,7 @@ namespace MongoDB.Driver.Tests
             {
                 { "local", new Dictionary<string, object>() { { "key" , new byte[96] } } }
             };
-            var schemaMap = new Dictionary<string, BsonDocument>()
+            var dummyMap = new Dictionary<string, BsonDocument>()
             {
                 { "db.coll", new BsonDocument() }
             };
@@ -66,6 +66,7 @@ namespace MongoDB.Driver.Tests
             var clusterKey = new ClusterKey(
                 allowInsecureTls: false,
                 applicationName: "app1",
+                bypassQueryAnalysis: true,
                 clusterConfigurator: clusterConfigurator,
                 compressors: new[] { new CompressorConfiguration(CompressorType.Zlib) },
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -75,6 +76,7 @@ namespace MongoDB.Driver.Tests
                 connectTimeout: TimeSpan.FromSeconds(1),
                 credentials: credentials,
                 directConnection: null,
+                encryptedFieldsMap: dummyMap,
                 heartbeatInterval: TimeSpan.FromSeconds(2),
                 heartbeatTimeout: TimeSpan.FromSeconds(3),
                 ipv6: true,
@@ -88,7 +90,7 @@ namespace MongoDB.Driver.Tests
                 minConnectionPoolSize: 8,
                 receiveBufferSize: 9,
                 replicaSetName: "rs",
-                schemaMap: schemaMap,
+                schemaMap: dummyMap,
                 scheme: ConnectionStringScheme.MongoDB,
                 sdamLogFilename: "sdam.log",
                 sendBufferSize: 10,
@@ -115,12 +117,13 @@ namespace MongoDB.Driver.Tests
 #pragma warning disable CS0618 // Type or member is obsolete
                 cluster.Settings.ConnectionMode.Should().Be(clusterKey.ConnectionMode.ToCore());
 #pragma warning restore CS0618 // Type or member is obsolete
+                cluster.Settings.EncryptedFieldsMap.Should().BeEquivalentTo(dummyMap);
                 cluster.Settings.KmsProviders.Should().BeEquivalentTo(kmsProviders);
                 cluster.Settings.EndPoints.Should().Equal(expectedEndPoints);
                 cluster.Settings.LoadBalanced.Should().Be(clusterKey.LoadBalanced);
                 cluster.Settings.MaxServerSelectionWaitQueueSize.Should().Be(clusterKey.WaitQueueSize);
                 cluster.Settings.ReplicaSetName.Should().Be(clusterKey.ReplicaSetName);
-                cluster.Settings.SchemaMap.Should().BeEquivalentTo(schemaMap);
+                cluster.Settings.SchemaMap.Should().BeEquivalentTo(dummyMap);
                 cluster.Settings.Scheme.Should().Be(clusterKey.Scheme);
                 cluster.Settings.ServerApi.Should().Be(clusterKey.ServerApi);
                 cluster.Settings.ServerSelectionTimeout.Should().Be(clusterKey.ServerSelectionTimeout);

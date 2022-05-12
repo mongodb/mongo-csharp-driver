@@ -31,6 +31,7 @@ namespace MongoDB.Driver.Encryption
     {
         // private fields
         private readonly bool _bypassAutoEncryption;
+        private readonly bool? _bypassQueryAnalysis;
         private readonly IReadOnlyDictionary<string, BsonDocument> _encryptedFieldsMap;
         private readonly IReadOnlyDictionary<string, object> _extraOptions;
         private readonly IMongoClient _keyVaultClient;
@@ -51,6 +52,7 @@ namespace MongoDB.Driver.Encryption
         /// <param name="schemaMap">The schema map.</param>
         /// <param name="tlsOptions">The tls options.</param>
         /// <param name="encryptedFieldsMap">The encryptedFields map.</param>
+        /// <param name="bypassQueryAnalysis">The bypass query analysis flag.</param>
         public AutoEncryptionOptions(
             CollectionNamespace keyVaultNamespace,
             IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> kmsProviders,
@@ -59,11 +61,13 @@ namespace MongoDB.Driver.Encryption
             Optional<IMongoClient> keyVaultClient = default,
             Optional<IReadOnlyDictionary<string, BsonDocument>> schemaMap = default,
             Optional<IReadOnlyDictionary<string, SslSettings>> tlsOptions = default,
-            Optional<IReadOnlyDictionary<string, BsonDocument>> encryptedFieldsMap = default)
+            Optional<IReadOnlyDictionary<string, BsonDocument>> encryptedFieldsMap = default,
+            Optional<bool?> bypassQueryAnalysis = default)
         {
             _keyVaultNamespace = Ensure.IsNotNull(keyVaultNamespace, nameof(keyVaultNamespace));
             _kmsProviders = Ensure.IsNotNull(kmsProviders, nameof(kmsProviders));
             _bypassAutoEncryption = bypassAutoEncryption.WithDefault(false);
+            _bypassQueryAnalysis = bypassQueryAnalysis.WithDefault(null);
             _extraOptions = extraOptions.WithDefault(null);
             _keyVaultClient = keyVaultClient.WithDefault(null);
             _schemaMap = schemaMap.WithDefault(null);
@@ -86,14 +90,14 @@ namespace MongoDB.Driver.Encryption
         public bool BypassAutoEncryption => _bypassAutoEncryption;
 
         /// <summary>
-        /// Gets the encrypted fields map.
+        /// Gets a value indicating whether to bypass query analysis.
         /// </summary>
-        /// <value>
-        /// The encrypted fields map.
-        /// </value>
-        /// <remarks>
+        public bool? BypassQueryAnalysis => _bypassQueryAnalysis;
+
+        /// <summary>
+        /// Gets the encrypted fields map.
         /// Supplying an encryptedFieldsMap provides more security than relying on an encryptedFields obtained from the server. It protects against a malicious server advertising a false encryptedFields.
-        /// </remarks>
+        /// </summary>
         public IReadOnlyDictionary<string, BsonDocument> EncryptedFieldsMap => _encryptedFieldsMap;
 
         /// <summary>
@@ -150,6 +154,7 @@ namespace MongoDB.Driver.Encryption
         /// <param name="keyVaultNamespace">The keyVault namespace.</param>
         /// <param name="kmsProviders">The kms providers.</param>
         /// <param name="bypassAutoEncryption">The bypass auto encryption flag.</param>
+        /// <param name="bypassQueryAnalysis">The bypass query analysis flag.</param>
         /// <param name="extraOptions">The extra options.</param>
         /// <param name="keyVaultClient">The keyVault client.</param>
         /// <param name="schemaMap">The schema map.</param>
@@ -160,6 +165,7 @@ namespace MongoDB.Driver.Encryption
             Optional<CollectionNamespace> keyVaultNamespace = default,
             Optional<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>>> kmsProviders = default,
             Optional<bool> bypassAutoEncryption = default,
+            Optional<bool?> bypassQueryAnalysis = default,
             Optional<IReadOnlyDictionary<string, object>> extraOptions = default,
             Optional<IMongoClient> keyVaultClient = default,
             Optional<IReadOnlyDictionary<string, BsonDocument>> schemaMap = default,
@@ -174,7 +180,8 @@ namespace MongoDB.Driver.Encryption
                 Optional.Create(keyVaultClient.WithDefault(_keyVaultClient)),
                 Optional.Create(schemaMap.WithDefault(_schemaMap)),
                 Optional.Create(tlsOptions.WithDefault(_tlsOptions)),
-                Optional.Create(encryptedFieldsMap.WithDefault(_encryptedFieldsMap)));
+                Optional.Create(encryptedFieldsMap.WithDefault(_encryptedFieldsMap)),
+                Optional.Create(bypassQueryAnalysis.WithDefault(_bypassQueryAnalysis)));
         }
 
         /// <inheritdoc />
@@ -185,6 +192,7 @@ namespace MongoDB.Driver.Encryption
 
             return
                 _bypassAutoEncryption.Equals(rhs._bypassAutoEncryption) &&
+                _bypassQueryAnalysis == rhs._bypassQueryAnalysis &&
                 ExtraOptionsEquals(_extraOptions, rhs._extraOptions) &&
                 object.ReferenceEquals(_keyVaultClient, rhs._keyVaultClient) &&
                 _keyVaultNamespace.Equals(rhs._keyVaultNamespace) &&
@@ -199,6 +207,7 @@ namespace MongoDB.Driver.Encryption
         {
             return new Hasher()
                 .Hash(_bypassAutoEncryption)
+                .Hash(_bypassQueryAnalysis)
                 .HashElements(_extraOptions)
                 .Hash(_keyVaultClient)
                 .Hash(_keyVaultNamespace)
@@ -223,6 +232,10 @@ namespace MongoDB.Driver.Encryption
 
             sb.Append("{ ");
             sb.AppendFormat("BypassAutoEncryption : {0}, ", _bypassAutoEncryption);
+            if (_bypassQueryAnalysis.HasValue)
+            {
+                sb.AppendFormat("BypassQueryAnalysis : {0}, ", _bypassQueryAnalysis.Value);
+            }
             sb.AppendFormat("KmsProviders : {0}, ", _kmsProviders.ToJson(jsonWriterSettings));
             if (_keyVaultNamespace != null)
             {
@@ -238,7 +251,7 @@ namespace MongoDB.Driver.Encryption
             }
             if (_tlsOptions != null)
             {
-                sb.AppendFormat("TlsOptions: {0}, ", _tlsOptions.Select(t => new BsonDocument(t.Key, "<hidden>")).ToJson(jsonWriterSettings));
+                sb.AppendFormat("TlsOptions : {0}, ", _tlsOptions.Select(t => new BsonDocument(t.Key, "<hidden>")).ToJson(jsonWriterSettings));
             }
             if (_encryptedFieldsMap != null)
             {

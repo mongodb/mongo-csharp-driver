@@ -33,27 +33,37 @@ namespace MongoDB.Driver.Core.Clusters
         /// <summary>
         /// Create a CryptClient instance.
         /// </summary>
+        /// <param name="bypassQueryAnalysis">The bypass query analysis flag.</param>
+        /// <param name="encryptedFieldsMap">The encrypted fields map.</param>
         /// <param name="kmsProviders">The kms providers.</param>
         /// <param name="schemaMap">The schema map.</param>
         /// <returns>The CryptClient instance.</returns>
         public static CryptClient CreateCryptClient(
+            bool? bypassQueryAnalysis,
+            IReadOnlyDictionary<string, BsonDocument> encryptedFieldsMap,
             IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> kmsProviders,
             IReadOnlyDictionary<string, BsonDocument> schemaMap)
         {
-            var helper = new CryptClientCreator(kmsProviders, schemaMap);
+            var helper = new CryptClientCreator(bypassQueryAnalysis, encryptedFieldsMap, kmsProviders, schemaMap);
             var cryptOptions = helper.CreateCryptOptions();
             return helper.CreateCryptClient(cryptOptions);
         }
 #pragma warning restore
         #endregion
 
+        private readonly bool? _bypassQueryAnalysis;
+        private readonly IReadOnlyDictionary<string, BsonDocument> _encryptedFieldsMap;
         private readonly IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> _kmsProviders;
         private readonly IReadOnlyDictionary<string, BsonDocument> _schemaMap;
 
         private CryptClientCreator(
+            bool? bypassQueryAnalysis,
+            IReadOnlyDictionary<string, BsonDocument> encryptedFieldsMap,
             IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> kmsProviders,
             IReadOnlyDictionary<string, BsonDocument> schemaMap)
         {
+            _bypassQueryAnalysis = bypassQueryAnalysis;
+            _encryptedFieldsMap = encryptedFieldsMap;
             _kmsProviders = Ensure.IsNotNull(kmsProviders, nameof(kmsProviders));
             _schemaMap = schemaMap;
         }
@@ -85,19 +95,16 @@ namespace MongoDB.Driver.Core.Clusters
             byte[] schemaBytes = null;
             if (_schemaMap != null)
             {
-                var schemaMapElements = _schemaMap.Select(c => new BsonElement(c.Key, c.Value));
-                var schemaDocument = new BsonDocument(schemaMapElements);
-#pragma warning disable 618
-                var writerSettings = new BsonBinaryWriterSettings();
-                if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-                {
-                    writerSettings.GuidRepresentation = GuidRepresentation.Unspecified;
-                }
-#pragma warning restore 618
-                schemaBytes = schemaDocument.ToBson(writerSettings: writerSettings);
+                schemaBytes = GetBytesFromMap(_schemaMap);
             }
 
-            return new CryptOptions(kmsProviders, schemaBytes);
+            byte[] encryptedFieldsBytes = null;
+            if (_encryptedFieldsMap != null)
+            {
+                encryptedFieldsBytes = GetBytesFromMap(_encryptedFieldsMap);
+            }
+
+            return new CryptOptions(kmsProviders, encryptedFieldsMap: encryptedFieldsBytes, schema: schemaBytes, bypassQueryAnalysis: _bypassQueryAnalysis.GetValueOrDefault(false));
         }
 
         private BsonDocument CreateProviderDocument(string kmsType, IReadOnlyDictionary<string, object> data)
@@ -109,6 +116,20 @@ namespace MongoDB.Driver.Core.Clusters
             }
             var providerDocument = new BsonDocument(kmsType, providerContent);
             return providerDocument;
+        }
+
+        private byte[] GetBytesFromMap(IReadOnlyDictionary<string, BsonDocument> map)
+        {
+            var mapElements = map.Select(c => new BsonElement(c.Key, c.Value));
+            var mapDocument = new BsonDocument(mapElements);
+#pragma warning disable 618
+            var writerSettings = new BsonBinaryWriterSettings();
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+            {
+                writerSettings.GuidRepresentation = GuidRepresentation.Unspecified;
+            }
+#pragma warning restore 618
+            return mapDocument.ToBson(writerSettings: writerSettings);
         }
     }
 }

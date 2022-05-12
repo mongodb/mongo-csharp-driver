@@ -1191,6 +1191,7 @@ namespace MongoDB.Driver
             return new ClusterKey(
                 _allowInsecureTls,
                 _applicationName,
+                bypassQueryAnalysis: null, // not supported for legacy
                 _clusterConfigurator,
                 _compressors,
                 _connectionMode,
@@ -1198,6 +1199,7 @@ namespace MongoDB.Driver
                 _connectTimeout,
                 _credentials.ToList(),
                 _directConnection,
+                encryptedFieldsMap: null, // not supported for legacy
                 _heartbeatInterval,
                 _heartbeatTimeout,
                 _ipv6,

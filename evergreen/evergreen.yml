@@ -1661,7 +1661,7 @@ buildvariants:
 
 - matrix_name: "csfle-with-mocked-kms-tests-windows"
   matrix_spec: { os: "windows-64", ssl: "nossl", version: [ "5.0", "6.0", "rapid", "latest" ], topology: ["standalone"] }
-  display_name: "CSFLE Mocked KMS ${os}"
+  display_name: "CSFLE Mocked KMS ${version} ${os}"
   tasks:
     - name: test-kms-tls-mocked-net472
     - name: test-kms-tls-mocked-netstandard20
@@ -1669,13 +1669,13 @@ buildvariants:
 
 - matrix_name: "csfle-with-mocked-kms-tests-linux"
   matrix_spec: { os: "ubuntu-1804", ssl: "nossl", version: [ "5.0", "6.0", "rapid", "latest" ], topology: ["standalone"] }
-  display_name: "CSFLE Mocked KMS ${os}"
+  display_name: "CSFLE Mocked KMS ${version} ${os}"
   tasks:
     - name: test-kms-tls-mocked-netstandard20
     - name: test-kms-tls-mocked-netstandard21
 
 - matrix_name: "csfle-with-mocked-kms-tests-macOS"
   matrix_spec: { os: "macos-1014", ssl: "nossl", version: [ "5.0", "6.0", "rapid", "latest" ], topology: ["standalone"] }
-  display_name: "CSFLE Mocked KMS ${os}"
+  display_name: "CSFLE Mocked KMS ${version} ${os}"
   tasks:
     - name: test-kms-tls-mocked-netstandard21

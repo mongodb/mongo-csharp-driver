@@ -29,6 +29,7 @@ namespace MongoDB.Driver
         // fields
         private readonly bool _allowInsecureTls;
         private readonly string _applicationName;
+        private readonly bool? _bypassQueryAnalysis;
         private readonly Action<ClusterBuilder> _clusterConfigurator;
         private readonly IReadOnlyList<CompressorConfiguration> _compressors;
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -38,6 +39,7 @@ namespace MongoDB.Driver
         private readonly TimeSpan _connectTimeout;
         private readonly IReadOnlyList<MongoCredential> _credentials;
         private readonly bool? _directConnection;
+        private readonly IReadOnlyDictionary<string, BsonDocument> _encryptedFieldsMap;
         private readonly int _hashCode;
         private readonly TimeSpan _heartbeatInterval;
         private readonly TimeSpan _heartbeatTimeout;
@@ -70,6 +72,7 @@ namespace MongoDB.Driver
         public ClusterKey(
             bool allowInsecureTls,
             string applicationName,
+            bool? bypassQueryAnalysis,
             Action<ClusterBuilder> clusterConfigurator,
             IReadOnlyList<CompressorConfiguration> compressors,
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -79,6 +82,7 @@ namespace MongoDB.Driver
             TimeSpan connectTimeout,
             IReadOnlyList<MongoCredential> credentials,
             bool? directConnection,
+            IReadOnlyDictionary<string, BsonDocument> encryptedFieldsMap,
             TimeSpan heartbeatInterval,
             TimeSpan heartbeatTimeout,
             bool ipv6,
@@ -110,6 +114,7 @@ namespace MongoDB.Driver
 
             _allowInsecureTls = allowInsecureTls;
             _applicationName = applicationName;
+            _bypassQueryAnalysis = bypassQueryAnalysis;
             _clusterConfigurator = clusterConfigurator;
             _compressors = compressors;
             _connectionMode = connectionMode;
@@ -117,6 +122,7 @@ namespace MongoDB.Driver
             _connectTimeout = connectTimeout;
             _credentials = credentials;
             _directConnection = directConnection;
+            _encryptedFieldsMap = encryptedFieldsMap;
             _heartbeatInterval = heartbeatInterval;
             _heartbeatTimeout = heartbeatTimeout;
             _ipv6 = ipv6;
@@ -150,6 +156,7 @@ namespace MongoDB.Driver
         // properties
         public bool AllowInsecureTls => _allowInsecureTls;
         public string ApplicationName { get { return _applicationName; } }
+        public bool? BypassQueryAnalysis { get { return _bypassQueryAnalysis; } }
         public Action<ClusterBuilder> ClusterConfigurator { get { return _clusterConfigurator; } }
         public IReadOnlyList<CompressorConfiguration> Compressors { get { return _compressors; } }
         [Obsolete("Use DirectConnection instead.")]
@@ -181,6 +188,7 @@ namespace MongoDB.Driver
                 return _directConnection;
             }
         }
+        public IReadOnlyDictionary<string, BsonDocument> EncryptedFieldsMap { get { return _encryptedFieldsMap; } }
         public TimeSpan HeartbeatInterval { get { return _heartbeatInterval; } }
         public TimeSpan HeartbeatTimeout { get { return _heartbeatTimeout; } }
         public bool IPv6 { get { return _ipv6; } }
@@ -229,6 +237,7 @@ namespace MongoDB.Driver
                 _hashCode == rhs._hashCode && // fail fast
                 _allowInsecureTls == rhs._allowInsecureTls &&
                 _applicationName == rhs._applicationName &&
+                _bypassQueryAnalysis == rhs._bypassQueryAnalysis &&
                 object.ReferenceEquals(_clusterConfigurator, rhs._clusterConfigurator) &&
                 _compressors.SequenceEqual(rhs._compressors) &&
                 _connectionMode == rhs._connectionMode &&
@@ -236,6 +245,7 @@ namespace MongoDB.Driver
                 _connectTimeout == rhs._connectTimeout &&
                 _credentials.SequenceEqual(rhs._credentials) &&
                 _directConnection.Equals(rhs._directConnection) &&
+                _encryptedFieldsMap.IsEquivalentTo(rhs._encryptedFieldsMap, object.Equals) &&
                 _heartbeatInterval == rhs._heartbeatInterval &&
                 _heartbeatTimeout == rhs._heartbeatTimeout &&
                 _ipv6 == rhs._ipv6 &&

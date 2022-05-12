@@ -40,6 +40,8 @@ namespace MongoDB.Driver.Encryption
         public ClientEncryption(ClientEncryptionOptions clientEncryptionOptions)
         {
             _cryptClient = CryptClientCreator.CreateCryptClient(
+                bypassQueryAnalysis: null,
+                encryptedFieldsMap: null,
                 kmsProviders: clientEncryptionOptions.KmsProviders,
                 schemaMap: null);
             _libMongoCryptController = new ExplicitEncryptionLibMongoCryptController(

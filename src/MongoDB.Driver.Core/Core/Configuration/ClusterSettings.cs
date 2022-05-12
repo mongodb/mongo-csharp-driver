@@ -35,11 +35,13 @@ namespace MongoDB.Driver.Core.Configuration
         #endregion
 
         // fields
+        private readonly bool? _bypassQueryAnalysis;
 #pragma warning disable CS0618 // Type or member is obsolete
         private readonly ClusterConnectionMode _connectionMode;
         private readonly ConnectionModeSwitch _connectionModeSwitch;
 #pragma warning restore CS0618 // Type or member is obsolete
         private readonly bool? _directConnection;
+        private readonly IReadOnlyDictionary<string, BsonDocument> _encryptedFieldsMap;
         private readonly IReadOnlyList<EndPoint> _endPoints;
         private readonly IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> _kmsProviders;
         private readonly bool _loadBalanced;
@@ -74,6 +76,8 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="schemaMap">The schema map.</param>
         /// <param name="scheme">The connection string scheme.</param>
         /// <param name="srvMaxHosts">Limits the number of SRV records used to populate the seedlist during initial discovery, as well as the number of additional hosts that may be added during SRV polling.</param>
+        /// <param name="encryptedFieldsMap">The encrypted fields map.</param>
+        /// <param name="bypassQueryAnalysis">The bypass query analysis flag.</param>
         public ClusterSettings(
 #pragma warning disable CS0618 // Type or member is obsolete
             Optional<ClusterConnectionMode> connectionMode = default(Optional<ClusterConnectionMode>),
@@ -92,13 +96,17 @@ namespace MongoDB.Driver.Core.Configuration
             Optional<IServerSelector> postServerSelector = default(Optional<IServerSelector>),
             Optional<IReadOnlyDictionary<string, BsonDocument>> schemaMap = default(Optional<IReadOnlyDictionary<string, BsonDocument>>),
             Optional<ConnectionStringScheme> scheme = default(Optional<ConnectionStringScheme>),
-            Optional<int> srvMaxHosts = default)
+            Optional<int> srvMaxHosts = default,
+            Optional<IReadOnlyDictionary<string, BsonDocument>> encryptedFieldsMap = default,
+            Optional<bool?> bypassQueryAnalysis = default)
         {
+            _bypassQueryAnalysis = bypassQueryAnalysis.WithDefault(null);
 #pragma warning disable CS0618 // Type or member is obsolete
             _connectionMode = connectionMode.WithDefault(ClusterConnectionMode.Automatic);
             _connectionModeSwitch = connectionModeSwitch.WithDefault(ConnectionModeSwitch.NotSet);
 #pragma warning restore CS0618 // Type or member is obsolete
             _directConnection = directConnection.WithDefault(null);
+            _encryptedFieldsMap = encryptedFieldsMap.WithDefault(null);
             _endPoints = Ensure.IsNotNull(endPoints.WithDefault(__defaultEndPoints), nameof(endPoints)).ToList();
             _kmsProviders = kmsProviders.WithDefault(null);
             _loadBalanced = loadBalanced.WithDefault(false);
@@ -117,6 +125,11 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         // properties
+        /// <summary>
+        /// Gets a value indicating whether to bypass query analysis.
+        /// </summary>
+        public bool? BypassQueryAnalysis => _bypassQueryAnalysis;
+
         /// <summary>
         /// Gets the connection mode.
         /// </summary>
@@ -161,6 +174,11 @@ namespace MongoDB.Driver.Core.Configuration
                 return _directConnection;
             }
         }
+
+        /// <summary>
+        /// Gets the encrypted fields map.
+        /// </summary>
+        public IReadOnlyDictionary<string, BsonDocument> EncryptedFieldsMap => _encryptedFieldsMap;
 
         /// <summary>
         /// Gets the end points.
@@ -319,6 +337,8 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="scheme">The connection string scheme.</param>
         /// <param name="srvMaxHosts">Limits the number of SRV records used to populate the seedlist during initial discovery, as well as the number of additional hosts that may be added during SRV polling.</param>
         /// <returns>A new ClusterSettings instance.</returns>
+        /// <param name="encryptedFieldsMap">The encrypted fields map.</param>
+        /// <param name="bypassQueryAnalysis">The bypass query analysis flag.</param>
         public ClusterSettings With(
 #pragma warning disable CS0618 // Type or member is obsolete
             Optional<ClusterConnectionMode> connectionMode = default(Optional<ClusterConnectionMode>),
@@ -337,7 +357,9 @@ namespace MongoDB.Driver.Core.Configuration
             Optional<IServerSelector> postServerSelector = default(Optional<IServerSelector>),
             Optional<IReadOnlyDictionary<string, BsonDocument>> schemaMap = default(Optional<IReadOnlyDictionary<string, BsonDocument>>),
             Optional<ConnectionStringScheme> scheme = default(Optional<ConnectionStringScheme>),
-            Optional<int> srvMaxHosts = default)
+            Optional<int> srvMaxHosts = default,
+            Optional<IReadOnlyDictionary<string, BsonDocument>> encryptedFieldsMap = default,
+            Optional<bool?> bypassQueryAnalysis = default)
         {
             return new ClusterSettings(
                 connectionMode: connectionMode.WithDefault(_connectionMode),
@@ -355,7 +377,9 @@ namespace MongoDB.Driver.Core.Configuration
                 postServerSelector: Optional.Create(postServerSelector.WithDefault(_postServerSelector)),
                 schemaMap: Optional.Create(schemaMap.WithDefault(_schemaMap)),
                 scheme: scheme.WithDefault(_scheme),
-                srvMaxHosts: srvMaxHosts.WithDefault(_srvMaxHosts));
+                srvMaxHosts: srvMaxHosts.WithDefault(_srvMaxHosts),
+                encryptedFieldsMap: Optional.Create(encryptedFieldsMap.WithDefault(_encryptedFieldsMap)),
+                bypassQueryAnalysis: bypassQueryAnalysis.WithDefault(_bypassQueryAnalysis));
         }
 
         // internal methods
