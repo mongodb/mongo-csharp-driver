@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             }
             var parameterSymbol = context.CreateSymbolWithVarName(parameterExpression, varName: "ROOT", parameterSerializer, isCurrent: true);
             var lambdaContext = context.WithSymbol(parameterSymbol);
-            var lambdaBody = ConvertHelper.RemoveConvertToBaseType(fieldSelectorLambda.Body);
+            var lambdaBody = ConvertHelper.RemoveConvertToObject(fieldSelectorLambda.Body);
             var fieldSelectorTranslation = ExpressionToAggregationExpressionTranslator.Translate(lambdaContext, lambdaBody);
 
             if (fieldSelectorTranslation.Ast.CanBeConvertedToFieldPath())

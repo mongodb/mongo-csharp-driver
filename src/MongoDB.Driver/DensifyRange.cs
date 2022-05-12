@@ -155,6 +155,7 @@ namespace MongoDB.Driver
                 case TypeCode.Double:
                 case TypeCode.Int16:
                 case TypeCode.Int32:
+                case TypeCode.Int64:
                 case TypeCode.Single:
                     break;
 
@@ -172,6 +173,7 @@ namespace MongoDB.Driver
                 float floatNumber => floatNumber,
                 int intNumber => intNumber,
                 long longNumber => longNumber,
+                short shortNumber => shortNumber,
                 _ => throw new InvalidOperationException($"Unexpected numeric type: {number.GetType().FullName}.")
             };
         }

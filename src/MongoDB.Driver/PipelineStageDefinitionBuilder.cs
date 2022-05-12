@@ -400,7 +400,6 @@ namespace MongoDB.Driver
             const string operatorName = "$densify";
             var stage = new DelegatedPipelineStageDefinition<TInput, TInput>(
                 operatorName,
-                //(s, sr, linqProvider) => new RenderedPipelineStageDefinition<TInput>(operatorName, new BsonDocument(operatorName, filter.Render(s, sr, linqProvider)), s));
                 (s, sr, linqProvider) =>
                 {
                     var renderedPartitionByFields = partitionByFields?.Select(f => f.Render(s, sr, linqProvider).FieldName).ToList();

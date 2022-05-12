@@ -498,13 +498,13 @@ namespace MongoDB.Driver.Linq
             params Expression<Func<TSource, object>>[] partitionByFields)
         {
             Expression quotedPartitionByFields;
-            if (partitionByFields == null || partitionByFields.Length == 0)
+            if (partitionByFields?.Length > 0)
             {
-                quotedPartitionByFields = Expression.Constant(null, typeof(Expression<Func<TSource, object>>[]));
+                quotedPartitionByFields = Expression.NewArrayInit(typeof(Expression<Func<TSource, object>>), partitionByFields.Select(f => Expression.Quote(f)));
             }
             else
             {
-                quotedPartitionByFields = Expression.NewArrayInit(typeof(Expression<Func<TSource, object>>), partitionByFields.Select(pf => Expression.Quote(pf)));
+                quotedPartitionByFields = Expression.Constant(null, typeof(Expression<Func<TSource, object>>[]));
             }
 
             return (IMongoQueryable<TSource>)source.Provider.CreateQuery<TSource>(

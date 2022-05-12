@@ -34,12 +34,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Stages
         {
             _fieldPath = Ensure.IsNotNull(fieldPath, nameof(fieldPath));
             _range = Ensure.IsNotNull(range, nameof(range));
-            _partitionByFieldPaths = partitionByFieldPaths == null ? null : partitionByFieldPaths.AsReadOnlyList();
+            _partitionByFieldPaths = partitionByFieldPaths?.AsReadOnlyList();
         }
 
         public string FieldPath => _fieldPath;
-        public IReadOnlyList<string> PartitionByFieldPaths => _partitionByFieldPaths;
         public override AstNodeType NodeType => AstNodeType.DensifyStage;
+        public IReadOnlyList<string> PartitionByFieldPaths => _partitionByFieldPaths;
         public DensifyRange Range => _range;
 
         public override AstNode Accept(AstNodeVisitor visitor)
@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Stages
             var renderedArguments = new BsonDocument
             {
                 { "field", _fieldPath },
-                { "partitionByFields", () => new BsonArray(_partitionByFieldPaths), _partitionByFieldPaths != null && _partitionByFieldPaths.Count > 0 },
+                { "partitionByFields", () => new BsonArray(_partitionByFieldPaths), _partitionByFieldPaths?.Count > 0 },
                 { "range", _range.Render() }
             };
             return new BsonDocument("$densify", renderedArguments);

@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                 var rangeExpression = arguments[2];
                 var range = rangeExpression.GetConstantValue<DensifyRange>(expression);
 
-                List<string> partitionByFieldPaths = null;
+                List<string> partitionByFieldPaths;
                 var partitionByFieldExpressions = arguments[3];
                 if (partitionByFieldExpressions is NewArrayExpression newArrayExpression)
                 {
@@ -54,6 +54,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                         var partitionByFieldPath = partitionByFieldLambda.GetFieldPath(context, sourceSerializer);
                         partitionByFieldPaths.Add(partitionByFieldPath);
                     }
+                }
+                else if (
+                    partitionByFieldExpressions is ConstantExpression constantExpression &&
+                    constantExpression.Value == null)
+                {
+                    partitionByFieldPaths = null;
+                }
+                else
+                {
+                    throw new ExpressionNotSupportedException(partitionByFieldExpressions, expression);
                 }
 
                 var stage = AstStage.Densify(fieldPath, range, partitionByFieldPaths);
