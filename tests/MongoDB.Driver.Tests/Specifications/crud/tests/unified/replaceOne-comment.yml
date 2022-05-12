@@ -42,6 +42,8 @@ tests:
                   -
                     q: *filter
                     u: *replacement
+                    multi: { $$unsetOrMatches: false }
+                    upsert: { $$unsetOrMatches: false }
                 comment: "comment"
     outcome: &outcome
       - collectionName: *collection0Name
@@ -69,12 +71,15 @@ tests:
                   -
                     q: *filter
                     u: *replacement
+                    multi: { $$unsetOrMatches: false }
+                    upsert: { $$unsetOrMatches: false }
                 comment: *comment
     outcome: *outcome
 
   - description: "ReplaceOne with comment - pre 4.4"
     runOnRequirements:
-      - maxServerVersion: "4.2.99"
+      - minServerVersion: "3.4.0"
+        maxServerVersion: "4.2.99"
     operations:
       - name: replaceOne
         object: *collection0
@@ -94,5 +99,7 @@ tests:
                   -
                     q: *filter
                     u: *replacement
+                    multi: { $$unsetOrMatches: false }
+                    upsert: { $$unsetOrMatches: false }
                 comment: "comment"
     outcome: *initialData

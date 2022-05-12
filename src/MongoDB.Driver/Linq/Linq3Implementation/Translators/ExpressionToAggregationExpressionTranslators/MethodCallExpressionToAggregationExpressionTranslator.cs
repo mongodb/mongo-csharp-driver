@@ -53,6 +53,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 case "Intersect": return IntersectMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "IsNullOrEmpty": return IsNullOrEmptyMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "IsSubsetOf": return IsSubsetOfMethodToAggregationExpressionTranslator.Translate(context, expression);
+                case "Locf": return LocfMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Parse": return ParseMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Pow": return PowMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Push": return PushMethodToAggregationExpressionTranslator.Translate(context, expression);

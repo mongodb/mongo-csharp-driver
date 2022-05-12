@@ -2,7 +2,7 @@
 # Please review the generated file, then remove this notice.
 
 description: deleteMany-hint-serverError
-schemaVersion: '1.1'
+schemaVersion: '1.0'
 runOnRequirements:
   -
     minServerVersion: 3.4.0

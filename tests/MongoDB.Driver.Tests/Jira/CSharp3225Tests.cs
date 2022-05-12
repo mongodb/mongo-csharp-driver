@@ -26,7 +26,7 @@ namespace MongoDB.Driver.Tests.Jira
 {
     public class CSharp3225Tests
     {
-        // these examples are taken from: https://docs.mongodb.com/manual/reference/operator/aggregation/setWindowFields/#examples
+        // these examples are taken from: https://www.mongodb.com/docs/manual/reference/operator/aggregation/setWindowFields/#examples
 
         [Fact]
         public void Use_documents_window_to_obtain_cumulative_quantity_for_each_state_example_should_work()

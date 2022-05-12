@@ -21,14 +21,28 @@ namespace MongoDB.Driver
     public enum ChangeStreamFullDocumentOption
     {
         /// <summary>
-        /// Do not return the full document.
+        /// Do not send this option to the server.
+        /// Server's default is to not return the full document.
         /// </summary>
         Default = 0,
+
         /// <summary>
         /// The change stream for partial updates will include both a delta describing the
         /// changes to the document as well as a copy of the entire document that was
         /// changed from some time after the change occurred.
         /// </summary>
-        UpdateLookup
+        UpdateLookup,
+
+        /// <summary>
+        /// Returns the post-image of the modified document for replace and update change events
+        /// if the post-image for this event is available.
+        /// </summary>
+        WhenAvailable,
+
+        /// <summary>
+        /// Same behavior as 'whenAvailable' except that
+        /// an error is raised if the post-image is not available.
+        /// </summary>
+        Required
     }
 }

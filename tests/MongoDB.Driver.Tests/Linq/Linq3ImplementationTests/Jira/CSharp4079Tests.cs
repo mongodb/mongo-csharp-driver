@@ -71,7 +71,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         }
 
         // the following examples are from the server documentation:
-        // https://docs.mongodb.com/manual/reference/operator/update/positional/
+        // https://www.mongodb.com/docs/manual/reference/operator/update/positional/
 
         [Fact]
         public void Positional_update_operator_update_values_in_an_array_example()
@@ -92,7 +92,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         }
 
         // the following examples are from the server documentation:
-        // https://docs.mongodb.com/manual/reference/operator/update/positional-all/
+        // https://www.mongodb.com/docs/manual/reference/operator/update/positional-all/
 
         [Fact]
         public void All_positional_update_operator_update_all_elements_in_an_array_example()
@@ -122,7 +122,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         }
 
         // the following examples are from the server documentation:
-        // https://docs.mongodb.com/manual/reference/operator/update/positional-filtered/
+        // https://www.mongodb.com/docs/manual/reference/operator/update/positional-filtered/
 
         [Fact]
         public void Filtered_positional_update_operator_update_all_array_elements_that_match_array_filter_example()

@@ -2,7 +2,7 @@
 # Please review the generated file, then remove this notice.
 
 description: updateOne-hint
-schemaVersion: '1.1'
+schemaVersion: '1.0'
 runOnRequirements:
   -
     minServerVersion: 4.2.0
@@ -65,10 +65,8 @@ tests:
                     q: *filter
                     u: *update
                     hint: _id_
-                    multi:
-                      $$unsetOrMatches: false
-                    upsert:
-                      $$unsetOrMatches: false
+                    multi: { $$unsetOrMatches: false }
+                    upsert: { $$unsetOrMatches: false }
     outcome: &outcome
       -
         collectionName: *collection_name
@@ -106,8 +104,6 @@ tests:
                     u: *update
                     hint:
                       _id: 1
-                    multi:
-                      $$unsetOrMatches: false
-                    upsert:
-                      $$unsetOrMatches: false
+                    multi: { $$unsetOrMatches: false }
+                    upsert: { $$unsetOrMatches: false }
     outcome: *outcome

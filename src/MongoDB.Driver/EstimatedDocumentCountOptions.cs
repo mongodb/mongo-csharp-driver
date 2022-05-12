@@ -14,6 +14,7 @@
 */
 
 using System;
+using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
@@ -24,9 +25,19 @@ namespace MongoDB.Driver
     public sealed class EstimatedDocumentCountOptions
     {
         // private fields
+        private BsonValue _comment;
         private TimeSpan? _maxTime;
 
         // public properties
+        /// <summary>
+        /// Gets or sets the comment.
+        /// </summary>
+        public BsonValue Comment
+        {
+            get { return _comment; }
+            set { _comment = value; }
+        }
+
         /// <summary>
         /// Gets or sets the maximum time.
         /// </summary>

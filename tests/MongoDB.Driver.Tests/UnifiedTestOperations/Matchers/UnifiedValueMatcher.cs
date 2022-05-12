@@ -62,6 +62,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
 
                 switch (operatorName)
                 {
+                    case "$$exists":
+                        actual.Should().NotBeNull();
+                        break;
                     case "$$type":
                         AssertExpectedType(actual, operatorValue);
                         break;

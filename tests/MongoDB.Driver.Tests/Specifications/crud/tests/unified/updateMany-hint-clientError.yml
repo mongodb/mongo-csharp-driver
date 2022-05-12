@@ -2,7 +2,7 @@
 # Please review the generated file, then remove this notice.
 
 description: updateMany-hint-clientError
-schemaVersion: '1.1'
+schemaVersion: '1.0'
 runOnRequirements:
   -
     maxServerVersion: 3.3.99

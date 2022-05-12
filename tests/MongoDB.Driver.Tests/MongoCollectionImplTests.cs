@@ -3515,7 +3515,8 @@ namespace MongoDB.Driver
             [Values(false, true)] bool usingSession,
             [Values(null, 1)] int? batchSize,
             [Values(null, "a")] string locale,
-            [Values(ChangeStreamFullDocumentOption.Default, ChangeStreamFullDocumentOption.UpdateLookup)] ChangeStreamFullDocumentOption fullDocument,
+            [Values(ChangeStreamFullDocumentOption.Default, ChangeStreamFullDocumentOption.WhenAvailable, ChangeStreamFullDocumentOption.UpdateLookup, ChangeStreamFullDocumentOption.Required)] ChangeStreamFullDocumentOption fullDocument,
+            [Values(ChangeStreamFullDocumentBeforeChangeOption.Default, ChangeStreamFullDocumentBeforeChangeOption.Off, ChangeStreamFullDocumentBeforeChangeOption.WhenAvailable, ChangeStreamFullDocumentBeforeChangeOption.Required)] ChangeStreamFullDocumentBeforeChangeOption fullDocumentBeforeChange,
             [Values(null, 1)] int? maxAwaitTimeMS,
             [Values(null, ReadConcernLevel.Local)] ReadConcernLevel? readConcernLevel,
             [Values(null, "{ a : 1 }")] string resumeAferString,
@@ -3540,6 +3541,7 @@ namespace MongoDB.Driver
                 BatchSize = batchSize,
                 Collation = collation,
                 FullDocument = fullDocument,
+                FullDocumentBeforeChange = fullDocumentBeforeChange,
                 MaxAwaitTime = maxAwaitTime,
                 ResumeAfter = resumeAfter,
                 StartAfter = startAfter,
@@ -3579,6 +3581,7 @@ namespace MongoDB.Driver
             operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
             operation.DatabaseNamespace.Should().BeNull();
             operation.FullDocument.Should().Be(options.FullDocument);
+            operation.FullDocumentBeforeChange.Should().Be(options.FullDocumentBeforeChange);
             operation.MaxAwaitTime.Should().Be(options.MaxAwaitTime);
             operation.MessageEncoderSettings.Should().NotBeNull();
             operation.Pipeline.Should().HaveCount(1);
@@ -3636,6 +3639,7 @@ namespace MongoDB.Driver
             operation.Collation.Should().Be(defaultOptions.Collation);
             operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
             operation.FullDocument.Should().Be(defaultOptions.FullDocument);
+            operation.FullDocumentBeforeChange.Should().Be(defaultOptions.FullDocumentBeforeChange);
             operation.MaxAwaitTime.Should().Be(defaultOptions.MaxAwaitTime);
             operation.MessageEncoderSettings.Should().NotBeNull();
             operation.Pipeline.Should().HaveCount(1);

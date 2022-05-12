@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 
@@ -24,6 +25,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __allElements;
         private static readonly MethodInfo __allMatchingElements;
         private static readonly MethodInfo __firstMatchingElement;
+        private static readonly MethodInfo __whereWithLimit;
 
         // static constructor
         static MongoEnumerableMethod()
@@ -31,11 +33,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __allElements = ReflectionInfo.Method((IEnumerable<object> source) => source.AllElements());
             __allMatchingElements = ReflectionInfo.Method((IEnumerable<object> source, string identifier) => source.AllMatchingElements(identifier));
             __firstMatchingElement = ReflectionInfo.Method((IEnumerable<object> source) => source.FirstMatchingElement());
+            __whereWithLimit = ReflectionInfo.Method((IEnumerable<object> source, Func<object, bool> predicate, int limit) => source.Where(predicate, limit));
         }
 
         // public properties
         public static MethodInfo AllElements => __allElements;
         public static MethodInfo AllMatchingElements => __allMatchingElements;
         public static MethodInfo FirstMatchingElement => __firstMatchingElement;
+        public static MethodInfo WhereWithLimit => __whereWithLimit;
     }
 }

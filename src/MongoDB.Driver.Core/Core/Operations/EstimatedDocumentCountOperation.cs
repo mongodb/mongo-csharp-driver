@@ -14,11 +14,9 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -32,6 +30,7 @@ namespace MongoDB.Driver.Core.Operations
     {
         // private fields
         private readonly CollectionNamespace _collectionNamespace;
+        private BsonValue _comment;
         private TimeSpan? _maxTime;
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private ReadConcern _readConcern = ReadConcern.Default;
@@ -54,6 +53,15 @@ namespace MongoDB.Driver.Core.Operations
         /// Gets the collection namespace.
         /// </summary>
         public CollectionNamespace CollectionNamespace => _collectionNamespace;
+
+        /// <summary>
+        /// Gets or sets the comment.
+        /// </summary>
+        public BsonValue Comment
+        {
+            get => _comment;
+            set => _comment = value;
+        }
 
         /// <summary>
         /// Gets or sets the maximum time the server should spend on this operation.
@@ -94,29 +102,9 @@ namespace MongoDB.Driver.Core.Operations
 
             using (var context = RetryableReadContext.Create(binding, _retryRequested, cancellationToken))
             {
-                if (Feature.EstimatedDocumentCountByCollStats.IsSupported(context.Channel.ConnectionDescription.MaxWireVersion))
-                {
-                    var operation = CreateAggregationOperation();
-                    IAsyncCursor<BsonDocument> cursor;
-                    try
-                    {
-                        cursor = operation.Execute(context, cancellationToken);
-                    }
-                    catch (MongoCommandException ex) when (ex.Code == (int)ServerErrorCode.NamespaceNotFound)
-                    {
-                        // In the event this aggregation is run against a non-existent namespace, a NamespaceNotFound(26) error will be returned during execution.
-                        return 0;
-                    }
-                    var results = cursor.ToList(cancellationToken);
+                var operation = CreateCountOperation();
 
-                    return ExtractCountFromAggregationResults(results);
-                }
-                else
-                {
-                    var operation = CreateCountOperation();
-
-                    return operation.Execute(context, cancellationToken);
-                }
+                return operation.Execute(context, cancellationToken);
             }
         }
 
@@ -127,75 +115,23 @@ namespace MongoDB.Driver.Core.Operations
 
             using (var context = RetryableReadContext.Create(binding, _retryRequested, cancellationToken))
             {
-                if (Feature.EstimatedDocumentCountByCollStats.IsSupported(context.Channel.ConnectionDescription.MaxWireVersion))
-                {
-                    var operation = CreateAggregationOperation();
-                    IAsyncCursor<BsonDocument> cursor;
-                    try
-                    {
-                        cursor = await operation.ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
-                    }
-                    catch (MongoCommandException ex) when (ex.Code == (int)ServerErrorCode.NamespaceNotFound)
-                    {
-                        // In the event this aggregation is run against a non-existent namespace, a NamespaceNotFound(26) error will be returned during execution.
-                        return 0;
-                    }
-                    var results = await cursor.ToListAsync(cancellationToken).ConfigureAwait(false);
+                var operation = CreateCountOperation();
 
-                    return ExtractCountFromAggregationResults(results);
-                }
-                else
-                {
-                    var operation = CreateCountOperation();
-
-                    return await operation.ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
-                }
+                return await operation.ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
             }
         }
 
         // private methods
-        private IExecutableInRetryableReadContext<IAsyncCursor<BsonDocument>> CreateAggregationOperation()
-        {
-            var pipeline = CreateAggregationPipeline();
-            var aggregateOperation = new AggregateOperation<BsonDocument>(_collectionNamespace, pipeline, BsonDocumentSerializer.Instance, _messageEncoderSettings)
-            {
-                MaxTime = _maxTime,
-                ReadConcern = _readConcern,
-                RetryRequested = _retryRequested
-            };
-            return aggregateOperation;
-
-            IEnumerable<BsonDocument> CreateAggregationPipeline() =>
-                new BsonDocument[]
-                {
-                    new BsonDocument("$collStats", new BsonDocument("count", new BsonDocument())),
-                    new BsonDocument(
-                        "$group",
-                        new BsonDocument
-                        {
-                            { "_id", 1 },
-                            { "n", new BsonDocument("$sum", "$count") }
-                        })
-                };
-        }
-
         private IExecutableInRetryableReadContext<long> CreateCountOperation()
         {
             var countOperation = new CountOperation(_collectionNamespace, _messageEncoderSettings)
             {
+                Comment = _comment,
                 MaxTime = _maxTime,
                 ReadConcern = _readConcern,
                 RetryRequested = _retryRequested
             };
             return countOperation;
         }
-
-        private long ExtractCountFromAggregationResults(List<BsonDocument> results) =>
-            results.Count switch
-            {
-                0 => 0,
-                1 => results[0]["n"].ToInt64(),
-                _ => throw new MongoClientException($"Expected aggregate command for {nameof(EstimatedDocumentCountOperation)} to return 1 document, but got {results.Count}."),
-            };
     }
 }

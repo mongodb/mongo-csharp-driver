@@ -2,7 +2,7 @@
 # Please review the generated file, then remove this notice.
 
 description: updateMany-hint
-schemaVersion: '1.1'
+schemaVersion: '1.0'
 runOnRequirements:
   -
     minServerVersion: 4.2.0
@@ -69,8 +69,7 @@ tests:
                     u: *update
                     multi: true
                     hint: _id_
-                    upsert:
-                      $$unsetOrMatches: false
+                    upsert: { $$unsetOrMatches: false }
     outcome: &outcome
       -
         collectionName: *collection_name
@@ -112,6 +111,5 @@ tests:
                     multi: true
                     hint:
                       _id: 1
-                    upsert:
-                      $$unsetOrMatches: false
+                    upsert: { $$unsetOrMatches: false }
     outcome: *outcome

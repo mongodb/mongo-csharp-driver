@@ -375,9 +375,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             return new AstFieldPathExpression(path);
         }
 
-        public static AstExpression Filter(AstExpression input, AstExpression cond, string @as)
+        public static AstExpression Filter(AstExpression input, AstExpression cond, string @as, AstExpression limit = null)
         {
-            return new AstFilterExpression(input, cond, @as);
+            return new AstFilterExpression(input, cond, @as, limit);
         }
 
         public static AstExpression First(AstExpression array)

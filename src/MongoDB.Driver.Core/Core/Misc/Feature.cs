@@ -1,4 +1,4 @@
-﻿/* Copyright 2016-present MongoDB Inc.
+/* Copyright 2016-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -48,6 +48,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __bypassDocumentValidation = new Feature("BypassDocumentValidation", WireVersion.Server32);
         private static readonly Feature __changeStreamStage = new Feature("ChangeStreamStage", WireVersion.Server36);
         private static readonly Feature __changeStreamPostBatchResumeToken = new Feature("ChangeStreamPostBatchResumeToken", WireVersion.Server40);
+        private static readonly Feature __changeStreamPrePostImages = new Feature("ChangeStreamPrePostImages", WireVersion.Server60);
         private static readonly Feature __clientSideEncryption = new Feature("ClientSideEncryption", WireVersion.Server42);
         private static readonly Feature __collation = new Feature("Collation", WireVersion.Server34);
         private static readonly Feature __commandMessage = new Feature("CommandMessage", WireVersion.Server36);
@@ -58,13 +59,13 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __currentOpCommand = new Feature("CurrentOpCommand", WireVersion.Server32);
         private static readonly Feature __documentValidation = new Feature("DocumentValidation", WireVersion.Server32);
         private static readonly Feature __directConnectionSetting = new Feature("DirectConnectionSetting", WireVersion.Server44);
-        private static readonly Feature __estimatedDocumentCountByCollStats = new Feature("EstimatedDocumentCountByCollStats", WireVersion.Server49);
         private static readonly Feature __eval = new Feature("Eval", WireVersion.Zero, WireVersion.Server42);
         private static readonly Feature __explainCommand = new Feature("ExplainCommand", WireVersion.Server30);
         private static readonly Feature __failPoints = new Feature("FailPoints", WireVersion.Zero);
         private static readonly Feature __failPointsBlockConnection = new Feature("FailPointsBlockConnection", WireVersion.Server42);
         private static readonly Feature __failPointsFailCommand = new Feature("FailPointsFailCommand", WireVersion.Server40);
         private static readonly Feature __failPointsFailCommandForSharded = new Feature("FailPointsFailCommandForSharded", WireVersion.Server42);
+        private static readonly Feature __filterLimit = new Feature("FilterLimit", WireVersion.Server60);
         private static readonly Feature __findAllowDiskUse = new Feature("FindAllowDiskUse", WireVersion.Server44);
         private static readonly Feature __findAndModifyWriteConcern = new Feature("FindAndModifyWriteConcern", WireVersion.Server32);
         private static readonly Feature __findCommand = new Feature("FindCommand", WireVersion.Server32);
@@ -102,6 +103,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __serverReturnsResumableChangeStreamErrorLabel = new Feature("ServerReturnsResumableChangeStreamErrorLabel", WireVersion.Server44);
         private static readonly Feature __serverReturnsRetryableWriteErrorLabel = new Feature("ServerReturnsRetryableWriteErrorLabel", WireVersion.Server44);
         private static readonly Feature __setWindowFields = new Feature("SetWindowFields", WireVersion.Server50);
+        private static readonly Feature __setWindowFieldsLocf = new Feature("SetWindowFieldsLocf", WireVersion.Server52);
         private static readonly Feature __shardedTransactions = new Feature("ShardedTransactions", WireVersion.Server42);
         private static readonly Feature __snapshotReads = new Feature("SnapshotReads", WireVersion.Server50, notSupportedMessage: "Snapshot reads require MongoDB 5.0 or later");
         private static readonly Feature __speculativeAuthentication = new Feature("SpeculativeAuthentication", WireVersion.Server44);
@@ -255,6 +257,11 @@ namespace MongoDB.Driver.Core.Misc
         public static Feature ChangeStreamPostBatchResumeToken => __changeStreamPostBatchResumeToken;
 
         /// <summary>
+        /// Gets the change stream pre post images feature.
+        /// </summary>
+        public static Feature ChangeStreamPrePostImages => __changeStreamPrePostImages;
+
+        /// <summary>
         /// Gets the client side encryption feature.
         /// </summary>
         public static Feature ClientSideEncryption => __clientSideEncryption;
@@ -311,11 +318,6 @@ namespace MongoDB.Driver.Core.Misc
         public static Feature DirectConnectionSetting => __directConnectionSetting;
 
         /// <summary>
-        /// Gets the estimatedDocumentCountByCollStats feature.
-        /// </summary>
-        public static Feature EstimatedDocumentCountByCollStats => __estimatedDocumentCountByCollStats;
-
-        /// <summary>
         /// Gets the eval feature.
         /// </summary>
         public static Feature Eval => __eval;
@@ -346,6 +348,12 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the fail points fail command for sharded feature.
         /// </summary>
         public static Feature FailPointsFailCommandForSharded => __failPointsFailCommandForSharded;
+
+
+        /// <summary>
+        /// Gets filter limit feature.
+        /// </summary>
+        public static Feature FilterLimit => __filterLimit;
 
         /// <summary>
         /// Gets the find allowDiskUse feature.
@@ -559,6 +567,11 @@ namespace MongoDB.Driver.Core.Misc
         public static Feature SetWindowFields => __setWindowFields;
 
         /// <summary>
+        /// Gets the set window fields $locf feature.
+        /// </summary>
+        public static Feature SetWindowFieldsLocf => __setWindowFieldsLocf;
+
+        /// <summary>
         /// Gets the sharded transactions feature.
         /// </summary>
         public static Feature ShardedTransactions => __shardedTransactions;
@@ -673,7 +686,7 @@ namespace MongoDB.Driver.Core.Misc
         {
             if (!IsSupported(wireVersion))
             {
-                string errorMessage; 
+                string errorMessage;
                 if (_notSupportedMessage != null)
                 {
                     errorMessage = _notSupportedMessage; ;

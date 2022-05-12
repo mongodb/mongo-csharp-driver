@@ -13,10 +13,15 @@
 * limitations under the License.
 */
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
@@ -24,11 +29,6 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using MongoDB.Bson.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
@@ -50,6 +50,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.CollectionNamespace.Should().BeNull();
             subject.DatabaseNamespace.Should().Be(databaseNamespace);
             subject.FullDocument.Should().Be(ChangeStreamFullDocumentOption.Default);
+            subject.FullDocumentBeforeChange.Should().Be(ChangeStreamFullDocumentBeforeChangeOption.Default);
             subject.MaxAwaitTime.Should().NotHaveValue();
             subject.MessageEncoderSettings.Should().BeSameAs(messageEncoderSettings);
             subject.Pipeline.Should().Equal(pipeline);
@@ -136,6 +137,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.CollectionNamespace.Should().BeSameAs(collectionNamespace);
             subject.DatabaseNamespace.Should().BeNull();
             subject.FullDocument.Should().Be(ChangeStreamFullDocumentOption.Default);
+            subject.FullDocumentBeforeChange.Should().Be(ChangeStreamFullDocumentBeforeChangeOption.Default);
             subject.MaxAwaitTime.Should().NotHaveValue();
             subject.MessageEncoderSettings.Should().BeSameAs(messageEncoderSettings);
             subject.Pipeline.Should().Equal(pipeline);
@@ -256,6 +258,19 @@ namespace MongoDB.Driver.Core.Operations
 
             subject.FullDocument = value;
             var result = subject.FullDocument;
+
+            result.Should().Be(value);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void FullDocumentBeforeChange_get_and_set_should_work(
+            [Values(ChangeStreamFullDocumentBeforeChangeOption.Default, ChangeStreamFullDocumentBeforeChangeOption.WhenAvailable)] ChangeStreamFullDocumentBeforeChangeOption value)
+        {
+            var subject = CreateSubject();
+
+            subject.FullDocumentBeforeChange = value;
+            var result = subject.FullDocumentBeforeChange;
 
             result.Should().Be(value);
         }
@@ -412,6 +427,7 @@ namespace MongoDB.Driver.Core.Operations
                 change.CollectionNamespace.Should().BeNull();
                 change.DocumentKey.Should().BeNull();
                 change.FullDocument.Should().BeNull();
+                change.FullDocumentBeforeChange.Should().BeNull();
                 change.RenameTo.Should().BeNull();
                 change.ResumeToken.Should().NotBeNull();
                 change.UpdateDescription.Should().BeNull();
@@ -443,6 +459,7 @@ namespace MongoDB.Driver.Core.Operations
                 change.CollectionNamespace.Should().Be(_collectionNamespace);
                 change.DocumentKey.Should().Be("{ _id : 1 }");
                 change.FullDocument.Should().BeNull();
+                change.FullDocumentBeforeChange.Should().BeNull();
                 change.RenameTo.Should().BeNull();
                 change.ResumeToken.Should().NotBeNull();
                 change.UpdateDescription.Should().BeNull();
@@ -475,9 +492,58 @@ namespace MongoDB.Driver.Core.Operations
                 change.CollectionNamespace.Should().Be(_collectionNamespace);
                 change.DocumentKey.Should().Be("{ _id : 2 }");
                 change.FullDocument.Should().Be("{ _id : 2, x : 2 }");
+                change.FullDocumentBeforeChange.Should().BeNull();
                 change.RenameTo.Should().BeNull();
                 change.ResumeToken.Should().NotBeNull();
                 change.UpdateDescription.Should().BeNull();
+            }
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void Execute_should_return_expected_results_for_pre_post_images(
+            [Values(false, true)] bool async,
+            [Values(ChangeStreamFullDocumentOption.Default, ChangeStreamFullDocumentOption.Required, ChangeStreamFullDocumentOption.WhenAvailable)] ChangeStreamFullDocumentOption fullDocument,
+            [Values(ChangeStreamFullDocumentBeforeChangeOption.Required, ChangeStreamFullDocumentOption.WhenAvailable)] ChangeStreamFullDocumentBeforeChangeOption fullDocumentBeforeChange)
+        {
+            RequireServer.Check().
+                ClusterTypes(ClusterType.ReplicaSet).
+                Supports(Feature.ChangeStreamPrePostImages);
+
+            EnsureDatabaseExists();
+            DropCollection();
+            CreateCollection(_collectionNamespace, true);
+
+            var pipeline = new[] { BsonDocument.Parse("{ $match : { operationType : \"update\" } }") };
+            var resultSerializer = new ChangeStreamDocumentSerializer<BsonDocument>(BsonDocumentSerializer.Instance);
+            var messageEncoderSettings = new MessageEncoderSettings();
+            var subject = new ChangeStreamOperation<ChangeStreamDocument<BsonDocument>>(_collectionNamespace, pipeline, resultSerializer, messageEncoderSettings);
+            subject.FullDocument = fullDocument;
+            subject.FullDocumentBeforeChange = fullDocumentBeforeChange;
+            var validateFullDocument = fullDocument != ChangeStreamFullDocumentOption.Default;
+
+            Insert("{ _id : 1, x : 1 }");
+
+            using (var cursor = ExecuteOperation(subject, async))
+            using (var enumerator = new AsyncCursorEnumerator<ChangeStreamDocument<BsonDocument>>(cursor, CancellationToken.None))
+            {
+                Update("{ _id : 1 }", "{ $set : { x : 2  } }");
+
+                enumerator.MoveNext().Should().BeTrue();
+                var change = enumerator.Current;
+                change.OperationType.Should().Be(ChangeStreamOperationType.Update);
+                change.CollectionNamespace.Should().Be(_collectionNamespace);
+                change.DocumentKey.Should().Be("{ _id : 1 }");
+                change.FullDocumentBeforeChange.Should().Be("{ _id : 1, x : 1 }");
+                change.RenameTo.Should().BeNull();
+                change.ResumeToken.Should().NotBeNull();
+                change.UpdateDescription.RemovedFields.Should().BeEmpty();
+                change.UpdateDescription.UpdatedFields.Should().Be("{ x : 2 }");
+
+                if (validateFullDocument)
+                {
+                    change.FullDocument.Should().Be("{ _id : 1, x : 2 }");
+                }
             }
         }
 
@@ -521,6 +587,7 @@ namespace MongoDB.Driver.Core.Operations
                 while (changeStreamDocument == null);
 
                 changeStreamDocument.FullDocument.Should().Be(document);
+                changeStreamDocument.FullDocumentBeforeChange.Should().BeNull();
             }
         }
 
@@ -553,6 +620,7 @@ namespace MongoDB.Driver.Core.Operations
                 change.CollectionNamespace.Should().Be(_collectionNamespace);
                 change.DocumentKey.Should().Be("{ _id : 1 }");
                 change.FullDocument.Should().Be(fullDocument == ChangeStreamFullDocumentOption.Default ? null : "{ _id : 1, x : 2 }");
+                change.FullDocumentBeforeChange.Should().BeNull();
                 change.RenameTo.Should().BeNull();
                 change.ResumeToken.Should().NotBeNull();
                 change.UpdateDescription.RemovedFields.Should().BeEmpty();

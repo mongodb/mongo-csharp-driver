@@ -972,6 +972,7 @@ namespace MongoDB.Driver
         {
             return new EstimatedDocumentCountOperation(_collectionNamespace, _messageEncoderSettings)
             {
+                Comment = options?.Comment,
                 MaxTime = options?.MaxTime,
                 RetryRequested = _database.Client.Settings.RetryReads
             };

@@ -2,7 +2,7 @@
 # Please review the generated file, then remove this notice.
 
 description: bulkWrite-arrayFilters-clientError
-schemaVersion: '1.1'
+schemaVersion: '1.0'
 runOnRequirements:
   -
     maxServerVersion: 3.5.5

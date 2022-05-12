@@ -22,7 +22,7 @@ Changes to ReadPreference
 
 The implementation of ReadPreference has been changed to more accurately follow the ReadPreference spec:
 
-http://docs.mongodb.org/manual/applications/replication/#read-preference
+https://www.mongodb.com/docs/manual/applications/replication/#read-preference
 
 The changes are:
 

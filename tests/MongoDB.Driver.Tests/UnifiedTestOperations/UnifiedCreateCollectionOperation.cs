@@ -14,10 +14,10 @@
 */
 
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Driver.Core.Operations;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
@@ -83,6 +83,74 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         }
     }
 
+    public class UnifiedCreateViewOperation : IUnifiedEntityTestOperation
+    {
+        private readonly string _viewName;
+        private readonly string _viewOn;
+        private readonly PipelineDefinition<BsonDocument, BsonDocument> _pipeline;
+        private readonly CreateViewOptions<BsonDocument> _options;
+        private readonly IMongoDatabase _database;
+        private readonly IClientSessionHandle _session;
+
+        public UnifiedCreateViewOperation(
+            IClientSessionHandle session,
+            IMongoDatabase database,
+            string viewName,
+            string viewOn,
+            PipelineDefinition<BsonDocument, BsonDocument> pipeline,
+            CreateViewOptions<BsonDocument> options)
+        {
+            _session = session;
+            _database = database;
+            _viewName = viewName;
+            _viewOn = viewOn;
+            _pipeline = pipeline;
+            _options = options;
+        }
+
+        public OperationResult Execute(CancellationToken cancellationToken)
+        {
+            try
+            {
+                if (_session == null)
+                {
+                    _database.CreateView(_viewName, _viewOn, _pipeline, _options, cancellationToken);
+                }
+                else
+                {
+                    _database.CreateView(_session, _viewName, _viewOn, _pipeline, _options, cancellationToken);
+                }
+
+                return OperationResult.FromResult(null);
+            }
+            catch (Exception exception)
+            {
+                return OperationResult.FromException(exception);
+            }
+        }
+
+        public async Task<OperationResult> ExecuteAsync(CancellationToken cancellationToken)
+        {
+            try
+            {
+                if (_session == null)
+                {
+                    await _database.CreateViewAsync(_viewName, _viewOn, _pipeline, _options, cancellationToken);
+                }
+                else
+                {
+                    await _database.CreateViewAsync(_session, _viewName, _viewOn, _pipeline, _options, cancellationToken);
+                }
+
+                return OperationResult.FromResult(null);
+            }
+            catch (Exception exception)
+            {
+                return OperationResult.FromException(exception);
+            }
+        }
+    }
+
     public class UnifiedCreateCollectionOperationBuilder
     {
         private readonly UnifiedEntityMap _entityMap;
@@ -92,24 +160,33 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             _entityMap = entityMap;
         }
 
-        public UnifiedCreateCollectionOperation Build(string targetDatabaseId, BsonDocument arguments)
+        public IUnifiedEntityTestOperation Build(string targetDatabaseId, BsonDocument arguments)
         {
             var database = _entityMap.GetDatabase(targetDatabaseId);
 
-            string collectionName = null;
-            CreateCollectionOptions createCollectionOptions = null;
+            string name = null;
+            string viewOn = null;
+            PipelineDefinition<BsonDocument, BsonDocument> pipeline = null;
             IClientSessionHandle session = null;
+            TimeSpan? expireAfter = null;
+            TimeSeriesOptions timeSeriesOptions = null;
 
             foreach (var argument in arguments)
             {
                 switch (argument.Name)
                 {
                     case "collection":
-                        collectionName = argument.Value.AsString;
+                        name = argument.Value.AsString;
                         break;
                     case "expireAfterSeconds":
-                        createCollectionOptions ??= new CreateCollectionOptions();
-                        createCollectionOptions.ExpireAfter = TimeSpan.FromSeconds(argument.Value.ToInt64());
+                        expireAfter = TimeSpan.FromSeconds(argument.Value.ToInt64());
+                        break;
+                    case "pipeline":
+                        pipeline = new EmptyPipelineDefinition<BsonDocument>();
+                        foreach (var stage in argument.Value.AsBsonArray)
+                        {
+                            pipeline = pipeline.AppendStage<BsonDocument, BsonDocument, BsonDocument>(stage.AsBsonDocument);
+                        }
                         break;
                     case "session":
                         var sessionId = argument.Value.AsString;
@@ -124,15 +201,29 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         {
                             granularity = (TimeSeriesGranularity)Enum.Parse(typeof(TimeSeriesGranularity), granularityValue.AsString, true);
                         }
-                        createCollectionOptions ??= new CreateCollectionOptions();
-                        createCollectionOptions.TimeSeriesOptions = new TimeSeriesOptions(timeField, metaField, granularity);
+                        timeSeriesOptions = new TimeSeriesOptions(timeField, metaField, granularity);
+                        break;
+                    case "viewOn":
+                        viewOn = argument.Value.AsString;
                         break;
                     default:
                         throw new FormatException($"Invalid CreateCollectionOperation argument name: '{argument.Name}'.");
                 }
             }
 
-            return new UnifiedCreateCollectionOperation(session, database, collectionName, createCollectionOptions);
+            if (viewOn == null && pipeline == null)
+            {
+                var options = new CreateCollectionOptions { ExpireAfter = expireAfter, TimeSeriesOptions = timeSeriesOptions };
+                return new UnifiedCreateCollectionOperation(session, database, name, options);
+            }
+            if (viewOn != null && expireAfter == null && timeSeriesOptions == null)
+            {
+                var options = new CreateViewOptions<BsonDocument>();
+                return new UnifiedCreateViewOperation(session, database, name, viewOn, pipeline, options);
+            }
+
+            var invalidArguments = string.Join(",", arguments.Elements.Select(x => x.Name));
+            throw new InvalidOperationException($"Invalid combination of CreateCollectionOperation arguments: {invalidArguments}");
         }
     }
 }

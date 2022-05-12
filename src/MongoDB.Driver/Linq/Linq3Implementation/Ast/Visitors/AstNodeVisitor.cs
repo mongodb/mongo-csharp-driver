@@ -326,7 +326,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors
 
         public virtual AstNode VisitFilterExpression(AstFilterExpression node)
         {
-            return node.Update(VisitAndConvert(node.Input), VisitAndConvert(node.Cond));
+            return node.Update(VisitAndConvert(node.Input), VisitAndConvert(node.Cond), VisitAndConvert(node.Limit));
         }
 
         public virtual AstNode VisitFilterField(AstFilterField node)

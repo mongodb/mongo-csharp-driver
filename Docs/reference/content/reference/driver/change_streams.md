@@ -99,7 +99,7 @@ using (var cursor = await client.WatchAsync())
 
 ### Strongly typed ChangeStreamDocument&lt;TDocument&gt; class
 
-The cursor returned from the Watch methods returns the change stream events wrapped in a strongly typed C# class called ChangeStreamDocument&lt;TDocument&gt; (unless you used a pipeline that changed the shape of the results). The underlying change stream events are documented in the server documentation [here](https://docs.mongodb.com/manual/reference/change-events/).
+The cursor returned from the Watch methods returns the change stream events wrapped in a strongly typed C# class called ChangeStreamDocument&lt;TDocument&gt; (unless you used a pipeline that changed the shape of the results). The underlying change stream events are documented in the server documentation [here](https://www.mongodb.com/docs/manual/reference/change-events/).
 
 ```csharp
 public class ChangeStreamDocument<TDocument>
@@ -120,7 +120,7 @@ CollectionNamespace is the full namespace of the collection containing the chang
 
 DocumentKey contains the _id of the document created or modified by the operation. For sharded collections it also contains the shard key of the document.
 
-For Insert and Replace operations,  FullDocument is the new document created by the operation. For Delete operations FullDocument is null as the document no longer exists. For Update operations FullDocument is only present if you set the FullDocument option in the options passed to Watch to ChangeStreamFullDocumentOption.UpdateLookup, in which case it contains the most current majority-committed version of the document modified by the Update operation (see the server documentation for fullDocument [here](https://docs.mongodb.com/manual/reference/change-events/) for details).
+For Insert and Replace operations,  FullDocument is the new document created by the operation. For Delete operations FullDocument is null as the document no longer exists. For Update operations FullDocument is only present if you set the FullDocument option in the options passed to Watch to ChangeStreamFullDocumentOption.UpdateLookup, in which case it contains the most current majority-committed version of the document modified by the Update operation (see the server documentation for fullDocument [here](https://www.mongodb.com/docs/manual/reference/change-events/) for details).
 
 OperationType is one of: Insert, Update, Replace, Delete or Invalidate.
 
@@ -132,7 +132,7 @@ UpdateDescription is only present when the OperationType is Update. It describes
 
 All the Watch and WatchAsync methods have overloads that take a pipeline argument. An application can pass in a pipeline to filter or modify the change stream in some way.
 
-Only certain modifications are valid in a change stream pipeline. See the server documentation [here](https://docs.mongodb.com/manual/changeStreams/#modify-change-stream-output) for details.
+Only certain modifications are valid in a change stream pipeline. See the server documentation [here](https://www.mongodb.com/docs/manual/changeStreams/#modify-change-stream-output) for details.
 
 For example, if you are only interested in monitoring inserted documents, you could use a pipeline to filter the change stream to only include insert operations.
 
@@ -171,7 +171,7 @@ public class ChangeStreamOptions
 
 BatchSize determines the maximum number of change events the server will return at one time. The server might return fewer.
 
-FullDocument can be set to ChangeStreamFullDocumentOption.UpdateLookup if you want the change stream event for Update operations to include a copy of the full document (the full document might include additional changes that are the result of subsequent change events, see the server documentation [here](https://docs.mongodb.com/manual/reference/change-events/#update-event)).
+FullDocument can be set to ChangeStreamFullDocumentOption.UpdateLookup if you want the change stream event for Update operations to include a copy of the full document (the full document might include additional changes that are the result of subsequent change events, see the server documentation [here](https://www.mongodb.com/docs/manual/reference/change-events/#update-event)).
 
 ResumeAfter and StartAtOperationTime are useful when you want to resume or start a change stream from some point in time.
 
