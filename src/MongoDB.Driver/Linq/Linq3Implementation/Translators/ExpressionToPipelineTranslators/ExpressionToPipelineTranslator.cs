@@ -34,6 +34,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
             var methodCallExpression = (MethodCallExpression)expression;
             switch (methodCallExpression.Method.Name)
             {
+                case "Densify":
+                    return DensifyMethodToPipelineTranslator.Translate(context, methodCallExpression);
                 case "Distinct":
                     return DistinctMethodToPipelineTranslator.Translate(context, methodCallExpression);
                 case "GroupBy":

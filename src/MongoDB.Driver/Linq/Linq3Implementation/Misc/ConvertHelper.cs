@@ -123,6 +123,21 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             return expression;
         }
 
+        public static Expression RemoveConvertToObject(Expression expression)
+        {
+            if (expression.NodeType == ExpressionType.Convert)
+            {
+                var convertExpression = (UnaryExpression)expression;
+                var targetType = convertExpression.Type;
+                if (targetType == typeof(object))
+                {
+                    return convertExpression.Operand;
+                }
+            }
+
+            return expression;
+        }
+
         public static Expression RemoveWideningConvert(Expression expression)
         {
             if (expression.NodeType == ExpressionType.Convert)

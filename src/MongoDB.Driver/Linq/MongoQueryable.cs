@@ -465,6 +465,58 @@ namespace MongoDB.Driver.Linq
         }
 
         /// <summary>
+        /// Adds a $densify stage to the LINQ pipeline.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values.</param>
+        /// <param name="field">The field.</param>
+        /// <param name="range">The range.</param>
+        /// <param name="partitionByFields">The partition by fields.</param>
+        /// <returns>The densified sequence of values.</returns>
+        public static IMongoQueryable<TSource> Densify<TSource>(
+            this IMongoQueryable<TSource> source,
+            Expression<Func<TSource, object>> field,
+            DensifyRange range,
+            IEnumerable<Expression<Func<TSource, object>>> partitionByFields = null)
+        {
+            return Densify(source, field, range, partitionByFields?.ToArray());
+        }
+
+        /// <summary>
+        /// Adds a $densify stage to the LINQ pipeline.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values.</param>
+        /// <param name="field">The field.</param>
+        /// <param name="range">The range.</param>
+        /// <param name="partitionByFields">The partition by fields.</param>
+        /// <returns>The densified sequence of values.</returns>
+        public static IMongoQueryable<TSource> Densify<TSource>(
+            this IMongoQueryable<TSource> source,
+            Expression<Func<TSource, object>> field,
+            DensifyRange range,
+            params Expression<Func<TSource, object>>[] partitionByFields)
+        {
+            Expression quotedPartitionByFields;
+            if (partitionByFields?.Length > 0)
+            {
+                quotedPartitionByFields = Expression.NewArrayInit(typeof(Expression<Func<TSource, object>>), partitionByFields.Select(f => Expression.Quote(f)));
+            }
+            else
+            {
+                quotedPartitionByFields = Expression.Constant(null, typeof(Expression<Func<TSource, object>>[]));
+            }
+
+            return (IMongoQueryable<TSource>)source.Provider.CreateQuery<TSource>(
+                Expression.Call(
+                    GetMethodInfo(MongoQueryable.Densify, source, field, range, partitionByFields),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Quote(field),
+                    Expression.Constant(range),
+                    quotedPartitionByFields));
+        }
+
+        /// <summary>
         /// Returns distinct elements from a sequence by using the default equality comparer to compare values.
         /// </summary>
         /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
@@ -2818,6 +2870,16 @@ namespace MongoDB.Driver.Linq
         }
 
         private static MethodInfo GetMethodInfo<T1, T2, T3>(Func<T1, T2, T3> f, T1 unused1, T2 unused2)
+        {
+            return f.GetMethodInfo();
+        }
+
+        private static MethodInfo GetMethodInfo<T1, T2, T3, T4>(Func<T1, T2, T3, T4> f, T1 unused1, T2 unused2, T3 unused3)
+        {
+            return f.GetMethodInfo();
+        }
+
+        private static MethodInfo GetMethodInfo<T1, T2, T3, T4, T5>(Func<T1, T2, T3, T4, T5> f, T1 unused1, T2 unused2, T3 unused3, T4 unused4)
         {
             return f.GetMethodInfo();
         }
