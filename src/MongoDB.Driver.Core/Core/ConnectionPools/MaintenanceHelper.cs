@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
         public bool IsRunning => _maintenanceThread != null;
 
-        public void Stop(int? firstInUseHealthyGeneration)
+        public void Stop(int? maxGenerationToReap)
         {
             if (_interval == Timeout.InfiniteTimeSpan || !IsRunning)
             {
@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             _maintenanceThread = null;
 
-            _maintenanceExecutingContext.Cancel(firstInUseHealthyGeneration);
+            _maintenanceExecutingContext.Cancel(maxGenerationToReap);
             _maintenanceExecutingContext.Dispose();
         }
 
@@ -106,7 +106,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     maintenanceExecutingContext.Wait();
                 }
 
-                _connectionPool.ConnectionHolder.Prune(maintenanceExecutingContext.FirstInUseHealthyGeneration, _globalCancellationToken);
+                _connectionPool.ConnectionHolder.Prune(maintenanceExecutingContext.MaxGenerationToReap, _globalCancellationToken);
             }
             catch
             {
@@ -152,8 +152,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
         private readonly AutoResetEvent _autoResetEvent;
         private readonly CancellationToken _cancellationToken;
         private readonly CancellationTokenSource _cancellationTokenSource;
-        private int? _firstInUseHealthyGeneration;
         private readonly TimeSpan _interval;
+        private int? _maxGenerationToReap;
 
         public MaintenanceExecutingContext(TimeSpan interval, CancellationToken globalCancellationToken)
         {
@@ -165,24 +165,24 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
         // public properties
         public CancellationToken CancellationToken => _cancellationToken;
-        public int? FirstInUseHealthyGeneration => _firstInUseHealthyGeneration;
-        
+        public int? MaxGenerationToReap => _maxGenerationToReap;
+
         // public methods
         public void Dispose()
         {
-            Cancel(_firstInUseHealthyGeneration); // stop waiting if any
+            Cancel(_maxGenerationToReap); // stop waiting if any
             _cancellationTokenSource.Dispose();
             _autoResetEvent.Dispose();
         }
 
-        public void Cancel(int? firstInUseHealthyGeneration)
+        public void Cancel(int? maxGenerationToReap)
         {
             if (_cancellationToken.IsCancellationRequested)
             {
                 return;
             }
 
-            _firstInUseHealthyGeneration = firstInUseHealthyGeneration;
+            _maxGenerationToReap = maxGenerationToReap;
 
             try
             {

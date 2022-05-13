@@ -113,7 +113,7 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
                 }
                 else
                 {
-                    helper.Stop(firstInUseHealthyGeneration: null);
+                    helper.Stop(maxGenerationToReap: null);
                 }
             }
         }
@@ -185,7 +185,7 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
                 }
 
                 IncrementGeneration(pool);
-                subject.Stop(firstInUseHealthyGeneration: closeInUseConnection ? pool.Generation : null);
+                subject.Stop(maxGenerationToReap: closeInUseConnection ? pool.Generation : null);
 
                 var requestInPlayTimeout = TimeSpan.FromMilliseconds(100);
                 if (!closeInUseConnection && checkOutConnection)
