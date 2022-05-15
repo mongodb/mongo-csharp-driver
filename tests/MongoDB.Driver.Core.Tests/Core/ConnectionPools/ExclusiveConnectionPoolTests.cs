@@ -996,6 +996,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             [Values(false, true)] bool openConnectionFailed,
             [Values(true, false)] bool async)
         {
+            TimeSpan timeout = TimeSpan.FromMilliseconds(2000);
             var acquiredCompletionSource = new TaskCompletionSource<bool>();
 
             var openException = new MongoConnectionException(new ConnectionId(_serverId), "OpenConnection failed");
@@ -1069,14 +1070,14 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
             });
 
-            SpinWait.SpinUntil(() => _subject.ConnectionHolder._connectionsInUse().Count >= settings.MinConnections + 1, TimeSpan.FromMilliseconds(100)).Should().BeTrue();
+            SpinWait.SpinUntil(() => _subject.ConnectionHolder._connectionsInUse().Count >= settings.MinConnections + 1, timeout).Should().BeTrue();
 
             // During First acquire
             ValidateConnectionsCount(inUse: false, expectedCount: 0);
             ValidateConnectionsCount(inUse: true, expectedCount: settings.MinConnections + 1);
 
             acquiredCompletionSource.SetResult(true); // connection is acquired
-            Thread.Sleep(100);
+            SpinWait.SpinUntil(() => connection != null || acquireException != null, timeout).Should().BeTrue();
 
             ValidateConnectionsCount(inUse: false, expectedCount: 0);
             ValidateConnectionsCount(inUse: true, expectedCount: settings.MinConnections + (openConnectionFailed ? 0 : 1));
