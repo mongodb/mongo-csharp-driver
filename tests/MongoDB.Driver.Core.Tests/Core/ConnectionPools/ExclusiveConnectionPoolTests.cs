@@ -996,7 +996,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             [Values(false, true)] bool openConnectionFailed,
             [Values(true, false)] bool async)
         {
-            TimeSpan timeout = TimeSpan.FromMilliseconds(2000);
+            var timeout = TimeSpan.FromSeconds(5);
             var acquiredCompletionSource = new TaskCompletionSource<bool>();
 
             var openException = new MongoConnectionException(new ConnectionId(_serverId), "OpenConnection failed");
@@ -1017,7 +1017,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                         {
                             if (minPoolSize == 0 || ci == 2) // ignore connection 1 created in minPoolSize logic
                             {
-                                acquiredCompletionSource.Task.WaitOrThrow(TimeSpan.FromSeconds(5));
+                                acquiredCompletionSource.Task.WaitOrThrow(timeout);
                                 if (openConnectionFailed)
                                 {
                                     throw openException;
@@ -1031,7 +1031,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                         {
                             if (minPoolSize == 0 || ci == 2) // ignore connection 1 created in minPoolSize logic
                             {
-                                await acquiredCompletionSource.Task.WithTimeout(TimeSpan.FromSeconds(5));
+                                await acquiredCompletionSource.Task.WithTimeout(timeout);
                                 if (openConnectionFailed)
                                 {
                                     throw openException;
