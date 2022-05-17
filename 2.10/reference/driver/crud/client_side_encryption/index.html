@@ -2548,7 +2548,7 @@ namespace MongoDB.Driver.Examples
             };
             kmsProviders.Add(&quot;local&quot;, localKey);
 
-            var keyVaultNamespace = CollectionNamespace.FromFullName(&quot;admin.datakeys&quot;);
+            var keyVaultNamespace = CollectionNamespace.FromFullName(&quot;encryption.__keyVault&quot;);
             var autoEncryptionOptions = new AutoEncryptionOptions(keyVaultNamespace, kmsProviders);
 
             var mongoClientSettings = new MongoClientSettings
@@ -2605,7 +2605,7 @@ namespace MongoDB.Driver.Examples
             };
             kmsProviders.Add(&quot;local&quot;, localKey);
 
-            var keyVaultNamespace = CollectionNamespace.FromFullName(&quot;admin.datakeys&quot;);
+            var keyVaultNamespace = CollectionNamespace.FromFullName(&quot;encryption.__keyVault&quot;);
             var keyVaultMongoClient = new MongoClient();
             var clientEncryptionSettings = new ClientEncryptionOptions(
                 keyVaultMongoClient,
