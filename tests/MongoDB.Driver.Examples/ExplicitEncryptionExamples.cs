@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Examples
             };
             kmsProviders.Add("local", localKey);
 
-            var keyVaultNamespace = CollectionNamespace.FromFullName("admin.datakeys");
+            var keyVaultNamespace = CollectionNamespace.FromFullName("encryption.__keyVault");
             var keyVaultClient = new MongoClient("mongodb://localhost");
             var keyVaultDatabase = keyVaultClient.GetDatabase(keyVaultNamespace.DatabaseNamespace.DatabaseName);
             keyVaultDatabase.DropCollection(keyVaultNamespace.CollectionName);
@@ -100,7 +100,7 @@ namespace MongoDB.Driver.Examples
             };
             kmsProviders.Add("local", localKey);
 
-            var keyVaultNamespace = CollectionNamespace.FromFullName("admin.datakeys");
+            var keyVaultNamespace = CollectionNamespace.FromFullName("encryption.__keyVault");
             var collectionNamespace = CollectionNamespace.FromFullName("test.coll");
             var autoEncryptionOptions = new AutoEncryptionOptions(
                 keyVaultNamespace,
