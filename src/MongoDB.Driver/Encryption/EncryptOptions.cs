@@ -19,6 +19,17 @@ using System;
 namespace MongoDB.Driver.Encryption
 {
     /// <summary>
+    /// TODO
+    /// </summary>
+    public enum QueryType
+    {
+        /// <summary>
+        /// TODO
+        /// </summary>
+        Equality = 1
+    }
+
+    /// <summary>
     /// Encryption options for explicit encryption.
     /// </summary>
     public class EncryptOptions
@@ -36,7 +47,9 @@ namespace MongoDB.Driver.Encryption
         // private fields
         private readonly string _algorithm;
         private readonly string _alternateKeyName;
+        private readonly long? _contentionFactor;
         private readonly Guid? _keyId;
+        private readonly QueryType? _queryType;
 
         // constructors
         /// <summary>
@@ -45,10 +58,14 @@ namespace MongoDB.Driver.Encryption
         /// <param name="algorithm">The encryption algorithm.</param>
         /// <param name="alternateKeyName">The alternate key name.</param>
         /// <param name="keyId">The key Id.</param>
+        /// <param name="contentionFactor">The contention factor.</param>
+        /// <param name="queryType">TODO</param>
         public EncryptOptions(
             string algorithm,
             Optional<string> alternateKeyName = default,
-            Optional<Guid?> keyId = default)
+            Optional<Guid?> keyId = default,
+            Optional<long?> contentionFactor = default,
+            Optional<QueryType?> queryType = default)
         {
             Ensure.IsNotNull(algorithm, nameof(algorithm));
             if (Enum.TryParse<EncryptionAlgorithm>(algorithm, out var @enum))
@@ -61,7 +78,9 @@ namespace MongoDB.Driver.Encryption
             }
 
             _alternateKeyName = alternateKeyName.WithDefault(null);
+            _contentionFactor = contentionFactor.WithDefault(null);
             _keyId = keyId.WithDefault(null);
+            _queryType = queryType.WithDefault(null);
             EnsureThatOptionsAreValid();
         }
 
@@ -71,14 +90,20 @@ namespace MongoDB.Driver.Encryption
         /// <param name="algorithm">The encryption algorithm.</param>
         /// <param name="alternateKeyName">The alternate key name.</param>
         /// <param name="keyId">The key Id.</param>
+        /// <param name="contentionFactor">The contention factor.</param>
+        /// <param name="queryType">TODO</param>
         public EncryptOptions(
             EncryptionAlgorithm algorithm,
             Optional<string> alternateKeyName = default,
-            Optional<Guid?> keyId = default)
+            Optional<Guid?> keyId = default,
+            Optional<long?> contentionFactor = default,
+            Optional<QueryType?> queryType = default)
             : this(
                   algorithm: ConvertEnumAlgorithmToString(algorithm),
                   alternateKeyName,
-                  keyId)
+                  keyId,
+                  contentionFactor,
+                  queryType)
         {
         }
 
@@ -100,6 +125,14 @@ namespace MongoDB.Driver.Encryption
         public string AlternateKeyName => _alternateKeyName;
 
         /// <summary>
+        /// Gets the contention factor.
+        /// </summary>
+        /// <value>
+        /// The contention factor.
+        /// </value>
+        public long? ContentionFactor => _contentionFactor;
+
+        /// <summary>
         /// Gets the key identifier.
         /// </summary>
         /// <value>
@@ -108,21 +141,32 @@ namespace MongoDB.Driver.Encryption
         public Guid? KeyId => _keyId;
 
         /// <summary>
+        /// TODO
+        /// </summary>
+        /// <value>
+        /// TODO
+        /// </value>
+        public QueryType? QueryType => _queryType;
+
+        /// <summary>
         /// Returns a new EncryptOptions instance with some settings changed.
         /// </summary>
         /// <param name="algorithm">The encryption algorithm.</param>
         /// <param name="alternateKeyName">The alternate key name.</param>
         /// <param name="keyId">The keyId.</param>
+        /// <param name="contentionFactor">The contention factor.</param>
         /// <returns>A new EncryptOptions instance.</returns>
         public EncryptOptions With(
             Optional<string> algorithm = default,
             Optional<string> alternateKeyName = default,
-            Optional<Guid?> keyId = default)
+            Optional<Guid?> keyId = default,
+            Optional<long?> contentionFactor = default)
         {
             return new EncryptOptions(
                 algorithm: algorithm.WithDefault(_algorithm),
                 alternateKeyName: alternateKeyName.WithDefault(_alternateKeyName),
-                keyId: keyId.WithDefault(_keyId));
+                keyId: keyId.WithDefault(_keyId),
+                contentionFactor: contentionFactor.WithDefault(_contentionFactor));
         }
 
         // private methods

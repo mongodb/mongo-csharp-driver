@@ -104,7 +104,13 @@ namespace MongoDB.Driver.Core.Clusters
                 encryptedFieldsBytes = GetBytesFromMap(_encryptedFieldsMap);
             }
 
-            return new CryptOptions(kmsProviders, encryptedFieldsMap: encryptedFieldsBytes, schema: schemaBytes, bypassQueryAnalysis: _bypassQueryAnalysis.GetValueOrDefault(false));
+            return new CryptOptions(
+                kmsProviders,
+                encryptedFieldsMap: encryptedFieldsBytes,
+                schema: schemaBytes,
+                bypassQueryAnalysis: _bypassQueryAnalysis.GetValueOrDefault(false),
+                csfleLibPath: "",
+                csfleSearchPath: "");
         }
 
         private BsonDocument CreateProviderDocument(string kmsType, IReadOnlyDictionary<string, object> data)

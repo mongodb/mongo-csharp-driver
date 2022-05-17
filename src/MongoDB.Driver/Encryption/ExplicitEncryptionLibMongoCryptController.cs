@@ -218,6 +218,68 @@ namespace MongoDB.Driver.Encryption
             }
         }
 
+        public BsonBinaryData EncryptField(
+            BsonValue value,
+            EncryptOptions encryptOptions,
+            CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(encryptOptions, nameof(encryptOptions));
+
+            try
+            {
+                var wrappedValueBytes = GetWrappedValueBytes(value);
+
+                var context = _cryptClient.StartExplicitEncryptionContext(
+                    keyId: GuidConverter.ToBytes(encryptOptions.KeyId.Value, GuidRepresentation.Standard),
+                    keyAltName: GetWrappedAlternateKeyNameBytes(encryptOptions.AlternateKeyName),
+                    queryType: (int?)encryptOptions.QueryType,
+                    contentionFactor: encryptOptions.ContentionFactor,
+                    encryptOptions.Algorithm,
+                    wrappedValueBytes);
+
+                using (context)
+                {
+                    var wrappedBytes = ProcessStates(context, databaseName: null, cancellationToken);
+                    return UnwrapEncryptedValue(wrappedBytes);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new MongoEncryptionException(ex);
+            }
+        }
+
+        public async Task<BsonBinaryData> EncryptFieldAsync(
+            BsonValue value,
+            EncryptOptions encryptOptions,
+            CancellationToken cancellationToken)
+        {
+            Ensure.IsNotNull(encryptOptions, nameof(encryptOptions));
+
+            try
+            {
+                var wrappedValueBytes = GetWrappedValueBytes(value);
+
+                var context = _cryptClient.StartExplicitEncryptionContext(
+                    keyId: GuidConverter.ToBytes(encryptOptions.KeyId.Value, GuidRepresentation.Standard),
+                    keyAltName: GetWrappedAlternateKeyNameBytes(encryptOptions.AlternateKeyName),
+                    queryType: (int?)encryptOptions.QueryType,
+                    contentionFactor: encryptOptions.ContentionFactor,
+                    encryptOptions.Algorithm,
+                    wrappedValueBytes);
+
+                using (context)
+                {
+                    var wrappedBytes = await ProcessStatesAsync(context, databaseName: null, cancellationToken).ConfigureAwait(false);
+                    return UnwrapEncryptedValue(wrappedBytes);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new MongoEncryptionException(ex);
+            }
+        }
+
         // private methods
         private KmsKeyId GetKmsKeyId(string kmsProvider, IReadOnlyList<string> alternateKeyNames, BsonDocument masterKey)
         {
