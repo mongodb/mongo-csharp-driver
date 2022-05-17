@@ -27,8 +27,8 @@ namespace LambdaTest
     public class ShareMongoClientLambdaHandler
     {
         // Start AWS Lambda Example 1
-        private static MongoClient MongoClient { get; set; }
-        private static MongoClient CreateMongoClient()
+        private MongoClient MongoClient { get; set; }
+        private MongoClient CreateMongoClient()
         {
             var mongoClientSettings = MongoClientSettings.FromConnectionString($"<MONGODB_URI>");
             mongoClientSettings.ServerApi = new ServerApi(ServerApiVersion.V1, strict: true);
@@ -52,8 +52,8 @@ namespace LambdaTest
 
     public class ConnectUsingAwsIamAuthenticatorLambdaHandler
     {
-        private static MongoClient MongoClient { get; set; }
-        private static MongoClient CreateMongoClient()
+        private MongoClient MongoClient { get; set; }
+        private MongoClient CreateMongoClient()
         {
             // Start AWS Lambda Example 2
             string username = Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID");
