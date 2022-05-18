@@ -1264,13 +1264,19 @@ namespace MongoDB.Driver.Core.ConnectionPools
         }
 
         [Theory]
-        [InlineData(1, 10)]
-        [InlineData(9, 10)]
-        [InlineData(50, 100)]
-        [InlineData(99, 100)]
-        public void Prune_should_respect_generation_when_closing_inUse_connections(int maxExpiredGeneration, int maxGeneration)
+        [ParameterAttributeData]
+        public void Prune_should_respect_generation_when_closing_inUse_connections(
+            [RandomSeed(new[] { 0 })] int seed,
+            [Values(
+                new[] { 1, 10 },
+                new[] { 9, 10 },
+                new[] { 50, 100 },
+                new[] { 90, 100 })] int[] generationInfo)
         {
-            var random = new Random();
+            int maxExpiredGeneration = generationInfo[0];
+            int maxGeneration = generationInfo[1];
+
+            var random = new Random(seed);
             int connectionIndex = 0;
             var connectionsCount = maxGeneration + 1; // generations are 0-based
             var connectionsToBeRemovedCount = maxExpiredGeneration + 1; // generations are 0-based
