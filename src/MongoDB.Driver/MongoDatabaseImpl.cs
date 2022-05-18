@@ -647,15 +647,7 @@ namespace MongoDB.Driver
             var serializerRegistry = options.SerializerRegistry ?? BsonSerializer.SerializerRegistry;
             var documentSerializer = options.DocumentSerializer ?? serializerRegistry.GetSerializer<TDocument>();
 
-            BsonDocument clusteredIndex = null;
-            if (options.ClusteredIndex != null)
-            {
-                clusteredIndex = new BsonDocument {
-                    { "key", options.ClusteredIndex.Key.Render(documentSerializer, serializerRegistry) },
-                    { "unique", options.ClusteredIndex.Unique },
-                    { "name", options.ClusteredIndex.Name, options.ClusteredIndex.Name != null }
-                };
-            }
+            var clusteredIndex = options.ClusteredIndex?.Render(documentSerializer, serializerRegistry);
             var validator = options.Validator?.Render(documentSerializer, serializerRegistry, _linqProvider);
 
             var collectionNamespace = new CollectionNamespace(_databaseNamespace, name);

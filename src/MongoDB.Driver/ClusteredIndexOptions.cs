@@ -14,6 +14,7 @@
 */
 
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver
 {
@@ -60,6 +61,15 @@ namespace MongoDB.Driver
         {
             get => _unique;
             set => _unique = value;
+        }
+
+        internal BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        {
+            return new BsonDocument {
+                { "key", _key.Render(documentSerializer, serializerRegistry) },
+                { "unique", _unique },
+                { "name", _name, _name != null }
+            };
         }
     }
 }
