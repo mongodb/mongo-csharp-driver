@@ -644,13 +644,11 @@ namespace MongoDB.Driver
 
         private IWriteOperation<BsonDocument> CreateCreateCollectionOperation<TDocument>(string name, CreateCollectionOptions<TDocument> options)
         {
-            BsonDocument validator = null;
-            if (options.Validator != null)
-            {
-                var serializerRegistry = options.SerializerRegistry ?? BsonSerializer.SerializerRegistry;
-                var documentSerializer = options.DocumentSerializer ?? serializerRegistry.GetSerializer<TDocument>();
-                validator = options.Validator.Render(documentSerializer, serializerRegistry, _linqProvider);
-            }
+            var serializerRegistry = options.SerializerRegistry ?? BsonSerializer.SerializerRegistry;
+            var documentSerializer = options.DocumentSerializer ?? serializerRegistry.GetSerializer<TDocument>();
+
+            var clusteredIndex = options.ClusteredIndex?.Render(documentSerializer, serializerRegistry);
+            var validator = options.Validator?.Render(documentSerializer, serializerRegistry, _linqProvider);
 
             var collectionNamespace = new CollectionNamespace(_databaseNamespace, name);
 
@@ -667,6 +665,7 @@ namespace MongoDB.Driver
                     cco.AutoIndexId = options.AutoIndexId;
 #pragma warning restore CS0618 // Type or member is obsolete
                     cco.Capped = options.Capped;
+                    cco.ClusteredIndex = clusteredIndex;
                     cco.Collation = options.Collation;
                     cco.ExpireAfter = options.ExpireAfter;
                     cco.IndexOptionDefaults = options.IndexOptionDefaults?.ToBsonDocument();

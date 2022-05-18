@@ -45,9 +45,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     ? _database.ListCollections(_options, cancellationToken)
                     : _database.ListCollections(_session, _options, cancellationToken);
 
-                _ = cursor.ToList(cancellationToken);
+                var collections = cursor.ToList(cancellationToken);
 
-                return OperationResult.Empty();
+                return OperationResult.FromResult(new BsonArray(collections));
             }
             catch (Exception ex)
             {
@@ -63,9 +63,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     ? await _database.ListCollectionsAsync(_options, cancellationToken)
                     : await _database.ListCollectionsAsync(_session, _options, cancellationToken);
 
-                _ = await cursor.ToListAsync(cancellationToken);
+                var collections = await cursor.ToListAsync(cancellationToken);
 
-                return OperationResult.Empty();
+                return OperationResult.FromResult(new BsonArray(collections));
             }
             catch (Exception ex)
             {
