@@ -29,7 +29,6 @@ namespace MongoDB.Driver.Core.ConnectionPools
         private readonly TimeSpan _interval;
         private MaintenanceExecutingContext _maintenanceExecutingContext;
         private Thread _maintenanceThread;
-        private InterlockedInt32 _state;
 
         public MaintenanceHelper(ExclusiveConnectionPool connectionPool, TimeSpan interval)
         {
@@ -37,7 +36,6 @@ namespace MongoDB.Driver.Core.ConnectionPools
             _globalCancellationTokenSource = new CancellationTokenSource();
             _globalCancellationToken = _globalCancellationTokenSource.Token;
             _interval = interval;
-            _state = new InterlockedInt32(State.Open);
         }
 
         public bool IsRunning => _maintenanceThread != null;
@@ -77,12 +75,9 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
         public void Dispose()
         {
-            if (_state.TryChange(State.Disposed))
-            {
-                _maintenanceExecutingContext?.Dispose();
-                _globalCancellationTokenSource.Cancel();
-                _globalCancellationTokenSource.Dispose();
-            }
+            _maintenanceExecutingContext?.Dispose();
+            _globalCancellationTokenSource.Cancel();
+            _globalCancellationTokenSource.Dispose();
         }
 
         // private methods
@@ -137,13 +132,6 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
                 cancellationToken.ThrowIfCancellationRequested();
             }
-        }
-
-        // nested type
-        private static class State
-        {
-            public static int Open = 0;
-            public static int Disposed = 1;
         }
     }
 

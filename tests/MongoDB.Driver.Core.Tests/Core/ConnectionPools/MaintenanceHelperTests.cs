@@ -48,31 +48,17 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
         }
 
         [Fact]
-        public void Dispose_should_not_fail_with_double_dispose()
-        {
-            using (var pool = CreatePool())
-            {
-                var subject = pool._maintenanceHelper();
-
-                subject.Dispose();
-                subject.Dispose();
-            }
-        }
-
-        [Fact]
         public void Dispose_should_stop_maintenace_thread()
         {
-            using (var pool = CreatePool())
-            {
-                var subject = pool._maintenanceHelper();
+            var pool = CreatePool();
+            var subject = pool._maintenanceHelper();
 
-                var createdThread = subject._maintenanceThread();
+            var createdThread = subject._maintenanceThread();
 
-                subject.Dispose();
-                Thread.Sleep(50);
+            subject.Dispose();
+            Thread.Sleep(50);
 
-                createdThread.ThreadState.Should().Be(ThreadState.Stopped);
-            }
+            createdThread.ThreadState.Should().Be(ThreadState.Stopped);
         }
 
         [Theory]
