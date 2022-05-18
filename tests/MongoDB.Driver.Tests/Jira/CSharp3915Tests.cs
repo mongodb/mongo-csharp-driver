@@ -17,6 +17,8 @@ using System;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson.IO;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.Tests.Linq.Linq3ImplementationTests;
 using Xunit;
@@ -31,6 +33,7 @@ namespace MongoDB.Driver.Tests.Jira
         [InlineData(true)]
         public void Densify_time_series_data_example_using_aggregate_should_work(bool usingExpressions)
         {
+            RequireServer.Check().Supports(Feature.DensifyStage);
             var collection = CreateWeatherCollection();
             var subject = collection.Aggregate();
 
@@ -76,6 +79,7 @@ namespace MongoDB.Driver.Tests.Jira
         [Fact]
         public void Densify_time_series_data_example_using_linq_should_work()
         {
+            RequireServer.Check().Supports(Feature.DensifyStage);
             var collection = CreateWeatherCollection();
             var subject = collection.AsQueryable();
 
@@ -113,6 +117,7 @@ namespace MongoDB.Driver.Tests.Jira
         [InlineData(true)]
         public void Densify_the_full_range_of_values_example_using_aggregate_should_work(bool usingExpressions)
         {
+            RequireServer.Check().Supports(Feature.DensifyStage);
             var collection = CreateCoffeeCollection();
             var subject = collection.Aggregate();
 
@@ -162,6 +167,7 @@ namespace MongoDB.Driver.Tests.Jira
         [Fact]
         public void Densify_the_full_range_of_values_example_using_linq_should_work()
         {
+            RequireServer.Check().Supports(Feature.DensifyStage);
             var collection = CreateCoffeeCollection();
             var subject = collection.AsQueryable();
 
@@ -202,6 +208,7 @@ namespace MongoDB.Driver.Tests.Jira
         [InlineData(true)]
         public void Densify_values_within_each_partition_example_using_aggregate_should_work(bool usingExpressions)
         {
+            RequireServer.Check().Supports(Feature.DensifyStage);
             var collection = CreateCoffeeCollection();
             var subject = collection.Aggregate();
 
@@ -243,6 +250,7 @@ namespace MongoDB.Driver.Tests.Jira
         [Fact]
         public void Densify_values_within_each_partition_example_using_linq_should_work()
         {
+            RequireServer.Check().Supports(Feature.DensifyStage);
             var collection = CreateCoffeeCollection();
             var subject = collection.AsQueryable();
 

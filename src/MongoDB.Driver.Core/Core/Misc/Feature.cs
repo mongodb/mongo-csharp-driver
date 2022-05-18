@@ -57,6 +57,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __createIndexesCommand = new Feature("CreateIndexesCommand", WireVersion.Server26);
         private static readonly Feature __createIndexesUsingInsertOperations = new Feature("CreateIndexesUsingInsertOperations", WireVersion.Zero, WireVersion.Server42);
         private static readonly Feature __currentOpCommand = new Feature("CurrentOpCommand", WireVersion.Server32);
+        private static readonly Feature __densifyStage = new Feature("DensifyStage", WireVersion.Server51);
         private static readonly Feature __documentValidation = new Feature("DocumentValidation", WireVersion.Server32);
         private static readonly Feature __directConnectionSetting = new Feature("DirectConnectionSetting", WireVersion.Server44);
         private static readonly Feature __eval = new Feature("Eval", WireVersion.Zero, WireVersion.Server42);
@@ -305,6 +306,11 @@ namespace MongoDB.Driver.Core.Misc
         /// </summary>
         [Obsolete("This property will be removed in a later release.")]
         public static Feature CurrentOpCommand => __currentOpCommand;
+
+        /// <summary>
+        /// Gets the aggregate $densify stage feature.
+        /// </summary>
+        public static Feature DensifyStage => __densifyStage;
 
         /// <summary>
         /// Gets the document validation feature.
