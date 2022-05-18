@@ -30,6 +30,14 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void Constructor_should_fail_when_contentionFactor_and_algorithm_is_not_indexed()
+        {
+            var exception = Record.Exception(() => new EncryptOptions(algorithm: "test", contentionFactor: 1, keyId: Guid.NewGuid()));
+            var e = exception.Should().BeOfType<ArgumentException>().Subject;
+            e.Message.Should().Be("ContentionFactor only applies for Indexed algorithm.");
+        }
+
+        [Fact]
         public void Constructor_should_fail_when_keyId_and_alternateKeyName_are_both_empty()
         {
             var exception = Record.Exception(() => new EncryptOptions(algorithm: "test", alternateKeyName: null, keyId: null));
@@ -43,6 +51,14 @@ namespace MongoDB.Driver.Tests
             var exception = Record.Exception(() => new EncryptOptions(algorithm: "test", alternateKeyName: "alternateKeyName", keyId: Guid.NewGuid()));
             var e = exception.Should().BeOfType<ArgumentException>().Subject;
             e.Message.Should().Be("Key Id and AlternateKeyName may not both be set.");
+        }
+
+        [Fact]
+        public void Constructor_should_fail_when_queryType_and_algorithm_is_not_indexed()
+        {
+            var exception = Record.Exception(() => new EncryptOptions(algorithm: "test", queryType: QueryType.Equality, keyId: Guid.NewGuid()));
+            var e = exception.Should().BeOfType<ArgumentException>().Subject;
+            e.Message.Should().Be("QueryType only applies for Indexed algorithm.");
         }
 
         [Theory]
@@ -59,6 +75,10 @@ namespace MongoDB.Driver.Tests
         [InlineData("TEST_random", "TEST_random")]
         // just a random value in enum form
         [InlineData((EncryptionAlgorithm)99, "99")]
+        [InlineData(EncryptionAlgorithm.Indexed, "Indexed")]
+        [InlineData("Indexed", "Indexed")]
+        [InlineData(EncryptionAlgorithm.Unindexed, "Unindexed")]
+        [InlineData("Unindexed", "Unindexed")]
         public void Constructor_should_support_different_algorithm_representations(object algorithm, string expectedAlgorithmRepresentation)
         {
             var alternateKeyName = "test";
@@ -81,44 +101,60 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void With_should_set_correct_values()
         {
-            var originalAlgorithm = "originalAlgorithm";
+            var originalAlgorithm = EncryptionAlgorithm.Indexed.ToString();
             var newAlgorithm = "newAlgorithm";
             var originalKeyId = Guid.Empty;
             var newKeyId = Guid.NewGuid();
             var originalAlternateKeyName = "test";
             var newAlternateKeyName = "new";
+            long? originalContention = null;
+            var newContention = 2;
+            QueryType? originalQueryType = null;
+            var newQueryType = QueryType.Equality;
 
-            var subject = CreateConfiguredSubject(withKeyId: true);
-            AssertValues(subject, originalAlgorithm, originalKeyId, null);
+            var fle1WithKeyIdState = 0;
+            var subject = CreateConfiguredSubject(state: fle1WithKeyIdState);
+            AssertValues(subject, originalAlgorithm, expectedKeyId: originalKeyId);
 
             subject = subject.With(algorithm: newAlgorithm);
-            AssertValues(subject, newAlgorithm, originalKeyId, null);
+            AssertValues(subject, newAlgorithm, expectedKeyId: originalKeyId);
 
             subject = subject.With(keyId: newKeyId);
-            AssertValues(subject, newAlgorithm, newKeyId, null);
+            AssertValues(subject, newAlgorithm, expectedKeyId:  newKeyId);
 
-            subject = CreateConfiguredSubject(withKeyId: false);
-            AssertValues(subject, originalAlgorithm, null, originalAlternateKeyName);
+            var fle1WithAlternateKeyNameState = 1;
+            subject = CreateConfiguredSubject(state: fle1WithAlternateKeyNameState);
+            AssertValues(subject, originalAlgorithm, expectedAlternateKeyName: originalAlternateKeyName);
 
             subject = subject.With(alternateKeyName: newAlternateKeyName);
-            AssertValues(subject, originalAlgorithm, null, newAlternateKeyName);
+            AssertValues(subject, originalAlgorithm, expectedAlternateKeyName: newAlternateKeyName);
 
-            static void AssertValues(EncryptOptions subject, string algorithm, Guid? keyId, string alternateKeyName)
+            var fle2State = 2;
+            subject = CreateConfiguredSubject(state: fle2State);
+            subject = subject.With(contentionFactor: newContention);
+            AssertValues(subject, EncryptionAlgorithm.Indexed.ToString(), expectedKeyId: originalKeyId, expectedContentionFactor: newContention);
+
+            subject = CreateConfiguredSubject(state: fle2State);
+            subject = subject.With(queryType: newQueryType);
+            AssertValues(subject, EncryptionAlgorithm.Indexed.ToString(), expectedKeyId: originalKeyId, expectedQueryType: newQueryType);
+
+            static void AssertValues(EncryptOptions subject, string expectedAlgorithm, Guid? expectedKeyId = null, string expectedAlternateKeyName = null, QueryType? expectedQueryType = null, long? expectedContentionFactor = null)
             {
-                subject.Algorithm.Should().Be(algorithm);
-                subject.KeyId.Should().Be(keyId);
-                subject.AlternateKeyName.Should().Be(alternateKeyName);
+                subject.Algorithm.Should().Be(expectedAlgorithm);
+                subject.KeyId.Should().Be(expectedKeyId);
+                subject.AlternateKeyName.Should().Be(expectedAlternateKeyName);
+                subject.QueryType.Should().Be(expectedQueryType);
+                subject.ContentionFactor.Should().Be(expectedContentionFactor);
             }
 
-            EncryptOptions CreateConfiguredSubject(bool withKeyId)
+            EncryptOptions CreateConfiguredSubject(int state)
             {
-                if (withKeyId)
+                switch (state)
                 {
-                    return new EncryptOptions(algorithm: originalAlgorithm, keyId: originalKeyId);
-                }
-                else
-                {
-                    return new EncryptOptions(algorithm: originalAlgorithm, alternateKeyName: originalAlternateKeyName);
+                    case 0: return new EncryptOptions(algorithm: originalAlgorithm, keyId: originalKeyId);
+                    case 1:  return new EncryptOptions(algorithm: originalAlgorithm, alternateKeyName: originalAlternateKeyName);
+                    case 2: return new EncryptOptions(algorithm: originalAlgorithm, keyId: originalKeyId, contentionFactor: originalContention, queryType: originalQueryType);
+                    default: throw new Exception($"Unexpected state: {state}.");
                 }
             }
         }
