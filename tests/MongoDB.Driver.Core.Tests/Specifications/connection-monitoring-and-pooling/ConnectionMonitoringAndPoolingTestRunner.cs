@@ -43,6 +43,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
 {
+    [Trait("Category", "Pool")]
     public class ConnectionMonitoringAndPoolingTestRunner
     {
         #region static
@@ -265,22 +266,29 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
         {
             var actualEvents = GetFilteredEvents(eventCapturer, test, eventsFilter);
             var expectedEvents = GetExpectedEvents(test);
-            var minCount = Math.Min(actualEvents.Count, expectedEvents.Count);
-            for (var i = 0; i < minCount; i++)
+            try
             {
-                var expectedEvent = expectedEvents[i];
-                JsonDrivenHelper.EnsureAllFieldsAreValid(expectedEvent, "type", "address", "connectionId", "options", "reason");
-                AssertEvent(actualEvents[i], expectedEvent);
-            }
+                var minCount = Math.Min(actualEvents.Count, expectedEvents.Count);
+                for (var i = 0; i < minCount; i++)
+                {
+                    var expectedEvent = expectedEvents[i];
+                    JsonDrivenHelper.EnsureAllFieldsAreValid(expectedEvent, "type", "address", "connectionId", "options", "reason");
+                    AssertEvent(actualEvents[i], expectedEvent);
+                }
 
-            if (actualEvents.Count < expectedEvents.Count)
-            {
-                throw new Exception($"Missing event: {expectedEvents[actualEvents.Count]}.");
-            }
+                if (actualEvents.Count < expectedEvents.Count)
+                {
+                    throw new Exception($"Missing event: {expectedEvents[actualEvents.Count]}.");
+                }
 
-            if (actualEvents.Count > expectedEvents.Count)
+                if (actualEvents.Count > expectedEvents.Count)
+                {
+                    throw new Exception($"Unexpected event of type: {actualEvents[expectedEvents.Count].GetType().Name}.");
+                }
+            }
+            catch (Exception ex)
             {
-                throw new Exception($"Unexpected event of type: {actualEvents[expectedEvents.Count].GetType().Name}.");
+                throw new Exception($"Events asserting failed: {ex.Message}. Triggered events: {eventCapturer}.", ex);
             }
         }
 
@@ -440,7 +448,9 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
                     ExecuteCheckOut(connectionPool, operation, connectionMap, tasks, async, out exception);
                     break;
                 case "clear":
-                    connectionPool.Clear();
+                    JsonDrivenHelper.EnsureAllFieldsAreValid(operation, "name", "closeInUseConnections");
+                    var closeInUseConnections = operation.GetValue("closeInUseConnections", defaultValue: false).ToBoolean();
+                    connectionPool.Clear(closeInUseConnections: closeInUseConnections);
                     break;
                 case "close":
                     connectionPool.Dispose();
@@ -707,7 +717,7 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
                             return true;
                         };
 
-                        connectionPool.Clear();
+                        connectionPool.Clear(closeInUseConnections: false);
                         eventCapturer.WaitForOrThrowIfTimeout(events => events.Any(e => e is ConnectionPoolClearedEvent), TimeSpan.FromMilliseconds(500));
                     }
 
@@ -777,7 +787,7 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
             var index = Task.WaitAny(new[] { notifyTask }, timeout);
             if (index != 0)
             {
-                throw new Exception($"{nameof(WaitForEvent)} executing is too long.");
+                throw new Exception($"{nameof(WaitForEvent)} for {eventType}({expectedCount}) executing exceeded timeout: {timeout}. \n\nTriggered events:\n{eventCapturer}");
             }
         }
 

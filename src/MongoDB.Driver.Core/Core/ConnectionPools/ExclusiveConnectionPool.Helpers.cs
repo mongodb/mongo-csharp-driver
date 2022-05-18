@@ -161,66 +161,6 @@ namespace MongoDB.Driver.Core.ConnectionPools
             public override string ToString() => State.ToString();
         }
 
-        internal sealed class MaintenanceHelper : IDisposable
-        {
-            private CancellationTokenSource _cancellationTokenSource = null;
-            private readonly Action<CancellationToken> _maintenanceAction;
-            private Thread _maintenanceThread;
-            private readonly TimeSpan _interval;
-
-            public MaintenanceHelper(Action<CancellationToken> maintenanceAction, TimeSpan interval)
-            {
-                _interval = interval;
-                _maintenanceAction = Ensure.IsNotNull(maintenanceAction, nameof(maintenanceAction));
-            }
-
-            public bool IsRunning => _maintenanceThread != null;
-
-            public void Cancel()
-            {
-                if (_interval == Timeout.InfiniteTimeSpan)
-                {
-                    return;
-                }
-
-                CancelAndDispose();
-                _cancellationTokenSource = null;
-                _maintenanceThread = null;
-                // the previous _maintenanceThread might not be stopped yet, but it will be soon
-            }
-
-            public void Start()
-            {
-                if (_interval == Timeout.InfiniteTimeSpan)
-                {
-                    return;
-                }
-
-                CancelAndDispose();
-                _cancellationTokenSource = new CancellationTokenSource();
-                var cancellationToken = _cancellationTokenSource.Token;
-
-                _maintenanceThread = new Thread(new ParameterizedThreadStart(ThreadStart)) { IsBackground = true };
-                _maintenanceThread.Start(cancellationToken);
-
-                void ThreadStart(object cancellationToken)
-                {
-                    _maintenanceAction((CancellationToken)cancellationToken);
-                }
-            }
-
-            public void Dispose()
-            {
-                CancelAndDispose();
-            }
-
-            private void CancelAndDispose()
-            {
-                _cancellationTokenSource?.Cancel();
-                _cancellationTokenSource?.Dispose();
-            }
-        }
-
         private sealed class AcquireConnectionHelper : IDisposable
         {
             // private fields
@@ -406,7 +346,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
         }
 
-        private sealed class PooledConnection : IConnection, ICheckOutReasonTracker
+        internal sealed class PooledConnection : IConnection, ICheckOutReasonTracker
         {
             private CheckOutReason? _checkOutReason;
             private readonly IConnection _connection;
@@ -712,11 +652,13 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
         }
 
-        private sealed class ListConnectionHolder
+        internal sealed class ListConnectionHolder
         {
             private readonly SemaphoreSlimSignalable _semaphoreSlimSignalable;
             private readonly object _lock = new object();
+            private readonly object _lockInUse = new object();
             private readonly List<PooledConnection> _connections;
+            private readonly List<PooledConnection> _connectionsInUse;
 
             private readonly Action<ConnectionPoolRemovingConnectionEvent> _removingConnectionEventHandler;
             private readonly Action<ConnectionPoolRemovedConnectionEvent> _removedConnectionEventHandler;
@@ -725,6 +667,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             {
                 _semaphoreSlimSignalable = semaphoreSlimSignalable;
                 _connections = new List<PooledConnection>();
+                _connectionsInUse = new List<PooledConnection>();
 
                 eventSubscriber.TryGetEventHandler(out _removingConnectionEventHandler);
                 eventSubscriber.TryGetEventHandler(out _removedConnectionEventHandler);
@@ -745,6 +688,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             {
                 lock (_lock)
                 {
+                    // In use Connections MUST be closed when they are checked in to the closed pool.
                     foreach (var connection in _connections)
                     {
                         RemoveConnection(connection);
@@ -755,30 +699,44 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
             }
 
-            public void Prune(CancellationToken cancellationToken)
+            public void Prune(int? maxExpiredGenerationInUse, CancellationToken cancellationToken)
             {
-                PooledConnection[] expiredConnections;
-                lock (_lock)
+                RemoveExpiredConnections(_connections, generation: null, _lock, signal: true);
+
+                if (maxExpiredGenerationInUse.HasValue)
                 {
-                    expiredConnections = _connections.Where(c => c.IsExpired).ToArray();
+                    RemoveExpiredConnections(_connectionsInUse, generation: maxExpiredGenerationInUse.Value, _lockInUse, signal: false);
                 }
 
-                foreach (var connection in expiredConnections)
+                void RemoveExpiredConnections(List<PooledConnection> connections, int? generation, object @lock, bool signal)
                 {
-                    cancellationToken.ThrowIfCancellationRequested();
-
-                    lock (_lock)
+                    PooledConnection[] expiredConnections;
+                    lock (@lock)
                     {
-                        // At this point connection is always expired and might be disposed
-                        // If connection is already disposed the removal logic was already executed
-                        if (connection.IsDisposed)
-                        {
-                            continue;
-                        }
+                        expiredConnections = connections.Where(c => c.IsExpired && (generation == null || c.Generation <= generation)).ToArray();
+                    }
 
-                        RemoveConnection(connection);
-                        _connections.Remove(connection);
-                        SignalOrReset();
+                    foreach (var connection in expiredConnections)
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+
+                        lock (@lock)
+                        {
+                            // At this point connection is always expired and might be disposed
+                            // If connection is already disposed the removal logic was already executed
+                            if (connection.IsDisposed)
+                            {
+                                continue;
+                            }
+
+                            RemoveConnection(connection);
+                            connections.Remove(connection);
+
+                            if (signal)
+                            {
+                                SignalOrReset();
+                            }
+                        }
                     }
                 }
             }
@@ -806,11 +764,26 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
                     SignalOrReset();
                 }
+
+                if (result != null)
+                {
+                    TrackInUseConnection(result);
+
+                    // This connection can be expired and not disposed by Prune. Dispose if needed
+                    if (result.IsExpired)
+                    {
+                        RemoveConnection(result);
+                        result = null;
+                    }
+                }
+
                 return result;
             }
 
             public void Return(PooledConnection connection)
             {
+                UntrackInUseConnection(connection);
+
                 lock (_lock)
                 {
                     _connections.Add(connection);
@@ -826,6 +799,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
 
                 var stopwatch = Stopwatch.StartNew();
+                UntrackInUseConnection(connection); // no op if connection is not in use
                 connection.Dispose();
                 stopwatch.Stop();
 
@@ -849,9 +823,25 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     _semaphoreSlimSignalable.Signal();
                 }
             }
+
+            public void TrackInUseConnection(PooledConnection connection)
+            {
+                lock (_lockInUse)
+                {
+                    _connectionsInUse.Add(connection);
+                }
+            }
+
+            public void UntrackInUseConnection(PooledConnection connection)
+            {
+                lock (_lockInUse)
+                {
+                    _connectionsInUse.Remove(connection);
+                }
+            }
         }
 
-        private sealed class ConnectionCreator : IDisposable
+        internal sealed class ConnectionCreator : IDisposable
         {
             private readonly ExclusiveConnectionPool _pool;
             private readonly TimeSpan _connectingTimeout;
@@ -888,8 +878,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                         _pool.CreateTimeoutException(stopwatch, $"Timed out waiting for in connecting queue after {stopwatch.ElapsedMilliseconds}ms.");
                     }
 
-                    var connection = CreateOpenedInternal(cancellationToken);
-                    return connection;
+                    return CreateOpenedInternal(cancellationToken);
                 }
                 catch (Exception ex)
                 {
@@ -992,9 +981,10 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     _pool._maxConnectingQueue.Release();
                 }
 
-                if (_disposeConnection)
+                if (_disposeConnection && _connection != null)
                 {
-                    _connection?.Dispose();
+                    _pool.ConnectionHolder.UntrackInUseConnection(_connection);
+                    _connection.Dispose();
                 }
             }
 
@@ -1029,7 +1019,10 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 cancellationToken.ThrowIfCancellationRequested();
 
                 _stopwatch = Stopwatch.StartNew();
-                _connection = _pool.CreateNewConnection();
+
+                var connection = _pool.CreateNewConnection();
+                _pool.ConnectionHolder.TrackInUseConnection(connection);
+                _connection = connection;
             }
 
             private void FinishCreating(ConnectionDescription description)

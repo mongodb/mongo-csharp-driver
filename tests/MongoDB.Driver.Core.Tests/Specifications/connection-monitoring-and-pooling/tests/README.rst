@@ -100,6 +100,9 @@ Valid Unit Test Operations are the following:
   - ``connection``: A string label identifying which connection to check in. Should be a label that was previously set with ``checkOut``
 
 - ``pool.clear()``: call ``clear`` on Pool
+
+  - ``closeInUseConnections``: Determines whether "in use" connections should be also closed
+  
 - ``pool.close()``: call ``close`` on Pool
 - ``pool.ready()``: call ``ready`` on Pool
 
