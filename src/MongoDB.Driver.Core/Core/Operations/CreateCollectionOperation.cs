@@ -69,6 +69,7 @@ namespace MongoDB.Driver.Core.Operations
         // fields
         private bool? _autoIndexId;
         private bool? _capped;
+        private BsonDocument _clusteredIndex;
         private Collation _collation;
         private readonly CollectionNamespace _collectionNamespace;
         private BsonValue _comment;
@@ -324,6 +325,18 @@ namespace MongoDB.Driver.Core.Operations
             set { _writeConcern = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the clustered index definition.
+        /// </summary>
+        /// <value>
+        /// The clustered index definition.
+        /// </value>
+        public BsonDocument ClusteredIndex
+        {
+            get => _clusteredIndex;
+            set => _clusteredIndex = value;
+        }
+
         // methods
         internal BsonDocument CreateCommand(ICoreSessionHandle session)
         {
@@ -332,6 +345,7 @@ namespace MongoDB.Driver.Core.Operations
             return new BsonDocument
             {
                 { "create", _collectionNamespace.CollectionName },
+                { "clusteredIndex", _clusteredIndex, _clusteredIndex != null },
                 { "capped", () => _capped.Value, _capped.HasValue },
                 { "autoIndexId", () => _autoIndexId.Value, _autoIndexId.HasValue },
                 { "size", () => _maxSize.Value, _maxSize.HasValue },

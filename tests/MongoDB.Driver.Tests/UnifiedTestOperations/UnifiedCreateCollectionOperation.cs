@@ -170,11 +170,21 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             IClientSessionHandle session = null;
             TimeSpan? expireAfter = null;
             TimeSeriesOptions timeSeriesOptions = null;
+            ClusteredIndexOptions<BsonDocument> clusteredIndex = null;
 
             foreach (var argument in arguments)
             {
                 switch (argument.Name)
                 {
+                    case "clusteredIndex":
+                        var clusteredIndexSpecification = argument.Value.AsBsonDocument;
+                        clusteredIndex = new ClusteredIndexOptions<BsonDocument>
+                        {
+                            Key = clusteredIndexSpecification["key"].AsBsonDocument,
+                            Unique = clusteredIndexSpecification["unique"].AsBoolean,
+                            Name = clusteredIndexSpecification["name"].AsString
+                        };
+                        break;
                     case "collection":
                         name = argument.Value.AsString;
                         break;
@@ -213,10 +223,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
             if (viewOn == null && pipeline == null)
             {
-                var options = new CreateCollectionOptions { ExpireAfter = expireAfter, TimeSeriesOptions = timeSeriesOptions };
+                var options = new CreateCollectionOptions<BsonDocument> { ExpireAfter = expireAfter, TimeSeriesOptions = timeSeriesOptions, ClusteredIndex = clusteredIndex };
                 return new UnifiedCreateCollectionOperation(session, database, name, options);
             }
-            if (viewOn != null && expireAfter == null && timeSeriesOptions == null)
+            if (viewOn != null && expireAfter == null && timeSeriesOptions == null && clusteredIndex == null)
             {
                 var options = new CreateViewOptions<BsonDocument>();
                 return new UnifiedCreateViewOperation(session, database, name, viewOn, pipeline, options);

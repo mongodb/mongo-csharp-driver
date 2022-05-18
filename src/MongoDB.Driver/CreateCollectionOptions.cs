@@ -237,10 +237,20 @@ namespace MongoDB.Driver
         #endregion
 
         // private fields
+        private ClusteredIndexOptions<TDocument> _clusteredIndex;
         private IBsonSerializer<TDocument> _documentSerializer;
         private FilterDefinition<TDocument> _validator;
 
         // public properties
+        /// <summary>
+        /// Gets or sets the <see cref="ClusteredIndexOptions{TDocument}"/>.
+        /// </summary>
+        public ClusteredIndexOptions<TDocument> ClusteredIndex
+        {
+            get { return _clusteredIndex; }
+            set { _clusteredIndex = value; }
+        }
+
         /// <summary>
         /// Gets or sets the document serializer.
         /// </summary>
