@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Tests.Jira
     public class CSharp3915Tests : Linq3IntegrationTest
     {
         // this example is from: https://www.mongodb.com/docs/v5.2/reference/operator/aggregation/densify
-        [Theory]
+        [SkippableTheory]
         [InlineData(false)]
         [InlineData(true)]
         public void Densify_time_series_data_example_using_aggregate_should_work(bool usingExpressions)
@@ -76,7 +76,7 @@ namespace MongoDB.Driver.Tests.Jira
         }
 
         // this example is from: https://www.mongodb.com/docs/v5.2/reference/operator/aggregation/densify
-        [Fact]
+        [SkippableFact]
         public void Densify_time_series_data_example_using_linq_should_work()
         {
             RequireServer.Check().Supports(Feature.DensifyStage);
@@ -112,7 +112,7 @@ namespace MongoDB.Driver.Tests.Jira
         }
 
         // this example is from: https://www.mongodb.com/docs/v5.2/reference/operator/aggregation/densify
-        [Theory]
+        [SkippableTheory]
         [InlineData(false)]
         [InlineData(true)]
         public void Densify_the_full_range_of_values_example_using_aggregate_should_work(bool usingExpressions)
@@ -164,7 +164,7 @@ namespace MongoDB.Driver.Tests.Jira
         }
 
         // this example is from: https://www.mongodb.com/docs/v5.2/reference/operator/aggregation/densify
-        [Fact]
+        [SkippableFact]
         public void Densify_the_full_range_of_values_example_using_linq_should_work()
         {
             RequireServer.Check().Supports(Feature.DensifyStage);
@@ -203,7 +203,7 @@ namespace MongoDB.Driver.Tests.Jira
         }
 
         // this example is from: https://www.mongodb.com/docs/v5.2/reference/operator/aggregation/densify
-        [Theory]
+        [SkippableTheory]
         [InlineData(false)]
         [InlineData(true)]
         public void Densify_values_within_each_partition_example_using_aggregate_should_work(bool usingExpressions)
@@ -247,7 +247,7 @@ namespace MongoDB.Driver.Tests.Jira
         }
 
         // this example is from: https://www.mongodb.com/docs/v5.2/reference/operator/aggregation/densify
-        [Fact]
+        [SkippableFact]
         public void Densify_values_within_each_partition_example_using_linq_should_work()
         {
             RequireServer.Check().Supports(Feature.DensifyStage);
