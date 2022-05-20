@@ -660,7 +660,7 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
                 var async = test.GetValue(Schema.async).ToBoolean();
                 cluster = CoreTestConfiguration.CreateCluster(b => b
                     .ConfigureServer(s => s.With(
-                        heartbeatInterval: TimeSpan.FromMinutes(10)))
+                        heartbeatInterval: TimeSpan.FromMinutes(10)), () => new NoopServerMonitorFactory())
                     .ConfigureConnectionPool(c => c.With(
                         maxConnecting: connectionPoolSettings.MaxConnecting,
                         maxConnections: connectionPoolSettings.MaxConnections,
@@ -806,6 +806,28 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
         }
 
         // nested types
+        private class NoopServerMonitorFactory : IServerMonitorFactory
+        {
+            public IServerMonitor Create(ServerId serverId, EndPoint endPoint)
+            {
+                // Emulate heartbeat to avoid unintentional catching failpoint exceptions by sdam monitor
+                var healthyServerDescription = new ServerDescription(
+                    serverId,
+                    endPoint,
+                    state: ServerState.Connected,
+                    type: ServerType.ReplicaSetPrimary, // has no effect on pool logic
+                    reasonChanged: "poolTests",
+                    replicaSetConfig: new ReplicaSetConfig(new[] { endPoint }, "rs_pool_test", endPoint, version: null));
+
+                var serverMonitorMock = new Mock<IServerMonitor>() { DefaultValue = DefaultValue.Mock };
+                serverMonitorMock.Setup(c => c.Initialize()).Callback(() =>
+                {
+                    serverMonitorMock.Raise(e => e.DescriptionChanged += null, new ServerDescriptionChangedEventArgs(healthyServerDescription, healthyServerDescription));
+                });
+                return serverMonitorMock.Object;
+            }
+        }
+
         private class TestCaseFactory : JsonDrivenTestCaseFactory
         {
             protected override string PathPrefix => "MongoDB.Driver.Core.Tests.Specifications.connection_monitoring_and_pooling.tests.";

@@ -42,6 +42,7 @@ namespace MongoDB.Driver.Core.Configuration
         private ConnectionPoolSettings _connectionPoolSettings;
         private ConnectionSettings _connectionSettings;
         private SdamLoggingSettings _sdamLoggingSettings;
+        private Func<IServerMonitorFactory> _serverMonitorFactoryFunc;
         private ServerSettings _serverSettings;
         private SslStreamSettings _sslStreamSettings;
         private Func<IStreamFactory, IStreamFactory> _streamFactoryWrapper;
@@ -56,6 +57,7 @@ namespace MongoDB.Driver.Core.Configuration
             _clusterSettings = new ClusterSettings();
             _sdamLoggingSettings = new SdamLoggingSettings(null);
             _serverSettings = new ServerSettings();
+            _serverMonitorFactoryFunc = () => CreateServerMonitorFactory();
             _connectionPoolSettings = new ConnectionPoolSettings();
             _connectionSettings = new ConnectionSettings();
             _tcpStreamSettings = new TcpStreamSettings();
@@ -142,7 +144,13 @@ namespace MongoDB.Driver.Core.Configuration
         /// <returns>A reconfigured cluster builder.</returns>
         public ClusterBuilder ConfigureServer(Func<ServerSettings, ServerSettings> configurator)
         {
+            return ConfigureServer(configurator, _serverMonitorFactoryFunc);
+        }
+
+        internal ClusterBuilder ConfigureServer(Func<ServerSettings, ServerSettings> configurator, Func<IServerMonitorFactory> serverMonitorFactoryFunc)
+        {
             _serverSettings = configurator(_serverSettings);
+            _serverMonitorFactoryFunc = serverMonitorFactoryFunc;
             return this;
         }
 
@@ -242,7 +250,7 @@ namespace MongoDB.Driver.Core.Configuration
         private ServerFactory CreateServerFactory()
         {
             var connectionPoolFactory = CreateConnectionPoolFactory();
-            var serverMonitorFactory = CreateServerMonitorFactory();
+            var serverMonitorFactory = _serverMonitorFactoryFunc();
 
 #pragma warning disable CS0618 // Type or member is obsolete
             var connectionModeSwitch = _clusterSettings.ConnectionModeSwitch;
