@@ -50,6 +50,7 @@ namespace MongoDB.Driver
             RegisterMember("RenameTo", "to", ChangeStreamDocumentCollectionNamespaceSerializer.Instance);
             RegisterMember("ResumeToken", "_id", BsonDocumentSerializer.Instance);
             RegisterMember("UpdateDescription", "updateDescription", ChangeStreamUpdateDescriptionSerializer.Instance);
+            RegisterMember("WallTime", "wallTime", DateTimeSerializer.UtcInstance);
         }
 
         // public methods

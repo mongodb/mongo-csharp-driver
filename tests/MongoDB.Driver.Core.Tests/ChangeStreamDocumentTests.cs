@@ -403,6 +403,29 @@ namespace MongoDB.Driver
             result.Should().BeNull();
         }
 
+        [Fact]
+        public void WallTime_should_return_expected_result()
+        {
+            var value = new DateTime(2022, 5, 25, 12, 35, 42, 144, DateTimeKind.Utc);
+            var backingDocument = new BsonDocument { { "other", 1 }, { "wallTime", value } };
+            var subject = CreateSubject(backingDocument: backingDocument);
+
+            var result = subject.WallTime;
+
+            result.Should().Be(value);
+        }
+
+        [Fact]
+        public void WallTime_should_return_null_when_not_present()
+        {
+            var backingDocument = new BsonDocument { { "other", 1 } };
+            var subject = CreateSubject(backingDocument: backingDocument);
+
+            var result = subject.WallTime;
+
+            result.Should().NotHaveValue();
+        }
+
         // private methods
         private ChangeStreamDocument<BsonDocument> CreateSubject(
             BsonDocument backingDocument = null,
