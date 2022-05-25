@@ -144,7 +144,7 @@ namespace MongoDB.Driver.Encryption
                 var wrappedValueBytes = GetWrappedValueBytes(value);
 
                 var context = _cryptClient.StartExplicitEncryptionContext(
-                    keyId: GuidConverter.ToBytes(encryptOptions.KeyId.Value, GuidRepresentation.Standard),
+                    keyId: encryptOptions.KeyId.HasValue ? GuidConverter.ToBytes(encryptOptions.KeyId.Value, GuidRepresentation.Standard) : null,
                     keyAltName: GetWrappedAlternateKeyNameBytes(encryptOptions.AlternateKeyName),
                     queryType: (int?)encryptOptions.QueryType,
                     contentionFactor: encryptOptions.ContentionFactor,
@@ -175,7 +175,7 @@ namespace MongoDB.Driver.Encryption
                 var wrappedValueBytes = GetWrappedValueBytes(value);
 
                 var context = _cryptClient.StartExplicitEncryptionContext(
-                    keyId: GuidConverter.ToBytes(encryptOptions.KeyId.Value, GuidRepresentation.Standard),
+                    keyId: encryptOptions.KeyId.HasValue ? GuidConverter.ToBytes(encryptOptions.KeyId.Value, GuidRepresentation.Standard) : null,
                     keyAltName: GetWrappedAlternateKeyNameBytes(encryptOptions.AlternateKeyName),
                     queryType: (int?)encryptOptions.QueryType,
                     contentionFactor: encryptOptions.ContentionFactor,
