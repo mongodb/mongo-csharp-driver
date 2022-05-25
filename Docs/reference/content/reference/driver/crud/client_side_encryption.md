@@ -36,7 +36,7 @@ Auto encryption is an **enterprise** only feature.
 ## mongocryptd configuration
 
 Client-side field level automatic encryption requires the `mongocryptd` daemon / process
-to be running. If `mongocryptd` isn't running, the driver will atempt to spawn
+to be running. If `mongocryptd` isn't running, the driver will attempt to spawn
 an instance, utilizing the `PATH` environment variable. Alternatively, the path
 to `mongocryptd` can be specified by setting `mongocryptdSpawnPath` in
 `extraOptions`. A specific daemon / process URI can also be configured in the
