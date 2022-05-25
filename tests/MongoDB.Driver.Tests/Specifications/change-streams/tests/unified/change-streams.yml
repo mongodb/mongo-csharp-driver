@@ -4,7 +4,9 @@ schemaVersion: "1.7"
 
 runOnRequirements:
   - minServerVersion: "3.6"
-    topologies: [ replicaset, sharded-replicaset ]
+    # TODO(DRIVERS-2323): Run all possible tests against sharded clusters once we know the
+    # cause of unexpected command monitoring events.
+    topologies: [ replicaset ]
     serverless: forbid
 
 createEntities:
@@ -179,10 +181,6 @@ tests:
   - description: "Test that comment is set on getMore"
     runOnRequirements:
       - minServerVersion: "4.4.0"
-        # Topologies are limited because of potentially empty getMore responses
-        # on sharded clusters.
-        # See https://jira.mongodb.org/browse/DRIVERS-2248 for more details.
-        topologies: [ replicaset ]
     operations:
       - name: createChangeStream
         object: *collection0
@@ -224,10 +222,6 @@ tests:
   - description: "Test that comment is not set on getMore - pre 4.4"
     runOnRequirements:
       - maxServerVersion: "4.3.99"
-        # Topologies are limited because of potentially empty getMore responses
-        # on sharded clusters.
-        # See https://jira.mongodb.org/browse/DRIVERS-2248 for more details.
-        topologies: [ replicaset ]
     operations:
       - name: createChangeStream
         object: *collection0
@@ -334,6 +328,10 @@ tests:
           newField: "newFieldValue"
 
   - description: "Test new structure in ns document MUST NOT err"
+    runOnRequirements:
+      - minServerVersion: "3.6"
+        maxServerVersion: "5.2.99"
+      - minServerVersion: "6.0"
     operations:
       - name: createChangeStream
         object: *collection0
@@ -417,7 +415,6 @@ tests:
   - description: $changeStream must be the first stage in a change stream pipeline sent to the server
     runOnRequirements:
       - minServerVersion: "3.6.0"
-        topologies: [ replicaset ]
     operations:
       - name: createChangeStream
         object: *collection0
@@ -454,7 +451,6 @@ tests:
   - description: The server returns change stream responses in the specified server response format
     runOnRequirements:
       - minServerVersion: "3.6.0"
-        topologies: [ replicaset ]
     operations:
       - name: createChangeStream
         object: *collection0
@@ -480,7 +476,6 @@ tests:
   - description: Executing a watch helper on a Collection results in notifications for changes to the specified collection
     runOnRequirements:
       - minServerVersion: "3.6.0"
-        topologies: [ replicaset ]
     operations:
       - name: createChangeStream
         object: *collection0
@@ -523,7 +518,6 @@ tests:
   - description: Change Stream should allow valid aggregate pipeline stages
     runOnRequirements:
       - minServerVersion: "3.6.0"
-        topologies: [ replicaset ]
     operations:
       - name: createChangeStream
         object: *collection0
@@ -568,7 +562,6 @@ tests:
   - description: Executing a watch helper on a Database results in notifications for changes to all collections in the specified database.
     runOnRequirements:
       - minServerVersion: "3.8.0"
-        topologies: [ replicaset ]
     operations:
       - name: createChangeStream
         object: *database0
@@ -621,7 +614,6 @@ tests:
   - description: Executing a watch helper on a MongoClient results in notifications for changes to all collections in all databases in the cluster.
     runOnRequirements:
       - minServerVersion: "3.8.0"
-        topologies: [ replicaset ]
     operations:
       - name: createChangeStream
         object: *client0
@@ -685,7 +677,6 @@ tests:
   - description: "Test insert, update, replace, and delete event types"
     runOnRequirements:
       - minServerVersion: "3.6.0"
-        topologies: [ replicaset ]
     operations:
       - name: createChangeStream
         object: *collection0
@@ -763,7 +754,6 @@ tests:
   - description: Test rename and invalidate event types
     runOnRequirements:
       - minServerVersion: "4.0.1"
-        topologies: [ replicaset ]
     operations:
       - name: createChangeStream
         object: *collection0
@@ -806,7 +796,6 @@ tests:
   - description: Test drop and invalidate event types
     runOnRequirements:
       - minServerVersion: "4.0.1"
-        topologies: [ replicaset ]
     operations:
       - name: createChangeStream
         object: *collection0
@@ -840,11 +829,10 @@ tests:
               databaseName: *database0
 
   # Test that resume logic works correctly even after consecutive retryable failures of a getMore command,
-  # with no intervening events.  This is ensured by setting the batch size of the change stream to 1,
+  # with no intervening events. This is ensured by setting the batch size of the change stream to 1,
   - description: Test consecutive resume
     runOnRequirements:
       - minServerVersion: "4.1.7"
-        topologies: [ replicaset ]
     operations:
       - name: failPoint
         object: testRunner
