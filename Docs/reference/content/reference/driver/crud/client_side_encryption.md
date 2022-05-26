@@ -30,7 +30,7 @@ Client-side field level encryption in the .NET/C# driver is currently only suppo
 The following examples show how to configure automatic encryption for read and write operations.
 
 {{% note %}}
-Auto encryption is an **enterprise** only feature.
+Auto encryption is an **enterprise** or Atlas only feature.
 {{% /note %}}
 
 ## mongocryptd configuration
