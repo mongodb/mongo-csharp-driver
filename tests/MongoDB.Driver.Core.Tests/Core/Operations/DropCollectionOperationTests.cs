@@ -141,30 +141,31 @@ namespace MongoDB.Driver.Core.Operations
             
             var operations = ((CompositeWriteOperation<BsonDocument>)subject)._operations<BsonDocument>();
 
-            // main
-            AssertDropCollectionCommand(
-                operations[0],
-                _collectionNamespace,
-                encryptedFields,
-                isMainOperation: true);
             // esc
             AssertDropCollectionCommand(
-                operations[1],
+                operations[0],
                 new CollectionNamespace(_collectionNamespace.DatabaseNamespace.DatabaseName, GetExpectedCollectionName(escCollectionStrElement)),
                 encryptedFields: null,
                 isMainOperation: false);
             // ecc
             AssertDropCollectionCommand(
-                operations[2],
+                operations[1],
                 new CollectionNamespace(_collectionNamespace.DatabaseNamespace.DatabaseName, GetExpectedCollectionName(eccCollectionStrElement)),
                 encryptedFields: null,
                 isMainOperation: false);
             // eco
             AssertDropCollectionCommand(
-                operations[3],
+                operations[2],
                 new CollectionNamespace(_collectionNamespace.DatabaseNamespace.DatabaseName, GetExpectedCollectionName(ecocCollectionStrElement)),
                 encryptedFields: null,
                 isMainOperation: false);
+
+            // main
+            AssertDropCollectionCommand(
+                operations[3],
+                _collectionNamespace,
+                encryptedFields,
+                isMainOperation: true);
 
             void AssertDropCollectionCommand((IWriteOperation<BsonDocument> Operation, bool IsMainOperation) operationInfo, CollectionNamespace collectionNamespace, BsonDocument encryptedFields, bool isMainOperation)
             {

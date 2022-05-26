@@ -510,16 +510,18 @@ namespace MongoDB.Driver.Core.Operations
                 operations[3],
                 _collectionNamespace,
                 encryptedFields,
-                isMainOperation: true);
+                isMainOperation: true,
+                withClusteredIndex: false);
             // __safeContent__
             AssertIndex(operations[4], _collectionNamespace, index: new BsonDocument("__safeContent__", 1));
 
-            void AssertCreateCollectionCommand((IWriteOperation<BsonDocument> Operation, bool IsMainOperation) operationInfo, CollectionNamespace collectionNamespace, BsonDocument encryptedFields, bool isMainOperation)
+            void AssertCreateCollectionCommand((IWriteOperation<BsonDocument> Operation, bool IsMainOperation) operationInfo, CollectionNamespace collectionNamespace, BsonDocument encryptedFields, bool isMainOperation, bool withClusteredIndex = true)
             {
                 var expectedResult = new BsonDocument
                 {
                     { "create", collectionNamespace.CollectionName },
-                    { "encryptedFields", encryptedFields, encryptedFields != null }
+                    { "encryptedFields", encryptedFields, encryptedFields != null },
+                    { "clusteredIndex", new BsonDocument { { "key" , new BsonDocument("_id", 1 ) }, { "unique", true } }, withClusteredIndex }
                 };
                 AssertCommand(operationInfo, isMainOperation, expectedResult);
             }

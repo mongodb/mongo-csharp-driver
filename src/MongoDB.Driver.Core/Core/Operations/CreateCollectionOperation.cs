@@ -62,7 +62,7 @@ namespace MongoDB.Driver.Core.Operations
             }
 
             CreateCollectionOperation CreateInnerCollectionOperation(string collectionName)
-                => new CreateCollectionOperation(new CollectionNamespace(collectionNamespace.DatabaseNamespace.DatabaseName, collectionName), messageEncoderSettings);
+                => new CreateCollectionOperation(new CollectionNamespace(collectionNamespace.DatabaseNamespace.DatabaseName, collectionName), messageEncoderSettings) { ClusteredIndex = new BsonDocument { { "key", new BsonDocument("_id", 1) }, { "unique", true } } };
         }
         #endregion
 
