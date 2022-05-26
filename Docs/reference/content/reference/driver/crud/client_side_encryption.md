@@ -25,10 +25,18 @@ data.
 Client-side field level encryption in the .NET/C# driver is currently only supported on x64-compatible CPUs.
 {{% /note %}}
 
+### Automatic client-side encryption
+
+The following examples show how to configure automatic encryption for read and write operations.
+
+{{% note %}}
+Auto encryption is an **enterprise** or Atlas only feature.
+{{% /note %}}
+
 ## mongocryptd configuration
 
-Client-side field level encryption requires the `mongocryptd` daemon / process
-to be running. If `mongocryptd` isn't running, the driver will atempt to spawn
+Client-side field level automatic encryption requires the `mongocryptd` daemon / process
+to be running. If `mongocryptd` isn't running, the driver will attempt to spawn
 an instance, utilizing the `PATH` environment variable. Alternatively, the path
 to `mongocryptd` can be specified by setting `mongocryptdSpawnPath` in
 `extraOptions`. A specific daemon / process URI can also be configured in the
@@ -39,8 +47,6 @@ documentation.
 
 
 ## Examples
-
-### Automatic client-side encryption
 
 The following is a sample app that assumes the **key** and **schema** have
 already been created in MongoDB. The example uses a local key, however using AWS
@@ -92,10 +98,6 @@ namespace MongoDB.Driver.Examples
     }
 }
 ```
-
-{{% note %}}
-Auto encryption is an **enterprise** only feature.
-{{% /note %}}
 
 The following example shows how to configure the `AutoEncryptionSettings`
 instance to create a new key and how to set the json schema map. The following
