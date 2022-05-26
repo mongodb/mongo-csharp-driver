@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 
 namespace MongoDB.Driver.Linq
 {
@@ -22,6 +23,50 @@ namespace MongoDB.Driver.Linq
     /// </summary>
     public static class StringExtensions
     {
+        /// <summary>
+        /// Returns true if any value in s is present in values (corresponds to the $in filter operator).
+        /// </summary>
+        /// <param name="s">The values to test.</param>
+        /// <param name="values">The values to test against.</param>
+        /// <returns>True if any value in s is present in values.</returns>
+        public static bool AnyStringIn(this IEnumerable<string> s, IEnumerable<StringOrRegularExpression> values)
+        {
+            throw new InvalidOperationException("This String.AnyStringIn method is only intended to be used in LINQ queries.");
+        }
+
+        /// <summary>
+        /// Returns true if any value in s is present in values (corresponds to the $in filter operator).
+        /// </summary>
+        /// <param name="s">The values to test.</param>
+        /// <param name="values">The values to test against.</param>
+        /// <returns>True if any value in s is present in values.</returns>
+        public static bool AnyStringIn(this IEnumerable<string> s, params StringOrRegularExpression[] values)
+        {
+            throw new InvalidOperationException("This String.AnyStringIn method is only intended to be used in LINQ queries.");
+        }
+
+        /// <summary>
+        /// Returns true if any value in s is not present in values (corresponds to the $nin filter operator).
+        /// </summary>
+        /// <param name="s">The values to test.</param>
+        /// <param name="values">The values to test against.</param>
+        /// <returns>True if any value in s is not present in values.</returns>
+        public static bool AnyStringNin(this IEnumerable<string> s, IEnumerable<StringOrRegularExpression> values)
+        {
+            throw new InvalidOperationException("This String.AnyStringNin method is only intended to be used in LINQ queries.");
+        }
+
+        /// <summary>
+        /// Returns true if any value in s is not present in values (corresponds to the $nin filter operator).
+        /// </summary>
+        /// <param name="s">The values to test.</param>
+        /// <param name="values">The values to test against.</param>
+        /// <returns>True if any value in s is not present in values.</returns>
+        public static bool AnyStringNin(this IEnumerable<string> s, params StringOrRegularExpression[] values)
+        {
+            throw new InvalidOperationException("This String.AnyStringNin method is only intended to be used in LINQ queries.");
+        }
+
         /// <summary>
         /// Searches a string for an occurrence of a substring and returns the UTF-8 byte index (zero-based) of the first occurrence.
         /// </summary>
@@ -56,6 +101,50 @@ namespace MongoDB.Driver.Linq
         public static int IndexOfBytes(this string s, string value, int startIndex, int count)
         {
             throw new InvalidOperationException("This String.IndexOfBytes method is only intended to be used in LINQ queries.");
+        }
+
+        /// <summary>
+        /// Returns true if s is present in values (corresponds to the $in filter operator).
+        /// </summary>
+        /// <param name="s">The value to test.</param>
+        /// <param name="values">The values to test against.</param>
+        /// <returns>True if s is present in values.</returns>
+        public static bool StringIn(this string s, IEnumerable<StringOrRegularExpression> values)
+        {
+            throw new InvalidOperationException("This String.StringIn method is only intended to be used in LINQ queries.");
+        }
+
+        /// <summary>
+        /// Returns true if s is present in values (corresponds to the $in filter operator).
+        /// </summary>
+        /// <param name="s">The value to test.</param>
+        /// <param name="values">The values to test against.</param>
+        /// <returns>True if s is present in values.</returns>
+        public static bool StringIn(this string s, params StringOrRegularExpression[] values)
+        {
+            throw new InvalidOperationException("This String.StringIn method is only intended to be used in LINQ queries.");
+        }
+
+        /// <summary>
+        /// Returns true if s is not present in values (corresponds to the $nin filter operator).
+        /// </summary>
+        /// <param name="s">The value to test.</param>
+        /// <param name="values">The values to test against.</param>
+        /// <returns>True if s is not present in values.</returns>
+        public static bool StringNin(this string s, IEnumerable<StringOrRegularExpression> values)
+        {
+            throw new InvalidOperationException("This String.StringNin method is only intended to be used in LINQ queries.");
+        }
+
+        /// <summary>
+        /// Returns true if s is not present in values (corresponds to the $nin filter operator).
+        /// </summary>
+        /// <param name="s">The value to test.</param>
+        /// <param name="values">The values to test against.</param>
+        /// <returns>True if s is not present in values.</returns>
+        public static bool StringNin(this string s, params StringOrRegularExpression[] values)
+        {
+            throw new InvalidOperationException("This String.StringNin method is only intended to be used in LINQ queries.");
         }
 
         /// <summary>

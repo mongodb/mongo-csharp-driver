@@ -22,6 +22,16 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// </summary>
     public class StringSerializer : SealedClassSerializerBase<string>, IRepresentationConfigurable<StringSerializer>
     {
+        #region static
+        private static readonly StringSerializer __instance = new StringSerializer();
+
+        // public static properties
+        /// <summary>
+        /// Gets a cached instance of a default string serializer.
+        /// </summary>
+        public static StringSerializer Instance => __instance;
+        #endregion
+
         // private fields
         private readonly BsonType _representation;
 

@@ -36,6 +36,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 case "All":
                 case "Any":
                     return AllOrAnyMethodToFilterTranslator.Translate(context, expression);
+
+                case "AnyStringIn":
+                case "AnyStringNin":
+                case "StringIn":
+                case "StringNin":
+                    return StringInOrNinMethodToFilterTranslator.Translate(context, expression);
             }
 
             throw new ExpressionNotSupportedException(expression);

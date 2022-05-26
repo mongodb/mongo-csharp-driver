@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
@@ -23,6 +24,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
     internal static class StringMethod
     {
         // private static fields
+        private static readonly MethodInfo __anyStringInWithEnumerable;
+        private static readonly MethodInfo __anyStringInWithParams;
+        private static readonly MethodInfo __anyStringNinWithEnumerable;
+        private static readonly MethodInfo __anyStringNinWithParams;
         private static readonly MethodInfo __containsWithChar;
         private static readonly MethodInfo __containsWithCharAndComparisonType;
         private static readonly MethodInfo __containsWithString;
@@ -58,6 +63,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         private static readonly MethodInfo __startsWithWithString;
         private static readonly MethodInfo __startsWithWithStringAndComparisonType;
         private static readonly MethodInfo __startsWithWithStringAndIgnoreCaseAndCulture;
+        private static readonly MethodInfo __stringInWithEnumerable;
+        private static readonly MethodInfo __stringInWithParams;
+        private static readonly MethodInfo __stringNinWithEnumerable;
+        private static readonly MethodInfo __stringNinWithParams;
         private static readonly MethodInfo __strLenBytes;
         private static readonly MethodInfo __substrBytes;
         private static readonly MethodInfo __substring;
@@ -90,6 +99,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             __startsWithWithChar = null;
 #endif
 
+            __anyStringInWithEnumerable = ReflectionInfo.Method((IEnumerable<string> s, IEnumerable<StringOrRegularExpression> values) => s.AnyStringIn(values));
+            __anyStringInWithParams = ReflectionInfo.Method((IEnumerable<string> s, StringOrRegularExpression[] values) => s.AnyStringIn(values));
+            __anyStringNinWithEnumerable = ReflectionInfo.Method((IEnumerable<string> s, IEnumerable<StringOrRegularExpression> values) => s.AnyStringNin(values));
+            __anyStringNinWithParams = ReflectionInfo.Method((IEnumerable<string> s, StringOrRegularExpression[] values) => s.AnyStringNin(values));
             __containsWithString = ReflectionInfo.Method((string s, string value) => s.Contains(value));
             __endsWithWithString = ReflectionInfo.Method((string s, string value) => s.EndsWith(value));
             __endsWithWithStringAndComparisonType = ReflectionInfo.Method((string s, string value, StringComparison comparisonType) => s.EndsWith(value, comparisonType));
@@ -120,6 +133,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             __startsWithWithString = ReflectionInfo.Method((string s, string value) => s.StartsWith(value));
             __startsWithWithStringAndComparisonType = ReflectionInfo.Method((string s, string value, StringComparison comparisonType) => s.StartsWith(value, comparisonType));
             __startsWithWithStringAndIgnoreCaseAndCulture = ReflectionInfo.Method((string s, string value, bool ignoreCase, CultureInfo culture) => s.StartsWith(value, ignoreCase, culture));
+            __stringInWithEnumerable = ReflectionInfo.Method((string s, IEnumerable<StringOrRegularExpression> values) => s.StringIn(values));
+            __stringInWithParams = ReflectionInfo.Method((string s, StringOrRegularExpression[] values) => s.StringIn(values));
+            __stringNinWithEnumerable = ReflectionInfo.Method((string s, IEnumerable<StringOrRegularExpression> values) => s.StringNin(values));
+            __stringNinWithParams = ReflectionInfo.Method((string s, StringOrRegularExpression[] values) => s.StringNin(values));
             __strLenBytes = ReflectionInfo.Method((string s) => s.StrLenBytes());
             __substrBytes = ReflectionInfo.Method((string s, int startIndex, int length) => s.SubstrBytes(startIndex, length));
             __substring = ReflectionInfo.Method((string s, int startIndex) => s.Substring(startIndex));
@@ -137,6 +154,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         }
 
         // public properties
+        public static MethodInfo AnyStringInWithEnumerable => __anyStringInWithEnumerable;
+        public static MethodInfo AnyStringInWithParams => __anyStringInWithParams;
+        public static MethodInfo AnyStringNinWithEnumerable => __anyStringNinWithEnumerable;
+        public static MethodInfo AnyStringNinWithParams => __anyStringNinWithParams;
         public static MethodInfo ContainsWithChar => __containsWithChar;
         public static MethodInfo ContainsWithCharAndComparisonType => __containsWithCharAndComparisonType;
         public static MethodInfo ContainsWithString => __containsWithString;
@@ -172,6 +193,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         public static MethodInfo StartsWithWithString => __startsWithWithString;
         public static MethodInfo StartsWithWithStringAndComparisonType => __startsWithWithStringAndComparisonType;
         public static MethodInfo StartsWithWithStringAndIgnoreCaseAndCulture => __startsWithWithStringAndIgnoreCaseAndCulture;
+        public static MethodInfo StringInWithEnumerable => __stringInWithEnumerable;
+        public static MethodInfo StringInWithParams => __stringInWithParams;
+        public static MethodInfo StringNinWithEnumerable => __stringNinWithEnumerable;
+        public static MethodInfo StringNinWithParams => __stringNinWithParams;
         public static MethodInfo StrLenBytes => __strLenBytes;
         public static MethodInfo SubstrBytes => __substrBytes;
         public static MethodInfo Substring => __substring;
