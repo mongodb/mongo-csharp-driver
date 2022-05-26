@@ -48,10 +48,10 @@ namespace MongoDB.Driver.Core.Operations
             if (encryptedFields != null)
             {
                 return new CompositeWriteOperation<BsonDocument>(
-                    (mainOperation, IsMainOperation: true),
                     (CreateInnerDropOperation(EncryptedCollectionHelper.GetAdditionalCollectionName(encryptedFields, collectionNamespace, HelperCollectionForEncryption.Esc)), IsMainOperation: false),
                     (CreateInnerDropOperation(EncryptedCollectionHelper.GetAdditionalCollectionName(encryptedFields, collectionNamespace, HelperCollectionForEncryption.Ecc)), IsMainOperation: false),
-                    (CreateInnerDropOperation(EncryptedCollectionHelper.GetAdditionalCollectionName(encryptedFields, collectionNamespace, HelperCollectionForEncryption.Ecos)), IsMainOperation: false));
+                    (CreateInnerDropOperation(EncryptedCollectionHelper.GetAdditionalCollectionName(encryptedFields, collectionNamespace, HelperCollectionForEncryption.Ecos)), IsMainOperation: false),
+                    (mainOperation, IsMainOperation: true));
             }
             else
             {
