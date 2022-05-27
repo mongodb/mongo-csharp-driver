@@ -18,7 +18,7 @@ using System.Reflection;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
 {
-    internal static class SetWindowFieldsMethod
+    internal static class WindowMethod
     {
         // private static fields
         private static readonly MethodInfo __addToSet;
@@ -121,7 +121,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __sumWithSingle;
 
         // static constructor
-        static SetWindowFieldsMethod()
+        static WindowMethod()
         {
             __addToSet = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, object> selector, SetWindowFieldsWindow window) => partition.AddToSet(selector, window));
             __averageWithDecimal = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, decimal> selector, SetWindowFieldsWindow window) => partition.Average(selector, window));
