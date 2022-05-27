@@ -1533,7 +1533,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
             if (autoEncryptionOptionsConfigurator != null)
             {
-                configuredSettings.AutoEncryptionOptions = autoEncryptionOptionsConfigurator?.Invoke(configuredSettings.AutoEncryptionOptions);
+                configuredSettings.AutoEncryptionOptions = autoEncryptionOptionsConfigurator.Invoke(configuredSettings.AutoEncryptionOptions);
             }
 
             return DriverTestConfiguration.CreateDisposableClient(configuredSettings);
