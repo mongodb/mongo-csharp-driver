@@ -1748,9 +1748,15 @@ buildvariants:
     - name: test-mongocryptd-netstandard20
     - name: test-mongocryptd-netstandard21
 
-- matrix_name: "csfle1-linux-macOS"
-  matrix_spec: { os: ["ubuntu-1804", "macos-1015"], ssl: "nossl", version: [ "4.2", "4.4", "5.0", "6.0", "latest" ], topology: ["replicaset"] }
+- matrix_name: "csfle1-linux"
+  matrix_spec: { os: "ubuntu-1804", ssl: "nossl", version: [ "4.2", "4.4", "5.0", "6.0", "latest" ], topology: ["replicaset"] }
   display_name: "mongocryptd ${version} ${os}"
   tasks:
     - name: test-mongocryptd-netstandard20
+    - name: test-mongocryptd-netstandard21
+
+- matrix_name: "csfle1-macOS"
+  matrix_spec: { os: "macos-1015", ssl: "nossl", version: [ "4.2", "4.4", "5.0", "6.0", "latest" ], topology: ["replicaset"] }
+  display_name: "mongocryptd ${version} ${os}"
+  tasks:
     - name: test-mongocryptd-netstandard21
