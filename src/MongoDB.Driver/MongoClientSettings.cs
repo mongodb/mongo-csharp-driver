@@ -1278,19 +1278,17 @@ namespace MongoDB.Driver
             return new ClusterKey(
                 _allowInsecureTls,
                 _applicationName,
-                _autoEncryptionOptions?.BypassQueryAnalysis,
                 _clusterConfigurator,
                 _compressors,
                 _connectionMode,
                 _connectionModeSwitch,
                 _connectTimeout,
                 _credentials.ToList(),
+                _autoEncryptionOptions?.ToCryptClientSettings(),
                 _directConnection,
-                _autoEncryptionOptions?.EncryptedFieldsMap,
                 _heartbeatInterval,
                 _heartbeatTimeout,
                 _ipv6,
-                _autoEncryptionOptions?.KmsProviders,
                 _loadBalanced,
                 _localThreshold,
                 _maxConnecting,
@@ -1300,7 +1298,6 @@ namespace MongoDB.Driver
                 _minConnectionPoolSize,
                 MongoDefaults.TcpReceiveBufferSize, // TODO: add ReceiveBufferSize to MongoClientSettings?
                 _replicaSetName,
-                _autoEncryptionOptions?.SchemaMap,
                 _scheme,
                 _sdamLogFilename,
                 MongoDefaults.TcpSendBufferSize, // TODO: add SendBufferSize to MongoClientSettings?

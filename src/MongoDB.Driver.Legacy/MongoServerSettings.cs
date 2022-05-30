@@ -1191,19 +1191,17 @@ namespace MongoDB.Driver
             return new ClusterKey(
                 _allowInsecureTls,
                 _applicationName,
-                bypassQueryAnalysis: null, // not supported for legacy
                 _clusterConfigurator,
                 _compressors,
                 _connectionMode,
                 _connectionModeSwitch,
                 _connectTimeout,
                 _credentials.ToList(),
+                cryptClientSettings: null,
                 _directConnection,
-                encryptedFieldsMap: null, // not supported for legacy
                 _heartbeatInterval,
                 _heartbeatTimeout,
                 _ipv6,
-                kmsProviders: null, // not supported for legacy
                 loadBalanced: false, // not supported for legacy, so turn it off
                 _localThreshold,
                 maxConnecting: MongoInternalDefaults.ConnectionPool.MaxConnecting,
@@ -1213,7 +1211,6 @@ namespace MongoDB.Driver
                 _minConnectionPoolSize,
                 MongoDefaults.TcpReceiveBufferSize,
                 _replicaSetName,
-                schemaMap: null, // not supported for legacy
                 _scheme,
                 _sdamLogFilename,
                 MongoDefaults.TcpSendBufferSize,

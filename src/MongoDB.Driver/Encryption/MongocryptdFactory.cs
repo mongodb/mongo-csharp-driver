@@ -29,6 +29,8 @@ namespace MongoDB.Driver.Encryption
         #region static
         private static readonly Dictionary<string, Type[]> __supportedExtraOptions = new Dictionary<string, Type[]>
         {
+            { "csflePath", new [] { typeof(string) } },
+            { "csfleRequired", new [] { typeof(bool) } },
             { "mongocryptdURI", new [] { typeof(string) } },
             { "mongocryptdBypassSpawn", new [] { typeof(bool) } },
             { "mongocryptdSpawnPath", new [] { typeof(string) } },
@@ -112,6 +114,8 @@ namespace MongoDB.Driver.Encryption
         {
             path = null;
             args = null;
+            // csfle shared library option is not validated here as
+            // Mongocryptd invocation is libmongocrypt responsibility
             if (!_extraOptions.TryGetValue("mongocryptdBypassSpawn", out var mongoCryptBypassSpawn)
                 || !(bool)mongoCryptBypassSpawn)
             {

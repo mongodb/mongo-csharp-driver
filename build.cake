@@ -416,9 +416,36 @@ Task("TestCsfleWithMockedKms")
         );
     });
 
-Task("TestCsfleWithMockedKmsnet472").IsDependentOn("TestCsfleWithMockedKms");
+Task("TestCsfleWithMockedKmsNet472").IsDependentOn("TestCsfleWithMockedKms");
 Task("TestCsfleWithMockedKmsNetStandard20").IsDependentOn("TestCsfleWithMockedKms");
 Task("TestCsfleWithMockedKmsNetStandard21").IsDependentOn("TestCsfleWithMockedKms");
+
+Task("TestMongocryptd")
+    .IsDependentOn("Build")
+    .DoesForEach(
+        items: GetFiles("./**/*.Tests.csproj"),
+        action: (BuildConfig buildConfig, Path testProject) =>
+    {
+        var settings = new DotNetCoreTestSettings
+        {
+            NoBuild = true,
+            NoRestore = true,
+            Configuration = configuration,
+            Loggers = CreateLoggers(),
+            ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64"),
+            Filter = "Category=\"CSFLE\"",
+            Framework = buildConfig.Framework
+        };
+
+        DotNetCoreTest(
+            testProject.FullPath,
+            settings
+        );
+    });
+
+Task("TestMongocryptdNet472").IsDependentOn("TestMongocryptd");
+Task("TestMongocryptdNetStandard20").IsDependentOn("TestMongocryptd");
+Task("TestMongocryptdNetStandard21").IsDependentOn("TestMongocryptd");
 
 Task("Docs")
     .IsDependentOn("ApiDocs")

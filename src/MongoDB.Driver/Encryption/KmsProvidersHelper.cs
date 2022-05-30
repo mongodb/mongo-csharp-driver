@@ -15,7 +15,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Encryption
@@ -53,29 +52,6 @@ namespace MongoDB.Driver.Encryption
                 {
                     throw new ArgumentException("Insecure TLS options prohibited.");
                 }
-            }
-        }
-
-        public static bool Equals(IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> x, IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> y)
-        {
-            return x.IsEquivalentTo(y, KmsProviderIsEquivalentTo);
-        }
-
-        // private methods
-        private static bool KmsProviderIsEquivalentTo(IReadOnlyDictionary<string, object> x, IReadOnlyDictionary<string, object> y)
-        {
-            return x.IsEquivalentTo(y, KmsProviderOptionEquals);
-        }
-
-        private static bool KmsProviderOptionEquals(object x, object y)
-        {
-            if (x is byte[] xBytes && y is byte[] yBytes)
-            {
-                return xBytes.SequenceEqual(yBytes);
-            }
-            else
-            {
-                return object.Equals(x, y);
             }
         }
     }
