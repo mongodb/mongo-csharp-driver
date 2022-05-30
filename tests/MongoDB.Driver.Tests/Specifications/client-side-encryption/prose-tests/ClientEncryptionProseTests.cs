@@ -277,11 +277,11 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
         [SkippableTheory]
         [ParameterAttributeData]
-        public void BypassSpawningMongocryptdViaBypassAutoEncryptionTest(
+        public void BypassSpawningMongocryptdTest(
+            [Values(false, true)] bool bypassAutoEncryption, // true - BypassAutoEncryption, false - BypassQueryAnalysis
             [Values(false, true)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
-            RequireEnvironment.Check().EnvironmentVariable("TEST_MONGOCRYPTD");
 
             var extraOptions = new Dictionary<string, object>
             {
@@ -290,7 +290,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             using (var mongocryptdClient = new DisposableMongoClient(new MongoClient("mongodb://localhost:27021/?serverSelectionTimeoutMS=10000"), CreateLogger<DisposableMongoClient>()))
             using (var clientEncrypted = ConfigureClientEncrypted(
                 kmsProviderFilter: "local",
-                bypassAutoEncryption: true,
+                bypassAutoEncryption: bypassAutoEncryption, // bypass options are mutually exclusive for this test
+                bypassQueryAnalysis: !bypassAutoEncryption,
                 extraOptions: extraOptions))
             {
                 var coll = GetCollection(clientEncrypted, __collCollectionNamespace);
@@ -1521,6 +1522,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             EventCapturer eventCapturer = null,
             Dictionary<string, object> extraOptions = null,
             bool bypassAutoEncryption = false,
+            bool bypassQueryAnalysis = false,
             int? maxPoolSize = null,
             Func<AutoEncryptionOptions, AutoEncryptionOptions> autoEncryptionOptionsConfigurator = null)
         {
@@ -1531,6 +1533,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 eventCapturer,
                 extraOptions,
                 bypassAutoEncryption,
+                bypassQueryAnalysis,
                 maxPoolSize);
 
             if (autoEncryptionOptionsConfigurator != null)
@@ -1548,6 +1551,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             EventCapturer eventCapturer = null,
             Dictionary<string, object> extraOptions = null,
             bool bypassAutoEncryption = false,
+            bool bypassQueryAnalysis = false,
             int? maxPoolSize = null)
         {
             var kmsProviders = GetKmsProviders(kmsProviderFilter: kmsProviderFilter);
@@ -1565,6 +1569,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                     eventCapturer: eventCapturer,
                     extraOptions: extraOptions,
                     bypassAutoEncryption: bypassAutoEncryption,
+                    bypassQueryAnalysis : bypassQueryAnalysis,
                     maxPoolSize: maxPoolSize);
 
             if (tlsOptions != null)
@@ -1674,6 +1679,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             EventCapturer eventCapturer = null,
             Dictionary<string, object> extraOptions = null,
             bool bypassAutoEncryption = false,
+            bool bypassQueryAnalysis = false,
             int? maxPoolSize = null,
             WriteConcern writeConcern = null,
             ReadConcern readConcern = null)
@@ -1686,6 +1692,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 eventCapturer,
                 extraOptions,
                 bypassAutoEncryption,
+                bypassQueryAnalysis,
                 maxPoolSize,
                 writeConcern,
                 readConcern);
@@ -1701,6 +1708,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             EventCapturer eventCapturer = null,
             Dictionary<string, object> extraOptions = null,
             bool bypassAutoEncryption = false,
+            bool bypassQueryAnalysis = false,
             int? maxPoolSize = null,
             WriteConcern writeConcern = null,
             ReadConcern readConcern = null)
@@ -1758,7 +1766,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                     kmsProviders: kmsProviders,
                     schemaMap: schemaMap,
                     extraOptions: extraOptions,
-                    bypassAutoEncryption: bypassAutoEncryption);
+                    bypassAutoEncryption: bypassAutoEncryption,
+                    bypassQueryAnalysis: bypassQueryAnalysis);
 
                 if (externalKeyVaultClient != null)
                 {
