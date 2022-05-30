@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="csfleLibPath">The csfle library path.</param>
         /// <param name="csfleSearchPath">The csfle search path.</param>
         /// <param name="encryptedFieldsMap">The encrypted fields map.</param>
-        /// <param name="isCsfleRequired">Value indicating whether csfle is required..</param>
+        /// <param name="isCsfleRequired">Value indicating whether csfle is required.</param>
         /// <param name="kmsProviders">The KMS providers.</param>
         /// <param name="schemaMap">The schema map.</param>
         public CryptClientSettings(
