@@ -299,7 +299,6 @@ functions:
           AUTH=${AUTH} \
           SSL=${SSL} \
           MONGODB_URI="${MONGODB_URI}" \
-          MONGODB_CSFLE_PATH="${MONGODB_CSFLE_PATH}" \
           TOPOLOGY=${TOPOLOGY} \
           OS=${OS} \
           COMPRESSOR=${COMPRESSOR} \

@@ -71,15 +71,6 @@ provision_compressor () {
 #            Main Program                  #
 ############################################
 echo "Initial MONGODB_CSFLE_PATH:" $MONGODB_CSFLE_PATH
-
-if [[ "$OS" =~ Windows|windows ]]; then
-    export MONGODB_CSFLE_PATH="${DRIVERS_TOOLS}/evergreen/csfle/bin/mongo_csfle_v1.dll"
-elif [[ "$OS" =~ Mac|mac ]]; then
-    export MONGODB_CSFLE_PATH="${DRIVERS_TOOLS}/evergreen/csfle/lib/mongo_csfle_v1.dylib"
-else
-    export MONGODB_CSFLE_PATH="${DRIVERS_TOOLS}/evergreen/csfle/lib/mongo_csfle_v1.so"
-fi
-
 echo "Initial MongoDB URI:" $MONGODB_URI
 echo "Framework: " $FRAMEWORK
 
