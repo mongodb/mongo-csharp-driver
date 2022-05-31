@@ -63,10 +63,18 @@ namespace MongoDB.Driver.Tests
                 { "db.coll", new BsonDocument() }
             };
 
+            var cryptClientSettings = new CryptClientSettings(
+                bypassQueryAnalysis: true,
+                null,
+                null,
+                dummyMap,
+                false,
+                kmsProviders,
+                dummyMap);
+
             var clusterKey = new ClusterKey(
                 allowInsecureTls: false,
                 applicationName: "app1",
-                bypassQueryAnalysis: true,
                 clusterConfigurator: clusterConfigurator,
                 compressors: new[] { new CompressorConfiguration(CompressorType.Zlib) },
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -75,12 +83,11 @@ namespace MongoDB.Driver.Tests
 #pragma warning restore CS0618 // Type or member is obsolete
                 connectTimeout: TimeSpan.FromSeconds(1),
                 credentials: credentials,
+                cryptClientSettings: cryptClientSettings,
                 directConnection: null,
-                encryptedFieldsMap: dummyMap,
                 heartbeatInterval: TimeSpan.FromSeconds(2),
                 heartbeatTimeout: TimeSpan.FromSeconds(3),
                 ipv6: true,
-                kmsProviders: kmsProviders,
                 loadBalanced: false,
                 localThreshold: TimeSpan.FromSeconds(4),
                 maxConnecting: 3,
@@ -90,7 +97,6 @@ namespace MongoDB.Driver.Tests
                 minConnectionPoolSize: 8,
                 receiveBufferSize: 9,
                 replicaSetName: "rs",
-                schemaMap: dummyMap,
                 scheme: ConnectionStringScheme.MongoDB,
                 sdamLogFilename: "sdam.log",
                 sendBufferSize: 10,
@@ -117,13 +123,13 @@ namespace MongoDB.Driver.Tests
 #pragma warning disable CS0618 // Type or member is obsolete
                 cluster.Settings.ConnectionMode.Should().Be(clusterKey.ConnectionMode.ToCore());
 #pragma warning restore CS0618 // Type or member is obsolete
-                cluster.Settings.EncryptedFieldsMap.Should().BeEquivalentTo(dummyMap);
-                cluster.Settings.KmsProviders.Should().BeEquivalentTo(kmsProviders);
+                cluster.Settings.CryptClientSettings.EncryptedFieldsMap.Should().BeEquivalentTo(dummyMap);
+                cluster.Settings.CryptClientSettings.KmsProviders.Should().BeEquivalentTo(kmsProviders);
                 cluster.Settings.EndPoints.Should().Equal(expectedEndPoints);
                 cluster.Settings.LoadBalanced.Should().Be(clusterKey.LoadBalanced);
                 cluster.Settings.MaxServerSelectionWaitQueueSize.Should().Be(clusterKey.WaitQueueSize);
                 cluster.Settings.ReplicaSetName.Should().Be(clusterKey.ReplicaSetName);
-                cluster.Settings.SchemaMap.Should().BeEquivalentTo(dummyMap);
+                cluster.Settings.CryptClientSettings.SchemaMap.Should().BeEquivalentTo(dummyMap);
                 cluster.Settings.Scheme.Should().Be(clusterKey.Scheme);
                 cluster.Settings.ServerApi.Should().Be(clusterKey.ServerApi);
                 cluster.Settings.ServerSelectionTimeout.Should().Be(clusterKey.ServerSelectionTimeout);

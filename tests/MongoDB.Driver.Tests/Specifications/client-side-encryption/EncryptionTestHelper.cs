@@ -18,7 +18,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
-using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
@@ -77,6 +76,17 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                 {
                     extraOptions.Add("mongocryptdSpawnArgs", portValue);
                 }
+            }
+
+            if (Environment.GetEnvironmentVariable("TEST_MONGOCRYPTD") == null)
+            {
+                var csflePath = CoreTestConfiguration.GetCsflePath();
+                if (csflePath != null)
+                {
+                    extraOptions.Add("csflePath", csflePath);
+                }
+
+                extraOptions.Add("csfleRequired", true);
             }
         }
 

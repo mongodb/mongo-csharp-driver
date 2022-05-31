@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
+using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Libmongocrypt;
 
@@ -33,53 +34,34 @@ namespace MongoDB.Driver.Core.Clusters
         /// <summary>
         /// Create a CryptClient instance.
         /// </summary>
-        /// <param name="bypassQueryAnalysis">The bypass query analysis flag.</param>
-        /// <param name="encryptedFieldsMap">The encrypted fields map.</param>
-        /// <param name="kmsProviders">The kms providers.</param>
-        /// <param name="schemaMap">The schema map.</param>
+        /// <param name="cryptClientSettings">Crypt client settings.</param>
         /// <returns>The CryptClient instance.</returns>
-        public static CryptClient CreateCryptClient(
-            bool? bypassQueryAnalysis,
-            IReadOnlyDictionary<string, BsonDocument> encryptedFieldsMap,
-            IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> kmsProviders,
-            IReadOnlyDictionary<string, BsonDocument> schemaMap)
+        public static CryptClient CreateCryptClient(CryptClientSettings cryptClientSettings)
         {
-            var helper = new CryptClientCreator(bypassQueryAnalysis, encryptedFieldsMap, kmsProviders, schemaMap);
+            var helper = new CryptClientCreator(cryptClientSettings);
             var cryptOptions = helper.CreateCryptOptions();
             return helper.CreateCryptClient(cryptOptions);
         }
 #pragma warning restore
         #endregion
 
-        private readonly bool? _bypassQueryAnalysis;
-        private readonly IReadOnlyDictionary<string, BsonDocument> _encryptedFieldsMap;
-        private readonly IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> _kmsProviders;
-        private readonly IReadOnlyDictionary<string, BsonDocument> _schemaMap;
+        private readonly CryptClientSettings _cryptClientSettings;
 
-        private CryptClientCreator(
-            bool? bypassQueryAnalysis,
-            IReadOnlyDictionary<string, BsonDocument> encryptedFieldsMap,
-            IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> kmsProviders,
-            IReadOnlyDictionary<string, BsonDocument> schemaMap)
+        private CryptClientCreator(CryptClientSettings cryptClientSettings)
         {
-            _bypassQueryAnalysis = bypassQueryAnalysis;
-            _encryptedFieldsMap = encryptedFieldsMap;
-            _kmsProviders = Ensure.IsNotNull(kmsProviders, nameof(kmsProviders));
-            _schemaMap = schemaMap;
+            _cryptClientSettings = Ensure.IsNotNull(cryptClientSettings, nameof(cryptClientSettings));
         }
 
-        private CryptClient CreateCryptClient(CryptOptions options)
-        {
-            return CryptClientFactory.Create(options);
-        }
+        private CryptClient CreateCryptClient(CryptOptions options) =>
+            CryptClientFactory.Create(options);
 
         private CryptOptions CreateCryptOptions()
         {
             List<KmsCredentials> kmsProviders = null;
-            if (_kmsProviders != null && _kmsProviders.Count > 0)
+            if (_cryptClientSettings.KmsProviders?.Count > 0)
             {
                 kmsProviders = new List<KmsCredentials>();
-                foreach (var kmsProvider in _kmsProviders)
+                foreach (var kmsProvider in _cryptClientSettings.KmsProviders)
                 {
                     var kmsTypeDocumentKey = kmsProvider.Key.ToLower();
                     var kmsProviderDocument = CreateProviderDocument(kmsTypeDocumentKey, kmsProvider.Value);
@@ -93,24 +75,25 @@ namespace MongoDB.Driver.Core.Clusters
             }
 
             byte[] schemaBytes = null;
-            if (_schemaMap != null)
+            if (_cryptClientSettings.SchemaMap != null)
             {
-                schemaBytes = GetBytesFromMap(_schemaMap);
+                schemaBytes = GetBytesFromMap(_cryptClientSettings.SchemaMap);
             }
 
             byte[] encryptedFieldsBytes = null;
-            if (_encryptedFieldsMap != null)
+            if (_cryptClientSettings.EncryptedFieldsMap != null)
             {
-                encryptedFieldsBytes = GetBytesFromMap(_encryptedFieldsMap);
+                encryptedFieldsBytes = GetBytesFromMap(_cryptClientSettings.EncryptedFieldsMap);
             }
 
             return new CryptOptions(
                 kmsProviders,
                 encryptedFieldsMap: encryptedFieldsBytes,
                 schema: schemaBytes,
-                bypassQueryAnalysis: _bypassQueryAnalysis.GetValueOrDefault(false),
-                csfleLibPath: "",
-                csfleSearchPath: "");
+                bypassQueryAnalysis: _cryptClientSettings.BypassQueryAnalysis.GetValueOrDefault(false),
+                _cryptClientSettings.CsfleLibPath,
+                _cryptClientSettings.CsfleSearchPath,
+                _cryptClientSettings.IsCsfleRequired ?? false);
         }
 
         private BsonDocument CreateProviderDocument(string kmsType, IReadOnlyDictionary<string, object> data)
