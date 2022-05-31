@@ -32,6 +32,7 @@ using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests
 {
+    [Trait("Category", "CSFLE")]
     public class EncryptionTests : LoggableTestClass
     {
         #region static

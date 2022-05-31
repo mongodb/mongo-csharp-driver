@@ -270,7 +270,7 @@ namespace MongoDB.Driver.Encryption
              new CryptClientSettings(
                     _bypassQueryAnalysis,
                     ExtraOptions.GetValueOrDefault<string, string, object>("csflePath"),
-                    _bypassAutoEncryption ? null : "$SYSTEM",
+                    csfleSearchPath: _bypassAutoEncryption ? null : "$SYSTEM",
                     _encryptedFieldsMap,
                     ExtraOptions.GetValueOrDefault<bool?, string, object>("csfleRequired"),
                     _kmsProviders,

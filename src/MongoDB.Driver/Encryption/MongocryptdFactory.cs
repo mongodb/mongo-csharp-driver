@@ -67,10 +67,12 @@ namespace MongoDB.Driver.Encryption
 
     internal class MongocryptdFactory
     {
+        private readonly bool? _bypassQueryAnalysis;
         private readonly IReadOnlyDictionary<string, object> _extraOptions;
 
-        public MongocryptdFactory(IReadOnlyDictionary<string, object> extraOptions)
+        public MongocryptdFactory(IReadOnlyDictionary<string, object> extraOptions, bool? bypassQueryAnalysis)
         {
+            _bypassQueryAnalysis = bypassQueryAnalysis;
             _extraOptions = extraOptions ?? new Dictionary<string, object>();
         }
 
@@ -114,6 +116,13 @@ namespace MongoDB.Driver.Encryption
         {
             path = null;
             args = null;
+
+            // bypassAutoEncryption=true doesn't enable autoencryption
+            if (_bypassQueryAnalysis.GetValueOrDefault(defaultValue: false))
+            {
+                return false;
+            }
+
             // csfle shared library option is not validated here as
             // Mongocryptd invocation is libmongocrypt responsibility
             if (!_extraOptions.TryGetValue("mongocryptdBypassSpawn", out var mongoCryptBypassSpawn)
