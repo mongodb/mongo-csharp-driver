@@ -85,8 +85,6 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                 {
                     extraOptions.Add("csflePath", csflePath);
                 }
-
-                extraOptions.Add("csfleRequired", true);
             }
         }
 
