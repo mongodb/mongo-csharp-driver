@@ -25,8 +25,6 @@ set -o errexit  # Exit the script with error if any of the commands fail
 AUTH=${AUTH:-noauth}
 SSL=${SSL:-nossl}
 MONGODB_URI=${MONGODB_URI:-}
-MONGODB_CSFLE_PATH=${MONGODB_CSFLE_PATH:-}
-TEST_MONGOCRYPTD=${TEST_MONGOCRYPTD:-nil}
 TOPOLOGY=${TOPOLOGY:-server}
 COMPRESSOR=${COMPRESSOR:-none}
 OCSP_TLS_SHOULD_SUCCEED=${OCSP_TLS_SHOULD_SUCCEED:-nil}
@@ -70,16 +68,8 @@ provision_compressor () {
 ############################################
 #            Main Program                  #
 ############################################
-echo "Initial MONGODB_CSFLE_PATH:" $MONGODB_CSFLE_PATH
-
-if [[ "$OS" =~ Windows|windows ]]; then
-    export MONGODB_CSFLE_PATH="${DRIVERS_TOOLS}/evergreen/csfle/bin/mongo_csfle_v1.dll"
-elif [[ "$OS" =~ Mac|mac ]]; then
-    export MONGODB_CSFLE_PATH="${DRIVERS_TOOLS}/evergreen/csfle/lib/mongo_csfle_v1.dylib"
-else
-    export MONGODB_CSFLE_PATH="${DRIVERS_TOOLS}/evergreen/csfle/lib/mongo_csfle_v1.so"
-fi
-
+echo "MONGODB_CSFLE_PATH:" $MONGODB_CSFLE_PATH
+echo "TEST_MONGOCRYPTD:" $TEST_MONGOCRYPTD
 echo "Initial MongoDB URI:" $MONGODB_URI
 echo "Framework: " $FRAMEWORK
 
@@ -129,8 +119,6 @@ fi
 echo "Test target: $TARGET"
 
 echo "Final MongoDB_URI: $MONGODB_URI"
-echo "Final MONGODB_CSFLE_PATH: $MONGODB_CSFLE_PATH"
-echo "Final TEST_MONGOCRYPTD: $TEST_MONGOCRYPTD"
 if [ "$TOPOLOGY" == "sharded_cluster" ]; then
   echo "Final MongoDB URI with multiple mongoses: $MONGODB_URI_WITH_MULTIPLE_MONGOSES"
 fi
