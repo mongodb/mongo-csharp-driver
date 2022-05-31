@@ -27,7 +27,6 @@ namespace MongoDB.Driver
         // fields
         private readonly bool _allowInsecureTls;
         private readonly string _applicationName;
-        
         private readonly Action<ClusterBuilder> _clusterConfigurator;
         private readonly IReadOnlyList<CompressorConfiguration> _compressors;
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -165,7 +164,6 @@ namespace MongoDB.Driver
         public TimeSpan ConnectTimeout { get { return _connectTimeout; } }
         public IReadOnlyList<MongoCredential> Credentials { get { return _credentials; } }
         public CryptClientSettings CryptClientSettings { get { return _cryptClientSettings; } }
-
         public bool? DirectConnection
         {
             get
