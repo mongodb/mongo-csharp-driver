@@ -236,7 +236,6 @@ namespace MongoDB.Driver.Encryption
                 }
             }
 
-            RestoreDbNodeInResponse(commandDocument, response);
             FeedResult(context, response);
         }
 
@@ -261,20 +260,7 @@ namespace MongoDB.Driver.Encryption
                 }
             }
 
-            RestoreDbNodeInResponse(commandDocument, response);
             FeedResult(context, response);
-        }
-
-        private void RestoreDbNodeInResponse(BsonDocument request, BsonDocument response)
-        {
-            if (request.TryGetElement("$db", out var db))
-            {
-                var result = response["result"].AsBsonDocument;
-                if (!result.Contains("$db"))
-                {
-                    result.Add(db);
-                }
-            }
         }
 
         private void WaitForMongocryptdReady()

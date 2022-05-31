@@ -249,6 +249,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             [Values(false, true)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
+            RequireEnvironment.Check().EnvironmentVariable("TEST_MONGOCRYPTD");
 
             var extraOptions = new Dictionary<string, object>
             {
@@ -280,6 +281,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             [Values(false, true)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
+            RequireEnvironment.Check().EnvironmentVariable("TEST_MONGOCRYPTD");
 
             var extraOptions = new Dictionary<string, object>
             {

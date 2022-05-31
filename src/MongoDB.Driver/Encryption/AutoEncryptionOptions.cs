@@ -19,6 +19,9 @@ using System.Linq;
 using System.Text;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
+using MongoDB.Driver.Core;
+using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Encryption;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Shared;
 
@@ -196,7 +199,7 @@ namespace MongoDB.Driver.Encryption
                 ExtraOptionsEquals(_extraOptions, rhs._extraOptions) &&
                 object.ReferenceEquals(_keyVaultClient, rhs._keyVaultClient) &&
                 _keyVaultNamespace.Equals(rhs._keyVaultNamespace) &&
-                KmsProvidersHelper.Equals(_kmsProviders, rhs._kmsProviders) &&
+                KmsProvidersEqualityHelper.Equals(_kmsProviders, rhs._kmsProviders) &&
                 _schemaMap.IsEquivalentTo(rhs._schemaMap, object.Equals) &&
                _tlsOptions.IsEquivalentTo(rhs._tlsOptions, object.Equals) &&
                _encryptedFieldsMap.IsEquivalentTo(rhs._encryptedFieldsMap, object.Equals);
@@ -261,6 +264,17 @@ namespace MongoDB.Driver.Encryption
             sb.Append(" }");
             return sb.ToString();
         }
+
+        // internal methods
+        internal CryptClientSettings ToCryptClientSettings() =>
+             new CryptClientSettings(
+                    _bypassQueryAnalysis,
+                    ExtraOptions.GetValueOrDefault<string, string, object>("csflePath"),
+                    _bypassAutoEncryption ? null : "$SYSTEM",
+                    _encryptedFieldsMap,
+                    ExtraOptions.GetValueOrDefault<bool?, string, object>("csfleRequired"),
+                    _kmsProviders,
+                    _schemaMap);
 
         // private methods
         private bool ExtraOptionsEquals(IReadOnlyDictionary<string, object> x, IReadOnlyDictionary<string, object> y)

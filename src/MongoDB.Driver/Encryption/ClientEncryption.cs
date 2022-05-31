@@ -18,6 +18,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Configuration;
 using MongoDB.Libmongocrypt;
 
 namespace MongoDB.Driver.Encryption
@@ -39,11 +40,17 @@ namespace MongoDB.Driver.Encryption
         /// <param name="clientEncryptionOptions">The client encryption options.</param>
         public ClientEncryption(ClientEncryptionOptions clientEncryptionOptions)
         {
-            _cryptClient = CryptClientCreator.CreateCryptClient(
+            var cryptClientSettings = new CryptClientSettings(
                 bypassQueryAnalysis: null,
+                csfleLibPath: null,
+                csfleSearchPath: null,
                 encryptedFieldsMap: null,
+                isCsfleRequired: null,
                 kmsProviders: clientEncryptionOptions.KmsProviders,
                 schemaMap: null);
+
+            _cryptClient = CryptClientCreator.CreateCryptClient(cryptClientSettings);
+
             _libMongoCryptController = new ExplicitEncryptionLibMongoCryptController(
                 _cryptClient,
                 clientEncryptionOptions);

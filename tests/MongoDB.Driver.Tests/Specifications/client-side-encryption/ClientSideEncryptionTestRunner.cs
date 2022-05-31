@@ -30,6 +30,7 @@ using Xunit.Abstractions;
 namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
 {
     [Trait("Category", "CSFLE")]
+    [Trait("Category", "Mongocryptd")]
     public class ClientSideEncryptionTestRunner : MongoClientJsonDrivenTestRunnerBase
     {
         #region static

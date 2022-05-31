@@ -86,20 +86,17 @@ namespace MongoDB.Driver
             Optional<ClusterConnectionMode> connectionMode = connectionModeSwitch == ConnectionModeSwitch.UseConnectionMode ? clusterKey.ConnectionMode.ToCore() : default;
             Optional<bool?> directConnection = connectionModeSwitch == ConnectionModeSwitch.UseDirectConnection ? clusterKey.DirectConnection : default;
             return settings.With(
-                bypassQueryAnalysis: clusterKey.BypassQueryAnalysis,
                 connectionMode: connectionMode,
                 connectionModeSwitch: connectionModeSwitch,
                 directConnection: directConnection,
-                encryptedFieldsMap: Optional.Create(clusterKey.EncryptedFieldsMap),
+                cryptClientSettings: clusterKey.CryptClientSettings,
                 endPoints: Optional.Enumerable(endPoints),
-                kmsProviders: Optional.Create(clusterKey.KmsProviders),
                 loadBalanced: clusterKey.LoadBalanced,
                 localThreshold: clusterKey.LocalThreshold,
                 replicaSetName: clusterKey.ReplicaSetName,
                 maxServerSelectionWaitQueueSize: clusterKey.WaitQueueSize,
                 serverApi: clusterKey.ServerApi,
                 serverSelectionTimeout: clusterKey.ServerSelectionTimeout,
-                schemaMap: Optional.Create(clusterKey.SchemaMap),
                 scheme: clusterKey.Scheme);
 #pragma warning restore CS0618 // Type or member is obsolete
         }

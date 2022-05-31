@@ -223,13 +223,9 @@ namespace MongoDB.Driver.Core.Clusters
             ThrowIfDisposed();
             if (_state.TryChange(State.Initial, State.Open))
             {
-                if (_settings.KmsProviders != null || _settings.SchemaMap != null || _settings.EncryptedFieldsMap != null || _settings.BypassQueryAnalysis.HasValue)
+                if (_settings.CryptClientSettings != null)
                 {
-                    _cryptClient = CryptClientCreator.CreateCryptClient(
-                        _settings.BypassQueryAnalysis,
-                        encryptedFieldsMap: _settings.EncryptedFieldsMap,
-                        _settings.KmsProviders,
-                        _settings.SchemaMap);
+                    _cryptClient = CryptClientCreator.CreateCryptClient(_settings.CryptClientSettings);
                 }
             }
         }

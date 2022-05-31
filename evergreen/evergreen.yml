@@ -293,10 +293,13 @@ functions:
           . ./evergreen/set-temp-fle-aws-creds.sh
           ${PREPARE_SHELL}
           OS=${OS} \
+            . ./evergreen/fetch-csfle-library.sh
+          OS=${OS} \
             evergreen/add-ca-certs.sh
           AUTH=${AUTH} \
           SSL=${SSL} \
           MONGODB_URI="${MONGODB_URI}" \
+          MONGODB_CSFLE_PATH="${MONGODB_CSFLE_PATH}" \
           TOPOLOGY=${TOPOLOGY} \
           OS=${OS} \
           COMPRESSOR=${COMPRESSOR} \
@@ -339,6 +342,42 @@ functions:
           OS=${OS} \
             evergreen/cleanup-test-resources.sh
 
+  run-mongocryptd-tests:
+    - command: shell.exec
+      type: test
+      params:
+        working_dir: mongo-csharp-driver
+        script: |
+          set +x
+          export FLE_AWS_ACCESS_KEY_ID=${FLE_AWS_ACCESS_KEY_ID}
+          export FLE_AWS_SECRET_ACCESS_KEY=${FLE_AWS_SECRET_ACCESS_KEY}
+          export FLE_AZURE_TENANT_ID=${FLE_AZURE_TENANT_ID}
+          export FLE_AZURE_CLIENT_ID=${FLE_AZURE_CLIENT_ID}
+          export FLE_AZURE_CLIENT_SECRET=${FLE_AZURE_CLIENT_SECRET}
+          export FLE_GCP_EMAIL=${FLE_GCP_EMAIL}
+          export FLE_GCP_PRIVATE_KEY=${FLE_GCP_PRIVATE_KEY}
+          . ./evergreen/set-virtualenv.sh
+          . ./evergreen/set-temp-fle-aws-creds.sh
+          ${PREPARE_SHELL}
+          OS=${OS} \
+            evergreen/add-ca-certs.sh
+          AUTH=${AUTH} \
+          SSL=${SSL} \
+          MONGODB_URI="${MONGODB_URI}" \
+          MONGODB_CSFLE_PATH="${MONGODB_CSFLE_PATH}" \
+          TOPOLOGY=${TOPOLOGY} \
+          OS=${OS} \
+          COMPRESSOR=${COMPRESSOR} \
+          CLIENT_PEM=${DRIVERS_TOOLS}/.evergreen/x509gen/client.pem \
+          REQUIRE_API_VERSION=${REQUIRE_API_VERSION} \
+          TEST_MONGOCRYPTD="true" \
+          TARGET="TestMongocryptd" \
+          FRAMEWORK=${FRAMEWORK} \
+            evergreen/run-tests.sh
+          echo "Skipping certificate removal..."
+          OS=${OS} \
+            evergreen/cleanup-test-resources.sh
+            
   run-atlas-connectivity-tests:
     - command: shell.exec
       type: test
@@ -832,6 +871,27 @@ tasks:
       commands:
         - func: bootstrap-mongo-orchestration
         - func: run-tests
+          vars:
+            FRAMEWORK: netstandard21
+
+    - name: test-mongocryptd-net472
+      commands:
+        - func: bootstrap-mongo-orchestration
+        - func: run-mongocryptd-tests
+          vars:
+            FRAMEWORK: net472
+
+    - name: test-mongocryptd-netstandard20
+      commands:
+        - func: bootstrap-mongo-orchestration
+        - func: run-mongocryptd-tests
+          vars:
+            FRAMEWORK: netstandard20
+
+    - name: test-mongocryptd-netstandard21
+      commands:
+        - func: bootstrap-mongo-orchestration
+        - func: run-mongocryptd-tests
           vars:
             FRAMEWORK: netstandard21
 
@@ -1679,3 +1739,24 @@ buildvariants:
   display_name: "CSFLE Mocked KMS ${version} ${os}"
   tasks:
     - name: test-kms-tls-mocked-netstandard21
+    
+- matrix_name: "csfle1-windows"
+  matrix_spec: { os: "windows-64", ssl: "nossl", version: [ "4.2", "4.4", "5.0", "6.0", "latest" ], topology: ["replicaset"] }
+  display_name: "mongocryptd ${version} ${os}"
+  tasks:
+    - name: test-mongocryptd-net472
+    - name: test-mongocryptd-netstandard20
+    - name: test-mongocryptd-netstandard21
+
+- matrix_name: "csfle1-linux"
+  matrix_spec: { os: "ubuntu-1804", ssl: "nossl", version: [ "4.2", "4.4", "5.0", "6.0", "latest" ], topology: ["replicaset"] }
+  display_name: "mongocryptd ${version} ${os}"
+  tasks:
+    - name: test-mongocryptd-netstandard20
+    - name: test-mongocryptd-netstandard21
+
+- matrix_name: "csfle1-macOS"
+  matrix_spec: { os: "macos-1015", ssl: "nossl", version: [ "4.2", "4.4", "5.0", "6.0", "latest" ], topology: ["replicaset"] }
+  display_name: "mongocryptd ${version} ${os}"
+  tasks:
+    - name: test-mongocryptd-netstandard21
