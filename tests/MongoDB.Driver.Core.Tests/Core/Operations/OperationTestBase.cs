@@ -68,19 +68,13 @@ namespace MongoDB.Driver.Core.Operations
         protected void CreateCollection(CollectionNamespace collectionNamespace, bool changeStreamPreAndPostImages = false)
         {
             var operation = new CreateCollectionOperation(collectionNamespace, _messageEncoderSettings);
-            ExecuteOperation(operation);
 
             if (changeStreamPreAndPostImages)
             {
-                var command = new BsonDocument()
-                {
-                    { "collMod", _collectionNamespace.CollectionName },
-                    { "changeStreamPreAndPostImages", new BsonDocument() { { "enabled", true } } }
-                };
-
-                var collModOperation = new WriteCommandOperation<BsonDocument>(_collectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
-                ExecuteOperation(collModOperation);
+                operation.ChangeStreamPreAndPostImages = new BsonDocument() { { "enabled", true } };
             }
+
+            ExecuteOperation(operation);
         }
 
         protected void Delete(BsonDocument filter)

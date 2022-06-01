@@ -27,6 +27,7 @@ namespace MongoDB.Driver
         // fields
         private bool? _autoIndexId;
         private bool? _capped;
+        private ChangeStreamPreAndPostImagesOptions _changeStreamPreAndPostImagesOptions;
         private Collation _collation;
         private BsonDocument _encryptedFields;
         private TimeSpan? _expireAfter;
@@ -68,6 +69,15 @@ namespace MongoDB.Driver
         {
             get { return _capped; }
             set { _capped = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets  Gets or sets a change streams pre and post images options.
+        /// </summary>
+        public ChangeStreamPreAndPostImagesOptions ChangeStreamPreAndPostImagesOptions
+        {
+            get { return _changeStreamPreAndPostImagesOptions; }
+            set { _changeStreamPreAndPostImagesOptions = value; }
         }
 
         /// <summary>
@@ -216,6 +226,7 @@ namespace MongoDB.Driver
                     AutoIndexId = options.AutoIndexId,
                     Capped = options.Capped,
                     Collation = options.Collation,
+                    ChangeStreamPreAndPostImagesOptions = options.ChangeStreamPreAndPostImagesOptions,
                     EncryptedFields = options.EncryptedFields,
                     ExpireAfter = options.ExpireAfter,
                     IndexOptionDefaults = options.IndexOptionDefaults,
