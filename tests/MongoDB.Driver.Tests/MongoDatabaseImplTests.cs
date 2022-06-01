@@ -397,11 +397,17 @@ namespace MongoDB.Driver
             var storageEngine = new BsonDocument("awesome", true);
             var validatorDocument = BsonDocument.Parse("{ x : 1 }");
             var validatorDefinition = (FilterDefinition<BsonDocument>)validatorDocument;
+            var changeStreamPreAndPostImagesOptions = new ChangeStreamPreAndPostImagesOptions()
+            {
+                Enabled = true
+            };
+
 #pragma warning disable 618
             var options = new CreateCollectionOptions<BsonDocument>
             {
                 AutoIndexId = false,
                 Capped = true,
+                ChangeStreamPreAndPostImagesOptions = changeStreamPreAndPostImagesOptions,
                 ClusteredIndex = clustered ? new ClusteredIndexOptions<BsonDocument>() : null,
                 Collation = new Collation("en_US"),
                 IndexOptionDefaults = new IndexOptionDefaults { StorageEngine = new BsonDocument("x", 1) },
@@ -449,7 +455,7 @@ namespace MongoDB.Driver
             op.AutoIndexId.Should().Be(options.AutoIndexId);
 #pragma warning restore
             op.Capped.Should().Be(options.Capped);
-            op.ChangeStreamPreAndPostImages.Should().BeNull();
+            op.ChangeStreamPreAndPostImages.Should().Be(options.ChangeStreamPreAndPostImagesOptions.BackingDocument);
             if (clustered)
             {
                 op.ClusteredIndex.Should().NotBeNull();
