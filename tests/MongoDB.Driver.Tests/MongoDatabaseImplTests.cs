@@ -397,10 +397,7 @@ namespace MongoDB.Driver
             var storageEngine = new BsonDocument("awesome", true);
             var validatorDocument = BsonDocument.Parse("{ x : 1 }");
             var validatorDefinition = (FilterDefinition<BsonDocument>)validatorDocument;
-            var changeStreamPreAndPostImagesOptions = new ChangeStreamPreAndPostImagesOptions()
-            {
-                Enabled = true
-            };
+            var changeStreamPreAndPostImagesOptions = new ChangeStreamPreAndPostImagesOptions { Enabled = true };
 
 #pragma warning disable 618
             var options = new CreateCollectionOptions<BsonDocument>
