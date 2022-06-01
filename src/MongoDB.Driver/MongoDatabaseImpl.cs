@@ -239,12 +239,14 @@ namespace MongoDB.Driver
             if (options == null)
             {
                 await CreateCollectionHelperAsync<BsonDocument>(session, name, null, cancellationToken).ConfigureAwait(false);
+                return;
             }
 
             if (options.GetType() == typeof(CreateCollectionOptions))
             {
                 var genericOptions = CreateCollectionOptions<BsonDocument>.CoercedFrom(options);
                 await CreateCollectionHelperAsync<BsonDocument>(session, name, genericOptions, cancellationToken).ConfigureAwait(false);
+                return;
             }
 
             var genericMethodDefinition = typeof(MongoDatabaseImpl).GetTypeInfo().GetMethod("CreateCollectionHelperAsync", BindingFlags.NonPublic | BindingFlags.Instance);
