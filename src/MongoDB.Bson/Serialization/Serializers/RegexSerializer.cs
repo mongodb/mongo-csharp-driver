@@ -1,4 +1,4 @@
-/* Copyright 2010-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,22 +14,22 @@
 */
 
 using System;
+using System.Text.RegularExpressions;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
     /// <summary>
-    /// Represents a serializer for ObjectIds.
+    /// Represents a serializer for Regex.
     /// </summary>
-    public class ObjectIdSerializer : StructSerializerBase<ObjectId>, IRepresentationConfigurable<ObjectIdSerializer>
+    public class RegexSerializer : SealedClassSerializerBase<Regex>, IRepresentationConfigurable<RegexSerializer>
     {
         #region static
-        private static readonly ObjectIdSerializer __instance = new ObjectIdSerializer();
+        private static readonly RegexSerializer __regularExpressionInstance = new RegexSerializer(BsonType.RegularExpression);
 
-        // public static properties
         /// <summary>
-        /// Gets a cached instance of an ObjectId serializer.
+        /// Gets a cached instance of a RegexSerializer with RegularExpression representation.
         /// </summary>
-        public static ObjectIdSerializer Instance => __instance;
+        public static RegexSerializer RegularExpressionInstance => __regularExpressionInstance;
         #endregion
 
         // private fields
@@ -37,27 +37,27 @@ namespace MongoDB.Bson.Serialization.Serializers
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="ObjectIdSerializer"/> class.
+        /// Initializes a new instance of the <see cref="RegexSerializer"/> class.
         /// </summary>
-        public ObjectIdSerializer()
-            : this(BsonType.ObjectId)
+        public RegexSerializer()
+            : this(BsonType.RegularExpression)
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ObjectIdSerializer"/> class.
+        /// Initializes a new instance of the <see cref="RegexSerializer"/> class.
         /// </summary>
         /// <param name="representation">The representation.</param>
-        public ObjectIdSerializer(BsonType representation)
+        public RegexSerializer(BsonType representation)
         {
             switch (representation)
             {
-                case BsonType.ObjectId:
+                case BsonType.RegularExpression:
                 case BsonType.String:
                     break;
 
                 default:
-                    var message = string.Format("{0} is not a valid representation for an ObjectIdSerializer.", representation);
+                    var message = string.Format("{0} is not a valid representation for an RegexSerializer.", representation);
                     throw new ArgumentException(message);
             }
 
@@ -83,18 +83,18 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="context">The deserialization context.</param>
         /// <param name="args">The deserialization args.</param>
         /// <returns>A deserialized value.</returns>
-        public override ObjectId Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
+        public override Regex Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
-            var bsonReader = context.Reader;
+            var reader = context.Reader;
 
-            BsonType bsonType = bsonReader.GetCurrentBsonType();
+            var bsonType = reader.GetCurrentBsonType();
             switch (bsonType)
             {
-                case BsonType.ObjectId:
-                    return bsonReader.ReadObjectId();
+                case BsonType.RegularExpression:
+                    return reader.ReadRegularExpression().ToRegex();
 
                 case BsonType.String:
-                    return ObjectId.Parse(bsonReader.ReadString());
+                    return new Regex(reader.ReadString());
 
                 default:
                     throw CreateCannotDeserializeFromBsonTypeException(bsonType);
@@ -107,22 +107,22 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="context">The serialization context.</param>
         /// <param name="args">The serialization args.</param>
         /// <param name="value">The object.</param>
-        public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, ObjectId value)
+        public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, Regex value)
         {
-            var bsonWriter = context.Writer;
+            var writer = context.Writer;
 
             switch (_representation)
             {
-                case BsonType.ObjectId:
-                    bsonWriter.WriteObjectId(value);
+                case BsonType.RegularExpression:
+                    writer.WriteRegularExpression(new BsonRegularExpression(value));
                     break;
 
                 case BsonType.String:
-                    bsonWriter.WriteString(value.ToString());
+                    writer.WriteString(value.ToString());
                     break;
 
                 default:
-                    var message = string.Format("'{0}' is not a valid ObjectId representation.", _representation);
+                    var message = string.Format("'{0}' is not a valid Regex representation.", _representation);
                     throw new BsonSerializationException(message);
             }
         }
@@ -132,7 +132,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="representation">The representation.</param>
         /// <returns>The reconfigured serializer.</returns>
-        public ObjectIdSerializer WithRepresentation(BsonType representation)
+        public RegexSerializer WithRepresentation(BsonType representation)
         {
             if (representation == _representation)
             {
@@ -140,7 +140,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
             else
             {
-                return new ObjectIdSerializer(representation);
+                return new RegexSerializer(representation);
             }
         }
 

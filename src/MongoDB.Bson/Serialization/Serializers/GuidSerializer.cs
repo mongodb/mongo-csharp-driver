@@ -23,6 +23,15 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// </summary>
     public class GuidSerializer : StructSerializerBase<Guid>, IRepresentationConfigurable<GuidSerializer>
     {
+        #region static
+        private static readonly GuidSerializer __standardInstance = new GuidSerializer(GuidRepresentation.Standard);
+
+        /// <summary>
+        /// Gets a cached instance of a GuidSerializer with Standard representation.
+        /// </summary>
+        public static GuidSerializer StandardInstance => __standardInstance;
+        #endregion
+
         // private fields
         private readonly GuidRepresentation _guidRepresentation; // only relevant if _representation is Binary
         private readonly BsonType _representation;

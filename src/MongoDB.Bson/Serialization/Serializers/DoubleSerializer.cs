@@ -14,10 +14,7 @@
 */
 
 using System;
-using System.Globalization;
-using System.IO;
 using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Serializers
@@ -27,6 +24,15 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// </summary>
     public class DoubleSerializer : StructSerializerBase<double>, IRepresentationConfigurable<DoubleSerializer>, IRepresentationConverterConfigurable<DoubleSerializer>
     {
+        #region static
+        private static readonly DoubleSerializer __instance = new DoubleSerializer();
+
+        /// <summary>
+        /// Gets a cached instance of DoubleSerializer;
+        /// </summary>
+        public static DoubleSerializer Instance => __instance;
+        #endregion
+
         // private fields
         private readonly BsonType _representation;
         private readonly RepresentationConverter _converter;

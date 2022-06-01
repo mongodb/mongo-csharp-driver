@@ -14,9 +14,7 @@
 */
 
 using System;
-using System.IO;
 using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Serializers
@@ -26,6 +24,15 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// </summary>
     public class Int32Serializer : StructSerializerBase<int>, IRepresentationConfigurable<Int32Serializer>, IRepresentationConverterConfigurable<Int32Serializer>
     {
+        #region static
+        private static readonly Int32Serializer __instance = new Int32Serializer();
+
+        /// <summary>
+        /// Gets a cached instance of an Int32Serializer;
+        /// </summary>
+        public static Int32Serializer Instance => __instance;
+        #endregion
+
         // private fields
         private readonly BsonType _representation;
         private readonly RepresentationConverter _converter;

@@ -15,7 +15,6 @@
 
 using System;
 using System.Globalization;
-using System.Text;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
@@ -24,6 +23,16 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// </summary>
     public class ByteArraySerializer : SealedClassSerializerBase<byte[]>, IRepresentationConfigurable<ByteArraySerializer>
     {
+        #region static
+        private static readonly ByteArraySerializer __instance = new ByteArraySerializer();
+
+        // public static properties
+        /// <summary>
+        /// Gets a cached instance of a ByteArraySerializer.
+        /// </summary>
+        public static ByteArraySerializer Instance => __instance;
+        #endregion
+
         // private fields
         private readonly BsonType _representation;
 
