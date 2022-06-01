@@ -30,14 +30,14 @@ namespace MongoDB.Driver.Core.Configuration
         public bool? BypassQueryAnalysis { get; }
 
         /// <summary>
-        /// Gets the csfle library path.
+        /// Gets the crypt shared library path.
         /// </summary>
-        public string CsfleLibPath { get; }
+        public string CryptSharedLibPath { get; }
 
         /// <summary>
-        /// Gets the csfle search path.
+        /// Gets the crypt shared library search path.
         /// </summary>
-        public string CsfleSearchPath { get; }
+        public string CryptSharedLibSearchPath { get; }
 
         /// <summary>
         /// Gets the encrypted fields map.
@@ -45,9 +45,9 @@ namespace MongoDB.Driver.Core.Configuration
         public IReadOnlyDictionary<string, BsonDocument> EncryptedFieldsMap { get; }
 
         /// <summary>
-        /// Gets a value indicating whether csfle is required.
+        /// Gets a value indicating whether crypt shared library is required.
         /// </summary>
-        public bool? IsCsfleRequired { get; }
+        public bool? IsCryptSharedLibRequired { get; }
 
         /// <summary>
         /// Gets the KMS providers.
@@ -63,26 +63,26 @@ namespace MongoDB.Driver.Core.Configuration
         /// Initializes a new instance of the <see cref="CryptClientSettings"/> class.
         /// </summary>
         /// <param name="bypassQueryAnalysis">The bypass query analysis.</param>
-        /// <param name="csfleLibPath">The csfle library path.</param>
-        /// <param name="csfleSearchPath">The csfle search path.</param>
+        /// <param name="cryptSharedLibPath">The crypt shared library library path.</param>
+        /// <param name="cryptSharedLibSearchPath">The crypt shared library search path.</param>
         /// <param name="encryptedFieldsMap">The encrypted fields map.</param>
-        /// <param name="isCsfleRequired">Value indicating whether csfle is required.</param>
+        /// <param name="isCryptSharedLibRequired">Value indicating whether crypt shared library is required.</param>
         /// <param name="kmsProviders">The KMS providers.</param>
         /// <param name="schemaMap">The schema map.</param>
         public CryptClientSettings(
             bool? bypassQueryAnalysis,
-            string csfleLibPath,
-            string csfleSearchPath,
+            string cryptSharedLibPath,
+            string cryptSharedLibSearchPath,
             IReadOnlyDictionary<string, BsonDocument> encryptedFieldsMap,
-            bool? isCsfleRequired,
+            bool? isCryptSharedLibRequired,
             IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> kmsProviders,
             IReadOnlyDictionary<string, BsonDocument> schemaMap)
         {
             BypassQueryAnalysis = bypassQueryAnalysis;
-            CsfleLibPath = csfleLibPath;
-            CsfleSearchPath = csfleSearchPath;
+            CryptSharedLibPath = cryptSharedLibPath;
+            CryptSharedLibSearchPath = cryptSharedLibSearchPath;
             EncryptedFieldsMap = encryptedFieldsMap;
-            IsCsfleRequired = isCsfleRequired;
+            IsCryptSharedLibRequired = isCryptSharedLibRequired;
             KmsProviders = kmsProviders;
             SchemaMap = schemaMap;
         }
@@ -104,10 +104,10 @@ namespace MongoDB.Driver.Core.Configuration
 
             return
                 BypassQueryAnalysis == rhs.BypassQueryAnalysis && // fail fast
-                CsfleLibPath == rhs.CsfleLibPath &&
-                CsfleSearchPath == rhs.CsfleSearchPath &&
+                CryptSharedLibPath == rhs.CryptSharedLibPath &&
+                CryptSharedLibSearchPath == rhs.CryptSharedLibSearchPath &&
                 EncryptedFieldsMap.IsEquivalentTo(rhs.EncryptedFieldsMap, object.Equals) &&
-                IsCsfleRequired == rhs.IsCsfleRequired &&
+                IsCryptSharedLibRequired == rhs.IsCryptSharedLibRequired &&
                 KmsProvidersEqualityHelper.Equals(KmsProviders, rhs.KmsProviders) &&
                 SchemaMap.IsEquivalentTo(rhs.SchemaMap, object.Equals);
         }

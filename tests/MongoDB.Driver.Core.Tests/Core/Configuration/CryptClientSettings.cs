@@ -30,17 +30,17 @@ namespace MongoDB.Driver.Core.Configuration
             var kmsProviders = new Dictionary<string, IReadOnlyDictionary<string, object>>();
             var subject = new CryptClientSettings(
                 true,
-                "csfleLibPath",
-                "csfleSearchPath",
+                "cryptSharedLibPath",
+                "cryptSharedLibSearchPath",
                 encryptedFieldsMap,
                 true,
                 kmsProviders,
                 schemaMap);
 
             subject.BypassQueryAnalysis.Should().Be(true);
-            subject.CsfleLibPath.Should().Be("csfleLibPath");
-            subject.CsfleSearchPath.Should().Be("csfleSearchPath");
-            subject.IsCsfleRequired.Should().Be(true);
+            subject.CryptSharedLibPath.Should().Be("cryptSharedLibPath");
+            subject.CryptSharedLibSearchPath.Should().Be("cryptSharedLibSearchPath");
+            subject.IsCryptSharedLibRequired.Should().Be(true);
             subject.EncryptedFieldsMap.Should().BeSameAs(encryptedFieldsMap);
             subject.KmsProviders.Should().BeSameAs(kmsProviders);
             subject.SchemaMap.Should().BeSameAs(schemaMap);

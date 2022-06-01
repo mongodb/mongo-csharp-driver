@@ -269,10 +269,10 @@ namespace MongoDB.Driver.Encryption
         internal CryptClientSettings ToCryptClientSettings() =>
              new CryptClientSettings(
                     _bypassQueryAnalysis,
-                    ExtraOptions.GetValueOrDefault<string, string, object>("csflePath"),
-                    csfleSearchPath: _bypassAutoEncryption ? null : "$SYSTEM",
+                    ExtraOptions.GetValueOrDefault<string, string, object>("cryptSharedLibPath"),
+                    cryptSharedLibSearchPath: _bypassAutoEncryption ? null : "$SYSTEM",
                     _encryptedFieldsMap,
-                    ExtraOptions.GetValueOrDefault<bool?, string, object>("csfleRequired"),
+                    ExtraOptions.GetValueOrDefault<bool?, string, object>("cryptSharedLibRequired"),
                     _kmsProviders,
                     _schemaMap);
 

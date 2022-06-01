@@ -29,8 +29,8 @@ namespace MongoDB.Driver.Encryption
         #region static
         private static readonly Dictionary<string, Type[]> __supportedExtraOptions = new Dictionary<string, Type[]>
         {
-            { "csflePath", new [] { typeof(string) } },
-            { "csfleRequired", new [] { typeof(bool) } },
+            { "cryptSharedLibPath", new [] { typeof(string) } },
+            { "cryptSharedLibRequired", new [] { typeof(bool) } },
             { "mongocryptdURI", new [] { typeof(string) } },
             { "mongocryptdBypassSpawn", new [] { typeof(bool) } },
             { "mongocryptdSpawnPath", new [] { typeof(string) } },
