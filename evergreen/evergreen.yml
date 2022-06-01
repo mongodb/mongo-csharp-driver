@@ -13,8 +13,8 @@ stepback: true
 command_type: system
 
 # Protect ourself against rogue test case, or curl gone wild, that runs forever
-# 45 minutes: 20 minutes is a normal test run + up to 10 minutes for test setup + 15 minutes for longer macOS tests
-exec_timeout_secs: 2700
+# 60 minutes: 20 minutes is a normal test run + up to 10 minutes for test setup + 15 minutes for longer macOS tests + 15 minutes for longer macOS 1015 tests
+exec_timeout_secs: 3600
 
 # What to do when evergreen hits the timeout (`post:` tasks are run automatically)
 timeout:
@@ -376,7 +376,7 @@ functions:
           echo "Skipping certificate removal..."
           OS=${OS} \
             evergreen/cleanup-test-resources.sh
-            
+
   run-atlas-connectivity-tests:
     - command: shell.exec
       type: test
@@ -1738,7 +1738,7 @@ buildvariants:
   display_name: "CSFLE Mocked KMS ${version} ${os}"
   tasks:
     - name: test-kms-tls-mocked-netstandard21
-    
+
 - matrix_name: "csfle1-windows"
   matrix_spec: { os: "windows-64", ssl: "nossl", version: [ "4.2", "4.4", "5.0", "6.0", "latest" ], topology: ["replicaset"] }
   display_name: "mongocryptd ${version} ${os}"

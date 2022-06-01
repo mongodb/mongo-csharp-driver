@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-
 using System.Collections.Generic;
 
 namespace MongoDB.Bson.TestHelpers
