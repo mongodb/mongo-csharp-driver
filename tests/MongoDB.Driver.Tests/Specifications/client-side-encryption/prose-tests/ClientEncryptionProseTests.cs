@@ -924,7 +924,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             [Range(1, 5)] int testCase,
             [Values(false, true)] bool async)
         {
-            RequireServer.Check().Supports(Feature.Csfle2);
+            RequireServer.Check().Supports(Feature.Csfle2).ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced);
 
             var encryptedFields = JsonFileReader.Instance.Documents["etc.data.encryptedFields.json"];
             var key1Document = JsonFileReader.Instance.Documents["etc.data.keys.key1-document.json"];
