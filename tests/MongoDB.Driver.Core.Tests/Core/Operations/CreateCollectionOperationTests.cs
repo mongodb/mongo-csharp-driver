@@ -87,6 +87,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.AutoIndexId.Should().NotHaveValue();
 #pragma warning restore
             subject.Capped.Should().NotHaveValue();
+            subject.ChangeStreamPreAndPostImages.Should().BeNull();
             subject.ClusteredIndex.Should().BeNull();
             subject.Collation.Should().BeNull();
             subject.EncryptedFields.Should().BeNull();
@@ -168,6 +169,29 @@ namespace MongoDB.Driver.Core.Operations
             {
                 { "create", _collectionNamespace.CollectionName },
                 { "capped", () => capped.Value, capped != null }
+            };
+            result.Should().Be(expectedResult);
+        }
+
+        [Fact]
+        public void CreateCommand_should_return_expected_result_when_ChangeStreamsPreAndPost_is_set()
+        {
+            var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
+            {
+                ChangeStreamPreAndPostImages = new BsonDocument()
+                {
+                    { "key", "value" }
+                }
+            };
+
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subject.CreateCommand(session);
+
+            var expectedResult = new BsonDocument
+            {
+                { "create", _collectionNamespace.CollectionName },
+                { "changeStreamPreAndPostImages", new BsonDocument() { { "key", "value" } } }
             };
             result.Should().Be(expectedResult);
         }

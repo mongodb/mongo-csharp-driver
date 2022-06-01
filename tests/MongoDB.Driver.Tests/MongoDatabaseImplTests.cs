@@ -449,6 +449,7 @@ namespace MongoDB.Driver
             op.AutoIndexId.Should().Be(options.AutoIndexId);
 #pragma warning restore
             op.Capped.Should().Be(options.Capped);
+            op.ChangeStreamPreAndPostImages.Should().BeNull();
             if (clustered)
             {
                 op.ClusteredIndex.Should().NotBeNull();
@@ -531,6 +532,7 @@ namespace MongoDB.Driver
             op.AutoIndexId.Should().Be(options.AutoIndexId);
 #pragma warning restore
             op.Capped.Should().Be(options.Capped);
+            op.ChangeStreamPreAndPostImages.Should().BeNull();
             op.ClusteredIndex.Should().BeNull();
             op.Collation.Should().BeSameAs(options.Collation);
             op.IndexOptionDefaults.ToBsonDocument().Should().Be(options.IndexOptionDefaults.ToBsonDocument());

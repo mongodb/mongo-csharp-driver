@@ -69,6 +69,7 @@ namespace MongoDB.Driver.Core.Operations
         // fields
         private bool? _autoIndexId;
         private bool? _capped;
+        private BsonDocument _changeStreamPreAndPostImages;
         private BsonDocument _clusteredIndex;
         private Collation _collation;
         private readonly CollectionNamespace _collectionNamespace;
@@ -126,6 +127,18 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _capped; }
             set { _capped = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets a change streams pre and post images options.
+        /// </summary>
+        /// <value>
+        /// change streams pre and post images options.
+        /// </value>
+        public BsonDocument ChangeStreamPreAndPostImages
+        {
+            get { return _changeStreamPreAndPostImages; }
+            set { _changeStreamPreAndPostImages = value; }
         }
 
         /// <summary>
@@ -361,7 +374,8 @@ namespace MongoDB.Driver.Core.Operations
                 { "writeConcern", writeConcern, writeConcern != null },
                 { "expireAfterSeconds", () => _expireAfter.Value.TotalSeconds, _expireAfter.HasValue },
                 { "timeseries", () => _timeSeriesOptions.ToBsonDocument(), _timeSeriesOptions != null },
-                { "encryptedFields", _encryptedFields, _encryptedFields != null }
+                { "encryptedFields", _encryptedFields, _encryptedFields != null },
+                { "changeStreamPreAndPostImages", _changeStreamPreAndPostImages, _changeStreamPreAndPostImages != null }
             };
         }
 
