@@ -42,10 +42,10 @@ namespace MongoDB.Driver.Encryption
         {
             var cryptClientSettings = new CryptClientSettings(
                 bypassQueryAnalysis: null,
-                csfleLibPath: null,
-                csfleSearchPath: null,
+                cryptSharedLibPath: null,
+                cryptSharedLibSearchPath: null,
                 encryptedFieldsMap: null,
-                isCsfleRequired: null,
+                isCryptSharedLibRequired: null,
                 kmsProviders: clientEncryptionOptions.KmsProviders,
                 schemaMap: null);
 

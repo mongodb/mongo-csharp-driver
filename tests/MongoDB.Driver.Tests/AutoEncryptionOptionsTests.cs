@@ -57,10 +57,10 @@ namespace MongoDB.Driver.Tests
         [InlineData("mongocryptdSpawnArgs", "test", false)]
         [InlineData("mongocryptdSpawnArgs", new[] { "test" }, false)]
         [InlineData("mongocryptdSpawnArgs", 1, true)]
-        [InlineData("csflePath", "path", false)]
-        [InlineData("csflePath", 1, true)]
-        [InlineData("csfleRequired", true, false)]
-        [InlineData("csfleRequired", 1, true)]
+        [InlineData("cryptSharedLibPath", "path", false)]
+        [InlineData("cryptSharedLibPath", 1, true)]
+        [InlineData("cryptSharedLibRequired", true, false)]
+        [InlineData("cryptSharedLibRequired", 1, true)]
         [InlineData("test", "test", true)]
         public void constructor_should_handle_extraOptions_correctly(string key, object value, bool shouldFail)
         {
