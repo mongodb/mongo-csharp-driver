@@ -89,15 +89,14 @@ namespace MongoDB.Driver
                 connectionMode: connectionMode,
                 connectionModeSwitch: connectionModeSwitch,
                 directConnection: directConnection,
+                cryptClientSettings: clusterKey.CryptClientSettings,
                 endPoints: Optional.Enumerable(endPoints),
-                kmsProviders: Optional.Create(clusterKey.KmsProviders),
                 loadBalanced: clusterKey.LoadBalanced,
                 localThreshold: clusterKey.LocalThreshold,
                 replicaSetName: clusterKey.ReplicaSetName,
                 maxServerSelectionWaitQueueSize: clusterKey.WaitQueueSize,
                 serverApi: clusterKey.ServerApi,
                 serverSelectionTimeout: clusterKey.ServerSelectionTimeout,
-                schemaMap: Optional.Create(clusterKey.SchemaMap),
                 scheme: clusterKey.Scheme);
 #pragma warning restore CS0618 // Type or member is obsolete
         }

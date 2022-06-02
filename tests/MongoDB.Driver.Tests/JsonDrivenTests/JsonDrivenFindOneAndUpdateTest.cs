@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -46,9 +47,16 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
         }
 
         // protected methods
-        protected override void AssertResult()
+        protected override void AssertResult(bool allowExtraFields = false)
         {
-            _result.Should().Be(_expectedResult.AsBsonDocument);
+            var expectedResultDocument = _expectedResult.AsBsonDocument;
+            var result = _result;
+            if (allowExtraFields)
+            {
+                result = new BsonDocument(_result.Elements.Where(e => expectedResultDocument.Contains(e.Name)));
+            }
+
+            result.Should().Be(expectedResultDocument);
         }
 
         protected override void CallMethod(CancellationToken cancellationToken)

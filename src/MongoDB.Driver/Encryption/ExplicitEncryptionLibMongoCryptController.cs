@@ -134,34 +134,22 @@ namespace MongoDB.Driver.Encryption
 
         public BsonBinaryData EncryptField(
             BsonValue value,
-            Guid? keyId,
-            string alternateKeyName,
-            string encryptionAlgorithm,
+            EncryptOptions encryptOptions,
             CancellationToken cancellationToken)
         {
+            Ensure.IsNotNull(encryptOptions, nameof(encryptOptions));
+
             try
             {
                 var wrappedValueBytes = GetWrappedValueBytes(value);
 
-                CryptContext context;
-                if (keyId.HasValue && alternateKeyName != null)
-                {
-                    throw new ArgumentException("keyId and alternateKeyName cannot both be provided.");
-                }
-                else if (keyId.HasValue)
-                {
-                    var keyBytes = GuidConverter.ToBytes(keyId.Value, GuidRepresentation.Standard);
-                    context = _cryptClient.StartExplicitEncryptionContextWithKeyId(keyBytes, encryptionAlgorithm, wrappedValueBytes);
-                }
-                else if (alternateKeyName != null)
-                {
-                    var wrappedAlternateKeyNameBytes = GetWrappedAlternateKeyNameBytes(alternateKeyName);
-                    context = _cryptClient.StartExplicitEncryptionContextWithKeyAltName(wrappedAlternateKeyNameBytes, encryptionAlgorithm, wrappedValueBytes);
-                }
-                else
-                {
-                    throw new ArgumentException("Either keyId or alternateKeyName must be provided.");
-                }
+                var context = _cryptClient.StartExplicitEncryptionContext(
+                    keyId: encryptOptions.KeyId.HasValue ? GuidConverter.ToBytes(encryptOptions.KeyId.Value, GuidRepresentation.Standard) : null,
+                    keyAltName: GetWrappedAlternateKeyNameBytes(encryptOptions.AlternateKeyName),
+                    queryType: (int?)encryptOptions.QueryType,
+                    contentionFactor: encryptOptions.ContentionFactor,
+                    encryptOptions.Algorithm,
+                    wrappedValueBytes);
 
                 using (context)
                 {
@@ -177,34 +165,22 @@ namespace MongoDB.Driver.Encryption
 
         public async Task<BsonBinaryData> EncryptFieldAsync(
             BsonValue value,
-            Guid? keyId,
-            string alternateKeyName,
-            string encryptionAlgorithm,
+            EncryptOptions encryptOptions,
             CancellationToken cancellationToken)
         {
+            Ensure.IsNotNull(encryptOptions, nameof(encryptOptions));
+
             try
             {
                 var wrappedValueBytes = GetWrappedValueBytes(value);
 
-                CryptContext context;
-                if (keyId.HasValue && alternateKeyName != null)
-                {
-                    throw new ArgumentException("keyId and alternateKeyName cannot both be provided.");
-                }
-                else if (keyId.HasValue)
-                {
-                    var bytes = GuidConverter.ToBytes(keyId.Value, GuidRepresentation.Standard);
-                    context = _cryptClient.StartExplicitEncryptionContextWithKeyId(bytes, encryptionAlgorithm, wrappedValueBytes);
-                }
-                else if (alternateKeyName != null)
-                {
-                    var wrappedAlternateKeyNameBytes = GetWrappedAlternateKeyNameBytes(alternateKeyName);
-                    context = _cryptClient.StartExplicitEncryptionContextWithKeyAltName(wrappedAlternateKeyNameBytes, encryptionAlgorithm, wrappedValueBytes);
-                }
-                else
-                {
-                    throw new ArgumentException("Either keyId or alternateKeyName must be provided.");
-                }
+                var context = _cryptClient.StartExplicitEncryptionContext(
+                    keyId: encryptOptions.KeyId.HasValue ? GuidConverter.ToBytes(encryptOptions.KeyId.Value, GuidRepresentation.Standard) : null,
+                    keyAltName: GetWrappedAlternateKeyNameBytes(encryptOptions.AlternateKeyName),
+                    queryType: (int?)encryptOptions.QueryType,
+                    contentionFactor: encryptOptions.ContentionFactor,
+                    encryptOptions.Algorithm,
+                    wrappedValueBytes);
 
                 using (context)
                 {

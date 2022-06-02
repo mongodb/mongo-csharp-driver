@@ -24,12 +24,13 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
+    [Trait("Category", "CSFLE")]
     public class MongocryptdFactoryTests
     {
         [Fact]
         public void CreateMongocryptdClientSettings_should_set_correct_serverSelectionTimeout()
         {
-            var subject = new MongocryptdFactory(null);
+            var subject = new MongocryptdFactory(null, null);
             var clientSettings = subject.CreateMongocryptdClientSettings();
             clientSettings.ServerSelectionTimeout.Should().Be(TimeSpan.FromSeconds(10));
         }
@@ -44,9 +45,21 @@ namespace MongoDB.Driver.Tests
             {
                 extraOptions.Add(optionKey, optionValue);
             }
-            var subject = new MongocryptdFactory(extraOptions);
+            var subject = new MongocryptdFactory(extraOptions, null);
             var connectionString = subject.CreateMongocryptdConnectionString();
             connectionString.Should().Be(expectedConnectionString);
+        }
+
+        [Theory]
+        [InlineData(null, true)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        public void ShouldMongocryptdBeSpawned_should_correctly_handle_bypassQueryAnalysis(bool? bypassQueryAnalysis, bool shouldBeSpawned)
+        {
+            var extraOptions = new Dictionary<string, object>();
+            var subject = new MongocryptdFactory(extraOptions, bypassQueryAnalysis);
+            var shouldMongocryptdBeSpawned = subject.ShouldMongocryptdBeSpawned(out _, out _);
+            shouldMongocryptdBeSpawned.Should().Be(shouldBeSpawned);
         }
 
         [SkippableTheory]
@@ -98,7 +111,7 @@ namespace MongoDB.Driver.Tests
                 .Elements
                 .ToDictionary(k => k.Name, v => CreateTypedExtraOptions(v.Value));
 
-            var subject = new MongocryptdFactory(extraOptions);
+            var subject = new MongocryptdFactory(extraOptions, null);
 
             var result = subject.ShouldMongocryptdBeSpawned(out var path, out var args);
             result.Should().Be(shouldBeSpawned);

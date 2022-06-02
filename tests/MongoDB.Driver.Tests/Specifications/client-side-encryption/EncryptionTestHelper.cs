@@ -18,14 +18,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
-using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
 {
     public static class EncryptionTestHelper
     {
-        public static void ConfigureDefaultExtraOptions(Dictionary<string, object> extraOptions)
+        public static void ConfigureDefaultExtraOptions(Dictionary<string, object> extraOptions, bool withSharedLibrary = false)
         {
             Ensure.IsNotNull(extraOptions, nameof(extraOptions));
 
@@ -76,6 +75,15 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                 else
                 {
                     extraOptions.Add("mongocryptdSpawnArgs", portValue);
+                }
+            }
+
+            if (withSharedLibrary || Environment.GetEnvironmentVariable("TEST_MONGOCRYPTD") == null)
+            {
+                var cryptSharedLibPath = CoreTestConfiguration.GetCryptSharedLibPath();
+                if (cryptSharedLibPath != null)
+                {
+                    extraOptions.Add("cryptSharedLibPath", cryptSharedLibPath);
                 }
             }
         }

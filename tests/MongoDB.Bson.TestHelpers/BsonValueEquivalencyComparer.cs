@@ -13,16 +13,15 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MongoDB.Bson.TestHelpers
 {
-    public class BsonValueEquivalencyComparer
+    public class BsonValueEquivalencyComparer : IEqualityComparer<BsonValue>
     {
+        #region static
+        public static BsonValueEquivalencyComparer Instance { get; } = new BsonValueEquivalencyComparer();
+
         public static bool Compare(BsonValue a, BsonValue b)
         {
             if (a.BsonType == BsonType.Document && b.BsonType == BsonType.Document)
@@ -121,5 +120,9 @@ namespace MongoDB.Bson.TestHelpers
                     return false;
             }
         }
+        #endregion
+
+        public bool Equals(BsonValue x, BsonValue y) => Compare(x, y);
+        public int GetHashCode(BsonValue obj) => obj.GetHashCode();
     }
 }

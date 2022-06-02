@@ -21,7 +21,6 @@ using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Authentication;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
@@ -250,6 +249,8 @@ namespace MongoDB.Driver
             var collectionName = TruncateCollectionNameIfTooLong(__databaseNamespace.Value, $"{className}-{methodName}");
             return new CollectionNamespace(__databaseNamespace.Value, collectionName);
         }
+
+        public static string GetCryptSharedLibPath() => Environment.GetEnvironmentVariable("CRYPT_SHARED_LIB_PATH");
 
         public static ConnectionString CreateConnectionString()
         {

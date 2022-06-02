@@ -38,6 +38,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.ConnectionMode.Should().Be(ClusterConnectionMode.Automatic);
             subject.ConnectionModeSwitch.Should().Be(ConnectionModeSwitch.NotSet);
 #pragma warning restore CS0618 // Type or member is obsolete
+            subject.CryptClientSettings.Should().Be(null);
             subject.DirectConnection.Should().Be(null);
             subject.EndPoints.Should().EqualUsing(new[] { new DnsEndPoint("localhost", 27017) }, EndPointHelper.EndPointEqualityComparer);
             subject.LoadBalanced.Should().BeFalse();
@@ -91,6 +92,7 @@ namespace MongoDB.Driver.Core.Configuration
             var subject = new ClusterSettings(connectionModeSwitch: ConnectionModeSwitch.UseConnectionMode, connectionMode: connectionMode);
             subject.ConnectionMode.Should().Be(connectionMode);
 #pragma warning restore CS0618 // Type or member is obsolete
+            subject.CryptClientSettings.Should().Be(__defaults.CryptClientSettings);
             subject.EndPoints.Should().EqualUsing(__defaults.EndPoints, EndPointHelper.EndPointEqualityComparer);
             subject.LoadBalanced.Should().BeFalse();
             subject.LocalThreshold.Should().Be(__defaults.LocalThreshold);
@@ -110,6 +112,7 @@ namespace MongoDB.Driver.Core.Configuration
 
             subject.DirectConnection.Should().Be(directConnection);
 #pragma warning restore CS0618 // Type or member is obsolete
+            subject.CryptClientSettings.Should().Be(__defaults.CryptClientSettings);
             subject.EndPoints.Should().EqualUsing(__defaults.EndPoints, EndPointHelper.EndPointEqualityComparer);
             subject.LoadBalanced.Should().BeFalse();
             subject.LocalThreshold.Should().Be(__defaults.LocalThreshold);
@@ -129,6 +132,7 @@ namespace MongoDB.Driver.Core.Configuration
 #pragma warning disable CS0618 // Type or member is obsolete
             subject.ConnectionMode.Should().Be(__defaults.ConnectionMode);
 #pragma warning restore CS0618 // Type or member is obsolete
+            subject.CryptClientSettings.Should().Be(__defaults.CryptClientSettings);
             subject.EndPoints.Should().EqualUsing(endPoints, EndPointHelper.EndPointEqualityComparer);
             subject.LoadBalanced.Should().BeFalse();
             subject.LocalThreshold.Should().Be(__defaults.LocalThreshold);
@@ -147,6 +151,7 @@ namespace MongoDB.Driver.Core.Configuration
 #pragma warning disable CS0618 // Type or member is obsolete
             subject.ConnectionMode.Should().Be(__defaults.ConnectionMode);
 #pragma warning restore CS0618 // Type or member is obsolete
+            subject.CryptClientSettings.Should().Be(__defaults.CryptClientSettings);
             subject.EndPoints.Should().EqualUsing(__defaults.EndPoints, EndPointHelper.EndPointEqualityComparer);
             subject.LoadBalanced.Should().Be(loadBalanced);
             subject.LocalThreshold.Should().Be(__defaults.LocalThreshold);
@@ -163,6 +168,7 @@ namespace MongoDB.Driver.Core.Configuration
             var subject = new ClusterSettings(localThreshold: Timeout.InfiniteTimeSpan);
             subject.ConnectionMode.Should().Be(__defaults.ConnectionMode);
 #pragma warning restore CS0618 // Type or member is obsolete
+            subject.CryptClientSettings.Should().Be(__defaults.CryptClientSettings);
             subject.EndPoints.Should().EqualUsing(__defaults.EndPoints, EndPointHelper.EndPointEqualityComparer);
             subject.LoadBalanced.Should().BeFalse();
             subject.LocalThreshold.Should().Be(Timeout.InfiniteTimeSpan);
@@ -181,6 +187,7 @@ namespace MongoDB.Driver.Core.Configuration
 #pragma warning disable CS0618 // Type or member is obsolete
             subject.ConnectionMode.Should().Be(__defaults.ConnectionMode);
 #pragma warning restore CS0618 // Type or member is obsolete
+            subject.CryptClientSettings.Should().Be(__defaults.CryptClientSettings);
             subject.EndPoints.Should().EqualUsing(__defaults.EndPoints, EndPointHelper.EndPointEqualityComparer);
             subject.LoadBalanced.Should().BeFalse();
             subject.LocalThreshold.Should().Be(localThreshold);
@@ -200,6 +207,7 @@ namespace MongoDB.Driver.Core.Configuration
 #pragma warning disable CS0618 // Type or member is obsolete
             subject.ConnectionMode.Should().Be(__defaults.ConnectionMode);
 #pragma warning restore CS0618 // Type or member is obsolete
+            subject.CryptClientSettings.Should().Be(__defaults.CryptClientSettings);
             subject.EndPoints.Should().EqualUsing(__defaults.EndPoints, EndPointHelper.EndPointEqualityComparer);
             subject.LoadBalanced.Should().BeFalse();
             subject.LocalThreshold.Should().Be(__defaults.LocalThreshold);
@@ -219,6 +227,7 @@ namespace MongoDB.Driver.Core.Configuration
 #pragma warning disable CS0618 // Type or member is obsolete
             subject.ConnectionMode.Should().Be(__defaults.ConnectionMode);
 #pragma warning restore CS0618 // Type or member is obsolete
+            subject.CryptClientSettings.Should().Be(__defaults.CryptClientSettings);
             subject.EndPoints.Should().EqualUsing(__defaults.EndPoints, EndPointHelper.EndPointEqualityComparer);
             subject.LoadBalanced.Should().BeFalse();
             subject.LocalThreshold.Should().Be(__defaults.LocalThreshold);
@@ -238,6 +247,7 @@ namespace MongoDB.Driver.Core.Configuration
 #pragma warning disable CS0618 // Type or member is obsolete
             subject.ConnectionMode.Should().Be(__defaults.ConnectionMode);
 #pragma warning restore CS0618 // Type or member is obsolete
+            subject.CryptClientSettings.Should().Be(__defaults.CryptClientSettings);
             subject.EndPoints.Should().EqualUsing(__defaults.EndPoints, EndPointHelper.EndPointEqualityComparer);
             subject.LoadBalanced.Should().BeFalse();
             subject.LocalThreshold.Should().Be(__defaults.LocalThreshold);
@@ -257,6 +267,7 @@ namespace MongoDB.Driver.Core.Configuration
 #pragma warning disable CS0618 // Type or member is obsolete
             subject.ConnectionMode.Should().Be(__defaults.ConnectionMode);
 #pragma warning restore CS0618 // Type or member is obsolete
+            subject.CryptClientSettings.Should().Be(__defaults.CryptClientSettings);
             subject.EndPoints.Should().EqualUsing(__defaults.EndPoints, EndPointHelper.EndPointEqualityComparer);
             subject.LoadBalanced.Should().BeFalse();
             subject.LocalThreshold.Should().Be(__defaults.LocalThreshold);
@@ -277,6 +288,7 @@ namespace MongoDB.Driver.Core.Configuration
 #pragma warning disable CS0618 // Type or member is obsolete
             subject.ConnectionMode.Should().Be(__defaults.ConnectionMode);
 #pragma warning restore CS0618 // Type or member is obsolete
+            subject.CryptClientSettings.Should().Be(__defaults.CryptClientSettings);
             subject.EndPoints.Should().EqualUsing(__defaults.EndPoints, EndPointHelper.EndPointEqualityComparer);
             subject.LoadBalanced.Should().BeFalse();
             subject.LocalThreshold.Should().Be(__defaults.LocalThreshold);
@@ -351,6 +363,35 @@ namespace MongoDB.Driver.Core.Configuration
 #pragma warning disable CS0618 // Type or member is obsolete
             result.ConnectionMode.Should().Be(newConnectionMode);
 #pragma warning restore CS0618 // Type or member is obsolete
+            subject.CryptClientSettings.Should().Be(__defaults.CryptClientSettings);
+            result.EndPoints.Should().EqualUsing(subject.EndPoints, EndPointHelper.EndPointEqualityComparer);
+            result.LoadBalanced.Should().BeFalse();
+            result.LocalThreshold.Should().Be(subject.LocalThreshold);
+            result.MaxServerSelectionWaitQueueSize.Should().Be(subject.MaxServerSelectionWaitQueueSize);
+            result.ReplicaSetName.Should().Be(subject.ReplicaSetName);
+            result.Scheme.Should().Be(subject.Scheme);
+            result.ServerSelectionTimeout.Should().Be(subject.ServerSelectionTimeout);
+        }
+
+        [Fact]
+        public void With_cryptClientSettings_should_return_expected_result()
+        {
+            var newCryptClientSettings = new CryptClientSettings(
+               true,
+               "csfleLibPath",
+               "csfleSearchPath",
+               null,
+               true,
+               null,
+               null);
+
+            var subject = new ClusterSettings();
+            var result = subject.With(cryptClientSettings: newCryptClientSettings);
+
+#pragma warning disable CS0618 // Type or member is obsolete
+            result.ConnectionMode.Should().Be(subject.ConnectionMode);
+#pragma warning restore CS0618 // Type or member is obsolete
+            result.CryptClientSettings.Should().Be(newCryptClientSettings);
             result.EndPoints.Should().EqualUsing(subject.EndPoints, EndPointHelper.EndPointEqualityComparer);
             result.LoadBalanced.Should().BeFalse();
             result.LocalThreshold.Should().Be(subject.LocalThreshold);
@@ -372,6 +413,7 @@ namespace MongoDB.Driver.Core.Configuration
 #pragma warning disable CS0618 // Type or member is obsolete
             result.ConnectionMode.Should().Be(subject.ConnectionMode);
 #pragma warning restore CS0618 // Type or member is obsolete
+            result.CryptClientSettings.Should().Be(subject.CryptClientSettings);
             result.EndPoints.Should().EqualUsing(newEndPoints, EndPointHelper.EndPointEqualityComparer);
             result.LoadBalanced.Should().BeFalse();
             result.LocalThreshold.Should().Be(subject.LocalThreshold);
@@ -393,6 +435,7 @@ namespace MongoDB.Driver.Core.Configuration
 #pragma warning disable CS0618 // Type or member is obsolete
             result.ConnectionMode.Should().Be(subject.ConnectionMode);
 #pragma warning restore CS0618 // Type or member is obsolete
+            result.CryptClientSettings.Should().Be(subject.CryptClientSettings);
             result.EndPoints.Should().EqualUsing(subject.EndPoints, EndPointHelper.EndPointEqualityComparer);
             result.LoadBalanced.Should().Be(newLoadBalanced);
             result.LocalThreshold.Should().Be(subject.LocalThreshold);
@@ -414,6 +457,7 @@ namespace MongoDB.Driver.Core.Configuration
 #pragma warning disable CS0618 // Type or member is obsolete
             result.ConnectionMode.Should().Be(subject.ConnectionMode);
 #pragma warning restore CS0618 // Type or member is obsolete
+            result.CryptClientSettings.Should().Be(subject.CryptClientSettings);
             result.EndPoints.Should().EqualUsing(subject.EndPoints, EndPointHelper.EndPointEqualityComparer);
             result.LoadBalanced.Should().BeFalse();
             result.LocalThreshold.Should().Be(newLocalThreshold);
@@ -435,6 +479,7 @@ namespace MongoDB.Driver.Core.Configuration
 #pragma warning disable CS0618 // Type or member is obsolete
             result.ConnectionMode.Should().Be(subject.ConnectionMode);
 #pragma warning restore CS0618 // Type or member is obsolete
+            result.CryptClientSettings.Should().Be(subject.CryptClientSettings);
             result.EndPoints.Should().EqualUsing(subject.EndPoints, EndPointHelper.EndPointEqualityComparer);
             result.LoadBalanced.Should().BeFalse();
             result.LocalThreshold.Should().Be(subject.LocalThreshold);
@@ -456,6 +501,7 @@ namespace MongoDB.Driver.Core.Configuration
 #pragma warning disable CS0618 // Type or member is obsolete
             result.ConnectionMode.Should().Be(subject.ConnectionMode);
 #pragma warning restore CS0618 // Type or member is obsolete
+            result.CryptClientSettings.Should().Be(subject.CryptClientSettings);
             result.EndPoints.Should().EqualUsing(subject.EndPoints, EndPointHelper.EndPointEqualityComparer);
             result.LoadBalanced.Should().BeFalse();
             result.LocalThreshold.Should().Be(subject.LocalThreshold);
@@ -477,6 +523,7 @@ namespace MongoDB.Driver.Core.Configuration
 #pragma warning disable CS0618 // Type or member is obsolete
             result.ConnectionMode.Should().Be(subject.ConnectionMode);
 #pragma warning restore CS0618 // Type or member is obsolete
+            result.CryptClientSettings.Should().Be(subject.CryptClientSettings);
             result.EndPoints.Should().EqualUsing(subject.EndPoints, EndPointHelper.EndPointEqualityComparer);
             result.LoadBalanced.Should().BeFalse();
             result.LocalThreshold.Should().Be(subject.LocalThreshold);
@@ -498,6 +545,7 @@ namespace MongoDB.Driver.Core.Configuration
 #pragma warning disable CS0618 // Type or member is obsolete
             result.ConnectionMode.Should().Be(subject.ConnectionMode);
 #pragma warning restore CS0618 // Type or member is obsolete
+            result.CryptClientSettings.Should().Be(subject.CryptClientSettings);
             result.EndPoints.Should().EqualUsing(subject.EndPoints, EndPointHelper.EndPointEqualityComparer);
             result.LoadBalanced.Should().BeFalse();
             result.LocalThreshold.Should().Be(subject.LocalThreshold);
@@ -520,6 +568,7 @@ namespace MongoDB.Driver.Core.Configuration
 #pragma warning disable CS0618 // Type or member is obsolete
             result.ConnectionMode.Should().Be(subject.ConnectionMode);
 #pragma warning restore CS0618 // Type or member is obsolete
+            result.CryptClientSettings.Should().Be(subject.CryptClientSettings);
             result.EndPoints.Should().EqualUsing(subject.EndPoints, EndPointHelper.EndPointEqualityComparer);
             result.LoadBalanced.Should().BeFalse();
             result.LocalThreshold.Should().Be(subject.LocalThreshold);

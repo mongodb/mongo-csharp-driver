@@ -16,10 +16,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
-using MongoDB.Driver.Encryption;
 using MongoDB.Shared;
 
 namespace MongoDB.Driver
@@ -37,12 +35,12 @@ namespace MongoDB.Driver
 #pragma warning restore CS0618 // Type or member is obsolete
         private readonly TimeSpan _connectTimeout;
         private readonly IReadOnlyList<MongoCredential> _credentials;
+        private readonly CryptClientSettings _cryptClientSettings;
         private readonly bool? _directConnection;
         private readonly int _hashCode;
         private readonly TimeSpan _heartbeatInterval;
         private readonly TimeSpan _heartbeatTimeout;
         private readonly bool _ipv6;
-        private readonly IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> _kmsProviders;
         private readonly bool _loadBalanced;
         private readonly TimeSpan _localThreshold;
         private readonly int _maxConnecting;
@@ -52,7 +50,6 @@ namespace MongoDB.Driver
         private readonly int _minConnectionPoolSize;
         private readonly int _receiveBufferSize;
         private readonly string _replicaSetName;
-        private readonly IReadOnlyDictionary<string, BsonDocument> _schemaMap;
         private readonly ConnectionStringScheme _scheme;
         private readonly string _sdamLogFilename;
         private readonly int _sendBufferSize;
@@ -78,11 +75,11 @@ namespace MongoDB.Driver
 #pragma warning restore CS0618 // Type or member is obsolete
             TimeSpan connectTimeout,
             IReadOnlyList<MongoCredential> credentials,
+            CryptClientSettings cryptClientSettings,
             bool? directConnection,
             TimeSpan heartbeatInterval,
             TimeSpan heartbeatTimeout,
             bool ipv6,
-            IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> kmsProviders,
             bool loadBalanced,
             TimeSpan localThreshold,
             int maxConnecting,
@@ -92,7 +89,6 @@ namespace MongoDB.Driver
             int minConnectionPoolSize,
             int receiveBufferSize,
             string replicaSetName,
-            IReadOnlyDictionary<string, BsonDocument> schemaMap,
             ConnectionStringScheme scheme,
             string sdamLogFilename,
             int sendBufferSize,
@@ -116,11 +112,11 @@ namespace MongoDB.Driver
             _connectionModeSwitch = connectionModeSwitch;
             _connectTimeout = connectTimeout;
             _credentials = credentials;
+            _cryptClientSettings = cryptClientSettings;
             _directConnection = directConnection;
             _heartbeatInterval = heartbeatInterval;
             _heartbeatTimeout = heartbeatTimeout;
             _ipv6 = ipv6;
-            _kmsProviders = kmsProviders;
             _loadBalanced = loadBalanced;
             _localThreshold = localThreshold;
             _maxConnecting = maxConnecting;
@@ -130,7 +126,6 @@ namespace MongoDB.Driver
             _minConnectionPoolSize = minConnectionPoolSize;
             _receiveBufferSize = receiveBufferSize;
             _replicaSetName = replicaSetName;
-            _schemaMap = schemaMap;
             _scheme = scheme;
             _sdamLogFilename = sdamLogFilename;
             _sendBufferSize = sendBufferSize;
@@ -168,6 +163,7 @@ namespace MongoDB.Driver
         public ConnectionModeSwitch ConnectionModeSwitch => _connectionModeSwitch;
         public TimeSpan ConnectTimeout { get { return _connectTimeout; } }
         public IReadOnlyList<MongoCredential> Credentials { get { return _credentials; } }
+        public CryptClientSettings CryptClientSettings { get { return _cryptClientSettings; } }
         public bool? DirectConnection
         {
             get
@@ -184,7 +180,6 @@ namespace MongoDB.Driver
         public TimeSpan HeartbeatInterval { get { return _heartbeatInterval; } }
         public TimeSpan HeartbeatTimeout { get { return _heartbeatTimeout; } }
         public bool IPv6 { get { return _ipv6; } }
-        public IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> KmsProviders { get { return _kmsProviders; } }
         public bool LoadBalanced => _loadBalanced;
         public TimeSpan LocalThreshold { get { return _localThreshold; } }
         public int MaxConnecting{ get { return _maxConnecting; } }
@@ -194,7 +189,6 @@ namespace MongoDB.Driver
         public int MinConnectionPoolSize { get { return _minConnectionPoolSize; } }
         public int ReceiveBufferSize { get { return _receiveBufferSize; } }
         public string ReplicaSetName { get { return _replicaSetName; } }
-        public IReadOnlyDictionary<string, BsonDocument> SchemaMap { get { return _schemaMap; } }
         public ConnectionStringScheme Scheme { get { return _scheme; } }
         public string SdamLogFilename { get { return _sdamLogFilename; } }
         public int SendBufferSize { get { return _sendBufferSize; } }
@@ -235,11 +229,11 @@ namespace MongoDB.Driver
                 _connectionModeSwitch == rhs._connectionModeSwitch &&
                 _connectTimeout == rhs._connectTimeout &&
                 _credentials.SequenceEqual(rhs._credentials) &&
+                object.Equals(_cryptClientSettings, rhs._cryptClientSettings) &&
                 _directConnection.Equals(rhs._directConnection) &&
                 _heartbeatInterval == rhs._heartbeatInterval &&
                 _heartbeatTimeout == rhs._heartbeatTimeout &&
                 _ipv6 == rhs._ipv6 &&
-                KmsProvidersHelper.Equals(_kmsProviders, rhs.KmsProviders) &&
                 _loadBalanced == rhs._loadBalanced &&
                 _localThreshold == rhs._localThreshold &&
                 _maxConnecting == rhs._maxConnecting &&
@@ -249,7 +243,6 @@ namespace MongoDB.Driver
                 _minConnectionPoolSize == rhs._minConnectionPoolSize &&
                 _receiveBufferSize == rhs._receiveBufferSize &&
                 _replicaSetName == rhs._replicaSetName &&
-                _schemaMap.IsEquivalentTo(rhs._schemaMap, object.Equals) &&
                 _scheme == rhs._scheme &&
                 _sdamLogFilename == rhs._sdamLogFilename &&
                 _sendBufferSize == rhs._sendBufferSize &&

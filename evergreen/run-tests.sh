@@ -68,6 +68,8 @@ provision_compressor () {
 ############################################
 #            Main Program                  #
 ############################################
+echo "CRYPT_SHARED_LIB_PATH:" $CRYPT_SHARED_LIB_PATH
+echo "TEST_MONGOCRYPTD:" $TEST_MONGOCRYPTD
 echo "Initial MongoDB URI:" $MONGODB_URI
 echo "Framework: " $FRAMEWORK
 

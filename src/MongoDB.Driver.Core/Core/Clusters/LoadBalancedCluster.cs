@@ -170,9 +170,9 @@ namespace MongoDB.Driver.Core.Clusters
                 var stopwatch = Stopwatch.StartNew();
                 _openingEventHandler?.Invoke(new ClusterOpeningEvent(ClusterId, Settings));
 
-                if (_settings.KmsProviders != null || _settings.SchemaMap != null)
+                if (_settings.CryptClientSettings != null)
                 {
-                    _cryptClient = CryptClientCreator.CreateCryptClient(_settings.KmsProviders, _settings.SchemaMap);
+                    _cryptClient = CryptClientCreator.CreateCryptClient(_settings.CryptClientSettings);
                 }
 
                 var endPoint = _settings.EndPoints.Single();

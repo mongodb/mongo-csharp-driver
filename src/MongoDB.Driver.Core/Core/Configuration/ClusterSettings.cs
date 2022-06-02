@@ -17,7 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Misc;
@@ -39,14 +38,13 @@ namespace MongoDB.Driver.Core.Configuration
         private readonly ClusterConnectionMode _connectionMode;
         private readonly ConnectionModeSwitch _connectionModeSwitch;
 #pragma warning restore CS0618 // Type or member is obsolete
+        private readonly CryptClientSettings _cryptClientSettings;
         private readonly bool? _directConnection;
         private readonly IReadOnlyList<EndPoint> _endPoints;
-        private readonly IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> _kmsProviders;
         private readonly bool _loadBalanced;
         private readonly TimeSpan _localThreshold;
         private readonly int _maxServerSelectionWaitQueueSize;
         private readonly string _replicaSetName;
-        private readonly IReadOnlyDictionary<string, BsonDocument> _schemaMap;
         private readonly ConnectionStringScheme _scheme;
         private readonly ServerApi _serverApi;
         private readonly TimeSpan _serverSelectionTimeout;
@@ -60,9 +58,9 @@ namespace MongoDB.Driver.Core.Configuration
         /// </summary>
         /// <param name="connectionMode">The connection mode.</param>
         /// <param name="connectionModeSwitch">The connection mode switch.</param>
+        /// <param name="cryptClientSettings">Crypt client settings.</param>
         /// <param name="directConnection">The directConnection.</param>
         /// <param name="endPoints">The end points.</param>
-        /// <param name="kmsProviders">The kms providers.</param>
         /// <param name="loadBalanced">The load balanced.</param>
         /// <param name="localThreshold">The local threshold.</param>
         /// <param name="maxServerSelectionWaitQueueSize">Maximum size of the server selection wait queue.</param>
@@ -71,7 +69,6 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="serverSelectionTimeout">The server selection timeout.</param>
         /// <param name="preServerSelector">The pre server selector.</param>
         /// <param name="postServerSelector">The post server selector.</param>
-        /// <param name="schemaMap">The schema map.</param>
         /// <param name="scheme">The connection string scheme.</param>
         /// <param name="srvMaxHosts">Limits the number of SRV records used to populate the seedlist during initial discovery, as well as the number of additional hosts that may be added during SRV polling.</param>
         public ClusterSettings(
@@ -79,9 +76,9 @@ namespace MongoDB.Driver.Core.Configuration
             Optional<ClusterConnectionMode> connectionMode = default(Optional<ClusterConnectionMode>),
             Optional<ConnectionModeSwitch> connectionModeSwitch = default,
 #pragma warning restore CS0618 // Type or member is obsolete
+            Optional<CryptClientSettings> cryptClientSettings = default,
             Optional<bool?> directConnection = default,
             Optional<IEnumerable<EndPoint>> endPoints = default(Optional<IEnumerable<EndPoint>>),
-            Optional<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>>> kmsProviders = default(Optional<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>>>),
             Optional<bool> loadBalanced = default,
             Optional<TimeSpan> localThreshold = default,
             Optional<int> maxServerSelectionWaitQueueSize = default(Optional<int>),
@@ -90,7 +87,6 @@ namespace MongoDB.Driver.Core.Configuration
             Optional<TimeSpan> serverSelectionTimeout = default(Optional<TimeSpan>),
             Optional<IServerSelector> preServerSelector = default(Optional<IServerSelector>),
             Optional<IServerSelector> postServerSelector = default(Optional<IServerSelector>),
-            Optional<IReadOnlyDictionary<string, BsonDocument>> schemaMap = default(Optional<IReadOnlyDictionary<string, BsonDocument>>),
             Optional<ConnectionStringScheme> scheme = default(Optional<ConnectionStringScheme>),
             Optional<int> srvMaxHosts = default)
         {
@@ -98,9 +94,9 @@ namespace MongoDB.Driver.Core.Configuration
             _connectionMode = connectionMode.WithDefault(ClusterConnectionMode.Automatic);
             _connectionModeSwitch = connectionModeSwitch.WithDefault(ConnectionModeSwitch.NotSet);
 #pragma warning restore CS0618 // Type or member is obsolete
+            _cryptClientSettings = cryptClientSettings.WithDefault(null);
             _directConnection = directConnection.WithDefault(null);
             _endPoints = Ensure.IsNotNull(endPoints.WithDefault(__defaultEndPoints), nameof(endPoints)).ToList();
-            _kmsProviders = kmsProviders.WithDefault(null);
             _loadBalanced = loadBalanced.WithDefault(false);
             _localThreshold = Ensure.IsInfiniteOrGreaterThanOrEqualToZero(localThreshold.WithDefault(TimeSpan.FromMilliseconds(15)), nameof(localThreshold));
             _maxServerSelectionWaitQueueSize = Ensure.IsGreaterThanOrEqualToZero(maxServerSelectionWaitQueueSize.WithDefault(500), nameof(maxServerSelectionWaitQueueSize));
@@ -110,13 +106,13 @@ namespace MongoDB.Driver.Core.Configuration
             _preServerSelector = preServerSelector.WithDefault(null);
             _postServerSelector = postServerSelector.WithDefault(null);
             _scheme = scheme.WithDefault(ConnectionStringScheme.MongoDB);
-            _schemaMap = schemaMap.WithDefault(null);
             _srvMaxHosts = Ensure.IsGreaterThanOrEqualToZero(srvMaxHosts.WithDefault(0), nameof(srvMaxHosts));
 
             ClusterConnectionModeHelper.EnsureConnectionModeValuesAreValid(_connectionMode, _connectionModeSwitch, _directConnection);
         }
 
         // properties
+
         /// <summary>
         /// Gets the connection mode.
         /// </summary>
@@ -146,6 +142,14 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         /// <summary>
+        /// Gets the crypt client settings.
+        /// </summary>
+        public CryptClientSettings CryptClientSettings
+        {
+            get { return _cryptClientSettings; }
+        }
+
+        /// <summary>
         /// Gets the DirectConnection.
         /// </summary>
         public bool? DirectConnection
@@ -171,17 +175,6 @@ namespace MongoDB.Driver.Core.Configuration
         public IReadOnlyList<EndPoint> EndPoints
         {
             get { return _endPoints; }
-        }
-
-        /// <summary>
-        /// Gets the kms providers.
-        /// </summary>
-        /// <value>
-        /// The kms providers.
-        /// </value>
-        public IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> KmsProviders
-        {
-            get { return _kmsProviders; }
         }
 
         /// <summary>
@@ -223,17 +216,6 @@ namespace MongoDB.Driver.Core.Configuration
         public string ReplicaSetName
         {
             get { return _replicaSetName; }
-        }
-
-        /// <summary>
-        /// Gets the schema map.
-        /// </summary>
-        /// <value>
-        /// The schema map.
-        /// </value>
-        public IReadOnlyDictionary<string, BsonDocument> SchemaMap
-        {
-            get { return _schemaMap; }
         }
 
         /// <summary>
@@ -304,9 +286,9 @@ namespace MongoDB.Driver.Core.Configuration
         /// </summary>
         /// <param name="connectionMode">The connection mode.</param>
         /// <param name="connectionModeSwitch">The connection mode switch.</param>
+        /// <param name="cryptClientSettings">Crypt client settings.</param>
         /// <param name="directConnection">The directConnection.</param>
         /// <param name="endPoints">The end points.</param>
-        /// <param name="kmsProviders">The kms providers.</param>
         /// <param name="loadBalanced">The load balanced.</param>
         /// <param name="localThreshold">The local threshold.</param>
         /// <param name="maxServerSelectionWaitQueueSize">Maximum size of the server selection wait queue.</param>
@@ -315,7 +297,6 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="serverSelectionTimeout">The server selection timeout.</param>
         /// <param name="preServerSelector">The pre server selector.</param>
         /// <param name="postServerSelector">The post server selector.</param>
-        /// <param name="schemaMap">The schema map.</param>
         /// <param name="scheme">The connection string scheme.</param>
         /// <param name="srvMaxHosts">Limits the number of SRV records used to populate the seedlist during initial discovery, as well as the number of additional hosts that may be added during SRV polling.</param>
         /// <returns>A new ClusterSettings instance.</returns>
@@ -324,9 +305,9 @@ namespace MongoDB.Driver.Core.Configuration
             Optional<ClusterConnectionMode> connectionMode = default(Optional<ClusterConnectionMode>),
             Optional<ConnectionModeSwitch> connectionModeSwitch = default,
 #pragma warning restore CS0618 // Type or member is obsolete
+            Optional<CryptClientSettings> cryptClientSettings = default,
             Optional<bool?> directConnection = default,
             Optional<IEnumerable<EndPoint>> endPoints = default(Optional<IEnumerable<EndPoint>>),
-            Optional<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>>> kmsProviders = default(Optional<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>>>),
             Optional<bool> loadBalanced = default,
             Optional<TimeSpan> localThreshold = default(Optional<TimeSpan>),
             Optional<int> maxServerSelectionWaitQueueSize = default(Optional<int>),
@@ -335,16 +316,15 @@ namespace MongoDB.Driver.Core.Configuration
             Optional<TimeSpan> serverSelectionTimeout = default(Optional<TimeSpan>),
             Optional<IServerSelector> preServerSelector = default(Optional<IServerSelector>),
             Optional<IServerSelector> postServerSelector = default(Optional<IServerSelector>),
-            Optional<IReadOnlyDictionary<string, BsonDocument>> schemaMap = default(Optional<IReadOnlyDictionary<string, BsonDocument>>),
             Optional<ConnectionStringScheme> scheme = default(Optional<ConnectionStringScheme>),
             Optional<int> srvMaxHosts = default)
         {
             return new ClusterSettings(
                 connectionMode: connectionMode.WithDefault(_connectionMode),
                 connectionModeSwitch: connectionModeSwitch.WithDefault(_connectionModeSwitch),
+                cryptClientSettings: cryptClientSettings.WithDefault(_cryptClientSettings),
                 directConnection: directConnection.WithDefault(_directConnection),
                 endPoints: Optional.Enumerable(endPoints.WithDefault(_endPoints)),
-                kmsProviders: Optional.Create(kmsProviders.WithDefault(_kmsProviders)),
                 loadBalanced: Optional.Create(loadBalanced.WithDefault(_loadBalanced)),
                 localThreshold: localThreshold.WithDefault(_localThreshold),
                 maxServerSelectionWaitQueueSize: maxServerSelectionWaitQueueSize.WithDefault(_maxServerSelectionWaitQueueSize),
@@ -353,7 +333,6 @@ namespace MongoDB.Driver.Core.Configuration
                 serverSelectionTimeout: serverSelectionTimeout.WithDefault(_serverSelectionTimeout),
                 preServerSelector: Optional.Create(preServerSelector.WithDefault(_preServerSelector)),
                 postServerSelector: Optional.Create(postServerSelector.WithDefault(_postServerSelector)),
-                schemaMap: Optional.Create(schemaMap.WithDefault(_schemaMap)),
                 scheme: scheme.WithDefault(_scheme),
                 srvMaxHosts: srvMaxHosts.WithDefault(_srvMaxHosts));
         }

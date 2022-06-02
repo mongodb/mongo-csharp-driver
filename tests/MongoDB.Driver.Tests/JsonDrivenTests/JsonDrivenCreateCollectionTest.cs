@@ -25,20 +25,20 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
     {
         // private fields
         private string _collectionName;
-        private CreateCollectionOptions _createCollectionOptions;
+        private CreateCollectionOptions<BsonDocument> _createCollectionOptions;
         private IClientSessionHandle _session;
 
         // public constructors
         public JsonDrivenCreateCollectionTest(IMongoDatabase database, Dictionary<string, object> objectMap)
             : base(database, objectMap)
         {
-            _createCollectionOptions = new CreateCollectionOptions();
+            _createCollectionOptions = new CreateCollectionOptions<BsonDocument>();
         }
 
         // public methods
         public override void Arrange(BsonDocument document)
         {
-            JsonDrivenHelper.EnsureAllFieldsAreValid(document, "name", "object", "arguments");
+            JsonDrivenHelper.EnsureAllFieldsAreValid(document, "name", "object", "arguments", "result");
             base.Arrange(document);
         }
 
@@ -79,6 +79,9 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
                     return;
                 case "encryptedFields":
                     _createCollectionOptions.EncryptedFields = value.AsBsonDocument;
+                    return;
+                case "validator":
+                    _createCollectionOptions.Validator = new BsonDocumentFilterDefinition<BsonDocument>(value.AsBsonDocument);
                     return;
             }
 

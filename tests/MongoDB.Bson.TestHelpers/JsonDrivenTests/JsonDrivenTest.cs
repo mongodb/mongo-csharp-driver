@@ -79,6 +79,11 @@ namespace MongoDB.Bson.TestHelpers.JsonDrivenTests
 
         public virtual void Assert()
         {
+            Assert(allowExtraFields: false);
+        }
+
+        public virtual void Assert(bool allowExtraFields)
+        {
             if (_expectedException == null)
             {
                 if (_actualException != null)
@@ -88,7 +93,7 @@ namespace MongoDB.Bson.TestHelpers.JsonDrivenTests
 
                 if (_expectedResult != null)
                 {
-                    AssertResult();
+                    AssertResult(allowExtraFields);
                 }
             }
             else
@@ -117,7 +122,11 @@ namespace MongoDB.Bson.TestHelpers.JsonDrivenTests
 
         protected virtual void AssertResult()
         {
-            throw new NotImplementedException();
+            AssertResult(allowExtraFields: false);
+        }
+
+        protected virtual void AssertResult(bool allowExtraFields)
+        {
         }
 
         protected virtual void CallMethod(CancellationToken cancellationToken)

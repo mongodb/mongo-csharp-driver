@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
+using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Libmongocrypt;
 
@@ -33,43 +34,34 @@ namespace MongoDB.Driver.Core.Clusters
         /// <summary>
         /// Create a CryptClient instance.
         /// </summary>
-        /// <param name="kmsProviders">The kms providers.</param>
-        /// <param name="schemaMap">The schema map.</param>
+        /// <param name="cryptClientSettings">Crypt client settings.</param>
         /// <returns>The CryptClient instance.</returns>
-        public static CryptClient CreateCryptClient(
-            IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> kmsProviders,
-            IReadOnlyDictionary<string, BsonDocument> schemaMap)
+        public static CryptClient CreateCryptClient(CryptClientSettings cryptClientSettings)
         {
-            var helper = new CryptClientCreator(kmsProviders, schemaMap);
+            var helper = new CryptClientCreator(cryptClientSettings);
             var cryptOptions = helper.CreateCryptOptions();
             return helper.CreateCryptClient(cryptOptions);
         }
 #pragma warning restore
         #endregion
 
-        private readonly IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> _kmsProviders;
-        private readonly IReadOnlyDictionary<string, BsonDocument> _schemaMap;
+        private readonly CryptClientSettings _cryptClientSettings;
 
-        private CryptClientCreator(
-            IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> kmsProviders,
-            IReadOnlyDictionary<string, BsonDocument> schemaMap)
+        private CryptClientCreator(CryptClientSettings cryptClientSettings)
         {
-            _kmsProviders = Ensure.IsNotNull(kmsProviders, nameof(kmsProviders));
-            _schemaMap = schemaMap;
+            _cryptClientSettings = Ensure.IsNotNull(cryptClientSettings, nameof(cryptClientSettings));
         }
 
-        private CryptClient CreateCryptClient(CryptOptions options)
-        {
-            return CryptClientFactory.Create(options);
-        }
+        private CryptClient CreateCryptClient(CryptOptions options) =>
+            CryptClientFactory.Create(options);
 
         private CryptOptions CreateCryptOptions()
         {
             List<KmsCredentials> kmsProviders = null;
-            if (_kmsProviders != null && _kmsProviders.Count > 0)
+            if (_cryptClientSettings.KmsProviders?.Count > 0)
             {
                 kmsProviders = new List<KmsCredentials>();
-                foreach (var kmsProvider in _kmsProviders)
+                foreach (var kmsProvider in _cryptClientSettings.KmsProviders)
                 {
                     var kmsTypeDocumentKey = kmsProvider.Key.ToLower();
                     var kmsProviderDocument = CreateProviderDocument(kmsTypeDocumentKey, kmsProvider.Value);
@@ -83,21 +75,25 @@ namespace MongoDB.Driver.Core.Clusters
             }
 
             byte[] schemaBytes = null;
-            if (_schemaMap != null)
+            if (_cryptClientSettings.SchemaMap != null)
             {
-                var schemaMapElements = _schemaMap.Select(c => new BsonElement(c.Key, c.Value));
-                var schemaDocument = new BsonDocument(schemaMapElements);
-#pragma warning disable 618
-                var writerSettings = new BsonBinaryWriterSettings();
-                if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-                {
-                    writerSettings.GuidRepresentation = GuidRepresentation.Unspecified;
-                }
-#pragma warning restore 618
-                schemaBytes = schemaDocument.ToBson(writerSettings: writerSettings);
+                schemaBytes = GetBytesFromMap(_cryptClientSettings.SchemaMap);
             }
 
-            return new CryptOptions(kmsProviders, schemaBytes);
+            byte[] encryptedFieldsBytes = null;
+            if (_cryptClientSettings.EncryptedFieldsMap != null)
+            {
+                encryptedFieldsBytes = GetBytesFromMap(_cryptClientSettings.EncryptedFieldsMap);
+            }
+
+            return new CryptOptions(
+                kmsProviders,
+                encryptedFieldsMap: encryptedFieldsBytes,
+                schema: schemaBytes,
+                bypassQueryAnalysis: _cryptClientSettings.BypassQueryAnalysis.GetValueOrDefault(false),
+                _cryptClientSettings.CryptSharedLibPath,
+                _cryptClientSettings.CryptSharedLibSearchPath,
+                _cryptClientSettings.IsCryptSharedLibRequired ?? false);
         }
 
         private BsonDocument CreateProviderDocument(string kmsType, IReadOnlyDictionary<string, object> data)
@@ -109,6 +105,20 @@ namespace MongoDB.Driver.Core.Clusters
             }
             var providerDocument = new BsonDocument(kmsType, providerContent);
             return providerDocument;
+        }
+
+        private byte[] GetBytesFromMap(IReadOnlyDictionary<string, BsonDocument> map)
+        {
+            var mapElements = map.Select(c => new BsonElement(c.Key, c.Value));
+            var mapDocument = new BsonDocument(mapElements);
+#pragma warning disable 618
+            var writerSettings = new BsonBinaryWriterSettings();
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+            {
+                writerSettings.GuidRepresentation = GuidRepresentation.Unspecified;
+            }
+#pragma warning restore 618
+            return mapDocument.ToBson(writerSettings: writerSettings);
         }
     }
 }

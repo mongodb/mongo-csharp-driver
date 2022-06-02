@@ -187,6 +187,7 @@ namespace MongoDB.Driver.Core.Clusters
                 UpdateClusterDescription(newClusterDescription);
 
                 _rapidHeartbeatTimer.Dispose();
+                _cryptClient?.Dispose();
             }
         }
 
@@ -222,9 +223,9 @@ namespace MongoDB.Driver.Core.Clusters
             ThrowIfDisposed();
             if (_state.TryChange(State.Initial, State.Open))
             {
-                if (_settings.KmsProviders != null || _settings.SchemaMap != null)
+                if (_settings.CryptClientSettings != null)
                 {
-                    _cryptClient = CryptClientCreator.CreateCryptClient(_settings.KmsProviders, _settings.SchemaMap);
+                    _cryptClient = CryptClientCreator.CreateCryptClient(_settings.CryptClientSettings);
                 }
             }
         }

@@ -10,10 +10,14 @@ Introduction
 ============
 
 This document describes the format of the driver spec tests included in the
-JSON and YAML files included in this directory. The
-``timeoutMS.yml``/``timeoutMS.json`` files in this directory contain tests
-for the ``timeoutMS`` option and its application to the client-side
-encryption feature. Drivers MUST only run these tests after implementing the
+JSON and YAML files included in the ``legacy`` sub-directory. Tests in the
+``unified`` directory are written using the `Unified Test Format
+<../../unified-test-format/unified-test-format.rst>`_.
+
+The ``timeoutMS.yml``/``timeoutMS.json`` files in this directory contain tests
+for the ``timeoutMS`` option and its application to the client-side encryption
+feature. Drivers MUST only run these tests after implementing the
+
 `Client Side Operations Timeout
 <../client-side-operations-timeout/client-side-operations-timeout.rst>`__
 specification.
@@ -338,12 +342,6 @@ for information on "disabling" csfle and setting csfle search paths.
 
 .. note::
 
-   At time of writing, csfle_ does not properly handle the ``explain``
-   command and will fail to parse it. This will cause the ``explain`` test case
-   to fail if ``csfle`` is in use instead of ``mongocryptd``.
-
-.. note::
-
    The ``csfle`` dynamic library can be obtained using the mongodl_ Python
    script from drivers-evergreen-tools_:
 
@@ -371,8 +369,33 @@ In the prose tests LOCAL_MASTERKEY refers to the following base64:
 
 Perform all applicable operations on key vault collections (e.g. inserting an example data key, or running a find command) with readConcern/writeConcern "majority".
 
-Data key and double encryption
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1. Custom Key Material Test
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#. Create a ``MongoClient`` object (referred to as ``client``).
+
+#. Using ``client``, drop the collection ``keyvault.datakeys``.
+
+#. Create a ``ClientEncryption`` object (referred to as ``client_encryption``) with ``client`` set as the ``keyVaultClient``.
+
+#. Using ``client_encryption``, create a data key with a ``local`` KMS provider and the following custom key material (given as base64):
+
+.. code:: javascript
+
+  xPTAjBRG5JiPm+d3fj6XLi2q5DMXUS/f1f+SMAlhhwkhDRL0kr8r9GDLIGTAGlvC+HVjSIgdL+RKwZCvpXSyxTICWSXTUYsWYPyu3IoHbuBZdmw2faM3WhcRIgbMReU5
+
+#. Find the resulting key document in ``keyvault.datakeys``, save a copy of the key document, then remove the key document from the collection.
+
+#. Replace the ``_id`` field in the copied key document with a UUID with base64 value ``AAAAAAAAAAAAAAAAAAAAAA==`` (16 bytes all equal to ``0x00``) and insert the modified key document into ``keyvault.datakeys`` with majority write concern.
+
+#. Using ``client_encryption``, encrypt the string ``"test"`` with the modified data key using the ``AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic`` algorithm and assert the resulting value is equal to the following (given as base64):
+
+.. code:: javascript
+
+  AQAAAAAAAAAAAAAAAAAAAAACz0ZOLuuhEYi807ZXTdhbqhLaS2/t9wLifJnnNYwiw79d75QYIZ6M/aYC1h9nCzCjZ7pGUpAuNnkUhnIXM3PjrA==
+
+2. Data Key and Double Encryption
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 First, perform the setup.
 
@@ -502,8 +525,8 @@ For each KMS provider (``aws``, ``azure``, ``gcp``, ``local``, and ``kmip``), re
 
 
 
-External Key Vault Test
-~~~~~~~~~~~~~~~~~~~~~~~
+3. External Key Vault Test
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Run the following tests twice, parameterized by a boolean ``withExternalKeyVault``.
 
@@ -537,8 +560,8 @@ Run the following tests twice, parameterized by a boolean ``withExternalKeyVault
    If ``withExternalKeyVault == true``, expect an authentication exception to be thrown. Otherwise, expect the insert to succeed.
 
 
-BSON size limits and batch splitting
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+4. BSON Size Limits and Batch Splitting
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 First, perform the setup.
 
@@ -597,8 +620,8 @@ Using ``client_encrypted`` perform the following operations:
 Optionally, if it is possible to mock the maxWriteBatchSize (i.e. the maximum number of documents in a batch) test that setting maxWriteBatchSize=1 and inserting the two documents ``{ "_id": "a" }, { "_id": "b" }`` with ``client_encrypted`` splits the operation into two inserts.
 
 
-Views are prohibited
-~~~~~~~~~~~~~~~~~~~~
+5. Views Are Prohibited
+~~~~~~~~~~~~~~~~~~~~~~~
 
 #. Create a MongoClient without encryption enabled (referred to as ``client``).
 
@@ -617,8 +640,8 @@ Views are prohibited
 #. Using ``client_encrypted``, attempt to insert a document into ``db.view``. Expect an exception to be thrown containing the message: "cannot auto encrypt a view".
 
 
-Corpus Test
-~~~~~~~~~~~
+6. Corpus Test
+~~~~~~~~~~~~~~
 
 The corpus test exhaustively enumerates all ways to encrypt all BSON value types. Note, the test data includes BSON binary subtype 4 (or standard UUID), which MUST be decoded and encoded as subtype 4. Run the test as follows.
 
@@ -714,8 +737,8 @@ The corpus test exhaustively enumerates all ways to encrypt all BSON value types
 
 9. Repeat steps 1-8 with a local JSON schema. I.e. amend step 4 to configure the schema on ``client_encrypted`` with the ``schema_map`` option.
 
-Custom Endpoint Test
-~~~~~~~~~~~~~~~~~~~~
+7. Custom Endpoint Test
+~~~~~~~~~~~~~~~~~~~~~~~
 
 Setup
 `````
@@ -934,8 +957,18 @@ Test cases
 
     Expect this to fail with a network exception indicating failure to resolve "doesnotexist.local".
 
-Bypass spawning mongocryptd
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+8. Bypass Spawning mongocryptd
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. note::
+
+   IMPORTANT: If csfle_ is visible to the operating system's library search
+   mechanism, the expected server error generated by these
+   ``mongocryptdBypassSpawn`` tests will not appear because libmongocrypt will
+   load the csfle library instead of consulting mongocryptd. For these tests, it
+   is required that libmongocrypt *not* load csfle. Refer to the
+   client-side-encryption document for more information on "disabling" csfle.
+
 
 .. note::
 
@@ -1014,9 +1047,8 @@ Via bypassQueryAnalysis
 
 Repeat the steps from the "Via bypassAutoEncryption" test, replacing "bypassAutoEncryption=true" with "bypassQueryAnalysis=true".
 
-
-Deadlock tests
-~~~~~~~~~~~~~~
+9. Deadlock Tests
+~~~~~~~~~~~~~~~~~
 
 .. _Connection Monitoring and Pooling: /source/connection-monitoring-and-pooling/connection-monitoring-and-pooling.rst
 
@@ -1189,8 +1221,8 @@ Drivers that do not support an unlimited maximum pool size MUST skip this test.
       - a find on "keyvault".
 - ExpectedNumberOfClients: 1
 
-KMS TLS Tests
-~~~~~~~~~~~~~
+10. KMS TLS Tests
+~~~~~~~~~~~~~~~~~
 
 .. _ca.pem: https://github.com/mongodb-labs/drivers-evergreen-tools/blob/master/.evergreen/x509gen/ca.pem
 .. _expired.pem: https://github.com/mongodb-labs/drivers-evergreen-tools/blob/master/.evergreen/x509gen/expired.pem
@@ -1263,8 +1295,8 @@ Invalid Hostname in KMS Certificate
    is "cannot validate certificate for 127.0.0.1 because it doesn't contain any IP SANs". If the language of implementation has a single, generic
    error message for all certificate validation errors, drivers may inspect other fields of the error to verify its meaning.
 
-KMS TLS Options Tests
-~~~~~~~~~~~~~~~~~~~~~
+11. KMS TLS Options Tests
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Setup
 `````
@@ -1572,8 +1604,9 @@ the same masterKey.
 
 Expect an error indicating TLS handshake failed due to an invalid hostname.
 
-Explicit Encryption
-~~~~~~~~~~~~~~~~~~~
+12. Explicit Encryption
+~~~~~~~~~~~~~~~~~~~~~~~
+=======
 
 The Explicit Encryption tests require MongoDB server 6.0+. The tests must not run against a standalone.
 
@@ -1752,3 +1785,60 @@ Use ``clientEncryption`` to encrypt the value "encrypted unindexed value" with t
 Store the result in ``payload``.
 
 Use ``clientEncryption`` to decrypt ``payload``. Assert the returned value equals "encrypted unindexed value".
+
+13. Unique Index on keyAltNames
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Setup
+`````
+
+1. Create a ``MongoClient`` object (referred to as ``client``).
+
+2. Using ``client``, drop the collection ``keyvault.datakeys``.
+
+3. Using ``client``, create a unique index on ``keyAltNames`` with a partial index filter for only documents where ``keyAltNames`` exists using writeConcern "majority".
+
+The command should be equivalent to:
+
+.. code:: typescript
+
+   db.runCommand(
+     {
+        createIndexes: "datakeys",
+        indexes: [
+          {
+            name: "keyAltNames_1",
+            key: { "keyAltNames": 1 },
+            unique: true,
+            partialFilterExpression: { keyAltNames: { $exists: true } }
+          }
+        ],
+        writeConcern: { w: "majority" }
+     }
+   )
+
+4. Create a ``ClientEncryption`` object (referred to as ``client_encryption``) with ``client`` set as the ``keyVaultClient``.
+
+5. Using ``client_encryption``, create a data key with a ``local`` KMS provider and the keyAltName "def".
+
+Case 1: createKey()
+```````````````````
+
+1. Use ``client_encryption`` to create a new local data key with a keyAltName "abc" and assert the operation does not fail.
+
+2. Repeat Step 1 and assert the operation fails due to a duplicate key server error (error code 11000).
+
+3. Use ``client_encryption`` to create a new local data key with a keyAltName "def" and assert the operation fails due to a duplicate key server error (error code 11000).
+
+Case 2: addKeyAltName()
+```````````````````````
+
+1. Use ``client_encryption`` to create a new local data key and assert the operation does not fail.
+
+2. Use ``client_encryption`` to add a keyAltName "abc" to the key created in Step 1 and assert the operation does not fail.
+
+3. Repeat Step 2 and assert the operation does not fail.
+
+4. Use ``client_encryption`` to add a keyAltName "def" to the key created in Step 1 and assert the operation fails due to a duplicate key server error (error code 11000).
+
+5. Use ``client_encryption`` to add a keyAltName "def" to the existing key and assert the operation does not fail.

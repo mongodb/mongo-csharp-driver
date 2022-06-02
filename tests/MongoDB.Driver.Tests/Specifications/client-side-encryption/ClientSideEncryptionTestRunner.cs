@@ -74,7 +74,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
             get
             {
                 var expectedSharedColumns = new List<string>(base.ExpectedSharedColumns);
-                expectedSharedColumns.AddRange(new[] { "json_schema", "key_vault_data" });
+                expectedSharedColumns.AddRange(new[] { "json_schema", "key_vault_data", "encrypted_fields" });
                 return expectedSharedColumns.ToArray();
             }
         }
@@ -99,6 +99,20 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                 getPlaceholders: () => new KeyValuePair<string, BsonValue>[0]); // do not use placeholders
         }
 
+        protected override void AssertOperation(string name, JsonDrivenTest jsonDrivenTest)
+        {
+            switch (name)
+            {
+                case "findOneAndUpdate":
+                    {
+                        // ignore: "_id" and  "__safeContent__"
+                        jsonDrivenTest.Assert(allowExtraFields: true);
+                    }
+                    break;
+                default: base.AssertOperation(name, jsonDrivenTest); break;
+            }
+        }
+
         protected override MongoClient CreateClientForTestSetup()
         {
             var clientSettings = DriverTestConfiguration.GetClientSettings().Clone();
@@ -113,15 +127,23 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
 
         protected override void CreateCollection(IMongoClient client, string databaseName, string collectionName, BsonDocument test, BsonDocument shared)
         {
-            if (shared.TryGetElement("json_schema", out var jsonSchema))
+            var jsonSchema = shared.GetValue("json_schema", defaultValue: null);
+            var encrypted_fields = shared.GetValue("encrypted_fields", defaultValue: null);
+            if (jsonSchema != null || encrypted_fields != null)
             {
                 var database = client.GetDatabase(databaseName).WithWriteConcern(WriteConcern.WMajority);
-                var validatorSchema = new BsonDocument("$jsonSchema", jsonSchema.Value.ToBsonDocument());
+                BsonDocumentFilterDefinition<BsonDocument> validator = null;
+                if (jsonSchema != null)
+                {
+                    var validatorSchema = new BsonDocument("$jsonSchema", jsonSchema.ToBsonDocument());
+                    validator = new BsonDocumentFilterDefinition<BsonDocument>(validatorSchema);
+                }
                 database.CreateCollection(
                     collectionName,
                     new CreateCollectionOptions<BsonDocument>
                     {
-                        Validator = new BsonDocumentFilterDefinition<BsonDocument>(validatorSchema)
+                        EncryptedFields = encrypted_fields?.ToBsonDocument(),
+                        Validator = validator
                     });
             }
             else
@@ -132,7 +154,15 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
 
         protected override void DropCollection(MongoClient client, string databaseName, string collectionName, BsonDocument test, BsonDocument shared)
         {
-            base.DropCollection(client, databaseName, collectionName, test, shared);
+            if (shared.TryGetValue("encrypted_fields", out var encrypted_fields))
+            {
+                var database = client.GetDatabase(databaseName).WithWriteConcern(WriteConcern.WMajority);
+                database.DropCollection(collectionName, new DropCollectionOptions { EncryptedFields = encrypted_fields.AsBsonDocument });
+            }
+            else
+            {
+                base.DropCollection(client, databaseName, collectionName, test, shared);
+            }
 
             if (shared.Contains("key_vault_data"))
             {
@@ -156,7 +186,10 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                 };
                 var keyVaultCollection = keyVaultDatabase.GetCollection<BsonDocument>(__keyVaultCollectionNamespace.CollectionName, collectionSettings);
                 var keyVaultDocuments = keyVaultData.AsBsonArray.Select(c => c.AsBsonDocument);
-                keyVaultCollection.InsertMany(keyVaultDocuments);
+                if (keyVaultDocuments.Any())
+                {
+                    keyVaultCollection.InsertMany(keyVaultDocuments);
+                }
             }
         }
 
@@ -229,6 +262,9 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                         var encryptedFieldsMapDocument = option.Value.AsBsonDocument;
                         var encryptedFieldsMap = encryptedFieldsMapDocument.Elements.ToDictionary(e => e.Name, e => e.Value.AsBsonDocument);
                         autoEncryptionOptions = autoEncryptionOptions.With(encryptedFieldsMap: encryptedFieldsMap);
+                        break;
+                    case "bypassQueryAnalysis":
+                        autoEncryptionOptions = autoEncryptionOptions.With(bypassQueryAnalysis: option.Value.ToBoolean());
                         break;
 
                     default:

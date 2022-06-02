@@ -162,7 +162,7 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
             }
         }
 
-        protected virtual void AssertOperation(JsonDrivenTest jsonDrivenTest)
+        protected virtual void AssertOperation(string name, JsonDrivenTest jsonDrivenTest)
         {
             jsonDrivenTest.Assert();
         }
@@ -266,7 +266,7 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
                 {
                     jsonDrivenTest.Act(CancellationToken.None);
                 }
-                AssertOperation(jsonDrivenTest);
+                AssertOperation(name, jsonDrivenTest);
             }
         }
 
@@ -549,7 +549,7 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
                     prepareExpectedResult(actualEvent, expectedEvent);
                 }
             }
-            actualDocuments.Should().BeEquivalentTo(expectedDocuments);
+            actualDocuments.Should().BeEquivalentToWithComparer(expectedDocuments, BsonValueEquivalencyComparer.Instance);
         }
 
         // private methods
