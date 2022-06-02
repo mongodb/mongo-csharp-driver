@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
 {
     public static class EncryptionTestHelper
     {
-        public static void ConfigureDefaultExtraOptions(Dictionary<string, object> extraOptions)
+        public static void ConfigureDefaultExtraOptions(Dictionary<string, object> extraOptions, bool withSharedLibrary = false)
         {
             Ensure.IsNotNull(extraOptions, nameof(extraOptions));
 
@@ -78,15 +78,13 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                 }
             }
 
-            if (Environment.GetEnvironmentVariable("TEST_MONGOCRYPTD") == null)
+            if (withSharedLibrary || Environment.GetEnvironmentVariable("TEST_MONGOCRYPTD") == null)
             {
-                var csflePath = CoreTestConfiguration.GetCsflePath();
-                if (csflePath != null)
+                var cryptSharedLibPath = CoreTestConfiguration.GetCryptSharedLibPath();
+                if (cryptSharedLibPath != null)
                 {
-                    extraOptions.Add("csflePath", csflePath);
+                    extraOptions.Add("cryptSharedLibPath", cryptSharedLibPath);
                 }
-
-                extraOptions.Add("csfleRequired", true);
             }
         }
 

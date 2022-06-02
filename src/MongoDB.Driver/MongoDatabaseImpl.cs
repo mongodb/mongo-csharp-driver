@@ -216,7 +216,14 @@ namespace MongoDB.Driver
             var genericMethodDefinition = typeof(MongoDatabaseImpl).GetTypeInfo().GetMethod("CreateCollectionHelper", BindingFlags.NonPublic | BindingFlags.Instance);
             var documentType = options.GetType().GetTypeInfo().GetGenericArguments()[0];
             var methodInfo = genericMethodDefinition.MakeGenericMethod(documentType);
-            methodInfo.Invoke(this, new object[] { session, name, options, cancellationToken });
+            try
+            {
+                methodInfo.Invoke(this, new object[] { session, name, options, cancellationToken });
+            }
+            catch (TargetInvocationException exception)
+            {
+                throw exception.InnerException;
+            }
         }
 
         public override Task CreateCollectionAsync(string name, CreateCollectionOptions options, CancellationToken cancellationToken)
@@ -224,26 +231,35 @@ namespace MongoDB.Driver
             return UsingImplicitSessionAsync(session => CreateCollectionAsync(session, name, options, cancellationToken), cancellationToken);
         }
 
-        public override Task CreateCollectionAsync(IClientSessionHandle session, string name, CreateCollectionOptions options, CancellationToken cancellationToken)
+        public override async Task CreateCollectionAsync(IClientSessionHandle session, string name, CreateCollectionOptions options, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(session, nameof(session));
             Ensure.IsNotNullOrEmpty(name, nameof(name));
 
             if (options == null)
             {
-                return CreateCollectionHelperAsync<BsonDocument>(session, name, null, cancellationToken);
+                await CreateCollectionHelperAsync<BsonDocument>(session, name, null, cancellationToken).ConfigureAwait(false);
+                return;
             }
 
             if (options.GetType() == typeof(CreateCollectionOptions))
             {
                 var genericOptions = CreateCollectionOptions<BsonDocument>.CoercedFrom(options);
-                return CreateCollectionHelperAsync<BsonDocument>(session, name, genericOptions, cancellationToken);
+                await CreateCollectionHelperAsync<BsonDocument>(session, name, genericOptions, cancellationToken).ConfigureAwait(false);
+                return;
             }
 
             var genericMethodDefinition = typeof(MongoDatabaseImpl).GetTypeInfo().GetMethod("CreateCollectionHelperAsync", BindingFlags.NonPublic | BindingFlags.Instance);
             var documentType = options.GetType().GetTypeInfo().GetGenericArguments()[0];
             var methodInfo = genericMethodDefinition.MakeGenericMethod(documentType);
-            return (Task)methodInfo.Invoke(this, new object[] { session, name, options, cancellationToken });
+            try
+            {
+                await ((Task)methodInfo.Invoke(this, new object[] { session, name, options, cancellationToken })).ConfigureAwait(false);
+            }
+            catch (TargetInvocationException exception)
+            {
+                throw exception.InnerException;
+            }
         }
 
         public override void CreateView<TDocument, TResult>(string viewName, string viewOn, PipelineDefinition<TDocument, TResult> pipeline, CreateViewOptions<TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken))
@@ -644,13 +660,11 @@ namespace MongoDB.Driver
 
         private IWriteOperation<BsonDocument> CreateCreateCollectionOperation<TDocument>(string name, CreateCollectionOptions<TDocument> options)
         {
-            BsonDocument validator = null;
-            if (options.Validator != null)
-            {
-                var serializerRegistry = options.SerializerRegistry ?? BsonSerializer.SerializerRegistry;
-                var documentSerializer = options.DocumentSerializer ?? serializerRegistry.GetSerializer<TDocument>();
-                validator = options.Validator.Render(documentSerializer, serializerRegistry, _linqProvider);
-            }
+            var serializerRegistry = options.SerializerRegistry ?? BsonSerializer.SerializerRegistry;
+            var documentSerializer = options.DocumentSerializer ?? serializerRegistry.GetSerializer<TDocument>();
+
+            var clusteredIndex = options.ClusteredIndex?.Render(documentSerializer, serializerRegistry);
+            var validator = options.Validator?.Render(documentSerializer, serializerRegistry, _linqProvider);
 
             var collectionNamespace = new CollectionNamespace(_databaseNamespace, name);
 
@@ -667,6 +681,7 @@ namespace MongoDB.Driver
                     cco.AutoIndexId = options.AutoIndexId;
 #pragma warning restore CS0618 // Type or member is obsolete
                     cco.Capped = options.Capped;
+                    cco.ClusteredIndex = clusteredIndex;
                     cco.Collation = options.Collation;
                     cco.ExpireAfter = options.ExpireAfter;
                     cco.IndexOptionDefaults = options.IndexOptionDefaults?.ToBsonDocument();

@@ -27,6 +27,14 @@ namespace MongoDB.Driver.Encryption
         /// <summary>
         /// Random algorithm.
         /// </summary>
-        AEAD_AES_256_CBC_HMAC_SHA_512_Random
+        AEAD_AES_256_CBC_HMAC_SHA_512_Random,
+        /// <summary>
+        /// Indexed algorithm.
+        /// </summary>
+        Indexed,
+        /// <summary>
+        /// Unindexed algorithm.
+        /// </summary>
+        Unindexed
     }
 }

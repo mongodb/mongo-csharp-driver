@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
@@ -32,6 +33,7 @@ using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests
 {
+    [Trait("Category", "CSFLE")]
     public class EncryptionTests : LoggableTestClass
     {
         #region static
@@ -194,6 +196,22 @@ namespace MongoDB.Driver.Tests
             }
         }
 
+        [SkippableFact]
+        public void Shared_library_should_by_loaded_when_CRYPT_SHARED_LIB_PATH_is_set()
+        {
+            RequireServer.Check().Supports(Feature.ClientSideEncryption);
+            RequireEnvironment.Check().EnvironmentVariable("CRYPT_SHARED_LIB_PATH", isDefined: true);
+
+            Ensure.That(File.Exists(Environment.GetEnvironmentVariable("CRYPT_SHARED_LIB_PATH")), "CRYPT_SHARED_LIB_PATH should exist");
+
+            using (var client = GetClient(withAutoEncryption: true, withSharedLibrary: true))
+            {
+                var libMongoCryptController = ((MongoClient)client.Wrapped).LibMongoCryptController;
+                var cryptClient = libMongoCryptController._cryptClient();
+                cryptClient.CryptSharedLibraryVersion.Should().Be("mongo_crypt_v1-dev-6.0.0-rc8");
+            }
+        }
+
         // private methods
         private object CreateInstance(Type type)
         {
@@ -207,7 +225,7 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        private DisposableMongoClient GetClient(bool withAutoEncryption = false, Dictionary<string, object> extraOptions = null)
+        private DisposableMongoClient GetClient(bool withAutoEncryption = false, Dictionary<string, object> extraOptions = null, bool withSharedLibrary = false)
         {
             var mongoClientSettings = new MongoClientSettings();
 
@@ -218,7 +236,7 @@ namespace MongoDB.Driver.Tests
                     extraOptions = new Dictionary<string, object>();
                 }
 
-                EncryptionTestHelper.ConfigureDefaultExtraOptions(extraOptions);
+                EncryptionTestHelper.ConfigureDefaultExtraOptions(extraOptions, withSharedLibrary);
 
                 var kmsProviders = GetKmsProviders();
                 var autoEncryptionOptions = new AutoEncryptionOptions(

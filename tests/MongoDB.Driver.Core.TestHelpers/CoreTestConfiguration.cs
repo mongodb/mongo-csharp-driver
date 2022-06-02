@@ -250,7 +250,7 @@ namespace MongoDB.Driver
             return new CollectionNamespace(__databaseNamespace.Value, collectionName);
         }
 
-        public static string GetCsflePath() => Environment.GetEnvironmentVariable("MONGODB_CSFLE_PATH");
+        public static string GetCryptSharedLibPath() => Environment.GetEnvironmentVariable("CRYPT_SHARED_LIB_PATH");
 
         public static ConnectionString CreateConnectionString()
         {

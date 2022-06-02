@@ -91,9 +91,9 @@ namespace MongoDB.Driver.Core.Clusters
                 encryptedFieldsMap: encryptedFieldsBytes,
                 schema: schemaBytes,
                 bypassQueryAnalysis: _cryptClientSettings.BypassQueryAnalysis.GetValueOrDefault(false),
-                _cryptClientSettings.CsfleLibPath,
-                _cryptClientSettings.CsfleSearchPath,
-                _cryptClientSettings.IsCsfleRequired ?? false);
+                _cryptClientSettings.CryptSharedLibPath,
+                _cryptClientSettings.CryptSharedLibSearchPath,
+                _cryptClientSettings.IsCryptSharedLibRequired ?? false);
         }
 
         private BsonDocument CreateProviderDocument(string kmsType, IReadOnlyDictionary<string, object> data)

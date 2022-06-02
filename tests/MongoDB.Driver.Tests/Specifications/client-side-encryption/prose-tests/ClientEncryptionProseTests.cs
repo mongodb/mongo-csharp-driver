@@ -277,7 +277,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
         [SkippableTheory]
         [ParameterAttributeData]
-        public void BypassSpawningMongocryptdViaBypassAutoEncryptionTest(
+        public void BypassSpawningMongocryptdTest(
+            [Values(false, true)] bool bypassAutoEncryption, // true - BypassAutoEncryption, false - BypassQueryAnalysis
             [Values(false, true)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
@@ -290,7 +291,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             using (var mongocryptdClient = new DisposableMongoClient(new MongoClient("mongodb://localhost:27021/?serverSelectionTimeoutMS=10000"), CreateLogger<DisposableMongoClient>()))
             using (var clientEncrypted = ConfigureClientEncrypted(
                 kmsProviderFilter: "local",
-                bypassAutoEncryption: true,
+                bypassAutoEncryption: bypassAutoEncryption, // bypass options are mutually exclusive for this test
+                bypassQueryAnalysis: !bypassAutoEncryption,
                 extraOptions: extraOptions))
             {
                 var coll = GetCollection(clientEncrypted, __collCollectionNamespace);
@@ -918,6 +920,135 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
         [SkippableTheory]
         [ParameterAttributeData]
+        public void ExplicitEncryption(
+            [Range(1, 5)] int testCase,
+            [Values(false, true)] bool async)
+        {
+            RequireServer.Check().Supports(Feature.Csfle2).ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced);
+
+            var encryptedFields = JsonFileReader.Instance.Documents["etc.data.encryptedFields.json"];
+            var key1Document = JsonFileReader.Instance.Documents["etc.data.keys.key1-document.json"];
+            var key1Id = key1Document["_id"].AsGuid;
+            var explicitCollectionNamespace = CollectionNamespace.FromFullName("db.explicit_encryption");
+            var value = "encrypted indexed value";
+
+            using (var client = ConfigureClient(clearCollections: true, mainCollectionNamespace: explicitCollectionNamespace, encryptedFields: encryptedFields))
+            {
+                CreateCollection(client, explicitCollectionNamespace, encryptedFields: encryptedFields);
+                CreateCollection(client, __keyVaultCollectionNamespace);
+                var keyVaultCollection = GetCollection(client, __keyVaultCollectionNamespace);
+                Insert(keyVaultCollection, async, key1Document);
+
+                using (var keyVaultClient = CreateMongoClient())
+                using (var clientEncryption = ConfigureClientEncryption(keyVaultClient, kmsProviderFilter: "local"))
+                using (var encryptedClient = ConfigureClientEncrypted(kmsProviderFilter: "local", autoEncryptionOptionsConfigurator: (options) => options.With(bypassQueryAnalysis: true)))
+                {
+                    var explicitCollection = GetCollection(encryptedClient, explicitCollectionNamespace);
+
+                    RunTestCase(explicitCollection, clientEncryption, testCase);
+                }
+            }
+
+            void RunTestCase(IMongoCollection<BsonDocument> explicitCollectionFromEncryptedClient, ClientEncryption clientEncryption, int testCase)
+            {
+                switch (testCase)
+                {
+                    case 1: // Case 1: can insert encrypted indexed and find
+                        {
+                            var encryptionOptions = new EncryptOptions(algorithm: EncryptionAlgorithm.Indexed.ToString(), keyId: key1Id);
+                            var encryptedValue = ExplicitEncrypt(clientEncryption, encryptionOptions, value, async);
+
+                            var insertPayload = new BsonDocument("encryptedIndexed", encryptedValue);
+                            Insert(explicitCollectionFromEncryptedClient, async, insertPayload);
+
+                            encryptionOptions = new EncryptOptions(algorithm: EncryptionAlgorithm.Indexed.ToString(), keyId: key1Id, queryType: QueryType.Equality);
+                            encryptedValue = ExplicitEncrypt(clientEncryption, encryptionOptions, value, async);
+
+                            var findPayload = new BsonDocument("encryptedIndexed", encryptedValue);
+                            var result = Find(explicitCollectionFromEncryptedClient, findPayload, async).Single();
+                            result.Elements.Should().Contain(new BsonElement("encryptedIndexed", value));
+                        }
+                        break;
+                    case 2: // Case 2: can insert encrypted indexed and find with non-zero contention
+                        {
+                            var encryptionOptions = new EncryptOptions(algorithm: EncryptionAlgorithm.Indexed.ToString(), keyId: key1Id, contentionFactor: 10);
+
+                            BsonBinaryData encryptedValue;
+                            for (int i = 0; i < 10; i++)
+                            {
+                                encryptedValue = ExplicitEncrypt(clientEncryption, encryptionOptions, value, async);
+
+                                var insertPayload = new BsonDocument("encryptedIndexed", encryptedValue);
+                                Insert(explicitCollectionFromEncryptedClient, async, insertPayload);
+                            }
+
+                            // 1
+                            encryptionOptions = new EncryptOptions(algorithm: EncryptionAlgorithm.Indexed.ToString(), keyId: key1Id, queryType: QueryType.Equality);
+                            encryptedValue = ExplicitEncrypt(clientEncryption, encryptionOptions, value, async);
+
+                            var findPayload = new BsonDocument("encryptedIndexed", encryptedValue);
+                            var result = Find(explicitCollectionFromEncryptedClient, findPayload, async).ToList();
+                            // Assert less than 10 documents are returned. 0 documents may be returned
+                            result.Count.Should().BeLessThan(10);
+                            foreach (var doc in result)
+                            {
+                                doc.Elements.Should().Contain(new BsonElement("encryptedIndexed", value));
+                            }
+
+                            // 2
+                            encryptionOptions = new EncryptOptions(algorithm: EncryptionAlgorithm.Indexed.ToString(), keyId: key1Id, queryType: QueryType.Equality, contentionFactor: 10);
+                            encryptedValue = ExplicitEncrypt(clientEncryption, encryptionOptions, value, async);
+
+                            var findPayload2 = new BsonDocument("encryptedIndexed", encryptedValue);
+                            result = Find(explicitCollectionFromEncryptedClient, findPayload2, async).ToList();
+                            // Assert 10 documents are returned
+                            result.Count.Should().Be(10);
+                            foreach (var doc in result)
+                            {
+                                doc.Elements.Should().Contain(new BsonElement("encryptedIndexed", value));
+                            }
+                        }
+                        break;
+                    case 3: // Case 3: can insert encrypted unindexed
+                        {
+                            var encryptionOptions = new EncryptOptions(algorithm: EncryptionAlgorithm.Unindexed.ToString(), keyId: key1Id);
+                            var encryptedValue = ExplicitEncrypt(clientEncryption, encryptionOptions, value, async);
+
+                            var insertPayload = new BsonDocument { { "_id", 1 }, { "encryptedIndexed", encryptedValue } };
+                            Insert(explicitCollectionFromEncryptedClient, async, insertPayload);
+
+                            var findPayload = new BsonDocument("_id", 1);
+                            var result = Find(explicitCollectionFromEncryptedClient, findPayload, async).Single();
+                            result.Elements.Should().Contain(new BsonElement("encryptedIndexed", value));
+                        }
+                        break;
+                    case 4: // Case 4: can insert encrypted unindexed
+                        {
+                            var encryptionOptions = new EncryptOptions(algorithm: EncryptionAlgorithm.Indexed.ToString(), keyId: key1Id);
+                            var payload = ExplicitEncrypt(clientEncryption, encryptionOptions, value, async);
+
+                            var decrypted = ExplicitDecrypt(clientEncryption, payload, async);
+
+                            decrypted.Should().Be(BsonValue.Create(value));
+                        }
+                        break;
+                    case 5: // Case 5: can roundtrip encrypted unindexed
+                        {
+                            var encryptionOptions = new EncryptOptions(algorithm: EncryptionAlgorithm.Unindexed.ToString(), keyId: key1Id);
+                            var payload = ExplicitEncrypt(clientEncryption, encryptionOptions, value, async);
+
+                            var decrypted = ExplicitDecrypt(clientEncryption, payload, async);
+
+                            decrypted.Should().Be(BsonValue.Create(value));
+                        }
+                        break;
+                    default: throw new Exception($"Unexpected test case {testCase}.");
+                }
+            }
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void ExternalKeyVaultTest(
             [Values(false, true)] bool withExternalKeyVault,
             [Values(false, true)] bool async)
@@ -1369,15 +1500,18 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             bool clearCollections = true,
             int? maxPoolSize = null,
             WriteConcern writeConcern = null,
-            ReadConcern readConcern = null)
+            ReadConcern readConcern = null,
+            CollectionNamespace mainCollectionNamespace = null,
+            BsonDocument encryptedFields = null)
         {
             var client = CreateMongoClient(maxPoolSize: maxPoolSize, writeConcern: writeConcern, readConcern: readConcern);
             if (clearCollections)
             {
                 var clientKeyVaultDatabase = client.GetDatabase(__keyVaultCollectionNamespace.DatabaseNamespace.DatabaseName);
                 clientKeyVaultDatabase.DropCollection(__keyVaultCollectionNamespace.CollectionName);
-                var clientDbDatabase = client.GetDatabase(__collCollectionNamespace.DatabaseNamespace.DatabaseName);
-                clientDbDatabase.DropCollection(__collCollectionNamespace.CollectionName);
+                mainCollectionNamespace = mainCollectionNamespace ?? __collCollectionNamespace;
+                var clientDbDatabase = client.GetDatabase(mainCollectionNamespace.DatabaseNamespace.DatabaseName);
+                clientDbDatabase.DropCollection(mainCollectionNamespace.CollectionName, new DropCollectionOptions { EncryptedFields = encryptedFields });
             }
             return client;
         }
@@ -1389,8 +1523,9 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             EventCapturer eventCapturer = null,
             Dictionary<string, object> extraOptions = null,
             bool bypassAutoEncryption = false,
+            bool bypassQueryAnalysis = false,
             int? maxPoolSize = null,
-            Action<AutoEncryptionOptions> autoEncryptionOptionsConfigurator = null)
+            Func<AutoEncryptionOptions, AutoEncryptionOptions> autoEncryptionOptionsConfigurator = null)
         {
             var configuredSettings = ConfigureClientEncryptedSettings(
                 schemaMap,
@@ -1399,8 +1534,13 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 eventCapturer,
                 extraOptions,
                 bypassAutoEncryption,
+                bypassQueryAnalysis,
                 maxPoolSize);
-            autoEncryptionOptionsConfigurator?.Invoke(configuredSettings.AutoEncryptionOptions);
+
+            if (autoEncryptionOptionsConfigurator != null)
+            {
+                configuredSettings.AutoEncryptionOptions = autoEncryptionOptionsConfigurator.Invoke(configuredSettings.AutoEncryptionOptions);
+            }
 
             return DriverTestConfiguration.CreateDisposableClient(configuredSettings);
         }
@@ -1412,6 +1552,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             EventCapturer eventCapturer = null,
             Dictionary<string, object> extraOptions = null,
             bool bypassAutoEncryption = false,
+            bool bypassQueryAnalysis = false,
             int? maxPoolSize = null)
         {
             var kmsProviders = GetKmsProviders(kmsProviderFilter: kmsProviderFilter);
@@ -1429,6 +1570,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                     eventCapturer: eventCapturer,
                     extraOptions: extraOptions,
                     bypassAutoEncryption: bypassAutoEncryption,
+                    bypassQueryAnalysis : bypassQueryAnalysis,
                     maxPoolSize: maxPoolSize);
 
             if (tlsOptions != null)
@@ -1465,7 +1607,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             return new ClientEncryption(clientEncryptionOptions);
         }
 
-        private void CreateCollection(IMongoClient client, CollectionNamespace collectionNamespace, BsonDocument validatorSchema)
+        private void CreateCollection(IMongoClient client, CollectionNamespace collectionNamespace, BsonDocument validatorSchema = null, BsonDocument encryptedFields = null)
         {
             client
                 .GetDatabase(collectionNamespace.DatabaseNamespace.DatabaseName)
@@ -1473,7 +1615,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                     collectionNamespace.CollectionName,
                     new CreateCollectionOptions<BsonDocument>()
                     {
-                        Validator = new BsonDocumentFilterDefinition<BsonDocument>(validatorSchema)
+                        EncryptedFields = encryptedFields,
+                        Validator = validatorSchema != null ? new BsonDocumentFilterDefinition<BsonDocument>(validatorSchema) : null
                     });
         }
 
@@ -1537,6 +1680,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             EventCapturer eventCapturer = null,
             Dictionary<string, object> extraOptions = null,
             bool bypassAutoEncryption = false,
+            bool bypassQueryAnalysis = false,
             int? maxPoolSize = null,
             WriteConcern writeConcern = null,
             ReadConcern readConcern = null)
@@ -1549,6 +1693,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 eventCapturer,
                 extraOptions,
                 bypassAutoEncryption,
+                bypassQueryAnalysis,
                 maxPoolSize,
                 writeConcern,
                 readConcern);
@@ -1564,6 +1709,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             EventCapturer eventCapturer = null,
             Dictionary<string, object> extraOptions = null,
             bool bypassAutoEncryption = false,
+            bool bypassQueryAnalysis = false,
             int? maxPoolSize = null,
             WriteConcern writeConcern = null,
             ReadConcern readConcern = null)
@@ -1621,7 +1767,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                     kmsProviders: kmsProviders,
                     schemaMap: schemaMap,
                     extraOptions: extraOptions,
-                    bypassAutoEncryption: bypassAutoEncryption);
+                    bypassAutoEncryption: bypassAutoEncryption,
+                    bypassQueryAnalysis: bypassQueryAnalysis);
 
                 if (externalKeyVaultClient != null)
                 {
@@ -1878,7 +2025,9 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             {
                 "MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests.corpus.",
                 "MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests.external.",
-                "MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests.limits."
+                "MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests.limits.",
+                "MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests.etc.data.",
+                "MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests.etc.data.keys"
             };
 
             public IReadOnlyDictionary<string, BsonDocument> Documents

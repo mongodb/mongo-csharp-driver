@@ -25,6 +25,7 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Tests;
@@ -381,8 +382,14 @@ namespace MongoDB.Driver
         [ParameterAttributeData]
         public void CreateCollection_should_execute_a_CreateCollectionOperation_when_options_is_generic(
             [Values(false, true)] bool usingSession,
+            [Values(false, true)] bool clustered,
             [Values(false, true)] bool async)
         {
+            if (clustered)
+            {
+                RequireServer.Check().Supports(Feature.ClusteredIndexes);
+            }
+
             var writeConcern = new WriteConcern(1);
             var subject = _subject.WithWriteConcern(writeConcern);
             var session = CreateSession(usingSession);
@@ -395,6 +402,7 @@ namespace MongoDB.Driver
             {
                 AutoIndexId = false,
                 Capped = true,
+                ClusteredIndex = clustered ? new ClusteredIndexOptions<BsonDocument>() : null,
                 Collation = new Collation("en_US"),
                 IndexOptionDefaults = new IndexOptionDefaults { StorageEngine = new BsonDocument("x", 1) },
                 MaxDocuments = 10,
@@ -441,6 +449,14 @@ namespace MongoDB.Driver
             op.AutoIndexId.Should().Be(options.AutoIndexId);
 #pragma warning restore
             op.Capped.Should().Be(options.Capped);
+            if (clustered)
+            {
+                op.ClusteredIndex.Should().NotBeNull();
+            }
+            else
+            {
+                op.ClusteredIndex.Should().BeNull();
+            }
             op.Collation.Should().BeSameAs(options.Collation);
             op.IndexOptionDefaults.ToBsonDocument().Should().Be(options.IndexOptionDefaults.ToBsonDocument());
             op.MaxDocuments.Should().Be(options.MaxDocuments);
@@ -515,6 +531,7 @@ namespace MongoDB.Driver
             op.AutoIndexId.Should().Be(options.AutoIndexId);
 #pragma warning restore
             op.Capped.Should().Be(options.Capped);
+            op.ClusteredIndex.Should().BeNull();
             op.Collation.Should().BeSameAs(options.Collation);
             op.IndexOptionDefaults.ToBsonDocument().Should().Be(options.IndexOptionDefaults.ToBsonDocument());
             op.MaxDocuments.Should().Be(options.MaxDocuments);
@@ -571,6 +588,7 @@ namespace MongoDB.Driver
             op.AutoIndexId.Should().NotHaveValue();
 #pragma warning restore
             op.Capped.Should().NotHaveValue();
+            op.ClusteredIndex.Should().BeNull();
             op.IndexOptionDefaults.Should().BeNull();
             op.MaxDocuments.Should().NotHaveValue();
             op.MaxSize.Should().NotHaveValue();

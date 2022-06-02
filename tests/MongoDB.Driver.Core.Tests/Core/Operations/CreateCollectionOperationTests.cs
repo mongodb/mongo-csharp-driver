@@ -87,6 +87,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.AutoIndexId.Should().NotHaveValue();
 #pragma warning restore
             subject.Capped.Should().NotHaveValue();
+            subject.ClusteredIndex.Should().BeNull();
             subject.Collation.Should().BeNull();
             subject.EncryptedFields.Should().BeNull();
             subject.IndexOptionDefaults.Should().BeNull();
@@ -167,6 +168,28 @@ namespace MongoDB.Driver.Core.Operations
             {
                 { "create", _collectionNamespace.CollectionName },
                 { "capped", () => capped.Value, capped != null }
+            };
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateCommand_should_return_expected_result_when_ClusteredIndex_is_set(
+            [Values(null, "{ key : { _id : 1 }, unique : true }", "{ key : { _id : 1 }, unique : true, name: 'clustered index name' }")]
+            string clusteredIndex)
+        {
+            var subject = new CreateCollectionOperation(_collectionNamespace, _messageEncoderSettings)
+            {
+                ClusteredIndex = clusteredIndex != null ? BsonDocument.Parse(clusteredIndex) : null
+            };
+            var session = OperationTestHelper.CreateSession();
+
+            var result = subject.CreateCommand(session);
+
+            var expectedResult = new BsonDocument
+            {
+                { "create", _collectionNamespace.CollectionName },
+                { "clusteredIndex", () => BsonDocument.Parse(clusteredIndex), clusteredIndex != null }
             };
             result.Should().Be(expectedResult);
         }
@@ -487,16 +510,18 @@ namespace MongoDB.Driver.Core.Operations
                 operations[3],
                 _collectionNamespace,
                 encryptedFields,
-                isMainOperation: true);
+                isMainOperation: true,
+                withClusteredIndex: false);
             // __safeContent__
             AssertIndex(operations[4], _collectionNamespace, index: new BsonDocument("__safeContent__", 1));
 
-            void AssertCreateCollectionCommand((IWriteOperation<BsonDocument> Operation, bool IsMainOperation) operationInfo, CollectionNamespace collectionNamespace, BsonDocument encryptedFields, bool isMainOperation)
+            void AssertCreateCollectionCommand((IWriteOperation<BsonDocument> Operation, bool IsMainOperation) operationInfo, CollectionNamespace collectionNamespace, BsonDocument encryptedFields, bool isMainOperation, bool withClusteredIndex = true)
             {
                 var expectedResult = new BsonDocument
                 {
                     { "create", collectionNamespace.CollectionName },
-                    { "encryptedFields", encryptedFields, encryptedFields != null }
+                    { "encryptedFields", encryptedFields, encryptedFields != null },
+                    { "clusteredIndex", new BsonDocument { { "key" , new BsonDocument("_id", 1 ) }, { "unique", true } }, withClusteredIndex }
                 };
                 AssertCommand(operationInfo, isMainOperation, expectedResult);
             }
