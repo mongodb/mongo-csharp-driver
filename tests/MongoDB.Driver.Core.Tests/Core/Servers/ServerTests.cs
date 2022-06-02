@@ -233,7 +233,7 @@ namespace MongoDB.Driver.Core.Servers
                 .Setup(p => p.AcquireConnectionAsync(It.IsAny<CancellationToken>()))
                 .Callback(() => server.HandleExceptionOnOpen(exceptionToThrow))
                 .Throws(exceptionToThrow);
-            mockConnectionPool.Setup(p => p.Clear());
+            mockConnectionPool.Setup(p => p.Clear(It.IsAny<bool>()));
 
             server.Initialize();
 
@@ -250,7 +250,7 @@ namespace MongoDB.Driver.Core.Servers
             });
 
             exception.Should().BeOfType<MongoAuthenticationException>();
-            mockConnectionPool.Verify(p => p.Clear(), Times.Once());
+            mockConnectionPool.Verify(p => p.Clear(It.IsAny<bool>()), Times.Once());
         }
 
         [Theory]
@@ -500,7 +500,7 @@ namespace MongoDB.Driver.Core.Servers
             _capturedEvents.Clear();
 
             _subject.Invalidate("Test", responseTopologyDescription: null);
-            _mockConnectionPool.Verify(p => p.Clear(), Times.Once);
+            _mockConnectionPool.Verify(p => p.Clear(It.IsAny<bool>()), Times.Once);
         }
 
         [Fact]
@@ -522,7 +522,7 @@ namespace MongoDB.Driver.Core.Servers
                 .With(heartbeatException: new Exception("ughhh"));
             _mockServerMonitor.Raise(m => m.DescriptionChanged += null, new ServerDescriptionChangedEventArgs(description, description));
 
-            _mockConnectionPool.Verify(p => p.Clear(), Times.Once);
+            _mockConnectionPool.Verify(p => p.Clear(It.IsAny<bool>()), Times.Once);
         }
 
         [Theory]
@@ -685,7 +685,7 @@ namespace MongoDB.Driver.Core.Servers
             var onDescriptionChangedCalled = false;
             EventHandler<ServerDescriptionChangedEventArgs> onDescriptionChanged = (_, __) =>
             {
-                _mockConnectionPool.Verify(pool => pool.Clear(), Times.Never);
+                _mockConnectionPool.Verify(pool => pool.Clear(It.IsAny<bool>()), Times.Never);
                 onDescriptionChangedCalled = true;
             };
 
@@ -696,7 +696,7 @@ namespace MongoDB.Driver.Core.Servers
                 _subject.Initialize();
                 _subject.Invalidate("Test reason", null);
 
-                _mockConnectionPool.Verify(pool => pool.Clear(), Times.Once);
+                _mockConnectionPool.Verify(pool => pool.Clear(It.IsAny<bool>()), Times.Once);
                 onDescriptionChangedCalled.Should().BeTrue();
             }
             finally
@@ -837,7 +837,7 @@ namespace MongoDB.Driver.Core.Servers
                 mockConnectionPool
                     .Setup(p => p.AcquireConnectionAsync(It.IsAny<CancellationToken>()))
                     .Throws(new TimeoutException("Timeout"));
-                mockConnectionPool.Setup(p => p.Clear());
+                mockConnectionPool.Setup(p => p.Clear(It.IsAny<bool>()));
             }
             else if (exceptionOnConnectionOpen)
             {
@@ -847,7 +847,7 @@ namespace MongoDB.Driver.Core.Servers
                 mockConnectionPool
                     .Setup(p => p.AcquireConnectionAsync(It.IsAny<CancellationToken>()))
                     .Throws(new MongoAuthenticationException(connectionId, "Invalid login."));
-                mockConnectionPool.Setup(p => p.Clear());
+                mockConnectionPool.Setup(p => p.Clear(It.IsAny<bool>()));
             }
             else
             {
@@ -857,7 +857,7 @@ namespace MongoDB.Driver.Core.Servers
                 mockConnectionPool
                     .Setup(p => p.AcquireConnectionAsync(It.IsAny<CancellationToken>()))
                     .Returns(Task.FromResult(mockConnectionHandle.Object));
-                mockConnectionPool.Setup(p => p.Clear());
+                mockConnectionPool.Setup(p => p.Clear(It.IsAny<bool>()));
             }
 
             var mockConnectionPoolFactory = new Mock<IConnectionPoolFactory>();

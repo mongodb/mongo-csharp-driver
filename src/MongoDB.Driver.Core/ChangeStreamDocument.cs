@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
@@ -152,5 +153,13 @@ namespace MongoDB.Driver
         /// The update description.
         /// </value>
         public ChangeStreamUpdateDescription UpdateDescription => GetValue<ChangeStreamUpdateDescription>(nameof(UpdateDescription), null);
+
+        /// <summary>
+        /// Gets the wall time of the change stream event.
+        /// </summary>
+        /// <value>
+        /// The wall time.
+        /// </value>
+        public DateTime? WallTime => GetValue<DateTime?>(nameof(WallTime), null);
     }
 }

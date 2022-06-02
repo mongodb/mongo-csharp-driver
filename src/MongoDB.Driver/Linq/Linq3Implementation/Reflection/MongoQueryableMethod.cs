@@ -14,11 +14,9 @@
 */
 
 using System;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
-using MongoDB.Driver.Linq;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
 {
@@ -49,6 +47,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __averageSingleWithSelectorAsync;
         private static readonly MethodInfo __countAsync;
         private static readonly MethodInfo __countWithPredicateAsync;
+        private static readonly MethodInfo __densifyWithArrayPartitionByFields;
         private static readonly MethodInfo __firstAsync;
         private static readonly MethodInfo __firstOrDefaultAsync;
         private static readonly MethodInfo __firstOrDefaultWithPredicateAsync;
@@ -192,6 +191,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __averageSingleWithSelectorAsync = ReflectionInfo.Method((IMongoQueryable<object> source, Expression<Func<object, float>> selector, CancellationToken cancellationToken) => source.AverageAsync(selector, cancellationToken));
             __countAsync = ReflectionInfo.Method((IMongoQueryable<object> source, CancellationToken cancellationToken) => source.CountAsync(cancellationToken));
             __countWithPredicateAsync = ReflectionInfo.Method((IMongoQueryable<object> source, Expression<Func<object, bool>> predicate, CancellationToken cancellationToken) => source.CountAsync(predicate, cancellationToken));
+            __densifyWithArrayPartitionByFields = ReflectionInfo.Method((IMongoQueryable<object> source, Expression<Func<object, object>> field, DensifyRange range, Expression<Func<object, object>>[] partitionByFields) => source.Densify(field, range, partitionByFields));
             __firstAsync = ReflectionInfo.Method((IMongoQueryable<object> source, CancellationToken cancellationToken) => source.FirstAsync(cancellationToken));
             __firstOrDefaultAsync = ReflectionInfo.Method((IMongoQueryable<object> source, CancellationToken cancellationToken) => source.FirstOrDefaultAsync(cancellationToken));
             __firstOrDefaultWithPredicateAsync = ReflectionInfo.Method((IMongoQueryable<object> source, Expression<Func<object, bool>> predicate, CancellationToken cancellationToken) => source.FirstOrDefaultAsync(predicate, cancellationToken));
@@ -334,6 +334,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo AverageSingleWithSelectorAsync => __averageSingleWithSelectorAsync;
         public static MethodInfo CountAsync => __countAsync;
         public static MethodInfo CountWithPredicateAsync => __countWithPredicateAsync;
+        public static MethodInfo DensifyWithArrayPartitionByFields => __densifyWithArrayPartitionByFields;
         public static MethodInfo FirstAsync => __firstAsync;
         public static MethodInfo FirstOrDefaultAsync => __firstOrDefaultAsync;
         public static MethodInfo FirstOrDefaultWithPredicateAsync => __firstOrDefaultWithPredicateAsync;

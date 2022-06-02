@@ -16,78 +16,19 @@
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors;
-using MongoDB.Driver.Linq.Linq3Implementation.Misc;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Stages
 {
-    internal static class AstSort
-    {
-        public static AstSortField Field(string path, AstSortOrder order)
-        {
-            return new AstSortField(path, order);
-        }
-    }
-
-    internal sealed class AstSortField
-    {
-        private readonly string _path;
-        private readonly AstSortOrder _order;
-
-        public AstSortField(string path, AstSortOrder order)
-        {
-            _path = Ensure.IsNotNull(path, nameof(path));
-            _order = Ensure.IsNotNull(order, nameof(order));
-        }
-
-        public AstSortOrder Order => _order;
-        public string Path => _path;
-
-        public BsonElement RenderAsElement()
-        {
-            return new BsonElement(_path, _order.Render());
-        }
-    }
-
-    internal abstract class AstSortOrder
-    {
-        private readonly static AstSortOrder __ascending = new AstAscendingSortOrder();
-        private readonly static AstSortOrder __descending = new AstDescendingSortOrder();
-        private readonly static AstSortOrder __metaTextScore = new AstMetaTextScoreSortOrder();
-
-        public static AstSortOrder Ascending => __ascending;
-        public static AstSortOrder Descending => __descending;
-        public static AstSortOrder MetaTextScore => __metaTextScore;
-
-        public abstract BsonValue Render();
-    }
-
-    internal sealed class AstAscendingSortOrder : AstSortOrder
-    {
-        public override BsonValue Render() => 1;
-    }
-
-    internal sealed class AstDescendingSortOrder : AstSortOrder
-    {
-        public override BsonValue Render() => -1;
-    }
-
-    internal sealed class AstMetaTextScoreSortOrder : AstSortOrder
-    {
-        public override BsonValue Render() => new BsonDocument("$meta", "textScore");
-    }
-
     internal sealed class AstSortStage : AstStage
     {
-        private readonly IReadOnlyList<AstSortField> _fields;
+        private readonly AstSortFields _fields;
 
-        public AstSortStage(IEnumerable<AstSortField> fields)
+        public AstSortStage(AstSortFields fields)
         {
-            _fields = Ensure.IsNotNull(fields, nameof(fields)).AsReadOnlyList();
+            _fields = Ensure.IsNotNull(fields, nameof(fields));
         }
 
-        public IReadOnlyList<AstSortField> Fields => _fields;
+        public AstSortFields Fields => _fields;
         public override AstNodeType NodeType => AstNodeType.SortStage;
 
         public override AstNode Accept(AstNodeVisitor visitor)
@@ -98,12 +39,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Stages
         public AstSortStage AddSortField(AstSortField field)
         {
             Ensure.IsNotNull(field, nameof(field));
-            return new AstSortStage(_fields.Concat(new[] { field }));
+            return new AstSortStage(_fields.AddSortField(field));
         }
 
         public override BsonValue Render()
         {
-            return new BsonDocument("$sort", new BsonDocument(_fields.Select(f => f.RenderAsElement())));
+            return new BsonDocument("$sort", _fields.Render());
         }
     }
 }

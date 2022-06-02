@@ -98,6 +98,24 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
+        public virtual IAggregateFluent<TResult> Densify(
+            FieldDefinition<TResult> field,
+            DensifyRange range,
+            IEnumerable<FieldDefinition<TResult>> partitionByFields = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public virtual IAggregateFluent<TResult> Densify(
+            FieldDefinition<TResult> field,
+            DensifyRange range,
+            params FieldDefinition<TResult>[] partitionByFields)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
         public virtual IAggregateFluent<TNewResult> Facet<TNewResult>(
             IEnumerable<AggregateFacet<TResult>> facets,
             AggregateFacetOptions<TNewResult> options = null)

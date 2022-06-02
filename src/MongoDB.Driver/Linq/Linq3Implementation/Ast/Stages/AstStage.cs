@@ -69,6 +69,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Stages
             return new AstCurrentOpStage(allUsers, idleConnections, idleCursors, idleSessions, localOps);
         }
 
+        public static AstStage Densify(
+            string fieldPath,
+            DensifyRange range,
+            IEnumerable<string> partitionByFieldPaths = null)
+        {
+            return new AstDensifyStage(fieldPath, range, partitionByFieldPaths);
+        }
+
         public static AstStage Facet(IEnumerable<AstFacetStageFacet> facets)
         {
             return new AstFacetStage(facets);
@@ -209,7 +217,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Stages
 
         public static AstSortStage Sort(IEnumerable<AstSortField> fields)
         {
-            return new AstSortStage(fields);
+            return new AstSortStage(new AstSortFields(fields));
         }
 
         public static AstSortStage Sort(params AstSortField[] fields)

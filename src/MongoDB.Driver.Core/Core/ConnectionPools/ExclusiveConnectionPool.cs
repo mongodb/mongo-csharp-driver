@@ -76,7 +76,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             _connectionExceptionHandler = Ensure.IsNotNull(connectionExceptionHandler, nameof(connectionExceptionHandler));
             Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
 
-            _maintenanceHelper = new MaintenanceHelper(MaintainSize, _settings.MaintenanceInterval);
+            _maintenanceHelper = new MaintenanceHelper(this, _settings.MaintenanceInterval);
             _poolState = new PoolState(EndPointHelper.ToString(_endPoint));
             _checkOutReasonCounter = new CheckOutReasonCounter();
 
@@ -155,6 +155,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
             get { return _serverId; }
         }
 
+        public ConnectionPoolSettings Settings => _settings;
+
         public int UsedCount
         {
             get
@@ -163,6 +165,9 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 return _settings.MaxConnections - AvailableCount;
             }
         }
+
+        // internal properties
+        internal ListConnectionHolder ConnectionHolder => _connectionHolder;
 
         // public methods
         public IConnectionHandle AcquireConnection(CancellationToken cancellationToken)
@@ -177,7 +182,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             return await helper.AcquireConnectionAsync(cancellationToken).ConfigureAwait(false);
         }
 
-        public void Clear()
+        public void Clear(bool closeInUseConnections = false)
         {
             lock (_poolState)
             {
@@ -187,8 +192,9 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 {
                     _clearingEventHandler?.Invoke(new ConnectionPoolClearingEvent(_serverId, _settings));
 
-                    _maintenanceHelper.Cancel();
+                    int? maxGenerationToReap = closeInUseConnections ? _generation : null;
                     _generation++;
+                    _maintenanceHelper.Stop(maxGenerationToReap);
 
                     _maxConnectionsQueue.Signal();
                     _maxConnectingQueue.Signal();
@@ -267,8 +273,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     _closingEventHandler(new ConnectionPoolClosingEvent(_serverId));
                 }
 
-                _connectionHolder.Clear();
                 _maintenanceHelper.Dispose();
+                _connectionHolder.Clear();
                 _maxConnectionsQueue.Dispose();
                 _maxConnectingQueue.Dispose();
                 if (_closedEventHandler != null)
@@ -290,56 +296,13 @@ namespace MongoDB.Driver.Core.ConnectionPools
             return Generation;
         }
 
+        // internal methods
+        internal SemaphoreSlimSignalable.SemaphoreSlimSignalableAwaiter CreateMaxConnectionsAwaiter()
+        {
+            return _maxConnectionsQueue.CreateAwaiter();
+        }
+
         // private methods
-        private void MaintainSize(CancellationToken cancellationToken)
-        {
-            try
-            {
-                while (!cancellationToken.IsCancellationRequested)
-                {
-                    try
-                    {
-                        _connectionHolder.Prune(cancellationToken);
-                        EnsureMinSize(cancellationToken);
-                    }
-                    catch
-                    {
-                        // ignore exceptions
-                    }
-                    ThreadHelper.Sleep(_settings.MaintenanceInterval, cancellationToken);
-                }
-            }
-            catch
-            {
-                // ignore exceptions
-            }
-        }
-
-        private void EnsureMinSize(CancellationToken cancellationToken)
-        {
-            var minTimeout = TimeSpan.FromMilliseconds(20);
-
-            while (CreatedCount < _settings.MinConnections && !cancellationToken.IsCancellationRequested)
-            {
-                using (var poolAwaiter = _maxConnectionsQueue.CreateAwaiter())
-                {
-                    var entered = poolAwaiter.WaitSignaled(minTimeout, cancellationToken);
-                    if (!entered)
-                    {
-                        return;
-                    }
-
-                    using (var connectionCreator = new ConnectionCreator(this, minTimeout))
-                    {
-                        var connection = connectionCreator.CreateOpened(cancellationToken);
-                        _connectionHolder.Return(connection);
-                    }
-                }
-
-                cancellationToken.ThrowIfCancellationRequested();
-            }
-        }
-
         private void ReleaseConnection(PooledConnection connection)
         {
             if (_checkingInConnectionEventHandler != null)

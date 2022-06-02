@@ -138,6 +138,24 @@ namespace MongoDB.Driver
         IAggregateFluent<AggregateCountResult> Count();
 
         /// <summary>
+        /// Appends a $densify stage to the pipeline.
+        /// </summary>
+        /// <returns>The fluent aggregate interface.</returns>
+        IAggregateFluent<TResult> Densify(
+            FieldDefinition<TResult> field,
+            DensifyRange range,
+            IEnumerable<FieldDefinition<TResult>> partitionByFields = null);
+
+        /// <summary>
+        /// Appends a $densify stage to the pipeline.
+        /// </summary>
+        /// <returns>The fluent aggregate interface.</returns>
+        IAggregateFluent<TResult> Densify(
+            FieldDefinition<TResult> field,
+            DensifyRange range,
+            params FieldDefinition<TResult>[] partitionByFields);
+
+        /// <summary>
         /// Appends a $facet stage to the pipeline.
         /// </summary>
         /// <typeparam name="TNewResult">The type of the new result.</typeparam>

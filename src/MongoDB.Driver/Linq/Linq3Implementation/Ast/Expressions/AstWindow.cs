@@ -18,14 +18,14 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
 {
-    internal class AstSetWindowFieldsWindow
+    internal class AstWindow
     {
         private readonly BsonValue _lowerBoundary;
         private readonly string _type;
         private readonly string _unit;
         private readonly BsonValue _upperBoundary;
 
-        public AstSetWindowFieldsWindow(string type, BsonValue lowerBoundary, BsonValue upperBoundary, string unit)
+        public AstWindow(string type, BsonValue lowerBoundary, BsonValue upperBoundary, string unit)
         {
             _type = Ensure.IsNotNull(type, nameof(type));
             _lowerBoundary = Ensure.IsNotNull(lowerBoundary, nameof(lowerBoundary));

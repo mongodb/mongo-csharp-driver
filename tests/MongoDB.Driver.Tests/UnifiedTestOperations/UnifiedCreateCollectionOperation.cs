@@ -171,11 +171,15 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             TimeSpan? expireAfter = null;
             TimeSeriesOptions timeSeriesOptions = null;
             ClusteredIndexOptions<BsonDocument> clusteredIndex = null;
+            ChangeStreamPreAndPostImagesOptions changeStreamPreAndPostImageOptions = null;
 
             foreach (var argument in arguments)
             {
                 switch (argument.Name)
                 {
+                    case "changeStreamPreAndPostImages":
+                        changeStreamPreAndPostImageOptions = new ChangeStreamPreAndPostImagesOptions(argument.Value.AsBsonDocument);
+                        break;
                     case "clusteredIndex":
                         var clusteredIndexSpecification = argument.Value.AsBsonDocument;
                         clusteredIndex = new ClusteredIndexOptions<BsonDocument>
@@ -223,7 +227,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
             if (viewOn == null && pipeline == null)
             {
-                var options = new CreateCollectionOptions<BsonDocument> { ExpireAfter = expireAfter, TimeSeriesOptions = timeSeriesOptions, ClusteredIndex = clusteredIndex };
+                var options = new CreateCollectionOptions<BsonDocument> { ExpireAfter = expireAfter, TimeSeriesOptions = timeSeriesOptions, ClusteredIndex = clusteredIndex, ChangeStreamPreAndPostImagesOptions = changeStreamPreAndPostImageOptions };
                 return new UnifiedCreateCollectionOperation(session, database, name, options);
             }
             if (viewOn != null && expireAfter == null && timeSeriesOptions == null && clusteredIndex == null)

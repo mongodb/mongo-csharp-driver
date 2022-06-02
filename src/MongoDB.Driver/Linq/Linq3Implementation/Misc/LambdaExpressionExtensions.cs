@@ -13,6 +13,8 @@
 * limitations under the License.
 */
 
+using System;
+using System.Linq;
 using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators;
@@ -24,7 +26,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
     {
         public static string GetFieldPath(this LambdaExpression fieldSelectorLambda, TranslationContext context, IBsonSerializer parameterSerializer)
         {
-            var fieldSelectorTranslation = ExpressionToAggregationExpressionTranslator.TranslateLambdaBody(context, fieldSelectorLambda, parameterSerializer, asRoot: true);
+            var parameterExpression = fieldSelectorLambda.Parameters.Single();
+            if (parameterSerializer.ValueType != parameterExpression.Type)
+            {
+                throw new ArgumentException($"ValueType '{parameterSerializer.ValueType.FullName}' of parameterSerializer does not match parameter type '{parameterExpression.Type.FullName}'.", nameof(parameterSerializer));
+            }
+            var parameterSymbol = context.CreateSymbolWithVarName(parameterExpression, varName: "ROOT", parameterSerializer, isCurrent: true);
+            var lambdaContext = context.WithSymbol(parameterSymbol);
+            var lambdaBody = ConvertHelper.RemoveConvertToObject(fieldSelectorLambda.Body);
+            var fieldSelectorTranslation = ExpressionToAggregationExpressionTranslator.Translate(lambdaContext, lambdaBody);
+
             if (fieldSelectorTranslation.Ast.CanBeConvertedToFieldPath())
             {
                 var path = fieldSelectorTranslation.Ast.ConvertToFieldPath();

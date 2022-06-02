@@ -118,6 +118,48 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Appends a $densify stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="field">The field.</param>
+        /// <param name="range">The range.</param>
+        /// <param name="partitionByFields">The partition by fields.</param>
+        /// <returns>
+        /// The fluent aggregate interface.
+        /// </returns>
+        public static IAggregateFluent<TResult> Densify<TResult>(
+            this IAggregateFluent<TResult> aggregate,
+            Expression<Func<TResult, object>> field,
+            DensifyRange range,
+            IEnumerable<Expression<Func<TResult, object>>> partitionByFields = null)
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            return aggregate.AppendStage(PipelineStageDefinitionBuilder.Densify(field, range, partitionByFields));
+        }
+
+        /// <summary>
+        /// Appends a $densify stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="field">The field.</param>
+        /// <param name="range">The range.</param>
+        /// <param name="partitionByFields">The partition by fields.</param>
+        /// <returns>
+        /// The fluent aggregate interface.
+        /// </returns>
+        public static IAggregateFluent<TResult> Densify<TResult>(
+            this IAggregateFluent<TResult> aggregate,
+            Expression<Func<TResult, object>> field,
+            DensifyRange range,
+            params Expression<Func<TResult, object>>[] partitionByFields)
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            return aggregate.AppendStage(PipelineStageDefinitionBuilder.Densify(field, range, partitionByFields));
+        }
+
+        /// <summary>
         /// Appends a $facet stage to the pipeline.
         /// </summary>
         /// <typeparam name="TResult">The type of the result.</typeparam>

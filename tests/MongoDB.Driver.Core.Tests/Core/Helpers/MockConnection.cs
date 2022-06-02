@@ -35,6 +35,7 @@ namespace MongoDB.Driver.Core.Helpers
         private ConnectionId _connectionId;
         private readonly ConnectionSettings _connectionSettings;
         private bool? _isExpired;
+        private readonly TaskCompletionSource<bool> _isExpiredTaskComletionSource;
         private DateTime _lastUsedAtUtc;
         private DateTime _openedAtUtc;
         private readonly Queue<ActionQueueItem> _replyActions;
@@ -56,12 +57,19 @@ namespace MongoDB.Driver.Core.Helpers
         {
         }
 
-        public MockConnection(ServerId serverId, ConnectionSettings connectionSettings, IEventSubscriber eventSubscriber)
+        public MockConnection(ServerId serverId, ConnectionSettings connectionSettings, IEventSubscriber eventSubscriber, TaskCompletionSource<bool> isExpiredTaskCompletionSource = null)
+            : this(new ConnectionId(serverId), connectionSettings, eventSubscriber, isExpiredTaskCompletionSource)
+        {
+
+        }
+
+        public MockConnection(ConnectionId connectionId, ConnectionSettings connectionSettings, IEventSubscriber eventSubscriber, TaskCompletionSource<bool> isExpiredTaskCompletionSource = null)
         {
             _replyActions = new Queue<ActionQueueItem>();
             _sentMessages = new List<RequestMessage>();
             _connectionSettings = connectionSettings;
-            _connectionId = new ConnectionId(serverId);
+            _connectionId = connectionId;
+            _isExpiredTaskComletionSource = isExpiredTaskCompletionSource;
 
             if (eventSubscriber != null)
             {
@@ -97,6 +105,10 @@ namespace MongoDB.Driver.Core.Helpers
                 if (_isExpired.HasValue)
                 {
                     return _isExpired.Value;
+                }
+                else if (_isExpiredTaskComletionSource != null)
+                {
+                    return _isExpiredTaskComletionSource.Task.IsCompleted;
                 }
                 else
                 {

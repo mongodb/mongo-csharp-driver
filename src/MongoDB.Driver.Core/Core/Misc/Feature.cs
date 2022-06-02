@@ -1,4 +1,4 @@
-/* Copyright 2016-present MongoDB Inc.
+﻿/* Copyright 2016-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -59,6 +59,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __createIndexesUsingInsertOperations = new Feature("CreateIndexesUsingInsertOperations", WireVersion.Zero, WireVersion.Server42);
         private static readonly Feature __csfle2 = new Feature("Csfle2", WireVersion.Server60);
         private static readonly Feature __currentOpCommand = new Feature("CurrentOpCommand", WireVersion.Server32);
+        private static readonly Feature __densifyStage = new Feature("DensifyStage", WireVersion.Server51);
         private static readonly Feature __documentValidation = new Feature("DocumentValidation", WireVersion.Server32);
         private static readonly Feature __directConnectionSetting = new Feature("DirectConnectionSetting", WireVersion.Server44);
         private static readonly Feature __eval = new Feature("Eval", WireVersion.Zero, WireVersion.Server42);
@@ -318,6 +319,11 @@ namespace MongoDB.Driver.Core.Misc
         /// </summary>
         [Obsolete("This property will be removed in a later release.")]
         public static Feature CurrentOpCommand => __currentOpCommand;
+
+        /// <summary>
+        /// Gets the aggregate $densify stage feature.
+        /// </summary>
+        public static Feature DensifyStage => __densifyStage;
 
         /// <summary>
         /// Gets the document validation feature.

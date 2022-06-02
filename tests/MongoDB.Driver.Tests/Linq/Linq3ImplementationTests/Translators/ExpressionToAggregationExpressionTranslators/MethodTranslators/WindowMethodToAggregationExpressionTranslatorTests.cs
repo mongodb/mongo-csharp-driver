@@ -26,7 +26,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators
 {
-    public class SetWindowFieldsMethodToAggregationExpressionTranslatorTests : Linq3IntegrationTest
+    public class WindowMethodToAggregationExpressionTranslatorTests : Linq3IntegrationTest
     {
         [Fact]
         public void Translate_should_return_expected_result_for_AddToSet()

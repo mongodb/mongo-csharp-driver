@@ -30,12 +30,17 @@ using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
+using MongoDB.Driver.Core.TestHelpers.Logging;
 using Moq;
 using Xunit;
+using Xunit.Abstractions;
+using static MongoDB.Driver.Core.ConnectionPools.ExclusiveConnectionPool;
+using static MongoDB.Driver.Core.Tests.Core.ConnectionPools.MaintenanceHelperTests;
 
 namespace MongoDB.Driver.Core.ConnectionPools
 {
-    public class ExclusiveConnectionPoolTests
+    [Trait("Category", "Pool")]
+    public class ExclusiveConnectionPoolTests : LoggableTestClass
     {
         private Mock<IConnectionFactory> _mockConnectionFactory;
         private Mock<IConnectionExceptionHandler> _mockConnectionExceptionHandler;
@@ -45,7 +50,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         private ConnectionPoolSettings _settings;
         private ExclusiveConnectionPool _subject;
 
-        public ExclusiveConnectionPoolTests()
+        public ExclusiveConnectionPoolTests(ITestOutputHelper output) : base(output)
         {
             _mockConnectionFactory = new Mock<IConnectionFactory> { DefaultValue = DefaultValue.Mock };
             _mockConnectionExceptionHandler = new Mock<IConnectionExceptionHandler>();
@@ -56,11 +61,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 .Setup(c => c.CreateConnection(It.IsAny<ServerId>(), It.IsAny<EndPoint>()))
                 .Returns(() =>
                 {
-                    var connectionMock = new Mock<IConnection>();
-                    connectionMock
-                        .Setup(c => c.Settings)
-                        .Returns(new ConnectionSettings());
-                    return connectionMock.Object;
+                    return new MockConnection();
                 });
             _settings = new ConnectionPoolSettings(
                 maintenanceInterval: TimeSpan.FromDays(1),
@@ -325,7 +326,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                         .Throws(exception);
 
                     return connectionMock.Object;
-                 });
+                });
 
             var settings = new ConnectionPoolSettings(maxConnections: maxConnections, maintenanceInterval: Timeout.InfiniteTimeSpan);
             subject = CreateSubject(
@@ -710,7 +711,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
             });
 
-            expectedTimeouts.Should().Be(expectedTimeouts);
+            expectedTimeouts.Should().Be(actualTimeouts);
             subject.PendingCount.Should().Be(0);
         }
 
@@ -752,131 +753,6 @@ namespace MongoDB.Driver.Core.ConnectionPools
             _capturedEvents.Next().Should().BeOfType<ConnectionPoolRemovingConnectionEvent>();
             _capturedEvents.Next().Should().BeOfType<ConnectionPoolRemovedConnectionEvent>();
             _capturedEvents.Any().Should().BeFalse();
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void AcquireConnection_should_timeout_when_no_sufficient_reused_connections(
-            [Values(true, false)]
-            bool async)
-        {
-            int maxConnecting = MongoInternalDefaults.ConnectionPool.MaxConnecting;
-            const int initalAcquiredCount = 2;
-            const int maxAcquiringCount = 4;
-            const int queueTimeoutMS = 50;
-
-            var settings = _settings.With(
-                waitQueueSize: maxAcquiringCount + initalAcquiredCount + maxConnecting,
-                maxConnections: maxAcquiringCount + initalAcquiredCount + maxConnecting,
-                waitQueueTimeout: TimeSpan.FromMilliseconds(queueTimeoutMS),
-                minConnections: 0);
-
-            var allAcquiringCountEvent = new CountdownEvent(maxAcquiringCount + initalAcquiredCount);
-            var blockEstablishmentEvent = new ManualResetEventSlim(true);
-            var establishingCount = new CountdownEvent(maxConnecting + initalAcquiredCount);
-
-            var mockConnectionFactory = new Mock<IConnectionFactory>();
-            mockConnectionFactory
-                .Setup(c => c.CreateConnection(It.IsAny<ServerId>(), It.IsAny<EndPoint>()))
-                .Returns(() =>
-                {
-                    var connectionMock = new Mock<IConnection>();
-
-                    connectionMock
-                        .Setup(c => c.ConnectionId)
-                        .Returns(new ConnectionId(_serverId));
-                    connectionMock
-                        .Setup(c => c.Settings)
-                        .Returns(new ConnectionSettings());
-                    connectionMock
-                        .Setup(c => c.Open(It.IsAny<CancellationToken>()))
-                        .Callback(() =>
-                        {
-                            if (establishingCount.CurrentCount > 0)
-                            {
-                                establishingCount.Signal();
-                            }
-
-                            blockEstablishmentEvent.Wait();
-                        });
-                    connectionMock
-                        .Setup(c => c.OpenAsync(It.IsAny<CancellationToken>()))
-                        .Returns(() =>
-                        {
-                            if (establishingCount.CurrentCount > 0)
-                            {
-                                establishingCount.Signal();
-                            }
-
-                            blockEstablishmentEvent.Wait();
-                            return Task.FromResult(0);
-                        });
-
-                    return connectionMock.Object;
-                });
-
-            using var subject = CreateSubject(settings, mockConnectionFactory.Object);
-            subject.Initialize();
-            subject.SetReady();
-
-            subject.PendingCount.Should().Be(0);
-            var connectionsAcquired = Enumerable.Range(0, initalAcquiredCount)
-                .Select(i => AcquireConnection(subject, async))
-                .ToArray();
-
-            // block further establishments
-            blockEstablishmentEvent.Reset();
-
-            var allConnections = new List<IConnection>();
-            var actualTimeouts = 0;
-            var expectedTimeouts = maxAcquiringCount - maxConnecting;
-
-            ThreadingUtilities.ExecuteOnNewThreads(maxAcquiringCount + maxConnecting + 1, threadIndex =>
-            {
-                if (threadIndex < maxConnecting)
-                {
-                    // maximize maxConnecting
-                    allAcquiringCountEvent.Signal();
-                    AcquireConnection(subject, async);
-                }
-                else if (threadIndex < maxConnecting + maxAcquiringCount)
-                {
-                    // wait until all maxConnecting maximized
-                    establishingCount.Wait();
-                    subject.PendingCount.Should().Be(maxConnecting);
-
-                    allAcquiringCountEvent.Signal();
-
-                    try
-                    {
-                        AcquireConnection(subject, async);
-                    }
-                    catch (TimeoutException)
-                    {
-                        Interlocked.Increment(ref actualTimeouts);
-                    }
-
-                    // speedup the test
-                    if (expectedTimeouts == actualTimeouts)
-                    {
-                        blockEstablishmentEvent.Set();
-                    }
-                }
-                else
-                {
-                    // wait until all trying to acquire
-                    allAcquiringCountEvent.Wait();
-
-                    // return connections
-                    foreach (var connection in connectionsAcquired)
-                    {
-                        connection.Dispose();
-                    }
-                }
-            });
-
-            expectedTimeouts.Should().Be(expectedTimeouts);
-            subject.PendingCount.Should().Be(0);
         }
 
         [Theory]
@@ -977,7 +853,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     }
                     else if (operationIndex < clearOpMaxIndex)
                     {
-                        subject.Clear();
+                        subject.Clear(closeInUseConnections: random.NextDouble() < 0.5);
                         Interlocked.Increment(ref clearedCount);
                     }
                     else
@@ -1004,7 +880,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         [Fact]
         public void Clear_should_throw_an_InvalidOperationException_if_not_initialized()
         {
-            Action act = () => _subject.Clear();
+            Action act = () => _subject.Clear(closeInUseConnections: false);
 
             act.ShouldThrow<InvalidOperationException>();
         }
@@ -1014,7 +890,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         {
             _subject.Dispose();
 
-            Action act = () => _subject.Clear();
+            Action act = () => _subject.Clear(closeInUseConnections: false);
 
             act.ShouldThrow<ObjectDisposedException>();
         }
@@ -1039,7 +915,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
 
             connection.IsExpired.Should().BeFalse();
-            _subject.Clear();
+            _subject.Clear(closeInUseConnections: false);
             connection.IsExpired.Should().BeTrue();
         }
 
@@ -1113,6 +989,128 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
         }
 
+        [Theory]
+        [ParameterAttributeData]
+        public void In_use_marker_should_work_as_expected(
+            [Values(0, 1)] int minPoolSize,
+            [Values(false, true)] bool openConnectionFailed,
+            [Values(true, false)] bool async)
+        {
+            var timeout = TimeSpan.FromSeconds(5);
+            var acquiredCompletionSource = new TaskCompletionSource<bool>();
+
+            var openException = new MongoConnectionException(new ConnectionId(_serverId), "OpenConnection failed");
+
+            var settings = _settings.With(minConnections: minPoolSize, waitQueueTimeout: TimeSpan.FromMinutes(1) /* no op */);
+            _capturedEvents = new EventCapturer();
+            int connectionIndex = 0;
+            _mockConnectionFactory
+                .Setup(c => c.CreateConnection(It.IsAny<ServerId>(), It.IsAny<EndPoint>()))
+                .Returns<ServerId, EndPoint>((serverId, endpoint) =>
+                {
+                    var ci = ++connectionIndex;
+                    var mockConnection = new Mock<IConnection>();
+                    mockConnection.SetupGet(c => c.ConnectionId).Returns(new ConnectionId(serverId, ci));
+                    mockConnection
+                        .Setup(c => c.Open(It.IsAny<CancellationToken>()))
+                        .Callback(() =>
+                        {
+                            if (minPoolSize == 0 || ci == 2) // ignore connection 1 created in minPoolSize logic
+                            {
+                                acquiredCompletionSource.Task.WaitOrThrow(timeout);
+                                if (openConnectionFailed)
+                                {
+                                    throw openException;
+                                }
+                            }
+                        });
+
+                    mockConnection
+                        .Setup(c => c.OpenAsync(It.IsAny<CancellationToken>()))
+                        .Returns(async () =>
+                        {
+                            if (minPoolSize == 0 || ci == 2) // ignore connection 1 created in minPoolSize logic
+                            {
+                                await acquiredCompletionSource.Task.WithTimeout(timeout);
+                                if (openConnectionFailed)
+                                {
+                                    throw openException;
+                                }
+                            }
+                        });
+
+                    return mockConnection.Object;
+                });
+
+            _subject = CreateSubject(connectionPoolSettings: settings);
+            InitializeAndWait(poolSettings: settings);
+
+            // initial state
+            // MinPoolSize creates collections and immediately returns them to the pool, so no "in use" connections should be after first maintenance iteration
+            ValidateConnectionsCount(inUse: false, expectedCount: settings.MinConnections);
+            ValidateConnectionsCount(inUse: true, expectedCount: 0);
+
+            IConnection connection = null;
+            IConnection prepopulatedConnection = null;
+            Exception acquireException = null;
+            _ = Task.Run(() =>
+            {
+                if (minPoolSize > 0)
+                {
+                    prepopulatedConnection = AcquireConnection(_subject, async);
+                }
+
+                try
+                {
+                    connection = AcquireConnection(_subject, async);
+                }
+                catch (Exception ex)
+                {
+                    acquireException = ex;
+                }
+            });
+
+            SpinWait.SpinUntil(() => _subject.ConnectionHolder._connectionsInUse().Count >= settings.MinConnections + 1, timeout).Should().BeTrue();
+
+            // During First acquire
+            ValidateConnectionsCount(inUse: false, expectedCount: 0);
+            ValidateConnectionsCount(inUse: true, expectedCount: settings.MinConnections + 1);
+
+            acquiredCompletionSource.SetResult(true); // connection is acquired
+            SpinWait.SpinUntil(() => connection != null || acquireException != null, timeout).Should().BeTrue();
+
+            ValidateConnectionsCount(inUse: false, expectedCount: 0);
+            ValidateConnectionsCount(inUse: true, expectedCount: settings.MinConnections + (openConnectionFailed ? 0 : 1));
+
+            if (openConnectionFailed)
+            {
+                if (minPoolSize > 0)
+                {
+                    prepopulatedConnection.Dispose();
+                    ValidateConnectionsCount(inUse: false, expectedCount: settings.MinConnections);
+                    ValidateConnectionsCount(inUse: true, expectedCount: 0);
+                }
+
+                connection.Should().BeNull();
+                acquireException.Should().Be(openException);
+            }
+            else
+            {
+                // return connections
+                if (minPoolSize > 0)
+                {
+                    prepopulatedConnection.Dispose();
+                    ValidateConnectionsCount(inUse: false, expectedCount: settings.MinConnections);
+                    ValidateConnectionsCount(inUse: true, expectedCount: 1);
+                }
+
+                connection.Dispose();
+                ValidateConnectionsCount(inUse: false, expectedCount: settings.MinConnections + 1);
+                ValidateConnectionsCount(inUse: true, expectedCount: 0);
+                acquireException.Should().BeNull();
+            }
+        }
+
         [Fact]
         public void Maintenance_should_call_connection_dispose_when_connection_authentication_fail()
         {
@@ -1125,7 +1123,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             _mockConnectionExceptionHandler
                 .Setup(handler => handler.HandleExceptionOnOpen(authenticationException))
-                .Callback(() => _subject.Clear());
+                .Callback(() => _subject.Clear(closeInUseConnections: false));
 
             using (var subject = CreateSubject())
             {
@@ -1168,7 +1166,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             subject.Initialize();
             subject.SetReady();
-            
+
             subject._maintenanceHelper().IsRunning.Should().BeFalse();
         }
 
@@ -1250,7 +1248,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     allEstablishing.Wait();
 
                     // clear, all in maxConnecting queue should fail
-                    subject.Clear();
+                    subject.Clear(closeInUseConnections: false);
 
                     // unblock after all in maxConnecting queue failed
                     allInQueueFailed.Wait();
@@ -1262,6 +1260,83 @@ namespace MongoDB.Driver.Core.ConnectionPools
             foreach (var e in exceptions)
             {
                 e.Should().BeOfType<MongoConnectionPoolPausedException>();
+            }
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Prune_should_respect_generation_when_closing_inUse_connections(
+            [RandomSeed(new[] { 0 })] int seed,
+            [Values(
+                new[] { 1, 10 },
+                new[] { 9, 10 },
+                new[] { 50, 100 },
+                new[] { 90, 100 })] int[] generationInfo)
+        {
+            int maxExpiredGeneration = generationInfo[0];
+            int maxGeneration = generationInfo[1];
+
+            var random = new Random(seed);
+            int connectionIndex = 0;
+            var connectionsCount = maxGeneration + 1; // generations are 0-based
+            var connectionsToBeRemovedCount = maxExpiredGeneration + 1; // generations are 0-based
+
+            var capturedEvents = new EventCapturer().Capture<ConnectionPoolRemovedConnectionEvent>();
+            var poolSettings = _settings.With(
+                maintenanceInterval: TimeSpan.FromMinutes(1),
+                minConnections: 0,
+                maxConnections: connectionsCount,
+                waitQueueTimeout: TimeSpan.FromMinutes(1));
+
+            var mockConnectionFactory = new Mock<IConnectionFactory> { DefaultValue = DefaultValue.Mock };
+            mockConnectionFactory
+              .Setup(c => c.CreateConnection(It.IsAny<ServerId>(), It.IsAny<EndPoint>()))
+              .Returns<ServerId, EndPoint>(CreateConnection);
+
+            var subject = CreateSubject(poolSettings, mockConnectionFactory.Object, eventCapturer: capturedEvents);
+            InitializeAndWait(subject, poolSettings);
+
+            // Acquire connections with incrementing generations
+            // allConnections[i].Generation == i;
+            var allConnections = new List<IConnection>();
+            for (int i = 0; i < connectionsCount; i++)
+            {
+                var connection = AcquireConnection(subject, random.NextDouble() > 0.5);
+                connection.Generation.Should().Be(i);
+
+                allConnections.Add(connection);
+                subject._generation(subject.Generation + 1);
+            }
+
+            // All connections in-use are expired
+            // connections with generation <= maxExpiredGeneration should be removed by next Prune
+            // connections with generation > maxExpiredGeneration should be removed only upon return
+            subject._generation(maxExpiredGeneration);
+            subject.Clear(true);
+
+            capturedEvents.WaitForOrThrowIfTimeout(events => events.Count() >= connectionsToBeRemovedCount, TimeSpan.FromSeconds(5));
+            var removedConnections = new HashSet<int>(
+                capturedEvents
+                    .Events
+                    .OfType<ConnectionPoolRemovedConnectionEvent>()
+                    .Select(c => c.ConnectionId.LocalValue));
+
+            foreach (var connection in allConnections)
+            {
+                connection.IsExpired.Should().BeTrue();
+
+                removedConnections
+                    .Contains(connection.ConnectionId.LocalValue)
+                    .Should().Be(connection.Generation <= maxExpiredGeneration);
+            }
+
+            IConnection CreateConnection(ServerId serverId, EndPoint _)
+            {
+                var connection = new Mock<IConnection>();
+                connection.SetupGet(c => c.ConnectionId).Returns(new ConnectionId(_serverId, ++connectionIndex));
+                connection.SetupGet(c => c.IsExpired).Returns(true);
+
+                return connection.Object;
             }
         }
 
@@ -1514,7 +1589,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     SpinWait.SpinUntil(() => subject._waitQueueFreeSlots() == 0);
 
                     // pause the pool, blockedInQueueCount threads waiting to establish should observe MongoPoolPausedException exception
-                    subject.Clear();
+                    subject.Clear(closeInUseConnections: false);
 
                     SpinWait.SpinUntil(() => subject._waitQueueFreeSlots() >= blockedInQueueCount);
                     blockEstablishmentEvent.Set();
@@ -1592,14 +1667,15 @@ namespace MongoDB.Driver.Core.ConnectionPools
         private ExclusiveConnectionPool CreateSubject(
             ConnectionPoolSettings connectionPoolSettings = null,
             IConnectionFactory connectionFactory = null,
-            IConnectionExceptionHandler connectionExceptionHandler = null)
+            IConnectionExceptionHandler connectionExceptionHandler = null,
+            EventCapturer eventCapturer = null)
         {
             return new ExclusiveConnectionPool(
                 _serverId,
                 _endPoint,
                 connectionPoolSettings ?? _settings,
                 connectionFactory ?? _mockConnectionFactory.Object,
-                _capturedEvents,
+                eventCapturer ?? _capturedEvents,
                 connectionExceptionHandler ?? _mockConnectionExceptionHandler.Object);
         }
 
@@ -1625,10 +1701,34 @@ namespace MongoDB.Driver.Core.ConnectionPools
             connectionPool.DormantCount.Should().Be(connectionPoolSettings.MinConnections);
             connectionPool.UsedCount.Should().Be(0);
         }
+
+        private void ValidateConnectionsCount(bool inUse, int expectedCount, ExclusiveConnectionPool pool = null, params ConnectionId[] expectedConnectionIds)
+        {
+            if (expectedConnectionIds.Length > 0)
+            {
+                Ensure.That(expectedCount == expectedConnectionIds.Length, "ExpectedCount must be the same as expectedConnectionIds.Count");
+            }
+
+            var connectionHolder = (pool ?? _subject).ConnectionHolder;
+            var connections = inUse ? connectionHolder._connectionsInUse() : connectionHolder._connections();
+            connections.Should().HaveCount(expectedCount);
+            for (int i = 0; i < connections.Count; i++)
+            {
+                PooledConnection connection = connections[i];
+                if (expectedConnectionIds.Length > 0)
+                {
+                    connection.ConnectionId.Should().Be(expectedConnectionIds[i]);
+                }
+            }
+        }
     }
 
     internal static class ExclusiveConnectionPoolReflector
     {
+        public static int _generation(this ExclusiveConnectionPool obj) => (int)Reflector.GetFieldValue(obj, nameof(_generation));
+
+        public static void _generation(this ExclusiveConnectionPool obj, int generation) => Reflector.SetFieldValue(obj, nameof(_generation), generation);
+
         public static int _waitQueueFreeSlots(this ExclusiveConnectionPool obj)
         {
             return (int)Reflector.GetFieldValue(obj, nameof(_waitQueueFreeSlots));
@@ -1636,9 +1736,9 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
         public static CheckOutReasonCounter _checkOutReasonCounter(this ExclusiveConnectionPool obj) => (CheckOutReasonCounter)Reflector.GetFieldValue(obj, nameof(_checkOutReasonCounter));
 
-        public static ExclusiveConnectionPool.MaintenanceHelper _maintenanceHelper(this ExclusiveConnectionPool obj)
+        public static MaintenanceHelper _maintenanceHelper(this ExclusiveConnectionPool obj)
         {
-            return (ExclusiveConnectionPool.MaintenanceHelper)Reflector.GetFieldValue(obj, nameof(_maintenanceHelper));
+            return (MaintenanceHelper)Reflector.GetFieldValue(obj, nameof(_maintenanceHelper));
         }
 
         public static ServiceStates _serviceStates(this ExclusiveConnectionPool obj)
@@ -1650,5 +1750,11 @@ namespace MongoDB.Driver.Core.ConnectionPools
         {
             Reflector.SetFieldValue(server, nameof(_connectionExceptionHandler), connectionExceptionHandler);
         }
+    }
+
+    internal static class ListConnectionHolderReflector
+    {
+        public static List<PooledConnection> _connections(this ListConnectionHolder obj) => (List<PooledConnection>)Reflector.GetFieldValue(obj, nameof(_connections));
+        public static List<PooledConnection> _connectionsInUse(this ListConnectionHolder obj) => (List<PooledConnection>)Reflector.GetFieldValue(obj, nameof(_connectionsInUse));
     }
 }
