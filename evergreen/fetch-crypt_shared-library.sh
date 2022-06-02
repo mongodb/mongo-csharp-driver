@@ -17,11 +17,11 @@ PYTHON=$(OS=${OS} ${PROJECT_DIRECTORY}/evergreen/get-python-path.sh)
 $PYTHON -u ${DRIVERS_TOOLS}/.evergreen/mongodl.py --component crypt_shared --out ${DRIVERS_TOOLS}/evergreen/csfle --version 6.0.0-rc8
 
 if [[ "$OS" =~ Windows|windows ]]; then
-    export CRYPT_SHARED_LIB_PATH="${DRIVERS_TOOLS}/evergreen/csfle/bin/mongo_csfle_v1.dll"
+    export CRYPT_SHARED_LIB_PATH="${DRIVERS_TOOLS}/evergreen/csfle/bin/mongo_crypt_v1.dll"
 elif [[ "$OS" =~ Mac|mac ]]; then
-    export CRYPT_SHARED_LIB_PATH="${DRIVERS_TOOLS}/evergreen/csfle/lib/mongo_csfle_v1.dylib"
+    export CRYPT_SHARED_LIB_PATH="${DRIVERS_TOOLS}/evergreen/csfle/lib/mongo_crypt_v1.dylib"
 else
-    export CRYPT_SHARED_LIB_PATH="${DRIVERS_TOOLS}/evergreen/csfle/lib/mongo_csfle_v1.so"
+    export CRYPT_SHARED_LIB_PATH="${DRIVERS_TOOLS}/evergreen/csfle/lib/mongo_crypt_v1.so"
 fi
 
 echo "crypt shared library path $CRYPT_SHARED_LIB_PATH"
