@@ -54,8 +54,8 @@ namespace MongoDB.Driver.Encryption
         /// <param name="keyVaultClient">The keyVault client.</param>
         /// <param name="schemaMap">The schema map.</param>
         /// <param name="tlsOptions">The tls options.</param>
-        /// <param name="encryptedFieldsMap">The encryptedFields map.</param>
-        /// <param name="bypassQueryAnalysis">The bypass query analysis flag.</param>
+        /// <param name="encryptedFieldsMap">[Beta] The encryptedFields map.</param>
+        /// <param name="bypassQueryAnalysis">[Beta] The bypass query analysis flag.</param>
         public AutoEncryptionOptions(
             CollectionNamespace keyVaultNamespace,
             IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> kmsProviders,
@@ -93,12 +93,12 @@ namespace MongoDB.Driver.Encryption
         public bool BypassAutoEncryption => _bypassAutoEncryption;
 
         /// <summary>
-        /// Gets a value indicating whether to bypass query analysis.
+        /// [Beta] Gets a value indicating whether to bypass query analysis.
         /// </summary>
         public bool? BypassQueryAnalysis => _bypassQueryAnalysis;
 
         /// <summary>
-        /// Gets the encrypted fields map.
+        /// [Beta] Gets the encrypted fields map.
         /// Supplying an encryptedFieldsMap provides more security than relying on an encryptedFields obtained from the server. It protects against a malicious server advertising a false encryptedFields.
         /// </summary>
         public IReadOnlyDictionary<string, BsonDocument> EncryptedFieldsMap => _encryptedFieldsMap;
@@ -109,6 +109,10 @@ namespace MongoDB.Driver.Encryption
         /// <value>
         /// The extra options.
         /// </value>
+        /// <remarks>
+        /// All MongoClient objects in the same process should use the same setting for extraOptions.cryptSharedLibPath,
+        /// as it is an error to load more that one crypt_shared dynamic library simultaneously in a single operating system process.
+        /// </remarks>
         public IReadOnlyDictionary<string, object> ExtraOptions => _extraOptions;
 
         /// <summary>
@@ -157,12 +161,12 @@ namespace MongoDB.Driver.Encryption
         /// <param name="keyVaultNamespace">The keyVault namespace.</param>
         /// <param name="kmsProviders">The kms providers.</param>
         /// <param name="bypassAutoEncryption">The bypass auto encryption flag.</param>
-        /// <param name="bypassQueryAnalysis">The bypass query analysis flag.</param>
+        /// <param name="bypassQueryAnalysis">[Beta] The bypass query analysis flag.</param>
         /// <param name="extraOptions">The extra options.</param>
         /// <param name="keyVaultClient">The keyVault client.</param>
         /// <param name="schemaMap">The schema map.</param>
         /// <param name="tlsOptions">The tls options.</param>
-        /// <param name="encryptedFieldsMap">The encryptedFields map.</param>
+        /// <param name="encryptedFieldsMap">[Beta] The encryptedFields map.</param>
         /// <returns>A new instance of <see cref="AutoEncryptionOptions"/>.</returns>
         public AutoEncryptionOptions With(
             Optional<CollectionNamespace> keyVaultNamespace = default,

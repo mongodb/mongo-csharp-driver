@@ -19,7 +19,7 @@ using System;
 namespace MongoDB.Driver.Encryption
 {
     /// <summary>
-    /// The QueryType to use for "Indexed" queries.
+    /// [Beta] The QueryType to use for "Indexed" queries.
     /// </summary>
     public enum QueryType
     {
@@ -58,8 +58,8 @@ namespace MongoDB.Driver.Encryption
         /// <param name="algorithm">The encryption algorithm.</param>
         /// <param name="alternateKeyName">The alternate key name.</param>
         /// <param name="keyId">The key Id.</param>
-        /// <param name="contentionFactor">The contention factor.</param>
-        /// <param name="queryType">The query type.</param>
+        /// <param name="contentionFactor">[Beta] The contention factor.</param>
+        /// <param name="queryType">[Beta] The query type.</param>
         public EncryptOptions(
             string algorithm,
             Optional<string> alternateKeyName = default,
@@ -90,8 +90,8 @@ namespace MongoDB.Driver.Encryption
         /// <param name="algorithm">The encryption algorithm.</param>
         /// <param name="alternateKeyName">The alternate key name.</param>
         /// <param name="keyId">The key Id.</param>
-        /// <param name="contentionFactor">The contention factor.</param>
-        /// <param name="queryType">The query type.</param>
+        /// <param name="contentionFactor">[Beta] The contention factor.</param>
+        /// <param name="queryType">[Beta] The query type.</param>
         public EncryptOptions(
             EncryptionAlgorithm algorithm,
             Optional<string> alternateKeyName = default,
@@ -125,7 +125,7 @@ namespace MongoDB.Driver.Encryption
         public string AlternateKeyName => _alternateKeyName;
 
         /// <summary>
-        /// Gets the contention factor.
+        /// [Beta] Gets the contention factor.
         /// </summary>
         /// <value>
         /// The contention factor.
@@ -141,7 +141,7 @@ namespace MongoDB.Driver.Encryption
         public Guid? KeyId => _keyId;
 
         /// <summary>
-        /// Gets the query type.
+        /// [Beta] Gets the query type.
         /// </summary>
         /// <value>
         /// The query type.
@@ -154,8 +154,8 @@ namespace MongoDB.Driver.Encryption
         /// <param name="algorithm">The encryption algorithm.</param>
         /// <param name="alternateKeyName">The alternate key name.</param>
         /// <param name="keyId">The keyId.</param>
-        /// <param name="contentionFactor">The contention factor.</param>
-        /// <param name="queryType">The query type.</param>
+        /// <param name="contentionFactor">[Beta] The contention factor.</param>
+        /// <param name="queryType">[Beta] The query type.</param>
         /// <returns>A new EncryptOptions instance.</returns>
         public EncryptOptions With(
             Optional<string> algorithm = default,
