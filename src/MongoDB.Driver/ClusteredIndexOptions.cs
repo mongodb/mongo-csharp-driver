@@ -21,6 +21,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Options for creating a clustered index.
     /// </summary>
+    /// <typeparam name="TDocument">The document type.</typeparam>
     public class ClusteredIndexOptions<TDocument>
     {
         private IndexKeysDefinition<TDocument> _key;

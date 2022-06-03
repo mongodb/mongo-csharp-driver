@@ -29,18 +29,21 @@ namespace MongoDB.Driver
         /// Implicit conversion from string to StringOrRegularExpression.
         /// </summary>
         /// <param name="value">A StringOrRegularExpression.</param>
+        /// <returns>A StringOrRegularExpression.</returns>
         public static implicit operator StringOrRegularExpression(string value) => new StringOrRegularExpression(value);
 
         /// <summary>
         /// Implicit conversion from BsonRegularExpression to StringOrRegularExpression.
         /// </summary>
         /// <param name="value">A StringOrRegularExpression.</param>
+        /// <returns>A StringOrRegularExpression.</returns>
         public static implicit operator StringOrRegularExpression(BsonRegularExpression value) => new StringOrRegularExpression(value);
 
         /// <summary>
         /// Implicit conversion from Regex to StringOrRegularExpression.
         /// </summary>
         /// <param name="value">A StringOrRegularExpression.</param>
+        /// <returns>A StringOrRegularExpression.</returns>
         public static implicit operator StringOrRegularExpression(Regex value) => new StringOrRegularExpression(new BsonRegularExpression(value));
         #endregion
 

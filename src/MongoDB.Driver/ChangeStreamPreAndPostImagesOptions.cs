@@ -36,6 +36,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Initializes a new instance of the <see cref="ChangeStreamPreAndPostImagesOptions"/> class.
         /// </summary>
+        /// <param name="bsonDocument">The backing document.</param>
         public ChangeStreamPreAndPostImagesOptions(BsonDocument bsonDocument)
             : base(bsonDocument, ChangeStreamPreAndPostImagesOptionsSerializer.Instance)
         {

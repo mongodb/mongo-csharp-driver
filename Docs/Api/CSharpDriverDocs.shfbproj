@@ -79,7 +79,7 @@
     <CopyrightText>Copyright &amp;#169%3b 2010&amp;ndash%3bpresent MongoDB Inc.</CopyrightText>
     <FeedbackEMailAddress>dotnet-driver%40mongodb.com</FeedbackEMailAddress>
     <FeedbackEMailLinkText>MongoDB</FeedbackEMailLinkText>
-    <FrameworkVersion>.NET Framework 4.5.2</FrameworkVersion>
+    <FrameworkVersion>.NET Framework 4.7.2</FrameworkVersion>
     <HelpFileVersion>0.0.0.0</HelpFileVersion>
     <MissingTags>Summary, Parameter, Returns, AutoDocumentCtors, Namespace, TypeParameter, AutoDocumentDispose</MissingTags>
     <SyntaxFilters>C#, Visual Basic, F#</SyntaxFilters>
