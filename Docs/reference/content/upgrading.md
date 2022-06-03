@@ -11,7 +11,7 @@ title = "Upgrading"
 
 ## Breaking Changes
 
-### Backwards compatibility with driver version 2.7.0–2.14.x
+### Backwards compatibility with driver version 2.7.0–2.15.x
 
 Starting from 2.15.0, feature detection is implemented through maxWireVersion 
 instead of buildInfo. This should have no user-visible impact.

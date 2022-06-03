@@ -8,6 +8,20 @@ title = "What's New"
   pre = "<i class='fa fa-star'></i>"
 +++
 
+## What's New in 2.16.0
+
+The main new features in 2.16.0 include:
+
+* Support for MongoDB server version 6.0.0
+* [BETA] Support for Queryable Encryption
+* Support for creating collections with clustered indexes
+* Use `count` command for `estimatedDocumentCount`
+* LINQ3 bug fixes and improvements
+* Support for carry forward (`$locf`) and numerical/date densification (`$densify`)
+* Support for `limit` in `$filter` expressions
+* Support point-in-time pre-/post-images in change streams
+* Preemptively cancel in-progress operations when SDAM heartbeats timeout
+
 ## What's New in 2.15.0
 
 The main new features in 2.15.0 include:
