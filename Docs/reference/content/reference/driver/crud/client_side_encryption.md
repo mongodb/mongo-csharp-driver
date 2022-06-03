@@ -21,7 +21,11 @@ field level encryption supports workloads where applications must guarantee that
 unauthorized parties, including server administrators, cannot read the encrypted
 data.
 
-{{% note class="important" %}} 
+New in MongoDB 6.0, Queryable Encryption is in Public Preview and available for evaluation purposes.
+Public Preview is not recommended for production deployments as breaking changes may be introduced.
+Queryable Encryption APIs are prepended with `[BETA]` in the API documentation and Intellisense.
+
+{{% note class="important" %}}
 Client-side field level encryption in the .NET/C# driver is currently only supported on x64-compatible CPUs.
 {{% /note %}}
 
