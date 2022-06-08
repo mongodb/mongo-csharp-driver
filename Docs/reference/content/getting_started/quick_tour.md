@@ -207,7 +207,7 @@ Each of the above examples will print the exact same thing to the console. For m
 We can create a filter to pass to the [`Find`]({{< apiref "Overload_MongoDB_Driver_IMongoCollectionExtensions_Find" >}}) method to get a subset of the documents in our collection. For example, if we wanted to find the document for which the value of the “i” field is 71, we would do the following:
 
 ```csharp
-var filter = Builders<BsonDocument>.Filter.Eq("i", 71);
+var filter = Builders<BsonDocument>.Filter.Eq("counter", 71);
 ```
 ```csharp
 var document = collection.Find(filter).First();
@@ -221,7 +221,7 @@ Console.WriteLine(document);
 and it should print just one document:
 
 ```json
-{ "_id" : ObjectId("5515836e58c7b4fbc756320b"), "i" : 71 }
+{ "_id" : ObjectId("5515836e58c7b4fbc756320b"), "counter" : 71 }
 ```
 
 {{% note %}}Use the [Filter]({{< relref "reference\driver\definitions.md#filters" >}}), [Sort]({{< relref "reference\driver\definitions.md#sorts" >}}), and [Projection]({{< relref "reference\driver\definitions.md#projections" >}}) builders for simple and concise ways of building up queries.{{% /note %}} 
@@ -231,7 +231,7 @@ and it should print just one document:
 We can also get a set of documents from our collection. For example, if we wanted to get all documents where `i > 50`, we could write:
 
 ```csharp
-var filter = Builders<BsonDocument>.Filter.Gt("i", 50);
+var filter = Builders<BsonDocument>.Filter.Gt("counter", 50);
 ```
 ```csharp
 var cursor = collection.Find(filter).ToCursor();
@@ -248,7 +248,7 @@ We could also get a range, say `50 < i <= 100`:
 
 ```csharp
 var filterBuilder = Builders<BsonDocument>.Filter;
-var filter = filterBuilder.Gt("i", 50) & filterBuilder.Lte("i", 100);
+var filter = filterBuilder.Gt("counter", 50) & filterBuilder.Lte("counter", 100);
 ```
 ```csharp
 var cursor = collection.Find(filter).ToCursor();
@@ -266,8 +266,8 @@ await collection.Find(filter).ForEachAsync(document => Console.WriteLine(documen
 We add a sort to a find query by calling the [`Sort`]({{< apiref "M_MongoDB_Driver_IFindFluent_2_Sort" >}}) method. Below we use the [`Exists`]({{< apiref "Overload_MongoDB_Driver_FilterDefinitionBuilder_1_Exists" >}}) filter builder method and [`Descending`]({{< apiref "Overload_MongoDB_Driver_SortDefinitionBuilder_1_Descending" >}}) sort builder method to sort our documents:
 
 ```csharp
-var filter = Builders<BsonDocument>.Filter.Exists("i");
-var sort = Builders<BsonDocument>.Sort.Descending("i");
+var filter = Builders<BsonDocument>.Filter.Exists("counter");
+var sort = Builders<BsonDocument>.Sort.Descending("counter");
 ```
 ```csharp
 var document = collection.Find(filter).Sort(sort).First();
@@ -299,8 +299,8 @@ There are numerous [update operators](https://www.mongodb.com/docs/manual/refere
 To update at most 1 document (may be 0 if none match the filter), use the [`UpdateOne`]({{< apiref "M_MongoDB_Driver_IMongoCollection_1_UpdateOne" >}}) or [`UpdateOneAsync`]({{< apiref "M_MongoDB_Driver_IMongoCollection_1_UpdateOneAsync" >}}) methods to specify the filter and the update document. Here we update the first document that meets the filter `i == 10` and set the value of `i` to `110`:
 
 ```csharp
-var filter = Builders<BsonDocument>.Filter.Eq("i", 10);
-var update = Builders<BsonDocument>.Update.Set("i", 110);
+var filter = Builders<BsonDocument>.Filter.Eq("counter", 10);
+var update = Builders<BsonDocument>.Update.Set("counter", 110);
 ```
 ```csharp
 collection.UpdateOne(filter, update);
@@ -312,8 +312,8 @@ await collection.UpdateOneAsync(filter, update);
 To update all documents matching the filter use the [`UpdateMany`]({{< apiref "M_MongoDB_Driver_IMongoCollection_1_UpdateMany" >}}) or [`UpdateManyAsync`]({{< apiref "M_MongoDB_Driver_IMongoCollection_1_UpdateManyAsync" >}}) methods. Here we increment the value of `i` by `100` where `i < 100`.
 
 ```csharp
-var filter = Builders<BsonDocument>.Filter.Lt("i", 100);
-var update = Builders<BsonDocument>.Update.Inc("i", 100);
+var filter = Builders<BsonDocument>.Filter.Lt("counter", 100);
+var update = Builders<BsonDocument>.Update.Inc("counter", 100);
 ```
 ```csharp
 var result = collection.UpdateMany(filter, update);
@@ -341,7 +341,7 @@ The update methods return an [`UpdateResult`]({{< apiref "T_MongoDB_Driver_Updat
 To delete at most 1 document (may be 0 if none match the filter) use the [`DeleteOne`]({{< apiref "M_MongoDB_Driver_IMongoCollection_1_DeleteOne" >}}) or [`DeleteOneAsync`]({{< apiref "M_MongoDB_Driver_IMongoCollection_1_DeleteOneAsync" >}}) methods:
 
 ```csharp
-var filter = Builders<BsonDocument>.Filter.Eq("i", 110);
+var filter = Builders<BsonDocument>.Filter.Eq("counter", 110);
 ```
 ```csharp
 collection.DeleteOne(filter);
@@ -353,7 +353,7 @@ await collection.DeleteOneAsync(filter);
 To delete all documents matching the filter use the [`DeleteMany`]({{< apiref "M_MongoDB_Driver_IMongoCollection_1_DeleteMany" >}}) or [`DeleteManyAsync`]({{< apiref "M_MongoDB_Driver_IMongoCollection_1_DeleteManyAsync" >}}) methods. Here we delete all documents where `i >= 100`:
 
 ```csharp
-var filter = Builders<BsonDocument>.Filter.Gte("i", 100);
+var filter = Builders<BsonDocument>.Filter.Gte("counter", 100);
 ```
 ```csharp
 var result = collection.DeleteMany(filter);
