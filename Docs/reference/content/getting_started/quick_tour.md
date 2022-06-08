@@ -117,8 +117,8 @@ All APIs are available in both synchronous and asynchronous versions.
 To insert multiple documents, you can use the [`InsertMany`]({{< apiref "M_MongoDB_Driver_IMongoCollection_1_InsertMany" >}}) or [`InsertManyAsync`]({{< apiref "M_MongoDB_Driver_IMongoCollection_1_InsertManyAsync" >}}) methods.
 
 ```csharp
-// generate 100 documents with a counter ranging from 0 - 99
-var documents = Enumerable.Range(0, 100).Select(i => new BsonDocument("counter", i));
+// generate 100 documents with a field i ranging from 0 - 99
+var documents = Enumerable.Range(0, 100).Select(i => new BsonDocument("i", i));
 ```
 ```csharp
 collection.InsertMany(documents);
