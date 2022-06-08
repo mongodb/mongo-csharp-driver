@@ -28,6 +28,7 @@ namespace MongoDB.Driver
         FailedToSatisfyReadPreference = 133,
         HostNotFound = 7,
         HostUnreachable = 6,
+        DuplicateKey = 11000,
         Interrupted = 11601,
         InterruptedAtShutdown = 11600,
         InterruptedDueToReplStateChange = 11602,

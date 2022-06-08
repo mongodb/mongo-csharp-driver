@@ -171,8 +171,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
             }
             else
             {
-                actual.BsonType.Should().Be(expected.BsonType);
-                actual.Should().Be(expected);
+                (actual ?? BsonNull.Value).BsonType.Should().Be(expected.BsonType);
+                (actual ?? BsonNull.Value).Should().Be(expected ?? BsonNull.Value);
             }
         }
 

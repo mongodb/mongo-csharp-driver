@@ -31,169 +31,103 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         }
 
         public IUnifiedTestOperation CreateOperation(string operationName, string targetEntityId, BsonDocument operationArguments)
-        {
-            switch (targetEntityId)
+            => targetEntityId switch
             {
-                case "testRunner":
-                    switch (operationName)
-                    {
-                        case "assertCollectionExists":
-                            return new UnifiedAssertCollectionExistsOperationBuilder().Build(operationArguments);
-                        case "assertCollectionNotExists":
-                            return new UnifiedAssertCollectionNotExistsOperationBuilder().Build(operationArguments);
-                        case "assertDifferentLsidOnLastTwoCommands":
-                            return new UnifiedAssertDifferentLsidOnLastTwoCommandsOperationBuilder(_entityMap).Build(operationArguments);
-                        case "assertIndexExists":
-                            return new UnifiedAssertIndexExistsOperationBuilder().Build(operationArguments);
-                        case "assertIndexNotExists":
-                            return new UnifiedAssertIndexNotExistsOperationBuilder().Build(operationArguments);
-                        case "assertNumberConnectionsCheckedOut":
-                            return new UnifiedAssertNumberConnectionsCheckedOutOperationBuilder(_entityMap).Build(operationArguments);
-                        case "assertSameLsidOnLastTwoCommands":
-                            return new UnifiedAssertSameLsidOnLastTwoCommandsOperationBuilder(_entityMap).Build(operationArguments);
-                        case "assertSessionDirty":
-                            return new UnifiedAssertSessionDirtyOperationBuilder(_entityMap).Build(operationArguments);
-                        case "assertSessionNotDirty":
-                            return new UnifiedAssertSessionNotDirtyOperationBuilder(_entityMap).Build(operationArguments);
-                        case "assertSessionPinned":
-                            return new UnifiedAssertSessionPinnedOperationBuilder(_entityMap).Build(operationArguments);
-                        case "assertSessionTransactionState":
-                            return new UnifiedAssertSessionTransactionStateOperationBuilder(_entityMap).Build(operationArguments);
-                        case "assertSessionUnpinned":
-                            return new UnifiedAssertSessionUnpinnedOperationBuilder(_entityMap).Build(operationArguments);
-                        case "failPoint":
-                            return new UnifiedFailPointOperationBuilder(_entityMap).Build(operationArguments);
-                        case "loop":
-                            return new UnifiedLoopOperationBuilder(_entityMap, _additionalArgs).Build(operationArguments);
-                        case "targetedFailPoint":
-                            return new UnifiedTargetedFailPointOperationBuilder(_entityMap).Build(operationArguments);
-                        default:
-                            throw new FormatException($"Invalid method name: '{operationName}'.");
-                    }
-
-                case var _ when _entityMap.HasBucket(targetEntityId):
-                    switch (operationName)
-                    {
-                        case "delete":
-                            return new UnifiedGridFsDeleteOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
-                        case "download":
-                            return new UnifiedGridFsDownloadOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
-                        case "upload":
-                            return new UnifiedGridFsUploadOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
-                        default:
-                            throw new FormatException($"Invalid method name: '{operationName}'.");
-                    }
-
-                case var _ when _entityMap.ChangeStreams.ContainsKey(targetEntityId) || _entityMap.Cursors.ContainsKey(targetEntityId):
-                    switch (operationName)
-                    {
-                        case "iterateUntilDocumentOrError":
-                            return new UnifiedIterateUntilDocumentOrErrorOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
-                        case "close":
-                            return new UnifiedCloseCursorOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
-                        default:
-                            throw new FormatException($"Invalid method name: '{operationName}'.");
-                    }
-
-                case var _ when _entityMap.HasClient(targetEntityId):
-                    switch (operationName)
-                    {
-                        case "createChangeStream":
-                            return new UnifiedCreateChangeStreamOnClientOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
-                        case "listDatabases":
-                            return new UnifiedListDatabasesOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
-                        default:
-                            throw new FormatException($"Invalid method name: '{operationName}'.");
-                    }
-
-                case var _ when _entityMap.HasCollection(targetEntityId):
-                    switch (operationName)
-                    {
-                        case "aggregate":
-                            return new UnifiedAggregateOperationBuilder(_entityMap).BuildCollectionOperation(targetEntityId, operationArguments);
-                        case "bulkWrite":
-                            return new UnifiedBulkWriteOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
-                        case "countDocuments":
-                            return new UnifiedCountDocumentsOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
-                        case "createChangeStream":
-                            return new UnifiedCreateChangeStreamOnCollectionOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
-                        case "createFindCursor":
-                            return new UnifiedCreateFindCursorOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
-                        case "createIndex":
-                            return new UnifiedCreateIndexOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
-                        case "deleteMany":
-                            return new UnifiedDeleteManyOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
-                        case "deleteOne":
-                            return new UnifiedDeleteOneOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
-                        case "distinct":
-                            return new UnifiedDistinctOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
-                        case "estimatedDocumentCount":
-                            return new UnifiedEstimatedDocumentCountOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
-                        case "find":
-                            return new UnifiedFindOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
-                        case "findOneAndDelete":
-                            return new UnifiedFindOneAndDeleteOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
-                        case "findOneAndReplace":
-                            return new UnifiedFindOneAndReplaceOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
-                        case "findOneAndUpdate":
-                            return new UnifiedFindOneAndUpdateOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
-                        case "insertMany":
-                            return new UnifiedInsertManyOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
-                        case "insertOne":
-                            return new UnifiedInsertOneOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
-                        case "listIndexes":
-                            return new UnifiedListIndexesOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
-                        case "rename":
-                            return new UnifiedRenameCollectionOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
-                        case "replaceOne":
-                            return new UnifiedReplaceOneOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
-                        case "updateMany":
-                            return new UnifiedUpdateManyOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
-                        case "updateOne":
-                            return new UnifiedUpdateOneOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
-                        default:
-                            throw new FormatException($"Invalid method name: '{operationName}'.");
-                    }
-
-                case var _ when _entityMap.HasDatabase(targetEntityId):
-                    switch (operationName)
-                    {
-                        case "aggregate":
-                            return new UnifiedAggregateOperationBuilder(_entityMap).BuildDatabaseOperation(targetEntityId, operationArguments);
-                        case "createCollection":
-                            return new UnifiedCreateCollectionOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
-                        case "createChangeStream":
-                            return new UnifiedCreateChangeStreamOnDatabaseOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
-                        case "dropCollection":
-                            return new UnifiedDropCollectionOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
-                        case "listCollections":
-                            return new UnifiedListCollectionsOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
-                        case "runCommand":
-                            return new UnifiedRunCommandOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
-                        default:
-                            throw new FormatException($"Invalid method name: '{operationName}'.");
-                    }
-
-                case var _ when _entityMap.HasSession(targetEntityId):
-                    switch (operationName)
-                    {
-                        case "abortTransaction":
-                            return new UnifiedAbortTransactionOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
-                        case "commitTransaction":
-                            return new UnifiedCommitTransactionOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
-                        case "endSession":
-                            return new UnifiedEndSessionOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
-                        case "startTransaction":
-                            return new UnifiedStartTransactionOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
-                        case "withTransaction":
-                            return new UnifiedWithTransactionOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
-                        default:
-                            throw new FormatException($"Invalid method name: '{operationName}'.");
-                    }
-
-                default:
-                    throw new FormatException($"Target entity type not recognized for entity with id: '{targetEntityId}'.");
-            }
-        }
+                "testRunner" => operationName switch
+                {
+                    "assertCollectionExists" => new UnifiedAssertCollectionExistsOperationBuilder().Build(operationArguments),
+                    "assertCollectionNotExists" => new UnifiedAssertCollectionNotExistsOperationBuilder().Build(operationArguments),
+                    "assertDifferentLsidOnLastTwoCommands" => new UnifiedAssertDifferentLsidOnLastTwoCommandsOperationBuilder(_entityMap).Build(operationArguments),
+                    "assertIndexExists" => new UnifiedAssertIndexExistsOperationBuilder().Build(operationArguments),
+                    "assertIndexNotExists" => new UnifiedAssertIndexNotExistsOperationBuilder().Build(operationArguments),
+                    "assertNumberConnectionsCheckedOut" => new UnifiedAssertNumberConnectionsCheckedOutOperationBuilder(_entityMap).Build(operationArguments),
+                    "assertSameLsidOnLastTwoCommands" => new UnifiedAssertSameLsidOnLastTwoCommandsOperationBuilder(_entityMap).Build(operationArguments),
+                    "assertSessionDirty" => new UnifiedAssertSessionDirtyOperationBuilder(_entityMap).Build(operationArguments),
+                    "assertSessionNotDirty" => new UnifiedAssertSessionNotDirtyOperationBuilder(_entityMap).Build(operationArguments),
+                    "assertSessionPinned" => new UnifiedAssertSessionPinnedOperationBuilder(_entityMap).Build(operationArguments),
+                    "assertSessionTransactionState" => new UnifiedAssertSessionTransactionStateOperationBuilder(_entityMap).Build(operationArguments),
+                    "assertSessionUnpinned" => new UnifiedAssertSessionUnpinnedOperationBuilder(_entityMap).Build(operationArguments),
+                    "failPoint" => new UnifiedFailPointOperationBuilder(_entityMap).Build(operationArguments),
+                    "loop" => new UnifiedLoopOperationBuilder(_entityMap, _additionalArgs).Build(operationArguments),
+                    "targetedFailPoint" => new UnifiedTargetedFailPointOperationBuilder(_entityMap).Build(operationArguments),
+                    _ => throw new FormatException($"Invalid method name: '{operationName}'."),
+                },
+                var _ when _entityMap.HasBucket(targetEntityId) => operationName switch
+                {
+                    "delete" => new UnifiedGridFsDeleteOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    "download" => new UnifiedGridFsDownloadOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    "upload" => new UnifiedGridFsUploadOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    _ => throw new FormatException($"Invalid method name: '{operationName}'."),
+                },
+                var _ when _entityMap.ChangeStreams.ContainsKey(targetEntityId) || _entityMap.Cursors.ContainsKey(targetEntityId) => operationName switch
+                {
+                    "iterateUntilDocumentOrError" => new UnifiedIterateUntilDocumentOrErrorOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    "close" => new UnifiedCloseCursorOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    _ => throw new FormatException($"Invalid method name: '{operationName}'."),
+                },
+                var _ when _entityMap.HasClient(targetEntityId) => operationName switch
+                {
+                    "createChangeStream" => new UnifiedCreateChangeStreamOnClientOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    "listDatabases" => new UnifiedListDatabasesOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    _ => throw new FormatException($"Invalid method name: '{operationName}'."),
+                },
+                var _ when _entityMap.HasCollection(targetEntityId) => operationName switch
+                {
+                    "aggregate" => new UnifiedAggregateOperationBuilder(_entityMap).BuildCollectionOperation(targetEntityId, operationArguments),
+                    "bulkWrite" => new UnifiedBulkWriteOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    "countDocuments" => new UnifiedCountDocumentsOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    "createChangeStream" => new UnifiedCreateChangeStreamOnCollectionOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    "createFindCursor" => new UnifiedCreateFindCursorOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    "createIndex" => new UnifiedCreateIndexOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    "deleteMany" => new UnifiedDeleteManyOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    "deleteOne" => new UnifiedDeleteOneOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    "distinct" => new UnifiedDistinctOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    "estimatedDocumentCount" => new UnifiedEstimatedDocumentCountOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    "find" => new UnifiedFindOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    "findOneAndDelete" => new UnifiedFindOneAndDeleteOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    "findOneAndReplace" => new UnifiedFindOneAndReplaceOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    "findOneAndUpdate" => new UnifiedFindOneAndUpdateOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    "insertMany" => new UnifiedInsertManyOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    "insertOne" => new UnifiedInsertOneOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    "listIndexes" => new UnifiedListIndexesOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    "rename" => new UnifiedRenameCollectionOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    "replaceOne" => new UnifiedReplaceOneOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    "updateMany" => new UnifiedUpdateManyOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    "updateOne" => new UnifiedUpdateOneOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    _ => throw new FormatException($"Invalid method name: '{operationName}'."),
+                },
+                var _ when _entityMap.HasDatabase(targetEntityId) => operationName switch
+                {
+                    "aggregate" => new UnifiedAggregateOperationBuilder(_entityMap).BuildDatabaseOperation(targetEntityId, operationArguments),
+                    "createCollection" => new UnifiedCreateCollectionOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    "createChangeStream" => new UnifiedCreateChangeStreamOnDatabaseOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    "dropCollection" => new UnifiedDropCollectionOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    "listCollections" => new UnifiedListCollectionsOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    "runCommand" => new UnifiedRunCommandOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    _ => throw new FormatException($"Invalid method name: '{operationName}'."),
+                },
+                var _ when _entityMap.HasSession(targetEntityId) => operationName switch
+                {
+                    "abortTransaction" => new UnifiedAbortTransactionOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    "commitTransaction" => new UnifiedCommitTransactionOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    "endSession" => new UnifiedEndSessionOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    "startTransaction" => new UnifiedStartTransactionOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    "withTransaction" => new UnifiedWithTransactionOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    _ => throw new FormatException($"Invalid method name: '{operationName}'."),
+                },
+                var _ when _entityMap.ClientEncryptions.ContainsKey(targetEntityId) => operationName switch
+                {
+                    "createKey" => new UnifiedCreateDataKeyOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    "rewrapManyDataKey" => new UnifiedRewrapManyDataKeyOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    "addKeyAltName" => new UnifiedAddKeyAltNameOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    "deleteKey" => new UnifiedDeleteKeyOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    "getKey" => new UnifiedGetKeyOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    "getKeys" => new UnifiedGetKeysOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    "getKeyByAltName" => new UnifiedGetKeyByAltNameOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    "removeKeyAltName" => new UnifiedRemoveKeyAltNameOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    _ => throw new FormatException($"Invalid method name: '{operationName}'."),
+                },
+                _ => throw new FormatException($"Target entity type not recognized for entity with id: '{targetEntityId}'."),
+            };
     }
 }

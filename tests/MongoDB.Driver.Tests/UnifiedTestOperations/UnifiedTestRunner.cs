@@ -95,7 +95,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
             var schemaSemanticVersion = SemanticVersion.Parse(schemaVersion);
             if (schemaSemanticVersion < new SemanticVersion(1, 0, 0) ||
-                schemaSemanticVersion > new SemanticVersion(1, 7, 0))
+                schemaSemanticVersion > new SemanticVersion(1, 8, 0))
             {
                 throw new FormatException($"Schema version '{schemaVersion}' is not supported.");
             }
@@ -167,6 +167,14 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         // private methods
         private void AddInitialData(IMongoClient client, BsonArray initialData)
         {
+            var mongoCollectionSettings = new MongoCollectionSettings();
+#pragma warning disable CS0618 // Type or member is obsolete
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+            {
+                mongoCollectionSettings.GuidRepresentation = GuidRepresentation.Unspecified;
+            }
+#pragma warning restore CS0618 // Type or member is obsolete
+
             foreach (var dataItem in initialData)
             {
                 var collectionName = dataItem["collectionName"].AsString;
@@ -175,7 +183,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
                 var database = client.GetDatabase(databaseName);
                 var collection = database
-                    .GetCollection<BsonDocument>(collectionName)
+                    .GetCollection<BsonDocument>(collectionName, mongoCollectionSettings)
                     .WithWriteConcern(WriteConcern.WMajority);
 
                 _logger.Debug("Dropping {0}", collectionName);

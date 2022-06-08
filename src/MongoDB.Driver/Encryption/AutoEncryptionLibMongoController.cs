@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Encryption
         // private fields
         private readonly IMongoClient _internalClient;
         private readonly IMongoClient _metadataClient;
-        private readonly IMongoClient _mongocryptdClient;
+        private readonly Lazy<IMongoClient> _mongocryptdClient;
         private readonly MongocryptdFactory _mongocryptdFactory;
 
         // constructors
@@ -75,12 +75,12 @@ namespace MongoDB.Driver.Encryption
             _internalClient = internalClient; // can be null
             _metadataClient = metadataClient; // can be null
             _mongocryptdFactory = new MongocryptdFactory(autoEncryptionOptions.ExtraOptions, autoEncryptionOptions.BypassQueryAnalysis);
-            _mongocryptdClient = _mongocryptdFactory.CreateMongocryptdClient();
+            _mongocryptdClient = new Lazy<IMongoClient>(() => _mongocryptdFactory.CreateMongocryptdClient(), isThreadSafe: true);
         }
 
         // internal properties
         /// <summary>
-        /// this property is used by DisposableMongoClient.Dispose to unregister the internal cluster.
+        /// This property is used by DisposableMongoClient.Dispose to unregister the internal cluster.
         /// </summary>
         internal IMongoClient InternalClient => _internalClient;
 
@@ -217,7 +217,7 @@ namespace MongoDB.Driver.Encryption
 
         private void ProcessNeedMongoMarkingsState(CryptContext context, string databaseName, CancellationToken cancellationToken)
         {
-            var database = _mongocryptdClient.GetDatabase(databaseName);
+            var database = _mongocryptdClient.Value.GetDatabase(databaseName);
             var commandBytes = context.GetOperation().ToArray();
             var commandDocument = new RawBsonDocument(commandBytes);
             var command = new BsonDocumentCommand<BsonDocument>(commandDocument);
@@ -241,7 +241,7 @@ namespace MongoDB.Driver.Encryption
 
         private async Task ProcessNeedMongoMarkingsStateAsync(CryptContext context, string databaseName, CancellationToken cancellationToken)
         {
-            var database = _mongocryptdClient.GetDatabase(databaseName);
+            var database = _mongocryptdClient.Value.GetDatabase(databaseName);
             var commandBytes = context.GetOperation().ToArray();
             var commandDocument = new RawBsonDocument(commandBytes);
             var command = new BsonDocumentCommand<BsonDocument>(commandDocument);
@@ -268,7 +268,7 @@ namespace MongoDB.Driver.Encryption
             var stopwatch = Stopwatch.StartNew();
             while (stopwatch.Elapsed < TimeSpan.FromSeconds(5))
             {
-                var clusterDescription = _mongocryptdClient.Cluster?.Description;
+                var clusterDescription = _mongocryptdClient.Value.Cluster?.Description;
                 var mongocryptdServer = clusterDescription?.Servers?.FirstOrDefault();
                 if (mongocryptdServer != null && mongocryptdServer.Type != ServerType.Unknown)
                 {
@@ -283,7 +283,7 @@ namespace MongoDB.Driver.Encryption
             var stopwatch = Stopwatch.StartNew();
             while (stopwatch.Elapsed < TimeSpan.FromSeconds(5))
             {
-                var clusterDescription = _mongocryptdClient.Cluster?.Description;
+                var clusterDescription = _mongocryptdClient.Value.Cluster?.Description;
                 var mongocryptdServer = clusterDescription?.Servers?.FirstOrDefault();
                 if (mongocryptdServer != null && mongocryptdServer.Type != ServerType.Unknown)
                 {

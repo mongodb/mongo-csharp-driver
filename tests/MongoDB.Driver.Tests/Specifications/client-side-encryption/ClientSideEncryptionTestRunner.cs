@@ -424,7 +424,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
         #endregion
 
         // protected properties
-        protected override string PathPrefix => "MongoDB.Driver.Tests.Specifications.client_side_encryption.tests.";
+        protected override string PathPrefix => "MongoDB.Driver.Tests.Specifications.client_side_encryption.tests.legacy.";
 
         // protected methods
         protected override IEnumerable<JsonDrivenTestCase> CreateTestCases(BsonDocument document)

@@ -25,6 +25,7 @@ namespace MongoDB.Driver.Encryption
     {
         // private fields
         private readonly IReadOnlyList<string> _alternateKeyNames;
+        private readonly BsonBinaryData _keyMaterial;
         private readonly BsonDocument _masterKey;
 
         // constructors
@@ -33,14 +34,18 @@ namespace MongoDB.Driver.Encryption
         /// </summary>
         /// <param name="alternateKeyNames">The alternate key names.</param>
         /// <param name="masterKey">The master key.</param>
+        /// <param name="keyMaterial">The key material.</param>
         public DataKeyOptions(
             Optional<IReadOnlyList<string>> alternateKeyNames = default,
-            Optional<BsonDocument> masterKey = default)
+            Optional<BsonDocument> masterKey = default,
+            Optional<BsonBinaryData> keyMaterial = default)
         {
             _alternateKeyNames = alternateKeyNames.WithDefault(null);
+            _keyMaterial = keyMaterial.WithDefault(null);
             _masterKey = masterKey.WithDefault(null);
         }
 
+        // public properties
         /// <summary>
         /// Gets the alternate key names.
         /// </summary>
@@ -49,7 +54,14 @@ namespace MongoDB.Driver.Encryption
         /// </value>
         public IReadOnlyList<string> AlternateKeyNames => _alternateKeyNames;
 
-        // public properties
+        /// <summary>
+        /// Gets the key material.
+        /// </summary>
+        /// <value>
+        /// The key material.
+        /// </value>
+        public BsonBinaryData KeyMaterial => _keyMaterial;
+
         /// <summary>
         /// Gets the master key.
         /// </summary>
@@ -63,14 +75,15 @@ namespace MongoDB.Driver.Encryption
         /// </summary>
         /// <param name="alternateKeyNames">The alternate key names.</param>
         /// <param name="masterKey">The master key.</param>
+        /// <param name="keyMaterial">The key material.</param>
         /// <returns>A new DataKeyOptions instance.</returns>
         public DataKeyOptions With(
             Optional<IReadOnlyList<string>> alternateKeyNames = default,
-            Optional<BsonDocument> masterKey = default)
-        {
-            return new DataKeyOptions(
+            Optional<BsonDocument> masterKey = default,
+            Optional<BsonBinaryData> keyMaterial = default) =>
+            new DataKeyOptions(
                 alternateKeyNames: Optional.Create(alternateKeyNames.WithDefault(_alternateKeyNames)),
-                masterKey: Optional.Create(masterKey.WithDefault(_masterKey)));
-        }
+                masterKey: Optional.Create(masterKey.WithDefault(_masterKey)),
+                keyMaterial: Optional.Create(keyMaterial.WithDefault(_keyMaterial)));
     }
 }

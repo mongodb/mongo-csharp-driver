@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -58,18 +59,52 @@ namespace MongoDB.Driver.Encryption
 
         // public methods
         /// <summary>
-        /// Creates a data key.
+        /// Adds an alternate key name to the keyAltNames array of the key document in the key vault collection with the given UUID (BSON binary subtype 0x04).
+        /// </summary>
+        /// <param name="id">The id.</param>
+        /// <param name="alternateKeyName">The alternate key name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>Returns the previous version of the key document.</returns>
+        public BsonDocument AddAlternateKeyName(BsonBinaryData id, string alternateKeyName, CancellationToken cancellationToken = default)
+            => _libMongoCryptController.AddAlternateKeyName(id, alternateKeyName, cancellationToken);
+
+        /// <summary>
+        /// Adds an alternate key name to the keyAltNames array of the key document in the key vault collection with the given UUID (BSON binary subtype 0x04).
+        /// </summary>
+        /// <param name="id">The id.</param>
+        /// <param name="alternateKeyName">The key alter name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>Returns the previous version of the key document.</returns>
+        public Task<BsonDocument> AddAlternateKeyNameAsync(BsonBinaryData id, string alternateKeyName, CancellationToken cancellationToken = default)
+            => _libMongoCryptController.AddAlternateKeyNameAsync(id, alternateKeyName, cancellationToken);
+
+        /// <summary>
+        /// An alias function equivalent to createKey.
         /// </summary>
         /// <param name="kmsProvider">The kms provider.</param>
         /// <param name="dataKeyOptions">The data key options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A data key.</returns>
-        public Guid CreateDataKey(string kmsProvider, DataKeyOptions dataKeyOptions, CancellationToken cancellationToken)
+        public Guid CreateDataKey(string kmsProvider, DataKeyOptions dataKeyOptions, CancellationToken cancellationToken = default)
         {
             return _libMongoCryptController.CreateDataKey(
                 kmsProvider,
-                dataKeyOptions.AlternateKeyNames,
-                dataKeyOptions.MasterKey,
+                dataKeyOptions,
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// An alias function equivalent to createKey.
+        /// </summary>
+        /// <param name="kmsProvider">The kms provider.</param>
+        /// <param name="dataKeyOptions">The data key options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A data key.</returns>
+        public Task<Guid> CreateDataKeyAsync(string kmsProvider, DataKeyOptions dataKeyOptions, CancellationToken cancellationToken = default)
+        {
+            return _libMongoCryptController.CreateDataKeyAsync(
+                kmsProvider,
+                dataKeyOptions,
                 cancellationToken);
         }
 
@@ -80,14 +115,18 @@ namespace MongoDB.Driver.Encryption
         /// <param name="dataKeyOptions">The data key options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A data key.</returns>
-        public Task<Guid> CreateDataKeyAsync(string kmsProvider, DataKeyOptions dataKeyOptions, CancellationToken cancellationToken)
-        {
-            return _libMongoCryptController.CreateDataKeyAsync(
-                kmsProvider,
-                dataKeyOptions.AlternateKeyNames,
-                dataKeyOptions.MasterKey,
-                cancellationToken);
-        }
+        public Guid CreateKey(string kmsProvider, DataKeyOptions dataKeyOptions, CancellationToken cancellationToken = default)
+            => CreateDataKey(kmsProvider, dataKeyOptions, cancellationToken);
+
+        /// <summary>
+        /// Creates a data key.
+        /// </summary>
+        /// <param name="kmsProvider">The kms provider.</param>
+        /// <param name="dataKeyOptions">The data key options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A data key.</returns>
+        public Task<Guid> CreateKeyAsync(string kmsProvider, DataKeyOptions dataKeyOptions, CancellationToken cancellationToken = default)
+            => CreateDataKeyAsync(kmsProvider, dataKeyOptions, cancellationToken);
 
         /// <summary>
         /// Decrypts the specified value.
@@ -95,7 +134,7 @@ namespace MongoDB.Driver.Encryption
         /// <param name="value">The value.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The decrypted value.</returns>
-        public BsonValue Decrypt(BsonBinaryData value, CancellationToken cancellationToken)
+        public BsonValue Decrypt(BsonBinaryData value, CancellationToken cancellationToken = default)
         {
             return _libMongoCryptController.DecryptField(value, cancellationToken);
         }
@@ -106,10 +145,28 @@ namespace MongoDB.Driver.Encryption
         /// <param name="value">The value.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The decrypted value.</returns>
-        public Task<BsonValue> DecryptAsync(BsonBinaryData value, CancellationToken cancellationToken)
+        public Task<BsonValue> DecryptAsync(BsonBinaryData value, CancellationToken cancellationToken = default)
         {
             return _libMongoCryptController.DecryptFieldAsync(value, cancellationToken);
         }
+
+        /// <summary>
+        /// Removes the key document with the given UUID (BSON binary subtype 0x04) from the key vault collection.
+        /// </summary>
+        /// <param name="id">The id.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>Returns the result of the internal deleteOne() operation on the key vault collection.</returns>
+        public DeleteResult DeleteKey(BsonBinaryData id, CancellationToken cancellationToken = default)
+            => _libMongoCryptController.DeleteKey(id, cancellationToken);
+
+        /// <summary>
+        /// Removes the key document with the given UUID (BSON binary subtype 0x04) from the key vault collection.
+        /// </summary>
+        /// <param name="id">The id.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>Returns the result of the internal deleteOne() operation on the key vault collection.</returns>
+        public Task<DeleteResult> DeleteKeyAsync(BsonBinaryData id, CancellationToken cancellationToken = default)
+            => _libMongoCryptController.DeleteKeyAsync(id, cancellationToken);
 
         /// <inheritdoc />
         public void Dispose()
@@ -128,7 +185,7 @@ namespace MongoDB.Driver.Encryption
         /// <param name="encryptOptions">The encrypt options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The encrypted value.</returns>
-        public BsonBinaryData Encrypt(BsonValue value, EncryptOptions encryptOptions, CancellationToken cancellationToken)
+        public BsonBinaryData Encrypt(BsonValue value, EncryptOptions encryptOptions, CancellationToken cancellationToken = default)
         {
             return _libMongoCryptController.EncryptField(value, encryptOptions, cancellationToken);
         }
@@ -140,9 +197,101 @@ namespace MongoDB.Driver.Encryption
         /// <param name="encryptOptions">The encrypt options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The encrypted value.</returns>
-        public Task<BsonBinaryData> EncryptAsync(BsonValue value, EncryptOptions encryptOptions, CancellationToken cancellationToken)
+        public Task<BsonBinaryData> EncryptAsync(BsonValue value, EncryptOptions encryptOptions, CancellationToken cancellationToken = default)
         {
             return _libMongoCryptController.EncryptFieldAsync(value, encryptOptions, cancellationToken);
         }
+
+        /// <summary>
+        /// Finds a single key document with the given UUID (BSON binary subtype 0x04).
+        /// </summary>
+        /// <param name="id">The id.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>Returns the result of the internal find() operation on the key vault collection.</returns>
+        public BsonDocument GetKey(BsonBinaryData id, CancellationToken cancellationToken = default)
+            => _libMongoCryptController.GetKey(id, cancellationToken);
+
+        /// <summary>
+        /// Finds a single key document with the given UUID (BSON binary subtype 0x04).
+        /// </summary>
+        /// <param name="id">The id.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>Returns the result of the internal find() operation on the key vault collection.</returns>
+        public Task<BsonDocument> GetKeyAsync(BsonBinaryData id, CancellationToken cancellationToken = default)
+            => _libMongoCryptController.GetKeyAsync(id, cancellationToken);
+
+        /// <summary>
+        /// Finds a single key document with the given alter name.
+        /// </summary>
+        /// <param name="alternateKeyName">The alternate key name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>Returns a key document in the key vault collection with the given alternateKeyName.</returns>
+        public BsonDocument GetKeyByAlternateKeyName(string alternateKeyName, CancellationToken cancellationToken = default)
+            => _libMongoCryptController.GetKeyByAlternateKeyName(alternateKeyName, cancellationToken);
+
+        /// <summary>
+        /// Finds a single key document with the given UUID (BSON binary subtype 0x04).
+        /// </summary>
+        /// <param name="alternateKeyName">The alternate key name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>Returns a key document in the key vault collection with the given alternateKeyName.</returns>
+        public Task<BsonDocument> GetKeyByAlternateKeyNameAsync(string alternateKeyName, CancellationToken cancellationToken = default)
+            => _libMongoCryptController.GetKeyByAlternateKeyNameAsync(alternateKeyName, cancellationToken);
+
+        /// <summary>
+        /// Finds all documents in the key vault collection.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>Returns the result of the internal find() operation on the key vault collection.</returns>
+        public IEnumerable<BsonDocument> GetKeys(CancellationToken cancellationToken = default)
+            => _libMongoCryptController.GetKeys(cancellationToken);
+
+        /// <summary>
+        /// Finds all documents in the key vault collection.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>Returns the result of the internal find() operation on the key vault collection.</returns>
+        public Task<IEnumerable<BsonDocument>> GetKeysAsync(CancellationToken cancellationToken = default)
+            => _libMongoCryptController.GetKeysAsync(cancellationToken);
+
+        /// <summary>
+        /// Removes an alternateKeyName from the keyAltNames array of the key document in the key vault collection with the given UUID (BSON binary subtype 0x04).
+        /// </summary>
+        /// <param name="id">The id.</param>
+        /// <param name="alternateKeyName">The alternate key name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>Returns the previous version of the key document.</returns>
+        public BsonDocument RemoveAlternateKeyName(BsonBinaryData id, string alternateKeyName, CancellationToken cancellationToken = default)
+            => _libMongoCryptController.RemoveAlternateKeyName(id, alternateKeyName, cancellationToken);
+
+        /// <summary>
+        /// Removes an alternateKeyName from the keyAltNames array of the key document in the key vault collection with the given UUID (BSON binary subtype 0x04).
+        /// </summary>
+        /// <param name="id">The id.</param>
+        /// <param name="alternateKeyName">The alternate key name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>Returns the previous version of the key document.</returns>
+        public Task<BsonDocument> RemoveAlternateKeyNameAsync(BsonBinaryData id, string alternateKeyName, CancellationToken cancellationToken = default)
+            => _libMongoCryptController.RemoveAlternateKeyNameAsync(id, alternateKeyName, cancellationToken);
+
+        /// <summary>
+        /// Decrypts multiple data keys and (re-)encrypts them with a new masterKey, or with their current masterKey if a new one is not given.
+        /// </summary>
+        /// <param name="filter">The filter.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The result.</returns>
+        public RewrapManyDataKeyResult RewrapManyDataKey(FilterDefinition<BsonDocument> filter, RewrapManyDataKeyOptions options, CancellationToken cancellationToken = default)
+            => _libMongoCryptController.RewrapManyDataKey(filter, options, cancellationToken);
+
+        /// <summary>
+        /// Decrypts multiple data keys and (re-)encrypts them with a new masterKey, or with their current masterKey if a new one is not given.
+        /// </summary>
+        /// <param name="filter">The filter.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The result.</returns>
+        public Task<RewrapManyDataKeyResult> RewrapManyDataKeyAsync(FilterDefinition<BsonDocument> filter, RewrapManyDataKeyOptions options, CancellationToken cancellationToken = default)
+            => _libMongoCryptController.RewrapManyDataKeyAsync(filter, options, cancellationToken);
     }
 }
