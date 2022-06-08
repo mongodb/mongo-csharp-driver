@@ -16,12 +16,25 @@
 using System;
 using FluentAssertions;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Tests.Core.Misc
 {
     public class WireVersionTests
     {
+        [SkippableFact]
+        public void Server_maxWireVersion_should_be_in_supported_range()
+        {
+            RequireServer.Check().StableServer(stable: true);
+
+            var serverMaxWireVersion = CoreTestConfiguration.MaxWireVersion;
+
+            var isOverlaped= WireVersion.SupportedWireVersionRange.Overlaps(new Range<int>(serverMaxWireVersion, serverMaxWireVersion));
+
+            isOverlaped.Should().BeTrue();
+        }
+
         [Theory]
         [InlineData(14, "5.1")]
         [InlineData(1000, "Unknown (wire version 1000)")]
@@ -33,7 +46,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Misc
         [Fact]
         public void SupportedWireRange_should_be_correct()
         {
-            WireVersion.SupportedWireVersionRange.Should().Be(new Range<int>(6, 15));
+            WireVersion.SupportedWireVersionRange.Should().Be(new Range<int>(6, 18));
         }
 
         [Fact]
@@ -46,7 +59,8 @@ namespace MongoDB.Driver.Core.Tests.Core.Misc
 
         [Theory]
         [InlineData(99, null, null)]
-        [InlineData(18, null, null)]
+        [InlineData(19, null, null)]
+        [InlineData(18, 6, 1)]
         [InlineData(17, 6, 0)]
         [InlineData(16, 5, 3)]
         [InlineData(15, 5, 2)]

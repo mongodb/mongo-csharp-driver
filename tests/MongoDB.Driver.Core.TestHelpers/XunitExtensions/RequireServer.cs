@@ -140,6 +140,19 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
             throw new SkipException("Test skipped because serverless is " + (require ? "required" : "not required") + ".");
         }
 
+        public RequireServer StableServer(bool stable = true)
+        {
+            var serverVersion = Environment.GetEnvironmentVariable("MONGODB_VERSION");
+            var isStableServer = serverVersion != "latest" && serverVersion != "rapid";
+
+            if (isStableServer == stable)
+            {
+                return this;
+            }
+
+            throw new SkipException("Test skipped because server on the environment should be " + (stable ? "stable" : "latest or rapid") + $", but found {serverVersion}.");
+        }
+
         public RequireServer Supports(Feature feature)
         {
             if (feature.IsSupported(_maxWireVersion))
