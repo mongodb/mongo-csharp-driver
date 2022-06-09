@@ -118,11 +118,10 @@ namespace MongoDB.Driver.Core.Misc
             new WireVersionInfo(wireVersion: 14, major: 5, minor: 1),
             new WireVersionInfo(wireVersion: 15, major: 5, minor: 2),
             new WireVersionInfo(wireVersion: 16, major: 5, minor: 3),
-            new WireVersionInfo(wireVersion: 17, major: 6, minor: 0),
-            new WireVersionInfo(wireVersion: 18, major: 6, minor: 1)
+            new WireVersionInfo(wireVersion: 17, major: 6, minor: 0)
         };
 
-        private static Range<int> __supportedWireVersionRange = CreateSupportedWireVersionRange(minWireVersion: 6, maxWireVersion: 18);
+        private static Range<int> __supportedWireVersionRange = CreateSupportedWireVersionRange(minWireVersion: 6, maxWireVersion: 17);
 
         private static Range<int> CreateSupportedWireVersionRange(int minWireVersion, int maxWireVersion)
         {
