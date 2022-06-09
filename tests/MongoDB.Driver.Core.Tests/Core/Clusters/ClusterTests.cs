@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Core.Clusters
         {
             var result = Cluster.SupportedWireVersionRange;
 
-            result.Should().Be(new Range<int>(6, 15));
+            result.Should().Be(new Range<int>(6, 17));
         }
 
         [Fact]
@@ -325,8 +325,8 @@ namespace MongoDB.Driver.Core.Clusters
         [Theory]
         [InlineData(0, 0, false)]
         [InlineData(0, 0, true)]
-        [InlineData(16, 17, false)]
-        [InlineData(16, 17, true)]
+        [InlineData(18, 19, false)]
+        [InlineData(18, 19, true)]
         public void SelectServer_should_throw_if_any_servers_are_incompatible(int min, int max, bool async)
         {
             var subject = CreateSubject();
