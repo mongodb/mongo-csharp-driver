@@ -167,7 +167,7 @@ namespace MongoDB.Driver.Core.Clusters
                 var endPoint = new DnsEndPoint("localhost", i);
                 var serverId = new ServerId(clusterId, endPoint);
                 var wireRange = wireRanges[i];
-                var wireVersionRange = wireRange == 0 ? new Range<int>(0, 0) : wireRange == 1 ? new Range<int>(6, 15) : null;
+                var wireVersionRange = wireRange == 0 ? new Range<int>(0, 0) : wireRange == 1 ? Cluster.SupportedWireVersionRange : null;
                 var server = new ServerDescription(serverId, endPoint, wireVersionRange: wireVersionRange, type: ServerType.Standalone);
                 subject = subject.WithServerDescription(server);
             }
@@ -204,7 +204,7 @@ namespace MongoDB.Driver.Core.Clusters
                 var endPoint = new DnsEndPoint("localhost", i);
                 var serverId = new ServerId(clusterId, endPoint);
                 var wireRange = wireRanges[i];
-                var wireVersionRange = wireRange == 0 ? new Range<int>(0, 0) : wireRange == 1 ? new Range<int>(6, 15) : null;
+                var wireVersionRange = wireRange == 0 ? new Range<int>(0, 0) : wireRange == 1 ? Cluster.SupportedWireVersionRange : null;
                 var server = new ServerDescription(serverId, endPoint, wireVersionRange: wireVersionRange, type: ServerType.Unknown);
                 subject = subject.WithServerDescription(server);
             }
