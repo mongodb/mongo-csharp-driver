@@ -142,8 +142,8 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
 
         public RequireServer StableServer(bool stable = true)
         {
-            var serverVersion = Environment.GetEnvironmentVariable("MONGODB_VERSION");
-            var isStableServer = serverVersion != "latest" && serverVersion != "rapid";
+            var serverVersion = CoreTestConfiguration.ServerVersion;
+            var isStableServer = serverVersion.PreRelease == null;
 
             if (isStableServer == stable)
             {
