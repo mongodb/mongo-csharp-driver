@@ -150,7 +150,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
                 return this;
             }
 
-            throw new SkipException("Test skipped because expected server should be in " + (stable ? "GA" : "prerelease") + $" state, but found {serverVersion}.");
+            throw new SkipException($"Test skipped because because {(stable ? "GA" : "prerelease")} server version is expected, but found {serverVersion}.");
         }
 
         public RequireServer Supports(Feature feature)
