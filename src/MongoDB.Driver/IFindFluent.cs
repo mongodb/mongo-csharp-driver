@@ -113,7 +113,7 @@ namespace MongoDB.Driver
         /// Limits the number of documents.
         /// </summary>
         /// <remarks>
-        /// Limit equals to zero or null is equivalent to setting no limit.
+        /// Limit of zero or null is equivalent to setting no limit.
         /// </remarks>
         /// <param name="limit">The limit.</param>
         /// <returns>The fluent find interface.</returns>
