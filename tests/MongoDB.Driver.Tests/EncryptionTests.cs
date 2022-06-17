@@ -293,9 +293,9 @@ namespace MongoDB.Driver.Tests
 
     internal static class AutoEncryptionLibMongoCryptControllerReflector
     {
-        public static IMongoClient _mongocryptdClient(this AutoEncryptionLibMongoCryptController libMongoCryptController)
+        public static Lazy<IMongoClient> _mongocryptdClient(this AutoEncryptionLibMongoCryptController libMongoCryptController)
         {
-            return (IMongoClient)Reflector.GetFieldValue(libMongoCryptController, nameof(_mongocryptdClient));
+            return (Lazy<IMongoClient>)Reflector.GetFieldValue(libMongoCryptController, nameof(_mongocryptdClient));
         }
     }
 }
