@@ -1758,7 +1758,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             int? maxPoolSize = null,
             bool? retryReads = null)
         {
-            var kmsProviders = EncryptionTestHelper.GetKmsProviders().Where(c =>c.Key == kmsProviderFilter).ToDictionary(s => s.Key, s=>s.Value);
+            var kmsProviders = EncryptionTestHelper.GetKmsProviders(filter: kmsProviderFilter);
             var tlsOptions = EncryptionTestHelper.CreateTlsOptionsIfAllowed(
                 kmsProviders,
                 // only kmip currently requires tls configuration for ClientEncrypted
@@ -1793,7 +1793,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             string kmsProviderFilter = null)
         {
             var kmsProviders = EncryptionTestHelper
-                .GetKmsProviders().Where(k => kmsProviderFilter == null || k.Key == kmsProviderFilter)
+                .GetKmsProviders(filter: kmsProviderFilter)
                 .Select(k =>
                 {
                     if (kmsProviderConfigurator != null)

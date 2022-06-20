@@ -124,8 +124,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 }
             }
 
-            var options = new RewrapManyDataKeyOptions(provider, masterKey);
-            return new UnifiedRewrapManyDataKeyOperation(clientEncryption, filter, options);
+            return new UnifiedRewrapManyDataKeyOperation(clientEncryption, filter, provider != null || masterKey != null ? new RewrapManyDataKeyOptions(provider, masterKey) : null);
         }
     }
 }

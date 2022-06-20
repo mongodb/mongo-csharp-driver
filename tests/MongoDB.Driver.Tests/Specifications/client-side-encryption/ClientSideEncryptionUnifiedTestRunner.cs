@@ -18,6 +18,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.TestHelpers.Logging;
+using MongoDB.Driver.TestHelpers;
 using MongoDB.Driver.Tests.UnifiedTestOperations;
 using Xunit;
 using Xunit.Abstractions;
@@ -38,19 +39,27 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
         [ClassData(typeof(TestCaseFactory))]
         public void Run(JsonDrivenTestCase testCase)
         {
-            if (testCase.Name.Contains("awsTemporary"))
+            var testCaseNameLower = testCase.Name.ToLower();
+
+            if (testCaseNameLower.Contains("rewrap with"))
             {
-                // This test requires setting of some temporary environment variables that can be set by mongo orchestration or manually.
-                // Add this environment variable on your local machine only together with FLE_AWS_TEMP_* variables (note: they will be expired in 12 hours)
-                RequireEnvironment.Check().EnvironmentVariable("FLE_AWS_TEMPORARY_CREDS_ENABLED");
+                RequirePlatform // rewrap tests calls gcp kms that is supported starting from netstandard2.1
+                    .Check()
+                    .SkipWhen(SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard20)
+                    .SkipWhen(SupportedOperatingSystem.MacOS, SupportedTargetFramework.NetStandard20);
             }
 
-            if (testCase.Name.ToLower().Contains("kmip") ||
-                testCase.Name.Contains("rewrap with current KMS provider")) // also calls kmip kms
+            if (testCaseNameLower.Contains("kmip") ||
+                testCaseNameLower.Contains("rewrap with current kms provider")) // also calls kmip kms
             {
                 // kmip requires configuring kms mock server
                 RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED");
             }
+
+            RequirePlatform
+                .Check()
+                .SkipWhen(() => testCaseNameLower.Contains("gcp"), SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard20) // gcp is supported starting from netstandard2.1
+                .SkipWhen(() => testCaseNameLower.Contains("gcp"), SupportedOperatingSystem.MacOS, SupportedTargetFramework.NetStandard20); // gcp is supported starting from netstandard2.1
 
             using (var runner = new UnifiedTestRunner())
             {

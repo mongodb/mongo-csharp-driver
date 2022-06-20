@@ -131,7 +131,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
             return null;
         }
 
-        public static IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> GetKmsProviders()
+        public static IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> GetKmsProviders(string filter = null)
         {
             var kmsProviders = new Dictionary<string, IReadOnlyDictionary<string, object>>
             {
@@ -190,7 +190,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                     });
             }
 
-            return kmsProviders;
+            return kmsProviders.Where(kms => filter == null || kms.Key == filter).ToDictionary(k => k.Key, v => v.Value);
 
             string GetEnvironmentVariableOrDefaultOrThrowIfNothing(string variableName, string defaultValue = null) =>
                 Environment.GetEnvironmentVariable(variableName) ??

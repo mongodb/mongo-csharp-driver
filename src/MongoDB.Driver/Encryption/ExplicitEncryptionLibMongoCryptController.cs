@@ -43,9 +43,12 @@ namespace MongoDB.Driver.Encryption
         // public methods
         public BsonDocument AddAlternateKeyName(BsonBinaryData id, string alternateKeyName, CancellationToken cancellationToken)
         {
+            Ensure.IsNotNull(alternateKeyName, nameof(alternateKeyName));
+            EnsureBinaryKeyValid(Ensure.IsNotNull(id, nameof(id)));
+
             try
             {
-                var filter = CreateFilterById(EnsureBinaryKeyValid(id));
+                var filter = CreateFilterById(id);
                 var addToSetPipeline = new UpdateDefinitionBuilder<BsonDocument>().AddToSet("keyAltNames", alternateKeyName);
                 var previousRecord = _keyVaultCollection.Value.FindOneAndUpdate(
                     filter,
@@ -66,9 +69,12 @@ namespace MongoDB.Driver.Encryption
 
         public async Task<BsonDocument> AddAlternateKeyNameAsync(BsonBinaryData id, string alternateKeyName, CancellationToken cancellationToken)
         {
+            Ensure.IsNotNull(alternateKeyName, nameof(alternateKeyName));
+            EnsureBinaryKeyValid(Ensure.IsNotNull(id, nameof(id)));
+
             try
             {
-                var filter = CreateFilterById(EnsureBinaryKeyValid(id));
+                var filter = CreateFilterById(id);
                 var addToSetPipeline = new UpdateDefinitionBuilder<BsonDocument>().AddToSet("keyAltNames", alternateKeyName);
                 var previousRecord = await _keyVaultCollection.Value
                     .FindOneAndUpdateAsync(
@@ -185,9 +191,11 @@ namespace MongoDB.Driver.Encryption
 
         public DeleteResult DeleteKey(BsonBinaryData id, CancellationToken cancellationToken)
         {
+            EnsureBinaryKeyValid(Ensure.IsNotNull(id, nameof(id)));
+
             try
             {
-                var filter = CreateFilterById(EnsureBinaryKeyValid(id));
+                var filter = CreateFilterById(id);
                 return _keyVaultCollection.Value.DeleteOne(filter, cancellationToken);
             }
             catch (Exception ex)
@@ -198,9 +206,11 @@ namespace MongoDB.Driver.Encryption
 
         public async Task<DeleteResult> DeleteKeyAsync(BsonBinaryData id, CancellationToken cancellationToken)
         {
+            EnsureBinaryKeyValid(Ensure.IsNotNull(id, nameof(id)));
+
             try
             {
-                var filter = CreateFilterById(EnsureBinaryKeyValid(id));
+                var filter = CreateFilterById(id);
                 return await _keyVaultCollection.Value.DeleteOneAsync(filter, cancellationToken).ConfigureAwait(false);
             }
             catch (Exception ex)
@@ -273,9 +283,11 @@ namespace MongoDB.Driver.Encryption
 
         public BsonDocument GetKey(BsonBinaryData id, CancellationToken cancellationToken)
         {
+            EnsureBinaryKeyValid(Ensure.IsNotNull(id, nameof(id)));
+
             try
             {
-                var filter = CreateFilterById(EnsureBinaryKeyValid(id));
+                var filter = CreateFilterById(id);
                 var cursor = _keyVaultCollection.Value.FindSync(filter, cancellationToken: cancellationToken);
                 return cursor.FirstOrDefault(cancellationToken);
             }
@@ -287,9 +299,11 @@ namespace MongoDB.Driver.Encryption
 
         public async Task<BsonDocument> GetKeyAsync(BsonBinaryData id, CancellationToken cancellationToken)
         {
+            EnsureBinaryKeyValid(Ensure.IsNotNull(id, nameof(id)));
+
             try
             {
-                var filter = CreateFilterById(EnsureBinaryKeyValid(id));
+                var filter = CreateFilterById(id);
                 var cursor = await _keyVaultCollection.Value.FindAsync(filter, cancellationToken: cancellationToken).ConfigureAwait(false);
                 return await cursor.FirstOrDefaultAsync(cancellationToken).ConfigureAwait(false);
             }
@@ -301,6 +315,8 @@ namespace MongoDB.Driver.Encryption
 
         public BsonDocument GetKeyByAlternateKeyName(string alternateKeyName, CancellationToken cancellationToken)
         {
+            Ensure.IsNotNull(alternateKeyName, nameof(alternateKeyName));
+
             try
             {
                 var filter = CreateFilter(new BsonDocument("keyAltNames", alternateKeyName));
@@ -316,6 +332,8 @@ namespace MongoDB.Driver.Encryption
 
         public async Task<BsonDocument> GetKeyByAlternateKeyNameAsync(string alternateKeyName, CancellationToken cancellationToken)
         {
+            Ensure.IsNotNull(alternateKeyName, nameof(alternateKeyName));
+
             try
             {
                 var filter = CreateFilter(new BsonDocument("keyAltNames", alternateKeyName));
@@ -357,9 +375,12 @@ namespace MongoDB.Driver.Encryption
 
         public BsonDocument RemoveAlternateKeyName(BsonBinaryData id, string alternateKeyName, CancellationToken cancellationToken)
         {
+            Ensure.IsNotNull(alternateKeyName, nameof(alternateKeyName));
+            EnsureBinaryKeyValid(Ensure.IsNotNull(id, nameof(id)));
+
             try
             {
-                var filter = CreateFilterById(EnsureBinaryKeyValid(id));
+                var filter = CreateFilterById(id);
                 var updatePipeline = CreateRemoveAlternateKeyNameUpdatePipeline(alternateKeyName);
                 var result = _keyVaultCollection.Value.FindOneAndUpdate(
                     filter,
@@ -380,9 +401,12 @@ namespace MongoDB.Driver.Encryption
 
         public async Task<BsonDocument> RemoveAlternateKeyNameAsync(BsonBinaryData id, string alternateKeyName, CancellationToken cancellationToken)
         {
+            Ensure.IsNotNull(alternateKeyName, nameof(alternateKeyName));
+            EnsureBinaryKeyValid(Ensure.IsNotNull(id, nameof(id)));
+
             try
             {
-                var filter = CreateFilterById(EnsureBinaryKeyValid(id));
+                var filter = CreateFilterById(id);
                 var updatePipeline = CreateRemoveAlternateKeyNameUpdatePipeline(alternateKeyName);
                 var result = await _keyVaultCollection.Value
                     .FindOneAndUpdateAsync(
@@ -410,7 +434,7 @@ namespace MongoDB.Driver.Encryption
             try
             {
                 var renderedFilter = RenderFilter(filter);
-                var kmsKey = GetKmsKeyId(options.Provider, new DataKeyOptions(masterKey: options.MasterKey));
+                var kmsKey = GetKmsKeyId(options?.Provider, new DataKeyOptions(masterKey: options?.MasterKey));
                 using (var context = _cryptClient.StartRewrapMultipleDataKeysContext(kmsKey, ToBsonIfNotNull(renderedFilter)))
                 {
                     var wrappedBytes = ProcessStates(context, databaseName: null, cancellationToken);
@@ -443,7 +467,7 @@ namespace MongoDB.Driver.Encryption
             try
             {
                 var renderedFilter = RenderFilter(filter);
-                var kmsKey = GetKmsKeyId(options.Provider, new DataKeyOptions(masterKey: options.MasterKey));
+                var kmsKey = GetKmsKeyId(options?.Provider, new DataKeyOptions(masterKey: options?.MasterKey));
                 using (var context = _cryptClient.StartRewrapMultipleDataKeysContext(kmsKey, ToBsonIfNotNull(renderedFilter)))
                 {
                     var wrappedBytes = await ProcessStatesAsync(context, databaseName: null, cancellationToken).ConfigureAwait(false);
