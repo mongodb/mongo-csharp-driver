@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
+using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 
@@ -197,47 +198,66 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                 throw new Exception($"{variableName} environment variable must be configured on the machine.");
         }
 
-        public static ReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> ParseKmsProviders(BsonDocument kmsProviders)
+        public static ReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> ParseKmsProviders(BsonDocument kmsProviders, bool legacy = false)
         {
             var providers = new Dictionary<string, IReadOnlyDictionary<string, object>>();
             var kmsProvidersFromEnvs = GetKmsProviders();
             foreach (var kmsProvider in kmsProviders.Elements)
             {
                 var kmsOptions = new Dictionary<string, object>();
-                var kmsProviderName = kmsProvider.Name;
-                switch (kmsProviderName)
+                var effectiveKmsProviderName = kmsProvider.Name;
+                switch (kmsProvider.Name)
                 {
                     case "awsTemporary":
                     case "awsTemporaryNoSessionToken":
                         {
-                            kmsProviderName = "aws";
+                            effectiveKmsProviderName = "aws";
                             goto default;
                         }
                     case "local":
                         {
-                            var bytes = kmsProvider.Value.AsBsonDocument.TryGetElement("key", out var key) && !IsPlaceholder(key.Value)
-                                ? key.Value.AsBsonBinaryData.Bytes
-                                : new BsonBinaryData(Convert.FromBase64String(LocalMasterKey)).Bytes;
+                            byte[] bytes;
+                            if (kmsProvider.Value.AsBsonDocument.TryGetElement("key", out var key) && !IsPlaceholder(key.Value))
+                            {
+                                bytes = key.Value.IsBsonBinaryData ? key.Value.AsBsonBinaryData.Bytes : Convert.FromBase64String(key.Value.AsString);
+                            }
+                            else
+                            {
+                                bytes = new BsonBinaryData(Convert.FromBase64String(LocalMasterKey)).Bytes;
+                            }
                             kmsOptions.Add("key", bytes);
                         }
                         break;
                     default:
                         {
-                            var kmsProvidersInfo = kmsProvidersFromEnvs[kmsProviderName];
-                            foreach (var kmsProviderInfo in kmsProvidersInfo)
+                            var kmsProviderDocument = kmsProvider.Value.AsBsonDocument;
+                            if (legacy)
                             {
-                                kmsOptions.Add(kmsProviderInfo.Key, kmsProviderInfo.Value);
+                                kmsProviderDocument.ElementCount.Should().Be(0);
+                                kmsOptions = (Dictionary<string, object>)kmsProvidersFromEnvs[kmsProvider.Name];
+                            }
+                            else
+                            {
+                                foreach (var providedKmsInfo in kmsProviderDocument)
+                                {
+                                    kmsOptions.Add(
+                                        providedKmsInfo.Name,
+                                        IsPlaceholder(providedKmsInfo.Value)
+                                            ? GetFromEnvVariables(kmsProvider.Name, providedKmsInfo.Name) // use initial kms name
+                                            : providedKmsInfo.Value.AsString);
+                                }
                             }
                         }
                         break;
                 }
 
-                providers.Add(kmsProviderName, kmsOptions);
+                providers.Add(effectiveKmsProviderName, kmsOptions);
             }
 
             return new ReadOnlyDictionary<string, IReadOnlyDictionary<string, object>>(providers);
 
             bool IsPlaceholder(BsonValue value) => value.IsBsonDocument && value.AsBsonDocument.Contains("$$placeholder");
+            string GetFromEnvVariables(string kmsProvider, string key) => kmsProvidersFromEnvs[kmsProvider][key].ToString();
         }
     }
 }
