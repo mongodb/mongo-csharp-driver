@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Encryption
         {
             try
             {
-                var filter = CreateFilterById(id);
+                var filter = CreateFilterById(EnsureBinaryKeyValid(id));
                 var addToSetPipeline = new UpdateDefinitionBuilder<BsonDocument>().AddToSet("keyAltNames", alternateKeyName);
                 var previousRecord = _keyVaultCollection.Value.FindOneAndUpdate(
                     filter,
@@ -68,7 +68,7 @@ namespace MongoDB.Driver.Encryption
         {
             try
             {
-                var filter = CreateFilterById(id);
+                var filter = CreateFilterById(EnsureBinaryKeyValid(id));
                 var addToSetPipeline = new UpdateDefinitionBuilder<BsonDocument>().AddToSet("keyAltNames", alternateKeyName);
                 var previousRecord = await _keyVaultCollection.Value
                     .FindOneAndUpdateAsync(
@@ -187,7 +187,7 @@ namespace MongoDB.Driver.Encryption
         {
             try
             {
-                var filter = CreateFilterById(id);
+                var filter = CreateFilterById(EnsureBinaryKeyValid(id));
                 return _keyVaultCollection.Value.DeleteOne(filter, cancellationToken);
             }
             catch (Exception ex)
@@ -200,7 +200,7 @@ namespace MongoDB.Driver.Encryption
         {
             try
             {
-                var filter = CreateFilterById(id);
+                var filter = CreateFilterById(EnsureBinaryKeyValid(id));
                 return await _keyVaultCollection.Value.DeleteOneAsync(filter, cancellationToken).ConfigureAwait(false);
             }
             catch (Exception ex)
@@ -275,7 +275,7 @@ namespace MongoDB.Driver.Encryption
         {
             try
             {
-                var filter = CreateFilterById(id);
+                var filter = CreateFilterById(EnsureBinaryKeyValid(id));
                 var cursor = _keyVaultCollection.Value.FindSync(filter, cancellationToken: cancellationToken);
                 return cursor.FirstOrDefault(cancellationToken);
             }
@@ -289,7 +289,7 @@ namespace MongoDB.Driver.Encryption
         {
             try
             {
-                var filter = CreateFilterById(id);
+                var filter = CreateFilterById(EnsureBinaryKeyValid(id));
                 var cursor = await _keyVaultCollection.Value.FindAsync(filter, cancellationToken: cancellationToken).ConfigureAwait(false);
                 return await cursor.FirstOrDefaultAsync(cancellationToken).ConfigureAwait(false);
             }
@@ -359,7 +359,7 @@ namespace MongoDB.Driver.Encryption
         {
             try
             {
-                var filter = CreateFilterById(id);
+                var filter = CreateFilterById(EnsureBinaryKeyValid(id));
                 var updatePipeline = CreateRemoveAlternateKeyNameUpdatePipeline(alternateKeyName);
                 var result = _keyVaultCollection.Value.FindOneAndUpdate(
                     filter,
@@ -382,7 +382,7 @@ namespace MongoDB.Driver.Encryption
         {
             try
             {
-                var filter = CreateFilterById(id);
+                var filter = CreateFilterById(EnsureBinaryKeyValid(id));
                 var updatePipeline = CreateRemoveAlternateKeyNameUpdatePipeline(alternateKeyName);
                 var result = await _keyVaultCollection.Value
                     .FindOneAndUpdateAsync(
@@ -498,11 +498,22 @@ namespace MongoDB.Driver.Encryption
                             }}
                         }}
                     }}"));
+
         private UpdateDefinition<BsonDocument> CreateRewrapManyDataKeysBulkUpdateDefinition(BsonDocument document) =>
             new UpdateDefinitionBuilder<BsonDocument>()
             .CurrentDate("updateDate") // update date
             .Set("keyMaterial", document["keyMaterial"]) // update new fields
             .Set("masterKey", document["masterKey"]);
+
+        private BsonBinaryData EnsureBinaryKeyValid(BsonBinaryData binary)
+        {
+            if (binary.SubType != BsonBinarySubType.UuidStandard)
+            {
+                throw new InvalidOperationException($"KeyId sub type must be UuidStandard, not: {binary.SubType}.");
+            }
+
+            return binary;
+        }
 
         private KmsKeyId GetKmsKeyId(string kmsProvider, DataKeyOptions dataKeyOptions)
         {
