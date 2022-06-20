@@ -52,7 +52,6 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         private static readonly CollectionNamespace __keyVaultCollectionNamespace = CollectionNamespace.FromFullName("keyvault.datakeys");
         #endregion
 
-        private const string LocalMasterKey = "Mng0NCt4ZHVUYUJCa1kxNkVyNUR1QURhZ2h2UzR2d2RrZzh0cFBwM3R6NmdWMDFBMUN3YkQ5aXRRMkhGRGdQV09wOGVNYUMxT2k3NjZKelhaQmRCZGJkTXVyZG9uSjFk";
         private const string SchemaMap =
             @"{
                 ""db.coll"": {
@@ -1622,8 +1621,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         [SkippableTheory]
         [ParameterAttributeData]
         public void UnsupportedPlatformsTests(
-             [Values("gcp")] string kmsProvider, // the rest kms providers are supported on all supported TFs
-             [Values(false, true)] bool async)
+            [Values("gcp")] string kmsProvider, // the rest kms providers are supported on all supported TFs
+            [Values(false, true)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
 
@@ -1759,7 +1758,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             int? maxPoolSize = null,
             bool? retryReads = null)
         {
-            var kmsProviders = GetKmsProviders(kmsProviderFilter: kmsProviderFilter);
+            var kmsProviders = EncryptionTestHelper.GetKmsProviders().Where(c =>c.Key == kmsProviderFilter).ToDictionary(s => s.Key, s=>s.Value);
             var tlsOptions = EncryptionTestHelper.CreateTlsOptionsIfAllowed(
                 kmsProviders,
                 // only kmip currently requires tls configuration for ClientEncrypted
@@ -1793,7 +1792,17 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             Action<ClientEncryptionOptions> clientEncryptionOptionsConfigurator = null,
             string kmsProviderFilter = null)
         {
-            var kmsProviders = GetKmsProviders(kmsProviderFilter, kmsProviderConfigurator);
+            var kmsProviders = EncryptionTestHelper
+                .GetKmsProviders().Where(k => kmsProviderFilter == null || k.Key == kmsProviderFilter)
+                .Select(k =>
+                {
+                    if (kmsProviderConfigurator != null)
+                    {
+                        kmsProviderConfigurator(k.Key, (Dictionary<string, object>)k.Value);
+                    }
+                    return k;
+                })
+                .ToDictionary(k => k.Key, k => k.Value);
             allowClientCertificateFunc = allowClientCertificateFunc ?? ((kmsProviderName) => kmsProviderName == "kmip"); // configure Tls for kmip by default
             var tlsOptions = EncryptionTestHelper.CreateTlsOptionsIfAllowed(kmsProviders, allowClientCertificateFunc);
 
@@ -2084,70 +2093,6 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             return client
                 .GetDatabase(collectionNamespace.DatabaseNamespace.DatabaseName)
                 .GetCollection<BsonDocument>(collectionNamespace.CollectionName, collectionSettings);
-        }
-
-        private string GetEnvironmentVariableOrDefaultOrThrowIfNothing(string variableName, string defaultValue = null) =>
-            Environment.GetEnvironmentVariable(variableName) ??
-            defaultValue ??
-            throw new Exception($"{variableName} environment variable must be configured on the machine.");
-
-        private IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> GetKmsProviders(string kmsProviderFilter = null, Action<string, Dictionary<string, object>> kmsProviderConfigurator = null)
-        {
-            var kmsProviders = new Dictionary<string, IReadOnlyDictionary<string, object>>();
-
-            //EncryptionTestHelper.ParseKmsProviders();
-            var awsAccessKey = GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AWS_ACCESS_KEY_ID");
-            var awsSecretAccessKey = GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AWS_SECRET_ACCESS_KEY");
-            var awsKmsOptions = new Dictionary<string, object>
-            {
-                { "accessKeyId", awsAccessKey },
-                { "secretAccessKey", awsSecretAccessKey }
-            };
-            kmsProviderConfigurator?.Invoke("aws", awsKmsOptions);
-            kmsProviders.Add("aws", awsKmsOptions);
-
-            var localOptions = new Dictionary<string, object>
-            {
-                { "key", new BsonBinaryData(Convert.FromBase64String(LocalMasterKey)).Bytes }
-            };
-            kmsProviderConfigurator?.Invoke("local", localOptions);
-            kmsProviders.Add("local", localOptions);
-
-            var azureTenantId = GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AZURE_TENANT_ID");
-            var azureClientId = GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AZURE_CLIENT_ID");
-            var azureClientSecret = GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AZURE_CLIENT_SECRET");
-            var azureKmsOptions = new Dictionary<string, object>
-            {
-                { "tenantId", azureTenantId },
-                { "clientId", azureClientId },
-                { "clientSecret", azureClientSecret }
-            };
-            kmsProviderConfigurator?.Invoke("azure", azureKmsOptions);
-            kmsProviders.Add("azure", azureKmsOptions);
-
-            var gcpEmail = GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_GCP_EMAIL");
-            var gcpPrivateKey = GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_GCP_PRIVATE_KEY");
-            var gcpKmsOptions = new Dictionary<string, object>
-            {
-                { "email", gcpEmail },
-                { "privateKey", gcpPrivateKey }
-            };
-            kmsProviderConfigurator?.Invoke("gcp", gcpKmsOptions);
-            kmsProviders.Add("gcp", gcpKmsOptions);
-
-            var kmipOptions = new Dictionary<string, object>
-            {
-                { "endpoint", "localhost:5698" }
-            };
-            kmsProviderConfigurator?.Invoke("kmip", kmipOptions);
-            kmsProviders.Add("kmip", kmipOptions);
-
-            if (kmsProviderFilter != null)
-            {
-                kmsProviders = kmsProviders.Where(c => c.Key == kmsProviderFilter).ToDictionary(c => c.Key, c => c.Value);
-            }
-
-            return new ReadOnlyDictionary<string, IReadOnlyDictionary<string, object>>(kmsProviders);
         }
 
         private Dictionary<string, BsonDocument> GetSchemaMapIfNotNull(BsonDocument schemaMapDocument)
