@@ -127,7 +127,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             };
         }
 
-        private static bool IsEnumComparisonExpression(BinaryExpression expression)
+        internal static bool IsEnumComparisonExpression(BinaryExpression expression)
         {
             return
                 IsComparisonOperator(expression.NodeType) &&

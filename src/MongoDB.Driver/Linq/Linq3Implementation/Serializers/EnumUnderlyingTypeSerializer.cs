@@ -38,6 +38,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers
             _enumSerializer = Ensure.IsNotNull(enumSerializer, nameof(enumSerializer));
         }
 
+        // public properties
+        public IBsonSerializer<TEnum> EnumSerializer => _enumSerializer;
+
         // public methods
         public override TEnumUnderlyingType Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
