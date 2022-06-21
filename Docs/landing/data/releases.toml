@@ -1,4 +1,4 @@
-current = "2.16.0"
+current = "2.16.1"
 
 [[versions]]
   version = "2.16.1"
