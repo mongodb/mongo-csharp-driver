@@ -623,7 +623,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     case "clientEncryptionOpts":
                         IMongoClient keyVaultClient = null;
                         CollectionNamespace keyVaultCollectionNamespace = null;
-                        IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> kmsProvides = null;
+                        IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> kmsProviders = null;
 
                         foreach (var option in element.Value.AsBsonDocument)
                         {
@@ -636,16 +636,19 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                                     keyVaultCollectionNamespace = CollectionNamespace.FromFullName(option.Value.AsString);
                                     break;
                                 case "kmsProviders":
-                                    kmsProvides = EncryptionTestHelper.ParseKmsProviders(option.Value.AsBsonDocument);
+                                    kmsProviders = EncryptionTestHelper.ParseKmsProviders(option.Value.AsBsonDocument);
                                     break;
                                 default:
                                     throw new FormatException($"Invalid collection option argument name: '{option.Name}'.");
                             }
                         }
+
+                        var tlsOptions = EncryptionTestHelper.CreateTlsOptionsIfAllowed(kmsProviders, ((kmsProviderName) => kmsProviderName == "kmip")); // configure Tls for kmip by default
                         options = new ClientEncryptionOptions(
                             Ensure.IsNotNull(keyVaultClient, nameof(keyVaultClient)),
                             Ensure.IsNotNull(keyVaultCollectionNamespace, nameof(keyVaultCollectionNamespace)),
-                            Ensure.IsNotNull(kmsProvides, nameof(kmsProvides)));
+                            Ensure.IsNotNull(kmsProviders, nameof(kmsProviders)),
+                            tlsOptions: tlsOptions);
                         break;
                     default:
                         throw new FormatException($"Invalid {nameof(ClientEncryptionOptions)} argument name: '{element.Name}'.");
