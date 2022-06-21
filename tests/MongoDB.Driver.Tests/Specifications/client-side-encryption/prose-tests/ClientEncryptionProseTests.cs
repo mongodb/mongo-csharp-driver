@@ -935,7 +935,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 var value = "hello";
                 var ciphertext = ExplicitEncrypt(clientEncryption, new EncryptOptions(algorithm: EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic, keyId: keyId), value, async);
 
-                // Copy ciphertext into a variable named malformedCiphertext. Change the last byte to 0. This will produce an invalid HMAC tag.
+                // Copy ciphertext into a variable named malformedCiphertext. Change the last byte. This will produce an invalid HMAC tag.
                 var malformeLastByte = ciphertext.Bytes.Last();
                 var malformedCiphertext = new BsonBinaryData(Enumerable.Append<byte>(ciphertext.Bytes.Take(ciphertext.Bytes.Length - 1), (byte)(malformeLastByte == 0 ? 1 : 0)).ToArray(), ciphertext.SubType);
 
