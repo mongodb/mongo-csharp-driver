@@ -59,18 +59,18 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers.KnownSerializers
 
         public IBsonSerializer GetSerializer(Expression expression, IBsonSerializer defaultSerializer = null)
         {
-            var type = expression is LambdaExpression lambdaExpression ? lambdaExpression.ReturnType : expression.Type;
-            return GetSerializer(expression, type, defaultSerializer);
+            var expressionType = expression is LambdaExpression lambdaExpression ? lambdaExpression.ReturnType : expression.Type;
+            return GetSerializer(expression, expressionType, defaultSerializer);
         }
 
-        private IBsonSerializer GetSerializer(Expression expression, Type type, IBsonSerializer defaultSerializer = null)
+        public IBsonSerializer GetSerializer(Expression expression, Type type, IBsonSerializer defaultSerializer = null)
         {
             var possibleSerializers = _registry.TryGetValue(expression, out var knownSerializers) ? knownSerializers.GetPossibleSerializers(type) : new HashSet<IBsonSerializer>();
             return possibleSerializers.Count switch
             {
                 0 => defaultSerializer ?? LookupSerializer(expression, type), // sometimes there is no known serializer from the context (e.g. CSHARP-4062)
                 1 => possibleSerializers.First(),
-                _ => throw new InvalidOperationException($"More than one possible serializer found for {expression}.")
+                _ => throw new InvalidOperationException($"More than one possible serializer found for {type} in {expression}.")
             };
         }
 
