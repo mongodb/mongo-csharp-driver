@@ -330,7 +330,8 @@ namespace MongoDB.Driver.Core.Connections
             };
 
             var subject = new HelloResult(helloResultDocument);
-            subject.IsMongocryptd.Should().Be(isMongocryptd.GetValueOrDefault(defaultValue: false));
+
+            subject.IsMongocryptd.Should().Be(isMongocryptd.GetValueOrDefault());
         }
     }
 }
