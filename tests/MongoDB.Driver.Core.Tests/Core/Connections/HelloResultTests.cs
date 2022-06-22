@@ -17,6 +17,7 @@ using System;
 using System.Net;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Misc;
@@ -317,6 +318,19 @@ namespace MongoDB.Driver.Core.Connections
 
             var subject = new HelloResult(doc);
             subject.HelloOk.Should().BeFalse();
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void IsMongocryptd_should_return_expected_result([Values(false, true, null)] bool? isMongocryptd)
+        {
+            var helloResultDocument = new BsonDocument
+            {
+                { "iscryptd", () => isMongocryptd.Value, isMongocryptd.HasValue }
+            };
+
+            var subject = new HelloResult(helloResultDocument);
+            subject.IsMongocryptd.Should().Be(isMongocryptd.GetValueOrDefault(defaultValue: false));
         }
     }
 }
