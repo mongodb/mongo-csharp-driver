@@ -47,9 +47,12 @@ functions:
 
            export DRIVERS_TOOLS="$(pwd)/../drivers-tools"
 
-           # Python has cygwin path problems on Windows. Detect prospective mongo-orchestration home directory
            if [ "Windows_NT" = "$OS" ]; then # Magic variable in cygwin
+              # Python has cygwin path problems on Windows. Detect prospective mongo-orchestration home directory
               export DRIVERS_TOOLS=$(cygpath -m $DRIVERS_TOOLS)
+           else
+              # non windows OSs don't have dotnet in the PATH
+              export PATH=$PATH:/usr/share/dotnet
            fi
 
            export MONGO_ORCHESTRATION_HOME="$DRIVERS_TOOLS/.evergreen/orchestration"
@@ -79,6 +82,21 @@ functions:
            EOT
            # See what we've done
            cat expansion.yml
+
+           # Add CSFLE variables that shouldn't be output to the logs
+           cat <<EOT >> expansion.yml
+           PREPARE_CSFLE: |
+              set +o xtrace # Disable tracing.
+              export FLE_AWS_ACCESS_KEY_ID=${FLE_AWS_ACCESS_KEY_ID}
+              export FLE_AWS_SECRET_ACCESS_KEY=${FLE_AWS_SECRET_ACCESS_KEY}
+              export FLE_AZURE_TENANT_ID=${FLE_AZURE_TENANT_ID}
+              export FLE_AZURE_CLIENT_ID=${FLE_AZURE_CLIENT_ID}
+              export FLE_AZURE_CLIENT_SECRET=${FLE_AZURE_CLIENT_SECRET}
+              export FLE_GCP_EMAIL=${FLE_GCP_EMAIL}
+              export FLE_GCP_PRIVATE_KEY=${FLE_GCP_PRIVATE_KEY} 
+              set -o xtrace # Enable tracing.
+           EOT
+           # Do not output expansion.yml contents after this point
 
     # Load the expansion file to make an evergreen variable with the current unique version
     - command: expansions.update
@@ -282,13 +300,7 @@ functions:
         working_dir: mongo-csharp-driver
         script: |
           set +x
-          export FLE_AWS_ACCESS_KEY_ID=${FLE_AWS_ACCESS_KEY_ID}
-          export FLE_AWS_SECRET_ACCESS_KEY=${FLE_AWS_SECRET_ACCESS_KEY}
-          export FLE_AZURE_TENANT_ID=${FLE_AZURE_TENANT_ID}
-          export FLE_AZURE_CLIENT_ID=${FLE_AZURE_CLIENT_ID}
-          export FLE_AZURE_CLIENT_SECRET=${FLE_AZURE_CLIENT_SECRET}
-          export FLE_GCP_EMAIL=${FLE_GCP_EMAIL}
-          export FLE_GCP_PRIVATE_KEY=${FLE_GCP_PRIVATE_KEY}
+          ${PREPARE_CSFLE}
           . ./evergreen/set-virtualenv.sh
           . ./evergreen/set-temp-fle-aws-creds.sh
           ${PREPARE_SHELL}
@@ -310,23 +322,19 @@ functions:
           OS=${OS} \
             evergreen/cleanup-test-resources.sh
 
-  run-csfle-tests-with-mocked-kms:
+  run-csfle-with-mocked-kms-tests:
     - command: shell.exec
       type: test
       params:
         working_dir: "mongo-csharp-driver"
         script: |
           set +x
-          export FLE_AWS_ACCESS_KEY_ID=${FLE_AWS_ACCESS_KEY_ID}
-          export FLE_AWS_SECRET_ACCESS_KEY=${FLE_AWS_SECRET_ACCESS_KEY}
-          export FLE_AZURE_TENANT_ID=${FLE_AZURE_TENANT_ID}
-          export FLE_AZURE_CLIENT_ID=${FLE_AZURE_CLIENT_ID}
-          export FLE_AZURE_CLIENT_SECRET=${FLE_AZURE_CLIENT_SECRET}
-          export FLE_GCP_EMAIL=${FLE_GCP_EMAIL}
-          export FLE_GCP_PRIVATE_KEY=${FLE_GCP_PRIVATE_KEY}
+          ${PREPARE_CSFLE}
           export KMS_MOCK_SERVERS_ENABLED=true
           ${PREPARE_SHELL}
           set +o xtrace
+          OS=${OS} \
+            . ./evergreen/fetch-crypt_shared-library.sh          
           OS=${OS} \
             evergreen/add-ca-certs.sh
           AUTH=${AUTH} \
@@ -341,20 +349,14 @@ functions:
           OS=${OS} \
             evergreen/cleanup-test-resources.sh
 
-  run-mongocryptd-tests:
+  run-csfle-with-mongocryptd-tests:
     - command: shell.exec
       type: test
       params:
         working_dir: mongo-csharp-driver
         script: |
           set +x
-          export FLE_AWS_ACCESS_KEY_ID=${FLE_AWS_ACCESS_KEY_ID}
-          export FLE_AWS_SECRET_ACCESS_KEY=${FLE_AWS_SECRET_ACCESS_KEY}
-          export FLE_AZURE_TENANT_ID=${FLE_AZURE_TENANT_ID}
-          export FLE_AZURE_CLIENT_ID=${FLE_AZURE_CLIENT_ID}
-          export FLE_AZURE_CLIENT_SECRET=${FLE_AZURE_CLIENT_SECRET}
-          export FLE_GCP_EMAIL=${FLE_GCP_EMAIL}
-          export FLE_GCP_PRIVATE_KEY=${FLE_GCP_PRIVATE_KEY}
+          ${PREPARE_CSFLE}
           . ./evergreen/set-virtualenv.sh
           . ./evergreen/set-temp-fle-aws-creds.sh
           ${PREPARE_SHELL}
@@ -368,8 +370,7 @@ functions:
           COMPRESSOR=${COMPRESSOR} \
           CLIENT_PEM=${DRIVERS_TOOLS}/.evergreen/x509gen/client.pem \
           REQUIRE_API_VERSION=${REQUIRE_API_VERSION} \
-          TEST_MONGOCRYPTD="true" \
-          TARGET="TestMongocryptd" \
+          TARGET="TestCsfleWithMongocryptd" \
           FRAMEWORK=${FRAMEWORK} \
             evergreen/run-tests.sh
           echo "Skipping certificate removal..."
@@ -872,51 +873,51 @@ tasks:
           vars:
             FRAMEWORK: netstandard21
 
-    - name: test-mongocryptd-net472
+    - name: test-csfle-with-mongocryptd-net472
       commands:
         - func: bootstrap-mongo-orchestration
-        - func: run-mongocryptd-tests
+        - func: run-csfle-with-mongocryptd-tests
           vars:
             FRAMEWORK: net472
 
-    - name: test-mongocryptd-netstandard20
+    - name: test-csfle-with-mongocryptd-netstandard20
       commands:
         - func: bootstrap-mongo-orchestration
-        - func: run-mongocryptd-tests
+        - func: run-csfle-with-mongocryptd-tests
           vars:
             FRAMEWORK: netstandard20
 
-    - name: test-mongocryptd-netstandard21
+    - name: test-csfle-with-mongocryptd-netstandard21
       commands:
         - func: bootstrap-mongo-orchestration
-        - func: run-mongocryptd-tests
+        - func: run-csfle-with-mongocryptd-tests
           vars:
             FRAMEWORK: netstandard21
 
-    - name: test-kms-tls-mocked-net472
+    - name: test-csfle-with-mocked-kms-tls-net472
       commands:
         - func: start-kms-mock-servers
         - func: start-kms-kmip-server
         - func: bootstrap-mongo-orchestration
-        - func: run-csfle-tests-with-mocked-kms
+        - func: run-csfle-with-mocked-kms-tests
           vars:
             FRAMEWORK: net472
 
-    - name: test-kms-tls-mocked-netstandard20
+    - name: test-csfle-with-mocked-kms-tls-netstandard20
       commands:
         - func: start-kms-mock-servers
         - func: start-kms-kmip-server
         - func: bootstrap-mongo-orchestration
-        - func: run-csfle-tests-with-mocked-kms
+        - func: run-csfle-with-mocked-kms-tests
           vars:
             FRAMEWORK: netstandard20
 
-    - name: test-kms-tls-mocked-netstandard21
+    - name: test-csfle-with-mocked-kms-tls-netstandard21
       commands:
         - func: start-kms-mock-servers
         - func: start-kms-kmip-server
         - func: bootstrap-mongo-orchestration
-        - func: run-csfle-tests-with-mocked-kms
+        - func: run-csfle-with-mocked-kms-tests
           vars:
             FRAMEWORK: netstandard21
 
@@ -1721,40 +1722,40 @@ buildvariants:
   matrix_spec: { os: "windows-64", ssl: "nossl", version: [ "5.0", "6.0", "rapid", "latest" ], topology: ["standalone"] }
   display_name: "CSFLE Mocked KMS ${version} ${os}"
   tasks:
-    - name: test-kms-tls-mocked-net472
-    - name: test-kms-tls-mocked-netstandard20
-    - name: test-kms-tls-mocked-netstandard21
+    - name: test-csfle-with-mocked-kms-tls-net472
+    - name: test-csfle-with-mocked-kms-tls-netstandard20
+    - name: test-csfle-with-mocked-kms-tls-netstandard21
 
 - matrix_name: "csfle-with-mocked-kms-tests-linux"
   matrix_spec: { os: "ubuntu-1804", ssl: "nossl", version: [ "5.0", "6.0", "rapid", "latest" ], topology: ["standalone"] }
   display_name: "CSFLE Mocked KMS ${version} ${os}"
   tasks:
-    - name: test-kms-tls-mocked-netstandard20
-    - name: test-kms-tls-mocked-netstandard21
+    - name: test-csfle-with-mocked-kms-tls-netstandard20
+    - name: test-csfle-with-mocked-kms-tls-netstandard21
 
 - matrix_name: "csfle-with-mocked-kms-tests-macOS"
   matrix_spec: { os: "macos-1015", ssl: "nossl", version: [ "5.0", "6.0", "rapid", "latest" ], topology: ["standalone"] }
   display_name: "CSFLE Mocked KMS ${version} ${os}"
   tasks:
-    - name: test-kms-tls-mocked-netstandard21
+    - name: test-csfle-with-mocked-kms-tls-netstandard21
 
-- matrix_name: "csfle1-windows"
+- matrix_name: "csfle-with-mongocryptd-windows"
   matrix_spec: { os: "windows-64", ssl: "nossl", version: [ "4.2", "4.4", "5.0", "6.0", "latest" ], topology: ["replicaset"] }
-  display_name: "mongocryptd ${version} ${os}"
+  display_name: "CSFLE with mongocryptd ${version} ${os}"
   tasks:
-    - name: test-mongocryptd-net472
-    - name: test-mongocryptd-netstandard20
-    - name: test-mongocryptd-netstandard21
+    - name: test-csfle-with-mongocryptd-net472
+    - name: test-csfle-with-mongocryptd-netstandard20
+    - name: test-csfle-with-mongocryptd-netstandard21
 
-- matrix_name: "csfle1-linux"
+- matrix_name: "csfle-with-mongocryptd-linux"
   matrix_spec: { os: "ubuntu-1804", ssl: "nossl", version: [ "4.2", "4.4", "5.0", "6.0", "latest" ], topology: ["replicaset"] }
-  display_name: "mongocryptd ${version} ${os}"
+  display_name: "CSFLE with mongocryptd ${version} ${os}"
   tasks:
-    - name: test-mongocryptd-netstandard20
-    - name: test-mongocryptd-netstandard21
+    - name: test-csfle-with-mongocryptd-netstandard20
+    - name: test-csfle-with-mongocryptd-netstandard21
 
-- matrix_name: "csfle1-macOS"
+- matrix_name: "csfle-with-mongocryptd-macOS"
   matrix_spec: { os: "macos-1015", ssl: "nossl", version: [ "4.2", "4.4", "5.0", "6.0", "latest" ], topology: ["replicaset"] }
-  display_name: "mongocryptd ${version} ${os}"
+  display_name: "CSFLE with mongocryptd ${version} ${os}"
   tasks:
-    - name: test-mongocryptd-netstandard21
+    - name: test-csfle-with-mongocryptd-netstandard21

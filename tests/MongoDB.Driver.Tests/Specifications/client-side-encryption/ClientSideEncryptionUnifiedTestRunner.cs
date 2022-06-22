@@ -41,14 +41,6 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
         {
             var testCaseNameLower = testCase.Name.ToLower();
 
-            if (testCaseNameLower.Contains("rewrap with"))
-            {
-                RequirePlatform // rewrap tests calls gcp kms that is supported starting from netstandard2.1
-                    .Check()
-                    .SkipWhen(SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard20)
-                    .SkipWhen(SupportedOperatingSystem.MacOS, SupportedTargetFramework.NetStandard20);
-            }
-
             if (testCaseNameLower.Contains("kmip") ||
                 testCaseNameLower.Contains("rewrap with current kms provider")) // also calls kmip kms
             {
@@ -58,8 +50,9 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
 
             RequirePlatform
                 .Check()
-                .SkipWhen(() => testCaseNameLower.Contains("gcp"), SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard20) // gcp is supported starting from netstandard2.1
-                .SkipWhen(() => testCaseNameLower.Contains("gcp"), SupportedOperatingSystem.MacOS, SupportedTargetFramework.NetStandard20); // gcp is supported starting from netstandard2.1
+                // rewrap tests calls gcp kms that is supported starting from netstandard2.1
+                .SkipWhen(() => testCaseNameLower.Contains("gcp") || testCaseNameLower.Contains("rewrap with"), SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard20) // gcp is supported starting from netstandard2.1
+                .SkipWhen(() => testCaseNameLower.Contains("gcp") || testCaseNameLower.Contains("rewrap with"), SupportedOperatingSystem.MacOS, SupportedTargetFramework.NetStandard20); // gcp is supported starting from netstandard2.1
 
             using (var runner = new UnifiedTestRunner())
             {

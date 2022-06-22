@@ -69,7 +69,19 @@ provision_compressor () {
 #            Main Program                  #
 ############################################
 echo "CRYPT_SHARED_LIB_PATH:" $CRYPT_SHARED_LIB_PATH
-echo "TEST_MONGOCRYPTD:" $TEST_MONGOCRYPTD
+
+if [ "$TARGET" == "TestCsfleWithMongocryptd" ]; then
+    if [ ! -z "${CRYPT_SHARED_LIB_PATH}" ]; then
+          echo "CRYPT_SHARED_LIB_PATH must be unassigned for CSFLE tests with mongocryptd, but was ${CRYPT_SHARED_LIB_PATH}" 1>&2 # write to stderr
+          exit 1   
+    fi
+else
+    if [ -z "${CRYPT_SHARED_LIB_PATH}" ]; then
+          echo "CRYPT_SHARED_LIB_PATH must be assigned, but wasn't" 1>&2 # write to stderr"
+          exit 1   
+    fi
+fi
+
 echo "Initial MongoDB URI:" $MONGODB_URI
 echo "Framework: " $FRAMEWORK
 
@@ -122,6 +134,8 @@ echo "Final MongoDB_URI: $MONGODB_URI"
 if [ "$TOPOLOGY" == "sharded_cluster" ]; then
   echo "Final MongoDB URI with multiple mongoses: $MONGODB_URI_WITH_MULTIPLE_MONGOSES"
 fi
+
+# nuget configuration
 for var in TMP TEMP NUGET_PACKAGES NUGET_HTTP_CACHE_PATH APPDATA; do
   if [[ "$OS" =~ Windows|windows ]]; then
     export $var=z:\\data\\tmp;
@@ -129,6 +143,8 @@ for var in TMP TEMP NUGET_PACKAGES NUGET_HTTP_CACHE_PATH APPDATA; do
     export $var=/data/tmp;
   fi
 done
+# clear possibly presented previous nuget cache
+dotnet nuget locals all --clear
 
 if [[ "$CLIENT_PEM" != "nil" ]]; then
   CLIENT_PEM=${CLIENT_PEM} source evergreen/convert-client-cert-to-pkcs12.sh
