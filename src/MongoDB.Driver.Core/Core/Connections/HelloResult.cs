@@ -125,6 +125,14 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         /// <summary>
+        /// Gets a value indicating whether this instance is a mongocryptd.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if this instance is a mongocryptd; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsMongocryptd => _wrapped.TryGetValue("iscryptd", out var isCryptd) && isCryptd.IsBoolean ? isCryptd.ToBoolean() : false;
+
+        /// <summary>
         /// Gets a value indicating whether this instance is a replica set member.
         /// </summary>
         /// <value>

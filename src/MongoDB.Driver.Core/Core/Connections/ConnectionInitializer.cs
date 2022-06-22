@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Core.Connections
             {
                 description = UpdateConnectionIdWithServerValue(description, connectionIdServerValue.Value);
             }
-            else
+            else if (!description.HelloResult.IsMongocryptd) // mongocryptd doesn't provide ConnectionId
             {
                 try
                 {
@@ -90,7 +90,7 @@ namespace MongoDB.Driver.Core.Connections
             {
                 description = UpdateConnectionIdWithServerValue(description, connectionIdServerValue.Value);
             }
-            else
+            else if (!description.HelloResult.IsMongocryptd) // mongocryptd doesn't provide ConnectionId
             {
                 try
                 {
