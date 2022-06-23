@@ -18,7 +18,7 @@ using FluentAssertions;
 using MongoDB.Driver.Encryption;
 using Xunit;
 
-namespace MongoDB.Driver.Tests
+namespace MongoDB.Driver.Tests.Encryption
 {
     public class EncryptOptionsTests
     {

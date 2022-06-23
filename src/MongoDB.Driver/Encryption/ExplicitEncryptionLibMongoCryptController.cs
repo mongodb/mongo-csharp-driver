@@ -100,7 +100,7 @@ namespace MongoDB.Driver.Encryption
             DataKeyOptions dataKeyOptions,
             CancellationToken cancellationToken)
         {
-            Ensure.IsNotNull(dataKeyOptions, nameof(dataKeyOptions));
+            Ensure.IsNotNull(kmsProvider, nameof(kmsProvider));
 
             try
             {
@@ -129,7 +129,7 @@ namespace MongoDB.Driver.Encryption
             DataKeyOptions dataKeyOptions,
             CancellationToken cancellationToken)
         {
-            Ensure.IsNotNull(dataKeyOptions, nameof(dataKeyOptions));
+            Ensure.IsNotNull(kmsProvider, nameof(kmsProvider));
 
             try
             {
@@ -155,6 +155,8 @@ namespace MongoDB.Driver.Encryption
 
         public BsonValue DecryptField(BsonBinaryData encryptedValue, CancellationToken cancellationToken)
         {
+            Ensure.IsNotNull(encryptedValue, nameof(encryptedValue));
+
             try
             {
                 var wrappedValueBytes = GetWrappedValueBytes(encryptedValue);
@@ -171,11 +173,13 @@ namespace MongoDB.Driver.Encryption
             }
         }
 
-        public async Task<BsonValue> DecryptFieldAsync(BsonBinaryData wrappedBinaryValue, CancellationToken cancellationToken)
+        public async Task<BsonValue> DecryptFieldAsync(BsonBinaryData encryptedValue, CancellationToken cancellationToken)
         {
+            Ensure.IsNotNull(encryptedValue, nameof(encryptedValue));
+
             try
             {
-                var wrappedValueBytes = GetWrappedValueBytes(wrappedBinaryValue);
+                var wrappedValueBytes = GetWrappedValueBytes(encryptedValue);
 
                 using (var context = _cryptClient.StartExplicitDecryptionContext(wrappedValueBytes))
                 {
@@ -224,6 +228,7 @@ namespace MongoDB.Driver.Encryption
             EncryptOptions encryptOptions,
             CancellationToken cancellationToken)
         {
+            Ensure.IsNotNull(value, nameof(value));
             Ensure.IsNotNull(encryptOptions, nameof(encryptOptions));
 
             try
@@ -255,6 +260,7 @@ namespace MongoDB.Driver.Encryption
             EncryptOptions encryptOptions,
             CancellationToken cancellationToken)
         {
+            Ensure.IsNotNull(value, nameof(value));
             Ensure.IsNotNull(encryptOptions, nameof(encryptOptions));
 
             try
@@ -542,7 +548,7 @@ namespace MongoDB.Driver.Encryption
         private KmsKeyId GetKmsKeyId(string kmsProvider, DataKeyOptions dataKeyOptions)
         {
             IEnumerable<byte[]> wrappedAlternateKeyNamesBytes = null;
-            if (dataKeyOptions.AlternateKeyNames != null)
+            if (dataKeyOptions?.AlternateKeyNames != null)
             {
                 wrappedAlternateKeyNamesBytes = dataKeyOptions.AlternateKeyNames.Select(GetWrappedAlternateKeyNameBytes);
             }
@@ -551,14 +557,14 @@ namespace MongoDB.Driver.Encryption
             if (kmsProvider != null)
             {
                 dataKeyDocument = new BsonDocument("provider", kmsProvider.ToLower());
-                if (dataKeyOptions.MasterKey != null)
+                if (dataKeyOptions?.MasterKey != null)
                 {
                     dataKeyDocument.AddRange(dataKeyOptions.MasterKey.Elements);
                 }
             }
 
             BsonDocument keyMaterial = null;
-            if (dataKeyOptions.KeyMaterial != null)
+            if (dataKeyOptions?.KeyMaterial != null)
             {
                 keyMaterial = new BsonDocument("keyMaterial",  dataKeyOptions.KeyMaterial);
             }

@@ -249,7 +249,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             [Values(false, true)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
-            RequireEnvironment.Check().EnvironmentVariable("TEST_MONGOCRYPTD");
+            RequireEnvironment.Check().EnvironmentVariable("CRYPT_SHARED_LIB_PATH", isDefined: false);
 
             var extraOptions = new Dictionary<string, object>
             {
@@ -282,7 +282,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             [Values(false, true)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
-            RequireEnvironment.Check().EnvironmentVariable("TEST_MONGOCRYPTD");
+            RequireEnvironment.Check().EnvironmentVariable("CRYPT_SHARED_LIB_PATH", isDefined: false);
 
             var extraOptions = new Dictionary<string, object>
             {

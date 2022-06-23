@@ -15,14 +15,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.Security.Cryptography.X509Certificates;
 using FluentAssertions;
-using MongoDB.Bson;
 using MongoDB.Driver.Encryption;
 using Moq;
 using Xunit;
 
-namespace MongoDB.Driver.Tests
+namespace MongoDB.Driver.Tests.Encryption
 {
     public class ClientEncryptionOptionsTests
     {

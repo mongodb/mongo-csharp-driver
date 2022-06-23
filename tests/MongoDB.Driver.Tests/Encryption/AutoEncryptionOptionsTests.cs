@@ -19,11 +19,12 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Encryption;
 using Moq;
 using Xunit;
 
-namespace MongoDB.Driver.Tests
+namespace MongoDB.Driver.Tests.Encryption
 {
     public class AutoEncryptionOptionsTests
     {
@@ -50,17 +51,23 @@ namespace MongoDB.Driver.Tests
         [Theory]
         [InlineData("mongocryptdURI", "test", false)]
         [InlineData("mongocryptdURI", 1, true)]
+
         [InlineData("mongocryptdBypassSpawn", true, false)]
         [InlineData("mongocryptdBypassSpawn", 1, true)]
+
         [InlineData("mongocryptdSpawnPath", "test", false)]
         [InlineData("mongocryptdSpawnPath", 1, true)]
+
         [InlineData("mongocryptdSpawnArgs", "test", false)]
         [InlineData("mongocryptdSpawnArgs", new[] { "test" }, false)]
         [InlineData("mongocryptdSpawnArgs", 1, true)]
+
         [InlineData("cryptSharedLibPath", "path", false)]
         [InlineData("cryptSharedLibPath", 1, true)]
+
         [InlineData("cryptSharedLibRequired", true, false)]
         [InlineData("cryptSharedLibRequired", 1, true)]
+
         [InlineData("test", "test", true)]
         public void constructor_should_handle_extraOptions_correctly(string key, object value, bool shouldFail)
         {
@@ -274,6 +281,27 @@ namespace MongoDB.Driver.Tests
             options1 = CreateSubject(tlsOptions: new SslSettings() { EnabledSslProtocols = System.Security.Authentication.SslProtocols.None });
             options2 = CreateSubject(tlsOptions: new SslSettings());
             options1.Equals(options2).Should().BeFalse();
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void ToCryptClientSettings_should_return_expected_result(
+            [Values(false, true)] bool cryptSharedLibRequired,
+            [Values(false, true)] bool bypassAutoEncryption)
+        {
+            var subject = CreateSubject(
+                extraOptions: new Dictionary<string, object>
+                {
+                    { "cryptSharedLibPath", "cryptSharedLibPath" },
+                    { "cryptSharedLibRequired", cryptSharedLibRequired }
+                })
+                .With(bypassAutoEncryption: bypassAutoEncryption);
+
+            var result = subject.ToCryptClientSettings();
+
+            result.CryptSharedLibPath.Should().Be("cryptSharedLibPath");
+            result.CryptSharedLibSearchPath.Should().Be(bypassAutoEncryption ? null : "$SYSTEM");
+            result.IsCryptSharedLibRequired.Should().Be(cryptSharedLibRequired);
         }
 
         [Fact]

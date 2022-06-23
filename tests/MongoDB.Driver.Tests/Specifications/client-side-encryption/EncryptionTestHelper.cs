@@ -83,10 +83,10 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                 }
             }
 
-            if (withSharedLibrary || Environment.GetEnvironmentVariable("TEST_MONGOCRYPTD") == null)
+            if (withSharedLibrary || Environment.GetEnvironmentVariable("CRYPT_SHARED_LIB_PATH") != null)
             {
                 var cryptSharedLibPath = CoreTestConfiguration.GetCryptSharedLibPath();
-                if (cryptSharedLibPath != null)
+                if (cryptSharedLibPath != null && !extraOptions.ContainsKey("cryptSharedLibPath")) // do not override if it's already set
                 {
                     extraOptions.Add("cryptSharedLibPath", cryptSharedLibPath);
                 }
