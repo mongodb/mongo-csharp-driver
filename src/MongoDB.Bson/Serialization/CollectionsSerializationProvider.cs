@@ -224,14 +224,15 @@ namespace MongoDB.Bson.Serialization
                 {
                     var listDefinition = typeof(List<>);
                     var listType = listDefinition.MakeGenericType(itemType);
-                    var serializerDefinition = typeof(ImpliedImplementationInterfaceSerializer<,>);
-                    return CreateGenericSerializer(serializerDefinition, new[] { type, listType }, serializerRegistry);
+                    if (typeInfo.IsAssignableFrom(listType))
+                    {
+                        var serializerDefinition = typeof(ImpliedImplementationInterfaceSerializer<,>);
+                        return CreateGenericSerializer(serializerDefinition, new[] { type, listType }, serializerRegistry);
+                    }
                 }
-                else
-                {
-                    var serializerDefinition = typeof(EnumerableInterfaceImplementerSerializer<,>);
-                    return CreateGenericSerializer(serializerDefinition, new[] { type, itemType }, serializerRegistry);
-                }
+
+                var enumerableSerializerDefinition = typeof(EnumerableInterfaceImplementerSerializer<,>);
+                return CreateGenericSerializer(enumerableSerializerDefinition, new[] { type, itemType }, serializerRegistry);
             }
             else if (implementedEnumerableInterface != null)
             {
