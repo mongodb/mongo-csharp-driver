@@ -155,5 +155,6 @@ Please see our [guidelines](CONTRIBUTING.md) for contributing to the driver.
 * Aristarkh Zagorodnikov    https://github.com/onyxmaster
 * Vincent Kam               https://github.com/vincentkam
 * Craig Wilson              https://github.com/craiggwilson
+* Ming Yau Lee              https://github.com/mingyaulee
 
 If you have contributed and we have neglected to add you to this list please contact one of the maintainers to be added to the list (with apologies).
