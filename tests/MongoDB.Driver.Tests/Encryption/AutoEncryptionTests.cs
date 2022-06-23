@@ -120,7 +120,7 @@ namespace MongoDB.Driver.Tests.Encryption
 
             Ensure.That(File.Exists(Environment.GetEnvironmentVariable("CRYPT_SHARED_LIB_PATH")), "CRYPT_SHARED_LIB_PATH should exist");
 
-            using (var client = GetClient(withAutoEncryption: true, withSharedLibrary: true))
+            using (var client = GetClient(withAutoEncryption: true))
             {
                 var libMongoCryptController = ((MongoClient)client.Wrapped).LibMongoCryptController;
                 var cryptClient = libMongoCryptController._cryptClient();
@@ -128,9 +128,9 @@ namespace MongoDB.Driver.Tests.Encryption
             }
         }
 
-        private DisposableMongoClient GetClient(bool withAutoEncryption = false, Dictionary<string, object> extraOptions = null, bool withSharedLibrary = false)
+        private DisposableMongoClient GetClient(bool withAutoEncryption = false, Dictionary<string, object> extraOptions = null)
         {
-            var mongoClientSettings = new MongoClientSettings();
+            var mongoClientSettings = DriverTestConfiguration.GetClientSettings();
 
             if (withAutoEncryption)
             {
@@ -139,7 +139,7 @@ namespace MongoDB.Driver.Tests.Encryption
                     extraOptions = new Dictionary<string, object>();
                 }
 
-                EncryptionTestHelper.ConfigureDefaultExtraOptions(extraOptions, withSharedLibrary);
+                EncryptionTestHelper.ConfigureDefaultExtraOptions(extraOptions);
 
                 var kmsProviders = GetKmsProviders();
                 var autoEncryptionOptions = new AutoEncryptionOptions(

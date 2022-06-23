@@ -28,6 +28,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Encryption
 {
+    [Trait("Category", "CSFLE")]
     public class ClientEncryptionTests
     {
         #region static

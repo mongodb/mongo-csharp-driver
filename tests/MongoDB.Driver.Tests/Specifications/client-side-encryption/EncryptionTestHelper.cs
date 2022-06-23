@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
     {
         private const string LocalMasterKey = "Mng0NCt4ZHVUYUJCa1kxNkVyNUR1QURhZ2h2UzR2d2RrZzh0cFBwM3R6NmdWMDFBMUN3YkQ5aXRRMkhGRGdQV09wOGVNYUMxT2k3NjZKelhaQmRCZGJkTXVyZG9uSjFk";
 
-        public static void ConfigureDefaultExtraOptions(Dictionary<string, object> extraOptions, bool withSharedLibrary = false)
+        public static void ConfigureDefaultExtraOptions(Dictionary<string, object> extraOptions)
         {
             Ensure.IsNotNull(extraOptions, nameof(extraOptions));
 
@@ -83,9 +83,9 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                 }
             }
 
-            if (withSharedLibrary || Environment.GetEnvironmentVariable("CRYPT_SHARED_LIB_PATH") != null)
+            var cryptSharedLibPath = CoreTestConfiguration.GetCryptSharedLibPath();
+            if (cryptSharedLibPath != null)
             {
-                var cryptSharedLibPath = CoreTestConfiguration.GetCryptSharedLibPath();
                 if (cryptSharedLibPath != null && !extraOptions.ContainsKey("cryptSharedLibPath")) // do not override if it's already set
                 {
                     extraOptions.Add("cryptSharedLibPath", cryptSharedLibPath);
