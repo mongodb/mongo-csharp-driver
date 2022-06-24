@@ -97,6 +97,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __maxTime = new Feature("MaxTime", WireVersion.Server26);
         private static readonly Feature __mmapV1StorageEngine = new Feature("MmapV1StorageEngine", WireVersion.Zero, WireVersion.Server42);
         private static readonly Feature __partialIndexes = new Feature("PartialIndexes", WireVersion.Server32);
+        private static readonly Feature __pickAccumulatorsNewIn52 = new Feature("PickAccumulatorsNewIn52", WireVersion.Server52);
         private static readonly Feature __readConcern = new Feature("ReadConcern", WireVersion.Server32);
         private static readonly Feature __retryableReads = new Feature("RetryableReads", WireVersion.Server36);
         private static readonly Feature __retryableWrites = new Feature("RetryableWrites", WireVersion.Server36);
@@ -534,6 +535,11 @@ namespace MongoDB.Driver.Core.Misc
         /// </summary>
         [Obsolete("This property will be removed in a later release.")]
         public static Feature PartialIndexes => __partialIndexes;
+
+        /// <summary>
+        /// Gets the pick accumulators new in 5.2 feature.
+        /// </summary>
+        public static Feature PickAccumulatorsNewIn52 => __pickAccumulatorsNewIn52;
 
         /// <summary>
         /// Gets the read concern feature.
