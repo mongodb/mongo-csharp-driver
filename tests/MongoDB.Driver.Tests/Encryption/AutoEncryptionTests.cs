@@ -52,22 +52,17 @@ namespace MongoDB.Driver.Tests.Encryption
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
 
-            using (var client1 = GetClient(withAutoEncryption))
-            using (var client2 = GetClient(withAutoEncryption))
+            using (var client = GetClient(withAutoEncryption))
             {
-                var libMongoCryptController1 = ((MongoClient)client1.Wrapped).LibMongoCryptController;
-                var libMongoCryptController2 = ((MongoClient)client2.Wrapped).LibMongoCryptController;
+                var libMongoCryptController = ((MongoClient)client.Wrapped).LibMongoCryptController;
                 if (withAutoEncryption)
                 {
-                    var cryptClient1 = libMongoCryptController1._cryptClient();
-                    var cryptClient2 = libMongoCryptController2._cryptClient();
-                    var areTheSame = object.ReferenceEquals(cryptClient1, cryptClient2);
-                    areTheSame.Should().BeTrue();
+                    var cryptClient = libMongoCryptController._cryptClient();
+                    cryptClient.Should().NotBeNull();
                 }
                 else
                 {
-                    libMongoCryptController1.Should().BeNull();
-                    libMongoCryptController2.Should().BeNull();
+                    libMongoCryptController.Should().BeNull();
                 }
             }
         }
@@ -131,6 +126,8 @@ namespace MongoDB.Driver.Tests.Encryption
         private DisposableMongoClient GetClient(bool withAutoEncryption = false, Dictionary<string, object> extraOptions = null)
         {
             var mongoClientSettings = DriverTestConfiguration.GetClientSettings();
+            var configurator = mongoClientSettings.ClusterConfigurator;  // ensure client is unique
+            mongoClientSettings.ClusterConfigurator = b => { configurator?.Invoke(b); };
 
             if (withAutoEncryption)
             {
@@ -146,7 +143,7 @@ namespace MongoDB.Driver.Tests.Encryption
                     keyVaultNamespace: __keyVaultCollectionNamespace,
                     kmsProviders: kmsProviders,
                     extraOptions: extraOptions,
-                    schemaMap: new Dictionary<string, BsonDocument> { { __collectionNamespace.ToString(), new BsonDocument()} });
+                    schemaMap: new Dictionary<string, BsonDocument> { { __collectionNamespace.ToString(), new BsonDocument() } });
                 mongoClientSettings.AutoEncryptionOptions = autoEncryptionOptions;
             }
 

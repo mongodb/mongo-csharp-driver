@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
             var testCaseNameLower = testCase.Name.ToLower();
 
             if (testCaseNameLower.Contains("kmip") ||
-                testCaseNameLower.Contains("rewrap with current kms provider")) // also calls kmip kms
+                testCase.Shared.ToString().ToLower().Contains("kmip")) // also calls kmip kms
             {
                 // kmip requires configuring kms mock server
                 RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED");
