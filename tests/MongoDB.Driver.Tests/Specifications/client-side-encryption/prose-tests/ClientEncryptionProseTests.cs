@@ -961,7 +961,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                             var insertPayload = new BsonDocument("encryptedIndexed", encryptedValue);
                             Insert(explicitCollectionFromEncryptedClient, async, insertPayload);
 
-                            encryptionOptions = new EncryptOptions(algorithm: EncryptionAlgorithm.Indexed.ToString(), keyId: key1Id, queryType: QueryType.Equality);
+                            encryptionOptions = new EncryptOptions(algorithm: EncryptionAlgorithm.Indexed.ToString(), keyId: key1Id, queryType: "equality");
                             encryptedValue = ExplicitEncrypt(clientEncryption, encryptionOptions, value, async);
 
                             var findPayload = new BsonDocument("encryptedIndexed", encryptedValue);
@@ -983,7 +983,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                             }
 
                             // 1
-                            encryptionOptions = new EncryptOptions(algorithm: EncryptionAlgorithm.Indexed.ToString(), keyId: key1Id, queryType: QueryType.Equality);
+                            encryptionOptions = new EncryptOptions(algorithm: EncryptionAlgorithm.Indexed.ToString(), keyId: key1Id, queryType: "equality");
                             encryptedValue = ExplicitEncrypt(clientEncryption, encryptionOptions, value, async);
 
                             var findPayload = new BsonDocument("encryptedIndexed", encryptedValue);
@@ -996,7 +996,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                             }
 
                             // 2
-                            encryptionOptions = new EncryptOptions(algorithm: EncryptionAlgorithm.Indexed.ToString(), keyId: key1Id, queryType: QueryType.Equality, contentionFactor: 10);
+                            encryptionOptions = new EncryptOptions(algorithm: EncryptionAlgorithm.Indexed.ToString(), keyId: key1Id, queryType: "equality", contentionFactor: 10);
                             encryptedValue = ExplicitEncrypt(clientEncryption, encryptionOptions, value, async);
 
                             var findPayload2 = new BsonDocument("encryptedIndexed", encryptedValue);
