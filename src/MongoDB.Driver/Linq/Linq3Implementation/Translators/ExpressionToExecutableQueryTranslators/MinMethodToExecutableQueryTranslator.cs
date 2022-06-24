@@ -93,7 +93,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
                     valueSerializer,
                     AstStage.Group(
                         id: BsonNull.Value,
-                        fields: AstExpression.AccumulatorField("_min", AstAccumulatorOperator.Min, valueAst)),
+                        fields: AstExpression.AccumulatorField("_min", AstUnaryAccumulatorOperator.Min, valueAst)),
                     AstStage.ReplaceRoot(AstExpression.GetField(root, "_min")));
 
                 return ExecutableQuery.Create(

@@ -80,20 +80,20 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
 
     internal static class AstUnaryOperatorExtensions
     {
-        public static bool IsAccumulator(this AstUnaryOperator @operator, out AstAccumulatorOperator accumulatorOperator)
+        public static bool IsAccumulator(this AstUnaryOperator @operator, out AstUnaryAccumulatorOperator accumulatorOperator)
         {
             switch (@operator)
             {
-                case AstUnaryOperator.AddToSet: accumulatorOperator = AstAccumulatorOperator.AddToSet; return true;
-                case AstUnaryOperator.Avg: accumulatorOperator = AstAccumulatorOperator.Avg; return true;
-                case AstUnaryOperator.First: accumulatorOperator = AstAccumulatorOperator.First; return true;
-                case AstUnaryOperator.Last: accumulatorOperator = AstAccumulatorOperator.Last; return true;
-                case AstUnaryOperator.Max: accumulatorOperator = AstAccumulatorOperator.Max; return true;
-                case AstUnaryOperator.Min: accumulatorOperator = AstAccumulatorOperator.Min; return true;
-                case AstUnaryOperator.Push: accumulatorOperator = AstAccumulatorOperator.Push; return true;
-                case AstUnaryOperator.StdDevPop: accumulatorOperator = AstAccumulatorOperator.StdDevPop; return true;
-                case AstUnaryOperator.StdDevSamp: accumulatorOperator = AstAccumulatorOperator.StdDevSamp; return true;
-                case AstUnaryOperator.Sum: accumulatorOperator = AstAccumulatorOperator.Sum; return true;
+                case AstUnaryOperator.AddToSet: accumulatorOperator = AstUnaryAccumulatorOperator.AddToSet; return true;
+                case AstUnaryOperator.Avg: accumulatorOperator = AstUnaryAccumulatorOperator.Avg; return true;
+                case AstUnaryOperator.First: accumulatorOperator = AstUnaryAccumulatorOperator.First; return true;
+                case AstUnaryOperator.Last: accumulatorOperator = AstUnaryAccumulatorOperator.Last; return true;
+                case AstUnaryOperator.Max: accumulatorOperator = AstUnaryAccumulatorOperator.Max; return true;
+                case AstUnaryOperator.Min: accumulatorOperator = AstUnaryAccumulatorOperator.Min; return true;
+                case AstUnaryOperator.Push: accumulatorOperator = AstUnaryAccumulatorOperator.Push; return true;
+                case AstUnaryOperator.StdDevPop: accumulatorOperator = AstUnaryAccumulatorOperator.StdDevPop; return true;
+                case AstUnaryOperator.StdDevSamp: accumulatorOperator = AstUnaryAccumulatorOperator.StdDevSamp; return true;
+                case AstUnaryOperator.Sum: accumulatorOperator = AstUnaryAccumulatorOperator.Sum; return true;
                 default: accumulatorOperator = default; return false;
             }
         }

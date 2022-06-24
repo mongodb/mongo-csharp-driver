@@ -58,12 +58,218 @@ namespace MongoDB.Driver.Linq
         }
 
         /// <summary>
+        /// Returns the bottom result.
+        /// </summary>
+        /// <typeparam name="TSource">The source type.</typeparam>
+        /// <typeparam name="TResult">The result type.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="sortBy">The sort order.</param>
+        /// <param name="selector">The selector.</param>
+        /// <returns>The bottom result.</returns>
+        public static TResult Bottom<TSource, TResult>(
+            this IEnumerable<TSource> source,
+            SortDefinition<TSource> sortBy,
+            Func<TSource, TResult> selector)
+        {
+            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+        }
+
+        /// <summary>
+        /// Returns the bottom n results.
+        /// </summary>
+        /// <typeparam name="TSource">The source type.</typeparam>
+        /// <typeparam name="TResult">The result type.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="sortBy">The sort order.</param>
+        /// <param name="selector">The selector.</param>
+        /// <param name="n">The number of results to return.</param>
+        /// <returns>The bottom n results.</returns>
+        public static IEnumerable<TResult> BottomN<TSource, TResult>(
+            this IEnumerable<TSource> source,
+            SortDefinition<TSource> sortBy,
+            Func<TSource, TResult> selector,
+            int n)
+        {
+            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+        }
+
+        /// <summary>
+        /// Returns the bottom n results.
+        /// </summary>
+        /// <typeparam name="TSource">The source type.</typeparam>
+        /// <typeparam name="TKey">The key type.</typeparam>
+        /// <typeparam name="TResult">The result type.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="sortBy">The sort order.</param>
+        /// <param name="selector">The selector.</param>
+        /// <param name="key">The key (needed to infer the key type and to determine the key serializer).</param>
+        /// <param name="n">The number of results to return.</param>
+        /// <returns>The bottom n results.</returns>
+        public static IEnumerable<TResult> BottomN<TSource, TKey, TResult>(
+            this IEnumerable<TSource> source,
+            SortDefinition<TSource> sortBy,
+            Func<TSource, TResult> selector,
+            TKey key,
+            Func<TKey, int> n)
+        {
+            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+        }
+
+        /// <summary>
         /// Represents the first matching element in an array used in a query (corresponds to the server's "$" update operator).
         /// </summary>
         /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
         /// <param name="source">A source of values.</param>
         /// <returns>Only meant to be used in Update specifications.</returns>
         public static TSource FirstMatchingElement<TSource>(this IEnumerable<TSource> source)
+        {
+            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+        }
+
+        /// <summary>
+        /// Returns the first n results.
+        /// </summary>
+        /// <typeparam name="TSource">The source type.</typeparam>
+        /// <typeparam name="TResult">The result type.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="selector">The selector.</param>
+        /// <param name="n">The number of results to return.</param>
+        /// <returns>The first n results.</returns>
+        public static IEnumerable<TResult> FirstN<TSource, TResult>(
+            this IEnumerable<TSource> source,
+            Func<TSource, TResult> selector,
+            int n)
+        {
+            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+        }
+
+        /// <summary>
+        /// Returns the first n results.
+        /// </summary>
+        /// <typeparam name="TSource">The source type.</typeparam>
+        /// <typeparam name="TKey">The key type.</typeparam>
+        /// <typeparam name="TResult">The result type.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="selector">The selector.</param>
+        /// <param name="key">The key (needed to infer the key type and to determine the key serializer).</param>
+        /// <param name="n">The number of results to return.</param>
+        /// <returns>The first n results.</returns>
+        public static IEnumerable<TResult> FirstN<TSource, TKey, TResult>(
+            this IEnumerable<TSource> source,
+            Func<TSource, TResult> selector,
+            TKey key,
+            Func<TKey, int> n)
+        {
+            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+        }
+
+        /// <summary>
+        /// Returns the last n results.
+        /// </summary>
+        /// <typeparam name="TSource">The source type.</typeparam>
+        /// <typeparam name="TResult">The result type.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="selector">The selector.</param>
+        /// <param name="n">The number of results to return.</param>
+        /// <returns>The last n results.</returns>
+        public static IEnumerable<TResult> LastN<TSource, TResult>(
+            this IEnumerable<TSource> source,
+            Func<TSource, TResult> selector,
+            int n)
+        {
+            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+        }
+
+        /// <summary>
+        /// Returns the last n results.
+        /// </summary>
+        /// <typeparam name="TSource">The source type.</typeparam>
+        /// <typeparam name="TKey">The key type.</typeparam>
+        /// <typeparam name="TResult">The result type.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="selector">The selector.</param>
+        /// <param name="key">The key (needed to infer the key type and to determine the key serializer).</param>
+        /// <param name="n">The number of results to return.</param>
+        /// <returns>The last n results.</returns>
+        public static IEnumerable<TResult> LastN<TSource, TKey, TResult>(
+            this IEnumerable<TSource> source,
+            Func<TSource, TResult> selector,
+            TKey key,
+            Func<TKey, int> n)
+        {
+            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+        }
+
+        /// <summary>
+        /// Returns the max n results.
+        /// </summary>
+        /// <typeparam name="TSource">The source type.</typeparam>
+        /// <typeparam name="TResult">The result type.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="selector">The selector.</param>
+        /// <param name="n">The number of results to return.</param>
+        /// <returns>The max n results.</returns>
+        public static IEnumerable<TResult> MaxN<TSource, TResult>(
+            this IEnumerable<TSource> source,
+            Func<TSource, TResult> selector,
+            int n)
+        {
+            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+        }
+
+        /// <summary>
+        /// Returns the max n results.
+        /// </summary>
+        /// <typeparam name="TSource">The source type.</typeparam>
+        /// <typeparam name="TKey">The key type.</typeparam>
+        /// <typeparam name="TResult">The result type.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="selector">The selector.</param>
+        /// <param name="key">The key (needed to infer the key type and to determine the key serializer).</param>
+        /// <param name="n">The number of results to return.</param>
+        /// <returns>The max n results.</returns>
+        public static IEnumerable<TResult> MaxN<TSource, TKey, TResult>(
+            this IEnumerable<TSource> source,
+            Func<TSource, TResult> selector,
+            TKey key,
+            Func<TKey, int> n)
+        {
+            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+        }
+
+        /// <summary>
+        /// Returns the min n results.
+        /// </summary>
+        /// <typeparam name="TSource">The source type.</typeparam>
+        /// <typeparam name="TResult">The result type.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="selector">The selector.</param>
+        /// <param name="n">The number of results to return.</param>
+        /// <returns>The min n results.</returns>
+        public static IEnumerable<TResult> MinN<TSource, TResult>(
+            this IEnumerable<TSource> source,
+            Func<TSource, TResult> selector,
+            int n)
+        {
+            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+        }
+
+        /// <summary>
+        /// Returns the min n results.
+        /// </summary>
+        /// <typeparam name="TSource">The source type.</typeparam>
+        /// <typeparam name="TKey">The key type.</typeparam>
+        /// <typeparam name="TResult">The result type.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="selector">The selector.</param>
+        /// <param name="key">The key (needed to infer the key type and to determine the key serializer).</param>
+        /// <param name="n">The number of results to return.</param>
+        /// <returns>The min n results.</returns>
+        public static IEnumerable<TResult> MinN<TSource, TKey, TResult>(
+            this IEnumerable<TSource> source,
+            Func<TSource, TResult> selector,
+            TKey key,
+            Func<TKey, int> n)
         {
             throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
         }
@@ -586,6 +792,64 @@ namespace MongoDB.Driver.Linq
         public static decimal? StandardDeviationSample<TSource>(this IEnumerable<TSource> source, Func<TSource, decimal?> selector)
         {
             return source.Select(selector).StandardDeviationSample();
+        }
+
+        /// <summary>
+        /// Returns the top n results.
+        /// </summary>
+        /// <typeparam name="TSource">The source type.</typeparam>
+        /// <typeparam name="TResult">The result type.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="sortBy">The sort order.</param>
+        /// <param name="selector">The selector.</param>
+        /// <returns>The top n results.</returns>
+        public static TResult Top<TSource, TResult>(
+            this IEnumerable<TSource> source,
+            SortDefinition<TSource> sortBy,
+            Func<TSource, TResult> selector)
+        {
+            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+        }
+
+        /// <summary>
+        /// Returns the top n results.
+        /// </summary>
+        /// <typeparam name="TSource">The source type.</typeparam>
+        /// <typeparam name="TResult">The result type.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="sortBy">The sort order.</param>
+        /// <param name="selector">The selector.</param>
+        /// <param name="n">The number of results to return.</param>
+        /// <returns>The top n results.</returns>
+        public static IEnumerable<TResult> TopN<TSource, TResult>(
+            this IEnumerable<TSource> source,
+            SortDefinition<TSource> sortBy,
+            Func<TSource, TResult> selector,
+            int n)
+        {
+            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
+        }
+
+        /// <summary>
+        /// Returns the top n results.
+        /// </summary>
+        /// <typeparam name="TSource">The source type.</typeparam>
+        /// <typeparam name="TKey">The key type.</typeparam>
+        /// <typeparam name="TResult">The result type.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="sortBy">The sort order.</param>
+        /// <param name="selector">The selector.</param>
+        /// <param name="key">The key (needed to infer the key type and to determine the key serializer).</param>
+        /// <param name="n">The number of results to return.</param>
+        /// <returns>The top n results.</returns>
+        public static IEnumerable<TResult> TopN<TSource, TKey, TResult>(
+            this IEnumerable<TSource> source,
+            SortDefinition<TSource> sortBy,
+            Func<TSource, TResult> selector,
+            TKey key,
+            Func<TKey, int> n)
+        {
+            throw new NotSupportedException("This method is not functional. It is only usable in conjunction with MongoDB.");
         }
 
         /// <summary>

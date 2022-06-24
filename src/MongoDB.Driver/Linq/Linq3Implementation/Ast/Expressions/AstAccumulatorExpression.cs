@@ -13,55 +13,9 @@
 * limitations under the License.
 */
 
-using MongoDB.Bson;
-using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors;
-
 namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
 {
-    internal sealed class AstAccumulatorExpression : AstExpression
+    internal abstract class AstAccumulatorExpression : AstExpression
     {
-        private readonly AstExpression _arg;
-        private readonly AstAccumulatorOperator _operator;
-
-        public AstAccumulatorExpression(AstAccumulatorOperator @operator, AstExpression arg)
-        {
-            _operator = @operator;
-            _arg = Ensure.IsNotNull(arg, nameof(arg));
-        }
-
-        public AstExpression Arg => _arg;
-        public override AstNodeType NodeType => AstNodeType.AccumulatorExpression;
-        public AstAccumulatorOperator Operator => _operator;
-
-        public override AstNode Accept(AstNodeVisitor visitor)
-        {
-            return visitor.VisitAccumulatorExpression(this);
-        }
-
-        public override BsonValue Render()
-        {
-            return new BsonDocument(_operator.Render(), RenderArg());
-        }
-
-        public AstAccumulatorExpression Update(AstExpression arg)
-        {
-            if (arg == _arg)
-            {
-                return this;
-            }
-
-            return new AstAccumulatorExpression(_operator, arg);
-        }
-
-        private BsonValue RenderArg()
-        {
-            var rendered = _arg.Render();
-            if (rendered.IsBsonArray)
-            {
-                rendered = new BsonArray { rendered };
-            }
-            return rendered;
-        }
     }
 }

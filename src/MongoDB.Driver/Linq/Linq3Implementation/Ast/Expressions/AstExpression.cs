@@ -61,14 +61,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             return new AstUnaryExpression(AstUnaryOperator.Abs, arg);
         }
 
-        public static AstAccumulatorExpression AccumulatorExpression(AstAccumulatorOperator @operator, AstExpression arg)
+        public static AstAccumulatorField AccumulatorField(string name, AstUnaryAccumulatorOperator @operator, AstExpression arg)
         {
-            return new AstAccumulatorExpression(@operator, arg);
-        }
-
-        public static AstAccumulatorField AccumulatorField(string name, AstAccumulatorOperator @operator, AstExpression arg)
-        {
-            var value = new AstAccumulatorExpression(@operator, arg);
+            var value = new AstUnaryAccumulatorExpression(@operator, arg);
             return new AstAccumulatorField(name, value);
         }
 
@@ -612,6 +607,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             return new AstOrExpression(args);
         }
 
+        public static AstExpression PickExpression(AstPickOperator @operator, AstExpression source, AstSortFields sortBy, AstVarExpression @as, AstExpression selector, AstExpression n)
+        {
+            return new AstPickExpression(@operator, source, sortBy, @as, selector, n);
+        }
+
+        public static AstExpression PickAccumulatorExpression(AstPickAccumulatorOperator @operator, AstSortFields sortBy, AstExpression selector, AstExpression n)
+        {
+            return new AstPickAccumulatorExpression(@operator, sortBy, selector, n);
+        }
+
         public static AstExpression Pow(AstExpression arg, AstExpression exponent)
         {
             return new AstBinaryExpression(AstBinaryOperator.Pow, arg, exponent);
@@ -812,6 +817,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
         public static AstExpression Trunc(AstExpression arg)
         {
             return new AstUnaryExpression(AstUnaryOperator.Trunc, arg);
+        }
+
+        public static AstAccumulatorExpression UnaryAccumulator(AstUnaryAccumulatorOperator @operator, AstExpression arg)
+        {
+            return new AstUnaryAccumulatorExpression(@operator, arg);
         }
 
         public static AstExpression UnaryWindowExpression(AstUnaryWindowOperator @operator, AstExpression arg, AstWindow window)

@@ -17,7 +17,7 @@ using System;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
 {
-    internal enum AstAccumulatorOperator
+    internal enum AstUnaryAccumulatorOperator
     {
         AddToSet,
         Avg,
@@ -32,23 +32,23 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
         Sum
     }
 
-    internal static class AstAccumulatorOperatorExtensions
+    internal static class AstUnaryAccumulatorOperatorExtensions
     {
-        public static string Render(this AstAccumulatorOperator @operator)
+        public static string Render(this AstUnaryAccumulatorOperator @operator)
         {
             return @operator switch
             {
-                AstAccumulatorOperator.AddToSet => "$addToSet",
-                AstAccumulatorOperator.Avg => "$avg",
-                AstAccumulatorOperator.First => "$first",
-                AstAccumulatorOperator.Last => "$last",
-                AstAccumulatorOperator.Max => "$max",
-                AstAccumulatorOperator.MergeObjects => "$mergeObjects",
-                AstAccumulatorOperator.Min => "$min",
-                AstAccumulatorOperator.Push => "$push",
-                AstAccumulatorOperator.StdDevPop => "$stdDevPop",
-                AstAccumulatorOperator.StdDevSamp => "$stdDevSamp",
-                AstAccumulatorOperator.Sum => "$sum",
+                AstUnaryAccumulatorOperator.AddToSet => "$addToSet",
+                AstUnaryAccumulatorOperator.Avg => "$avg",
+                AstUnaryAccumulatorOperator.First => "$first",
+                AstUnaryAccumulatorOperator.Last => "$last",
+                AstUnaryAccumulatorOperator.Max => "$max",
+                AstUnaryAccumulatorOperator.MergeObjects => "$mergeObjects",
+                AstUnaryAccumulatorOperator.Min => "$min",
+                AstUnaryAccumulatorOperator.Push => "$push",
+                AstUnaryAccumulatorOperator.StdDevPop => "$stdDevPop",
+                AstUnaryAccumulatorOperator.StdDevSamp => "$stdDevSamp",
+                AstUnaryAccumulatorOperator.Sum => "$sum",
                 _ => throw new InvalidOperationException($"Unexpected accumulator operator: {@operator}.")
             };
         }

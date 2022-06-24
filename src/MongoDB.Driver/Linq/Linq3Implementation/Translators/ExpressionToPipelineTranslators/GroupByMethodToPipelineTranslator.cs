@@ -82,7 +82,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                     groupingSerializer,
                     AstStage.Group(
                         id: keySelectorTranslation.Ast,
-                        fields: AstExpression.AccumulatorField("_elements", AstAccumulatorOperator.Push, elementAst)));
+                        fields: AstExpression.AccumulatorField("_elements", AstUnaryAccumulatorOperator.Push, elementAst)));
 
                 if (method.IsOneOf(__groupByWithResultSelectorMethods))
                 {
