@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Tests.Packaging
         {
             var version = Library.Version;
 
-            version.Should().Be("1.5.0-rc2");
+            version.Should().Be("1.5.0-pre3+20220627git28a25b869f");
         }
 
         [Fact]
