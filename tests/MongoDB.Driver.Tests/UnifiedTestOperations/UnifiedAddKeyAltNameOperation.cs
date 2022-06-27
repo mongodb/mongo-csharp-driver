@@ -25,10 +25,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
     public class UnifiedAddKeyAltNameOperation : IUnifiedEntityTestOperation
     {
         private readonly ClientEncryption _clientEncryption;
-        private readonly BsonBinaryData _id;
+        private readonly Guid _id;
         private readonly string _keyAlterName;
 
-        public UnifiedAddKeyAltNameOperation(ClientEncryption clientEncryption, BsonBinaryData id, string keyAlterName)
+        public UnifiedAddKeyAltNameOperation(ClientEncryption clientEncryption, Guid id, string keyAlterName)
         {
             _clientEncryption = Ensure.IsNotNull(clientEncryption, nameof(clientEncryption));
             _id = id;
@@ -77,7 +77,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             var clientEncryption = _entityMap.ClientEncryptions[targetSessionId];
 
-            BsonBinaryData id = null;
+            Guid? id = null;
             string keyAlterName = null;
 
             foreach (var argument in arguments)
@@ -85,7 +85,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 switch (argument.Name)
                 {
                     case "id":
-                        id = argument.Value.AsBsonBinaryData;
+                        id = argument.Value.AsGuid;
                         break;
                     case "keyAltName":
                         keyAlterName = argument.Value.AsString;
@@ -96,7 +96,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 }
             }
 
-            return new UnifiedAddKeyAltNameOperation(clientEncryption, id, keyAlterName);
+            return new UnifiedAddKeyAltNameOperation(clientEncryption, id.Value, keyAlterName);
         }
     }
 }

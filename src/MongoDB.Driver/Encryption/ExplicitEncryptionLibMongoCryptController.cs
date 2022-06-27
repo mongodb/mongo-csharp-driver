@@ -41,18 +41,15 @@ namespace MongoDB.Driver.Encryption
         }
 
         // public methods
-        public BsonDocument AddAlternateKeyName(BsonBinaryData id, string alternateKeyName, CancellationToken cancellationToken)
+        public BsonDocument AddAlternateKeyName(Guid id, string alternateKeyName, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(alternateKeyName, nameof(alternateKeyName));
-            EnsureBinaryKeyValid(Ensure.IsNotNull(id, nameof(id)));
 
             try
             {
-                var filter = CreateFilterById(id);
-                var addToSetPipeline = new UpdateDefinitionBuilder<BsonDocument>().AddToSet("keyAltNames", alternateKeyName);
                 var previousRecord = _keyVaultCollection.Value.FindOneAndUpdate(
-                    filter,
-                    addToSetPipeline,
+                    CreateFilterById(id),
+                    new UpdateDefinitionBuilder<BsonDocument>().AddToSet("keyAltNames", alternateKeyName),
                     new FindOneAndUpdateOptions<BsonDocument, BsonDocument>()
                     {
                         ReturnDocument = ReturnDocument.Before
@@ -67,19 +64,16 @@ namespace MongoDB.Driver.Encryption
             }
         }
 
-        public async Task<BsonDocument> AddAlternateKeyNameAsync(BsonBinaryData id, string alternateKeyName, CancellationToken cancellationToken)
+        public async Task<BsonDocument> AddAlternateKeyNameAsync(Guid id, string alternateKeyName, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(alternateKeyName, nameof(alternateKeyName));
-            EnsureBinaryKeyValid(Ensure.IsNotNull(id, nameof(id)));
 
             try
             {
-                var filter = CreateFilterById(id);
-                var addToSetPipeline = new UpdateDefinitionBuilder<BsonDocument>().AddToSet("keyAltNames", alternateKeyName);
                 var previousRecord = await _keyVaultCollection.Value
                     .FindOneAndUpdateAsync(
-                        filter,
-                        addToSetPipeline,
+                        CreateFilterById(id),
+                        new UpdateDefinitionBuilder<BsonDocument>().AddToSet("keyAltNames", alternateKeyName),
                         new FindOneAndUpdateOptions<BsonDocument, BsonDocument>()
                         {
                             ReturnDocument = ReturnDocument.Before
@@ -193,10 +187,8 @@ namespace MongoDB.Driver.Encryption
             }
         }
 
-        public DeleteResult DeleteKey(BsonBinaryData id, CancellationToken cancellationToken)
+        public DeleteResult DeleteKey(Guid id, CancellationToken cancellationToken)
         {
-            EnsureBinaryKeyValid(Ensure.IsNotNull(id, nameof(id)));
-
             try
             {
                 var filter = CreateFilterById(id);
@@ -208,10 +200,8 @@ namespace MongoDB.Driver.Encryption
             }
         }
 
-        public async Task<DeleteResult> DeleteKeyAsync(BsonBinaryData id, CancellationToken cancellationToken)
+        public async Task<DeleteResult> DeleteKeyAsync(Guid id, CancellationToken cancellationToken)
         {
-            EnsureBinaryKeyValid(Ensure.IsNotNull(id, nameof(id)));
-
             try
             {
                 var filter = CreateFilterById(id);
@@ -287,10 +277,8 @@ namespace MongoDB.Driver.Encryption
             }
         }
 
-        public BsonDocument GetKey(BsonBinaryData id, CancellationToken cancellationToken)
+        public BsonDocument GetKey(Guid id, CancellationToken cancellationToken)
         {
-            EnsureBinaryKeyValid(Ensure.IsNotNull(id, nameof(id)));
-
             try
             {
                 var filter = CreateFilterById(id);
@@ -303,10 +291,8 @@ namespace MongoDB.Driver.Encryption
             }
         }
 
-        public async Task<BsonDocument> GetKeyAsync(BsonBinaryData id, CancellationToken cancellationToken)
+        public async Task<BsonDocument> GetKeyAsync(Guid id, CancellationToken cancellationToken)
         {
-            EnsureBinaryKeyValid(Ensure.IsNotNull(id, nameof(id)));
-
             try
             {
                 var filter = CreateFilterById(id);
@@ -379,18 +365,15 @@ namespace MongoDB.Driver.Encryption
             }
         }
 
-        public BsonDocument RemoveAlternateKeyName(BsonBinaryData id, string alternateKeyName, CancellationToken cancellationToken)
+        public BsonDocument RemoveAlternateKeyName(Guid id, string alternateKeyName, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(alternateKeyName, nameof(alternateKeyName));
-            EnsureBinaryKeyValid(Ensure.IsNotNull(id, nameof(id)));
 
             try
             {
-                var filter = CreateFilterById(id);
-                var updatePipeline = CreateRemoveAlternateKeyNameUpdatePipeline(alternateKeyName);
                 var result = _keyVaultCollection.Value.FindOneAndUpdate(
-                    filter,
-                    updatePipeline,
+                    CreateFilterById(id),
+                    CreateRemoveAlternateKeyNameUpdatePipeline(alternateKeyName),
                     new FindOneAndUpdateOptions<BsonDocument, BsonDocument>
                     {
                         ReturnDocument = ReturnDocument.Before
@@ -405,10 +388,9 @@ namespace MongoDB.Driver.Encryption
             }
         }
 
-        public async Task<BsonDocument> RemoveAlternateKeyNameAsync(BsonBinaryData id, string alternateKeyName, CancellationToken cancellationToken)
+        public async Task<BsonDocument> RemoveAlternateKeyNameAsync(Guid id, string alternateKeyName, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(alternateKeyName, nameof(alternateKeyName));
-            EnsureBinaryKeyValid(Ensure.IsNotNull(id, nameof(id)));
 
             try
             {
@@ -450,12 +432,7 @@ namespace MongoDB.Driver.Encryption
                     }
                     var result = UnwrapValue(wrappedBytes);
 
-                    var documentsToUpdate = result.AsBsonArray.Cast<BsonDocument>();
-                    var requests = documentsToUpdate.Select(
-                        document => new UpdateOneModel<BsonDocument>(
-                            filter: CreateFilterById(document["_id"]),
-                            update: CreateRewrapManyDataKeysBulkUpdateDefinition(document)));
-                    var bulkResult = _keyVaultCollection.Value.BulkWrite(requests: requests);
+                    var bulkResult = _keyVaultCollection.Value.BulkWrite(requests: CreateRewrapManyDataKeysBulkUpdateRequests(result));
 
                     return new RewrapManyDataKeyResult(bulkResult);
                 }
@@ -483,12 +460,7 @@ namespace MongoDB.Driver.Encryption
                     }
                     var result = UnwrapValue(wrappedBytes);
 
-                    var documentsToUpdate = result.AsBsonArray.Cast<BsonDocument>();
-                    var requests = documentsToUpdate.Select(
-                        document => new UpdateOneModel<BsonDocument>(
-                            filter: CreateFilterById(document["_id"]),
-                            update: CreateRewrapManyDataKeysBulkUpdateDefinition(document)));
-                    var bulkResult = await _keyVaultCollection.Value.BulkWriteAsync(requests: requests).ConfigureAwait(false);
+                    var bulkResult = await _keyVaultCollection.Value.BulkWriteAsync(requests: CreateRewrapManyDataKeysBulkUpdateRequests(result)).ConfigureAwait(false);
 
                     return new RewrapManyDataKeyResult(bulkResult);
                 }
@@ -502,7 +474,8 @@ namespace MongoDB.Driver.Encryption
         // private methods
 
         private FilterDefinition<BsonDocument> CreateFilter(BsonDocument filter) => new BsonDocumentFilterDefinition<BsonDocument>(filter);
-        private FilterDefinition<BsonDocument> CreateFilterById(BsonValue id) => CreateFilter(new BsonDocument("_id", id));
+        private FilterDefinition<BsonDocument> CreateFilterById(Guid id) => CreateFilterById(new BsonBinaryData(GuidConverter.ToBytes(id, GuidRepresentation.Standard), BsonBinarySubType.UuidStandard));
+        private FilterDefinition<BsonDocument> CreateFilterById(BsonBinaryData id) => CreateFilter(new BsonDocument("_id", id));
         private UpdateDefinition<BsonDocument> CreateRemoveAlternateKeyNameUpdatePipeline(string keyAlterName) =>
             new EmptyPipelineDefinition<BsonDocument>()
                 .AppendStage<BsonDocument, BsonDocument, BsonDocument>(
@@ -529,11 +502,17 @@ namespace MongoDB.Driver.Encryption
                         }}
                     }}"));
 
-        private UpdateDefinition<BsonDocument> CreateRewrapManyDataKeysBulkUpdateDefinition(BsonDocument document) =>
-            new UpdateDefinitionBuilder<BsonDocument>()
-            .CurrentDate("updateDate") // update date
-            .Set("keyMaterial", document["keyMaterial"]) // update new fields
-            .Set("masterKey", document["masterKey"]);
+        private IEnumerable<UpdateOneModel<BsonDocument>> CreateRewrapManyDataKeysBulkUpdateRequests(BsonValue rewrappedDocument) =>
+            rewrappedDocument
+                .AsBsonArray
+                .Cast<BsonDocument>()
+                .Select(document =>
+                    new UpdateOneModel<BsonDocument>(
+                        filter: CreateFilterById(document["_id"].AsBsonBinaryData),
+                        update: new UpdateDefinitionBuilder<BsonDocument>()
+                            .CurrentDate("updateDate") // update date
+                            .Set("keyMaterial", document["keyMaterial"]) // update new fields
+                            .Set("masterKey", document["masterKey"])));
 
         private BsonBinaryData EnsureBinaryKeyValid(BsonBinaryData binary)
         {

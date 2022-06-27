@@ -44,20 +44,10 @@ namespace MongoDB.Driver.Tests.Encryption
 
             using (var subject = CreateSubject())
             {
-                Record.Exception(() => subject.AddAlternateKeyName(id: null, alternateKeyName: "test"))
-                    .Should().BeOfType<ArgumentNullException>().Which.ParamName.Should().Be("id");
-                Record.Exception(() => subject.AddAlternateKeyNameAsync(id: null, alternateKeyName: "test").GetAwaiter().GetResult())
-                    .Should().BeOfType<ArgumentNullException>().Which.ParamName.Should().Be("id");
-
-                Record.Exception(() => subject.AddAlternateKeyName(id: new BsonBinaryData(guid.ToByteArray(), BsonBinarySubType.UuidStandard), alternateKeyName: null))
+                Record.Exception(() => subject.AddAlternateKeyName(id: guid, alternateKeyName: null))
                     .Should().BeOfType<ArgumentNullException>().Which.ParamName.Should().Be("alternateKeyName");
-                Record.Exception(() => subject.AddAlternateKeyNameAsync(id: new BsonBinaryData(guid.ToByteArray(), BsonBinarySubType.UuidStandard), alternateKeyName: null).GetAwaiter().GetResult())
+                Record.Exception(() => subject.AddAlternateKeyNameAsync(id: guid, alternateKeyName: null).GetAwaiter().GetResult())
                     .Should().BeOfType<ArgumentNullException>().Which.ParamName.Should().Be("alternateKeyName");
-
-                Record.Exception(() => subject.AddAlternateKeyName(id: new BsonBinaryData(guid.ToByteArray(), BsonBinarySubType.UuidLegacy), alternateKeyName: "test"))
-                    .Should().BeOfType<InvalidOperationException>().Which.Message.Should().Be($"KeyId sub type must be UuidStandard, not: {BsonBinarySubType.UuidLegacy}.");
-                Record.Exception(() => subject.AddAlternateKeyNameAsync(id: new BsonBinaryData(guid.ToByteArray(), BsonBinarySubType.UuidLegacy), alternateKeyName: "test").GetAwaiter().GetResult())
-                    .Should().BeOfType<InvalidOperationException>().Which.Message.Should().Be($"KeyId sub type must be UuidStandard, not: {BsonBinarySubType.UuidLegacy}.");
             }
         }
 
@@ -75,14 +65,6 @@ namespace MongoDB.Driver.Tests.Encryption
 
                 _ = subject.CreateDataKey(kmsProvider: "local", dataKeyOptions: null);
                 _ = subject.CreateDataKeyAsync(kmsProvider: "local", dataKeyOptions: null).GetAwaiter().GetResult();
-
-                Record.Exception(() => subject.CreateKey(kmsProvider: null, new DataKeyOptions()))
-                    .Should().BeOfType<ArgumentNullException>().Which.ParamName.Should().Be("kmsProvider");
-                Record.Exception(() => subject.CreateKeyAsync(kmsProvider: null, new DataKeyOptions()).GetAwaiter().GetResult())
-                    .Should().BeOfType<ArgumentNullException>().Which.ParamName.Should().Be("kmsProvider");
-
-                _ = subject.CreateKey(kmsProvider: "local", dataKeyOptions: null);
-                _ = subject.CreateKeyAsync(kmsProvider: "local", dataKeyOptions: null).GetAwaiter().GetResult();
             }
         }
 
@@ -110,27 +92,6 @@ namespace MongoDB.Driver.Tests.Encryption
                     .Should().BeOfType<ArgumentNullException>().Which.ParamName.Should().Be("encryptedValue");
                 Record.Exception(() => subject.DecryptAsync(value: null).GetAwaiter().GetResult())
                     .Should().BeOfType<ArgumentNullException>().Which.ParamName.Should().Be("encryptedValue");
-            }
-        }
-
-        [SkippableFact]
-        public void DeleteKey_should_correctly_handle_input_arguments()
-        {
-            RequireServer.Check().Supports(Feature.ClientSideEncryption);
-
-            var guid = new Guid();
-
-            using (var subject = CreateSubject())
-            {
-                Record.Exception(() => subject.DeleteKey(id: null))
-                    .Should().BeOfType<ArgumentNullException>().Which.ParamName.Should().Be("id");
-                Record.Exception(() => subject.DeleteKeyAsync(id: null).GetAwaiter().GetResult())
-                    .Should().BeOfType<ArgumentNullException>().Which.ParamName.Should().Be("id");
-
-                Record.Exception(() => subject.DeleteKey(id: new BsonBinaryData(guid.ToByteArray(), BsonBinarySubType.UuidLegacy)))
-                    .Should().BeOfType<InvalidOperationException>().Which.Message.Should().Be($"KeyId sub type must be UuidStandard, not: {BsonBinarySubType.UuidLegacy}.");
-                Record.Exception(() => subject.DeleteKeyAsync(id: new BsonBinaryData(guid.ToByteArray(), BsonBinarySubType.UuidLegacy)).GetAwaiter().GetResult())
-                    .Should().BeOfType<InvalidOperationException>().Which.Message.Should().Be($"KeyId sub type must be UuidStandard, not: {BsonBinarySubType.UuidLegacy}.");
             }
         }
 
@@ -175,27 +136,6 @@ namespace MongoDB.Driver.Tests.Encryption
         }
 
         [SkippableFact]
-        public void GetKey_should_correctly_handle_input_arguments()
-        {
-            RequireServer.Check().Supports(Feature.ClientSideEncryption);
-
-            var guid = new Guid();
-
-            using (var subject = CreateSubject())
-            {
-                Record.Exception(() => subject.GetKey(id: null))
-                    .Should().BeOfType<ArgumentNullException>().Which.ParamName.Should().Be("id");
-                Record.Exception(() => subject.GetKeyAsync(id: null).GetAwaiter().GetResult())
-                    .Should().BeOfType<ArgumentNullException>().Which.ParamName.Should().Be("id");
-
-                Record.Exception(() => subject.GetKey(id: new BsonBinaryData(guid.ToByteArray(), BsonBinarySubType.UuidLegacy)))
-                    .Should().BeOfType<InvalidOperationException>().Which.Message.Should().Be($"KeyId sub type must be UuidStandard, not: {BsonBinarySubType.UuidLegacy}.");
-                Record.Exception(() => subject.GetKeyAsync(id: new BsonBinaryData(guid.ToByteArray(), BsonBinarySubType.UuidLegacy)).GetAwaiter().GetResult())
-                    .Should().BeOfType<InvalidOperationException>().Which.Message.Should().Be($"KeyId sub type must be UuidStandard, not: {BsonBinarySubType.UuidLegacy}.");
-            }
-        }
-
-        [SkippableFact]
         public void GetKeyByAlternateKeyName_should_correctly_handle_input_arguments()
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
@@ -218,20 +158,10 @@ namespace MongoDB.Driver.Tests.Encryption
 
             using (var subject = CreateSubject())
             {
-                Record.Exception(() => subject.RemoveAlternateKeyName(id: null, alternateKeyName: "test"))
-                    .Should().BeOfType<ArgumentNullException>().Which.ParamName.Should().Be("id");
-                Record.Exception(() => subject.RemoveAlternateKeyNameAsync(id: null, alternateKeyName: "test").GetAwaiter().GetResult())
-                    .Should().BeOfType<ArgumentNullException>().Which.ParamName.Should().Be("id");
-
-                Record.Exception(() => subject.RemoveAlternateKeyName(id: new BsonBinaryData(guid.ToByteArray(), BsonBinarySubType.UuidStandard), alternateKeyName: null))
+                Record.Exception(() => subject.RemoveAlternateKeyName(id: guid, alternateKeyName: null))
                     .Should().BeOfType<ArgumentNullException>().Which.ParamName.Should().Be("alternateKeyName");
-                Record.Exception(() => subject.RemoveAlternateKeyNameAsync(id: new BsonBinaryData(guid.ToByteArray(), BsonBinarySubType.UuidStandard), alternateKeyName: null).GetAwaiter().GetResult())
+                Record.Exception(() => subject.RemoveAlternateKeyNameAsync(id: guid, alternateKeyName: null).GetAwaiter().GetResult())
                     .Should().BeOfType<ArgumentNullException>().Which.ParamName.Should().Be("alternateKeyName");
-
-                Record.Exception(() => subject.RemoveAlternateKeyName(id: new BsonBinaryData(guid.ToByteArray(), BsonBinarySubType.UuidLegacy), alternateKeyName: "test"))
-                    .Should().BeOfType<InvalidOperationException>().Which.Message.Should().Be($"KeyId sub type must be UuidStandard, not: {BsonBinarySubType.UuidLegacy}.");
-                Record.Exception(() => subject.RemoveAlternateKeyNameAsync(id: new BsonBinaryData(guid.ToByteArray(), BsonBinarySubType.UuidLegacy), alternateKeyName: "test").GetAwaiter().GetResult())
-                    .Should().BeOfType<InvalidOperationException>().Which.Message.Should().Be($"KeyId sub type must be UuidStandard, not: {BsonBinarySubType.UuidLegacy}.");
             }
         }
 

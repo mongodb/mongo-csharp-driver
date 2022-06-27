@@ -922,7 +922,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         [ParameterAttributeData]
         public void DecryptionEvents(
             [Range(1, 4)] int testCase,
-            [Values(false ,true)] bool async)
+            [Values(false, true)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
 
@@ -1600,16 +1600,16 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                             // 1 create a new local data key and assert the operation does not fail.
                             var newLocalDataKey = CreateDataKey(clientEncryption, "local", new DataKeyOptions(), async);
                             // 2 add a keyAltName "abc" to the key created in Step 1 and assert the operation does not fail.
-                            AddAlternateKeyName(clientEncryption, new BsonBinaryData(GuidConverter.ToBytes(newLocalDataKey, GuidRepresentation.Standard), BsonBinarySubType.UuidStandard), alternateKeyName: "abc", async);
+                            AddAlternateKeyName(clientEncryption, newLocalDataKey, alternateKeyName: "abc", async);
                             // 3 Repeat Step 2 and assert the returned key document contains the keyAltName "abc" added in Step 2.
-                            var result = AddAlternateKeyName(clientEncryption, new BsonBinaryData(GuidConverter.ToBytes(newLocalDataKey, GuidRepresentation.Standard), BsonBinarySubType.UuidStandard), alternateKeyName: "abc", async);
+                            var result = AddAlternateKeyName(clientEncryption, newLocalDataKey, alternateKeyName: "abc", async);
                             result["keyAltNames"].AsBsonArray.Contains("abc");
                             // 4 Add a keyAltName "def" to the key created in Step 1 and assert the operation fails due to a duplicate key
-                            var exception = Record.Exception(() => AddAlternateKeyName(clientEncryption, new BsonBinaryData(GuidConverter.ToBytes(newLocalDataKey, GuidRepresentation.Standard), BsonBinarySubType.UuidStandard), alternateKeyName: "def", async));
+                            var exception = Record.Exception(() => AddAlternateKeyName(clientEncryption, newLocalDataKey, alternateKeyName: "def", async));
                             var e = AssertInnerEncryptionException<MongoCommandException>(exception);
                             e.Code.Should().Be((int)ServerErrorCode.DuplicateKey);
                             // 5 add a keyAltName "def" to the existing key, assert the operation does not fail, and assert the returned key document contains the keyAltName "def"
-                            result = AddAlternateKeyName(clientEncryption, new BsonBinaryData(GuidConverter.ToBytes(existingKey, GuidRepresentation.Standard), BsonBinarySubType.UuidStandard), "def", async);
+                            result = AddAlternateKeyName(clientEncryption, existingKey, "def", async);
                             result["keyAltNames"].AsBsonArray.Contains("def");
                         }
                         break;
@@ -1647,7 +1647,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         // private methods
         private BsonDocument AddAlternateKeyName(
             ClientEncryption clientEncryption,
-            BsonBinaryData id,
+            Guid id,
             string alternateKeyName,
             bool async)
         {

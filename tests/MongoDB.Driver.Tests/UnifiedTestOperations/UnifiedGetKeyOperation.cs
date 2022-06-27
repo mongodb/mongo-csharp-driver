@@ -25,9 +25,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
     public class UnifiedGetKeyOperation : IUnifiedEntityTestOperation
     {
         private readonly ClientEncryption _clientEncryption;
-        private readonly BsonBinaryData _id;
+        private readonly Guid _id;
 
-        public UnifiedGetKeyOperation(ClientEncryption clientEncryption, BsonBinaryData id)
+        public UnifiedGetKeyOperation(ClientEncryption clientEncryption, Guid id)
         {
             _clientEncryption = Ensure.IsNotNull(clientEncryption, nameof(clientEncryption));
             _id = id;
@@ -75,14 +75,14 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             var clientEncryption = _entityMap.ClientEncryptions[targetSessionId];
 
-            BsonBinaryData id = null;
+            Guid? id = null;
 
             foreach (var argument in arguments)
             {
                 switch (argument.Name)
                 {
                     case "id":
-                        id = argument.Value.AsBsonBinaryData;
+                        id = argument.Value.AsGuid;
                         break;
 
                     default:
@@ -90,7 +90,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 }
             }
 
-            return new UnifiedGetKeyOperation(clientEncryption, id);
+            return new UnifiedGetKeyOperation(clientEncryption, id.Value);
         }
     }
 }
