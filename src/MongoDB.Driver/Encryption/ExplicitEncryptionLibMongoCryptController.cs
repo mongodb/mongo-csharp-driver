@@ -514,16 +514,6 @@ namespace MongoDB.Driver.Encryption
                             .Set("keyMaterial", document["keyMaterial"]) // update new fields
                             .Set("masterKey", document["masterKey"])));
 
-        private BsonBinaryData EnsureBinaryKeyValid(BsonBinaryData binary)
-        {
-            if (binary.SubType != BsonBinarySubType.UuidStandard)
-            {
-                throw new InvalidOperationException($"KeyId sub type must be UuidStandard, not: {binary.SubType}.");
-            }
-
-            return binary;
-        }
-
         private KmsKeyId GetKmsKeyId(string kmsProvider, DataKeyOptions dataKeyOptions)
         {
             IEnumerable<byte[]> wrappedAlternateKeyNamesBytes = null;
