@@ -230,6 +230,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Stages
             return new AstUnionWithStage(collection, pipeline);
         }
 
+        public static AstStage Universal(BsonDocument stage)
+        {
+            return new AstUniversalStage(stage);
+        }
+
         public static AstStage Unset(IEnumerable<string> fields)
         {
             return new AstUnsetStage(fields);

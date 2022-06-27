@@ -20,6 +20,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver.Linq
 {
@@ -64,6 +65,29 @@ namespace MongoDB.Driver.Linq
                     source.Expression,
                     Expression.Quote(predicate)),
                 cancellationToken);
+        }
+
+        /// <summary>
+        /// Appends an arbitrary stage to the LINQ pipeline.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <typeparam name="TResult">The type of the result values returned by the appended stage.</typeparam>
+        /// <param name="source">A sequence of values.</param>
+        /// <param name="stage">The stage to append.</param>
+        /// <param name="resultSerializer">The result serializer.</param>
+        /// <returns>The queryable with a new stage appended.</returns>
+        public static IMongoQueryable<TResult> AppendStage<TSource, TResult>(
+            this IMongoQueryable<TSource> source,
+            PipelineStageDefinition<TSource, TResult> stage,
+            IBsonSerializer<TResult> resultSerializer = null)
+        {
+            return (IMongoQueryable<TResult>)source.Provider.CreateQuery<TResult>(
+                Expression.Call(
+                    null,
+                    GetMethodInfo(AppendStage, source, stage, resultSerializer),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Constant(stage),
+                    Expression.Constant(resultSerializer)));
         }
 
         /// <summary>

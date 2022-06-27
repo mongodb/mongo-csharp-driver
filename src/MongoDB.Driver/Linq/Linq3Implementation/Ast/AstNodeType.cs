@@ -143,6 +143,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast
         UnaryExpression,
         UnaryWindowExpression,
         UnionWithStage,
+        UniversalStage,
         UnsetStage,
         UnwindStage,
         VarBinding,

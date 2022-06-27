@@ -749,6 +749,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors
             return node.Update(VisitAndConvert(node.Pipeline));
         }
 
+        public virtual AstNode VisitUniversalStage(AstUniversalStage node)
+        {
+            return node.Update(node.Stage);
+        }
+
         public virtual AstNode VisitUnsetStage(AstUnsetStage node)
         {
             return node;
