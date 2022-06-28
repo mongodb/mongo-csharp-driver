@@ -920,7 +920,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
         [SkippableTheory]
         [ParameterAttributeData]
-        public void ExplicitEncryption(
+        public void ExplicitEncryptionTest(
             [Range(1, 5)] int testCase,
             [Values(false, true)] bool async)
         {
@@ -955,13 +955,13 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 {
                     case 1: // Case 1: can insert encrypted indexed and find
                         {
-                            var encryptionOptions = new EncryptOptions(algorithm: EncryptionAlgorithm.Indexed.ToString(), keyId: key1Id);
+                            var encryptionOptions = new EncryptOptions(algorithm: EncryptionAlgorithm.Indexed.ToString(), keyId: key1Id, contentionFactor: 0);
                             var encryptedValue = ExplicitEncrypt(clientEncryption, encryptionOptions, value, async);
 
                             var insertPayload = new BsonDocument("encryptedIndexed", encryptedValue);
                             Insert(explicitCollectionFromEncryptedClient, async, insertPayload);
 
-                            encryptionOptions = new EncryptOptions(algorithm: EncryptionAlgorithm.Indexed.ToString(), keyId: key1Id, queryType: "equality");
+                            encryptionOptions = new EncryptOptions(algorithm: EncryptionAlgorithm.Indexed.ToString(), keyId: key1Id, queryType: "equality", contentionFactor: 0);
                             encryptedValue = ExplicitEncrypt(clientEncryption, encryptionOptions, value, async);
 
                             var findPayload = new BsonDocument("encryptedIndexed", encryptedValue);
@@ -983,7 +983,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                             }
 
                             // 1
-                            encryptionOptions = new EncryptOptions(algorithm: EncryptionAlgorithm.Indexed.ToString(), keyId: key1Id, queryType: "equality");
+                            encryptionOptions = new EncryptOptions(algorithm: EncryptionAlgorithm.Indexed.ToString(), keyId: key1Id, queryType: "equality", contentionFactor: 0);
                             encryptedValue = ExplicitEncrypt(clientEncryption, encryptionOptions, value, async);
 
                             var findPayload = new BsonDocument("encryptedIndexed", encryptedValue);
@@ -1024,7 +1024,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                         break;
                     case 4: // Case 4: can insert encrypted unindexed
                         {
-                            var encryptionOptions = new EncryptOptions(algorithm: EncryptionAlgorithm.Indexed.ToString(), keyId: key1Id);
+                            var encryptionOptions = new EncryptOptions(algorithm: EncryptionAlgorithm.Indexed.ToString(), keyId: key1Id, contentionFactor: 0);
                             var payload = ExplicitEncrypt(clientEncryption, encryptionOptions, value, async);
 
                             var decrypted = ExplicitDecrypt(clientEncryption, payload, async);
