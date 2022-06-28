@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Encryption
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="DataKeyOptions"/> class.
+        /// Initializes a new instance of the <see cref="RewrapManyDataKeyOptions"/> class.
         /// </summary>
         /// <param name="masterKey">The master key.</param>
         /// <param name="provider">The provider name.</param>

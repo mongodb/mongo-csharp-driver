@@ -14,7 +14,7 @@
 */
 
 using System;
-using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
@@ -36,7 +36,7 @@ namespace MongoDB.Driver.Tests.Encryption
         #endregion
 
         [SkippableFact]
-        public void AddAlternateKeyName_should_correctly_handle_input_arguments()
+        public async Task AddAlternateKeyName_should_correctly_handle_input_arguments()
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
 
@@ -44,27 +44,23 @@ namespace MongoDB.Driver.Tests.Encryption
 
             using (var subject = CreateSubject())
             {
-                Record.Exception(() => subject.AddAlternateKeyName(id: guid, alternateKeyName: null))
-                    .Should().BeOfType<ArgumentNullException>().Which.ParamName.Should().Be("alternateKeyName");
-                Record.Exception(() => subject.AddAlternateKeyNameAsync(id: guid, alternateKeyName: null).GetAwaiter().GetResult())
-                    .Should().BeOfType<ArgumentNullException>().Which.ParamName.Should().Be("alternateKeyName");
+                ShouldBeArgumentException(Record.Exception(() => subject.AddAlternateKeyName(id: guid, alternateKeyName: null)), expectedParamName: "alternateKeyName");
+                ShouldBeArgumentException(await Record.ExceptionAsync(() => subject.AddAlternateKeyNameAsync(id: guid, alternateKeyName: null)), expectedParamName: "alternateKeyName");
             }
         }
 
         [SkippableFact]
-        public void CreateDataKey_should_correctly_handle_input_arguments()
+        public async Task CreateDataKey_should_correctly_handle_input_arguments()
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
 
             using (var subject = CreateSubject())
             {
-                Record.Exception(() => subject.CreateDataKey(kmsProvider: null, new DataKeyOptions()))
-                    .Should().BeOfType<ArgumentNullException>().Which.ParamName.Should().Be("kmsProvider");
-                Record.Exception(() => subject.CreateDataKeyAsync(kmsProvider: null, new DataKeyOptions()).GetAwaiter().GetResult())
-                    .Should().BeOfType<ArgumentNullException>().Which.ParamName.Should().Be("kmsProvider");
+                ShouldBeArgumentException(Record.Exception(() => subject.CreateDataKey(kmsProvider: null, new DataKeyOptions())), expectedParamName: "kmsProvider");
+                ShouldBeArgumentException(await Record.ExceptionAsync(() => subject.CreateDataKeyAsync(kmsProvider: null, new DataKeyOptions())), expectedParamName: "kmsProvider");
 
                 _ = subject.CreateDataKey(kmsProvider: "local", dataKeyOptions: null);
-                _ = subject.CreateDataKeyAsync(kmsProvider: "local", dataKeyOptions: null).GetAwaiter().GetResult();
+                _ = await subject.CreateDataKeyAsync(kmsProvider: "local", dataKeyOptions: null);
             }
         }
 
@@ -82,41 +78,35 @@ namespace MongoDB.Driver.Tests.Encryption
         }
 
         [SkippableFact]
-        public void Decrypt_should_correctly_handle_input_arguments()
+        public async Task Decrypt_should_correctly_handle_input_arguments()
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
 
             using (var subject = CreateSubject())
             {
-                Record.Exception(() => subject.Decrypt(value: null))
-                    .Should().BeOfType<ArgumentNullException>().Which.ParamName.Should().Be("encryptedValue");
-                Record.Exception(() => subject.DecryptAsync(value: null).GetAwaiter().GetResult())
-                    .Should().BeOfType<ArgumentNullException>().Which.ParamName.Should().Be("encryptedValue");
+                ShouldBeArgumentException(Record.Exception(() => subject.Decrypt(value: null)), expectedParamName: "encryptedValue");
+                ShouldBeArgumentException(await Record.ExceptionAsync(() => subject.DecryptAsync(value: null)), expectedParamName: "encryptedValue");
             }
         }
 
         [SkippableFact]
-        public void Encrypt_should_correctly_handle_input_arguments()
+        public async Task Encrypt_should_correctly_handle_input_arguments()
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
 
             using (var subject = CreateSubject())
             {
-                Record.Exception(() => subject.Encrypt(value: "test", encryptOptions: null))
-                    .Should().BeOfType<ArgumentNullException>().Which.ParamName.Should().Be("encryptOptions");
-                Record.Exception(() => subject.EncryptAsync(value: "test", encryptOptions: null).GetAwaiter().GetResult())
-                    .Should().BeOfType<ArgumentNullException>().Which.ParamName.Should().Be("encryptOptions");
+                ShouldBeArgumentException(Record.Exception(() => subject.Encrypt(value: "test", encryptOptions: null)), expectedParamName: "encryptOptions");
+                ShouldBeArgumentException(await Record.ExceptionAsync(() => subject.EncryptAsync(value: "test", encryptOptions: null)), expectedParamName: "encryptOptions");
 
-                Record.Exception(() => subject.Encrypt(value: null, new EncryptOptions(EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic, alternateKeyName: "test")))
-                    .Should().BeOfType<ArgumentNullException>().Which.ParamName.Should().Be("value");
-                Record.Exception(() => subject.EncryptAsync(value: null, new EncryptOptions(EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic, alternateKeyName: "test")).GetAwaiter().GetResult())
-                    .Should().BeOfType<ArgumentNullException>().Which.ParamName.Should().Be("value");
+                ShouldBeArgumentException(Record.Exception(() => subject.Encrypt(value: null, new EncryptOptions(EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic, alternateKeyName: "test"))), expectedParamName: "value");
+                ShouldBeArgumentException(await Record.ExceptionAsync(() => subject.EncryptAsync(value: null, new EncryptOptions(EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic, alternateKeyName: "test"))), expectedParamName: "value");
             }
         }
 
         [SkippableTheory]
         [ParameterAttributeData]
-        public void Encryption_should_use_correct_binarySubType([Values(false, true)] bool async)
+        public async Task Encryption_should_use_correct_binarySubType([Values(false, true)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
 
@@ -126,31 +116,29 @@ namespace MongoDB.Driver.Tests.Encryption
 
                 var value = "hello";
 
-                var encrypted = ExplicitEncrypt(subject, new EncryptOptions(EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic, keyId: keyId), value, async);
+                var encrypted = await ExplicitEncrypt(subject, new EncryptOptions(EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic, keyId: keyId), value, async);
                 encrypted.SubType.Should().Be(BsonBinarySubType.Encrypted);
 
-                var decrypted = ExplicitDecrypt(subject, encrypted, async);
+                var decrypted = await ExplicitDecrypt(subject, encrypted, async);
 
                 decrypted.Should().Be(BsonValue.Create(value));
             }
         }
 
         [SkippableFact]
-        public void GetKeyByAlternateKeyName_should_correctly_handle_input_arguments()
+        public async Task GetKeyByAlternateKeyName_should_correctly_handle_input_arguments()
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
 
             using (var subject = CreateSubject())
             {
-                Record.Exception(() => subject.GetKeyByAlternateKeyName(alternateKeyName: null))
-                    .Should().BeOfType<ArgumentNullException>().Which.ParamName.Should().Be("alternateKeyName");
-                Record.Exception(() => subject.GetKeyByAlternateKeyNameAsync(alternateKeyName: null).GetAwaiter().GetResult())
-                    .Should().BeOfType<ArgumentNullException>().Which.ParamName.Should().Be("alternateKeyName");
+                ShouldBeArgumentException(Record.Exception(() => subject.GetKeyByAlternateKeyName(alternateKeyName: null)), expectedParamName: "alternateKeyName");
+                ShouldBeArgumentException(await Record.ExceptionAsync(() => subject.GetKeyByAlternateKeyNameAsync(alternateKeyName: null)), expectedParamName: "alternateKeyName");
             }
         }
 
         [SkippableFact]
-        public void RemoveAlternateKeyName_should_correctly_handle_input_arguments()
+        public async Task RemoveAlternateKeyName_should_correctly_handle_input_arguments()
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
 
@@ -158,27 +146,23 @@ namespace MongoDB.Driver.Tests.Encryption
 
             using (var subject = CreateSubject())
             {
-                Record.Exception(() => subject.RemoveAlternateKeyName(id: guid, alternateKeyName: null))
-                    .Should().BeOfType<ArgumentNullException>().Which.ParamName.Should().Be("alternateKeyName");
-                Record.Exception(() => subject.RemoveAlternateKeyNameAsync(id: guid, alternateKeyName: null).GetAwaiter().GetResult())
-                    .Should().BeOfType<ArgumentNullException>().Which.ParamName.Should().Be("alternateKeyName");
+                ShouldBeArgumentException(Record.Exception(() => subject.RemoveAlternateKeyName(id: guid, alternateKeyName: null)), expectedParamName: "alternateKeyName");
+                ShouldBeArgumentException(await Record.ExceptionAsync(() => subject.RemoveAlternateKeyNameAsync(id: guid, alternateKeyName: null)), expectedParamName: "alternateKeyName");
             }
         }
 
         [SkippableFact]
-        public void RewrapManyDataKey_should_correctly_handle_input_arguments()
+        public async Task RewrapManyDataKey_should_correctly_handle_input_arguments()
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
 
             using (var subject = CreateSubject())
             {
-                Record.Exception(() => subject.RewrapManyDataKey(filter: null, options: new RewrapManyDataKeyOptions("local")))
-                    .Should().BeOfType<ArgumentNullException>().Which.ParamName.Should().Be("filter");
-                Record.Exception(() => subject.RewrapManyDataKeyAsync(filter: null, options: new RewrapManyDataKeyOptions("local")).GetAwaiter().GetResult())
-                    .Should().BeOfType<ArgumentNullException>().Which.ParamName.Should().Be("filter");
+                ShouldBeArgumentException(Record.Exception(() => subject.RewrapManyDataKey(filter: null, options: new RewrapManyDataKeyOptions("local"))), expectedParamName: "filter");
+                ShouldBeArgumentException(await Record.ExceptionAsync(() => subject.RewrapManyDataKeyAsync(filter: null, options: new RewrapManyDataKeyOptions("local"))), expectedParamName: "filter");
 
                 _ = subject.RewrapManyDataKey(filter: FilterDefinition<BsonDocument>.Empty, options: null);
-                _ = subject.RewrapManyDataKeyAsync(filter: FilterDefinition<BsonDocument>.Empty, options: null).GetAwaiter().GetResult();
+                _ = await subject.RewrapManyDataKeyAsync(filter: FilterDefinition<BsonDocument>.Empty, options: null);
             }
         }
 
@@ -193,58 +177,13 @@ namespace MongoDB.Driver.Tests.Encryption
             return new ClientEncryption(clientEncryptionOptions);
         }
 
-        private BsonValue ExplicitDecrypt(
-            ClientEncryption clientEncryption,
-            BsonBinaryData value,
-            bool async)
-        {
-            BsonValue decryptedValue;
-            if (async)
-            {
-                decryptedValue = clientEncryption
-                    .DecryptAsync(
-                        value,
-                        CancellationToken.None)
-                    .GetAwaiter()
-                    .GetResult();
-            }
-            else
-            {
-                decryptedValue = clientEncryption.Decrypt(
-                    value,
-                    CancellationToken.None);
-            }
+        private async ValueTask<BsonValue> ExplicitDecrypt(ClientEncryption clientEncryption, BsonBinaryData value, bool async) =>
+            async ? await clientEncryption.DecryptAsync(value) : clientEncryption.Decrypt(value);
 
-            return decryptedValue;
-        }
+        private async ValueTask<BsonBinaryData> ExplicitEncrypt(ClientEncryption clientEncryption, EncryptOptions encryptOptions, BsonValue value, bool async) =>
+            async? await clientEncryption.EncryptAsync(value, encryptOptions) : clientEncryption.Encrypt(value, encryptOptions);
 
-        private BsonBinaryData ExplicitEncrypt(
-            ClientEncryption clientEncryption,
-            EncryptOptions encryptOptions,
-            BsonValue value,
-            bool async)
-        {
-            BsonBinaryData encryptedValue;
-            if (async)
-            {
-                encryptedValue = clientEncryption
-                    .EncryptAsync(
-                        value,
-                        encryptOptions,
-                        CancellationToken.None)
-                    .GetAwaiter()
-                    .GetResult();
-            }
-            else
-            {
-                encryptedValue = clientEncryption.Encrypt(
-                    value,
-                    encryptOptions,
-                    CancellationToken.None);
-            }
-
-            return encryptedValue;
-        }
+        private void ShouldBeArgumentException(Exception ex, string expectedParamName) => ex.Should().BeOfType<ArgumentNullException>().Which.ParamName.Should().Be(expectedParamName);
     }
 
     internal static class ClientEncryptionReflector

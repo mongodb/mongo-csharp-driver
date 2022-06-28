@@ -85,13 +85,11 @@ namespace MongoDB.Driver.Encryption
         /// <param name="dataKeyOptions">The data key options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A data key.</returns>
-        public Guid CreateDataKey(string kmsProvider, DataKeyOptions dataKeyOptions, CancellationToken cancellationToken = default)
-        {
-            return _libMongoCryptController.CreateDataKey(
+        public Guid CreateDataKey(string kmsProvider, DataKeyOptions dataKeyOptions, CancellationToken cancellationToken = default) =>
+            _libMongoCryptController.CreateDataKey(
                 kmsProvider,
                 dataKeyOptions,
                 cancellationToken);
-        }
 
         /// <summary>
         /// An alias function equivalent to createKey.
@@ -100,13 +98,11 @@ namespace MongoDB.Driver.Encryption
         /// <param name="dataKeyOptions">The data key options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A data key.</returns>
-        public Task<Guid> CreateDataKeyAsync(string kmsProvider, DataKeyOptions dataKeyOptions, CancellationToken cancellationToken = default)
-        {
-            return _libMongoCryptController.CreateDataKeyAsync(
+        public Task<Guid> CreateDataKeyAsync(string kmsProvider, DataKeyOptions dataKeyOptions, CancellationToken cancellationToken = default) =>
+            _libMongoCryptController.CreateDataKeyAsync(
                 kmsProvider,
                 dataKeyOptions,
                 cancellationToken);
-        }
 
         /// <summary>
         /// Decrypts the specified value.
@@ -114,10 +110,7 @@ namespace MongoDB.Driver.Encryption
         /// <param name="value">The value.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The decrypted value.</returns>
-        public BsonValue Decrypt(BsonBinaryData value, CancellationToken cancellationToken = default)
-        {
-            return _libMongoCryptController.DecryptField(value, cancellationToken);
-        }
+        public BsonValue Decrypt(BsonBinaryData value, CancellationToken cancellationToken = default) => _libMongoCryptController.DecryptField(value, cancellationToken);
 
         /// <summary>
         /// Decrypts the specified value.
@@ -125,10 +118,7 @@ namespace MongoDB.Driver.Encryption
         /// <param name="value">The value.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The decrypted value.</returns>
-        public Task<BsonValue> DecryptAsync(BsonBinaryData value, CancellationToken cancellationToken = default)
-        {
-            return _libMongoCryptController.DecryptFieldAsync(value, cancellationToken);
-        }
+        public Task<BsonValue> DecryptAsync(BsonBinaryData value, CancellationToken cancellationToken = default) => _libMongoCryptController.DecryptFieldAsync(value, cancellationToken);
 
         /// <summary>
         /// Removes the key document with the given UUID (BSON binary subtype 0x04) from the key vault collection.
@@ -165,10 +155,7 @@ namespace MongoDB.Driver.Encryption
         /// <param name="encryptOptions">The encrypt options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The encrypted value.</returns>
-        public BsonBinaryData Encrypt(BsonValue value, EncryptOptions encryptOptions, CancellationToken cancellationToken = default)
-        {
-            return _libMongoCryptController.EncryptField(value, encryptOptions, cancellationToken);
-        }
+        public BsonBinaryData Encrypt(BsonValue value, EncryptOptions encryptOptions, CancellationToken cancellationToken = default) => _libMongoCryptController.EncryptField(value, encryptOptions, cancellationToken);
 
         /// <summary>
         /// Encrypts the specified value.
@@ -177,10 +164,7 @@ namespace MongoDB.Driver.Encryption
         /// <param name="encryptOptions">The encrypt options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The encrypted value.</returns>
-        public Task<BsonBinaryData> EncryptAsync(BsonValue value, EncryptOptions encryptOptions, CancellationToken cancellationToken = default)
-        {
-            return _libMongoCryptController.EncryptFieldAsync(value, encryptOptions, cancellationToken);
-        }
+        public Task<BsonBinaryData> EncryptAsync(BsonValue value, EncryptOptions encryptOptions, CancellationToken cancellationToken = default) => _libMongoCryptController.EncryptFieldAsync(value, encryptOptions, cancellationToken);
 
         /// <summary>
         /// Finds a single key document with the given UUID (BSON binary subtype 0x04).

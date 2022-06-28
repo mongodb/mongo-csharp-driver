@@ -168,7 +168,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             if (!_disposed)
             {
-                var toDisposeCollection = CombineIfDisposable(_changeStreams?.Values, _sessions?.Values, _clients?.Values, _clientEncryptions?.Values);
+                var toDisposeCollection = SelectDisposables(_changeStreams?.Values, _sessions?.Values, _clients?.Values, _clientEncryptions?.Values);
                 foreach (var toDispose in toDisposeCollection)
                 {
                     toDispose.Dispose();
@@ -177,24 +177,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 _disposed = true;
             }
 
-            IEnumerable<IDisposable> CombineIfDisposable(params IEnumerable[] items)
-            {
-                var toDisposeCollection = new List<IDisposable>();
-                foreach (var item in items)
-                {
-                    if (item is IEnumerable innerItems)
-                    {
-                        foreach (var innerItem in innerItems)
-                        {
-                            if (innerItem is IDisposable toDispose)
-                            {
-                                toDisposeCollection.Add(toDispose);
-                            }
-                        }
-                    }
-                }
-                return toDisposeCollection;
-            }
+            IDisposable[] SelectDisposables(params IEnumerable[] items) => items.SelectMany(i => i.OfType<IDisposable>()).ToArray();
         }
 
         public IGridFSBucket GetBucket(string bucketId)

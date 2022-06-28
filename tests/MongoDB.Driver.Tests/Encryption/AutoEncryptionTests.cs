@@ -1,4 +1,4 @@
-﻿/* Copyright 2019-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
@@ -69,15 +70,14 @@ namespace MongoDB.Driver.Tests.Encryption
 
         [SkippableTheory]
         [ParameterAttributeData]
-        public void Mongocryptd_should_be_initialized_when_auto_encryption([Values(false, true)] bool withAutoEncryption, [Values(false, true)] bool async)
+        public async Task Mongocryptd_should_be_initialized_when_auto_encryption([Values(false, true)] bool withAutoEncryption, [Values(false, true)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
 
             using (var disposableClient = GetClient(
                 withAutoEncryption,
-                new Dictionary<string, object> { { "cryptSharedLibPath", "not_existed_path_to_use_mongocryptd" } }))
+                new Dictionary<string, object> { { "cryptSharedLibPath", "non_existing_path_to_use_mongocryptd" } }))
             {
-                var kmsProviders = GetKmsProviders();
                 var client = (MongoClient)disposableClient.Wrapped;
                 if (withAutoEncryption)
                 {
@@ -91,7 +91,7 @@ namespace MongoDB.Driver.Tests.Encryption
 
                     if (async)
                     {
-                        coll.InsertOneAsync(new BsonDocument()).GetAwaiter().GetResult();
+                        await coll.InsertOneAsync(new BsonDocument());
                     }
                     else
                     {
@@ -131,10 +131,7 @@ namespace MongoDB.Driver.Tests.Encryption
 
             if (withAutoEncryption)
             {
-                if (extraOptions == null)
-                {
-                    extraOptions = new Dictionary<string, object>();
-                }
+                extraOptions = extraOptions ?? new Dictionary<string, object>();
 
                 EncryptionTestHelper.ConfigureDefaultExtraOptions(extraOptions);
 

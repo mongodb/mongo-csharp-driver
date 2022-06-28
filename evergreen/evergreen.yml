@@ -13,7 +13,7 @@ stepback: true
 command_type: system
 
 # Protect ourself against rogue test case, or curl gone wild, that runs forever
-# 60 minutes: 20 minutes is a normal test run + up to 10 minutes for test setup + 15 minutes for longer macOS tests + 15 minutes for longer macOS 1015 tests
+# 60 minutes: 20 minutes is a normal test run + up to 10 minutes for test setup + 15 minutes for longer macOS tests + 15 minutes for longer macOS 1100 tests
 exec_timeout_secs: 3600
 
 # What to do when evergreen hits the timeout (`post:` tasks are run automatically)
@@ -1430,11 +1430,11 @@ axes:
         variables:
           OS: "ubuntu-1804"
         run_on: ubuntu1804-test
-      - id: "macos-1015"
+      - id: "macos-1100"
         display_name: "macOS 10.15"
         variables:
-          OS: "macos-1015"
-        run_on: macos-1015
+          OS: "macos-1100"
+        run_on: macos-1100
 
   - id: topology
     display_name: Topology
@@ -1506,10 +1506,10 @@ buildvariants:
     - ubuntu1804-test
   tasks:
     - name: compile
-- name: macos1015-compile
+- name: macos1100-compile
   display_name: "macOS 10.15 compile"
   run_on:
-    - macos-1015
+    - macos-1100
   tasks:
     - name: compile
 
@@ -1558,7 +1558,7 @@ buildvariants:
      - name: test-netstandard21
 
 - matrix_name: "tests-snappy-compression-macOS"
-  matrix_spec: { compressor : "snappy", auth: "noauth", ssl: "nossl", version: ["5.0", "6.0", "rapid", "latest"], topology: "standalone", os: "macos-1015" }
+  matrix_spec: { compressor : "snappy", auth: "noauth", ssl: "nossl", version: ["5.0", "6.0", "rapid", "latest"], topology: "standalone", os: "macos-1100" }
   display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
   tags: ["tests-variant"]
   tasks:
@@ -1582,7 +1582,7 @@ buildvariants:
      - name: test-netstandard21
 
 - matrix_name: "tests-zstandard-compression-macOS"
-  matrix_spec: { compressor : "zstandard", auth: "noauth", ssl: "nossl", version: ["5.0", "6.0", "rapid", "latest"], topology: "standalone", os: "macos-1015" }
+  matrix_spec: { compressor : "zstandard", auth: "noauth", ssl: "nossl", version: ["5.0", "6.0", "rapid", "latest"], topology: "standalone", os: "macos-1100" }
   display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
   tags: ["tests-variant"]
   tasks:
@@ -1606,14 +1606,14 @@ buildvariants:
      - name: test-netstandard21
 
 - matrix_name: "secure-tests-macOS"
-  matrix_spec: { version: ["5.0", "6.0", "rapid", "latest"], topology: "replicaset", auth: "auth", ssl: "ssl", os: "macos-1015" }
+  matrix_spec: { version: ["5.0", "6.0", "rapid", "latest"], topology: "replicaset", auth: "auth", ssl: "ssl", os: "macos-1100" }
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
   tasks:
      - name: test-netstandard21
 
 - matrix_name: "unsecure-tests-macOS"
-  matrix_spec: { version: ["5.0", "6.0", "rapid", "latest"], topology: "replicaset", auth: "noauth", ssl: "nossl", os: "macos-1015" }
+  matrix_spec: { version: ["5.0", "6.0", "rapid", "latest"], topology: "replicaset", auth: "noauth", ssl: "nossl", os: "macos-1100" }
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
   tasks:
@@ -1734,7 +1734,7 @@ buildvariants:
     - name: test-csfle-with-mocked-kms-tls-netstandard21
 
 - matrix_name: "csfle-with-mocked-kms-tests-macOS"
-  matrix_spec: { os: "macos-1015", ssl: "nossl", version: [ "5.0", "6.0", "rapid", "latest" ], topology: ["standalone"] }
+  matrix_spec: { os: "macos-1100", ssl: "nossl", version: [ "5.0", "6.0", "rapid", "latest" ], topology: ["standalone"] }
   display_name: "CSFLE Mocked KMS ${version} ${os}"
   tasks:
     - name: test-csfle-with-mocked-kms-tls-netstandard21
@@ -1755,7 +1755,7 @@ buildvariants:
     - name: test-csfle-with-mongocryptd-netstandard21
 
 - matrix_name: "csfle-with-mongocryptd-macOS"
-  matrix_spec: { os: "macos-1015", ssl: "nossl", version: [ "4.2", "4.4", "5.0", "6.0", "latest" ], topology: ["replicaset"] }
+  matrix_spec: { os: "macos-1100", ssl: "nossl", version: [ "4.2", "4.4", "5.0", "6.0", "latest" ], topology: ["replicaset"] }
   display_name: "CSFLE with mongocryptd ${version} ${os}"
   tasks:
     - name: test-csfle-with-mongocryptd-netstandard21

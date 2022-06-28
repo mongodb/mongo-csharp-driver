@@ -51,23 +51,17 @@ namespace MongoDB.Driver.Tests.Encryption
         [Theory]
         [InlineData("mongocryptdURI", "test", false)]
         [InlineData("mongocryptdURI", 1, true)]
-
         [InlineData("mongocryptdBypassSpawn", true, false)]
         [InlineData("mongocryptdBypassSpawn", 1, true)]
-
         [InlineData("mongocryptdSpawnPath", "test", false)]
         [InlineData("mongocryptdSpawnPath", 1, true)]
-
         [InlineData("mongocryptdSpawnArgs", "test", false)]
         [InlineData("mongocryptdSpawnArgs", new[] { "test" }, false)]
         [InlineData("mongocryptdSpawnArgs", 1, true)]
-
         [InlineData("cryptSharedLibPath", "path", false)]
         [InlineData("cryptSharedLibPath", 1, true)]
-
         [InlineData("cryptSharedLibRequired", true, false)]
         [InlineData("cryptSharedLibRequired", 1, true)]
-
         [InlineData("test", "test", true)]
         public void constructor_should_handle_extraOptions_correctly(string key, object value, bool shouldFail)
         {

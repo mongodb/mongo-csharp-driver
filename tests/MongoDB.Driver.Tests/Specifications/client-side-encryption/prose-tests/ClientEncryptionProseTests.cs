@@ -1024,10 +1024,10 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
             BsonDocument Aggregate(IMongoCollection<BsonDocument> collection, bool async)
             {
-                var countAggregatePipeline = new EmptyPipelineDefinition<BsonDocument>().Match(FilterDefinition<BsonDocument>.Empty);
+                var matchAggregatePipeline = new EmptyPipelineDefinition<BsonDocument>().Match(FilterDefinition<BsonDocument>.Empty);
                 return async
-                    ? collection.AggregateAsync(countAggregatePipeline).GetAwaiter().GetResult().Single()
-                    : collection.Aggregate(countAggregatePipeline).Single();
+                    ? collection.AggregateAsync(matchAggregatePipeline).GetAwaiter().GetResult().Single()
+                    : collection.Aggregate(matchAggregatePipeline).Single();
             }
         }
 

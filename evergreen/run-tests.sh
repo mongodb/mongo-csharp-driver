@@ -134,8 +134,6 @@ echo "Final MongoDB_URI: $MONGODB_URI"
 if [ "$TOPOLOGY" == "sharded_cluster" ]; then
   echo "Final MongoDB URI with multiple mongoses: $MONGODB_URI_WITH_MULTIPLE_MONGOSES"
 fi
-
-# nuget configuration
 for var in TMP TEMP NUGET_PACKAGES NUGET_HTTP_CACHE_PATH APPDATA; do
   if [[ "$OS" =~ Windows|windows ]]; then
     export $var=z:\\data\\tmp;
@@ -143,8 +141,6 @@ for var in TMP TEMP NUGET_PACKAGES NUGET_HTTP_CACHE_PATH APPDATA; do
     export $var=/data/tmp;
   fi
 done
-# clear possibly presented previous nuget cache
-dotnet nuget locals all --clear
 
 if [[ "$CLIENT_PEM" != "nil" ]]; then
   CLIENT_PEM=${CLIENT_PEM} source evergreen/convert-client-cert-to-pkcs12.sh

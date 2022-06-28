@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Encryption
                     {
                         ReturnDocument = ReturnDocument.Before
                     },
-                    cancellationToken: cancellationToken);
+                    cancellationToken);
 
                 return previousRecord;
             }
@@ -78,7 +78,7 @@ namespace MongoDB.Driver.Encryption
                         {
                             ReturnDocument = ReturnDocument.Before
                         },
-                        cancellationToken: cancellationToken)
+                        cancellationToken)
                     .ConfigureAwait(false);
 
                 return previousRecord;
@@ -501,7 +501,6 @@ namespace MongoDB.Driver.Encryption
                             }}
                         }}
                     }}"));
-
         private IEnumerable<UpdateOneModel<BsonDocument>> CreateRewrapManyDataKeysBulkUpdateRequests(BsonValue rewrappedDocument) =>
             rewrappedDocument
                 .AsBsonArray
@@ -516,16 +515,12 @@ namespace MongoDB.Driver.Encryption
 
         private KmsKeyId GetKmsKeyId(string kmsProvider, DataKeyOptions dataKeyOptions)
         {
-            IEnumerable<byte[]> wrappedAlternateKeyNamesBytes = null;
-            if (dataKeyOptions?.AlternateKeyNames != null)
-            {
-                wrappedAlternateKeyNamesBytes = dataKeyOptions.AlternateKeyNames.Select(GetWrappedAlternateKeyNameBytes);
-            }
+            var wrappedAlternateKeyNamesBytes = dataKeyOptions?.AlternateKeyNames?.Select(GetWrappedAlternateKeyNameBytes);
 
             BsonDocument dataKeyDocument = null;
             if (kmsProvider != null)
             {
-                dataKeyDocument = new BsonDocument("provider", kmsProvider.ToLower());
+                dataKeyDocument = new BsonDocument("provider", kmsProvider.ToLowerInvariant());
                 if (dataKeyOptions?.MasterKey != null)
                 {
                     dataKeyDocument.AddRange(dataKeyOptions.MasterKey.Elements);
@@ -543,18 +538,15 @@ namespace MongoDB.Driver.Encryption
                 keyMaterialBytes: ToBsonIfNotNull(keyMaterial));
         }
 
-        private byte[] GetWrappedAlternateKeyNameBytes(string value)
-        {
-            return
-               !string.IsNullOrWhiteSpace(value)
-                   ? ToBsonIfNotNull(new BsonDocument("keyAltName", value))
-                   : null;
-        }
+        private byte[] GetWrappedAlternateKeyNameBytes(string value) => !string.IsNullOrWhiteSpace(value) ? ToBsonIfNotNull(new BsonDocument("keyAltName", value)) : null;
 
-        private byte[] GetWrappedValueBytes(BsonValue value)
+        private byte[] GetWrappedValueBytes(BsonValue value) => ToBsonIfNotNull(new BsonDocument("v", value));
+
+        private BsonValue RenderFilter(FilterDefinition<BsonDocument> filter)
         {
-            var wrappedValue = new BsonDocument("v", value);
-            return ToBsonIfNotNull(wrappedValue);
+            var registry = BsonSerializer.SerializerRegistry;
+            var serializer = registry.GetSerializer<BsonDocument>();
+            return filter.Render(serializer, registry);
         }
 
         private byte[] ToBsonIfNotNull(BsonValue value)
@@ -588,13 +580,6 @@ namespace MongoDB.Driver.Encryption
         {
             var rawDocument = new RawBsonDocument(encryptedWrappedBytes);
             return rawDocument["v"];
-        }
-
-        private BsonValue RenderFilter(FilterDefinition<BsonDocument> filter)
-        {
-            var registry = BsonSerializer.SerializerRegistry;
-            var serializer = registry.GetSerializer<BsonDocument>();
-            return filter.Render(serializer, registry);
         }
     }
 }
