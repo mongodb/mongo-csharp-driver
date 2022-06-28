@@ -122,6 +122,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 case "Min":
                     return MaxOrMinMethodToAggregationExpressionTranslator.Translate(context, expression);
 
+                case "OrderBy":
+                case "OrderByDescending":
+                case "ThenBy":
+                case "ThenByDescending":
+                    return OrderByMethodToAggregationExpressionTranslator.Translate(context, expression);
+
                 case "StandardDeviationPopulation":
                 case "StandardDeviationSample":
                     return StandardDeviationMethodsToAggregationExpressionTranslator.Translate(context, expression);

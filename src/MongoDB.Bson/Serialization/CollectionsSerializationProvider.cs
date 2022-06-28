@@ -73,10 +73,20 @@ namespace MongoDB.Bson.Serialization
 
             if (typeInfo.IsGenericType && !typeInfo.ContainsGenericParameters)
             {
+                var genericTypeDefinition = type.GetGenericTypeDefinition();
+
                 Type serializerTypeDefinition;
-                if (__serializerTypes.TryGetValue(type.GetGenericTypeDefinition(), out serializerTypeDefinition))
+                if (__serializerTypes.TryGetValue(genericTypeDefinition, out serializerTypeDefinition))
                 {
                     return CreateGenericSerializer(serializerTypeDefinition, typeInfo.GetGenericArguments(), serializerRegistry);
+                }
+
+                if (genericTypeDefinition == typeof(IOrderedEnumerable<>))
+                {
+                    var itemType = type.GetGenericArguments()[0];
+                    var itemSerializer = serializerRegistry.GetSerializer(itemType);
+                    var thenByExceptionMessage = "ThenBy or ThenByDescending are not supported here.";
+                    return IOrderedEnumerableSerializer.Create(itemSerializer, thenByExceptionMessage);
                 }
             }
 

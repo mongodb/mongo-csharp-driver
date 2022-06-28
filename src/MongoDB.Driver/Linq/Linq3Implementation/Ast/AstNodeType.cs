@@ -130,6 +130,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast
         SizeFilterOperation,
         SkipStage,
         SliceExpression,
+        SortArrayExpression,
         SortStage,
         SortByCountStage,
         SwitchExpression,

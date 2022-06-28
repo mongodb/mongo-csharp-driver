@@ -692,6 +692,21 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             return new AstSliceExpression(array, position, n);
         }
 
+        public static AstExpression SortArray(AstExpression input, AstSortFields fields)
+        {
+            return new AstSortArrayExpression(input, fields);
+        }
+
+        public static AstExpression SortArray(AstExpression input, params AstSortField[] fields)
+        {
+            return new AstSortArrayExpression(input, new AstSortFields(fields));
+        }
+
+        public static AstExpression SortArray(AstExpression input, AstSortOrder order)
+        {
+            return new AstSortArrayExpression(input, order);
+        }
+
         public static AstExpression Split(AstExpression arg, AstExpression delimiter)
         {
             return new AstBinaryExpression(AstBinaryOperator.Split, arg, delimiter);
