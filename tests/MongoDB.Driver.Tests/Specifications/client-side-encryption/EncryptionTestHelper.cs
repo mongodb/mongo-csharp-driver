@@ -88,7 +88,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                     });
             }
 
-            __kmsProviders = new ReadOnlyDictionary<string, IReadOnlyDictionary<string, object>>(kmsProviders);
+            __kmsProviders = kmsProviders;
 
             string GetEnvironmentVariableOrDefaultOrThrowIfNothing(string variableName, string defaultValue = null) =>
                 Environment.GetEnvironmentVariable(variableName) ??
@@ -201,7 +201,11 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
         }
 
         public static IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> GetKmsProviders(string filter = null) =>
-            __kmsProviders.Where(kms => filter == null || kms.Key == filter).ToDictionary(k => k.Key, v => v.Value);
+            __kmsProviders
+                .Where(kms => filter == null || kms.Key == filter)
+                .ToDictionary(
+                    k => k.Key,
+                    v => (IReadOnlyDictionary<string, object>)v.Value.ToDictionary(ik => ik.Key, iv => iv.Value)); // ensure that inner dictionary is a new instance
 
         public static IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> ParseKmsProviders(BsonDocument kmsProviders, bool legacy = false)
         {

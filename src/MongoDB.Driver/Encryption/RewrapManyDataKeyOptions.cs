@@ -19,9 +19,9 @@ using MongoDB.Driver.Core.Misc;
 namespace MongoDB.Driver.Encryption
 {
     /// <summary>
-    /// Rewrap many data key options.
+    /// Rewrap many data keys options.
     /// </summary>
-    public class RewrapManyDataKeyOptions
+    public sealed class RewrapManyDataKeyOptions
     {
         // private fields
         private readonly string _provider;

@@ -339,7 +339,7 @@ namespace MongoDB.Driver.Encryption
             }
         }
 
-        public IEnumerable<BsonDocument> GetKeys(CancellationToken cancellationToken)
+        public IReadOnlyList<BsonDocument> GetKeys(CancellationToken cancellationToken)
         {
             try
             {
@@ -352,7 +352,7 @@ namespace MongoDB.Driver.Encryption
             }
         }
 
-        public async Task<IEnumerable<BsonDocument>> GetKeysAsync(CancellationToken cancellationToken)
+        public async Task<IReadOnlyList<BsonDocument>> GetKeysAsync(CancellationToken cancellationToken)
         {
             try
             {
@@ -430,9 +430,8 @@ namespace MongoDB.Driver.Encryption
                     {
                         return null;
                     }
-                    var result = UnwrapValue(wrappedBytes);
 
-                    var bulkResult = _keyVaultCollection.Value.BulkWrite(requests: CreateRewrapManyDataKeysBulkUpdateRequests(result));
+                    var bulkResult = _keyVaultCollection.Value.BulkWrite(requests: CreateRewrapManyDataKeysBulkUpdateRequests(wrappedBytes));
 
                     return new RewrapManyDataKeyResult(bulkResult);
                 }
@@ -458,9 +457,8 @@ namespace MongoDB.Driver.Encryption
                     {
                         return null;
                     }
-                    var result = UnwrapValue(wrappedBytes);
 
-                    var bulkResult = await _keyVaultCollection.Value.BulkWriteAsync(requests: CreateRewrapManyDataKeysBulkUpdateRequests(result)).ConfigureAwait(false);
+                    var bulkResult = await _keyVaultCollection.Value.BulkWriteAsync(requests: CreateRewrapManyDataKeysBulkUpdateRequests(wrappedBytes)).ConfigureAwait(false);
 
                     return new RewrapManyDataKeyResult(bulkResult);
                 }
@@ -501,8 +499,8 @@ namespace MongoDB.Driver.Encryption
                             }}
                         }}
                     }}"));
-        private IEnumerable<UpdateOneModel<BsonDocument>> CreateRewrapManyDataKeysBulkUpdateRequests(BsonValue rewrappedDocument) =>
-            rewrappedDocument
+        private IEnumerable<UpdateOneModel<BsonDocument>> CreateRewrapManyDataKeysBulkUpdateRequests(byte[] rewrappedDocumentBytes) =>
+            UnwrapValue(rewrappedDocumentBytes)
                 .AsBsonArray
                 .Cast<BsonDocument>()
                 .Select(document =>

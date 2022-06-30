@@ -16,9 +16,9 @@
 namespace MongoDB.Driver.Encryption
 {
     /// <summary>
-    /// Rewrap many data key result.
+    /// Rewrap many data keys result.
     /// </summary>
-    public class RewrapManyDataKeyResult
+    public sealed class RewrapManyDataKeyResult
     {
         /// <summary>
         /// Create RewrapManyDataKeyResult.

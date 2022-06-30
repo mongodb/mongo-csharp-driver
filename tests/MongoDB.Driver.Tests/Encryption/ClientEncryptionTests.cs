@@ -116,10 +116,10 @@ namespace MongoDB.Driver.Tests.Encryption
 
                 var value = "hello";
 
-                var encrypted = await ExplicitEncrypt(subject, new EncryptOptions(EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic, keyId: keyId), value, async);
+                var encrypted = await ExplicitEncryptAsync(subject, new EncryptOptions(EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic, keyId: keyId), value, async);
                 encrypted.SubType.Should().Be(BsonBinarySubType.Encrypted);
 
-                var decrypted = await ExplicitDecrypt(subject, encrypted, async);
+                var decrypted = await ExplicitDecryptAsync(subject, encrypted, async);
 
                 decrypted.Should().Be(BsonValue.Create(value));
             }
@@ -177,10 +177,10 @@ namespace MongoDB.Driver.Tests.Encryption
             return new ClientEncryption(clientEncryptionOptions);
         }
 
-        private async ValueTask<BsonValue> ExplicitDecrypt(ClientEncryption clientEncryption, BsonBinaryData value, bool async) =>
+        private async ValueTask<BsonValue> ExplicitDecryptAsync(ClientEncryption clientEncryption, BsonBinaryData value, bool async) =>
             async ? await clientEncryption.DecryptAsync(value) : clientEncryption.Decrypt(value);
 
-        private async ValueTask<BsonBinaryData> ExplicitEncrypt(ClientEncryption clientEncryption, EncryptOptions encryptOptions, BsonValue value, bool async) =>
+        private async ValueTask<BsonBinaryData> ExplicitEncryptAsync(ClientEncryption clientEncryption, EncryptOptions encryptOptions, BsonValue value, bool async) =>
             async? await clientEncryption.EncryptAsync(value, encryptOptions) : clientEncryption.Encrypt(value, encryptOptions);
 
         private void ShouldBeArgumentException(Exception ex, string expectedParamName) => ex.Should().BeOfType<ArgumentNullException>().Which.ParamName.Should().Be(expectedParamName);

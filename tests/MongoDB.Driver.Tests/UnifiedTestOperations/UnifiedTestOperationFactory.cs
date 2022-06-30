@@ -30,8 +30,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             _additionalArgs = additionalArgs; // can be null
         }
 
-        public IUnifiedTestOperation CreateOperation(string operationName, string targetEntityId, BsonDocument operationArguments)
-            => targetEntityId switch
+        public IUnifiedTestOperation CreateOperation(string operationName, string targetEntityId, BsonDocument operationArguments) =>
+            targetEntityId switch
             {
                 "testRunner" => operationName switch
                 {
@@ -52,26 +52,26 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     "targetedFailPoint" => new UnifiedTargetedFailPointOperationBuilder(_entityMap).Build(operationArguments),
                     _ => throw new FormatException($"Invalid method name: '{operationName}'."),
                 },
-                var _ when _entityMap.HasBucket(targetEntityId) => operationName switch
+                _ when _entityMap.HasBucket(targetEntityId) => operationName switch
                 {
                     "delete" => new UnifiedGridFsDeleteOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "download" => new UnifiedGridFsDownloadOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "upload" => new UnifiedGridFsUploadOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     _ => throw new FormatException($"Invalid method name: '{operationName}'."),
                 },
-                var _ when _entityMap.ChangeStreams.ContainsKey(targetEntityId) || _entityMap.Cursors.ContainsKey(targetEntityId) => operationName switch
+                _ when _entityMap.ChangeStreams.ContainsKey(targetEntityId) || _entityMap.Cursors.ContainsKey(targetEntityId) => operationName switch
                 {
                     "iterateUntilDocumentOrError" => new UnifiedIterateUntilDocumentOrErrorOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "close" => new UnifiedCloseCursorOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     _ => throw new FormatException($"Invalid method name: '{operationName}'."),
                 },
-                var _ when _entityMap.HasClient(targetEntityId) => operationName switch
+                _ when _entityMap.HasClient(targetEntityId) => operationName switch
                 {
                     "createChangeStream" => new UnifiedCreateChangeStreamOnClientOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "listDatabases" => new UnifiedListDatabasesOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     _ => throw new FormatException($"Invalid method name: '{operationName}'."),
                 },
-                var _ when _entityMap.HasCollection(targetEntityId) => operationName switch
+                _ when _entityMap.HasCollection(targetEntityId) => operationName switch
                 {
                     "aggregate" => new UnifiedAggregateOperationBuilder(_entityMap).BuildCollectionOperation(targetEntityId, operationArguments),
                     "bulkWrite" => new UnifiedBulkWriteOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
@@ -96,7 +96,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     "updateOne" => new UnifiedUpdateOneOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     _ => throw new FormatException($"Invalid method name: '{operationName}'."),
                 },
-                var _ when _entityMap.HasDatabase(targetEntityId) => operationName switch
+                _ when _entityMap.HasDatabase(targetEntityId) => operationName switch
                 {
                     "aggregate" => new UnifiedAggregateOperationBuilder(_entityMap).BuildDatabaseOperation(targetEntityId, operationArguments),
                     "createCollection" => new UnifiedCreateCollectionOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
@@ -106,7 +106,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     "runCommand" => new UnifiedRunCommandOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     _ => throw new FormatException($"Invalid method name: '{operationName}'."),
                 },
-                var _ when _entityMap.HasSession(targetEntityId) => operationName switch
+                _ when _entityMap.HasSession(targetEntityId) => operationName switch
                 {
                     "abortTransaction" => new UnifiedAbortTransactionOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "commitTransaction" => new UnifiedCommitTransactionOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
@@ -115,7 +115,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     "withTransaction" => new UnifiedWithTransactionOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     _ => throw new FormatException($"Invalid method name: '{operationName}'."),
                 },
-                var _ when _entityMap.ClientEncryptions.ContainsKey(targetEntityId) => operationName switch
+                _ when _entityMap.ClientEncryptions.ContainsKey(targetEntityId) => operationName switch
                 {
                     "createKey" => new UnifiedCreateDataKeyOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "rewrapManyDataKey" => new UnifiedRewrapManyDataKeyOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
