@@ -23,6 +23,11 @@ namespace MongoDB.Driver.Encryption
         /// <summary>
         /// Create RewrapManyDataKeyResult.
         /// </summary>
+        public RewrapManyDataKeyResult() { }
+
+        /// <summary>
+        /// Create RewrapManyDataKeyResult.
+        /// </summary>
         /// <param name="bulkWriteResult">The bulkWriteResult.</param>
         public RewrapManyDataKeyResult(BulkWriteResult bulkWriteResult) => BulkWriteResult = bulkWriteResult;
 

@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             {
                 var result = _clientEncryption.RewrapManyDataKey(_filter, _options, cancellationToken);
 
-                return OperationResult.FromResult(CreateResult(result?.BulkWriteResult));
+                return OperationResult.FromResult(CreateResult(result.BulkWriteResult));
             }
             catch (Exception exception)
             {
@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             {
                 var result = await _clientEncryption.RewrapManyDataKeyAsync(_filter, _options, cancellationToken);
 
-                return OperationResult.FromResult(CreateResult(result?.BulkWriteResult));
+                return OperationResult.FromResult(CreateResult(result.BulkWriteResult));
             }
             catch (Exception exception)
             {

@@ -428,7 +428,7 @@ namespace MongoDB.Driver.Encryption
                     var wrappedBytes = ProcessStates(context, databaseName: null, cancellationToken);
                     if (wrappedBytes == null)
                     {
-                        return null;
+                        return new RewrapManyDataKeyResult();
                     }
 
                     var bulkResult = _keyVaultCollection.Value.BulkWrite(requests: CreateRewrapManyDataKeysBulkUpdateRequests(wrappedBytes));
@@ -455,7 +455,7 @@ namespace MongoDB.Driver.Encryption
                     var wrappedBytes = await ProcessStatesAsync(context, databaseName: null, cancellationToken).ConfigureAwait(false);
                     if (wrappedBytes == null)
                     {
-                        return null;
+                        return new RewrapManyDataKeyResult();
                     }
 
                     var bulkResult = await _keyVaultCollection.Value.BulkWriteAsync(requests: CreateRewrapManyDataKeysBulkUpdateRequests(wrappedBytes)).ConfigureAwait(false);
