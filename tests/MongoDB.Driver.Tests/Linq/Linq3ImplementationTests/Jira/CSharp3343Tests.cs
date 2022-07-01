@@ -20,6 +20,8 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
 using Xunit;
 
@@ -30,6 +32,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void Add_with_unit_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), S = 1 });
 
             var queryable = collection.AsQueryable()
@@ -49,6 +52,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void Add_with_unit_and_timezone_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), S = 1, TZ = "GMT" });
 
             var queryable = collection.AsQueryable()
@@ -68,6 +72,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void Add_with_TimeSpan_constant_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal) });
 
             var queryable = collection.AsQueryable()
@@ -87,6 +92,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void Add_with_TimeSpan_constant_and_timezone_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), TZ = "GMT" });
 
             var queryable = collection.AsQueryable()
@@ -106,6 +112,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void Add_with_TimeSpan_expression_in_Ticks_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), TimeSpanTicks = TimeSpan.FromSeconds(1) });
 
             var queryable = collection.AsQueryable()
@@ -125,6 +132,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void Add_with_TimeSpan_expression_in_Ticks_and_timezone_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), TimeSpanTicks = TimeSpan.FromSeconds(1), TZ = "GMT" });
 
             var queryable = collection.AsQueryable()
@@ -144,6 +152,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void Add_with_TimeSpan_expression_in_Nanoseconds_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), TimeSpanNanoseconds = TimeSpan.FromSeconds(1) });
 
             var queryable = collection.AsQueryable()
@@ -163,6 +172,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void Add_with_TimeSpan_expression_in_Nanoseconds_and_timezone_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), TimeSpanNanoseconds = TimeSpan.FromSeconds(1), TZ = "GMT" });
 
             var queryable = collection.AsQueryable()
@@ -182,6 +192,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void Add_with_TimeSpan_expression_in_Microseconds_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), TimeSpanMicroseconds = TimeSpan.FromSeconds(1) });
 
             var queryable = collection.AsQueryable()
@@ -201,6 +212,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void Add_with_TimeSpan_expression_in_Microseconds_and_timezone_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), TimeSpanMicroseconds = TimeSpan.FromSeconds(1), TZ = "GMT" });
 
             var queryable = collection.AsQueryable()
@@ -220,6 +232,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void Add_with_TimeSpan_expression_in_Milliseconds_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), TimeSpanMilliseconds = TimeSpan.FromSeconds(1) });
 
             var queryable = collection.AsQueryable()
@@ -239,6 +252,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void Add_with_TimeSpan_expression_in_Milliseconds_and_timezone_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), TimeSpanMilliseconds = TimeSpan.FromSeconds(1), TZ = "GMT" });
 
             var queryable = collection.AsQueryable()
@@ -258,6 +272,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void Add_with_TimeSpan_expression_in_Seconds_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), TimeSpanSeconds = TimeSpan.FromSeconds(1) });
 
             var queryable = collection.AsQueryable()
@@ -277,6 +292,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void Add_with_TimeSpan_expression_in_Seconds_and_timezone_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), TimeSpanSeconds = TimeSpan.FromSeconds(1), TZ = "GMT" });
 
             var queryable = collection.AsQueryable()
@@ -296,6 +312,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void Add_with_TimeSpan_expression_in_Minutes_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), TimeSpanMinutes = TimeSpan.FromMinutes(1) });
 
             var queryable = collection.AsQueryable()
@@ -315,6 +332,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void Add_with_TimeSpan_expression_in_Minutes_and_timezone_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), TimeSpanMinutes = TimeSpan.FromMinutes(1), TZ = "GMT" });
 
             var queryable = collection.AsQueryable()
@@ -334,6 +352,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void Add_with_TimeSpan_expression_in_Hours_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), TimeSpanHours = TimeSpan.FromHours(1) });
 
             var queryable = collection.AsQueryable()
@@ -353,6 +372,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void Add_with_TimeSpan_expression_in_Hours_and_timezone_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), TimeSpanHours = TimeSpan.FromHours(1), TZ = "GMT" });
 
             var queryable = collection.AsQueryable()
@@ -372,6 +392,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void Add_with_TimeSpan_expression_in_Days_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), TimeSpanDays = TimeSpan.FromDays(1) });
 
             var queryable = collection.AsQueryable()
@@ -391,6 +412,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void Add_with_TimeSpan_expression_in_Days_and_timezone_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), TimeSpanDays = TimeSpan.FromDays(1), TZ = "GMT" });
 
             var queryable = collection.AsQueryable()
@@ -410,6 +432,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void AddDays_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), S = 1 });
 
             var queryable = collection.AsQueryable()
@@ -429,6 +452,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void AddDays_with_timezone_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), S = 1, TZ = "GMT" });
 
             var queryable = collection.AsQueryable()
@@ -448,6 +472,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void AddHours_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), S = 1 });
 
             var queryable = collection.AsQueryable()
@@ -467,6 +492,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void AddHours_with_timezone_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), S = 1, TZ = "GMT" });
 
             var queryable = collection.AsQueryable()
@@ -486,6 +512,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void AddMilliseconds_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), S = 1000 });
 
             var queryable = collection.AsQueryable()
@@ -505,6 +532,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void AddMilliseconds_with_timezone_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), S = 1000, TZ = "GMT" });
 
             var queryable = collection.AsQueryable()
@@ -524,6 +552,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void AddMinutes_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), S = 1 });
 
             var queryable = collection.AsQueryable()
@@ -543,6 +572,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void AddMinutes_with_timezone_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), S = 1, TZ = "GMT" });
 
             var queryable = collection.AsQueryable()
@@ -562,6 +592,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void AddMonths_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), S = 1 });
 
             var queryable = collection.AsQueryable()
@@ -581,6 +612,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void AddMonths_with_timezone_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), S = 1, TZ = "GMT" });
 
             var queryable = collection.AsQueryable()
@@ -600,6 +632,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void AddQuarters_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), S = 1 });
 
             var queryable = collection.AsQueryable()
@@ -619,6 +652,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void AddQuarters_with_timezone_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), S = 1, TZ = "GMT" });
 
             var queryable = collection.AsQueryable()
@@ -638,6 +672,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void AddSeconds_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), S = 1 });
 
             var queryable = collection.AsQueryable()
@@ -657,6 +692,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void AddSeconds_with_timezone_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), S = 1, TZ = "GMT" });
 
             var queryable = collection.AsQueryable()
@@ -676,6 +712,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void AddTicks_with_constant_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal) });
 
             var queryable = collection.AsQueryable()
@@ -695,6 +732,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void AddTicks_with_expression_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), I = 10000000 });
 
             var queryable = collection.AsQueryable()
@@ -714,6 +752,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void AddWeeks_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), S = 1 });
 
             var queryable = collection.AsQueryable()
@@ -733,6 +772,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void AddWeeks_with_timezone_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), S = 1, TZ = "GMT" });
 
             var queryable = collection.AsQueryable()
@@ -752,6 +792,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void AddYears_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), S = 1 });
 
             var queryable = collection.AsQueryable()
@@ -771,6 +812,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void AddYears_with_timezone_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), S = 1, TZ = "GMT" });
 
             var queryable = collection.AsQueryable()
@@ -790,6 +832,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void Subtract_with_DateTime_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime1 = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), DateTime2 = DateTime.Parse("2020-01-01Z", null, DateTimeStyles.AdjustToUniversal) });
 
             var queryable = collection.AsQueryable()
@@ -809,6 +852,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void Subtract_with_DateTime_and_timezone_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime1 = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), DateTime2 = DateTime.Parse("2020-01-01Z", null, DateTimeStyles.AdjustToUniversal), TZ = "GMT" });
 
             var queryable = collection.AsQueryable()
@@ -828,6 +872,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void Subtract_with_DateTime_and_Day_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime1 = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), DateTime2 = DateTime.Parse("2020-01-01Z", null, DateTimeStyles.AdjustToUniversal) });
 
             var queryable = collection.AsQueryable()
@@ -847,6 +892,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void Subtract_with_DateTime_and_Week_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime1 = DateTime.Parse("2020-01-08Z", null, DateTimeStyles.AdjustToUniversal), DateTime2 = DateTime.Parse("2020-01-01Z", null, DateTimeStyles.AdjustToUniversal) });
 
             var queryable = collection.AsQueryable()
@@ -866,6 +912,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void Subtract_with_DateTime_and_WeekStartingMonday_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime1 = DateTime.Parse("2021-07-04Z", null, DateTimeStyles.AdjustToUniversal), DateTime2 = DateTime.Parse("2021-06-27Z", null, DateTimeStyles.AdjustToUniversal) });
 
             var queryable = collection.AsQueryable()
@@ -885,6 +932,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void Subtract_with_DateTime_and_Day_and_timezone_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime1 = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), DateTime2 = DateTime.Parse("2020-01-01Z", null, DateTimeStyles.AdjustToUniversal), TZ = "GMT" });
 
             var queryable = collection.AsQueryable()
@@ -904,6 +952,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void Subtract_with_DateTime_and_Week_and_timezone_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime1 = DateTime.Parse("2020-01-08Z", null, DateTimeStyles.AdjustToUniversal), DateTime2 = DateTime.Parse("2020-01-01Z", null, DateTimeStyles.AdjustToUniversal), TZ = "GMT" });
 
             var queryable = collection.AsQueryable()
@@ -923,6 +972,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void Subtract_with_DateTime_and_WeekStartingMonday_and_timezone_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime1 = DateTime.Parse("2021-07-04Z", null, DateTimeStyles.AdjustToUniversal), DateTime2 = DateTime.Parse("2021-06-27Z", null, DateTimeStyles.AdjustToUniversal), TZ = "GMT" });
 
             var queryable = collection.AsQueryable()
@@ -942,6 +992,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void Subtract_with_TimeSpan_constant_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal) });
 
             var queryable = collection.AsQueryable()
@@ -961,6 +1012,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void Subtract_with_TimeSpan_constant_and_timezone_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), TZ = "GMT" });
 
             var queryable = collection.AsQueryable()
@@ -980,6 +1032,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void Subtract_with_TimeSpan_expression_in_Ticks_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), TimeSpanTicks = TimeSpan.FromSeconds(1) });
 
             var queryable = collection.AsQueryable()
@@ -999,6 +1052,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void Subtract_with_TimeSpan_expression_in_Ticks_and_timezone_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), TimeSpanTicks = TimeSpan.FromSeconds(1), TZ = "GMT" });
 
             var queryable = collection.AsQueryable()
@@ -1018,6 +1072,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void Subtract_with_TimeSpan_expression_in_Nanoseconds_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), TimeSpanNanoseconds = TimeSpan.FromSeconds(1) });
 
             var queryable = collection.AsQueryable()
@@ -1037,6 +1092,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void Subtract_with_TimeSpan_expression_in_Nanoseconds_and_timezone_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), TimeSpanNanoseconds = TimeSpan.FromSeconds(1), TZ = "GMT" });
 
             var queryable = collection.AsQueryable()
@@ -1056,6 +1112,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void Subtract_with_TimeSpan_expression_in_Microseconds_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), TimeSpanMicroseconds = TimeSpan.FromSeconds(1) });
 
             var queryable = collection.AsQueryable()
@@ -1075,6 +1132,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void Subtract_with_TimeSpan_expression_in_Microseconds_and_timezone_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), TimeSpanMicroseconds = TimeSpan.FromSeconds(1), TZ = "GMT" });
 
             var queryable = collection.AsQueryable()
@@ -1094,6 +1152,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void Subtract_with_TimeSpan_expression_in_Milliseconds_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), TimeSpanMilliseconds = TimeSpan.FromSeconds(1) });
 
             var queryable = collection.AsQueryable()
@@ -1113,6 +1172,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void Subtract_with_TimeSpan_expression_in_Milliseconds_and_timezone_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), TimeSpanMilliseconds = TimeSpan.FromSeconds(1), TZ = "GMT" });
 
             var queryable = collection.AsQueryable()
@@ -1132,6 +1192,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void Subtract_with_TimeSpan_expression_in_Seconds_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), TimeSpanSeconds = TimeSpan.FromSeconds(1) });
 
             var queryable = collection.AsQueryable()
@@ -1151,6 +1212,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void Subtract_with_TimeSpan_expression_in_Seconds_and_timezone_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), TimeSpanSeconds = TimeSpan.FromSeconds(1), TZ = "GMT" });
 
             var queryable = collection.AsQueryable()
@@ -1170,6 +1232,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void Subtract_with_TimeSpan_expression_in_Minutes_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), TimeSpanMinutes = TimeSpan.FromMinutes(1) });
 
             var queryable = collection.AsQueryable()
@@ -1189,6 +1252,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void Subtract_with_TimeSpan_expression_in_Minutes_and_timezone_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), TimeSpanMinutes = TimeSpan.FromMinutes(1), TZ = "GMT" });
 
             var queryable = collection.AsQueryable()
@@ -1208,6 +1272,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void Subtract_with_TimeSpan_expression_in_Hours_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), TimeSpanHours = TimeSpan.FromHours(1) });
 
             var queryable = collection.AsQueryable()
@@ -1227,6 +1292,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void Subtract_with_TimeSpan_expression_in_Hours_and_timezone_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), TimeSpanHours = TimeSpan.FromHours(1), TZ = "GMT" });
 
             var queryable = collection.AsQueryable()
@@ -1246,6 +1312,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void Subtract_with_TimeSpan_expression_in_Days_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), TimeSpanDays = TimeSpan.FromDays(1) });
 
             var queryable = collection.AsQueryable()
@@ -1265,6 +1332,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void Subtract_with_TimeSpan_expression_in_Days_and_timezone_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), TimeSpanDays = TimeSpan.FromDays(1), TZ = "GMT" });
 
             var queryable = collection.AsQueryable()
@@ -1284,6 +1352,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void Subtract_with_unit_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), S = 1 });
 
             var queryable = collection.AsQueryable()
@@ -1303,6 +1372,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void Subtract_with_unit_and_timezone_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection(new C { DateTime = DateTime.Parse("2020-01-02Z", null, DateTimeStyles.AdjustToUniversal), S = 1, TZ = "GMT" });
 
             var queryable = collection.AsQueryable()
