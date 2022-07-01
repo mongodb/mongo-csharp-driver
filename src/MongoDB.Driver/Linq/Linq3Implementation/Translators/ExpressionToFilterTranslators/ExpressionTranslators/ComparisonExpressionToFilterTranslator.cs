@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 return ArrayLengthComparisonExpressionToFilterTranslator.Translate(context, expression, arrayLengthExpression, sizeExpression);
             }
 
-            if (BitMaskComparisonExpressionToFilterTranslator.CanTranslate(leftExpression))
+            if (BitMaskComparisonExpressionToFilterTranslator.CanTranslate(leftExpression, rightExpression))
             {
                 return BitMaskComparisonExpressionToFilterTranslator.Translate(context, expression, leftExpression, comparisonOperator, rightExpression);
             }
