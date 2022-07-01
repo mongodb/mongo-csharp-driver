@@ -17,6 +17,8 @@ using System;
 using System.Globalization;
 using System.Linq;
 using FluentAssertions;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
 using Xunit;
 
@@ -27,6 +29,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void Aggregate_Project_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection();
             var endDate = DateTime.Parse("2020-01-03Z", null, DateTimeStyles.AdjustToUniversal);
 
@@ -49,6 +52,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Fact]
         public void Queryable_Select_should_work()
         {
+            RequireServer.Check().Supports(Feature.DateOperatorsNewIn50);
             var collection = CreateCollection();
             var endDate = DateTime.Parse("2020-01-03Z", null, DateTimeStyles.AdjustToUniversal);
 
