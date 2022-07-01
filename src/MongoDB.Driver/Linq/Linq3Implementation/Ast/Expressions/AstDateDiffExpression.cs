@@ -76,7 +76,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             AstExpression timezone,
             AstExpression startOfWeek)
         {
-            if (startDate == _startDate && EndDate == _endDate && unit == _unit && startOfWeek == _startOfWeek && timezone == _timezone)
+            if (startDate == _startDate && endDate == _endDate && unit == _unit && startOfWeek == _startOfWeek && timezone == _timezone)
             {
                 return this;
             }
