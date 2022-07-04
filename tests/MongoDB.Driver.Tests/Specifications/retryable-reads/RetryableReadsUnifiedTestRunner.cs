@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
         [ClassData(typeof(TestCaseFactory))]
         public void Run(JsonDrivenTestCase testCase)
         {
-            using (var runner = new UnifiedTestRunner())
+            using (var runner = new UnifiedTestRunner(loggerFactory: LoggerFactory))
             {
                 runner.Run(testCase);
             }

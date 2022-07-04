@@ -651,7 +651,8 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
                     connectionPoolSettings,
                     connectionFactory.Object,
                     eventCapturer,
-                    connectionExceptionHandler.Object);
+                    connectionExceptionHandler.Object,
+                    logger: null);
 
                 connectionPool.Initialize();
             }
@@ -756,7 +757,8 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
                 connectionPoolSettings,
                 connectionFactory.Object,
                 eventSubscriber,
-                exceptionHandler.Object);
+                exceptionHandler.Object,
+                null);
 
             return connectionPool;
         }

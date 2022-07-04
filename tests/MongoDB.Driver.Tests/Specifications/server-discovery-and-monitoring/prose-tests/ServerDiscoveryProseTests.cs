@@ -65,7 +65,10 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring.pr
 
             var dnsEndpoint = (DnsEndPoint)secondary.EndPoint;
             var replicaSetName = secondary.ReplicaSetConfig.Name;
-            using (var client = new DisposableMongoClient(new MongoClient(CreateConnectionString(dnsEndpoint, directConnection, replicaSetName)), CreateLogger<DisposableMongoClient>()))
+            var settings = MongoClientSettings.FromConnectionString(CreateConnectionString(dnsEndpoint, directConnection, replicaSetName));
+            settings.LoggerFactory = LoggerFactory;
+
+            using (var client = new DisposableMongoClient(new MongoClient(settings), CreateLogger<DisposableMongoClient>()))
             {
                 var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
                 var collection = database.GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName);

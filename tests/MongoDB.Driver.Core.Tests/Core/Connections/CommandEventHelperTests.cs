@@ -14,9 +14,14 @@
 */
 
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.Events;
+using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Misc;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Connections
@@ -46,10 +51,42 @@ namespace MongoDB.Driver.Core.Connections
 
             result.Should().Be(expectedResult);
         }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void ShouldTrackState_should_be_correct(
+            [Values(false, true)] bool logCommands,
+            [Values(false, true)] bool captureCommandSucceeded,
+            [Values(false, true)] bool captureCommandFailed)
+        {
+            var mockLogger = new Mock<ILogger<LogCategories.Command>>();
+            mockLogger.Setup(m => m.IsEnabled(LogLevel.Information)).Returns(logCommands);
+
+            var eventCapturer = new EventCapturer();
+            // Capture unrelated event, so events filtering is enabled.
+            eventCapturer.Capture<SdamInformationEvent>(); 
+            if (captureCommandSucceeded)
+            {
+                eventCapturer.Capture<CommandSucceededEvent>(_ => true);
+            }
+            if (captureCommandFailed)
+            {
+                eventCapturer.Capture<CommandFailedEvent>(_ => true);
+            }
+
+            var eventLogger = new EventsLogger<LogCategories.Command>(eventCapturer, mockLogger.Object, "dummy");
+            var commandHelper = new CommandEventHelper(eventLogger);
+
+            commandHelper._shouldTrackState().Should().Be(logCommands || captureCommandSucceeded || captureCommandFailed);
+        }
     }
 
-    public static class CommandEventHelperReflector
+    internal static class CommandEventHelperReflector
     {
+        public static bool _shouldTrackState(this CommandEventHelper commandEventHelper) =>
+            (bool)Reflector.GetFieldValue(commandEventHelper, nameof(_shouldTrackState));
+
+
         public static bool ShouldRedactCommand(BsonDocument command) =>
             (bool)Reflector.InvokeStatic(typeof(CommandEventHelper), nameof(ShouldRedactCommand), command);
     }

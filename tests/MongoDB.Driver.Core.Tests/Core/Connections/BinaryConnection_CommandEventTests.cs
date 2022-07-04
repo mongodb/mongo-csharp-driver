@@ -28,14 +28,16 @@ using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
+using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using Moq;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Core.Connections
 {
-    public class BinaryConnection_CommandEventTests : IDisposable
+    public class BinaryConnection_CommandEventTests : LoggableTestClass
     {
         private Mock<IConnectionInitializer> _mockConnectionInitializer;
         private DnsEndPoint _endPoint;
@@ -69,7 +71,7 @@ namespace MongoDB.Driver.Core.Connections
             };
         }
 
-        public BinaryConnection_CommandEventTests()
+        public BinaryConnection_CommandEventTests(ITestOutputHelper output) : base(output)
         {
             _capturedEvents = new EventCapturer()
                 .Capture<CommandStartedEvent>()
@@ -97,7 +99,8 @@ namespace MongoDB.Driver.Core.Connections
                 settings: new ConnectionSettings(),
                 streamFactory: _mockStreamFactory.Object,
                 connectionInitializer: _mockConnectionInitializer.Object,
-                eventSubscriber: _capturedEvents);
+                eventSubscriber: _capturedEvents,
+                LoggerFactory);
 
             _stream = new BlockingMemoryStream();
             _mockStreamFactory.Setup(f => f.CreateStreamAsync(_endPoint, CancellationToken.None))
@@ -108,7 +111,7 @@ namespace MongoDB.Driver.Core.Connections
             _operationIdDisposer = EventContext.BeginOperation();
         }
 
-        public void Dispose()
+        protected override void DisposeInternal()
         {
             _stream.Dispose();
             _operationIdDisposer.Dispose();

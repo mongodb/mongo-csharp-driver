@@ -23,6 +23,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Events;
+using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -32,24 +33,21 @@ namespace MongoDB.Driver.Core.Connections
 {
     internal class CommandEventHelper
     {
-        private static readonly string[] __writeConcernIndicators = new[] { "wtimeout", "jnote", "wnote" };
-
+        private readonly EventsLogger<LogCategories.Command> _eventsLogger;
         private readonly ConcurrentDictionary<int, CommandState> _state;
-        private readonly Action<CommandStartedEvent> _startedEvent;
-        private readonly Action<CommandSucceededEvent> _succeededEvent;
-        private readonly Action<CommandFailedEvent> _failedEvent;
 
         private readonly bool _shouldProcessRequestMessages;
         private readonly bool _shouldTrackState;
+        private readonly bool _shouldTrackFailed;
+        private readonly bool _shouldTrackSucceeded;
 
-        public CommandEventHelper(IEventSubscriber eventSubscriber)
+        public CommandEventHelper(EventsLogger<LogCategories.Command> eventsLogger)
         {
-            eventSubscriber.TryGetEventHandler(out _startedEvent);
-            eventSubscriber.TryGetEventHandler(out _succeededEvent);
-            eventSubscriber.TryGetEventHandler(out _failedEvent);
-
-            _shouldTrackState = _succeededEvent != null || _failedEvent != null;
-            _shouldProcessRequestMessages = _startedEvent != null || _shouldTrackState;
+            _eventsLogger = eventsLogger;
+            _shouldTrackSucceeded = _eventsLogger.IsEventTracked<CommandSucceededEvent>();
+            _shouldTrackFailed = _eventsLogger.IsEventTracked<CommandFailedEvent>();
+            _shouldTrackState = _shouldTrackSucceeded || _shouldTrackFailed;
+            _shouldProcessRequestMessages = _eventsLogger.IsEventTracked<CommandStartedEvent>() || _shouldTrackState;
 
             if (_shouldTrackState)
             {
@@ -112,20 +110,18 @@ namespace MongoDB.Driver.Core.Connections
                     state.ExpectedResponseType == ExpectedResponseType.None)
                 {
                     state.Stopwatch.Stop();
-                    if (_succeededEvent != null)
+
+                    if (_shouldTrackSucceeded)
                     {
-                        var @event = new CommandSucceededEvent(
+                        _eventsLogger.LogAndPublish(new CommandSucceededEvent(
                             state.CommandName,
                             new BsonDocument("ok", 1),
                             state.OperationId,
                             message.RequestId,
                             connectionId,
                             serviceId,
-                            state.Stopwatch.Elapsed);
-
-                        _succeededEvent(@event);
+                            state.Stopwatch.Elapsed));
                     }
-
                     _state.TryRemove(message.RequestId, out state);
                 }
             }
@@ -139,19 +135,14 @@ namespace MongoDB.Driver.Core.Connections
                 if (_state.TryRemove(message.RequestId, out state))
                 {
                     state.Stopwatch.Stop();
-                    if (_failedEvent != null)
-                    {
-                        var @event = new CommandFailedEvent(
-                            state.CommandName,
-                            exception,
-                            state.OperationId,
-                            message.RequestId,
-                            connectionId,
-                            serviceId,
-                            state.Stopwatch.Elapsed);
-
-                        _failedEvent(@event);
-                    }
+                    _eventsLogger.LogAndPublish(new CommandFailedEvent(
+                        state.CommandName,
+                        exception,
+                        state.OperationId,
+                        message.RequestId,
+                        connectionId,
+                        serviceId,
+                        state.Stopwatch.Elapsed));
                 }
             }
         }
@@ -185,22 +176,20 @@ namespace MongoDB.Driver.Core.Connections
             }
 
             state.Stopwatch.Stop();
-            if (_failedEvent != null)
-            {
-                _failedEvent(new CommandFailedEvent(
-                    state.CommandName,
-                    exception,
-                    state.OperationId,
-                    responseTo,
-                    connectionId,
-                    serviceId,
-                    state.Stopwatch.Elapsed));
-            }
+
+            _eventsLogger.LogAndPublish(new CommandFailedEvent(
+                state.CommandName,
+                exception,
+                state.OperationId,
+                responseTo,
+                connectionId,
+                serviceId,
+                state.Stopwatch.Elapsed));
         }
 
         public void ConnectionFailed(ConnectionId connectionId, ObjectId? serviceId, Exception exception)
         {
-            if (_failedEvent == null)
+            if (!_shouldTrackFailed)
             {
                 return;
             }
@@ -212,16 +201,14 @@ namespace MongoDB.Driver.Core.Connections
                 if (_state.TryRemove(requestId, out state))
                 {
                     state.Stopwatch.Stop();
-                    var @event = new CommandFailedEvent(
+                    _eventsLogger.LogAndPublish(new CommandFailedEvent(
                         state.CommandName,
                         exception,
                         state.OperationId,
                         requestId,
                         connectionId,
                         serviceId,
-                        state.Stopwatch.Elapsed);
-
-                    _failedEvent(@event);
+                        state.Stopwatch.Elapsed));
                 }
             }
         }
@@ -272,19 +259,14 @@ namespace MongoDB.Driver.Core.Connections
                     command = new BsonDocument();
                 }
 
-                if (_startedEvent != null)
-                {
-                    var @event = new CommandStartedEvent(
-                        commandName,
-                        command,
-                        databaseNamespace,
-                        operationId,
-                        requestId,
-                        connectionId,
-                        serviceId);
-
-                    _startedEvent(@event);
-                }
+                _eventsLogger.LogAndPublish(new CommandStartedEvent(
+                    commandName,
+                    command,
+                    databaseNamespace,
+                    operationId,
+                    requestId,
+                    connectionId,
+                    serviceId));
 
                 if (_shouldTrackState)
                 {
@@ -322,23 +304,20 @@ namespace MongoDB.Driver.Core.Connections
 
             if (ok.ToBoolean())
             {
-                if (_succeededEvent != null)
-                {
-                    _succeededEvent(new CommandSucceededEvent(
-                        state.CommandName,
-                        reply,
-                        state.OperationId,
-                        message.ResponseTo,
-                        connectionId,
-                        serviceId,
-                        state.Stopwatch.Elapsed));
-                }
+                _eventsLogger.LogAndPublish(new CommandSucceededEvent(
+                    state.CommandName,
+                    reply,
+                    state.OperationId,
+                    message.ResponseTo,
+                    connectionId,
+                    serviceId,
+                    state.Stopwatch.Elapsed));
             }
             else
             {
-                if (_failedEvent != null)
+                if (_shouldTrackFailed)
                 {
-                    _failedEvent(new CommandFailedEvent(
+                    _eventsLogger.LogAndPublish(new CommandFailedEvent(
                         state.CommandName,
                         new MongoCommandException(
                             connectionId,
@@ -388,18 +367,13 @@ namespace MongoDB.Driver.Core.Connections
                     }
                 }
 
-                if (_startedEvent != null)
-                {
-                    var @event = new CommandStartedEvent(
-                        commandName,
-                        command,
-                        decodedMessage.CollectionNamespace.DatabaseNamespace,
-                        operationId,
-                        requestId,
-                        connectionId);
-
-                    _startedEvent(@event);
-                }
+                _eventsLogger.LogAndPublish(new CommandStartedEvent(
+                    commandName,
+                    command,
+                    decodedMessage.CollectionNamespace.DatabaseNamespace,
+                    operationId,
+                    requestId,
+                    connectionId));
 
                 if (_shouldTrackState)
                 {
@@ -458,9 +432,10 @@ namespace MongoDB.Driver.Core.Connections
                     {
                         queryFailureDocument = new BsonDocument();
                     }
-                    if (_failedEvent != null)
+
+                    if (_shouldTrackFailed)
                     {
-                        _failedEvent(new CommandFailedEvent(
+                        _eventsLogger.LogAndPublish(new CommandFailedEvent(
                             state.CommandName,
                             new MongoCommandException(
                                 connectionId,
@@ -513,9 +488,9 @@ namespace MongoDB.Driver.Core.Connections
 
             if (!ok.ToBoolean())
             {
-                if (_failedEvent != null)
+                if (_shouldTrackFailed)
                 {
-                    _failedEvent(new CommandFailedEvent(
+                    _eventsLogger.LogAndPublish(new CommandFailedEvent(
                         state.CommandName,
                         new MongoCommandException(
                             connectionId,
@@ -528,9 +503,9 @@ namespace MongoDB.Driver.Core.Connections
                         state.Stopwatch.Elapsed));
                 }
             }
-            else if (_succeededEvent != null)
+            else
             {
-                _succeededEvent(new CommandSucceededEvent(
+                _eventsLogger.LogAndPublish(new CommandSucceededEvent(
                     state.CommandName,
                     reply,
                     state.OperationId,
@@ -542,7 +517,7 @@ namespace MongoDB.Driver.Core.Connections
 
         private void ProcessQueryReplyMessage(CommandState state, ReplyMessage<RawBsonDocument> replyMessage, ConnectionId connectionId)
         {
-            if (_succeededEvent != null)
+            if (_shouldTrackSucceeded)
             {
                 BsonDocument reply;
                 if (state.CommandName == "explain")
@@ -565,7 +540,7 @@ namespace MongoDB.Driver.Core.Connections
                     };
                 }
 
-                _succeededEvent(new CommandSucceededEvent(
+                _eventsLogger.LogAndPublish(new CommandSucceededEvent(
                     state.CommandName,
                     reply,
                     state.OperationId,

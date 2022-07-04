@@ -23,14 +23,20 @@ using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Events;
+using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Specifications.sessions
 {
     [Trait("Category", "Serverless")]
-    public class SessionsProseTests
+    public class SessionsProseTests : LoggableTestClass
     {
+        public SessionsProseTests(ITestOutputHelper output) : base(output)
+        {
+        }
+
         [SkippableFact]
         public void Snapshot_and_causal_consistent_session_is_not_allowed()
         {
@@ -62,7 +68,7 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
                     settings.MaxConnectionPoolSize = 1;
                     settings.ClusterConfigurator = c => c.Subscribe(eventCapturer);
                 },
-                logger: null);
+                LoggerFactory);
 
             var database = client.GetDatabase("test");
 
@@ -196,7 +202,7 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
                     settings.MaxConnectionPoolSize = 1;
                     settings.ClusterConfigurator = c => c.Subscribe(eventCapturer);
                 },
-                logger: null);
+                LoggerFactory);
 
             var database = client.GetDatabase("test");
             database.DropCollection("inventory");

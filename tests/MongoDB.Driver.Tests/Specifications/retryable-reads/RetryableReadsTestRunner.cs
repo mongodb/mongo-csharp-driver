@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Core;
@@ -139,12 +140,12 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
                 AssertOutcome(test);
             }
 
-            Logger.Debug("Finished");
+            Logger.LogDebug("Finished");
         }
 
         private void DropCollection()
         {
-            Logger.Debug("Dropping collection {0}", _collectionName);
+            Logger.LogDebug("Dropping collection {0}", _collectionName);
 
             var client = DriverTestConfiguration.Client;
             var database = client.GetDatabase(_databaseName).WithWriteConcern(WriteConcern.WMajority);
@@ -153,7 +154,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
 
         private void CreateCollection()
         {
-            Logger.Debug("Creating collection {0}", _collectionName);
+            Logger.LogDebug("Creating collection {0}", _collectionName);
 
             var client = DriverTestConfiguration.Client;
             var database = client.GetDatabase(_databaseName).WithWriteConcern(WriteConcern.WMajority);
@@ -169,7 +170,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
 
             if (shared.Contains("bucket_name"))
             {
-                Logger.Debug("Inserting gridfs data");
+                Logger.LogDebug("Inserting gridfs data");
 
                 InsertGridFsData(shared);
                 return;
@@ -183,7 +184,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
             var database = client.GetDatabase(_databaseName);
             var collection = database.GetCollection<BsonDocument>(_collectionName).WithWriteConcern(WriteConcern.WMajority);
 
-            Logger.Debug("Inserting documents {0}", documents?.Count);
+            Logger.LogDebug("Inserting documents {0}", documents?.Count);
             collection.InsertMany(documents);
         }
 
@@ -215,7 +216,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
                 ConfigureClientSettings(settings, test);
                 settings.ClusterConfigurator = c => c.Subscribe(eventCapturer);
             },
-            CreateLogger<DisposableMongoClient>());
+            LoggerFactory);
         }
 
         private void ConfigureClientSettings(MongoClientSettings settings, BsonDocument test)
@@ -250,7 +251,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
 
         private IClientSessionHandle StartSession(IMongoClient client, BsonDocument test, string sessionKey)
         {
-            Logger.Debug("Starting session {0}", sessionKey);
+            Logger.LogDebug("Starting session {0}", sessionKey);
 
             var options = CreateSessionOptions(test, sessionKey);
             return client.StartSession(options);
@@ -295,7 +296,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
                 var session = NoCoreSession.NewHandle();
                 var command = failPoint.AsBsonDocument;
 
-                Logger.Debug("Configuring failpoint");
+                Logger.LogDebug("Configuring failpoint");
                 return FailPoint.Configure(cluster, session, command);
             }
 
@@ -312,7 +313,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
                 var name = operation["name"].AsString;
                 var jsonDrivenTest = factory.CreateTest(receiver, name);
 
-                Logger.Debug("Executing {0}", name);
+                Logger.LogDebug("Executing {0}", name);
 
                 jsonDrivenTest.Arrange(operation);
                 if (test["async"].AsBoolean)
@@ -329,7 +330,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
 
         private void ValidateOperations(BsonDocument test)
         {
-            Logger.Debug("Validating operations");
+            Logger.LogDebug("Validating operations");
 
             foreach (var operation in test["operations"].AsBsonArray.Cast<BsonDocument>())
             {
@@ -342,7 +343,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
 
         private void AssertEvents(EventCapturer actualEvents, BsonDocument test, Dictionary<string, BsonValue> sessionIdMap)
         {
-            Logger.Debug("Asserting events");
+            Logger.LogDebug("Asserting events");
 
             if (test.Contains("expectations"))
             {
@@ -384,7 +385,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
 
         private void AssertOutcome(BsonDocument test)
         {
-            Logger.Debug("Asserting outcome");
+            Logger.LogDebug("Asserting outcome");
 
             if (test.Contains("outcome"))
             {

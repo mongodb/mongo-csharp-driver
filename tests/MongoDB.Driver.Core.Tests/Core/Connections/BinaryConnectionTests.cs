@@ -14,9 +14,7 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -31,6 +29,7 @@ using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
+using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using Moq;
@@ -38,7 +37,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Core.Connections
 {
-    public class BinaryConnectionTests
+    public class BinaryConnectionTests : LoggableTestClass
     {
         private Mock<IConnectionInitializer> _mockConnectionInitializer;
         private ConnectionDescription _connectionDescription;
@@ -48,7 +47,7 @@ namespace MongoDB.Driver.Core.Connections
         private Mock<IStreamFactory> _mockStreamFactory;
         private BinaryConnection _subject;
 
-        public BinaryConnectionTests()
+        public BinaryConnectionTests(Xunit.Abstractions.ITestOutputHelper output) : base(output)
         {
             _capturedEvents = new EventCapturer();
             _mockStreamFactory = new Mock<IStreamFactory>();
@@ -79,7 +78,8 @@ namespace MongoDB.Driver.Core.Connections
                 settings: new ConnectionSettings(),
                 streamFactory: _mockStreamFactory.Object,
                 connectionInitializer: _mockConnectionInitializer.Object,
-                eventSubscriber: _capturedEvents);
+                eventSubscriber: _capturedEvents,
+                LoggerFactory);
         }
 
         [Fact]

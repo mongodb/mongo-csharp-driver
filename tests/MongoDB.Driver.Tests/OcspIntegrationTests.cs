@@ -105,6 +105,8 @@ namespace MongoDB.Driver.Tests
             settings.ServerSelectionTimeout = TimeSpan.FromSeconds(5 * 2); // must be > 5s
             // settings.SdamLogFilename = @"C:\temp\sdam" + $"{tlsInsecure}.log";
 
+            settings.LoggerFactory = LoggerFactory;
+
             return new DisposableMongoClient(new MongoClient(settings), CreateLogger<DisposableMongoClient>());
         }
 

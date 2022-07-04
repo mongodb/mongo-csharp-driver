@@ -16,6 +16,7 @@
 using System;
 using System.Diagnostics;
 using System.Net;
+using Microsoft.Extensions.Logging;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
@@ -33,33 +34,15 @@ namespace MongoDB.Driver.Core.Clusters
         private readonly InterlockedInt32 _state;
         private readonly string _replicaSetName;
 
-        private readonly Action<ClusterClosingEvent> _closingEventHandler;
-        private readonly Action<ClusterClosedEvent> _closedEventHandler;
-        private readonly Action<ClusterOpeningEvent> _openingEventHandler;
-        private readonly Action<ClusterOpenedEvent> _openedEventHandler;
-        private readonly Action<ClusterAddingServerEvent> _addingServerEventHandler;
-        private readonly Action<ClusterAddedServerEvent> _addedServerEventHandler;
-        private readonly Action<ClusterRemovingServerEvent> _removingServerEventHandler;
-        private readonly Action<ClusterRemovedServerEvent> _removedServerEventHandler;
-
         // constructor
-        internal SingleServerCluster(ClusterSettings settings, IClusterableServerFactory serverFactory, IEventSubscriber eventSubscriber)
-            : base(settings, serverFactory, eventSubscriber)
+        internal SingleServerCluster(ClusterSettings settings, IClusterableServerFactory serverFactory, IEventSubscriber eventSubscriber, ILoggerFactory loggerFactory)
+            : base(settings, serverFactory, eventSubscriber, loggerFactory)
         {
             Ensure.That(settings.SrvMaxHosts == 0, "srvMaxHosts cannot be used with a single server cluster.");
             Ensure.IsEqualTo(settings.EndPoints.Count, 1, "settings.EndPoints.Count");
             _replicaSetName = settings.ReplicaSetName;  // can be null
 
             _state = new InterlockedInt32(State.Initial);
-
-            eventSubscriber.TryGetEventHandler(out _closingEventHandler);
-            eventSubscriber.TryGetEventHandler(out _closedEventHandler);
-            eventSubscriber.TryGetEventHandler(out _openingEventHandler);
-            eventSubscriber.TryGetEventHandler(out _openedEventHandler);
-            eventSubscriber.TryGetEventHandler(out _addingServerEventHandler);
-            eventSubscriber.TryGetEventHandler(out _addedServerEventHandler);
-            eventSubscriber.TryGetEventHandler(out _removingServerEventHandler);
-            eventSubscriber.TryGetEventHandler(out _removedServerEventHandler);
         }
 
         // methods
@@ -70,26 +53,18 @@ namespace MongoDB.Driver.Core.Clusters
             {
                 if (disposing)
                 {
-                    if (_closingEventHandler != null)
-                    {
-                        _closingEventHandler(new ClusterClosingEvent(ClusterId));
-                    }
+                    _clusterEventsLogger.LogAndPublish(new ClusterClosingEvent(ClusterId));
+
                     stopwatch = Stopwatch.StartNew();
 
                     if (_server != null)
                     {
-                        if (_removingServerEventHandler != null)
-                        {
-                            _removingServerEventHandler(new ClusterRemovingServerEvent(_server.ServerId, "Cluster is closing."));
-                        }
+                        _clusterEventsLogger.LogAndPublish(new ClusterRemovingServerEvent(_server.ServerId, "Cluster is closing."));
 
                         _server.DescriptionChanged -= ServerDescriptionChanged;
                         _server.Dispose();
 
-                        if (_removedServerEventHandler != null)
-                        {
-                            _removedServerEventHandler(new ClusterRemovedServerEvent(_server.ServerId, "Cluster is closing.", stopwatch.Elapsed));
-                        }
+                        _clusterEventsLogger.LogAndPublish(new ClusterRemovedServerEvent(_server.ServerId, "Cluster is closing.", stopwatch.Elapsed));
                     }
                     stopwatch.Stop();
                 }
@@ -97,9 +72,9 @@ namespace MongoDB.Driver.Core.Clusters
 
             base.Dispose(disposing);
 
-            if (stopwatch != null && _closedEventHandler != null)
+            if (stopwatch != null)
             {
-                _closedEventHandler(new ClusterClosedEvent(ClusterId, stopwatch.Elapsed));
+                _clusterEventsLogger.LogAndPublish(new ClusterClosedEvent(ClusterId, stopwatch.Elapsed));
             }
         }
 
@@ -108,36 +83,26 @@ namespace MongoDB.Driver.Core.Clusters
             base.Initialize();
             if (_state.TryChange(State.Initial, State.Open))
             {
-                if (_openingEventHandler != null)
-                {
-                    _openingEventHandler(new ClusterOpeningEvent(ClusterId, Settings));
-                }
+                _clusterEventsLogger.LogAndPublish(new ClusterOpeningEvent(ClusterId, Settings));
 
                 var stopwatch = Stopwatch.StartNew();
                 _server = CreateServer(Settings.EndPoints[0]);
                 var newClusterDescription = Description
                     .WithType(Settings.GetInitialClusterType())
                     .WithServerDescription(_server.Description);
-                if (_addingServerEventHandler != null)
-                {
-                    _addingServerEventHandler(new ClusterAddingServerEvent(ClusterId, _server.EndPoint));
-                }
+
+                _clusterEventsLogger.LogAndPublish(new ClusterAddingServerEvent(ClusterId, _server.EndPoint));
+
                 _server.DescriptionChanged += ServerDescriptionChanged;
                 stopwatch.Stop();
 
-                if (_addedServerEventHandler != null)
-                {
-                    _addedServerEventHandler(new ClusterAddedServerEvent(_server.ServerId, stopwatch.Elapsed));
-                }
+                _clusterEventsLogger.LogAndPublish(new ClusterAddedServerEvent(_server.ServerId, stopwatch.Elapsed));
 
                 UpdateClusterDescription(newClusterDescription);
 
                 _server.Initialize();
 
-                if (_openedEventHandler != null)
-                {
-                    _openedEventHandler(new ClusterOpenedEvent(ClusterId, Settings, stopwatch.Elapsed));
-                }
+                _clusterEventsLogger.LogAndPublish(new ClusterOpenedEvent(ClusterId, Settings, stopwatch.Elapsed));
             }
         }
 

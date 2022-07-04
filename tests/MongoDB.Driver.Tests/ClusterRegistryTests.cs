@@ -25,12 +25,18 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers.Logging;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests
 {
-    public class ClusterRegistryTests
+    public class ClusterRegistryTests : LoggableTestClass
     {
+        public ClusterRegistryTests(ITestOutputHelper output) : base(output)
+        {
+        }
+
 #if WINDOWS
         [Fact]
         public void Instance_should_return_the_same_instance_every_time()
@@ -112,7 +118,7 @@ namespace MongoDB.Driver.Tests
 
             var subject = new ClusterRegistry();
 
-            using (var cluster = subject.GetOrCreateCluster(clusterKey))
+            using (var cluster = subject.GetOrCreateCluster(clusterKey, LoggerFactory))
             {
                 var expectedEndPoints = new EndPoint[]
                 {
@@ -148,8 +154,8 @@ namespace MongoDB.Driver.Tests
 
             var subject = new ClusterRegistry();
 
-            using (var cluster1 = subject.GetOrCreateCluster(clientSettings1.ToClusterKey()))
-            using (var cluster2 = subject.GetOrCreateCluster(clientSettings2.ToClusterKey()))
+            using (var cluster1 = subject.GetOrCreateCluster(clientSettings1.ToClusterKey(), LoggerFactory))
+            using (var cluster2 = subject.GetOrCreateCluster(clientSettings2.ToClusterKey(), LoggerFactory))
             {
                 cluster2.Should().NotBeSameAs(cluster1);
             }
@@ -163,8 +169,8 @@ namespace MongoDB.Driver.Tests
 
             var subject = new ClusterRegistry();
 
-            using (var cluster1 = subject.GetOrCreateCluster(clientSettings1.ToClusterKey()))
-            using (var cluster2 = subject.GetOrCreateCluster(clientSettings2.ToClusterKey()))
+            using (var cluster1 = subject.GetOrCreateCluster(clientSettings1.ToClusterKey(), LoggerFactory))
+            using (var cluster2 = subject.GetOrCreateCluster(clientSettings2.ToClusterKey(), LoggerFactory))
             {
                 cluster2.Should().BeSameAs(cluster1);
             }
@@ -176,7 +182,7 @@ namespace MongoDB.Driver.Tests
             var subject = new ClusterRegistry();
             var settings = new MongoClientSettings();
             var clusterKey = settings.ToClusterKey();
-            var cluster = subject.GetOrCreateCluster(clusterKey);
+            var cluster = subject.GetOrCreateCluster(clusterKey, LoggerFactory);
 
             subject.UnregisterAndDisposeCluster(cluster);
 

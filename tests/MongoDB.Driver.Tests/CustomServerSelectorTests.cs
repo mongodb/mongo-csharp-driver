@@ -19,15 +19,20 @@ using MongoDB.Bson;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
-using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Servers;
+using MongoDB.Driver.Core.TestHelpers.Logging;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests
 {
-    public class CustomServerSelectorTests
+    public class CustomServerSelectorTests : LoggableTestClass
     {
+        public CustomServerSelectorTests(ITestOutputHelper output) : base(output)
+        {
+        }
+
         [Fact]
         public void Should_call_custom_server_selector()
         {
@@ -43,7 +48,7 @@ namespace MongoDB.Driver.Tests
                             c.ConfigureCluster(s => s.With(postServerSelector: customServerSelector));
                             c.Subscribe(eventCapturer);
                         },
-                 logger: null))
+                 LoggerFactory))
             {
                 var collection = client
                     .GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName)

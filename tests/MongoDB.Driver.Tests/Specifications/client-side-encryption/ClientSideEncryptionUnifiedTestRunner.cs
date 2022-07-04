@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                 .SkipWhen(() => testCaseNameLower.Contains("gcp") || testCaseNameLower.Contains("rewrap with"), SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard20) // gcp is supported starting from netstandard2.1
                 .SkipWhen(() => testCaseNameLower.Contains("gcp") || testCaseNameLower.Contains("rewrap with"), SupportedOperatingSystem.MacOS, SupportedTargetFramework.NetStandard20); // gcp is supported starting from netstandard2.1
 
-            using (var runner = new UnifiedTestRunner())
+            using (var runner = new UnifiedTestRunner(LoggerFactory))
             {
                 runner.Run(testCase);
             }

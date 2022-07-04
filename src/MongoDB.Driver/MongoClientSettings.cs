@@ -18,9 +18,11 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Encryption;
 using MongoDB.Driver.Linq;
@@ -53,6 +55,7 @@ namespace MongoDB.Driver
         private LinqProvider _linqProvider;
         private bool _loadBalanced;
         private TimeSpan _localThreshold;
+        private ILoggerFactory _loggerFactory;
         private int _maxConnecting;
         private TimeSpan _maxConnectionIdleTime;
         private TimeSpan _maxConnectionLifeTime;
@@ -445,6 +448,20 @@ namespace MongoDB.Driver
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
                 _localThreshold = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the logger factory
+        /// </summary>
+        [CLSCompliant(false)]
+        public ILoggerFactory LoggerFactory
+        {
+            get { return _loggerFactory; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
+                _loggerFactory = value.DecorateCategories();
             }
         }
 
@@ -1002,6 +1019,7 @@ namespace MongoDB.Driver
             clone._linqProvider = _linqProvider;
             clone._loadBalanced = _loadBalanced;
             clone._localThreshold = _localThreshold;
+            clone._loggerFactory = _loggerFactory;
             clone._maxConnecting = _maxConnecting;
             clone._maxConnectionIdleTime = _maxConnectionIdleTime;
             clone._maxConnectionLifeTime = _maxConnectionLifeTime;
@@ -1070,6 +1088,7 @@ namespace MongoDB.Driver
                 _linqProvider == rhs._linqProvider &&
                 _loadBalanced == rhs._loadBalanced &&
                 _localThreshold == rhs._localThreshold &&
+                object.ReferenceEquals(_loggerFactory, rhs._loggerFactory) &&
                 _maxConnecting == rhs._maxConnecting &&
                 _maxConnectionIdleTime == rhs._maxConnectionIdleTime &&
                 _maxConnectionLifeTime == rhs._maxConnectionLifeTime &&

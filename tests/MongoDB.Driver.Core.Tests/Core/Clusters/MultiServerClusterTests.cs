@@ -27,13 +27,15 @@ using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
+using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.Tests.Core.Clusters;
 using Moq;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Core.Clusters
 {
-    public class MultiServerClusterTests
+    public class MultiServerClusterTests : LoggableTestClass
     {
         private EventCapturer _capturedEvents;
         private MockClusterableServerFactory _serverFactory;
@@ -43,10 +45,10 @@ namespace MongoDB.Driver.Core.Clusters
         private EndPoint _thirdEndPoint = new DnsEndPoint("localhost", 27019);
         private IEqualityComparer<ServerDescription> _serverDescriptionComparer = ServerDescriptionWithSimilarLastUpdateTimestampEqualityComparer.Instance;
 
-        public MultiServerClusterTests()
+        public MultiServerClusterTests(ITestOutputHelper output) : base(output)
         {
             _settings = new ClusterSettings();
-            _serverFactory = new MockClusterableServerFactory();
+            _serverFactory = new MockClusterableServerFactory(LoggerFactory);
             _capturedEvents = new EventCapturer();
         }
 
@@ -58,28 +60,18 @@ namespace MongoDB.Driver.Core.Clusters
             var mockEventSubscriber = new Mock<IEventSubscriber>();
             var dnsMonitorFactory = Mock.Of<IDnsMonitorFactory>();
 
-            var result = new MultiServerCluster(settings, serverFactory, mockEventSubscriber.Object, dnsMonitorFactory);
+            var result = new MultiServerCluster(settings, serverFactory, mockEventSubscriber.Object, null, dnsMonitorFactory);
 
             result._dnsMonitorFactory().Should().BeSameAs(dnsMonitorFactory);
-            result._eventSubscriber().Should().BeSameAs(mockEventSubscriber.Object);
             result._replicaSetName().Should().BeSameAs(settings.ReplicaSetName);
             result._state().Value.Should().Be(0); // State.Initial
-            AssertTryGetEventHandlerWasCalled<ClusterClosingEvent>(mockEventSubscriber);
-            AssertTryGetEventHandlerWasCalled<ClusterClosedEvent>(mockEventSubscriber);
-            AssertTryGetEventHandlerWasCalled<ClusterOpeningEvent>(mockEventSubscriber);
-            AssertTryGetEventHandlerWasCalled<ClusterOpenedEvent>(mockEventSubscriber);
-            AssertTryGetEventHandlerWasCalled<ClusterAddingServerEvent>(mockEventSubscriber);
-            AssertTryGetEventHandlerWasCalled<ClusterAddedServerEvent>(mockEventSubscriber);
-            AssertTryGetEventHandlerWasCalled<ClusterRemovingServerEvent>(mockEventSubscriber);
-            AssertTryGetEventHandlerWasCalled<ClusterRemovedServerEvent>(mockEventSubscriber);
-            AssertTryGetEventHandlerWasCalled<SdamInformationEvent>(mockEventSubscriber);
         }
 
         [Fact]
         public void Constructor_should_throw_if_no_endpoints_are_specified()
         {
             var settings = new ClusterSettings(endPoints: new EndPoint[0]);
-            Action act = () => new MultiServerCluster(settings, _serverFactory, _capturedEvents);
+            Action act = () => new MultiServerCluster(settings, _serverFactory, _capturedEvents, loggerFactory: null);
 
             act.ShouldThrow<ArgumentOutOfRangeException>();
         }
@@ -95,7 +87,7 @@ namespace MongoDB.Driver.Core.Clusters
                 connectionModeSwitch: ConnectionModeSwitch.UseConnectionMode,
 #pragma warning restore CS0618 // Type or member is obsolete
                 connectionMode: mode);
-            Action act = () => new MultiServerCluster(settings, _serverFactory, _capturedEvents);
+            Action act = () => new MultiServerCluster(settings, _serverFactory, _capturedEvents, loggerFactory: null);
 
             act.ShouldThrow<ArgumentException>();
         }
@@ -107,7 +99,7 @@ namespace MongoDB.Driver.Core.Clusters
             var serverFactory = Mock.Of<IClusterableServerFactory>();
             var eventSubscriber = Mock.Of<IEventSubscriber>();
 
-            var result = new MultiServerCluster(settings, serverFactory, eventSubscriber, dnsMonitorFactory: null);
+            var result = new MultiServerCluster(settings, serverFactory, eventSubscriber, loggerFactory: null, dnsMonitorFactory: null);
 
             var dnsMonitorFactory = result._dnsMonitorFactory().Should().BeOfType<DnsMonitorFactory>().Subject;
             dnsMonitorFactory._eventSubscriber().Should().BeSameAs(eventSubscriber);
@@ -1166,12 +1158,6 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         // private methods
-        private void AssertTryGetEventHandlerWasCalled<TEvent>(Mock<IEventSubscriber> mockEventSubscriber)
-        {
-            Action<TEvent> handler;
-            mockEventSubscriber.Verify(m => m.TryGetEventHandler<TEvent>(out handler), Times.Once);
-        }
-
         private Mock<IDnsMonitorFactory> CreateMockDnsMonitorFactory()
         {
             var mockDnsMonitorFactory = new Mock<IDnsMonitorFactory>();
@@ -1184,7 +1170,7 @@ namespace MongoDB.Driver.Core.Clusters
         private MultiServerCluster CreateSubject(ClusterSettings settings = null, IDnsMonitorFactory dnsMonitorFactory = null)
         {
             settings = settings ?? _settings;
-            return new MultiServerCluster(settings, _serverFactory, _capturedEvents, dnsMonitorFactory);
+            return new MultiServerCluster(settings, _serverFactory, _capturedEvents, LoggerFactory, dnsMonitorFactory);
         }
 
         private void TimeSpanShouldBeShort(TimeSpan value)
@@ -1262,7 +1248,6 @@ namespace MongoDB.Driver.Core.Clusters
     {
         public static IDnsMonitorFactory _dnsMonitorFactory(this MultiServerCluster cluster) => (IDnsMonitorFactory)Reflector.GetFieldValue(cluster, nameof(_dnsMonitorFactory));
         public static Thread _dnsMonitorThread(this MultiServerCluster cluster) => (Thread)Reflector.GetFieldValue(cluster, nameof(_dnsMonitorThread));
-        public static IEventSubscriber _eventSubscriber(this MultiServerCluster cluster) => (IEventSubscriber)Reflector.GetFieldValue(cluster, nameof(_eventSubscriber));
         public static Task _monitorServersTask(this MultiServerCluster cluster) => (Task)Reflector.GetFieldValue(cluster, nameof(_monitorServersTask));
         public static string _replicaSetName(this MultiServerCluster cluster) => (string)Reflector.GetFieldValue(cluster, nameof(_replicaSetName));
         public static List<IClusterableServer> _servers(this MultiServerCluster cluster) => (List<IClusterableServer>)Reflector.GetFieldValue(cluster, nameof(_servers));

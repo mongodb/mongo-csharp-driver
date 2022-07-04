@@ -78,7 +78,7 @@ namespace MongoDB.Driver
         {
             _settings = Ensure.IsNotNull(settings, nameof(settings)).FrozenCopy();
             _linqProvider = _settings.LinqProvider;
-            _cluster = ClusterRegistry.Instance.GetOrCreateCluster(_settings.ToClusterKey());
+            _cluster = ClusterRegistry.Instance.GetOrCreateCluster(_settings.ToClusterKey(), _settings.LoggerFactory);
             _operationExecutor = new OperationExecutor(this);
             if (settings.AutoEncryptionOptions != null)
             {

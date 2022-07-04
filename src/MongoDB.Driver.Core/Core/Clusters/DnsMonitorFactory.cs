@@ -14,7 +14,9 @@
 */
 
 using System.Threading;
+using Microsoft.Extensions.Logging;
 using MongoDB.Driver.Core.Events;
+using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Clusters
@@ -22,16 +24,18 @@ namespace MongoDB.Driver.Core.Clusters
     internal class DnsMonitorFactory : IDnsMonitorFactory
     {
         private readonly IEventSubscriber _eventSubscriber;
+        private readonly ILoggerFactory _loggerFactory;
 
-        public DnsMonitorFactory(IEventSubscriber eventSubscriber)
+        public DnsMonitorFactory(IEventSubscriber eventSubscriber, ILoggerFactory loggerFactory)
         {
             _eventSubscriber = Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
+            _loggerFactory = loggerFactory;
         }
 
         public IDnsMonitor CreateDnsMonitor(IDnsMonitoringCluster cluster, string lookupDomainName, CancellationToken cancellationToken)
         {
             var dnsResolver = DnsClientWrapper.Instance;
-            return new DnsMonitor(cluster, dnsResolver, lookupDomainName, _eventSubscriber, cancellationToken);
+            return new DnsMonitor(cluster, dnsResolver, lookupDomainName, _eventSubscriber, _loggerFactory?.CreateLogger<LogCategories.SDAM>(), cancellationToken);
         }
     }
 }

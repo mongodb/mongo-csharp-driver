@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
         {
             var eventSubscriber = Mock.Of<IEventSubscriber>();
 
-            var result = new DnsMonitorFactory(eventSubscriber);
+            var result = new DnsMonitorFactory(eventSubscriber, loggerFactory: null);
 
             result._eventSubscriber().Should().BeSameAs(eventSubscriber);
         }
@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
         [Fact]
         public void constructor_should_throw_when_eventSubscriber_is_null()
         {
-            var exception = Record.Exception(() => new DnsMonitorFactory(eventSubscriber: null));
+            var exception = Record.Exception(() => new DnsMonitorFactory(eventSubscriber: null, loggerFactory: null));
 
             var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
             e.ParamName.Should().Be("eventSubscriber");
@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
         public void CreateDnsMonitor_should_return_expected_result()
         {
             var mockEventSubscriber = new Mock<IEventSubscriber>();
-            var subject = new DnsMonitorFactory(mockEventSubscriber.Object);
+            var subject = new DnsMonitorFactory(mockEventSubscriber.Object, loggerFactory: null);
             var cluster = Mock.Of<IDnsMonitoringCluster>();
             var lookupDomainName = "a.b.com";
             using var cancellationTokenSource = new CancellationTokenSource();
@@ -62,9 +62,6 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
             dnsMonitor._cluster().Should().BeSameAs(cluster);
             dnsMonitor._lookupDomainName().Should().Be(lookupDomainName);
             dnsMonitor._cancellationToken().Should().Be(cancellationToken);
-
-            Action<SdamInformationEvent> sdamInformationEventHandler;
-            mockEventSubscriber.Verify(m => m.TryGetEventHandler<SdamInformationEvent>(out sdamInformationEventHandler), Times.Once);
         }
     }
 
