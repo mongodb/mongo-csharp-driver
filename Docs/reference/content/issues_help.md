@@ -9,6 +9,9 @@ title = "Issues & Help"
 +++
 
 ## Support
+
+Please check that most frequent questions and their description [here]({{< relref "common_issues.md" >}}).
+
 If you require assistance with this driver, please see our paid support resources at [MongoDB Support Portal](https://support.mongodb.com/welcome)
 - Free support for customers without support subscriptions can be received through the [MongoDB Community Developer Forums](https://developer.mongodb.com/community/forums/)
 
