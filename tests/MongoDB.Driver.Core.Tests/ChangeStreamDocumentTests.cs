@@ -170,6 +170,29 @@ namespace MongoDB.Driver
         }
 
         [Fact]
+        public void CollectionUuid_should_return_expected_result()
+        {
+            var value = Guid.NewGuid();
+            var backingDocument = new BsonDocument { { "other", 1 }, { "ui", new BsonBinaryData(value, GuidRepresentation.Standard) } };
+            var subject = CreateSubject(backingDocument: backingDocument);
+
+            var result = subject.CollectionUuid;
+
+            result.Should().Be(value);
+        }
+
+        [Fact]
+        public void CollectionUuid_should_return_null_when_not_present()
+        {
+            var backingDocument = new BsonDocument { { "other", 1 } };
+            var subject = CreateSubject(backingDocument: backingDocument);
+
+            var result = subject.CollectionUuid;
+
+            result.Should().NotHaveValue();
+        }
+
+        [Fact]
         public void DatabaseNamespace_should_return_expected_result()
         {
             var value = new DatabaseNamespace("database");
@@ -285,6 +308,29 @@ namespace MongoDB.Driver
             var subject = CreateSubject(backingDocument: backingDocument);
 
             var result = subject.FullDocument;
+
+            result.Should().BeNull();
+        }
+
+        [Fact]
+        public void OperationDescription_should_return_expected_result()
+        {
+            var value = new BsonDocument("x", 1234);
+            var backingDocument = new BsonDocument { { "other", 1 }, { "operationDescription", value } };
+            var subject = CreateSubject(backingDocument: backingDocument);
+
+            var result = subject.OperationDescription;
+
+            result.Should().Be(value);
+        }
+
+        [Fact]
+        public void OperationDescription_should_return_null_when_not_present()
+        {
+            var backingDocument = new BsonDocument { { "other", 1 } };
+            var subject = CreateSubject(backingDocument: backingDocument);
+
+            var result = subject.OperationDescription;
 
             result.Should().BeNull();
         }

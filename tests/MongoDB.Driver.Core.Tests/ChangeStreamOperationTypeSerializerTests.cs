@@ -33,6 +33,13 @@ namespace MongoDB.Driver
         [InlineData("\"rename\"", ChangeStreamOperationType.Rename)]
         [InlineData("\"drop\"", ChangeStreamOperationType.Drop)]
         [InlineData("\"dropDatabase\"", ChangeStreamOperationType.DropDatabase)]
+        [InlineData("\"createIndexes\"", ChangeStreamOperationType.CreateIndexes)]
+        [InlineData("\"dropIndexes\"", ChangeStreamOperationType.DropIndexes)]
+        [InlineData("\"modify\"", ChangeStreamOperationType.Modify)]
+        [InlineData("\"create\"", ChangeStreamOperationType.Create)]
+        [InlineData("\"shardCollection\"", ChangeStreamOperationType.ShardCollection)]
+        [InlineData("\"refineCollectionShardKey\"", ChangeStreamOperationType.RefineCollectionShardKey)]
+        [InlineData("\"reshardCollection\"", ChangeStreamOperationType.ReshardCollection)]
         public void Deserialize_should_return_expected_result(string json, ChangeStreamOperationType expectedResult)
         {
             var subject = CreateSubject();
@@ -72,6 +79,13 @@ namespace MongoDB.Driver
         [InlineData(ChangeStreamOperationType.Rename, "\"rename\"")]
         [InlineData(ChangeStreamOperationType.Drop, "\"drop\"")]
         [InlineData(ChangeStreamOperationType.DropDatabase, "\"dropDatabase\"")]
+        [InlineData(ChangeStreamOperationType.CreateIndexes, "\"createIndexes\"")]
+        [InlineData(ChangeStreamOperationType.DropIndexes, "\"dropIndexes\"")]
+        [InlineData(ChangeStreamOperationType.Modify, "\"modify\"")]
+        [InlineData(ChangeStreamOperationType.Create, "\"create\"")]
+        [InlineData(ChangeStreamOperationType.ShardCollection, "\"shardCollection\"")]
+        [InlineData(ChangeStreamOperationType.RefineCollectionShardKey, "\"refineCollectionShardKey\"")]
+        [InlineData(ChangeStreamOperationType.ReshardCollection, "\"reshardCollection\"")]
         public void Serialize_should_have_expected_result(ChangeStreamOperationType value, string expectedResult)
         {
             var subject = CreateSubject();
@@ -90,7 +104,7 @@ namespace MongoDB.Driver
 
         [Theory]
         [InlineData(-1)]
-        [InlineData(8)]
+        [InlineData(15)]
         public void Serialize_should_throw_when_value_is_invalid(int valueAsInt)
         {
             var subject = CreateSubject();
