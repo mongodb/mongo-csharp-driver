@@ -145,7 +145,7 @@ namespace MongoDB.Driver
             ChangeStreamOptions options,
             ReadConcern readConcern)
         {
-            options = options ?? new ChangeStreamOptions();
+            options ??= new ChangeStreamOptions();
 
             operation.BatchSize = options.BatchSize;
             operation.Collation = options.Collation;
@@ -155,6 +155,7 @@ namespace MongoDB.Driver
             operation.MaxAwaitTime = options.MaxAwaitTime;
             operation.ReadConcern = readConcern;
             operation.ResumeAfter = options.ResumeAfter;
+            operation.ShowExpandedEvents = options.ShowExpandedEvents;
             operation.StartAfter = options.StartAfter;
             operation.StartAtOperationTime = options.StartAtOperationTime;
         }

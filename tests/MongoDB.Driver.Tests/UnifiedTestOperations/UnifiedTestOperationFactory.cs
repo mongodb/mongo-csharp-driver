@@ -127,6 +127,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                             return new UnifiedDeleteOneOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
                         case "distinct":
                             return new UnifiedDistinctOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
+                        case "dropIndex":
+                            return new UnifiedDropIndexOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
                         case "estimatedDocumentCount":
                             return new UnifiedEstimatedDocumentCountOperationBuilder(_entityMap).Build(targetEntityId, operationArguments);
                         case "find":

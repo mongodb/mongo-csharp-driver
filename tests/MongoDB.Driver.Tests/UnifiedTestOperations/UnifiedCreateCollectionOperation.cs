@@ -233,6 +233,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             if (viewOn != null && expireAfter == null && timeSeriesOptions == null && clusteredIndex == null)
             {
                 var options = new CreateViewOptions<BsonDocument>();
+                pipeline ??= new EmptyPipelineDefinition<BsonDocument>();
                 return new UnifiedCreateViewOperation(session, database, name, viewOn, pipeline, options);
             }
 

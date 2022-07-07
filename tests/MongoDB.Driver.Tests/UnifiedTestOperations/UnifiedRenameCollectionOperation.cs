@@ -25,19 +25,21 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         private readonly IMongoDatabase _database;
         private readonly string _newName;
         private readonly string _oldName;
+        private readonly RenameCollectionOptions _options;
 
-        public UnifiedRenameCollectionOperation(IMongoDatabase database, string oldName, string newName)
+        public UnifiedRenameCollectionOperation(IMongoDatabase database, string oldName, string newName, RenameCollectionOptions options)
         {
             _database = database;
             _newName = newName;
             _oldName = oldName;
+            _options = options;
         }
 
         public OperationResult Execute(CancellationToken cancellationToken)
         {
             try
             {
-                _database.RenameCollection(oldName: _oldName, newName: _newName, cancellationToken: cancellationToken);
+                _database.RenameCollection(_oldName, _newName, _options, cancellationToken);
 
                 return OperationResult.Empty();
             }
@@ -51,7 +53,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             try
             {
-                await _database.RenameCollectionAsync(oldName: _oldName, newName: _newName, cancellationToken: cancellationToken);
+                await _database.RenameCollectionAsync(_oldName, _newName, _options, cancellationToken);
 
                 return OperationResult.Empty();
             }
@@ -77,11 +79,16 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             var database = collection.Database;
             var oldName = collection.CollectionNamespace.CollectionName;
             string newName = null;
+            RenameCollectionOptions options = null;
 
             foreach (var argument in arguments)
             {
                 switch (argument.Name)
                 {
+                    case "dropTarget":
+                        options ??= new RenameCollectionOptions();
+                        options.DropTarget = argument.Value.AsNullableBoolean;
+                        break;
                     case "to":
                         newName = argument.Value.AsString;
                         break;
@@ -90,7 +97,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 }
             }
 
-            return new UnifiedRenameCollectionOperation(database, oldName, newName);
+            return new UnifiedRenameCollectionOperation(database, oldName, newName, options);
         }
     }
 }

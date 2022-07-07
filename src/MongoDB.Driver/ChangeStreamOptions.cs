@@ -32,6 +32,7 @@ namespace MongoDB.Driver
         private ChangeStreamFullDocumentBeforeChangeOption _fullDocumentBeforeChange = ChangeStreamFullDocumentBeforeChangeOption.Default;
         private TimeSpan? _maxAwaitTime;
         private BsonDocument _resumeAfter;
+        private bool? _showExpandedEvents;
         private BsonDocument _startAfter;
         private BsonTimestamp _startAtOperationTime;
 
@@ -118,6 +119,18 @@ namespace MongoDB.Driver
         {
             get { return _resumeAfter; }
             set { _resumeAfter = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets whether the change stream should show expanded events (MongoDB 6.0 and later).
+        /// </summary>
+        /// <value>
+        /// The value.
+        /// </value>
+        public bool? ShowExpandedEvents
+        {
+            get { return _showExpandedEvents; }
+            set { _showExpandedEvents = value; }
         }
 
         /// <summary>

@@ -96,6 +96,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         var stages = argument.Value.AsBsonArray.Cast<BsonDocument>();
                         pipeline = new BsonDocumentStagePipelineDefinition<ChangeStreamDocument<BsonDocument>, ChangeStreamDocument<BsonDocument>>(stages);
                         break;
+                    case "showExpandedEvents":
+                        options ??= new ChangeStreamOptions();
+                        options.ShowExpandedEvents = argument.Value.AsNullableBoolean;
+                        break;
                     default:
                         throw new FormatException($"Invalid CreateChangeStreamOperation argument name: '{argument.Name}'.");
                 }
