@@ -83,6 +83,10 @@ namespace MongoDB.Driver.Encryption
         /// This property is used by DisposableMongoClient.Dispose to unregister the internal cluster.
         /// </summary>
         internal IMongoClient InternalClient => _internalClient;
+        /// <summary>
+        /// This property is used by DisposableMongoClient.Dispose to unregister the mongocryptd cluster.
+        /// </summary>
+        internal IMongoClient MongoCryptdClient => _mongocryptdClient.IsValueCreated ? _mongocryptdClient.Value : null;
 
         // public methods
         public byte[] DecryptFields(byte[] encryptedDocumentBytes, CancellationToken cancellationToken)
