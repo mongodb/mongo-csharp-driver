@@ -92,7 +92,8 @@ namespace MongoDB.Driver.Tests
                 Skip = 3
             };
             var subject = CreateSubject(session: session, filter: filter, options: findOptions);
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             Predicate<CountOptions> matchesExpectedOptions = countOptions =>
                 countOptions.Collation.Equals(findOptions.Collation) &&
@@ -179,7 +180,8 @@ namespace MongoDB.Driver.Tests
                 Skip = 3
             };
             var subject = CreateSubject(session: session, filter: filter, options: findOptions);
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             Predicate<CountOptions> matchesExpectedOptions = countOptions =>
                 countOptions.Collation.Equals(findOptions.Collation) &&
@@ -248,7 +250,8 @@ namespace MongoDB.Driver.Tests
             var filter = Builders<Person>.Filter.Eq("_id", 1);
             var options = new FindOptions<Person, Person>();
             var subject = CreateSubject(session, filter, options);
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             if (async)
             {

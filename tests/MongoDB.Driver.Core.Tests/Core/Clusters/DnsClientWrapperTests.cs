@@ -93,7 +93,7 @@ namespace MongoDB.Driver.Core.Clusters
         {
             var subject = CreateSubject();
             var service = "_mongodb._tcp.test5.test.build.10gen.cc";
-            var cts = new CancellationTokenSource();
+            using var cts = new CancellationTokenSource();
             cts.Cancel();
 
             Exception exception;
@@ -159,7 +159,7 @@ namespace MongoDB.Driver.Core.Clusters
         {
             var subject = CreateSubject();
             var domainName = "test5.test.build.10gen.cc";
-            var cts = new CancellationTokenSource();
+            using var cts = new CancellationTokenSource();
             cts.Cancel();
 
             Exception exception;

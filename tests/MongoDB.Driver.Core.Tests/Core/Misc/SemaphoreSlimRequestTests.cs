@@ -84,7 +84,7 @@ namespace MongoDB.Driver.Core.Misc
         public void Sempahore_should_not_be_released_when_cancellation_is_requested_after_semaphore_is_acquired()
         {
             var semaphore = new SemaphoreSlim(1);
-            var cancellationTokenSource = new CancellationTokenSource();
+            using var cancellationTokenSource = new CancellationTokenSource();
             var subject = new SemaphoreSlimRequest(semaphore, cancellationTokenSource.Token);
 
             cancellationTokenSource.Cancel();
@@ -96,7 +96,7 @@ namespace MongoDB.Driver.Core.Misc
         public void Task_should_be_cancelled_when_cancellationToken_requests_cancellation()
         {
             var semaphore = new SemaphoreSlim(1);
-            var cancellationTokenSource = new CancellationTokenSource();
+            using var cancellationTokenSource = new CancellationTokenSource();
             semaphore.Wait();
             var subject = new SemaphoreSlimRequest(semaphore, cancellationTokenSource.Token);
 

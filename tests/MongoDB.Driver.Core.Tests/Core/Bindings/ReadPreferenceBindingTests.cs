@@ -142,7 +142,8 @@ namespace MongoDB.Driver.Core.Bindings
         {
             var mockSession = new Mock<ICoreSessionHandle>();
             var subject = new ReadPreferenceBinding(_mockCluster.Object, ReadPreference.Primary, mockSession.Object);
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             var selectedServer = new Mock<IServer>().Object;
             _mockCluster.Setup(m => m.SelectServer(It.IsAny<IServerSelector>(), cancellationToken)).Returns(selectedServer);

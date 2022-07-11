@@ -37,7 +37,7 @@ namespace WorkloadExecutor
             var connectionString = args[0];
             var driverWorkload = BsonDocument.Parse(args[1]);
 
-            var astrolabeCancellationTokenSource = new CancellationTokenSource();
+            using var astrolabeCancellationTokenSource = new CancellationTokenSource();
             ConsoleCancelEventHandler cancelHandler = (o, e) => HandleCancel(e, astrolabeCancellationTokenSource);
 
             var resultsDir = Environment.GetEnvironmentVariable("RESULTS_DIR") ?? "";

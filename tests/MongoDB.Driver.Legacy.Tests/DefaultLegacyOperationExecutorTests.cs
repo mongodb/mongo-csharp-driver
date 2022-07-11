@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
@@ -32,11 +31,10 @@ namespace MongoDB.Driver.Legacy.Tests
             var subject = CreateSubject();
             var binding = new Mock<IReadBinding>().Object;
             var mockOperation = new Mock<IReadOperation<BsonDocument>>();
-            var cancellationToken = new CancellationTokenSource().Token;
 
-            var result = subject.ExecuteReadOperation(binding, mockOperation.Object, cancellationToken);
+            var result = subject.ExecuteReadOperation(binding, mockOperation.Object, default);
 
-            mockOperation.Verify(m => m.Execute(binding, cancellationToken), Times.Once);
+            mockOperation.Verify(m => m.Execute(binding, default), Times.Once);
         }
 
         [Fact]
@@ -45,11 +43,10 @@ namespace MongoDB.Driver.Legacy.Tests
             var subject = CreateSubject();
             var binding = new Mock<IReadBinding>().Object;
             var mockOperation = new Mock<IReadOperation<BsonDocument>>();
-            var cancellationToken = new CancellationTokenSource().Token;
 
-            var result = subject.ExecuteReadOperationAsync(binding, mockOperation.Object, cancellationToken);
+            var result = subject.ExecuteReadOperationAsync(binding, mockOperation.Object, default);
 
-            mockOperation.Verify(m => m.ExecuteAsync(binding, cancellationToken), Times.Once);
+            mockOperation.Verify(m => m.ExecuteAsync(binding, default), Times.Once);
         }
 
         [Fact]
@@ -58,11 +55,10 @@ namespace MongoDB.Driver.Legacy.Tests
             var subject = CreateSubject();
             var binding = new Mock<IWriteBinding>().Object;
             var mockOperation = new Mock<IWriteOperation<BsonDocument>>();
-            var cancellationToken = new CancellationTokenSource().Token;
 
-            var result = subject.ExecuteWriteOperation(binding, mockOperation.Object, cancellationToken);
+            var result = subject.ExecuteWriteOperation(binding, mockOperation.Object, default);
 
-            mockOperation.Verify(m => m.Execute(binding, cancellationToken), Times.Once);
+            mockOperation.Verify(m => m.Execute(binding, default), Times.Once);
         }
 
         [Fact]
@@ -71,11 +67,10 @@ namespace MongoDB.Driver.Legacy.Tests
             var subject = CreateSubject();
             var binding = new Mock<IWriteBinding>().Object;
             var mockOperation = new Mock<IWriteOperation<BsonDocument>>();
-            var cancellationToken = new CancellationTokenSource().Token;
 
-            var result = subject.ExecuteWriteOperationAsync(binding, mockOperation.Object, cancellationToken);
+            var result = subject.ExecuteWriteOperationAsync(binding, mockOperation.Object, default);
 
-            mockOperation.Verify(m => m.ExecuteAsync(binding, cancellationToken), Times.Once);
+            mockOperation.Verify(m => m.ExecuteAsync(binding, default), Times.Once);
         }
 
         [Theory]
@@ -84,16 +79,15 @@ namespace MongoDB.Driver.Legacy.Tests
             [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
-            var cancellationToken = new CancellationTokenSource().Token;
 
             IClientSessionHandle result;
             if (async)
             {
-                result = subject.StartImplicitSession(cancellationToken);
+                result = subject.StartImplicitSession(default);
             }
             else
             {
-                result = subject.StartImplicitSessionAsync(cancellationToken).GetAwaiter().GetResult();
+                result = subject.StartImplicitSessionAsync(default).GetAwaiter().GetResult();
             }
 
             result.Client.Should().BeNull();

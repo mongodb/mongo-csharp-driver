@@ -91,7 +91,8 @@ namespace MongoDB.Driver.Core.Operations
             var mockChannel = CreateMockChannel();
             var channelSource = CreateMockChannelSource(serverDescription, mockChannel.Object).Object;
             var binding = CreateMockReadBinding(readPreference, channelSource).Object;
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             BsonDocument result;
             if (async)
@@ -149,7 +150,8 @@ namespace MongoDB.Driver.Core.Operations
             var mockChannel = CreateMockChannel();
             var channelSource = CreateMockChannelSource(serverDescription, mockChannel.Object).Object;
             var binding = CreateMockReadBinding(readPreference, channelSource).Object;
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
             var additionalOptions = BsonDocument.Parse("{ $comment : \"comment\", additional : 1 }");
 
             BsonDocument result;
@@ -207,7 +209,8 @@ namespace MongoDB.Driver.Core.Operations
             var mockChannel = CreateMockChannel();
             var channelSource = CreateMockChannelSource(serverDescription, mockChannel.Object).Object;
             var binding = CreateMockReadBinding(readPreference, channelSource).Object;
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
             var additionalOptions = BsonDocument.Parse("{ $comment : \"comment\" }");
 
             BsonDocument result;
@@ -266,7 +269,8 @@ namespace MongoDB.Driver.Core.Operations
             var mockChannel = CreateMockChannel();
             var channelSource = CreateMockChannelSource(serverDescription, mockChannel.Object).Object;
             var binding = CreateMockReadBinding(readPreference, channelSource).Object;
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
             var additionalOptions = BsonDocument.Parse("{ $comment : \"comment\", additional : 1 }");
 
             BsonDocument result;
@@ -322,7 +326,8 @@ namespace MongoDB.Driver.Core.Operations
             var mockChannel = CreateMockChannel();
             var mockChannelSource = CreateMockChannelSource(serverDescription, mockChannel.Object);
             var binding = CreateMockReadBinding(readPreference, mockChannelSource.Object).Object;
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             if (async)
             {

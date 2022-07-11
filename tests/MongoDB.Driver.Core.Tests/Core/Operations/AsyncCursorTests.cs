@@ -409,7 +409,8 @@ namespace MongoDB.Driver.Core.Operations
             var collectionNamespace = new CollectionNamespace(databaseNamespace, "collection");
             var cursorId = 1;
             var subject = CreateSubject(collectionNamespace: collectionNamespace, cursorId: cursorId, channelSource: Optional.Create(channelSource));
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
             var connectionDescription = CreateConnectionDescriptionSupportingSession();
 
             mockChannelSource.SetupGet(m => m.Session).Returns(session);

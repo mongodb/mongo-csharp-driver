@@ -117,7 +117,8 @@ namespace MongoDB.Driver.Core.Bindings
         {
             var mockSession = new Mock<ICoreSessionHandle>();
             var subject = CreateSubject(session: mockSession.Object);
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             var forkedSession = new Mock<ICoreSessionHandle>().Object;
             mockSession.Setup(m => m.Fork()).Returns(forkedSession);
@@ -144,7 +145,8 @@ namespace MongoDB.Driver.Core.Bindings
             [Values(false, true)] bool async)
         {
             var subject = CreateDisposedSubject();
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             var exception = Record.Exception(() =>
             {
@@ -169,7 +171,8 @@ namespace MongoDB.Driver.Core.Bindings
         {
             var mockSession = new Mock<ICoreSessionHandle>();
             var subject = CreateSubject(session: mockSession.Object);
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             var forkedSession = new Mock<ICoreSessionHandle>().Object;
             mockSession.Setup(m => m.Fork()).Returns(forkedSession);
@@ -196,7 +199,8 @@ namespace MongoDB.Driver.Core.Bindings
             [Values(false, true)] bool async)
         {
             var subject = CreateDisposedSubject();
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             var exception = Record.Exception(() =>
             {

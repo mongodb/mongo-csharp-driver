@@ -78,7 +78,8 @@ namespace MongoDB.Driver.Tests
             var writeConcern = new WriteConcern(1);
             var subject = new MongoClient(operationExecutor, DriverTestConfiguration.GetClientSettings()).WithWriteConcern(writeConcern);
             var session = CreateClientSession();
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             if (usingSession)
             {
@@ -128,7 +129,8 @@ namespace MongoDB.Driver.Tests
             var operationExecutor = new MockOperationExecutor();
             var subject = new MongoClient(operationExecutor, DriverTestConfiguration.GetClientSettings());
             var session = CreateClientSession();
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
             var listDatabaseNamesResult = @"
             {
             	""databases"" : [
@@ -221,7 +223,8 @@ namespace MongoDB.Driver.Tests
             var operationExecutor = new MockOperationExecutor();
             var subject = new MongoClient(operationExecutor, DriverTestConfiguration.GetClientSettings());
             var session = CreateClientSession();
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
             var filterDocument = BsonDocument.Parse("{ name : \"awesome\" }");
             var filterDefinition = (FilterDefinition<BsonDocument>)filterDocument;
             var nameOnly = true;
@@ -291,7 +294,8 @@ namespace MongoDB.Driver.Tests
                 StartAfter = new BsonDocument(),
                 StartAtOperationTime = new BsonTimestamp(1, 2)
             };
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
             var renderedPipeline = new[] { BsonDocument.Parse("{ $limit : 1 }") };
 
             if (usingSession)

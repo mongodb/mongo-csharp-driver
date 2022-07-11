@@ -413,7 +413,8 @@ namespace MongoDB.Driver.Core.Operations
         {
             RequireServer.Check();
             var subject = new AggregateExplainOperation(_collectionNamespace, __pipeline, _messageEncoderSettings);
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             VerifySessionIdWasSentWhenSupported(subject, "aggregate", async);
         }

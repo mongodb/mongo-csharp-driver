@@ -15,7 +15,6 @@
 
 using System;
 using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
@@ -146,14 +145,13 @@ namespace MongoDB.Driver.GridFS.Tests
             var subject = new DelegatingStream(mockStream.Object);
             var mockDestination = new Mock<Stream>();
             var bufferSize = 1;
-            var cancellationToken = new CancellationTokenSource().Token;
             var task1 = Task.FromResult<object>(null);
-            mockStream.Setup(s => s.CopyToAsync(mockDestination.Object, bufferSize, cancellationToken)).Returns(task1);
+            mockStream.Setup(s => s.CopyToAsync(mockDestination.Object, bufferSize, default)).Returns(task1);
 
-            var result = subject.CopyToAsync(mockDestination.Object, bufferSize, cancellationToken);
+            var result = subject.CopyToAsync(mockDestination.Object, bufferSize, default);
 
             result.Should().Be(task1);
-            mockStream.Verify(s => s.CopyToAsync(mockDestination.Object, bufferSize, cancellationToken), Times.Once);
+            mockStream.Verify(s => s.CopyToAsync(mockDestination.Object, bufferSize, default), Times.Once);
         }
 
         [Fact]
@@ -213,13 +211,12 @@ namespace MongoDB.Driver.GridFS.Tests
             var mockStream = new Mock<Stream>();
             var subject = new DelegatingStream(mockStream.Object);
             var task = Task.FromResult<object>(null);
-            var cancellationToken = new CancellationTokenSource().Token;
-            mockStream.Setup(s => s.FlushAsync(cancellationToken)).Returns(task);
+            mockStream.Setup(s => s.FlushAsync(default)).Returns(task);
 
-            var result = subject.FlushAsync(cancellationToken);
+            var result = subject.FlushAsync(default);
 
             result.Should().Be(task);
-            mockStream.Verify(s => s.FlushAsync(cancellationToken), Times.Once);
+            mockStream.Verify(s => s.FlushAsync(default), Times.Once);
         }
 
         [Fact]
@@ -261,14 +258,13 @@ namespace MongoDB.Driver.GridFS.Tests
             var buffer = new byte[3];
             var offset = 1;
             var count = 2;
-            var cancellationToken = new CancellationTokenSource().Token;
             var task = Task.FromResult(1);
-            mockStream.Setup(s => s.ReadAsync(buffer, offset, count, cancellationToken)).Returns(task);
+            mockStream.Setup(s => s.ReadAsync(buffer, offset, count, default)).Returns(task);
 
-            var result = subject.ReadAsync(buffer, offset, count, cancellationToken);
+            var result = subject.ReadAsync(buffer, offset, count, default);
 
             result.Should().Be(task);
-            mockStream.Verify(s => s.ReadAsync(buffer, offset, count, cancellationToken), Times.Once);
+            mockStream.Verify(s => s.ReadAsync(buffer, offset, count, default), Times.Once);
         }
 
         [Fact]
@@ -349,14 +345,13 @@ namespace MongoDB.Driver.GridFS.Tests
             var buffer = new byte[3];
             var offset = 1;
             var count = 2;
-            var cancellationToken = new CancellationTokenSource().Token;
             var task = Task.FromResult<object>(null);
-            mockStream.Setup(s => s.WriteAsync(buffer, offset, count, cancellationToken)).Returns(task);
+            mockStream.Setup(s => s.WriteAsync(buffer, offset, count, default)).Returns(task);
 
-            var result = subject.WriteAsync(buffer, offset, count, cancellationToken);
+            var result = subject.WriteAsync(buffer, offset, count, default);
 
             result.Should().Be(task);
-            mockStream.Verify(s => s.WriteAsync(buffer, offset, count, cancellationToken), Times.Once);
+            mockStream.Verify(s => s.WriteAsync(buffer, offset, count, default), Times.Once);
         }
 
         [Fact]

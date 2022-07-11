@@ -53,7 +53,8 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
             var subject = new DnsMonitorFactory(mockEventSubscriber.Object);
             var cluster = Mock.Of<IDnsMonitoringCluster>();
             var lookupDomainName = "a.b.com";
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             var result = subject.CreateDnsMonitor(cluster, lookupDomainName, cancellationToken);
 

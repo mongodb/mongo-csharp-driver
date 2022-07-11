@@ -305,7 +305,8 @@ namespace MongoDB.Bson.Tests
             var subject = new BsonStreamAdapter(mockStream.Object);
             var mockDestination = new Mock<Stream>();
             var bufferSize = 1;
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
             var task = new TaskCompletionSource<object>().Task;
             mockStream.Setup(s => s.CopyToAsync(mockDestination.Object, bufferSize, cancellationToken)).Returns(task);
 
@@ -322,7 +323,8 @@ namespace MongoDB.Bson.Tests
             var subject = new BsonStreamAdapter(mockStream.Object);
             var mockDestination = new Mock<Stream>();
             var bufferSize = 1;
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
             subject.Dispose();
 
             Action action = () => subject.CopyToAsync(mockDestination.Object, bufferSize, cancellationToken);
@@ -463,7 +465,8 @@ namespace MongoDB.Bson.Tests
             var mockStream = new Mock<Stream>();
             var subject = new BsonStreamAdapter(mockStream.Object);
             var task = new TaskCompletionSource<object>().Task;
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
             mockStream.Setup(s => s.FlushAsync(cancellationToken)).Returns(task);
 
             var result = subject.FlushAsync(cancellationToken);
@@ -477,7 +480,8 @@ namespace MongoDB.Bson.Tests
         {
             var mockStream = new Mock<Stream>();
             var subject = new BsonStreamAdapter(mockStream.Object);
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
             subject.Dispose();
 
             Action action = () => subject.FlushAsync(cancellationToken);
@@ -608,7 +612,8 @@ namespace MongoDB.Bson.Tests
             var buffer = new byte[3];
             var offset = 1;
             var count = 2;
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
             mockStream.Setup(s => s.ReadAsync(buffer, offset, count, cancellationToken)).Returns(task);
 
             var result = subject.ReadAsync(buffer, offset, count, cancellationToken);
@@ -625,7 +630,8 @@ namespace MongoDB.Bson.Tests
             var buffer = new byte[3];
             var offset = 1;
             var count = 2;
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
             subject.Dispose();
 
             Action action = () => subject.ReadAsync(buffer, offset, count, cancellationToken);
@@ -1185,7 +1191,8 @@ namespace MongoDB.Bson.Tests
             var buffer = new byte[0];
             var offset = 1;
             var count = 2;
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
             mockStream.Setup(s => s.WriteAsync(buffer, offset, count, cancellationToken)).Returns(task);
 
             var result = subject.WriteAsync(buffer, offset, count, cancellationToken);
@@ -1203,7 +1210,8 @@ namespace MongoDB.Bson.Tests
             var buffer = new byte[0];
             var offset = 1;
             var count = 2;
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
             subject.Dispose();
 
             Action action = () => subject.WriteAsync(buffer, offset, count, cancellationToken);
