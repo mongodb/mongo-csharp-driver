@@ -93,17 +93,17 @@ namespace MongoDB.Driver.Core.Clusters
         {
             var subject = CreateSubject();
             var service = "_mongodb._tcp.test5.test.build.10gen.cc";
-            using var cts = new CancellationTokenSource();
-            cts.Cancel();
+            using var cancellationTokenSource = new CancellationTokenSource();
+            cancellationTokenSource.Cancel();
 
             Exception exception;
             if (async)
             {
-                exception = Record.Exception(() => subject.ResolveSrvRecordsAsync(service, cts.Token).GetAwaiter().GetResult());
+                exception = Record.Exception(() => subject.ResolveSrvRecordsAsync(service, cancellationTokenSource.Token).GetAwaiter().GetResult());
             }
             else
             {
-                exception = Record.Exception(() => subject.ResolveSrvRecords(service, cts.Token));
+                exception = Record.Exception(() => subject.ResolveSrvRecords(service, cancellationTokenSource.Token));
             }
 
             exception.Should().Match<Exception>(e => e is OperationCanceledException || e.InnerException is OperationCanceledException);
@@ -159,17 +159,17 @@ namespace MongoDB.Driver.Core.Clusters
         {
             var subject = CreateSubject();
             var domainName = "test5.test.build.10gen.cc";
-            using var cts = new CancellationTokenSource();
-            cts.Cancel();
+            using var cancellationTokenSource = new CancellationTokenSource();
+            cancellationTokenSource.Cancel();
 
             Exception exception;
             if (async)
             {
-                exception = Record.Exception(() => subject.ResolveTxtRecordsAsync(domainName, cts.Token).GetAwaiter().GetResult());
+                exception = Record.Exception(() => subject.ResolveTxtRecordsAsync(domainName, cancellationTokenSource.Token).GetAwaiter().GetResult());
             }
             else
             {
-                exception = Record.Exception(() => subject.ResolveTxtRecords(domainName, cts.Token));
+                exception = Record.Exception(() => subject.ResolveTxtRecords(domainName, cancellationTokenSource.Token));
             }
 
             exception.Should().Match<Exception>(e => e is OperationCanceledException || e.InnerException is OperationCanceledException);
