@@ -36,13 +36,15 @@ namespace MongoDB.Driver
             var result = new ChangeStreamDocumentSerializer<BsonDocument>(documentSerializer);
 
             result._documentSerializer().Should().BeSameAs(documentSerializer);
-            result._memberSerializationInfo().Count.Should().Be(11);
+            result._memberSerializationInfo().Count.Should().Be(13);
             AssertRegisteredMember(result, "ClusterTime", "clusterTime", BsonTimestampSerializer.Instance);
             AssertRegisteredMember(result, "CollectionNamespace", "ns", ChangeStreamDocumentCollectionNamespaceSerializer.Instance);
+            AssertRegisteredMember(result, "CollectionUuid", "ui", GuidSerializer.StandardInstance);
             AssertRegisteredMember(result, "DatabaseNamespace", "ns", ChangeStreamDocumentDatabaseNamespaceSerializer.Instance);
             AssertRegisteredMember(result, "DocumentKey", "documentKey", BsonDocumentSerializer.Instance);
             AssertRegisteredMember(result, "FullDocument", "fullDocument", documentSerializer);
             AssertRegisteredMember(result, "FullDocumentBeforeChange", "fullDocumentBeforeChange", documentSerializer);
+            AssertRegisteredMember(result, "OperationDescription", "operationDescription", BsonDocumentSerializer.Instance);
             AssertRegisteredMember(result, "OperationType", "operationType", ChangeStreamOperationTypeSerializer.Instance);
             AssertRegisteredMember(result, "RenameTo", "to", ChangeStreamDocumentCollectionNamespaceSerializer.Instance);
             AssertRegisteredMember(result, "ResumeToken", "_id", BsonDocumentSerializer.Instance);
