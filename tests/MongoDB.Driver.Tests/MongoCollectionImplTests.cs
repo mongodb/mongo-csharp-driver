@@ -95,7 +95,8 @@ namespace MongoDB.Driver
                 UseCursor = false
 #pragma warning restore 618
             };
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
             var renderedPipeline = RenderPipeline(subject, pipeline);
 
             if (usingSession)
@@ -174,8 +175,12 @@ namespace MongoDB.Driver
                 UseCursor = false
 #pragma warning restore 618
             };
-            var cancellationToken1 = new CancellationTokenSource().Token;
-            var cancellationToken2 = new CancellationTokenSource().Token;
+
+            using var cancellationTokenSource1 = new CancellationTokenSource();
+            using var cancellationTokenSource2 = new CancellationTokenSource();
+
+            var cancellationToken1 = cancellationTokenSource1.Token;
+            var cancellationToken2 = cancellationTokenSource2.Token;
             var expectedPipeline = new List<BsonDocument>(RenderPipeline(subject, pipeline).Documents);
             if (!usingDifferentOutputDatabase)
             {
@@ -348,7 +353,8 @@ namespace MongoDB.Driver
                 UseCursor = false
 #pragma warning restore 618
             };
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
             var expectedPipeline = new List<BsonDocument>(RenderPipeline(subject, pipeline).Documents);
             if (!usingDifferentOutputDatabase)
             {
@@ -406,7 +412,8 @@ namespace MongoDB.Driver
             var pipeline = new EmptyPipelineDefinition<BsonDocument>()
                 .Match("{ x : 2 }");
             var options = new AggregateOptions();
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             Exception exception;
             if (async)
@@ -472,7 +479,8 @@ namespace MongoDB.Driver
                 IsOrdered = isOrdered,
                 Let = letDocument
             };
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             var operationResult = new BulkWriteOperationResult.Unacknowledged(14, new[] { new InsertRequest(new BsonDocument("b", 1)) });
             _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
@@ -735,7 +743,8 @@ namespace MongoDB.Driver
                 MaxTime = TimeSpan.FromSeconds(20),
                 Skip = 30
             };
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             if (usingSession)
             {
@@ -800,7 +809,8 @@ namespace MongoDB.Driver
                 MaxTime = TimeSpan.FromSeconds(20),
                 Skip = 30
             };
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             if (usingSession)
             {
@@ -854,7 +864,8 @@ namespace MongoDB.Driver
             var hint = new BsonDocument("_id", 1);
             var letDocument = let != null ? BsonDocument.Parse(let) : null;
             var options = new DeleteOptions { Collation = collation, Let = letDocument };
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             var processedRequest = new DeleteRequest(filter) { Collation = collation, CorrelationId = 0, Hint = hint, Limit = 0 };
             var operationResult = new BulkWriteOperationResult.Unacknowledged(9, new[] { processedRequest });
@@ -899,7 +910,8 @@ namespace MongoDB.Driver
             var session = CreateSession(usingSession);
             var filter = new BsonDocument("a", 1);
             var options = new DeleteOptions();
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             var processedRequest = new DeleteRequest(filter) { CorrelationId = 0, Limit = 0 };
             var operationException = new MongoBulkWriteOperationException(
@@ -961,7 +973,8 @@ namespace MongoDB.Driver
             var hint = new BsonDocument("_id", 1);
             var letDocument = let != null ? BsonDocument.Parse(let) : null;
             var options = new DeleteOptions { Collation = collation, Let = letDocument };
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             var processedRequest = new DeleteRequest(filter)
             {
@@ -1012,7 +1025,8 @@ namespace MongoDB.Driver
             var session = CreateSession(usingSession);
             var filter = new BsonDocument("a", 1);
             var options = new DeleteOptions();
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             var processedRequest = new DeleteRequest(filter) { CorrelationId = 0, Limit = 1 };
             var operationException = new MongoBulkWriteOperationException(
@@ -1077,7 +1091,8 @@ namespace MongoDB.Driver
                 Collation = new Collation("en_US"),
                 MaxTime = TimeSpan.FromSeconds(20)
             };
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             if (usingSession)
             {
@@ -1142,7 +1157,8 @@ namespace MongoDB.Driver
                 Collation = new Collation("en_US"),
                 MaxTime = TimeSpan.FromSeconds(20)
             };
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             if (usingSession)
             {
@@ -1203,7 +1219,8 @@ namespace MongoDB.Driver
                 Collation = new Collation("en_US"),
                 MaxTime = TimeSpan.FromSeconds(20)
             };
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             if (usingSession)
             {
@@ -1254,7 +1271,8 @@ namespace MongoDB.Driver
             {
                 MaxTime = TimeSpan.FromSeconds(20)
             };
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             if (async)
             {
@@ -1314,7 +1332,8 @@ namespace MongoDB.Driver
                 Skip = 40,
                 Sort = sortDefinition
             };
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             if (usingSession)
             {
@@ -1408,7 +1427,8 @@ namespace MongoDB.Driver
                 Skip = 40,
                 Sort = sortDefinition
             };
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             if (usingSession)
             {
@@ -1479,7 +1499,8 @@ namespace MongoDB.Driver
                 Projection = Builders<A>.Projection.As<BsonDocument>(),
                 Let = letDocument
             };
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             if (usingSession)
             {
@@ -1538,7 +1559,8 @@ namespace MongoDB.Driver
                 Sort = sortDefinition,
                 MaxTime = TimeSpan.FromSeconds(2)
             };
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             if (usingSession)
             {
@@ -1595,7 +1617,8 @@ namespace MongoDB.Driver
                 Let = letDocument,
                 Projection = Builders<A>.Projection.As<BsonDocument>()
             };
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             if (usingSession)
             {
@@ -1663,7 +1686,8 @@ namespace MongoDB.Driver
                 ReturnDocument = returnDocument,
                 Sort = sortDefinition
             };
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             if (usingSession)
             {
@@ -1725,7 +1749,8 @@ namespace MongoDB.Driver
                 Let = letDocument,
                 Projection = Builders<A>.Projection.As<BsonDocument>()
             };
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             if (usingSession)
             {
@@ -1796,7 +1821,8 @@ namespace MongoDB.Driver
                 ReturnDocument = returnDocument,
                 Sort = sortDefinition,
             };
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             if (usingSession)
             {
@@ -1858,7 +1884,8 @@ namespace MongoDB.Driver
             {
                 ArrayFilters = new[] { arrayFilterDefinition },
             };
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             Exception exception;
             if (async)
@@ -1891,7 +1918,8 @@ namespace MongoDB.Driver
                 Projection = Builders<A>.Projection.As<BsonDocument>(),
                 Let = letDocument
             };
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             if (usingSession)
             {
@@ -1981,7 +2009,8 @@ namespace MongoDB.Driver
                 options.WildcardProjection = wildcardProjectionDefinition;
             }
 
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
             var model = new CreateIndexModel<BsonDocument>(keysDefinition, options);
 
             if (usingSession)
@@ -2118,7 +2147,8 @@ namespace MongoDB.Driver
 
             var model1 = new CreateIndexModel<BsonDocument>(keysDefinition1, options);
             var model2 = new CreateIndexModel<BsonDocument>(keysDefinition2);
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             if (usingSession)
             {
@@ -2230,7 +2260,8 @@ namespace MongoDB.Driver
             var writeConcern = new WriteConcern(1);
             var subject = CreateSubject<BsonDocument>().WithWriteConcern(writeConcern);
             var session = CreateSession(usingSession);
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
             var maxTime = TimeSpan.FromMilliseconds(42);
             var options = new DropIndexOptions { MaxTime = maxTime };
 
@@ -2276,7 +2307,8 @@ namespace MongoDB.Driver
             var writeConcern = new WriteConcern(1);
             var subject = CreateSubject<BsonDocument>().WithWriteConcern(writeConcern);
             var session = CreateSession(usingSession);
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
             var maxTime = TimeSpan.FromMilliseconds(42);
             var options = new DropIndexOptions { MaxTime = maxTime };
 
@@ -2321,7 +2353,8 @@ namespace MongoDB.Driver
         {
             var subject = CreateSubject<BsonDocument>();
             var session = CreateSession(usingSession);
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             Exception exception;
             if (async)
@@ -2346,7 +2379,8 @@ namespace MongoDB.Driver
         {
             var subject = CreateSubject<BsonDocument>();
             var session = CreateSession(usingSession);
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             if (batchSize.HasValue)
             {
@@ -2420,7 +2454,8 @@ namespace MongoDB.Driver
             var session = CreateSession(usingSession);
             var document = BsonDocument.Parse("{ _id : 1, a : 1 }");
             var options = new InsertOneOptions();
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             var processedRequest = new InsertRequest(document) { CorrelationId = 0 };
             var operationResult = new BulkWriteOperationResult.Unacknowledged(1, new[] { processedRequest });
@@ -2465,7 +2500,8 @@ namespace MongoDB.Driver
             var session = CreateSession(usingSession);
             var document = BsonDocument.Parse("{ _id : 1, a : 1 }");
             var options = new InsertOneOptions();
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             var processedRequest = new InsertRequest(document) { CorrelationId = 0 };
             var operationException = new MongoBulkWriteOperationException(
@@ -2525,7 +2561,8 @@ namespace MongoDB.Driver
             var session = CreateSession(usingSession);
             var document = BsonDocument.Parse("{ a : 1 }");
             var options = new InsertOneOptions();
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             var processedRequest = new InsertRequest(document) { CorrelationId = 0 };
             var operationResult = new BulkWriteOperationResult.Unacknowledged(1, new[] { processedRequest });
@@ -2584,7 +2621,8 @@ namespace MongoDB.Driver
                 BypassDocumentValidation = bypassDocumentValidation,
                 IsOrdered = isOrdered
             };
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             var processedRequests = new[]
             {
@@ -2635,7 +2673,8 @@ namespace MongoDB.Driver
             var session = CreateSession(usingSession);
             var document = BsonDocument.Parse("{ a : 1 }");
             var options = new InsertManyOptions();
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             var processedRequest = new InsertRequest(document) { CorrelationId = 0 };
             var operationResult = new BulkWriteOperationResult.Unacknowledged(1, new[] { processedRequest });
@@ -2707,7 +2746,8 @@ namespace MongoDB.Driver
                 Sort = sortDefinition,
                 Verbose = true
             };
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             if (usingSession)
             {
@@ -2799,7 +2839,8 @@ namespace MongoDB.Driver
                 Sort = sortDefinition,
                 Verbose = true
             };
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             if (usingSession)
             {
@@ -2883,7 +2924,8 @@ namespace MongoDB.Driver
             var collation = new Collation("en_US");
             var hint = new BsonDocument("x", 1);
             var letDocument = let != null ? BsonDocument.Parse(let) : null;
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             var processedRequest = new UpdateRequest(UpdateType.Replacement, filterDocument, replacement)
             {
@@ -3038,7 +3080,8 @@ namespace MongoDB.Driver
             var collation = new Collation("en_US");
             var hint = new BsonDocument("x", 1);
             var letDocument = let != null ? BsonDocument.Parse(let) : null;
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             var processedRequest = new UpdateRequest(UpdateType.Replacement, filterDocument, replacement)
             {
@@ -3223,7 +3266,8 @@ namespace MongoDB.Driver
                 IsUpsert = isUpsert,
                 Let = letDocument
             };
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             var processedRequest = new UpdateRequest(UpdateType.Update, filterDocument, updateDocument)
             {
@@ -3295,7 +3339,8 @@ namespace MongoDB.Driver
                 IsUpsert = isUpsert,
                 Let = letDocument
             };
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             var processedRequest = new UpdateRequest(UpdateType.Update, filterDocument, updateDocument)
             {
@@ -3380,7 +3425,8 @@ namespace MongoDB.Driver
                 IsUpsert = isUpsert,
                 Let = letDocument
             };
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             var processedRequest = new UpdateRequest(UpdateType.Update, filterDocument, updateDocument)
             {
@@ -3453,7 +3499,8 @@ namespace MongoDB.Driver
                 IsUpsert = isUpsert,
                 Let = letDocument
             };
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             var processedRequest = new UpdateRequest(UpdateType.Update, filterDocument, updateDocument)
             {
@@ -3547,7 +3594,8 @@ namespace MongoDB.Driver
                 StartAfter = startAfter,
                 StartAtOperationTime = startAtOperationTime
             };
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             if (usingSession)
             {
@@ -3605,7 +3653,8 @@ namespace MongoDB.Driver
             var stageDocument = BsonDocument.Parse("{ $match : { operationType : \"insert\" } }");
             var pipeline = (PipelineDefinition<ChangeStreamDocument<BsonDocument>, ChangeStreamDocument<BsonDocument>>)(new[] { stageDocument });
             ChangeStreamOptions options = null;
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             if (usingSession)
             {

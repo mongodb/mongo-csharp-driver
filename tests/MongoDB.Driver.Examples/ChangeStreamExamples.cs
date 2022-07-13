@@ -13,15 +13,14 @@
 * limitations under the License.
 */
 
-using FluentAssertions;
-using MongoDB.Bson;
-using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Tests;
 using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentAssertions;
+using MongoDB.Bson;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Tests;
 using Xunit;
 
 namespace MongoDB.Driver.Examples
@@ -135,7 +134,7 @@ namespace MongoDB.Driver.Examples
             var database = client.GetDatabase("ChangeStreamExamples");
             database.DropCollection("inventory");
 
-            var cancelationTokenSource = new CancellationTokenSource();
+            using var cancelationTokenSource = new CancellationTokenSource();
             try
             {
                 var document = new BsonDocument("username", "alice");

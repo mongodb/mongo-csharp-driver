@@ -397,7 +397,8 @@ namespace MongoDB.Driver.Core.Operations
         {
             var mockCursor = CreateMockCursor();
             var subject = CreateSubject(cursor: mockCursor.Object);
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             bool result;
             if (async)
@@ -434,7 +435,8 @@ namespace MongoDB.Driver.Core.Operations
             var mockBinding = new Mock<IReadBinding>();
             var mockOperation = new Mock<IChangeStreamOperation<BsonDocument>>();
             var subject = CreateSubject(cursor: mockCursor.Object, binding: mockBinding.Object, changeStreamOperation: mockOperation.Object);
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
             var resumableException = CoreExceptionHelper.CreateException(resumableExceptionType);
             var mockResumedCursor = CreateMockCursor();
 
@@ -485,7 +487,8 @@ namespace MongoDB.Driver.Core.Operations
             var subject = CreateSubject(cursor: mockCursor.Object, documentSerializer: mockSerializer.Object);
             var document = BsonDocument.Parse("{ _id : { resumeAfter : 1 }, operationType : \"insert\", ns : { db : \"db\", coll : \"coll\" }, documentKey : { _id : 1 }, fullDocument : { _id : 1 } }");
             var rawDocuments = new[] { ToRawDocument(document) };
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             mockCursor.SetupGet(c => c.Current).Returns(rawDocuments);
             mockSerializer.Setup(s => s.Deserialize(It.IsAny<BsonDeserializationContext>(), It.IsAny<BsonDeserializationArgs>())).Returns(document);
@@ -520,7 +523,8 @@ namespace MongoDB.Driver.Core.Operations
             var document = BsonDocument.Parse("{ _id : { resumeAfter : 1 }, operationType : \"insert\", ns : { db : \"db\", coll : \"coll\" }, documentKey : { _id : 1 }, fullDocument : { _id : 1 } }");
             var rawDocument = ToRawDocument(document);
             var rawDocuments = new[] { rawDocument };
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             mockCursor.SetupGet(c => c.Current).Returns(rawDocuments);
             mockSerializer.Setup(s => s.Deserialize(It.IsAny<BsonDeserializationContext>(), It.IsAny<BsonDeserializationArgs>())).Returns(document);
@@ -554,7 +558,8 @@ namespace MongoDB.Driver.Core.Operations
             var subject = CreateSubject(cursor: mockCursor.Object, documentSerializer: mockSerializer.Object);
             var document = BsonDocument.Parse("{ _id : { resumeAfter : 1 }, operationType : \"insert\", ns : { db : \"db\", coll : \"coll\" }, documentKey : { _id : 1 }, fullDocument : { _id : 1 } }");
             var rawDocuments = new[] { ToRawDocument(document) };
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             mockCursor.SetupGet(c => c.Current).Returns(rawDocuments);
             mockSerializer.Setup(s => s.Deserialize(It.IsAny<BsonDeserializationContext>(), It.IsAny<BsonDeserializationArgs>())).Returns(document);
@@ -586,7 +591,8 @@ namespace MongoDB.Driver.Core.Operations
             var subject = CreateSubject(cursor: mockCursor.Object);
             var document = BsonDocument.Parse("{ operationType : \"insert\", ns : { db : \"db\", coll : \"coll\" }, documentKey : { _id : 1 }, fullDocument : { _id : 1 } }");
             var rawDocuments = new[] { ToRawDocument(document) };
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             mockCursor.SetupGet(c => c.Current).Returns(rawDocuments);
 

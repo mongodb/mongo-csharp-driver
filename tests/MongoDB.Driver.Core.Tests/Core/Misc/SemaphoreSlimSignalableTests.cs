@@ -147,7 +147,7 @@ namespace MongoDB.Driver.Core.Misc
             const int threadsCount = 4;
             var semaphore = new SemaphoreSlimSignalable(0);
 
-            var cancelationTokenSource = new CancellationTokenSource();
+            using var cancelationTokenSource = new CancellationTokenSource();
 
             var tasks = CreateWaitTasks(semaphore, async, isSignaledWait, threadsCount, Timeout.InfiniteTimeSpan, cancelationTokenSource.Token);
 
@@ -164,7 +164,7 @@ namespace MongoDB.Driver.Core.Misc
         [Fact]
         public async Task WaitSignaledAsync_should_not_continue_on_signal_thread()
         {
-            var cancelationTokenSource = new CancellationTokenSource();
+            using var cancelationTokenSource = new CancellationTokenSource();
 
             var semaphore = new SemaphoreSlimSignalable(0);
             var waitStartedEvent = new ManualResetEventSlim(false);

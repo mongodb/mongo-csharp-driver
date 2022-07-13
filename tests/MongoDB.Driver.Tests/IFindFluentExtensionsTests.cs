@@ -42,7 +42,8 @@ namespace MongoDB.Driver.Tests
             var mockSubject3 = new Mock<IFindFluent<Person, BsonDocument>>();
             var mockCursor = new Mock<IAsyncCursor<BsonDocument>>();
             var firstBatch = Enumerable.Range(0, count).Select(i => new BsonDocument("_id", i)).ToArray();
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             mockSubject1.Setup(s => s.Project(It.Is<BsonDocumentProjectionDefinition<Person, BsonDocument>>(p => p.Document["_id"].AsInt32 == 1))).Returns(mockSubject2.Object);
             mockSubject2.Setup(s => s.Limit(1)).Returns(mockSubject3.Object);
@@ -100,7 +101,8 @@ namespace MongoDB.Driver.Tests
                 new Person { FirstName = "John" },
                 new Person { FirstName = "Jane" }
             };
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             mockSubject1.Setup(s => s.Limit(1)).Returns(mockSubject2.Object);
             mockCursor.SetupGet(c => c.Current).Returns(firstBatch);
@@ -158,7 +160,8 @@ namespace MongoDB.Driver.Tests
                 new Person { FirstName = "John" },
                 new Person { FirstName = "Jane" }
             };
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             mockSubject1.Setup(s => s.Limit(1)).Returns(mockSubject2.Object);
             mockCursor.SetupGet(c => c.Current).Returns(firstBatch);
@@ -249,7 +252,8 @@ namespace MongoDB.Driver.Tests
             {
                 new Person { FirstName = "John" }
             };
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             mockSubject1.SetupGet(s => s.Options).Returns(findOptions);
             mockSubject1.Setup(s => s.Limit(2)).Returns(mockSubject2.Object);
@@ -307,7 +311,8 @@ namespace MongoDB.Driver.Tests
             {
                 new Person { FirstName = "John" }
             };
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             mockSubject1.SetupGet(s => s.Options).Returns(findOptions);
             mockSubject1.Setup(s => s.Limit(2)).Returns(mockSubject2.Object);

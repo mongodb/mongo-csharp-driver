@@ -145,7 +145,8 @@ namespace MongoDB.Driver.Core.Bindings
         {
             var mockChannel = new Mock<IChannelHandle>();
             var subject = CreateSubject(channel: mockChannel.Object);
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
             var expectedResult = new Mock<IChannelHandle>().Object;
             mockChannel.Setup(m => m.Fork()).Returns(expectedResult);
 
@@ -169,7 +170,8 @@ namespace MongoDB.Driver.Core.Bindings
             [Values(false, true)] bool async)
         {
             var subject = CreateDisposedSubject();
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             var exception = Record.Exception(() =>
             {

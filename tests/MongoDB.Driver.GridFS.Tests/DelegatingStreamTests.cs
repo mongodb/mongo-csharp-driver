@@ -146,7 +146,8 @@ namespace MongoDB.Driver.GridFS.Tests
             var subject = new DelegatingStream(mockStream.Object);
             var mockDestination = new Mock<Stream>();
             var bufferSize = 1;
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
             var task1 = Task.FromResult<object>(null);
             mockStream.Setup(s => s.CopyToAsync(mockDestination.Object, bufferSize, cancellationToken)).Returns(task1);
 
@@ -213,7 +214,8 @@ namespace MongoDB.Driver.GridFS.Tests
             var mockStream = new Mock<Stream>();
             var subject = new DelegatingStream(mockStream.Object);
             var task = Task.FromResult<object>(null);
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
             mockStream.Setup(s => s.FlushAsync(cancellationToken)).Returns(task);
 
             var result = subject.FlushAsync(cancellationToken);
@@ -261,7 +263,8 @@ namespace MongoDB.Driver.GridFS.Tests
             var buffer = new byte[3];
             var offset = 1;
             var count = 2;
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
             var task = Task.FromResult(1);
             mockStream.Setup(s => s.ReadAsync(buffer, offset, count, cancellationToken)).Returns(task);
 
@@ -349,7 +352,8 @@ namespace MongoDB.Driver.GridFS.Tests
             var buffer = new byte[3];
             var offset = 1;
             var count = 2;
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
             var task = Task.FromResult<object>(null);
             mockStream.Setup(s => s.WriteAsync(buffer, offset, count, cancellationToken)).Returns(task);
 

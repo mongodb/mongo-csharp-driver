@@ -46,7 +46,8 @@ namespace MongoDB.Driver.Tests
                 new Person { FirstName = "John" },
                 new Person { FirstName = "Jane" }
             };
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             mockSubject1.Setup(s => s.Limit(1)).Returns(mockSubject2.Object);
             mockCursor.SetupGet(c => c.Current).Returns(firstBatch);
@@ -106,7 +107,8 @@ namespace MongoDB.Driver.Tests
                 new Person { FirstName = "John" },
                 new Person { FirstName = "Jane" }
             };
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             mockSubject1.Setup(s => s.Limit(1)).Returns(mockSubject2.Object);
             mockCursor.SetupGet(c => c.Current).Returns(firstBatch);
@@ -323,7 +325,8 @@ namespace MongoDB.Driver.Tests
             {
                 new Person { FirstName = "John" }
             };
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             mockSubject1.Setup(s => s.Limit(2)).Returns(mockSubject2.Object);
             mockCursor.SetupGet(c => c.Current).Returns(firstBatch);
@@ -382,7 +385,8 @@ namespace MongoDB.Driver.Tests
             {
                 new Person { FirstName = "John" }
             };
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             mockSubject1.Setup(s => s.Limit(2)).Returns(mockSubject2.Object);
             mockCursor.SetupGet(c => c.Current).Returns(firstBatch);

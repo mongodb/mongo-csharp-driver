@@ -17,7 +17,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using MongoDB.Driver.Core.Async;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Async
@@ -88,7 +87,7 @@ namespace MongoDB.Driver.Core.Async
         [Fact]
         public void Dequeue_should_cancel_when_cancellation_is_requested()
         {
-            var cancellationTokenSource = new CancellationTokenSource();
+            using var cancellationTokenSource = new CancellationTokenSource();
             var subject = new AsyncQueue<int>();
             var result = subject.DequeueAsync(cancellationTokenSource.Token);
             cancellationTokenSource.Cancel();
