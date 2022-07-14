@@ -123,6 +123,16 @@ namespace MongoDB.Driver
 
         /// <summary>
         /// Gets or sets whether the change stream should show expanded events (MongoDB 6.0 and later).
+        /// Expanded change stream events include:
+        /// <list type="bullet">
+        ///     <item><description><see cref="ChangeStreamOperationType.Create"/></description></item>
+        ///     <item><description><see cref="ChangeStreamOperationType.CreateIndexes"/></description></item>
+        ///     <item><description><see cref="ChangeStreamOperationType.DropIndexes"/></description></item>
+        ///     <item><description><see cref="ChangeStreamOperationType.Modify"/></description></item>
+        ///     <item><description><see cref="ChangeStreamOperationType.RefineCollectionShardKey"/></description></item>
+        ///     <item><description><see cref="ChangeStreamOperationType.ReshardCollection"/></description></item>
+        ///     <item><description><see cref="ChangeStreamOperationType.ShardCollection"/></description></item>
+        /// </list>
         /// </summary>
         /// <value>
         /// The value.

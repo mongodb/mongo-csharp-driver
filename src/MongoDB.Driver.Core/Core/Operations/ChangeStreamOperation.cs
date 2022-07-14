@@ -105,9 +105,9 @@ namespace MongoDB.Driver.Core.Operations
         private readonly IBsonSerializer<TResult> _resultSerializer;
         private BsonDocument _resumeAfter;
         private bool _retryRequested;
+        private bool? _showExpandedEvents;
         private BsonDocument _startAfter;
         private BsonTimestamp _startAtOperationTime;
-        private bool? _showExpandedEvents;
 
         // constructors
         /// <summary>
