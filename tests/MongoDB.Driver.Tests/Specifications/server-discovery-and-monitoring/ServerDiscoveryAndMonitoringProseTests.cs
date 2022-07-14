@@ -179,7 +179,10 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
             RequireServer.Check().VersionGreaterThanOrEqualTo(minVersion);
 
             const string appName = "SDAMPoolManagementTest";
-            var heartbeatInterval = TimeSpan.FromMilliseconds(100);
+            // Using a 100ms heartbeatInterval can result in sporadic failures of this test if the RTT thread
+            // consumes both of the configured failpoints before the monitoring thread can run.
+            // Increasing the heartbeatInterval to 200ms avoids this race condition.
+            var heartbeatInterval = TimeSpan.FromMilliseconds(200);
             var eventsWaitTimeout = TimeSpan.FromMilliseconds(5000);
 
             var failPointCommand = BsonDocument.Parse(
