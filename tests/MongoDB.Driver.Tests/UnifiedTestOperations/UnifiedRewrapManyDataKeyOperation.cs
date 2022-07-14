@@ -65,23 +65,23 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         }
 
         private BsonDocument CreateResult(BulkWriteResult bulkWriteResult)
-            => new BsonDocument
+            => bulkWriteResult != null
+            ? new BsonDocument
             {
                 {
                     "bulkWriteResult",
-                    bulkWriteResult == null
-                        ? new BsonDocument()
-                        : new BsonDocument
-                        {
-                            { "insertedCount", bulkWriteResult.InsertedCount },
-                            { "matchedCount", bulkWriteResult.MatchedCount },
-                            { "modifiedCount", bulkWriteResult.ModifiedCount },
-                            { "deletedCount", bulkWriteResult.DeletedCount },
-                            { "upsertedCount", bulkWriteResult.Upserts.Count },
-                            { "upsertedIds", new BsonDocument(bulkWriteResult.Upserts.Select(i => new BsonElement(i.Index.ToString(), i.Id))) }
-                        }
+                    new BsonDocument
+                    {
+                        { "insertedCount", bulkWriteResult.InsertedCount },
+                        { "matchedCount", bulkWriteResult.MatchedCount },
+                        { "modifiedCount", bulkWriteResult.ModifiedCount },
+                        { "deletedCount", bulkWriteResult.DeletedCount },
+                        { "upsertedCount", bulkWriteResult.Upserts.Count },
+                        { "upsertedIds", new BsonDocument(bulkWriteResult.Upserts.Select(i => new BsonElement(i.Index.ToString(), i.Id))) }
+                    }
                 }
-            };
+            }
+            : new BsonDocument();
     }
 
     public class UnifiedRewrapManyDataKeyOperationBuilder

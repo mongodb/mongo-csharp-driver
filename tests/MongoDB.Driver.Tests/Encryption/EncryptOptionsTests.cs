@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Tests.Encryption
         [Fact]
         public void Constructor_should_fail_when_queryType_and_algorithm_is_not_indexed()
         {
-            var exception = Record.Exception(() => new EncryptOptions(algorithm: "test", queryType: QueryType.Equality, keyId: Guid.NewGuid()));
+            var exception = Record.Exception(() => new EncryptOptions(algorithm: "test", queryType: "equality", keyId: Guid.NewGuid()));
             var e = exception.Should().BeOfType<ArgumentException>().Subject;
             e.Message.Should().Be("QueryType only applies for Indexed algorithm.");
         }
@@ -109,8 +109,8 @@ namespace MongoDB.Driver.Tests.Encryption
             var newAlternateKeyName = "new";
             long? originalContention = null;
             var newContention = 2;
-            QueryType? originalQueryType = null;
-            var newQueryType = QueryType.Equality;
+            string originalQueryType = null;
+            var newQueryType = "equality";
 
             var fle1WithKeyIdState = 0;
             var subject = CreateConfiguredSubject(state: fle1WithKeyIdState);
@@ -138,7 +138,7 @@ namespace MongoDB.Driver.Tests.Encryption
             subject = subject.With(queryType: newQueryType);
             AssertValues(subject, EncryptionAlgorithm.Indexed.ToString(), expectedKeyId: originalKeyId, expectedQueryType: newQueryType);
 
-            static void AssertValues(EncryptOptions subject, string expectedAlgorithm, Guid? expectedKeyId = null, string expectedAlternateKeyName = null, QueryType? expectedQueryType = null, long? expectedContentionFactor = null)
+            static void AssertValues(EncryptOptions subject, string expectedAlgorithm, Guid? expectedKeyId = null, string expectedAlternateKeyName = null, string expectedQueryType = null, long? expectedContentionFactor = null)
             {
                 subject.Algorithm.Should().Be(expectedAlgorithm);
                 subject.KeyId.Should().Be(expectedKeyId);

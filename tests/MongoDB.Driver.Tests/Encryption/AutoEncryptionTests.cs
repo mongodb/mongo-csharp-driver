@@ -119,7 +119,7 @@ namespace MongoDB.Driver.Tests.Encryption
             {
                 var libMongoCryptController = ((MongoClient)client.Wrapped).LibMongoCryptController;
                 var cryptClient = libMongoCryptController._cryptClient();
-                cryptClient.CryptSharedLibraryVersion.Should().Be("mongo_crypt_v1-dev-6.0.0-rc8");
+                cryptClient.CryptSharedLibraryVersion.Should().Be("mongo_crypt_v1-dev-6.0.0-rc13");
             }
         }
 
