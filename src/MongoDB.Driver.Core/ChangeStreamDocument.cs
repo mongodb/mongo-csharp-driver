@@ -63,6 +63,28 @@ namespace MongoDB.Driver
         public CollectionNamespace CollectionNamespace => GetValue<CollectionNamespace>(nameof(CollectionNamespace), null);
 
         /// <summary>
+        /// Gets ui field from the oplog entry corresponding to the change event.
+        /// Only present when the showExpandedEvents change stream option is enabled and for the following event types (MongoDB 6.0 and later):
+        /// <list type="bullet">
+        ///     <item><description><see cref="ChangeStreamOperationType.Create"/></description></item>
+        ///     <item><description><see cref="ChangeStreamOperationType.CreateIndexes"/></description></item>
+        ///     <item><description><see cref="ChangeStreamOperationType.Delete"/></description></item>
+        ///     <item><description><see cref="ChangeStreamOperationType.Drop"/></description></item>
+        ///     <item><description><see cref="ChangeStreamOperationType.DropIndexes"/></description></item>
+        ///     <item><description><see cref="ChangeStreamOperationType.Insert"/></description></item>
+        ///     <item><description><see cref="ChangeStreamOperationType.Modify"/></description></item>
+        ///     <item><description><see cref="ChangeStreamOperationType.RefineCollectionShardKey"/></description></item>
+        ///     <item><description><see cref="ChangeStreamOperationType.ReshardCollection"/></description></item>
+        ///     <item><description><see cref="ChangeStreamOperationType.ShardCollection"/></description></item>
+        ///     <item><description><see cref="ChangeStreamOperationType.Update"/></description></item>
+        /// </list>
+        /// </summary>
+        /// <value>
+        /// The UUID of the collection.
+        /// </value>
+        public Guid? CollectionUuid => GetValue<Guid?>(nameof(CollectionUuid), null);
+
+        /// <summary>
         /// Gets the database namespace.
         /// </summary>
         /// <value>
@@ -121,6 +143,25 @@ namespace MongoDB.Driver
                 }
             }
         }
+
+        /// <summary>
+        /// Gets the description for the operation.
+        /// Only present when the showExpandedEvents change stream option is enabled and for the following event types (MongoDB 6.0 and later):
+        /// <list type="bullet">
+        ///     <item><description><see cref="ChangeStreamOperationType.Create"/></description></item>
+        ///     <item><description><see cref="ChangeStreamOperationType.CreateIndexes"/></description></item>
+        ///     <item><description><see cref="ChangeStreamOperationType.DropIndexes"/></description></item>
+        ///     <item><description><see cref="ChangeStreamOperationType.Modify"/></description></item>
+        ///     <item><description><see cref="ChangeStreamOperationType.RefineCollectionShardKey"/></description></item>
+        ///     <item><description><see cref="ChangeStreamOperationType.Rename"/></description></item>
+        ///     <item><description><see cref="ChangeStreamOperationType.ReshardCollection"/></description></item>
+        ///     <item><description><see cref="ChangeStreamOperationType.ShardCollection"/></description></item>
+        /// </list>
+        /// </summary>
+        /// <value>
+        /// The description of the operation.
+        /// </value>
+        public BsonDocument OperationDescription => GetValue<BsonDocument>(nameof(OperationDescription), null);
 
         /// <summary>
         /// Gets the type of the operation.

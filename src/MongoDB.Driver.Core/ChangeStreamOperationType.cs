@@ -51,6 +51,34 @@ namespace MongoDB.Driver
         /// <summary>
         /// A dropDatabase operation type.
         /// </summary>
-        DropDatabase
+        DropDatabase,
+        /// <summary>
+        /// A createIndexes operation type.
+        /// </summary>
+        CreateIndexes,
+        /// <summary>
+        /// A dropIndexes operation type.
+        /// </summary>
+        DropIndexes,
+        /// <summary>
+        /// A modify operation type.
+        /// </summary>
+        Modify,
+        /// <summary>
+        /// A create operation type.
+        /// </summary>
+        Create,
+        /// <summary>
+        /// A shardCollection operation type.
+        /// </summary>
+        ShardCollection,
+        /// <summary>
+        /// A refineCollectionShardKey operation type.
+        /// </summary>
+        RefineCollectionShardKey,
+        /// <summary>
+        /// A reshardCollection operation type.
+        /// </summary>
+        ReshardCollection
     }
 }

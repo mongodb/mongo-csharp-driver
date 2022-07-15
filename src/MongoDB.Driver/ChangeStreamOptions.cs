@@ -32,6 +32,7 @@ namespace MongoDB.Driver
         private ChangeStreamFullDocumentBeforeChangeOption _fullDocumentBeforeChange = ChangeStreamFullDocumentBeforeChangeOption.Default;
         private TimeSpan? _maxAwaitTime;
         private BsonDocument _resumeAfter;
+        private bool? _showExpandedEvents;
         private BsonDocument _startAfter;
         private BsonTimestamp _startAtOperationTime;
 
@@ -118,6 +119,28 @@ namespace MongoDB.Driver
         {
             get { return _resumeAfter; }
             set { _resumeAfter = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets whether the change stream should show expanded events (MongoDB 6.0 and later).
+        /// Expanded change stream events include:
+        /// <list type="bullet">
+        ///     <item><description><see cref="ChangeStreamOperationType.Create"/></description></item>
+        ///     <item><description><see cref="ChangeStreamOperationType.CreateIndexes"/></description></item>
+        ///     <item><description><see cref="ChangeStreamOperationType.DropIndexes"/></description></item>
+        ///     <item><description><see cref="ChangeStreamOperationType.Modify"/></description></item>
+        ///     <item><description><see cref="ChangeStreamOperationType.RefineCollectionShardKey"/></description></item>
+        ///     <item><description><see cref="ChangeStreamOperationType.ReshardCollection"/></description></item>
+        ///     <item><description><see cref="ChangeStreamOperationType.ShardCollection"/></description></item>
+        /// </list>
+        /// </summary>
+        /// <value>
+        /// The value.
+        /// </value>
+        public bool? ShowExpandedEvents
+        {
+            get { return _showExpandedEvents; }
+            set { _showExpandedEvents = value; }
         }
 
         /// <summary>

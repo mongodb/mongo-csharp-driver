@@ -43,6 +43,14 @@ namespace MongoDB.Driver.Core.Operations
         BsonDocument ResumeAfter { get; set; }
 
         /// <summary>
+        /// Gets or sets whether the change stream should show expanded events (MongoDB 6.0 and later).
+        /// </summary>
+        /// <value>
+        /// The value.
+        /// </value>
+        bool? ShowExpandedEvents { get; set; }
+
+        /// <summary>
         /// Gets or sets the start after value.
         /// </summary>
         /// <value>
@@ -97,6 +105,7 @@ namespace MongoDB.Driver.Core.Operations
         private readonly IBsonSerializer<TResult> _resultSerializer;
         private BsonDocument _resumeAfter;
         private bool _retryRequested;
+        private bool? _showExpandedEvents;
         private BsonDocument _startAfter;
         private BsonTimestamp _startAtOperationTime;
 
@@ -291,6 +300,13 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <inheritdoc />
+        public bool? ShowExpandedEvents
+        {
+            get => _showExpandedEvents;
+            set => _showExpandedEvents = value;
+        }
+
+        /// <inheritdoc />
         public BsonDocument StartAfter
         {
             get { return _startAfter; }
@@ -432,7 +448,8 @@ namespace MongoDB.Driver.Core.Operations
                 { "fullDocument", () => ToString(_fullDocument), _fullDocument != ChangeStreamFullDocumentOption.Default },
                 { "fullDocumentBeforeChange", () => ToString(_fullDocumentBeforeChangeOption), _fullDocumentBeforeChangeOption != ChangeStreamFullDocumentBeforeChangeOption.Default },
                 { "allChangesForCluster", true, _collectionNamespace == null && _databaseNamespace == null },
-                { "startAfter", _startAfter, _startAfter != null},
+                { "showExpandedEvents", _showExpandedEvents, _showExpandedEvents.HasValue },
+                { "startAfter", _startAfter, _startAfter != null },
                 { "startAtOperationTime", _startAtOperationTime, _startAtOperationTime != null },
                 { "resumeAfter", _resumeAfter, _resumeAfter != null }
             };
