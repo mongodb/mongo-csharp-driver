@@ -1,10 +1,10 @@
 +++
 date = "2022-07-11T16:56:14Z"
 draft = false
-title = "Common issues"
+title = "Frequently Encountered Issues"
 [menu.main]
   weight = 1000
-  identifier = "Common issues"
+  identifier = "Frequently Encountered Issues"
   pre = "<i class='fa fa-life-ring'></i>"
 +++
 
