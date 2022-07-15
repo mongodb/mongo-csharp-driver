@@ -3,9 +3,10 @@ date = "2022-07-11T16:56:14Z"
 draft = false
 title = "Frequently Encountered Issues"
 [menu.main]
-  weight = 1000
+  parent = "Issues & Help"
   identifier = "Frequently Encountered Issues"
-  pre = "<i class='fa fa-life-ring'></i>"
+  weight = 10
+  pre = "<i class='fa'></i>"
 +++
 
 # Frequently Encountered Issues
