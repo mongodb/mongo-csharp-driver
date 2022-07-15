@@ -42,7 +42,7 @@ The error message consists of few parts:
 
     * `No connection could be made because the target machine actively refused it`: The driver cannot see this cluster node. This can be because the cluster node has crashed, a firewall is preventing network traffic from reaching the cluster node or port, or some other network error is preventing traffic from being successfully routed to the cluster node.
     
-    * `Attempted to read past the end of the stream`: This error happens when driver can't connect to a server due to network error. Make sure that a configured server is accessible. One typical example of when this error happens is when client's machine IP is not configured in the Atlas IPs white list.
+    * `Attempted to read past the end of the stream`: This error happens when the driver can't connect to the cluster nodes due to a network error, misconfigured firewall, or other network issue. Ensure that all cluster nodes are reachable. One common cause of this error is when the client machine's IP address is not configured in the Atlas IPs Access List, which can be found under the Network Access tab for your Atlas Project.
     
     * `The remote certificate is invalid according to the validation procedure`: This error typically indicates a TLS/SSL-related problem such as an expired/invalid certificate or an untrusted root CA. You can use tools like `openssl s_client` to debug TLS/SSL-related certificate problems.
 
