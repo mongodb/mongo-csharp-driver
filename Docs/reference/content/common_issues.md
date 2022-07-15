@@ -8,11 +8,11 @@ title = "Common issues"
   pre = "<i class='fa fa-life-ring'></i>"
 +++
 
-# Frequency Encountered Issues
+# Frequently Encountered Issues
 
-## Timeout during server selecting
+## Timeout during server selection
 
-Each driver operation requires selecting a healthy server to be run on. In case if such server has not been found during server selection [timeout]({{< apiref "T_MongoDB_Driver_ServerSelectionTimeout" >}}), the driver will throw server selecting timeout exception. The exception will look similar to:
+Each driver operation requires choosing of a healthy server satisfying the [server selection criteria](https://www.mongodb.com/docs/manual/core/read-preference-mechanics/). If an appropriate server cannot be found within the [server selection timeout]({{< apiref "T_MongoDB_Driver_ServerSelectionTimeout" >}}), the driver will throw a server selection timeout exception. The exception will look similar to the following:
 
 ```csharp
 A timeout occurred after 30000ms selecting a server using CompositeServerSelector{ Selectors = MongoDB.Driver.MongoClient+AreSessionsSupportedServerSelector, LatencyLimitingServerSelector{ AllowedLatencyRange = 00:00:00.0150000 }, OperationsCountServerSelector }. 
@@ -34,41 +34,49 @@ Client view of cluster state is
     }] 
 }.
 ```
-The error message consist of few parts:
+The error message consists of few parts:
 
-1. Used server selection timeout and a description of server selector used for. 
-2. The current cluster description. The main part of it is a list of servers that the driver is aware of. Each server description contains exhaustive description of its current state including information about an endpoint, a server version, a server type and its current health state. If the server is not heathy, most-likely it has happened because the latest heartbeat attempts were failed. The server description tracks such failures in HeartbeatException. This is the main area that should be analyzed for issue resolving. Most of heartbeat exception messages are self explanatory. Below there are few well-known frequent heartbeat exceptions:
+1. The server selection timeout (e.g. 30000ms).
+2. The server selectors considered (e.g. `CompositeServerSelector` containing `AreSessionsSupportedServerSelector`, `LatencyLimitingServerSelector`, and `OperationsCountServerSelector`.) 
+3. The driver's current view of the cluster topology. A key part is the list of servers that the driver is aware of. Each server description contains an exhaustive description of its current state including information about an endpoint, a server version, a server type, and its current health state. If the server is not heathy then `HeartbeatException` will contain the exception from the last failed heartbeat. Analyzing the `HeartbeatException` on each cluster node can assist in diagnosing most server selection issues. Below are a few common heartbeat exceptions:
 
-    * `No connection could be made because the target machine actively refused it` - a driver doesn't see a server endpoint. In most cases this means that a server is not visible in network or has not been launched.
+    * `No connection could be made because the target machine actively refused it`: The driver cannot see this cluster node. This can be because the cluster node has crashed, a firewall is preventing network traffic from reaching the cluster node or port, or some other network error is preventing traffic from being successfully routed to the cluster node.
     
-    * `Attempted to read past the end of the stream.` - this error happens when driver can't connect to a server due to network error. Make sure that a configured server is accessible. One typical example of when this error happens is when client's machine IP is not configured in the Atlas IPs white list.
+    * `Attempted to read past the end of the stream`: This error typically indicates a TLS/SSL-related problem such as an expired/invalid certificate or an untrusted root CA. You can use tools like `openssl s_client` to debug TLS/SSL-related certificate problems.
 
-## MongoWaitQueueFullException. The wait queue for acquiring a connection to server is full
+## MongoWaitQueueFullException. The wait queue for acquiring a connection to server is full.
 
-In the vast majority of cases this is expected behavior related to provided a mongo client configuration or the way how a driver is used. This exception indicates that too many consumers are trying to use MongoDB at once. As soon as a number of acquiring connections at the same time has reached WaitQueueSize value, all next connection acquiring attempts will be postponed until any previous acquiring process will be finished. If it won't happen during WaitQueueTimeout, the driver will throw this exception.
+This exception usually indicates a threading or concurrency problem in your application. When the driver executes a read or write, it will check out a connection from the selected server's connection pool. If that pool is already at `maxPoolSize` (default 100), then the requesting thread will block in a wait queue (which has a default size of `5 x maxPoolSize` or 500). If the wait queue is also full, then a `MongoWaitQueueFullException` will be thrown. To resolve this issue, you can try the following (in order of preference):
 
-## Unsupported LINQ or builder expressions
+1. Tune your indexes. By improving the performance of your queries, operations will take less time to complete and reduce the number of concurrent connections needed for your workload.
+2. If you have long-running, analytical queries, you may wish to isolate them to dedicated analytics nodes using `readPreferenceTags` or a hidden secondary.
+3. Increase `maxPoolSize` to allow more simultaneous operations to a given cluster node. If your MongoDB cluster does not have sufficient resources to handle the additional connections and simultaneous workload, performance can actually decrease due to resource contention on the cluster nodes. Adjust this setting only with careful consideration and testing.
+4. Increase `waitQueueMultiple` to allow more threads/tasks to block waiting for a connection. This is rarely the right solution. It is better to address the concurrency problems in your application.
 
-Each LINQ expression or builder configuration must be translated into an appropriate mongo query to be executed by a server. Unfortunately it's not always possible to do with a typed approach due 2 reasons:
+## Unsupported LINQ or Builder expressions
 
-1. A server doesn't have equvalent operators, methods or .dotnet types that have been configured in a LINQ expression.
-2. A driver doesn't support a particular tranformation from LINQ expression or builder configuration into a server query. It may happen because the provided query is too complicated or because some feature has not been implemented yet by a driver.
+Each LINQ or Builder expression must be translated into MQL (MongoDB Query Language), which is executed by the server. Unfortunately this is not always possible for two main reasons:
 
-In case if you see `Unsupported filter ..` or `Expression not supported ..` exception message, we recommend trying the following steps:
+1. You are attempting to use a .NET feature that does not have an obvious or equivalent MongoDB representation. For example, .NET and MongoDB have different semantics around collations.
+2. The driver doesn't support a particular tranformation from LINQ or Builder expression into a server query. It may happen because the provided query is too complicated or because some feature has not been implemented yet by the driver.
 
-1. If you use a default LINQ2 provider, configure LINQ3 [provider]({{< relref "reference\driver\crud\linq3.md" >}}). This is the most modern LINQ provider that supports much more various cases that may be not implemented in LINQ2.
-2. Try simplify your query as more as possible.
-3. If the above steps don't resolve your issue, it's always possible to provide a query in a raw BsonDocument or string form. All mongo query definitions like FilterDefinition, ProjectionDefinition, PipelineDefinition and etc support implicit conversions from a raw form. That allows specyfying any query that is supported by a server. For example, the below filters are equvalent from a server point of view:
+If you see an `Unsupported filter ...` or `Expression not supported ...` exception message, we recommend trying the following steps:
+
+1. Try configuring the new [LINQ3 provider]({{< relref "reference\driver\crud\linq3.md" >}}). The LINQ3 provider contains many fixes and new features over the LINQ2 provider. 
+2. Try simplify your query as much as possible.
+3. If the above steps don't resolve your issue, it's always possible to provide a query as a `BsonDocument` or JSON string. All driver definition classes such as `FilterDefinition`, `ProjectionDefinition`, and `PipelineDefinition` support implicit conversion from `BsonDocument` or JSON string. For example, the following filters will render to the same MQL when used in a query or aggregation:
 
 ```csharp
     FilterDefinition<Entity> typedFilter = Builders<Entity>.Filter.Eq(e => e.A, 1);
-    BsonDocument rawMQLfilter = BsonDocument.Parse("{ a : 1 }");
+    FilterDefinition<Entity> bsonFilter = new BsonDocument {{ "a", 1 }};
+    FilterDefinition<Entity> jsonFilter = "{ a : 1 }";
 ```
 
 {{% note %}}
-Pay attention that if you use a raw mongo query form, you also avoid using all applied configuration via bson attributes like `BsonElement` or static serialization with [BsonClassMap]({{< relref "reference\bson\mapping\index.md" >}}). So, the provided field naming should be represented in the same way as it's stored on the server.
+Note that if you use `BsonDocument` or JSON string, then [BsonClassMap]({{< relref "reference\bson\mapping\index.md" >}}), BSON serialization attributes, and serialization conventions will not be taken into account when rendering the MQL. Field names must match the names and casing as stored by the server. For example, when referencing the `_id` field, you must refer to it using `_id` (not `Id` as used in C#) in `BsonDocument` or JSON string definitions. Similarly if you have a property `FirstName` annotated with `[BsonElement("first_name")]`, you must refer to it as `first_name` in `BsonDocument` or JSON string definitions.
 {{% /note %}}
-It's also possible to combine a raw and typed forms in the same query:
+
+It's also possible to combine the raw and typed forms in the same query:
 
 ```csharp
 FilterDefinition<Entity> filter = Builders<Entity>.Filter.And(Builders<Entity>.Filter.Eq(e => e.A, 1), BsonDocument.Parse("{ b : 2 }"));
