@@ -271,14 +271,14 @@ namespace MongoDB.Driver.Encryption
 
         // internal methods
         internal CryptClientSettings ToCryptClientSettings() =>
-             new CryptClientSettings(
-                    _bypassQueryAnalysis,
-                    ExtraOptions.GetValueOrDefault<string, string, object>("cryptSharedLibPath"),
-                    cryptSharedLibSearchPath: _bypassAutoEncryption ? null : "$SYSTEM",
-                    _encryptedFieldsMap,
-                    ExtraOptions.GetValueOrDefault<bool?, string, object>("cryptSharedLibRequired"),
-                    _kmsProviders,
-                    _schemaMap);
+            new CryptClientSettings(
+                _bypassQueryAnalysis,
+                ExtraOptions.GetValueOrDefault<string, string, object>("cryptSharedLibPath"),
+                cryptSharedLibSearchPath: _bypassAutoEncryption ? null : "$SYSTEM",
+                _encryptedFieldsMap,
+                ExtraOptions.GetValueOrDefault<bool?, string, object>("cryptSharedLibRequired"),
+                _kmsProviders,
+                _schemaMap);
 
         // private methods
         private bool ExtraOptionsEquals(IReadOnlyDictionary<string, object> x, IReadOnlyDictionary<string, object> y)

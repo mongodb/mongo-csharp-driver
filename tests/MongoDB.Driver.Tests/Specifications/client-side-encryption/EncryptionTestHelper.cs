@@ -16,15 +16,89 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
+using FluentAssertions;
+using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
 {
     public static class EncryptionTestHelper
     {
-        public static void ConfigureDefaultExtraOptions(Dictionary<string, object> extraOptions, bool withSharedLibrary = false)
+        private static readonly IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> __kmsProviders;
+
+        static EncryptionTestHelper()
+        {
+            var kmsProviders = new Dictionary<string, IReadOnlyDictionary<string, object>>
+            {
+                {
+                    "aws", new Dictionary<string, object>
+                    {
+                        { "accessKeyId", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AWS_ACCESS_KEY_ID") },
+                        { "secretAccessKey", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AWS_SECRET_ACCESS_KEY") }
+                    }
+                },
+                {
+                    "local", new Dictionary<string, object>
+                    {
+                        { "key", new BsonBinaryData(Convert.FromBase64String(LocalMasterKey)).Bytes }
+                    }
+                },
+                {
+                    "azure", new Dictionary<string, object>
+                    {
+                        { "tenantId", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AZURE_TENANT_ID") },
+                        { "clientId", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AZURE_CLIENT_ID") },
+                        { "clientSecret", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AZURE_CLIENT_SECRET") }
+                    }
+                },
+                {
+                    "gcp", new Dictionary<string, object>
+                    {
+                        { "email", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_GCP_EMAIL") },
+                        { "privateKey", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_GCP_PRIVATE_KEY") }
+                    }
+                },
+                {
+                    "kmip", new Dictionary<string, object>
+                    {
+                        { "endpoint", "localhost:5698" }
+                    }
+                },
+            };
+
+            if (Environment.GetEnvironmentVariable("FLE_AWS_TEMPORARY_CREDS_ENABLED") != null)
+            {
+                kmsProviders.Add(
+                    "awsTemporary",
+                    new Dictionary<string, object>
+                    {
+                        { "accessKeyId", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AWS_TEMP_ACCESS_KEY_ID") },
+                        { "secretAccessKey", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AWS_TEMP_SECRET_ACCESS_KEY") },
+                        { "sessionToken", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AWS_TEMP_SESSION_TOKEN") }
+                    });
+                kmsProviders.Add(
+                    "awsTemporaryNoSessionToken",
+                    new Dictionary<string, object>
+                    {
+                        { "accessKeyId", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AWS_TEMP_ACCESS_KEY_ID") },
+                        { "secretAccessKey", GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AWS_TEMP_SECRET_ACCESS_KEY") }
+                    });
+            }
+
+            __kmsProviders = kmsProviders;
+
+            string GetEnvironmentVariableOrDefaultOrThrowIfNothing(string variableName, string defaultValue = null) =>
+                Environment.GetEnvironmentVariable(variableName) ??
+                defaultValue ??
+                throw new Exception($"{variableName} environment variable must be configured on the machine.");
+        }
+
+        private const string LocalMasterKey = "Mng0NCt4ZHVUYUJCa1kxNkVyNUR1QURhZ2h2UzR2d2RrZzh0cFBwM3R6NmdWMDFBMUN3YkQ5aXRRMkhGRGdQV09wOGVNYUMxT2k3NjZKelhaQmRCZGJkTXVyZG9uSjFk";
+
+        public static void ConfigureDefaultExtraOptions(Dictionary<string, object> extraOptions)
         {
             Ensure.IsNotNull(extraOptions, nameof(extraOptions));
 
@@ -78,7 +152,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                 }
             }
 
-            if (withSharedLibrary || Environment.GetEnvironmentVariable("TEST_MONGOCRYPTD") == null)
+            if (!extraOptions.ContainsKey("cryptSharedLibPath"))
             {
                 var cryptSharedLibPath = CoreTestConfiguration.GetCryptSharedLibPath();
                 if (cryptSharedLibPath != null)
@@ -124,6 +198,75 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
             }
 
             return null;
+        }
+
+        public static IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> GetKmsProviders(string filter = null) =>
+            __kmsProviders
+                .Where(kms => filter == null || kms.Key == filter)
+                .ToDictionary(
+                    k => k.Key,
+                    v => (IReadOnlyDictionary<string, object>)v.Value.ToDictionary(ik => ik.Key, iv => iv.Value)); // ensure that inner dictionary is a new instance
+
+        public static IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> ParseKmsProviders(BsonDocument kmsProviders, bool legacy = false)
+        {
+            var providers = new Dictionary<string, IReadOnlyDictionary<string, object>>();
+            var kmsProvidersFromEnvs = GetKmsProviders();
+            foreach (var kmsProvider in kmsProviders.Elements)
+            {
+                var kmsOptions = new Dictionary<string, object>();
+                var effectiveKmsProviderName = kmsProvider.Name;
+                switch (kmsProvider.Name)
+                {
+                    case "awsTemporary":
+                    case "awsTemporaryNoSessionToken":
+                        {
+                            effectiveKmsProviderName = "aws";
+                            goto default;
+                        }
+                    case "local":
+                        {
+                            byte[] bytes;
+                            if (kmsProvider.Value.AsBsonDocument.TryGetElement("key", out var key) && !IsPlaceholder(key.Value))
+                            {
+                                bytes = key.Value.IsBsonBinaryData ? key.Value.AsBsonBinaryData.Bytes : Convert.FromBase64String(key.Value.AsString);
+                            }
+                            else
+                            {
+                                bytes = new BsonBinaryData(Convert.FromBase64String(LocalMasterKey)).Bytes;
+                            }
+                            kmsOptions.Add("key", bytes);
+                        }
+                        break;
+                    default:
+                        {
+                            var kmsProviderDocument = kmsProvider.Value.AsBsonDocument;
+                            if (legacy)
+                            {
+                                kmsProviderDocument.ElementCount.Should().Be(0);
+                                kmsOptions = (Dictionary<string, object>)kmsProvidersFromEnvs[kmsProvider.Name];
+                            }
+                            else
+                            {
+                                foreach (var providedKmsInfo in kmsProviderDocument)
+                                {
+                                    kmsOptions.Add(
+                                        providedKmsInfo.Name,
+                                        IsPlaceholder(providedKmsInfo.Value)
+                                            ? GetFromEnvVariables(kmsProvider.Name, providedKmsInfo.Name) // use initial kms name
+                                            : providedKmsInfo.Value.AsString);
+                                }
+                            }
+                        }
+                        break;
+                }
+
+                providers.Add(effectiveKmsProviderName, kmsOptions);
+            }
+
+            return providers;
+
+            bool IsPlaceholder(BsonValue value) => value.IsBsonDocument && value.AsBsonDocument.Contains("$$placeholder");
+            string GetFromEnvVariables(string kmsProvider, string key) => kmsProvidersFromEnvs[kmsProvider][key].ToString();
         }
     }
 }

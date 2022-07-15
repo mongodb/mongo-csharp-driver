@@ -69,7 +69,19 @@ provision_compressor () {
 #            Main Program                  #
 ############################################
 echo "CRYPT_SHARED_LIB_PATH:" $CRYPT_SHARED_LIB_PATH
-echo "TEST_MONGOCRYPTD:" $TEST_MONGOCRYPTD
+
+if [ "$TARGET" == "TestCsfleWithMongocryptd" ]; then
+    if [ ! -z "${CRYPT_SHARED_LIB_PATH}" ]; then
+          echo "CRYPT_SHARED_LIB_PATH must be unassigned for CSFLE tests with mongocryptd, but was ${CRYPT_SHARED_LIB_PATH}" 1>&2 # write to stderr
+          exit 1   
+    fi
+else
+    if [ -z "${CRYPT_SHARED_LIB_PATH}" ]; then
+          echo "CRYPT_SHARED_LIB_PATH must be assigned, but wasn't" 1>&2 # write to stderr"
+          exit 1   
+    fi
+fi
+
 echo "Initial MongoDB URI:" $MONGODB_URI
 echo "Framework: " $FRAMEWORK
 

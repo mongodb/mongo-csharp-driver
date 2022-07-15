@@ -33,6 +33,7 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
+using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Encryption;
@@ -51,7 +52,6 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         private static readonly CollectionNamespace __keyVaultCollectionNamespace = CollectionNamespace.FromFullName("keyvault.datakeys");
         #endregion
 
-        private const string LocalMasterKey = "Mng0NCt4ZHVUYUJCa1kxNkVyNUR1QURhZ2h2UzR2d2RrZzh0cFBwM3R6NmdWMDFBMUN3YkQ5aXRRMkhGRGdQV09wOGVNYUMxT2k3NjZKelhaQmRCZGJkTXVyZG9uSjFk";
         private const string SchemaMap =
             @"{
                 ""db.coll"": {
@@ -249,7 +249,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             [Values(false, true)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
-            RequireEnvironment.Check().EnvironmentVariable("TEST_MONGOCRYPTD");
+            RequireEnvironment.Check().EnvironmentVariable("CRYPT_SHARED_LIB_PATH", isDefined: false);
 
             var extraOptions = new Dictionary<string, object>
             {
@@ -282,7 +282,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             [Values(false, true)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
-            RequireEnvironment.Check().EnvironmentVariable("TEST_MONGOCRYPTD");
+            RequireEnvironment.Check().EnvironmentVariable("CRYPT_SHARED_LIB_PATH", isDefined: false);
 
             var extraOptions = new Dictionary<string, object>
             {
@@ -920,7 +920,120 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
         [SkippableTheory]
         [ParameterAttributeData]
-        public void ExplicitEncryption(
+        public void DecryptionEvents(
+            [Range(1, 4)] int testCase,
+            [Values(false, true)] bool async)
+        {
+            RequireServer.Check().Supports(Feature.ClientSideEncryption);
+
+            var decryptionEventsCollectionNamespace = CollectionNamespace.FromFullName("db.decryption_events");
+            using (var setupClient = ConfigureClient(clearCollections: true, mainCollectionNamespace: decryptionEventsCollectionNamespace))
+            using (var clientEncryption = ConfigureClientEncryption(setupClient, kmsProviderFilter: "local"))
+            {
+                var keyId = CreateDataKey(clientEncryption, "local", new DataKeyOptions(), async);
+
+                var value = "hello";
+                var ciphertext = ExplicitEncrypt(clientEncryption, new EncryptOptions(algorithm: EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic, keyId: keyId), value, async);
+
+                // Copy ciphertext into a variable named malformedCiphertext. Change the last byte. This will produce an invalid HMAC tag.
+                var malformeLastByte = ciphertext.Bytes.Last();
+                var malformedCiphertext = new BsonBinaryData(Enumerable.Append<byte>(ciphertext.Bytes.Take(ciphertext.Bytes.Length - 1), (byte)(malformeLastByte == 0 ? 1 : 0)).ToArray(), ciphertext.SubType);
+
+                var eventCapturer = new EventCapturer()
+                    .Capture<CommandSucceededEvent>(c => c.CommandName == "aggregate")
+                    .Capture<CommandFailedEvent>(c => c.CommandName == "aggregate");
+                using (var encryptedClient = ConfigureClientEncrypted(kmsProviderFilter: "local", retryReads: false, eventCapturer: eventCapturer))
+                {
+                    var decryptionEventsCollection = GetCollection(encryptedClient, decryptionEventsCollectionNamespace);
+                    RunTestCase(decryptionEventsCollection, testCase, ciphertext, malformedCiphertext, eventCapturer);
+                }
+            }
+
+            void RunTestCase(IMongoCollection<BsonDocument> decryptionEventsCollection, int testCase, BsonValue ciphertext, BsonValue malformedCiphertext, EventCapturer eventCapturer)
+            {
+                switch (testCase)
+                {
+                    case 1: // Case 1: Command Error
+                        {
+                            var failPointCommand = BsonDocument.Parse(@"
+                            {
+                                ""configureFailPoint"" : ""failCommand"",
+                                ""mode"" : { ""times"" : 1 },
+                                ""data"" :
+                                {
+                                    ""errorCode"" : 123,
+                                    ""failCommands"": [ ""aggregate"" ]
+                                }
+                            }");
+                            using (FailPoint.Configure(_cluster, NoCoreSession.NewHandle(), failPointCommand))
+                            {
+                                var exception = Record.Exception(() => Aggregate(decryptionEventsCollection, async));
+                                exception.Should().BeOfType<MongoCommandException>();
+
+                                eventCapturer.Next().Should().BeOfType<CommandFailedEvent>();
+                                eventCapturer.Any().Should().BeFalse();
+                            }
+                        }
+                        break;
+                    case 2: // Case 2: Network Error
+                        {
+                            var failPointCommand = BsonDocument.Parse(@"
+                            {
+                                ""configureFailPoint"" : ""failCommand"",
+                                ""mode"" : { ""times"" : 1 },
+                                ""data"" :
+                                {
+                                    ""errorCode"" : 123,
+                                    ""closeConnection"" : true,
+                                    ""failCommands"" : [ ""aggregate"" ]
+                                }
+                            }");
+                            using (FailPoint.Configure(_cluster, NoCoreSession.NewHandle(), failPointCommand))
+                            {
+                                var exception = Record.Exception(() => Aggregate(decryptionEventsCollection, async));
+                                exception.Should().BeOfType<MongoConnectionException>().Which.IsNetworkException.Should().BeTrue();
+
+                                eventCapturer.Next().Should().BeOfType<CommandFailedEvent>();
+                                eventCapturer.Any().Should().BeFalse();
+                            }
+                        }
+                        break;
+                    case 3: // Case 3: Decrypt Error
+                        {
+                            Insert(decryptionEventsCollection, async, new BsonDocument("encrypted", malformedCiphertext));
+                            var exception = Record.Exception(() => Aggregate(decryptionEventsCollection, async));
+                            AssertInnerEncryptionException<CryptException>(exception, "HMAC validation failure");
+
+                            var reply = eventCapturer.Next().Should().BeOfType<CommandSucceededEvent>().Which.Reply;
+                            eventCapturer.Any().Should().BeFalse();
+                            reply["cursor"]["firstBatch"].AsBsonArray.Single()["encrypted"].AsBsonBinaryData.SubType.Should().Be(BsonBinarySubType.Encrypted);
+                        }
+                        break;
+                    case 4: // Case 4: Decrypt Success
+                        {
+                            Insert(decryptionEventsCollection, async, new BsonDocument("encrypted", ciphertext));
+                            Aggregate(decryptionEventsCollection, async);
+
+                            var reply = eventCapturer.Next().Should().BeOfType<CommandSucceededEvent>().Which.Reply;
+                            eventCapturer.Any().Should().BeFalse();
+                            reply["cursor"]["firstBatch"].AsBsonArray.Single()["encrypted"].AsBsonBinaryData.SubType.Should().Be(BsonBinarySubType.Encrypted);
+                        }
+                        break;
+                }
+            }
+
+            BsonDocument Aggregate(IMongoCollection<BsonDocument> collection, bool async)
+            {
+                var matchAggregatePipeline = new EmptyPipelineDefinition<BsonDocument>().Match(FilterDefinition<BsonDocument>.Empty);
+                return async
+                    ? collection.AggregateAsync(matchAggregatePipeline).GetAwaiter().GetResult().Single()
+                    : collection.Aggregate(matchAggregatePipeline).Single();
+            }
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void ExplicitEncryptionTest(
             [Range(1, 5)] int testCase,
             [Values(false, true)] bool async)
         {
@@ -955,13 +1068,13 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 {
                     case 1: // Case 1: can insert encrypted indexed and find
                         {
-                            var encryptionOptions = new EncryptOptions(algorithm: EncryptionAlgorithm.Indexed.ToString(), keyId: key1Id);
+                            var encryptionOptions = new EncryptOptions(algorithm: EncryptionAlgorithm.Indexed.ToString(), keyId: key1Id, contentionFactor: 0);
                             var encryptedValue = ExplicitEncrypt(clientEncryption, encryptionOptions, value, async);
 
                             var insertPayload = new BsonDocument("encryptedIndexed", encryptedValue);
                             Insert(explicitCollectionFromEncryptedClient, async, insertPayload);
 
-                            encryptionOptions = new EncryptOptions(algorithm: EncryptionAlgorithm.Indexed.ToString(), keyId: key1Id, queryType: QueryType.Equality);
+                            encryptionOptions = new EncryptOptions(algorithm: EncryptionAlgorithm.Indexed.ToString(), keyId: key1Id, queryType: "equality", contentionFactor: 0);
                             encryptedValue = ExplicitEncrypt(clientEncryption, encryptionOptions, value, async);
 
                             var findPayload = new BsonDocument("encryptedIndexed", encryptedValue);
@@ -983,7 +1096,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                             }
 
                             // 1
-                            encryptionOptions = new EncryptOptions(algorithm: EncryptionAlgorithm.Indexed.ToString(), keyId: key1Id, queryType: QueryType.Equality);
+                            encryptionOptions = new EncryptOptions(algorithm: EncryptionAlgorithm.Indexed.ToString(), keyId: key1Id, queryType: "equality", contentionFactor: 0);
                             encryptedValue = ExplicitEncrypt(clientEncryption, encryptionOptions, value, async);
 
                             var findPayload = new BsonDocument("encryptedIndexed", encryptedValue);
@@ -996,7 +1109,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                             }
 
                             // 2
-                            encryptionOptions = new EncryptOptions(algorithm: EncryptionAlgorithm.Indexed.ToString(), keyId: key1Id, queryType: QueryType.Equality, contentionFactor: 10);
+                            encryptionOptions = new EncryptOptions(algorithm: EncryptionAlgorithm.Indexed.ToString(), keyId: key1Id, queryType: "equality", contentionFactor: 10);
                             encryptedValue = ExplicitEncrypt(clientEncryption, encryptionOptions, value, async);
 
                             var findPayload2 = new BsonDocument("encryptedIndexed", encryptedValue);
@@ -1024,7 +1137,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                         break;
                     case 4: // Case 4: can insert encrypted unindexed
                         {
-                            var encryptionOptions = new EncryptOptions(algorithm: EncryptionAlgorithm.Indexed.ToString(), keyId: key1Id);
+                            var encryptionOptions = new EncryptOptions(algorithm: EncryptionAlgorithm.Indexed.ToString(), keyId: key1Id, contentionFactor: 0);
                             var payload = ExplicitEncrypt(clientEncryption, encryptionOptions, value, async);
 
                             var decrypted = ExplicitDecrypt(clientEncryption, payload, async);
@@ -1437,6 +1550,74 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             }
         }
 
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void UniqueIndexOnKeyAltNames(
+            [Range(1, 2)] int testCase,
+            [Values(false, true)] bool async)
+        {
+            RequireServer.Check().Supports(Feature.ClientSideEncryption);
+
+            using (var client = ConfigureClient(clearCollections: true, writeConcern: WriteConcern.WMajority))
+            {
+                var keyVaultCollection = GetCollection(client, __keyVaultCollectionNamespace);
+                keyVaultCollection.Indexes.CreateOne(
+                    new CreateIndexModel<BsonDocument>(
+                        new BsonDocument("keyAltNames", 1),
+                        new CreateIndexOptions<BsonDocument>()
+                        {
+                            Name = "keyAltNames_1",
+                            Unique = true,
+                            PartialFilterExpression = new BsonDocument("keyAltNames", new BsonDocument("$exists", true))
+                        }));
+
+                using (var clientEncryption = ConfigureClientEncryption(client, kmsProviderFilter: "local"))
+                {
+                    var dataKey = CreateDataKey(clientEncryption, "local", new DataKeyOptions(alternateKeyNames: new[] { "def" }), async);
+                    RunTestCase(clientEncryption, dataKey, testCase);
+                }
+            }
+
+            void RunTestCase(ClientEncryption clientEncryption, Guid existingKey, int testCase)
+            {
+                switch (testCase)
+                {
+                    case 1:
+                        {
+                            var newLocalDataKey = CreateDataKey(clientEncryption, "local", new DataKeyOptions(alternateKeyNames: new[] { "abc" }), async);
+
+                            var exception = Record.Exception(() => CreateDataKey(clientEncryption, "local", new DataKeyOptions(alternateKeyNames: new[] { "abc" }), async));
+                            var e = AssertInnerEncryptionException<MongoWriteException>(exception);
+                            e.WriteError.Code.Should().Be((int)ServerErrorCode.DuplicateKey);
+
+                            exception = Record.Exception(() => CreateDataKey(clientEncryption, "local", new DataKeyOptions(alternateKeyNames: new[] { "def" }), async));
+                            e = AssertInnerEncryptionException<MongoWriteException>(exception);
+                            e.WriteError.Code.Should().Be((int)ServerErrorCode.DuplicateKey);
+                        }
+                        break;
+                    case 2:
+                        {
+                            // 1 create a new local data key and assert the operation does not fail.
+                            var newLocalDataKey = CreateDataKey(clientEncryption, "local", new DataKeyOptions(), async);
+                            // 2 add a keyAltName "abc" to the key created in Step 1 and assert the operation does not fail.
+                            AddAlternateKeyName(clientEncryption, newLocalDataKey, alternateKeyName: "abc", async);
+                            // 3 Repeat Step 2 and assert the returned key document contains the keyAltName "abc" added in Step 2.
+                            var result = AddAlternateKeyName(clientEncryption, newLocalDataKey, alternateKeyName: "abc", async);
+                            result["keyAltNames"].AsBsonArray.Contains("abc");
+                            // 4 Add a keyAltName "def" to the key created in Step 1 and assert the operation fails due to a duplicate key
+                            var exception = Record.Exception(() => AddAlternateKeyName(clientEncryption, newLocalDataKey, alternateKeyName: "def", async));
+                            var e = AssertInnerEncryptionException<MongoCommandException>(exception);
+                            e.Code.Should().Be((int)ServerErrorCode.DuplicateKey);
+                            // 5 add a keyAltName "def" to the existing key, assert the operation does not fail, and assert the returned key document contains the keyAltName "def"
+                            result = AddAlternateKeyName(clientEncryption, existingKey, "def", async);
+                            result["keyAltNames"].AsBsonArray.Contains("def");
+                        }
+                        break;
+                    default: throw new Exception($"Unexpected test case {testCase}.");
+                }
+            }
+        }
+
         // NOTE: this test is not presented in the prose tests
         [SkippableTheory]
         [ParameterAttributeData]
@@ -1464,6 +1645,25 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         }
 
         // private methods
+        private BsonDocument AddAlternateKeyName(
+            ClientEncryption clientEncryption,
+            Guid id,
+            string alternateKeyName,
+            bool async)
+        {
+            if (async)
+            {
+                return clientEncryption
+                    .AddAlternateKeyNameAsync(id, alternateKeyName, CancellationToken.None)
+                    .GetAwaiter()
+                    .GetResult();
+            }
+            else
+            {
+                return clientEncryption.AddAlternateKeyName(id, alternateKeyName, CancellationToken.None);
+            }
+        }
+
         private void AddOrReplace<TValue>(IDictionary<string, TValue> dict, string key, TValue value)
         {
             if (dict.ContainsKey(key))
@@ -1476,7 +1676,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             }
         }
 
-        private void AssertInnerEncryptionException(Exception ex, Type exType, params string[] innerExceptionErrorMessage)
+        private Exception AssertInnerEncryptionException(Exception ex, Type exType, params string[] innerExceptionErrorMessage)
         {
             Exception e = ex.Should().BeOfType<MongoEncryptionException>().Subject.InnerException;
             foreach (var innerMessage in innerExceptionErrorMessage)
@@ -1489,11 +1689,12 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             }
 
             e.Should().BeOfType(exType);
+            return e;
         }
 
-        private void AssertInnerEncryptionException<TMostInnerException>(Exception ex, params string[] innerExceptionErrorMessage) where TMostInnerException : Exception
+        private TMostInnerException AssertInnerEncryptionException<TMostInnerException>(Exception ex, params string[] innerExceptionErrorMessage) where TMostInnerException : Exception
         {
-            AssertInnerEncryptionException(ex, typeof(TMostInnerException), innerExceptionErrorMessage);
+            return (TMostInnerException)AssertInnerEncryptionException(ex, typeof(TMostInnerException), innerExceptionErrorMessage);
         }
 
         private DisposableMongoClient ConfigureClient(
@@ -1525,6 +1726,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             bool bypassAutoEncryption = false,
             bool bypassQueryAnalysis = false,
             int? maxPoolSize = null,
+            bool? retryReads = null,
             Func<AutoEncryptionOptions, AutoEncryptionOptions> autoEncryptionOptionsConfigurator = null)
         {
             var configuredSettings = ConfigureClientEncryptedSettings(
@@ -1535,7 +1737,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 extraOptions,
                 bypassAutoEncryption,
                 bypassQueryAnalysis,
-                maxPoolSize);
+                maxPoolSize,
+                retryReads);
 
             if (autoEncryptionOptionsConfigurator != null)
             {
@@ -1553,9 +1756,10 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             Dictionary<string, object> extraOptions = null,
             bool bypassAutoEncryption = false,
             bool bypassQueryAnalysis = false,
-            int? maxPoolSize = null)
+            int? maxPoolSize = null,
+            bool? retryReads = null)
         {
-            var kmsProviders = GetKmsProviders(kmsProviderFilter: kmsProviderFilter);
+            var kmsProviders = EncryptionTestHelper.GetKmsProviders(filter: kmsProviderFilter);
             var tlsOptions = EncryptionTestHelper.CreateTlsOptionsIfAllowed(
                 kmsProviders,
                 // only kmip currently requires tls configuration for ClientEncrypted
@@ -1570,8 +1774,9 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                     eventCapturer: eventCapturer,
                     extraOptions: extraOptions,
                     bypassAutoEncryption: bypassAutoEncryption,
-                    bypassQueryAnalysis : bypassQueryAnalysis,
-                    maxPoolSize: maxPoolSize);
+                    bypassQueryAnalysis: bypassQueryAnalysis,
+                    maxPoolSize: maxPoolSize,
+                    retryReads: retryReads);
 
             if (tlsOptions != null)
             {
@@ -1588,7 +1793,17 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             Action<ClientEncryptionOptions> clientEncryptionOptionsConfigurator = null,
             string kmsProviderFilter = null)
         {
-            var kmsProviders = GetKmsProviders(kmsProviderFilter, kmsProviderConfigurator);
+            var kmsProviders = EncryptionTestHelper
+                .GetKmsProviders(filter: kmsProviderFilter)
+                .Select(k =>
+                {
+                    if (kmsProviderConfigurator != null)
+                    {
+                        kmsProviderConfigurator(k.Key, (Dictionary<string, object>)k.Value);
+                    }
+                    return k;
+                })
+                .ToDictionary(k => k.Key, k => k.Value);
             allowClientCertificateFunc = allowClientCertificateFunc ?? ((kmsProviderName) => kmsProviderName == "kmip"); // configure Tls for kmip by default
             var tlsOptions = EncryptionTestHelper.CreateTlsOptionsIfAllowed(kmsProviders, allowClientCertificateFunc);
 
@@ -1712,7 +1927,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             bool bypassQueryAnalysis = false,
             int? maxPoolSize = null,
             WriteConcern writeConcern = null,
-            ReadConcern readConcern = null)
+            ReadConcern readConcern = null,
+            bool? retryReads = null)
         {
             var mongoClientSettings = DriverTestConfiguration.GetClientSettings().Clone();
 #pragma warning disable 618
@@ -1744,6 +1960,11 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             if (readConcern != null)
             {
                 mongoClientSettings.ReadConcern = readConcern;
+            }
+
+            if (retryReads.HasValue)
+            {
+                mongoClientSettings.RetryReads = retryReads.Value;
             }
 
             if (keyVaultNamespace != null || schemaMapDocument != null || kmsProviders != null || externalKeyVaultClient != null)
@@ -1873,69 +2094,6 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             return client
                 .GetDatabase(collectionNamespace.DatabaseNamespace.DatabaseName)
                 .GetCollection<BsonDocument>(collectionNamespace.CollectionName, collectionSettings);
-        }
-
-        private string GetEnvironmentVariableOrDefaultOrThrowIfNothing(string variableName, string defaultValue = null) =>
-            Environment.GetEnvironmentVariable(variableName) ??
-            defaultValue ??
-            throw new Exception($"{variableName} environment variable must be configured on the machine.");
-
-        private IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> GetKmsProviders(string kmsProviderFilter = null, Action<string, Dictionary<string, object>> kmsProviderConfigurator = null)
-        {
-            var kmsProviders = new Dictionary<string, IReadOnlyDictionary<string, object>>();
-
-            var awsAccessKey = GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AWS_ACCESS_KEY_ID");
-            var awsSecretAccessKey = GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AWS_SECRET_ACCESS_KEY");
-            var awsKmsOptions = new Dictionary<string, object>
-            {
-                { "accessKeyId", awsAccessKey },
-                { "secretAccessKey", awsSecretAccessKey }
-            };
-            kmsProviderConfigurator?.Invoke("aws", awsKmsOptions);
-            kmsProviders.Add("aws", awsKmsOptions);
-
-            var localOptions = new Dictionary<string, object>
-            {
-                { "key", new BsonBinaryData(Convert.FromBase64String(LocalMasterKey)).Bytes }
-            };
-            kmsProviderConfigurator?.Invoke("local", localOptions);
-            kmsProviders.Add("local", localOptions);
-
-            var azureTenantId = GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AZURE_TENANT_ID");
-            var azureClientId = GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AZURE_CLIENT_ID");
-            var azureClientSecret = GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_AZURE_CLIENT_SECRET");
-            var azureKmsOptions = new Dictionary<string, object>
-            {
-                { "tenantId", azureTenantId },
-                { "clientId", azureClientId },
-                { "clientSecret", azureClientSecret }
-            };
-            kmsProviderConfigurator?.Invoke("azure", azureKmsOptions);
-            kmsProviders.Add("azure", azureKmsOptions);
-
-            var gcpEmail = GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_GCP_EMAIL");
-            var gcpPrivateKey = GetEnvironmentVariableOrDefaultOrThrowIfNothing("FLE_GCP_PRIVATE_KEY");
-            var gcpKmsOptions = new Dictionary<string, object>
-            {
-                { "email", gcpEmail },
-                { "privateKey", gcpPrivateKey }
-            };
-            kmsProviderConfigurator?.Invoke("gcp", gcpKmsOptions);
-            kmsProviders.Add("gcp", gcpKmsOptions);
-
-            var kmipOptions = new Dictionary<string, object>
-            {
-                { "endpoint", "localhost:5698" }
-            };
-            kmsProviderConfigurator?.Invoke("kmip", kmipOptions);
-            kmsProviders.Add("kmip", kmipOptions);
-
-            if (kmsProviderFilter != null)
-            {
-                kmsProviders = kmsProviders.Where(c => c.Key == kmsProviderFilter).ToDictionary(c => c.Key, c => c.Value);
-            }
-
-            return new ReadOnlyDictionary<string, IReadOnlyDictionary<string, object>>(kmsProviders);
         }
 
         private Dictionary<string, BsonDocument> GetSchemaMapIfNotNull(BsonDocument schemaMapDocument)

@@ -340,6 +340,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
                     var actualClusterType = CoreTestConfiguration.Cluster.Description.Type;
                     var runOnClusterTypes = requirement.Value.AsBsonArray.Select(topology => MapTopologyToClusterType(topology.AsString)).ToList();
                     return runOnClusterTypes.Contains(actualClusterType);
+                case "csfle": return Feature.ClientSideEncryption.IsSupported(CoreTestConfiguration.MaxWireVersion);
                 default:
                     throw new FormatException($"Unrecognized requirement field: '{requirement.Name}'.");
             }

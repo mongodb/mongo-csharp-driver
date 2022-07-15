@@ -420,7 +420,7 @@ Task("TestCsfleWithMockedKmsNet472").IsDependentOn("TestCsfleWithMockedKms");
 Task("TestCsfleWithMockedKmsNetStandard20").IsDependentOn("TestCsfleWithMockedKms");
 Task("TestCsfleWithMockedKmsNetStandard21").IsDependentOn("TestCsfleWithMockedKms");
 
-Task("TestMongocryptd")
+Task("TestCsfleWithMongocryptd")
     .IsDependentOn("Build")
     .DoesForEach(
         items: GetFiles("./**/*.Tests.csproj"),
@@ -443,9 +443,9 @@ Task("TestMongocryptd")
         );
     });
 
-Task("TestMongocryptdNet472").IsDependentOn("TestMongocryptd");
-Task("TestMongocryptdNetStandard20").IsDependentOn("TestMongocryptd");
-Task("TestMongocryptdNetStandard21").IsDependentOn("TestMongocryptd");
+Task("TestCsfleWithMongocryptdNet472").IsDependentOn("TestCsfleWithMongocryptd");
+Task("TestCsfleWithMongocryptdNetStandard20").IsDependentOn("TestCsfleWithMongocryptd");
+Task("TestCsfleWithMongocryptdNetStandard21").IsDependentOn("TestCsfleWithMongocryptd");
 
 Task("Docs")
     .IsDependentOn("ApiDocs")

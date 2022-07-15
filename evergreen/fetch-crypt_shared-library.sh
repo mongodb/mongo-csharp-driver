@@ -14,7 +14,7 @@ set -o errexit  # Exit the script with an error if any of the commands fail
 
 
 PYTHON=$(OS=${OS} ${PROJECT_DIRECTORY}/evergreen/get-python-path.sh)
-$PYTHON -u ${DRIVERS_TOOLS}/.evergreen/mongodl.py --component crypt_shared --out ${DRIVERS_TOOLS}/evergreen/csfle --version 6.0.0-rc8
+$PYTHON -u ${DRIVERS_TOOLS}/.evergreen/mongodl.py --component crypt_shared --out ${DRIVERS_TOOLS}/evergreen/csfle --version 6.0.0-rc13
 
 if [[ "$OS" =~ Windows|windows ]]; then
     export CRYPT_SHARED_LIB_PATH="${DRIVERS_TOOLS}/evergreen/csfle/bin/mongo_crypt_v1.dll"

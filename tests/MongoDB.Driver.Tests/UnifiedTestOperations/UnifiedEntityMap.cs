@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
@@ -22,8 +23,10 @@ using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Encryption;
 using MongoDB.Driver.GridFS;
 using MongoDB.Driver.TestHelpers;
+using MongoDB.Driver.Tests.Specifications.client_side_encryption;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
@@ -32,8 +35,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         // private variables
         private readonly Dictionary<string, IGridFSBucket> _buckets;
         private readonly Dictionary<string, IEnumerator<ChangeStreamDocument<BsonDocument>>> _changeStreams;
-        private readonly Dictionary<string, EventCapturer> _clientEventCapturers;
         private readonly Dictionary<string, DisposableMongoClient> _clients;
+        private readonly Dictionary<string, ClientEncryption> _clientEncryptions;
+        private readonly Dictionary<string, EventCapturer> _clientEventCapturers;
         private readonly Dictionary<string, IMongoCollection<BsonDocument>> _collections;
         private readonly Dictionary<string, IEnumerator<BsonDocument>> _cursors;
         private readonly Dictionary<string, IMongoDatabase> _databases;
@@ -50,8 +54,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         public UnifiedEntityMap(
             Dictionary<string, IGridFSBucket> buckets,
             Dictionary<string, IEnumerator<ChangeStreamDocument<BsonDocument>>> changeStreams,
-            Dictionary<string, EventCapturer> clientEventCapturers,
             Dictionary<string, DisposableMongoClient> clients,
+            Dictionary<string, ClientEncryption> clientEncryptions,
+            Dictionary<string, EventCapturer> clientEventCapturers,
             Dictionary<string, IMongoCollection<BsonDocument>> collections,
             Dictionary<string, IEnumerator<BsonDocument>> cursors,
             Dictionary<string, IMongoDatabase> databases,
@@ -65,8 +70,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             _buckets = buckets;
             _changeStreams = changeStreams;
-            _clientEventCapturers = clientEventCapturers;
             _clients = clients;
+            _clientEncryptions = clientEncryptions;
+            _clientEventCapturers = clientEventCapturers;
             _collections = collections;
             _cursors = cursors;
             _databases = databases;
@@ -86,6 +92,15 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             {
                 ThrowIfDisposed();
                 return _changeStreams;
+            }
+        }
+
+        public Dictionary<string, ClientEncryption> ClientEncryptions
+        {
+            get
+            {
+                ThrowIfDisposed();
+                return _clientEncryptions;
             }
         }
 
@@ -153,30 +168,16 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             if (!_disposed)
             {
-                if (_changeStreams != null)
+                var toDisposeCollection = SelectDisposables(_changeStreams?.Values, _sessions?.Values, _clients?.Values, _clientEncryptions?.Values);
+                foreach (var toDispose in toDisposeCollection)
                 {
-                    foreach (var changeStream in _changeStreams.Values)
-                    {
-                        changeStream?.Dispose();
-                    }
-                }
-                if (_sessions != null)
-                {
-                    foreach (var session in _sessions.Values)
-                    {
-                        session?.Dispose();
-                    }
-                }
-                if (_clients != null)
-                {
-                    foreach (var client in _clients.Values)
-                    {
-                        client?.Dispose();
-                    }
+                    toDispose.Dispose();
                 }
 
                 _disposed = true;
             }
+
+            IDisposable[] SelectDisposables(params IEnumerable[] items) => items.SelectMany(i => i.OfType<IDisposable>()).ToArray();
         }
 
         public IGridFSBucket GetBucket(string bucketId)
@@ -278,6 +279,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             var changeStreams = new Dictionary<string, IEnumerator<ChangeStreamDocument<BsonDocument>>>();
             var clientEventCapturers = new Dictionary<string, EventCapturer>();
             var clients = new Dictionary<string, DisposableMongoClient>();
+            var clientEncryptions = new Dictionary<string, ClientEncryption>();
             var collections = new Dictionary<string, IMongoCollection<BsonDocument>>();
             var cursors = new Dictionary<string, IEnumerator<BsonDocument>>();
             var databases = new Dictionary<string, IMongoDatabase>();
@@ -304,18 +306,12 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     switch (entityType)
                     {
                         case "bucket":
-                            if (buckets.ContainsKey(id))
-                            {
-                                throw new Exception($"Bucket entity with id '{id}' already exists.");
-                            }
+                            EnsureIsNotHandled(buckets, id);
                             var bucket = CreateBucket(entity, databases);
                             buckets.Add(id, bucket);
                             break;
                         case "client":
-                            if (clients.ContainsKey(id))
-                            {
-                                throw new Exception($"Client entity with id '{id}' already exists.");
-                            }
+                            EnsureIsNotHandled(clients, id);
                             var (client, eventCapturers) = CreateClient(entity);
                             clients.Add(id, client);
                             foreach (var createdEventCapturer in eventCapturers)
@@ -323,27 +319,25 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                                 clientEventCapturers.Add(createdEventCapturer.Key, createdEventCapturer.Value);
                             }
                             break;
-                        case "collection":
-                            if (collections.ContainsKey(id))
+                        case "clientEncryption":
                             {
-                                throw new Exception($"Collection entity with id '{id}' already exists.");
+                                EnsureIsNotHandled(clientEncryptions, id);
+                                var clientEncryption = CreateClientEncryption(clients, entity);
+                                clientEncryptions.Add(id, clientEncryption);
                             }
+                            break;
+                        case "collection":
+                            EnsureIsNotHandled(collections, id);
                             var collection = CreateCollection(entity, databases);
                             collections.Add(id, collection);
                             break;
                         case "database":
-                            if (databases.ContainsKey(id))
-                            {
-                                throw new Exception($"Database entity with id '{id}' already exists.");
-                            }
+                            EnsureIsNotHandled(databases, id);
                             var database = CreateDatabase(entity, clients);
                             databases.Add(id, database);
                             break;
                         case "session":
-                            if (sessions.ContainsKey(id))
-                            {
-                                throw new Exception($"Session entity with id '{id}' already exists.");
-                            }
+                            EnsureIsNotHandled(sessions, id);
                             var session = CreateSession(entity, clients);
                             var sessionId = session.WrappedCoreSession.Id;
                             sessions.Add(id, session);
@@ -358,8 +352,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             return new UnifiedEntityMap(
                 buckets,
                 changeStreams,
-                clientEventCapturers,
                 clients,
+                clientEncryptions,
+                clientEventCapturers,
                 collections,
                 cursors,
                 databases,
@@ -370,6 +365,14 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 sessions,
                 sessionIds,
                 successCounts);
+
+            void EnsureIsNotHandled<TEntity>(Dictionary<string, TEntity> dictionary, string key)
+            {
+                if (dictionary.ContainsKey(key))
+                {
+                    throw new Exception($"{typeof(TEntity).Name} entity with id '{key}' already exists.");
+                }
+            }
         }
 
         // private methods
@@ -588,6 +591,54 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 useMultipleShardRouters);
 
             return (client, clientEventCapturers);
+        }
+
+        private ClientEncryption CreateClientEncryption(Dictionary<string, DisposableMongoClient> clients, BsonDocument entity)
+        {
+            ClientEncryptionOptions options = null;
+            foreach (var element in entity)
+            {
+                switch (element.Name)
+                {
+                    case "id":
+                        // handled on higher level
+                        break;
+                    case "clientEncryptionOpts":
+                        IMongoClient keyVaultClient = null;
+                        CollectionNamespace keyVaultCollectionNamespace = null;
+                        IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> kmsProviders = null;
+
+                        foreach (var option in element.Value.AsBsonDocument)
+                        {
+                            switch (option.Name)
+                            {
+                                case "keyVaultClient":
+                                    keyVaultClient = clients[option.Value.AsString];
+                                    break;
+                                case "keyVaultNamespace":
+                                    keyVaultCollectionNamespace = CollectionNamespace.FromFullName(option.Value.AsString);
+                                    break;
+                                case "kmsProviders":
+                                    kmsProviders = EncryptionTestHelper.ParseKmsProviders(option.Value.AsBsonDocument);
+                                    break;
+                                default:
+                                    throw new FormatException($"Invalid collection option argument name: '{option.Name}'.");
+                            }
+                        }
+
+                        var tlsOptions = EncryptionTestHelper.CreateTlsOptionsIfAllowed(kmsProviders, ((kmsProviderName) => kmsProviderName == "kmip")); // configure Tls for kmip by default
+                        options = new ClientEncryptionOptions(
+                            Ensure.IsNotNull(keyVaultClient, nameof(keyVaultClient)),
+                            Ensure.IsNotNull(keyVaultCollectionNamespace, nameof(keyVaultCollectionNamespace)),
+                            Ensure.IsNotNull(kmsProviders, nameof(kmsProviders)),
+                            tlsOptions: tlsOptions);
+                        break;
+                    default:
+                        throw new FormatException($"Invalid {nameof(ClientEncryptionOptions)} argument name: '{element.Name}'.");
+                }
+            }
+
+            return new ClientEncryption(options);
         }
 
         private IMongoCollection<BsonDocument> CreateCollection(BsonDocument entity, Dictionary<string, IMongoDatabase> databases)

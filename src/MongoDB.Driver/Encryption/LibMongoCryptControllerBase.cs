@@ -163,6 +163,12 @@ namespace MongoDB.Driver.Encryption
                 ReadConcern = ReadConcern.Majority,
                 WriteConcern = WriteConcern.WMajority
             };
+#pragma warning disable CS0618 // Type or member is obsolete
+            if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
+            {
+                collectionSettings.GuidRepresentation = GuidRepresentation.Unspecified;
+            }
+#pragma warning restore CS0618 // Type or member is obsolete
             return keyVaultDatabase.GetCollection<BsonDocument>(_keyVaultNamespace.CollectionName, collectionSettings);
         }
 

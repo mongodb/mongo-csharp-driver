@@ -19,17 +19,6 @@ using System;
 namespace MongoDB.Driver.Encryption
 {
     /// <summary>
-    /// [Beta] The QueryType to use for "Indexed" queries.
-    /// </summary>
-    public enum QueryType
-    {
-        /// <summary>
-        /// Equality query type.
-        /// </summary>
-        Equality = 1
-    }
-
-    /// <summary>
     /// Encryption options for explicit encryption.
     /// </summary>
     public class EncryptOptions
@@ -49,7 +38,7 @@ namespace MongoDB.Driver.Encryption
         private readonly string _alternateKeyName;
         private readonly long? _contentionFactor;
         private readonly Guid? _keyId;
-        private readonly QueryType? _queryType;
+        private readonly string _queryType;
 
         // constructors
         /// <summary>
@@ -65,7 +54,7 @@ namespace MongoDB.Driver.Encryption
             Optional<string> alternateKeyName = default,
             Optional<Guid?> keyId = default,
             Optional<long?> contentionFactor = default,
-            Optional<QueryType?> queryType = default)
+            Optional<string> queryType = default)
         {
             Ensure.IsNotNull(algorithm, nameof(algorithm));
             if (Enum.TryParse<EncryptionAlgorithm>(algorithm, out var @enum))
@@ -97,7 +86,7 @@ namespace MongoDB.Driver.Encryption
             Optional<string> alternateKeyName = default,
             Optional<Guid?> keyId = default,
             Optional<long?> contentionFactor = default,
-            Optional<QueryType?> queryType = default)
+            Optional<string> queryType = default)
             : this(
                   algorithm: ConvertEnumAlgorithmToString(algorithm),
                   alternateKeyName,
@@ -146,7 +135,7 @@ namespace MongoDB.Driver.Encryption
         /// <value>
         /// The query type.
         /// </value>
-        public QueryType? QueryType => _queryType;
+        public string QueryType => _queryType;
 
         /// <summary>
         /// Returns a new EncryptOptions instance with some settings changed.
@@ -162,7 +151,7 @@ namespace MongoDB.Driver.Encryption
             Optional<string> alternateKeyName = default,
             Optional<Guid?> keyId = default,
             Optional<long?> contentionFactor = default,
-            Optional<QueryType?> queryType = default)
+            Optional<string> queryType = default)
         {
             return new EncryptOptions(
                 algorithm: algorithm.WithDefault(_algorithm),
@@ -177,8 +166,8 @@ namespace MongoDB.Driver.Encryption
         {
             Ensure.That(!(!_keyId.HasValue && _alternateKeyName == null), "Key Id and AlternateKeyName may not both be null.");
             Ensure.That(!(_keyId.HasValue && _alternateKeyName != null), "Key Id and AlternateKeyName may not both be set.");
-            Ensure.That(!_contentionFactor.HasValue || _algorithm == EncryptionAlgorithm.Indexed.ToString(), "ContentionFactor only applies for Indexed algorithm.");
-            Ensure.That(!_queryType.HasValue || _algorithm == EncryptionAlgorithm.Indexed.ToString(), "QueryType only applies for Indexed algorithm.");
+            Ensure.That(!(_contentionFactor.HasValue && _algorithm != EncryptionAlgorithm.Indexed.ToString()), "ContentionFactor only applies for Indexed algorithm.");
+            Ensure.That(!(_queryType != null && _algorithm != EncryptionAlgorithm.Indexed.ToString()), "QueryType only applies for Indexed algorithm.");
         }
     }
 }
