@@ -60,7 +60,7 @@ This exception usually indicates a threading or concurrency problem in your appl
 Each LINQ or Builder expression must be translated into MQL (MongoDB Query Language), which is executed by the server. Unfortunately this is not always possible for two main reasons:
 
 1. You are attempting to use a .NET feature that does not have an obvious or equivalent MongoDB representation. For example, .NET and MongoDB have different semantics around collations.
-2. The driver doesn't support a particular tranformation from LINQ or Builder expression into a server query. It may happen because the provided query is too complicated or because some feature has not been implemented yet by the driver.
+2. The driver doesn't support a particular transformation from LINQ or Builder expression into a server query. It may happen because the provided query is too complicated or because some feature has not been implemented yet by the driver.
 
 If you see an `Unsupported filter ...` or `Expression not supported ...` exception message, we recommend trying the following steps:
 
