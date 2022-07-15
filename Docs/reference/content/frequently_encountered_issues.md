@@ -42,7 +42,9 @@ The error message consists of few parts:
 
     * `No connection could be made because the target machine actively refused it`: The driver cannot see this cluster node. This can be because the cluster node has crashed, a firewall is preventing network traffic from reaching the cluster node or port, or some other network error is preventing traffic from being successfully routed to the cluster node.
     
-    * `Attempted to read past the end of the stream`: This error typically indicates a TLS/SSL-related problem such as an expired/invalid certificate or an untrusted root CA. You can use tools like `openssl s_client` to debug TLS/SSL-related certificate problems.
+    * `Attempted to read past the end of the stream`: This error happens when driver can't connect to a server due to network error. Make sure that a configured server is accessible. One typical example of when this error happens is when client's machine IP is not configured in the Atlas IPs white list.
+    
+    * `The remote certificate is invalid according to the validation procedure`: This error typically indicates a TLS/SSL-related problem such as an expired/invalid certificate or an untrusted root CA. You can use tools like `openssl s_client` to debug TLS/SSL-related certificate problems.
 
 ## MongoWaitQueueFullException. The wait queue for acquiring a connection to server is full.
 
