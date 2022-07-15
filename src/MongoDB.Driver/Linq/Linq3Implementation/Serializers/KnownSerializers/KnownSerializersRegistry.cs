@@ -42,16 +42,53 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers.KnownSerializers
             _registry.Add(expression, knownSerializers);
         }
 
+        public void AddKnownSerializer(Expression expression, IBsonSerializer knownSerializer, bool allowPropagation = true)
+        {
+            if (knownSerializer.ValueType != expression.Type)
+            {
+                throw new ArgumentException($"Serializer value type {knownSerializer.ValueType} does not match expresion type {expression.Type}.", nameof(knownSerializer));
+            }
+
+            if (!_registry.TryGetValue(expression, out var knownSerializers))
+            {
+                throw new InvalidOperationException("KnownSerializersNode does not exist yet for expression: {expression}.");
+            }
+
+            knownSerializers.AddKnownSerializer(expression.Type, knownSerializer, allowPropagation);
+        }
+
         public IBsonSerializer GetSerializer(Expression expression, IBsonSerializer defaultSerializer = null)
         {
             var expressionType = expression is LambdaExpression lambdaExpression ? lambdaExpression.ReturnType : expression.Type;
-            var possibleSerializers = _registry.TryGetValue(expression, out var knownSerializers) ? knownSerializers.GetPossibleSerializers(expressionType) : new HashSet<IBsonSerializer>();
+            return GetSerializer(expression, expressionType, defaultSerializer);
+        }
+
+        public IBsonSerializer GetSerializer(Expression expression, Type type, IBsonSerializer defaultSerializer = null)
+        {
+            var possibleSerializers = _registry.TryGetValue(expression, out var knownSerializers) ? knownSerializers.GetPossibleSerializers(type) : new HashSet<IBsonSerializer>();
             return possibleSerializers.Count switch
             {
-                0 => defaultSerializer ?? BsonSerializer.LookupSerializer(expressionType), // sometimes there is no known serializer from the context (e.g. CSHARP-4062)
+                0 => defaultSerializer ?? LookupSerializer(expression, type), // sometimes there is no known serializer from the context (e.g. CSHARP-4062)
                 1 => possibleSerializers.First(),
-                _ => throw new InvalidOperationException($"More than one possible serializer found for {expression}.")
+                _ => throw new InvalidOperationException($"More than one possible serializer found for {type} in {expression}.")
             };
+        }
+
+        private IBsonSerializer LookupSerializer(Expression expression, Type type)
+        {
+            if (type.IsConstructedGenericType &&
+                type.GetGenericTypeDefinition() == typeof(IGrouping<,>))
+            {
+                var genericArguments = type.GetGenericArguments();
+                var keyType = genericArguments[0];
+                var elementType = genericArguments[1];
+
+                var keySerializer = GetSerializer(expression, keyType);
+                var elementSerializer = GetSerializer(expression, elementType);
+                return IGroupingSerializer.Create(keySerializer, elementSerializer);
+            }
+
+            return BsonSerializer.LookupSerializer(type);
         }
     }
 }

@@ -20,6 +20,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
+using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators;
 using ExpressionVisitor = System.Linq.Expressions.ExpressionVisitor;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers.KnownSerializers
@@ -71,23 +72,58 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers.KnownSerializers
             return result;
         }
 
+        protected override Expression VisitBinary(BinaryExpression node)
+        {
+            var result = base.VisitBinary(node);
+
+            if (result is BinaryExpression binaryExpression)
+            {
+                if (BinaryExpressionToAggregationExpressionTranslator.IsEnumComparisonExpression(binaryExpression))
+                {
+                    var leftExpression = ConvertHelper.RemoveConvertToEnumUnderlyingType(binaryExpression.Left);
+                    var rightExpression = ConvertHelper.RemoveConvertToEnumUnderlyingType(binaryExpression.Right);
+
+                    if (leftExpression is ConstantExpression leftConstantExpression)
+                    {
+                        var rightExpressionSerializer = _registry.GetSerializer(rightExpression);
+                        var leftExpressionSerializer = EnumUnderlyingTypeSerializer.Create(rightExpressionSerializer);
+                        _registry.AddKnownSerializer(leftExpression, leftExpressionSerializer, allowPropagation: false);
+                    }
+
+                    if (rightExpression is ConstantExpression rightConstantExpression)
+                    {
+                        var leftExpressionSerializer = _registry.GetSerializer(leftExpression);
+                        var rightExpressionSerializer = EnumUnderlyingTypeSerializer.Create(leftExpressionSerializer);
+                        _registry.AddKnownSerializer(rightExpression, rightExpressionSerializer, allowPropagation: false);
+                    }
+                }
+            }
+
+            return result;
+        }
+
         protected override Expression VisitMember(MemberExpression node)
         {
             var result = base.VisitMember(node);
-            if (_currentSerializer != null &&
-                _currentSerializer.TryGetMemberSerializationInfo(node.Member.Name, out var memberSerializationInfo))
-            {
-                _currentKnownSerializersNode.AddKnownSerializer(node.Type, memberSerializationInfo.Serializer);
 
-                if (memberSerializationInfo.Serializer is IBsonDocumentSerializer bsonDocumentSerializer)
+            var containerSerializer = _registry.GetSerializer(node.Expression);
+            if (containerSerializer is IBsonDocumentSerializer documentSerializer)
+            {
+                if (documentSerializer.TryGetMemberSerializationInfo(node.Member.Name, out var memberSerializationInfo))
                 {
-                    _currentSerializer = bsonDocumentSerializer;
-                }
-                else
-                {
-                    _currentSerializer = null;
+                    _currentKnownSerializersNode.AddKnownSerializer(node.Type, memberSerializationInfo.Serializer);
+
+                    if (memberSerializationInfo.Serializer is IBsonDocumentSerializer bsonDocumentSerializer)
+                    {
+                        _currentSerializer = bsonDocumentSerializer;
+                    }
+                    else
+                    {
+                        _currentSerializer = null;
+                    }
                 }
             }
+
             return result;
         }
 

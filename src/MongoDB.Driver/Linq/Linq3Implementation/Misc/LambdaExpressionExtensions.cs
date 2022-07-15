@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
                 }
             }
 
-            throw new ExpressionNotSupportedException(fieldSelectorLambda);
+            throw new ExpressionNotSupportedException(fieldSelectorLambda, because: "expression cannot be translated as a field path");
         }
     }
 }

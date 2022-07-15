@@ -13,11 +13,13 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq.Linq3Implementation;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecutableQueryTranslators;
 
@@ -56,16 +58,27 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests
             CreateCollection(collection, (IEnumerable<TDocument>)documents); ;
         }
 
+        protected IMongoClient GetClient(LinqProvider linqProvider)
+        {
+            return linqProvider switch
+            {
+                LinqProvider.V2 => DriverTestConfiguration.Client,
+                LinqProvider.V3 => DriverTestConfiguration.Linq3Client,
+                _ => throw new ArgumentException($"Invalid linqProvider: {linqProvider}.", nameof(linqProvider))
+            };
+        }
+
         protected IMongoCollection<TDocument> GetCollection<TDocument>(string collectionName = null)
         {
             var databaseName = DriverTestConfiguration.DatabaseNamespace.DatabaseName;
-            collectionName ??= DriverTestConfiguration.CollectionNamespace.CollectionName;
             return GetCollection<TDocument>(databaseName, collectionName);
         }
 
-        protected IMongoCollection<TDocument> GetCollection<TDocument>(string databaseName, string collectionName)
+        protected IMongoCollection<TDocument> GetCollection<TDocument>(string databaseName, string collectionName, LinqProvider linqProvider = LinqProvider.V3)
         {
-            var client = DriverTestConfiguration.Linq3Client;
+            databaseName ??= DriverTestConfiguration.DatabaseNamespace.DatabaseName;
+            collectionName ??= DriverTestConfiguration.CollectionNamespace.CollectionName;
+            var client = GetClient(linqProvider);
             var database = client.GetDatabase(databaseName);
             return database.GetCollection<TDocument>(collectionName);
         }
@@ -92,6 +105,15 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests
             var executableQuery = ExpressionToExecutableQueryTranslator.Translate<TDocument, TResult>(provider, queryable.Expression);
             var stages = executableQuery.Pipeline.Stages;
             return stages.Select(s => s.Render().AsBsonDocument).ToList();
+        }
+
+        protected BsonDocument TranslateFilter<TDocument>(IMongoCollection<TDocument> collection, IFindFluent<TDocument, TDocument> find)
+        {
+            var filterDefinition = find.Filter;
+            var documentSerializer = collection.DocumentSerializer;
+            var serializerRegistry = BsonSerializer.SerializerRegistry;
+            var linqProvider = collection.Database.Client.Settings.LinqProvider;
+            return filterDefinition.Render(documentSerializer, serializerRegistry, linqProvider);
         }
     }
 }

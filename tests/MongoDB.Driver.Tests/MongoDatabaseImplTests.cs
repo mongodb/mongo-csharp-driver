@@ -91,7 +91,8 @@ namespace MongoDB.Driver
                 UseCursor = false
 #pragma warning restore 618
             };
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
             var renderedPipeline = RenderPipeline(subject, pipeline);
 
             if (usingSession)
@@ -291,7 +292,8 @@ namespace MongoDB.Driver
                 UseCursor = false
 #pragma warning restore 618
             };
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
             var expectedPipeline = new List<BsonDocument>(RenderPipeline(subject, pipeline).Documents);
             if (!usingDifferentOutputDatabase && lastStageName == "$out")
             {
@@ -349,7 +351,8 @@ namespace MongoDB.Driver
             var pipeline = new EmptyPipelineDefinition<NoPipelineInput>()
                 .AppendStage<NoPipelineInput, NoPipelineInput, BsonDocument>("{ $currentOp : { } }");
             var options = new AggregateOptions();
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             Exception exception;
             if (async)
@@ -418,7 +421,8 @@ namespace MongoDB.Driver
                 Validator = validatorDefinition
             };
 #pragma warning restore
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             if (usingSession)
             {
@@ -501,7 +505,8 @@ namespace MongoDB.Driver
                 ValidationLevel = DocumentValidationLevel.Off
             };
 #pragma warning restore
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             if (usingSession)
             {
@@ -559,7 +564,8 @@ namespace MongoDB.Driver
             var subject = _subject.WithWriteConcern(writeConcern);
             var session = CreateSession(usingSession);
             var name = "bar";
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             if (usingSession)
             {
@@ -626,7 +632,8 @@ namespace MongoDB.Driver
                 DocumentSerializer = BsonDocumentSerializer.Instance,
                 SerializerRegistry = BsonSerializer.SerializerRegistry
             };
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             if (usingSession)
             {
@@ -789,7 +796,8 @@ namespace MongoDB.Driver
             var subject = _subject.WithWriteConcern(writeConcern);
             var session = CreateSession(usingSession);
             var name = "bar";
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             if (usingSession)
             {
@@ -841,7 +849,8 @@ namespace MongoDB.Driver
                     Filter = filterDefinition
                 };
             }
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             var mockCursor = new Mock<IAsyncCursor<BsonDocument>>();
             _operationExecutor.EnqueueResult<IAsyncCursor<BsonDocument>>(mockCursor.Object);
@@ -969,7 +978,8 @@ namespace MongoDB.Driver
                     Filter = usingFilter ? filterDefinition : null
                 };
             }
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             var mockCursor = new Mock<IAsyncCursor<BsonDocument>>();
             _operationExecutor.EnqueueResult<IAsyncCursor<BsonDocument>>(mockCursor.Object);
@@ -1029,7 +1039,8 @@ namespace MongoDB.Driver
             {
                 DropTarget = true,
             };
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             if (usingSession)
             {
@@ -1073,7 +1084,8 @@ namespace MongoDB.Driver
             var session = CreateSession(usingSession);
             var commandDocument = BsonDocument.Parse("{ count : \"foo\" }");
             var command = (Command<BsonDocument>)commandDocument;
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             if (usingSession)
             {
@@ -1119,7 +1131,8 @@ namespace MongoDB.Driver
             var commandDocument = new BsonDocument("count", "foo");
             var command = (Command<BsonDocument>)commandDocument;
             var readPreference = ReadPreference.Secondary;
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             if (usingSession)
             {
@@ -1164,7 +1177,8 @@ namespace MongoDB.Driver
             var session = CreateSession(usingSession);
             var commandDocument = new BsonDocument("shutdown", 1);
             var command = (Command<BsonDocument>)commandDocument;
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             if (usingSession)
             {
@@ -1209,7 +1223,8 @@ namespace MongoDB.Driver
             var session = CreateSession(usingSession);
             var commandJson = "{ count : \"foo\" }";
             var commandDocument = BsonDocument.Parse(commandJson);
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             if (usingSession)
             {
@@ -1254,7 +1269,8 @@ namespace MongoDB.Driver
             var session = CreateSession(usingSession);
             var commandObject = new CountCommand { Collection = "foo" };
             var command = new ObjectCommand<BsonDocument>(commandObject);
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             if (usingSession)
             {
@@ -1300,7 +1316,8 @@ namespace MongoDB.Driver
             var commandDocument = new BsonDocument("count", "foo");
             var command = (Command<BsonDocument>)commandDocument;
             var readPreference = ReadPreference.Secondary;
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             if (usingSession)
             {
@@ -1349,7 +1366,8 @@ namespace MongoDB.Driver
                 StartAfter = new BsonDocument(),
                 StartAtOperationTime = new BsonTimestamp(1, 2)
             };
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
             var renderedPipeline = new[] { BsonDocument.Parse("{ $limit : 1 }") };
 
             if (usingSession)

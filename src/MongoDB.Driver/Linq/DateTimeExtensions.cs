@@ -235,7 +235,7 @@ namespace MongoDB.Driver.Linq
         /// <param name="timezone">The timezone.</param>
         /// <returns>The resulting DateTime.</returns>
         /// <remarks>See the server documentation for $dateDiff for information on timezones in MongoDB.</remarks>
-        public static DateTime Subtract(this DateTime @this, DateTime value, string timezone)
+        public static TimeSpan Subtract(this DateTime @this, DateTime value, string timezone)
         {
             throw new InvalidOperationException("This DateTime.Subtract method is only intended to be used in LINQ queries.");
         }

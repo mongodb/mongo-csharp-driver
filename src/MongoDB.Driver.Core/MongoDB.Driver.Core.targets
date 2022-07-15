@@ -7,7 +7,7 @@
       <CompressionOsxRuntimesPath>runtimes/osx/native</CompressionOsxRuntimesPath>
     </PropertyGroup>
 
-    <!--snappy-->
+    <!--snappy/zstd-->
     <!--win-->
     <ItemGroup>
       <!--x32/x64-->
@@ -28,29 +28,6 @@
     <ItemGroup>
       <!--x32/x64-->
       <Content Include="$(MSBuildThisFileDirectory)../$(CompressionOsxRuntimesPath)/**/*.dylib">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>%(FileName)%(Extension)</Link>
-      </Content>
-    </ItemGroup>
-
-    <!--zstd-->
-    <!--win -->
-    <ItemGroup>
-      <Content Include="$(MSBuildThisFileDirectory)../$(CompressionWinRuntimesPath)/*.dll">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-          <Link>%(FileName)%(Extension)</Link>
-      </Content>
-    </ItemGroup>
-    <!--linux-->
-    <ItemGroup>
-      <Content Include="$(MSBuildThisFileDirectory)../$(CompressionLinuxRuntimesPath)/*.so">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <Link>%(FileName)%(Extension)</Link>
-      </Content>
-    </ItemGroup>
-    <!--osx-->
-    <ItemGroup>
-      <Content Include="$(MSBuildThisFileDirectory)../$(CompressionOsxRuntimesPath)/*.dylib">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <Link>%(FileName)%(Extension)</Link>
       </Content>

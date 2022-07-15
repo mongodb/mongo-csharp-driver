@@ -954,7 +954,8 @@ namespace MongoDB.Driver.Tests
             }
             var expectedPipeline = ((AggregateFluent<C, C>)subject)._pipeline();
             var expectedOptions = subject.Options;
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             if (async)
             {
@@ -1026,7 +1027,8 @@ namespace MongoDB.Driver.Tests
             }
             var expectedPipeline = ((AggregateFluent<NoPipelineInput, BsonDocument>)subject)._pipeline();
             var expectedOptions = subject.Options;
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             if (async)
             {
@@ -1091,7 +1093,8 @@ namespace MongoDB.Driver.Tests
                 .Match(Builders<C>.Filter.Eq(c => c.X, 1));
             var expectedPipeline = ((AggregateFluent<C, C>)subject)._pipeline();
             var expectedOptions = subject.Options;
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             if (async)
             {
@@ -1156,7 +1159,8 @@ namespace MongoDB.Driver.Tests
                 .AppendStage<BsonDocument>("{ $currentOp : { } }");
             var expectedPipeline = ((AggregateFluent<NoPipelineInput, BsonDocument>)subject)._pipeline();
             var expectedOptions = subject.Options;
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             if (async)
             {

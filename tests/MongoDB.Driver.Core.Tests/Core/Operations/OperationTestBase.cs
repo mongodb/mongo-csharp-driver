@@ -481,7 +481,8 @@ namespace MongoDB.Driver.Core.Operations
                 using (var session = CreateSession(cluster, useImplicitSession))
                 using (var binding = new WritableServerBinding(cluster, session.Fork()))
                 {
-                    var cancellationToken = new CancellationTokenSource().Token;
+                    using var cancellationTokenSource = new CancellationTokenSource();
+                    var cancellationToken = cancellationTokenSource.Token;
                     Exception exception;
                     if (async)
                     {

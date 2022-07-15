@@ -24,11 +24,49 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
 {
     internal static class BitMaskComparisonExpressionToFilterTranslator
     {
-        public static bool CanTranslate(Expression leftExpression)
+        public static bool CanTranslate(Expression leftExpression, Expression rightExpression)
         {
-            return
-                leftExpression is BinaryExpression leftBinaryExpression &&
-                leftBinaryExpression.NodeType == ExpressionType.And;
+            return CanTranslate(leftExpression, rightExpression, out _);
+        }
+
+        public static bool CanTranslate(Expression leftExpression, Expression rightExpression, out BinaryExpression leftBinaryExpression)
+        {
+            if (rightExpression.NodeType == ExpressionType.Constant)
+            {
+                // a leftExpression with an & operation with an enum looks like:
+                // Convert(Convert((Convert(x.E, Int32) & mask), E), Int32)
+                if (leftExpression is UnaryExpression outerToUnderlyingTypeConvertExpression &&
+                    outerToUnderlyingTypeConvertExpression.NodeType == ExpressionType.Convert &&
+                    outerToUnderlyingTypeConvertExpression.Operand is UnaryExpression innerToEnumConvertExpression &&
+                    innerToEnumConvertExpression.NodeType == ExpressionType.Convert &&
+                    innerToEnumConvertExpression.Operand is BinaryExpression innerBinaryExpression &&
+                    innerBinaryExpression.NodeType == ExpressionType.And &&
+                    innerBinaryExpression.Left is UnaryExpression innerToUnderlyingTypeConvertExpression &&
+                    innerToUnderlyingTypeConvertExpression.NodeType == ExpressionType.Convert)
+                {
+                    var enumType = innerToEnumConvertExpression.Type;
+                    if (enumType.IsEnum)
+                    {
+                        var underlyingType = enumType.GetEnumUnderlyingType();
+                        if (outerToUnderlyingTypeConvertExpression.Type == underlyingType &&
+                            innerToEnumConvertExpression.Type == enumType &&
+                            innerToUnderlyingTypeConvertExpression.Type == underlyingType)
+                        {
+                            leftExpression = innerBinaryExpression; // Convert(x.E, Int32) & mask
+                        }
+                    }
+                }
+
+                leftBinaryExpression = leftExpression as BinaryExpression;
+                if (leftBinaryExpression != null &&
+                    leftBinaryExpression.NodeType == ExpressionType.And)
+                {
+                    return true;
+                }
+            }
+
+            leftBinaryExpression = null;
+            return false;
         }
 
         // caller is responsible for ensuring constant is on the right
@@ -39,10 +77,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             AstComparisonFilterOperator comparisonOperator,
             Expression rightExpression)
         {
-            if (leftExpression is BinaryExpression leftBinaryExpression &&
-                leftBinaryExpression.NodeType == ExpressionType.And)
+            if (CanTranslate(leftExpression, rightExpression, out var leftBinaryExpression))
             {
-                var fieldExpression = leftBinaryExpression.Left;
+                var fieldExpression = ConvertHelper.RemoveConvertToEnumUnderlyingType(leftBinaryExpression.Left);
                 var field = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
 
                 var bitMaskExpression = leftBinaryExpression.Right;

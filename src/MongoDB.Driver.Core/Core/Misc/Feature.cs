@@ -59,6 +59,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __createIndexesUsingInsertOperations = new Feature("CreateIndexesUsingInsertOperations", WireVersion.Zero, WireVersion.Server42);
         private static readonly Feature __csfle2 = new Feature("Csfle2", WireVersion.Server60);
         private static readonly Feature __currentOpCommand = new Feature("CurrentOpCommand", WireVersion.Server32);
+        private static readonly Feature __dateOperatorsNewIn50 = new Feature("DateOperatorsNewIn50", WireVersion.Server50);
         private static readonly Feature __densifyStage = new Feature("DensifyStage", WireVersion.Server51);
         private static readonly Feature __documentValidation = new Feature("DocumentValidation", WireVersion.Server32);
         private static readonly Feature __directConnectionSetting = new Feature("DirectConnectionSetting", WireVersion.Server44);
@@ -97,6 +98,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __maxTime = new Feature("MaxTime", WireVersion.Server26);
         private static readonly Feature __mmapV1StorageEngine = new Feature("MmapV1StorageEngine", WireVersion.Zero, WireVersion.Server42);
         private static readonly Feature __partialIndexes = new Feature("PartialIndexes", WireVersion.Server32);
+        private static readonly Feature __pickAccumulatorsNewIn52 = new Feature("PickAccumulatorsNewIn52", WireVersion.Server52);
         private static readonly Feature __readConcern = new Feature("ReadConcern", WireVersion.Server32);
         private static readonly Feature __retryableReads = new Feature("RetryableReads", WireVersion.Server36);
         private static readonly Feature __retryableWrites = new Feature("RetryableWrites", WireVersion.Server36);
@@ -109,6 +111,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __setWindowFieldsLocf = new Feature("SetWindowFieldsLocf", WireVersion.Server52);
         private static readonly Feature __shardedTransactions = new Feature("ShardedTransactions", WireVersion.Server42);
         private static readonly Feature __snapshotReads = new Feature("SnapshotReads", WireVersion.Server50, notSupportedMessage: "Snapshot reads require MongoDB 5.0 or later");
+        private static readonly Feature __sortArrayOperator = new Feature("SortArrayOperator", WireVersion.Server52);
         private static readonly Feature __speculativeAuthentication = new Feature("SpeculativeAuthentication", WireVersion.Server44);
         private static readonly Feature __streamingHello = new Feature("StreamingHello", WireVersion.Server44);
         private static readonly Feature __tailableCursor = new Feature("TailableCursor", WireVersion.Server32);
@@ -319,6 +322,11 @@ namespace MongoDB.Driver.Core.Misc
         /// </summary>
         [Obsolete("This property will be removed in a later release.")]
         public static Feature CurrentOpCommand => __currentOpCommand;
+
+        /// <summary>
+        /// Gets the date operators added in 5.0 feature.
+        /// </summary>
+        public static Feature DateOperatorsNewIn50 => __dateOperatorsNewIn50;
 
         /// <summary>
         /// Gets the aggregate $densify stage feature.
@@ -536,6 +544,11 @@ namespace MongoDB.Driver.Core.Misc
         public static Feature PartialIndexes => __partialIndexes;
 
         /// <summary>
+        /// Gets the pick accumulators new in 5.2 feature.
+        /// </summary>
+        public static Feature PickAccumulatorsNewIn52 => __pickAccumulatorsNewIn52;
+
+        /// <summary>
         /// Gets the read concern feature.
         /// </summary>
         [Obsolete("This property will be removed in a later release.")]
@@ -599,6 +612,11 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the snapshot reads feature.
         /// </summary>
         public static Feature SnapshotReads => __snapshotReads;
+
+        /// <summary>
+        /// Gets the $sortArray operator feature.
+        /// </summary>
+        public static Feature SortArrayOperator => __sortArrayOperator;
 
         /// <summary>
         /// Gets the speculative authentication feature.

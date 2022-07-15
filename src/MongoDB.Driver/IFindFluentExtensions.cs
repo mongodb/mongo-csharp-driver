@@ -141,6 +141,38 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Determine if there are any results.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TProjection">The type of the projection (same as TDocument if there is no projection).</typeparam>
+        /// <param name="find">The fluent find.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>True if there is at least one document.</returns>
+        public static bool Any<TDocument, TProjection>(this IFindFluent<TDocument, TProjection> find, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(find, nameof(find));
+
+            var projection = new BsonDocumentProjectionDefinition<TDocument, BsonDocument>(new BsonDocument("_id", 1));
+            return IAsyncCursorSourceExtensions.Any(find.Project(projection).Limit(1), cancellationToken);
+        }
+
+        /// <summary>
+        /// Determine if there are any results.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <typeparam name="TProjection">The type of the projection (same as TDocument if there is no projection).</typeparam>
+        /// <param name="find">The fluent find.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A Task whose result is true if there is at least one document.</returns>
+        public static Task<bool> AnyAsync<TDocument, TProjection>(this IFindFluent<TDocument, TProjection> find, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            Ensure.IsNotNull(find, nameof(find));
+
+            var projection = new BsonDocumentProjectionDefinition<TDocument, BsonDocument>(new BsonDocument("_id", 1));
+            return IAsyncCursorSourceExtensions.AnyAsync(find.Project(projection).Limit(1), cancellationToken);
+        }
+
+        /// <summary>
         /// Get the first result.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>

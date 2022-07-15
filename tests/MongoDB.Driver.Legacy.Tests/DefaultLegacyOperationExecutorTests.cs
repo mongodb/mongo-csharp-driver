@@ -32,7 +32,8 @@ namespace MongoDB.Driver.Legacy.Tests
             var subject = CreateSubject();
             var binding = new Mock<IReadBinding>().Object;
             var mockOperation = new Mock<IReadOperation<BsonDocument>>();
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             var result = subject.ExecuteReadOperation(binding, mockOperation.Object, cancellationToken);
 
@@ -45,7 +46,8 @@ namespace MongoDB.Driver.Legacy.Tests
             var subject = CreateSubject();
             var binding = new Mock<IReadBinding>().Object;
             var mockOperation = new Mock<IReadOperation<BsonDocument>>();
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             var result = subject.ExecuteReadOperationAsync(binding, mockOperation.Object, cancellationToken);
 
@@ -58,7 +60,8 @@ namespace MongoDB.Driver.Legacy.Tests
             var subject = CreateSubject();
             var binding = new Mock<IWriteBinding>().Object;
             var mockOperation = new Mock<IWriteOperation<BsonDocument>>();
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             var result = subject.ExecuteWriteOperation(binding, mockOperation.Object, cancellationToken);
 
@@ -71,7 +74,8 @@ namespace MongoDB.Driver.Legacy.Tests
             var subject = CreateSubject();
             var binding = new Mock<IWriteBinding>().Object;
             var mockOperation = new Mock<IWriteOperation<BsonDocument>>();
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             var result = subject.ExecuteWriteOperationAsync(binding, mockOperation.Object, cancellationToken);
 
@@ -84,7 +88,8 @@ namespace MongoDB.Driver.Legacy.Tests
             [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             IClientSessionHandle result;
             if (async)

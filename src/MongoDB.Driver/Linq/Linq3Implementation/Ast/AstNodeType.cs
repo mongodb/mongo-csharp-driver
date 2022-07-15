@@ -17,7 +17,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast
 {
     internal enum AstNodeType
     {
-        AccumulatorExpression,
         AccumulatorField,
         AddFieldsStage,
         AllFilterOperation,
@@ -105,6 +104,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast
         OrExpression,
         OrFilter,
         OutStage,
+        PickAccumulatorExpression,
+        PickExpression,
         Pipeline,
         PlanCacheStatsStage,
         ProjectStage,
@@ -129,6 +130,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast
         SizeFilterOperation,
         SkipStage,
         SliceExpression,
+        SortArrayExpression,
         SortStage,
         SortByCountStage,
         SwitchExpression,
@@ -137,9 +139,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast
         TextFilter,
         TrimExpression,
         TypeFilterOperation,
+        UnaryAccumulatorExpression,
         UnaryExpression,
         UnaryWindowExpression,
         UnionWithStage,
+        UniversalStage,
         UnsetStage,
         UnwindStage,
         VarBinding,

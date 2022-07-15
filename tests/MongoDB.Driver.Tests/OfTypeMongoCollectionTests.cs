@@ -599,7 +599,8 @@ namespace MongoDB.Driver.Tests
             [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
-            var cancellationToken = new CancellationTokenSource().Token;
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
 
             var exception = Record.Exception(() =>
             {

@@ -91,7 +91,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     {
                         startOfWeek = null;
                     }
-                    serializer = BsonInt64Serializer.Instance;
+                    serializer = Int64Serializer.Instance;
                 }
                 else
                 {
