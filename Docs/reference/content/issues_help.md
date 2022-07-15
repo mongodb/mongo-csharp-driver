@@ -10,7 +10,7 @@ title = "Issues & Help"
 
 ## Support
 
-Please check [frequently encountered issues]({{< relref "common_issues.md" >}}) before opening a support case or reporting a bug.
+Please check [frequently encountered issues]({{< relref "frequently_encountered_issues.md" >}}) before opening a support case or reporting a bug.
 
 If you require assistance with this driver, please see our paid support resources at [MongoDB Support Portal](https://support.mongodb.com/welcome)
 - Free support for customers without support subscriptions can be received through the [MongoDB Community Developer Forums](https://developer.mongodb.com/community/forums/)
