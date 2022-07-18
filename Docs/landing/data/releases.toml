@@ -101,32 +101,32 @@ current = "2.17.0"
   package = "MongoDB.Driver"
   description = "The driver."
   dependencies = ".NET Core Driver,.NET BSON Library"
-  versions = "2.17.0,2.16.1,2.15.0,2.14.1,2.13.2,2.12.4,2.11.6,2.10.4,2.9.3,2.8.1,2.7.3,2.6.1,2.5.1,2.4.4,2.3.0,2.2.4,2.1.1,2.0.2"
+  versions = "2.17.0,2.16.1,2.15.1,2.14.1,2.13.2,2.12.4,2.11.6,2.10.4,2.9.3,2.8.1,2.7.3,2.6.1,2.5.1,2.4.4,2.3.0,2.2.4,2.1.1,2.0.2"
 
 [[drivers]]
   name = ".NET GridFS"
   package = "MongoDB.Driver.GridFS"
   description = "The GridFS library."
   dependencies = ".NET Driver,.NET Core Driver,.NET BSON Library"
-  versions = "2.17.0,2.16.1,2.15.0,2.14.1,2.13.2,2.12.4,2.11.6,2.10.4,2.9.3,2.8.1,2.7.3,2.6.1,2.5.1,2.4.4,2.3.0,2.2.4,2.1.1"
+  versions = "2.17.0,2.16.1,2.15.1,2.14.1,2.13.2,2.12.4,2.11.6,2.10.4,2.9.3,2.8.1,2.7.3,2.6.1,2.5.1,2.4.4,2.3.0,2.2.4,2.1.1"
 
 [[drivers]]
   name = ".NET Core Driver"
   package = "MongoDB.Driver.Core"
   description = "The core driver."
   dependencies = ".NET BSON Library"
-  versions = "2.17.0,2.16.1,2.15.0,2.14.1,2.13.2,2.12.4,2.11.6,2.10.4,2.9.3,2.8.1,2.7.3,2.6.1,2.5.1,2.4.4,2.3.0,2.2.4,2.1.1,2.0.2"
+  versions = "2.17.0,2.16.1,2.15.1,2.14.1,2.13.2,2.12.4,2.11.6,2.10.4,2.9.3,2.8.1,2.7.3,2.6.1,2.5.1,2.4.4,2.3.0,2.2.4,2.1.1,2.0.2"
 
 [[drivers]]
   name = ".NET BSON Library"
   package = "MongoDB.Bson"
   description = "The BSON library."
   dependencies = ""
-  versions = "2.17.0,2.16.1,2.15.0,2.14.1,2.13.2,2.12.4,2.11.6,2.10.4,2.9.3,2.8.1,2.7.3,2.6.1,2.5.1,2.4.4,2.3.0,2.2.4,2.1.1,2.0.2"
+  versions = "2.17.0,2.16.1,2.15.1,2.14.1,2.13.2,2.12.4,2.11.6,2.10.4,2.9.3,2.8.1,2.7.3,2.6.1,2.5.1,2.4.4,2.3.0,2.2.4,2.1.1,2.0.2"
 
 [[drivers]]
   name = ".NET Legacy Driver"
   package = "mongocsharpdriver"
   description = "The legacy driver."
   dependencies = ".NET Driver,.NET Core Driver,.NET BSON Library"
-  versions = "2.17.0,2.16.1,2.15.0,2.14.1,2.13.2,2.12.4,2.11.6,2.10.4,2.9.3,2.8.1,2.7.3,2.6.1,2.5.1,2.4.4,2.3.0,2.2.4,2.1.1,2.0.2,1.11"
+  versions = "2.17.0,2.16.1,2.15.1,2.14.1,2.13.2,2.12.4,2.11.6,2.10.4,2.9.3,2.8.1,2.7.3,2.6.1,2.5.1,2.4.4,2.3.0,2.2.4,2.1.1,2.0.2,1.11"
