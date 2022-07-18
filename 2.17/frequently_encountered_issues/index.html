@@ -1,0 +1,3792 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="">
+<meta name="author" content="">
+<meta name="keyword" content="">
+
+    <link rel="shortcut icon" href="/mongo-csharp-driver/2.17/img/favicon.png">
+
+    <title>Frequently Encountered Issues</title>
+
+    <link rel="stylesheet" href="/mongo-csharp-driver/2.17/lib/bootstrap.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.17/lib/font-awesome/css/font-awesome.min.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.17/css/mongodb-docs.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.17/css/overrides.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.17/lib/highlight/styles/idea.css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.17/lib/bootstrap-toggle/bootstrap-toggle.min.css" type="text/css" />
+<link rel="stylesheet" href="/mongo-csharp-driver/2.17/css/dn.css" type="text/css" />
+
+
+  </head>
+
+  <body>
+  
+  <section id="container" class="">
+      
+      <header id="header-db" class="row" role="navigation">
+  <div class="header-content">
+    <div class="toggle-nav pull-left">
+        <i class="fa fa-bars"></i>
+        <div class="icon-reorder tooltips" data-original-title="Toggle Navigation" data-placement="bottom"></div>
+    </div>
+    
+    <div class="logo pull-left">
+      <a href="/mongo-csharp-driver/2.17/../">
+        <img src="/mongo-csharp-driver/2.17/img/logo-mongodb-header.png", alt="MongoDB.org" />
+      </a>
+    </div>
+    
+    <div>
+<div class="nav-items pull-right">
+  <a href="https://university.mongodb.com" data-toggle="tooltip" data-placement="bottom" title="Try MongoDB in the browser">Learn</a>
+  <a href="https://www.mongodb.com/try" data-toggle="tooltip" data-placement="bottom" title="Download MongoDB">Downloads</a>
+  <a href="https://www.mongodb.com/community" data-toggle="tooltip" data-placement="bottom" title="Get involved with MongoDB">Community</a>
+  <a href="https://www.mongodb.com/docs" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Documentation">Docs</a>
+  <a href="https://www.mongodb.com/blog" data-toggle="tooltip" data-placement="bottom" title="The MongoDB Blog">Blog</a>
+  <div id="search">
+<form method="get" action="//www.google.com/search" target="_blank">
+    <input type="text" name="searchQuery" size="20" value="" autocomplete="off" placeholder="Search docs">
+    <input type="hidden" name="site" value="/mongo-csharp-driver/2.17">
+    <input type="hidden" name="q" value="">
+    <label for="searchQuery"><i class="fa fa-search fa-1"></i></label>
+</form>
+</div>
+
+</div>
+</div>
+
+  </div>
+</header>
+
+      
+
+      
+<aside id="sidebar" class="sidebar">
+    <div class="ssidebar nav-collapse">
+      <div class="ssidebarwrapper">
+        <h3>
+          <a class="index-link" href="/mongo-csharp-driver/2.17/../">MongoDB .NET Driver</a>
+          <a class="version pull-right" href="/mongo-csharp-driver/2.17">2.17</a>
+        </h3>
+
+        
+        <ul class="sidebar-menu">
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+
+          
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+
+
+        
+          
+        
+      
+    
+    
+      
+    
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+  
+    
+    
+      
+      
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+
+  
+    
+    
+    
+      
+    
+  
+  
+
+
+        
+      
+    
+    
+  
+
+
+          
+
+          
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l1 ">
+  <a href="/mongo-csharp-driver/2.17/getting_started/" class="">
+      <i class='fa fa-road'></i>
+      <span>Getting Started</span>
+      <span class="menu-arrow fa fa-angle-right"></span>
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.17/getting_started/installation/">
+        <i class='fa'></i>
+        Installation
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.17/getting_started/quick_tour/">
+        <i class='fa'></i>
+        Quick Tour
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.17/getting_started/admin_quick_tour/">
+        <i class='fa'></i>
+        Admin Quick Tour
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l1 ">
+  <a href="/mongo-csharp-driver/2.17/what_is_new/" class="">
+      <i class='fa fa-star'></i>
+      <span>What&#39;s New</span>
+      <span class="menu-arrow fa fa-angle-right"></span>
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.17/upgrading/">
+        <i class='fa'></i>
+        Upgrading
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l1 ">
+  <a href="/mongo-csharp-driver/2.17/reference/" class="">
+      <i class='fa fa-book'></i>
+      <span>Reference</span>
+      <span class="menu-arrow fa fa-angle-right"></span>
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l2 ">
+  <a href="/mongo-csharp-driver/2.17/reference/bson/" class="">
+      <i class='fa'></i>
+      <span>BSON</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.17/reference/bson/bson/">
+        <i class='fa'></i>
+        BSON/JSON
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.17/reference/bson/bson_document/">
+        <i class='fa'></i>
+        BsonDocument
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.17/reference/bson/serialization/">
+        <i class='fa'></i>
+        Serialization
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l3 ">
+  <a href="/mongo-csharp-driver/2.17/reference/bson/guidserialization/" class="">
+      <i class='fa'></i>
+      <span>Guid Serialization</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.17/reference/bson/guidserialization/background/">
+        <i class='fa'></i>
+        Background
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l4 ">
+  <a href="/mongo-csharp-driver/2.17/reference/bson/guidserialization/guidrepresentationmode/guidrepresentationmode/" class="">
+      <i class='fa'></i>
+      <span>GuidRepresentationMode</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l5">
+    <a href="/mongo-csharp-driver/2.17/reference/bson/guidserialization/guidrepresentationmode/v2mode/">
+        <i class='fa'></i>
+        V2 mode
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l5">
+    <a href="/mongo-csharp-driver/2.17/reference/bson/guidserialization/guidrepresentationmode/v3mode/">
+        <i class='fa'></i>
+        V3 mode
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l4 ">
+  <a href="/mongo-csharp-driver/2.17/reference/bson/guidserialization/serializerchanges/serializerchanges/" class="">
+      <i class='fa'></i>
+      <span>Serializer changes</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l5">
+    <a href="/mongo-csharp-driver/2.17/reference/bson/guidserialization/serializerchanges/guidserializerchanges/">
+        <i class='fa'></i>
+        GuidSerializer changes
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l5">
+    <a href="/mongo-csharp-driver/2.17/reference/bson/guidserialization/serializerchanges/objectserializerchanges/">
+        <i class='fa'></i>
+        ObjectSerializer changes
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l3 ">
+  <a href="/mongo-csharp-driver/2.17/reference/bson/mapping/" class="">
+      <i class='fa'></i>
+      <span>Mapping Classes</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.17/reference/bson/mapping/polymorphism/">
+        <i class='fa'></i>
+        Polymorphism
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.17/reference/bson/mapping/conventions/">
+        <i class='fa'></i>
+        Conventions
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.17/reference/bson/mapping/schema_changes/">
+        <i class='fa'></i>
+        Handling Schema Changes
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l2 ">
+  <a href="/mongo-csharp-driver/2.17/reference/driver/" class="">
+      <i class='fa'></i>
+      <span>Driver</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l3 ">
+  <a href="/mongo-csharp-driver/2.17/reference/driver/connecting/" class="">
+      <i class='fa'></i>
+      <span>Connecting</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.17/reference/driver/ssl/">
+        <i class='fa'></i>
+        SSL
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.17/reference/driver/authentication/">
+        <i class='fa'></i>
+        Authentication
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l3 ">
+  <a href="/mongo-csharp-driver/2.17/reference/driver/definitions/" class="">
+      <i class='fa'></i>
+      <span>Definitions and Builders</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.17/reference/driver/expressions/">
+        <i class='fa'></i>
+        Expressions
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.17/reference/driver/admin/">
+        <i class='fa'></i>
+        Administration
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l3 ">
+  <a href="/mongo-csharp-driver/2.17/reference/driver/crud/" class="">
+      <i class='fa'></i>
+      <span>Reading and Writing</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.17/reference/driver/crud/reading/">
+        <i class='fa'></i>
+        Reading
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.17/reference/driver/crud/linq/">
+        <i class='fa'></i>
+        LINQ
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.17/reference/driver/crud/linq3/">
+        <i class='fa'></i>
+        LINQ3
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.17/reference/driver/crud/writing/">
+        <i class='fa'></i>
+        Writing
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.17/reference/driver/crud/compression/">
+        <i class='fa'></i>
+        Compression
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.17/reference/driver/crud/sessions_and_transactions/">
+        <i class='fa'></i>
+        Sessions and Transactions
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.17/reference/driver/crud/client_side_encryption/">
+        <i class='fa fa-lock'></i>
+        Client-Side Encryption
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.17/reference/driver/change_streams/">
+        <i class='fa'></i>
+        Change Streams
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.17/reference/driver/error_handling/">
+        <i class='fa'></i>
+        Error Handling
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.17/reference/driver/stable_api/">
+        <i class='fa'></i>
+        Stable API
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l2 ">
+  <a href="/mongo-csharp-driver/2.17/reference/driver_core/" class="">
+      <i class='fa'></i>
+      <span>Driver Core</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l3 ">
+  <a href="/mongo-csharp-driver/2.17/reference/driver_core/events/" class="">
+      <i class='fa'></i>
+      <span>Eventing</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l4">
+    <a href="/mongo-csharp-driver/2.17/reference/driver_core/sdamevents/">
+        <i class='fa'></i>
+        SDAM Events
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l2 ">
+  <a href="/mongo-csharp-driver/2.17/reference/gridfs/" class="">
+      <i class='fa'></i>
+      <span>GridFS</span>
+      
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.17/reference/gridfs/gettingstarted/">
+        <i class='fa'></i>
+        Getting Started
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.17/reference/gridfs/uploadingfiles/">
+        <i class='fa'></i>
+        Uploading Files
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.17/reference/gridfs/downloadingfiles/">
+        <i class='fa'></i>
+        Downloading Files
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.17/reference/gridfs/findingfiles/">
+        <i class='fa'></i>
+        Finding Files
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l3">
+    <a href="/mongo-csharp-driver/2.17/reference/gridfs/deletingandrenamingfiles/">
+        <i class='fa'></i>
+        Deleting and Renaming Files
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li class="toctree-l1 ">
+  <a href="/mongo-csharp-driver/2.17/examples/" class="">
+      <i class='fa fa-code'></i>
+      <span>Examples</span>
+      <span class="menu-arrow fa fa-angle-right"></span>
+  </a>
+    <ul >
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.17/examples/exporting_json/">
+        <i class='fa'></i>
+        Exporting JSON
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.17/examples/importing_json/">
+        <i class='fa'></i>
+        Importing JSON
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.17/examples/mixing_static_and_dynamic/">
+        <i class='fa'></i>
+        Mixing Static and Dynamic Data
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.17/examples/tailable_cursor/">
+        <i class='fa'></i>
+        Using a Tailable Cursor
+    </a>
+  </li>
+
+
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.17/examples/user_management/">
+        <i class='fa'></i>
+        Managing Users
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l1">
+    <a href="/mongo-csharp-driver/2.17/apidocs/">
+        <i class='fa fa-file-text-o'></i>
+        API Documentation
+    </a>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="toctree-l1">
+    <a href="https://github.com/mongodb/mongo-csharp-driver/tree/master">
+        <i class='fa fa-github'></i>
+        Source Code
+    </a>
+  </li>
+
+
+          
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+<li class="toctree-l1  current">
+  <a href="/mongo-csharp-driver/2.17/issues_help/" class="">
+      <i class='fa fa-life-ring'></i>
+      <span>Issues &amp; Help</span>
+      <span class="menu-arrow fa fa-angle-down"></span>
+  </a>
+    <ul  class="current">
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+    <li class="toctree-l2">
+    <a href="/mongo-csharp-driver/2.17/frequently_encountered_issues/">
+        <i class='fa'></i>
+        Frequently Encountered Issues
+    </a>
+  </li>
+
+
+        
+        
+    </ul>
+  </li>
+
+
+          
+        </ul>
+        
+    </div>
+  </div>
+  
+</aside>
+
+<div class="option-popup closed hidden" id="optionsVersionsPopup">
+<div class="option-header">
+  <i class="fa fa-gear"></i>
+  <span>OPTIONS</span>
+  <i class="fa fa-angle-up pull-right"></i>
+</div>
+<div class="option-body">
+  <ul>
+      
+      <li>
+        <label>Version</label>
+        <div class="btn-group btn-group-xs pull-right">
+          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+            Select Version <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu" role="menu" id="optionsVersionsMenu">
+          </ul>
+        </div>
+      </li>
+
+   
+
+
+    
+
+  </ul>
+</div>
+</div>
+
+
+
+      
+      <section id="main-content" class="content">
+          <section class="main-column pull-left">
+            <div class="document">
+              <div class="documentwrapper">
+                <div class="bodywrapper">
+                  <div class="body">
+
+
+   
+<a class="edit-link" href="https://github.com/mongodb/mongo-csharp-driver/blob/master/docs/reference/content/frequently_encountered_issues.md" target="_blank" title="Edit frequently_encountered_issues.md on GitHub"><i class="fa fa-pencil-square-o"></i></a>
+
+
+
+
+
+
+
+
+
+
+<div class="bc">
+<ul>
+  
+  
+  
+  
+  
+  <li><a href="/mongo-csharp-driver/2.17/issues_help/">Issues &amp; Help</a> <i class="fa fa-angle-right"></i></li>
+  <li>Frequently Encountered Issues</li>
+</ul>
+</div>
+
+
+
+
+<h1 id="frequently-encountered-issues">Frequently Encountered Issues</h1>
+
+<h2 id="timeout-during-server-selection">Timeout during server selection</h2>
+
+<p>Each driver operation requires choosing of a healthy server satisfying the <a href="https://www.mongodb.com/docs/manual/core/read-preference-mechanics/">server selection criteria</a>. If an appropriate server cannot be found within the <a href="/mongo-csharp-driver/2.17/apidocs/html/T_MongoDB_Driver_ServerSelectionTimeout.htm
+">server selection timeout</a>, the driver will throw a server selection timeout exception. The exception will look similar to the following:</p>
+
+<pre><code class="language-csharp">A timeout occurred after 30000ms selecting a server using CompositeServerSelector{ Selectors = MongoDB.Driver.MongoClient+AreSessionsSupportedServerSelector, LatencyLimitingServerSelector{ AllowedLatencyRange = 00:00:00.0150000 }, OperationsCountServerSelector }. 
+Client view of cluster state is 
+{ 
+    ClusterId : &quot;1&quot;, 
+    Type : &quot;Unknown&quot;, 
+    State : &quot;Disconnected&quot;, 
+    Servers : 
+    [{
+        ServerId: &quot;{ ClusterId : 1, EndPoint : &quot;Unspecified/localhost:27017&quot; }&quot;,
+        EndPoint: &quot;Unspecified/localhost:27017&quot;,
+        ReasonChanged: &quot;Heartbeat&quot;,
+        State: &quot;Disconnected&quot;,
+        ServerVersion: ,
+        TopologyVersion: ,
+        Type: &quot;Unknown&quot;,
+        HeartbeatException: &quot;&lt;exception details&gt;&quot;
+    }] 
+}.
+</code></pre>
+
+<p>The error message consists of few parts:</p>
+
+<ol>
+<li>The server selection timeout (e.g. 30000ms).</li>
+<li>The server selectors considered (e.g. <code>CompositeServerSelector</code> containing <code>AreSessionsSupportedServerSelector</code>, <code>LatencyLimitingServerSelector</code>, and <code>OperationsCountServerSelector</code>.)</li>
+
+<li><p>The driver&rsquo;s current view of the cluster topology. A key part is the list of servers that the driver is aware of. Each server description contains an exhaustive description of its current state including information about an endpoint, a server version, a server type, and its current health state. If the server is not heathy then <code>HeartbeatException</code> will contain the exception from the last failed heartbeat. Analyzing the <code>HeartbeatException</code> on each cluster node can assist in diagnosing most server selection issues. Below are a few common heartbeat exceptions:</p>
+
+<ul>
+<li><p><code>No connection could be made because the target machine actively refused it</code>: The driver cannot see this cluster node. This can be because the cluster node has crashed, a firewall is preventing network traffic from reaching the cluster node or port, or some other network error is preventing traffic from being successfully routed to the cluster node.</p></li>
+
+<li><p><code>Attempted to read past the end of the stream</code>: This error happens when the driver can&rsquo;t connect to the cluster nodes due to a network error, misconfigured firewall, or other network issue. Ensure that all cluster nodes are reachable. One common cause of this error is when the client machine&rsquo;s IP address is not configured in the Atlas IPs Access List, which can be found under the Network Access tab for your Atlas Project.</p></li>
+
+<li><p><code>The remote certificate is invalid according to the validation procedure</code>: This error typically indicates a TLS/SSL-related problem such as an expired/invalid certificate or an untrusted root CA. You can use tools like <code>openssl s_client</code> to debug TLS/SSL-related certificate problems.</p></li>
+</ul></li>
+</ol>
+
+<h2 id="mongowaitqueuefullexception-the-wait-queue-for-acquiring-a-connection-to-server-is-full">MongoWaitQueueFullException. The wait queue for acquiring a connection to server is full.</h2>
+
+<p>This exception usually indicates a threading or concurrency problem in your application. When the driver executes a read or write, it will check out a connection from the selected server&rsquo;s connection pool. If that pool is already at <code>maxPoolSize</code> (default 100), then the requesting thread will block in a wait queue (which has a default size of <code>5 x maxPoolSize</code> or 500). If the wait queue is also full, then a <code>MongoWaitQueueFullException</code> will be thrown. To resolve this issue, you can try the following (in order of preference):</p>
+
+<ol>
+<li>Tune your indexes. By improving the performance of your queries, operations will take less time to complete and reduce the number of concurrent connections needed for your workload.</li>
+<li>If you have long-running, analytical queries, you may wish to isolate them to dedicated analytics nodes using <code>readPreferenceTags</code> or a hidden secondary.</li>
+<li>Increase <code>maxPoolSize</code> to allow more simultaneous operations to a given cluster node. If your MongoDB cluster does not have sufficient resources to handle the additional connections and simultaneous workload, performance can actually decrease due to resource contention on the cluster nodes. Adjust this setting only with careful consideration and testing.</li>
+<li>Increase <code>waitQueueMultiple</code> to allow more threads/tasks to block waiting for a connection. This is rarely the right solution. It is better to address the concurrency problems in your application.</li>
+</ol>
+
+<h2 id="unsupported-linq-or-builder-expressions">Unsupported LINQ or Builder expressions</h2>
+
+<p>Each LINQ or Builder expression must be translated into MQL (MongoDB Query Language), which is executed by the server. Unfortunately this is not always possible for two main reasons:</p>
+
+<ol>
+<li>You are attempting to use a .NET feature that does not have an obvious or equivalent MongoDB representation. For example, .NET and MongoDB have different semantics around collations.</li>
+<li>The driver doesn&rsquo;t support a particular transformation from LINQ or Builder expression into a server query. It may happen because the provided query is too complicated or because some feature has not been implemented yet by the driver.</li>
+</ol>
+
+<p>If you see an <code>Unsupported filter ...</code> or <code>Expression not supported ...</code> exception message, we recommend trying the following steps:</p>
+
+<ol>
+<li>Try configuring the new <a href="/mongo-csharp-driver/2.17/reference/driver/crud/linq3/">LINQ3 provider</a>. The LINQ3 provider contains many fixes and new features over the LINQ2 provider.</li>
+<li>Try simplify your query as much as possible.</li>
+<li>If the above steps don&rsquo;t resolve your issue, it&rsquo;s always possible to provide a query as a <code>BsonDocument</code> or JSON string. All driver definition classes such as <code>FilterDefinition</code>, <code>ProjectionDefinition</code>, and <code>PipelineDefinition</code> support implicit conversion from <code>BsonDocument</code> or JSON string. For example, the following filters will render to the same MQL when used in a query or aggregation:</li>
+</ol>
+
+<pre><code class="language-csharp">    FilterDefinition&lt;Entity&gt; typedFilter = Builders&lt;Entity&gt;.Filter.Eq(e =&gt; e.A, 1);
+    FilterDefinition&lt;Entity&gt; bsonFilter = new BsonDocument {{ &quot;a&quot;, 1 }};
+    FilterDefinition&lt;Entity&gt; jsonFilter = &quot;{ a : 1 }&quot;;
+</code></pre>
+
+<p><div class="admonition note">
+<h5 class="admonition-title">Note</h5>
+<p>Note that if you use <code>BsonDocument</code> or JSON string, then <a href="/mongo-csharp-driver/2.17/reference/bson/mapping/">BsonClassMap</a>, BSON serialization attributes, and serialization conventions will not be taken into account when rendering the MQL. Field names must match the names and casing as stored by the server. For example, when referencing the <code>_id</code> field, you must refer to it using <code>_id</code> (not <code>Id</code> as used in C#) in <code>BsonDocument</code> or JSON string definitions. Similarly if you have a property <code>FirstName</code> annotated with <code>[BsonElement(&quot;first_name&quot;)]</code>, you must refer to it as <code>first_name</code> in <code>BsonDocument</code> or JSON string definitions.</p>
+
+</div>
+</p>
+
+<p>It&rsquo;s also possible to combine the raw and typed forms in the same query:</p>
+
+<pre><code class="language-csharp">FilterDefinition&lt;Entity&gt; filter = Builders&lt;Entity&gt;.Filter.And(Builders&lt;Entity&gt;.Filter.Eq(e =&gt; e.A, 1), BsonDocument.Parse(&quot;{ b : 2 }&quot;));
+</code></pre>
+
+
+
+
+
+
+<div id="btnv">
+  
+  
+</div>
+</div>
+
+
+</div>
+<div class="right-column">
+<div class="wrapper">
+  
+  <div class="toc">
+    <span class="toc-header">On this page</span>
+    <nav id="TableOfContents">
+<ul>
+<li><a href="#frequently-encountered-issues">Frequently Encountered Issues</a>
+<ul>
+<li><a href="#timeout-during-server-selection">Timeout during server selection</a></li>
+<li><a href="#mongowaitqueuefullexception-the-wait-queue-for-acquiring-a-connection-to-server-is-full">MongoWaitQueueFullException. The wait queue for acquiring a connection to server is full.</a></li>
+<li><a href="#unsupported-linq-or-builder-expressions">Unsupported LINQ or Builder expressions</a></li>
+</ul></li>
+</ul>
+</nav>
+  </div>
+  
+</div>
+</div>
+
+</div>
+</div>
+</div>
+</section>
+</section>
+
+</section>
+
+
+<script type="text/javascript">
+  var DOCUMENTATION_OPTIONS = {
+   URL_ROOT:    "/mongo-csharp-driver/2.17",
+   VERSION:     "2.17",
+   COLLAPSE_INDEX: false,
+   FILE_SUFFIX: '.html',
+   HAS_SOURCE:  true
+  };
+</script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.17/js/jquery.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.17/lib/bootstrap.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.17/js/navbar.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.17/lib/highlight/highlight.pack.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.17/js/scripts.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.17/lib/bootstrap-toggle/bootstrap-toggle.min.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.17/lib/delighted.js"></script>
+<script type="text/javascript" src="/mongo-csharp-driver/2.17/js/dn.js"></script>
+
+
+<noscript><iframe src="//www.googletagmanager.com/ns.html?id=UA-7301842-14"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push(
+{'gtm.start': new Date().getTime(),event:'gtm.js'}
+);var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','UA-7301842-14');</script>
+
+
+<script type="text/javascript">
+var _elqQ = _elqQ || [];
+_elqQ.push(['elqSetSiteId', '413370795']);
+_elqQ.push(['elqTrackPageView']);
+(function () {
+function async_load()
+{ var s = document.createElement('script'); s.type = 'text/javascript'; s.async = true; s.src = '//img03.en25.com/i/elqCfg.min.js'; var x = document.getElementsByTagName('script')[0]; x.parentNode.insertBefore(s, x); }
+if (window.addEventListener) window.addEventListener('DOMContentLoaded', async_load, false);
+else if (window.attachEvent) window.attachEvent('onload', async_load);
+})();
+</script>
+
+</body>
+</html>
+
