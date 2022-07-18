@@ -11,9 +11,18 @@ title = "Upgrading"
 
 ## Breaking Changes
 
-### Backwards compatibility with driver version 2.7.0–2.15.x
+### Backwards compatibility with driver version 2.7.0–2.16.x
 
-Starting from 2.15.0, feature detection is implemented through maxWireVersion 
+Driver versions 2.13.0 to 2.15.X changed `EstimatedDocumentCount` to use
+the `$collStats` aggregation stage instead of the `count` command. This
+unintentionally broke estimated document counts on views. 2.16.0 and later
+switched back to using the `count` command. Unfortunately MongoDB 5.0.0-5.0.8
+do not include the `count` command in Stable API v1. If you are using the
+Stable API with `EstimatedDocumentCount`, you must upgrade to server version
+5.0.9+ or set `strict: false` when configuring `ServerApi` to avoid encountering
+errors.
+
+Starting from 2.15.0, feature detection is implemented through maxWireVersion
 instead of buildInfo. This should have no user-visible impact.
 
 Driver version 2.14.0 and later only supports MongoDB 3.6+. It cannot connect to

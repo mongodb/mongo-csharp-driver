@@ -8,6 +8,16 @@ title = "What's New"
   pre = "<i class='fa fa-star'></i>"
 +++
 
+## What's New in 2.17.0
+
+The main new features in 2.17.0 include:
+
+* Support for MongoDB server version 6.0.0 GA
+* [BETA] Support for Queryable Encryption
+* LINQ3 bug fixes and improvements
+* Add arbitrary aggregation stages to LINQ queries using `IMongoQueryable.AppendStage()` method (LINQ3)
+* Support for `$topN` and related accumulators in `$group` aggregation stage
+
 ## What's New in 2.16.0
 
 The main new features in 2.16.0 include:
