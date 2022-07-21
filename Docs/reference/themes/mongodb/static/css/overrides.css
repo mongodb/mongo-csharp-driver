@@ -115,3 +115,26 @@ a code {
 .jsEnabled #search {
   visibility: visible;
 }
+
+@media print {
+  a[href]:after {
+    content: none !important;
+  }
+
+  .edit-link,
+  .sidebar,
+  .toggle-nav,
+  #header-db .nav-items {
+    display: none !important;
+  }
+
+  #header-db {
+    position: inherit !important;
+  }
+
+  .content .main-column {
+    margin-top: 0 !important;
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+}
