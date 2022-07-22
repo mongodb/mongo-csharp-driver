@@ -154,7 +154,7 @@ namespace MongoDB.Bson.Tests.Serialization
                 var exception = Record.Exception(() => new TestClass(Guid.Empty));
                 exception.Should().BeOfType<InvalidOperationException>();
             }
-#pragma warning disable 618
+#pragma warning restore
         }
 
         [Theory]
@@ -175,10 +175,10 @@ namespace MongoDB.Bson.Tests.Serialization
                 var guidRepresentation = BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2 ? BsonDefaults.GuidRepresentation : GuidRepresentation.Unspecified;
                 switch (guidRepresentation)
                 {
-                    case GuidRepresentation.CSharpLegacy: expectedGuidJson = $"CSUUID('{guid.ToString()}')"; break;
-                    case GuidRepresentation.JavaLegacy: expectedGuidJson = $"JUUID('{guid.ToString()}')"; break;
-                    case GuidRepresentation.PythonLegacy: expectedGuidJson = $"PYUUID('{guid.ToString()}')"; break;
-                    case GuidRepresentation.Standard: expectedGuidJson = $"UUID('{guid.ToString()}')"; break;
+                    case GuidRepresentation.CSharpLegacy: expectedGuidJson = $"CSUUID('{guid}')"; break;
+                    case GuidRepresentation.JavaLegacy: expectedGuidJson = $"JUUID('{guid}')"; break;
+                    case GuidRepresentation.PythonLegacy: expectedGuidJson = $"PYUUID('{guid}')"; break;
+                    case GuidRepresentation.Standard: expectedGuidJson = $"UUID('{guid}')"; break;
                     default: throw new Exception("Unexpected GuidRepresentation.");
                 }
 
@@ -195,7 +195,7 @@ namespace MongoDB.Bson.Tests.Serialization
                 var exception = Record.Exception(() => new TestClass(guid));
                 exception.Should().BeOfType<InvalidOperationException>();
             }
-#pragma warning disable 618
+#pragma warning restore
         }
     }
 

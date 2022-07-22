@@ -50,18 +50,18 @@ namespace MongoDB.Driver.Core.Authentication.Vendored
 {
     internal class Rfc2898DeriveBytes : DeriveBytes
     {
-        private static readonly string Cryptography_PasswordDerivedBytes_FewBytesSalt
+        private const string Cryptography_PasswordDerivedBytes_FewBytesSalt
             = "Salt is not at least eight bytes.";
-        private static readonly string ArgumentOutOfRange_NeedPosNum
+        private const string ArgumentOutOfRange_NeedPosNum
             = "Positive number required.";
 
-        private static readonly string Cryptography_HashAlgorithmNameNullOrEmpty
+        private const string Cryptography_HashAlgorithmNameNullOrEmpty
             = "The hash algorithm name cannot be null or empty.";
 
-        private static readonly string ArgumentOutOfRange_NeedNonNegNum
+        private const string ArgumentOutOfRange_NeedNonNegNum
             = "Non-negative number required.";
 
-        private static readonly string Cryptography_UnknownHashAlgorithm
+        private const string Cryptography_UnknownHashAlgorithm
             = "'{0}' is not a known hash algorithm.";
 
         private const int MinimumSaltSize = 8;
@@ -275,7 +275,6 @@ namespace MongoDB.Driver.Core.Authentication.Vendored
             return args != null ? string.Format(resourceFormat, args) : resourceFormat;
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA5350", Justification = "HMACSHA1 is needed for compat. (https://github.com/dotnet/corefx/issues/9438)")]
         private HMAC OpenHmac()
         {
             Debug.Assert(_password != null);

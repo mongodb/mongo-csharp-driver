@@ -594,7 +594,7 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
         private class TestCaseFactory : JsonDrivenTestCaseFactory
         {
             // private constants
-            private readonly string[] MonitoringPrefixes =
+            private static readonly string[] __monitoringPrefixes =
             {
                 "MongoDB.Driver.Core.Tests.Specifications.server_discovery_and_monitoring.tests.monitoring.",
                 "MongoDB.Driver.Core.Tests.Specifications.server_discovery_and_monitoring.tests.legacy_hello.monitoring."
@@ -612,7 +612,7 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
             {
                 var loadBalancerTestDirectory = $"{Path.PathSeparator}load-balanced{Path.PathSeparator}";
                 return base.ShouldReadJsonDocument(path) &&
-                       !MonitoringPrefixes.Any(prefix => path.StartsWith(prefix)) &&
+                       !__monitoringPrefixes.Any(prefix => path.StartsWith(prefix)) &&
                        !path.Contains(loadBalancerTestDirectory);  // load balancer support not yet implemented
             }
         }

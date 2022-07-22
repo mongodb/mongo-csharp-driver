@@ -53,7 +53,7 @@ namespace MongoDB.Driver.Linq.Linq2Implementation.Expressions
 
         public override string ToString()
         {
-            return $"Constant({_value.ToString()})";
+            return $"Constant({_value})";
         }
 
         protected internal override Expression Accept(ExtensionExpressionVisitor visitor)

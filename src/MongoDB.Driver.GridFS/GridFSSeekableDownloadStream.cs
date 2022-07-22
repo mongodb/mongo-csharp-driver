@@ -151,13 +151,11 @@ namespace MongoDB.Driver.GridFS
         {
             var chunksCollectionNamespace = Bucket.GetChunksCollectionNamespace();
             var messageEncoderSettings = Bucket.GetMessageEncoderSettings();
-#pragma warning disable 618
             var filter = new BsonDocument
             {
                 { "files_id", _idAsBsonValue },
                 { "n", n }
             };
-#pragma warning restore
 
             return new FindOperation<BsonDocument>(
                 chunksCollectionNamespace,
@@ -197,9 +195,7 @@ namespace MongoDB.Driver.GridFS
         {
             if (documents.Count == 0)
             {
-#pragma warning disable 618
                 throw new GridFSChunkException(_idAsBsonValue, n, "missing");
-#pragma warning restore
             }
 
             var document = documents[0];
@@ -210,9 +206,7 @@ namespace MongoDB.Driver.GridFS
             var expectedChunkSize = n == lastChunk ? FileInfo.Length % chunkSizeBytes : chunkSizeBytes;
             if (data.Length != expectedChunkSize)
             {
-#pragma warning disable 618
                 throw new GridFSChunkException(_idAsBsonValue, n, "the wrong size");
-#pragma warning restore
             }
 
             return data;

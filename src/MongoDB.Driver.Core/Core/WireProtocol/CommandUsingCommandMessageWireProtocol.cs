@@ -447,7 +447,6 @@ namespace MongoDB.Driver.Core.WireProtocol
             }
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")]
         private TCommandResult ProcessResponse(ConnectionId connectionId, CommandMessage responseMessage)
         {
             using (new CommandMessageDisposer(responseMessage))

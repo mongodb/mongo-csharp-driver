@@ -29,15 +29,15 @@ namespace MongoDB.Driver.Core.Clusters
 {
     public class ReplicaSetConfigTests
     {
-        private static readonly EndPoint[] _endPoints =
+        private static readonly EndPoint[] __endPoints =
             new[] { new DnsEndPoint("localhost", 27017), new DnsEndPoint("localhost", 27018) };
-        private static readonly string _name = "rs1";
-        private static readonly int _version = 10;
+        private static readonly string __name = "rs1";
+        private static readonly int __version = 10;
 
         [Fact]
         public void Constructor_should_throw_if_endpoints_is_null()
         {
-            Action act = () => new ReplicaSetConfig(null, _name, _endPoints[0], _version);
+            Action act = () => new ReplicaSetConfig(null, __name, __endPoints[0], __version);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -45,19 +45,19 @@ namespace MongoDB.Driver.Core.Clusters
         [Fact]
         public void Constructor_should_assign_properties_correctly()
         {
-            var subject = new ReplicaSetConfig(_endPoints, _name, _endPoints[0], _version);
+            var subject = new ReplicaSetConfig(__endPoints, __name, __endPoints[0], __version);
 
-            subject.Members.Should().BeEquivalentTo(_endPoints);
-            subject.Name.Should().Be(_name);
-            subject.Primary.Should().Be(_endPoints[0]);
-            subject.Version.Should().Be(_version);
+            subject.Members.Should().BeEquivalentTo(__endPoints);
+            subject.Name.Should().Be(__name);
+            subject.Primary.Should().Be(__endPoints[0]);
+            subject.Version.Should().Be(__version);
         }
 
         [Fact]
         public void Equals_should_ignore_revision()
         {
-            var subject1 = new ReplicaSetConfig(_endPoints, _name, _endPoints[0], _version);
-            var subject2 = new ReplicaSetConfig(_endPoints, _name, _endPoints[0], _version);
+            var subject1 = new ReplicaSetConfig(__endPoints, __name, __endPoints[0], __version);
+            var subject2 = new ReplicaSetConfig(__endPoints, __name, __endPoints[0], __version);
             subject1.Equals(subject2).Should().BeTrue();
             subject1.Equals((object)subject2).Should().BeTrue();
             subject1.GetHashCode().Should().Be(subject2.GetHashCode());
@@ -66,14 +66,14 @@ namespace MongoDB.Driver.Core.Clusters
         [Fact]
         public void Equals_should_not_be_the_same_when_a_field_is_different()
         {
-            var subject1 = new ReplicaSetConfig(_endPoints, _name, _endPoints[0], _version);
+            var subject1 = new ReplicaSetConfig(__endPoints, __name, __endPoints[0], __version);
 
-            var subject2 = new ReplicaSetConfig(new[] { _endPoints[0] }, _name, _endPoints[0], _version);
-            var subject3 = new ReplicaSetConfig(_endPoints, null, _endPoints[0], _version);
-            var subject4 = new ReplicaSetConfig(_endPoints, _name, _endPoints[1], _version);
-            var subject5 = new ReplicaSetConfig(_endPoints, _name, null, _version);
-            var subject6 = new ReplicaSetConfig(_endPoints, _name, _endPoints[0], _version + 1);
-            var subject7 = new ReplicaSetConfig(_endPoints, _name, _endPoints[0], null);
+            var subject2 = new ReplicaSetConfig(new[] { __endPoints[0] }, __name, __endPoints[0], __version);
+            var subject3 = new ReplicaSetConfig(__endPoints, null, __endPoints[0], __version);
+            var subject4 = new ReplicaSetConfig(__endPoints, __name, __endPoints[1], __version);
+            var subject5 = new ReplicaSetConfig(__endPoints, __name, null, __version);
+            var subject6 = new ReplicaSetConfig(__endPoints, __name, __endPoints[0], __version + 1);
+            var subject7 = new ReplicaSetConfig(__endPoints, __name, __endPoints[0], null);
 
             subject1.Should().NotBe(subject2);
             subject1.Should().NotBe(subject3);

@@ -72,10 +72,8 @@ namespace MongoDB.Driver.Tests
                 Server = new MongoServerAddress("localhost"),
             };
             var operationExecutor = new DefaultLegacyOperationExecutor();
-#pragma warning disable 618
             var server1 = MongoServer.Create(settings, operationExecutor);
             var server2 = MongoServer.Create(settings, operationExecutor);
-#pragma warning restore 618
             Assert.Same(server1, server2);
             Assert.Equal(settings, server1.Settings);
         }
@@ -137,9 +135,7 @@ namespace MongoDB.Driver.Tests
         public void TestGetAllServers()
         {
             var snapshot1 = MongoServer.GetAllServers();
-#pragma warning disable 618
             var server = MongoServer.Create("mongodb://newhostnamethathasnotbeenusedbefore", new DefaultLegacyOperationExecutor());
-#pragma warning restore
             var snapshot2 = MongoServer.GetAllServers();
             Assert.Equal(snapshot1.Length + 1, snapshot2.Length);
             Assert.False(snapshot1.Contains(server));

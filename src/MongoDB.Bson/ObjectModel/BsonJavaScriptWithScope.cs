@@ -89,7 +89,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">An object to be mapped to a BsonJavaScriptWithScope.</param>
         /// <returns>A BsonJavaScriptWithScope or null.</returns>
-        public new static BsonJavaScriptWithScope Create(object value)
+        public static new BsonJavaScriptWithScope Create(object value)
         {
             if (value == null)
             {

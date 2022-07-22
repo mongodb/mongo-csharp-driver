@@ -49,8 +49,8 @@ namespace MongoDB.Driver.Tests
             "getnonce"
         };
 
-        private const string _collectionName = "test";
-        private const string _databaseName = "test";
+        private const string CollectionName = "test";
+        private const string DatabaseName = "test";
 
         /// <summary>
         /// Test that starting a new transaction on a pinned ClientSession unpins the
@@ -86,9 +86,9 @@ namespace MongoDB.Driver.Tests
 
                 using var failPoint = FailPoint.Configure(slowServer, NoCoreSession.NewHandle(), failCommand);
 
-                var database = client.GetDatabase(_databaseName);
+                var database = client.GetDatabase(DatabaseName);
                 CreateCollection();
-                var collection = database.GetCollection<BsonDocument>(_collectionName);
+                var collection = database.GetCollection<BsonDocument>(CollectionName);
 
                 // warm up connections
                 var channels = new ConcurrentBag<IChannelHandle>();
@@ -154,9 +154,9 @@ namespace MongoDB.Driver.Tests
         private void CreateCollection()
         {
             var client = DriverTestConfiguration.Client;
-            var database = client.GetDatabase(_databaseName).WithWriteConcern(WriteConcern.WMajority);
+            var database = client.GetDatabase(DatabaseName).WithWriteConcern(WriteConcern.WMajority);
 
-            var collection = database.GetCollection<BsonDocument>(_collectionName);
+            var collection = database.GetCollection<BsonDocument>(CollectionName);
             collection.InsertOne(new BsonDocument());
         }
 
@@ -181,8 +181,8 @@ namespace MongoDB.Driver.Tests
         private void DropCollection()
         {
             var client = DriverTestConfiguration.Client;
-            var database = client.GetDatabase(_databaseName).WithWriteConcern(WriteConcern.WMajority);
-            database.DropCollection(_collectionName);
+            var database = client.GetDatabase(DatabaseName).WithWriteConcern(WriteConcern.WMajority);
+            database.DropCollection(CollectionName);
         }
     }
 }

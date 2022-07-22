@@ -35,7 +35,6 @@ namespace MongoDB.Driver.Core.Operations
         /// <param name="documentSerializer">The document serializer.</param>
         /// <param name="messageEncoderSettings">The message encoder settings.</param>
         /// <returns>The documents.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")]
         public static List<TDocument> DeserializeBatch<TDocument>(RawBsonArray batch, IBsonSerializer<TDocument> documentSerializer, MessageEncoderSettings messageEncoderSettings)
         {
             var documents = new List<TDocument>();

@@ -37,13 +37,11 @@ namespace MongoDB.Driver.Tests.GridFS
         [Fact]
         public void TestDefaultsObsolete()
         {
-#pragma warning disable 618
             var settings = new MongoGridFSSettings();
             Assert.False(settings.IsFrozen);
             Assert.Equal(0, settings.ChunkSize);
             Assert.Equal(null, settings.Root);
             Assert.Equal(null, settings.WriteConcern);
-#pragma warning restore
         }
 
         public void TestCreation()

@@ -156,9 +156,7 @@ namespace MongoDB.Driver.Core.Configuration
         {
             get
             {
-#pragma warning disable CS0618 // Type or member is obsolete
                 if (_connectionModeSwitch == ConnectionModeSwitch.UseConnectionMode)
-#pragma warning restore CS0618 // Type or member is obsolete
                 {
                     throw new InvalidOperationException("DirectConnection cannot be used when ConnectionModeSwitch is set to UseConnectionMode.");
                 }
@@ -345,9 +343,7 @@ namespace MongoDB.Driver.Core.Configuration
                 return ClusterType.LoadBalanced;
             }
 
-#pragma warning disable CS0618 // Type or member is obsolete
             if (_connectionModeSwitch == ConnectionModeSwitch.UseDirectConnection)
-#pragma warning restore CS0618 // Type or member is obsolete
             {
                 if (_directConnection.GetValueOrDefault())
                 {

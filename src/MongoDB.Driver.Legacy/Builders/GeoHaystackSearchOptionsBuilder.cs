@@ -136,7 +136,7 @@ namespace MongoDB.Driver.Builders
         }
 
         // nested classes
-        new internal class Serializer : SerializerBase<GeoHaystackSearchOptionsBuilder>
+        internal new class Serializer : SerializerBase<GeoHaystackSearchOptionsBuilder>
         {
             public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, GeoHaystackSearchOptionsBuilder value)
             {
@@ -266,7 +266,7 @@ namespace MongoDB.Driver.Builders
         }
 
         // nested classes
-        new internal class Serializer : SerializerBase<GeoHaystackSearchOptionsBuilder<TDocument>>
+        internal new class Serializer : SerializerBase<GeoHaystackSearchOptionsBuilder<TDocument>>
         {
             public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, GeoHaystackSearchOptionsBuilder<TDocument> value)
             {

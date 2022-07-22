@@ -61,7 +61,7 @@ namespace MongoDB.Driver.GridFS
         /// <value>
         /// The backing document.
         /// </value>
-        new public BsonDocument BackingDocument
+        public new BsonDocument BackingDocument
         {
             get { return base.BackingDocument; }
         }

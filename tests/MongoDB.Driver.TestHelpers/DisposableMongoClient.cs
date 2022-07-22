@@ -27,66 +27,66 @@ namespace MongoDB.Driver.TestHelpers
     /// </summary>
     public class DisposableMongoClient : IMongoClient, IDisposable
     {
-        private readonly IMongoClient wrapped;
+        private readonly IMongoClient _wrapped;
         private readonly ILogger<DisposableMongoClient> _logger;
 
         public DisposableMongoClient(IMongoClient wrapped, ILogger<DisposableMongoClient> logger)
         {
-            this.wrapped = wrapped;
+            _wrapped = wrapped;
 
             _logger = logger.Decorate($"_cluster:{wrapped.Cluster.ClusterId}");
             _logger.Debug("Created");
         }
 
-        public ICluster Cluster => wrapped.Cluster;
+        public ICluster Cluster => _wrapped.Cluster;
 
-        public MongoClientSettings Settings => wrapped.Settings;
+        public MongoClientSettings Settings => _wrapped.Settings;
 
-        public IMongoClient Wrapped => wrapped;
+        public IMongoClient Wrapped => _wrapped;
 
         public void DropDatabase(string name, CancellationToken cancellationToken = default(CancellationToken))
         {
-            wrapped.DropDatabase(name, cancellationToken);
+            _wrapped.DropDatabase(name, cancellationToken);
         }
 
         public void DropDatabase(IClientSessionHandle session, string name, CancellationToken cancellationToken = default(CancellationToken))
         {
-            wrapped.DropDatabase(session, name, cancellationToken);
+            _wrapped.DropDatabase(session, name, cancellationToken);
         }
 
         public Task DropDatabaseAsync(string name, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return wrapped.DropDatabaseAsync(name, cancellationToken);
+            return _wrapped.DropDatabaseAsync(name, cancellationToken);
         }
 
         public Task DropDatabaseAsync(IClientSessionHandle session, string name, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return wrapped.DropDatabaseAsync(session, name, cancellationToken);
+            return _wrapped.DropDatabaseAsync(session, name, cancellationToken);
         }
 
         public IMongoDatabase GetDatabase(string name, MongoDatabaseSettings settings = null)
         {
-            return wrapped.GetDatabase(name, settings);
+            return _wrapped.GetDatabase(name, settings);
         }
 
         public IAsyncCursor<string> ListDatabaseNames(
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            return wrapped.ListDatabaseNames(cancellationToken);
+            return _wrapped.ListDatabaseNames(cancellationToken);
         }
 
         public IAsyncCursor<string> ListDatabaseNames(
             ListDatabaseNamesOptions options,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            return wrapped.ListDatabaseNames(options, cancellationToken);
+            return _wrapped.ListDatabaseNames(options, cancellationToken);
         }
 
         public IAsyncCursor<string> ListDatabaseNames(
             IClientSessionHandle session,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            return wrapped.ListDatabaseNames(session, cancellationToken);
+            return _wrapped.ListDatabaseNames(session, cancellationToken);
         }
 
         public IAsyncCursor<string> ListDatabaseNames(
@@ -94,27 +94,27 @@ namespace MongoDB.Driver.TestHelpers
             ListDatabaseNamesOptions options,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            return wrapped.ListDatabaseNames(session, options, cancellationToken);
+            return _wrapped.ListDatabaseNames(session, options, cancellationToken);
         }
 
         public Task<IAsyncCursor<string>> ListDatabaseNamesAsync(
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            return wrapped.ListDatabaseNamesAsync(cancellationToken);
+            return _wrapped.ListDatabaseNamesAsync(cancellationToken);
         }
 
         public Task<IAsyncCursor<string>> ListDatabaseNamesAsync(
             ListDatabaseNamesOptions options,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            return wrapped.ListDatabaseNamesAsync(options, cancellationToken);
+            return _wrapped.ListDatabaseNamesAsync(options, cancellationToken);
         }
 
         public Task<IAsyncCursor<string>> ListDatabaseNamesAsync(
             IClientSessionHandle session,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            return wrapped.ListDatabaseNamesAsync(session, cancellationToken);
+            return _wrapped.ListDatabaseNamesAsync(session, cancellationToken);
         }
 
         public Task<IAsyncCursor<string>> ListDatabaseNamesAsync(
@@ -122,27 +122,27 @@ namespace MongoDB.Driver.TestHelpers
             ListDatabaseNamesOptions options,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            return wrapped.ListDatabaseNamesAsync(session, options, cancellationToken);
+            return _wrapped.ListDatabaseNamesAsync(session, options, cancellationToken);
         }
 
         public IAsyncCursor<BsonDocument> ListDatabases(
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            return wrapped.ListDatabases(cancellationToken);
+            return _wrapped.ListDatabases(cancellationToken);
         }
 
         public IAsyncCursor<BsonDocument> ListDatabases(
             ListDatabasesOptions options = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            return wrapped.ListDatabases(options, cancellationToken);
+            return _wrapped.ListDatabases(options, cancellationToken);
         }
 
         public IAsyncCursor<BsonDocument> ListDatabases(
             IClientSessionHandle session,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            return wrapped.ListDatabases(session, cancellationToken);
+            return _wrapped.ListDatabases(session, cancellationToken);
         }
 
         public IAsyncCursor<BsonDocument> ListDatabases(
@@ -150,24 +150,24 @@ namespace MongoDB.Driver.TestHelpers
             ListDatabasesOptions options,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            return wrapped.ListDatabases(session, options, cancellationToken);
+            return _wrapped.ListDatabases(session, options, cancellationToken);
         }
 
         public Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            return wrapped.ListDatabasesAsync(cancellationToken);
+            return _wrapped.ListDatabasesAsync(cancellationToken);
         }
 
         public Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(
             ListDatabasesOptions options = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            return wrapped.ListDatabasesAsync(options, cancellationToken);
+            return _wrapped.ListDatabasesAsync(options, cancellationToken);
         }
 
         public Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(IClientSessionHandle session, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return wrapped.ListDatabasesAsync(session, cancellationToken);
+            return _wrapped.ListDatabasesAsync(session, cancellationToken);
         }
 
         public Task<IAsyncCursor<BsonDocument>> ListDatabasesAsync(
@@ -175,17 +175,17 @@ namespace MongoDB.Driver.TestHelpers
             ListDatabasesOptions options,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            return wrapped.ListDatabasesAsync(session, options, cancellationToken);
+            return _wrapped.ListDatabasesAsync(session, options, cancellationToken);
         }
 
         public IClientSessionHandle StartSession(ClientSessionOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return wrapped.StartSession(options, cancellationToken);
+            return _wrapped.StartSession(options, cancellationToken);
         }
 
         public Task<IClientSessionHandle> StartSessionAsync(ClientSessionOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return wrapped.StartSessionAsync(options, cancellationToken);
+            return _wrapped.StartSessionAsync(options, cancellationToken);
         }
 
         /// <inheritdoc />
@@ -194,7 +194,7 @@ namespace MongoDB.Driver.TestHelpers
             ChangeStreamOptions options = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            return wrapped.Watch(pipeline, options, cancellationToken);
+            return _wrapped.Watch(pipeline, options, cancellationToken);
         }
 
         /// <inheritdoc />
@@ -204,7 +204,7 @@ namespace MongoDB.Driver.TestHelpers
             ChangeStreamOptions options = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            return wrapped.Watch(session, pipeline, options, cancellationToken);
+            return _wrapped.Watch(session, pipeline, options, cancellationToken);
         }
 
         /// <inheritdoc />
@@ -213,7 +213,7 @@ namespace MongoDB.Driver.TestHelpers
             ChangeStreamOptions options = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            return wrapped.WatchAsync(pipeline, options, cancellationToken);
+            return _wrapped.WatchAsync(pipeline, options, cancellationToken);
         }
 
         /// <inheritdoc />
@@ -223,33 +223,33 @@ namespace MongoDB.Driver.TestHelpers
             ChangeStreamOptions options = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            return wrapped.WatchAsync(session, pipeline, options, cancellationToken);
+            return _wrapped.WatchAsync(session, pipeline, options, cancellationToken);
         }
 
         public IMongoClient WithReadConcern(ReadConcern readConcern)
         {
-            return wrapped.WithReadConcern(readConcern);
+            return _wrapped.WithReadConcern(readConcern);
         }
 
         public IMongoClient WithReadPreference(ReadPreference readPreference)
         {
-            return wrapped.WithReadPreference(readPreference);
+            return _wrapped.WithReadPreference(readPreference);
         }
 
         public IMongoClient WithWriteConcern(WriteConcern writeConcern)
         {
-            return wrapped.WithWriteConcern(writeConcern);
+            return _wrapped.WithWriteConcern(writeConcern);
         }
 
         public void Dispose()
         {
             _logger.Debug("Disposing");
 
-            ClusterRegistry.Instance.UnregisterAndDisposeCluster(wrapped.Cluster);
+            ClusterRegistry.Instance.UnregisterAndDisposeCluster(_wrapped.Cluster);
 
             _logger.Debug("Cluster unregistered and disposed");
 
-            if (wrapped is MongoClient mongoClient)
+            if (_wrapped is MongoClient mongoClient)
             {
                 var controller = mongoClient.LibMongoCryptController;
                 foreach (var clientToDispose in new[] { controller?.InternalClient, controller?.MongoCryptdClient })

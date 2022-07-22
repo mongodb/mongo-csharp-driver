@@ -434,7 +434,7 @@ namespace MongoDB.Driver.Builders
         }
 
         // nested classes
-        new internal class Serializer : SerializerBase<IndexOptionsBuilder>
+        internal new class Serializer : SerializerBase<IndexOptionsBuilder>
         {
             public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, IndexOptionsBuilder value)
             {
@@ -858,7 +858,7 @@ namespace MongoDB.Driver.Builders
         }
 
         // nested classes
-        new internal class Serializer : SerializerBase<IndexOptionsBuilder<TDocument>>
+        internal new class Serializer : SerializerBase<IndexOptionsBuilder<TDocument>>
         {
             public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, IndexOptionsBuilder<TDocument> value)
             {

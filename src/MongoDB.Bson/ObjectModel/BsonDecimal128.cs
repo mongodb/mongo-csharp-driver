@@ -99,7 +99,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">An object to be mapped to a BsonDecimal128.</param>
         /// <returns>A BsonDecimal128.</returns>
-        public new static BsonDecimal128 Create(object value)
+        public static new BsonDecimal128 Create(object value)
         {
             if (value == null)
             {

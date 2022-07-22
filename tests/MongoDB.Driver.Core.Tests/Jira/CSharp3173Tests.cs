@@ -42,16 +42,16 @@ namespace MongoDB.Driver.Core.Tests.Jira
     public class CSharp3173Tests
     {
 #pragma warning disable CS0618 // Type or member is obsolete
-        private readonly static ClusterConnectionMode __clusterConnectionMode = ClusterConnectionMode.Sharded;
-        private readonly static ConnectionModeSwitch __connectionModeSwitch = ConnectionModeSwitch.UseConnectionMode;
+        private static readonly ClusterConnectionMode __clusterConnectionMode = ClusterConnectionMode.Sharded;
+        private static readonly ConnectionModeSwitch __connectionModeSwitch = ConnectionModeSwitch.UseConnectionMode;
 #pragma warning restore CS0618 // Type or member is obsolete
-        private readonly static ClusterId __clusterId = new ClusterId();
-        private readonly static bool? __directConnection = null;
-        private readonly static EndPoint __endPoint1 = new DnsEndPoint("localhost", 27017);
-        private readonly static EndPoint __endPoint2 = new DnsEndPoint("localhost", 27018);
-        private readonly static TimeSpan __heartbeatInterval = TimeSpan.FromMilliseconds(200);
-        private readonly static ServerId __serverId1 = new ServerId(__clusterId, __endPoint1);
-        private readonly static ServerId __serverId2 = new ServerId(__clusterId, __endPoint2);
+        private static readonly ClusterId __clusterId = new ClusterId();
+        private static readonly bool? __directConnection = null;
+        private static readonly EndPoint __endPoint1 = new DnsEndPoint("localhost", 27017);
+        private static readonly EndPoint __endPoint2 = new DnsEndPoint("localhost", 27018);
+        private static readonly TimeSpan __heartbeatInterval = TimeSpan.FromMilliseconds(200);
+        private static readonly ServerId __serverId1 = new ServerId(__clusterId, __endPoint1);
+        private static readonly ServerId __serverId2 = new ServerId(__clusterId, __endPoint2);
 
         [Theory]
         [ParameterAttributeData]

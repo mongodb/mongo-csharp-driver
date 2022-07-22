@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Core.Configuration
     public class ClusterBuilder
     {
         // constants
-        private const string __traceSourceName = "MongoDB-SDAM";
+        private const string TraceSourceName = "MongoDB-SDAM";
 
         // fields
         private EventAggregator _eventAggregator;
@@ -125,7 +125,7 @@ namespace MongoDB.Driver.Core.Configuration
             {
                 return this;
             }
-            var traceSource = new TraceSource(__traceSourceName, SourceLevels.All);
+            var traceSource = new TraceSource(TraceSourceName, SourceLevels.All);
             traceSource.Listeners.Clear(); // remove the default listener
             var listener = _sdamLoggingSettings.ShouldLogToStdout
                 ? new TextWriterTraceListener(Console.Out)

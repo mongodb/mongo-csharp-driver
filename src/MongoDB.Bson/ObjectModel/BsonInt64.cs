@@ -25,16 +25,16 @@ namespace MongoDB.Bson
     public class BsonInt64 : BsonValue, IComparable<BsonInt64>, IEquatable<BsonInt64>
     {
         #region static
-        const long __minPrecreatedValue = -100L;
-        const long __maxPrecreatedValue = 100L;
-        private static readonly BsonInt64[] __precreatedInstances = new BsonInt64[__maxPrecreatedValue - __minPrecreatedValue + 1];
+        const long MinPrecreatedValue = -100L;
+        const long MaxPrecreatedValue = 100L;
+        private static readonly BsonInt64[] __precreatedInstances = new BsonInt64[MaxPrecreatedValue - MinPrecreatedValue + 1];
 
         static BsonInt64()
         {
-            for (var i = __minPrecreatedValue; i <= __maxPrecreatedValue; i++)
+            for (var i = MinPrecreatedValue; i <= MaxPrecreatedValue; i++)
             {
                 var precreatedInstance = new BsonInt64(i);
-                var index = i - __minPrecreatedValue;
+                var index = i - MinPrecreatedValue;
                 __precreatedInstances[index] = precreatedInstance;
             }
         }
@@ -87,9 +87,9 @@ namespace MongoDB.Bson
         /// <returns>A BsonInt64.</returns>
         public static implicit operator BsonInt64(long value)
         {
-            if (value >= __minPrecreatedValue && value <= __maxPrecreatedValue)
+            if (value >= MinPrecreatedValue && value <= MaxPrecreatedValue)
             {
-                var index = value - __minPrecreatedValue;
+                var index = value - MinPrecreatedValue;
                 return __precreatedInstances[index];
             }
             return new BsonInt64(value);
@@ -124,7 +124,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">An object to be mapped to a BsonInt64.</param>
         /// <returns>A BsonInt64 or null.</returns>
-        public new static BsonInt64 Create(object value)
+        public static new BsonInt64 Create(object value)
         {
             if (value == null)
             {

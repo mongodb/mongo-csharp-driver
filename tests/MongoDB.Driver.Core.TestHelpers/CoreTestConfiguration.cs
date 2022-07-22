@@ -213,7 +213,7 @@ namespace MongoDB.Driver
                 {
                     __traceSource.TraceEvent(TraceEventType.Information, 0, $"CreateCluster: DescriptionChanged event handler called.");
                     __traceSource.TraceEvent(TraceEventType.Information, 0, $"CreateCluster: any{expectedServerKey}Server = {anyExpectedServer}.");
-                    __traceSource.TraceEvent(TraceEventType.Information, 0, $"CreateCluster: new description: {e.NewClusterDescription.ToString()}.");
+                    __traceSource.TraceEvent(TraceEventType.Information, 0, $"CreateCluster: new description: {e.NewClusterDescription}.");
                 }
                 Volatile.Write(ref hasExpectedServer, anyExpectedServer);
             };

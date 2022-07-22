@@ -328,7 +328,7 @@ namespace MongoDB.Driver.Core.Clusters
         public void ToString_with_directConnection_should_return_string_representation([Values(null, false)] bool? directConnection)
         {
             var subject = new ClusterDescription(new ClusterId(1), directConnection, dnsMonitorException: null, ClusterType.Standalone, new[] { __serverDescription1 });
-            var directConnectionString = directConnection.HasValue ? $", DirectConnection : \"{directConnection.Value.ToString()}\"" : string.Empty;
+            var directConnectionString = directConnection.HasValue ? $", DirectConnection : \"{directConnection.Value}\"" : string.Empty;
             var expected = string.Format("{{ ClusterId : \"1\"{1}, Type : \"Standalone\", State : \"Disconnected\", Servers : [{0}] }}",
                 __serverDescription1.ToString(),
                 directConnectionString);

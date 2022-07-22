@@ -94,9 +94,7 @@ namespace MongoDB.Driver
             _authenticationSource = null;
             _compressors = new CompressorConfiguration[0];
             _connectionMode = ConnectionMode.Automatic;
-#pragma warning disable CS0618 // Type or member is obsolete
             _connectionModeSwitch = ConnectionModeSwitch.NotSet;
-#pragma warning restore CS0618 // Type or member is obsolete
             _connectTimeout = MongoDefaults.ConnectTimeout;
             _databaseName = null;
             _directConnection = null;
@@ -305,9 +303,7 @@ namespace MongoDB.Driver
         {
             get
             {
-#pragma warning disable CS0618 // Type or member is obsolete
                 if (_connectionModeSwitch == ConnectionModeSwitch.UseConnectionMode)
-#pragma warning restore CS0618 // Type or member is obsolete
                 {
                     throw new InvalidOperationException("DirectConnection cannot be used when ConnectionModeSwitch is set to UseConnectionMode.");
                 }
@@ -315,14 +311,12 @@ namespace MongoDB.Driver
             }
             set
             {
-#pragma warning disable CS0618 // Type or member is obsolete
                 if (_connectionModeSwitch == ConnectionModeSwitch.UseConnectionMode)
                 {
                     throw new InvalidOperationException("DirectConnection cannot be used when ConnectionModeSwitch is set to UseConnectionMode.");
                 }
                 _directConnection = value;
                 _connectionModeSwitch = ConnectionModeSwitch.UseDirectConnection; // _connectionMode is always Automatic here
-#pragma warning restore CS0618 // Type or member is obsolete
             }
         }
 
@@ -929,7 +923,6 @@ namespace MongoDB.Driver
                     ParseAndAppendCompressorOptions(query, compressor);
                 }
             }
-#pragma warning disable CS0618
             if (_connectionModeSwitch == ConnectionModeSwitch.UseConnectionMode)
             {
                 if (_connectionMode != ConnectionMode.Automatic)
@@ -938,7 +931,6 @@ namespace MongoDB.Driver
                 }
             }
             else if (_connectionModeSwitch == ConnectionModeSwitch.UseDirectConnection)
-#pragma warning restore CS0618
             {
                 if (_directConnection.HasValue)
                 {

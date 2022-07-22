@@ -267,7 +267,7 @@ namespace MongoDB.Driver.Core.Operations
 
         private class Validator : IElementNameValidator
         {
-            public readonly static Validator Instance = new Validator();
+            public static readonly Validator Instance = new Validator();
 
             public IElementNameValidator GetValidatorForChildContent(string elementName)
             {

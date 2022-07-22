@@ -622,8 +622,8 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
             public Dictionary<string, string> Dictionary;
         }
 
-        private static string id1 = "123456789012345678901234";
-        private static string id2 = "432109876543210987654321";
+        private const string Id1 = "123456789012345678901234";
+        private const string Id2 = "432109876543210987654321";
 
         [Fact]
         public void TestSerializeNull()
@@ -654,7 +654,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
         [Fact]
         public void TestSerialize1()
         {
-            C c = new C { Dictionary = new Dictionary<string, string> { { "a", id1 } } };
+            C c = new C { Dictionary = new Dictionary<string, string> { { "a", Id1 } } };
             var json = c.ToJson();
             var expected = ("{ 'Dictionary' : { \"a\" : ObjectId(\"123456789012345678901234\") } }").Replace("'", "\"");
             Assert.Equal(expected, json);
@@ -667,7 +667,7 @@ namespace MongoDB.Bson.Tests.Serialization.DictionaryGenericSerializers
         [Fact]
         public void TestSerialize2()
         {
-            C c = new C { Dictionary = new Dictionary<string, string> { { "a", id1 }, { "b", id2 } } };
+            C c = new C { Dictionary = new Dictionary<string, string> { { "a", Id1 }, { "b", Id2 } } };
             var json = c.ToJson();
             var expected1 = ("{ 'Dictionary' : { \"a\" : ObjectId(\"123456789012345678901234\"), \"b\" : ObjectId(\"432109876543210987654321\") } }").Replace("'", "\"");
             var expected2 = ("{ 'Dictionary' : { \"b\" : ObjectId(\"432109876543210987654321\"), \"a\" : ObjectId(\"123456789012345678901234\") } }").Replace("'", "\"");

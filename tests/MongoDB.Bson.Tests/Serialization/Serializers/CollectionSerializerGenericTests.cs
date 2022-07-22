@@ -492,8 +492,8 @@ namespace MongoDB.Bson.Tests.Serialization.CollectionSerializersGeneric
             public LinkedList<string> LL { get; set; }
         }
 
-        private static string id1 = "123456789012345678901234";
-        private static string id2 = "432109876543210987654321";
+        private const string Id1 = "123456789012345678901234";
+        private const string Id2 = "432109876543210987654321";
 
         [Fact]
         public void TestNull()
@@ -539,7 +539,7 @@ namespace MongoDB.Bson.Tests.Serialization.CollectionSerializersGeneric
         [Fact]
         public void TestOneString()
         {
-            var list = new List<string>(new[] { id1 });
+            var list = new List<string>(new[] { Id1 });
             var obj = new T { L = list, IC = list, IE = list, IL = list, Q = new Queue<string>(list), S = new Stack<string>(list), H = new HashSet<string>(list), LL = new LinkedList<string>(list) };
             var json = obj.ToJson();
             var rep = "[ObjectId(\"123456789012345678901234\")]";
@@ -560,7 +560,7 @@ namespace MongoDB.Bson.Tests.Serialization.CollectionSerializersGeneric
         [Fact]
         public void TestTwoStrings()
         {
-            var list = new List<string>(new[] { id1, id2 });
+            var list = new List<string>(new[] { Id1, Id2 });
             var obj = new T { L = list, IC = list, IE = list, IL = list, Q = new Queue<string>(list), S = new Stack<string>(list), H = new HashSet<string>(list), LL = new LinkedList<string>(list) };
             var json = obj.ToJson();
             var rep = "[ObjectId(\"123456789012345678901234\"), ObjectId(\"432109876543210987654321\")]";

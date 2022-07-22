@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Core.Authentication
         [Fact]
         public void SaslPrepQuery_accepts_undefined_codepoint()
         {     
-            var strWithUnassignedCodepoint = $"abc{char.ConvertFromUtf32(_unassignedCodePoint.Value)}";
+            var strWithUnassignedCodepoint = $"abc{char.ConvertFromUtf32(__unassignedCodePoint.Value)}";
             
             SaslPrepHelper.SaslPrepQuery(strWithUnassignedCodepoint).Should().Be(strWithUnassignedCodepoint);
         }
@@ -107,7 +107,7 @@ namespace MongoDB.Driver.Core.Authentication
         [Fact]
         public void SaslPrepStored_throws_exception_when_passed_an_undefined_codepoint()
         { 
-            var strWithUnassignedCodepoint = $"abc{char.ConvertFromUtf32(_unassignedCodePoint.Value)}";
+            var strWithUnassignedCodepoint = $"abc{char.ConvertFromUtf32(__unassignedCodePoint.Value)}";
             
             var exception = Record.Exception(()=>SaslPrepHelper.SaslPrepStored(strWithUnassignedCodepoint));
             
@@ -115,7 +115,7 @@ namespace MongoDB.Driver.Core.Authentication
             exception.Message.Should().Be("Character at position 3 is unassigned");
         }
 
-        private static readonly Lazy<int> _unassignedCodePoint = new Lazy<int>(FindUnassignedCodePoint);
+        private static readonly Lazy<int> __unassignedCodePoint = new Lazy<int>(FindUnassignedCodePoint);
 
         private static int FindUnassignedCodePoint()
         {

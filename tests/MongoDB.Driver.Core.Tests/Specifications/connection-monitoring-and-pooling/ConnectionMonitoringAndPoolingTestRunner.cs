@@ -71,42 +71,44 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
 
         private static class Schema
         {
-            public readonly static string _path = nameof(_path);
-            public readonly static string version = nameof(version);
-            public readonly static string style = nameof(style);
-            public readonly static string description = nameof(description);
-            public readonly static string poolOptions = nameof(poolOptions);
-            public readonly static string operations = nameof(operations);
-            public readonly static string error = nameof(error);
-            public readonly static string events = nameof(events);
-            public readonly static string ignore = nameof(ignore);
-            public readonly static string async = nameof(async);
+            public static readonly string _path = nameof(_path);
+            public static readonly string version = nameof(version);
+            public static readonly string style = nameof(style);
+            public static readonly string description = nameof(description);
+            public static readonly string poolOptions = nameof(poolOptions);
+            public static readonly string operations = nameof(operations);
+            public static readonly string error = nameof(error);
+            public static readonly string events = nameof(events);
+            public static readonly string ignore = nameof(ignore);
+            public static readonly string async = nameof(async);
 
             public static class Operations
             {
+#pragma warning disable IDE1006
                 public const string runOn = nameof(runOn);
-                public readonly static string failPoint = nameof(failPoint);
+#pragma warning restore
+                public static readonly string failPoint = nameof(failPoint);
             }
 
             public static class Intergration
             {
-                public readonly static string runOn = nameof(runOn);
-                public readonly static string failPoint = nameof(failPoint);
+                public static readonly string runOn = nameof(runOn);
+                public static readonly string failPoint = nameof(failPoint);
             }
 
             public static class Styles
             {
-                public readonly static string unit = nameof(unit);
-                public readonly static string integration = nameof(integration);
+                public static readonly string unit = nameof(unit);
+                public static readonly string integration = nameof(integration);
             }
 
             public sealed class FailPoint
             {
-                public readonly static string appName = nameof(appName);
-                public readonly static string data = nameof(data);
+                public static readonly string appName = nameof(appName);
+                public static readonly string data = nameof(data);
             }
 
-            public readonly static string[] AllFields = new[]
+            public static readonly string[] AllFields = new[]
             {
                 _path,
                 version,

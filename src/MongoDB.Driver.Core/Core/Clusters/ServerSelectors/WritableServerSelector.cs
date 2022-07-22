@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
     {
         #region static
         // static fields
-        private readonly static WritableServerSelector __instance = new WritableServerSelector();
+        private static readonly WritableServerSelector __instance = new WritableServerSelector();
 
         // static properties
         /// <summary>

@@ -142,7 +142,7 @@ namespace MongoDB.Driver.Builders
         }
 
         // nested classes
-        new internal class Serializer : SerializerBase<SortByBuilder>
+        internal new class Serializer : SerializerBase<SortByBuilder>
         {
             public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, SortByBuilder value)
             {
@@ -285,7 +285,7 @@ namespace MongoDB.Driver.Builders
         }
 
         // nested classes
-        new internal class Serializer : SerializerBase<SortByBuilder<TDocument>>
+        internal new class Serializer : SerializerBase<SortByBuilder<TDocument>>
         {
             public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, SortByBuilder<TDocument> value)
             {

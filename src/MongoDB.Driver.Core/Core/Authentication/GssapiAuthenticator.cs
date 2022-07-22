@@ -29,10 +29,10 @@ namespace MongoDB.Driver.Core.Authentication
     public sealed class GssapiAuthenticator : SaslAuthenticator
     {
         // constants
-        private const string __canonicalizeHostNamePropertyName = "CANONICALIZE_HOST_NAME";
-        private const string __realmPropertyName = "REALM";
-        private const string __serviceNamePropertyName = "SERVICE_NAME";
-        private const string __serviceRealmPropertyName = "SERVICE_REALM";
+        private const string CanonicalizeHostNamePropertyNameValue = "CANONICALIZE_HOST_NAME";
+        private const string RealmPropertyNameValue = "REALM";
+        private const string ServiceNamePropertyNameValue = "SERVICE_NAME";
+        private const string ServiceRealmPropertyNameValue = "SERVICE_REALM";
 
         // static properties
         /// <summary>
@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Core.Authentication
         /// </value>
         public static string CanonicalizeHostNamePropertyName
         {
-            get { return __canonicalizeHostNamePropertyName; }
+            get { return CanonicalizeHostNamePropertyNameValue; }
         }
 
         /// <summary>
@@ -77,7 +77,7 @@ namespace MongoDB.Driver.Core.Authentication
         [Obsolete("Use ServiceRealmPropertyName")]
         public static string RealmPropertyName
         {
-            get { return __realmPropertyName; }
+            get { return RealmPropertyNameValue; }
         }
 
         /// <summary>
@@ -88,7 +88,7 @@ namespace MongoDB.Driver.Core.Authentication
         /// </value>
         public static string ServiceNamePropertyName
         {
-            get { return __serviceNamePropertyName; }
+            get { return ServiceNamePropertyNameValue; }
         }
 
         /// <summary>
@@ -99,7 +99,7 @@ namespace MongoDB.Driver.Core.Authentication
         /// </value>
         public static string ServiceRealmPropertyName
         {
-            get { return __serviceRealmPropertyName; }
+            get { return ServiceRealmPropertyNameValue; }
         }
 
         // constructors
@@ -180,14 +180,14 @@ namespace MongoDB.Driver.Core.Authentication
                 {
                     switch (pair.Key.ToUpperInvariant())
                     {
-                        case __serviceNamePropertyName:
+                        case ServiceNamePropertyNameValue:
                             serviceName = (string)pair.Value;
                             break;
-                        case __serviceRealmPropertyName:
-                        case __realmPropertyName:
+                        case ServiceRealmPropertyNameValue:
+                        case RealmPropertyNameValue:
                             realm = (string)pair.Value;
                             break;
-                        case __canonicalizeHostNamePropertyName:
+                        case CanonicalizeHostNamePropertyNameValue:
                             canonicalizeHostName = bool.Parse(pair.Value);
                             break;
                         default:

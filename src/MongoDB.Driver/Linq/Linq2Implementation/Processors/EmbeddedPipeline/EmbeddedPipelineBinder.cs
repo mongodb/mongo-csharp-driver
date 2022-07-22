@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Linq.Linq2Implementation.Processors.EmbeddedPipeline
 {
     internal sealed class EmbeddedPipelineBinder : PipelineBinderBase<EmbeddedPipelineBindingContext>
     {
-        private readonly static CompositeMethodCallBinder<EmbeddedPipelineBindingContext> __methodCallBinder;
+        private static readonly CompositeMethodCallBinder<EmbeddedPipelineBindingContext> __methodCallBinder;
 
         static EmbeddedPipelineBinder()
         {

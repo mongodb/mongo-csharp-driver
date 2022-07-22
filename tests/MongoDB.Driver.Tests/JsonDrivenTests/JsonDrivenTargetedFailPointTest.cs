@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
             return TestRunner.FailPointCluster.SelectServer(pinnedServerSelector, CancellationToken.None);
         }
 
-        protected async override Task<IServer> GetFailPointServerAsync()
+        protected override async Task<IServer> GetFailPointServerAsync()
         {
             var pinnedServerEndpoint = GetPinnedServerEndpointAndAssertNotNull();
             var pinnedServerSelector = CreateServerSelector(pinnedServerEndpoint);

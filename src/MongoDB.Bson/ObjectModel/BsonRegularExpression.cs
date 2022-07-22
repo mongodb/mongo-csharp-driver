@@ -174,7 +174,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">An object to be mapped to a BsonRegularExpression.</param>
         /// <returns>A BsonRegularExpression or null.</returns>
-        public new static BsonRegularExpression Create(object value)
+        public static new BsonRegularExpression Create(object value)
         {
             if (value == null)
             {

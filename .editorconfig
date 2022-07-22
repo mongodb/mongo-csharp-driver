@@ -39,17 +39,17 @@ csharp_indent_labels = one_less_than_current
 csharp_preferred_modifier_order = public,private,protected,internal,static,extern,new,virtual,abstract,sealed,override,readonly,unsafe,volatile,async:suggestion
 
 # avoid this. unless absolutely necessary
-dotnet_style_qualification_for_field = false:suggestion
-dotnet_style_qualification_for_property = false:suggestion
-dotnet_style_qualification_for_method = false:suggestion
+dotnet_style_qualification_for_field = false:refactoring
+dotnet_style_qualification_for_property = false:refactoring
+dotnet_style_qualification_for_method = false:refactoring
 dotnet_style_qualification_for_event = false:suggestion
 
 # Types: use keywords instead of BCL types, and permit var only when the type is clear
-csharp_style_var_for_built_in_types = false:suggestion
-csharp_style_var_when_type_is_apparent = false:none
-csharp_style_var_elsewhere = false:suggestion
-dotnet_style_predefined_type_for_locals_parameters_members = true:suggestion
-dotnet_style_predefined_type_for_member_access = true:suggestion
+csharp_style_var_for_built_in_types = true:refactoring
+csharp_style_var_when_type_is_apparent = true:refactoring
+csharp_style_var_elsewhere = true:refactoring
+dotnet_style_predefined_type_for_locals_parameters_members = true:refactoring
+dotnet_style_predefined_type_for_member_access = true:refactoring
 
 # name all constant fields using PascalCase
 dotnet_naming_rule.constant_fields_should_be_pascal_case.severity = suggestion
@@ -59,22 +59,22 @@ dotnet_naming_symbols.constant_fields.applicable_kinds   = field
 dotnet_naming_symbols.constant_fields.required_modifiers = const
 dotnet_naming_style.pascal_case_style.capitalization = pascal_case
 
-# static fields should have s_ prefix
+# static fields should have __ prefix
 dotnet_naming_rule.static_fields_should_have_prefix.severity = suggestion
 dotnet_naming_rule.static_fields_should_have_prefix.symbols  = static_fields
 dotnet_naming_rule.static_fields_should_have_prefix.style    = static_prefix_style
 dotnet_naming_symbols.static_fields.applicable_kinds   = field
 dotnet_naming_symbols.static_fields.required_modifiers = static
-dotnet_naming_symbols.static_fields.applicable_accessibilities = private, internal, private_protected
-dotnet_naming_style.static_prefix_style.required_prefix = s_
+dotnet_naming_symbols.static_fields.applicable_accessibilities = private, private_protected
+dotnet_naming_style.static_prefix_style.required_prefix = __
 dotnet_naming_style.static_prefix_style.capitalization = camel_case 
 
-# internal and private fields should be _camelCase
+# private fields should be _camelCase
 dotnet_naming_rule.camel_case_for_private_internal_fields.severity = suggestion
 dotnet_naming_rule.camel_case_for_private_internal_fields.symbols  = private_internal_fields
 dotnet_naming_rule.camel_case_for_private_internal_fields.style    = camel_case_underscore_style
 dotnet_naming_symbols.private_internal_fields.applicable_kinds = field
-dotnet_naming_symbols.private_internal_fields.applicable_accessibilities = private, internal
+dotnet_naming_symbols.private_internal_fields.applicable_accessibilities = private
 dotnet_naming_style.camel_case_underscore_style.required_prefix = _
 dotnet_naming_style.camel_case_underscore_style.capitalization = camel_case 
 
@@ -84,27 +84,31 @@ dotnet_sort_system_directives_first = true
 csharp_prefer_braces = true:refactoring
 csharp_preserve_single_line_blocks = true:none
 csharp_preserve_single_line_statements = false:none
-csharp_prefer_static_local_function = true:suggestion
+csharp_prefer_static_local_function = false:suggestion
 csharp_prefer_simple_using_statement = false:none
-csharp_style_prefer_switch_expression = true:suggestion
+csharp_style_prefer_switch_expression = false:suggestion
 
 # Code quality
-dotnet_style_readonly_field = true:suggestion
-dotnet_code_quality_unused_parameters = non_public:suggestion
+dotnet_style_readonly_field = true:silent
+dotnet_code_quality_unused_parameters = non_public:refactoring
 
 # Expression-level preferences
-dotnet_style_object_initializer = true:suggestion
-dotnet_style_collection_initializer = true:suggestion
+dotnet_style_object_initializer = true:refactoring
+dotnet_style_collection_initializer = true:refactoring
 dotnet_style_explicit_tuple_names = true:suggestion
 dotnet_style_coalesce_expression = true:suggestion
-dotnet_style_null_propagation = true:suggestion
-dotnet_style_prefer_is_null_check_over_reference_equality_method = true:suggestion
+dotnet_style_null_propagation = true:refactoring
+dotnet_style_prefer_is_null_check_over_reference_equality_method = false:suggestion
 dotnet_style_prefer_inferred_tuple_names = true:suggestion
-dotnet_style_prefer_inferred_anonymous_type_member_names = true:suggestion
-dotnet_style_prefer_auto_properties = true:suggestion
+dotnet_style_prefer_inferred_anonymous_type_member_names = false:suggestion
+dotnet_style_prefer_auto_properties = false:suggestion
 dotnet_style_prefer_conditional_expression_over_assignment = true:refactoring
 dotnet_style_prefer_conditional_expression_over_return = true:refactoring
-csharp_prefer_simple_default_expression = true:suggestion
+dotnet_style_prefer_compound_assignment = false:suggestion
+dotnet_style_prefer_simplified_boolean_expressions = true:refactoring
+csharp_prefer_simple_default_expression = false:suggestion
+csharp_style_implicit_object_creation_when_type_is_apparent = false:suggestion
+csharp_style_deconstructed_variable_declaration = false:suggestion
 
 # Expression-bodied members
 csharp_style_expression_bodied_methods = true:refactoring
@@ -117,13 +121,14 @@ csharp_style_expression_bodied_lambdas = true:refactoring
 csharp_style_expression_bodied_local_functions = true:refactoring
 
 # Pattern matching
-csharp_style_pattern_matching_over_is_with_cast_check = true:suggestion
-csharp_style_pattern_matching_over_as_with_null_check = true:suggestion
-csharp_style_inlined_variable_declaration = true:suggestion
+csharp_style_pattern_matching_over_is_with_cast_check = false:suggestion
+csharp_style_pattern_matching_over_as_with_null_check = false:suggestion
+csharp_style_inlined_variable_declaration = false:suggestion
+csharp_style_prefer_not_pattern = false:suggestion
 
 # Null checking preferences
-csharp_style_throw_expression = true:suggestion
-csharp_style_conditional_delegate_call = true:suggestion
+csharp_style_throw_expression = false:suggestion
+csharp_style_conditional_delegate_call = true:silent
 
 # Other features
 csharp_style_prefer_index_operator = false:none
@@ -155,7 +160,12 @@ csharp_space_between_parentheses = false
 csharp_space_between_square_brackets = false
 
 # Analyzers
+csharp_style_unused_value_assignment_preference = discard_variable:refactoring
 dotnet_code_quality.ca1802.api_surface = private, internal
+dotnet_diagnostic.CA1065.severity = none
+dotnet_diagnostic.IDE0051.severity = none
+dotnet_diagnostic.IDE0052.severity = none
+dotnet_diagnostic.xUnit1004.severity = none
 
 # C++ Files
 [*.{cpp,h,in}]

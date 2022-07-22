@@ -48,7 +48,7 @@ namespace MongoDB.Bson.Tests.Serialization
         //    public string StructP { get; set; }
         //}
 
-        private const string _template =
+        private const string Template =
             "{ " +
             "'Boolean' : null, " +
             "'DateTime' : null, " +
@@ -67,7 +67,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             C c = new C();
             var json = c.ToJson();
-            var expected = _template.Replace("'", "\"");
+            var expected = Template.Replace("'", "\"");
             Assert.Equal(expected, json);
 
             var bson = c.ToBson();
@@ -80,7 +80,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             C c = new C { Boolean = true };
             var json = c.ToJson();
-            var expected = _template.Replace("'Boolean' : null", "'Boolean' : true").Replace("'", "\"");
+            var expected = Template.Replace("'Boolean' : null", "'Boolean' : true").Replace("'", "\"");
             Assert.Equal(expected, json);
 
             var bson = c.ToBson();
@@ -93,7 +93,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             C c = new C { DateTime = BsonConstants.UnixEpoch };
             var json = c.ToJson();
-            var expected = _template.Replace("'DateTime' : null", "'DateTime' : ISODate('1970-01-01T00:00:00Z')").Replace("'", "\"");
+            var expected = Template.Replace("'DateTime' : null", "'DateTime' : ISODate('1970-01-01T00:00:00Z')").Replace("'", "\"");
             Assert.Equal(expected, json);
 
             var bson = c.ToBson();
@@ -106,7 +106,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             C c = new C { DateOnly = BsonConstants.UnixEpoch };
             var json = c.ToJson();
-            var expected = _template.Replace("'DateOnly' : null", "'DateOnly' : ISODate('1970-01-01T00:00:00Z')").Replace("'", "\"");
+            var expected = Template.Replace("'DateOnly' : null", "'DateOnly' : ISODate('1970-01-01T00:00:00Z')").Replace("'", "\"");
             Assert.Equal(expected, json);
 
             var bson = c.ToBson();
@@ -119,7 +119,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             C c = new C { Double = 1.5 };
             var json = c.ToJson();
-            var expected = _template.Replace("'Double' : null", "'Double' : 1.5").Replace("'", "\"");
+            var expected = Template.Replace("'Double' : null", "'Double' : 1.5").Replace("'", "\"");
             Assert.Equal(expected, json);
 
             var bson = c.ToBson();
@@ -132,7 +132,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var c = new C { Enum = ConsoleColor.Red };
             var json = c.ToJson();
-            var expected = _template.Replace("'Enum' : null", "'Enum' : 'Red'").Replace("'", "\"");
+            var expected = Template.Replace("'Enum' : null", "'Enum' : 'Red'").Replace("'", "\"");
             Assert.Equal(expected, json);
 
             var bson = c.ToBson();
@@ -163,7 +163,7 @@ namespace MongoDB.Bson.Tests.Serialization
                     case GuidRepresentation.Standard: expectedGuidJson = "UUID('00000000-0000-0000-0000-000000000000')"; break;
                     default: throw new Exception("Unexpected GuidRepresentation.");
                 }
-                var expected = _template.Replace("'Guid' : null", $"'Guid' : {expectedGuidJson}").Replace("'", "\"");
+                var expected = Template.Replace("'Guid' : null", $"'Guid' : {expectedGuidJson}").Replace("'", "\"");
                 Assert.Equal(expected, json);
 
                 var bson = c.ToBson(writerSettings: new BsonBinaryWriterSettings());
@@ -183,7 +183,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             C c = new C { Int32 = 1 };
             var json = c.ToJson();
-            var expected = _template.Replace("'Int32' : null", "'Int32' : 1").Replace("'", "\"");
+            var expected = Template.Replace("'Int32' : null", "'Int32' : 1").Replace("'", "\"");
             Assert.Equal(expected, json);
 
             var bson = c.ToBson();
@@ -196,7 +196,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             C c = new C { Int64 = 2 };
             var json = c.ToJson();
-            var expected = _template.Replace("'Int64' : null", "'Int64' : NumberLong(2)").Replace("'", "\"");
+            var expected = Template.Replace("'Int64' : null", "'Int64' : NumberLong(2)").Replace("'", "\"");
             Assert.Equal(expected, json);
 
             var bson = c.ToBson();
@@ -209,7 +209,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             C c = new C { ObjectId = ObjectId.Empty };
             var json = c.ToJson();
-            var expected = _template.Replace("'ObjectId' : null", "'ObjectId' : ObjectId('000000000000000000000000')").Replace("'", "\"");
+            var expected = Template.Replace("'ObjectId' : null", "'ObjectId' : ObjectId('000000000000000000000000')").Replace("'", "\"");
             Assert.Equal(expected, json);
 
             var bson = c.ToBson();

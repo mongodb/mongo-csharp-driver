@@ -25,10 +25,10 @@ namespace MongoDB.Driver.Tests
     public static class ExpectedErrorMessage
     {
         // private static fields
-        private static string _firstEmptySequence;
-        private static string _lastEmptySequence;
-        private static string _singleEmptySequence;
-        private static string _singleLongSequence;
+        private static string __firstEmptySequence;
+        private static string __lastEmptySequence;
+        private static string __singleEmptySequence;
+        private static string __singleLongSequence;
 
         // static constructor
         static ExpectedErrorMessage()
@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Tests
             }
             catch (Exception ex)
             {
-                _firstEmptySequence = ex.Message;
+                __firstEmptySequence = ex.Message;
             }
 
             try
@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Tests
             }
             catch (Exception ex)
             {
-                _lastEmptySequence = ex.Message;
+                __lastEmptySequence = ex.Message;
             }
 
             try
@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Tests
             }
             catch (Exception ex)
             {
-                _singleEmptySequence = ex.Message;
+                __singleEmptySequence = ex.Message;
             }
 
             try
@@ -69,29 +69,29 @@ namespace MongoDB.Driver.Tests
             }
             catch (Exception ex)
             {
-                _singleLongSequence = ex.Message;
+                __singleLongSequence = ex.Message;
             }
         }
 
         // public static properties
         public static string FirstEmptySequence
         {
-            get { return _firstEmptySequence; }
+            get { return __firstEmptySequence; }
         }
 
         public static string LastEmptySequence
         {
-            get { return _lastEmptySequence; }
+            get { return __lastEmptySequence; }
         }
 
         public static string SingleEmptySequence
         {
-            get { return _singleEmptySequence; }
+            get { return __singleEmptySequence; }
         }
 
         public static string SingleLongSequence
         {
-            get { return _singleLongSequence; }
+            get { return __singleLongSequence; }
         }
     }
 }

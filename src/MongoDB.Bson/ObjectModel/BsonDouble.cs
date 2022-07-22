@@ -26,16 +26,16 @@ namespace MongoDB.Bson
     public class BsonDouble : BsonValue, IComparable<BsonDouble>, IEquatable<BsonDouble>
     {
         #region static
-        const int __minPrecreatedValue = -100;
-        const int __maxPrecreatedValue = 100;
-        private static readonly BsonDouble[] __precreatedInstances = new BsonDouble[__maxPrecreatedValue - __minPrecreatedValue + 1];
+        const int MinPrecreatedValue = -100;
+        const int MaxPrecreatedValue = 100;
+        private static readonly BsonDouble[] __precreatedInstances = new BsonDouble[MaxPrecreatedValue - MinPrecreatedValue + 1];
 
         static BsonDouble()
         {
-            for (var i = __minPrecreatedValue; i <= __maxPrecreatedValue; i++)
+            for (var i = MinPrecreatedValue; i <= MaxPrecreatedValue; i++)
             {
                 var precreatedInstance = new BsonDouble(i);
-                var index = i - __minPrecreatedValue;
+                var index = i - MinPrecreatedValue;
                 __precreatedInstances[index] = precreatedInstance;
             }
         }
@@ -85,9 +85,9 @@ namespace MongoDB.Bson
         public static implicit operator BsonDouble(double value)
         {
             var intValue = (int)value;
-            if (intValue == value && intValue >= __minPrecreatedValue && intValue <= __maxPrecreatedValue)
+            if (intValue == value && intValue >= MinPrecreatedValue && intValue <= MaxPrecreatedValue)
             {
-                var index = intValue - __minPrecreatedValue;
+                var index = intValue - MinPrecreatedValue;
                 return __precreatedInstances[index];
             }
             return new BsonDouble(value);
@@ -122,7 +122,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">An object to be mapped to a BsonDouble.</param>
         /// <returns>A BsonDouble.</returns>
-        public new static BsonDouble Create(object value)
+        public static new BsonDouble Create(object value)
         {
             if (value == null)
             {

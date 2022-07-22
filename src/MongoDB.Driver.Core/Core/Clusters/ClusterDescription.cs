@@ -210,9 +210,7 @@ namespace MongoDB.Driver.Core.Clusters
         {
             get
             {
-#pragma warning disable CS0618 // Type or member is obsolete
                 if (_connectionModeSwitch == ConnectionModeSwitch.UseConnectionMode)
-#pragma warning restore CS0618 // Type or member is obsolete
                 {
                     throw new InvalidOperationException("DirectConnection cannot be used when ConnectionModeSwitch is set to UseConnectionMode.");
                 }
@@ -350,13 +348,11 @@ namespace MongoDB.Driver.Core.Clusters
 
             string FormatConnectionMode()
             {
-#pragma warning disable CS0618 // Type or member is obsolete
                 if (_connectionModeSwitch == ConnectionModeSwitch.UseDirectConnection)
                 {
                     return _directConnection.HasValue ? $"DirectConnection : \"{_directConnection}\", " : "";
                 }
                 else if (_connectionModeSwitch == ConnectionModeSwitch.UseConnectionMode)
-#pragma warning restore CS0618 // Type or member is obsolete
                 {
                     return $"ConnectionMode : \"{_connectionMode}\", ";
                 }

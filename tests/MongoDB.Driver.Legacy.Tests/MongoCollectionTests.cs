@@ -122,7 +122,7 @@ namespace MongoDB.Driver.Tests
                 },
 #pragma warning disable 618
                 OutputMode = AggregateOutputMode.Cursor,
-#pragma warning disable 618
+#pragma warning restore
                 BatchSize = 1
             });
             var results = query.ToList();

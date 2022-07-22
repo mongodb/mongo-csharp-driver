@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests.Translators
 {
     public class AggregateProjectTranslatorTests : IntegrationTestBase
     {
-        private readonly static ExpressionTranslationOptions __codePointTranslationOptions = new ExpressionTranslationOptions
+        private static readonly ExpressionTranslationOptions __codePointTranslationOptions = new ExpressionTranslationOptions
         {
             StringTranslationMode = AggregateStringTranslationMode.CodePoints
         };

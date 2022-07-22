@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Core.Compression.Zstandard
         public static int MaxCompressionLevel => ZstandardNativeWrapper.MaxCompressionLevel; // maximum compression level available
         #endregion
 
-        private const int _defaultCompressionLevel = 6;
+        private const int DefaultCompressionLevel = 6;
 
         private readonly ArrayPool<byte> _arrayPool = ArrayPool<byte>.Shared;
         private readonly Stream _compressedStream; // input for decompress and output for compress
@@ -241,7 +241,7 @@ namespace MongoDB.Driver.Core.Compression.Zstandard
                 throw new ArgumentOutOfRangeException(nameof(compressionLevel));
             }
 
-            return compressionLevel.WithDefault(_defaultCompressionLevel);
+            return compressionLevel.WithDefault(DefaultCompressionLevel);
         }
 
         private CompressionMode EnsureCompressionModeIsValid(CompressionMode compressionMode)

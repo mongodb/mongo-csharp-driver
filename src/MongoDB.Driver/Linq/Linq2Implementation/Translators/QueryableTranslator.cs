@@ -391,7 +391,7 @@ namespace MongoDB.Driver.Linq.Linq2Implementation.Translators
             }
             else
             {
-                throw new NotSupportedException($"The expression {selector.ToString()} is not supported.");
+                throw new NotSupportedException($"The expression {selector} is not supported.");
             }
 
             if (!projectValue.Contains("_id"))

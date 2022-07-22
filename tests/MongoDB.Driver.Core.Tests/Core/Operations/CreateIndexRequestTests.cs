@@ -435,7 +435,7 @@ namespace MongoDB.Driver.Core.Operations
             var expectedResult = new BsonDocument
             {
                 { "key", keys },
-                { "name", name != null ? name : additionalOptions != null ? additionalOptions["name"].AsString : "x_1" },
+                { "name", name ?? (additionalOptions != null ? additionalOptions["name"].AsString : "x_1") },
             };
             result.Should().Be(expectedResult);
         }

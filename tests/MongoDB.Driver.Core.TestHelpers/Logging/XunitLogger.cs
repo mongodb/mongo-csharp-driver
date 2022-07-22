@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Core.TestHelpers.Logging
             {
                 if (logLevel >= minLogLevelActual)
                 {
-                    _output.WriteLine($"{dateTime.ToString("hh:mm:ss.FFF")}_{logLevel}<{decorator}> {format}", arguments);
+                    _output.WriteLine($"{dateTime:hh:mm:ss.FFF)}_{logLevel}<{decorator}> {format}", arguments);
                 }
             }
         }

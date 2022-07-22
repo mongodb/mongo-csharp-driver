@@ -317,12 +317,10 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                         foreach (var readerGuidRepresentation in EnumHelper.GetValuesAndNull<GuidRepresentation>())
                         {
                             var effectiveGuidRepresentation = serializerGuidRepresentation;
-#pragma warning disable 618
                             if (defaultGuidRepresentationMode == GuidRepresentationMode.V2 && serializerGuidRepresentation == GuidRepresentation.Unspecified)
                             {
                                 effectiveGuidRepresentation = readerGuidRepresentation ?? defaultGuidRepresentation;
                             }
-#pragma warning restore 618
                             if (effectiveGuidRepresentation == GuidRepresentation.Unspecified)
                             {
                                 continue;

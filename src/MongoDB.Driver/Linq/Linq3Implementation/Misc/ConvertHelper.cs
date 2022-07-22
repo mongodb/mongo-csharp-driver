@@ -21,7 +21,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 {
     internal static class ConvertHelper
     {
-        private readonly static (Type SourceType, Type TargetType)[] __wideningConverts = new[]
+        private static readonly (Type SourceType, Type TargetType)[] __wideningConverts = new[]
         {
             (typeof(byte), typeof(short)),
             (typeof(byte), typeof(ushort)),

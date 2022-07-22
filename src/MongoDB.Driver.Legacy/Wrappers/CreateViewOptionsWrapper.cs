@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Wrappers
         }
 
         // nested classes
-        new internal class Serializer : SerializerBase<CreateViewOptionsWrapper>
+        internal new class Serializer : SerializerBase<CreateViewOptionsWrapper>
         {
             public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, CreateViewOptionsWrapper value)
             {

@@ -26,7 +26,7 @@ namespace MongoDB.Driver.Tests
 {
     public class OcspIntegrationTests : LoggableTestClass
     {
-        private static readonly string _shouldSucceedEnvironmentVariableName = "OCSP_TLS_SHOULD_SUCCEED";
+        private static readonly string __shouldSucceedEnvironmentVariableName = "OCSP_TLS_SHOULD_SUCCEED";
 
         // public constructors
         public OcspIntegrationTests(ITestOutputHelper testOutputHelper)
@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Tests
             /* We cannot call RequireServer.Check() because this would result in a connection being made to the mongod
              * and that connection will not succeed if we're testing the revoked certificate case. */
 
-            RequireEnvironment.Check().EnvironmentVariable(_shouldSucceedEnvironmentVariableName);
+            RequireEnvironment.Check().EnvironmentVariable(__shouldSucceedEnvironmentVariableName);
 
             var shouldSucceed = GetShouldSucceed();
             /* To prevent OCSP caching from polluting the test results, we MUST run the "secure" version before
@@ -111,11 +111,11 @@ namespace MongoDB.Driver.Tests
         private bool GetShouldSucceed()
         {
             var ocspOutcomeEnvironmentVariableValue
-                = Environment.GetEnvironmentVariable(_shouldSucceedEnvironmentVariableName);
+                = Environment.GetEnvironmentVariable(__shouldSucceedEnvironmentVariableName);
             if (!Boolean.TryParse(ocspOutcomeEnvironmentVariableValue, out var successExpected))
             {
                 throw new Exception(
-                    $"Invalid value of {ocspOutcomeEnvironmentVariableValue} in {_shouldSucceedEnvironmentVariableName}."
+                    $"Invalid value of {ocspOutcomeEnvironmentVariableValue} in {__shouldSucceedEnvironmentVariableName}."
                     + $" Expected true/false.");
             }
             return successExpected;

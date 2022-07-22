@@ -59,9 +59,7 @@ namespace MongoDB.Driver.Tests.Jira
         {
             public object GenerateId(object container, object document)
             {
-#pragma warning disable 219
                 var collection = (MongoCollection<C>)container; // should not throw an InvalidCastException
-#pragma warning restore
                 return 1;
             }
 

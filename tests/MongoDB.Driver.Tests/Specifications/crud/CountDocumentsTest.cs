@@ -32,15 +32,11 @@ namespace MongoDB.Driver.Tests.Specifications.crud
         {
             if (async)
             {
-#pragma warning disable 618
                 return collection.CountDocumentsAsync(_filter, _options).GetAwaiter().GetResult();
-#pragma warning restore
             }
             else
             {
-#pragma warning disable 618
                 return collection.CountDocuments(_filter, _options);
-#pragma warning restore
             }
         }
 

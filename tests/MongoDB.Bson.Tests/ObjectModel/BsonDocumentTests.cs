@@ -597,10 +597,8 @@ namespace MongoDB.Bson.Tests
             Assert.Equal(null, document["x", (bool?)null].AsNullableBoolean);
             Assert.Equal(null, document["x", BsonNull.Value].AsNullableBoolean);
 #pragma warning restore
-#pragma warning disable 219
             Assert.Throws<InvalidCastException>(() => { var v = (bool?)document["s"]; });
             Assert.Throws<InvalidCastException>(() => { var v = document["s"].AsNullableBoolean; });
-#pragma warning restore
         }
 
         [Fact]
@@ -646,10 +644,8 @@ namespace MongoDB.Bson.Tests
             Assert.Equal(null, document["x", (double?)null].AsNullableDouble);
             Assert.Equal(null, document["x", BsonNull.Value].AsNullableDouble);
 #pragma warning restore
-#pragma warning disable 219
             Assert.Throws<InvalidCastException>(() => { var v = (double?)document["s"]; });
             Assert.Throws<InvalidCastException>(() => { var v = document["s"].AsNullableDouble; });
-#pragma warning restore
         }
 
         [Theory]
@@ -702,10 +698,8 @@ namespace MongoDB.Bson.Tests
             Assert.Equal(null, document["x", (int?)null].AsNullableInt32);
             Assert.Equal(null, document["x", BsonNull.Value].AsNullableInt32);
 #pragma warning restore
-#pragma warning disable 219
             Assert.Throws<InvalidCastException>(() => { var v = (int?)document["s"]; });
             Assert.Throws<InvalidCastException>(() => { var v = document["s"].AsNullableInt32; });
-#pragma warning restore
         }
 
         [Fact]
@@ -725,10 +719,8 @@ namespace MongoDB.Bson.Tests
             Assert.Equal(null, document["x", (long?)null].AsNullableInt64);
             Assert.Equal(null, document["x", BsonNull.Value].AsNullableInt64);
 #pragma warning restore
-#pragma warning disable 219
             Assert.Throws<InvalidCastException>(() => { var v = (long?)document["s"]; });
             Assert.Throws<InvalidCastException>(() => { var v = document["s"].AsNullableInt64; });
-#pragma warning restore
         }
 
         [Fact]
@@ -749,10 +741,8 @@ namespace MongoDB.Bson.Tests
             Assert.Equal(null, document["x", (ObjectId?)null].AsNullableObjectId);
             Assert.Equal(null, document["x", BsonNull.Value].AsNullableObjectId);
 #pragma warning restore
-#pragma warning disable 219
             Assert.Throws<InvalidCastException>(() => { var v = (ObjectId?)document["s"]; });
             Assert.Throws<InvalidCastException>(() => { var v = document["s"].AsNullableObjectId; });
-#pragma warning restore
         }
 
         [Fact]

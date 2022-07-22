@@ -30,14 +30,14 @@ namespace MongoDB.Bson.Tests.Serialization
 #pragma warning disable 649 // never assigned to
         private class A
         {
-            private int fieldNotMapped;
+            private int _fieldNotMapped;
             public readonly int FieldNotMapped2;
             public int FieldMapped;
             [BsonElement("FieldMappedByAttribute")]
-            private int fieldMappedByAttribute;
+            private int _fieldMappedByAttribute;
 #pragma warning disable 414 // fieldMappedByAttribute2 is assigned but its value is never used
             [BsonElement]
-            private readonly int fieldMappedByAttribute2;
+            private readonly int _fieldMappedByAttribute2;
 #pragma warning restore
 
             public int PropertyMapped { get; set; }
@@ -57,7 +57,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             public A()
             {
-                fieldMappedByAttribute2 = 10;
+                _fieldMappedByAttribute2 = 10;
             }
         }
 
@@ -97,7 +97,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
     public class BsonClassMapMapByNameTests
     {
-#pragma warning disable 169 // never used
+#pragma warning disable 169, IDE1006 // never used
         private class C
         {
             private string f;

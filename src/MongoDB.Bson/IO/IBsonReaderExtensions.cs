@@ -96,7 +96,6 @@ namespace MongoDB.Bson.IO
         [Obsolete("In V3 mode use ReadBinaryData instead.")]
         public static BsonBinaryData ReadBinaryDataWithGuidRepresentationUnspecified(this IBsonReader reader)
         {
-#pragma warning disable 618
             if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
             {
                 reader.PushSettings(s => s.GuidRepresentation = GuidRepresentation.Unspecified);
@@ -113,7 +112,6 @@ namespace MongoDB.Bson.IO
             {
                 return reader.ReadBinaryData();
             }
-#pragma warning restore 618
         }
 
         /// <summary>

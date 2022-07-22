@@ -217,15 +217,15 @@ namespace MongoDB.Bson.Tests.Serialization.GenericEnumerable
 
         public class AddressCollection : IAddressCollection
         {
-            private readonly List<Address> data = new();
-            public int Count => data.Count;
+            private readonly List<Address> _data = new();
+            public int Count => _data.Count;
             public bool IsReadOnly => false;
-            public void Add(Address item) => data.Add(item);
-            public void Clear() => data.Clear();
-            public bool Contains(Address item) => data.Contains(item);
-            public void CopyTo(Address[] array, int arrayIndex) => data.CopyTo(array, arrayIndex);
-            public IEnumerator<Address> GetEnumerator() => data.GetEnumerator();
-            public bool Remove(Address item) => data.Remove(item);
+            public void Add(Address item) => _data.Add(item);
+            public void Clear() => _data.Clear();
+            public bool Contains(Address item) => _data.Contains(item);
+            public void CopyTo(Address[] array, int arrayIndex) => _data.CopyTo(array, arrayIndex);
+            public IEnumerator<Address> GetEnumerator() => _data.GetEnumerator();
+            public bool Remove(Address item) => _data.Remove(item);
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         }
 

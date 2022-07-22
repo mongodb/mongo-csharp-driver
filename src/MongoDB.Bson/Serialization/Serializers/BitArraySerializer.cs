@@ -85,7 +85,6 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         // public methods
-#pragma warning disable 618 // about obsolete BsonBinarySubType.OldBinary
         /// <summary>
         /// Deserializes a value.
         /// </summary>
@@ -141,7 +140,6 @@ namespace MongoDB.Bson.Serialization.Serializers
                     throw CreateCannotDeserializeFromBsonTypeException(bsonType);
             }
         }
-#pragma warning restore 618
 
         /// <summary>
         /// Serializes a value.

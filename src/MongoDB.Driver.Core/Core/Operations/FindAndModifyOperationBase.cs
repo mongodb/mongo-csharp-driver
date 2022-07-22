@@ -209,7 +209,6 @@ namespace MongoDB.Driver.Core.Operations
         /// <returns>An element name validator for the command.</returns>
         protected abstract IElementNameValidator GetCommandValidator();
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")]
         private TResult ProcessCommandResult(ConnectionId connectionId, RawBsonDocument rawBsonDocument)
         {
             var binaryReaderSettings = new BsonBinaryReaderSettings

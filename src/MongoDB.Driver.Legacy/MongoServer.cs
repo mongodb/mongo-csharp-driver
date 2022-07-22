@@ -59,8 +59,8 @@ namespace MongoDB.Driver
     public class MongoServer
     {
         // private static fields
-        private readonly static object __staticLock = new object();
-        private readonly static Dictionary<MongoServerSettings, MongoServer> __servers = new Dictionary<MongoServerSettings, MongoServer>();
+        private static readonly object __staticLock = new object();
+        private static readonly Dictionary<MongoServerSettings, MongoServer> __servers = new Dictionary<MongoServerSettings, MongoServer>();
         private static int __nextSequentialId;
         private static int __maxServerCount = 100;
         private static HashSet<char> __invalidDatabaseNameChars;
@@ -397,7 +397,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the current state of this server (as of the last operation, not updated until another operation is performed).
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         public virtual MongoServerState State
         {
             get

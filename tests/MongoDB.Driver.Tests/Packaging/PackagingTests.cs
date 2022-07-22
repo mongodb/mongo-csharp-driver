@@ -95,7 +95,6 @@ namespace MongoDB.Driver.Tests.Packaging
             }
         }
 
-#pragma warning disable IDE0051 // Remove unused private members
         private static void RunAllTests()
         {
             // Left it outside Main method to protect us from losing sync between xunit and console modes
@@ -105,7 +104,6 @@ namespace MongoDB.Driver.Tests.Packaging
 
             Zstandard_compression_should_provide_MaxCompressionLevel();
         }
-#pragma warning restore IDE0051 // Remove unused private members
 
 #if CONSOLE_TEST
         static void Main(string[] args)

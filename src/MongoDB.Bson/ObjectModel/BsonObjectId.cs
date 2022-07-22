@@ -205,7 +205,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">An object to be mapped to a BsonObjectId.</param>
         /// <returns>A BsonObjectId or null.</returns>
-        public new static BsonObjectId Create(object value)
+        public static new BsonObjectId Create(object value)
         {
             if (value == null)
             {

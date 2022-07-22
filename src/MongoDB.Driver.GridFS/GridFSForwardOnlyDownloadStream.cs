@@ -159,9 +159,7 @@ namespace MongoDB.Driver.GridFS
                 var md5 = BsonUtils.ToHexString(_md5.GetHashAndReset());
                 if (!md5.Equals(FileInfo.MD5, StringComparison.OrdinalIgnoreCase))
                 {
-#pragma warning disable 618
                     throw new GridFSMD5Exception(_idAsBsonValue);
-#pragma warning restore
                 }
             }
         }
@@ -204,9 +202,7 @@ namespace MongoDB.Driver.GridFS
         {
             var chunksCollectionNamespace = Bucket.GetChunksCollectionNamespace();
             var messageEncoderSettings = Bucket.GetMessageEncoderSettings();
-#pragma warning disable 618
             var filter = new BsonDocument("files_id", _idAsBsonValue);
-#pragma warning restore
             var sort = new BsonDocument("n", 1);
 
             return new FindOperation<BsonDocument>(
@@ -264,9 +260,7 @@ namespace MongoDB.Driver.GridFS
         {
             if (batch == null)
             {
-#pragma warning disable 618
                 throw new GridFSChunkException(_idAsBsonValue, _nextChunkNumber, "missing");
-#pragma warning restore
             }
 
             var previousBatch = _batch;
@@ -290,18 +284,14 @@ namespace MongoDB.Driver.GridFS
 
                 if (n != _nextChunkNumber)
                 {
-#pragma warning disable 618
                     throw new GridFSChunkException(_idAsBsonValue, _nextChunkNumber, "missing");
-#pragma warning restore
                 }
                 _nextChunkNumber++;
 
                 var expectedChunkSize = n == _lastChunkNumber ? _lastChunkSize : FileInfo.ChunkSizeBytes;
                 if (bytes.Length != expectedChunkSize)
                 {
-#pragma warning disable 618
                     throw new GridFSChunkException(_idAsBsonValue, _nextChunkNumber, "the wrong size");
-#pragma warning restore
                 }
 
                 if (_checkMD5)

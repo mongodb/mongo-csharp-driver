@@ -33,18 +33,18 @@ namespace MongoDB.Bson.Tests.Jira
 
         public sealed class DummyCollection<T> : IFooBarList<T>
         {
-            private T[] items;
+            private T[] _items;
 
             public DummyCollection()
             {
-                this.items = new T[0];
+                _items = new T[0];
             }
 
             // ICollection<T> Members
 
             public int Count
             {
-                get { return this.items.Length; }
+                get { return _items.Length; }
             }
 
             bool ICollection<T>.IsReadOnly
@@ -54,9 +54,9 @@ namespace MongoDB.Bson.Tests.Jira
 
             public void Add(T item)
             {
-                var index = this.items.Length;
-                Array.Resize(ref this.items, index + 1);
-                this.items[index] = item;
+                var index = _items.Length;
+                Array.Resize(ref _items, index + 1);
+                _items[index] = item;
             }
 
             public void Clear()
@@ -83,7 +83,7 @@ namespace MongoDB.Bson.Tests.Jira
 
             public IEnumerator<T> GetEnumerator()
             {
-                return ((IEnumerable<T>)this.items).GetEnumerator();
+                return ((IEnumerable<T>)_items).GetEnumerator();
             }
 
             // IEnumerable Members

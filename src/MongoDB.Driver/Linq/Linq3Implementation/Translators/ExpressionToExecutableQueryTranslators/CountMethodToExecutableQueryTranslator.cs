@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
         // private static fields
         private static readonly MethodInfo[] __countMethods;
         private static readonly MethodInfo[] __countWithPredicateMethods;
-        private static readonly IExecutableQueryFinalizer<int, int> _finalizer = new SingleOrDefaultFinalizer<int>();
+        private static readonly IExecutableQueryFinalizer<int, int> __finalizer = new SingleOrDefaultFinalizer<int>();
         private static readonly IBsonSerializer<int> __wrappedInt32Serializer = new WrappedValueSerializer<int>("_v", new Int32Serializer());
 
         // static constructor
@@ -82,7 +82,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
                     provider.Collection,
                     provider.Options,
                     pipeline,
-                    _finalizer);
+                    __finalizer);
             }
 
             throw new ExpressionNotSupportedException(expression);

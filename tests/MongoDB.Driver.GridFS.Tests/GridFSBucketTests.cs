@@ -161,7 +161,6 @@ namespace MongoDB.Driver.GridFS.Tests
         {
             var subject = CreateSubject();
 
-#pragma warning disable 618
             Action action;
             if (async)
             {
@@ -171,7 +170,6 @@ namespace MongoDB.Driver.GridFS.Tests
             {
                 action = () => subject.Delete(null);
             }
-#pragma warning restore
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("id");
         }
@@ -183,7 +181,6 @@ namespace MongoDB.Driver.GridFS.Tests
         {
             var subject = CreateSubject();
 
-#pragma warning disable 618
             Action action;
             if (async)
             {
@@ -193,7 +190,6 @@ namespace MongoDB.Driver.GridFS.Tests
             {
                 action = () => subject.DownloadAsBytes(null);
             }
-#pragma warning restore
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("id");
         }
@@ -226,7 +222,6 @@ namespace MongoDB.Driver.GridFS.Tests
             var subject = CreateSubject();
             var destination = new Mock<Stream>().Object;
 
-#pragma warning disable 618
             Action action;
             if (async)
             {
@@ -236,7 +231,6 @@ namespace MongoDB.Driver.GridFS.Tests
             {
                 action = () => subject.DownloadToStream(null, destination);
             }
-#pragma warning restore
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("id");
         }
@@ -249,7 +243,6 @@ namespace MongoDB.Driver.GridFS.Tests
             var subject = CreateSubject();
             var id = (BsonValue)123;
 
-#pragma warning disable 618
             Action action;
             if (async)
             {
@@ -259,7 +252,6 @@ namespace MongoDB.Driver.GridFS.Tests
             {
                 action = () => subject.DownloadToStream(id, null);
             }
-#pragma warning restore
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("destination");
         }
@@ -407,7 +399,6 @@ namespace MongoDB.Driver.GridFS.Tests
         {
             var subject = CreateSubject();
 
-#pragma warning disable 618
             Action action;
             if (async)
             {
@@ -417,7 +408,6 @@ namespace MongoDB.Driver.GridFS.Tests
             {
                 action = () => subject.OpenDownloadStream(null);
             }
-#pragma warning restore
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("id");
         }
@@ -487,7 +477,6 @@ namespace MongoDB.Driver.GridFS.Tests
             var subject = CreateSubject();
             var newFilename = "filename";
 
-#pragma warning disable 618
             Action action;
             if (async)
             {
@@ -497,7 +486,6 @@ namespace MongoDB.Driver.GridFS.Tests
             {
                 action = () => subject.Rename(null, newFilename);
             }
-#pragma warning restore
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("id");
         }
@@ -510,7 +498,6 @@ namespace MongoDB.Driver.GridFS.Tests
             var subject = CreateSubject();
             var id = (BsonValue)123;
 
-#pragma warning disable 618
             Action action;
             if (async)
             {
@@ -520,7 +507,6 @@ namespace MongoDB.Driver.GridFS.Tests
             {
                 action = () => subject.Rename(id, null);
             }
-#pragma warning restore
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("newFilename");
         }

@@ -52,6 +52,7 @@ namespace MongoDB.Driver.Core.Compression.Zstandard
 {
     internal class Zstandard64NativeMethods
     {
+#pragma warning disable IDE1006
         // private static fields
         private static readonly Lazy<LibraryLoader> __libraryLoader;
         private static readonly Lazy<Delegates64.ZSTD_CStreamInSize> __ZSTD_CStreamInSize;
@@ -77,7 +78,7 @@ namespace MongoDB.Driver.Core.Compression.Zstandard
 
         private static readonly Lazy<Delegates64.ZSTD_isError> __ZSTD_isError;
         private static readonly Lazy<Delegates64.ZSTD_getErrorName> __ZSTD_getErrorName;
-
+#pragma warning restore
 
         // static constructor
         static Zstandard64NativeMethods()

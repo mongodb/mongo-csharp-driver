@@ -24,8 +24,8 @@ namespace MongoDB.Bson.Serialization.Conventions
     public static class ConventionRegistry
     {
         // private static fields
-        private readonly static List<ConventionPackContainer> __conventionPacks = new List<ConventionPackContainer>();
-        private readonly static object __lock = new object();
+        private static readonly List<ConventionPackContainer> __conventionPacks = new List<ConventionPackContainer>();
+        private static readonly object __lock = new object();
 
         // static constructors
         static ConventionRegistry()

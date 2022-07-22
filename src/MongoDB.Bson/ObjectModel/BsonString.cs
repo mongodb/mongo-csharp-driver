@@ -123,7 +123,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">An object to be mapped to a BsonString.</param>
         /// <returns>A BsonString or null.</returns>
-        public new static BsonString Create(object value)
+        public static new BsonString Create(object value)
         {
             if (value == null)
             {

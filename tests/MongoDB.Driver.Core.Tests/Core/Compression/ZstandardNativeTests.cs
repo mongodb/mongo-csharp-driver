@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Compression
     {
         #region static
         // private constants
-        private const string __testMessagePortion = @"Two households, both alike in dignity,
+        private const string TestMessagePortion = @"Two households, both alike in dignity,
         In fair Verona, where we lay our scene,
         From ancient grudge break to new mutiny,
         Where civil blood makes civil hands unclean.
@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Compression
         private static byte[] GenerateBigMessage(int size)
         {
             var resultBytes = new List<byte>();
-            var messagePortionBytes = Encoding.ASCII.GetBytes(__testMessagePortion);
+            var messagePortionBytes = Encoding.ASCII.GetBytes(TestMessagePortion);
             while (resultBytes.Count < size)
             {
                 resultBytes.AddRange(messagePortionBytes);

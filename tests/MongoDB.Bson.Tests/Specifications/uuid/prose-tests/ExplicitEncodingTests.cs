@@ -32,7 +32,7 @@ namespace MongoDB.Bson.Tests.Specifications.uuid.prose_tests
 
 #pragma warning disable 618
             var exception = Record.Exception(() => new BsonBinaryData(guid));
-#pragma warning disable 618
+#pragma warning restore 618
 
             exception.Should().BeOfType<InvalidOperationException>();
         }
@@ -63,9 +63,7 @@ namespace MongoDB.Bson.Tests.Specifications.uuid.prose_tests
 
             var guid = new Guid("00112233445566778899aabbccddeeff");
 
-#pragma warning disable 618
             var exception = Record.Exception(() => new BsonBinaryData(guid, GuidRepresentation.Unspecified));
-#pragma warning disable 618
 
             exception.Should().BeOfType<InvalidOperationException>();
         }

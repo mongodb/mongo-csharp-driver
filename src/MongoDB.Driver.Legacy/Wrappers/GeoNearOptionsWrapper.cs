@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Wrappers
         }
 
         // nested classes
-        new internal class Serializer : SerializerBase<GeoNearOptionsWrapper>
+        internal new class Serializer : SerializerBase<GeoNearOptionsWrapper>
         {
             public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, GeoNearOptionsWrapper value)
             {

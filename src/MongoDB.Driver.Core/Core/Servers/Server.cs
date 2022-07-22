@@ -486,7 +486,6 @@ namespace MongoDB.Driver.Core.Servers
                 CancellationToken cancellationToken)
             {
                 secondaryOk = GetEffectiveSecondaryOk(secondaryOk);
-#pragma warning disable 618
                 var protocol = new QueryWireProtocol<TDocument>(
                     collectionNamespace,
                     query,
@@ -502,7 +501,6 @@ namespace MongoDB.Driver.Core.Servers
                     awaitData,
                     serializer,
                     messageEncoderSettings);
-#pragma warning restore 618
 
                 return ExecuteProtocol(protocol, cancellationToken);
             }
@@ -562,7 +560,6 @@ namespace MongoDB.Driver.Core.Servers
                 CancellationToken cancellationToken)
             {
                 secondaryOk = GetEffectiveSecondaryOk(secondaryOk);
-#pragma warning disable 618
                 var protocol = new QueryWireProtocol<TDocument>(
                     collectionNamespace,
                     query,
@@ -578,7 +575,6 @@ namespace MongoDB.Driver.Core.Servers
                     awaitData,
                     serializer,
                     messageEncoderSettings);
-#pragma warning restore 618
 
                 return ExecuteProtocolAsync(protocol, cancellationToken);
             }

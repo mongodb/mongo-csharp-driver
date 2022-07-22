@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Operations
         // methods
         public IEnumerable<BsonDocument> Execute(IReadBinding binding, CancellationToken cancellationToken)
         {
-            var filter = _username == null ? (BsonValue)1 : _username;
+            var filter = _username ?? (BsonValue)1;
             var command = new BsonDocument("usersInfo", filter);
             var operation = new ReadCommandOperation<BsonDocument>(_databaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings)
             {

@@ -1909,9 +1909,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(collection, nameof(collection));
             Ensure.IsNotNull(filter, nameof(filter));
 
-#pragma warning disable 618
             return collection.ReplaceOne(new ExpressionFilterDefinition<TDocument>(filter), replacement, options, cancellationToken);
-#pragma warning restore 618
         }
 
         /// <summary>
@@ -1956,9 +1954,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(session, nameof(session));
             Ensure.IsNotNull(filter, nameof(filter));
 
-#pragma warning disable 618
             return collection.ReplaceOne(session, new ExpressionFilterDefinition<TDocument>(filter), replacement, options, cancellationToken);
-#pragma warning restore 618
         }
 
         /// <summary>
@@ -1999,9 +1995,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(collection, nameof(collection));
             Ensure.IsNotNull(filter, nameof(filter));
 
-#pragma warning disable 618
             return collection.ReplaceOneAsync(new ExpressionFilterDefinition<TDocument>(filter), replacement, options, cancellationToken);
-#pragma warning restore 618
         }
 
         /// <summary>
@@ -2046,9 +2040,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(session, nameof(session));
             Ensure.IsNotNull(filter, nameof(filter));
 
-#pragma warning disable 618
             return collection.ReplaceOneAsync(session, new ExpressionFilterDefinition<TDocument>(filter), replacement, options, cancellationToken);
-#pragma warning restore 618
         }
 
         /// <summary>

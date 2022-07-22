@@ -102,10 +102,8 @@ namespace MongoDB.Driver
         [Obsolete("Configure serializers instead.")]
         public static GuidRepresentation GuidRepresentation
         {
-#pragma warning disable 618
             get { return BsonDefaults.GuidRepresentation; }
             set { BsonDefaults.GuidRepresentation = value; }
-#pragma warning restore 618
         }
 
         /// <summary>

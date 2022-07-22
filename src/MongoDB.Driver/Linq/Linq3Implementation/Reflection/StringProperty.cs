@@ -20,15 +20,15 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
     internal static class StringProperty
     {
         // private static fields
-        private static readonly PropertyInfo __Length;
+        private static readonly PropertyInfo __length;
 
         // static constructor
         static StringProperty()
         {
-            __Length = ReflectionInfo.Property((string s) => s.Length);
+            __length = ReflectionInfo.Property((string s) => s.Length);
         }
 
         // public properties
-        public static PropertyInfo Length => __Length;
+        public static PropertyInfo Length => __length;
     }
 }

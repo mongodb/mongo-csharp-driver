@@ -26,17 +26,17 @@ namespace MongoDB.Driver.Examples
 {
     public class DocumentationExamples
     {
-        private readonly IMongoClient client;
-        private readonly IMongoCollection<BsonDocument> collection;
-        private readonly IMongoDatabase database;
+        private readonly IMongoClient _client;
+        private readonly IMongoCollection<BsonDocument> _collection;
+        private readonly IMongoDatabase _database;
 
         public DocumentationExamples()
         {
             var connectionString = CoreTestConfiguration.ConnectionString.ToString();
-            client = new MongoClient(connectionString);
-            database = client.GetDatabase("test");
-            collection = database.GetCollection<BsonDocument>("inventory");
-            database.DropCollection("inventory");
+            _client = new MongoClient(connectionString);
+            _database = _client.GetDatabase("test");
+            _collection = _database.GetCollection<BsonDocument>("inventory");
+            _database.DropCollection("inventory");
         }
 
         [Fact]
@@ -52,10 +52,10 @@ namespace MongoDB.Driver.Examples
                 { "tags", new BsonArray { "cotton" } },
                 { "size", new BsonDocument { { "h", 28 }, { "w", 35.5 }, { "uom", "cm" } } }
             };
-            collection.InsertOne(document);
+            _collection.InsertOne(document);
             // End Example 1
 
-            var result = collection.Find("{}").ToList();
+            var result = _collection.Find("{}").ToList();
             RemoveIds(result);
             result.Should().Equal(ParseMultiple(
                 "{ item: \"canvas\", qty: 100, tags: [\"cotton\"], size: { h: 28, w: 35.5, uom: \"cm\" } }"));
@@ -68,7 +68,7 @@ namespace MongoDB.Driver.Examples
 
             // Start Example 2
             var filter = Builders<BsonDocument>.Filter.Eq("item", "canvas");
-            var result = collection.Find(filter).ToList();
+            var result = _collection.Find(filter).ToList();
             // End Example 2
 
             Render(filter).Should().Be("{ item: \"canvas\" }");
@@ -107,10 +107,10 @@ namespace MongoDB.Driver.Examples
                     { "size", new BsonDocument { { "h", 19 }, { "w", 22.85 }, {  "uom", "cm"} } }
                 },
             };
-            collection.InsertMany(documents);
+            _collection.InsertMany(documents);
             // End Example 3
 
-            var result = collection.Find("{}").ToList();
+            var result = _collection.Find("{}").ToList();
             RemoveIds(result);
             result.Should().Equal(ParseMultiple(
                "{ item: \"journal\", qty: 25, tags: [\"blank\", \"red\"], size: { h: 14, w: 21, uom: \"cm\" } }",
@@ -167,10 +167,10 @@ namespace MongoDB.Driver.Examples
                     { "status", "A" }
                 },
             };
-            collection.InsertMany(documents);
+            _collection.InsertMany(documents);
             // End Example 6
 
-            var result = collection.Find("{}").ToList();
+            var result = _collection.Find("{}").ToList();
             RemoveIds(result);
             result.Should().Equal(ParseMultiple(
                "{ item: \"journal\", qty: 25, size: { h: 14, w: 21, uom: \"cm\" }, status: \"A\" }",
@@ -187,7 +187,7 @@ namespace MongoDB.Driver.Examples
 
             // Start Example 7
             var filter = Builders<BsonDocument>.Filter.Empty;
-            var result = collection.Find(filter).ToList();
+            var result = _collection.Find(filter).ToList();
             // End Example 7
 
             Render(filter).Should().Be("{}");
@@ -200,7 +200,7 @@ namespace MongoDB.Driver.Examples
 
             // Start Example 9
             var filter = Builders<BsonDocument>.Filter.Eq("status", "D");
-            var result = collection.Find(filter).ToList();
+            var result = _collection.Find(filter).ToList();
             // End Example 9
 
             Render(filter).Should().Be("{ status : \"D\" }");
@@ -213,7 +213,7 @@ namespace MongoDB.Driver.Examples
 
             // Start Example 10
             var filter = Builders<BsonDocument>.Filter.In("status", new[] { "A", "D" });
-            var result = collection.Find(filter).ToList();
+            var result = _collection.Find(filter).ToList();
             // End Example 10
 
             Render(filter).Should().Be("{ status: { $in: [ \"A\", \"D\" ] } }");
@@ -227,7 +227,7 @@ namespace MongoDB.Driver.Examples
             // Start Example 11
             var builder = Builders<BsonDocument>.Filter;
             var filter = builder.And(builder.Eq("status", "A"), builder.Lt("qty", 30));
-            var result = collection.Find(filter).ToList();
+            var result = _collection.Find(filter).ToList();
             // End Example 11
 
             Render(filter).Should().Be("{ status: \"A\", qty: { $lt: 30 } }");
@@ -241,7 +241,7 @@ namespace MongoDB.Driver.Examples
             // Start Example 12
             var builder = Builders<BsonDocument>.Filter;
             var filter = builder.Or(builder.Eq("status", "A"), builder.Lt("qty", 30));
-            var result = collection.Find(filter).ToList();
+            var result = _collection.Find(filter).ToList();
             // End Example 12
 
             Render(filter).Should().Be("{ $or: [ { status: \"A\" }, { qty: { $lt: 30 } } ] }");
@@ -257,7 +257,7 @@ namespace MongoDB.Driver.Examples
             var filter = builder.And(
                 builder.Eq("status", "A"),
                 builder.Or(builder.Lt("qty", 30), builder.Regex("item", new BsonRegularExpression("^p"))));
-            var result = collection.Find(filter).ToList();
+            var result = _collection.Find(filter).ToList();
             // End Example 13
 
             Render(filter).Should().Be("{ status: \"A\", $or: [ { qty: { $lt: 30 } }, { item: /^p/ } ] }");
@@ -311,10 +311,10 @@ namespace MongoDB.Driver.Examples
                     { "size", new BsonDocument { { "h", 10 }, { "w", 15.25 }, { "uom", "cm" } } },
                     { "status", "A" } },
             };
-            collection.InsertMany(documents);
+            _collection.InsertMany(documents);
             // End Example 14
 
-            var result = collection.Find("{}").ToList();
+            var result = _collection.Find("{}").ToList();
             RemoveIds(result);
             result.Should().Equal(ParseMultiple(
                 "{ item: \"journal\", qty: 25, size: { h: 14, w: 21, uom: \"cm\" }, status: \"A\" }",
@@ -331,7 +331,7 @@ namespace MongoDB.Driver.Examples
 
             // Start Example 15
             var filter = Builders<BsonDocument>.Filter.Eq("size", new BsonDocument { { "h", 14 }, { "w", 21 }, { "uom", "cm" } });
-            var result = collection.Find(filter).ToList();
+            var result = _collection.Find(filter).ToList();
             // End Example 15
 
             Render(filter).Should().Be("{ size: { h: 14, w: 21, uom: \"cm\" } }");
@@ -344,7 +344,7 @@ namespace MongoDB.Driver.Examples
 
             // Start Example 16
             var filter = Builders<BsonDocument>.Filter.Eq("size", new BsonDocument { { "w", 21 }, { "h", 14 }, { "uom", "cm" } });
-            var result = collection.Find(filter).ToList();
+            var result = _collection.Find(filter).ToList();
             // End Example 16
 
             Render(filter).Should().Be("{ size: { w: 21, h: 14, uom: \"cm\" } }");
@@ -357,7 +357,7 @@ namespace MongoDB.Driver.Examples
 
             // Start Example 17
             var filter = Builders<BsonDocument>.Filter.Eq("size.uom", "in");
-            var result = collection.Find(filter).ToList();
+            var result = _collection.Find(filter).ToList();
             // End Example 17
 
             Render(filter).Should().Be("{ \"size.uom\": \"in\" }");
@@ -370,7 +370,7 @@ namespace MongoDB.Driver.Examples
 
             // Start Example 18
             var filter = Builders<BsonDocument>.Filter.Lt("size.h", 15);
-            var result = collection.Find(filter).ToList();
+            var result = _collection.Find(filter).ToList();
             // End Example 18
 
             Render(filter).Should().Be("{ \"size.h\": { $lt: 15 } }");
@@ -384,7 +384,7 @@ namespace MongoDB.Driver.Examples
             // Start Example 19
             var builder = Builders<BsonDocument>.Filter;
             var filter = builder.And(builder.Lt("size.h", 15), builder.Eq("size.uom", "in"), builder.Eq("status", "D"));
-            var result = collection.Find(filter).ToList();
+            var result = _collection.Find(filter).ToList();
             // End Example 19
 
             Render(filter).Should().Be("{ \"size.h\": { $lt: 15 }, \"size.uom\": \"in\", status: \"D\" }");
@@ -439,10 +439,10 @@ namespace MongoDB.Driver.Examples
                     { "dim_cm", new BsonArray { 10, 15.25 } }
                 }
             };
-            collection.InsertMany(documents);
+            _collection.InsertMany(documents);
             // End Example 20
 
-            var result = collection.Find("{}").ToList();
+            var result = _collection.Find("{}").ToList();
             RemoveIds(result);
             result.Should().Equal(ParseMultiple(
                 "{ item: \"journal\", qty: 25, tags: [\"blank\", \"red\"], dim_cm: [ 14, 21 ] }",
@@ -459,7 +459,7 @@ namespace MongoDB.Driver.Examples
 
             // Start Example 21
             var filter = Builders<BsonDocument>.Filter.Eq("tags", new[] { "red", "blank" });
-            var result = collection.Find(filter).ToList();
+            var result = _collection.Find(filter).ToList();
             // End Example 21
 
             Render(filter).Should().Be("{ tags: [\"red\", \"blank\"] }");
@@ -472,7 +472,7 @@ namespace MongoDB.Driver.Examples
 
             // Start Example 22
             var filter = Builders<BsonDocument>.Filter.All("tags", new[] { "red", "blank" });
-            var result = collection.Find(filter).ToList();
+            var result = _collection.Find(filter).ToList();
             // End Example 22
 
             Render(filter).Should().Be("{ tags: { $all: [\"red\", \"blank\"] } }");
@@ -485,7 +485,7 @@ namespace MongoDB.Driver.Examples
 
             // Start Example 23
             var filter = Builders<BsonDocument>.Filter.Eq("tags", "red");
-            var result = collection.Find(filter).ToList();
+            var result = _collection.Find(filter).ToList();
             // End Example 23
 
             Render(filter).Should().Be("{ tags: \"red\" }");
@@ -498,7 +498,7 @@ namespace MongoDB.Driver.Examples
 
             // Start Example 24
             var filter = Builders<BsonDocument>.Filter.Gt("dim_cm", 25);
-            var result = collection.Find(filter).ToList();
+            var result = _collection.Find(filter).ToList();
             // End Example 24
 
             Render(filter).Should().Be("{ dim_cm: { $gt: 25 } }");
@@ -512,7 +512,7 @@ namespace MongoDB.Driver.Examples
             // Start Example 25
             var builder = Builders<BsonDocument>.Filter;
             var filter = builder.And(builder.Gt("dim_cm", 15), builder.Lt("dim_cm", 20));
-            var result = collection.Find(filter).ToList();
+            var result = _collection.Find(filter).ToList();
             // End Example 25
 
             Render(filter).Should().Be("{ dim_cm: { $gt: 15, $lt: 20 } }");
@@ -525,7 +525,7 @@ namespace MongoDB.Driver.Examples
 
             // Start Example 26
             var filter = Builders<BsonDocument>.Filter.ElemMatch<BsonValue>("dim_cm", new BsonDocument { { "$gt", 22 }, { "$lt", 30 } });
-            var result = collection.Find(filter).ToList();
+            var result = _collection.Find(filter).ToList();
             // End Example 26
 
             Render(filter).Should().Be("{ dim_cm: { $elemMatch: { $gt: 22, $lt: 30 } } }");
@@ -538,7 +538,7 @@ namespace MongoDB.Driver.Examples
 
             // Start Example 27
             var filter = Builders<BsonDocument>.Filter.Gt("dim_cm.1", 25);
-            var result = collection.Find(filter).ToList();
+            var result = _collection.Find(filter).ToList();
             // End Example 27
 
             Render(filter).Should().Be("{ \"dim_cm.1\": { $gt: 25 } }");
@@ -551,7 +551,7 @@ namespace MongoDB.Driver.Examples
 
             // Start Example 28
             var filter = Builders<BsonDocument>.Filter.Size("tags", 3);
-            var result = collection.Find(filter).ToList();
+            var result = _collection.Find(filter).ToList();
             // End Example 28
 
             Render(filter).Should().Be("{ tags: { $size: 3 } }");
@@ -615,10 +615,10 @@ namespace MongoDB.Driver.Examples
                         }
                 }
             };
-            collection.InsertMany(documents);
+            _collection.InsertMany(documents);
             // End Example 29
 
-            var result = collection.Find("{}").ToList();
+            var result = _collection.Find("{}").ToList();
             RemoveIds(result);
             result.Should().Equal(ParseMultiple(
                 "{ item: \"journal\", instock: [ { warehouse: \"A\", qty: 5 }, { warehouse: \"C\", qty: 15 } ] }",
@@ -635,7 +635,7 @@ namespace MongoDB.Driver.Examples
 
             // Start Example 30
             var filter = Builders<BsonDocument>.Filter.AnyEq("instock", new BsonDocument { { "warehouse", "A" }, { "qty", 5 } });
-            var result = collection.Find(filter).ToList();
+            var result = _collection.Find(filter).ToList();
             // End Example 30
 
             Render(filter).Should().Be("{ instock: { warehouse: \"A\", qty: 5 } }");
@@ -648,7 +648,7 @@ namespace MongoDB.Driver.Examples
 
             // Start Example 31
             var filter = Builders<BsonDocument>.Filter.AnyEq("instock", new BsonDocument { { "qty", 5 }, { "warehouse", "A" } });
-            var result = collection.Find(filter).ToList();
+            var result = _collection.Find(filter).ToList();
             // End Example 31
 
             Render(filter).Should().Be("{ instock: { qty: 5, warehouse: \"A\" } }");
@@ -661,7 +661,7 @@ namespace MongoDB.Driver.Examples
 
             // Start Example 32
             var filter = Builders<BsonDocument>.Filter.Lte("instock.0.qty", 20);
-            var result = collection.Find(filter).ToList();
+            var result = _collection.Find(filter).ToList();
             // End Example 32
 
             Render(filter).Should().Be("{ \"instock.0.qty\": { $lte: 20 } }");
@@ -674,7 +674,7 @@ namespace MongoDB.Driver.Examples
 
             // Start Example 33
             var filter = Builders<BsonDocument>.Filter.Lte("instock.qty", 20);
-            var result = collection.Find(filter).ToList();
+            var result = _collection.Find(filter).ToList();
             // End Example 33
 
             Render(filter).Should().Be("{ \"instock.qty\": { $lte: 20 } }");
@@ -687,7 +687,7 @@ namespace MongoDB.Driver.Examples
 
             // Start Example 34
             var filter = Builders<BsonDocument>.Filter.ElemMatch<BsonValue>("instock", new BsonDocument { { "qty", 5 }, { "warehouse", "A" } });
-            var result = collection.Find(filter).ToList();
+            var result = _collection.Find(filter).ToList();
             // End Example 34
 
             Render(filter).Should().Be("{ instock: { $elemMatch: { qty: 5, warehouse: \"A\" } } }");
@@ -700,7 +700,7 @@ namespace MongoDB.Driver.Examples
 
             // Start Example 35
             var filter = Builders<BsonDocument>.Filter.ElemMatch<BsonValue>("instock", new BsonDocument { { "qty", new BsonDocument { { "$gt", 10 }, { "$lte", 20 } } } });
-            var result = collection.Find(filter).ToList();
+            var result = _collection.Find(filter).ToList();
             // End Example 35
 
             Render(filter).Should().Be("{ instock: { $elemMatch: { qty: { $gt: 10, $lte: 20 } } } }");
@@ -714,7 +714,7 @@ namespace MongoDB.Driver.Examples
             // Start Example 36
             var builder = Builders<BsonDocument>.Filter;
             var filter = builder.And(builder.Gt("instock.qty", 10), builder.Lte("instock.qty", 20));
-            var result = collection.Find(filter).ToList();
+            var result = _collection.Find(filter).ToList();
             // End Example 36
 
             Render(filter).Should().Be("{ \"instock.qty\": { $gt: 10, $lte: 20 } }");
@@ -728,7 +728,7 @@ namespace MongoDB.Driver.Examples
             // Start Example 37
             var builder = Builders<BsonDocument>.Filter;
             var filter = builder.And(builder.Eq("instock.qty", 5), builder.Eq("instock.warehouse", "A"));
-            var result = collection.Find(filter).ToList();
+            var result = _collection.Find(filter).ToList();
             // End Example 37
 
             Render(filter).Should().Be("{ \"instock.qty\": 5, \"instock.warehouse\": \"A\" }");
@@ -745,10 +745,10 @@ namespace MongoDB.Driver.Examples
                 new BsonDocument { { "_id", 1 }, { "item", BsonNull.Value } },
                 new BsonDocument { { "_id", 2 } }
             };
-            collection.InsertMany(documents);
+            _collection.InsertMany(documents);
             // End Example 38
 
-            var result = collection.Find("{}").ToList();
+            var result = _collection.Find("{}").ToList();
             result.Should().Equal(ParseMultiple(
                 "{ _id: 1, item: null }",
                 "{ _id: 2 }"));
@@ -761,7 +761,7 @@ namespace MongoDB.Driver.Examples
 
             // Start Example 39
             var filter = Builders<BsonDocument>.Filter.Eq("item", BsonNull.Value);
-            var result = collection.Find(filter).ToList();
+            var result = _collection.Find(filter).ToList();
             // End Example 39
 
             Render(filter).Should().Be("{ item: null }");
@@ -774,7 +774,7 @@ namespace MongoDB.Driver.Examples
 
             // Start Example 40
             var filter = Builders<BsonDocument>.Filter.Type("item", BsonType.Null);
-            var result = collection.Find(filter).ToList();
+            var result = _collection.Find(filter).ToList();
             // End Example 40
 
             Render(filter).Should().Be("{ item : { $type: 10 } }");
@@ -787,7 +787,7 @@ namespace MongoDB.Driver.Examples
 
             // Start Example 41
             var filter = Builders<BsonDocument>.Filter.Exists("item", false);
-            var result = collection.Find(filter).ToList();
+            var result = _collection.Find(filter).ToList();
             // End Example 41
 
             Render(filter).Should().Be("{ item : { $exists: false } }");
@@ -858,10 +858,10 @@ namespace MongoDB.Driver.Examples
                         }
                 }
             };
-            collection.InsertMany(documents);
+            _collection.InsertMany(documents);
             // End Example 42
 
-            var result = collection.Find("{}").ToList();
+            var result = _collection.Find("{}").ToList();
             RemoveIds(result);
             result.Should().Equal(ParseMultiple(
                 "{ item: \"journal\", status: \"A\", size: { h: 14, w: 21, uom: \"cm\" }, instock: [ { warehouse: \"A\", qty: 5 } ] }",
@@ -879,7 +879,7 @@ namespace MongoDB.Driver.Examples
 
             // Start Example 43
             var filter = Builders<BsonDocument>.Filter.Eq("status", "A");
-            var result = collection.Find(filter).ToList();
+            var result = _collection.Find(filter).ToList();
             // End Example 43
 
             Render(filter).Should().Be("{ status: \"A\" }");
@@ -893,7 +893,7 @@ namespace MongoDB.Driver.Examples
             // Start Example 44
             var filter = Builders<BsonDocument>.Filter.Eq("status", "A");
             var projection = Builders<BsonDocument>.Projection.Include("item").Include("status");
-            var result = collection.Find<BsonDocument>(filter).Project(projection).ToList();
+            var result = _collection.Find<BsonDocument>(filter).Project(projection).ToList();
             // End Example 44
 
             Render(filter).Should().Be("{ status: \"A\" }");
@@ -908,7 +908,7 @@ namespace MongoDB.Driver.Examples
             // Start Example 45
             var filter = Builders<BsonDocument>.Filter.Eq("status", "A");
             var projection = Builders<BsonDocument>.Projection.Include("item").Include("status").Exclude("_id");
-            var result = collection.Find<BsonDocument>(filter).Project(projection).ToList();
+            var result = _collection.Find<BsonDocument>(filter).Project(projection).ToList();
             // End Example 45
 
             Render(filter).Should().Be("{ status: \"A\" }");
@@ -923,7 +923,7 @@ namespace MongoDB.Driver.Examples
             // Start Example 46
             var filter = Builders<BsonDocument>.Filter.Eq("status", "A");
             var projection = Builders<BsonDocument>.Projection.Exclude("status").Exclude("instock");
-            var result = collection.Find<BsonDocument>(filter).Project(projection).ToList();
+            var result = _collection.Find<BsonDocument>(filter).Project(projection).ToList();
             // End Example 46
 
             Render(filter).Should().Be("{ status: \"A\" }");
@@ -938,7 +938,7 @@ namespace MongoDB.Driver.Examples
             // Start Example 47
             var filter = Builders<BsonDocument>.Filter.Eq("status", "A");
             var projection = Builders<BsonDocument>.Projection.Include("item").Include("status").Include("size.uom");
-            var result = collection.Find<BsonDocument>(filter).Project(projection).ToList();
+            var result = _collection.Find<BsonDocument>(filter).Project(projection).ToList();
             // End Example 47
 
             Render(filter).Should().Be("{ status: \"A\" }");
@@ -953,7 +953,7 @@ namespace MongoDB.Driver.Examples
             // Start Example 48
             var filter = Builders<BsonDocument>.Filter.Eq("status", "A");
             var projection = Builders<BsonDocument>.Projection.Exclude("size.uom");
-            var result = collection.Find<BsonDocument>(filter).Project(projection).ToList();
+            var result = _collection.Find<BsonDocument>(filter).Project(projection).ToList();
             // End Example 48
 
             Render(filter).Should().Be("{ status: \"A\" }");
@@ -968,7 +968,7 @@ namespace MongoDB.Driver.Examples
             // Start Example 49
             var filter = Builders<BsonDocument>.Filter.Eq("status", "A");
             var projection = Builders<BsonDocument>.Projection.Include("item").Include("status").Include("instock.qty");
-            var result = collection.Find<BsonDocument>(filter).Project(projection).ToList();
+            var result = _collection.Find<BsonDocument>(filter).Project(projection).ToList();
             // End Example 49
 
             Render(filter).Should().Be("{ status: \"A\" }");
@@ -983,7 +983,7 @@ namespace MongoDB.Driver.Examples
             // Start Example 50
             var filter = Builders<BsonDocument>.Filter.Eq("status", "A");
             var projection = Builders<BsonDocument>.Projection.Include("item").Include("status").Slice("instock", -1);
-            var result = collection.Find<BsonDocument>(filter).Project(projection).ToList();
+            var result = _collection.Find<BsonDocument>(filter).Project(projection).ToList();
             // End Example 50
 
             Render(filter).Should().Be("{ status: \"A\" }");
@@ -1076,10 +1076,10 @@ namespace MongoDB.Driver.Examples
                     { "qty", 95 },
                     { "size", new BsonDocument { { "h", 22.85 }, { "w", 30.5 }, { "uom", "cm" } } }, { "status", "A" } },
             };
-            collection.InsertMany(documents);
+            _collection.InsertMany(documents);
             // End Example 51
 
-            var result = collection.Find("{}").ToList();
+            var result = _collection.Find("{}").ToList();
             RemoveIds(result);
             result.Should().Equal(ParseMultiple(
                 "{ item: \"canvas\", qty: 100, size: { h: 28, w: 35.5, uom: \"cm\" }, status: \"A\" }",
@@ -1102,7 +1102,7 @@ namespace MongoDB.Driver.Examples
             // Start Example 52
             var filter = Builders<BsonDocument>.Filter.Eq("item", "paper");
             var update = Builders<BsonDocument>.Update.Set("size.uom", "cm").Set("status", "P").CurrentDate("lastModified");
-            var result = collection.UpdateOne(filter, update);
+            var result = _collection.UpdateOne(filter, update);
             // End Example 52
 
             Render(filter).Should().Be("{ item: \"paper\" }");
@@ -1117,7 +1117,7 @@ namespace MongoDB.Driver.Examples
             // Start Example 53
             var filter = Builders<BsonDocument>.Filter.Lt("qty", 50);
             var update = Builders<BsonDocument>.Update.Set("size.uom", "in").Set("status", "P").CurrentDate("lastModified");
-            var result = collection.UpdateMany(filter, update);
+            var result = _collection.UpdateMany(filter, update);
             // End Example 53
 
             Render(filter).Should().Be("{ qty: { $lt: 50 } }");
@@ -1140,7 +1140,7 @@ namespace MongoDB.Driver.Examples
                         new BsonDocument { { "warehouse", "B" }, { "qty", 40 } } }
                     }
             };
-            var result = collection.ReplaceOne(filter, replacement);
+            var result = _collection.ReplaceOne(filter, replacement);
             // End Example 54
 
             Render(filter).Should().Be("{ item: \"paper\" }");
@@ -1196,10 +1196,10 @@ namespace MongoDB.Driver.Examples
                     { "status", "A" }
                 }
             };
-            collection.InsertMany(documents);
+            _collection.InsertMany(documents);
             // End Example 55
 
-            var result = collection.Find("{}").ToList();
+            var result = _collection.Find("{}").ToList();
             RemoveIds(result);
             result.Should().Equal(ParseMultiple(
                 "{ item: \"journal\", qty: 25, size: { h: 14, w: 21, uom: \"cm\" }, status: \"A\" }",
@@ -1216,7 +1216,7 @@ namespace MongoDB.Driver.Examples
 
             // Start Example 56
             var filter = Builders<BsonDocument>.Filter.Empty;
-            var result = collection.DeleteMany(filter);
+            var result = _collection.DeleteMany(filter);
             // End Example 56
 
             Render(filter).Should().Be("{}");
@@ -1229,7 +1229,7 @@ namespace MongoDB.Driver.Examples
 
             // Start Example 57
             var filter = Builders<BsonDocument>.Filter.Eq("status", "A");
-            var result = collection.DeleteMany(filter);
+            var result = _collection.DeleteMany(filter);
             // End Example 57
 
             Render(filter).Should().Be("{ status : \"A\" }");
@@ -1242,7 +1242,7 @@ namespace MongoDB.Driver.Examples
 
             // Start Example 58
             var filter = Builders<BsonDocument>.Filter.Eq("status", "D");
-            var result = collection.DeleteOne(filter);
+            var result = _collection.DeleteOne(filter);
             // End Example 58
 
             Render(filter).Should().Be("{ status : \"D\" }");
@@ -1263,7 +1263,7 @@ namespace MongoDB.Driver.Examples
                 .Match(Builders<BsonDocument>.Filter.Eq("items.fruit", "banana"))
                 .Sort(Builders<BsonDocument>.Sort.Ascending("date"));
 
-            var cursor = collection.Aggregate(pipeline);
+            var cursor = _collection.Aggregate(pipeline);
             // End Aggregation Example 1
 
             Render(pipeline).Should().Be("[{ $match : { \"items.fruit\" : \"banana\" } },   { $sort : { \"date\" : 1 } }]");
@@ -1307,7 +1307,7 @@ namespace MongoDB.Driver.Examples
                 })
                 .Sort(Builders<BsonDocument>.Sort.Ascending("numberSold"));
 
-            var cursor = collection.Aggregate(pipeline);
+            var cursor = _collection.Aggregate(pipeline);
             // End Aggregation Example 2
 
             Render(pipeline).Should().Be(@"
@@ -1375,7 +1375,7 @@ namespace MongoDB.Driver.Examples
                     })}
                 });
 
-            var cursor = collection.Aggregate(pipeline);
+            var cursor = _collection.Aggregate(pipeline);
             // End Aggregation Example 3
 
             Render(pipeline).Should().Be(@"
@@ -1466,7 +1466,7 @@ namespace MongoDB.Driver.Examples
                     }
                 });
 
-            var cursor = collection.Aggregate(pipeline);
+            var cursor = _collection.Aggregate(pipeline);
             // End Aggregation Example 4
 
             Render(pipeline).Should().Be(@"
@@ -1500,7 +1500,7 @@ namespace MongoDB.Driver.Examples
 
             // Start runCommand Example 1
             var command = new JsonCommand<BsonDocument>("{ buildInfo : 1 }");
-            var result = database.RunCommand(command);
+            var result = _database.RunCommand(command);
             // End runCommand Example 1
 
             result["ok"].ToBoolean().Should().BeTrue();
@@ -1512,18 +1512,18 @@ namespace MongoDB.Driver.Examples
             //db.runCommand({collStats:"restaurants"})
 
             const string collectionName = "restaurants";
-            if (database.ListCollectionNames().ToList().Any(c => c == collectionName))
+            if (_database.ListCollectionNames().ToList().Any(c => c == collectionName))
             {
-                database.DropCollection(collectionName);
+                _database.DropCollection(collectionName);
             }
-            database.CreateCollection(collectionName);
+            _database.CreateCollection(collectionName);
 
             // Start runCommand Example 2
             var command = new JsonCommand<BsonDocument>("{ collStats : 'restaurants' }");
-            var result = database.RunCommand(command);
+            var result = _database.RunCommand(command);
             // End runCommand Example 2
 
-            database.DropCollection(collectionName);
+            _database.DropCollection(collectionName);
 
             result["ok"].ToBoolean().Should().BeTrue();
         }
@@ -1537,7 +1537,7 @@ namespace MongoDB.Driver.Examples
             // Start Index Example 1
             var keys = Builders<BsonDocument>.IndexKeys.Ascending("score");
             var indexModel = new CreateIndexModel<BsonDocument>(keys);
-            var result = collection.Indexes.CreateOne(indexModel);
+            var result = _collection.Indexes.CreateOne(indexModel);
             // End Index Example 1
 
             result.Should().Be("score_1");
@@ -1560,7 +1560,7 @@ namespace MongoDB.Driver.Examples
                 PartialFilterExpression = Builders<BsonDocument>.Filter.Gt(document => document["rating"], 5)
             };
             var indexModel = new CreateIndexModel<BsonDocument>(keys, indexOptions);
-            var result = collection.Indexes.CreateOne(indexModel);
+            var result = _collection.Indexes.CreateOne(indexModel);
             // End Index Example 2
 
             Render(indexModel.Options.PartialFilterExpression).Should().Be("{ \"rating\" : { \"$gt\" : 5 } }");
@@ -1579,13 +1579,13 @@ namespace MongoDB.Driver.Examples
             };
 
             var arrayUpdatesTestCollectionName = "arrayUpdatesTest";
-            var testDatabase = client.GetDatabase("test");
+            var testDatabase = _client.GetDatabase("test");
             testDatabase.DropCollection(arrayUpdatesTestCollectionName);
             var arrayUpdatesTestCollection = testDatabase.GetCollection<BsonDocument>(arrayUpdatesTestCollectionName);
             arrayUpdatesTestCollection.InsertOne(document);
 
             // Start Exploiting The Power Of Arrays Example
-            var collection = client
+            var collection = _client
                 .GetDatabase("test")
                 .GetCollection<BsonDocument>("arrayUpdatesTest");
 

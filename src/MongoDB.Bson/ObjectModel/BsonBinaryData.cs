@@ -123,7 +123,6 @@ namespace MongoDB.Bson
         /// Initializes a new instance of the BsonBinaryData class.
         /// </summary>
         /// <param name="guid">A Guid.</param>
-#pragma warning disable 618
         [Obsolete("Use the constructor that also takes a GuidRepresentation instead.")]
         public BsonBinaryData(Guid guid)
             : this(
@@ -133,7 +132,6 @@ namespace MongoDB.Bson
                     : throw new InvalidOperationException("This constructor can only be used when BsonDefaults.GuidRepresentationMode is V2."))
         {
         }
-#pragma warning restore 618
 
         /// <summary>
         /// Initializes a new instance of the BsonBinaryData class.
@@ -188,7 +186,6 @@ namespace MongoDB.Bson
         /// <summary>
         /// Gets the BsonBinaryData as a Guid if the subtype is UuidStandard or UuidLegacy, otherwise null.
         /// </summary>
-#pragma warning disable 618 // about obsolete BsonBinarySubType.OldBinary
         [Obsolete("Use Value instead.")]
         public override object RawValue
         {
@@ -208,7 +205,6 @@ namespace MongoDB.Bson
                 }
             }
         }
-#pragma warning restore 618
 
         /// <summary>
         /// Gets the binary data subtype.
@@ -273,7 +269,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">An object to be mapped to a BsonBinaryData.</param>
         /// <returns>A BsonBinaryData or null.</returns>
-        public new static BsonBinaryData Create(object value)
+        public static new BsonBinaryData Create(object value)
         {
             if (value == null)
             {

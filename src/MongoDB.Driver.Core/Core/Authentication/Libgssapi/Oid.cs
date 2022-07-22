@@ -31,11 +31,11 @@ namespace MongoDB.Driver.Core.Authentication.Libgssapi
             int numBytes = oidBytes.Length;
             var unmanagedArray = Marshal.AllocHGlobal(numBytes);
             Marshal.Copy(oidBytes, 0, unmanagedArray, numBytes);
-            return new Oid { elements = unmanagedArray, length = (uint)numBytes };
+            return new Oid { _elements = unmanagedArray, _length = (uint)numBytes };
         }
         #endregion
 
-        private uint length;
-        private IntPtr elements;
+        private uint _length;
+        private IntPtr _elements;
     }
 }

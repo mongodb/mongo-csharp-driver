@@ -29,7 +29,6 @@ namespace MongoDB.Driver
     public abstract class AggregateFluentBase<TResult> : IOrderedAggregateFluent<TResult>
     {
         /// <inheritdoc />
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
         public virtual IMongoDatabase Database
         {
             get { throw new NotImplementedException(); }

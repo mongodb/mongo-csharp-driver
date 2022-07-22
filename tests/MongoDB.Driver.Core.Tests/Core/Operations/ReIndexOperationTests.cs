@@ -146,5 +146,4 @@ namespace MongoDB.Driver.Core.Operations
             ExecuteOperation(operation);
         }
     }
-#pragma warning restore 618
 }

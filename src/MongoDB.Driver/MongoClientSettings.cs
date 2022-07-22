@@ -93,10 +93,8 @@ namespace MongoDB.Driver
             _applicationName = null;
             _autoEncryptionOptions = null;
             _compressors = new CompressorConfiguration[0];
-#pragma warning disable CS0618 // Type or member is obsolete
             _connectionMode = ConnectionMode.Automatic;
             _connectionModeSwitch = ConnectionModeSwitch.NotSet;
-#pragma warning restore CS0618 // Type or member is obsolete
             _connectTimeout = MongoDefaults.ConnectTimeout;
             _credentials = new MongoCredentialStore(new MongoCredential[0]);
             _directConnection = null;
@@ -313,9 +311,7 @@ namespace MongoDB.Driver
         {
             get
             {
-#pragma warning disable CS0618 // Type or member is obsolete
                 if (_connectionModeSwitch == ConnectionModeSwitch.UseConnectionMode)
-#pragma warning restore CS0618 // Type or member is obsolete
                 {
                     throw new InvalidOperationException("DirectConnection cannot be used when ConnectionModeSwitch is set to UseConnectionMode.");
                 }
@@ -325,7 +321,6 @@ namespace MongoDB.Driver
             set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
-#pragma warning disable CS0618 // Type or member is obsolete
                 if (_connectionModeSwitch == ConnectionModeSwitch.UseConnectionMode)
                 {
                     throw new InvalidOperationException("DirectConnection cannot be used when ConnectionModeSwitch is set to UseConnectionMode.");
@@ -333,7 +328,6 @@ namespace MongoDB.Driver
 
                 _directConnection = value;
                 _connectionModeSwitch = ConnectionModeSwitch.UseDirectConnection; // _connectionMode is always Automatic here
-#pragma warning restore CS0618 // Type or member is obsolete
             }
         }
 
@@ -953,7 +947,7 @@ namespace MongoDB.Driver
             clientSettings.MinConnectionPoolSize = url.MinConnectionPoolSize;
             clientSettings.ReadConcern = new ReadConcern(url.ReadConcernLevel);
             clientSettings.ReadEncoding = null; // ReadEncoding must be provided in code
-            clientSettings.ReadPreference = (url.ReadPreference == null) ? ReadPreference.Primary : url.ReadPreference;
+            clientSettings.ReadPreference = url.ReadPreference ?? ReadPreference.Primary;
             clientSettings.ReplicaSetName = url.ReplicaSetName;
             clientSettings.RetryReads = url.RetryReads.GetValueOrDefault(true);
             clientSettings.RetryWrites = url.RetryWrites.GetValueOrDefault(true);

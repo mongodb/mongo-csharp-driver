@@ -301,7 +301,7 @@ namespace MongoDB.Bson.Tests.Serialization
             Assert.Same(BsonSymbolTable.Lookup("abc"), c.X["XSymbol"]);
             Assert.Equal(new BsonTimestamp(1234), c.X["XTimestamp"]);
             Assert.Same(BsonUndefined.Value, c.X["XUndefined"]);
-#pragma warning disable 618
+#pragma warning restore 618
         }
     }
 }

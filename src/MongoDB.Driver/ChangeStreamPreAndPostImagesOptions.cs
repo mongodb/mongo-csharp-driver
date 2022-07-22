@@ -46,7 +46,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the backing document.
         /// </summary>
-        new public BsonDocument BackingDocument => base.BackingDocument;
+        public new BsonDocument BackingDocument => base.BackingDocument;
 
         /// <summary>
         /// Gets or sets a value indicating whether ChangeStreamPreAndPostImages is enabled.

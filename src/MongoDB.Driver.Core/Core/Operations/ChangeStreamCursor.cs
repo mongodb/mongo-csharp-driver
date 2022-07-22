@@ -159,7 +159,6 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // private methods
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")]
         private TDocument DeserializeDocument(RawBsonDocument rawDocument)
         {
             using (var stream = new ByteBufferStream(rawDocument.Slice, ownsBuffer: false))

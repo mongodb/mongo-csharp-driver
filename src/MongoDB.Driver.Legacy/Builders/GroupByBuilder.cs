@@ -106,7 +106,7 @@ namespace MongoDB.Driver.Builders
         }
 
         // nested classes
-        new internal class Serializer : SerializerBase<GroupByBuilder>
+        internal new class Serializer : SerializerBase<GroupByBuilder>
         {
             public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, GroupByBuilder value)
             {
@@ -180,7 +180,7 @@ namespace MongoDB.Driver.Builders
         }
 
         // nested classes
-        new internal class Serializer : SerializerBase<GroupByBuilder<TDocument>>
+        internal new class Serializer : SerializerBase<GroupByBuilder<TDocument>>
         {
             public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, GroupByBuilder<TDocument> value)
             {

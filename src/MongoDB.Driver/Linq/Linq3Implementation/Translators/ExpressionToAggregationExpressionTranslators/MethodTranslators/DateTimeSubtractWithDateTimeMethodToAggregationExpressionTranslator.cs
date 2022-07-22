@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 {
     internal static class DateTimeSubtractWithDateTimeMethodToAggregationExpressionTranslator
     {
-        private readonly static MethodInfo[] __dateTimeSubtractWithDateTimeMethods =
+        private static readonly MethodInfo[] __dateTimeSubtractWithDateTimeMethods =
         {
             DateTimeMethod.SubtractWithDateTime,
             DateTimeMethod.SubtractWithDateTimeAndTimezone,
@@ -37,13 +37,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             DateTimeMethod.SubtractWithDateTimeAndUnitAndTimezone
         };
 
-        private readonly static MethodInfo[] __dateTimeSubtractWithTimezoneMethods =
+        private static readonly MethodInfo[] __dateTimeSubtractWithTimezoneMethods =
         {
             DateTimeMethod.SubtractWithDateTimeAndTimezone,
             DateTimeMethod.SubtractWithDateTimeAndUnitAndTimezone
         };
 
-        private readonly static MethodInfo[] __dateTimeSubtractWithUnitMethods =
+        private static readonly MethodInfo[] __dateTimeSubtractWithUnitMethods =
         {
             DateTimeMethod.SubtractWithDateTimeAndUnit,
             DateTimeMethod.SubtractWithDateTimeAndUnitAndTimezone

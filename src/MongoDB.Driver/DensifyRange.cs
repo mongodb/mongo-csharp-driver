@@ -235,8 +235,8 @@ namespace MongoDB.Driver
     public sealed class DensifyKeywordNumericBounds<TNumber> : DensifyNumericBounds<TNumber>
     {
         #region static
-        private readonly static DensifyKeywordNumericBounds<TNumber> __full = new DensifyKeywordNumericBounds<TNumber>("full");
-        private readonly static DensifyKeywordNumericBounds<TNumber> __partition = new DensifyKeywordNumericBounds<TNumber>("partition");
+        private static readonly DensifyKeywordNumericBounds<TNumber> __full = new DensifyKeywordNumericBounds<TNumber>("full");
+        private static readonly DensifyKeywordNumericBounds<TNumber> __partition = new DensifyKeywordNumericBounds<TNumber>("partition");
 
         internal static DensifyKeywordNumericBounds<TNumber> Full => __full;
         internal static DensifyKeywordNumericBounds<TNumber> Partition => __partition;
@@ -378,8 +378,8 @@ namespace MongoDB.Driver
     public sealed class DensifyKeywordDateTimeBounds : DensifyDateTimeBounds
     {
         #region static
-        private readonly static DensifyKeywordDateTimeBounds __full = new DensifyKeywordDateTimeBounds("full");
-        private readonly static DensifyKeywordDateTimeBounds __partition = new DensifyKeywordDateTimeBounds("partition");
+        private static readonly DensifyKeywordDateTimeBounds __full = new DensifyKeywordDateTimeBounds("full");
+        private static readonly DensifyKeywordDateTimeBounds __partition = new DensifyKeywordDateTimeBounds("partition");
 
         internal static DensifyKeywordDateTimeBounds Full => __full;
         internal static DensifyKeywordDateTimeBounds Partition => __partition;

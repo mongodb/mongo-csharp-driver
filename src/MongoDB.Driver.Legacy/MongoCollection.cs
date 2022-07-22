@@ -1110,9 +1110,7 @@ namespace MongoDB.Driver
             double y,
             int limit)
         {
-#pragma warning disable 618
             return GeoNearAs<TDocument>(query, x, y, limit, GeoNearOptions.Null);
-#pragma warning restore
         }
 
         /// <summary>
@@ -1703,9 +1701,7 @@ namespace MongoDB.Driver
                     Collation = args.Collation,
                     Filter = query,
                     FinalizeFunction = args.FinalizeFunction,
-#pragma warning disable 618
                     JavaScriptMode = args.JsMode,
-#pragma warning restore 618
                     Limit = args.Limit,
                     MaxTime = args.MaxTime,
                     ReadConcern = _settings.ReadConcern,
@@ -1733,19 +1729,13 @@ namespace MongoDB.Driver
                     Collation = args.Collation,
                     Filter = query,
                     FinalizeFunction = args.FinalizeFunction,
-#pragma warning disable 618
                     JavaScriptMode = args.JsMode,
-#pragma warning restore 618
                     Limit = args.Limit,
                     MaxTime = args.MaxTime,
-#pragma warning disable 618
                     NonAtomicOutput = args.OutputIsNonAtomic,
-#pragma warning restore 618
                     OutputMode = outputMode,
                     Scope = scope,
-#pragma warning disable 618
                     ShardedOutput = args.OutputIsSharded,
-#pragma warning restore 618
                     Sort = sort,
                     Verbose = args.Verbose,
                     WriteConcern = _settings.WriteConcern
@@ -2491,7 +2481,6 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="document">The document to insert.</param>
         /// <returns>A WriteConcernResult (or null if WriteConcern is disabled).</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1061:DoNotHideBaseClassMethods")]
         public virtual WriteConcernResult Insert(TDefaultDocument document)
         {
             return Insert<TDefaultDocument>(document);
@@ -2503,7 +2492,6 @@ namespace MongoDB.Driver
         /// <param name="document">The document to insert.</param>
         /// <param name="options">The options to use for this Insert.</param>
         /// <returns>A WriteConcernResult (or null if WriteConcern is disabled).</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1061:DoNotHideBaseClassMethods")]
         public virtual WriteConcernResult Insert(TDefaultDocument document, MongoInsertOptions options)
         {
             return Insert<TDefaultDocument>(document, options);
@@ -2515,7 +2503,6 @@ namespace MongoDB.Driver
         /// <param name="document">The document to insert.</param>
         /// <param name="writeConcern">The write concern to use for this Insert.</param>
         /// <returns>A WriteConcernResult (or null if WriteConcern is disabled).</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1061:DoNotHideBaseClassMethods")]
         public virtual WriteConcernResult Insert(TDefaultDocument document, WriteConcern writeConcern)
         {
             return Insert<TDefaultDocument>(document, writeConcern);
@@ -2526,7 +2513,6 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="documents">The documents to insert.</param>
         /// <returns>A list of WriteConcernResults (or null if WriteConcern is disabled).</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1061:DoNotHideBaseClassMethods")]
         public virtual IEnumerable<WriteConcernResult> InsertBatch(IEnumerable<TDefaultDocument> documents)
         {
             return InsertBatch<TDefaultDocument>(documents);
@@ -2538,7 +2524,6 @@ namespace MongoDB.Driver
         /// <param name="documents">The documents to insert.</param>
         /// <param name="options">The options to use for this Insert.</param>
         /// <returns>A list of WriteConcernResults (or null if WriteConcern is disabled).</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1061:DoNotHideBaseClassMethods")]
         public virtual IEnumerable<WriteConcernResult> InsertBatch(
             IEnumerable<TDefaultDocument> documents,
             MongoInsertOptions options)
@@ -2552,7 +2537,6 @@ namespace MongoDB.Driver
         /// <param name="documents">The documents to insert.</param>
         /// <param name="writeConcern">The write concern to use for this Insert.</param>
         /// <returns>A list of WriteConcernResults (or null if WriteConcern is disabled).</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1061:DoNotHideBaseClassMethods")]
         public virtual IEnumerable<WriteConcernResult> InsertBatch(
             IEnumerable<TDefaultDocument> documents,
             WriteConcern writeConcern)
@@ -2577,7 +2561,6 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="document">The document to save.</param>
         /// <returns>A WriteConcernResult (or null if WriteConcern is disabled).</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1061:DoNotHideBaseClassMethods")]
         public virtual WriteConcernResult Save(TDefaultDocument document)
         {
             return Save<TDefaultDocument>(document);
@@ -2590,7 +2573,6 @@ namespace MongoDB.Driver
         /// <param name="document">The document to save.</param>
         /// <param name="options">The options to use for this Save.</param>
         /// <returns>A WriteConcernResult (or null if WriteConcern is disabled).</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1061:DoNotHideBaseClassMethods")]
         public virtual WriteConcernResult Save(TDefaultDocument document, MongoInsertOptions options)
         {
             return Save<TDefaultDocument>(document, options);
@@ -2603,7 +2585,6 @@ namespace MongoDB.Driver
         /// <param name="document">The document to save.</param>
         /// <param name="writeConcern">The write concern to use for this Insert.</param>
         /// <returns>A WriteConcernResult (or null if WriteConcern is disabled).</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1061:DoNotHideBaseClassMethods")]
         public virtual WriteConcernResult Save(TDefaultDocument document, WriteConcern writeConcern)
         {
             return Save<TDefaultDocument>(document, writeConcern);

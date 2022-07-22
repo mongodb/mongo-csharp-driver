@@ -248,7 +248,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">A value to be mapped to a BsonArray.</param>
         /// <returns>A BsonArray or null.</returns>
-        public new static BsonArray Create(object value)
+        public static new BsonArray Create(object value)
         {
             if (value == null)
             {

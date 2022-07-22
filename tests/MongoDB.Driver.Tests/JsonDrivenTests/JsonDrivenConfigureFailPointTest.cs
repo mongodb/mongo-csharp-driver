@@ -55,7 +55,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
             return cluster.SelectServer(WritableServerSelector.Instance, CancellationToken.None);
         }
 
-        protected async virtual Task<IServer> GetFailPointServerAsync()
+        protected virtual async Task<IServer> GetFailPointServerAsync()
         {
             if (TestRunner.FailPointServer != null)
             {

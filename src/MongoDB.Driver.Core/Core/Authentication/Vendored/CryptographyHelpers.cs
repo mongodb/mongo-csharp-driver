@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Core.Authentication.Vendored
     internal static class CryptographyHelpers
     {
 
-        private static readonly string Cryptography_MissingIV
+        private const string Cryptography_MissingIV
             = "The cipher mode specified requires that an initialization vector (IV) be used.";
 
         public static byte[] CloneByteArray(this byte[] src)
