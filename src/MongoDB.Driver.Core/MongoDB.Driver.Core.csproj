@@ -53,132 +53,13 @@
     <NoWarn>NU5100</NoWarn>
   </PropertyGroup>
 
-  <!--Compression-->
-  <PropertyGroup>
-    <CompressionWinRuntimesPath>runtimes/win/native</CompressionWinRuntimesPath>
-    <CompressionLinuxRuntimesPath>runtimes/linux/native</CompressionLinuxRuntimesPath>
-    <CompressionOsxRuntimesPath>runtimes/osx/native</CompressionOsxRuntimesPath>
-  </PropertyGroup>
-
-  <!--Snappy-->
-  <PropertyGroup>
-    <SnappyWinBinaries>Core/Compression/Snappy/lib/win</SnappyWinBinaries>
-    <SnappyLinuxBinaries>Core/Compression/Snappy/lib/linux</SnappyLinuxBinaries>
-    <SnappyOsxBinaries>Core/Compression/Snappy/lib/osx</SnappyOsxBinaries>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <!--Responsible for 'runtimes\$OS\native\%(FileName)%(Extension)' in package.nupkg-->
-    <!--win-->
-    <Content Include="$(SnappyWinBinaries)/**/*.dll">
-      <!--x32/x64-->
-      <Pack>true</Pack>
-      <PackagePath>$(CompressionWinRuntimesPath)</PackagePath>
-    </Content>
-    <!--linux-->
-    <Content Include="$(SnappyLinuxBinaries)/**/*.so">
-      <!--x32/x64-->
-      <Pack>true</Pack>
-      <PackagePath>$(CompressionLinuxRuntimesPath)</PackagePath>
-    </Content>
-    <!--osx-->
-    <Content Include="$(SnappyOsxBinaries)/**/*.dylib">
-      <!--x32/x64-->
-      <Pack>true</Pack>
-      <PackagePath>$(CompressionOsxRuntimesPath)</PackagePath>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <!--Used to allow working with native libraries in our test projects-->
-    <!--Responsible for 'context and contentFiles' folders in package.nupkg-->
-    <!--win-->
-    <Content Include="$(SnappyWinBinaries)/**/*.dll">
-      <!--x32/x64-->
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Link>%(FileName)%(Extension)</Link>
-    </Content>
-    <!--linux-->
-    <Content Include="$(SnappyLinuxBinaries)/**/*.so">
-      <!--x32/x64-->
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Link>%(FileName)%(Extension)</Link>
-    </Content>
-    <!--osx-->
-    <Content Include="$(SnappyOsxBinaries)/**/*.dylib">
-      <!--x32/x64-->
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Link>%(FileName)%(Extension)</Link>
-    </Content>
-  </ItemGroup>
-
-  <!--Zstd-->
-  <PropertyGroup>
-    <ZstdWinBinaries>Core/Compression/Zstandard/lib/win</ZstdWinBinaries>
-    <ZstdLinuxBinaries>Core/Compression/Zstandard/lib/linux</ZstdLinuxBinaries>
-    <ZstdOsxBinaries>Core/Compression/Zstandard/lib/osx</ZstdOsxBinaries>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <!--Responsible for 'runtimes\$OS\native\%(FileName)%(Extension)' in package.nupkg-->
-    <!--win-->
-    <Content Include="$(ZstdWinBinaries)/**/*.dll">
-      <!--only x64-->
-      <Pack>true</Pack>
-      <PackagePath>$(CompressionWinRuntimesPath)</PackagePath>
-    </Content>
-    <!--linux-->
-    <Content Include="$(ZstdLinuxBinaries)/**/*.so">
-      <!--only x64-->
-      <Pack>true</Pack>
-      <PackagePath>$(CompressionLinuxRuntimesPath)</PackagePath>
-    </Content>
-    <!--osx-->
-    <Content Include="$(ZstdOsxBinaries)/**/*.dylib">
-      <!--only x64-->
-      <Pack>true</Pack>
-      <PackagePath>$(CompressionOsxRuntimesPath)</PackagePath>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <!--Used to allow working with native libraries in our test projects-->
-    <!--Responsible for 'context and contentFiles' folders in package.nupkg-->
-    <!--win-->
-    <Content Include="$(ZstdWinBinaries)/**/*.dll">
-      <!--only x64-->
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Link>%(FileName)%(Extension)</Link>
-    </Content>
-    <!--linux-->
-    <Content Include="$(ZstdLinuxBinaries)/**/*.so">
-      <!--only x64-->
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Link>%(FileName)%(Extension)</Link>
-    </Content>
-    <!--osx-->
-    <Content Include="$(ZstdOsxBinaries)/**/*.dylib">
-      <!--only x64-->
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Link>%(FileName)%(Extension)</Link>
-    </Content>
-  </ItemGroup>
-
-  <!--targets-->
-  <ItemGroup>
-    <!--Used for non-sdk projects-->
-    <!--Responsible for build/MongoDB.Driver.Core.targets-->
-    <Content Include="MongoDB.Driver.Core.targets">
-      <Pack>true</Pack>
-      <PackagePath>build</PackagePath>
-    </Content>
-  </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="DnsClient" Version="1.6.1" />
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.2" PrivateAssets="All" />
     <PackageReference Include="MongoDB.Libmongocrypt" Version="1.5.5" />
     <PackageReference Include="SharpCompress" Version="0.30.1" />
+    <PackageReference Include="Snappier" Version="1.0.0" />
+    <PackageReference Include="ZstdSharp.Port" Version="0.6.2" />
     <PackageReference Include="System.Buffers" Version="4.5.1" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
       <PrivateAssets>all</PrivateAssets>
