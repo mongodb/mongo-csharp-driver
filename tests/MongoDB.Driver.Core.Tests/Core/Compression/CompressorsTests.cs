@@ -15,12 +15,12 @@
 
 using System;
 using System.IO;
+using System.Collections.Generic;
 using System.Text;
 using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Compression;
-using MongoDB.Driver.TestHelpers;
 using SharpCompress.IO;
 using Xunit;
 
@@ -28,15 +28,44 @@ namespace MongoDB.Driver.Core.Tests.Core.Compression
 {
     public class CompressorsTests
     {
+        // private constants
+        private const string __testMessagePortion = @"Two households, both alike in dignity,
+        In fair Verona, where we lay our scene,
+        From ancient grudge break to new mutiny,
+        Where civil blood makes civil hands unclean.
+            From forth the fatal loins of these two foes
+            A pair of star-cross'd lovers take their life;
+        Whose misadventured piteous overthrows
+        Do with their death bury their parents' strife.
+            The fearful passage of their death-mark'd love,
+        And the continuance of their parents' rage,
+        Which, but their children's end, nought could remove,
+        Is now the two hours' traffic of our stage;
+        The which if you with patient ears attend,
+        What here shall miss, our toil shall strive to mend.";
+
+        // private static fields
+        private static readonly byte[] __bigMessage = GenerateBigMessage(135000);
         private static string __testMessage = "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz";
 
-        [Theory]
-        [InlineData(CompressorType.Snappy)]
-        [InlineData(CompressorType.ZStandard)]
-        public void Compressor_should_read_the_previously_written_message(CompressorType compressorType)
+
+        // private static methods
+        private static byte[] GenerateBigMessage(int size)
+        {
+            var resultBytes = new List<byte>();
+            var messagePortionBytes = Encoding.ASCII.GetBytes(__testMessagePortion);
+            while (resultBytes.Count < size)
+            {
+                resultBytes.AddRange(messagePortionBytes);
+            }
+            return resultBytes.ToArray();
+        }
+
+        [Fact]
+        public void Snappy_compressor_should_read_the_previously_written_message()
         {
             var bytes = Encoding.ASCII.GetBytes(__testMessage);
-            var compressor = GetCompressor(compressorType);
+            var compressor = GetCompressor(CompressorType.Snappy);
             Assert(
                 bytes,
                 (input, output) =>
@@ -54,6 +83,92 @@ namespace MongoDB.Driver.Core.Tests.Core.Compression
                     var result = Encoding.ASCII.GetString(input.ReadBytes((int)input.Length));
                     result.Should().Be(__testMessage);
                 });
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Zstandard_compressor_should_decompress_the_previously_compressed_message([Range(1, 22)] int compressionLevel)
+        {
+            var messageBytes = __bigMessage;
+            var compressor = GetCompressor(CompressorType.ZStandard, compressionLevel);
+            Assert(
+                messageBytes,
+                (input, output) =>
+                {
+                    compressor.Compress(input, output);
+                    input.Length.Should().BeGreaterThan(output.Length);
+                    input.Position = 0;
+                    input.SetLength(0);
+                    output.Position = 0;
+                    compressor.Decompress(output, input);
+                },
+                (input, output) =>
+                {
+                    input.Position = 0;
+                    var resultBytes = input.ReadBytes((int)input.Length);
+                    resultBytes.Should().Equal(messageBytes);
+                });
+        }
+
+        [Theory]
+        [InlineData(1, "40,181,47,253,0,72,109,1,0,84,2,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,48,49,50,51,52,53,54,55,56,57,32,1,0,53,132,170,39")]
+        [InlineData(6, "40,181,47,253,0,88,109,1,0,84,2,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,48,49,50,51,52,53,54,55,56,57,32,1,0,53,132,170,39")]
+        [InlineData(15, "40,181,47,253,0,96,109,1,0,84,2,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,48,49,50,51,52,53,54,55,56,57,32,1,0,53,132,170,39")]
+        [InlineData(21, "40,181,47,253,0,128,109,1,0,84,2,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,48,49,50,51,52,53,54,55,56,57,32,1,0,53,132,170,39")]
+        public void Zstandard_compress_should_generate_expected_bytes_for_different_compression_levels(int compressionLevel, string expectedBytes)
+        {
+            var testMessage = "abcdefghijklmnopqrstuvwxyz0123456789 abcdefghijklmnopqrstuvwxyz0123456789 abcdefghijklmnopqrstuvwxyz0123456789";
+            var data = Encoding.ASCII.GetBytes(testMessage);
+
+            using(var input = new MemoryStream(data))
+            using(var output = new MemoryStream())
+            {
+                var compressor = GetCompressor(CompressorType.ZStandard, compressionLevel);
+                compressor.Compress(input, output);
+                string.Join(",", output.ToArray()).Should().Be(expectedBytes);
+            }
+        }
+
+        [Fact]
+        public void Zstandard_compressed_size_with_low_compression_level_should_be_bigger_than_with_high()
+        {
+            var lengths = new List<int>();
+            // note: some close compression levels can give the same results for not huge text sizes
+            foreach (var compressionLevel in new[] { 1, 5, 10, 15, 22 })
+            {
+                using (var input = new MemoryStream(__bigMessage))
+                using (var output = new MemoryStream())
+                {
+                    var compressor = GetCompressor(CompressorType.ZStandard, compressionLevel);
+                    compressor.Compress(input, output);
+                    lengths.Add((int)output.Length);
+                }
+            }
+            lengths.Should().BeInDescendingOrder();
+        }
+
+        [Fact]
+        public void Zstandard_compress_should_throw_when_input_stream_is_null()
+        {
+            using (var input = new MemoryStream())
+            {
+                var compressor = GetCompressor(CompressorType.ZStandard, 6);
+                var exception = Record.Exception(() => compressor.Compress(input, null));
+                var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
+                e.ParamName.Should().Be("stream");
+            }
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Zstandard_constructor_should_throw_when_compressionLevel_is_out_of_range([Values(0, 23)] int compressionLevel)
+        {
+            using (var memoryStream = new MemoryStream())
+            {
+                var exception = Record.Exception(() => new ZstandardCompressor(compressionLevel));
+                var e = exception.Should().BeOfType<ArgumentOutOfRangeException>().Subject;
+                e.ParamName.Should().Be(nameof(compressionLevel));
+            }
         }
 
         [Fact]
@@ -155,7 +270,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Compression
                 case CompressorType.Zlib:
                     return new ZlibCompressor((int)option);
                 case CompressorType.ZStandard:
-                    return new ZstandardCompressor();
+                    return new ZstandardCompressor((int)option);
                 default:
                     throw new NotSupportedException();
             }
