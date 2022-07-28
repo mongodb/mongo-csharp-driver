@@ -30,6 +30,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Compression
     {
         #region static
         // private constants
+        private const string __testMessage = "abcdefghijklmnopqrstuvwxyz0123456789 abcdefghijklmnopqrstuvwxyz0123456789 abcdefghijklmnopqrstuvwxyz0123456789";
         private const string __testMessagePortion = @"Two households, both alike in dignity,
         In fair Verona, where we lay our scene,
         From ancient grudge break to new mutiny,
@@ -47,7 +48,6 @@ namespace MongoDB.Driver.Core.Tests.Core.Compression
 
         // private static fields
         private static readonly byte[] __bigMessage = GenerateBigMessage(135000);
-        private static string __testMessage = "abcdefghijklmnopqrstuvwxyz0123456789 abcdefghijklmnopqrstuvwxyz0123456789 abcdefghijklmnopqrstuvwxyz0123456789";
 
         // private static methods
         private static byte[] GenerateBigMessage(int size)
