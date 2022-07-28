@@ -16,18 +16,23 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Encryption;
 
 namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
 {
     public static class EncryptionTestHelper
     {
         private static readonly IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> __kmsProviders;
+        private static SemanticVersion __mongocryptdVersion = null;
+        private static bool? __isCsfleSetupValid = null;
 
         static EncryptionTestHelper()
         {
@@ -102,9 +107,14 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
         {
             Ensure.IsNotNull(extraOptions, nameof(extraOptions));
 
-            if (!extraOptions.ContainsKey("mongocryptdSpawnPath"))
+            string mongocryptdSpawnPath;
+            if (extraOptions.TryGetValue("mongocryptdSpawnPath", out var value))
             {
-                var mongocryptdSpawnPath = Environment.GetEnvironmentVariable("MONGODB_BINARIES") ?? "";
+                mongocryptdSpawnPath = value.ToString();
+            }
+            else
+            {
+                mongocryptdSpawnPath = Environment.GetEnvironmentVariable("MONGODB_BINARIES") ?? "";
                 extraOptions.Add("mongocryptdSpawnPath", mongocryptdSpawnPath);
             }
 
@@ -160,6 +170,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                     extraOptions.Add("cryptSharedLibPath", cryptSharedLibPath);
                 }
             }
+
+            EnsureCsfleSetupValid(mongocryptdSpawnPath);
         }
 
         public static Dictionary<string, SslSettings> CreateTlsOptionsIfAllowed(
@@ -267,6 +279,93 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
 
             bool IsPlaceholder(BsonValue value) => value.IsBsonDocument && value.AsBsonDocument.Contains("$$placeholder");
             string GetFromEnvVariables(string kmsProvider, string key) => kmsProvidersFromEnvs[kmsProvider][key].ToString();
+        }
+
+        // private methods
+        /// <summary>
+        /// Ensure that used mongocryptd corresponds to used server.
+        /// </summary>
+        private static void EnsureCsfleSetupValid(string mongocryptdPath)
+        {
+            if (__isCsfleSetupValid.HasValue)
+            {
+                if (__isCsfleSetupValid.Value)
+                {
+                    return;
+                }
+                else
+                {
+                    ThrowException();
+                }
+            }
+
+            mongocryptdPath = File.Exists(mongocryptdPath) ? mongocryptdPath : Path.Combine(mongocryptdPath, "mongocryptd");
+            var cryptSharedLibPath = CoreTestConfiguration.GetCryptSharedLibPath();
+            if (cryptSharedLibPath != null)
+            {
+                var dummyNamespace = CollectionNamespace.FromFullName("db.dummy");
+                var autoEncryptionOptions = new AutoEncryptionOptions(
+                    dummyNamespace,
+                    kmsProviders: GetKmsProviders(filter: "local"),
+                    extraOptions: new Dictionary<string, object>() { { "cryptSharedLibPath", cryptSharedLibPath } });
+                using (var cryptClient = CryptClientCreator.CreateCryptClient(autoEncryptionOptions.ToCryptClientSettings()))
+                {
+                    if (cryptClient.CryptSharedLibraryVersion != null)
+                    {
+                        __isCsfleSetupValid = true;
+                        // csfle shared library code path
+                        return;
+                    }
+                    else
+                    {
+                        // we will still try using mongocryptd
+                    }
+                }
+            }
+
+            var mongocryptdVersion = __mongocryptdVersion ?? (__mongocryptdVersion = GetMongocryptdVersion(mongocryptdPath));
+            var serverVersion = CoreTestConfiguration.ServerVersion;
+            if (SemanticVersionCompareToAsReleased(mongocryptdVersion, serverVersion) < 0)
+            {
+                __isCsfleSetupValid = false;
+                ThrowException();
+            }
+
+            __isCsfleSetupValid = true;
+
+            SemanticVersion GetMongocryptdVersion(string mongocryptdPath)
+            {
+                using (var process = new Process())
+                {
+                    process.StartInfo.RedirectStandardOutput = true;
+                    process.StartInfo.Arguments = "--version";
+                    process.StartInfo.FileName = mongocryptdPath;
+                    process.StartInfo.CreateNoWindow = true;
+                    process.StartInfo.UseShellExecute = false;
+
+                    if (!process.Start())
+                    {
+                        // skip it. This case can happen if no new process resource is started
+                        // (for example, if an existing process is reused)
+                    }
+
+                    var output = process.StandardOutput.ReadToEnd();
+                    var buildInfoBody = output.Substring(output.IndexOf("Build Info") + 12 /*key length*/);
+                    return SemanticVersion.Parse(buildInfoBody);
+                }
+            }
+
+            int SemanticVersionCompareToAsReleased(SemanticVersion a, SemanticVersion b)
+            {
+                var aReleased = new SemanticVersion(a.Major, a.Minor, a.Patch);
+                var bReleased = new SemanticVersion(b.Major, b.Minor, b.Patch);
+                return aReleased.CompareTo(bReleased);
+            }
+
+            void ThrowException()
+            {
+                throw new Exception($"The used mongocryptd version {__mongocryptdVersion} doesn't match to a server {CoreTestConfiguration.ServerVersion}.");
+            }
         }
     }
 }
