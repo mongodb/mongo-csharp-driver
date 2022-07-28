@@ -14,6 +14,7 @@
 */
 
 using System;
+using ZstdSharp;
 using System.IO;
 using MongoDB.Driver.Core.Misc;
 
@@ -29,11 +30,6 @@ namespace MongoDB.Driver.Core.Compression
 
         public ZstandardCompressor(Optional<int> compressionLevel = default)
         {
-            if (compressionLevel.HasValue && (compressionLevel.Value <= 0 || compressionLevel.Value >= 23))
-            {
-                throw new ArgumentOutOfRangeException(nameof(compressionLevel));
-            }
-
             _compressionLevel = compressionLevel.WithDefault(_defaultCompressionLevel);
         }
 
@@ -41,7 +37,7 @@ namespace MongoDB.Driver.Core.Compression
 
         public void Compress(Stream input, Stream output)
         {
-            using (var zstandardStream = new ZstdSharp.CompressionStream(output, _compressionLevel))
+            using (var zstandardStream = new CompressionStream(output, _compressionLevel))
             {
                 input.EfficientCopyTo(zstandardStream);
             }
@@ -49,7 +45,7 @@ namespace MongoDB.Driver.Core.Compression
 
         public void Decompress(Stream input, Stream output)
         {
-            using (var zstandardStream = new ZstdSharp.DecompressionStream(input))
+            using (var zstandardStream = new DecompressionStream(input))
             {
                 zstandardStream.CopyTo(output);
             }

@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using Snappier;
 using System.IO;
 using System.Threading;
 using MongoDB.Driver.Core.Misc;
@@ -34,9 +35,9 @@ namespace MongoDB.Driver.Core.Compression
             var uncompressedSize = (int)(input.Length - input.Position);
             var uncompressedBytes = new byte[uncompressedSize]; // does not include uncompressed message headers
             input.ReadBytes(uncompressedBytes, offset: 0, count: uncompressedSize, CancellationToken.None);
-            var maxCompressedSize = Snappier.Snappy.GetMaxCompressedLength(uncompressedSize);
+            var maxCompressedSize = Snappy.GetMaxCompressedLength(uncompressedSize);
             var compressedBytes = new byte[maxCompressedSize];
-            var compressedSize = Snappier.Snappy.Compress(uncompressedBytes, compressedBytes);
+            var compressedSize = Snappy.Compress(uncompressedBytes, compressedBytes);
             output.Write(compressedBytes, 0, compressedSize);
         }
 
@@ -50,9 +51,9 @@ namespace MongoDB.Driver.Core.Compression
             var compressedSize = (int)(input.Length - input.Position);
             var compressedBytes = new byte[compressedSize];
             input.ReadBytes(compressedBytes, offset: 0, count: compressedSize, CancellationToken.None);
-            var uncompressedSize = Snappier.Snappy.GetUncompressedLength(compressedBytes);
+            var uncompressedSize = Snappy.GetUncompressedLength(compressedBytes);
             var decompressedBytes = new byte[uncompressedSize];
-            var decompressedSize = Snappier.Snappy.Decompress(compressedBytes, decompressedBytes);
+            var decompressedSize = Snappy.Decompress(compressedBytes, decompressedBytes);
             output.Write(decompressedBytes, offset: 0, count: decompressedSize);
         }
     }

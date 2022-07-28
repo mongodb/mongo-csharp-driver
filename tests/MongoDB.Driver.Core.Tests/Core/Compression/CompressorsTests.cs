@@ -28,6 +28,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Compression
 {
     public class CompressorsTests
     {
+        #region static
         // private constants
         private const string __testMessagePortion = @"Two households, both alike in dignity,
         In fair Verona, where we lay our scene,
@@ -46,8 +47,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Compression
 
         // private static fields
         private static readonly byte[] __bigMessage = GenerateBigMessage(135000);
-        private static string __testMessage = "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz";
-
+        private static string __testMessage = "abcdefghijklmnopqrstuvwxyz0123456789 abcdefghijklmnopqrstuvwxyz0123456789 abcdefghijklmnopqrstuvwxyz0123456789";
 
         // private static methods
         private static byte[] GenerateBigMessage(int size)
@@ -60,6 +60,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Compression
             }
             return resultBytes.ToArray();
         }
+        #endregion
 
         [Fact]
         public void Snappy_compressor_should_read_the_previously_written_message()
@@ -117,8 +118,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Compression
         [InlineData(21, "40,181,47,253,0,128,109,1,0,84,2,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,48,49,50,51,52,53,54,55,56,57,32,1,0,53,132,170,39")]
         public void Zstandard_compress_should_generate_expected_bytes_for_different_compression_levels(int compressionLevel, string expectedBytes)
         {
-            var testMessage = "abcdefghijklmnopqrstuvwxyz0123456789 abcdefghijklmnopqrstuvwxyz0123456789 abcdefghijklmnopqrstuvwxyz0123456789";
-            var data = Encoding.ASCII.GetBytes(testMessage);
+            var data = Encoding.ASCII.GetBytes(__testMessage);
 
             using(var input = new MemoryStream(data))
             using(var output = new MemoryStream())
@@ -148,7 +148,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Compression
         }
 
         [Fact]
-        public void Zstandard_compress_should_throw_when_input_stream_is_null()
+        public void Zstandard_compress_should_throw_when_output_stream_is_null()
         {
             using (var input = new MemoryStream())
             {
@@ -188,7 +188,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Compression
                     var result = string.Join(",", resultBytes);
                     result
                         .Should()
-                        .Be("120,156,74,76,74,78,73,77,75,207,200,204,202,206,201,205,203,47,40,44,42,46,41,45,43,175,168,172,74,36,67,6,0,0,0,255,255,3,0,21,79,33,94");
+                        .Be("120,156,74,76,74,78,73,77,75,207,200,204,202,206,201,205,203,47,40,44,42,46,41,45,43,175,168,172,50,48,52,50,54,49,53,51,183,176,84,72,164,150,34,0,0,0,0,255,255,3,0,228,159,39,197");
                 });
         }
 
