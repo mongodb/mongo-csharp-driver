@@ -159,18 +159,6 @@ namespace MongoDB.Driver.Core.Tests.Core.Compression
             }
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Zstandard_constructor_should_throw_when_compressionLevel_is_out_of_range([Values(0, 23)] int compressionLevel)
-        {
-            using (var memoryStream = new MemoryStream())
-            {
-                var exception = Record.Exception(() => new ZstandardCompressor(compressionLevel));
-                var e = exception.Should().BeOfType<ArgumentOutOfRangeException>().Subject;
-                e.ParamName.Should().Be(nameof(compressionLevel));
-            }
-        }
-
         [Fact]
         public void Zlib_should_generate_expected_compressed_bytes()
         {
