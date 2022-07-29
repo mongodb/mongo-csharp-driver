@@ -575,6 +575,8 @@ functions:
         working_dir: mongo-csharp-driver
         script: |
           ${PREPARE_SHELL}
+          OS=${OS} \
+            . ./evergreen/fetch-crypt_shared-library.sh
           OCSP_TLS_SHOULD_SUCCEED="${OCSP_TLS_SHOULD_SUCCEED}" \
             OCSP_ALGORITHM=${OCSP_ALGORITHM} \
             evergreen/add-ca-certs.sh
