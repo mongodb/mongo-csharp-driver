@@ -30,6 +30,7 @@ namespace MongoDB.Driver.Tests.Packaging
     /// Also, use only public classes or reflection here.
     /// </summary>
     [Trait("Category", "Packaging")]
+    [Trait("Category", "CSFLE")]
     public class PackagingTests
     {
         // keep these tests in sync with CONSOLE_TEST's Main method
