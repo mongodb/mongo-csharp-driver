@@ -1534,6 +1534,10 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             // The test description requires configuring all kmsProviders in setup, but leaving only related to the provided income arguments
             // to avoid restrictions on kmip mocking setup for unrelated to kmip tests
             var kmsProviderFilter = EncryptionTestHelper.CreateKmsProviderFilter(srcProvider, dstProvider);
+            RequirePlatform
+                .Check()
+                .SkipWhen(() => kmsProviderFilter.Contains("gcp"), SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard20)  // gcp is supported starting from netstandard2.1
+                .SkipWhen(() => kmsProviderFilter.Contains("gcp"), SupportedOperatingSystem.MacOS, SupportedTargetFramework.NetStandard20);
             if (kmsProviderFilter.Contains("kmip"))
             {
                 RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true);
