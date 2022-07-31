@@ -31,8 +31,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
     public static class EncryptionTestHelper
     {
         private static readonly IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> __kmsProviders;
-        private static SemanticVersion __mongocryptdVersion = null;
-        private static bool? __isCsfleSetupValid = null;
+        private static string __mongocryptdPath = null;
+        private static Lazy<(bool IsValid, SemanticVersion Version)> csfleSetupState = new Lazy<(bool IsValid, SemanticVersion Version)>(() => (IsCsfleSetupValid(out var usedMongocryptdVersion), usedMongocryptdVersion), isThreadSafe: true);
 
         static EncryptionTestHelper()
         {
@@ -171,7 +171,10 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                 }
             }
 
-            EnsureCsfleSetupValid(mongocryptdSpawnPath);
+            if (!csfleSetupState.Value.IsValid)
+            {
+                throw new Exception($"The used mongocryptd version {csfleSetupState.Value.Version} doesn't match to a server {CoreTestConfiguration.ServerVersion}.");
+            }
         }
 
         public static Dictionary<string, SslSettings> CreateTlsOptionsIfAllowed(
@@ -285,21 +288,11 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
         /// <summary>
         /// Ensure that used mongocryptd corresponds to used server.
         /// </summary>
-        private static void EnsureCsfleSetupValid(string mongocryptdPath)
+        private static bool IsCsfleSetupValid(out SemanticVersion usedMongocryptdVersion)
         {
-            if (__isCsfleSetupValid.HasValue)
-            {
-                if (__isCsfleSetupValid.Value)
-                {
-                    return;
-                }
-                else
-                {
-                    ThrowException();
-                }
-            }
+            usedMongocryptdVersion = null;
+            Ensure.That(__mongocryptdPath != null, $"{nameof(__mongocryptdPath)} must be initialized.");
 
-            mongocryptdPath = File.Exists(mongocryptdPath) ? mongocryptdPath : Path.Combine(mongocryptdPath, "mongocryptd");
             var cryptSharedLibPath = CoreTestConfiguration.GetCryptSharedLibPath();
             if (cryptSharedLibPath != null)
             {
@@ -312,9 +305,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                 {
                     if (cryptClient.CryptSharedLibraryVersion != null)
                     {
-                        __isCsfleSetupValid = true;
                         // csfle shared library code path
-                        return;
+                        return true;
                     }
                     else
                     {
@@ -323,18 +315,17 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                 }
             }
 
-            var mongocryptdVersion = __mongocryptdVersion ?? (__mongocryptdVersion = GetMongocryptdVersion(mongocryptdPath));
-            var serverVersion = CoreTestConfiguration.ServerVersion;
-            if (SemanticVersionCompareToAsReleased(mongocryptdVersion, serverVersion) < 0)
+            usedMongocryptdVersion = GetMongocryptdVersion(__mongocryptdPath);
+            if (SemanticVersionCompareToAsReleased(usedMongocryptdVersion, CoreTestConfiguration.ServerVersion) < 0)
             {
-                __isCsfleSetupValid = false;
-                ThrowException();
+                return false;
             }
 
-            __isCsfleSetupValid = true;
+            return true;
 
             SemanticVersion GetMongocryptdVersion(string mongocryptdPath)
             {
+                mongocryptdPath = File.Exists(mongocryptdPath) ? mongocryptdPath : Path.Combine(mongocryptdPath, "mongocryptd");
                 using (var process = new Process())
                 {
                     process.StartInfo.RedirectStandardOutput = true;
@@ -360,11 +351,6 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                 var aReleased = new SemanticVersion(a.Major, a.Minor, a.Patch);
                 var bReleased = new SemanticVersion(b.Major, b.Minor, b.Patch);
                 return aReleased.CompareTo(bReleased);
-            }
-
-            void ThrowException()
-            {
-                throw new Exception($"The used mongocryptd version {__mongocryptdVersion} doesn't match to a server {CoreTestConfiguration.ServerVersion}.");
             }
         }
     }
