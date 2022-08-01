@@ -113,7 +113,7 @@ functions:
             # If this was a patch build, doing a fresh clone would not actually test the patch
             cp -R ${PROJECT_DIRECTORY}/ $DRIVERS_TOOLS
           else
-            git clone https://github.com/mongodb-labs/drivers-evergreen-tools.git $DRIVERS_TOOLS
+            git clone https://github.com/DmitryLukyanov/drivers-evergreen-tools.git -b csharp4252 $DRIVERS_TOOLS
           fi
           echo "{ \"releases\": { \"default\": \"$MONGODB_BINARIES\" }}" > $MONGO_ORCHESTRATION_HOME/orchestration.config
 
@@ -305,8 +305,6 @@ functions:
           . ./evergreen/set-temp-fle-aws-creds.sh
           ${PREPARE_SHELL}
           OS=${OS} \
-            . ./evergreen/fetch-crypt_shared-library.sh
-          OS=${OS} \
             evergreen/add-ca-certs.sh
           AUTH=${AUTH} \
           SSL=${SSL} \
@@ -317,6 +315,7 @@ functions:
           CLIENT_PEM=${DRIVERS_TOOLS}/.evergreen/x509gen/client.pem \
           REQUIRE_API_VERSION=${REQUIRE_API_VERSION} \
           FRAMEWORK=${FRAMEWORK} \
+          CRYPT_SHARED_LIB_PATH=${CRYPT_SHARED_LIB_PATH} \
             evergreen/run-tests.sh
           echo "Skipping certificate removal..."
           OS=${OS} \
@@ -334,8 +333,6 @@ functions:
           ${PREPARE_SHELL}
           set +o xtrace
           OS=${OS} \
-            . ./evergreen/fetch-crypt_shared-library.sh          
-          OS=${OS} \
             evergreen/add-ca-certs.sh
           AUTH=${AUTH} \
           SSL=${SSL} \
@@ -345,6 +342,7 @@ functions:
           CLIENT_PEM=${DRIVERS_TOOLS}/.evergreen/x509gen/client.pem \
           FRAMEWORK=${FRAMEWORK} \
           TARGET="TestCsfleWithMockedKms" \
+          CRYPT_SHARED_LIB_PATH=${CRYPT_SHARED_LIB_PATH} \
             evergreen/run-tests.sh
           OS=${OS} \
             evergreen/cleanup-test-resources.sh
@@ -372,6 +370,7 @@ functions:
           REQUIRE_API_VERSION=${REQUIRE_API_VERSION} \
           TARGET="TestCsfleWithMongocryptd" \
           FRAMEWORK=${FRAMEWORK} \
+          CRYPT_SHARED_LIB_PATH="" \
             evergreen/run-tests.sh
           echo "Skipping certificate removal..."
           OS=${OS} \
