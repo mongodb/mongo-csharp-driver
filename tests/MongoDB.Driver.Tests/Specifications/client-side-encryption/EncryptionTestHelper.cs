@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
     public static class EncryptionTestHelper
     {
         private static readonly IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> __kmsProviders;
-        private static string __defaultMongocryptdPath = Environment.GetEnvironmentVariable("MONGODB_BINARIES") ?? "";
+        private static readonly string __defaultMongocryptdPath = Environment.GetEnvironmentVariable("MONGODB_BINARIES") ?? "";
         private static readonly Lazy<(bool IsValid, SemanticVersion Version)> __defaultCsfleSetupState = new Lazy<(bool IsValid, SemanticVersion Version)>(IsDefaultCsfleSetupValid, isThreadSafe: true);
 
         static EncryptionTestHelper()
@@ -113,7 +113,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
 
                 if (!__defaultCsfleSetupState.Value.IsValid)
                 {
-                    throw new Exception($"The used mongocryptd version {__defaultCsfleSetupState.Value.Version} doesn't match to a server {CoreTestConfiguration.ServerVersion}.");
+                    throw new Exception($"The configured mongocryptd version {__defaultCsfleSetupState.Value.Version} doesn't match the server version {CoreTestConfiguration.ServerVersion}.");
                 }
             }
 
@@ -306,13 +306,13 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                 }
             }
 
-            var usedMongocryptdVersion = GetMongocryptdVersion(__defaultMongocryptdPath);
-            if (SemanticVersionCompareToAsReleased(usedMongocryptdVersion, CoreTestConfiguration.ServerVersion) < 0)
+            var configuredMongocryptdVersion = GetMongocryptdVersion(__defaultMongocryptdPath);
+            if (CompareSemanticVersionsAsReleased(configuredMongocryptdVersion, CoreTestConfiguration.ServerVersion) < 0)
             {
-                return (IsValid: false, MongocryptdVersion: usedMongocryptdVersion);
+                return (IsValid: false, MongocryptdVersion: configuredMongocryptdVersion);
             }
 
-            return (IsValid: true, MongocryptdVersion: usedMongocryptdVersion);
+            return (IsValid: true, MongocryptdVersion: configuredMongocryptdVersion);
 
             SemanticVersion GetMongocryptdVersion(string mongocryptdPath)
             {
@@ -337,7 +337,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                 }
             }
 
-            int SemanticVersionCompareToAsReleased(SemanticVersion a, SemanticVersion b)
+            int CompareSemanticVersionsAsReleased(SemanticVersion a, SemanticVersion b)
             {
                 var aReleased = new SemanticVersion(a.Major, a.Minor, a.Patch);
                 var bReleased = new SemanticVersion(b.Major, b.Minor, b.Patch);
