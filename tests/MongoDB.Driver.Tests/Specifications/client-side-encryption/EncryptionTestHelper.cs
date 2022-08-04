@@ -16,18 +16,23 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Encryption;
 
 namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
 {
     public static class EncryptionTestHelper
     {
         private static readonly IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> __kmsProviders;
+        private static readonly string __defaultMongocryptdPath = Environment.GetEnvironmentVariable("MONGODB_BINARIES") ?? "";
+        private static readonly Lazy<(bool IsValid, SemanticVersion Version)> __defaultCsfleSetupState = new Lazy<(bool IsValid, SemanticVersion Version)>(IsDefaultCsfleSetupValid, isThreadSafe: true);
 
         static EncryptionTestHelper()
         {
@@ -102,10 +107,14 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
         {
             Ensure.IsNotNull(extraOptions, nameof(extraOptions));
 
-            if (!extraOptions.ContainsKey("mongocryptdSpawnPath"))
+            if (!extraOptions.TryGetValue("mongocryptdSpawnPath", out object value))
             {
-                var mongocryptdSpawnPath = Environment.GetEnvironmentVariable("MONGODB_BINARIES") ?? "";
-                extraOptions.Add("mongocryptdSpawnPath", mongocryptdSpawnPath);
+                extraOptions.Add("mongocryptdSpawnPath", __defaultMongocryptdPath);
+
+                if (!__defaultCsfleSetupState.Value.IsValid)
+                {
+                    throw new Exception($"The configured mongocryptd version {__defaultCsfleSetupState.Value.Version} doesn't match the server version {CoreTestConfiguration.ServerVersion}.");
+                }
             }
 
             var mongocryptdPort = Environment.GetEnvironmentVariable("FLE_MONGOCRYPTD_PORT");
@@ -267,6 +276,73 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
 
             bool IsPlaceholder(BsonValue value) => value.IsBsonDocument && value.AsBsonDocument.Contains("$$placeholder");
             string GetFromEnvVariables(string kmsProvider, string key) => kmsProvidersFromEnvs[kmsProvider][key].ToString();
+        }
+
+        // private methods
+        /// <summary>
+        /// Ensure that used mongocryptd corresponds to used server.
+        /// </summary>
+        private static (bool IsValid, SemanticVersion MongocryptdVersion) IsDefaultCsfleSetupValid()
+        {
+            var cryptSharedLibPath = CoreTestConfiguration.GetCryptSharedLibPath();
+            if (cryptSharedLibPath != null)
+            {
+                var dummyNamespace = CollectionNamespace.FromFullName("db.dummy");
+                var autoEncryptionOptions = new AutoEncryptionOptions(
+                    dummyNamespace,
+                    kmsProviders: GetKmsProviders(filter: "local"),
+                    extraOptions: new Dictionary<string, object>() { { "cryptSharedLibPath", cryptSharedLibPath } });
+                using (var cryptClient = CryptClientCreator.CreateCryptClient(autoEncryptionOptions.ToCryptClientSettings()))
+                {
+                    if (cryptClient.CryptSharedLibraryVersion != null)
+                    {
+                        // csfle shared library code path
+                        return (IsValid: true, MongocryptdVersion: null);
+                    }
+                    else
+                    {
+                        // we will still try using mongocryptd
+                    }
+                }
+            }
+
+            var configuredMongocryptdVersion = GetMongocryptdVersion(__defaultMongocryptdPath);
+            if (CompareSemanticVersionsAsReleased(configuredMongocryptdVersion, CoreTestConfiguration.ServerVersion) < 0)
+            {
+                return (IsValid: false, MongocryptdVersion: configuredMongocryptdVersion);
+            }
+
+            return (IsValid: true, MongocryptdVersion: configuredMongocryptdVersion);
+
+            SemanticVersion GetMongocryptdVersion(string mongocryptdPath)
+            {
+                mongocryptdPath = File.Exists(mongocryptdPath) ? mongocryptdPath : Path.Combine(mongocryptdPath, "mongocryptd");
+                using (var process = new Process())
+                {
+                    process.StartInfo.RedirectStandardOutput = true;
+                    process.StartInfo.Arguments = "--version";
+                    process.StartInfo.FileName = mongocryptdPath;
+                    process.StartInfo.CreateNoWindow = true;
+                    process.StartInfo.UseShellExecute = false;
+
+                    if (!process.Start())
+                    {
+                        // skip it. This case can happen if no new process resource is started
+                        // (for example, if an existing process is reused)
+                    }
+
+                    var output = process.StandardOutput.ReadToEnd();
+                    var buildInfoBody = output.Substring(output.IndexOf("Build Info") + 12 /*key length*/);
+                    return SemanticVersion.Parse(buildInfoBody);
+                }
+            }
+
+            int CompareSemanticVersionsAsReleased(SemanticVersion a, SemanticVersion b)
+            {
+                var aReleased = new SemanticVersion(a.Major, a.Minor, a.Patch);
+                var bReleased = new SemanticVersion(b.Major, b.Minor, b.Patch);
+                return aReleased.CompareTo(bReleased);
+            }
         }
     }
 }
