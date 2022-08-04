@@ -19,7 +19,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Libmongocrypt;
@@ -36,6 +35,7 @@ namespace MongoDB.Driver.Encryption
                   Ensure.IsNotNull(cryptClient, nameof(cryptClient)),
                   Ensure.IsNotNull(Ensure.IsNotNull(clientEncryptionOptions, nameof(clientEncryptionOptions)).KeyVaultClient, nameof(clientEncryptionOptions.KeyVaultClient)),
                   Ensure.IsNotNull(Ensure.IsNotNull(clientEncryptionOptions, nameof(clientEncryptionOptions)).KeyVaultNamespace, nameof(clientEncryptionOptions.KeyVaultNamespace)),
+                  Ensure.IsNotNull(Ensure.IsNotNull(clientEncryptionOptions, nameof(clientEncryptionOptions)).KmsProviders, nameof(clientEncryptionOptions.KmsProviders)),
                   Ensure.IsNotNull(Ensure.IsNotNull(clientEncryptionOptions, nameof(clientEncryptionOptions)).TlsOptions, nameof(clientEncryptionOptions.TlsOptions)))
         {
         }
@@ -545,23 +545,6 @@ namespace MongoDB.Driver.Encryption
             var registry = BsonSerializer.SerializerRegistry;
             var serializer = registry.GetSerializer<BsonDocument>();
             return filter.Render(serializer, registry);
-        }
-
-        private byte[] ToBsonIfNotNull(BsonValue value)
-        {
-            if (value != null)
-            {
-                var writerSettings = BsonBinaryWriterSettings.Defaults.Clone();
-#pragma warning disable 618
-                if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
-                {
-                    writerSettings.GuidRepresentation = GuidRepresentation.Unspecified;
-                }
-#pragma warning restore 618
-                return value.ToBson(writerSettings: writerSettings);
-            }
-
-            return null;
         }
 
         private Guid UnwrapKeyId(RawBsonDocument wrappedKeyDocument)

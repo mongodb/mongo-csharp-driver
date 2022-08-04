@@ -1522,6 +1522,36 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             }
         }
 
+        [Trait("Category", "AwsMechanism")]
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void OnDemandCredentials(
+            [Values("aws")] string kmsProvider,
+            [Values(false, true)] bool async)
+        {
+            RequireServer.Check().Supports(Feature.ClientSideEncryption);
+
+            using (var client = ConfigureClient(clearCollections: true))
+            using (var clientEncryption = ConfigureClientEncryption(client, kmsProviderFilter: kmsProvider, kmsProviderConfigurator: (kmsProvider, kmsFields) => kmsFields.Clear()))
+            {
+                var isAwsEnvironment = Environment.GetEnvironmentVariable("AWS_TESTS_ENABLED") != null;
+
+                var datakeyOptions = CreateDataKeyOptions(kmsProvider);
+                if (!isAwsEnvironment)
+                {
+                    // AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY must not be configured
+                    var ex = Record.Exception(() => CreateDataKey(clientEncryption, kmsProvider, datakeyOptions, async));
+                    AssertInnerEncryptionException<CryptException>(ex, "The security token included in the request is invalid");
+                }
+
+                if (isAwsEnvironment)
+                {
+                    // AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY must be configured
+                    _ = CreateDataKey(clientEncryption, kmsProvider, datakeyOptions, async);
+                }
+            }
+        }
+
         [SkippableTheory]
         [ParameterAttributeData]
         public void ViewAreProhibitedTest([Values(false, true)] bool async)

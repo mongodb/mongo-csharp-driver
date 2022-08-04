@@ -70,6 +70,7 @@ namespace MongoDB.Driver.Encryption
                   Ensure.IsNotNull(cryptClient, nameof(cryptClient)),
                   Ensure.IsNotNull(keyVaultClient, nameof(keyVaultClient)),
                   Ensure.IsNotNull(Ensure.IsNotNull(autoEncryptionOptions, nameof(autoEncryptionOptions)).KeyVaultNamespace, nameof(autoEncryptionOptions.KeyVaultNamespace)),
+                  Ensure.IsNotNull(Ensure.IsNotNull(autoEncryptionOptions, nameof(autoEncryptionOptions)).KmsProviders, nameof(autoEncryptionOptions.KmsProviders)),
                   Ensure.IsNotNull(Ensure.IsNotNull(autoEncryptionOptions, nameof(autoEncryptionOptions)).TlsOptions, nameof(autoEncryptionOptions.TlsOptions)))
         {
             _internalClient = internalClient; // can be null

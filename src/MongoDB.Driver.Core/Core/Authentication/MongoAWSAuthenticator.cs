@@ -23,7 +23,6 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Shared;
 
 namespace MongoDB.Driver.Core.Authentication
 {
@@ -109,7 +108,7 @@ namespace MongoDB.Driver.Core.Authentication
             return new AwsCredentials(accessKeyId: username, secretAccessKey: password, sessionToken);
         }
 
-        private static AwsCredentials CreateAwsCredentialsFromEnvironmentVariables()
+        internal static AwsCredentials CreateAwsCredentialsFromEnvironmentVariables(string subject = "MONGODB-AWS authentication")
         {
             var accessKeyId = Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID");
             var secretAccessKey = Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY");
@@ -121,21 +120,21 @@ namespace MongoDB.Driver.Core.Authentication
             }
             if (secretAccessKey != null && accessKeyId == null)
             {
-                throw new InvalidOperationException("When using MONGODB-AWS authentication if a secret access key is provided via environment variables then an access key ID must be provided also.");
+                throw new InvalidOperationException($"When using {subject} if a secret access key is provided via environment variables then an access key ID must be provided also.");
             }
             if (accessKeyId != null && secretAccessKey == null)
             {
-                throw new InvalidOperationException("When using MONGODB-AWS authentication if an access key ID is provided via environment variables then a secret access key must be provided also.");
+                throw new InvalidOperationException($"When using {subject} if an access key ID is provided via environment variables then a secret access key must be provided also.");
             }
             if (sessionToken != null && (accessKeyId == null || secretAccessKey == null))
             {
-                throw new InvalidOperationException("When using MONGODB-AWS authentication if a session token is provided via environment variables then an access key ID and a secret access key must be provided also.");
+                throw new InvalidOperationException($"When using {subject} if a session token is provided via environment variables then an access key ID and a secret access key must be provided also.");
             }
 
             return new AwsCredentials(accessKeyId, SecureStringHelper.ToSecureString(secretAccessKey), sessionToken);
         }
 
-        private static AwsCredentials CreateAwsCredentialsFromEcsResponse()
+        internal static AwsCredentials CreateAwsCredentialsFromEcsResponse()
         {
             var relativeUri = Environment.GetEnvironmentVariable("AWS_CONTAINER_CREDENTIALS_RELATIVE_URI");
             if (relativeUri == null)
@@ -152,7 +151,7 @@ namespace MongoDB.Driver.Core.Authentication
             return new AwsCredentials(accessKeyId, SecureStringHelper.ToSecureString(secretAccessKey), sessionToken);
         }
 
-        private static AwsCredentials CreateAwsCredentialsFromEc2Response()
+        internal static AwsCredentials CreateAwsCredentialsFromEc2Response()
         {
             var response = AwsHttpClientHelper.GetEC2ResponseAsync().GetAwaiter().GetResult();
             var parsedResponse = BsonDocument.Parse(response);
@@ -272,7 +271,7 @@ namespace MongoDB.Driver.Core.Authentication
         }
 
         // nested classes
-        private class AwsCredentials
+        internal class AwsCredentials
         {
             private readonly string _accessKeyId;
             private readonly SecureString _secretAccessKey;
@@ -288,6 +287,14 @@ namespace MongoDB.Driver.Core.Authentication
             public string AccessKeyId => _accessKeyId;
             public SecureString SecretAccessKey => _secretAccessKey;
             public string SessionToken => _sessionToken;
+
+            public BsonDocument ConvertToKmsCredentials() =>
+                new BsonDocument
+                {
+                    { "accessKeyId", _accessKeyId },
+                    { "secretAccessKey", SecureStringHelper.ToInsecureString(_secretAccessKey) },
+                    { "sessionToken", _sessionToken, _sessionToken != null }
+                };
         }
 
         private static class AwsHttpClientHelper
