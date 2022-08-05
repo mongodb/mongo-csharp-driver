@@ -1543,7 +1543,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true);
             }
 
-            string value = "test";
+            const string value = "test";
 
             using (var client1 = ConfigureClient(clearCollections: true))
             using (var clientEncryption1 = ConfigureClientEncryption(client1, kmsProviderFilter: kmsProviderFilter))
