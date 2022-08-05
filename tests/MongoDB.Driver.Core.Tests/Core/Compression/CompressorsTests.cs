@@ -161,24 +161,6 @@ namespace MongoDB.Driver.Core.Tests.Core.Compression
             e.ParamName.Should().Be("compressionLevel");
         }
 
-        [Theory]
-        [InlineData(1, "40,181,47,253,0,72,109,1,0,84,2,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,48,49,50,51,52,53,54,55,56,57,32,1,0,53,132,170,39,40,181,47,253,32,0,1,0,0")]
-        [InlineData(6, "40,181,47,253,0,88,109,1,0,84,2,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,48,49,50,51,52,53,54,55,56,57,32,1,0,53,132,170,39,40,181,47,253,32,0,1,0,0")]
-        [InlineData(15, "40,181,47,253,0,96,109,1,0,84,2,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,48,49,50,51,52,53,54,55,56,57,32,1,0,53,132,170,39,40,181,47,253,32,0,1,0,0")]
-        [InlineData(21, "40,181,47,253,0,128,109,1,0,84,2,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,48,49,50,51,52,53,54,55,56,57,32,1,0,53,132,170,39,40,181,47,253,32,0,1,0,0")]
-        public void Zstandard_compress_should_generate_expected_bytes_for_different_compression_levels(int compressionLevel, string expectedBytes)
-        {
-            var data = Encoding.ASCII.GetBytes(__testMessage);
-
-            using (var input = new MemoryStream(data))
-            using (var output = new MemoryStream())
-            {
-                var compressor = GetCompressor(CompressorType.ZStandard, compressionLevel);
-                compressor.Compress(input, output);
-                string.Join(",", output.ToArray()).Should().Be(expectedBytes);
-            }
-        }
-
         [Fact]
         public void Zstandard_compress_should_throw_when_output_stream_is_null()
         {
