@@ -259,9 +259,11 @@ namespace MongoDB.Driver.Core.Connections
 
             var socket = new Socket(addressFamily, SocketType.Stream, ProtocolType.Tcp);
 
-            // not all platforms support IOControl
-            try
+            if (OperatingSystemHelper.CurrentOperatingSystem == OperatingSystemPlatform.Windows)
             {
+                // Reviewing the .NET source, Socket.IOControl for IOControlCode.KeepAlivesValue will
+                // throw PlatformNotSupportedException on all platforms except for Windows.
+                // https://github.com/dotnet/runtime/blob/main/src/libraries/System.Net.Sockets/src/System/Net/Sockets/SocketPal.Unix.cs#L1346
                 var keepAliveValues = new KeepAliveValues
                 {
                     OnOff = 1,
@@ -270,7 +272,7 @@ namespace MongoDB.Driver.Core.Connections
                 };
                 socket.IOControl(IOControlCode.KeepAliveValues, keepAliveValues.ToBytes(), null);
             }
-            catch (PlatformNotSupportedException)
+            else
             {
                 // most platforms should support this call to SetSocketOption, but just in case call it in a try/catch also
                 try
