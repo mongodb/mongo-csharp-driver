@@ -1,0 +1,6 @@
+{
+  "longRunningTestSeconds": 10,
+  "parallelizeAssembly": false,
+  "parallelizeTestCollections": false,
+  "shadowCopy": false
+}

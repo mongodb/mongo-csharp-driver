@@ -561,7 +561,7 @@ Task("Package")
 
 Task("PackageNugetPackages")
     .IsDependentOn("Build")
-    .Does(() =>
+    .Does<BuildConfig>((buildConfig) =>
     {
         EnsureDirectoryExists(artifactsPackagesDirectory);
         CleanDirectory(artifactsPackagesDirectory);
@@ -587,7 +587,7 @@ Task("PackageNugetPackages")
                 MSBuildSettings = new DotNetMSBuildSettings()
                     // configure deterministic build for better compatibility with debug symbols (used in Package/Build tasks). Affects: *.snupkg
                     .SetContinuousIntegrationBuild(continuousIntegrationBuild: true)
-                    .WithProperty("PackageVersion", gitVersion.LegacySemVer)
+                    .WithProperty("PackageVersion", buildConfig.PackageVersion)
             };
             DotNetPack(projectPath, settings);
         }
@@ -653,6 +653,49 @@ Task("TestsPackagingProjectReference")
             settings
         );
      });
+
+Task("SmokeTests")
+    .IsDependentOn("PackageNugetPackages")
+    .DoesForEach(
+        GetFiles("./**/SmokeTests/**/*.SmokeTests*.csproj"),
+        action: (BuildConfig buildConfig, Path testProject) =>
+     {
+        var environmentVariables = new Dictionary<string, string>
+        {
+           { "SmokeTestsPackageSha", gitVersion.Sha }
+        };
+        
+        var settings = new DotNetTestSettings
+        {
+            NoBuild = false,
+            NoRestore = false,
+            Configuration = configuration,
+            ArgumentCustomization = args => args.Append($"-- RunConfiguration.TargetPlatform={buildConfig.TargetPlatform}"),
+            Framework = buildConfig.Framework,
+            EnvironmentVariables = environmentVariables,
+            Loggers = CreateLoggers()
+        };
+        
+        var toolSettings = new DotNetToolSettings { EnvironmentVariables = environmentVariables };
+
+        Information($"Updating MongoDB package: {buildConfig.PackageVersion} sha: {gitVersion.Sha}");
+
+        DotNetTool(
+            testProject.FullPath,
+            "add package MongoDB.Driver",
+            $"--version [{buildConfig.PackageVersion}]",
+            toolSettings);
+
+        DotNetTest(
+            testProject.FullPath,
+            settings);
+     });
+
+Task("SmokeTestsNet472").IsDependentOn("SmokeTests");
+Task("SmokeTestsNetCoreApp21").IsDependentOn("SmokeTests");
+Task("SmokeTestsNetCoreApp31").IsDependentOn("SmokeTests");
+Task("SmokeTestsNet50").IsDependentOn("SmokeTests");
+Task("SmokeTestsNet60").IsDependentOn("SmokeTests");
 
 Task("TestsPackaging")
     .IsDependentOn("TestsPackagingProjectReference")
@@ -866,16 +909,20 @@ Setup<BuildConfig>(
         // in a different directory with a x64 dotnet host process. This would further complicate our testing for little additional gain.
         var framework = targetPlatform == "arm64" ? "net6.0" : lowerTarget switch
         {
-            string s when s.StartsWith("test") && s.EndsWith("net472") => "net472",
-            string s when s.StartsWith("test") && s.EndsWith("netstandard20") => "netcoreapp2.1",
-            string s when s.StartsWith("test") && s.EndsWith("netstandard21") => "netcoreapp3.1",
-            string s when s.StartsWith("test") && s.EndsWith("net60") => "net6.0",
+            string s when s.EndsWith("net472") => "net472",
+            string s when s.EndsWith("netstandard20") || s.EndsWith("netcoreapp21") => "netcoreapp2.1",
+            string s when s.EndsWith("netstandard21") || s.EndsWith("netcoreapp31") => "netcoreapp3.1",
+            string s when s.EndsWith("net472") => "net472",
+            string s when s.EndsWith("net50") => "net5.0",
+            string s when s.EndsWith("net60") => "net6.0",
             _ => null
         };
 
         var isReleaseMode = lowerTarget.StartsWith("package") || lowerTarget == "release";
-        Console.WriteLine($"Framework: {framework ?? "null (not set)"}, TargetPlatform: {targetPlatform}, IsReleaseMode: {isReleaseMode}");
-        return new BuildConfig(isReleaseMode, framework, targetPlatform);
+        var packageVersion = lowerTarget.StartsWith("smoketests") ? gitVersion.FullSemVer.Replace('+', '-') : gitVersion.LegacySemVer;
+
+        Console.WriteLine($"Framework: {framework ?? "null (not set)"}, TargetPlatform: {targetPlatform}, IsReleaseMode: {isReleaseMode}, PackageVersion: {packageVersion}");
+        return new BuildConfig(isReleaseMode, framework, targetPlatform, packageVersion);
     });
 
 RunTarget(target);
@@ -884,13 +931,15 @@ public class BuildConfig
 {
     public bool IsReleaseMode { get; }
     public string Framework { get; }
+    public string PackageVersion { get; }
     public string TargetPlatform { get; }
 
-    public BuildConfig(bool isReleaseMode, string framework, string targetPlatform)
+    public BuildConfig(bool isReleaseMode, string framework, string targetPlatform, string packageVersion)
     {
         IsReleaseMode = isReleaseMode;
         Framework = framework;
         TargetPlatform = targetPlatform;
+        PackageVersion = packageVersion;
     }
 }
 

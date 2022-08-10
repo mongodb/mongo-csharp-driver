@@ -682,6 +682,27 @@ functions:
           SSL=${SSL} \
             evergreen/run-serverless-tests.sh
 
+  run-smoke-tests:
+    - command: shell.exec
+      type: test
+      params:
+        working_dir: mongo-csharp-driver
+        script: |
+          set +x
+          ${PREPARE_SHELL}
+          OS=${OS} \
+          AUTH=${AUTH} \
+          SSL=${SSL} \
+          MONGODB_URI="${MONGODB_URI}" \
+          TOPOLOGY=${TOPOLOGY} \
+          OS=${OS} \
+          COMPRESSOR=${COMPRESSOR} \
+          CLIENT_PEM=${DRIVERS_TOOLS}/.evergreen/x509gen/client.pem \
+          REQUIRE_API_VERSION=${REQUIRE_API_VERSION} \
+          TARGET="SmokeTests" \
+          FRAMEWORK=${FRAMEWORK} \
+            evergreen/run-tests.sh
+
   create-serverless-instance:
     - command: shell.exec
       params:
@@ -1209,6 +1230,41 @@ tasks:
           vars:
             OCSP_ALGORITHM: "rsa"
             OCSP_TLS_SHOULD_SUCCEED: "false"
+
+    - name: test-smoke-tests-net472
+      commands:
+        - func: bootstrap-mongo-orchestration
+        - func: run-smoke-tests
+          vars:
+            FRAMEWORK: net472
+
+    - name: test-smoke-tests-netcoreapp21
+      commands:
+        - func: bootstrap-mongo-orchestration
+        - func: run-smoke-tests
+          vars:
+            FRAMEWORK: netcoreapp21
+
+    - name: test-smoke-tests-netcoreapp31
+      commands:
+        - func: bootstrap-mongo-orchestration
+        - func: run-smoke-tests
+          vars:
+            FRAMEWORK: netcoreapp31
+
+    - name: test-smoke-tests-net50
+      commands:
+        - func: bootstrap-mongo-orchestration
+        - func: run-smoke-tests
+          vars:
+            FRAMEWORK: net50
+
+    - name: test-smoke-tests-net60
+      commands:
+        - func: bootstrap-mongo-orchestration
+        - func: run-smoke-tests
+          vars:
+            FRAMEWORK: net60
 
     # ECDSA tests
     # Disabled until https://jira.mongodb.org/browse/SPEC-1589 is resolved
@@ -1820,3 +1876,35 @@ buildvariants:
   batchtime: 20160 # 14 days
   tasks:
     - name: testgcpkms-task-group
+    - name: test-csfle-with-mongocryptd-netstandard21
+
+- matrix_name: "smoke-tests-windows"
+  matrix_spec: { os: "windows-64", ssl: "nossl", version: [ "5.0", "6.0", "latest" ], topology: ["replicaset"] }
+  display_name: "smoke-tests ${version} ${os}"
+  batchtime: 1440 # 1 day
+  tasks:
+    - name: test-smoke-tests-net472
+    - name: test-smoke-tests-netcoreapp21
+    - name: test-smoke-tests-netcoreapp31
+    - name: test-smoke-tests-net50
+    - name: test-smoke-tests-net60
+
+- matrix_name: "smoke-tests-linux"
+  matrix_spec: { os: "ubuntu-1804", ssl: "nossl", version: [ "5.0", "6.0", "latest" ], topology: ["replicaset"] }
+  display_name: "smoke-tests ${version} ${os}"
+  batchtime: 1440 # 1 day
+  tasks:
+    - name: test-smoke-tests-netcoreapp21
+    - name: test-smoke-tests-netcoreapp31
+    - name: test-smoke-tests-net50
+    - name: test-smoke-tests-net60
+
+- matrix_name: "smoke-tests-macOS"
+  matrix_spec: { os: "macos-1100", ssl: "nossl", version: [ "5.0", "6.0", "latest" ], topology: ["replicaset"] }
+  display_name: "smoke-tests ${version} ${os}"
+  batchtime: 1440 # 1 day
+  tasks:
+    - name: test-smoke-tests-netcoreapp21
+    - name: test-smoke-tests-netcoreapp31
+    - name: test-smoke-tests-net50
+    - name: test-smoke-tests-net60

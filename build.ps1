@@ -101,6 +101,7 @@ if($FoundDotNetCliVersion -ne $DotNetVersion) {
         (New-Object System.Net.WebClient).DownloadFile($DotNetUnixInstallerUri, $ScriptPath);
         & bash $ScriptPath --install-dir "$InstallPath" --channel 2.1 --no-path
         & bash $ScriptPath --install-dir "$InstallPath" --channel 3.1 --no-path
+        & bash $ScriptPath --install-dir "$InstallPath" --channel 5.0 --no-path
         & bash $ScriptPath --version "$DotNetVersion" --install-dir "$InstallPath" --channel "$DotNetChannel" --no-path
 
         Remove-PathVariable "$InstallPath"
@@ -111,6 +112,7 @@ if($FoundDotNetCliVersion -ne $DotNetVersion) {
         (New-Object System.Net.WebClient).DownloadFile($DotNetInstallerUri, $ScriptPath);
         & $ScriptPath -Channel 2.1 -InstallDir $InstallPath;
         & $ScriptPath -Channel 3.1 -InstallDir $InstallPath;
+        & $ScriptPath -Channel 5.0 -InstallDir $InstallPath;
         & $ScriptPath -Channel $DotNetChannel -Version $DotNetVersion -InstallDir $InstallPath;
 
         Remove-PathVariable "$InstallPath"
