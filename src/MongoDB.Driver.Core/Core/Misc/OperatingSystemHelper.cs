@@ -1,4 +1,4 @@
-﻿/* Copyright 2020-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ namespace MongoDB.Driver.Core.Misc
 {
     internal enum OperatingSystemPlatform
     {
+        Unsupported = -1,
         Windows,
         Linux,
         MacOS
@@ -27,30 +28,36 @@ namespace MongoDB.Driver.Core.Misc
 
     internal static class OperatingSystemHelper
     {
-        public static OperatingSystemPlatform CurrentOperatingSystem
-        {
-            get
-            {
-#if NET472
-                return OperatingSystemPlatform.Windows;
-#else
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                {
-                    return OperatingSystemPlatform.MacOS;
-                }
-                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                {
-                    return OperatingSystemPlatform.Linux;
-                }
-                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                {
-                    return OperatingSystemPlatform.Windows;
-                }
+        private static readonly OperatingSystemPlatform __currentOperatingSystem;
 
-                // should not be reached. If we're here, then there is a bug in the library
-                throw new PlatformNotSupportedException($"Unsupported platform '{RuntimeInformation.OSDescription}'.");
-#endif
+        static OperatingSystemHelper()
+        {
+#if NET472
+            __currentOperatingSystem = OperatingSystemPlatform.Windows;
+#else
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                __currentOperatingSystem = OperatingSystemPlatform.Linux;
             }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                __currentOperatingSystem = OperatingSystemPlatform.MacOS;
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                __currentOperatingSystem = OperatingSystemPlatform.Windows;
+            }
+            else
+            {
+                __currentOperatingSystem = OperatingSystemPlatform.Unsupported;
+            }
+#endif
         }
+
+        public static OperatingSystemPlatform CurrentOperatingSystem => __currentOperatingSystem switch
+        {
+            OperatingSystemPlatform.Unsupported => throw new PlatformNotSupportedException($"Unsupported platform '{RuntimeInformation.OSDescription}'."),
+            _ => __currentOperatingSystem
+        };
     }
 }
