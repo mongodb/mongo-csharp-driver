@@ -33,6 +33,7 @@ namespace MongoDB.Driver.Core.Connections
     {
         // fields
         private readonly TcpStreamSettings _settings;
+        private static readonly bool __supportsIOControl = OperatingSystemHelper.CurrentOperatingSystem == OperatingSystemPlatform.Windows;
 
         // constructors
         public TcpStreamFactory()
@@ -259,7 +260,7 @@ namespace MongoDB.Driver.Core.Connections
 
             var socket = new Socket(addressFamily, SocketType.Stream, ProtocolType.Tcp);
 
-            if (OperatingSystemHelper.CurrentOperatingSystem == OperatingSystemPlatform.Windows)
+            if (__supportsIOControl)
             {
                 // Reviewing the .NET source, Socket.IOControl for IOControlCode.KeepAlivesValue will
                 // throw PlatformNotSupportedException on all platforms except for Windows.
