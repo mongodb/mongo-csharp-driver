@@ -17,7 +17,6 @@ using System;
 using System.Linq;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
-using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.TestHelpers;
@@ -44,15 +43,10 @@ namespace MongoDB.Driver.Tests
 
             AssertLogs(new[]
             {
-                ClusterDebug("Initialized"),
-                Cluster("Opening"),
                 Cluster("Description changed"),
                 SDAM("Opening"),
                 Connection("Opening"),
                 Connection("Opened"),
-                InternalDebug<IServerMonitor>("Initializing"),
-                InternalDebug<RoundTripTimeMonitor>("Monitoring started"),
-                InternalDebug<IServerMonitor>("Initialized"),
                 SDAM("Opened"),
                 Cluster("Opened"),
                 Connection("Checking out connection"),
@@ -69,10 +63,6 @@ namespace MongoDB.Driver.Tests
                 Cluster("Closing"),
                 Cluster("Removing server"),
                 SDAM("Closing"),
-                InternalDebug<IServerMonitor>("Disposing"),
-                InternalDebug<RoundTripTimeMonitor>("Disposing"),
-                InternalDebug<RoundTripTimeMonitor>("Disposed"),
-                InternalDebug<IServerMonitor>("Disposed"),
                 Connection("Closing"),
                 Connection("Removing"),
                 Connection("Closing"),
@@ -87,6 +77,16 @@ namespace MongoDB.Driver.Tests
                 Cluster("Closed"),
                 TestsDebug<DisposableMongoClient>("Cluster unregistered and disposed"),
                 TestsDebug<DisposableMongoClient>("Disposed")
+            },
+            logs);
+
+            AssertLogs(new[]
+            {
+                InternalDebug<IServerMonitor>("Initializing"),
+                InternalDebug<RoundTripTimeMonitor>("Monitoring started"),
+                InternalDebug<RoundTripTimeMonitor>("Disposing"),
+                InternalDebug<RoundTripTimeMonitor>("Disposed"),
+                InternalDebug<IServerMonitor>("Disposed")
             },
             logs);
 
