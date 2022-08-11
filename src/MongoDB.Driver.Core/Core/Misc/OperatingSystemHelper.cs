@@ -20,7 +20,6 @@ namespace MongoDB.Driver.Core.Misc
 {
     internal enum OperatingSystemPlatform
     {
-        Unsupported = -1,
         Windows,
         Linux,
         MacOS
@@ -28,36 +27,32 @@ namespace MongoDB.Driver.Core.Misc
 
     internal static class OperatingSystemHelper
     {
-        private static readonly OperatingSystemPlatform __currentOperatingSystem;
+        public static OperatingSystemPlatform CurrentOperatingSystem => __currentOperatingSystem.Value;
 
-        static OperatingSystemHelper()
+        private static readonly Lazy<OperatingSystemPlatform> __currentOperatingSystem = new Lazy<OperatingSystemPlatform>(DetermineOperatingSystemPlatform);
+
+        private static OperatingSystemPlatform DetermineOperatingSystemPlatform()
         {
 #if NET472
-            __currentOperatingSystem = OperatingSystemPlatform.Windows;
+            return OperatingSystemPlatform.Windows;
 #else
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                __currentOperatingSystem = OperatingSystemPlatform.Linux;
+                return OperatingSystemPlatform.Linux;
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
-                __currentOperatingSystem = OperatingSystemPlatform.MacOS;
+                return OperatingSystemPlatform.MacOS;
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                __currentOperatingSystem = OperatingSystemPlatform.Windows;
+                return OperatingSystemPlatform.Windows;
             }
             else
             {
-                __currentOperatingSystem = OperatingSystemPlatform.Unsupported;
+                throw new PlatformNotSupportedException($"Unsupported platform '{RuntimeInformation.OSDescription}'.");
             }
 #endif
         }
-
-        public static OperatingSystemPlatform CurrentOperatingSystem => __currentOperatingSystem switch
-        {
-            OperatingSystemPlatform.Unsupported => throw new PlatformNotSupportedException($"Unsupported platform '{RuntimeInformation.OSDescription}'."),
-            _ => __currentOperatingSystem
-        };
     }
 }
