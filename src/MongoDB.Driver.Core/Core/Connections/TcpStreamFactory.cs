@@ -259,28 +259,29 @@ namespace MongoDB.Driver.Core.Connections
 
             var socket = new Socket(addressFamily, SocketType.Stream, ProtocolType.Tcp);
 
-            // not all platforms support IOControl
             try
             {
-                var keepAliveValues = new KeepAliveValues
+                if (OperatingSystemHelper.CurrentOperatingSystem == OperatingSystemPlatform.Windows)
                 {
-                    OnOff = 1,
-                    KeepAliveTime = 120000, // 120 seconds in milliseconds
-                    KeepAliveInterval = 10000 // 10 seconds in milliseconds
-                };
-                socket.IOControl(IOControlCode.KeepAliveValues, keepAliveValues.ToBytes(), null);
-            }
-            catch (PlatformNotSupportedException)
-            {
-                // most platforms should support this call to SetSocketOption, but just in case call it in a try/catch also
-                try
+                    // Reviewing the .NET source, Socket.IOControl for IOControlCode.KeepAlivesValue will
+                    // throw PlatformNotSupportedException on all platforms except for Windows.
+                    // https://github.com/dotnet/runtime/blob/main/src/libraries/System.Net.Sockets/src/System/Net/Sockets/SocketPal.Unix.cs#L1346
+                    var keepAliveValues = new KeepAliveValues
+                    {
+                        OnOff = 1,
+                        KeepAliveTime = 120000, // 120 seconds in milliseconds
+                        KeepAliveInterval = 10000 // 10 seconds in milliseconds
+                    };
+                    socket.IOControl(IOControlCode.KeepAliveValues, keepAliveValues.ToBytes(), null);
+                }
+                else
                 {
                     socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
                 }
-                catch (PlatformNotSupportedException)
-                {
-                    // ignore PlatformNotSupportedException
-                }
+            }
+            catch (PlatformNotSupportedException)
+            {
+                // ignore PlatformNotSupportedException
             }
 
             return socket;
