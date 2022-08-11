@@ -220,7 +220,7 @@ namespace MongoDB.Driver
 
             return new Hasher()
                 .Hash(_checkCertificateRevocation)
-                .HashElements(_clientCertificateCollection)
+                .HashElements(_clientCertificateCollection?.Cast<object>())
                 .Hash(_clientCertificateSelectionCallback)
                 .Hash(_enabledSslProtocols)
                 .Hash(_serverCertificateValidationCallback)

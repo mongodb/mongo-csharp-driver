@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -249,7 +250,7 @@ namespace MongoDB.Bson
 
         public override int GetHashCode()
         {
-            return 37 * _high.GetHashCode() + _low.GetHashCode();
+            return 37 * EqualityComparer<ulong>.Default.GetHashCode(_high) + EqualityComparer<ulong>.Default.GetHashCode(_low);
         }
 
         public override string ToString()

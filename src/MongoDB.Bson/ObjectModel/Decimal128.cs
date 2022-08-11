@@ -1530,8 +1530,8 @@ namespace MongoDB.Bson
         public override int GetHashCode()
         {
             int hash = 17;
-            hash = 37 * hash + _highBits.GetHashCode();
-            hash = 37 * hash + _lowBits.GetHashCode();
+            hash = 37 * hash + EqualityComparer<ulong>.Default.GetHashCode(_highBits);
+            hash = 37 * hash + EqualityComparer<ulong>.Default.GetHashCode(_lowBits);
             return hash;
         }
 

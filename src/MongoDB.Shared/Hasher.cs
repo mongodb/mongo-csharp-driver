@@ -75,7 +75,7 @@ namespace MongoDB.Shared
             return this;
         }
 
-        public Hasher HashElements(IEnumerable sequence)
+        public Hasher HashElements<T>(IEnumerable<T> sequence)
         {
             if (sequence == null)
             {
@@ -83,9 +83,9 @@ namespace MongoDB.Shared
             }
             else
             {
-                foreach (var value in sequence)
+                foreach (T value in sequence)
                 {
-                    _hashCode = 37 * _hashCode + ((value == null) ? -1 : value.GetHashCode());
+                    _hashCode = 37 * _hashCode + (value == null ? -1 : EqualityComparer<T>.Default.GetHashCode());
                 }
             }
             return this;
