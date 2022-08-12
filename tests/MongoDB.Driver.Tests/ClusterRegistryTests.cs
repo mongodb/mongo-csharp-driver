@@ -96,6 +96,7 @@ namespace MongoDB.Driver.Tests
                 ipv6: true,
                 loadBalanced: false,
                 localThreshold: TimeSpan.FromSeconds(4),
+                loggerFactory: null,
                 maxConnecting: 3,
                 maxConnectionIdleTime: TimeSpan.FromSeconds(5),
                 maxConnectionLifeTime: TimeSpan.FromSeconds(6),
@@ -118,7 +119,7 @@ namespace MongoDB.Driver.Tests
 
             var subject = new ClusterRegistry();
 
-            using (var cluster = subject.GetOrCreateCluster(clusterKey, LoggerFactory))
+            using (var cluster = subject.GetOrCreateCluster(clusterKey))
             {
                 var expectedEndPoints = new EndPoint[]
                 {
@@ -154,8 +155,8 @@ namespace MongoDB.Driver.Tests
 
             var subject = new ClusterRegistry();
 
-            using (var cluster1 = subject.GetOrCreateCluster(clientSettings1.ToClusterKey(), LoggerFactory))
-            using (var cluster2 = subject.GetOrCreateCluster(clientSettings2.ToClusterKey(), LoggerFactory))
+            using (var cluster1 = subject.GetOrCreateCluster(clientSettings1.ToClusterKey()))
+            using (var cluster2 = subject.GetOrCreateCluster(clientSettings2.ToClusterKey()))
             {
                 cluster2.Should().NotBeSameAs(cluster1);
             }
@@ -169,8 +170,8 @@ namespace MongoDB.Driver.Tests
 
             var subject = new ClusterRegistry();
 
-            using (var cluster1 = subject.GetOrCreateCluster(clientSettings1.ToClusterKey(), LoggerFactory))
-            using (var cluster2 = subject.GetOrCreateCluster(clientSettings2.ToClusterKey(), LoggerFactory))
+            using (var cluster1 = subject.GetOrCreateCluster(clientSettings1.ToClusterKey()))
+            using (var cluster2 = subject.GetOrCreateCluster(clientSettings2.ToClusterKey()))
             {
                 cluster2.Should().BeSameAs(cluster1);
             }
@@ -182,7 +183,7 @@ namespace MongoDB.Driver.Tests
             var subject = new ClusterRegistry();
             var settings = new MongoClientSettings();
             var clusterKey = settings.ToClusterKey();
-            var cluster = subject.GetOrCreateCluster(clusterKey, LoggerFactory);
+            var cluster = subject.GetOrCreateCluster(clusterKey);
 
             subject.UnregisterAndDisposeCluster(cluster);
 

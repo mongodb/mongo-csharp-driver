@@ -631,6 +631,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or set the name of the SDAM log file. Null turns logging off. stdout will log to console.
         /// </summary>
+        [Obsolete("Use LoggerFactory instead.")]
         public string SdamLogFilename
         {
             get { return _sdamLogFilename; }
@@ -1310,6 +1311,7 @@ namespace MongoDB.Driver
                 _ipv6,
                 _loadBalanced,
                 _localThreshold,
+                _loggerFactory,
                 _maxConnecting,
                 _maxConnectionIdleTime,
                 _maxConnectionLifeTime,

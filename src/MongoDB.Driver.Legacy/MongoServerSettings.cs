@@ -565,12 +565,13 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or set the name of the SDAM log file. Null turns logging off. stdout will log to console.
         /// </summary>
+        [Obsolete("Use MongoClientSettings.LoggerFactory instead.")]
         public string SdamLogFilename
         {
             get { return _sdamLogFilename; }
             set
             {
-                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
+                if (_isFrozen) { throw new InvalidOperationException("MongoServerSettings is frozen."); }
                 _sdamLogFilename = value;
             }
         }
@@ -821,7 +822,9 @@ namespace MongoDB.Driver
             serverSettings.RetryWrites = clientSettings.RetryWrites;
             serverSettings.LocalThreshold = clientSettings.LocalThreshold;
             serverSettings.Scheme = clientSettings.Scheme;
+#pragma warning disable CS0618 // Type or member is obsolete
             serverSettings.SdamLogFilename = clientSettings.SdamLogFilename;
+#pragma warning restore CS0618 // Type or member is obsolete
             serverSettings.Servers = new List<MongoServerAddress>(clientSettings.Servers);
             serverSettings.ServerSelectionTimeout = clientSettings.ServerSelectionTimeout;
             serverSettings.SocketTimeout = clientSettings.SocketTimeout;
@@ -897,7 +900,9 @@ namespace MongoDB.Driver
             serverSettings.RetryWrites = url.RetryWrites ?? true;
             serverSettings.LocalThreshold = url.LocalThreshold;
             serverSettings.Scheme = url.Scheme;
+#pragma warning disable CS0618 // Type or member is obsolete
             serverSettings.SdamLogFilename = null; // SdamLogFilename must be provided in code
+#pragma warning restore CS0618 // Type or member is obsolete
             serverSettings.Servers = new List<MongoServerAddress>(url.Servers);
             serverSettings.ServerSelectionTimeout = url.ServerSelectionTimeout;
             serverSettings.SocketTimeout = url.SocketTimeout;
@@ -1204,6 +1209,7 @@ namespace MongoDB.Driver
                 _ipv6,
                 loadBalanced: false, // not supported for legacy, so turn it off
                 _localThreshold,
+                loggerFactory: null,
                 maxConnecting: MongoInternalDefaults.ConnectionPool.MaxConnecting,
                 _maxConnectionIdleTime,
                 _maxConnectionLifeTime,

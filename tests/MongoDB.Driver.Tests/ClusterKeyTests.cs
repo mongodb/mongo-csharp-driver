@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Authentication;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
@@ -204,6 +205,7 @@ namespace MongoDB.Driver.Tests
             var kmsProviders = new Dictionary<string, IReadOnlyDictionary<string, object>>();
             var loadBalanced = true;
             var localThreshold = TimeSpan.FromMilliseconds(20);
+            ILoggerFactory loggerFactory = null;
             var maxConnecting = 3;
             var maxConnectionIdleTime = TimeSpan.FromSeconds(2);
             var maxConnectionLifeTime = TimeSpan.FromSeconds(3);
@@ -305,6 +307,7 @@ namespace MongoDB.Driver.Tests
                 ipv6,
                 loadBalanced,
                 localThreshold,
+                loggerFactory,
                 maxConnecting,
                 maxConnectionIdleTime,
                 maxConnectionLifeTime,
@@ -353,6 +356,7 @@ namespace MongoDB.Driver.Tests
             var kmsProviders = kmsProvidersValue ?? new Dictionary<string, IReadOnlyDictionary<string, object>>();
             var loadBalanced = true;
             var localThreshold = TimeSpan.FromMilliseconds(20);
+            ILoggerFactory loggerFactory = null;
             var maxConnecting = 3;
             var maxConnectionIdleTime = TimeSpan.FromSeconds(2);
             var maxConnectionLifeTime = TimeSpan.FromSeconds(3);
@@ -394,6 +398,7 @@ namespace MongoDB.Driver.Tests
                 ipv6,
                 loadBalanced,
                 localThreshold,
+                loggerFactory,
                 maxConnecting,
                 maxConnectionIdleTime,
                 maxConnectionLifeTime,

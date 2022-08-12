@@ -44,7 +44,9 @@ namespace MongoDB.Driver.Core.Configuration
         private ConnectionPoolSettings _connectionPoolSettings;
         private ConnectionSettings _connectionSettings;
         private ILoggerFactory _loggerFactory;
+#pragma warning disable CS0618 // Type or member is obsolete
         private SdamLoggingSettings _sdamLoggingSettings;
+#pragma warning restore CS0618 // Type or member is obsolete
         private ServerSettings _serverSettings;
         private SslStreamSettings _sslStreamSettings;
         private Func<IStreamFactory, IStreamFactory> _streamFactoryWrapper;
@@ -57,7 +59,9 @@ namespace MongoDB.Driver.Core.Configuration
         public ClusterBuilder()
         {
             _clusterSettings = new ClusterSettings();
+#pragma warning disable CS0618 // Type or member is obsolete
             _sdamLoggingSettings = new SdamLoggingSettings(null);
+#pragma warning restore CS0618 // Type or member is obsolete
             _serverSettings = new ServerSettings();
             _connectionPoolSettings = new ConnectionPoolSettings();
             _connectionSettings = new ConnectionSettings();
@@ -125,6 +129,7 @@ namespace MongoDB.Driver.Core.Configuration
         public ClusterBuilder ConfigureLoggingFactory(Func<ILoggerFactory, ILoggerFactory> configurator)
         {
             Ensure.IsNotNull(configurator, nameof(configurator));
+
             _loggerFactory = configurator(_loggerFactory).DecorateCategories();
             return this;
         }
@@ -134,7 +139,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// </summary>
         /// <param name="configurator">The SDAM logging settings configurator delegate.</param>
         /// <returns>A reconfigured cluster builder.</returns>
-        [Obsolete("Use ILoggerFactory instead.")]
+        [Obsolete("Use ConfigureLoggingFactory instead.")]
         public ClusterBuilder ConfigureSdamLogging(Func<SdamLoggingSettings, SdamLoggingSettings> configurator)
         {
             _sdamLoggingSettings = configurator(_sdamLoggingSettings);

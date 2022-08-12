@@ -18,7 +18,6 @@ using System.Linq;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
-using Microsoft.Extensions.Logging;
 using MongoDB.Driver.Core.Authentication;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
@@ -53,9 +52,8 @@ namespace MongoDB.Driver
         private readonly Dictionary<ClusterKey, ICluster> _registry = new Dictionary<ClusterKey, ICluster>();
 
         // methods
-        private ICluster CreateCluster(ClusterKey clusterKey, ILoggerFactory loggerFactory)
+        private ICluster CreateCluster(ClusterKey clusterKey)
         {
-
 #pragma warning disable CS0618 // Type or member is obsolete
             var builder = new ClusterBuilder()
                 .ConfigureCluster(settings => ConfigureCluster(settings, clusterKey))
@@ -64,7 +62,7 @@ namespace MongoDB.Driver
                 .ConfigureConnection(settings => ConfigureConnection(settings, clusterKey))
                 .ConfigureTcp(settings => ConfigureTcp(settings, clusterKey))
                 .ConfigureSdamLogging(settings => ConfigureSdamLogging(settings, clusterKey))
-                .ConfigureLoggingFactory(_ => loggerFactory);
+                .ConfigureLoggingFactory(_ => clusterKey.LoggerFactory);
 #pragma warning restore CS0618 // Type or member is obsolete
 
             if (clusterKey.UseTls)
@@ -129,7 +127,9 @@ namespace MongoDB.Driver
                 applicationName: clusterKey.ApplicationName);
         }
 
+#pragma warning disable CS0618 // Type or member is obsolete
         private SdamLoggingSettings ConfigureSdamLogging(SdamLoggingSettings settings, ClusterKey clusterKey)
+#pragma warning restore CS0618 // Type or member is obsolete
         {
             return settings.With(logFilename: clusterKey.SdamLogFilename);
         }
@@ -179,14 +179,14 @@ namespace MongoDB.Driver
                 writeTimeout: clusterKey.SocketTimeout);
         }
 
-        internal ICluster GetOrCreateCluster(ClusterKey clusterKey, ILoggerFactory loggerFactory)
+        internal ICluster GetOrCreateCluster(ClusterKey clusterKey)
         {
             lock (_lock)
             {
                 ICluster cluster;
                 if (!_registry.TryGetValue(clusterKey, out cluster))
                 {
-                    cluster = CreateCluster(clusterKey, loggerFactory);
+                    cluster = CreateCluster(clusterKey);
                     _registry.Add(clusterKey, cluster);
                 }
                 return cluster;
