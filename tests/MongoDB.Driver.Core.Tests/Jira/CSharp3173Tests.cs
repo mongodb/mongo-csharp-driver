@@ -32,14 +32,16 @@ using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
+using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using Moq;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Core.Tests.Jira
 {
-    public class CSharp3173Tests
+    public class CSharp3173Tests : LoggableTestClass
     {
 #pragma warning disable CS0618 // Type or member is obsolete
         private readonly static ClusterConnectionMode __clusterConnectionMode = ClusterConnectionMode.Sharded;
@@ -52,6 +54,10 @@ namespace MongoDB.Driver.Core.Tests.Jira
         private readonly static TimeSpan __heartbeatInterval = TimeSpan.FromMilliseconds(200);
         private readonly static ServerId __serverId1 = new ServerId(__clusterId, __endPoint1);
         private readonly static ServerId __serverId2 = new ServerId(__clusterId, __endPoint2);
+
+        public CSharp3173Tests(ITestOutputHelper output) : base(output)
+        {
+        }
 
         [Theory]
         [ParameterAttributeData]
@@ -262,11 +268,11 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 serverId => (IConnectionExceptionHandler)cluster._servers().Single(s => s.ServerId.Equals(serverId)),
                 serverInfoCollection);
             var serverMonitorConnectionFactory = CreateAndSetupServerMonitorConnectionFactory(hasNetworkErrorBeenTriggered, hasClusterBeenDisposed, streamable, serverInfoCollection);
-            var serverMonitorFactory = new ServerMonitorFactory(serverMonitorSettings, serverMonitorConnectionFactory, eventCapturer, serverApi: null);
+            var serverMonitorFactory = new ServerMonitorFactory(serverMonitorSettings, serverMonitorConnectionFactory, eventCapturer, serverApi: null, LoggerFactory);
 
-            var serverFactory = new ServerFactory(__clusterConnectionMode, __connectionModeSwitch, __directConnection, serverSettings, connectionPoolFactory, serverMonitorFactory, eventCapturer, serverApi: null);
+            var serverFactory = new ServerFactory(__clusterConnectionMode, __connectionModeSwitch, __directConnection, serverSettings, connectionPoolFactory, serverMonitorFactory, eventCapturer, serverApi: null, loggerFactory: null);
 
-            return cluster = new MultiServerCluster(clusterSettings, serverFactory, eventCapturer);
+            return cluster = new MultiServerCluster(clusterSettings, serverFactory, eventCapturer, LoggerFactory);
         }
 
         private Exception CreateDnsException(ConnectionId connectionId, string from)

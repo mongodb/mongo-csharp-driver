@@ -28,14 +28,16 @@ using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
+using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.WireProtocol;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using Moq;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Core.Servers
 {
-    public class ServerMonitorTests
+    public class ServerMonitorTests : LoggableTestClass
     {
         #region static
         private static readonly EndPoint __endPoint = new DnsEndPoint("localhost", 27017);
@@ -43,10 +45,14 @@ namespace MongoDB.Driver.Core.Servers
         private static readonly ServerMonitorSettings __serverMonitorSettings = new ServerMonitorSettings(TimeSpan.FromSeconds(30), Timeout.InfiniteTimeSpan);
         #endregion
 
+        public ServerMonitorTests(ITestOutputHelper output) : base(output)
+        {
+        }
+
         [Fact]
         public void Constructor_should_throw_when_serverId_is_null()
         {
-            Action act = () => new ServerMonitor(null, __endPoint, Mock.Of<IConnectionFactory>(), __serverMonitorSettings, new EventCapturer(), serverApi: null);
+            Action act = () => new ServerMonitor(null, __endPoint, Mock.Of<IConnectionFactory>(), __serverMonitorSettings, new EventCapturer(), serverApi: null, loggerFactory: null);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -54,7 +60,7 @@ namespace MongoDB.Driver.Core.Servers
         [Fact]
         public void Constructor_should_throw_when_endPoint_is_null()
         {
-            Action act = () => new ServerMonitor(__serverId, null, Mock.Of<IConnectionFactory>(), __serverMonitorSettings, new EventCapturer(), serverApi: null);
+            Action act = () => new ServerMonitor(__serverId, null, Mock.Of<IConnectionFactory>(), __serverMonitorSettings, new EventCapturer(), serverApi: null, loggerFactory: null);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -62,7 +68,7 @@ namespace MongoDB.Driver.Core.Servers
         [Fact]
         public void Constructor_should_throw_when_connectionFactory_is_null()
         {
-            Action act = () => new ServerMonitor(__serverId, __endPoint, null, __serverMonitorSettings, new EventCapturer(), serverApi: null);
+            Action act = () => new ServerMonitor(__serverId, __endPoint, null, __serverMonitorSettings, new EventCapturer(), serverApi: null, loggerFactory: null);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -70,7 +76,7 @@ namespace MongoDB.Driver.Core.Servers
         [Fact]
         public void Constructor_should_throw_when_eventSubscriber_is_null()
         {
-            Action act = () => new ServerMonitor(__serverId, __endPoint, Mock.Of<IConnectionFactory>(), __serverMonitorSettings, eventSubscriber: null, serverApi: null);
+            Action act = () => new ServerMonitor(__serverId, __endPoint, Mock.Of<IConnectionFactory>(), __serverMonitorSettings, eventSubscriber: null, serverApi: null, loggerFactory: null);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -78,7 +84,7 @@ namespace MongoDB.Driver.Core.Servers
         [Fact]
         public void Constructor_should_throw_when_roundTripTimeMonitor_is_null()
         {
-            var exception = Record.Exception(() => new ServerMonitor(__serverId, __endPoint, Mock.Of<IConnectionFactory>(), __serverMonitorSettings, new EventCapturer(), roundTripTimeMonitor: null, serverApi: null));
+            var exception = Record.Exception(() => new ServerMonitor(__serverId, __endPoint, Mock.Of<IConnectionFactory>(), __serverMonitorSettings, new EventCapturer(), roundTripTimeMonitor: null, serverApi: null, loggerFactory: null));
 
             exception.Should().BeOfType<ArgumentNullException>();
         }
@@ -86,7 +92,7 @@ namespace MongoDB.Driver.Core.Servers
         [Fact]
         public void Constructor_should_throw_when_serverMonitorSettings_is_null()
         {
-            var exception = Record.Exception(() => new ServerMonitor(__serverId, __endPoint, Mock.Of<IConnectionFactory>(), serverMonitorSettings: null, new EventCapturer(), serverApi: null));
+            var exception = Record.Exception(() => new ServerMonitor(__serverId, __endPoint, Mock.Of<IConnectionFactory>(), serverMonitorSettings: null, new EventCapturer(), serverApi: null, loggerFactory: null));
 
             exception.Should().BeOfType<ArgumentNullException>();
         }
@@ -395,7 +401,8 @@ namespace MongoDB.Driver.Core.Servers
                 __serverMonitorSettings,
                 eventCapturer ?? new EventCapturer(),
                 mockRoundTripTimeMonitor.Object,
-                serverApi);
+                serverApi,
+                LoggerFactory);
         }
 
         private void SetupHeartbeatConnection(MockConnection connection, bool isStreamable = false, bool autoFillStreamingResponses = true)

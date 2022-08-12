@@ -32,16 +32,22 @@ using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers;
+using MongoDB.Driver.Core.TestHelpers.Logging;
 using Moq;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
 {
-    public class ServerDiscoveryAndMonitoringTestRunner
+    public class ServerDiscoveryAndMonitoringTestRunner : LoggableTestClass
     {
         private ICluster _cluster;
         private IEventSubscriber _eventSubscriber;
         private MockClusterableServerFactory _serverFactory;
+
+        public ServerDiscoveryAndMonitoringTestRunner(ITestOutputHelper output) : base(output)
+        {
+        }
 
         [Theory]
         [ClassData(typeof(TestCaseFactory))]
@@ -585,9 +591,9 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
             }
 
             // Passing in an eventCapturer results in Server being used instead of a Mock
-            _serverFactory = new MockClusterableServerFactory(new EventCapturer());
+            _serverFactory = new MockClusterableServerFactory(LoggerFactory, new EventCapturer());
             _eventSubscriber = new Mock<IEventSubscriber>().Object;
-            return new ClusterFactory(settings, _serverFactory, _eventSubscriber)
+            return new ClusterFactory(settings, _serverFactory, _eventSubscriber, LoggerFactory)
                 .CreateCluster();
         }
 

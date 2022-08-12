@@ -25,12 +25,18 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers.Logging;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests
 {
-    public class ClusterRegistryTests
+    public class ClusterRegistryTests : LoggableTestClass
     {
+        public ClusterRegistryTests(ITestOutputHelper output) : base(output)
+        {
+        }
+
 #if WINDOWS
         [Fact]
         public void Instance_should_return_the_same_instance_every_time()
@@ -90,6 +96,7 @@ namespace MongoDB.Driver.Tests
                 ipv6: true,
                 loadBalanced: false,
                 localThreshold: TimeSpan.FromSeconds(4),
+                loggerFactory: null,
                 maxConnecting: 3,
                 maxConnectionIdleTime: TimeSpan.FromSeconds(5),
                 maxConnectionLifeTime: TimeSpan.FromSeconds(6),

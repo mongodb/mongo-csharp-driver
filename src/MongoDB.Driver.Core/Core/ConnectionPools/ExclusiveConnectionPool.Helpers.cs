@@ -23,6 +23,7 @@ using System.Threading.Tasks;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
+using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -282,8 +283,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             private void StartCheckingOut()
             {
-                _pool._checkingOutConnectionEventHandler?
-                    .Invoke(new ConnectionPoolCheckingOutConnectionEvent(_pool._serverId, EventContext.OperationId));
+                _pool._eventsLogger.LogAndPublish(new ConnectionPoolCheckingOutConnectionEvent(_pool._serverId, EventContext.OperationId));
 
                 _pool._poolState.ThrowIfNotReady();
 
@@ -296,8 +296,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 var connectionHandle = new AcquiredConnection(_pool, reference);
 
                 stopwatch.Stop();
-                var checkedOutConnectionEvent = new ConnectionPoolCheckedOutConnectionEvent(connectionHandle.ConnectionId, stopwatch.Elapsed, EventContext.OperationId);
-                _pool._checkedOutConnectionEventHandler?.Invoke(checkedOutConnectionEvent);
+                _pool._eventsLogger.LogAndPublish(new ConnectionPoolCheckedOutConnectionEvent(connectionHandle.ConnectionId, stopwatch.Elapsed, EventContext.OperationId));
 
                 // no need to release the semaphore
                 _poolQueueWaitResult = SemaphoreSlimSignalable.SemaphoreWaitResult.None;
@@ -331,18 +330,14 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             private void HandleException(Exception ex)
             {
-                var handler = _pool._checkingOutConnectionFailedEventHandler;
-                if (handler != null)
+                var reason = ex switch
                 {
-                    ConnectionCheckOutFailedReason reason;
-                    switch (ex)
-                    {
-                        case ObjectDisposedException _: reason = ConnectionCheckOutFailedReason.PoolClosed; break;
-                        case TimeoutException _: reason = ConnectionCheckOutFailedReason.Timeout; break;
-                        default: reason = ConnectionCheckOutFailedReason.ConnectionError; break;
-                    }
-                    handler(new ConnectionPoolCheckingOutConnectionFailedEvent(_pool._serverId, ex, EventContext.OperationId, reason));
-                }
+                    ObjectDisposedException => ConnectionCheckOutFailedReason.PoolClosed,
+                    TimeoutException => ConnectionCheckOutFailedReason.Timeout,
+                    _ => ConnectionCheckOutFailedReason.ConnectionError
+                };
+
+                _pool._eventsLogger.LogAndPublish(new ConnectionPoolCheckingOutConnectionFailedEvent(_pool._serverId, ex, EventContext.OperationId, reason));
             }
         }
 
@@ -659,18 +654,14 @@ namespace MongoDB.Driver.Core.ConnectionPools
             private readonly object _lockInUse = new object();
             private readonly List<PooledConnection> _connections;
             private readonly List<PooledConnection> _connectionsInUse;
+            private readonly EventsLogger<LogCategories.Connection> _eventsLogger;
 
-            private readonly Action<ConnectionPoolRemovingConnectionEvent> _removingConnectionEventHandler;
-            private readonly Action<ConnectionPoolRemovedConnectionEvent> _removedConnectionEventHandler;
-
-            public ListConnectionHolder(IEventSubscriber eventSubscriber, SemaphoreSlimSignalable semaphoreSlimSignalable)
+            public ListConnectionHolder(EventsLogger<LogCategories.Connection> eventsLogger, SemaphoreSlimSignalable semaphoreSlimSignalable)
             {
                 _semaphoreSlimSignalable = semaphoreSlimSignalable;
                 _connections = new List<PooledConnection>();
                 _connectionsInUse = new List<PooledConnection>();
-
-                eventSubscriber.TryGetEventHandler(out _removingConnectionEventHandler);
-                eventSubscriber.TryGetEventHandler(out _removedConnectionEventHandler);
+                _eventsLogger = eventsLogger;
             }
 
             public int Count
@@ -793,20 +784,14 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             public void RemoveConnection(PooledConnection connection)
             {
-                if (_removingConnectionEventHandler != null)
-                {
-                    _removingConnectionEventHandler(new ConnectionPoolRemovingConnectionEvent(connection.ConnectionId, EventContext.OperationId));
-                }
+                _eventsLogger.LogAndPublish(new ConnectionPoolRemovingConnectionEvent(connection.ConnectionId, EventContext.OperationId));
 
                 var stopwatch = Stopwatch.StartNew();
                 UntrackInUseConnection(connection); // no op if connection is not in use
                 connection.Dispose();
                 stopwatch.Stop();
 
-                if (_removedConnectionEventHandler != null)
-                {
-                    _removedConnectionEventHandler(new ConnectionPoolRemovedConnectionEvent(connection.ConnectionId, stopwatch.Elapsed, EventContext.OperationId));
-                }
+                _eventsLogger.LogAndPublish(new ConnectionPoolRemovedConnectionEvent(connection.ConnectionId, stopwatch.Elapsed, EventContext.OperationId));
             }
 
             private void SignalOrReset()
@@ -1013,8 +998,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             private void StartCreating(CancellationToken cancellationToken)
             {
-                var addingConnectionEvent = new ConnectionPoolAddingConnectionEvent(_pool._serverId, EventContext.OperationId);
-                _pool._addingConnectionEventHandler?.Invoke(addingConnectionEvent);
+                _pool._eventsLogger.LogAndPublish(new ConnectionPoolAddingConnectionEvent(_pool._serverId, EventContext.OperationId));
 
                 cancellationToken.ThrowIfCancellationRequested();
 
@@ -1029,8 +1013,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             {
                 _stopwatch.Stop();
 
-                var connectionAddedEvent = new ConnectionPoolAddedConnectionEvent(_connection.ConnectionId, _stopwatch.Elapsed, EventContext.OperationId);
-                _pool._addedConnectionEventHandler?.Invoke(connectionAddedEvent);
+                _pool._eventsLogger.LogAndPublish(new ConnectionPoolAddedConnectionEvent(_connection.ConnectionId, _stopwatch.Elapsed, EventContext.OperationId));
 
                 // Only if reached this stage, connection should not be disposed
                 _disposeConnection = false;

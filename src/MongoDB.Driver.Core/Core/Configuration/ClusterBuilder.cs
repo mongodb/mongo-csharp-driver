@@ -17,12 +17,14 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
+using Microsoft.Extensions.Logging;
 using MongoDB.Driver.Core.Authentication;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.ConnectionPools;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Events.Diagnostics;
+using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 
@@ -41,7 +43,10 @@ namespace MongoDB.Driver.Core.Configuration
         private ClusterSettings _clusterSettings;
         private ConnectionPoolSettings _connectionPoolSettings;
         private ConnectionSettings _connectionSettings;
+        private ILoggerFactory _loggerFactory;
+#pragma warning disable CS0618 // Type or member is obsolete
         private SdamLoggingSettings _sdamLoggingSettings;
+#pragma warning restore CS0618 // Type or member is obsolete
         private ServerSettings _serverSettings;
         private SslStreamSettings _sslStreamSettings;
         private Func<IStreamFactory, IStreamFactory> _streamFactoryWrapper;
@@ -54,7 +59,9 @@ namespace MongoDB.Driver.Core.Configuration
         public ClusterBuilder()
         {
             _clusterSettings = new ClusterSettings();
+#pragma warning disable CS0618 // Type or member is obsolete
             _sdamLoggingSettings = new SdamLoggingSettings(null);
+#pragma warning restore CS0618 // Type or member is obsolete
             _serverSettings = new ServerSettings();
             _connectionPoolSettings = new ConnectionPoolSettings();
             _connectionSettings = new ConnectionSettings();
@@ -114,10 +121,25 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         /// <summary>
+        /// Configures the logging factory.
+        /// </summary>
+        /// <param name="configurator">The logging factory configurator delegate.</param>
+        /// <returns>A reconfigured cluster builder.</returns>
+        [CLSCompliant(false)]
+        public ClusterBuilder ConfigureLoggingFactory(Func<ILoggerFactory, ILoggerFactory> configurator)
+        {
+            Ensure.IsNotNull(configurator, nameof(configurator));
+
+            _loggerFactory = configurator(_loggerFactory).DecorateCategories();
+            return this;
+        }
+
+        /// <summary>
         /// Configures the SDAM logging settings.
         /// </summary>
         /// <param name="configurator">The SDAM logging settings configurator delegate.</param>
         /// <returns>A reconfigured cluster builder.</returns>
+        [Obsolete("Use ConfigureLoggingFactory instead.")]
         public ClusterBuilder ConfigureSdamLogging(Func<SdamLoggingSettings, SdamLoggingSettings> configurator)
         {
             _sdamLoggingSettings = configurator(_sdamLoggingSettings);
@@ -218,7 +240,8 @@ namespace MongoDB.Driver.Core.Configuration
             return new ClusterFactory(
                 _clusterSettings,
                 serverFactory,
-                _eventAggregator);
+                _eventAggregator,
+                _loggerFactory);
         }
 
         private IConnectionPoolFactory CreateConnectionPoolFactory()
@@ -229,14 +252,16 @@ namespace MongoDB.Driver.Core.Configuration
                 _connectionSettings,
                 streamFactory,
                 _eventAggregator,
-                _clusterSettings.ServerApi);
+                _clusterSettings.ServerApi,
+                _loggerFactory);
 
             var connectionPoolSettings = _connectionPoolSettings.WithInternal(isPausable: !_connectionSettings.LoadBalanced);
 
             return new ExclusiveConnectionPoolFactory(
                 connectionPoolSettings,
                 connectionFactory,
-                _eventAggregator);
+                _eventAggregator,
+                _loggerFactory);
         }
 
         private ServerFactory CreateServerFactory()
@@ -258,7 +283,8 @@ namespace MongoDB.Driver.Core.Configuration
                 connectionPoolFactory,
                 serverMonitorFactory,
                 _eventAggregator,
-                _clusterSettings.ServerApi);
+                _clusterSettings.ServerApi,
+                _loggerFactory);
         }
 
         private IServerMonitorFactory CreateServerMonitorFactory()
@@ -292,13 +318,15 @@ namespace MongoDB.Driver.Core.Configuration
                 serverMonitorConnectionSettings,
                 serverMonitorStreamFactory,
                 new EventAggregator(),
-                _clusterSettings.ServerApi);
+                _clusterSettings.ServerApi,
+                _loggerFactory);
 
             return new ServerMonitorFactory(
                 serverMonitorSettings,
                 serverMonitorConnectionFactory,
                 _eventAggregator,
-                _clusterSettings.ServerApi);
+                _clusterSettings.ServerApi,
+                _loggerFactory);
         }
 
         private IStreamFactory CreateTcpStreamFactory(TcpStreamSettings tcpStreamSettings)

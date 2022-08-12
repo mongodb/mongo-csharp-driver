@@ -26,6 +26,7 @@ using MongoDB.Bson;
 [assembly: Preserve(AllMembers = true)]
 
 [assembly: InternalsVisibleTo("MongoDB.Driver")]
+[assembly: InternalsVisibleTo("MongoDB.Driver.TestHelpers")]
 [assembly: InternalsVisibleTo("MongoDB.Driver.Legacy")]
 [assembly: InternalsVisibleTo("MongoDB.Driver.Core.FunctionalTests")]
 [assembly: InternalsVisibleTo("MongoDB.Driver.Core.TestHelpers")]

@@ -224,7 +224,8 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
                 new ConnectionPoolSettings(maintenanceInterval: maintenanceInterval.GetValueOrDefault(defaultValue: __dummyInterval), minConnections: minPoolSize),
                 mockConnectionFactory.Object,
                 eventCapturer ?? Mock.Of<IEventSubscriber>(),
-                Mock.Of<IConnectionExceptionHandler>());
+                Mock.Of<IConnectionExceptionHandler>(),
+                null);
 
             exclusiveConnectionPool.Initialize();
             exclusiveConnectionPool.SetReady(); // MaintenanceHelper is started

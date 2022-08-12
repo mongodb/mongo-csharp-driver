@@ -17,18 +17,26 @@ using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
+using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Tests.UnifiedTestOperations;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Specifications.command_monitoring
 {
-    public class CommandMonitoringUnifiedTestRunner
+    public class CommandMonitoringUnifiedTestRunner : LoggableTestClass
     {
+        // public constructors
+        public CommandMonitoringUnifiedTestRunner(ITestOutputHelper testOutputHelper)
+            : base(testOutputHelper)
+        {
+        }
+
         [SkippableTheory]
         [ClassData(typeof(TestCaseFactory))]
         public void Run(JsonDrivenTestCase testCase)
         {
-            using (var runner = new UnifiedTestRunner())
+            using (var runner = new UnifiedTestRunner(loggerFactory: LoggerFactory))
             {
                 runner.Run(testCase);
             }

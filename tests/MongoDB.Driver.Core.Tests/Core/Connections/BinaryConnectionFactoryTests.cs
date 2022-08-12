@@ -38,7 +38,8 @@ namespace MongoDB.Driver.Core.Connections
                 settings: null,
                 streamFactory,
                 eventSubscriber,
-                serverApi: null);
+                serverApi: null,
+                loggerFactory: null);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -52,7 +53,8 @@ namespace MongoDB.Driver.Core.Connections
                 new ConnectionSettings(),
                 streamFactory: null,
                 eventSubscriber,
-                serverApi: null);
+                serverApi: null,
+                loggerFactory: null);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -66,7 +68,8 @@ namespace MongoDB.Driver.Core.Connections
                 new ConnectionSettings(),
                 streamFactory,
                 eventSubscriber,
-                serverApi: null);
+                serverApi: null,
+                loggerFactory: null);
 
             Action act = () => subject.CreateConnection(null, new DnsEndPoint("localhost", 27017));
             act.ShouldThrow<ArgumentNullException>();
@@ -81,7 +84,8 @@ namespace MongoDB.Driver.Core.Connections
                 new ConnectionSettings(),
                 streamFactory,
                 eventSubscriber,
-                serverApi: null);
+                serverApi: null,
+                loggerFactory: null);
 
             var serverId = new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27017));
 
@@ -99,7 +103,8 @@ namespace MongoDB.Driver.Core.Connections
                 new ConnectionSettings(),
                 streamFactory,
                 eventSubscriber,
-                serverApi);
+                serverApi,
+                loggerFactory: null);
 
             var serverId = new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27017));
 

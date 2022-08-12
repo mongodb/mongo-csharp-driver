@@ -17,7 +17,9 @@ using System;
 using System.Diagnostics;
 using System.Net;
 using System.Threading;
+using Microsoft.Extensions.Logging;
 using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Servers
@@ -44,13 +46,15 @@ namespace MongoDB.Driver.Core.Servers
         private Thread _roundTripTimeMonitorThread;
         private readonly ServerApi _serverApi;
         private readonly ServerId _serverId;
+        private readonly LoggerDecorator<RoundTripTimeMonitor> _logger;
 
         public RoundTripTimeMonitor(
             IConnectionFactory connectionFactory,
             ServerId serverId,
             EndPoint endpoint,
             TimeSpan heartbeatInterval,
-            ServerApi serverApi)
+            ServerApi serverApi,
+            ILogger<RoundTripTimeMonitor> logger)
         {
             _connectionFactory = Ensure.IsNotNull(connectionFactory, nameof(connectionFactory));
             _serverId = Ensure.IsNotNull(serverId, nameof(serverId));
@@ -59,6 +63,8 @@ namespace MongoDB.Driver.Core.Servers
             _serverApi = serverApi;
             _cancellationTokenSource = new CancellationTokenSource();
             _cancellationToken = _cancellationTokenSource.Token;
+
+            _logger = logger.Decorate(_serverId);
         }
 
         public TimeSpan Average
@@ -77,11 +83,15 @@ namespace MongoDB.Driver.Core.Servers
         {
             if (!_disposed)
             {
+                _logger.LogDebug("Disposing");
+
                 _disposed = true;
                 _cancellationTokenSource.Cancel();
                 _cancellationTokenSource.Dispose();
 
                 try { _roundTripTimeConnection?.Dispose(); } catch { }
+
+                _logger.LogDebug("Disposed");
             }
         }
 
@@ -106,6 +116,8 @@ namespace MongoDB.Driver.Core.Servers
         // private methods
         private void MonitorServer()
         {
+            _logger.LogDebug("Monitoring started");
+
             var helloOk = false;
             while (!_cancellationToken.IsCancellationRequested)
             {
@@ -127,7 +139,7 @@ namespace MongoDB.Driver.Core.Servers
                         helloOk = helloResult.HelloOk;
                     }
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     IConnection toDispose;
                     lock (_lock)
@@ -135,7 +147,10 @@ namespace MongoDB.Driver.Core.Servers
                         toDispose = _roundTripTimeConnection;
                         _roundTripTimeConnection = null;
                     }
+                    var connectionId = toDispose?.ConnectionId;
                     toDispose?.Dispose();
+
+                    _logger.LogDebug(ex, StructuredLogsTemplates.Message_ConnectionId, "Monitoring exception", connectionId);
                 }
                 ThreadHelper.Sleep(_heartbeatInterval, _cancellationToken);
             }

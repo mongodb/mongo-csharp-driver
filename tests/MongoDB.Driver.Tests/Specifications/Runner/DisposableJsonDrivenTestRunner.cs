@@ -34,23 +34,12 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
         {
         }
 
-        public override void Dispose()
+        // protected methods
+        protected override void DisposeInternal()
         {
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
-
-            base.Dispose();
-        }
-
-        // private methods
-        private void Dispose(bool disposing)
-        {
-            if (disposing)
+            foreach (var disposable in _disposables)
             {
-                foreach (var disposable in _disposables)
-                {
-                    disposable.Dispose();
-                }
+                disposable.Dispose();
             }
         }
     }

@@ -14,9 +14,11 @@
 */
 
 using System.Net;
+using Microsoft.Extensions.Logging;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
+using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 
@@ -28,12 +30,14 @@ namespace MongoDB.Driver.Core.ConnectionPools
         private readonly IConnectionFactory _connectionFactory;
         private readonly IEventSubscriber _eventSubscriber;
         private readonly ConnectionPoolSettings _settings;
+        private readonly ILoggerFactory _loggerFactory;
 
-        public ExclusiveConnectionPoolFactory(ConnectionPoolSettings settings, IConnectionFactory connectionFactory, IEventSubscriber eventSubscriber)
+        public ExclusiveConnectionPoolFactory(ConnectionPoolSettings settings, IConnectionFactory connectionFactory, IEventSubscriber eventSubscriber, ILoggerFactory loggerFactory)
         {
             _settings = Ensure.IsNotNull(settings, nameof(settings));
             _connectionFactory = Ensure.IsNotNull(connectionFactory, nameof(connectionFactory));
             _eventSubscriber = Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
+            _loggerFactory = loggerFactory;
         }
 
         public IConnectionPool CreateConnectionPool(ServerId serverId, EndPoint endPoint, IConnectionExceptionHandler connectionExceptionHandler)
@@ -41,7 +45,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             Ensure.IsNotNull(serverId, nameof(serverId));
             Ensure.IsNotNull(endPoint, nameof(endPoint));
 
-            return new ExclusiveConnectionPool(serverId, endPoint, _settings, _connectionFactory, _eventSubscriber, connectionExceptionHandler);
+            return new ExclusiveConnectionPool(serverId, endPoint, _settings, _connectionFactory, _eventSubscriber, connectionExceptionHandler, _loggerFactory?.CreateLogger<LogCategories.Connection>());
         }
     }
 }

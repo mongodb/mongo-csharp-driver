@@ -21,6 +21,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
@@ -30,18 +31,20 @@ using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
+using MongoDB.Driver.Core.TestHelpers.Logging;
 using Moq;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Core.Clusters
 {
-    public class ClusterTests
+    public class ClusterTests : LoggableTestClass
     {
         private readonly EventCapturer _capturedEvents;
         private readonly Mock<IClusterableServerFactory> _mockServerFactory;
         private ClusterSettings _settings;
 
-        public ClusterTests()
+        public ClusterTests(ITestOutputHelper output) : base(output)
         {
             _settings = new ClusterSettings(serverSelectionTimeout: TimeSpan.FromSeconds(2));
             _mockServerFactory = new Mock<IClusterableServerFactory>();
@@ -66,7 +69,7 @@ namespace MongoDB.Driver.Core.Clusters
         [Fact]
         public void Constructor_should_throw_if_settings_is_null()
         {
-            Action act = () => new StubCluster(null, _mockServerFactory.Object, _capturedEvents);
+            Action act = () => new StubCluster(null, _mockServerFactory.Object, _capturedEvents, null);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -74,7 +77,7 @@ namespace MongoDB.Driver.Core.Clusters
         [Fact]
         public void Constructor_should_throw_if_serverFactory_is_null()
         {
-            Action act = () => new StubCluster(_settings, null, _capturedEvents);
+            Action act = () => new StubCluster(_settings, null, _capturedEvents, null);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -82,7 +85,7 @@ namespace MongoDB.Driver.Core.Clusters
         [Fact]
         public void Constructor_should_throw_if_eventSubscriber_is_null()
         {
-            Action act = () => new StubCluster(_settings, _mockServerFactory.Object, null);
+            Action act = () => new StubCluster(_settings, _mockServerFactory.Object, null, null);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -456,7 +459,7 @@ namespace MongoDB.Driver.Core.Clusters
                 preServerSelector: preSelector,
                 postServerSelector: postSelector);
 
-            var subject = new StubCluster(settings, _mockServerFactory.Object, _capturedEvents);
+            var subject = new StubCluster(settings, _mockServerFactory.Object, _capturedEvents, LoggerFactory);
             subject.Initialize();
 
             subject.SetServerDescriptions(
@@ -496,7 +499,7 @@ namespace MongoDB.Driver.Core.Clusters
             });
 
             var settings = _settings.With(postServerSelector: customServerSelector);
-            var subject = new StubCluster(settings, _mockServerFactory.Object, _capturedEvents);
+            var subject = new StubCluster(settings, _mockServerFactory.Object, _capturedEvents, LoggerFactory);
 
             subject.Initialize();
             subject.SetServerDescriptions(
@@ -545,7 +548,7 @@ namespace MongoDB.Driver.Core.Clusters
                 _settings = _settings.With(serverSelectionTimeout: serverSelectionTimeout.Value);
             }
 
-            return new StubCluster(_settings, _mockServerFactory.Object, _capturedEvents);
+            return new StubCluster(_settings, _mockServerFactory.Object, _capturedEvents, LoggerFactory);
         }
 
         private IServer SelectServerAttempt(Cluster cluster, IServerSelector operationSelector, bool async)
@@ -568,8 +571,11 @@ namespace MongoDB.Driver.Core.Clusters
         {
             private Dictionary<EndPoint, IClusterableServer> _servers = new Dictionary<EndPoint, IClusterableServer>();
 
-            public StubCluster(ClusterSettings settings, IClusterableServerFactory serverFactory, IEventSubscriber eventSubscriber)
-                : base(settings, serverFactory, eventSubscriber)
+            public StubCluster(ClusterSettings settings,
+                IClusterableServerFactory serverFactory,
+                IEventSubscriber eventSubscriber,
+                ILoggerFactory loggerFactory)
+                : base(settings, serverFactory, eventSubscriber, loggerFactory)
             {
             }
 
