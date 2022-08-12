@@ -236,10 +236,9 @@ namespace MongoDB.Driver.Core.Clusters
             catch (Exception unexpectedException)
             {
                 // if we catch an exception here it's because of a bug in the driver
-                _clusterEventsLogger.LogAndPublish(new SdamInformationEvent(() =>
-                    string.Format(
+                _clusterEventsLogger.LogAndPublish(new SdamInformationEvent(
                         "Unexpected exception in MultiServerCluster.ServerDescriptionChangedHandler: {0}",
-                        unexpectedException.ToString())),
+                        unexpectedException),
                     unexpectedException);
             }
             // TODO: should we reset the cluster state in some way? (the state is undefined since an unexpected exception was thrown)
@@ -363,8 +362,7 @@ namespace MongoDB.Driver.Core.Clusters
                                 var server = _servers.SingleOrDefault(x => EndPointHelper.Equals(args.NewServerDescription.EndPoint, x.EndPoint));
                                 server.Invalidate("ReportedPrimaryIsStale", args.NewServerDescription.TopologyVersion);
 
-                                _clusterEventsLogger.LogAndPublish(new SdamInformationEvent(() =>
-                                    string.Format(
+                                _clusterEventsLogger.LogAndPublish(new SdamInformationEvent(
                                         @"Invalidating server: Setting ServerType to ""Unknown"" for {0} because it " +
                                         @"claimed to be the replica set primary for replica set ""{1}"" but sent a " +
                                         @"(setVersion, electionId) tuple of ({2}, {3}) that was less than than the " +
@@ -374,7 +372,7 @@ namespace MongoDB.Driver.Core.Clusters
                                         args.NewServerDescription.ReplicaSetConfig.Version,
                                         args.NewServerDescription.ElectionId,
                                         _maxElectionInfo.SetVersion,
-                                        _maxElectionInfo.ElectionId)));
+                                        _maxElectionInfo.ElectionId));
 
                                 return clusterDescription.WithServerDescription(
                                     new ServerDescription(server.ServerId, server.EndPoint, "ReportedPrimaryIsStale"));
@@ -386,8 +384,7 @@ namespace MongoDB.Driver.Core.Clusters
                     {
                         if (_maxElectionInfo == null)
                         {
-                            _clusterEventsLogger.LogAndPublish(new SdamInformationEvent(() =>
-                                string.Format(
+                            _clusterEventsLogger.LogAndPublish(new SdamInformationEvent(
                                     @"Initializing (maxSetVersion, maxElectionId): Saving tuple " +
                                     @"(setVersion, electionId) of ({0}, {1}) as (maxSetVersion, maxElectionId) for " +
                                     @"replica set ""{2}"" because replica set primary {3} sent ({0}, {1}), the first " +
@@ -396,7 +393,7 @@ namespace MongoDB.Driver.Core.Clusters
                                     args.NewServerDescription.ElectionId,
                                     args.NewServerDescription.ReplicaSetConfig.Name,
                                     args.NewServerDescription.EndPoint,
-                                    args.NewServerDescription.ReplicaSetConfig.Name)));
+                                    args.NewServerDescription.ReplicaSetConfig.Name));
 
                             _maxElectionInfo = new ElectionInfo(
                                 args.NewServerDescription.ReplicaSetConfig.Version.Value,
@@ -407,8 +404,7 @@ namespace MongoDB.Driver.Core.Clusters
                             if (_maxElectionInfo.SetVersion < args.NewServerDescription.ReplicaSetConfig.Version.Value)
                             {
                                 var electionId = args.NewServerDescription.ElectionId ?? _maxElectionInfo.ElectionId;
-                                _clusterEventsLogger.LogAndPublish(new SdamInformationEvent(() =>
-                                    string.Format(
+                                _clusterEventsLogger.LogAndPublish(new SdamInformationEvent(
                                         @"Updating stale setVersion: Updating the current " +
                                         @"(maxSetVersion, maxElectionId) tuple from ({0}, {1}) to ({2}, {3}) for " +
                                         @"replica set ""{4}"" because replica set primary {5} sent ({6}, {7})—a larger " +
@@ -420,7 +416,7 @@ namespace MongoDB.Driver.Core.Clusters
                                         args.NewServerDescription.ReplicaSetConfig.Name,
                                         args.NewServerDescription.EndPoint,
                                         args.NewServerDescription.ReplicaSetConfig.Version,
-                                        args.NewServerDescription.ElectionId)));
+                                        args.NewServerDescription.ElectionId));
 
                                 _maxElectionInfo = new ElectionInfo(
                                     args.NewServerDescription.ReplicaSetConfig.Version.Value,
@@ -428,8 +424,7 @@ namespace MongoDB.Driver.Core.Clusters
                             }
                             else // current primary is stale & setVersion is not stale ⇒ the electionId must be stale
                             {
-                                _clusterEventsLogger.LogAndPublish(new SdamInformationEvent(() =>
-                                    string.Format(
+                                _clusterEventsLogger.LogAndPublish(new SdamInformationEvent(
                                         @"Updating stale electionId: Updating the current " +
                                         @"(maxSetVersion, maxElectionId) tuple from ({0}, {1}) to ({2}, {3}) for " +
                                         @"replica set ""{4}"" because replica set primary {5} sent ({6}, {7})—" +
@@ -441,7 +436,7 @@ namespace MongoDB.Driver.Core.Clusters
                                         args.NewServerDescription.ReplicaSetConfig.Name,
                                         args.NewServerDescription.EndPoint,
                                         args.NewServerDescription.ReplicaSetConfig.Version,
-                                        args.NewServerDescription.ElectionId)));
+                                        args.NewServerDescription.ElectionId));
 
                                 _maxElectionInfo = new ElectionInfo(
                                     args.NewServerDescription.ReplicaSetConfig.Version.Value,

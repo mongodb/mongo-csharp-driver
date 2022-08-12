@@ -48,7 +48,6 @@ namespace MongoDB.Driver.Core.Clusters
         private Exception _unhandledException;
 
         private readonly EventsLogger<LogCategories.SDAM> _eventsLogger;
-        private readonly bool _isSdamEventTracked;
 
         // constructors
         public DnsMonitor(IDnsMonitoringCluster cluster,
@@ -66,7 +65,6 @@ namespace MongoDB.Driver.Core.Clusters
             _state = DnsMonitorState.Created;
 
             _eventsLogger = logger.ToEventsLogger(eventSubscriber, _service);
-            _isSdamEventTracked = _eventsLogger.IsEventTracked<SdamInformationEvent>();
         }
 
         // public properties
@@ -103,11 +101,7 @@ namespace MongoDB.Driver.Core.Clusters
             {
                 _unhandledException = exception;
 
-                if (_isSdamEventTracked)
-                {
-                    var message = $"Unhandled exception in DnsMonitor: {exception}.";
-                    _eventsLogger.LogAndPublish(exception, new SdamInformationEvent(() => message));
-                }
+                _eventsLogger.LogAndPublish(exception, new SdamInformationEvent("Unhandled exception in DnsMonitor: {0}.", exception));
 
                 _state = DnsMonitorState.Failed;
                 return;
@@ -150,10 +144,9 @@ namespace MongoDB.Driver.Core.Clusters
                 {
                     validEndPoints.Add(endPoint);
                 }
-                else if (_isSdamEventTracked)
+                else
                 {
-                    var message = $"Invalid host returned by DNS SRV lookup: {host}.";
-                    _eventsLogger.LogAndPublish(new SdamInformationEvent(() => message));
+                    _eventsLogger.LogAndPublish(new SdamInformationEvent("Invalid host returned by DNS SRV lookup: {0}.", host));
                 }
             }
 
@@ -195,10 +188,9 @@ namespace MongoDB.Driver.Core.Clusters
                         _cluster.ProcessDnsResults(endPoints);
                         _processDnsResultHasEverBeenCalled = true;
                     }
-                    else if (_isSdamEventTracked)
+                    else
                     {
-                        var message = $"A DNS SRV query on \"{_service}\" returned no valid hosts.";
-                        _eventsLogger.LogAndPublish(new SdamInformationEvent(() => message));
+                        _eventsLogger.LogAndPublish(new SdamInformationEvent("A DNS SRV query on \"{0}\" returned no valid hosts.", _service));
                     }
                 }
 
