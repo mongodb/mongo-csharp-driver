@@ -1524,6 +1524,52 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
         [SkippableTheory]
         [ParameterAttributeData]
+        public void RewrapTest(
+            [Values("local", "aws", "azure", "gcp", "kmip")] string srcProvider,
+            [Values("local", "aws", "azure", "gcp", "kmip")] string dstProvider,
+            [Values(false, true)] bool async)
+        {
+            RequireServer.Check().Supports(Feature.Csfle2);
+
+            // The test description requires configuring all kmsProviders in setup, but leaving only related to the provided income arguments
+            // to avoid restrictions on kmip mocking setup for unrelated to kmip tests
+            var kmsProviderFilter = EncryptionTestHelper.CreateKmsProviderFilter(srcProvider, dstProvider);
+            RequirePlatform
+                .Check()
+                .SkipWhen(() => kmsProviderFilter.Contains("gcp"), SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard20)  // gcp is supported starting from netstandard2.1
+                .SkipWhen(() => kmsProviderFilter.Contains("gcp"), SupportedOperatingSystem.MacOS, SupportedTargetFramework.NetStandard20);
+            if (kmsProviderFilter.Contains("kmip"))
+            {
+                RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true);
+            }
+
+            const string value = "test";
+
+            using (var client1 = ConfigureClient(clearCollections: true))
+            using (var clientEncryption1 = ConfigureClientEncryption(client1, kmsProviderFilter: kmsProviderFilter))
+            {
+                var datakeyOptions = CreateDataKeyOptions(srcProvider);
+                var keyID = CreateDataKey(clientEncryption1, srcProvider, datakeyOptions, async);
+                var ciphertext = ExplicitEncrypt(clientEncryption1, new EncryptOptions(keyId: keyID, algorithm: EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic), value, async);
+
+                using (var client2 = ConfigureClient(clearCollections: false))
+                using (var clientEncryption2 = ConfigureClientEncryption(client2, kmsProviderFilter: kmsProviderFilter))
+                {
+                    var rewrapManyDataKeyOptions = CreateRewrapManyDataKeyOptions(dstProvider);
+                    var result = RewrapManyDataKey(clientEncryption2, rewrapManyDataKeyOptions, async);
+                    result.BulkWriteResult.ModifiedCount.Should().Be(1);
+
+                    var decrypted = ExplicitDecrypt(clientEncryption1, ciphertext, async);
+                    decrypted.Should().Be(BsonValue.Create(value));
+
+                    decrypted = ExplicitDecrypt(clientEncryption2, ciphertext, async);
+                    decrypted.Should().Be(BsonValue.Create(value));
+                }
+            }
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void ViewAreProhibitedTest([Values(false, true)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
@@ -1857,34 +1903,16 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         private DataKeyOptions CreateDataKeyOptions(string kmsProvider, BsonDocument customMasterKey = null)
         {
             var alternateKeyNames = new[] { $"{kmsProvider}_altname" };
-            var masterKey = customMasterKey ??
-                kmsProvider switch
-                {
-                    var kmsName when kmsName == "local" && customMasterKey == null => null,
-                    "aws" => new BsonDocument
-                    {
-                        { "region", "us-east-1" },
-                        { "key", "arn:aws:kms:us-east-1:579766882180:key/89fcc2c4-08b0-4bd9-9f25-e30687b580d0" }
-                    },
-                    "azure" => new BsonDocument
-                    {
-                        { "keyName", "key-name-csfle" },
-                        { "keyVaultEndpoint", "key-vault-csfle.vault.azure.net" }
-                    },
-                    "gcp" => new BsonDocument
-                    {
-                        { "projectId", "devprod-drivers" },
-                        { "location", "global" },
-                        { "keyRing", "key-ring-csfle" },
-                        { "keyName", "key-name-csfle" }
-                    },
-                    "kmip" => new BsonDocument(),
-                    _ => throw new ArgumentException($"Incorrect kms provider {kmsProvider} or provided custom master key {customMasterKey}.", nameof(kmsProvider)),
-                };
-
+            var masterKey = customMasterKey ?? EncryptionTestHelper.CreateMasterKey(kmsProvider);
             return new DataKeyOptions(
                 alternateKeyNames: alternateKeyNames,
                 masterKey: masterKey);
+        }
+
+        private RewrapManyDataKeyOptions CreateRewrapManyDataKeyOptions(string kmsProvider, BsonDocument customMasterKey = null)
+        {
+            var masterKey = customMasterKey ?? EncryptionTestHelper.CreateMasterKey(kmsProvider);
+            return new RewrapManyDataKeyOptions(kmsProvider, masterKey: masterKey);
         }
 
         private DisposableMongoClient CreateMongoClient(
@@ -2150,6 +2178,24 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 collection.InsertMany(documents);
             }
         }
+
+        private RewrapManyDataKeyResult RewrapManyDataKey(
+            ClientEncryption clientEncryption,
+            RewrapManyDataKeyOptions rewrapManyDataKeyOptions,
+            bool async,
+            string filter = "{}") =>
+            async
+                ? clientEncryption
+                    .RewrapManyDataKeyAsync(
+                        filter,
+                        rewrapManyDataKeyOptions,
+                        CancellationToken.None)
+                    .GetAwaiter()
+                    .GetResult()
+                : clientEncryption.RewrapManyDataKey(
+                    filter,
+                    rewrapManyDataKeyOptions,
+                    CancellationToken.None);
 
         // nested types
         public enum CertificateType

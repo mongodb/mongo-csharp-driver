@@ -30,6 +30,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
 {
     public static class EncryptionTestHelper
     {
+        private const string KmsProviderFilterDelimiter = ";";
         private static readonly IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> __kmsProviders;
         private static readonly string __defaultMongocryptdPath = Environment.GetEnvironmentVariable("MONGODB_BINARIES") ?? "";
         private static readonly Lazy<(bool IsValid, SemanticVersion Version)> __defaultCsfleSetupState = new Lazy<(bool IsValid, SemanticVersion Version)>(IsDefaultCsfleSetupValid, isThreadSafe: true);
@@ -171,6 +172,32 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
             }
         }
 
+        public static string CreateKmsProviderFilter(params string[] kmsProviders) => string.Join(KmsProviderFilterDelimiter, kmsProviders);
+
+        public static BsonDocument CreateMasterKey(string kmsProvider) => kmsProvider switch
+        {
+            "local" => null,
+            "aws" => new BsonDocument
+            {
+                { "region", "us-east-1" },
+                { "key", "arn:aws:kms:us-east-1:579766882180:key/89fcc2c4-08b0-4bd9-9f25-e30687b580d0" }
+            },
+            "azure" => new BsonDocument
+            {
+                { "keyName", "key-name-csfle" },
+                { "keyVaultEndpoint", "key-vault-csfle.vault.azure.net" }
+            },
+            "gcp" => new BsonDocument
+            {
+                { "projectId", "devprod-drivers" },
+                { "location", "global" },
+                { "keyRing", "key-ring-csfle" },
+                { "keyName", "key-name-csfle" }
+            },
+            "kmip" => new BsonDocument(),
+            _ => throw new ArgumentException($"Incorrect kms provider {kmsProvider}.", nameof(kmsProvider)),
+        };
+
         public static Dictionary<string, SslSettings> CreateTlsOptionsIfAllowed(
             IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> kmsProviders,
             Func<string, bool> allowClientCertificateFunc)
@@ -211,7 +238,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
 
         public static IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> GetKmsProviders(string filter = null) =>
             __kmsProviders
-                .Where(kms => filter == null || kms.Key == filter)
+                .Where(kms => filter == null || filter.Split(new[] { KmsProviderFilterDelimiter }, StringSplitOptions.None).Contains(kms.Key))
                 .ToDictionary(
                     k => k.Key,
                     v => (IReadOnlyDictionary<string, object>)v.Value.ToDictionary(ik => ik.Key, iv => iv.Value)); // ensure that inner dictionary is a new instance
