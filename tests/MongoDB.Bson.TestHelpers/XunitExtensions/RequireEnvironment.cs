@@ -28,10 +28,11 @@ namespace MongoDB.Bson.TestHelpers.XunitExtensions
         }
         #endregion
 
-        public RequireEnvironment EnvironmentVariable(string name, bool isDefined = true)
+        public RequireEnvironment EnvironmentVariable(string name, bool isDefined = true, bool allowEmpty = true)
         {
-            var actualIsDefined = Environment.GetEnvironmentVariable(name) != null;
-            if (actualIsDefined == isDefined)
+            var actualValue = Environment.GetEnvironmentVariable(name);
+            var actualIsDefined = actualValue != null;
+            if (actualIsDefined == isDefined && (allowEmpty || !string.IsNullOrEmpty(actualValue)))
             {
                 return this;
             }
