@@ -19,12 +19,15 @@ using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Threading;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -102,7 +105,9 @@ namespace MongoDB.Driver.Tests
             settings.Credential = MongoCredential.CreateMongoCRCredential("database", "username", "password").WithMechanismProperty("SERVICE_NAME", "other");
 #pragma warning restore 618
             settings.SslSettings = new SslSettings { CheckCertificateRevocation = false };
+#pragma warning disable CS0618 // Type or member is obsolete
             settings.SdamLogFilename = "stdout";
+#pragma warning restore CS0618 // Type or member is obsolete
             settings.ServerApi = new ServerApi(ServerApiVersion.V1, true, true);
 
             var clone = settings.Clone();
@@ -277,7 +282,9 @@ namespace MongoDB.Driver.Tests
 #pragma warning restore 618
             Assert.Equal(MongoDefaults.WaitQueueTimeout, settings.WaitQueueTimeout);
             Assert.Equal(WriteConcern.Acknowledged, settings.WriteConcern);
+#pragma warning disable CS0618 // Type or member is obsolete
             Assert.Equal(null, settings.SdamLogFilename);
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         [Fact]
@@ -540,7 +547,9 @@ namespace MongoDB.Driver.Tests
             Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
+#pragma warning disable CS0618 // Type or member is obsolete
             clone.SdamLogFilename = "garbage";
+#pragma warning restore CS0618 // Type or member is obsolete
             Assert.False(clone.Equals(settings));
         }
 
@@ -927,6 +936,24 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void TestLoggerFactory()
+        {
+            var settings = new MongoClientSettings();
+            Assert.Equal(null, settings.LoggerFactory);
+
+            settings.LoggerFactory = null;
+            Assert.Equal(null, settings.LoggerFactory);
+
+            var loggerFactory = new Mock<ILoggerFactory>();
+            settings.LoggerFactory = loggerFactory.Object;
+            Assert.IsType<LoggerFactoryCategoryDecorator>(settings.LoggerFactory);
+
+            settings.Freeze();
+            Assert.IsType<LoggerFactoryCategoryDecorator>(settings.LoggerFactory);
+            Assert.Throws<InvalidOperationException>(() => { settings.LoggerFactory = loggerFactory.Object; });
+        }
+
+        [Fact]
         public void TestMaxConnecting()
         {
             var settings = new MongoClientSettings();
@@ -1105,6 +1132,7 @@ namespace MongoDB.Driver.Tests
             Assert.Throws<InvalidOperationException>(() => { settings.Scheme = scheme; });
         }
 
+#pragma warning disable CS0618 // Type or member is obsolete
         [Fact]
         public void TestSdamLogFileName()
         {
@@ -1119,6 +1147,7 @@ namespace MongoDB.Driver.Tests
             Assert.Same(sdamLogFileName, settings.SdamLogFilename);
             Assert.Throws<InvalidOperationException>(() => { settings.SdamLogFilename = sdamLogFileName; });
         }
+#pragma warning restore CS0618 // Type or member is obsolete
 
         [Fact]
         public void TestServer()
@@ -1390,6 +1419,10 @@ namespace MongoDB.Driver.Tests
                 EnabledSslProtocols = SslProtocols.Tls
             };
 
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MongoClientSettings
             {
                 AllowInsecureTls = false,
@@ -1404,6 +1437,7 @@ namespace MongoDB.Driver.Tests
                 HeartbeatTimeout = TimeSpan.FromSeconds(8),
                 IPv6 = true,
                 LocalThreshold = TimeSpan.FromMilliseconds(20),
+                LoggerFactory = new Mock<ILoggerFactory>().Object,
                 MaxConnecting = 3,
                 MaxConnectionIdleTime = TimeSpan.FromSeconds(2),
                 MaxConnectionLifeTime = TimeSpan.FromSeconds(3),
@@ -1411,7 +1445,9 @@ namespace MongoDB.Driver.Tests
                 MinConnectionPoolSize = 5,
                 ReplicaSetName = "rs",
                 Scheme = ConnectionStringScheme.MongoDB,
+#pragma warning disable CS0618 // Type or member is obsolete
                 SdamLogFilename = "pokédex",
+#pragma warning restore CS0618 // Type or member is obsolete
                 ServerApi = serverApi,
                 Servers = servers,
                 ServerSelectionTimeout = TimeSpan.FromSeconds(6),
@@ -1423,6 +1459,10 @@ namespace MongoDB.Driver.Tests
 #pragma warning restore 618
                 WaitQueueTimeout = TimeSpan.FromSeconds(5)
             };
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
 #pragma warning disable 618
             if (BsonDefaults.GuidRepresentationMode == GuidRepresentationMode.V2)
             {
@@ -1446,6 +1486,7 @@ namespace MongoDB.Driver.Tests
             result.HeartbeatTimeout.Should().Be(subject.HeartbeatTimeout);
             result.IPv6.Should().Be(subject.IPv6);
             result.LocalThreshold.Should().Be(subject.LocalThreshold);
+            result.LoggerFactory.Should().Be(subject.LoggerFactory);
             result.MaxConnecting.Should().Be(subject.MaxConnecting);
             result.MaxConnectionIdleTime.Should().Be(subject.MaxConnectionIdleTime);
             result.MaxConnectionLifeTime.Should().Be(subject.MaxConnectionLifeTime);
@@ -1454,7 +1495,9 @@ namespace MongoDB.Driver.Tests
             result.ReceiveBufferSize.Should().Be(MongoDefaults.TcpReceiveBufferSize);
             result.ReplicaSetName.Should().Be(subject.ReplicaSetName);
             result.Scheme.Should().Be(subject.Scheme);
+#pragma warning disable CS0618 // Type or member is obsolete
             result.SdamLogFilename.Should().Be(subject.SdamLogFilename);
+#pragma warning restore CS0618 // Type or member is obsolete
             result.SendBufferSize.Should().Be(MongoDefaults.TcpSendBufferSize);
             result.ServerApi.Should().Be(subject.ServerApi);
             result.Servers.Should().Equal(subject.Servers);

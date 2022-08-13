@@ -13,9 +13,9 @@
 * limitations under the License.
 */
 
+using Snappier;
 using System.IO;
 using System.Threading;
-using MongoDB.Driver.Core.Compression.Snappy;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Compression
@@ -35,15 +35,9 @@ namespace MongoDB.Driver.Core.Compression
             var uncompressedSize = (int)(input.Length - input.Position);
             var uncompressedBytes = new byte[uncompressedSize]; // does not include uncompressed message headers
             input.ReadBytes(uncompressedBytes, offset: 0, count: uncompressedSize, CancellationToken.None);
-            var maxCompressedSize = SnappyCodec.GetMaxCompressedLength(uncompressedSize);
+            var maxCompressedSize = Snappy.GetMaxCompressedLength(uncompressedSize);
             var compressedBytes = new byte[maxCompressedSize];
-            var compressedSize = SnappyCodec.Compress(
-                input: uncompressedBytes,
-                inputOffset: 0,
-                inputLength: uncompressedSize,
-                output: compressedBytes,
-                outputOffset: 0,
-                outputLength: compressedBytes.Length); // output.Length - outputOffset
+            var compressedSize = Snappy.Compress(uncompressedBytes, compressedBytes);
             output.Write(compressedBytes, 0, compressedSize);
         }
 
@@ -57,8 +51,10 @@ namespace MongoDB.Driver.Core.Compression
             var compressedSize = (int)(input.Length - input.Position);
             var compressedBytes = new byte[compressedSize];
             input.ReadBytes(compressedBytes, offset: 0, count: compressedSize, CancellationToken.None);
-            var decompressedBytes = SnappyCodec.Uncompress(compressedBytes);
-            output.Write(decompressedBytes, offset: 0, count: decompressedBytes.Length);
+            var uncompressedSize = Snappy.GetUncompressedLength(compressedBytes);
+            var decompressedBytes = new byte[uncompressedSize];
+            var decompressedSize = Snappy.Decompress(compressedBytes, decompressedBytes);
+            output.Write(decompressedBytes, offset: 0, count: decompressedSize);
         }
     }
 }

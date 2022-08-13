@@ -14,6 +14,7 @@
 */
 
 using System.Net;
+using Microsoft.Extensions.Logging;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
@@ -29,6 +30,7 @@ namespace MongoDB.Driver.Core.Connections
         // fields
         private readonly IConnectionInitializer _connectionInitializer;
         private readonly IEventSubscriber _eventSubscriber;
+        private readonly ILoggerFactory _loggerFactory;
         private readonly ConnectionSettings _settings;
         private readonly IStreamFactory _streamFactory;
 
@@ -37,12 +39,14 @@ namespace MongoDB.Driver.Core.Connections
             ConnectionSettings settings,
             IStreamFactory streamFactory,
             IEventSubscriber eventSubscriber,
-            ServerApi serverApi)
+            ServerApi serverApi,
+            ILoggerFactory loggerFactory)
         {
             _settings = Ensure.IsNotNull(settings, nameof(settings));
             _streamFactory = Ensure.IsNotNull(streamFactory, nameof(streamFactory));
             _eventSubscriber = Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
             _connectionInitializer = new ConnectionInitializer(settings.ApplicationName, settings.Compressors, serverApi);
+            _loggerFactory = loggerFactory;
         }
 
         // methods
@@ -50,7 +54,7 @@ namespace MongoDB.Driver.Core.Connections
         {
             Ensure.IsNotNull(serverId, nameof(serverId));
             Ensure.IsNotNull(endPoint, nameof(endPoint));
-            return new BinaryConnection(serverId, endPoint, _settings, _streamFactory, _connectionInitializer, _eventSubscriber);
+            return new BinaryConnection(serverId, endPoint, _settings, _streamFactory, _connectionInitializer, _eventSubscriber, _loggerFactory);
         }
     }
 }

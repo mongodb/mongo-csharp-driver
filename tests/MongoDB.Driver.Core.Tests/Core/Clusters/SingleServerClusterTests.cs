@@ -20,14 +20,16 @@ using FluentAssertions;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
-using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.Helpers;
+using MongoDB.Driver.Core.Servers;
+using MongoDB.Driver.Core.TestHelpers.Logging;
 using Moq;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Core.Clusters
 {
-    public class SingleServerClusterTests
+    public class SingleServerClusterTests : LoggableTestClass
     {
         private EventCapturer _capturedEvents;
         private MockClusterableServerFactory _mockServerFactory;
@@ -35,10 +37,10 @@ namespace MongoDB.Driver.Core.Clusters
 
         private EndPoint _endPoint = new DnsEndPoint("localhost", 27017);
 
-        public SingleServerClusterTests()
+        public SingleServerClusterTests(ITestOutputHelper output) : base(output)
         {
             _settings = new ClusterSettings();
-            _mockServerFactory = new MockClusterableServerFactory();
+            _mockServerFactory = new MockClusterableServerFactory(LoggerFactory);
             _capturedEvents = new EventCapturer();
         }
 
@@ -46,7 +48,7 @@ namespace MongoDB.Driver.Core.Clusters
         public void Constructor_should_throw_if_more_than_one_endpoint_is_specified()
         {
             _settings = _settings.With(endPoints: new[] { _endPoint, new DnsEndPoint("localhost", 27018) });
-            Action act = () => new SingleServerCluster(_settings, _mockServerFactory, _capturedEvents);
+            Action act = () => new SingleServerCluster(_settings, _mockServerFactory, _capturedEvents, loggerFactory: null);
 
             act.ShouldThrow<ArgumentException>();
         }
@@ -56,7 +58,7 @@ namespace MongoDB.Driver.Core.Clusters
         {
             _settings = _settings.With(srvMaxHosts: 2);
 
-            var exception = Record.Exception(() => new SingleServerCluster(_settings, _mockServerFactory, _capturedEvents));
+            var exception = Record.Exception(() => new SingleServerCluster(_settings, _mockServerFactory, _capturedEvents, loggerFactory: null));
 
             exception.Should().BeOfType<ArgumentException>();
         }
@@ -193,7 +195,7 @@ namespace MongoDB.Driver.Core.Clusters
         // private methods
         private SingleServerCluster CreateSubject()
         {
-            return new SingleServerCluster(_settings, _mockServerFactory, _capturedEvents);
+            return new SingleServerCluster(_settings, _mockServerFactory, _capturedEvents, LoggerFactory);
         }
 
         private void PublishDescription(EndPoint endPoint, ServerType serverType, ReplicaSetConfig replicaSetConfig = null)

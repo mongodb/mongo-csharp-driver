@@ -18,14 +18,20 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.TestHelpers;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
 {
-    public class MMapV1Tests
+    public class MMapV1Tests : LoggableTestClass
     {
+        public MMapV1Tests(ITestOutputHelper output) : base(output)
+        {
+        }
+
         [SkippableTheory]
         [ParameterAttributeData]
         public void Write_operation_should_throw_when_retry_writes_is_true_and_storage_engine_is_MMMAPv1(
@@ -60,7 +66,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
         // private methods
         private DisposableMongoClient CreateDisposableMongoClient()
         {
-            return DriverTestConfiguration.CreateDisposableClient(s => s.RetryWrites = true, logger: null);
+            return DriverTestConfiguration.CreateDisposableClient(s => s.RetryWrites = true, LoggerFactory);
         }
     }
 }

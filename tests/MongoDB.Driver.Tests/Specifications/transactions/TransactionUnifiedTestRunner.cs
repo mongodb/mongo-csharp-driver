@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
                 throw new SkipException("Load balancer support not yet implemented.");
             }
 
-            using (var runner = new UnifiedTestRunner())
+            using (var runner = new UnifiedTestRunner(loggerFactory: LoggerFactory))
             {
                 runner.Run(testCase);
             }

@@ -13,11 +13,14 @@
 * limitations under the License.
 */
 
+using System;
+
 namespace MongoDB.Driver.Core.Configuration
 {
     /// <summary>
     /// Represents settings for SDAM logging.
     /// </summary>
+    [Obsolete("Use MongoClientSettings.LoggerFactory instead.")]
     public class SdamLoggingSettings
     {
         private readonly string _logFilename;

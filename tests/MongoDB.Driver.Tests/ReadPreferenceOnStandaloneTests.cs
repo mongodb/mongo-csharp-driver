@@ -23,13 +23,19 @@ using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Servers;
+using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.TestHelpers;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests
 {
-    public class ReadPreferenceOnStandaloneTests
+    public class ReadPreferenceOnStandaloneTests : LoggableTestClass
     {
+        public ReadPreferenceOnStandaloneTests(ITestOutputHelper output) : base(output)
+        {
+        }
+
         [Theory]
         [ParameterAttributeData]
         public void ReadPreference_should_not_be_sent_to_standalone_server(
@@ -73,7 +79,7 @@ namespace MongoDB.Driver.Tests
                 settings.ClusterConfigurator = c => c.Subscribe(eventCapturer);
                 settings.ReadPreference = readPreference;
             },
-            logger: null);
+            LoggerFactory);
         }
     }
 }

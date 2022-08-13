@@ -27,22 +27,24 @@ using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
+using MongoDB.Driver.Core.TestHelpers.Logging;
 using Moq;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Core.Tests.Core.Clusters
 {
-    public class LoadBalancedClusterTests
+    public class LoadBalancedClusterTests : LoggableTestClass
     {
         private EventCapturer _capturedEvents;
         private readonly MockClusterableServerFactory _mockServerFactory;
         private ClusterSettings _settings;
         private readonly EndPoint _endPoint = new DnsEndPoint("localhost", 27017);
 
-        public LoadBalancedClusterTests()
+        public LoadBalancedClusterTests(ITestOutputHelper output) : base(output)
         {
             _settings = new ClusterSettings().With(loadBalanced: true);
-            _mockServerFactory = new MockClusterableServerFactory();
+            _mockServerFactory = new MockClusterableServerFactory(LoggerFactory);
             _capturedEvents = new EventCapturer();
         }
 
@@ -54,16 +56,10 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
             var mockEventSubscriber = new Mock<IEventSubscriber>();
             var dnsMonitorFactory = Mock.Of<IDnsMonitorFactory>();
 
-            var result = new LoadBalancedCluster(settings, serverFactory, mockEventSubscriber.Object, dnsMonitorFactory);
+            var result = new LoadBalancedCluster(settings, serverFactory, mockEventSubscriber.Object, null, dnsMonitorFactory);
 
             result._dnsMonitorFactory().Should().BeSameAs(dnsMonitorFactory);
-            result._eventSubscriber().Should().BeSameAs(mockEventSubscriber.Object);
             result._state().Value.Should().Be(0); // State.Initial
-            AssertTryGetEventHandlerWasCalled<ClusterClosingEvent>(mockEventSubscriber);
-            AssertTryGetEventHandlerWasCalled<ClusterClosedEvent>(mockEventSubscriber);
-            AssertTryGetEventHandlerWasCalled<ClusterOpeningEvent>(mockEventSubscriber);
-            AssertTryGetEventHandlerWasCalled<ClusterOpenedEvent>(mockEventSubscriber);
-            AssertTryGetEventHandlerWasCalled<ClusterDescriptionChangedEvent>(mockEventSubscriber);
         }
 
         [Theory]
@@ -74,7 +70,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
             _settings = _settings.With(connectionModeSwitch: ConnectionModeSwitch.UseDirectConnection, directConnection: directConnection);
 #pragma warning restore CS0618 // Type or member is obsolete
 
-            var exception = Record.Exception(() => new LoadBalancedCluster(_settings, _mockServerFactory, _capturedEvents));
+            var exception = Record.Exception(() => new LoadBalancedCluster(_settings, _mockServerFactory, _capturedEvents, null));
 
             if (directConnection.GetValueOrDefault())
             {
@@ -92,7 +88,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
         {
             _settings = _settings.With(loadBalanced: loadBalanced);
 
-            var exception = Record.Exception(() => new LoadBalancedCluster(_settings, _mockServerFactory, _capturedEvents));
+            var exception = Record.Exception(() => new LoadBalancedCluster(_settings, _mockServerFactory, _capturedEvents, LoggerFactory));
 
             if (!loadBalanced)
             {
@@ -114,7 +110,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
         {
             _settings = _settings.With(connectionModeSwitch: connectionModeSwitch);
 
-            var exception = Record.Exception(() => new LoadBalancedCluster(_settings, _mockServerFactory, _capturedEvents));
+            var exception = Record.Exception(() => new LoadBalancedCluster(_settings, _mockServerFactory, _capturedEvents, loggerFactory: null));
 
             if (shouldThrow)
             {
@@ -131,7 +127,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
         {
             _settings = _settings.With(endPoints: new[] { _endPoint, new DnsEndPoint("localhost", 27018) });
 
-            var exception = Record.Exception(() => new LoadBalancedCluster(_settings, _mockServerFactory, _capturedEvents));
+            var exception = Record.Exception(() => new LoadBalancedCluster(_settings, _mockServerFactory, _capturedEvents, loggerFactory: null));
 
             exception.Should().BeOfType<ArgumentException>();
         }
@@ -141,7 +137,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
         {
             _settings = _settings.With(replicaSetName: "rs");
 
-            var exception = Record.Exception(() => new LoadBalancedCluster(_settings, _mockServerFactory, _capturedEvents));
+            var exception = Record.Exception(() => new LoadBalancedCluster(_settings, _mockServerFactory, _capturedEvents, loggerFactory: null));
 
             exception.Should().BeOfType<ArgumentNullException>();
         }
@@ -151,7 +147,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
         {
             _settings = _settings.With(srvMaxHosts: 2);
 
-            var exception = Record.Exception(() => new LoadBalancedCluster(_settings, _mockServerFactory, _capturedEvents));
+            var exception = Record.Exception(() => new LoadBalancedCluster(_settings, _mockServerFactory, _capturedEvents, loggerFactory: null));
 
             exception.Should().BeOfType<ArgumentException>();
         }
@@ -484,12 +480,6 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
         }
 
         // private methods
-        private void AssertTryGetEventHandlerWasCalled<TEvent>(Mock<IEventSubscriber> mockEventSubscriber)
-        {
-            Action<TEvent> handler;
-            mockEventSubscriber.Verify(m => m.TryGetEventHandler(out handler), Times.Once);
-        }
-
         private Mock<IDnsMonitorFactory> CreateMockDnsMonitorFactory()
         {
             var mockDnsMonitorFactory = new Mock<IDnsMonitorFactory>();
@@ -502,8 +492,8 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
         private LoadBalancedCluster CreateSubject(ClusterSettings settings = null, IDnsMonitorFactory dnsMonitorFactory = null)
         {
             return dnsMonitorFactory != null
-                ? new LoadBalancedCluster(settings ?? _settings, _mockServerFactory, _capturedEvents, dnsMonitorFactory)
-                : new LoadBalancedCluster(settings ?? _settings, _mockServerFactory, _capturedEvents);
+                ? new LoadBalancedCluster(settings ?? _settings, _mockServerFactory, _capturedEvents, LoggerFactory, dnsMonitorFactory)
+                : new LoadBalancedCluster(settings ?? _settings, _mockServerFactory, _capturedEvents, LoggerFactory);
         }
 
         private void PublishDnsException(IDnsMonitoringCluster cluster, Exception exception)
@@ -533,7 +523,6 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
         public static IClusterableServer InitializeServer(this LoadBalancedCluster cluster, IClusterableServer server) => (IClusterableServer)Reflector.Invoke(cluster, nameof(InitializeServer), server);
         public static IDnsMonitorFactory _dnsMonitorFactory(this LoadBalancedCluster cluster) => (IDnsMonitorFactory)Reflector.GetFieldValue(cluster, nameof(_dnsMonitorFactory));
         public static Thread _dnsMonitorThread(this LoadBalancedCluster cluster) => (Thread)Reflector.GetFieldValue(cluster, nameof(_dnsMonitorThread));
-        public static IEventSubscriber _eventSubscriber(this LoadBalancedCluster cluster) => (IEventSubscriber)Reflector.GetFieldValue(cluster, nameof(_eventSubscriber));
         public static IClusterableServer _server(this LoadBalancedCluster cluster) => (IClusterableServer)Reflector.GetFieldValue(cluster, nameof(_server));
         public static InterlockedInt32 _state(this LoadBalancedCluster cluster) => (InterlockedInt32)Reflector.GetFieldValue(cluster, nameof(_state));
     }

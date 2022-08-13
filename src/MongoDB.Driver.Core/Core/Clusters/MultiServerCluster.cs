@@ -19,6 +19,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Threading;
+using Microsoft.Extensions.Logging;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
@@ -42,24 +43,14 @@ namespace MongoDB.Driver.Core.Clusters
         private readonly InterlockedInt32 _state;
         private readonly object _updateClusterDescriptionLock = new object();
 
-        private readonly IEventSubscriber _eventSubscriber;
-        private readonly Action<ClusterClosingEvent> _closingEventHandler;
-        private readonly Action<ClusterClosedEvent> _closedEventHandler;
-        private readonly Action<ClusterOpeningEvent> _openingEventHandler;
-        private readonly Action<ClusterOpenedEvent> _openedEventHandler;
-        private readonly Action<ClusterAddingServerEvent> _addingServerEventHandler;
-        private readonly Action<ClusterAddedServerEvent> _addedServerEventHandler;
-        private readonly Action<ClusterRemovingServerEvent> _removingServerEventHandler;
-        private readonly Action<ClusterRemovedServerEvent> _removedServerEventHandler;
-        private readonly Action<SdamInformationEvent> _sdamInformationEventHandler;
-
         // constructors
         public MultiServerCluster(
             ClusterSettings settings,
             IClusterableServerFactory serverFactory,
             IEventSubscriber eventSubscriber,
+            ILoggerFactory loggerFactory,
             IDnsMonitorFactory dnsMonitorFactory = null)
-            : base(settings, serverFactory, eventSubscriber)
+            : base(settings, serverFactory, eventSubscriber, loggerFactory)
         {
             Ensure.IsGreaterThanZero(settings.EndPoints.Count, "settings.EndPoints.Count");
 
@@ -75,22 +66,12 @@ namespace MongoDB.Driver.Core.Clusters
             }
 #pragma warning restore CS0618 // Type or member is obsolete
 
-            _dnsMonitorFactory = dnsMonitorFactory ?? new DnsMonitorFactory(eventSubscriber);
+            _dnsMonitorFactory = dnsMonitorFactory ?? new DnsMonitorFactory(eventSubscriber, loggerFactory);
             _monitorServersCancellationTokenSource = new CancellationTokenSource();
             _servers = new List<IClusterableServer>();
             _state = new InterlockedInt32(State.Initial);
             _replicaSetName = settings.ReplicaSetName;
 
-            _eventSubscriber = eventSubscriber;
-            eventSubscriber.TryGetEventHandler(out _closingEventHandler);
-            eventSubscriber.TryGetEventHandler(out _closedEventHandler);
-            eventSubscriber.TryGetEventHandler(out _openingEventHandler);
-            eventSubscriber.TryGetEventHandler(out _openedEventHandler);
-            eventSubscriber.TryGetEventHandler(out _addingServerEventHandler);
-            eventSubscriber.TryGetEventHandler(out _addedServerEventHandler);
-            eventSubscriber.TryGetEventHandler(out _removingServerEventHandler);
-            eventSubscriber.TryGetEventHandler(out _removedServerEventHandler);
-            eventSubscriber.TryGetEventHandler(out _sdamInformationEventHandler);
         }
 
         // methods
@@ -101,10 +82,7 @@ namespace MongoDB.Driver.Core.Clusters
             {
                 if (disposing)
                 {
-                    if (_closingEventHandler != null)
-                    {
-                        _closingEventHandler(new ClusterClosingEvent(ClusterId));
-                    }
+                    _clusterEventsLogger.LogAndPublish(new ClusterClosingEvent(ClusterId));
 
                     stopwatch = Stopwatch.StartNew();
                     _monitorServersCancellationTokenSource.Cancel();
@@ -123,9 +101,9 @@ namespace MongoDB.Driver.Core.Clusters
 
             base.Dispose(disposing);
 
-            if (stopwatch != null && _closedEventHandler != null)
+            if (stopwatch != null)
             {
-                _closedEventHandler(new ClusterClosedEvent(ClusterId, stopwatch.Elapsed));
+                _clusterEventsLogger.LogAndPublish(new ClusterClosedEvent(ClusterId, stopwatch.Elapsed));
             }
         }
 
@@ -134,10 +112,7 @@ namespace MongoDB.Driver.Core.Clusters
             base.Initialize();
             if (_state.TryChange(State.Initial, State.Open))
             {
-                if (_openingEventHandler != null)
-                {
-                    _openingEventHandler(new ClusterOpeningEvent(ClusterId, Settings));
-                }
+                _clusterEventsLogger.LogAndPublish(new ClusterOpeningEvent(ClusterId, Settings));
 
                 var stopwatch = Stopwatch.StartNew();
 
@@ -170,10 +145,7 @@ namespace MongoDB.Driver.Core.Clusters
                     server.Initialize();
                 }
 
-                if (_openedEventHandler != null)
-                {
-                    _openedEventHandler(new ClusterOpenedEvent(ClusterId, Settings, stopwatch.Elapsed));
-                }
+                _clusterEventsLogger.LogAndPublish(new ClusterOpenedEvent(ClusterId, Settings, stopwatch.Elapsed));
 
                 if (Settings.Scheme == ConnectionStringScheme.MongoDBPlusSrv)
                 {
@@ -264,23 +236,13 @@ namespace MongoDB.Driver.Core.Clusters
             catch (Exception unexpectedException)
             {
                 // if we catch an exception here it's because of a bug in the driver
-                var handler = _sdamInformationEventHandler;
-                if (handler != null)
-                {
-                    try
-                    {
-                        handler.Invoke(new SdamInformationEvent(() =>
-                            string.Format(
-                                "Unexpected exception in MultiServerCluster.ServerDescriptionChangedHandler: {0}",
-                                unexpectedException.ToString())));
-                    }
-                    catch
-                    {
-                        // ignore any exceptions thrown by the handler (note: event handlers aren't supposed to throw exceptions)
-                    }
-                }
-                // TODO: should we reset the cluster state in some way? (the state is undefined since an unexpected exception was thrown)
+                _clusterEventsLogger.LogAndPublish(new SdamInformationEvent(() =>
+                    string.Format(
+                        "Unexpected exception in MultiServerCluster.ServerDescriptionChangedHandler: {0}",
+                        unexpectedException.ToString())),
+                    unexpectedException);
             }
+            // TODO: should we reset the cluster state in some way? (the state is undefined since an unexpected exception was thrown)
         }
 
         private void ProcessServerDescriptionChanged(ServerDescriptionChangedEventArgs args)
@@ -401,7 +363,7 @@ namespace MongoDB.Driver.Core.Clusters
                                 var server = _servers.SingleOrDefault(x => EndPointHelper.Equals(args.NewServerDescription.EndPoint, x.EndPoint));
                                 server.Invalidate("ReportedPrimaryIsStale", args.NewServerDescription.TopologyVersion);
 
-                                _sdamInformationEventHandler?.Invoke(new SdamInformationEvent(() =>
+                                _clusterEventsLogger.LogAndPublish(new SdamInformationEvent(() =>
                                     string.Format(
                                         @"Invalidating server: Setting ServerType to ""Unknown"" for {0} because it " +
                                         @"claimed to be the replica set primary for replica set ""{1}"" but sent a " +
@@ -424,7 +386,7 @@ namespace MongoDB.Driver.Core.Clusters
                     {
                         if (_maxElectionInfo == null)
                         {
-                            _sdamInformationEventHandler?.Invoke(new SdamInformationEvent(() =>
+                            _clusterEventsLogger.LogAndPublish(new SdamInformationEvent(() =>
                                 string.Format(
                                     @"Initializing (maxSetVersion, maxElectionId): Saving tuple " +
                                     @"(setVersion, electionId) of ({0}, {1}) as (maxSetVersion, maxElectionId) for " +
@@ -445,7 +407,7 @@ namespace MongoDB.Driver.Core.Clusters
                             if (_maxElectionInfo.SetVersion < args.NewServerDescription.ReplicaSetConfig.Version.Value)
                             {
                                 var electionId = args.NewServerDescription.ElectionId ?? _maxElectionInfo.ElectionId;
-                                _sdamInformationEventHandler?.Invoke(new SdamInformationEvent(() =>
+                                _clusterEventsLogger.LogAndPublish(new SdamInformationEvent(() =>
                                     string.Format(
                                         @"Updating stale setVersion: Updating the current " +
                                         @"(maxSetVersion, maxElectionId) tuple from ({0}, {1}) to ({2}, {3}) for " +
@@ -466,7 +428,7 @@ namespace MongoDB.Driver.Core.Clusters
                             }
                             else // current primary is stale & setVersion is not stale ⇒ the electionId must be stale
                             {
-                                _sdamInformationEventHandler?.Invoke(new SdamInformationEvent(() =>
+                                _clusterEventsLogger.LogAndPublish(new SdamInformationEvent(() =>
                                     string.Format(
                                         @"Updating stale electionId: Updating the current " +
                                         @"(maxSetVersion, maxElectionId) tuple from ({0}, {1}) to ({2}, {3}) for " +
@@ -626,10 +588,7 @@ namespace MongoDB.Driver.Core.Clusters
                     return clusterDescription;
                 }
 
-                if (_addingServerEventHandler != null)
-                {
-                    _addingServerEventHandler(new ClusterAddingServerEvent(ClusterId, endPoint));
-                }
+                _clusterEventsLogger.LogAndPublish(new ClusterAddingServerEvent(ClusterId, endPoint));
 
                 stopwatch.Start();
                 server = CreateServer(endPoint);
@@ -641,10 +600,7 @@ namespace MongoDB.Driver.Core.Clusters
             clusterDescription = clusterDescription.WithServerDescription(server.Description);
             stopwatch.Stop();
 
-            if (_addedServerEventHandler != null)
-            {
-                _addedServerEventHandler(new ClusterAddedServerEvent(server.ServerId, stopwatch.Elapsed));
-            }
+            _clusterEventsLogger.LogAndPublish(new ClusterAddedServerEvent(server.ServerId, stopwatch.Elapsed));
 
             return clusterDescription;
         }
@@ -685,10 +641,7 @@ namespace MongoDB.Driver.Core.Clusters
                     return clusterDescription;
                 }
 
-                if (_removingServerEventHandler != null)
-                {
-                    _removingServerEventHandler(new ClusterRemovingServerEvent(server.ServerId, reason));
-                }
+                _clusterEventsLogger.LogAndPublish(new ClusterRemovingServerEvent(server.ServerId, reason));
 
                 stopwatch.Start();
                 _servers.Remove(server);
@@ -698,10 +651,7 @@ namespace MongoDB.Driver.Core.Clusters
             server.Dispose();
             stopwatch.Stop();
 
-            if (_removedServerEventHandler != null)
-            {
-                _removedServerEventHandler(new ClusterRemovedServerEvent(server.ServerId, reason, stopwatch.Elapsed));
-            }
+            _clusterEventsLogger.LogAndPublish(new ClusterRemovedServerEvent(server.ServerId, reason, stopwatch.Elapsed));
 
             return clusterDescription.WithoutServerDescription(endPoint);
         }

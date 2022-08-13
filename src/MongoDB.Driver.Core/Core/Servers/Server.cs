@@ -19,6 +19,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
@@ -28,6 +29,7 @@ using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.ConnectionPools;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
+using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol;
 using MongoDB.Driver.Core.WireProtocol.Messages;
@@ -53,14 +55,9 @@ namespace MongoDB.Driver.Core.Servers
         private readonly ServerSettings _settings;
         private readonly InterlockedInt32 _state;
         private readonly ServerApi _serverApi;
+        private readonly EventsLogger<LogCategories.SDAM> _eventsLogger;
 
         private int _outstandingOperationsCount;
-
-        private readonly Action<ServerOpeningEvent> _openingEventHandler;
-        private readonly Action<ServerOpenedEvent> _openedEventHandler;
-        private readonly Action<ServerClosingEvent> _closingEventHandler;
-        private readonly Action<ServerClosedEvent> _closedEventHandler;
-        private readonly Action<ServerDescriptionChangedEvent> _descriptionChangedEventHandler;
 
         // constructors
         public Server(
@@ -75,7 +72,8 @@ namespace MongoDB.Driver.Core.Servers
             EndPoint endPoint,
             IConnectionPoolFactory connectionPoolFactory,
             IEventSubscriber eventSubscriber,
-            ServerApi serverApi)
+            ServerApi serverApi,
+            ILogger<LogCategories.SDAM> logger)
         {
             ClusterConnectionModeHelper.EnsureConnectionModeValuesAreValid(clusterConnectionMode, connectionModeSwitch, directConnection);
 
@@ -93,11 +91,7 @@ namespace MongoDB.Driver.Core.Servers
             _serverApi = serverApi;
             _outstandingOperationsCount = 0;
 
-            eventSubscriber.TryGetEventHandler(out _openingEventHandler);
-            eventSubscriber.TryGetEventHandler(out _openedEventHandler);
-            eventSubscriber.TryGetEventHandler(out _closingEventHandler);
-            eventSubscriber.TryGetEventHandler(out _closedEventHandler);
-            eventSubscriber.TryGetEventHandler(out _descriptionChangedEventHandler);
+            _eventsLogger = logger.ToEventsLogger(eventSubscriber, _serverId);
         }
 
         // events
@@ -110,6 +104,7 @@ namespace MongoDB.Driver.Core.Servers
         public EndPoint EndPoint => _endPoint;
         public bool IsInitialized => _state.Value != State.Initial;
         public ServerId ServerId => _serverId;
+        protected EventsLogger<LogCategories.SDAM> EventsLogger => _eventsLogger;
 
         int IClusterableServer.OutstandingOperationsCount => Interlocked.CompareExchange(ref _outstandingOperationsCount, 0, 0);
 
@@ -118,10 +113,7 @@ namespace MongoDB.Driver.Core.Servers
         {
             if (_state.TryChange(State.Disposed))
             {
-                if (_closingEventHandler != null)
-                {
-                    _closingEventHandler(new ServerClosingEvent(_serverId));
-                }
+                _eventsLogger.LogAndPublish(new ServerClosingEvent(_serverId));
 
                 var stopwatch = Stopwatch.StartNew();
 
@@ -130,10 +122,7 @@ namespace MongoDB.Driver.Core.Servers
                 _connectionPool.Dispose();
                 stopwatch.Stop();
 
-                if (_closedEventHandler != null)
-                {
-                    _closedEventHandler(new ServerClosedEvent(_serverId, stopwatch.Elapsed));
-                }
+                _eventsLogger.LogAndPublish(new ServerClosedEvent(_serverId, stopwatch.Elapsed));
             }
         }
 
@@ -181,20 +170,14 @@ namespace MongoDB.Driver.Core.Servers
         {
             if (_state.TryChange(State.Initial, State.Open))
             {
-                if (_openingEventHandler != null)
-                {
-                    _openingEventHandler(new ServerOpeningEvent(_serverId, _settings));
-                }
+                _eventsLogger.LogAndPublish(new ServerOpeningEvent(_serverId, _settings));
 
                 var stopwatch = Stopwatch.StartNew();
                 _connectionPool.Initialize();
                 InitializeSubClass();
                 stopwatch.Stop();
 
-                if (_openedEventHandler != null)
-                {
-                    _openedEventHandler(new ServerOpenedEvent(_serverId, _settings, stopwatch.Elapsed));
-                }
+                _eventsLogger.LogAndPublish(new ServerOpenedEvent(_serverId, _settings, stopwatch.Elapsed));
             }
         }
 
@@ -242,10 +225,9 @@ namespace MongoDB.Driver.Core.Servers
 
         protected void TriggerServerDescriptionChanged(object sender, ServerDescriptionChangedEventArgs e)
         {
-            var shouldServerDescriptionChangedEventBePublished = !e.OldServerDescription.SdamEquals(e.NewServerDescription);
-            if (shouldServerDescriptionChangedEventBePublished && _descriptionChangedEventHandler != null)
+            if (!e.OldServerDescription.SdamEquals(e.NewServerDescription))
             {
-                _descriptionChangedEventHandler(new ServerDescriptionChangedEvent(e.OldServerDescription, e.NewServerDescription));
+                _eventsLogger.LogAndPublish(new ServerDescriptionChangedEvent(e.OldServerDescription, e.NewServerDescription));
             }
 
             var handler = DescriptionChanged;

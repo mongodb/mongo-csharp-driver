@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
@@ -188,14 +189,14 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
 
         protected virtual void CheckServerRequirements(BsonDocument document)
         {
-            Logger.Debug("Checking server requirements");
+            Logger.LogDebug("Checking server requirements");
 
             if (document.TryGetValue("runOn", out var runOn))
             {
                 RequireServer.Check().RunOn(runOn.AsBsonArray);
             }
 
-            Logger.Debug("Checked server requirements");
+            Logger.LogDebug("Checked server requirements");
         }
 
         protected virtual void ConfigureClientSettings(MongoClientSettings settings, BsonDocument test)
@@ -214,7 +215,7 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
 
         protected virtual void CreateCollection(IMongoClient client, string databaseName, string collectionName, BsonDocument test, BsonDocument shared)
         {
-            Logger.Debug("Creating collection {0} in {1} db", databaseName, collectionName);
+            Logger.LogDebug("Creating collection {0} in {1} db", databaseName, collectionName);
 
             var database = client.GetDatabase(databaseName).WithWriteConcern(WriteConcern.WMajority);
             database.CreateCollection(collectionName);
@@ -237,7 +238,7 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
 
         protected virtual void DropCollection(MongoClient client, string databaseName, string collectionName, BsonDocument test, BsonDocument shared)
         {
-            Logger.Debug("Dropping collection {0} in {1} db", databaseName, collectionName);
+            Logger.LogDebug("Dropping collection {0} in {1} db", databaseName, collectionName);
 
             var database = client.GetDatabase(databaseName).WithWriteConcern(WriteConcern.WMajority);
             database.DropCollection(collectionName);
@@ -251,7 +252,7 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
 
             foreach (var operation in test[OperationsKey].AsBsonArray.Cast<BsonDocument>())
             {
-                Logger.Debug("Executing operation {0}", operation["name"].AsString);
+                Logger.LogDebug("Executing operation {0}", operation["name"].AsString);
 
                 ModifyOperationIfNeeded(operation);
                 var receiver = operation["object"].AsString;
@@ -282,7 +283,7 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
 
         protected virtual void InsertData(IMongoClient client, string databaseName, string collectionName, BsonDocument shared)
         {
-            Logger.Debug("Inserting data to {0} in {1} db", databaseName, collectionName);
+            Logger.LogDebug("Inserting data to {0} in {1} db", databaseName, collectionName);
 
             if (shared.Contains(DataKey))
             {
@@ -303,11 +304,11 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
 
         protected virtual void RunTest(BsonDocument shared, BsonDocument test, EventCapturer eventCapturer)
         {
-            Logger.Debug("Running test");
+            Logger.LogDebug("Running test");
 
             using (var client = CreateDisposableClient(test, eventCapturer))
             {
-                Logger.Debug("Disposable client created with cluster:{0}", client.Cluster.ClusterId);
+                Logger.LogDebug("Disposable client created with cluster:{0}", client.Cluster.ClusterId);
 
                 ExecuteOperations(client, objectMap: null, test, eventCapturer);
             }
@@ -452,7 +453,7 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
         {
             if (test.TryGetValue(FailPointKey, out var failPoint))
             {
-                Logger.Debug("Configuring failpoint");
+                Logger.LogDebug("Configuring failpoint");
 
                 ConfigureFailPointCommand(failPoint.AsBsonDocument);
 
@@ -500,7 +501,7 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
                         settings.ClusterConfigurator = c => c.Subscribe(eventCapturer);
                     }
                 },
-                CreateLogger<DisposableMongoClient>(),
+                LoggerFactory,
                 useMultipleShardRouters);
         }
 
@@ -523,7 +524,7 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
 
         protected void SetupAndRunTest(JsonDrivenTestCase testCase)
         {
-            Logger.Debug("Running {0}", testCase.Name);
+            Logger.LogDebug("Running {0}", testCase.Name);
 
             CheckServerRequirements(testCase.Shared);
             SetupAndRunTest(testCase.Shared, testCase.Test);

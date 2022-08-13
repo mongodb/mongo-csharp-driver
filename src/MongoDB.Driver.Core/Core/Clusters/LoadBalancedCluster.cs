@@ -20,10 +20,12 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
+using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Libmongocrypt;
@@ -43,29 +45,25 @@ namespace MongoDB.Driver.Core.Clusters
         private readonly IDnsMonitorFactory _dnsMonitorFactory;
         private Thread _dnsMonitorThread;
         private readonly CancellationTokenSource _dnsMonitorCancellationTokenSource;
-        private readonly IEventSubscriber _eventSubscriber;
         private IClusterableServer _server;
         private readonly IClusterableServerFactory _serverFactory;
         private readonly TaskCompletionSource<bool> _serverReadyTaskCompletionSource;
         private readonly ICoreServerSessionPool _serverSessionPool;
         private readonly ClusterSettings _settings;
         private readonly InterlockedInt32 _state;
-
-        private readonly Action<ClusterClosingEvent> _closingEventHandler;
-        private readonly Action<ClusterClosedEvent> _closedEventHandler;
-        private readonly Action<ClusterOpeningEvent> _openingEventHandler;
-        private readonly Action<ClusterOpenedEvent> _openedEventHandler;
-        private readonly Action<ClusterDescriptionChangedEvent> _descriptionChangedEventHandler;
+        private readonly EventsLogger<LogCategories.Cluster> _eventsLogger;
 
         public LoadBalancedCluster(
             ClusterSettings settings,
             IClusterableServerFactory serverFactory,
-            IEventSubscriber eventSubscriber)
+            IEventSubscriber eventSubscriber,
+            ILoggerFactory loggerFactory)
             : this(
                   settings,
                   serverFactory,
                   eventSubscriber,
-                  dnsMonitorFactory: new DnsMonitorFactory(new EventAggregator())) // should not trigger any events
+                  loggerFactory,
+                  dnsMonitorFactory: new DnsMonitorFactory(new EventAggregator(), loggerFactory)) // should not trigger any events
         {
         }
 
@@ -73,6 +71,7 @@ namespace MongoDB.Driver.Core.Clusters
             ClusterSettings settings,
             IClusterableServerFactory serverFactory,
             IEventSubscriber eventSubscriber,
+            ILoggerFactory loggerFactory,
             IDnsMonitorFactory dnsMonitorFactory)
         {
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -110,12 +109,7 @@ namespace MongoDB.Driver.Core.Clusters
 #pragma warning restore CS0618 // Type or member is obsolete
                 null);
 
-            _eventSubscriber = eventSubscriber;
-            eventSubscriber.TryGetEventHandler(out _closingEventHandler);
-            eventSubscriber.TryGetEventHandler(out _closedEventHandler);
-            eventSubscriber.TryGetEventHandler(out _openingEventHandler);
-            eventSubscriber.TryGetEventHandler(out _openedEventHandler);
-            eventSubscriber.TryGetEventHandler(out _descriptionChangedEventHandler);
+            _eventsLogger = loggerFactory.CreateEventsLogger<LogCategories.Cluster>(eventSubscriber, _clusterId);
         }
 
         public ClusterId ClusterId => _clusterId;
@@ -149,14 +143,15 @@ namespace MongoDB.Driver.Core.Clusters
                     _dnsMonitorCancellationTokenSource.Cancel();
                     _dnsMonitorCancellationTokenSource.Dispose();
 
-                    _closingEventHandler?.Invoke(new ClusterClosingEvent(ClusterId));
+                    _eventsLogger.LogAndPublish(new ClusterClosingEvent(ClusterId));
+
                     var stopwatch = Stopwatch.StartNew();
                     if (_server != null)
                     {
                         _server.DescriptionChanged -= ServerDescriptionChangedHandler;
                         _server.Dispose();
                     }
-                    _closedEventHandler?.Invoke(new ClusterClosedEvent(ClusterId, stopwatch.Elapsed));
+                    _eventsLogger.LogAndPublish(new ClusterClosedEvent(ClusterId, stopwatch.Elapsed));
                 }
             }
         }
@@ -168,7 +163,7 @@ namespace MongoDB.Driver.Core.Clusters
             if (_state.TryChange(State.Initial, State.Open))
             {
                 var stopwatch = Stopwatch.StartNew();
-                _openingEventHandler?.Invoke(new ClusterOpeningEvent(ClusterId, Settings));
+                _eventsLogger.LogAndPublish(new ClusterOpeningEvent(ClusterId, Settings));
 
                 if (_settings.CryptClientSettings != null)
                 {
@@ -190,7 +185,7 @@ namespace MongoDB.Driver.Core.Clusters
                     _dnsMonitorThread = monitor.Start();
                 }
 
-                _openedEventHandler?.Invoke(new ClusterOpenedEvent(ClusterId, Settings, stopwatch.Elapsed));
+                _eventsLogger.LogAndPublish(new ClusterOpenedEvent(ClusterId, Settings, stopwatch.Elapsed));
             }
         }
 
@@ -263,10 +258,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             void OnClusterDescriptionChanged(ClusterDescription oldDescription, ClusterDescription newDescription)
             {
-                if (_descriptionChangedEventHandler != null)
-                {
-                    _descriptionChangedEventHandler(new ClusterDescriptionChangedEvent(oldDescription, newDescription));
-                }
+                _eventsLogger.LogAndPublish(new ClusterDescriptionChangedEvent(oldDescription, newDescription));
 
                 // used only in tests and legacy
                 var handler = DescriptionChanged;

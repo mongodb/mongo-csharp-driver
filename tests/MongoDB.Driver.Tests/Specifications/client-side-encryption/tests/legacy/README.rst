@@ -330,6 +330,11 @@ Using ``crypt_shared``
 On platforms where crypt_shared_ is available, drivers should prefer to test
 with the ``crypt_shared`` library instead of spawning mongocryptd.
 
+crypt_shared_ is released alongside the server.
+crypt_shared_ is only available in versions 6.0 and above.
+Drivers SHOULD prefer testing a version of crypt_shared_ that matches the server version being tested.
+Driver tests on server versions less than 6.0 SHOULD use mongocryptd.
+
 Drivers MUST continue to run all tests with mongocryptd on at least one
 platform for all tested server versions.
 
@@ -1656,6 +1661,7 @@ Use ``clientEncryption`` to encrypt the value "encrypted indexed value" with the
    class EncryptOpts {
       keyId : <key1ID>
       algorithm: "Indexed",
+      contentionFactor: 0
    }
 
 Store the result in ``insertPayload``.
@@ -1669,7 +1675,8 @@ Use ``clientEncryption`` to encrypt the value "encrypted indexed value" with the
    class EncryptOpts {
       keyId : <key1ID>
       algorithm: "Indexed",
-      queryType: Equality
+      queryType: "equality",
+      contentionFactor: 0
    }
 
 Store the result in ``findPayload``.
@@ -1704,7 +1711,8 @@ Use ``clientEncryption`` to encrypt the value "encrypted indexed value" with the
    class EncryptOpts {
       keyId : <key1ID>
       algorithm: "Indexed",
-      queryType: Equality
+      queryType: "equality",
+      contentionFactor: 0
    }
 
 Store the result in ``findPayload``.
@@ -1720,7 +1728,7 @@ Use ``clientEncryption`` to encrypt the value "encrypted indexed value" with the
    class EncryptOpts {
       keyId : <key1ID>
       algorithm: "Indexed",
-      queryType: Equality,
+      queryType: "equality",
       contentionFactor: 10
    }
 
@@ -1760,6 +1768,7 @@ Use ``clientEncryption`` to encrypt the value "encrypted indexed value" with the
    class EncryptOpts {
       keyId : <key1ID>
       algorithm: "Indexed",
+      contentionFactor: 0
    }
 
 Store the result in ``payload``.
@@ -1784,6 +1793,8 @@ Use ``clientEncryption`` to decrypt ``payload``. Assert the returned value equal
 
 13. Unique Index on keyAltNames
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The following setup must occur before running each of the following test cases.
 
 Setup
 `````
@@ -1817,8 +1828,8 @@ The command should be equivalent to:
 
 5. Using ``client_encryption``, create a data key with a ``local`` KMS provider and the keyAltName "def".
 
-Case 1: createKey()
-```````````````````
+Case 1: createDataKey()
+```````````````````````
 
 1. Use ``client_encryption`` to create a new local data key with a keyAltName "abc" and assert the operation does not fail.
 
@@ -1833,8 +1844,273 @@ Case 2: addKeyAltName()
 
 2. Use ``client_encryption`` to add a keyAltName "abc" to the key created in Step 1 and assert the operation does not fail.
 
-3. Repeat Step 2 and assert the operation does not fail.
+3. Repeat Step 2, assert the operation does not fail, and assert the returned key document contains the keyAltName "abc" added in Step 2.
 
 4. Use ``client_encryption`` to add a keyAltName "def" to the key created in Step 1 and assert the operation fails due to a duplicate key server error (error code 11000).
 
-5. Use ``client_encryption`` to add a keyAltName "def" to the existing key and assert the operation does not fail.
+5. Use ``client_encryption`` to add a keyAltName "def" to the existing key, assert the operation does not fail, and assert the returned key document contains the keyAltName "def" added during Setup.
+
+14. Decryption Events
+~~~~~~~~~~~~~~~~~~~~~
+
+Before running each of the following test cases, perform the following Test Setup.
+
+Test Setup
+``````````
+
+Create a MongoClient named ``setupClient``.
+
+Drop and create the collection ``db.decryption_events``.
+
+Create a ClientEncryption object named ``clientEncryption`` with these options:
+
+.. code:: typescript
+
+   ClientEncryptionOpts {
+      keyVaultClient: <setupClient>,
+      keyVaultNamespace: "keyvault.datakeys",
+      kmsProviders: { "local": { "key": <base64 decoding of LOCAL_MASTERKEY> } }
+   }
+
+Create a data key with the "local" KMS provider. Storing the result in a variable named ``keyID``.
+
+Use ``clientEncryption`` to encrypt the string "hello" with the following ``EncryptOpts``:
+
+.. code:: typescript
+
+   EncryptOpts {
+      keyId: <keyID>,
+      algorithm: "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic"
+   }
+
+Store the result in a variable named ``ciphertext``.
+
+Copy ``ciphertext`` into a variable named ``malformedCiphertext``. Change the
+last byte to a different value. This will produce an invalid HMAC tag.
+
+Create a MongoClient named ``encryptedClient`` with these ``AutoEncryptionOpts``:
+
+.. code:: typescript
+
+   AutoEncryptionOpts {
+      keyVaultNamespace: "keyvault.datakeys";
+      kmsProviders: { "local": { "key": <base64 decoding of LOCAL_MASTERKEY> } }
+   }
+
+Configure ``encryptedClient`` with "retryReads=false".
+Register a listener for CommandSucceeded events on ``encryptedClient``.
+The listener must store the most recent ``CommandSucceededEvent`` reply for the "aggregate" command.
+The listener must store the most recent ``CommandFailedEvent`` error for the "aggregate" command.
+
+Case 1: Command Error
+`````````````````````
+
+Use ``setupClient`` to configure the following failpoint:
+
+.. code:: typescript
+
+   {
+       "configureFailPoint": "failCommand",
+       "mode": {
+           "times": 1
+       },
+       "data": {
+           "errorCode": 123,
+           "failCommands": [
+               "aggregate"
+           ]
+       }
+   }
+
+Use ``encryptedClient`` to run an aggregate on ``db.decryption_events``.
+
+Expect an exception to be thrown from the command error. Expect a ``CommandFailedEvent``.
+
+Case 2: Network Error
+`````````````````````
+
+Use ``setupClient`` to configure the following failpoint:
+
+.. code:: typescript
+
+   {
+       "configureFailPoint": "failCommand",
+       "mode": {
+           "times": 1
+       },
+       "data": {
+           "errorCode": 123,
+           "closeConnection": true,
+           "failCommands": [
+               "aggregate"
+           ]
+       }
+   }
+
+Use ``encryptedClient`` to run an aggregate on ``db.decryption_events``.
+
+Expect an exception to be thrown from the network error. Expect a ``CommandFailedEvent``.
+
+Case 3: Decrypt Error
+`````````````````````
+
+Use ``encryptedClient`` to insert the document ``{ "encrypted": <malformedCiphertext> }`` into ``db.decryption_events``.
+
+Use ``encryptedClient`` to run an aggregate on ``db.decryption_events`` with an empty pipeline.
+
+Expect an exception to be thrown from the decryption error.
+Expect a ``CommandSucceededEvent``. Expect the ``CommandSucceededEvent.reply`` to contain BSON binary for the field ``cursor.firstBatch.encrypted``.
+
+Case 4: Decrypt Success
+```````````````````````
+
+Use ``encryptedClient`` to insert the document ``{ "encrypted": <ciphertext> }`` into ``db.decryption_events``.
+
+Use ``encryptedClient`` to run an aggregate on ``db.decryption_events`` with an empty pipeline.
+
+Expect no exception.
+Expect a ``CommandSucceededEvent``. Expect the ``CommandSucceededEvent.reply`` to contain BSON binary for the field ``cursor.firstBatch.encrypted``.
+
+
+15. On-demand AWS Credentials
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+These tests require valid AWS credentials. Refer: `Automatic AWS Credentials`_.
+
+For these cases, create a ClientEncryption_ object :math:`C` with the following
+options:
+
+.. code-block:: typescript
+
+   ClientEncryptionOpts {
+      keyVaultClient: <setupClient>,
+      keyVaultNamespace: "keyvault.datakeys",
+      kmsProviders: { "aws": {} },
+   }
+
+Case 1: Failure
+```````````````
+
+Do not run this test case in an environment where AWS credentials are available
+(e.g. via environment variables or a metadata URL). (Refer:
+`Obtaining credentials for AWS <auth-aws_>`_)
+
+Attempt to create a datakey with :math:`C` using the ``"aws"`` KMS provider.
+Expect this to fail due to a lack of KMS provider credentials.
+
+Case 2: Success
+```````````````
+
+For this test case, the environment variables ``AWS_ACCESS_KEY_ID`` and
+``AWS_SECRET_ACCESS_KEY`` must be defined and set to a valid set of AWS
+credentials.
+
+Use the client encryption to create a datakey using the ``"aws"`` KMS provider.
+This should successfully load and use the AWS credentials that were defined in
+the environment.
+
+.. _Automatic AWS Credentials: ../client-side-encryption.rst#automatic-aws-credentials
+.. _ClientEncryption: ../client-side-encryption.rst#clientencryption
+.. _auth-aws: ../../auth/auth.rst#obtaining-credentials
+
+16. Rewrap
+~~~~~~~~~~
+
+Case 1: Rewrap with separate ClientEncryption
+`````````````````````````````````````````````
+
+When the following test case requests setting ``masterKey``, use the following values based on the KMS provider:
+
+For "aws":
+
+.. code:: javascript
+
+   {
+      "region": "us-east-1",
+      "key": "arn:aws:kms:us-east-1:579766882180:key/89fcc2c4-08b0-4bd9-9f25-e30687b580d0"
+   }
+
+For "azure":
+
+.. code:: javascript
+
+   {
+      "keyVaultEndpoint": "key-vault-csfle.vault.azure.net",
+      "keyName": "key-name-csfle"
+   }
+
+For "gcp":
+
+.. code:: javascript
+
+   {
+      "projectId": "devprod-drivers",
+      "location": "global",
+      "keyRing": "key-ring-csfle",
+      "keyName": "key-name-csfle"
+   }
+
+For "kmip":
+
+.. code:: javascript
+
+   {}
+
+For "local", do not set a masterKey document.
+
+Run the following test case for each pair of KMS providers (referred to as ``srcProvider`` and ``dstProvider``).
+Include pairs where ``srcProvider`` equals ``dstProvider``.
+
+1. Drop the collection ``keyvault.datakeys``. 
+
+2. Create a ``ClientEncryption`` object named ``clientEncryption1`` with these options:
+   .. code:: typescript
+
+      ClientEncryptionOpts {
+         keyVaultClient: <new MongoClient>;
+         keyVaultNamespace: "keyvault.datakeys";
+         kmsProviders: <all KMS providers>
+      }
+
+3. Call ``clientEncryption1.createDataKey`` with ``srcProvider`` and these options:
+   .. code:: typescript
+
+      class DataKeyOpts {
+         masterKey: <depends on srcProvider>
+      }
+
+   Store the return value in ``keyID``.
+
+4. Call ``clientEncryption1.encrypt`` with the value "test" and these options:
+   .. code:: typescript
+
+      class EncryptOpts {
+         keyId : keyID,
+         algorithm: "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic"
+      }
+
+   Store the return value in ``ciphertext``.
+
+5. Create a ``ClientEncryption`` object named ``clientEncryption2`` with these options:
+   .. code:: typescript
+
+   ClientEncryptionOpts {
+      keyVaultClient: <new MongoClient>;
+      keyVaultNamespace: "keyvault.datakeys";
+      kmsProviders: <all KMS providers>
+   }
+
+6. Call ``clientEncryption2.rewrapManyDataKey`` with an empty ``filter`` and these options:
+
+   .. code:: typescript
+
+      class RewrapManyDataKeyOpts {
+         provider: dstProvider
+         masterKey: <depends on dstProvider>
+      }
+
+   Assert that the returned ``RewrapManyDataKeyResult.bulkWriteResult.modifiedCount`` is 1.
+
+7. Call ``clientEncryption1.decrypt`` with the ``ciphertext``. Assert the return value is "test".
+
+8. Call ``clientEncryption2.decrypt`` with the ``ciphertext``. Assert the return value is "test".

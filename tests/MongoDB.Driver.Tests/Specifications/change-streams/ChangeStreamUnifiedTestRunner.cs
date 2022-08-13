@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Tests.Specifications.change_streams
         [ClassData(typeof(TestCaseFactory))]
         public void Run(JsonDrivenTestCase testCase)
         {
-            using (var runner = new UnifiedTestRunner())
+            using (var runner = new UnifiedTestRunner(LoggerFactory))
             {
                 runner.Run(testCase);
             }

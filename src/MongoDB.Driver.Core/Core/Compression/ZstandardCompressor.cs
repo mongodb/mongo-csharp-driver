@@ -13,9 +13,8 @@
 * limitations under the License.
 */
 
+using ZstdSharp;
 using System.IO;
-using System.IO.Compression;
-using MongoDB.Driver.Core.Compression.Zstandard;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Compression
@@ -37,7 +36,7 @@ namespace MongoDB.Driver.Core.Compression
 
         public void Compress(Stream input, Stream output)
         {
-            using (var zstandardStream = new ZstandardStream(output, CompressionMode.Compress, _compressionLevel))
+            using (var zstandardStream = new CompressionStream(output, _compressionLevel))
             {
                 input.EfficientCopyTo(zstandardStream);
                 zstandardStream.Flush();
@@ -46,7 +45,7 @@ namespace MongoDB.Driver.Core.Compression
 
         public void Decompress(Stream input, Stream output)
         {
-            using (var zstandardStream = new ZstandardStream(input, CompressionMode.Decompress))
+            using (var zstandardStream = new DecompressionStream(input))
             {
                 zstandardStream.CopyTo(output);
             }

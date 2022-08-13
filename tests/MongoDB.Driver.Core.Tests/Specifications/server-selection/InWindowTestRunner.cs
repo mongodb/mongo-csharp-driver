@@ -26,12 +26,14 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Servers;
+using MongoDB.Driver.Core.TestHelpers.Logging;
 using Moq;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Specifications.server_selection
 {
-    public sealed class InWindowTestRunner
+    public sealed class InWindowTestRunner : LoggableTestClass
     {
         private sealed class OperationsCount
         {
@@ -55,6 +57,10 @@ namespace MongoDB.Driver.Specifications.server_selection
 
             public OperationsCount[] mocked_topology_state { get; set;}
             public Outcome outcome { get; set; }
+        }
+
+        public InWindowTestRunner(ITestOutputHelper output) : base(output)
+        {
         }
 
         [Theory]
@@ -121,7 +127,7 @@ namespace MongoDB.Driver.Specifications.server_selection
                     return server.Object;
                 });
 
-            var result = new MultiServerCluster(clusterSettings, mockServerFactory.Object, new EventCapturer());
+            var result = new MultiServerCluster(clusterSettings, mockServerFactory.Object, new EventCapturer(), LoggerFactory);
             result.Initialize();
             return result;
         }

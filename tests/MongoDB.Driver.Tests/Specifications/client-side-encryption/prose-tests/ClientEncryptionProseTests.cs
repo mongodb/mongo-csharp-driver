@@ -1941,7 +1941,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 writeConcern,
                 readConcern);
 
-            return DriverTestConfiguration.CreateDisposableClient(mongoClientSettings, logger: CreateLogger<DisposableMongoClient>());
+            return DriverTestConfiguration.CreateDisposableClient(mongoClientSettings);
         }
 
         private MongoClientSettings CreateMongoClientSettings(
@@ -2025,6 +2025,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 }
                 mongoClientSettings.AutoEncryptionOptions = autoEncryptionOptions;
             }
+
+            mongoClientSettings.LoggerFactory = LoggerFactory;
 
             return mongoClientSettings;
         }

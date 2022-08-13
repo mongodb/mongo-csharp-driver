@@ -1,4 +1,4 @@
-﻿/* Copyright 2019-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,14 +13,20 @@
 * limitations under the License.
 */
 
-using MongoDB.Driver.Core.Misc;
-
-namespace MongoDB.Driver.Core.NativeLibraryLoader
+namespace MongoDB.Driver.Core.Logging
 {
-    internal interface ILibraryLocator
+    internal static class LogCategories
     {
-        bool IsX32ModeSupported { get; }
-        string LibraryName { get; }
-        string GetLibraryAbsolutePath(OperatingSystemPlatform currentPlatform);
+        public abstract class EventCategory { }
+
+        public sealed class Cluster : EventCategory { }
+
+        public sealed class Command : EventCategory { }
+
+        public sealed class Connection : EventCategory { }
+
+        public sealed class SDAM : EventCategory { }
+
+        public sealed class ServerSelection : EventCategory { }
     }
 }
