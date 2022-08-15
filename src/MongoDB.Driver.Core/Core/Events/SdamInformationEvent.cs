@@ -14,40 +14,74 @@
 */
 
 using System;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Events
 {
     /// <summary>
-    /// An informational event used for logging Server Discovery and Monitoring (SDAM) events. 
+    /// An informational event used for logging Server Discovery and Monitoring (SDAM) events.
     /// </summary>
     public struct SdamInformationEvent
     {
-        private readonly Lazy<string> _message;
+        private readonly object _arg0;
+        private readonly object[] _args;
+        private readonly int _argsCount;
+
+        private readonly string _messageFormat;
         private readonly DateTime _timestamp;
+
+        private string _formattedMessage;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SdamInformationEvent"/> struct.
         /// </summary>
-        /// <param name="createMessage">Function that creates the message to log.</param>
-        public SdamInformationEvent(Func<string> createMessage)
-            : this(new Lazy<string>(createMessage))
+        /// <param name="messageFormat">Message format.</param>
+        /// <param name="arg0">Message argument.</param>
+        public SdamInformationEvent(string messageFormat, object arg0) :
+            this(messageFormat, 1, arg0, null)
         {
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SdamInformationEvent"/> struct.
         /// </summary>
-        /// <param name="message">The message to log.</param>
-        public SdamInformationEvent(Lazy<string> message)
+        /// <param name="messageFormat">Message format.</param>
+        /// <param name="args">Message arguments.</param>
+        public SdamInformationEvent(string messageFormat, params object[] args) :
+            this(messageFormat, -1, null, args)
         {
-            _message = message;
+        }
+
+        private SdamInformationEvent(string messageFormat, int argsCount, object arg0, params object[] args)
+        {
+            _args = args;
+            _arg0 = arg0;
+            _argsCount = argsCount;
+            _messageFormat = Ensure.IsNotNull(messageFormat, nameof(messageFormat));
             _timestamp = DateTime.UtcNow;
+            _formattedMessage = null;
         }
 
         /// <summary>
         /// Gets the message.
         /// </summary>
-        public string Message => _message.Value;
+        public string Message
+        {
+            get
+            {
+                if (_formattedMessage == null)
+                {
+                    _formattedMessage = _argsCount switch
+                    {
+                        -1 => string.Format(_messageFormat, _args),
+                        1 => string.Format(_messageFormat, _arg0),
+                        _ => throw new InvalidOperationException($"Not supported argument count {_argsCount}")
+                    };
+                }
+
+                return _formattedMessage;
+            }
+        }
 
         /// <summary>
         /// Gets the timestamp.

@@ -247,10 +247,9 @@ namespace MongoDB.Driver.Core.Servers
                     catch (Exception unexpectedException)
                     {
                         // if we catch an exception here it's because of a bug in the driver (but we need to defend ourselves against that)
-                        _eventsLoggerSdam.LogAndPublish(new SdamInformationEvent(() =>
-                            string.Format(
+                        _eventsLoggerSdam.LogAndPublish(new SdamInformationEvent(
                                 "Unexpected exception in ServerMonitor.MonitorServer: {0}",
-                                unexpectedException.ToString())),
+                                unexpectedException),
                             unexpectedException);
 
                         // since an unexpected exception was thrown set the server description to Unknown (with the unexpected exception)
