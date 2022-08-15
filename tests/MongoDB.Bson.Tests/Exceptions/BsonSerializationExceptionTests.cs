@@ -31,9 +31,11 @@ namespace MongoDB.Bson.Tests.Exceptions
             var formatter = new BinaryFormatter();
             using (var stream = new MemoryStream())
             {
+#pragma warning disable SYSLIB0011
                 formatter.Serialize(stream, subject);
                 stream.Position = 0;
                 var rehydrated = (BsonSerializationException)formatter.Deserialize(stream);
+#pragma warning restore SYSLIB0011
 
                 rehydrated.Message.Should().Be(subject.Message);
                 rehydrated.InnerException.Message.Should().Be(subject.InnerException.Message);

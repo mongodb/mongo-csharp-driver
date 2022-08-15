@@ -184,7 +184,7 @@ namespace MongoDB.Driver.Tests
 
         private string GetTestCertificateFileName()
         {
-            var codeBase = typeof(SslSettingsTests).GetTypeInfo().Assembly.CodeBase;
+            var codeBase = typeof(SslSettingsTests).GetTypeInfo().Assembly.Location;
             var codeBaseUrl = new Uri(codeBase);
             var codeBasePath = Uri.UnescapeDataString(codeBaseUrl.AbsolutePath);
             var codeBaseDirectory = Path.GetDirectoryName(codeBasePath);

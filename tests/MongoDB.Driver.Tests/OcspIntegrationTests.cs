@@ -70,7 +70,11 @@ namespace MongoDB.Driver.Tests
                 secureClientException.Should().BeOfType<TimeoutException>();
                 var message = secureClientException.Message;
                 // The exception will lack this message if the heartbeat doesn't fire
+#if NET6_0_OR_GREATER
+                message.Should().Contain("The remote certificate is invalid because of errors in the certificate chain");
+#else
                 message.Should().Contain("The remote certificate is invalid according to the validation procedure.");
+#endif
             }
 
             void Ping(bool tlsInsecure)

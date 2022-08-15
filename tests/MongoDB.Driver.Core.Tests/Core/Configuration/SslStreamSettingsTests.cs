@@ -63,7 +63,8 @@ namespace MongoDB.Driver.Core.Configuration
         [Fact]
         public void constructor_with_clientCertificates_should_initialize_instance()
         {
-            var clientCertificates = new[] { new X509Certificate() };
+            var certificate = Array.Empty<byte>();
+            var clientCertificates = new[] { new X509Certificate(certificate) };
 
             var subject = new SslStreamSettings(clientCertificates: clientCertificates);
 
@@ -135,8 +136,10 @@ namespace MongoDB.Driver.Core.Configuration
         [Fact]
         public void With_clientCertificates_should_return_expected_result()
         {
-            var oldClientCertificates = new[] { new X509Certificate() };
-            var newClientCertificates = new[] { new X509Certificate() };
+            var oldCertificate = Array.Empty<byte>();
+            var newCertificate = Array.Empty<byte>();
+            var oldClientCertificates = new[] { new X509Certificate(oldCertificate) };
+            var newClientCertificates = new[] { new X509Certificate(newCertificate) };
             var subject = new SslStreamSettings(clientCertificates: oldClientCertificates);
 
             var result = subject.With(clientCertificates: newClientCertificates);

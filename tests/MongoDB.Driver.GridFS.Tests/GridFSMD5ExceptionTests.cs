@@ -47,9 +47,11 @@ namespace MongoDB.Driver.GridFS.Tests
             var formatter = new BinaryFormatter();
             using (var stream = new MemoryStream())
             {
+#pragma warning disable SYSLIB0011
                 formatter.Serialize(stream, subject);
                 stream.Position = 0;
                 var rehydrated = (GridFSMD5Exception)formatter.Deserialize(stream);
+#pragma warning restore SYSLIB0011
 
                 rehydrated.Message.Should().Be(subject.Message);
             }

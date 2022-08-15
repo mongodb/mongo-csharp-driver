@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         private readonly Dictionary<string, object> _additionalArgs;
         private readonly Dictionary<string, IEventFormatter> _eventFormatters;
         private bool _runHasBeenCalled;
-        private ILoggerFactory _loggerFactory;
+        private readonly ILoggerFactory _loggerFactory;
         private readonly ILogger<UnifiedTestRunner> _logger;
 
         public UnifiedTestRunner(
@@ -162,6 +162,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             _entityMap?.Dispose();
 
             _logger.LogDebug("Disposed");
+
+            _loggerFactory?.Dispose();
         }
 
         // private methods

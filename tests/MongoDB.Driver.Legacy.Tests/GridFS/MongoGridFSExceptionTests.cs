@@ -60,9 +60,11 @@ namespace MongoDB.Driver.Tests.GridFS
             var formatter = new BinaryFormatter();
             using (var stream = new MemoryStream())
             {
+#pragma warning disable SYSLIB0011
                 formatter.Serialize(stream, subject);
                 stream.Position = 0;
                 var rehydrated = (MongoGridFSException)formatter.Deserialize(stream);
+#pragma warning restore SYSLIB0011
 
                 rehydrated.ConnectionId.Should().Be(subject.ConnectionId);
                 rehydrated.Message.Should().Be(subject.Message);

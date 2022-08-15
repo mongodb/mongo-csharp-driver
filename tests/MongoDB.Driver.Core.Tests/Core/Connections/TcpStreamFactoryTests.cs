@@ -207,7 +207,7 @@ namespace MongoDB.Driver.Core.Connections
                 stream = subject.CreateStream(endPoint, CancellationToken.None);
             }
 
-            var socketProperty = typeof(NetworkStream).GetProperty("Socket", BindingFlags.NonPublic | BindingFlags.Instance);
+            var socketProperty = typeof(NetworkStream).GetProperty("Socket", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
             var socket = (Socket)socketProperty.GetValue(stream);
             var keepAlive = (int)socket.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive);
             keepAlive.Should().NotBe(0); // .NET returns 1 but Mono returns 8
@@ -219,14 +219,6 @@ namespace MongoDB.Driver.Core.Connections
             public int DisposeAttempts { get; set; } = 0;
 
             public TestSocket(AddressFamily addressFamily, SocketType socketType, ProtocolType protocolType) : base(addressFamily, socketType, protocolType)
-            {
-            }
-
-            public TestSocket(SocketType socketType, ProtocolType protocolType) : base(socketType, protocolType)
-            {
-            }
-
-            public TestSocket(SocketInformation socketInformation) : base(socketInformation)
             {
             }
 
