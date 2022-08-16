@@ -140,7 +140,9 @@ namespace MongoDB.Bson.Serialization
                 document = (TClass)_classMap.CreateInstance();
 
                 if (document == null)
-                    throw new InvalidOperationException($"{nameof(BsonClassMap)} did not provide an instance of {typeof(TClass).Name}.");
+                {
+                    throw new BsonSerializationException($"{nameof(BsonClassMap)} did not provide an instance of {typeof(TClass).Name}.");
+                }
 
                 supportsInitialization = document as ISupportInitialize;
                 if (supportsInitialization != null)

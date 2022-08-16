@@ -1,4 +1,4 @@
-﻿/* Copyright 2019-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-using System;
+using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using Xunit;
@@ -24,32 +24,23 @@ namespace MongoDB.Bson.Tests.Serialization
     {
         // public methods
         [Fact]
-        public void Deserialize_should_not_throw_null_ref_exception_when_class_map_creator_silently_fails()
+        public void Deserialize_should_throw_invalidOperationException_when_creator_returns_null()
         {
-            BsonClassMap
-                .LookupClassMap(typeof(MyModel))
-                .SetCreator(() =>
-                {
-                    // here things may silently fail, especially it there's a DI container involved...
+            var bsonClassMap = new BsonClassMap<MyModel>();
+            bsonClassMap.SetCreator(() => null);
+            bsonClassMap.Freeze();
 
-                    // simulating the silent failure:
-                    return null;
-                });
+            var subject = new BsonClassMapSerializer<MyModel>(bsonClassMap);
 
-            var subject = BsonSerializer.LookupSerializer<MyModel>();
             using var reader = new JsonReader("{ \"_id\": \"just_an_id\" }");
-
             var context = BsonDeserializationContext.CreateRoot(reader);
-            var exception = Record.Exception(() => subject.Deserialize(context));
 
-            Assert.NotNull(exception);
-            Assert.IsNotType<NullReferenceException>(exception);
+            var exception = Record.Exception(() => subject.Deserialize(context));
+            exception.Should().BeOfType<BsonSerializationException>();
         }
 
-        
-
         // nested classes
-        public class MyModel
+        private class MyModel
         {
             public string Id { get; set; }
         }
