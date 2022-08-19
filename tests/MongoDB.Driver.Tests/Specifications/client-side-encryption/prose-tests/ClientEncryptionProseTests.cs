@@ -1529,7 +1529,6 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             }
         }
 
-        [Trait("Category", "AwsMechanism")]
         [SkippableTheory]
         [ParameterAttributeData]
         public void OnDemandCredentials(
@@ -1537,23 +1536,37 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             [Values(false, true)] bool envVariablesSet,
             [Values(false, true)] bool async)
         {
-            RequireEnvironment.Check().EnvironmentVariable("AWS_TESTS_ENABLED", isDefined: envVariablesSet);
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
 
+            using (ConfigureDisposableEnvironmentVariable("AWS_ACCESS_KEY_ID"))
+            using (ConfigureDisposableEnvironmentVariable("AWS_SECRET_ACCESS_KEY"))
+            using (ConfigureDisposableEnvironmentVariable("AWS_SESSION_TOKEN", onlyUnsetIfNeeded: true))
             using (var client = ConfigureClient(clearCollections: ClearCollection.None))
             using (var clientEncryption = ConfigureClientEncryption(client, kmsDocument: new BsonDocument(kmsProvider, new BsonDocument())))
             {
                 var datakeyOptions = CreateDataKeyOptions(kmsProvider);
+                var ex = Record.Exception(() => CreateDataKey(clientEncryption, kmsProvider, datakeyOptions, async));
                 if (envVariablesSet)
                 {
                     // AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY must be configured
-                    _ = CreateDataKey(clientEncryption, kmsProvider, datakeyOptions, async);
+                    ex.Should().BeNull();
                 }
                 else
                 {
                     // AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY must not be configured
-                    var ex = Record.Exception(() => CreateDataKey(clientEncryption, kmsProvider, datakeyOptions, async));
                     AssertInnerEncryptionException<CryptException>(ex, "The security token included in the request is invalid");
+                }
+            }
+
+            DisposableEnvironmentVariable ConfigureDisposableEnvironmentVariable(string key, bool onlyUnsetIfNeeded = false)
+            {
+                if (envVariablesSet && !onlyUnsetIfNeeded)
+                {
+                    return DisposableEnvironmentVariable.TransferFromEnvironmentVariable(key, $"FLE_{key}");
+                }
+                else
+                {
+                    return new DisposableEnvironmentVariable(key, null); // unset env variable
                 }
             }
         }
@@ -2241,6 +2254,32 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             TlsWithoutClientCert,
             Expired,
             InvalidHostName
+        }
+
+        private class DisposableEnvironmentVariable : IDisposable
+        {
+            #region static
+            public static DisposableEnvironmentVariable TransferFromEnvironmentVariable(string to, string from)
+            {
+                var fromValue = Environment.GetEnvironmentVariable(from) ?? throw new Exception("From env variable must be set.");
+                return new DisposableEnvironmentVariable(to, fromValue);
+            }
+            #endregion
+
+            private readonly string _name;
+            private readonly string _previousValue;
+
+            public DisposableEnvironmentVariable(string name, string value)
+            {
+                _name = name;
+                _previousValue = Environment.GetEnvironmentVariable(name);
+                Environment.SetEnvironmentVariable(name, value);
+            }
+
+            public void Dispose()
+            {
+                Environment.SetEnvironmentVariable(_name, _previousValue);
+            }
         }
 
         public class JsonFileReader : EmbeddedResourceJsonFileReader
