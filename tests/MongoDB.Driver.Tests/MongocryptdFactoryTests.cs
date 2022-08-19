@@ -17,6 +17,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Encryption;
+using MongoDB.Driver.Tests.Specifications.client_side_encryption;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -83,6 +84,8 @@ namespace MongoDB.Driver.Tests
         [InlineData("{ mongocryptdSpawnArgs : ['arg1 A', 'arg2 B', '--logpath path.txt', '--logappend'] }", "mongocryptd#extension#", "--arg1 A --arg2 B --logpath path.txt --logappend --idleShutdownTimeoutSecs 60", true)]
         [InlineData("{ mongocryptdSpawnArgs : ['arg1 A', 'arg2 B', '--logappend'] }", "mongocryptd#extension#", "--arg1 A --arg2 B --logappend --idleShutdownTimeoutSecs 60 --logpath #logpath#", true)]
         [InlineData("{ mongocryptdBypassSpawn : false, mongocryptdSpawnArgs : [ '--arg1 A', '--arg2 B', '--idleShutdownTimeoutSecs 50'] }", "mongocryptd#extension#", "--arg1 A --arg2 B --idleShutdownTimeoutSecs 50 --logpath #logpath# --logappend", true)]
+        // with extra space
+        [InlineData("{ mongocryptdSpawnArgs : [' --port=27030' ] }", "mongocryptd#extension#", "--port=27030 --idleShutdownTimeoutSecs 60 --logpath #logpath# --logappend", true)]
         public void Mongocryptd_should_be_spawned_with_correct_extra_arguments(
             string stringExtraOptions,
             string expectedPath,
