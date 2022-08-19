@@ -30,11 +30,11 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
 {
     public static class EncryptionTestHelper
     {
-        private static readonly IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> __kmsProviders;
+        private static readonly Lazy<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>>> __kmsProviders = new Lazy<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>>>(ConfigureDefaultKmsProviders, isThreadSafe: true);
         private static readonly string __defaultMongocryptdPath = Environment.GetEnvironmentVariable("MONGODB_BINARIES") ?? "";
         private static readonly Lazy<(bool IsValid, SemanticVersion Version)> __defaultCsfleSetupState = new Lazy<(bool IsValid, SemanticVersion Version)>(IsDefaultCsfleSetupValid, isThreadSafe: true);
 
-        static EncryptionTestHelper()
+        private static IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> ConfigureDefaultKmsProviders()
         {
             var kmsProviders = new Dictionary<string, IReadOnlyDictionary<string, object>>
             {
@@ -93,7 +93,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                     });
             }
 
-            __kmsProviders = kmsProviders;
+            return kmsProviders;
 
             string GetEnvironmentVariableOrDefaultOrThrowIfNothing(string variableName, string defaultValue = null) =>
                 Environment.GetEnvironmentVariable(variableName) ??
@@ -211,6 +211,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
 
         public static IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> GetKmsProviders(string filter = null) =>
             __kmsProviders
+                .Value
                 .Where(kms => filter == null || kms.Key == filter)
                 .ToDictionary(
                     k => k.Key,

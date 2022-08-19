@@ -1541,7 +1541,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
 
             using (var client = ConfigureClient(clearCollections: ClearCollection.None))
-            using (var clientEncryption = ConfigureClientEncryption(client, kmsProviderFilter: kmsProvider, kmsProviderConfigurator: (kmsProvider, kmsFields) => kmsFields.Clear()))
+            using (var clientEncryption = ConfigureClientEncryption(client, kmsDocument: new BsonDocument(kmsProvider, new BsonDocument())))
             {
                 var datakeyOptions = CreateDataKeyOptions(kmsProvider);
                 if (envVariablesSet)
@@ -1860,19 +1860,35 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             Action<string, Dictionary<string, object>> kmsProviderConfigurator = null,
             Func<string, bool> allowClientCertificateFunc = null,
             Action<ClientEncryptionOptions> clientEncryptionOptionsConfigurator = null,
-            string kmsProviderFilter = null)
+            string kmsProviderFilter = null,
+            BsonDocument kmsDocument = null)
         {
-            var kmsProviders = EncryptionTestHelper
-                .GetKmsProviders(filter: kmsProviderFilter)
-                .Select(k =>
-                {
-                    if (kmsProviderConfigurator != null)
+            Dictionary<string, IReadOnlyDictionary<string, object>> kmsProviders;
+            if (kmsDocument == null)
+            {
+                kmsProviders = EncryptionTestHelper
+                    .GetKmsProviders(filter: kmsProviderFilter)
+                    .Select(k =>
                     {
-                        kmsProviderConfigurator(k.Key, (Dictionary<string, object>)k.Value);
-                    }
-                    return k;
-                })
-                .ToDictionary(k => k.Key, k => k.Value);
+                        if (kmsProviderConfigurator != null)
+                        {
+                            kmsProviderConfigurator(k.Key, (Dictionary<string, object>)k.Value);
+                        }
+                        return k;
+                    })
+                    .ToDictionary(k => k.Key, k => k.Value);
+            }
+            else
+            {
+                Ensure.IsNull(kmsProviderFilter, nameof(kmsProviderFilter));
+
+                kmsProviders = kmsDocument
+                    .Elements
+                    .ToDictionary(
+                        k => k.Name,
+                        k => (IReadOnlyDictionary<string, object>)k.Value.AsBsonDocument.ToDictionary(ki => ki.Name, ki => ki.Value));
+            }
+
             allowClientCertificateFunc = allowClientCertificateFunc ?? ((kmsProviderName) => kmsProviderName == "kmip"); // configure Tls for kmip by default
             var tlsOptions = EncryptionTestHelper.CreateTlsOptionsIfAllowed(kmsProviders, allowClientCertificateFunc);
 
