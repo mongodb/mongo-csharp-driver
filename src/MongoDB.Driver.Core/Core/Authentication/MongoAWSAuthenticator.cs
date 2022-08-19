@@ -31,6 +31,76 @@ namespace MongoDB.Driver.Core.Authentication
     /// </summary>
     public class MongoAWSAuthenticator : SaslAuthenticator
     {
+        internal static class ExternalAuthenticator
+        {
+            public static AwsCredentials CreateAwsCredentialsFromExternal(string subject = "MONGODB-AWS authentication") =>
+               CreateAwsCredentialsFromExternalAsync(subject).GetAwaiter().GetResult();
+
+            public static async Task<AwsCredentials> CreateAwsCredentialsFromExternalAsync(string subject = "MONGODB-AWS authentication") =>
+                CreateAwsCredentialsFromEnvironmentVariables(subject) ??
+                (await CreateAwsCredentialsFromEcsResponseAsync().ConfigureAwait(false)) ??
+                (await CreateAwsCredentialsFromEc2ResponseAsync().ConfigureAwait(false)) ??
+                throw new InvalidOperationException($"Unable to find credentials for {subject}.");
+
+            public static async Task<BsonDocument> CreateAwsCredentialsForKmsProviderAsync() =>
+                (await CreateAwsCredentialsFromExternalAsync("AWS kms provider").ConfigureAwait(false)).ConvertToKmsCredentials();
+
+            // private methods
+            private static AwsCredentials CreateAwsCredentialsFromEnvironmentVariables(string subject)
+            {
+                var accessKeyId = Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID");
+                var secretAccessKey = Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY");
+                var sessionToken = Environment.GetEnvironmentVariable("AWS_SESSION_TOKEN");
+
+                if (accessKeyId == null && secretAccessKey == null && sessionToken == null)
+                {
+                    return null;
+                }
+                if (secretAccessKey != null && accessKeyId == null)
+                {
+                    throw new InvalidOperationException($"When using {subject} if a secret access key is provided via environment variables then an access key ID must be provided also.");
+                }
+                if (accessKeyId != null && secretAccessKey == null)
+                {
+                    throw new InvalidOperationException($"When using {subject} if an access key ID is provided via environment variables then a secret access key must be provided also.");
+                }
+                if (sessionToken != null && (accessKeyId == null || secretAccessKey == null))
+                {
+                    throw new InvalidOperationException($"When using {subject} if a session token is provided via environment variables then an access key ID and a secret access key must be provided also.");
+                }
+
+                return new AwsCredentials(accessKeyId, SecureStringHelper.ToSecureString(secretAccessKey), sessionToken);
+            }
+
+            private static async Task<AwsCredentials> CreateAwsCredentialsFromEcsResponseAsync()
+            {
+                var relativeUri = Environment.GetEnvironmentVariable("AWS_CONTAINER_CREDENTIALS_RELATIVE_URI");
+                if (relativeUri == null)
+                {
+                    return null;
+                }
+
+                var response = await AwsHttpClientHelper.GetECSResponseAsync(relativeUri).ConfigureAwait(false);
+                return CreateAwsCreadentialsFromAwsResponse(response);
+            }
+
+            private static async Task<AwsCredentials> CreateAwsCredentialsFromEc2ResponseAsync()
+            {
+                var response = await AwsHttpClientHelper.GetEC2ResponseAsync().ConfigureAwait(false);
+                return CreateAwsCreadentialsFromAwsResponse(response);
+            }
+
+            private static AwsCredentials CreateAwsCreadentialsFromAwsResponse(string awsResponse)
+            {
+                var parsedResponse = BsonDocument.Parse(awsResponse);
+                var accessKeyId = parsedResponse.GetValue("AccessKeyId", null)?.AsString;
+                var secretAccessKey = parsedResponse.GetValue("SecretAccessKey", null)?.AsString;
+                var sessionToken = parsedResponse.GetValue("Token", null)?.AsString;
+
+                return new AwsCredentials(accessKeyId, SecureStringHelper.ToSecureString(secretAccessKey), sessionToken);
+            }
+        }
+
         // constants
         private const int ClientNonceLength = 32;
 
@@ -71,14 +141,7 @@ namespace MongoDB.Driver.Core.Authentication
         {
             var awsCredentials =
                 CreateAwsCredentialsFromMongoCredentials(username, password, properties) ??
-                CreateAwsCredentialsFromEnvironmentVariables() ??
-                CreateAwsCredentialsFromEcsResponse() ??
-                CreateAwsCredentialsFromEc2Response();
-
-            if (awsCredentials == null)
-            {
-                throw new InvalidOperationException("Unable to find credentials for MONGODB-AWS authentication.");
-            }
+                ExternalAuthenticator.CreateAwsCredentialsFromExternal();
 
             return new MongoAWSMechanism(awsCredentials, randomByteGenerator, clock);
         }
@@ -106,60 +169,6 @@ namespace MongoDB.Driver.Core.Authentication
             }
 
             return new AwsCredentials(accessKeyId: username, secretAccessKey: password, sessionToken);
-        }
-
-        internal static AwsCredentials CreateAwsCredentialsFromEnvironmentVariables(string subject = "MONGODB-AWS authentication")
-        {
-            var accessKeyId = Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID");
-            var secretAccessKey = Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY");
-            var sessionToken = Environment.GetEnvironmentVariable("AWS_SESSION_TOKEN");
-
-            if (accessKeyId == null && secretAccessKey == null && sessionToken == null)
-            {
-                return null;
-            }
-            if (secretAccessKey != null && accessKeyId == null)
-            {
-                throw new InvalidOperationException($"When using {subject} if a secret access key is provided via environment variables then an access key ID must be provided also.");
-            }
-            if (accessKeyId != null && secretAccessKey == null)
-            {
-                throw new InvalidOperationException($"When using {subject} if an access key ID is provided via environment variables then a secret access key must be provided also.");
-            }
-            if (sessionToken != null && (accessKeyId == null || secretAccessKey == null))
-            {
-                throw new InvalidOperationException($"When using {subject} if a session token is provided via environment variables then an access key ID and a secret access key must be provided also.");
-            }
-
-            return new AwsCredentials(accessKeyId, SecureStringHelper.ToSecureString(secretAccessKey), sessionToken);
-        }
-
-        internal static AwsCredentials CreateAwsCredentialsFromEcsResponse()
-        {
-            var relativeUri = Environment.GetEnvironmentVariable("AWS_CONTAINER_CREDENTIALS_RELATIVE_URI");
-            if (relativeUri == null)
-            {
-                return null;
-            }
-
-            var response = AwsHttpClientHelper.GetECSResponseAsync(relativeUri).GetAwaiter().GetResult();
-            var parsedResponse = BsonDocument.Parse(response);
-            var accessKeyId = parsedResponse.GetValue("AccessKeyId", null)?.AsString;
-            var secretAccessKey = parsedResponse.GetValue("SecretAccessKey", null)?.AsString;
-            var sessionToken = parsedResponse.GetValue("Token", null)?.AsString;
-
-            return new AwsCredentials(accessKeyId, SecureStringHelper.ToSecureString(secretAccessKey), sessionToken);
-        }
-
-        internal static AwsCredentials CreateAwsCredentialsFromEc2Response()
-        {
-            var response = AwsHttpClientHelper.GetEC2ResponseAsync().GetAwaiter().GetResult();
-            var parsedResponse = BsonDocument.Parse(response);
-            var accessKeyId = parsedResponse.GetValue("AccessKeyId", null)?.AsString;
-            var secretAccessKey = parsedResponse.GetValue("SecretAccessKey", null)?.AsString;
-            var sessionToken = parsedResponse.GetValue("Token", null)?.AsString;
-
-            return new AwsCredentials(accessKeyId, SecureStringHelper.ToSecureString(secretAccessKey), sessionToken);
         }
 
         private static string ExtractSessionTokenFromMechanismProperties(IEnumerable<KeyValuePair<string, string>> properties)
