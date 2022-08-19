@@ -52,6 +52,13 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         private static readonly CollectionNamespace __keyVaultCollectionNamespace = CollectionNamespace.FromFullName("keyvault.datakeys");
         #endregion
 
+        private enum ClearCollection
+        {
+            None,
+            Drop,
+            DeleteMany
+        }
+
         private const string SchemaMap =
             @"{
                 ""db.coll"": {
@@ -1530,13 +1537,12 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             [Values(false, true)] bool envVariablesSet,
             [Values(false, true)] bool async)
         {
+            RequireEnvironment.Check().EnvironmentVariable("AWS_TESTS_ENABLED", isDefined: envVariablesSet);
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
 
-            using (var client = ConfigureClient(clearCollections: true))
+            using (var client = ConfigureClient(clearCollections: ClearCollection.DeleteMany))
             using (var clientEncryption = ConfigureClientEncryption(client, kmsProviderFilter: kmsProvider, kmsProviderConfigurator: (kmsProvider, kmsFields) => kmsFields.Clear()))
             {
-                RequireEnvironment.Check().EnvironmentVariable("AWS_TESTS_ENABLED", isDefined: envVariablesSet);
-
                 var datakeyOptions = CreateDataKeyOptions(kmsProvider);
                 if (envVariablesSet)
                 {
@@ -1733,18 +1739,51 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             WriteConcern writeConcern = null,
             ReadConcern readConcern = null,
             CollectionNamespace mainCollectionNamespace = null,
+            BsonDocument encryptedFields = null) =>
+            ConfigureClient(
+                clearCollections ? ClearCollection.Drop : ClearCollection.None,
+                maxPoolSize,
+                writeConcern,
+                readConcern,
+                mainCollectionNamespace,
+                encryptedFields);
+
+        private DisposableMongoClient ConfigureClient(
+            ClearCollection clearCollections,
+            int? maxPoolSize = null,
+            WriteConcern writeConcern = null,
+            ReadConcern readConcern = null,
+            CollectionNamespace mainCollectionNamespace = null,
             BsonDocument encryptedFields = null)
         {
             var client = CreateMongoClient(maxPoolSize: maxPoolSize, writeConcern: writeConcern, readConcern: readConcern);
-            if (clearCollections)
+            mainCollectionNamespace = mainCollectionNamespace ?? __collCollectionNamespace;
+            switch (clearCollections)
             {
-                var clientKeyVaultDatabase = client.GetDatabase(__keyVaultCollectionNamespace.DatabaseNamespace.DatabaseName);
-                clientKeyVaultDatabase.DropCollection(__keyVaultCollectionNamespace.CollectionName);
-                mainCollectionNamespace = mainCollectionNamespace ?? __collCollectionNamespace;
-                var clientDbDatabase = client.GetDatabase(mainCollectionNamespace.DatabaseNamespace.DatabaseName);
-                clientDbDatabase.DropCollection(mainCollectionNamespace.CollectionName, new DropCollectionOptions { EncryptedFields = encryptedFields });
+                case ClearCollection.Drop:
+                    {
+                        var clientKeyVaultDatabase = client.GetDatabase(__keyVaultCollectionNamespace.DatabaseNamespace.DatabaseName);
+                        clientKeyVaultDatabase.DropCollection(__keyVaultCollectionNamespace.CollectionName);
+                        var clientDbDatabase = client.GetDatabase(mainCollectionNamespace.DatabaseNamespace.DatabaseName);
+                        clientDbDatabase.DropCollection(mainCollectionNamespace.CollectionName, new DropCollectionOptions { EncryptedFields = encryptedFields });
+                    }
+                    break;
+
+                case ClearCollection.DeleteMany:
+                    {
+                        DeleteMany(__keyVaultCollectionNamespace);
+                        DeleteMany(mainCollectionNamespace);
+                    }
+                    break;
             }
             return client;
+
+            void DeleteMany(CollectionNamespace collectionNamespace)
+            {
+                var database = client.GetDatabase(collectionNamespace.DatabaseNamespace.DatabaseName);
+                var collection = database.GetCollection<BsonDocument>(collectionNamespace.CollectionName).WithWriteConcern(WriteConcern.WMajority);
+                collection.DeleteMany(FilterDefinition<BsonDocument>.Empty);
+            }
         }
 
         private DisposableMongoClient ConfigureClientEncrypted(
