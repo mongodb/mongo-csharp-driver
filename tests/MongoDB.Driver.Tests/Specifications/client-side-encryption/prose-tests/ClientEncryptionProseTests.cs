@@ -1540,7 +1540,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             RequireEnvironment.Check().EnvironmentVariable("AWS_TESTS_ENABLED", isDefined: envVariablesSet);
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
 
-            using (var client = ConfigureClient(clearCollections: ClearCollection.DeleteMany))
+            using (var client = ConfigureClient(clearCollections: ClearCollection.None))
             using (var clientEncryption = ConfigureClientEncryption(client, kmsProviderFilter: kmsProvider, kmsProviderConfigurator: (kmsProvider, kmsFields) => kmsFields.Clear()))
             {
                 var datakeyOptions = CreateDataKeyOptions(kmsProvider);
