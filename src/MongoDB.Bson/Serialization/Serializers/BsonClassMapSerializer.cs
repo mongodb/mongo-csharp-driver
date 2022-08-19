@@ -139,6 +139,11 @@ namespace MongoDB.Bson.Serialization
                 // for mutable classes we deserialize the values directly into the result object
                 document = (TClass)_classMap.CreateInstance();
 
+                if (document == null)
+                {
+                    throw new BsonSerializationException($"{nameof(BsonClassMap)} did not provide an instance of {typeof(TClass).Name}.");
+                }
+
                 supportsInitialization = document as ISupportInitialize;
                 if (supportsInitialization != null)
                 {
