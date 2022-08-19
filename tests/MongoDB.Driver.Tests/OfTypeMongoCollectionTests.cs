@@ -1119,6 +1119,35 @@ namespace MongoDB.Driver.Tests
             });
         }
 
+        [Theory]
+        [ParameterAttributeData]
+        public void UpdateOne_with_upsert_should_match_document_of_right_type([Values(false, true)] bool async)
+        {
+            string filter = "{ PropA : 4 }";
+
+            var subject = CreateSubject();
+
+            var pipeline = new EmptyPipelineDefinition<B>()
+                .AppendStage<B, B, B>(
+                    new BsonDocument
+                    {
+                        { "$set", new BsonDocument(nameof(B.PropA), "Pipeline") }
+                    })
+                .AppendStage<B, B, B>(
+                    new BsonDocument
+                    {
+                        { "$unset", new BsonDocument(nameof(B.PropB), "") }
+                    });
+
+            var updateOptions = new UpdateOptions { IsUpsert = true };
+            var result = async
+                ? subject.UpdateOneAsync(filter, pipeline, updateOptions).GetAwaiter().GetResult()
+                : subject.UpdateOne(filter, pipeline, updateOptions);
+
+            result.MatchedCount.Should().Be(1);
+            result.ModifiedCount.Should().Be(1);
+        }
+
         private IMongoCollection<B> CreateSubject()
         {
             return _rootCollection.OfType<B>();
