@@ -1527,6 +1527,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         [ParameterAttributeData]
         public void OnDemandCredentials(
             [Values("aws")] string kmsProvider,
+            [Values(false, true)] bool envVariablesSet,
             [Values(false, true)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
@@ -1534,10 +1535,10 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             using (var client = ConfigureClient(clearCollections: true))
             using (var clientEncryption = ConfigureClientEncryption(client, kmsProviderFilter: kmsProvider, kmsProviderConfigurator: (kmsProvider, kmsFields) => kmsFields.Clear()))
             {
-                var isAwsEnvironment = Environment.GetEnvironmentVariable("AWS_TESTS_ENABLED") != null;
+                RequireEnvironment.Check().EnvironmentVariable("AWS_TESTS_ENABLED", isDefined: envVariablesSet);
 
                 var datakeyOptions = CreateDataKeyOptions(kmsProvider);
-                if (isAwsEnvironment)
+                if (envVariablesSet)
                 {
                     // AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY must be configured
                     _ = CreateDataKey(clientEncryption, kmsProvider, datakeyOptions, async);
