@@ -245,8 +245,8 @@ namespace MongoDB.Bson
             // see Effective Java by Joshua Bloch
             int hash = 17;
             hash = 37 * hash + EqualityComparer<BsonType>.Default.GetHashCode(BsonType);
-            hash = 37 * hash + EqualityComparer<string>.Default.GetHashCode(_pattern);
-            hash = 37 * hash + EqualityComparer<string>.Default.GetHashCode(_options);
+            hash = 37 * hash + _pattern.GetHashCode();
+            hash = 37 * hash + _options.GetHashCode();
             return hash;
         }
 

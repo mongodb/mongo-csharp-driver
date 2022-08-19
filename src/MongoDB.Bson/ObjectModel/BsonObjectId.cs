@@ -339,7 +339,7 @@ namespace MongoDB.Bson
         {
             int hash = 17;
             hash = 37 * hash + EqualityComparer<BsonType>.Default.GetHashCode(BsonType);
-            hash = 37 * hash + EqualityComparer<ObjectId>.Default.GetHashCode(_value);
+            hash = 37 * hash + _value.GetHashCode();
             return hash;
         }
 
