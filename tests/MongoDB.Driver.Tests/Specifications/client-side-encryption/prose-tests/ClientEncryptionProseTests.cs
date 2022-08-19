@@ -1886,7 +1886,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                     .Elements
                     .ToDictionary(
                         k => k.Name,
-                        k => (IReadOnlyDictionary<string, object>)k.Value.AsBsonDocument.ToDictionary(ki => ki.Name, ki => ki.Value));
+                        k => (IReadOnlyDictionary<string, object>)k.Value.AsBsonDocument.ToDictionary(ki => ki.Name, ki => (object)ki.Value));
             }
 
             allowClientCertificateFunc = allowClientCertificateFunc ?? ((kmsProviderName) => kmsProviderName == "kmip"); // configure Tls for kmip by default
