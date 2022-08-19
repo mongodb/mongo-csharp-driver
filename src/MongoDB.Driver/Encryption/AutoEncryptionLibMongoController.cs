@@ -19,7 +19,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol;
 using MongoDB.Libmongocrypt;
@@ -66,12 +65,7 @@ namespace MongoDB.Driver.Encryption
             IMongoClient metadataClient,
             CryptClient cryptClient,
             AutoEncryptionOptions autoEncryptionOptions)
-            : base(
-                  Ensure.IsNotNull(cryptClient, nameof(cryptClient)),
-                  Ensure.IsNotNull(keyVaultClient, nameof(keyVaultClient)),
-                  Ensure.IsNotNull(Ensure.IsNotNull(autoEncryptionOptions, nameof(autoEncryptionOptions)).KeyVaultNamespace, nameof(autoEncryptionOptions.KeyVaultNamespace)),
-                  Ensure.IsNotNull(Ensure.IsNotNull(autoEncryptionOptions, nameof(autoEncryptionOptions)).KmsProviders, nameof(autoEncryptionOptions.KmsProviders)),
-                  Ensure.IsNotNull(Ensure.IsNotNull(autoEncryptionOptions, nameof(autoEncryptionOptions)).TlsOptions, nameof(autoEncryptionOptions.TlsOptions)))
+            : base(cryptClient, keyVaultClient, autoEncryptionOptions)
         {
             _internalClient = internalClient; // can be null
             _metadataClient = metadataClient; // can be null

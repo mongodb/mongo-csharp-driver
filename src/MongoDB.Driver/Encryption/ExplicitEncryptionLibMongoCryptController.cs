@@ -31,12 +31,9 @@ namespace MongoDB.Driver.Encryption
         public ExplicitEncryptionLibMongoCryptController(
             CryptClient cryptClient,
             ClientEncryptionOptions clientEncryptionOptions)
-            : base(
-                  Ensure.IsNotNull(cryptClient, nameof(cryptClient)),
+            : base(cryptClient,
                   Ensure.IsNotNull(Ensure.IsNotNull(clientEncryptionOptions, nameof(clientEncryptionOptions)).KeyVaultClient, nameof(clientEncryptionOptions.KeyVaultClient)),
-                  Ensure.IsNotNull(Ensure.IsNotNull(clientEncryptionOptions, nameof(clientEncryptionOptions)).KeyVaultNamespace, nameof(clientEncryptionOptions.KeyVaultNamespace)),
-                  Ensure.IsNotNull(Ensure.IsNotNull(clientEncryptionOptions, nameof(clientEncryptionOptions)).KmsProviders, nameof(clientEncryptionOptions.KmsProviders)),
-                  Ensure.IsNotNull(Ensure.IsNotNull(clientEncryptionOptions, nameof(clientEncryptionOptions)).TlsOptions, nameof(clientEncryptionOptions.TlsOptions)))
+                  clientEncryptionOptions)
         {
         }
 

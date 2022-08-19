@@ -21,7 +21,7 @@ namespace MongoDB.Driver.Encryption
     /// <summary>
     /// Client encryption options.
     /// </summary>
-    public class ClientEncryptionOptions
+    public class ClientEncryptionOptions : IEncryptionOptions
     {
         // private fields
         private readonly IMongoClient _keyVaultClient;
