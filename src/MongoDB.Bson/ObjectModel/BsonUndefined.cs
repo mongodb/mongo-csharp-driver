@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Collections.Generic;
 using MongoDB.Shared;
 
 namespace MongoDB.Bson
