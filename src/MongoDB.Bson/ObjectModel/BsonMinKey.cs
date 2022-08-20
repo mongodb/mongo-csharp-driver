@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using MongoDB.Shared;
 
 namespace MongoDB.Bson
 {
@@ -123,7 +124,7 @@ namespace MongoDB.Bson
         /// <returns>The hash code.</returns>
         public override int GetHashCode()
         {
-            return EqualityComparer<BsonType>.Default.GetHashCode(BsonType);
+            return Hasher.GetHashCode(BsonType);
         }
 
         /// <summary>

@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MongoDB.Shared;
 
 namespace MongoDB.Bson
 {
@@ -350,12 +351,12 @@ namespace MongoDB.Bson
             // see Effective Java by Joshua Bloch
             // note: guidRepresentation is not considered when computing the hash code
             int hash = 17;
-            hash = 37 * hash + EqualityComparer<BsonType>.Default.GetHashCode(BsonType);
+            hash = 37 * hash + Hasher.GetHashCode(BsonType);
             foreach (byte b in _bytes)
             {
                 hash = 37 * hash + b;
             }
-            hash = 37 * hash + EqualityComparer<BsonBinarySubType>.Default.GetHashCode(_subType);
+            hash = 37 * hash + Hasher.GetHashCode(_subType);
             return hash;
         }
 

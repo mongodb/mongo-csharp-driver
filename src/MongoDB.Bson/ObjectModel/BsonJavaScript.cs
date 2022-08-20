@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using MongoDB.Shared;
 
 namespace MongoDB.Bson
 {
@@ -164,7 +165,7 @@ namespace MongoDB.Bson
         {
             // see Effective Java by Joshua Bloch
             int hash = 17;
-            hash = 37 * hash + EqualityComparer<BsonType>.Default.GetHashCode(BsonType);
+            hash = 37 * hash + Hasher.GetHashCode(BsonType);
             hash = 37 * hash + _code.GetHashCode();
             return hash;
         }
