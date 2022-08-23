@@ -154,7 +154,7 @@ namespace MongoDB.Driver.Encryption
                         case IEnumerable enumerable:
                             foreach (var item in enumerable)
                             {
-                                args += $"--{item.ToString().TrimStart('-')} ";
+                                args += $"--{item.ToString().TrimStart(' ').TrimStart('-')} ";
                             }
                             break;
                         default:
