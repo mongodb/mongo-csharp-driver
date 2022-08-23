@@ -351,62 +351,60 @@ namespace MongoDB.Driver
 
         private IEnumerable<WriteModel<TDocument>> CombineModelFilters(IEnumerable<WriteModel<TDocument>> models)
         {
-            return models
-                .Select<WriteModel<TDocument>, WriteModel<TDocument>>(x =>
+            return models.Select<WriteModel<TDocument>, WriteModel<TDocument>>(x =>
+            {
+                switch (x.ModelType)
                 {
-                    switch (x.ModelType)
-                    {
-                        case WriteModelType.DeleteMany:
-                            var deleteManyModel = (DeleteManyModel<TDocument>)x;
-                            return new DeleteManyModel<TDocument>(CombineFilters(deleteManyModel.Filter))
-                            {
-                                Collation = deleteManyModel.Collation,
-                                Hint = deleteManyModel.Hint
-                            };
-                        case WriteModelType.DeleteOne:
-                            var deleteOneModel = (DeleteOneModel<TDocument>)x;
-                            return new DeleteOneModel<TDocument>(CombineFilters(deleteOneModel.Filter))
-                            {
-                                Collation = deleteOneModel.Collation,
-                                Hint = deleteOneModel.Hint
-                            };
-                        case WriteModelType.InsertOne:
-                            return x; // InsertOneModel has no filter
-                        case WriteModelType.ReplaceOne:
-                            var replaceOneModel = (ReplaceOneModel<TDocument>)x;
-                            return new ReplaceOneModel<TDocument>(CombineFilters(replaceOneModel.Filter), replaceOneModel.Replacement)
-                            {
-                                Collation = replaceOneModel.Collation,
-                                Hint = replaceOneModel.Hint,
-                                IsUpsert = replaceOneModel.IsUpsert
-                            };
-                        case WriteModelType.UpdateMany:
-                            var updateManyModel = (UpdateManyModel<TDocument>)x;
-                            return new UpdateManyModel<TDocument>(
-                                CombineFilters(updateManyModel.Filter),
-                                AdjustUpdateDefinition(updateManyModel.Update, updateManyModel.IsUpsert))
-                            {
-                                ArrayFilters = updateManyModel.ArrayFilters,
-                                Collation = updateManyModel.Collation,
-                                Hint = updateManyModel.Hint,
-                                IsUpsert = updateManyModel.IsUpsert
-                            };
-                        case WriteModelType.UpdateOne:
-                            var updateOneModel = (UpdateOneModel<TDocument>)x;
-                            return new UpdateOneModel<TDocument>(
-                                CombineFilters(updateOneModel.Filter),
-                                AdjustUpdateDefinition(updateOneModel.Update, updateOneModel.IsUpsert))
-                            {
-                                ArrayFilters = updateOneModel.ArrayFilters,
-                                Collation = updateOneModel.Collation,
-                                Hint = updateOneModel.Hint,
-                                IsUpsert = updateOneModel.IsUpsert
-                            };
-                        default:
-                            throw new MongoInternalException("Request type is invalid.");
-                    }
-                })
-                .ToList();
+                    case WriteModelType.DeleteMany:
+                        var deleteManyModel = (DeleteManyModel<TDocument>)x;
+                        return new DeleteManyModel<TDocument>(CombineFilters(deleteManyModel.Filter))
+                        {
+                            Collation = deleteManyModel.Collation,
+                            Hint = deleteManyModel.Hint
+                        };
+                    case WriteModelType.DeleteOne:
+                        var deleteOneModel = (DeleteOneModel<TDocument>)x;
+                        return new DeleteOneModel<TDocument>(CombineFilters(deleteOneModel.Filter))
+                        {
+                            Collation = deleteOneModel.Collation,
+                            Hint = deleteOneModel.Hint
+                        };
+                    case WriteModelType.InsertOne:
+                        return x; // InsertOneModel has no filter
+                    case WriteModelType.ReplaceOne:
+                        var replaceOneModel = (ReplaceOneModel<TDocument>)x;
+                        return new ReplaceOneModel<TDocument>(CombineFilters(replaceOneModel.Filter), replaceOneModel.Replacement)
+                        {
+                            Collation = replaceOneModel.Collation,
+                            Hint = replaceOneModel.Hint,
+                            IsUpsert = replaceOneModel.IsUpsert
+                        };
+                    case WriteModelType.UpdateMany:
+                        var updateManyModel = (UpdateManyModel<TDocument>)x;
+                        return new UpdateManyModel<TDocument>(
+                            CombineFilters(updateManyModel.Filter),
+                            AdjustUpdateDefinition(updateManyModel.Update, updateManyModel.IsUpsert))
+                        {
+                            ArrayFilters = updateManyModel.ArrayFilters,
+                            Collation = updateManyModel.Collation,
+                            Hint = updateManyModel.Hint,
+                            IsUpsert = updateManyModel.IsUpsert
+                        };
+                    case WriteModelType.UpdateOne:
+                        var updateOneModel = (UpdateOneModel<TDocument>)x;
+                        return new UpdateOneModel<TDocument>(
+                            CombineFilters(updateOneModel.Filter),
+                            AdjustUpdateDefinition(updateOneModel.Update, updateOneModel.IsUpsert))
+                        {
+                            ArrayFilters = updateOneModel.ArrayFilters,
+                            Collation = updateOneModel.Collation,
+                            Hint = updateOneModel.Hint,
+                            IsUpsert = updateOneModel.IsUpsert
+                        };
+                    default:
+                        throw new MongoInternalException("Request type is invalid.");
+                }
+            }).ToList();
         }
 
         private PipelineDefinition<TDocument, TResult> CreateFilteredPipeline<TResult>(PipelineDefinition<TDocument, TResult> pipeline)
