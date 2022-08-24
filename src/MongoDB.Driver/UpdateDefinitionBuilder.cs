@@ -1411,25 +1411,9 @@ namespace MongoDB.Driver
 
             foreach (var update in _updates)
             {
-                var renderedUpdateValue = update.Render(documentSerializer, serializerRegistry, linqProvider);
-                if (renderedUpdateValue is BsonArray renderedUpdateArray)
-                {
-                    foreach (var renderedUpdate in renderedUpdateArray)
-                    {
-                        HandleRendered(renderedUpdate.AsBsonDocument);
-                    }
-                }
-                else
-                {
-                    HandleRendered(renderedUpdateValue.AsBsonDocument);
-                }
-            }
+                var renderedUpdate = update.Render(documentSerializer, serializerRegistry, linqProvider).AsBsonDocument;
 
-            return document;
-
-            void HandleRendered(BsonDocument renderedDocument)
-            {
-                foreach (var element in renderedDocument.Elements)
+                foreach (var element in renderedUpdate.Elements)
                 {
                     BsonValue currentOperatorValue;
                     if (document.TryGetValue(element.Name, out currentOperatorValue))
@@ -1444,6 +1428,7 @@ namespace MongoDB.Driver
                     }
                 }
             }
+            return document;
         }
     }
 

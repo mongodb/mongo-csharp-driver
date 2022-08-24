@@ -23,7 +23,9 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Events;
 using Moq;
 using Xunit;
 
@@ -949,12 +951,17 @@ namespace MongoDB.Driver.Tests
 
     public class OfTypeCollectionIntegrationTests
     {
-        private IMongoCollection<BsonDocument> _docsCollection;
-        private IMongoCollection<A> _rootCollection;
+        private readonly IMongoCollection<BsonDocument> _docsCollection;
+        private readonly EventCapturer _eventsCapturer;
+        private readonly IMongoCollection<A> _rootCollection;
 
         public OfTypeCollectionIntegrationTests()
         {
-            var client = DriverTestConfiguration.Client;
+            var clientSettings = DriverTestConfiguration.Client.Settings.Clone();
+            _eventsCapturer = new EventCapturer().Capture<CommandStartedEvent>();
+            clientSettings.ClusterConfigurator = (b) => b.Subscribe(_eventsCapturer);
+            var client = new MongoClient(clientSettings);
+
             var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
             db.DropCollection(DriverTestConfiguration.CollectionNamespace.CollectionName);
 
@@ -1121,7 +1128,9 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [ParameterAttributeData]
-        public void UpdateOne_with_upsert_should_match_document_of_right_type([Values(false, true)] bool async)
+        public void UpdateOne_should_match_document_of_right_type(
+            [Values(false, true)] bool upsert,
+            [Values(false, true)] bool async)
         {
             string filter = "{ PropA : 4 }";
 
@@ -1136,16 +1145,52 @@ namespace MongoDB.Driver.Tests
                 .AppendStage<B, B, B>(
                     new BsonDocument
                     {
-                        { "$unset", new BsonDocument(nameof(B.PropB), "") }
+                        { "$unset", nameof(B.PropB) }
                     });
 
-            var updateOptions = new UpdateOptions { IsUpsert = true };
+            var updateOptions = new UpdateOptions { IsUpsert = upsert };
             var result = async
                 ? subject.UpdateOneAsync(filter, pipeline, updateOptions).GetAwaiter().GetResult()
                 : subject.UpdateOne(filter, pipeline, updateOptions);
 
             result.MatchedCount.Should().Be(1);
             result.ModifiedCount.Should().Be(1);
+
+            var updateQuery = _eventsCapturer.Events.OfType<CommandStartedEvent>().Last().Command["updates"];
+            var expectedUpdateDocument = BsonDocument.Parse($@"
+            {{
+                ""q"" :
+                {{
+                    ""_t"" : ""B"",
+                    ""PropA"" : 4
+                }},
+                ""u"" :
+                [
+                    {{
+                        ""$set"" : {{ ""PropA"" : ""Pipeline"" }}
+                    }},
+                    {{ ""$unset"" : ""PropB"" }},
+                    {{
+                        ""$set"" :
+                        {{
+                            ""_t"" :
+                            {{
+                                ""$cond"" : [{{  ""$eq"" : [{{ ""$type"" : ""$_id"" }}, ""missing""] }},
+                                [""A"", ""B""],
+                                ""$_t""]
+                            }}
+                        }}
+                    }}
+                ],
+                ""upsert"" : true
+            }}");
+            if (!upsert)
+            {
+                expectedUpdateDocument.RemoveAt(expectedUpdateDocument.ElementCount - 1); // remove upsert
+                var uContent = expectedUpdateDocument["u"].AsBsonArray;
+                uContent.RemoveAt(uContent.Count - 1);
+            }
+            updateQuery.Should().Be(new BsonArray { expectedUpdateDocument });
         }
 
         private IMongoCollection<B> CreateSubject()

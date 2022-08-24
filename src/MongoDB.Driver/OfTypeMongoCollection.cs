@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver
@@ -61,11 +62,43 @@ namespace MongoDB.Driver
             if (isUpsert)
             {
                 var discriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(typeof(TDerivedDocument));
+                var discriminatorConventionElementName = discriminatorConvention.ElementName;
                 var discriminatorValue = discriminatorConvention.GetDiscriminator(typeof(TRootDocument), typeof(TDerivedDocument));
 
-                var builder = new UpdateDefinitionBuilder<TDerivedDocument>();
-                var setOnInsertDiscriminator = builder.SetOnInsert(discriminatorConvention.ElementName, discriminatorValue);
-                result = builder.Combine(result, setOnInsertDiscriminator);
+                if (result is PipelineUpdateDefinition<TDerivedDocument> pipeline)
+                {
+                    var setOnInsertStage = new BsonDocument()
+                    {
+                        {
+                            "$set",
+                            new BsonDocument
+                            {
+                                {
+                                    discriminatorConventionElementName, // target field
+                                    new BsonDocument // condition
+                                    {
+                                        {
+                                            "$cond",
+                                            new BsonArray
+                                            {
+                                                new BsonDocument("$eq", new BsonArray { new BsonDocument("$type", "$_id"), "missing" }), // if "_id" is missed
+                                                discriminatorValue, // then set targetField to discriminatorValue
+                                                $"${discriminatorConventionElementName}" // else set targetField from the value in the document
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    };
+                    result = pipeline.Pipeline.AppendStage<TDerivedDocument, TDerivedDocument, TDerivedDocument>(setOnInsertStage);
+                }
+                else
+                {
+                    var builder = new UpdateDefinitionBuilder<TDerivedDocument>();
+                    var setOnInsertDiscriminator = builder.SetOnInsert(discriminatorConventionElementName, discriminatorValue);
+                    result = builder.Combine(result, setOnInsertDiscriminator);
+                }
             }
 
             return result;
