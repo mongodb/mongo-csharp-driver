@@ -26,6 +26,7 @@ using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Events;
+using MongoDB.Driver.TestHelpers;
 using Moq;
 using Xunit;
 
@@ -949,20 +950,21 @@ namespace MongoDB.Driver.Tests
         }
     }
 
-    public class OfTypeCollectionIntegrationTests
+    public class OfTypeCollectionIntegrationTests : IDisposable
     {
         private readonly IMongoCollection<BsonDocument> _docsCollection;
         private readonly EventCapturer _eventsCapturer;
         private readonly IMongoCollection<A> _rootCollection;
+        private readonly DisposableMongoClient _client;
 
         public OfTypeCollectionIntegrationTests()
         {
             var clientSettings = DriverTestConfiguration.Client.Settings.Clone();
             _eventsCapturer = new EventCapturer().Capture<CommandStartedEvent>();
             clientSettings.ClusterConfigurator = (b) => b.Subscribe(_eventsCapturer);
-            var client = new MongoClient(clientSettings);
+            _client = DriverTestConfiguration.CreateDisposableClient(clientSettings);
 
-            var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
+            var db = _client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
             db.DropCollection(DriverTestConfiguration.CollectionNamespace.CollectionName);
 
             _docsCollection = db.GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName);
@@ -1197,6 +1199,8 @@ namespace MongoDB.Driver.Tests
         {
             return _rootCollection.OfType<B>();
         }
+
+        public void Dispose() => _client?.Dispose();
 
         [BsonDiscriminator(RootClass = true)]
         [BsonKnownTypes(typeof(B), typeof(C))]
