@@ -26,6 +26,8 @@ using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Events;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.TestHelpers;
 using Moq;
 using Xunit;
@@ -1128,12 +1130,14 @@ namespace MongoDB.Driver.Tests
             });
         }
 
-        [Theory]
+        [SkippableTheory]
         [ParameterAttributeData]
         public void UpdateOne_should_match_document_of_right_type(
             [Values(false, true)] bool upsert,
             [Values(false, true)] bool async)
         {
+            RequireServer.Check().Supports(Feature.UpdateWithAggregationPipeline);
+
             string filter = "{ PropA : 4 }";
 
             var subject = CreateSubject();
