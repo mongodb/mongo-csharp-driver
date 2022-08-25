@@ -33,17 +33,14 @@ namespace MongoDB.Driver.Core.Authentication
     {
         internal static class ExternalAuthenticator
         {
-            public static AwsCredentials CreateAwsCredentialsFromExternal(string subject = "MONGODB-AWS authentication") =>
-               CreateAwsCredentialsFromExternalAsync(subject).GetAwaiter().GetResult();
+            public static AwsCredentials CreateAwsCredentialsFromExternalSource(string subject = "MONGODB-AWS authentication") =>
+               CreateAwsCredentialsFromExternalSourceAsync(subject).GetAwaiter().GetResult();
 
-            public static async Task<AwsCredentials> CreateAwsCredentialsFromExternalAsync(string subject = "MONGODB-AWS authentication") =>
+            public static async Task<AwsCredentials> CreateAwsCredentialsFromExternalSourceAsync(string subject = "MONGODB-AWS authentication") =>
                 CreateAwsCredentialsFromEnvironmentVariables(subject) ??
                 (await CreateAwsCredentialsFromEcsResponseAsync().ConfigureAwait(false)) ??
                 (await CreateAwsCredentialsFromEc2ResponseAsync().ConfigureAwait(false)) ??
                 throw new InvalidOperationException($"Unable to find credentials for {subject}.");
-
-            public static async Task<BsonDocument> CreateAwsCredentialsForKmsProviderAsync() =>
-                (await CreateAwsCredentialsFromExternalAsync("AWS kms provider").ConfigureAwait(false)).ConvertToKmsCredentials();
 
             // private methods
             private static AwsCredentials CreateAwsCredentialsFromEnvironmentVariables(string subject)
@@ -141,7 +138,7 @@ namespace MongoDB.Driver.Core.Authentication
         {
             var awsCredentials =
                 CreateAwsCredentialsFromMongoCredentials(username, password, properties) ??
-                ExternalAuthenticator.CreateAwsCredentialsFromExternal();
+                ExternalAuthenticator.CreateAwsCredentialsFromExternalSource();
 
             return new MongoAWSMechanism(awsCredentials, randomByteGenerator, clock);
         }

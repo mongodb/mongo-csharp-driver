@@ -271,7 +271,8 @@ namespace MongoDB.Driver.Encryption
                     "aws" when kmsProvider.Value.Count == 0 =>
                         new BsonElement(
                             kmsProvider.Key,
-                            await MongoAWSAuthenticator.ExternalAuthenticator.CreateAwsCredentialsForKmsProviderAsync().ConfigureAwait(false)),
+                            (await MongoAWSAuthenticator.ExternalAuthenticator.CreateAwsCredentialsFromExternalSourceAsync(subject: "AWS kms provider").ConfigureAwait(false))
+                                .ConvertToKmsCredentials()),
                     _ => null,
                 };
 
