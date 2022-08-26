@@ -256,6 +256,10 @@ namespace MongoDB.Bson.Serialization.Serializers
                             case TypeCode.String:
                                 bsonWriter.WriteString((string)value);
                                 return;
+
+                            case TypeCode.Decimal:
+                                bsonWriter.WriteDecimal128((decimal)value);
+                                return;
                         }
                     }
 
