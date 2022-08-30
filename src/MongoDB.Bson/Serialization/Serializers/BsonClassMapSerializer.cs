@@ -207,7 +207,7 @@ namespace MongoDB.Bson.Serialization
             bsonReader.ReadEndDocument();
 
             if(_classMap.RequiredMembersExists)
-            CheckRequiredAndDefaultProperies(null, document, allMemberMaps, memberMapBitArray);
+                CheckRequiredAndDefaultProperies(null, document, allMemberMaps, memberMapBitArray);
 
             
             if (supportsInitialization != null)
@@ -281,14 +281,12 @@ namespace MongoDB.Bson.Serialization
             }
             bsonReader.ReadEndDocument();
             if (_classMap.RequiredMembersExists)
-            CheckRequiredAndDefaultProperies(values, null, allMemberMaps, memberMapBitArray);
+                CheckRequiredAndDefaultProperies(values, null, allMemberMaps, memberMapBitArray);
 
             return CreateInstanceUsingCreator(values);
         }
 
-        static bool NeedToCheckRequiredAndDefault(BsonClassMap<TClass> map)
-            => map.AllMemberMaps.Any(m => !m.IsReadOnly && (m.IsRequired || m.IsDefaultValueSpecified));
-
+    
     private void CheckRequiredAndDefaultProperies(Dictionary<string, object> values, TClass document, System.Collections.ObjectModel.ReadOnlyCollection<BsonMemberMap<TClass>> allMemberMaps, uint[] memberMapBitArray)
         {
             // check any members left over that we didn't have elements for (in blocks of 32 elements at a time)

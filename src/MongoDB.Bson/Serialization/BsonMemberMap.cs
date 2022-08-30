@@ -82,7 +82,6 @@ namespace MongoDB.Bson.Serialization
 
             //serializerVar.Deserialize<MyMemberClass>(context)
             var methos = serializerType.GetMethod("Deserialize", BindingFlags.Public | BindingFlags.Instance);
-            //var deserializeMethod = Expression.Call(serializerVar, nameof(IBsonSerializer<int>.Deserialize), new[] { serializer.ValueType }, contextParameter);
             var deserializeMethod = Expression.Call(convertSerializer, methos, contextParameter, argsVar);
 
             //check need cast document to base class if this property was overrided by new
@@ -99,20 +98,16 @@ namespace MongoDB.Bson.Serialization
             var assignProperty = Expression.Assign(property, deserializeMethod);
 
             //build func body by join pieces of code
-            //последний элемент блока автоматом считается возвращаемым значением ф-ии
             var funcBody = Expression.Block(
-                variables: new[] { /*entityVar, serializerVar,*/ argsVar },
+                variables: new[] { argsVar },
                 expressions: new[]
                 {
-                    //assignEntityVar,
-                    //assignSerializerVar,
                     setArgsNominalType,
                     assignProperty
                 });
 
             var lambda = Expression.Lambda<Action<BsonDeserializationContext, IBsonSerializer, TClass>>(funcBody, contextParameter, serializerParameter, documentParameter);
 
-            //компилируем лямду
             return lambda.Compile();
         }
 
