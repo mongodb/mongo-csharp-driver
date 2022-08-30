@@ -116,6 +116,11 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets the pipeline.
+        /// </summary>
+        public PipelineDefinition<TDocument, TDocument> Pipeline => _pipeline;
+
+        /// <summary>
         /// Renders the update to a <see cref="BsonValue"/> that represents <see cref="BsonArray"/>.
         /// </summary>
         /// <param name="documentSerializer">The document serializer.</param>

@@ -15,6 +15,7 @@
 
 using System;
 using System.Text.RegularExpressions;
+using MongoDB.Shared;
 
 namespace MongoDB.Bson
 {
@@ -243,7 +244,7 @@ namespace MongoDB.Bson
         {
             // see Effective Java by Joshua Bloch
             int hash = 17;
-            hash = 37 * hash + BsonType.GetHashCode();
+            hash = 37 * hash + Hasher.GetHashCode(BsonType);
             hash = 37 * hash + _pattern.GetHashCode();
             hash = 37 * hash + _options.GetHashCode();
             return hash;

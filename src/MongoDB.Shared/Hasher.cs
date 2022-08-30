@@ -14,13 +14,21 @@
 */
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace MongoDB.Shared
 {
     internal class Hasher
     {
+        #region static 
+
+        // public static methods
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int GetHashCode<T>(T obj) => EqualityComparer<T>.Default.GetHashCode(obj);
+
+        #endregion
+
         // private fields
         private int _hashCode;
 
@@ -75,7 +83,7 @@ namespace MongoDB.Shared
             return this;
         }
 
-        public Hasher HashElements(IEnumerable sequence)
+        public Hasher HashElements<T>(IEnumerable<T> sequence)
         {
             if (sequence == null)
             {
@@ -85,7 +93,7 @@ namespace MongoDB.Shared
             {
                 foreach (var value in sequence)
                 {
-                    _hashCode = 37 * _hashCode + ((value == null) ? -1 : value.GetHashCode());
+                    _hashCode = 37 * _hashCode + (value == null ? -1 : GetHashCode(value));
                 }
             }
             return this;
