@@ -14,12 +14,109 @@
 */
 
 using System;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Bson.Serialization
 {
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <typeparam name="TClass"></typeparam>
+    public class BsonMemberMap<TClass>
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="classMap"></param>
+        /// <param name="memberMap"></param>
+        public BsonMemberMap(BsonClassMap<TClass> classMap, BsonMemberMap memberMap)// : base(classMap, memberInfo)
+        {
+            _memberMap = memberMap;
+        }
+        private readonly BsonMemberMap _memberMap;
+        /// <summary>
+        /// Member Map Info
+        /// </summary>
+        public BsonMemberMap MemberMap => _memberMap;
+        Action<BsonDeserializationContext, IBsonSerializer, TClass> _deserializeAction;
+
+
+        /// <summary>
+        /// Return Deserialize action which get value from deserializer and set to field or property
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="actualClassMap"></param>
+        /// <param name="document"></param>
+        /// <exception cref="FormatException"></exception>
+        public Action<BsonDeserializationContext, IBsonSerializer, TClass> GetDeserializeAction(BsonDeserializationContext context, BsonClassMap actualClassMap, TClass document)
+            => _deserializeAction ??= BuildDeserializeAction(context, document, actualClassMap);
+
+        Action<BsonDeserializationContext, IBsonSerializer, TClass> BuildDeserializeAction(BsonDeserializationContext context, object document, BsonClassMap actualClassMap)
+        {
+            //target is to generate following code:
+            //var args = new BsonDeserializationArgs { NominalType = serializer.ValueType };
+            //document.Property = ((MySerializer)_serializer).Deserialize(context, args);
+            var serializer = _memberMap.GetSerializer();
+
+            //context parameter (BsonDeserializationContext)
+            var contextParameter = Expression.Parameter(typeof(BsonDeserializationContext), "context");
+            //serializer parameter (IBsonSerializer)
+            var serializerParameter = Expression.Parameter(typeof(IBsonSerializer), "serializer");
+            //document(entity) parameter (TClass)
+            var documentParameter = Expression.Parameter(typeof(TClass), "document");
+
+
+            
+            //cast serializer to real generic type to avoid boxing and interface virtualization
+            //(MySerializer)serializer;
+            var serializerType = serializer.GetType();
+            var convertSerializer = Expression.ConvertChecked(serializerParameter, serializerType);//(MySerializer)serializer
+
+            //var args = new BsonDeserializationArgs { NominalType = serializer.ValueType };
+            var argsVar = Expression.Variable(typeof(BsonDeserializationArgs), "args"); //var args;
+            var nominalProperty = Expression.Property(argsVar, nameof(BsonDeserializationArgs.NominalType));
+            var setArgsNominalType = Expression.Assign(nominalProperty, Expression.Constant(serializer.ValueType));
+
+            //serializerVar.Deserialize<MyMemberClass>(context)
+            var methos = serializerType.GetMethod("Deserialize", BindingFlags.Public | BindingFlags.Instance);
+            //var deserializeMethod = Expression.Call(serializerVar, nameof(IBsonSerializer<int>.Deserialize), new[] { serializer.ValueType }, contextParameter);
+            var deserializeMethod = Expression.Call(convertSerializer, methos, contextParameter, argsVar);
+
+            //check need cast document to base class if this property was overrided by new
+            Type castToType = null;
+            if (_memberMap.ClassMap.ClassType != typeof(TClass)
+                && actualClassMap.AllMemberMaps.Any(m => m != _memberMap
+                                                    && m.MemberName == _memberMap.MemberName
+                                                    && m.ElementName != _memberMap.ElementName))
+                castToType = _memberMap.ClassMap.ClassType;
+            Expression convertedDocument = castToType == null ? documentParameter : Expression.Convert(documentParameter, castToType);
+            var property = _memberMap.MemberInfo is FieldInfo fieldInfo ? Expression.Field(convertedDocument, fieldInfo)
+                                                              : Expression.Property(convertedDocument, _memberMap.MemberName);
+            //entityVar.Property = serializerVar.Deserialize<MyMemberClass>(context)
+            var assignProperty = Expression.Assign(property, deserializeMethod);
+
+            //build func body by join pieces of code
+            //последний элемент блока автоматом считается возвращаемым значением ф-ии
+            var funcBody = Expression.Block(
+                variables: new[] { /*entityVar, serializerVar,*/ argsVar },
+                expressions: new[]
+                {
+                    //assignEntityVar,
+                    //assignSerializerVar,
+                    setArgsNominalType,
+                    assignProperty
+                });
+
+            var lambda = Expression.Lambda<Action<BsonDeserializationContext, IBsonSerializer, TClass>>(funcBody, contextParameter, serializerParameter, documentParameter);
+
+            //компилируем лямду
+            return lambda.Compile();
+        }
+
+    }
     /// <summary>
     /// Represents the mapping between a field or property and a BSON element.
     /// </summary>
@@ -212,6 +309,7 @@ namespace MongoDB.Bson.Serialization
             get { return _defaultValueCreator != null ? _defaultValueCreator() : _defaultValue; }
         }
 
+        bool? _isReadonly = null;
         /// <summary>
         /// Gets whether the member is readonly.
         /// </summary>
@@ -222,24 +320,26 @@ namespace MongoDB.Bson.Serialization
         {
             get
             {
-                if (_memberInfo is FieldInfo)
+                if (_isReadonly == null)
                 {
-                    var field = (FieldInfo)_memberInfo;
-                    return field.IsInitOnly || field.IsLiteral;
+                    if (_memberInfo is FieldInfo field)
+                    {
+                        _isReadonly = field.IsInitOnly || field.IsLiteral;
+                    }
+                    else if (_memberInfo is PropertyInfo property)
+                    {
+                        _isReadonly = !property.CanWrite;
+                    }
+                    else
+                    {
+                        throw new NotSupportedException(
+                           string.Format("Only fields and properties are supported by BsonMemberMap. The member {0} of class {1} is a {2}.",
+                           _memberInfo.Name,
+                           _memberInfo.DeclaringType.Name,
+                           _memberInfo is FieldInfo ? "field" : "property"));
+                    }
                 }
-                else if (_memberInfo is PropertyInfo)
-                {
-                    var property = (PropertyInfo)_memberInfo;
-                    return !property.CanWrite;
-                }
-                else
-                {
-                    throw new NotSupportedException(
-                       string.Format("Only fields and properties are supported by BsonMemberMap. The member {0} of class {1} is a {2}.",
-                       _memberInfo.Name,
-                       _memberInfo.DeclaringType.Name,
-                       _memberInfo is FieldInfo ? "field" : "property"));
-                }
+                return _isReadonly.GetValueOrDefault();
             }
         }
 
@@ -328,6 +428,7 @@ namespace MongoDB.Bson.Serialization
             _order = int.MaxValue;
             _serializer = null;
             _shouldSerializeMethod = null;
+            _isReadonly = null;
 
             return this;
         }

@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Reflection;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Serializers;
@@ -27,16 +28,17 @@ namespace MongoDB.Bson.Serialization
     /// </summary>
     /// <typeparam name="TClass">The type of the class.</typeparam>
     public class BsonClassMapSerializer<TClass> : SerializerBase<TClass>, IBsonIdProvider, IBsonDocumentSerializer, IBsonPolymorphicSerializer
+        where TClass : class
     {
         // private fields
-        private BsonClassMap _classMap;
+        private readonly BsonClassMap<TClass> _classMap;
 
         // constructors
         /// <summary>
         /// Initializes a new instance of the BsonClassMapSerializer class.
         /// </summary>
         /// <param name="classMap">The class map.</param>
-        public BsonClassMapSerializer(BsonClassMap classMap)
+        public BsonClassMapSerializer(BsonClassMap<TClass> classMap)
         {
             if (classMap == null)
             {
@@ -78,16 +80,18 @@ namespace MongoDB.Bson.Serialization
         {
             var bsonReader = context.Reader;
 
-            if (_classMap.ClassType.GetTypeInfo().IsValueType)
-            {
-                var message = string.Format("Value class {0} cannot be deserialized.", _classMap.ClassType.FullName);
-                throw new BsonSerializationException(message);
-            }
-
-            if (bsonReader.GetCurrentBsonType() == Bson.BsonType.Null)
+            var currentBsonType = bsonReader.GetCurrentBsonType();
+            if (currentBsonType == Bson.BsonType.Null)
             {
                 bsonReader.ReadNull();
                 return default(TClass);
+            }
+            else if (currentBsonType != BsonType.Document)
+            {
+                var message = string.Format(
+                    "Expected a nested document representing the serialized form of a {0} value, but found a value of type {1} instead.",
+                    typeof(TClass).FullName, currentBsonType);
+                throw new FormatException(message);
             }
             else
             {
@@ -113,47 +117,40 @@ namespace MongoDB.Bson.Serialization
         /// <param name="context">The deserialization context.</param>
         /// <returns>A deserialized value.</returns>
         public TClass DeserializeClass(BsonDeserializationContext context)
-        {
-            var bsonReader = context.Reader;
-
-            var bsonType = bsonReader.GetCurrentBsonType();
-            if (bsonType != BsonType.Document)
-            {
-                var message = string.Format(
-                    "Expected a nested document representing the serialized form of a {0} value, but found a value of type {1} instead.",
-                    typeof(TClass).FullName, bsonType);
-                throw new FormatException(message);
-            }
-
-            Dictionary<string, object> values = null;
-            var document = default(TClass);
-
-            ISupportInitialize supportsInitialization = null;
+        {            
             if (_classMap.HasCreatorMaps)
             {
                 // for creator-based deserialization we first gather the values in a dictionary and then call a matching creator
-                values = new Dictionary<string, object>();
+                return DeserializeClassWithCreatorMap(context);
             }
             else
             {
                 // for mutable classes we deserialize the values directly into the result object
-                document = (TClass)_classMap.CreateInstance();
+                return DeserializeClassInternal(context);
+            }
+            
+        }
 
-                supportsInitialization = document as ISupportInitialize;
-                if (supportsInitialization != null)
-                {
-                    supportsInitialization.BeginInit();
-                }
+        private TClass DeserializeClassInternal(BsonDeserializationContext context)
+        {
+            // for mutable classes we deserialize the values directly into the result object
+            var document = _classMap.CreateInstance();
+            ISupportInitialize supportsInitialization = document as ISupportInitialize;
+            if (supportsInitialization != null)
+            {
+                supportsInitialization.BeginInit();
             }
 
             var discriminatorConvention = _classMap.GetDiscriminatorConvention();
-            var allMemberMaps = _classMap.AllMemberMaps;
+            var allMemberMaps = _classMap.AllMemberMapsGeneric;
             var extraElementsMemberMapIndex = _classMap.ExtraElementsMemberMapIndex;
             var memberMapBitArray = FastMemberMapHelper.GetBitArray(allMemberMaps.Count);
 
-            bsonReader.ReadStartDocument();
             var elementTrie = _classMap.ElementTrie;
             var trieDecoder = new TrieNameDecoder<int>(elementTrie);
+
+            var bsonReader = context.Reader;
+            bsonReader.ReadStartDocument();
             while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
             {
                 var elementName = bsonReader.ReadName(trieDecoder);
@@ -163,35 +160,19 @@ namespace MongoDB.Bson.Serialization
                     var memberMapIndex = trieDecoder.Value;
                     var memberMap = allMemberMaps[memberMapIndex];
                     if (memberMapIndex != extraElementsMemberMapIndex)
-                    {
-                        if (document != null)
+                    {                        
+                        if (memberMap.MemberMap.IsReadOnly)
                         {
-                            if (memberMap.IsReadOnly)
-                            {
-                                bsonReader.SkipValue();
-                            }
-                            else
-                            {
-                                var value = DeserializeMemberValue(context, memberMap);
-                                memberMap.Setter(document, value);
-                            }
+                            bsonReader.SkipValue();
                         }
                         else
                         {
-                            var value = DeserializeMemberValue(context, memberMap);
-                            values[elementName] = value;
-                        }
+                            DeserializeMemberValue(context, memberMap, document);
+                        }                        
                     }
-                    else
+                    else if (extraElementsMemberMapIndex >= 0)
                     {
-                        if (document != null)
-                        {
-                            DeserializeExtraElementMember(context, document, elementName, memberMap);
-                        }
-                        else
-                        {
-                            DeserializeExtraElementValue(context, values, elementName, memberMap);
-                        }
+                        DeserializeExtraElementMember(context, document, elementName, memberMap.MemberMap);                        
                     }
                     memberMapBitArray[memberMapIndex >> 5] |= 1U << (memberMapIndex & 31);
                 }
@@ -206,14 +187,8 @@ namespace MongoDB.Bson.Serialization
                     if (extraElementsMemberMapIndex >= 0)
                     {
                         var extraElementsMemberMap = _classMap.ExtraElementsMemberMap;
-                        if (document != null)
-                        {
-                            DeserializeExtraElementMember(context, document, elementName, extraElementsMemberMap);
-                        }
-                        else
-                        {
-                            DeserializeExtraElementValue(context, values, elementName, extraElementsMemberMap);
-                        }
+                        DeserializeExtraElementMember(context, document, elementName, extraElementsMemberMap);
+                        
                         memberMapBitArray[extraElementsMemberMapIndex >> 5] |= 1U << (extraElementsMemberMapIndex & 31);
                     }
                     else if (_classMap.IgnoreExtraElements)
@@ -231,6 +206,91 @@ namespace MongoDB.Bson.Serialization
             }
             bsonReader.ReadEndDocument();
 
+            if(_classMap.RequiredMembersExists)
+            CheckRequiredAndDefaultProperies(null, document, allMemberMaps, memberMapBitArray);
+
+            
+            if (supportsInitialization != null)
+            {
+                supportsInitialization.EndInit();
+            }
+            return document;
+            
+        }
+
+        private TClass DeserializeClassWithCreatorMap(BsonDeserializationContext context)
+        {
+            // for creator-based deserialization we first gather the values in a dictionary and then call a matching creator
+            var values = new Dictionary<string, object>();
+
+            var discriminatorConvention = _classMap.GetDiscriminatorConvention();
+            var allMemberMaps = _classMap.AllMemberMapsGeneric;
+            var extraElementsMemberMapIndex = _classMap.ExtraElementsMemberMapIndex;
+            var memberMapBitArray = FastMemberMapHelper.GetBitArray(allMemberMaps.Count);
+
+            var bsonReader = context.Reader;
+            bsonReader.ReadStartDocument();
+            var elementTrie = _classMap.ElementTrie;
+            var trieDecoder = new TrieNameDecoder<int>(elementTrie);
+            while (bsonReader.ReadBsonType() != BsonType.EndOfDocument)
+            {
+                var elementName = bsonReader.ReadName(trieDecoder);
+
+                if (trieDecoder.Found)
+                {
+                    var memberMapIndex = trieDecoder.Value;
+                    var memberMap = allMemberMaps[memberMapIndex];
+                    if (memberMapIndex != extraElementsMemberMapIndex)
+                    {
+                        
+                        var value = DeserializeMemberValue(context, memberMap.MemberMap);
+                        values[elementName] = value;
+                    }
+                    else
+                    {
+                        DeserializeExtraElementValue(context, values, elementName, memberMap.MemberMap);
+                    }
+                    memberMapBitArray[memberMapIndex >> 5] |= 1U << (memberMapIndex & 31);
+                }
+                else
+                {
+                    if (elementName == discriminatorConvention.ElementName)
+                    {
+                        bsonReader.SkipValue(); // skip over discriminator
+                        continue;
+                    }
+
+                    if (extraElementsMemberMapIndex >= 0)
+                    {
+                        var extraElementsMemberMap = _classMap.ExtraElementsMemberMap;
+                        DeserializeExtraElementValue(context, values, elementName, extraElementsMemberMap);
+                        memberMapBitArray[extraElementsMemberMapIndex >> 5] |= 1U << (extraElementsMemberMapIndex & 31);
+                    }
+                    else if (_classMap.IgnoreExtraElements)
+                    {
+                        bsonReader.SkipValue();
+                    }
+                    else
+                    {
+                        var message = string.Format(
+                            "Element '{0}' does not match any field or property of class {1}.",
+                            elementName, _classMap.ClassType.FullName);
+                        throw new FormatException(message);
+                    }
+                }
+            }
+            bsonReader.ReadEndDocument();
+            if (_classMap.RequiredMembersExists)
+            CheckRequiredAndDefaultProperies(values, null, allMemberMaps, memberMapBitArray);
+
+            return CreateInstanceUsingCreator(values);
+        }
+
+        static bool NeedToCheckRequiredAndDefault(BsonClassMap<TClass> map)
+            => map.AllMemberMaps.Any(m => !m.IsReadOnly && (m.IsRequired || m.IsDefaultValueSpecified));
+
+    private void CheckRequiredAndDefaultProperies(Dictionary<string, object> values, TClass document, System.Collections.ObjectModel.ReadOnlyCollection<BsonMemberMap<TClass>> allMemberMaps, uint[] memberMapBitArray)
+        {
             // check any members left over that we didn't have elements for (in blocks of 32 elements at a time)
             for (var bitArrayIndex = 0; bitArrayIndex < memberMapBitArray.Length; ++bitArrayIndex)
             {
@@ -243,7 +303,8 @@ namespace MongoDB.Bson.Serialization
                     // examine missing elements (memberMapBlock is shifted right as we work through the block)
                     for (; (memberMapBlock & 1) != 0; ++memberMapIndex, memberMapBlock >>= 1)
                     {
-                        var memberMap = allMemberMaps[memberMapIndex];
+                        var memberMapGen = allMemberMaps[memberMapIndex];
+                        var memberMap = memberMapGen.MemberMap;
                         if (memberMap.IsReadOnly)
                         {
                             continue;
@@ -278,19 +339,6 @@ namespace MongoDB.Bson.Serialization
                     memberMapIndex += leastSignificantBit;
                     memberMapBlock >>= leastSignificantBit;
                 }
-            }
-
-            if (document != null)
-            {
-                if (supportsInitialization != null)
-                {
-                    supportsInitialization.EndInit();
-                }
-                return document;
-            }
-            else
-            {
-                return CreateInstanceUsingCreator(values);
             }
         }
 
@@ -541,6 +589,27 @@ namespace MongoDB.Bson.Serialization
 
                 var bsonValue = BsonValueSerializer.Instance.Deserialize(context);
                 extraElements[elementName] = BsonTypeMapper.MapToDotNetValue(bsonValue);
+            }
+        }
+
+        private void DeserializeMemberValue(BsonDeserializationContext context, BsonMemberMap<TClass> memberMap, TClass document)
+        {
+            try
+            {
+                //this code has excess boxing and interface virtualization impact
+                //var value = memberMap.GetSerializer().Deserialize(context);            
+                //memberMap.Setter(document, value);
+
+                //we will be use generic action
+                var deserializer = memberMap.GetDeserializeAction(context, _classMap, document);
+                deserializer(context, memberMap.MemberMap.GetSerializer(), document);
+            }
+            catch (Exception ex)
+            {
+                var message = string.Format(
+                    "An error occurred while deserializing the {0} {1} of class {2}: {3}", // terminating period provided by nested message
+                    memberMap.MemberMap.MemberName, (memberMap.MemberMap.MemberInfo is FieldInfo) ? "field" : "property", _classMap.ClassType.FullName, ex.Message);
+                throw new FormatException(message, ex);
             }
         }
 

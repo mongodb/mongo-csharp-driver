@@ -16,6 +16,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace MongoDB.Bson.Serialization.Serializers
@@ -145,6 +147,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             return new List<TItem>();
         }
 
+        Func<object, TValue> _finalizeResult = null;
         /// <summary>
         /// Finalizes the result.
         /// </summary>
@@ -152,34 +155,60 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <returns>The final result.</returns>
         protected override TValue FinalizeResult(object accumulator)
         {
-            // find and call a constructor that we can pass the accumulator to
+            if (_finalizeResult == null)
+                _finalizeResult = BuildFinalizeResultAction(accumulator);
+            return _finalizeResult(accumulator);
+        }
+        Func<object, TValue> BuildFinalizeResultAction(object accumulator)
+        {
+            
+            // if it the same type we can just convert and return
             var accumulatorType = accumulator.GetType();
-            foreach (var constructorInfo in typeof(TValue).GetTypeInfo().GetConstructors())
+            if (typeof(TValue).IsAssignableFrom(accumulatorType))
+                return (accumulator) => (TValue)accumulator;
+
+            // find and call a constructor that we can pass the accumulator to
+            var constructors = typeof(TValue).GetTypeInfo().GetConstructors();
+            var enumerableConstructor = constructors.FirstOrDefault(constructorInfo =>
             {
                 var parameterInfos = constructorInfo.GetParameters();
-                if (parameterInfos.Length == 1 && parameterInfos[0].ParameterType.GetTypeInfo().IsAssignableFrom(accumulatorType))
-                {
-                    return (TValue)constructorInfo.Invoke(new object[] { accumulator });
-                }
+                return parameterInfos.Length == 1 && parameterInfos[0].ParameterType.GetTypeInfo().IsAssignableFrom(accumulatorType);
+            });
+            if (enumerableConstructor != null)
+            {
+                //func parameter
+                var accumulatorParameter = Expression.Parameter(typeof(object), "accumulator");
+                var convertedAccumulator = Expression.ConvertChecked(accumulatorParameter, accumulatorType);
+                return Expression.Lambda<Func<object, TValue>>(
+                    Expression.New(enumerableConstructor, convertedAccumulator),
+                    accumulatorParameter
+                ).Compile();
             }
 
             // otherwise try to find a no-argument constructor and an Add method
             var valueTypeInfo = typeof(TValue).GetTypeInfo();
-            var noArgumentConstructorInfo = valueTypeInfo.GetConstructor(new Type[] { });
-            var addMethodInfo = typeof(TValue).GetTypeInfo().GetMethod("Add", new Type[] { typeof(TItem) });
+            var noArgumentConstructorInfo = constructors.FirstOrDefault(c => c.GetParameters().Length == 0);
+            var addMethodInfo = valueTypeInfo.GetMethod("Add", new Type[] { typeof(TItem) });
+
             if (noArgumentConstructorInfo != null && addMethodInfo != null)
             {
-                var value = (TValue)noArgumentConstructorInfo.Invoke(new Type[] { });
-                foreach (var item in (IEnumerable<TItem>)accumulator)
+                //slow, reflection- it is very rare case
+                return (accumulator) =>
                 {
-                    addMethodInfo.Invoke(value, new object[] { item });
-                }
-                return value;
+                    var value = (TValue)noArgumentConstructorInfo.Invoke(new Type[] { });
+                    foreach (var item in (IEnumerable<TItem>)accumulator)
+                    {
+                        addMethodInfo.Invoke(value, new object[] { item! });
+                    }
+                    return value;
+                };
             }
 
             var message = string.Format("Type '{0}' does not have a suitable constructor or Add method.", typeof(TValue).FullName);
             throw new BsonSerializationException(message);
+
         }
+
 
         // explicit interface implementations
         IBsonSerializer IChildSerializerConfigurable.ChildSerializer
