@@ -834,7 +834,7 @@ Setup<BuildConfig>(
         {
             Architecture.Arm64 => "arm64",
             Architecture.X64 => "x64",
-            var unknownArchitecture => throw new Exception($"Unknown CPU architecture: {unknownArchitecture}")
+            var unknownArchitecture => throw new Exception($"Unknown CPU architecture: {unknownArchitecture}.")
         };
 
         var lowerTarget = target.ToLowerInvariant();
