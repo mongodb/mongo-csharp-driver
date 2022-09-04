@@ -17,14 +17,16 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Net.Http;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
+using Microsoft.Diagnostics.Runtime;
 using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
@@ -41,6 +43,8 @@ using MongoDB.Driver.TestHelpers;
 using MongoDB.Libmongocrypt;
 using Xunit;
 using Xunit.Abstractions;
+using Xunit.Sdk;
+using Reflector = MongoDB.Bson.TestHelpers.Reflector;
 
 namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 {
@@ -1449,7 +1453,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 #endif
                         "The message received was unexpected or badly formatted");
                 }
-                catch (Xunit.Sdk.XunitException) // assertation failed
+                catch (XunitException) // assertation failed
                 {
                     // Sometimes the mock server triggers SocketError.ConnectionReset (10054) on windows instead the expected exception.
                     // It looks like a test env issue, a similar behavior presents in other drivers, so we rely on the same check on different OSs
@@ -1526,14 +1530,11 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         [ParameterAttributeData]
         public void OnDemandCredentials(
             [Values("aws")] string kmsProvider,
-            [Values(false, true)] bool envVariablesSet,
+            [Values(true)] bool envVariablesSet,
             [Values(false, true)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
 
-            using (ConfigureDisposableEnvironmentVariable("AWS_ACCESS_KEY_ID"))
-            using (ConfigureDisposableEnvironmentVariable("AWS_SECRET_ACCESS_KEY"))
-            using (ConfigureDisposableEnvironmentVariable("AWS_SESSION_TOKEN", onlyUnsetIfNeeded: true))
             using (var client = ConfigureClient(clearCollections: true))
             using (var clientEncryption = ConfigureClientEncryption(client, kmsDocument: new BsonDocument(kmsProvider, new BsonDocument())))
             {
@@ -1547,27 +1548,67 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 else
                 {
                     // AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY must not be configured
-                    AssertInnerEncryptionException<SocketException>(
-                        ex,
-#if NET472
-                        "An error occurred while sending the request",
-                        "Unable to connect to the remote server",
-#else
-                        "A socket operation was attempted to an unreachable network",
-#endif
-                        "A socket operation was attempted to an unreachable network");
+                    AssertException(ex);
                 }
-            }
 
-            DisposableEnvironmentVariable ConfigureDisposableEnvironmentVariable(string key, bool onlyUnsetIfNeeded = false)
-            {
-                if (envVariablesSet && !onlyUnsetIfNeeded)
+                void AssertException(Exception ex)
                 {
-                    return DisposableEnvironmentVariable.TransferFromEnvironmentVariable(key, $"FLE_{key}");
-                }
-                else
-                {
-                    return new DisposableEnvironmentVariable(key, null); // unset env variable
+                    var currentOperatingSystem = OperatingSystemHelper.CurrentOperatingSystem;
+                    switch (kmsProvider)
+                    {
+                        case "aws":
+                            {
+                                switch (currentOperatingSystem)
+                                {
+                                    case OperatingSystemPlatform.Windows:
+                                    case OperatingSystemPlatform.Linux:
+                                        {
+                                            try
+                                            {
+                                                // unlike EG, local running fails on first aws EC2 step with acquiring a token
+                                                AssertInnerEncryptionException<SocketException>(
+                                                    ex,
+#if NET472
+                                                    "An error occurred while sending the request",
+                                                    "Unable to connect to the remote server",
+#endif
+                                                    "A socket operation was attempted to an unreachable network");
+                                            }
+                                            catch (XunitException)
+                                            {
+                                                // EG allows successful sending aws token request to the aws env, so error happens on get rolename step
+                                                AssertInnerEncryptionException<HttpRequestException>(ex, "Response status code does not indicate success: 404");
+                                            }
+                                        }
+                                        break;
+                                    case OperatingSystemPlatform.MacOS:
+                                        {
+                                            try
+                                            {
+                                                //---> MongoDB.Driver.MongoClientException: Failed to acquire EC2 token.
+                                                //--->System.Threading.Tasks.TaskCanceledException: A task was canceled.
+                                                //--->at System.Net.Http.HttpClient.FinishSendAsyncBuffered(Task`1 sendTask, HttpRequestMessage request, CancellationTokenSource cts, Boolean disposeCts)
+                                                AssertInnerEncryptionException<TaskCanceledException>(ex, "Failed to acquire EC2 token.");
+                                            }
+                                            catch (XunitException)
+                                            {
+                                                //--->System.Net.Http.HttpRequestException: An error occurred while sending the request.
+                                                //--->System.Net.Http.CurlException: Couldn't connect to server
+                                                //at System.Net.Http.CurlHandler.ThrowIfCURLEError(CURLcode error)
+                                                //at System.Net.Http.CurlHandler.MultiAgent.FinishRequest(StrongToWeakReference`1 easyWrapper, CURLcode messageResult)
+                                                //-- - End of inner exception stack trace-- -
+                                                //at System.Net.Http.HttpClient.FinishSendAsyncBuffered(Task`1 sendTask, HttpRequestMessage request, CancellationTokenSource cts, Boolean disposeCts)
+                                                AssertInnerEncryptionException(ex, Type.GetType("System.Net.Http.CurlException"), "An error occurred while sending the request.", "Couldn't connect to server");
+                                            }
+                                        }
+                                        break;
+                                    default: throw new Exception($"Unexpected OS: {currentOperatingSystem}");
+                                }
+
+                            }
+                            break;
+                        default: throw new Exception($"Unexpected kms provider: {kmsProvider}.");
+                    }
                 }
             }
         }
@@ -2222,32 +2263,6 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             TlsWithoutClientCert,
             Expired,
             InvalidHostName
-        }
-
-        private class DisposableEnvironmentVariable : IDisposable
-        {
-#region static
-            public static DisposableEnvironmentVariable TransferFromEnvironmentVariable(string to, string from)
-            {
-                var fromValue = Environment.GetEnvironmentVariable(from) ?? throw new Exception("From env variable must be set.");
-                return new DisposableEnvironmentVariable(to, fromValue);
-            }
-#endregion
-
-            private readonly string _name;
-            private readonly string _previousValue;
-
-            public DisposableEnvironmentVariable(string name, string value)
-            {
-                _name = name;
-                _previousValue = Environment.GetEnvironmentVariable(name);
-                Environment.SetEnvironmentVariable(name, value);
-            }
-
-            public void Dispose()
-            {
-                Environment.SetEnvironmentVariable(_name, _previousValue);
-            }
         }
 
         public class JsonFileReader : EmbeddedResourceJsonFileReader
