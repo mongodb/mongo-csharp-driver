@@ -1547,7 +1547,15 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 else
                 {
                     // AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY must not be configured
-                    AssertInnerEncryptionException<SocketException>(ex, "A socket operation was attempted to an unreachable network.");
+                    AssertInnerEncryptionException<SocketException>(
+                        ex,
+#if NET472
+                        "An error occurred while sending the request",
+                        "Unable to connect to the remote server",
+#else
+                        "A socket operation was attempted to an unreachable network",
+#endif
+                        "A socket operation was attempted to an unreachable network");
                 }
             }
 
@@ -2218,13 +2226,13 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
         private class DisposableEnvironmentVariable : IDisposable
         {
-            #region static
+#region static
             public static DisposableEnvironmentVariable TransferFromEnvironmentVariable(string to, string from)
             {
                 var fromValue = Environment.GetEnvironmentVariable(from) ?? throw new Exception("From env variable must be set.");
                 return new DisposableEnvironmentVariable(to, fromValue);
             }
-            #endregion
+#endregion
 
             private readonly string _name;
             private readonly string _previousValue;
@@ -2244,7 +2252,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
         public class JsonFileReader : EmbeddedResourceJsonFileReader
         {
-            #region static
+#region static
             // private static fields
             private static readonly string[] __ignoreKeyNames =
             {
@@ -2254,7 +2262,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
             // public static properties
             public static JsonFileReader Instance => __instance.Value;
-            #endregion
+#endregion
 
             private readonly IReadOnlyDictionary<string, BsonDocument> _documents;
 
