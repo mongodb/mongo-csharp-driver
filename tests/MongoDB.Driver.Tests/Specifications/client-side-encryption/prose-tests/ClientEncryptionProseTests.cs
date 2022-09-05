@@ -1530,9 +1530,16 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         [ParameterAttributeData]
         public void OnDemandCredentials(
             [Values("aws")] string kmsProvider,
-            [Values(true)] bool envVariablesSet,
+            [Values(false, true)] bool envVariablesSet,
             [Values(false, true)] bool async)
         {
+            if (kmsProvider == "aws")
+            {
+                RequireEnvironment.Check().EnvironmentVariable("AWS_ACCESS_KEY_ID", isDefined: envVariablesSet);
+                // mocked env doesn't configure aws_temp credentials with AWS_ACCESS_KEY_ID
+                RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: !envVariablesSet);
+            }
+
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
 
             using (var client = ConfigureClient(clearCollections: true))
@@ -1598,7 +1605,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                                 //at System.Net.Http.CurlHandler.MultiAgent.FinishRequest(StrongToWeakReference`1 easyWrapper, CURLcode messageResult)
                                                 //-- - End of inner exception stack trace-- -
                                                 //at System.Net.Http.HttpClient.FinishSendAsyncBuffered(Task`1 sendTask, HttpRequestMessage request, CancellationTokenSource cts, Boolean disposeCts)
-                                                AssertInnerEncryptionException(ex, Type.GetType("System.Net.Http.CurlException"), "An error occurred while sending the request.", "Couldn't connect to server");
+                                                AssertInnerEncryptionException(ex, Type.GetType("System.Net.Http.CurlException, System.Net.Http", true), "An error occurred while sending the request.", "Couldn't connect to server");
                                             }
                                         }
                                         break;
