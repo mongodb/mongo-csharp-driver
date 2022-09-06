@@ -31,9 +31,11 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication.Sspi
             var formatter = new BinaryFormatter();
             using (var stream = new MemoryStream())
             {
+#pragma warning disable SYSLIB0011 // BinaryFormatter serialization is obsolete
                 formatter.Serialize(stream, subject);
                 stream.Position = 0;
                 var rehydrated = (Win32Exception)formatter.Deserialize(stream);
+#pragma warning restore SYSLIB0011 // BinaryFormatter serialization is obsolete
 
                 rehydrated.HResult.Should().Be(subject.HResult);
                 rehydrated.Message.Should().Be(subject.Message);

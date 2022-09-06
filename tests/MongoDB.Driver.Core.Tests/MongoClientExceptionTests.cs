@@ -52,9 +52,11 @@ namespace MongoDB.Driver
             var formatter = new BinaryFormatter();
             using (var stream = new MemoryStream())
             {
+#pragma warning disable SYSLIB0011 // BinaryFormatter serialization is obsolete
                 formatter.Serialize(stream, subject);
                 stream.Position = 0;
                 var rehydrated = (MongoClientException)formatter.Deserialize(stream);
+#pragma warning restore SYSLIB0011 // BinaryFormatter serialization is obsolete
 
                 rehydrated.Message.Should().Be(subject.Message);
                 rehydrated.InnerException.Message.Should().Be(subject.InnerException.Message); // Exception does not override Equals

@@ -60,7 +60,7 @@ namespace MongoDB.Bson.Tests.Jira
         {
             var c = new C { Id = 1, Obj = new Hashtable { } };
             var json = c.ToJson();
-#if NET472 || NETCOREAPP3_1
+#if NET472 || NETCOREAPP3_1_OR_GREATER
             // Hashtable is situated in well-known libraries for:
             // - NET472: mscorlib
             // - NETCOREAPP3_1: System.Private.CoreLib
@@ -81,7 +81,7 @@ namespace MongoDB.Bson.Tests.Jira
         {
             var c = new C { Id = 1, Obj = new Hashtable { { "x", 1 } } };
             var json = c.ToJson();
-#if NET472 || NETCOREAPP3_1
+#if NET472 || NETCOREAPP3_1_OR_GREATER
             // Hashtable is situated in well-known libraries for:
             // - NET472: mscorlib
             // - NETCOREAPP3_1: System.Private.CoreLib

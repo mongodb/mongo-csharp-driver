@@ -93,8 +93,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp112
             {
                 0x7eeeeeeeeeeeeeee,
                 0xfeeeeeeeeeeeeeee,
-                Int64.MinValue + 1, // need some low order bits to see data loss
-                Int64.MaxValue
+                Int64.MinValue + 1  // need some low order bits to see data loss
             };
             for (int i = 0; i < values.Length; i++)
             {

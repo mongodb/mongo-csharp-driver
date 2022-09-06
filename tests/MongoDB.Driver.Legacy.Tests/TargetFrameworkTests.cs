@@ -23,7 +23,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TargetFramework_should_be_valid()
         {
-            var actualFramework = MongoDB.Driver.Legacy.TargetFramework.Moniker;
+            var actualFramework = Legacy.TargetFramework.Moniker;
             var expectedFramework = GetExpectedTargetFramework();
             actualFramework.Should().Be(expectedFramework);
         }
@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Tests
         {
 #if NETCOREAPP2_1
             return "netstandard20";
-#elif NETCOREAPP3_1
+#elif NETCOREAPP3_1_OR_GREATER
             return "netstandard21";
 #elif NET472
             return "net472";

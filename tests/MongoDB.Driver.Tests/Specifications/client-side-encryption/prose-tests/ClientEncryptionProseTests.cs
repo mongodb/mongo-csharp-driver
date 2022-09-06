@@ -1267,6 +1267,14 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
             void AssertException(Exception exception)
             {
+#if NET6_0_OR_GREATER
+                const string invalidCertificateError = "The remote certificate was rejected by the provided RemoteCertificateValidationCallback.";
+                const string http404Error = "KMS response parser error with status 404, error: 'Unexpected extra HTTP content'";
+#else
+                const string invalidCertificateError = "The remote certificate is invalid according to the validation procedure.";
+                const string http404Error = "HTTP status=404";
+#endif
+
                 var currentOperatingSystem = OperatingSystemHelper.CurrentOperatingSystem;
                 switch (kmsProvider)
                 {
@@ -1300,12 +1308,12 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                 case CertificateType.Expired:
                                     AssertCertificate(isExpired: true, invalidHost: false);
                                     // Expect an error indicating TLS handshake failed due to an expired certificate.
-                                    AssertInnerEncryptionException<AuthenticationException>(exception, "The remote certificate is invalid according to the validation procedure");
+                                    AssertInnerEncryptionException<AuthenticationException>(exception, invalidCertificateError);
                                     break;
                                 case CertificateType.InvalidHostName:
                                     AssertCertificate(isExpired: false, invalidHost: true);
                                     // Expect an error indicating TLS handshake failed due to an invalid hostname.
-                                    AssertInnerEncryptionException<AuthenticationException>(exception, "The remote certificate is invalid according to the validation procedure");
+                                    AssertInnerEncryptionException<AuthenticationException>(exception, invalidCertificateError);
                                     break;
                                 default: throw new Exception($"Unexpected certificate type {certificateType} for {kmsProvider}.");
                             }
@@ -1333,19 +1341,18 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                 break;
                             case CertificateType.TlsWithClientCert:
                                 AssertCertificate(isExpired: null, invalidHost: null);
-                                // Expect an error from libmongocrypt with a message containing the string: "HTTP
-                                // status = 404". This implies TLS handshake succeeded.
-                                AssertInnerEncryptionException<CryptException>(exception, "HTTP status=404");
+                                // Expect an HTTP 404 error from libmongocrypt. This implies TLS handshake succeeded.
+                                AssertInnerEncryptionException<CryptException>(exception, http404Error);
                                 break;
                             case CertificateType.Expired:
                                 AssertCertificate(isExpired: true, invalidHost: false);
                                 // Expect an error indicating TLS handshake failed due to an expired certificate.
-                                AssertInnerEncryptionException<AuthenticationException>(exception, "The remote certificate is invalid according to the validation procedure.");
+                                AssertInnerEncryptionException<AuthenticationException>(exception, invalidCertificateError);
                                 break;
                             case CertificateType.InvalidHostName:
                                 AssertCertificate(isExpired: false, invalidHost: true);
                                 // Expect an error indicating TLS handshake failed due to an invalid hostname.
-                                AssertInnerEncryptionException<AuthenticationException>(exception, "The remote certificate is invalid according to the validation procedure.");
+                                AssertInnerEncryptionException<AuthenticationException>(exception, invalidCertificateError);
                                 break;
                             default: throw new Exception($"Unexpected certificate type {certificateType} for {kmsProvider}.");
                         }
@@ -1372,19 +1379,18 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                 break;
                             case CertificateType.TlsWithClientCert:
                                 AssertCertificate(isExpired: null, invalidHost: null);
-                                // Expect an error from libmongocrypt with a message containing the string: "HTTP
-                                // status = 404". This implies TLS handshake succeeded.
-                                AssertInnerEncryptionException<CryptException>(exception, "HTTP status=404");
+                                // Expect an HTTP 404 error from libmongocrypt. This implies TLS handshake succeeded.
+                                AssertInnerEncryptionException<CryptException>(exception, http404Error);
                                 break;
                             case CertificateType.Expired:
                                 AssertCertificate(isExpired: true, invalidHost: false);
                                 // Expect an error indicating TLS handshake failed due to an expired certificate.
-                                AssertInnerEncryptionException<AuthenticationException>(exception, "The remote certificate is invalid according to the validation procedure.");
+                                AssertInnerEncryptionException<AuthenticationException>(exception, invalidCertificateError);
                                 break;
                             case CertificateType.InvalidHostName:
                                 AssertCertificate(isExpired: false, invalidHost: true);
                                 // Expect an error indicating TLS handshake failed due to an invalid hostname.
-                                AssertInnerEncryptionException<AuthenticationException>(exception, "The remote certificate is invalid according to the validation procedure.");
+                                AssertInnerEncryptionException<AuthenticationException>(exception, invalidCertificateError);
                                 break;
                             default: throw new Exception($"Unexpected certificate type {certificateType} for {kmsProvider}.");
                         }
@@ -1416,12 +1422,12 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                             case CertificateType.Expired:
                                 AssertCertificate(isExpired: true, invalidHost: false);
                                 // Expect an error indicating TLS handshake failed due to an expired certificate.
-                                AssertInnerEncryptionException<AuthenticationException>(exception, "The remote certificate is invalid according to the validation procedure.");
+                                AssertInnerEncryptionException<AuthenticationException>(exception, invalidCertificateError);
                                 break;
                             case CertificateType.InvalidHostName:
                                 AssertCertificate(isExpired: false, invalidHost: true);
                                 // Expect an error indicating TLS handshake failed due to an invalid hostname.
-                                AssertInnerEncryptionException<AuthenticationException>(exception, "The remote certificate is invalid according to the validation procedure.");
+                                AssertInnerEncryptionException<AuthenticationException>(exception, invalidCertificateError);
                                 break;
                             default: throw new Exception($"Unexpected certificate type {certificateType} for {kmsProvider}.");
                         }

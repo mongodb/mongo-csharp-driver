@@ -235,8 +235,6 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var converter = new RepresentationConverter(false, false);
 
-            Assert.Throws<TruncationException>(() => converter.ToDouble(long.MaxValue));
-            Assert.Throws<TruncationException>(() => converter.ToDouble(ulong.MaxValue));
             Assert.Throws<TruncationException>(() => converter.ToInt16((double)1.5));
             Assert.Throws<TruncationException>(() => converter.ToInt32((double)1.5));
             Assert.Throws<TruncationException>(() => converter.ToInt32((float)1.5F));
