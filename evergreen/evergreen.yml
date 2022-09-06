@@ -756,16 +756,6 @@ functions:
           cd ${DRIVERS_TOOLS}/.evergreen/csfle
           $PYTHON -u kms_kmip_server.py
 
-  publish-snapshot:
-    - command: shell.exec
-      type: test
-      params:
-        silent: true
-        working_dir: mongo-csharp-driver
-        script: |
-          # DO NOT ECHO WITH XTRACE (which PREPARE_SHELL does)
-          PROJECT_DIRECTORY=${PROJECT_DIRECTORY} evergreen/publish.sh
-
   cleanup:
     - command: shell.exec
       params:
@@ -838,18 +828,6 @@ post:
   - func: cleanup
 
 tasks:
-
-    - name: compile
-      commands:
-        - func: exec-script
-          vars:
-            file: "evergreen/compile.sh"
-        # - func: upload-build
-
-    - name: test
-      commands:
-        - func: bootstrap-mongo-orchestration
-        - func: run-tests
 
     - name: test-net472
       commands:
@@ -1021,13 +999,6 @@ tasks:
       commands:
         - func: bootstrap-mongohoused
         - func: run-atlas-data-lake-test
-
-    - name: publish-snapshot
-      depends_on:
-        - variant: ".tests-variant"
-          name: test
-      commands:
-        - func: publish-snapshot
 
     - name: test-serverless-net472
       exec_timeout_secs: 2700 # 45 minutes: 15 for setup + 30 for tests
@@ -1498,25 +1469,6 @@ axes:
 
 buildvariants:
 
-- name: windows-64-compile
-  display_name: "Windows 64-bit compile"
-  run_on:
-    - windows-64-vs2017-compile
-  tasks:
-    - name: compile
-- name: ubuntu1804-compile
-  display_name: "Ubuntu 18.04 compile"
-  run_on:
-    - ubuntu1804-test
-  tasks:
-    - name: compile
-- name: macos1100-compile
-  display_name: "macOS 11.00 compile"
-  run_on:
-    - macos-1100
-  tasks:
-    - name: compile
-
 - matrix_name: "secure-tests"
   matrix_spec: { version: "*", topology: "*", auth: "auth", ssl: "ssl", os: "windows-64" }
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
@@ -1658,7 +1610,7 @@ buildvariants:
 
 - matrix_name: plain-auth-tests
   matrix_spec: { os: "*" }
-  display_name: "PLAIN (LDAP) Auth Tests"
+  display_name: "PLAIN (LDAP) Auth Tests ${os}"
   tasks:
     - name: plain-auth-tests
 
