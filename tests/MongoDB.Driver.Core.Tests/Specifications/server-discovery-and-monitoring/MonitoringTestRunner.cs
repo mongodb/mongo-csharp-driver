@@ -30,15 +30,21 @@ using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
+using MongoDB.Driver.Core.TestHelpers.Logging;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Specifications.sdam_monitoring
 {
-    public class MonitoringTestRunner
+    public class MonitoringTestRunner : LoggableTestClass
     {
         private ICluster _cluster;
         private EventCapturer _eventSubscriber;
         private MockClusterableServerFactory _serverFactory;
+
+        public MonitoringTestRunner(ITestOutputHelper output) : base(output)
+        {
+        }
 
         [Theory]
         [ClassData(typeof(TestCaseFactory))]
@@ -351,8 +357,8 @@ namespace MongoDB.Driver.Specifications.sdam_monitoring
             _eventSubscriber.Capture<ServerOpeningEvent>(e => true);
             _eventSubscriber.Capture<ServerDescriptionChangedEvent>(e => true);
             _eventSubscriber.Capture<ServerClosedEvent>(e => true);
-            _serverFactory = new MockClusterableServerFactory(_eventSubscriber);
-            return new ClusterFactory(settings, _serverFactory, _eventSubscriber)
+            _serverFactory = new MockClusterableServerFactory(LoggerFactory, _eventSubscriber);
+            return new ClusterFactory(settings, _serverFactory, _eventSubscriber, LoggerFactory)
                 .CreateCluster();
         }
 

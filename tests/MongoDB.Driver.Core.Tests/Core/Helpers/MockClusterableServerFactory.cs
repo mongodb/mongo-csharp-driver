@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading;
+using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core.Clusters;
@@ -24,7 +25,7 @@ using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.ConnectionPools;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
-using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Servers;
 using Moq;
 
@@ -34,11 +35,13 @@ namespace MongoDB.Driver.Core.Helpers
     {
         private readonly Dictionary<EndPoint, ServerTuple> _servers;
         private readonly IEventSubscriber _eventSubscriber;
+        private readonly ILoggerFactory _loggerFactory;
 
-        public MockClusterableServerFactory(IEventSubscriber eventSubscriber = null)
+        public MockClusterableServerFactory(ILoggerFactory loggerFactory, IEventSubscriber eventSubscriber = null)
         {
             _servers = new Dictionary<EndPoint, ServerTuple>();
             _eventSubscriber = eventSubscriber;
+            _loggerFactory = loggerFactory;
         }
 
         public IClusterableServer CreateServer(ClusterType clusterType, ClusterId clusterId, IClusterClock clusterClock, EndPoint endPoint)
@@ -127,7 +130,8 @@ namespace MongoDB.Driver.Core.Helpers
                             endPoint,
                             connectionPoolFactory,
                             _eventSubscriber,
-                            serverApi: null);
+                            serverApi: null,
+                            _loggerFactory.CreateLogger<LogCategories.SDAM>());
                     default:
                         return new DefaultServer(
                             clusterId,
@@ -142,8 +146,9 @@ namespace MongoDB.Driver.Core.Helpers
                             connectionPoolFactory,
                             serverMonitorFactory,
                             _eventSubscriber,
-                            serverApi: null);
-                    }
+                            serverApi: null,
+                            _loggerFactory.CreateLogger<LogCategories.SDAM>());
+                }
             }
         }
 

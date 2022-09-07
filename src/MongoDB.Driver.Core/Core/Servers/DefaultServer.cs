@@ -19,12 +19,14 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.ConnectionPools;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
+using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Servers
@@ -59,7 +61,8 @@ namespace MongoDB.Driver.Core.Servers
             IConnectionPoolFactory connectionPoolFactory,
             IServerMonitorFactory monitorFactory,
             IEventSubscriber eventSubscriber,
-            ServerApi serverApi)
+            ServerApi serverApi,
+            ILogger<LogCategories.SDAM> logger)
             : base(
                   clusterId,
                   clusterClock,
@@ -70,7 +73,8 @@ namespace MongoDB.Driver.Core.Servers
                   endPoint,
                   connectionPoolFactory,
                   eventSubscriber,
-                  serverApi)
+                  serverApi,
+                  logger)
         {
             _monitor = Ensure.IsNotNull(monitorFactory, nameof(monitorFactory)).Create(ServerId, endPoint);
             _baseDescription = _currentDescription = new ServerDescription(ServerId, endPoint, reasonChanged: "ServerInitialDescription", heartbeatInterval: settings.HeartbeatInterval);
@@ -171,6 +175,9 @@ namespace MongoDB.Driver.Core.Servers
                     $"InvalidatedBecause:{reasonInvalidated}",
                     lastUpdateTimestamp: DateTime.UtcNow,
                     topologyVersion: topologyVersion);
+
+            EventsLogger.LogDebug("Invalidating {Description}", newDescription);
+
             SetDescription(newDescription, clearConnectionPool);
             // TODO: make the heartbeat request conditional so we adhere to this part of the spec
             // > Network error when reading or writing: ... Clients MUST NOT request an immediate check of the server;

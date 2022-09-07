@@ -20,10 +20,12 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
+using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Libmongocrypt;
@@ -69,6 +71,8 @@ namespace MongoDB.Driver.Core.Clusters
         private TaskCompletionSource<bool> _descriptionChangedTaskCompletionSource;
         private readonly object _descriptionLock = new object();
         private readonly LatencyLimitingServerSelector _latencyLimitingServerSelector;
+        protected readonly EventsLogger<LogCategories.Cluster> _clusterEventsLogger;
+        protected readonly EventsLogger<LogCategories.ServerSelection> _serverSelectionEventsLogger;
         private Timer _rapidHeartbeatTimer;
         private readonly object _serverSelectionWaitQueueLock = new object();
         private int _serverSelectionWaitQueueSize;
@@ -78,13 +82,8 @@ namespace MongoDB.Driver.Core.Clusters
         private readonly InterlockedInt32 _state;
         private readonly InterlockedInt32 _rapidHeartbeatTimerCallbackState;
 
-        private readonly Action<ClusterDescriptionChangedEvent> _descriptionChangedEventHandler;
-        private readonly Action<ClusterSelectingServerEvent> _selectingServerEventHandler;
-        private readonly Action<ClusterSelectedServerEvent> _selectedServerEventHandler;
-        private readonly Action<ClusterSelectingServerFailedEvent> _selectingServerFailedEventHandler;
-
         // constructors
-        protected Cluster(ClusterSettings settings, IClusterableServerFactory serverFactory, IEventSubscriber eventSubscriber)
+        protected Cluster(ClusterSettings settings, IClusterableServerFactory serverFactory, IEventSubscriber eventSubscriber, ILoggerFactory loggerFactory)
         {
             _settings = Ensure.IsNotNull(settings, nameof(settings));
             Ensure.That(!_settings.LoadBalanced, "LoadBalanced mode is not supported.");
@@ -100,12 +99,10 @@ namespace MongoDB.Driver.Core.Clusters
 
             _rapidHeartbeatTimer = new Timer(RapidHeartbeatTimerCallback, null, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
 
-            eventSubscriber.TryGetEventHandler(out _descriptionChangedEventHandler);
-            eventSubscriber.TryGetEventHandler(out _selectingServerEventHandler);
-            eventSubscriber.TryGetEventHandler(out _selectedServerEventHandler);
-            eventSubscriber.TryGetEventHandler(out _selectingServerFailedEventHandler);
-
             _serverSessionPool = new CoreServerSessionPool(this);
+
+            _clusterEventsLogger = loggerFactory.CreateEventsLogger<LogCategories.Cluster>(eventSubscriber, _clusterId);
+            _serverSelectionEventsLogger = loggerFactory.CreateEventsLogger<LogCategories.ServerSelection>(eventSubscriber, _clusterId);
 
             ClusterDescription CreateInitialDescription()
             {
@@ -169,6 +166,8 @@ namespace MongoDB.Driver.Core.Clusters
         {
             if (_state.TryChange(State.Disposed))
             {
+                _clusterEventsLogger.LogDebug("Disposing");
+
 #pragma warning disable CS0618 // Type or member is obsolete
                 var connectionModeSwitch = _description.ConnectionModeSwitch;
                 var connectionMode = connectionModeSwitch == ConnectionModeSwitch.UseConnectionMode ? _description.ConnectionMode : default;
@@ -188,6 +187,8 @@ namespace MongoDB.Driver.Core.Clusters
 
                 _rapidHeartbeatTimer.Dispose();
                 _cryptClient?.Dispose();
+
+                _clusterEventsLogger.LogDebug("Disposed");
             }
         }
 
@@ -223,9 +224,13 @@ namespace MongoDB.Driver.Core.Clusters
             ThrowIfDisposed();
             if (_state.TryChange(State.Initial, State.Open))
             {
+                _clusterEventsLogger.LogDebug("Initialized");
+
                 if (_settings.CryptClientSettings != null)
                 {
                     _cryptClient = CryptClientCreator.CreateCryptClient(_settings.CryptClientSettings);
+
+                    _clusterEventsLogger.LogDebug("CryptClient created. Configured shared library, version {SharedLibraryVersion}.", _cryptClient.CryptSharedLibraryVersion ?? "None");
                 }
             }
         }
@@ -256,17 +261,12 @@ namespace MongoDB.Driver.Core.Clusters
 
         protected void OnDescriptionChanged(ClusterDescription oldDescription, ClusterDescription newDescription, bool shouldClusterDescriptionChangedEventBePublished)
         {
-            if (shouldClusterDescriptionChangedEventBePublished && _descriptionChangedEventHandler != null)
+            if (shouldClusterDescriptionChangedEventBePublished)
             {
-                _descriptionChangedEventHandler(new ClusterDescriptionChangedEvent(oldDescription, newDescription));
+                _clusterEventsLogger.LogAndPublish(new ClusterDescriptionChangedEvent(oldDescription, newDescription));
             }
 
-            var handler = DescriptionChanged;
-            if (handler != null)
-            {
-                var args = new ClusterDescriptionChangedEventArgs(oldDescription, newDescription);
-                handler(this, args);
-            }
+            DescriptionChanged?.Invoke(this, new ClusterDescriptionChangedEventArgs(oldDescription, newDescription));
         }
 
         public IServer SelectServer(IServerSelector selector, CancellationToken cancellationToken)
@@ -464,15 +464,11 @@ namespace MongoDB.Driver.Core.Clusters
 
             public void HandleException(Exception exception)
             {
-                var selectingServerFailedEventHandler = _cluster._selectingServerFailedEventHandler;
-                if (selectingServerFailedEventHandler != null)
-                {
-                    selectingServerFailedEventHandler(new ClusterSelectingServerFailedEvent(
-                        _description,
-                        _selector,
-                        exception,
-                        EventContext.OperationId));
-                }
+                _cluster._serverSelectionEventsLogger.LogAndPublish(new ClusterSelectingServerFailedEvent(
+                    _description,
+                    _selector,
+                    exception,
+                    EventContext.OperationId));
             }
 
             public IServer SelectServer()
@@ -485,15 +481,11 @@ namespace MongoDB.Driver.Core.Clusters
 
                 if (!_serverSelectionWaitQueueEntered)
                 {
-                    var selectingServerEventHandler = _cluster._selectingServerEventHandler;
-                    if (selectingServerEventHandler != null)
-                    {
-                        // this is our first time through...
-                        selectingServerEventHandler(new ClusterSelectingServerEvent(
-                            _description,
-                            _selector,
-                            EventContext.OperationId));
-                    }
+                    // this is our first time through...
+                    _cluster._serverSelectionEventsLogger.LogAndPublish(new ClusterSelectingServerEvent(
+                        _description,
+                        _selector,
+                        EventContext.OperationId));
                 }
 
                 MongoIncompatibleDriverException.ThrowIfNotSupported(_description);
@@ -530,7 +522,7 @@ namespace MongoDB.Driver.Core.Clusters
                 {
                     _stopwatch.Stop();
 
-                    _cluster._selectedServerEventHandler?.Invoke(new ClusterSelectedServerEvent(
+                    _cluster._serverSelectionEventsLogger.LogAndPublish(new ClusterSelectedServerEvent(
                         _description,
                         _selector,
                         selectedServer.Description,

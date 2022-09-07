@@ -23,7 +23,12 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Events;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.TestHelpers;
 using Moq;
 using Xunit;
 
@@ -947,15 +952,21 @@ namespace MongoDB.Driver.Tests
         }
     }
 
-    public class OfTypeCollectionIntegrationTests
+    public class OfTypeCollectionIntegrationTests : IDisposable
     {
-        private IMongoCollection<BsonDocument> _docsCollection;
-        private IMongoCollection<A> _rootCollection;
+        private readonly IMongoCollection<BsonDocument> _docsCollection;
+        private readonly EventCapturer _eventsCapturer;
+        private readonly IMongoCollection<A> _rootCollection;
+        private readonly DisposableMongoClient _client;
 
         public OfTypeCollectionIntegrationTests()
         {
-            var client = DriverTestConfiguration.Client;
-            var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
+            var clientSettings = DriverTestConfiguration.Client.Settings.Clone();
+            _eventsCapturer = new EventCapturer().Capture<CommandStartedEvent>();
+            clientSettings.ClusterConfigurator = (b) => b.Subscribe(_eventsCapturer);
+            _client = DriverTestConfiguration.CreateDisposableClient(clientSettings);
+
+            var db = _client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
             db.DropCollection(DriverTestConfiguration.CollectionNamespace.CollectionName);
 
             _docsCollection = db.GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName);
@@ -1119,10 +1130,81 @@ namespace MongoDB.Driver.Tests
             });
         }
 
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void UpdateOne_should_match_document_of_right_type(
+            [Values(false, true)] bool upsert,
+            [Values(false, true)] bool async)
+        {
+            RequireServer.Check().Supports(Feature.UpdateWithAggregationPipeline);
+
+            string filter = "{ PropA : 4 }";
+
+            var subject = CreateSubject();
+
+            var pipeline = new EmptyPipelineDefinition<B>()
+                .AppendStage<B, B, B>(
+                    new BsonDocument
+                    {
+                        { "$set", new BsonDocument(nameof(B.PropA), "Pipeline") }
+                    })
+                .AppendStage<B, B, B>(
+                    new BsonDocument
+                    {
+                        { "$unset", nameof(B.PropB) }
+                    });
+
+            var updateOptions = new UpdateOptions { IsUpsert = upsert };
+            var result = async
+                ? subject.UpdateOneAsync(filter, pipeline, updateOptions).GetAwaiter().GetResult()
+                : subject.UpdateOne(filter, pipeline, updateOptions);
+
+            result.MatchedCount.Should().Be(1);
+            result.ModifiedCount.Should().Be(1);
+
+            var updateQuery = _eventsCapturer.Events.OfType<CommandStartedEvent>().Last().Command["updates"];
+            var expectedUpdateDocument = BsonDocument.Parse($@"
+            {{
+                ""q"" :
+                {{
+                    ""_t"" : ""B"",
+                    ""PropA"" : 4
+                }},
+                ""u"" :
+                [
+                    {{
+                        ""$set"" : {{ ""PropA"" : ""Pipeline"" }}
+                    }},
+                    {{ ""$unset"" : ""PropB"" }},
+                    {{
+                        ""$set"" :
+                        {{
+                            ""_t"" :
+                            {{
+                                ""$cond"" : [{{  ""$eq"" : [{{ ""$type"" : ""$_id"" }}, ""missing""] }},
+                                [""A"", ""B""],
+                                ""$_t""]
+                            }}
+                        }}
+                    }}
+                ],
+                ""upsert"" : true
+            }}");
+            if (!upsert)
+            {
+                expectedUpdateDocument.RemoveAt(expectedUpdateDocument.ElementCount - 1); // remove upsert
+                var uContent = expectedUpdateDocument["u"].AsBsonArray;
+                uContent.RemoveAt(uContent.Count - 1);
+            }
+            updateQuery.Should().Be(new BsonArray { expectedUpdateDocument });
+        }
+
         private IMongoCollection<B> CreateSubject()
         {
             return _rootCollection.OfType<B>();
         }
+
+        public void Dispose() => _client?.Dispose();
 
         [BsonDiscriminator(RootClass = true)]
         [BsonKnownTypes(typeof(B), typeof(C))]

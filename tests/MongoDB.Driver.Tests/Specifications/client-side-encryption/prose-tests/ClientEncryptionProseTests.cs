@@ -1271,6 +1271,14 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
             void AssertException(Exception exception)
             {
+#if NET6_0_OR_GREATER
+                const string invalidCertificateError = "The remote certificate was rejected by the provided RemoteCertificateValidationCallback.";
+                const string http404Error = "KMS response parser error with status 404, error: 'Unexpected extra HTTP content'";
+#else
+                const string invalidCertificateError = "The remote certificate is invalid according to the validation procedure.";
+                const string http404Error = "HTTP status=404";
+#endif
+
                 var currentOperatingSystem = OperatingSystemHelper.CurrentOperatingSystem;
                 switch (kmsProvider)
                 {
@@ -1304,12 +1312,12 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                 case CertificateType.Expired:
                                     AssertCertificate(isExpired: true, invalidHost: false);
                                     // Expect an error indicating TLS handshake failed due to an expired certificate.
-                                    AssertInnerEncryptionException<AuthenticationException>(exception, "The remote certificate is invalid according to the validation procedure");
+                                    AssertInnerEncryptionException<AuthenticationException>(exception, invalidCertificateError);
                                     break;
                                 case CertificateType.InvalidHostName:
                                     AssertCertificate(isExpired: false, invalidHost: true);
                                     // Expect an error indicating TLS handshake failed due to an invalid hostname.
-                                    AssertInnerEncryptionException<AuthenticationException>(exception, "The remote certificate is invalid according to the validation procedure");
+                                    AssertInnerEncryptionException<AuthenticationException>(exception, invalidCertificateError);
                                     break;
                                 default: throw new Exception($"Unexpected certificate type {certificateType} for {kmsProvider}.");
                             }
@@ -1337,19 +1345,18 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                 break;
                             case CertificateType.TlsWithClientCert:
                                 AssertCertificate(isExpired: null, invalidHost: null);
-                                // Expect an error from libmongocrypt with a message containing the string: "HTTP
-                                // status = 404". This implies TLS handshake succeeded.
-                                AssertInnerEncryptionException<CryptException>(exception, "HTTP status=404");
+                                // Expect an HTTP 404 error from libmongocrypt. This implies TLS handshake succeeded.
+                                AssertInnerEncryptionException<CryptException>(exception, http404Error);
                                 break;
                             case CertificateType.Expired:
                                 AssertCertificate(isExpired: true, invalidHost: false);
                                 // Expect an error indicating TLS handshake failed due to an expired certificate.
-                                AssertInnerEncryptionException<AuthenticationException>(exception, "The remote certificate is invalid according to the validation procedure.");
+                                AssertInnerEncryptionException<AuthenticationException>(exception, invalidCertificateError);
                                 break;
                             case CertificateType.InvalidHostName:
                                 AssertCertificate(isExpired: false, invalidHost: true);
                                 // Expect an error indicating TLS handshake failed due to an invalid hostname.
-                                AssertInnerEncryptionException<AuthenticationException>(exception, "The remote certificate is invalid according to the validation procedure.");
+                                AssertInnerEncryptionException<AuthenticationException>(exception, invalidCertificateError);
                                 break;
                             default: throw new Exception($"Unexpected certificate type {certificateType} for {kmsProvider}.");
                         }
@@ -1376,19 +1383,18 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                 break;
                             case CertificateType.TlsWithClientCert:
                                 AssertCertificate(isExpired: null, invalidHost: null);
-                                // Expect an error from libmongocrypt with a message containing the string: "HTTP
-                                // status = 404". This implies TLS handshake succeeded.
-                                AssertInnerEncryptionException<CryptException>(exception, "HTTP status=404");
+                                // Expect an HTTP 404 error from libmongocrypt. This implies TLS handshake succeeded.
+                                AssertInnerEncryptionException<CryptException>(exception, http404Error);
                                 break;
                             case CertificateType.Expired:
                                 AssertCertificate(isExpired: true, invalidHost: false);
                                 // Expect an error indicating TLS handshake failed due to an expired certificate.
-                                AssertInnerEncryptionException<AuthenticationException>(exception, "The remote certificate is invalid according to the validation procedure.");
+                                AssertInnerEncryptionException<AuthenticationException>(exception, invalidCertificateError);
                                 break;
                             case CertificateType.InvalidHostName:
                                 AssertCertificate(isExpired: false, invalidHost: true);
                                 // Expect an error indicating TLS handshake failed due to an invalid hostname.
-                                AssertInnerEncryptionException<AuthenticationException>(exception, "The remote certificate is invalid according to the validation procedure.");
+                                AssertInnerEncryptionException<AuthenticationException>(exception, invalidCertificateError);
                                 break;
                             default: throw new Exception($"Unexpected certificate type {certificateType} for {kmsProvider}.");
                         }
@@ -1420,12 +1426,12 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                             case CertificateType.Expired:
                                 AssertCertificate(isExpired: true, invalidHost: false);
                                 // Expect an error indicating TLS handshake failed due to an expired certificate.
-                                AssertInnerEncryptionException<AuthenticationException>(exception, "The remote certificate is invalid according to the validation procedure.");
+                                AssertInnerEncryptionException<AuthenticationException>(exception, invalidCertificateError);
                                 break;
                             case CertificateType.InvalidHostName:
                                 AssertCertificate(isExpired: false, invalidHost: true);
                                 // Expect an error indicating TLS handshake failed due to an invalid hostname.
-                                AssertInnerEncryptionException<AuthenticationException>(exception, "The remote certificate is invalid according to the validation procedure.");
+                                AssertInnerEncryptionException<AuthenticationException>(exception, invalidCertificateError);
                                 break;
                             default: throw new Exception($"Unexpected certificate type {certificateType} for {kmsProvider}.");
                         }
@@ -1616,6 +1622,50 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                             break;
                         default: throw new Exception($"Unexpected kms provider: {kmsProvider}.");
                     }
+                }
+            }
+        }  
+
+        public void RewrapTest(
+            [Values("local", "aws", "azure", "gcp", "kmip")] string srcProvider,
+            [Values("local", "aws", "azure", "gcp", "kmip")] string dstProvider,
+            [Values(false, true)] bool async)
+        {
+            RequireServer.Check().Supports(Feature.Csfle2);
+
+            // The test description requires configuring all kmsProviders in setup, but leaving only related to the provided income arguments
+            // to avoid restrictions on kmip mocking setup for unrelated to kmip tests
+            var kmsProviderFilter = EncryptionTestHelper.CreateKmsProviderFilter(srcProvider, dstProvider);
+            RequirePlatform
+                .Check()
+                .SkipWhen(() => kmsProviderFilter.Contains("gcp"), SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard20)  // gcp is supported starting from netstandard2.1
+                .SkipWhen(() => kmsProviderFilter.Contains("gcp"), SupportedOperatingSystem.MacOS, SupportedTargetFramework.NetStandard20);
+            if (kmsProviderFilter.Contains("kmip"))
+            {
+                RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true);
+            }
+
+            const string value = "test";
+
+            using (var client1 = ConfigureClient(clearCollections: true))
+            using (var clientEncryption1 = ConfigureClientEncryption(client1, kmsProviderFilter: kmsProviderFilter))
+            {
+                var datakeyOptions = CreateDataKeyOptions(srcProvider);
+                var keyID = CreateDataKey(clientEncryption1, srcProvider, datakeyOptions, async);
+                var ciphertext = ExplicitEncrypt(clientEncryption1, new EncryptOptions(keyId: keyID, algorithm: EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic), value, async);
+
+                using (var client2 = ConfigureClient(clearCollections: false))
+                using (var clientEncryption2 = ConfigureClientEncryption(client2, kmsProviderFilter: kmsProviderFilter))
+                {
+                    var rewrapManyDataKeyOptions = CreateRewrapManyDataKeyOptions(dstProvider);
+                    var result = RewrapManyDataKey(clientEncryption2, rewrapManyDataKeyOptions, async);
+                    result.BulkWriteResult.ModifiedCount.Should().Be(1);
+
+                    var decrypted = ExplicitDecrypt(clientEncryption1, ciphertext, async);
+                    decrypted.Should().Be(BsonValue.Create(value));
+
+                    decrypted = ExplicitDecrypt(clientEncryption2, ciphertext, async);
+                    decrypted.Should().Be(BsonValue.Create(value));
                 }
             }
         }
@@ -1971,34 +2021,16 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         private DataKeyOptions CreateDataKeyOptions(string kmsProvider, BsonDocument customMasterKey = null)
         {
             var alternateKeyNames = new[] { $"{kmsProvider}_altname" };
-            var masterKey = customMasterKey ??
-                kmsProvider switch
-                {
-                    var kmsName when kmsName == "local" && customMasterKey == null => null,
-                    "aws" => new BsonDocument
-                    {
-                        { "region", "us-east-1" },
-                        { "key", "arn:aws:kms:us-east-1:579766882180:key/89fcc2c4-08b0-4bd9-9f25-e30687b580d0" }
-                    },
-                    "azure" => new BsonDocument
-                    {
-                        { "keyName", "key-name-csfle" },
-                        { "keyVaultEndpoint", "key-vault-csfle.vault.azure.net" }
-                    },
-                    "gcp" => new BsonDocument
-                    {
-                        { "projectId", "devprod-drivers" },
-                        { "location", "global" },
-                        { "keyRing", "key-ring-csfle" },
-                        { "keyName", "key-name-csfle" }
-                    },
-                    "kmip" => new BsonDocument(),
-                    _ => throw new ArgumentException($"Incorrect kms provider {kmsProvider} or provided custom master key {customMasterKey}.", nameof(kmsProvider)),
-                };
-
+            var masterKey = customMasterKey ?? EncryptionTestHelper.CreateMasterKey(kmsProvider);
             return new DataKeyOptions(
                 alternateKeyNames: alternateKeyNames,
                 masterKey: masterKey);
+        }
+
+        private RewrapManyDataKeyOptions CreateRewrapManyDataKeyOptions(string kmsProvider, BsonDocument customMasterKey = null)
+        {
+            var masterKey = customMasterKey ?? EncryptionTestHelper.CreateMasterKey(kmsProvider);
+            return new RewrapManyDataKeyOptions(kmsProvider, masterKey: masterKey);
         }
 
         private DisposableMongoClient CreateMongoClient(
@@ -2027,7 +2059,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 writeConcern,
                 readConcern);
 
-            return DriverTestConfiguration.CreateDisposableClient(mongoClientSettings, logger: CreateLogger<DisposableMongoClient>());
+            return DriverTestConfiguration.CreateDisposableClient(mongoClientSettings);
         }
 
         private MongoClientSettings CreateMongoClientSettings(
@@ -2111,6 +2143,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 }
                 mongoClientSettings.AutoEncryptionOptions = autoEncryptionOptions;
             }
+
+            mongoClientSettings.LoggerFactory = LoggerFactory;
 
             return mongoClientSettings;
         }
@@ -2262,6 +2296,24 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 collection.InsertMany(documents);
             }
         }
+
+        private RewrapManyDataKeyResult RewrapManyDataKey(
+            ClientEncryption clientEncryption,
+            RewrapManyDataKeyOptions rewrapManyDataKeyOptions,
+            bool async,
+            string filter = "{}") =>
+            async
+                ? clientEncryption
+                    .RewrapManyDataKeyAsync(
+                        filter,
+                        rewrapManyDataKeyOptions,
+                        CancellationToken.None)
+                    .GetAwaiter()
+                    .GetResult()
+                : clientEncryption.RewrapManyDataKey(
+                    filter,
+                    rewrapManyDataKeyOptions,
+                    CancellationToken.None);
 
         // nested types
         public enum CertificateType

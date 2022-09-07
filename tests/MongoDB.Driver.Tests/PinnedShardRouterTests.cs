@@ -24,13 +24,15 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
+using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.TestHelpers;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests
 {
-    public class PinnedShardRouterTests
+    public class PinnedShardRouterTests : LoggableTestClass
     {
         private static readonly HashSet<string> __commandsToNotCapture = new HashSet<string>
         {
@@ -45,6 +47,10 @@ namespace MongoDB.Driver.Tests
 
         private string _collectionName = "test";
         private string _databaseName = "test";
+
+        public PinnedShardRouterTests(ITestOutputHelper output) : base(output)
+        {
+        }
 
         /// <summary>
         /// Test that starting a new transaction on a pinned ClientSession unpins the
@@ -180,7 +186,7 @@ namespace MongoDB.Driver.Tests
                     settings.ClusterConfigurator = c => c.Subscribe(eventCapturer);
                     settings.LocalThreshold = TimeSpan.FromMilliseconds(1000);
                 },
-                logger: null,
+                LoggerFactory,
                 useMultipleShardRouters);
             var timeOut = TimeSpan.FromSeconds(60);
             bool AllServersConnected() => client.Cluster.Description.Servers.All(s => s.State == ServerState.Connected);

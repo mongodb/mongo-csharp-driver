@@ -54,13 +54,16 @@ namespace MongoDB.Driver
         // methods
         private ICluster CreateCluster(ClusterKey clusterKey)
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             var builder = new ClusterBuilder()
                 .ConfigureCluster(settings => ConfigureCluster(settings, clusterKey))
                 .ConfigureServer(settings => ConfigureServer(settings, clusterKey))
                 .ConfigureConnectionPool(settings => ConfigureConnectionPool(settings, clusterKey))
                 .ConfigureConnection(settings => ConfigureConnection(settings, clusterKey))
                 .ConfigureTcp(settings => ConfigureTcp(settings, clusterKey))
-                .ConfigureSdamLogging(settings => ConfigureSdamLogging(settings, clusterKey));
+                .ConfigureSdamLogging(settings => ConfigureSdamLogging(settings, clusterKey))
+                .ConfigureLoggingFactory(_ => clusterKey.LoggerFactory);
+#pragma warning restore CS0618 // Type or member is obsolete
 
             if (clusterKey.UseTls)
             {
@@ -124,7 +127,9 @@ namespace MongoDB.Driver
                 applicationName: clusterKey.ApplicationName);
         }
 
+#pragma warning disable CS0618 // Type or member is obsolete
         private SdamLoggingSettings ConfigureSdamLogging(SdamLoggingSettings settings, ClusterKey clusterKey)
+#pragma warning restore CS0618 // Type or member is obsolete
         {
             return settings.With(logFilename: clusterKey.SdamLogFilename);
         }

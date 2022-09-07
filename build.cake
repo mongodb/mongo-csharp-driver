@@ -1,13 +1,15 @@
-#addin nuget:?package=Cake.FileHelpers&version=4.0.1
-#addin nuget:?package=Cake.Git&version=1.0.1
-#addin nuget:?package=Cake.Incubator&version=6.0.0
-#tool dotnet:?package=GitVersion.Tool&version=5.6.9
-#tool nuget:?package=JunitXml.TestLogger&version=3.0.98
+#addin nuget:?package=Cake.FileHelpers&version=5.0.0
+#addin nuget:?package=Cake.Git&version=2.0.0
+#addin nuget:?package=Cake.Incubator&version=7.0.0
+#tool dotnet:?package=GitVersion.Tool&version=5.10.3
+#tool nuget:?package=JunitXml.TestLogger&version=3.0.114
 
 using System;
-using System.Text.RegularExpressions;
 using System.Linq;
-using Cake.Common.Tools.DotNetCore.DotNetCoreVerbosity;
+using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
+using Cake.Common.Tools.DotNet.DotNetVerbosity;
+using Architecture = System.Runtime.InteropServices.Architecture;
 using Path = Cake.Core.IO.Path;
 
 const string defaultTarget = "Default";
@@ -57,18 +59,18 @@ Task("Restore")
     .Does(() =>
     {
         // disable parallel restore to work around apparent bugs in restore
-        var restoreSettings = new DotNetCoreRestoreSettings
+        var restoreSettings = new DotNetRestoreSettings
         {
             DisableParallel = true
         };
-        DotNetCoreRestore(solutionFullPath, restoreSettings);
+        DotNetRestore(solutionFullPath, restoreSettings);
     });
 
 Task("Build")
     .IsDependentOn("Restore")
     .Does<BuildConfig>((buildConfig) =>
     {
-       var settings = new DotNetCoreBuildSettings
+       var settings = new DotNetBuildSettings
        {
            NoRestore = true,
            Configuration = configuration,
@@ -82,11 +84,11 @@ Task("Build")
         if (buildConfig.IsReleaseMode)
         {
             Console.WriteLine("Build continuousIntegration is enabled");
-            settings.MSBuildSettings = new DotNetCoreMSBuildSettings();
+            settings.MSBuildSettings = new DotNetMSBuildSettings();
             // configure deterministic build for better compatibility with debug symbols (used in Package/Build tasks). Affects: *.nupkg
             settings.MSBuildSettings.SetContinuousIntegrationBuild(continuousIntegrationBuild: true);
         }
-        DotNetCoreBuild(solutionFullPath, settings);
+        DotNetBuild(solutionFullPath, settings);
     });
 
 Task("BuildArtifacts")
@@ -161,17 +163,17 @@ Task("Test")
             Console.WriteLine($"MONGO_X509_CLIENT_CERTIFICATE_PASSWORD={mongoX509ClientCertificatePassword}");
         }
 
-        var settings = new DotNetCoreTestSettings
+        var settings = new DotNetTestSettings
         {
             NoBuild = true,
             NoRestore = true,
             Configuration = configuration,
             Loggers = CreateLoggers(),
-            ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64"),
+            ArgumentCustomization = args => args.Append($"-- RunConfiguration.TargetPlatform={buildConfig.TargetPlatform}"),
             Framework = buildConfig.Framework
         };
 
-        DotNetCoreTest(
+        DotNetTest(
             testProject.FullPath,
             settings
         );
@@ -181,20 +183,22 @@ Task("Test")
 Task("TestNet472").IsDependentOn("Test");
 Task("TestNetStandard20").IsDependentOn("Test");
 Task("TestNetStandard21").IsDependentOn("Test");
+Task("TestNet60").IsDependentOn("Test");
 
 Task("TestAwsAuthentication")
     .IsDependentOn("Build")
     .DoesForEach(
-        GetFiles("./**/MongoDB.Driver.Tests.csproj"),
-        testProject =>
+        items: GetFiles("./**/MongoDB.Driver.Tests.csproj"),
+        action: (BuildConfig buildConfig, Path testProject) =>
         {
-            DotNetCoreTest(
+            DotNetTest(
                 testProject.FullPath,
-                new DotNetCoreTestSettings {
+                new DotNetTestSettings {
                     NoBuild = true,
                     NoRestore = true,
                     Configuration = configuration,
-                    ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64"),
+                    ArgumentCustomization = args => args.Append($"-- RunConfiguration.TargetPlatform={buildConfig.TargetPlatform}"),
+                    Framework = buildConfig.Framework,
                     Filter = "Category=\"AwsMechanism\""
                 }
             );
@@ -203,16 +207,17 @@ Task("TestAwsAuthentication")
 Task("TestPlainAuthentication")
     .IsDependentOn("Build")
     .DoesForEach(
-        GetFiles("./**/MongoDB.Driver.Tests.csproj"),
-        testProject =>
+        items: GetFiles("./**/MongoDB.Driver.Tests.csproj"),
+        action: (BuildConfig buildConfig, Path testProject) =>
         {
-            DotNetCoreTest(
+            DotNetTest(
                 testProject.FullPath,
-                new DotNetCoreTestSettings {
+                new DotNetTestSettings {
                     NoBuild = true,
                     NoRestore = true,
                     Configuration = configuration,
-                    ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64"),
+                    ArgumentCustomization = args => args.Append($"-- RunConfiguration.TargetPlatform={buildConfig.TargetPlatform}"),
+                    Framework = buildConfig.Framework,
                     Filter = "Category=\"PlainMechanism\""
                 }
             );
@@ -222,10 +227,10 @@ Task("TestPlainAuthentication")
 Task("TestAllGuidRepresentations")
     .IsDependentOn("Build")
     .DoesForEach(
-        GetFiles("./**/*.Tests.csproj")
+        items: GetFiles("./**/*.Tests.csproj")
         // .Where(name => name.ToString().Contains("Bson.Tests")) // uncomment to only test Bson
         .Where(name => !name.ToString().Contains("Atlas")),
-        testProject =>
+        action: (BuildConfig buildConfig, Path testProject) =>
     {
         var modes = new string[][]
         {
@@ -244,13 +249,14 @@ Task("TestAllGuidRepresentations")
             Console.WriteLine($"TEST_WITH_DEFAULT_GUID_REPRESENTATION_MODE={testWithGuidRepresentationMode}");
             Console.WriteLine($"TEST_WITH_DEFAULT_GUID_REPRESENTATION={testWithGuidRepresentation}");
 
-            DotNetCoreTest(
+            DotNetTest(
                 testProject.FullPath,
-                new DotNetCoreTestSettings {
+                new DotNetTestSettings {
                     NoBuild = true,
                     NoRestore = true,
                     Configuration = configuration,
-                    ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64"),
+                    ArgumentCustomization = args => args.Append($"-- RunConfiguration.TargetPlatform={buildConfig.TargetPlatform}"),
+                    Framework = buildConfig.Framework,
                     EnvironmentVariables = new Dictionary<string, string>
                     {
                         { "TEST_WITH_DEFAULT_GUID_REPRESENTATION_MODE", testWithGuidRepresentationMode },
@@ -264,16 +270,17 @@ Task("TestAllGuidRepresentations")
 Task("TestAtlasConnectivity")
     .IsDependentOn("Build")
     .DoesForEach(
-        GetFiles("./**/AtlasConnectivity.Tests.csproj"),
-        testProject =>
+        items: GetFiles("./**/AtlasConnectivity.Tests.csproj"),
+        action: (BuildConfig buildConfig, Path testProject) =>
 {
-    DotNetCoreTest(
+    DotNetTest(
         testProject.FullPath,
-        new DotNetCoreTestSettings {
+        new DotNetTestSettings {
             NoBuild = true,
             NoRestore = true,
             Configuration = configuration,
-            ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64")
+            ArgumentCustomization = args => args.Append($"-- RunConfiguration.TargetPlatform={buildConfig.TargetPlatform}"),
+            Framework = buildConfig.Framework
         }
     );
 });
@@ -281,16 +288,17 @@ Task("TestAtlasConnectivity")
 Task("TestAtlasDataLake")
     .IsDependentOn("Build")
     .DoesForEach(
-        GetFiles("./**/MongoDB.Driver.Tests.csproj"),
-        testProject =>
+        items: GetFiles("./**/MongoDB.Driver.Tests.csproj"),
+        action: (BuildConfig buildConfig, Path testProject) =>
         {
-            DotNetCoreTest(
+            DotNetTest(
                 testProject.FullPath,
-                new DotNetCoreTestSettings {
+                new DotNetTestSettings {
                     NoBuild = true,
                     NoRestore = true,
                     Configuration = configuration,
-                    ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64"),
+                    ArgumentCustomization = args => args.Append($"-- RunConfiguration.TargetPlatform={buildConfig.TargetPlatform}"),
+                    Framework = buildConfig.Framework,
                     Filter = "Category=\"AtlasDataLake\""
                 }
             );
@@ -299,19 +307,19 @@ Task("TestAtlasDataLake")
 Task("TestOcsp")
     .IsDependentOn("Build")
     .DoesForEach(
-        GetFiles("./**/MongoDB.Driver.Tests.csproj"),
-        testProject =>
+        items: GetFiles("./**/MongoDB.Driver.Tests.csproj"),
+        action: (BuildConfig buildConfig, Path testProject) =>
 {
-    DotNetCoreTest(
+    DotNetTest(
         testProject.FullPath,
-        new DotNetCoreTestSettings {
+        new DotNetTestSettings {
             NoBuild = true,
             NoRestore = true,
             Configuration = configuration,
-
             ArgumentCustomization = args => args
                 .Append("--filter FullyQualifiedName~OcspIntegrationTests")
-                .Append("-- RunConfiguration.TargetPlatform=x64")
+                .Append($"-- RunConfiguration.TargetPlatform={buildConfig.TargetPlatform}"),
+            Framework = buildConfig.Framework
         }
     );
 });
@@ -322,17 +330,17 @@ Task("TestGssapi")
         items: GetFiles("./**/MongoDB.Driver.Tests.csproj"),
         action: (BuildConfig buildConfig, Path testProject) =>
     {
-        var settings = new DotNetCoreTestSettings
+        var settings = new DotNetTestSettings
         {
             NoBuild = true,
             NoRestore = true,
             Configuration = configuration,
-            ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64"),
+            ArgumentCustomization = args => args.Append($"-- RunConfiguration.TargetPlatform={buildConfig.TargetPlatform}"),
             Filter = "Category=\"GssapiMechanism\"",
             Framework = buildConfig.Framework
         };
 
-        DotNetCoreTest(
+        DotNetTest(
             testProject.FullPath,
             settings
         );
@@ -341,6 +349,7 @@ Task("TestGssapi")
 Task("TestGssapiNet472").IsDependentOn("TestGssapi");
 Task("TestGssapiNetStandard20").IsDependentOn("TestGssapi");
 Task("TestGssapiNetStandard21").IsDependentOn("TestGssapi");
+Task("TestGssapiNet60").IsDependentOn("TestGssapi");
 
 Task("TestServerless")
     .IsDependentOn("Build")
@@ -348,17 +357,17 @@ Task("TestServerless")
         items: GetFiles("./**/MongoDB.Driver.Tests.csproj"),
         action: (BuildConfig buildConfig, Path testProject) =>
         {
-            var settings = new DotNetCoreTestSettings
+            var settings = new DotNetTestSettings
             {
                 NoBuild = true,
                 NoRestore = true,
                 Configuration = configuration,
-                ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64"),
+                ArgumentCustomization = args => args.Append($"-- RunConfiguration.TargetPlatform={buildConfig.TargetPlatform}"),
                 Filter = "Category=\"Serverless\"",
                 Framework = buildConfig.Framework
             };
 
-            DotNetCoreTest(
+            DotNetTest(
                 testProject.FullPath,
                 settings
             );
@@ -367,6 +376,7 @@ Task("TestServerless")
 Task("TestServerlessNet472").IsDependentOn("TestServerless");
 Task("TestServerlessNetStandard20").IsDependentOn("TestServerless");
 Task("TestServerlessNetStandard21").IsDependentOn("TestServerless");
+Task("TestServerlessNet60").IsDependentOn("TestServerless");
 
 Task("TestLoadBalanced")
     .IsDependentOn("Build")
@@ -374,17 +384,17 @@ Task("TestLoadBalanced")
         items: GetFiles("./**/*.Tests.csproj"),
         action: (BuildConfig buildConfig, Path testProject) =>
      {
-        var settings = new DotNetCoreTestSettings
+        var settings = new DotNetTestSettings
         {
             NoBuild = true,
             NoRestore = true,
             Configuration = configuration,
-            ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64"),
+            ArgumentCustomization = args => args.Append($"-- RunConfiguration.TargetPlatform={buildConfig.TargetPlatform}"),
             Filter = "Category=\"SupportLoadBalancing\"",
             Framework = buildConfig.Framework
         };
 
-        DotNetCoreTest(
+        DotNetTest(
             testProject.FullPath,
             settings
         );
@@ -392,6 +402,7 @@ Task("TestLoadBalanced")
 
 Task("TestLoadBalancedNetStandard20").IsDependentOn("TestLoadBalanced");
 Task("TestLoadBalancedNetStandard21").IsDependentOn("TestLoadBalanced");
+Task("TestLoadBalancedNet60").IsDependentOn("TestLoadBalanced");
 
 Task("TestCsfleWithMockedKms")
     .IsDependentOn("Build")
@@ -399,18 +410,18 @@ Task("TestCsfleWithMockedKms")
         items: GetFiles("./**/*.Tests.csproj"),
         action: (BuildConfig buildConfig, Path testProject) =>
     {
-        var settings = new DotNetCoreTestSettings
+        var settings = new DotNetTestSettings
         {
             NoBuild = true,
             NoRestore = true,
             Configuration = configuration,
             Loggers = CreateLoggers(),
-            ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64"),
+            ArgumentCustomization = args => args.Append($"-- RunConfiguration.TargetPlatform={buildConfig.TargetPlatform}"),
             Filter = "Category=\"CSFLE\"",
             Framework = buildConfig.Framework
         };
 
-        DotNetCoreTest(
+        DotNetTest(
             testProject.FullPath,
             settings
         );
@@ -419,6 +430,7 @@ Task("TestCsfleWithMockedKms")
 Task("TestCsfleWithMockedKmsNet472").IsDependentOn("TestCsfleWithMockedKms");
 Task("TestCsfleWithMockedKmsNetStandard20").IsDependentOn("TestCsfleWithMockedKms");
 Task("TestCsfleWithMockedKmsNetStandard21").IsDependentOn("TestCsfleWithMockedKms");
+Task("TestCsfleWithMockedKmsNet60").IsDependentOn("TestCsfleWithMockedKms");
 
 Task("TestCsfleWithMongocryptd")
     .IsDependentOn("Build")
@@ -426,18 +438,18 @@ Task("TestCsfleWithMongocryptd")
         items: GetFiles("./**/*.Tests.csproj"),
         action: (BuildConfig buildConfig, Path testProject) =>
     {
-        var settings = new DotNetCoreTestSettings
+        var settings = new DotNetTestSettings
         {
             NoBuild = true,
             NoRestore = true,
             Configuration = configuration,
             Loggers = CreateLoggers(),
-            ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64"),
+            ArgumentCustomization = args => args.Append($"-- RunConfiguration.TargetPlatform={buildConfig.TargetPlatform}"),
             Filter = "Category=\"CSFLE\"",
             Framework = buildConfig.Framework
         };
 
-        DotNetCoreTest(
+        DotNetTest(
             testProject.FullPath,
             settings
         );
@@ -446,6 +458,7 @@ Task("TestCsfleWithMongocryptd")
 Task("TestCsfleWithMongocryptdNet472").IsDependentOn("TestCsfleWithMongocryptd");
 Task("TestCsfleWithMongocryptdNetStandard20").IsDependentOn("TestCsfleWithMongocryptd");
 Task("TestCsfleWithMongocryptdNetStandard21").IsDependentOn("TestCsfleWithMongocryptd");
+Task("TestCsfleWithMongocryptdNet60").IsDependentOn("TestCsfleWithMongocryptd");
 
 Task("Docs")
     .IsDependentOn("ApiDocs")
@@ -542,18 +555,18 @@ Task("PackageNugetPackages")
         foreach (var project in projects)
         {
             var projectPath = $"{srcDirectory}\\{project}\\{project}.csproj";
-            var settings = new DotNetCorePackSettings
+            var settings = new DotNetPackSettings
             {
                 Configuration = configuration,
                 OutputDirectory = artifactsPackagesDirectory,
                 NoBuild = true, // SetContinuousIntegrationBuild is enabled for nupkg on the Build step
                 IncludeSymbols = true,
-                MSBuildSettings = new DotNetCoreMSBuildSettings()
+                MSBuildSettings = new DotNetMSBuildSettings()
                     // configure deterministic build for better compatibility with debug symbols (used in Package/Build tasks). Affects: *.snupkg
-                    .SetContinuousIntegrationBuild(continuousIntegrationBuild: true) 
+                    .SetContinuousIntegrationBuild(continuousIntegrationBuild: true)
                     .WithProperty("PackageVersion", gitVersion.LegacySemVer)
             };
-            DotNetCorePack(projectPath, settings);
+            DotNetPack(projectPath, settings);
         }
     });
 
@@ -596,23 +609,23 @@ Task("DumpGitVersion")
     {
         Information(gitVersion.Dump());
     });
-   
+
 Task("TestsPackagingProjectReference")
     .IsDependentOn("Build")
     .DoesForEach(
-        GetFiles("./**/*.Tests.csproj"),
-        testProject =>
+        items: GetFiles("./**/*.Tests.csproj"),
+        action: (BuildConfig buildConfig, Path testProject) =>
      {
-        var settings = new DotNetCoreTestSettings
+        var settings = new DotNetTestSettings
         {
             NoBuild = true,
             NoRestore = true,
             Configuration = configuration,
-            ArgumentCustomization = args => args.Append("-- RunConfiguration.TargetPlatform=x64"),
+            ArgumentCustomization = args => args.Append($"-- RunConfiguration.TargetPlatform={buildConfig.TargetPlatform}"),
             Filter = "Category=\"Packaging\""
         };
 
-        DotNetCoreTest(
+        DotNetTest(
             testProject.FullPath,
             settings
         );
@@ -622,11 +635,11 @@ Task("TestsPackaging")
     .IsDependentOn("TestsPackagingProjectReference")
     .IsDependentOn("Package")
     .DoesForEach(
-    () => 
-    {      
-        var monikers = new[] { "net472", "netcoreapp21", "netcoreapp30", "net50" };
+    () =>
+    {
+        var monikers = new[] { "net472", "netcoreapp21", "netcoreapp30", "net50", "net60" };
         var csprojTypes = new[] { "SDK" };
-        var processorArchitectures = new[] { "x64" };
+        var processorArchitectures = new[] { "x64", "arm64" };
         var projectTypes = new[] { "xunit", "console" };
 
         return
@@ -636,7 +649,7 @@ Task("TestsPackaging")
             from projectType in projectTypes
             select new { Moniker = moniker, CsprojType = csprojType, ProcessorArchitecture = processorArchitecture, ProjectType = projectType };
     },
-    (testDetails) => 
+    (testDetails) =>
     {
         var moniker = testDetails.Moniker;
         var csprojFormat = testDetails.CsprojType;
@@ -651,7 +664,7 @@ Task("TestsPackaging")
         EnsureDirectoryExists(monikerTestFolder);
         CleanDirectory(monikerTestFolder);
 
-        var csprojFileName = $"{monikerTestFolder.GetDirectoryName()}.csproj"; 
+        var csprojFileName = $"{monikerTestFolder.GetDirectoryName()}.csproj";
         var csprojFullPath = monikerTestFolder.CombineWithFilePath(csprojFileName);
 
         switch (projectType)
@@ -665,12 +678,12 @@ Task("TestsPackaging")
                     }
 
                     Information("Creating test project...");
-                    DotNetCoreTool(csprojFullPath, "new xunit", $"--target-framework-override {moniker} --language C# ");
+                    DotNetTool(csprojFullPath, "new xunit", $"--target-framework-override {moniker} --language C# ");
                     Information("Created test project");
 
                     // the below two packages are added just to allow using the same code as in xunit
                     Information($"Adding FluentAssertions...");
-                    DotNetCoreTool(
+                    DotNetTool(
                         csprojFullPath,
                         "add package FluentAssertions",
                         $"--framework {moniker} --version 4.12.0"
@@ -680,7 +693,7 @@ Task("TestsPackaging")
                     var mongoDriverPackageVersion = ConfigureAndGetTestedDriverVersion(monikerTestFolder, localNugetSourceName);
 
                     Information($"Adding test package...");
-                    DotNetCoreTool(
+                    DotNetTool(
                         csprojFullPath,
                         $"add package {mongoDbDriverPackageName}",
                         $"--framework {moniker} --version {mongoDriverPackageVersion}"
@@ -693,10 +706,10 @@ Task("TestsPackaging")
                     var files = GetFiles($"{packagingTestsDirectory}/*.cs").ToList();
                     CopyFiles(files, monikerTestFolder); // copy tests content
 
-                    Information("Running tests...");  
-                    DotNetCoreTest(
+                    Information("Running tests...");
+                    DotNetTest(
                         csprojFullPath.ToString(),
-                        new DotNetCoreTestSettings
+                        new DotNetTestSettings
                         {
                             Framework = moniker,
                             Configuration = configuration,
@@ -706,7 +719,7 @@ Task("TestsPackaging")
                                 .Append($"-- RunConfiguration.TargetPlatform={processorArchitecture}")
                         }
                     );
-                } 
+                }
                 break;
             case "console":
                 {
@@ -716,14 +729,14 @@ Task("TestsPackaging")
                         // The described solution works but it's tricky to implement it via scripts
                         return;
                     }
-                    
+
                     Information("Creating console project...");
-                    DotNetCoreTool(csprojFullPath, "new console", $"--target-framework-override {moniker} --language C# --langVersion 9");
+                    DotNetTool(csprojFullPath, "new console", $"--target-framework-override {moniker} --language C# --langVersion 9");
                     Information("Created test project");
-                    
+
                     // the below two packages are added just to allow using the same code as in xunit
                     Information($"Adding FluentAssertions...");
-                    DotNetCoreTool(
+                    DotNetTool(
                         csprojFullPath,
                         "add package FluentAssertions",
                         $"--framework {moniker} --version 4.12.0"
@@ -731,7 +744,7 @@ Task("TestsPackaging")
                     Information($"Added FluentAssertions");
 
                     Information($"Adding xunit...");
-                    DotNetCoreTool(
+                    DotNetTool(
                         csprojFullPath,
                         "add package xunit",
                         $"--framework {moniker} --version 2.4.0"
@@ -741,7 +754,7 @@ Task("TestsPackaging")
                     var mongoDriverPackageVersion = ConfigureAndGetTestedDriverVersion(monikerTestFolder, localNugetSourceName);
 
                     Information($"Adding tested package...");
-                    DotNetCoreTool(
+                    DotNetTool(
                         csprojFullPath,
                         $"add package {mongoDbDriverPackageName}",
                         $"--framework {moniker} --version {mongoDriverPackageVersion}"
@@ -754,13 +767,13 @@ Task("TestsPackaging")
                     var files = GetFiles($"{packagingTestsDirectory}/*.cs").ToList();
                     CopyFiles(files, monikerTestFolder); // copy tests content
 
-                    Information("Running console app...");  
-                    DotNetCoreRun(
+                    Information("Running console app...");
+                    DotNetRun(
                         csprojFullPath.ToString(),
-                        new DotNetCoreRunSettings
+                        new DotNetRunSettings
                         {
-                            EnvironmentVariables = new Dictionary<string, string>() 
-                            { 
+                            EnvironmentVariables = new Dictionary<string, string>()
+                            {
                                 { "DefineConstants", "CONSOLE_TEST" },
                                 { "PlatformTarget", processorArchitecture }
                             },
@@ -768,7 +781,7 @@ Task("TestsPackaging")
                             Configuration = configuration
                         }
                     );
-                } 
+                }
                 break;
             default: throw new NotSupportedException($"Packaging tests for {projectType} is not supported.");
         }
@@ -776,7 +789,7 @@ Task("TestsPackaging")
         string ConfigureAndGetTestedDriverVersion(DirectoryPath directoryPath, string localNugetSourceName)
         {
             CreateNugetConfig(directoryPath, localNugetSourceName);
-            
+
             var packagesList = NuGetList(
             new NuGetListSettings {
                 AllVersions = true,
@@ -796,13 +809,13 @@ Task("TestsPackaging")
             var mongoDriverPackageVersion = packagesList.Single(p => p.Name == mongoDbDriverPackageName).Version;
             Information($"Package version {mongoDriverPackageVersion}");
             return mongoDriverPackageVersion;
-            
-            void CreateNugetConfig(DirectoryPath directoryPath, string localNugetSourceName)    
+
+            void CreateNugetConfig(DirectoryPath directoryPath, string localNugetSourceName)
             {
                 var nugetConfigPath = directoryPath.CombineWithFilePath("nuget.config");
                 if (FileExists(nugetConfigPath)) DeleteFile(nugetConfigPath);
-                
-                DotNetCoreTool(nugetConfigPath, "new nugetconfig"); // create a default nuget.config
+
+                DotNetTool(nugetConfigPath, "new nugetconfig"); // create a default nuget.config
 
                 // <packageSources>
                 //     <add key="{localNugetSourceName}" value="..\..\packages" />
@@ -815,19 +828,31 @@ Task("TestsPackaging")
     .DeferOnError();
 
 Setup<BuildConfig>(
-    setupContext => 
+    setupContext =>
     {
+        var targetPlatform = RuntimeInformation.OSArchitecture switch
+        {
+            Architecture.Arm64 => "arm64",
+            Architecture.X64 => "x64",
+            var unknownArchitecture => throw new Exception($"Unknown CPU architecture: {unknownArchitecture}.")
+        };
+
         var lowerTarget = target.ToLowerInvariant();
-        var framework = lowerTarget switch
+        // Apple M1 (arm64) must run on .NET 6 as the hosting process is arm64 and cannot load the previous netcoreapp2.1/3.1 runtimes.
+        // While Rosetta 2 can cross-compile x64->arm64 to run x64 code, it requires a completely separate install of the .NET runtimes
+        // in a different directory with a x64 dotnet host process. This would further complicate our testing for little additional gain.
+        var framework = targetPlatform == "arm64" ? "net6.0" : lowerTarget switch
         {
             string s when s.StartsWith("test") && s.EndsWith("net472") => "net472",
             string s when s.StartsWith("test") && s.EndsWith("netstandard20") => "netcoreapp2.1",
             string s when s.StartsWith("test") && s.EndsWith("netstandard21") => "netcoreapp3.1",
+            string s when s.StartsWith("test") && s.EndsWith("net60") => "net6.0",
             _ => null
         };
+
         var isReleaseMode = lowerTarget.StartsWith("package") || lowerTarget == "release";
-        Console.WriteLine($"Framework: {framework ?? "null (not set)"}, IsReleaseMode: {isReleaseMode}");
-        return new BuildConfig(isReleaseMode, framework);
+        Console.WriteLine($"Framework: {framework ?? "null (not set)"}, TargetPlatform: {targetPlatform}, IsReleaseMode: {isReleaseMode}");
+        return new BuildConfig(isReleaseMode, framework, targetPlatform);
     });
 
 RunTarget(target);
@@ -836,11 +861,13 @@ public class BuildConfig
 {
     public bool IsReleaseMode { get; }
     public string Framework { get; }
+    public string TargetPlatform { get; }
 
-    public BuildConfig(bool isReleaseMode, string framework)
+    public BuildConfig(bool isReleaseMode, string framework, string targetPlatform)
     {
         IsReleaseMode = isReleaseMode;
         Framework = framework;
+        TargetPlatform = targetPlatform;
     }
 }
 
@@ -850,5 +877,5 @@ string[] CreateLoggers()
     // Evergreen CI server requires JUnit output format to display test results
     var junitLogger = $"junit;LogFilePath={testResultsFile};FailureBodyFormat=Verbose";
     var consoleLogger = "console;verbosity=detailed";
-    return new []{ junitLogger, consoleLogger }; 
+    return new []{ junitLogger, consoleLogger };
 }

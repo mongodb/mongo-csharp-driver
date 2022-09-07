@@ -32,9 +32,11 @@ namespace MongoDB.Driver.Tests.Encryption
             var formatter = new BinaryFormatter();
             using (var stream = new MemoryStream())
             {
+#pragma warning disable SYSLIB0011 // BinaryFormatter serialization is obsolete
                 formatter.Serialize(stream, subject);
                 stream.Position = 0;
                 var rehydrated = (MongoEncryptionException)formatter.Deserialize(stream);
+#pragma warning restore SYSLIB0011 // BinaryFormatter serialization is obsolete
 
                 rehydrated.InnerException.Message.Should().Be(subject.InnerException.Message);
             }

@@ -108,18 +108,18 @@ namespace MongoDB.Driver.Tests.Encryption
         }
 
         [SkippableFact]
-        public void Shared_library_should_by_loaded_when_CRYPT_SHARED_LIB_PATH_is_set()
+        public void Shared_library_should_be_loaded_when_CRYPT_SHARED_LIB_PATH_is_set()
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
-            RequireEnvironment.Check().EnvironmentVariable("CRYPT_SHARED_LIB_PATH", isDefined: true);
+            RequireEnvironment.Check().EnvironmentVariable("CRYPT_SHARED_LIB_PATH", isDefined: true, allowEmpty: false);
 
-            Ensure.That(File.Exists(Environment.GetEnvironmentVariable("CRYPT_SHARED_LIB_PATH")), "CRYPT_SHARED_LIB_PATH should exist");
+            Ensure.That(File.Exists(Environment.GetEnvironmentVariable("CRYPT_SHARED_LIB_PATH")), "CRYPT_SHARED_LIB_PATH should exist.");
 
             using (var client = GetClient(withAutoEncryption: true))
             {
                 var libMongoCryptController = ((MongoClient)client.Wrapped).LibMongoCryptController;
                 var cryptClient = libMongoCryptController._cryptClient();
-                cryptClient.CryptSharedLibraryVersion.Should().Be("mongo_crypt_v1-dev-6.0.0-rc13");
+                cryptClient.CryptSharedLibraryVersion.Should().NotBeNull();
             }
         }
 

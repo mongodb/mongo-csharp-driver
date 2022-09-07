@@ -18,8 +18,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading;
+using Microsoft.Extensions.Logging;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
+using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Clusters
@@ -45,10 +47,15 @@ namespace MongoDB.Driver.Core.Clusters
         private DnsMonitorState _state;
         private Exception _unhandledException;
 
-        private readonly Action<SdamInformationEvent> _sdamInformationEventHandler;
+        private readonly EventsLogger<LogCategories.SDAM> _eventsLogger;
 
         // constructors
-        public DnsMonitor(IDnsMonitoringCluster cluster, IDnsResolver dnsResolver, string lookupDomainName, IEventSubscriber eventSubscriber, CancellationToken cancellationToken)
+        public DnsMonitor(IDnsMonitoringCluster cluster,
+            IDnsResolver dnsResolver,
+            string lookupDomainName,
+            IEventSubscriber eventSubscriber,
+            ILogger<LogCategories.SDAM> logger,
+            CancellationToken cancellationToken)
         {
             _cluster = Ensure.IsNotNull(cluster, nameof(cluster));
             _dnsResolver = Ensure.IsNotNull(dnsResolver, nameof(dnsResolver));
@@ -57,7 +64,7 @@ namespace MongoDB.Driver.Core.Clusters
             _service = "_mongodb._tcp." + _lookupDomainName;
             _state = DnsMonitorState.Created;
 
-            eventSubscriber?.TryGetEventHandler(out _sdamInformationEventHandler);
+            _eventsLogger = logger.ToEventsLogger(eventSubscriber, _service);
         }
 
         // public properties
@@ -94,12 +101,7 @@ namespace MongoDB.Driver.Core.Clusters
             {
                 _unhandledException = exception;
 
-                if (_sdamInformationEventHandler != null)
-                {
-                    var message = $"Unhandled exception in DnsMonitor: {exception}.";
-                    var sdamInformationEvent = new SdamInformationEvent(() => message);
-                    _sdamInformationEventHandler(sdamInformationEvent);
-                }
+                _eventsLogger.LogAndPublish(exception, new SdamInformationEvent("Unhandled exception in DnsMonitor: {0}.", exception));
 
                 _state = DnsMonitorState.Failed;
                 return;
@@ -144,12 +146,7 @@ namespace MongoDB.Driver.Core.Clusters
                 }
                 else
                 {
-                    if (_sdamInformationEventHandler != null)
-                    {
-                        var message = $"Invalid host returned by DNS SRV lookup: {host}.";
-                        var sdamInformationEvent = new SdamInformationEvent(() => message);
-                        _sdamInformationEventHandler(sdamInformationEvent);
-                    }
+                    _eventsLogger.LogAndPublish(new SdamInformationEvent("Invalid host returned by DNS SRV lookup: {0}.", host));
                 }
             }
 
@@ -193,12 +190,7 @@ namespace MongoDB.Driver.Core.Clusters
                     }
                     else
                     {
-                        if (_sdamInformationEventHandler != null)
-                        {
-                            var message = $"A DNS SRV query on \"{_service}\" returned no valid hosts.";
-                            var sdamInformationEvent = new SdamInformationEvent(() => message);
-                            _sdamInformationEventHandler(sdamInformationEvent);
-                        }
+                        _eventsLogger.LogAndPublish(new SdamInformationEvent("A DNS SRV query on \"{0}\" returned no valid hosts.", _service));
                     }
                 }
 

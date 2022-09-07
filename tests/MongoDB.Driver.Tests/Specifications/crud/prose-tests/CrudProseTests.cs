@@ -167,7 +167,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
                 settings.HeartbeatInterval = TimeSpan.FromMilliseconds(5);
                 settings.ClusterConfigurator = c => c.Subscribe(eventCapturer);
             },
-            logger: CreateLogger<DisposableMongoClient>());
+            LoggerFactory);
         }
     }
 }

@@ -310,7 +310,7 @@ namespace MongoDB.Bson.Tests.Serialization.CollectionSerializers
             var arrayListDiscriminator = "System.Collections.ArrayList";
             var queueDiscriminator = "System.Collections.Queue";
             var stackDiscriminator = "System.Collections.Stack";
-#elif NETCOREAPP3_1
+#elif NETCOREAPP3_1_OR_GREATER
             // In netcore3.1 ArrayList is situated in System.Private.CoreLib that is a well-known library
             var arrayListDiscriminator = "System.Collections.ArrayList";
             var queueDiscriminator = typeof(Queue).AssemblyQualifiedName;
@@ -342,7 +342,7 @@ namespace MongoDB.Bson.Tests.Serialization.CollectionSerializers
             var arrayListDiscriminator = "System.Collections.ArrayList";
             var queueDiscriminator = "System.Collections.Queue";
             var stackDiscriminator = "System.Collections.Stack";
-#elif NETCOREAPP3_1
+#elif NETCOREAPP3_1_OR_GREATER
             // In netcore3.1 ArrayList is situated in System.Private.CoreLib that is a well-known library
             var arrayListDiscriminator = "System.Collections.ArrayList";
             var queueDiscriminator = typeof(Queue).AssemblyQualifiedName;

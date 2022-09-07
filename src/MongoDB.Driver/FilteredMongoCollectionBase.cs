@@ -404,7 +404,7 @@ namespace MongoDB.Driver
                     default:
                         throw new MongoInternalException("Request type is invalid.");
                 }
-            });
+            }).ToList();
         }
 
         private PipelineDefinition<TDocument, TResult> CreateFilteredPipeline<TResult>(PipelineDefinition<TDocument, TResult> pipeline)

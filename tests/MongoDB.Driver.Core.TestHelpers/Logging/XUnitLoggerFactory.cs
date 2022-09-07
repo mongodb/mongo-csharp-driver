@@ -1,4 +1,4 @@
-﻿/* Copyright 2021-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,31 +14,24 @@
 */
 
 using System.Diagnostics;
+using Microsoft.Extensions.Logging;
 
 namespace MongoDB.Driver.Core.TestHelpers.Logging
 {
     [DebuggerStepThrough]
     internal sealed class XUnitLoggerFactory : ILoggerFactory
     {
-        private readonly ILogger _loggerBase;
+        private readonly XUnitOutputAccumulator _logsAccumulator;
 
-        public XUnitLoggerFactory(ILogger loggerBase)
+        public XUnitLoggerFactory(XUnitOutputAccumulator testOutput)
         {
-            _loggerBase = loggerBase;
+            _logsAccumulator = testOutput;
         }
 
-        public ILogger<TCategory> CreateLogger<TCategory>() =>
-            new TypedLoggerDecorator<TCategory>(_loggerBase);
-    }
+        public void AddProvider(ILoggerProvider provider) { }
 
-    public class EmptyLoggerFactory : ILoggerFactory
-    {
-        public static ILoggerFactory Instance { get; } = new EmptyLoggerFactory();
+        public ILogger CreateLogger(string categoryName) => new XUnitLogger(categoryName, _logsAccumulator);
 
-        private EmptyLoggerFactory()
-        {
-        }
-
-        public ILogger<TCategory> CreateLogger<TCategory>() => null;
+        public void Dispose() { }
     }
 }

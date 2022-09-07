@@ -13,6 +13,10 @@
 * limitations under the License.
 */
 
+using System;
+using System.Diagnostics;
+using System.IO;
+using System.Net;
 using FluentAssertions;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core.Clusters;
@@ -20,10 +24,6 @@ using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events.Diagnostics;
 using MongoDB.Driver.Core.Servers;
-using System;
-using System.Diagnostics;
-using System.IO;
-using System.Net;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Events
@@ -217,7 +217,7 @@ namespace MongoDB.Driver.Core.Events
             var traceSource = CreateTraceSource(logFileName, logFileName);
             var subject = new TraceSourceSdamEventSubscriber(traceSource);
 
-            subject.Handle(new SdamInformationEvent(() => expectedLogMessage));
+            subject.Handle(new SdamInformationEvent(expectedLogMessage));
             var log = ReadLog(traceSource, logFileName);
 
             log.Should().Contain(expectedLogMessage);

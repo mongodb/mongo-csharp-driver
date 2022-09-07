@@ -1,0 +1,102 @@
+/* Copyright 2010-present MongoDB Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using FluentAssertions;
+using Microsoft.Extensions.Logging;
+using MongoDB.Driver.Core.Events;
+using Moq;
+using Xunit;
+
+namespace MongoDB.Driver.Core.Logging
+{
+    public class EventsLoggerTests
+    {
+        [Theory]
+        [MemberData(nameof(EventsData))]
+        internal void LogAndPublish_should_log_and_publish<TEventCategory, TEvent>(
+            TEventCategory eventCategory,
+            TEvent @event,
+            bool isHandlerRegistered,
+            bool isLoggingEnabled)
+            where TEventCategory : LogCategories.EventCategory
+        {
+            object eventCaptured = null;
+            Mock<IEventSubscriber> eventSubscriber = new Mock<IEventSubscriber>();
+            Action<TEvent> eventHandler = e => eventCaptured = e;
+            if (isHandlerRegistered)
+            {
+                eventSubscriber
+                    .Setup(s => s.TryGetEventHandler(out eventHandler))
+                    .Returns(true);
+            }
+
+            Mock<ILogger<TEventCategory>> logger = null;
+
+            if (isLoggingEnabled)
+            {
+                logger = new Mock<ILogger<TEventCategory>>();
+                logger.Setup(l => l.IsEnabled(LogLevel.Information)).Returns(true);
+            }
+
+            var eventsLogger = new EventsLogger<TEventCategory>(eventSubscriber.Object, logger?.Object, "mockId");
+            var logAndPublishMethodInfo = eventsLogger.GetType().GetMethod(nameof(eventsLogger.LogAndPublish), new[] { typeof(TEvent) });
+
+            logAndPublishMethodInfo.Invoke(eventsLogger, new object[] { @event });
+
+            eventSubscriber.Verify(s => s.TryGetEventHandler(out eventHandler), Times.Once);
+
+            if (isHandlerRegistered)
+            {
+                eventCaptured.Should().Be(@event);
+            }
+            else
+            {
+                eventCaptured.Should().BeNull();
+            }
+
+            if (isLoggingEnabled)
+            {
+                logger.Verify(l => l.Log(LogLevel.Information, It.IsAny<EventId>(), It.IsNotNull<object>(), null, It.IsNotNull<Func<object, Exception, string>>()), Times.Once);
+            }
+
+            eventsLogger.IsEventTracked<TEvent>().Should().Be(isLoggingEnabled || isHandlerRegistered);
+        }
+
+        private static IEnumerable<object[]> EventsData()
+        {
+            var eventsData = new (object, object)[]
+            {
+                (new LogCategories.Cluster(), new ClusterAddedServerEvent(null, TimeSpan.FromSeconds(1))),
+                (new LogCategories.Command(), new CommandStartedEvent("test", new Bson.BsonDocument(), new DatabaseNamespace("test"), 1, 1, new Connections.ConnectionId(new Servers.ServerId(new Clusters.ClusterId(), new IPEndPoint(1, 1))))),
+                (new LogCategories.Connection(), new ConnectionCreatedEvent(null, null, 1)),
+                (new LogCategories.SDAM(), new ServerHeartbeatStartedEvent(null, true)),
+                (new LogCategories.ServerSelection(), new ClusterSelectedServerEvent())
+            };
+
+            var booleanValues = new[] { true, false };
+
+            var result = from isHandlerRegistered in booleanValues
+                         from isLoggingEnabled in booleanValues
+                         from eventData in eventsData
+                         select new object[] { eventData.Item1, eventData.Item2, isHandlerRegistered, isLoggingEnabled };
+
+            return result;
+        }
+    }
+}

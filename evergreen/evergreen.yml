@@ -13,7 +13,7 @@ stepback: true
 command_type: system
 
 # Protect ourself against rogue test case, or curl gone wild, that runs forever
-# 60 minutes: 20 minutes is a normal test run + up to 10 minutes for test setup + 15 minutes for longer macOS tests + 15 minutes for longer macOS 1015 tests
+# 60 minutes: 20 minutes is a normal test run + up to 10 minutes for test setup + 15 minutes for longer macOS tests + 15 minutes for longer macOS 1100 tests
 exec_timeout_secs: 3600
 
 # What to do when evergreen hits the timeout (`post:` tasks are run automatically)
@@ -305,8 +305,6 @@ functions:
           . ./evergreen/set-temp-fle-aws-creds.sh
           ${PREPARE_SHELL}
           OS=${OS} \
-            . ./evergreen/fetch-crypt_shared-library.sh
-          OS=${OS} \
             evergreen/add-ca-certs.sh
           AUTH=${AUTH} \
           SSL=${SSL} \
@@ -317,6 +315,7 @@ functions:
           CLIENT_PEM=${DRIVERS_TOOLS}/.evergreen/x509gen/client.pem \
           REQUIRE_API_VERSION=${REQUIRE_API_VERSION} \
           FRAMEWORK=${FRAMEWORK} \
+          CRYPT_SHARED_LIB_PATH=${CRYPT_SHARED_LIB_PATH} \
             evergreen/run-tests.sh
           echo "Skipping certificate removal..."
           OS=${OS} \
@@ -334,8 +333,6 @@ functions:
           ${PREPARE_SHELL}
           set +o xtrace
           OS=${OS} \
-            . ./evergreen/fetch-crypt_shared-library.sh          
-          OS=${OS} \
             evergreen/add-ca-certs.sh
           AUTH=${AUTH} \
           SSL=${SSL} \
@@ -345,6 +342,7 @@ functions:
           CLIENT_PEM=${DRIVERS_TOOLS}/.evergreen/x509gen/client.pem \
           FRAMEWORK=${FRAMEWORK} \
           TARGET="TestCsfleWithMockedKms" \
+          CRYPT_SHARED_LIB_PATH=${CRYPT_SHARED_LIB_PATH} \
             evergreen/run-tests.sh
           OS=${OS} \
             evergreen/cleanup-test-resources.sh
@@ -372,6 +370,7 @@ functions:
           REQUIRE_API_VERSION=${REQUIRE_API_VERSION} \
           TARGET="TestCsfleWithMongocryptd" \
           FRAMEWORK=${FRAMEWORK} \
+          CRYPT_SHARED_LIB_PATH="" \
             evergreen/run-tests.sh
           echo "Skipping certificate removal..."
           OS=${OS} \
@@ -757,16 +756,6 @@ functions:
           cd ${DRIVERS_TOOLS}/.evergreen/csfle
           $PYTHON -u kms_kmip_server.py
 
-  publish-snapshot:
-    - command: shell.exec
-      type: test
-      params:
-        silent: true
-        working_dir: mongo-csharp-driver
-        script: |
-          # DO NOT ECHO WITH XTRACE (which PREPARE_SHELL does)
-          PROJECT_DIRECTORY=${PROJECT_DIRECTORY} evergreen/publish.sh
-
   cleanup:
     - command: shell.exec
       params:
@@ -839,18 +828,6 @@ post:
   - func: cleanup
 
 tasks:
-
-    - name: compile
-      commands:
-        - func: exec-script
-          vars:
-            file: "evergreen/compile.sh"
-        # - func: upload-build
-
-    - name: test
-      commands:
-        - func: bootstrap-mongo-orchestration
-        - func: run-tests
 
     - name: test-net472
       commands:
@@ -931,7 +908,7 @@ tasks:
           vars:
             FRAMEWORK: netstandard20
         - func: stop-load-balancer
-        
+
     - name: test-load-balancer-netstandard21
       commands:
         - func: bootstrap-mongo-orchestration
@@ -1022,13 +999,6 @@ tasks:
       commands:
         - func: bootstrap-mongohoused
         - func: run-atlas-data-lake-test
-
-    - name: publish-snapshot
-      depends_on:
-        - variant: ".tests-variant"
-          name: test
-      commands:
-        - func: publish-snapshot
 
     - name: test-serverless-net472
       exec_timeout_secs: 2700 # 45 minutes: 15 for setup + 30 for tests
@@ -1430,11 +1400,16 @@ axes:
         variables:
           OS: "ubuntu-1804"
         run_on: ubuntu1804-test
-      - id: "macos-1015"
-        display_name: "macOS 10.15"
+      - id: "macos-1100"
+        display_name: "macOS 11.00"
         variables:
-          OS: "macos-1015"
-        run_on: macos-1015
+          OS: "macos-1100"
+        run_on: macos-1100
+      - id: "macos-1100-arm64"
+        display_name: "macOS 11.00 M1"
+        variables:
+          OS: "macos-1100-arm64"
+        run_on: macos-1100-arm64
 
   - id: topology
     display_name: Topology
@@ -1494,25 +1469,6 @@ axes:
 
 buildvariants:
 
-- name: windows-64-compile
-  display_name: "Windows 64-bit compile"
-  run_on:
-    - windows-64-vs2017-compile
-  tasks:
-    - name: compile
-- name: ubuntu1804-compile
-  display_name: "Ubuntu 18.04 compile"
-  run_on:
-    - ubuntu1804-test
-  tasks:
-    - name: compile
-- name: macos1015-compile
-  display_name: "macOS 10.15 compile"
-  run_on:
-    - macos-1015
-  tasks:
-    - name: compile
-
 - matrix_name: "secure-tests"
   matrix_spec: { version: "*", topology: "*", auth: "auth", ssl: "ssl", os: "windows-64" }
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
@@ -1558,7 +1514,7 @@ buildvariants:
      - name: test-netstandard21
 
 - matrix_name: "tests-snappy-compression-macOS"
-  matrix_spec: { compressor : "snappy", auth: "noauth", ssl: "nossl", version: ["5.0", "6.0", "rapid", "latest"], topology: "standalone", os: "macos-1015" }
+  matrix_spec: { compressor : "snappy", auth: "noauth", ssl: "nossl", version: ["5.0", "6.0", "rapid", "latest"], topology: "standalone", os: ["macos-1100", "macos-1100-arm64"] }
   display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
   tags: ["tests-variant"]
   tasks:
@@ -1582,7 +1538,7 @@ buildvariants:
      - name: test-netstandard21
 
 - matrix_name: "tests-zstandard-compression-macOS"
-  matrix_spec: { compressor : "zstandard", auth: "noauth", ssl: "nossl", version: ["5.0", "6.0", "rapid", "latest"], topology: "standalone", os: "macos-1015" }
+  matrix_spec: { compressor : "zstandard", auth: "noauth", ssl: "nossl", version: ["5.0", "6.0", "rapid", "latest"], topology: "standalone", os: ["macos-1100", "macos-1100-arm64"] }
   display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
   tags: ["tests-variant"]
   tasks:
@@ -1606,14 +1562,14 @@ buildvariants:
      - name: test-netstandard21
 
 - matrix_name: "secure-tests-macOS"
-  matrix_spec: { version: ["5.0", "6.0", "rapid", "latest"], topology: "replicaset", auth: "auth", ssl: "ssl", os: "macos-1015" }
+  matrix_spec: { version: ["5.0", "6.0", "rapid", "latest"], topology: "replicaset", auth: "auth", ssl: "ssl", os: ["macos-1100", "macos-1100-arm64"] }
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
   tasks:
      - name: test-netstandard21
 
 - matrix_name: "unsecure-tests-macOS"
-  matrix_spec: { version: ["5.0", "6.0", "rapid", "latest"], topology: "replicaset", auth: "noauth", ssl: "nossl", os: "macos-1015" }
+  matrix_spec: { version: ["5.0", "6.0", "rapid", "latest"], topology: "replicaset", auth: "noauth", ssl: "nossl", os: ["macos-1100", "macos-1100-arm64"] }
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
   tasks:
@@ -1654,7 +1610,7 @@ buildvariants:
 
 - matrix_name: plain-auth-tests
   matrix_spec: { os: "*" }
-  display_name: "PLAIN (LDAP) Auth Tests"
+  display_name: "PLAIN (LDAP) Auth Tests ${os}"
   tasks:
     - name: plain-auth-tests
 
@@ -1734,7 +1690,7 @@ buildvariants:
     - name: test-csfle-with-mocked-kms-tls-netstandard21
 
 - matrix_name: "csfle-with-mocked-kms-tests-macOS"
-  matrix_spec: { os: "macos-1015", ssl: "nossl", version: [ "5.0", "6.0", "rapid", "latest" ], topology: ["standalone"] }
+  matrix_spec: { os: [ "macos-1100", "macos-1100-arm64" ], ssl: "nossl", version: [ "5.0", "6.0", "rapid", "latest" ], topology: ["standalone"] }
   display_name: "CSFLE Mocked KMS ${version} ${os}"
   tasks:
     - name: test-csfle-with-mocked-kms-tls-netstandard21
@@ -1755,7 +1711,8 @@ buildvariants:
     - name: test-csfle-with-mongocryptd-netstandard21
 
 - matrix_name: "csfle-with-mongocryptd-macOS"
-  matrix_spec: { os: "macos-1015", ssl: "nossl", version: [ "4.2", "4.4", "5.0", "6.0", "latest" ], topology: ["replicaset"] }
+  matrix_spec: { os: ["macos-1100", "macos-1100-arm64"], ssl: "nossl", version: [ "4.2", "4.4", "5.0", "6.0", "latest" ], topology: ["replicaset"] }
   display_name: "CSFLE with mongocryptd ${version} ${os}"
   tasks:
     - name: test-csfle-with-mongocryptd-netstandard21
+
