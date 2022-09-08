@@ -1273,10 +1273,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             {
 #if NET6_0_OR_GREATER
                 const string invalidCertificateError = "The remote certificate was rejected by the provided RemoteCertificateValidationCallback.";
-                const string http404Error = "KMS response parser error with status 404, error: 'Unexpected extra HTTP content'";
 #else
                 const string invalidCertificateError = "The remote certificate is invalid according to the validation procedure.";
-                const string http404Error = "HTTP status=404";
 #endif
 
                 var currentOperatingSystem = OperatingSystemHelper.CurrentOperatingSystem;
@@ -1346,7 +1344,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                             case CertificateType.TlsWithClientCert:
                                 AssertCertificate(isExpired: null, invalidHost: null);
                                 // Expect an HTTP 404 error from libmongocrypt. This implies TLS handshake succeeded.
-                                AssertInnerEncryptionException<CryptException>(exception, http404Error);
+                                AssertInnerEncryptionException<CryptException>(exception, "404");
                                 break;
                             case CertificateType.Expired:
                                 AssertCertificate(isExpired: true, invalidHost: false);
@@ -1384,7 +1382,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                             case CertificateType.TlsWithClientCert:
                                 AssertCertificate(isExpired: null, invalidHost: null);
                                 // Expect an HTTP 404 error from libmongocrypt. This implies TLS handshake succeeded.
-                                AssertInnerEncryptionException<CryptException>(exception, http404Error);
+                                AssertInnerEncryptionException<CryptException>(exception, "404");
                                 break;
                             case CertificateType.Expired:
                                 AssertCertificate(isExpired: true, invalidHost: false);
