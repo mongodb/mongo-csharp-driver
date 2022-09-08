@@ -17,14 +17,16 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Net.Http;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
+using Microsoft.Diagnostics.Runtime;
 using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
@@ -41,6 +43,8 @@ using MongoDB.Driver.TestHelpers;
 using MongoDB.Libmongocrypt;
 using Xunit;
 using Xunit.Abstractions;
+using Xunit.Sdk;
+using Reflector = MongoDB.Bson.TestHelpers.Reflector;
 
 namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 {
@@ -1269,10 +1273,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             {
 #if NET6_0_OR_GREATER
                 const string invalidCertificateError = "The remote certificate was rejected by the provided RemoteCertificateValidationCallback.";
-                const string http404Error = "KMS response parser error with status 404, error: 'Unexpected extra HTTP content'";
 #else
                 const string invalidCertificateError = "The remote certificate is invalid according to the validation procedure.";
-                const string http404Error = "HTTP status=404";
 #endif
 
                 var currentOperatingSystem = OperatingSystemHelper.CurrentOperatingSystem;
@@ -1342,7 +1344,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                             case CertificateType.TlsWithClientCert:
                                 AssertCertificate(isExpired: null, invalidHost: null);
                                 // Expect an HTTP 404 error from libmongocrypt. This implies TLS handshake succeeded.
-                                AssertInnerEncryptionException<CryptException>(exception, http404Error);
+                                AssertInnerEncryptionException<CryptException>(exception, "404");
                                 break;
                             case CertificateType.Expired:
                                 AssertCertificate(isExpired: true, invalidHost: false);
@@ -1380,7 +1382,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                             case CertificateType.TlsWithClientCert:
                                 AssertCertificate(isExpired: null, invalidHost: null);
                                 // Expect an HTTP 404 error from libmongocrypt. This implies TLS handshake succeeded.
-                                AssertInnerEncryptionException<CryptException>(exception, http404Error);
+                                AssertInnerEncryptionException<CryptException>(exception, "404");
                                 break;
                             case CertificateType.Expired:
                                 AssertCertificate(isExpired: true, invalidHost: false);
@@ -1455,7 +1457,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 #endif
                         "The message received was unexpected or badly formatted");
                 }
-                catch (Xunit.Sdk.XunitException) // assertation failed
+                catch (XunitException) // assertation failed
                 {
                     // Sometimes the mock server triggers SocketError.ConnectionReset (10054) on windows instead the expected exception.
                     // It looks like a test env issue, a similar behavior presents in other drivers, so we rely on the same check on different OSs
@@ -1530,6 +1532,98 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
         [SkippableTheory]
         [ParameterAttributeData]
+        public void OnDemandCredentials(
+            [Values("aws")] string kmsProvider,
+            [Values(false, true)] bool envVariablesSet,
+            [Values(false, true)] bool async)
+        {
+            if (kmsProvider == "aws")
+            {
+                RequireEnvironment.Check().EnvironmentVariable("AWS_ACCESS_KEY_ID", isDefined: envVariablesSet);
+                // mocked env doesn't configure aws_temp credentials with AWS_ACCESS_KEY_ID
+                RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: !envVariablesSet);
+            }
+
+            RequireServer.Check().Supports(Feature.ClientSideEncryption);
+
+            using (var client = ConfigureClient(clearCollections: true))
+            using (var clientEncryption = ConfigureClientEncryption(client, kmsDocument: new BsonDocument(kmsProvider, new BsonDocument())))
+            {
+                var datakeyOptions = CreateDataKeyOptions(kmsProvider);
+                var ex = Record.Exception(() => CreateDataKey(clientEncryption, kmsProvider, datakeyOptions, async));
+                if (envVariablesSet)
+                {
+                    // AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY must be configured
+                    ex.Should().BeNull();
+                }
+                else
+                {
+                    // AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY must not be configured
+                    AssertException(ex);
+                }
+
+                void AssertException(Exception ex)
+                {
+                    var currentOperatingSystem = OperatingSystemHelper.CurrentOperatingSystem;
+                    switch (kmsProvider)
+                    {
+                        case "aws":
+                            {
+                                switch (currentOperatingSystem)
+                                {
+                                    case OperatingSystemPlatform.Windows:
+                                    case OperatingSystemPlatform.Linux:
+                                        {
+                                            try
+                                            {
+                                                // unlike EG, local running fails on first aws EC2 step with acquiring a token
+                                                AssertInnerEncryptionException<SocketException>(
+                                                    ex,
+#if NET472
+                                                    "An error occurred while sending the request",
+                                                    "Unable to connect to the remote server",
+#endif
+                                                    "A socket operation was attempted to an unreachable network");
+                                            }
+                                            catch (XunitException)
+                                            {
+                                                // EG allows successful sending aws token request to the aws env, so error happens on get rolename step
+                                                AssertInnerEncryptionException<HttpRequestException>(ex, "Response status code does not indicate success: 404");
+                                            }
+                                        }
+                                        break;
+                                    case OperatingSystemPlatform.MacOS:
+                                        {
+                                            try
+                                            {
+                                                //---> MongoDB.Driver.MongoClientException: Failed to acquire EC2 token.
+                                                //--->System.Threading.Tasks.TaskCanceledException: A task was canceled.
+                                                //--->at System.Net.Http.HttpClient.FinishSendAsyncBuffered(Task`1 sendTask, HttpRequestMessage request, CancellationTokenSource cts, Boolean disposeCts)
+                                                AssertInnerEncryptionException<TaskCanceledException>(ex, "Failed to acquire EC2 token.");
+                                            }
+                                            catch (XunitException)
+                                            {
+                                                //--->System.Net.Http.HttpRequestException: An error occurred while sending the request.
+                                                //--->System.Net.Http.CurlException: Couldn't connect to server
+                                                //at System.Net.Http.CurlHandler.ThrowIfCURLEError(CURLcode error)
+                                                //at System.Net.Http.CurlHandler.MultiAgent.FinishRequest(StrongToWeakReference`1 easyWrapper, CURLcode messageResult)
+                                                //-- - End of inner exception stack trace-- -
+                                                //at System.Net.Http.HttpClient.FinishSendAsyncBuffered(Task`1 sendTask, HttpRequestMessage request, CancellationTokenSource cts, Boolean disposeCts)
+                                                AssertInnerEncryptionException(ex, Type.GetType("System.Net.Http.CurlException, System.Net.Http", true), "An error occurred while sending the request.", "Couldn't connect to server");
+                                            }
+                                        }
+                                        break;
+                                    default: throw new Exception($"Unexpected OS: {currentOperatingSystem}");
+                                }
+
+                            }
+                            break;
+                        default: throw new Exception($"Unexpected kms provider: {kmsProvider}.");
+                    }
+                }
+            }
+        }  
+
         public void RewrapTest(
             [Values("local", "aws", "azure", "gcp", "kmip")] string srcProvider,
             [Values("local", "aws", "azure", "gcp", "kmip")] string dstProvider,
@@ -1843,19 +1937,35 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             Action<string, Dictionary<string, object>> kmsProviderConfigurator = null,
             Func<string, bool> allowClientCertificateFunc = null,
             Action<ClientEncryptionOptions> clientEncryptionOptionsConfigurator = null,
-            string kmsProviderFilter = null)
+            string kmsProviderFilter = null,
+            BsonDocument kmsDocument = null)
         {
-            var kmsProviders = EncryptionTestHelper
-                .GetKmsProviders(filter: kmsProviderFilter)
-                .Select(k =>
-                {
-                    if (kmsProviderConfigurator != null)
+            Dictionary<string, IReadOnlyDictionary<string, object>> kmsProviders;
+            if (kmsDocument == null)
+            {
+                kmsProviders = EncryptionTestHelper
+                    .GetKmsProviders(filter: kmsProviderFilter)
+                    .Select(k =>
                     {
-                        kmsProviderConfigurator(k.Key, (Dictionary<string, object>)k.Value);
-                    }
-                    return k;
-                })
-                .ToDictionary(k => k.Key, k => k.Value);
+                        if (kmsProviderConfigurator != null)
+                        {
+                            kmsProviderConfigurator(k.Key, (Dictionary<string, object>)k.Value);
+                        }
+                        return k;
+                    })
+                    .ToDictionary(k => k.Key, k => k.Value);
+            }
+            else
+            {
+                Ensure.IsNull(kmsProviderFilter, nameof(kmsProviderFilter));
+
+                kmsProviders = kmsDocument
+                    .Elements
+                    .ToDictionary(
+                        k => k.Name,
+                        k => (IReadOnlyDictionary<string, object>)k.Value.AsBsonDocument.ToDictionary(ki => ki.Name, ki => (object)ki.Value));
+            }
+
             allowClientCertificateFunc = allowClientCertificateFunc ?? ((kmsProviderName) => kmsProviderName == "kmip"); // configure Tls for kmip by default
             var tlsOptions = EncryptionTestHelper.CreateTlsOptionsIfAllowed(kmsProviders, allowClientCertificateFunc);
 
@@ -2214,7 +2324,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
         public class JsonFileReader : EmbeddedResourceJsonFileReader
         {
-            #region static
+#region static
             // private static fields
             private static readonly string[] __ignoreKeyNames =
             {
@@ -2224,7 +2334,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
             // public static properties
             public static JsonFileReader Instance => __instance.Value;
-            #endregion
+#endregion
 
             private readonly IReadOnlyDictionary<string, BsonDocument> _documents;
 

@@ -48,6 +48,18 @@ namespace MongoDB.Driver.Tests.Encryption
                 .Should().Be("kmsProviders");
         }
 
+        [Fact]
+        public void constructor_should_handle_empty_kmsProviderOptions_correctly()
+        {
+            var emptyAwsKmsProviders = new Dictionary<string, IReadOnlyDictionary<string, object>>()
+            {
+                { "aws", new Dictionary<string, object>() }
+            };
+            _ = new AutoEncryptionOptions(
+                keyVaultNamespace: __keyVaultNamespace,
+                kmsProviders: emptyAwsKmsProviders);
+        }
+
         [Theory]
         [InlineData("mongocryptdURI", "test", false)]
         [InlineData("mongocryptdURI", 1, true)]
