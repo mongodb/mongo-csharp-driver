@@ -16,11 +16,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Security;
-using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Core.Authentication.External;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 
@@ -31,73 +30,6 @@ namespace MongoDB.Driver.Core.Authentication
     /// </summary>
     public class MongoAWSAuthenticator : SaslAuthenticator
     {
-        internal static class ExternalAuthenticator
-        {
-            public static AwsCredentials CreateAwsCredentialsFromExternalSource(string subject = "MONGODB-AWS authentication") =>
-               CreateAwsCredentialsFromExternalSourceAsync(subject).GetAwaiter().GetResult();
-
-            public static async Task<AwsCredentials> CreateAwsCredentialsFromExternalSourceAsync(string subject = "MONGODB-AWS authentication") =>
-                CreateAwsCredentialsFromEnvironmentVariables(subject) ??
-                (await CreateAwsCredentialsFromEcsResponseAsync().ConfigureAwait(false)) ??
-                (await CreateAwsCredentialsFromEc2ResponseAsync().ConfigureAwait(false)) ??
-                throw new InvalidOperationException($"Unable to find credentials for {subject}.");
-
-            // private methods
-            private static AwsCredentials CreateAwsCredentialsFromEnvironmentVariables(string subject)
-            {
-                var accessKeyId = Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID");
-                var secretAccessKey = Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY");
-                var sessionToken = Environment.GetEnvironmentVariable("AWS_SESSION_TOKEN");
-
-                if (accessKeyId == null && secretAccessKey == null && sessionToken == null)
-                {
-                    return null;
-                }
-                if (secretAccessKey != null && accessKeyId == null)
-                {
-                    throw new InvalidOperationException($"When using {subject} if a secret access key is provided via environment variables then an access key ID must be provided also.");
-                }
-                if (accessKeyId != null && secretAccessKey == null)
-                {
-                    throw new InvalidOperationException($"When using {subject} if an access key ID is provided via environment variables then a secret access key must be provided also.");
-                }
-                if (sessionToken != null && (accessKeyId == null || secretAccessKey == null))
-                {
-                    throw new InvalidOperationException($"When using {subject} if a session token is provided via environment variables then an access key ID and a secret access key must be provided also.");
-                }
-
-                return new AwsCredentials(accessKeyId, SecureStringHelper.ToSecureString(secretAccessKey), sessionToken);
-            }
-
-            private static async Task<AwsCredentials> CreateAwsCredentialsFromEcsResponseAsync()
-            {
-                var relativeUri = Environment.GetEnvironmentVariable("AWS_CONTAINER_CREDENTIALS_RELATIVE_URI");
-                if (relativeUri == null)
-                {
-                    return null;
-                }
-
-                var response = await AwsHttpClientHelper.GetECSResponseAsync(relativeUri).ConfigureAwait(false);
-                return CreateAwsCreadentialsFromAwsResponse(response);
-            }
-
-            private static async Task<AwsCredentials> CreateAwsCredentialsFromEc2ResponseAsync()
-            {
-                var response = await AwsHttpClientHelper.GetEC2ResponseAsync().ConfigureAwait(false);
-                return CreateAwsCreadentialsFromAwsResponse(response);
-            }
-
-            private static AwsCredentials CreateAwsCreadentialsFromAwsResponse(string awsResponse)
-            {
-                var parsedResponse = BsonDocument.Parse(awsResponse);
-                var accessKeyId = parsedResponse.GetValue("AccessKeyId", null)?.AsString;
-                var secretAccessKey = parsedResponse.GetValue("SecretAccessKey", null)?.AsString;
-                var sessionToken = parsedResponse.GetValue("Token", null)?.AsString;
-
-                return new AwsCredentials(accessKeyId, SecureStringHelper.ToSecureString(secretAccessKey), sessionToken);
-            }
-        }
-
         // constants
         private const int ClientNonceLength = 32;
 
@@ -138,7 +70,7 @@ namespace MongoDB.Driver.Core.Authentication
         {
             var awsCredentials =
                 CreateAwsCredentialsFromMongoCredentials(username, password, properties) ??
-                ExternalAuthenticator.CreateAwsCredentialsFromExternalSource();
+                ExternalCredentialsAuthenticators.Instance.Aws.CreateCredentialsFromExternalSource();
 
             return new MongoAWSMechanism(awsCredentials, randomByteGenerator, clock);
         }
@@ -277,122 +209,6 @@ namespace MongoDB.Driver.Core.Authentication
         }
 
         // nested classes
-        internal class AwsCredentials
-        {
-            private readonly string _accessKeyId;
-            private readonly SecureString _secretAccessKey;
-            private readonly string _sessionToken;
-
-            public AwsCredentials(string accessKeyId, SecureString secretAccessKey, string sessionToken)
-            {
-                _accessKeyId = Ensure.IsNotNull(accessKeyId, nameof(accessKeyId));
-                _secretAccessKey = Ensure.IsNotNull(secretAccessKey, nameof(secretAccessKey));
-                _sessionToken = sessionToken; // can be null
-            }
-
-            public string AccessKeyId => _accessKeyId;
-            public SecureString SecretAccessKey => _secretAccessKey;
-            public string SessionToken => _sessionToken;
-
-            public BsonDocument ConvertToKmsCredentials() =>
-                new BsonDocument
-                {
-                    { "accessKeyId", _accessKeyId },
-                    { "secretAccessKey", SecureStringHelper.ToInsecureString(_secretAccessKey) },
-                    { "sessionToken", _sessionToken, _sessionToken != null }
-                };
-        }
-
-        private static class AwsHttpClientHelper
-        {
-            // private static
-            private static readonly Uri __ec2BaseUri = new Uri("http://169.254.169.254");
-            private static readonly Uri __ecsBaseUri = new Uri("http://169.254.170.2");
-            private static readonly Lazy<HttpClient> __httpClientInstance = new Lazy<HttpClient>(() => new HttpClient
-            {
-                Timeout = TimeSpan.FromSeconds(10)
-            });
-
-            public static async Task<string> GetEC2ResponseAsync()
-            {
-                var tokenRequest = CreateTokenRequest(__ec2BaseUri);
-                var token = await GetHttpContentAsync(tokenRequest, "Failed to acquire EC2 token.").ConfigureAwait(false);
-
-                var roleRequest = CreateRoleRequest(__ec2BaseUri, token);
-                var roleName = await GetHttpContentAsync(roleRequest, "Failed to acquire EC2 role name.").ConfigureAwait(false);
-
-                var credentialsRequest = CreateCredentialsRequest(__ec2BaseUri, roleName, token);
-                var credentials = await GetHttpContentAsync(credentialsRequest, "Failed to acquire EC2 credentials.").ConfigureAwait(false);
-
-                return credentials;
-            }
-
-            public static async Task<string> GetECSResponseAsync(string relativeUri)
-            {
-                var credentialsRequest = new HttpRequestMessage
-                {
-                    RequestUri = new Uri(__ecsBaseUri, relativeUri),
-                    Method = HttpMethod.Get
-                };
-
-                return await GetHttpContentAsync(credentialsRequest, "Failed to acquire ECS credentials.").ConfigureAwait(false);
-            }
-
-            // private static methods
-            private static HttpRequestMessage CreateCredentialsRequest(Uri baseUri, string roleName, string token)
-            {
-                var credentialsUri = new Uri(baseUri, "latest/meta-data/iam/security-credentials/");
-                var credentialsRequest = new HttpRequestMessage
-                {
-                    RequestUri = new Uri(credentialsUri, roleName),
-                    Method = HttpMethod.Get
-                };
-                credentialsRequest.Headers.Add("X-aws-ec2-metadata-token", token);
-
-                return credentialsRequest;
-            }
-
-            private static HttpRequestMessage CreateRoleRequest(Uri baseUri, string token)
-            {
-                var roleRequest = new HttpRequestMessage
-                {
-                    RequestUri = new Uri(baseUri, "latest/meta-data/iam/security-credentials/"),
-                    Method = HttpMethod.Get
-                };
-                roleRequest.Headers.Add("X-aws-ec2-metadata-token", token);
-
-                return roleRequest;
-            }
-
-            private static HttpRequestMessage CreateTokenRequest(Uri baseUri)
-            {
-                var tokenRequest = new HttpRequestMessage
-                {
-                    RequestUri = new Uri(baseUri, "latest/api/token"),
-                    Method = HttpMethod.Put,
-                };
-                tokenRequest.Headers.Add("X-aws-ec2-metadata-token-ttl-seconds", "30");
-
-                return tokenRequest;
-            }
-
-            private static async Task<string> GetHttpContentAsync(HttpRequestMessage request, string exceptionMessage)
-            {
-                HttpResponseMessage response;
-                try
-                {
-                    response = await __httpClientInstance.Value.SendAsync(request).ConfigureAwait(false);
-                    response.EnsureSuccessStatusCode();
-                }
-                catch (Exception ex) when (ex is OperationCanceledException || ex is MongoClientException)
-                {
-                    throw new MongoClientException(exceptionMessage, ex);
-                }
-
-                return await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-            }
-        }
-
         private class MongoAWSMechanism : ISaslMechanism
         {
             private readonly AwsCredentials _awsCredentials;

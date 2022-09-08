@@ -15,6 +15,8 @@
 
 using System;
 using System.Diagnostics;
+using System.Net;
+using System.Net.Sockets;
 using Xunit;
 
 namespace MongoDB.Bson.TestHelpers.XunitExtensions
@@ -46,6 +48,31 @@ namespace MongoDB.Bson.TestHelpers.XunitExtensions
                 return this;
             }
             throw new SkipException($"Test skipped because an OS process {processName} has not been detected.");
+        }
+
+        public RequireEnvironment HostReachable(DnsEndPoint endPoint)
+        {
+            if (IsReachable())
+            {
+                return this;
+            }
+            throw new SkipException($"Test skipped because expected server {endPoint} is not reachable.");
+
+            bool IsReachable()
+            {
+                using (TcpClient tcpClient = new TcpClient())
+                {
+                    try
+                    {
+                        tcpClient.Connect(endPoint.Host, endPoint.Port);
+                        return true;
+                    }
+                    catch (Exception)
+                    {
+                        return false;
+                    }
+                }
+            }
         }
     }
 }

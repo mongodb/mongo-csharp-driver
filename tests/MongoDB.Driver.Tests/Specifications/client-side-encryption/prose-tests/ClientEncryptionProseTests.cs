@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Security;
 using System.Net.Sockets;
@@ -1530,35 +1531,30 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             }
         }
 
+        [Trait("Category", "CsfleGCPKMS")]
         [SkippableTheory]
         [ParameterAttributeData]
-        public void OnDemandCredentials(
-            [Values("aws")] string kmsProvider,
-            [Values(false, true)] bool envVariablesSet,
+        public void OnDemandCredentialsTest(
+            [Values("aws", "gcp")] string kmsProvider,
+            [Values(false, true)] bool expectedEnvironment,
             [Values(false, true)] bool async)
         {
-            if (kmsProvider == "aws")
-            {
-                RequireEnvironment.Check().EnvironmentVariable("AWS_ACCESS_KEY_ID", isDefined: envVariablesSet);
-                // mocked env doesn't configure aws_temp credentials with AWS_ACCESS_KEY_ID
-                RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: !envVariablesSet);
-            }
-
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
+
+            ValidateEnvironment();
 
             using (var client = ConfigureClient(clearCollections: true))
             using (var clientEncryption = ConfigureClientEncryption(client, kmsDocument: new BsonDocument(kmsProvider, new BsonDocument())))
             {
                 var datakeyOptions = CreateDataKeyOptions(kmsProvider);
                 var ex = Record.Exception(() => CreateDataKey(clientEncryption, kmsProvider, datakeyOptions, async));
-                if (envVariablesSet)
+                if (expectedEnvironment)
                 {
-                    // AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY must be configured
+                    // all expected env setup MUST be configured
                     ex.Should().BeNull();
                 }
                 else
                 {
-                    // AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY must not be configured
                     AssertException(ex);
                 }
 
@@ -1567,6 +1563,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                     var currentOperatingSystem = OperatingSystemHelper.CurrentOperatingSystem;
                     switch (kmsProvider)
                     {
+                        // AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY must not be configured
                         case "aws":
                             {
                                 switch (currentOperatingSystem)
@@ -1577,39 +1574,35 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                             try
                                             {
                                                 // unlike EG, local running fails on first aws EC2 step with acquiring a token
-                                                AssertInnerEncryptionException<SocketException>(
-                                                    ex,
-#if NET472
-                                                    "An error occurred while sending the request",
-                                                    "Unable to connect to the remote server",
-#endif
-                                                    "A socket operation was attempted to an unreachable network");
+                                                AssertInnerEncryptionException<HttpRequestException>(ex, "Failed to acquire EC2 token.");
                                             }
                                             catch (XunitException)
                                             {
                                                 // EG allows successful sending aws token request to the aws env, so error happens on get rolename step
-                                                AssertInnerEncryptionException<HttpRequestException>(ex, "Response status code does not indicate success: 404");
+                                                AssertInnerEncryptionException<HttpRequestException>(ex, "Failed to acquire EC2 role name.");
                                             }
                                         }
                                         break;
                                     case OperatingSystemPlatform.MacOS:
                                         {
+                                            // httpClient throws 2 different exceptions from the same code on macos
                                             try
                                             {
-                                                //---> MongoDB.Driver.MongoClientException: Failed to acquire EC2 token.
-                                                //--->System.Threading.Tasks.TaskCanceledException: A task was canceled.
-                                                //--->at System.Net.Http.HttpClient.FinishSendAsyncBuffered(Task`1 sendTask, HttpRequestMessage request, CancellationTokenSource cts, Boolean disposeCts)
+                                                // --->MongoDB.Driver.MongoClientException: Failed to acquire EC2 token.
+                                                // --->System.Threading.Tasks.TaskCanceledException: A task was canceled.
+                                                // at System.Net.Http.HttpClient.FinishSendAsyncBuffered(Task`1 sendTask, HttpRequestMessage request, CancellationTokenSource cts, Boolean disposeCts)
                                                 AssertInnerEncryptionException<TaskCanceledException>(ex, "Failed to acquire EC2 token.");
                                             }
                                             catch (XunitException)
                                             {
+                                                //--->MongoDB.Driver.MongoClientException: Failed to acquire EC2 token.
                                                 //--->System.Net.Http.HttpRequestException: An error occurred while sending the request.
                                                 //--->System.Net.Http.CurlException: Couldn't connect to server
                                                 //at System.Net.Http.CurlHandler.ThrowIfCURLEError(CURLcode error)
                                                 //at System.Net.Http.CurlHandler.MultiAgent.FinishRequest(StrongToWeakReference`1 easyWrapper, CURLcode messageResult)
                                                 //-- - End of inner exception stack trace-- -
                                                 //at System.Net.Http.HttpClient.FinishSendAsyncBuffered(Task`1 sendTask, HttpRequestMessage request, CancellationTokenSource cts, Boolean disposeCts)
-                                                AssertInnerEncryptionException(ex, Type.GetType("System.Net.Http.CurlException, System.Net.Http", true), "An error occurred while sending the request.", "Couldn't connect to server");
+                                                AssertInnerEncryptionException<HttpRequestException>(ex, "Failed to acquire EC2 token.");
                                             }
                                         }
                                         break;
@@ -1618,8 +1611,61 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
                             }
                             break;
+                        case "gcp":
+                            AssertInnerEncryptionException<HttpRequestException>(ex, "Failed to acquire gce metadata credentials.");
+                            break;
                         default: throw new Exception($"Unexpected kms provider: {kmsProvider}.");
                     }
+                }
+            }
+
+            void ValidateEnvironment()
+            {
+                var requireEnvironmentCheck = RequireEnvironment.Check();
+                switch (kmsProvider)
+                {
+                    case "aws":
+                        requireEnvironmentCheck.EnvironmentVariable("AWS_ACCESS_KEY_ID", isDefined: expectedEnvironment);
+                        // mocked env doesn't configure aws_temp credentials with AWS_ACCESS_KEY_ID
+                        requireEnvironmentCheck.EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: !expectedEnvironment);
+                        break;
+                    case "gcp":                        
+                        if (Environment.GetEnvironmentVariable("CSFLE_GCP_KMS_TESTS_ENABLED") != null)
+                        {
+                            // gcp env
+                            if (!expectedEnvironment)
+                            {
+                                throw new SkipException("Test skipped, because current env should not be GCP.");
+                            }
+                        }
+                        else
+                        {
+                            // mocked env
+                            // gcp mocked server fails on non windows env
+                            RequirePlatform
+                                .Check()
+                                .SkipWhen(SupportedOperatingSystem.Linux)
+                                .SkipWhen(SupportedOperatingSystem.MacOS);
+
+                            if (expectedEnvironment)
+                            {
+                                requireEnvironmentCheck
+                                    .EnvironmentVariable("CSFLE_GCP_KMS_TESTS_ENABLED", isDefined: false)
+                                    // mocked env
+                                    .EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true)
+                                    .EnvironmentVariable("GCE_METADATA_HOST", isDefined: expectedEnvironment)
+                                    // required mock server
+                                    .HostReachable((DnsEndPoint)EndPointHelper.Parse(Environment.GetEnvironmentVariable("GCE_METADATA_HOST")));
+                            }
+                            else
+                            {
+                                requireEnvironmentCheck
+                                    .EnvironmentVariable("CSFLE_GCP_KMS_TESTS_ENABLED", isDefined: false)
+                                    .EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: false);
+                            }
+                        }
+                        break;
+                    default: throw new Exception($"Unexpected kms provider: {kmsProvider}.");
                 }
             }
         }  

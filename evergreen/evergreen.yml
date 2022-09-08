@@ -330,6 +330,7 @@ functions:
           set +x
           ${PREPARE_CSFLE}
           export KMS_MOCK_SERVERS_ENABLED=true
+          export GCE_METADATA_HOST="localhost:5000"
           ${PREPARE_SHELL}
           set +o xtrace
           OS=${OS} \
@@ -741,7 +742,7 @@ functions:
           cd ${DRIVERS_TOOLS}/.evergreen/csfle
           $PYTHON -u kms_http_server.py -v --ca_file ../x509gen/ca.pem --cert_file ../x509gen/server.pem --port 8002 --require_client_cert
 
-  start-kms-kmip-server:
+  start-kms-mock-kmip-server:
     - command: shell.exec
       params:
         script: |
@@ -755,6 +756,25 @@ functions:
           PYTHON=$(Venv="${DRIVERS_TOOLS}/.evergreen/csfle/kmstlsvenv" OS=${OS} ${PROJECT_DIRECTORY}/evergreen/get-python-path.sh);
           cd ${DRIVERS_TOOLS}/.evergreen/csfle
           $PYTHON -u kms_kmip_server.py
+
+  start-kms-mock-gcp-server:
+    - command: shell.exec
+      params:
+        script: |
+          ${PREPARE_SHELL}
+          cd ${DRIVERS_TOOLS}/.evergreen/csfle
+          . ./activate_venv.sh
+    - command: shell.exec
+      params:
+        background: true
+        script: |
+          PYTHON=$(Venv="${DRIVERS_TOOLS}/.evergreen/csfle/kmstlsvenv" OS=${OS} ${PROJECT_DIRECTORY}/evergreen/get-python-path.sh);
+          cd ${DRIVERS_TOOLS}/.evergreen/csfle/gcpkms
+          $PYTHON -m pip install PyJWT
+          mkdir ${DRIVERS_TOOLS}/tmp
+          echo '${GOOGLE_APPLICATION_CREDENTIALS_CONTENT}' > ${DRIVERS_TOOLS}/tmp/testgcpkms_key_file.json
+          export GOOGLE_APPLICATION_CREDENTIALS=${DRIVERS_TOOLS}/tmp/testgcpkms_key_file.json
+          $PYTHON -u mock_server.py
 
   cleanup:
     - command: shell.exec
@@ -874,7 +894,8 @@ tasks:
     - name: test-csfle-with-mocked-kms-tls-net472
       commands:
         - func: start-kms-mock-servers
-        - func: start-kms-kmip-server
+        - func: start-kms-mock-kmip-server
+        - func: start-kms-mock-gcp-server
         - func: bootstrap-mongo-orchestration
         - func: run-csfle-with-mocked-kms-tests
           vars:
@@ -883,7 +904,8 @@ tasks:
     - name: test-csfle-with-mocked-kms-tls-netstandard20
       commands:
         - func: start-kms-mock-servers
-        - func: start-kms-kmip-server
+        - func: start-kms-mock-kmip-server
+        - func: start-kms-mock-gcp-server
         - func: bootstrap-mongo-orchestration
         - func: run-csfle-with-mocked-kms-tests
           vars:
@@ -892,7 +914,8 @@ tasks:
     - name: test-csfle-with-mocked-kms-tls-netstandard21
       commands:
         - func: start-kms-mock-servers
-        - func: start-kms-kmip-server
+        - func: start-kms-mock-kmip-server
+        - func: start-kms-mock-gcp-server
         - func: bootstrap-mongo-orchestration
         - func: run-csfle-with-mocked-kms-tests
           vars:
@@ -1350,6 +1373,40 @@ tasks:
     #         OCSP_ALGORITHM: "ecdsa"
     #         OCSP_TLS_SHOULD_SUCCEED: "false"
 
+    - name: test-csfle-with-gcp-kms
+      commands:
+        - command: shell.exec
+          type: setup
+          params:
+            working_dir: mongo-csharp-driver
+            shell: "bash"
+            script: |
+              ${PREPARE_SHELL}
+              echo "Copying files ... begin"
+              export GCPKMS_GCLOUD=${GCPKMS_GCLOUD}
+              export GCPKMS_PROJECT=${GCPKMS_PROJECT}
+              export GCPKMS_ZONE=${GCPKMS_ZONE}
+              export GCPKMS_INSTANCENAME=${GCPKMS_INSTANCENAME}
+              tar czf /tmp/mongo-csharp-driver.tgz .
+              GCPKMS_SRC=/tmp/mongo-csharp-driver.tgz GCPKMS_DST=$GCPKMS_INSTANCENAME: $DRIVERS_TOOLS/.evergreen/csfle/gcpkms/copy-file.sh
+              echo "Copying files ... end"
+              echo "Untarring file ... begin"
+              GCPKMS_CMD="tar xf mongo-csharp-driver.tgz" $DRIVERS_TOOLS/.evergreen/csfle/gcpkms/run-command.sh
+              echo "Untarring file ... end"
+
+        - command: shell.exec
+          type: test
+          params:
+            working_dir: "mongo-csharp-driver"
+            shell: "bash"
+            script: |
+              ${PREPARE_SHELL}
+              export GCPKMS_GCLOUD=${GCPKMS_GCLOUD}
+              export GCPKMS_PROJECT=${GCPKMS_PROJECT}
+              export GCPKMS_ZONE=${GCPKMS_ZONE}
+              export GCPKMS_INSTANCENAME=${GCPKMS_INSTANCENAME}
+              GCPKMS_CMD="MONGODB_URI='mongodb://localhost:27017' ./evergreen/run-csfle-gcp-tests.sh" $DRIVERS_TOOLS/.evergreen/csfle/gcpkms/run-command.sh
+
 axes:
   - id: version
     display_name: MongoDB Version
@@ -1466,6 +1523,46 @@ axes:
         display_name: Zstandard
         variables:
            COMPRESSOR: "zstd"
+
+task_groups:
+  - name: testgcpkms-task-group
+    setup_group_can_fail_task: true
+    setup_group_timeout_secs: 1800 # 30 minutes
+    setup_group:
+      - func: fetch-source
+      - func: prepare-resources
+      - func: windows-fix
+      - func: fix-absolute-paths
+      - func: init-test-results
+      - func: make-files-executable
+      - command: shell.exec
+        params:
+          shell: "bash"
+          script: |
+            ${PREPARE_SHELL}
+            echo '${GOOGLE_APPLICATION_CREDENTIALS_CONTENT}' > /tmp/testgcpkms_key_file.json
+            export GCPKMS_KEYFILE=/tmp/testgcpkms_key_file.json
+            export GCPKMS_DRIVERS_TOOLS=$DRIVERS_TOOLS
+            export GCPKMS_SERVICEACCOUNT="${GCPKMS_SERVICEACCOUNT}"
+            export GCPKMS_MACHINETYPE="e2-standard-4"
+            $DRIVERS_TOOLS/.evergreen/csfle/gcpkms/create-and-setup-instance.sh
+      # Load the GCPKMS_GCLOUD, GCPKMS_INSTANCE, GCPKMS_REGION, and GCPKMS_ZONE expansions.
+      - command: expansions.update
+        params:
+          file: testgcpkms-expansions.yml
+    teardown_group:
+      - command: shell.exec
+        params:
+          shell: "bash"
+          script: |
+            ${PREPARE_SHELL}
+            export GCPKMS_GCLOUD=${GCPKMS_GCLOUD}
+            export GCPKMS_PROJECT=${GCPKMS_PROJECT}
+            export GCPKMS_ZONE=${GCPKMS_ZONE}
+            export GCPKMS_INSTANCENAME=${GCPKMS_INSTANCENAME}
+            $DRIVERS_TOOLS/.evergreen/csfle/gcpkms/delete-instance.sh
+    tasks:
+      - test-csfle-with-gcp-kms
 
 buildvariants:
 
@@ -1716,3 +1813,9 @@ buildvariants:
   tasks:
     - name: test-csfle-with-mongocryptd-netstandard21
 
+- matrix_name: "csfle-with-gcp-kms-tests-linux"
+  matrix_spec: { ssl: "nossl", os: "ubuntu-1804" }
+  display_name: "CSFLE with GCP KMS ${os}"
+  batchtime: 20160 # 14 days
+  tasks:
+    - name: testgcpkms-task-group

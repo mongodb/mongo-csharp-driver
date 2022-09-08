@@ -460,6 +460,29 @@ Task("TestCsfleWithMongocryptdNetStandard20").IsDependentOn("TestCsfleWithMongoc
 Task("TestCsfleWithMongocryptdNetStandard21").IsDependentOn("TestCsfleWithMongocryptd");
 Task("TestCsfleWithMongocryptdNet60").IsDependentOn("TestCsfleWithMongocryptd");
 
+Task("TestCsfleWithGcpKms")
+    .IsDependentOn("Build")
+    .DoesForEach(
+        items: GetFiles("./**/*.Tests.csproj"),
+        action: (BuildConfig buildConfig, Path testProject) =>
+    {
+        var settings = new DotNetTestSettings
+        {
+            NoBuild = true,
+            NoRestore = true,
+            Configuration = configuration,
+            Loggers = CreateLoggers(),
+            ArgumentCustomization = args => args.Append($"-- RunConfiguration.TargetPlatform={buildConfig.TargetPlatform}"),
+            Filter = "Category=\"CsfleGCPKMS\"",
+            Framework = buildConfig.Framework
+        };
+
+        DotNetTest(
+            testProject.FullPath,
+            settings
+        );
+    });
+
 Task("Docs")
     .IsDependentOn("ApiDocs")
     .IsDependentOn("RefDocs");

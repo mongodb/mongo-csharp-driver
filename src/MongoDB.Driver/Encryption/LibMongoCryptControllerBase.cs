@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text.RegularExpressions;
@@ -24,6 +25,7 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Authentication;
+using MongoDB.Driver.Core.Authentication.External;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
@@ -103,7 +105,7 @@ namespace MongoDB.Driver.Encryption
                     ProcessNeedMongoKeysState(context, cancellationToken);
                     break;
                 case CryptContext.StateCode.MONGOCRYPT_CTX_NEED_KMS_CREDENTIALS:
-                    ProcessNeedKmsCredentials(context);
+                    ProcessNeedKmsCredentials(context, cancellationToken);
                     break;
                 default:
                     throw new InvalidOperationException($"Unexpected context state: {context.State}.");
@@ -121,7 +123,7 @@ namespace MongoDB.Driver.Encryption
                     await ProcessNeedMongoKeysStateAsync(context, cancellationToken).ConfigureAwait(false);
                     break;
                 case CryptContext.StateCode.MONGOCRYPT_CTX_NEED_KMS_CREDENTIALS:
-                    await ProcessNeedKmsCredentialsAsync(context).ConfigureAwait(false);
+                    await ProcessNeedKmsCredentialsAsync(context, cancellationToken).ConfigureAwait(false);
                     break;
                 default:
                     throw new InvalidOperationException($"Unexpected context state: {context.State}.");
@@ -257,28 +259,25 @@ namespace MongoDB.Driver.Encryption
             FeedResults(context, results);
         }
 
-        private void ProcessNeedKmsCredentials(CryptContext context) =>
+        private void ProcessNeedKmsCredentials(CryptContext context, CancellationToken cancellationToken) =>
             // inner machinery in the below method doesn't support sync approach
-            ProcessNeedKmsCredentialsAsync(context).GetAwaiter().GetResult();
+            ProcessNeedKmsCredentialsAsync(context, cancellationToken).GetAwaiter().GetResult();
 
-        private async Task ProcessNeedKmsCredentialsAsync(CryptContext context)
+        private async Task ProcessNeedKmsCredentialsAsync(CryptContext context, CancellationToken cancellationToken)
         {
             var newCredentialsList = new List<BsonElement>();
-            foreach (var kmsProvider in _kmsProviders)
+            foreach (var kmsProvider in _kmsProviders.Where(k => k.Value.Count == 0))
             {
-                BsonElement? newCredentials = kmsProvider.Key switch
+                IExternalCredentials credentialsBody = kmsProvider.Key switch
                 {
-                    "aws" when kmsProvider.Value.Count == 0 =>
-                        new BsonElement(
-                            kmsProvider.Key,
-                            (await MongoAWSAuthenticator.ExternalAuthenticator.CreateAwsCredentialsFromExternalSourceAsync(subject: "AWS kms provider").ConfigureAwait(false))
-                                .ConvertToKmsCredentials()),
+                    "aws"  => await ExternalCredentialsAuthenticators.Instance.Aws.CreateCredentialsFromExternalSourceAsync(cancellationToken).ConfigureAwait(false),
+                    "gcp" => await ExternalCredentialsAuthenticators.Instance.Gcp.CreateCredentialsFromExternalSourceAsync(cancellationToken).ConfigureAwait(false),
                     _ => null,
                 };
 
-                if (newCredentials.HasValue)
+                if (credentialsBody != null)
                 {
-                    newCredentialsList.Add(newCredentials.Value);
+                    newCredentialsList.Add(new BsonElement(kmsProvider.Key, credentialsBody.GetKmsCredentials()));
                 }
             }
 
