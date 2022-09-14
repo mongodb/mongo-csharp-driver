@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Core.Events
     /// <summary>
     /// Occurs when a message could not be sent.
     /// </summary>
-    public struct ConnectionSendingMessagesFailedEvent
+    public struct ConnectionSendingMessagesFailedEvent : IEvent
     {
         private readonly ConnectionId _connectionId;
         private readonly Exception _exception;
@@ -103,5 +103,8 @@ namespace MongoDB.Driver.Core.Events
         {
             get { return _timestamp; }
         }
+
+        // explicit interface implementations
+        EventType IEvent.Type => EventType.ConnectionSendingMessagesFailed;
     }
 }

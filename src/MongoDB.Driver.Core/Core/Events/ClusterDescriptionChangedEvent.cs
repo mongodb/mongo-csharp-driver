@@ -21,7 +21,7 @@ namespace MongoDB.Driver.Core.Events
     /// <summary>
     /// Occurs when a cluster has changed.
     /// </summary>
-    public struct ClusterDescriptionChangedEvent
+    public struct ClusterDescriptionChangedEvent : IEvent
     {
         private readonly ClusterDescription _oldDescription;
         private readonly ClusterDescription _newDescription;
@@ -70,5 +70,8 @@ namespace MongoDB.Driver.Core.Events
         {
             get { return _timestamp; }
         }
+
+        // explicit interface implementations
+        EventType IEvent.Type => EventType.ClusterDescriptionChanged;
     }
 }

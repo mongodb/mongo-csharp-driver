@@ -20,9 +20,9 @@ using MongoDB.Driver.Core.Servers;
 namespace MongoDB.Driver.Core.Events
 {
     /// <summary>
-    /// Occurs before a connection is checking out of the pool.
+    /// Occurs before a connection is checked out of the pool.
     /// </summary>
-    public struct ConnectionPoolCheckingOutConnectionEvent
+    public struct ConnectionPoolCheckingOutConnectionEvent : IEvent
     {
         private readonly long? _operationId;
         private readonly ServerId _serverId;
@@ -71,5 +71,8 @@ namespace MongoDB.Driver.Core.Events
         {
             get { return _timestamp; }
         }
+
+        // explicit interface implementations
+        EventType IEvent.Type => EventType.ConnectionPoolCheckingOutConnection;
     }
 }

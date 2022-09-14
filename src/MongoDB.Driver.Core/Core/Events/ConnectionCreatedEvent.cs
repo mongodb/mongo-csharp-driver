@@ -22,9 +22,9 @@ using MongoDB.Driver.Core.Servers;
 namespace MongoDB.Driver.Core.Events
 {
     /// <summary>
-    /// Occurs when a connection is created..
+    /// Occurs when a connection is created.
     /// </summary>
-    public struct ConnectionCreatedEvent
+    public struct ConnectionCreatedEvent : IEvent
     {
         private readonly ConnectionId _connectionId;
         private readonly ConnectionSettings _connectionSettings;
@@ -92,5 +92,8 @@ namespace MongoDB.Driver.Core.Events
         {
             get { return _timestamp; }
         }
+
+        // explicit interface implementations
+        EventType IEvent.Type => EventType.ConnectionCreated;
     }
 }

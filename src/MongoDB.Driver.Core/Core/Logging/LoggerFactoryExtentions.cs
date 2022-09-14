@@ -14,10 +14,7 @@
 */
 
 using Microsoft.Extensions.Logging;
-using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
-using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Logging
 {
@@ -31,20 +28,8 @@ namespace MongoDB.Driver.Core.Logging
                 _ => null
             };
 
-        public static EventsLogger<T> CreateEventsLogger<T>(this ILoggerFactory loggerFactory, IEventSubscriber eventSubscriber, string id)
+        public static EventsLogger<T> CreateEventsLogger<T>(this ILoggerFactory loggerFactory, IEventSubscriber eventSubscriber)
             where T : LogCategories.EventCategory =>
-            new EventsLogger<T>(eventSubscriber, loggerFactory?.CreateLogger<T>(), id);
-
-        public static EventsLogger<T> CreateEventsLogger<T>(this ILoggerFactory loggerFactory, IEventSubscriber eventSubscriber, ConnectionId id)
-            where T : LogCategories.EventCategory =>
-            CreateEventsLogger<T>(loggerFactory, eventSubscriber, LoggerIdFormatter.FormatId(id));
-
-        public static EventsLogger<T> CreateEventsLogger<T>(this ILoggerFactory loggerFactory, IEventSubscriber eventSubscriber, ClusterId id)
-            where T : LogCategories.EventCategory =>
-            CreateEventsLogger<T>(loggerFactory, eventSubscriber, LoggerIdFormatter.FormatId(id));
-
-        public static EventsLogger<T> CreateEventsLogger<T>(this ILoggerFactory loggerFactory, IEventSubscriber eventSubscriber, ServerId id)
-            where T : LogCategories.EventCategory =>
-            CreateEventsLogger<T>(loggerFactory, eventSubscriber, LoggerIdFormatter.FormatId(id));
+            new EventsLogger<T>(eventSubscriber, loggerFactory?.CreateLogger<T>());
     }
 }

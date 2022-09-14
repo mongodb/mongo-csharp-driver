@@ -213,6 +213,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
             params (ServerId ServerId, EndPoint Endpoint, bool IsHealthy)[] serverInfoCollection)
         {
             var mockConnectionFactory = new Mock<IConnectionFactory>();
+            mockConnectionFactory.Setup(f => f.ConnectionSettings).Returns(() => new ConnectionSettings());
 
             foreach (var serverInfo in serverInfoCollection)
             {

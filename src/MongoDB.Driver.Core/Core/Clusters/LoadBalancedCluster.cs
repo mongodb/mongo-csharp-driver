@@ -109,7 +109,7 @@ namespace MongoDB.Driver.Core.Clusters
 #pragma warning restore CS0618 // Type or member is obsolete
                 null);
 
-            _eventsLogger = loggerFactory.CreateEventsLogger<LogCategories.Cluster>(eventSubscriber, _clusterId);
+            _eventsLogger = loggerFactory.CreateEventsLogger<LogCategories.Cluster>(eventSubscriber);
         }
 
         public ClusterId ClusterId => _clusterId;

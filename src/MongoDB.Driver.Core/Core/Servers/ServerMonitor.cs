@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Core.Servers
         private HeartbeatDelay _heartbeatDelay;
         private readonly object _lock = new object();
         private readonly EventsLogger<LogCategories.SDAM> _eventsLoggerSdam;
-        private readonly LoggerDecorator<IServerMonitor> _logger;
+        private readonly ILogger<IServerMonitor> _logger;
         private readonly CancellationToken _monitorCancellationToken; // used to cancel the entire monitor
         private readonly CancellationTokenSource _monitorCancellationTokenSource; // used to cancel the entire monitor
         private readonly IRoundTripTimeMonitor _roundTripTimeMonitor;
@@ -103,8 +103,8 @@ namespace MongoDB.Driver.Core.Servers
             _monitorCancellationToken = _monitorCancellationTokenSource.Token;
             _heartbeatCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(_monitorCancellationToken);
 
-            _logger = (loggerFactory?.CreateLogger<IServerMonitor>()).Decorate(_serverId);
-            _eventsLoggerSdam = loggerFactory.CreateEventsLogger<LogCategories.SDAM>(eventSubscriber, _serverId);
+            _logger = loggerFactory?.CreateLogger<IServerMonitor>();
+            _eventsLoggerSdam = loggerFactory.CreateEventsLogger<LogCategories.SDAM>(eventSubscriber);
         }
 
         public ServerDescription Description => Interlocked.CompareExchange(ref _currentDescription, null, null);
@@ -135,7 +135,7 @@ namespace MongoDB.Driver.Core.Servers
         {
             if (_state.TryChange(State.Disposed))
             {
-                _logger.LogDebug("Disposing");
+                _logger?.LogDebug(_serverId, "Disposing");
 
                 _monitorCancellationTokenSource.Cancel();
                 _monitorCancellationTokenSource.Dispose();
@@ -145,7 +145,7 @@ namespace MongoDB.Driver.Core.Servers
                 }
                 _roundTripTimeMonitor.Dispose();
 
-                _logger.LogDebug("Disposed");
+                _logger?.LogDebug(_serverId, "Disposed");
             }
         }
 
@@ -153,13 +153,13 @@ namespace MongoDB.Driver.Core.Servers
         {
             if (_state.TryChange(State.Initial, State.Open))
             {
-                _logger.LogDebug("Initializing");
+                _logger?.LogDebug(_serverId, "Initializing");
 
                 _roundTripTimeMonitor.Start();
                 _serverMonitorThread = new Thread(new ParameterizedThreadStart(ThreadStart)) { IsBackground = true };
                 _serverMonitorThread.Start(_monitorCancellationToken);
 
-                _logger.LogDebug("Initialized");
+                _logger?.LogDebug(_serverId, "Initialized");
             }
 
             void ThreadStart(object monitorCancellationToken)

@@ -22,7 +22,7 @@ namespace MongoDB.Driver.Core.Events
     /// <summary>
     /// Occurs before a server is removed from the cluster.
     /// </summary>
-    public struct ClusterRemovingServerEvent
+    public struct ClusterRemovingServerEvent : IEvent
     {
         private readonly string _reason;
         private readonly ServerId _serverId;
@@ -71,5 +71,8 @@ namespace MongoDB.Driver.Core.Events
         {
             get { return _timestamp; }
         }
+
+        // explicit interface implementations
+        EventType IEvent.Type => EventType.ClusterRemovingServer;
     }
 }

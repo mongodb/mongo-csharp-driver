@@ -26,7 +26,7 @@ using Xunit.Sdk;
 namespace MongoDB.Driver.Core.TestHelpers.Logging
 {
     [DebuggerStepThrough]
-    public abstract class LoggableTestClass : IDisposable
+    public abstract class LoggableTestClass : IDisposable, ILoggingService
     {
         public LoggableTestClass(ITestOutputHelper output, bool includeAllCategories = false)
         {
@@ -48,9 +48,9 @@ namespace MongoDB.Driver.Core.TestHelpers.Logging
         private XUnitOutputAccumulator Accumulator { get; }
 
         protected ILogger<LoggableTestClass> Logger { get; }
-        protected ILoggerFactory LoggerFactory { get; }
         protected LogLevel MinLogLevel { get; set; }
 
+        public ILoggerFactory LoggerFactory { get; }
         public LogEntry[] Logs => Accumulator.Logs;
 
         protected ILogger<TCategory> CreateLogger<TCategory>() => LoggerFactory.CreateLogger<TCategory>();

@@ -23,7 +23,7 @@ namespace MongoDB.Driver.Core.Events
     /// <summary>
     /// Occurs after a message is received.
     /// </summary>
-    public struct ConnectionReceivedMessageEvent
+    public struct ConnectionReceivedMessageEvent : IEvent
     {
         private readonly ConnectionId _connectionId;
         private readonly TimeSpan _deserializationDuration;
@@ -132,5 +132,8 @@ namespace MongoDB.Driver.Core.Events
         {
             get { return _timestamp; }
         }
+
+        // explicit interface implementations
+        EventType IEvent.Type => EventType.ConnectionReceivedMessage;
     }
 }

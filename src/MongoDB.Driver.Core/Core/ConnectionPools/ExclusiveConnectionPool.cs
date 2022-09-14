@@ -65,7 +65,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             _connectionExceptionHandler = Ensure.IsNotNull(connectionExceptionHandler, nameof(connectionExceptionHandler));
             Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
 
-            _eventsLogger = logger.ToEventsLogger(eventSubscriber, serverId);
+            _eventsLogger = logger.ToEventsLogger(eventSubscriber);
 
             _maintenanceHelper = new MaintenanceHelper(this, _settings.MaintenanceInterval);
             _poolState = new PoolState(EndPointHelper.ToString(_endPoint));
@@ -210,8 +210,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
             {
                 if (_poolState.TransitionState(State.Paused))
                 {
-                    _eventsLogger.LogAndPublish(new ConnectionPoolOpeningEvent(_serverId, _settings));
-                    _eventsLogger.LogAndPublish(new ConnectionPoolOpenedEvent(_serverId, _settings));
+                    _eventsLogger.LogAndPublish(new ConnectionPoolOpeningEvent(_serverId, _settings), _connectionFactory.ConnectionSettings);
+                    _eventsLogger.LogAndPublish(new ConnectionPoolOpenedEvent(_serverId, _settings), _connectionFactory.ConnectionSettings);
                 }
             }
         }

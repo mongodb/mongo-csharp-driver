@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Tests.Specifications.unified_test_format
                 RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED");
             }
 
-            using (var runner = new UnifiedTestRunner(loggerFactory: LoggerFactory))
+            using (var runner = new UnifiedTestRunner(loggingService: this))
             {
                 var exception = Record.Exception(() => runner.Run(testCase));
                 exception.Should().NotBeNull();

@@ -57,6 +57,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
             _endPoint = new DnsEndPoint("localhost", 27017);
             _capturedEvents = new EventCapturer();
             _serverId = new ServerId(new ClusterId(), _endPoint);
+
+            _mockConnectionFactory.Setup(f => f.ConnectionSettings).Returns(() => new ConnectionSettings());
             _mockConnectionFactory
                 .Setup(c => c.CreateConnection(It.IsAny<ServerId>(), It.IsAny<EndPoint>()))
                 .Returns(() =>
@@ -131,6 +133,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             var syncRoot = new object();
 
             var mockConnectionFactory = new Mock<IConnectionFactory> { DefaultValue = DefaultValue.Mock };
+            mockConnectionFactory.Setup(f => f.ConnectionSettings).Returns(() => new ConnectionSettings());
             mockConnectionFactory
                 .Setup(f => f.CreateConnection(_serverId, _endPoint))
                 .Returns(() =>
@@ -311,10 +314,14 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 .Callback(() => subject.AvailableCount.Should().Be(maxConnections - 1));
 
             var mockConnectionFactory = new Mock<IConnectionFactory> { DefaultValue = DefaultValue.Mock };
+            mockConnectionFactory.Setup(f => f.ConnectionSettings).Returns(() => new ConnectionSettings());
             mockConnectionFactory
                 .Setup(c => c.CreateConnection(It.IsAny<ServerId>(), It.IsAny<EndPoint>()))
                 .Returns(() =>
                 {
+                    connectionMock
+                         .Setup(c => c.ConnectionId)
+                         .Returns(connectionId);
                     connectionMock
                          .Setup(c => c.Settings)
                          .Returns(new ConnectionSettings());
@@ -363,9 +370,17 @@ namespace MongoDB.Driver.Core.ConnectionPools
         {
             var subjectSettings = new ConnectionPoolSettings(minConnections: 0, maintenanceInterval: TimeSpan.FromDays(1));
 
-            var mockConnectionFactory = Mock.Of<IConnectionFactory>(c => c.CreateConnection(_serverId, _endPoint) == Mock.Of<IConnection>());
+            var connectionMock = new Mock<IConnection>();
+            var connectionId = new ConnectionId(new ServerId(new ClusterId(), new DnsEndPoint("localhost", 1234)));
+            connectionMock.SetupGet(c => c.ConnectionId).Returns(connectionId);
 
-            var subject = CreateSubject(subjectSettings, connectionFactory: mockConnectionFactory);
+            var mockConnectionFactory = new Mock<IConnectionFactory> { DefaultValue = DefaultValue.Mock };
+            mockConnectionFactory.Setup(f => f.ConnectionSettings).Returns(() => new ConnectionSettings());
+            mockConnectionFactory
+                .Setup(c => c.CreateConnection(It.IsAny<ServerId>(), It.IsAny<EndPoint>()))
+                .Returns(() => connectionMock.Object);
+
+            var subject = CreateSubject(subjectSettings, connectionFactory: mockConnectionFactory.Object);
 
             InitializeAndWait(subject, subjectSettings);
             _capturedEvents.Clear();
@@ -612,6 +627,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             var establishingCount = new CountdownEvent(maxConnecting + initalAcquiredCount);
 
             var mockConnectionFactory = new Mock<IConnectionFactory>();
+            mockConnectionFactory.Setup(f => f.ConnectionSettings).Returns(() => new ConnectionSettings());
             mockConnectionFactory
                 .Setup(c => c.CreateConnection(It.IsAny<ServerId>(), It.IsAny<EndPoint>()))
                 .Returns(() =>
@@ -786,6 +802,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             _capturedEvents.Clear();
             var mockConnectionFactory = new Mock<IConnectionFactory>();
+            mockConnectionFactory.Setup(f => f.ConnectionSettings).Returns(() => new ConnectionSettings());
             mockConnectionFactory
                 .Setup(c => c.CreateConnection(It.IsAny<ServerId>(), It.IsAny<EndPoint>()))
                 .Returns(() =>
@@ -926,6 +943,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
         {
             var serviceId = ObjectId.GenerateNewId();
             var mockConnectionFactory = new Mock<IConnectionFactory> { DefaultValue = DefaultValue.Mock };
+            mockConnectionFactory.Setup(f => f.ConnectionSettings).Returns(() => new ConnectionSettings());
+            var connectionId = new ConnectionId(_serverId);
             var connectionMock = new Mock<IConnection>();
             connectionMock
                 .SetupGet(c => c.Description)
@@ -933,6 +952,9 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     new ConnectionDescription(
                         new ConnectionId(_serverId),
                         new HelloResult(new BsonDocument("serviceId", serviceId).Add("maxWireVersion", WireVersion.Server50))));
+            connectionMock
+                .SetupGet(c => c.ConnectionId)
+                .Returns(connectionId);
             connectionMock
                 .SetupGet(c => c.Settings)
                 .Returns(new ConnectionSettings());
@@ -1114,12 +1136,14 @@ namespace MongoDB.Driver.Core.ConnectionPools
         [Fact]
         public void Maintenance_should_call_connection_dispose_when_connection_authentication_fail()
         {
-            var authenticationException = new MongoAuthenticationException(new ConnectionId(_serverId), "test message");
+            var connectionId = new ConnectionId(_serverId);
+            var authenticationException = new MongoAuthenticationException(connectionId, "test message");
             var authenticationFailedConnection = new Mock<IConnection>();
             authenticationFailedConnection
                 .Setup(c => c.Open(It.IsAny<CancellationToken>())) // an authentication exception is thrown from _connectionInitializer.InitializeConnection
                                                                    // that in turn is called from OpenAsync
                 .Throws(authenticationException);
+            authenticationFailedConnection.SetupGet(c => c.ConnectionId).Returns(connectionId);
 
             _mockConnectionExceptionHandler
                 .Setup(handler => handler.HandleExceptionOnOpen(authenticationException))
@@ -1190,6 +1214,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             var blockEstablishmentEvent = new ManualResetEventSlim(false);
 
             var mockConnectionFactory = new Mock<IConnectionFactory>();
+            mockConnectionFactory.Setup(f => f.ConnectionSettings).Returns(() => new ConnectionSettings());
             mockConnectionFactory
                 .Setup(c => c.CreateConnection(It.IsAny<ServerId>(), It.IsAny<EndPoint>()))
                 .Returns(() =>
@@ -1289,6 +1314,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 waitQueueTimeout: TimeSpan.FromMinutes(1));
 
             var mockConnectionFactory = new Mock<IConnectionFactory> { DefaultValue = DefaultValue.Mock };
+            mockConnectionFactory.Setup(f => f.ConnectionSettings).Returns(() => new ConnectionSettings());
             mockConnectionFactory
               .Setup(c => c.CreateConnection(It.IsAny<ServerId>(), It.IsAny<EndPoint>()))
               .Returns<ServerId, EndPoint>(CreateConnection);
@@ -1358,6 +1384,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             var syncRoot = new object();
 
             var mockConnectionFactory = new Mock<IConnectionFactory> { DefaultValue = DefaultValue.Mock };
+            mockConnectionFactory.Setup(f => f.ConnectionSettings).Returns(() => new ConnectionSettings());
             mockConnectionFactory
                 .Setup(f => f.CreateConnection(_serverId, _endPoint))
                 .Returns(() =>
@@ -1445,6 +1472,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             var allAcquiringCountdownEvent = new CountdownEvent(waitQueueSize);
 
             var mockConnectionFactory = new Mock<IConnectionFactory>();
+            mockConnectionFactory.Setup(f => f.ConnectionSettings).Returns(() => new ConnectionSettings());
             mockConnectionFactory
                 .Setup(c => c.CreateConnection(It.IsAny<ServerId>(), It.IsAny<EndPoint>()))
                 .Returns(() =>
@@ -1536,6 +1564,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             var blockEstablishmentEvent = new ManualResetEventSlim(false);
 
             var mockConnectionFactory = new Mock<IConnectionFactory>();
+            mockConnectionFactory.Setup(f => f.ConnectionSettings).Returns(() => new ConnectionSettings());
             mockConnectionFactory
                 .Setup(c => c.CreateConnection(It.IsAny<ServerId>(), It.IsAny<EndPoint>()))
                 .Returns(() =>
@@ -1617,6 +1646,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 minConnections: 0);
 
             var mockConnectionFactory = new Mock<IConnectionFactory>();
+            mockConnectionFactory.Setup(f => f.ConnectionSettings).Returns(() => new ConnectionSettings());
             mockConnectionFactory
                 .Setup(c => c.CreateConnection(It.IsAny<ServerId>(), It.IsAny<EndPoint>()))
                 .Returns(() =>

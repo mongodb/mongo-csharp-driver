@@ -22,7 +22,7 @@ namespace MongoDB.Driver.Core.Events
     /// <summary>
     /// Occurs after the pool is opened.
     /// </summary>
-    public struct ConnectionPoolReadyEvent
+    public struct ConnectionPoolReadyEvent : IEvent
     {
         private readonly ServerId _serverId;
         private readonly ConnectionPoolSettings _connectionPoolSettings;
@@ -61,5 +61,8 @@ namespace MongoDB.Driver.Core.Events
         {
             get { return _serverId; }
         }
+
+        // explicit interface implementations
+        EventType IEvent.Type => EventType.ConnectionPoolReady;
     }
 }

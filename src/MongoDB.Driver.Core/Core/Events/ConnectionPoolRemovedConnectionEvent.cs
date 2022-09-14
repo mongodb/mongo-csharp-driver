@@ -23,7 +23,7 @@ namespace MongoDB.Driver.Core.Events
     /// <summary>
     /// Occurs after a connection is removed from the pool.
     /// </summary>
-    public struct ConnectionPoolRemovedConnectionEvent
+    public struct ConnectionPoolRemovedConnectionEvent : IEvent
     {
         private readonly ConnectionId _connectionId;
         private readonly TimeSpan _duration;
@@ -91,5 +91,8 @@ namespace MongoDB.Driver.Core.Events
         {
             get { return _timestamp; }
         }
+
+        // explicit interface implementations
+        EventType IEvent.Type => EventType.ConnectionPoolRemovedConnection;
     }
 }

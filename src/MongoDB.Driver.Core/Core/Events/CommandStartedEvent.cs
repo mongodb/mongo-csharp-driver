@@ -23,7 +23,7 @@ namespace MongoDB.Driver.Core.Events
     /// <summary>
     /// Occurs when a command has started.
     /// </summary>
-    public struct CommandStartedEvent
+    public struct CommandStartedEvent : IEvent
     {
         private readonly BsonDocument _command;
         private readonly string _commandName;
@@ -133,5 +133,8 @@ namespace MongoDB.Driver.Core.Events
         {
             get { return _timestamp; }
         }
+
+        // explicit interface implementations
+        EventType IEvent.Type => EventType.CommandStarted;
     }
 }

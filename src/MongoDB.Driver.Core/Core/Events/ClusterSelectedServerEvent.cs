@@ -23,7 +23,7 @@ namespace MongoDB.Driver.Core.Events
     /// <summary>
     /// Occurs after a server is selected.
     /// </summary>
-    public struct ClusterSelectedServerEvent
+    public struct ClusterSelectedServerEvent : IEvent
     {
         private readonly ClusterDescription _clusterDescription;
         private readonly TimeSpan _duration;
@@ -105,5 +105,8 @@ namespace MongoDB.Driver.Core.Events
         {
             get { return _timestamp; }
         }
+
+        // explicit interface implementations
+        EventType IEvent.Type => EventType.ClusterSelectedServer;
     }
 }

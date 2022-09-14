@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Tests.Specifications.load_balancers
                 .SkipWhen(SupportedOperatingSystem.MacOS);
 #endif
 
-            using (var runner = new UnifiedTestRunner(loggerFactory: LoggerFactory))
+            using (var runner = new UnifiedTestRunner(loggingService: this))
             {
                 runner.Run(testCase);
             }

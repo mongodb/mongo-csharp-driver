@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Core.Events
     /// <summary>
     /// Occurs after a connection is opened.
     /// </summary>
-    public struct ConnectionOpenedEvent
+    public struct ConnectionOpenedEvent : IEvent
     {
         private readonly ConnectionId _connectionId;
         private readonly ConnectionSettings _connectionSettings;
@@ -103,5 +103,8 @@ namespace MongoDB.Driver.Core.Events
         {
             get { return _timestamp; }
         }
+
+        // explicit interface implementations
+        EventType IEvent.Type => EventType.ConnectionOpened;
     }
 }

@@ -22,6 +22,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Misc;
@@ -94,6 +95,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
                 mockConnection,
                 mockConnectionFactory);
 
+            mockConnectionFactory.Setup(f => f.ConnectionSettings).Returns(() => new ConnectionSettings());
             mockConnectionFactory
                 .Setup(f => f.CreateConnection(__serverId, __endPoint))
                 .Returns(
@@ -162,6 +164,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
             var connection = new MockConnection(__serverId);
 
             var mockConnectionFactory = new Mock<IConnectionFactory>();
+            mockConnectionFactory.Setup(f => f.ConnectionSettings).Returns(() => new ConnectionSettings());
             mockConnectionFactory
                 .Setup(x => x.CreateConnection(__serverId, __endPoint))
                 .Returns(connection);
@@ -239,6 +242,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
                 .Returns(() => CreateResponseMessage());
 
             var mockConnectionFactory = new Mock<IConnectionFactory>();
+            mockConnectionFactory.Setup(f => f.ConnectionSettings).Returns(() => new ConnectionSettings());
             mockConnectionFactory
                 .Setup(f => f.CreateConnection(__serverId, __endPoint))
                 .Returns(mockConnection.Object);

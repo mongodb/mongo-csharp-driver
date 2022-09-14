@@ -23,7 +23,7 @@ namespace MongoDB.Driver.Core.Events
     /// <summary>
     /// Occurs before a message is received.
     /// </summary>
-    public struct ConnectionReceivingMessageEvent
+    public struct ConnectionReceivingMessageEvent : IEvent
     {
         private readonly ConnectionId _connectionId;
         private readonly long? _operationId;
@@ -91,5 +91,8 @@ namespace MongoDB.Driver.Core.Events
         {
             get { return _timestamp; }
         }
+
+        // explicit interface implementations
+        EventType IEvent.Type => EventType.ConnectionReceivingMessage;
     }
 }

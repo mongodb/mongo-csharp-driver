@@ -1,0 +1,100 @@
+# This test only applies to drivers that generate operationIds to enable users to link
+# together bulk writes.
+description: "operation-id"
+
+schemaVersion: "1.11"
+
+createEntities:
+  - client:
+      id: &client client
+      observeLogMessages:
+        command: debug
+  - database:
+      id: &database database
+      client: *client
+      databaseName: &databaseName logging-tests
+  - collection:
+      id: &collection collection
+      database: *database
+      collectionName: &collectionName logging-tests-collection
+
+initialData:
+  - collectionName: *collectionName
+    databaseName: *databaseName
+    documents:
+      - { _id: 1, x: 11 }
+
+tests:
+  - description: "Successful bulk write command log messages include operationIds"
+    operations:
+      - name: bulkWrite
+        object: *collectionName
+        arguments:
+          requests:
+            - insertOne:
+                document: { x: 1 }
+            - deleteOne:
+                filter: { x: 1 }
+
+    expectLogMessages:
+      - client: *client
+        messages:
+          - level: debug
+            component: command
+            data:
+              message: "Command started"
+              databaseName: *databaseName
+              commandName: insert
+              operationId: { $$exists: true }
+
+          - level: debug
+            component: command
+            data:
+              message: "Command succeeded"
+              commandName: insert
+              operationId: { $$exists: true }
+
+          - level: debug
+            component: command
+            data:
+              message: "Command started"
+              databaseName: *databaseName
+              commandName: delete
+              operationId: { $$exists: true }
+
+          - level: debug
+            component: command
+            data:
+              message: "Command succeeded"
+              commandName: delete
+              operationId: { $$exists: true }
+        
+  - description: "Failed bulk write command log message includes operationId"
+    operations:
+      - name: bulkWrite
+        object: *collectionName
+        arguments:
+          requests:
+            - updateOne:
+                filter: { x: 1 }
+                update: [{ $invalidOperator: true }]
+        expectError:
+          isClientError: false
+
+    expectLogMessages:
+      - client: *client
+        messages:
+          - level: debug
+            component: command
+            data:
+              message: "Command started"
+              databaseName: *databaseName
+              commandName: update
+              operationId: { $$exists: true }
+
+          - level: debug
+            component: command
+            data:
+              message: "Command failed"
+              commandName: update
+              operationId: { $$exists: true }

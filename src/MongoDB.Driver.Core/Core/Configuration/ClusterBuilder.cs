@@ -319,7 +319,7 @@ namespace MongoDB.Driver.Core.Configuration
                 serverMonitorStreamFactory,
                 new EventAggregator(),
                 _clusterSettings.ServerApi,
-                _loggerFactory);
+                loggerFactory: null);
 
             return new ServerMonitorFactory(
                 serverMonitorSettings,
