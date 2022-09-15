@@ -106,6 +106,12 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
 
         public static void ConfigureDefaultExtraOptions(Dictionary<string, object> extraOptions)
         {
+            if (CoreTestConfiguration.MaxWireVersion < WireVersion.Server42)
+            {
+                // CSFLE is supported starting from server 4.2
+                return;
+            }
+
             Ensure.IsNotNull(extraOptions, nameof(extraOptions));
 
             if (!extraOptions.TryGetValue("mongocryptdSpawnPath", out object value))
