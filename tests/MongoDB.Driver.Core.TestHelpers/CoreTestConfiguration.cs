@@ -323,7 +323,7 @@ namespace MongoDB.Driver
             using (var session = StartSession())
             using (var binding = CreateReadBinding(session))
             {
-                var command = new BsonDocument("hello", 1);
+                var command = new BsonDocument(OppressiveLanguageConstants.LegacyHelloCommandName, 1);
                 var operation = new ReadCommandOperation<BsonDocument>(DatabaseNamespace.Admin, command, BsonDocumentSerializer.Instance, __messageEncoderSettings);
                 var response = operation.Execute(binding, CancellationToken.None);
                 return response["maxWireVersion"].AsInt32;
