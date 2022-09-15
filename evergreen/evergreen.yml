@@ -22,6 +22,7 @@ timeout:
     params:
       script: |
         ls -la
+        df -h
 
 functions:
 
