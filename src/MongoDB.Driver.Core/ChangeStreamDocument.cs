@@ -93,6 +93,37 @@ namespace MongoDB.Driver
         public DatabaseNamespace DatabaseNamespace => GetValue<DatabaseNamespace>(nameof(DatabaseNamespace), null);
 
         /// <summary>
+        /// Gets the disambiguated paths if present.
+        /// </summary>
+        /// <value>
+        /// The disambiguated paths.
+        /// </value>
+        /// <remarks>
+        /// <para>
+        /// A document containing a map that associates an update path to an array containing the path components used in the update document. This data
+        /// can be used in combination with the other fields in an <see cref="ChangeStreamDocument{TDocument}.UpdateDescription"/> to determine the
+        /// actual path in the document that was updated. This is necessary in cases where a key contains dot-separated strings (i.e. <c>{ "a.b": "c" }</c>) or
+        /// a document contains a numeric literal string key (i.e. <c>{ "a": { "0": "a" } }</c>). Note that in this scenario, the numeric key can't be the top
+        /// level key because <c>{ "0": "a" }</c> is not ambiguous - update paths would simply be <c>'0'</c> which is unambiguous because BSON documents cannot have
+        /// arrays at the top level. Each entry in the document maps an update path to an array which contains the actual path used when the document
+        /// was updated. For example, given a document with the following shape <c>{ "a": { "0": 0 } }</c> and an update of <c>{ $inc: { "a.0": 1 } }</c>,
+        /// <see cref="ChangeStreamDocument{TDocument}.DisambiguatedPaths"/> would look like the following:
+        /// </para>
+        /// <code>
+        ///   {
+        ///      "a.0": ["a", "0"]
+        ///   }
+        /// </code>
+        /// <para>
+        /// In each array, all elements will be returned as strings with the exception of array indices, which will be returned as 32-bit integers.
+        /// </para>
+        /// <para>
+        /// Added in MongoDB version 6.1.0.
+        /// </para>
+        /// </remarks>
+        public BsonDocument DisambiguatedPaths => GetValue<BsonDocument>(nameof(DisambiguatedPaths), null);
+
+        /// <summary>
         /// Gets the document key.
         /// </summary>
         /// <value>
