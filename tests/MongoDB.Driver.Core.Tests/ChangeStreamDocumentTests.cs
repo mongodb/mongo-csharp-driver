@@ -247,6 +247,29 @@ namespace MongoDB.Driver
         }
 
         [Fact]
+        public void DisambiguatedPaths_should_return_expected_result()
+        {
+            var value = new BsonDocument("a.0", new BsonArray {"a", "0"});
+            var backingDocument = new BsonDocument { { "other", 1 }, { "disambiguatedPaths", value } };
+            var subject = CreateSubject(backingDocument: backingDocument);
+
+            var result = subject.DisambiguatedPaths;
+
+            result.Should().Be(value);
+        }
+
+        [Fact]
+        public void DisambiguatedPaths_should_return_null_if_not_present()
+        {
+            var backingDocument = new BsonDocument { { "other", 1 } };
+            var subject = CreateSubject(backingDocument: backingDocument);
+
+            var result = subject.DisambiguatedPaths;
+
+            result.Should().BeNull();
+        }
+
+        [Fact]
         public void DocumentKey_should_return_expected_result()
         {
             var value = new BsonDocument("x", 1234);
