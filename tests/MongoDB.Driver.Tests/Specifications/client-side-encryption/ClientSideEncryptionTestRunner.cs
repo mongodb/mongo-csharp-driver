@@ -266,7 +266,20 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                     case "bypassQueryAnalysis":
                         autoEncryptionOptions = autoEncryptionOptions.With(bypassQueryAnalysis: option.Value.ToBoolean());
                         break;
-
+                    case "extraOptions":
+                        foreach (var extraOption in option.Value.AsBsonDocument.Elements)
+                        {
+                            switch (extraOption.Name)
+                            {
+                                case "mongocryptdBypassSpawn":
+                                    extraOptions.Add(extraOption.Name, extraOption.Value.ToBoolean());
+                                    break;
+                                default:
+                                    throw new Exception($"Unexpected extra option {extraOption.Name}.");
+                            }
+                        }
+                        autoEncryptionOptions = autoEncryptionOptions.With(extraOptions: extraOptions);
+                        break;
                     default:
                         throw new Exception($"Unexpected auto encryption option {option.Name}.");
                 }
@@ -330,11 +343,6 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
     public class TestCaseFactory : JsonDrivenTestCaseFactory
     {
         #region static
-        private static readonly string[] __ignoredTestNames =
-        {
-            // https://jira.mongodb.org/browse/SPEC-1403
-            "maxWireVersion.json:operation fails with maxWireVersion < 8"
-        };
         private static readonly string[] __versionedApiIgnoredTestNames =
         {
             // https://jira.mongodb.org/browse/SERVER-58293
@@ -348,7 +356,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
         // protected methods
         protected override IEnumerable<JsonDrivenTestCase> CreateTestCases(BsonDocument document)
         {
-            var testCases = base.CreateTestCases(document).Where(test => !__ignoredTestNames.Any(ignoredName => test.Name.EndsWith(ignoredName)));
+            var testCases = base.CreateTestCases(document);
             if (CoreTestConfiguration.RequireApiVersion)
             {
                 testCases = testCases.Where(test => !__versionedApiIgnoredTestNames.Any(ignoredName => test.Name.EndsWith(ignoredName)));
