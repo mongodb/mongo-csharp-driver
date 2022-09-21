@@ -264,6 +264,18 @@ namespace MongoDB.Driver.Core.Bindings
             e.Message.Should().Be("StartTransaction cannot determine if transactions are supported because there are no connected servers.");
         }
 
+        [Theory]
+        [ParameterAttributeData]
+        public void EnsureTransactionsAreSupported_should_not_throw_when_there_are_no_connected_servers_with_LB(
+            [Values(0, 1, 2, 3)] int numberOfDisconnectedServers) // 0 - no servers at all
+        {
+            var clusterDescription = CreateClusterDescriptionWithDisconnectedServers(numberOfDisconnectedServers);
+            clusterDescription = clusterDescription.WithType(ClusterType.LoadBalanced);
+            var subject = CreateSubject(clusterDescription);
+
+            subject.EnsureTransactionsAreSupported();       
+        }
+
         // EnsureTransactionsAreSupported scenario codes
         // C = Connected, D = Disconnected
         // P = Primary, S = Secondary, A = Arbiter, R = ShardRouter, U = Unknown

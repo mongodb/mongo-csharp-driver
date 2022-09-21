@@ -513,6 +513,12 @@ namespace MongoDB.Driver.Core.Bindings
 
         private void EnsureTransactionsAreSupported()
         {
+            if (_cluster.Description.Type == ClusterType.LoadBalanced)
+            {
+                // LB always supports transactions
+                return;
+            }
+
             var connectedDataBearingServers = _cluster.Description.Servers.Where(s => s.State == ServerState.Connected && s.IsDataBearing).ToList();
 
             if (connectedDataBearingServers.Count == 0)
