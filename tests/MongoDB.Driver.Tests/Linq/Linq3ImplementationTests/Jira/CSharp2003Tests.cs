@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             var mask = E.E2 | E.E4;
             var find = collection.Find(x => (x.E & mask) == 0);
 
-            var filter = TranslateFilter(collection, find);
+            var filter = Translate(collection, find.Filter);
             filter.Should().Be("{ E : { $bitsAllClear : 6 } }");
 
             var results = find.ToList().OrderBy(x => x.Id).ToList();
@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             var mask = E.E2 | E.E4;
             var find = collection.Find(x => (x.E & mask) == mask);
 
-            var filter = TranslateFilter(collection, find);
+            var filter = Translate(collection, find.Filter);
             filter.Should().Be("{ E : { $bitsAllSet : 6 } }");
 
             var results = find.ToList().OrderBy(x => x.Id).ToList();
@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             var mask = E.E2 | E.E4;
             var find = collection.Find(x => (x.E & mask) != mask);
 
-            var filter = TranslateFilter(collection, find);
+            var filter = Translate(collection, find.Filter);
             filter.Should().Be("{ E : { $bitsAnyClear : 6 } }");
 
             var results = find.ToList().OrderBy(x => x.Id).ToList();
@@ -71,7 +71,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             var mask = E.E2 | E.E4;
             var find = collection.Find(x => (x.E & mask) != 0);
 
-            var filter = TranslateFilter(collection, find);
+            var filter = Translate(collection, find.Filter);
             filter.Should().Be("{ E : { $bitsAnySet : 6 } }");
 
             var results = find.ToList().OrderBy(x => x.Id).ToList();
