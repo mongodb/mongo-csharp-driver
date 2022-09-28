@@ -16,6 +16,7 @@
 using System;
 using System.Linq;
 using FluentAssertions;
+using MongoDB.Bson;
 using MongoDB.Driver.Linq;
 using Xunit;
 
@@ -23,13 +24,14 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
 {
     public class CSharp4328Tests : Linq3IntegrationTest
     {
-        [Fact]
-        public void Filter_using_First_should_work()
+        [Theory]
+        [InlineData(null)]
+        [InlineData("USA")]
+        public void Filter_using_First_should_work(string country)
         {
             var collection = CreateCollection();
             var startTargetDeliveryDate = new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc);
             var endTargetDeliveryDate = new DateTime(2022, 12, 31, 0, 0, 0, DateTimeKind.Utc);
-            var country = "USA";
 
             var filterBuilder = Builders<SubscriptionRepositorySubscriptionModel>.Filter;
             var statusFilter = filterBuilder.Where(x => x.SubscriptionStatus == SubscriptionStatus.Active);
@@ -44,16 +46,20 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             }
 
             var renderedFilter = Translate(collection, filter);
-            renderedFilter.Should().Be(
+            var expectedFilter = BsonDocument.Parse(
                 @"
                 {
                     SubscriptionStatus : 1,
                     'UpcomingOrders.0.NextTargetDeliveryDate' : {
                         $gte : ISODate('2022-01-01T00:00:00Z'),
                         $lte : ISODate('2022-12-31T00:00:00Z')
-                    },
-                    'ShippingAddress.CountryCode' : 'USA'
+                    }
                 }");
+            if (!string.IsNullOrEmpty(country))
+            {
+                expectedFilter["ShippingAddress.CountryCode"] = country;
+            }
+            renderedFilter.Should().Be(expectedFilter);
 
             var result = collection.Distinct(x => x.CustomerId, filter).ToList();
             result.Should().Equal(2);
