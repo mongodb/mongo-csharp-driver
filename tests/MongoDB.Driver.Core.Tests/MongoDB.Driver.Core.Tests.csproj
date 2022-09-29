@@ -6,7 +6,7 @@
   <PropertyGroup>
     <TargetFrameworks>netcoreapp2.1;netcoreapp3.1;net6.0;net472</TargetFrameworks>
     <TargetFrameworks Condition="'$(IsWindows)'!='true'">netcoreapp2.1;netcoreapp3.1;net6.0</TargetFrameworks>
-    <LangVersion>9</LangVersion>
+    <LangVersion>10.0</LangVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors />
     <IsPackable>false</IsPackable>
