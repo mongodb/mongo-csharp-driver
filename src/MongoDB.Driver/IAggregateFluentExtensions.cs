@@ -160,6 +160,38 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Appends a $documents stage to the pipeline.
+        /// </summary>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="documents">The documents.</param>
+        /// <param name="documentSerializer">The document serializer.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        public static IAggregateFluent<TResult> Documents<TResult>(
+            this IAggregateFluent<NoPipelineInput> aggregate,
+            AggregateExpressionDefinition<NoPipelineInput, IEnumerable<TResult>> documents,
+            IBsonSerializer<TResult> documentSerializer = null)
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            return aggregate.AppendStage(PipelineStageDefinitionBuilder.Documents(documents, documentSerializer));
+        }
+
+        /// <summary>
+        /// Appends a $documents stage to the pipeline.
+        /// </summary>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="documents">The documents.</param>
+        /// <param name="documentSerializer">The document serializer.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        public static IAggregateFluent<TResult> Documents<TResult>(
+            this IAggregateFluent<NoPipelineInput> aggregate,
+            IEnumerable<TResult> documents,
+            IBsonSerializer<TResult> documentSerializer = null)
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            return aggregate.AppendStage(PipelineStageDefinitionBuilder.Documents(documents, documentSerializer));
+        }
+
+        /// <summary>
         /// Appends a $facet stage to the pipeline.
         /// </summary>
         /// <typeparam name="TResult">The type of the result.</typeparam>

@@ -58,7 +58,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests
             CreateCollection(collection, (IEnumerable<TDocument>)documents); ;
         }
 
-        protected IMongoClient GetClient(LinqProvider linqProvider)
+        protected IMongoClient GetClient(LinqProvider linqProvider = LinqProvider.V3)
         {
             return linqProvider switch
             {
@@ -68,29 +68,29 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests
             };
         }
 
-        protected IMongoCollection<TDocument> GetCollection<TDocument>(string collectionName = null)
+        protected IMongoCollection<TDocument> GetCollection<TDocument>(string collectionName = null, LinqProvider linqProvider = LinqProvider.V3)
         {
-            var databaseName = DriverTestConfiguration.DatabaseNamespace.DatabaseName;
-            return GetCollection<TDocument>(databaseName, collectionName);
+            return GetCollection<TDocument>(databaseName: null, collectionName, linqProvider);
         }
 
         protected IMongoCollection<TDocument> GetCollection<TDocument>(string databaseName, string collectionName, LinqProvider linqProvider = LinqProvider.V3)
         {
-            databaseName ??= DriverTestConfiguration.DatabaseNamespace.DatabaseName;
-            collectionName ??= DriverTestConfiguration.CollectionNamespace.CollectionName;
+            var database = GetDatabase(databaseName, linqProvider);
+            return database.GetCollection<TDocument>(collectionName ?? DriverTestConfiguration.CollectionNamespace.CollectionName);
+        }
+
+        protected IMongoDatabase GetDatabase(string databaseName = null, LinqProvider linqProvider = LinqProvider.V3)
+        {
             var client = GetClient(linqProvider);
-            var database = client.GetDatabase(databaseName);
-            return database.GetCollection<TDocument>(collectionName);
+            return client.GetDatabase(databaseName ?? DriverTestConfiguration.DatabaseNamespace.DatabaseName);
         }
 
         protected static List<BsonDocument> Translate<TDocument, TResult>(IMongoCollection<TDocument> collection, IAggregateFluent<TResult> aggregate)
         {
             var pipelineDefinition = ((AggregateFluent<TDocument, TResult>)aggregate).Pipeline;
             var documentSerializer = collection.DocumentSerializer;
-            var serializerRegistry = BsonSerializer.SerializerRegistry;
             var linqProvider = collection.Database.Client.Settings.LinqProvider;
-            var renderedPipeline = pipelineDefinition.Render(documentSerializer, serializerRegistry, linqProvider);
-            return renderedPipeline.Documents.ToList();
+            return Translate(pipelineDefinition, documentSerializer, linqProvider);
         }
 
         // in this overload the collection argument is used only to infer the TDocument type
@@ -99,12 +99,30 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests
             return Translate<TDocument, TResult>(queryable);
         }
 
+        protected static List<BsonDocument> Translate<TResult>(IMongoDatabase database, IAggregateFluent<TResult> aggregate)
+        {
+            var pipelineDefinition = ((AggregateFluent<NoPipelineInput, TResult>)aggregate).Pipeline;
+            var linqProvider = database.Client.Settings.LinqProvider;
+            return Translate(pipelineDefinition, NoPipelineInputSerializer.Instance, linqProvider);
+        }
+
         protected List<BsonDocument> Translate<TDocument, TResult>(IQueryable<TResult> queryable)
         {
             var provider = (MongoQueryProvider<TDocument>)queryable.Provider;
             var executableQuery = ExpressionToExecutableQueryTranslator.Translate<TDocument, TResult>(provider, queryable.Expression);
             var stages = executableQuery.Pipeline.Stages;
             return stages.Select(s => s.Render().AsBsonDocument).ToList();
+        }
+
+        protected static List<BsonDocument> Translate<TDocument, TResult>(
+            PipelineDefinition<TDocument, TResult> pipelineDefinition,
+            IBsonSerializer<TDocument> documentSerializer = null,
+            LinqProvider linqProvider = LinqProvider.V3)
+        {
+            var serializerRegistry = BsonSerializer.SerializerRegistry;
+            documentSerializer ??= serializerRegistry.GetSerializer<TDocument>();
+            var renderedPipeline = pipelineDefinition.Render(documentSerializer, serializerRegistry, linqProvider);
+            return renderedPipeline.Documents.ToList();
         }
 
         protected BsonDocument Translate<TDocument>(IMongoCollection<TDocument> collection, FilterDefinition<TDocument> filterDefinition)

@@ -22,6 +22,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators;
 
@@ -475,6 +476,52 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(field, nameof(field));
             Ensure.IsNotNull(range, nameof(range));
             return Densify(field, range, (IEnumerable<Expression<Func<TInput, object>>>)partitionByFields);
+        }
+
+        /// <summary>
+        /// Creates a $documents stage.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the documents.</typeparam>
+        /// <param name="documents">The documents.</param>
+        /// <param name="documentSerializer">The document serializer.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<NoPipelineInput, TDocument> Documents<TDocument>(
+            AggregateExpressionDefinition<NoPipelineInput, IEnumerable<TDocument>> documents,
+            IBsonSerializer<TDocument> documentSerializer = null)
+        {
+            if (typeof(TDocument) == typeof(NoPipelineInput))
+            {
+                throw new ArgumentException("Documents cannot be of type NoPipelineInput.", nameof(documents));
+            }
+
+            const string operatorName = "$documents";
+            var stage = new DelegatedPipelineStageDefinition<NoPipelineInput, TDocument>(
+                operatorName,
+                (s, sr, linqProvider) =>
+                {
+                    var renderedDocuments = documents.Render(NoPipelineInputSerializer.Instance, sr, linqProvider);
+                    return new RenderedPipelineStageDefinition<TDocument>(
+                        operatorName,
+                        new BsonDocument(operatorName, renderedDocuments),
+                        documentSerializer ?? sr.GetSerializer<TDocument>());
+                });
+
+            return stage;
+        }
+
+        /// <summary>
+        /// Creates a $documents stage.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the documents.</typeparam>
+        /// <param name="documents">The documents.</param>
+        /// <param name="documentSerializer">The document serializer.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<NoPipelineInput, TDocument> Documents<TDocument>(
+            IEnumerable<TDocument> documents,
+            IBsonSerializer<TDocument> documentSerializer = null)
+        {
+            var aggregateExpression = new DocumentsAggregateExpressionDefinition<TDocument>(documents, documentSerializer);
+            return Documents(aggregateExpression, documentSerializer);
         }
 
         /// <summary>

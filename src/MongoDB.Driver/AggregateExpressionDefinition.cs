@@ -14,11 +14,13 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators;
 
 namespace MongoDB.Driver
@@ -145,6 +147,40 @@ namespace MongoDB.Driver
         {
             var contextData = _contextData?.With("SerializerRegistry", serializerRegistry);
             return linqProvider.GetAdapter().TranslateExpressionToAggregateExpression(_expression, sourceSerializer, serializerRegistry, _translationOptions, contextData);
+        }
+    }
+
+    /// <summary>
+    /// An aggregate expression for the $documents stage.
+    /// </summary>
+    /// <typeparam name="TDocument">The type of the documents.</typeparam>
+    /// <seealso cref="MongoDB.Driver.AggregateExpressionDefinition{TSource, TResult}" />
+    public sealed class DocumentsAggregateExpressionDefinition<TDocument> : AggregateExpressionDefinition<NoPipelineInput, IEnumerable<TDocument>>
+    {
+        // private fields
+        private readonly IReadOnlyList<TDocument> _documents;
+        private readonly IBsonSerializer<TDocument> _documentSerializer;
+
+        // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ExpressionAggregateExpressionDefinition{TSource, TResult}" /> class.
+        /// </summary>
+        /// <param name="documents">The documents.</param>
+        /// <param name="documentSerializer">The document serializer.</param>
+        public DocumentsAggregateExpressionDefinition(
+            IEnumerable<TDocument> documents,
+            IBsonSerializer<TDocument> documentSerializer = null)
+        {
+            _documents = Ensure.IsNotNull(documents, nameof(documents)).AsReadOnlyList();
+            _documentSerializer = documentSerializer; // can be null
+        }
+
+        // public methods
+        /// <inheritdoc/>
+        public override BsonValue Render(IBsonSerializer<NoPipelineInput> sourceSerializer, IBsonSerializerRegistry serializerRegistry, LinqProvider linqProvider)
+        {
+            var documentSerializer = _documentSerializer ?? serializerRegistry.GetSerializer<TDocument>();
+            return SerializationHelper.SerializeValues(documentSerializer, _documents);
         }
     }
 }

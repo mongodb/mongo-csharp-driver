@@ -398,6 +398,44 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Appends a $documents stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the documents.</typeparam>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <param name="documents">The documents.</param>
+        /// <param name="documentSerializer">The document serializer.</param>
+        /// <returns>
+        /// A new pipeline with an additional stage.
+        /// </returns>
+        public static PipelineDefinition<NoPipelineInput, TDocument> Documents<TDocument>(
+            this PipelineDefinition<NoPipelineInput, NoPipelineInput> pipeline,
+            AggregateExpressionDefinition<NoPipelineInput, IEnumerable<TDocument>> documents,
+            IBsonSerializer<TDocument> documentSerializer = null)
+        {
+            Ensure.IsNotNull(pipeline, nameof(pipeline));
+            return pipeline.AppendStage(PipelineStageDefinitionBuilder.Documents(documents, documentSerializer));
+        }
+
+        /// <summary>
+        /// Appends a $documents stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the documents.</typeparam>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <param name="documents">The documents.</param>
+        /// <param name="documentSerializer">The document serializer.</param>
+        /// <returns>
+        /// A new pipeline with an additional stage.
+        /// </returns>
+        public static PipelineDefinition<NoPipelineInput, TDocument> Documents<TDocument>(
+            this PipelineDefinition<NoPipelineInput, NoPipelineInput> pipeline,
+            IEnumerable<TDocument> documents,
+            IBsonSerializer<TDocument> documentSerializer = null)
+        {
+            Ensure.IsNotNull(pipeline, nameof(pipeline));
+            return pipeline.AppendStage(PipelineStageDefinitionBuilder.Documents(documents, documentSerializer));
+        }
+
+        /// <summary>
         /// Appends a $facet stage to the pipeline.
         /// </summary>
         /// <typeparam name="TInput">The type of the input documents.</typeparam>
