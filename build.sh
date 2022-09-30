@@ -46,6 +46,7 @@ if [ "$DOTNET_VERSION" != "$DOTNET_INSTALLED_VERSION" ]; then
     #      | arm64 | x64 | x64 |  arm64 |
     bash "$SCRIPT_DIR/.dotnet/dotnet-install.sh" --channel 2.1 --architecture x64 --install-dir .dotnet --no-path
     bash "$SCRIPT_DIR/.dotnet/dotnet-install.sh" --channel 3.1 --architecture x64 --install-dir .dotnet --no-path
+    bash "$SCRIPT_DIR/.dotnet/dotnet-install.sh" --channel 5.0 --architecture x64 --install-dir .dotnet --no-path
     bash "$SCRIPT_DIR/.dotnet/dotnet-install.sh" --version $DOTNET_VERSION --install-dir .dotnet --no-path
     export PATH="$SCRIPT_DIR/.dotnet":$PATH
     export DOTNET_ROOT="$SCRIPT_DIR/.dotnet"
