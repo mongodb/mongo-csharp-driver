@@ -52,11 +52,11 @@ namespace MongoDB.Driver.Core.Logging
         public const string WaitQueueTimeoutMS = nameof(WaitQueueTimeoutMS);
         public const string WaitQueueSize = nameof(WaitQueueSize);
 
-        public static readonly string ConnectionId_Message = $"{{{DriverConnectionId}}} {{{Message}}}";
-        public static readonly string ClusterId_Message = $"{{{ClusterId}}} {{{Message}}}";
-        public static readonly string ServerId_Message = $"{{{ClusterId}}} {{{ServerHost}}} {{{ServerPort}}} {{{Message}}}";
-        public static readonly string ServerId_Message_Description = $"{{{ClusterId}}} {{{ServerHost}}} {{{ServerPort}}} {{{Message}}} {{{Description}}}";
-        public static readonly string ClusterId_Message_SharedLibraryVersion = $"{{{ClusterId}}} {{{Message}}} {{{SharedLibraryVersion}}}";
+        public const string ClusterId_Message = $"{{{ClusterId}}} {{{Message}}}";
+        public const string DriverConnectionId_Message = $"{{{DriverConnectionId}}} {{{Message}}}";
+        public const string ServerId_Message = $"{{{ClusterId}}} {{{ServerHost}}} {{{ServerPort}}} {{{Message}}}";
+        public const string ServerId_Message_Description = $"{{{ClusterId}}} {{{ServerHost}}} {{{ServerPort}}} {{{Message}}} {{{Description}}}";
+        public const string ClusterId_Message_SharedLibraryVersion = $"{{{ClusterId}}} {{{Message}}} {{{SharedLibraryVersion}}}";
 
         private readonly static LogsTemplateProvider[] __eventsTemplates;
 
@@ -136,29 +136,35 @@ namespace MongoDB.Driver.Core.Logging
                 return new object[] { connectionId.ServerId.ClusterId.Value, connectionId.LocalValue, host, port, arg1, arg2, arg3, arg4, arg5, arg6, arg7, ommitableParam };
         }
 
-        private static void AddTemplateProvider<TEvent>(LogLevel logLevel, string template, Func<TEvent, object[]> extractor) where TEvent : struct, IEvent
-        {
-            __eventsTemplates[(int)(new TEvent().Type)] = new LogsTemplateProvider(
+        private static void AddTemplateProvider<TEvent>(LogLevel logLevel, string template, Func<TEvent, object[]> extractor) where TEvent : struct, IEvent =>
+            AddTemplateProvider<TEvent>(new LogsTemplateProvider(
                 logLevel,
                 new[] { template },
-                extractor);
-        }
+                extractor));
 
-        private static void AddTemplateProvider<TEvent>(LogLevel logLevel, string[] templates, Func<TEvent, object[]> extractor, Func<TEvent, LogsTemplateProvider, string> templateExtractor) where TEvent : struct, IEvent
-        {
-            __eventsTemplates[(int)(new TEvent().Type)] = new LogsTemplateProvider(
+        private static void AddTemplateProvider<TEvent>(LogLevel logLevel, string[] templates, Func<TEvent, object[]> extractor, Func<TEvent, LogsTemplateProvider, string> templateExtractor) where TEvent : struct, IEvent =>
+            AddTemplateProvider<TEvent>(new LogsTemplateProvider(
                 logLevel,
                 templates,
                 extractor,
-                templateExtractor);
-        }
+                templateExtractor));
 
-        private static void AddTemplate<TEvent, TArg>(LogLevel logLevel, string template, Func<TEvent, TArg, object[]> extractor) where TEvent : struct, IEvent
-        {
-            __eventsTemplates[(int)(new TEvent().Type)] = new LogsTemplateProvider(
+        private static void AddTemplate<TEvent, TArg>(LogLevel logLevel, string template, Func<TEvent, TArg, object[]> extractor) where TEvent : struct, IEvent =>
+            AddTemplateProvider<TEvent>(new LogsTemplateProvider(
                 logLevel,
                 new[] { template },
-                extractor);
+                extractor));
+
+        private static void AddTemplateProvider<TEvent>(LogsTemplateProvider templateProvider) where TEvent : struct, IEvent
+        {
+            var index = (int)(new TEvent().Type);
+
+            if (__eventsTemplates[index] != null)
+            {
+                throw new InvalidOperationException($"Template already registered for {typeof(TEvent)} event");
+            }
+
+            __eventsTemplates[index] = templateProvider;
         }
 
         private static string Concat(params string[] parameters) =>

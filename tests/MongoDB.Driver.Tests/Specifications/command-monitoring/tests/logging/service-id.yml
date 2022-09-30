@@ -1,6 +1,6 @@
 description: "service-id"
 
-schemaVersion: "1.11"
+schemaVersion: "1.12"
 
 createEntities:
   - client:
@@ -45,25 +45,25 @@ tests:
             data:
               message: "Command started"
               commandName: insert
-              serviceId: { $$exists: true }
+              serviceId: { $$type: string }
           - level: debug
             component: command
             data:
               message: "Command succeeded"
               commandName: insert
-              serviceId: { $$exists: true }
+              serviceId: { $$type: string }
           - level: debug
             component: command
             data:
               message: "Command started"
               commandName: find
-              serviceId: { $$exists: true }
+              serviceId: { $$type: string }
           - level: debug
             component: command
             data:
               message: "Command failed"
               commandName: find
-              serviceId: { $$exists: true }
+              serviceId: { $$type: string }
 
   - description: "command log messages omit serviceId when not in LB mode"
     runOnRequirements:

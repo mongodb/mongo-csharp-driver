@@ -839,6 +839,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     case "poolreadyevent":
                         // should be handled in the scope of CSHARP-3509
                         break;
+                    case "serverdescriptionchangedevent":
+                        eventCapturer = eventCapturer.Capture<ServerDescriptionChangedEvent>();
+                        break;
                     default:
                         throw new FormatException($"Invalid event name: {eventTypeToCapture}.");
                 }

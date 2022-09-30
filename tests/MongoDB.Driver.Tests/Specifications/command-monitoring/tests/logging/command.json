@@ -1,6 +1,6 @@
 {
   "description": "command-logging",
-  "schemaVersion": "1.11",
+  "schemaVersion": "1.12",
   "createEntities": [
     {
       "client": {
@@ -72,16 +72,19 @@
                   }
                 },
                 "requestId": {
-                  "$$exists": true
-                },
-                "driverConnectionId": {
-                  "$$exists": true
+                  "$$type": [
+                    "int",
+                    "long"
+                  ]
                 },
                 "serverHost": {
-                  "$$exists": true
+                  "$$type": "string"
                 },
                 "serverPort": {
-                  "$$exists": true
+                  "$$type": [
+                    "int",
+                    "long"
+                  ]
                 }
               }
             },
@@ -95,19 +98,26 @@
                   "$$type": "string"
                 },
                 "requestId": {
-                  "$$exists": true
-                },
-                "driverConnectionId": {
-                  "$$exists": true
+                  "$$type": [
+                    "int",
+                    "long"
+                  ]
                 },
                 "serverHost": {
-                  "$$exists": true
+                  "$$type": "string"
                 },
                 "serverPort": {
-                  "$$exists": true
+                  "$$type": [
+                    "int",
+                    "long"
+                  ]
                 },
                 "durationMS": {
-                  "$$exists": true
+                  "$$type": [
+                    "double",
+                    "int",
+                    "long"
+                  ]
                 }
               }
             }
@@ -146,16 +156,19 @@
                   "$$type": "string"
                 },
                 "requestId": {
-                  "$$exists": true
-                },
-                "driverConnectionId": {
-                  "$$exists": true
+                  "$$type": [
+                    "int",
+                    "long"
+                  ]
                 },
                 "serverHost": {
-                  "$$exists": true
+                  "$$type": "string"
                 },
                 "serverPort": {
-                  "$$exists": true
+                  "$$type": [
+                    "int",
+                    "long"
+                  ]
                 }
               }
             },
@@ -169,19 +182,26 @@
                   "$$exists": true
                 },
                 "requestId": {
-                  "$$exists": true
-                },
-                "driverConnectionId": {
-                  "$$exists": true
+                  "$$type": [
+                    "int",
+                    "long"
+                  ]
                 },
                 "serverHost": {
-                  "$$exists": true
+                  "$$type": "string"
                 },
                 "serverPort": {
-                  "$$exists": true
+                  "$$type": [
+                    "int",
+                    "long"
+                  ]
                 },
                 "durationMS": {
-                  "$$exists": true
+                  "$$type": [
+                    "double",
+                    "int",
+                    "long"
+                  ]
                 }
               }
             }

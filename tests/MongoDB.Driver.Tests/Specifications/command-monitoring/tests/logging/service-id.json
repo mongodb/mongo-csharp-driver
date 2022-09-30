@@ -1,6 +1,6 @@
 {
   "description": "service-id",
-  "schemaVersion": "1.11",
+  "schemaVersion": "1.12",
   "createEntities": [
     {
       "client": {
@@ -76,7 +76,7 @@
                 "message": "Command started",
                 "commandName": "insert",
                 "serviceId": {
-                  "$$exists": true
+                  "$$type": "string"
                 }
               }
             },
@@ -87,7 +87,7 @@
                 "message": "Command succeeded",
                 "commandName": "insert",
                 "serviceId": {
-                  "$$exists": true
+                  "$$type": "string"
                 }
               }
             },
@@ -98,7 +98,7 @@
                 "message": "Command started",
                 "commandName": "find",
                 "serviceId": {
-                  "$$exists": true
+                  "$$type": "string"
                 }
               }
             },
@@ -109,7 +109,7 @@
                 "message": "Command failed",
                 "commandName": "find",
                 "serviceId": {
-                  "$$exists": true
+                  "$$type": "string"
                 }
               }
             }

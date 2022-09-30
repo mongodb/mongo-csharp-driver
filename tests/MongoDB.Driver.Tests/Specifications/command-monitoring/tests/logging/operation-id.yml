@@ -2,7 +2,7 @@
 # together bulk writes.
 description: "operation-id"
 
-schemaVersion: "1.11"
+schemaVersion: "1.12"
 
 createEntities:
   - client:
@@ -28,7 +28,7 @@ tests:
   - description: "Successful bulk write command log messages include operationIds"
     operations:
       - name: bulkWrite
-        object: *collectionName
+        object: *collection
         arguments:
           requests:
             - insertOne:
@@ -45,14 +45,14 @@ tests:
               message: "Command started"
               databaseName: *databaseName
               commandName: insert
-              operationId: { $$exists: true }
+              operationId: { $$type: [int, long] }
 
           - level: debug
             component: command
             data:
               message: "Command succeeded"
               commandName: insert
-              operationId: { $$exists: true }
+              operationId: { $$type: [int, long] }
 
           - level: debug
             component: command
@@ -60,19 +60,19 @@ tests:
               message: "Command started"
               databaseName: *databaseName
               commandName: delete
-              operationId: { $$exists: true }
+              operationId: { $$type: [int, long] }
 
           - level: debug
             component: command
             data:
               message: "Command succeeded"
               commandName: delete
-              operationId: { $$exists: true }
+              operationId: { $$type: [int, long] }
         
   - description: "Failed bulk write command log message includes operationId"
     operations:
       - name: bulkWrite
-        object: *collectionName
+        object: *collection
         arguments:
           requests:
             - updateOne:
@@ -90,11 +90,10 @@ tests:
               message: "Command started"
               databaseName: *databaseName
               commandName: update
-              operationId: { $$exists: true }
-
+              operationId: { $$type: [int, long] }
           - level: debug
             component: command
             data:
               message: "Command failed"
               commandName: update
-              operationId: { $$exists: true }
+              operationId: { $$type: [int, long] }

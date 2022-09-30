@@ -51,6 +51,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     "failPoint" => new UnifiedFailPointOperationBuilder(_entityMap).Build(operationArguments),
                     "loop" => new UnifiedLoopOperationBuilder(_entityMap, _additionalArgs).Build(operationArguments),
                     "targetedFailPoint" => new UnifiedTargetedFailPointOperationBuilder(_entityMap).Build(operationArguments),
+                    "waitForEvent" => new UnifiedWaitForEventOperationBuilder(_entityMap).Build(operationArguments),
                     _ => throw new FormatException($"Invalid method name: '{operationName}'."),
                 },
                 _ when _entityMap.HasBucket(targetEntityId) => operationName switch

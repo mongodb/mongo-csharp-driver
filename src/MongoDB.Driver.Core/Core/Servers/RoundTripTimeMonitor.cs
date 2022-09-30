@@ -150,7 +150,7 @@ namespace MongoDB.Driver.Core.Servers
                     var connectionId = toDispose?.ConnectionId;
                     toDispose?.Dispose();
 
-                    _logger?.LogDebug(ex, StructuredLogsTemplates.ConnectionId_Message, connectionId?.LocalValue, "Monitoring exception");
+                    _logger?.LogDebug(ex, StructuredLogsTemplates.DriverConnectionId_Message, connectionId?.LocalValue, "Monitoring exception");
                 }
                 ThreadHelper.Sleep(_heartbeatInterval, _cancellationToken);
             }

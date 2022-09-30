@@ -1,9 +1,9 @@
-description: "server-connection-id"
+description: "pre-42-server-connection-id"
 
-schemaVersion: "1.11"
+schemaVersion: "1.12"
 
 runOnRequirements:
-  - minServerVersion: "4.2"
+  - maxServerVersion: "4.0.99"
 
 createEntities:
   - client:
@@ -25,7 +25,7 @@ initialData:
     documents: []
 
 tests:
-  - description: "command log messages include server connection id"
+  - description: "command log messages do not include server connection id"
     operations:
       - name: insertOne
         object: *collection
@@ -45,22 +45,22 @@ tests:
             data:
               message: "Command started"
               commandName: insert
-              serverConnectionId: { $$exists: true }
+              serverConnectionId: { $$exists: false }
           - level: debug
             component: command
             data:
               message: "Command succeeded"
               commandName: insert
-              serverConnectionId: { $$exists: true }
+              serverConnectionId: { $$exists: false }
           - level: debug
             component: command
             data:
               message: "Command started"
               commandName: find
-              serverConnectionId: { $$exists: true }
+              serverConnectionId: { $$exists: false }
           - level: debug
             component: command
             data:
               message: "Command failed"
               commandName: find
-              serverConnectionId: { $$exists: true }
+              serverConnectionId: { $$exists: false }

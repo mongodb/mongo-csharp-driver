@@ -1,6 +1,6 @@
 description: "command-logging"
 
-schemaVersion: "1.11"
+schemaVersion: "1.12"
 
 createEntities:
   - client:
@@ -44,10 +44,9 @@ tests:
                   $$matchAsRoot:
                     ping: 1
                     $db: *databaseName
-              requestId: { $$exists: true }
-              driverConnectionId: { $$exists: true }
-              serverHost: { $$exists: true }
-              serverPort:  { $$exists: true }
+              requestId: { $$type: [int, long] }
+              serverHost: { $$type: string }
+              serverPort: { $$type: [int, long] }
 
           - level: debug
             component: command
@@ -55,11 +54,10 @@ tests:
               message: "Command succeeded"
               commandName: *commandName
               reply: { $$type: string }
-              requestId: { $$exists: true }
-              driverConnectionId: { $$exists: true }
-              serverHost: { $$exists: true }
-              serverPort: { $$exists: true }
-              durationMS: { $$exists: true }
+              requestId: { $$type: [int, long] }
+              serverHost: { $$type: string }
+              serverPort: { $$type: [int, long] }
+              durationMS: { $$type: [double, int, long] }
         
   - description: "A failed command"
     operations:
@@ -79,10 +77,9 @@ tests:
               databaseName: *databaseName
               commandName: *commandName
               command: { $$type: string }
-              requestId: { $$exists: true }
-              driverConnectionId: { $$exists: true }
-              serverHost: { $$exists: true }
-              serverPort:  { $$exists: true }
+              requestId:  { $$type: [int, long] }
+              serverHost: { $$type: string }
+              serverPort: { $$type: [int, long] }
 
           - level: debug
             component: command
@@ -90,8 +87,8 @@ tests:
               message: "Command failed"
               commandName: *commandName
               failure: { $$exists: true }
-              requestId:  { $$exists: true }
-              driverConnectionId: { $$exists: true }
-              serverHost: { $$exists: true }
-              serverPort:  { $$exists: true }
-              durationMS: { $$exists: true }
+              requestId:  { $$type: [int, long] }
+              serverHost: { $$type: string }
+              serverPort: { $$type: [int, long] }
+              durationMS: { $$type: [double, int, long] }
+

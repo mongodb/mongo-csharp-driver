@@ -85,6 +85,6 @@ namespace MongoDB.Driver.Core.Events
         }
 
         // explicit interface implementations
-        EventType IEvent.Type => EventType.ClusterDescriptionChanged;
+        EventType IEvent.Type => EventType.ServerOpened;
     }
 }
