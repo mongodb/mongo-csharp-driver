@@ -16,15 +16,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Tests.UnifiedTestOperations.Matchers;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
-    public class UnifiedWaitForEventOperation : IUnifiedEntityTestOperation
+    public class UnifiedWaitForEventOperation : IUnifiedSpecialTestOperation
     {
         private readonly int _count;
         private readonly BsonDocument _eventDocument;
@@ -43,33 +41,19 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             _unifiedEventMatcher = unifiedEventMatcher;
         }
 
-        public OperationResult Execute(CancellationToken cancellationToken)
+        public void Execute()
         {
-            try
-            {
-                _eventCapturer.WaitForOrThrowIfTimeout(
-                    DoEventsMatch,
-                    TimeSpan.FromSeconds(10),
-                    (timeout) => $"Waiting for {_count} {_eventCapturer} exceeded the timeout {timeout}.");
+            _eventCapturer.WaitForOrThrowIfTimeout(
+                DoEventsMatch,
+                TimeSpan.FromSeconds(10),
+                timeout => $"Waiting for {_count} {_eventCapturer} exceeded the timeout {timeout}.");
 
-                return OperationResult.Empty();
-            }
-            catch (Exception exception)
-            {
-                return OperationResult.FromException(exception);
-            }
-        }
-
-        public Task<OperationResult> ExecuteAsync(CancellationToken cancellationToken)
-        {
-            return Task.FromResult(Execute(cancellationToken));
-        }
-
-        private bool DoEventsMatch(IEnumerable<object> events) =>
-            events
+            bool DoEventsMatch(IEnumerable<object> events) =>
+                events
                 .Where(e => _unifiedEventMatcher.DoEventsMatch(e, _eventDocument))
                 .Take(_count)
                 .Count() == _count;
+        }
     }
 
     public class UnifiedWaitForEventOperationBuilder
@@ -86,8 +70,13 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             var clientId = arguments["client"].AsString;
             var eventObject = arguments["event"].AsBsonDocument;
             var count = arguments["count"].AsInt32;
-            var eventCapturer = _entityMap.EventCapturers[clientId];
 
+            if (arguments.ElementCount != 3)
+            {
+                throw new FormatException($"Invalid {nameof(UnifiedWaitForEventOperation)} arguments count.");
+            }
+
+            var eventCapturer = _entityMap.EventCapturers[clientId];
             var unifiedEventMatcher = new UnifiedEventMatcher(new UnifiedValueMatcher(_entityMap));
 
             return new UnifiedWaitForEventOperation(unifiedEventMatcher, eventCapturer, eventObject, count);
