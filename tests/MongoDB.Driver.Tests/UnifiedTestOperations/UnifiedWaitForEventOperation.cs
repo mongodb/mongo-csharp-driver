@@ -50,9 +50,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
             bool DoEventsMatch(IEnumerable<object> events) =>
                 events
-                .Where(e => _unifiedEventMatcher.DoEventsMatch(e, _eventDocument))
-                .Take(_count)
-                .Count() == _count;
+                    .Where(e => _unifiedEventMatcher.DoEventsMatch(e, _eventDocument))
+                    .Take(_count)
+                    .Count() == _count;
         }
     }
 
