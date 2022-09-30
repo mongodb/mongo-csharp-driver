@@ -105,8 +105,8 @@ namespace MongoDB.Bson.Serialization.Serializers
             {
                 case BsonType.Array:
                     bsonReader.ReadStartArray();
-                    ticks = bsonReader.ReadInt64();
-                    offset = TimeSpan.FromMinutes(bsonReader.ReadInt32());
+                    ticks = _int64Serializer.Deserialize(context);
+                    offset = TimeSpan.FromMinutes(_int32Serializer.Deserialize(context));
                     bsonReader.ReadEndArray();
                     return new DateTimeOffset(ticks, offset);
 
