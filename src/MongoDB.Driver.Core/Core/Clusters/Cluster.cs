@@ -233,7 +233,7 @@ namespace MongoDB.Driver.Core.Clusters
                     _clusterEventsLogger.Logger?.LogDebug(
                         StructuredLogsTemplates.ClusterId_Message_SharedLibraryVersion,
                         _clusterId,
-                        "CryptClient created. Configured shared library.",
+                        "CryptClient created. Configured shared library version: ",
                         _cryptClient.CryptSharedLibraryVersion ?? "None");
                 }
             }
