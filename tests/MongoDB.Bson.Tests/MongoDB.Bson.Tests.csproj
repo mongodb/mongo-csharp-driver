@@ -73,11 +73,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Specifications\**\tests\**\*.json" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="Specifications\**\tests\**\*.json" />
+    <EmbeddedResource LinkBase="Specifications\bson-corpus" Include="..\..\specifications\bson-corpus\**\*.json" />
+    <EmbeddedResource LinkBase="Specifications\bson-decimal128" Include="..\..\specifications\bson-decimal128\**\*.json" />
+    <EmbeddedResource LinkBase="Specifications\uuid" Include="..\..\specifications\uuid\**\*.json" />
   </ItemGroup>
 
   <ItemGroup>
