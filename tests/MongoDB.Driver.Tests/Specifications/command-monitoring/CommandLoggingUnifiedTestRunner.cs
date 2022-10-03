@@ -48,6 +48,11 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
             {
                 foreach (var testCase in base.CreateTestCases(document))
                 {
+                    if (testCase.Name.Contains("pre-42-server-connection-id"))
+                    {
+                        continue;
+                    }
+
                     foreach (var async in new[] { false, true })
                     {
                         var name = $"{testCase.Name}:async={async}";
