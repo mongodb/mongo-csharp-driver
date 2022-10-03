@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver.Core;
@@ -44,15 +43,15 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         public void Execute()
         {
             _eventCapturer.WaitForOrThrowIfTimeout(
-                DoEventsMatch,
+                events => events.Where(DoEventsMatch).Take(_count).Count() == _count,
                 TimeSpan.FromSeconds(10),
-                timeout => $"Waiting for {_count} {_eventCapturer} exceeded the timeout {timeout}.");
+                timeout =>
+                {
+                    var triggeredEventsCount = _eventCapturer.Events.Count(DoEventsMatch);
+                    return $"Waiting for {_count} {_eventDocument} exceeded the timeout {timeout}. The number of triggered events is {triggeredEventsCount}.";
+                });
 
-            bool DoEventsMatch(IEnumerable<object> events) =>
-                events
-                    .Where(e => _unifiedEventMatcher.DoEventsMatch(e, _eventDocument))
-                    .Take(_count)
-                    .Count() == _count;
+            bool DoEventsMatch(object @event) => _unifiedEventMatcher.DoEventsMatch(@event, _eventDocument);
         }
     }
 
