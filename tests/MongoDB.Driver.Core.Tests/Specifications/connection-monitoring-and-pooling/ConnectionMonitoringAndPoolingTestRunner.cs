@@ -34,6 +34,7 @@ using MongoDB.Driver.Core.ConnectionPools;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Helpers;
+using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers;
@@ -650,9 +651,8 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
                     endPoint,
                     connectionPoolSettings,
                     connectionFactory.Object,
-                    eventCapturer,
                     connectionExceptionHandler.Object,
-                    logger: null);
+                    eventCapturer.ToEventsLogger<LogCategories.Connection>());
 
                 connectionPool.Initialize();
             }
@@ -757,9 +757,8 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
                 endPoint,
                 connectionPoolSettings,
                 connectionFactory.Object,
-                eventSubscriber,
                 exceptionHandler.Object,
-                null);
+                eventSubscriber.ToEventsLogger<LogCategories.Connection>());
 
             return connectionPool;
         }

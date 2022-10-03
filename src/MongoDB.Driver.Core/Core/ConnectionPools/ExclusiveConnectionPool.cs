@@ -17,7 +17,6 @@ using System;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
@@ -54,18 +53,16 @@ namespace MongoDB.Driver.Core.ConnectionPools
             EndPoint endPoint,
             ConnectionPoolSettings settings,
             IConnectionFactory connectionFactory,
-            IEventSubscriber eventSubscriber,
             IConnectionExceptionHandler connectionExceptionHandler,
-            ILogger<LogCategories.Connection> logger)
+            EventsLogger<LogCategories.Connection> eventsLogger)
         {
             _serverId = Ensure.IsNotNull(serverId, nameof(serverId));
             _endPoint = Ensure.IsNotNull(endPoint, nameof(endPoint));
             _settings = Ensure.IsNotNull(settings, nameof(settings));
             _connectionFactory = Ensure.IsNotNull(connectionFactory, nameof(connectionFactory));
             _connectionExceptionHandler = Ensure.IsNotNull(connectionExceptionHandler, nameof(connectionExceptionHandler));
-            Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
 
-            _eventsLogger = logger.ToEventsLogger(eventSubscriber);
+            _eventsLogger = Ensure.IsNotNull(eventsLogger, nameof(eventsLogger));
 
             _maintenanceHelper = new MaintenanceHelper(this, _settings.MaintenanceInterval);
             _poolState = new PoolState(EndPointHelper.ToString(_endPoint));

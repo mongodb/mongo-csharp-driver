@@ -19,7 +19,6 @@ using System.Diagnostics;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
@@ -71,9 +70,8 @@ namespace MongoDB.Driver.Core.Servers
             ServerSettings settings,
             EndPoint endPoint,
             IConnectionPoolFactory connectionPoolFactory,
-            IEventSubscriber eventSubscriber,
             ServerApi serverApi,
-            ILogger<LogCategories.SDAM> logger)
+            EventsLogger<LogCategories.SDAM> eventsLogger)
         {
             ClusterConnectionModeHelper.EnsureConnectionModeValuesAreValid(clusterConnectionMode, connectionModeSwitch, directConnection);
 
@@ -83,7 +81,6 @@ namespace MongoDB.Driver.Core.Servers
             _directConnection = directConnection;
             _settings = Ensure.IsNotNull(settings, nameof(settings));
             _endPoint = Ensure.IsNotNull(endPoint, nameof(endPoint));
-            Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
 
             _serverId = new ServerId(clusterId, endPoint);
             _connectionPool = Ensure.IsNotNull(connectionPoolFactory, nameof(connectionPoolFactory)).CreateConnectionPool(_serverId, endPoint, this);
@@ -91,7 +88,7 @@ namespace MongoDB.Driver.Core.Servers
             _serverApi = serverApi;
             _outstandingOperationsCount = 0;
 
-            _eventsLogger = logger.ToEventsLogger(eventSubscriber);
+            _eventsLogger = Ensure.IsNotNull(eventsLogger, nameof(eventsLogger));
         }
 
         // events

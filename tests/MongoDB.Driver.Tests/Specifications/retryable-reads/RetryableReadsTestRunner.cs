@@ -216,7 +216,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
                 ConfigureClientSettings(settings, test);
                 settings.ClusterConfigurator = c => c.Subscribe(eventCapturer);
             },
-            LoggerFactory);
+            LoggingSettings);
         }
 
         private void ConfigureClientSettings(MongoClientSettings settings, BsonDocument test)

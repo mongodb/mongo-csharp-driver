@@ -78,9 +78,8 @@ namespace MongoDB.Driver.Core.Servers
                         _settings,
                         endPoint,
                         _connectionPoolFactory,
-                        _eventSubscriber,
                         _serverApi,
-                        _loggerFactory?.CreateLogger<LogCategories.SDAM>()),
+                        _loggerFactory.CreateEventsLogger<LogCategories.SDAM>(_eventSubscriber)),
 
                 _ =>
                     new DefaultServer(
@@ -93,9 +92,8 @@ namespace MongoDB.Driver.Core.Servers
                         endPoint,
                         _connectionPoolFactory,
                         _serverMonitorFactory,
-                        _eventSubscriber,
                         _serverApi,
-                        _loggerFactory?.CreateLogger<LogCategories.SDAM>())
+                        _loggerFactory.CreateEventsLogger<LogCategories.SDAM>(_eventSubscriber))
             };
     }
 }

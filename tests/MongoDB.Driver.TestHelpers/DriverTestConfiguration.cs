@@ -21,6 +21,7 @@ using Microsoft.Extensions.Logging;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.TestHelpers;
@@ -124,14 +125,14 @@ namespace MongoDB.Driver.Tests
             return CreateDirectClientsToServersInClientSettings(MongoClientSettings.FromConnectionString(connectionString.ToString()));
         }
 
-        public static DisposableMongoClient CreateDisposableClient(ILoggerFactory loggerFactory = null)
+        public static DisposableMongoClient CreateDisposableClient(LoggingSettings loggingSettings = null)
         {
-            return CreateDisposableClient((MongoClientSettings s) => { }, loggerFactory);
+            return CreateDisposableClient((MongoClientSettings s) => { }, loggingSettings);
         }
 
-        public static DisposableMongoClient CreateDisposableClient(Action<ClusterBuilder> clusterConfigurator, ILoggerFactory loggerFactory = null)
+        public static DisposableMongoClient CreateDisposableClient(Action<ClusterBuilder> clusterConfigurator, LoggingSettings loggingSettings = null)
         {
-            return CreateDisposableClient((MongoClientSettings s) => s.ClusterConfigurator = clusterConfigurator, loggerFactory);
+            return CreateDisposableClient((MongoClientSettings s) => s.ClusterConfigurator = clusterConfigurator, loggingSettings);
         }
 
         public static MongoClient CreateClient(
@@ -157,31 +158,32 @@ namespace MongoDB.Driver.Tests
 
         public static DisposableMongoClient CreateDisposableClient(
             Action<MongoClientSettings> clientSettingsConfigurator,
-            ILoggerFactory loggerFactory,
+            LoggingSettings loggingSettings,
             bool useMultipleShardRouters = false)
         {
             Action<MongoClientSettings> compositeClientSettingsConfigurator = s =>
             {
                 EnsureUniqueCluster(s);
-                s.LoggerFactory = loggerFactory;
+                s.LoggingSettings = loggingSettings;
 
                 clientSettingsConfigurator?.Invoke(s);
             };
 
             var client = CreateClient(compositeClientSettingsConfigurator, useMultipleShardRouters);
 
-            return new DisposableMongoClient(client, loggerFactory?.CreateLogger<DisposableMongoClient>());
+            return new DisposableMongoClient(client, loggingSettings.ToInternalLoggingFactory()?.CreateLogger<DisposableMongoClient>());
         }
 
-        public static DisposableMongoClient CreateDisposableClient(EventCapturer capturer, ILoggerFactory loggerFactory = null)
+        public static DisposableMongoClient CreateDisposableClient(EventCapturer capturer, LoggingSettings loggingSettings = null)
         {
-            return CreateDisposableClient((ClusterBuilder c) => c.Subscribe(capturer), loggerFactory);
+            return CreateDisposableClient((ClusterBuilder c) => c.Subscribe(capturer), loggingSettings);
         }
 
         public static DisposableMongoClient CreateDisposableClient(MongoClientSettings settings)
         {
             EnsureUniqueCluster(settings);
-            return new DisposableMongoClient(new MongoClient(settings), settings.LoggerFactory?.CreateLogger<DisposableMongoClient>());
+
+            return new DisposableMongoClient(new MongoClient(settings), settings.LoggingSettings.ToInternalLoggingFactory()?.CreateLogger<DisposableMongoClient>());
         }
 
         private static MongoClient CreateLinq3Client()

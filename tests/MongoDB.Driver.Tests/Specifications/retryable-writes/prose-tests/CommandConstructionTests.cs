@@ -444,7 +444,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
                 settings.ClusterConfigurator = c => c.Subscribe(eventCapturer);
                 settings.RetryWrites = true;
             },
-            LoggerFactory);
+            LoggingSettings);
         }
 
         private EventCapturer CreateEventCapturer()

@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             try
             {
-                var newEntityMap = new UnifiedEntityMapBuilder(null, _entityMap.LoggerFactory).Build(_entitiesArray);
+                var newEntityMap = new UnifiedEntityMapBuilder(null, _entityMap.LoggingSettings).Build(_entitiesArray);
                 _entityMap.AddEntities(newEntityMap);
 
                 return OperationResult.Empty();

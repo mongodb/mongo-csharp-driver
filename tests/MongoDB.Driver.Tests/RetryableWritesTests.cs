@@ -262,7 +262,7 @@ namespace MongoDB.Driver.Tests
                 clientSettings.ClusterConfigurator = clusterConfigurator;
                 clientSettings.RetryWrites = retryWrites;
             },
-            LoggerFactory);
+            LoggingSettings);
         }
 
         private DisposableMongoClient GetClient(EventCapturer capturer)

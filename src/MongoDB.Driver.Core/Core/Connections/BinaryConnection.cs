@@ -137,6 +137,8 @@ namespace MongoDB.Driver.Core.Connections
             get { return _settings; }
         }
 
+        private bool IsInitializing => _state.Value == State.Initializing;
+
         // methods
         private void ConnectionFailed(Exception exception)
         {
@@ -153,7 +155,7 @@ namespace MongoDB.Driver.Core.Connections
             {
                 _failedEventHasBeenRaised = true;
                 _eventsLogger.LogAndPublish(new ConnectionFailedEvent(_connectionId, exception));
-                _commandEventHelper.ConnectionFailed(_connectionId, _description?.ServiceId, exception);
+                _commandEventHelper.ConnectionFailed(_connectionId, _description?.ServiceId, exception, IsInitializing);
             }
         }
 
@@ -920,7 +922,7 @@ namespace MongoDB.Driver.Core.Connections
             {
                 if (_connection._commandEventHelper.ShouldCallErrorReceiving)
                 {
-                    _connection._commandEventHelper.ErrorReceiving(_responseTo, _connection._connectionId, _connection.Description?.ServiceId, exception);
+                    _connection._commandEventHelper.ErrorReceiving(_responseTo, _connection._connectionId, _connection.Description?.ServiceId, exception, _connection.IsInitializing);
                 }
 
                 _connection._eventsLogger.LogAndPublish(new ConnectionReceivingMessageFailedEvent(_connection.ConnectionId, _responseTo, exception, EventContext.OperationId));
@@ -930,7 +932,7 @@ namespace MongoDB.Driver.Core.Connections
             {
                 if (_connection._commandEventHelper.ShouldCallAfterReceiving)
                 {
-                    _connection._commandEventHelper.AfterReceiving(message, buffer, _connection._connectionId, _connection.Description?.ServiceId, _messageEncoderSettings);
+                    _connection._commandEventHelper.AfterReceiving(message, buffer, _connection._connectionId, _connection.Description?.ServiceId, _messageEncoderSettings, _connection.IsInitializing);
                 }
 
                 _connection._eventsLogger.LogAndPublish(new ConnectionReceivedMessageEvent(_connection.ConnectionId, _responseTo, buffer.Length, _networkDuration, _deserializationDuration, EventContext.OperationId));
@@ -1017,7 +1019,7 @@ namespace MongoDB.Driver.Core.Connections
             {
                 if (_connection._commandEventHelper.ShouldCallErrorSending)
                 {
-                    _connection._commandEventHelper.ErrorSending(_messages, _connection._connectionId, _connection._description?.ServiceId, ex);
+                    _connection._commandEventHelper.ErrorSending(_messages, _connection._connectionId, _connection._description?.ServiceId, ex, _connection.IsInitializing);
                 }
 
                 _connection._eventsLogger.LogAndPublish(new ConnectionSendingMessagesFailedEvent(_connection.ConnectionId, _requestIds.Value, ex, EventContext.OperationId));
@@ -1027,7 +1029,7 @@ namespace MongoDB.Driver.Core.Connections
             {
                 if (_connection._commandEventHelper.ShouldCallBeforeSending)
                 {
-                    _connection._commandEventHelper.BeforeSending(_messages, _connection.ConnectionId, _connection.Description?.ServiceId, buffer, _messageEncoderSettings, _commandStopwatch);
+                    _connection._commandEventHelper.BeforeSending(_messages, _connection.ConnectionId, _connection.Description?.ServiceId, buffer, _messageEncoderSettings, _commandStopwatch, _connection.IsInitializing);
                 }
 
                 _networkStopwatch = Stopwatch.StartNew();
@@ -1040,7 +1042,7 @@ namespace MongoDB.Driver.Core.Connections
 
                 if (_connection._commandEventHelper.ShouldCallAfterSending)
                 {
-                    _connection._commandEventHelper.AfterSending(_messages, _connection._connectionId, _connection.Description?.ServiceId);
+                    _connection._commandEventHelper.AfterSending(_messages, _connection._connectionId, _connection.Description?.ServiceId, _connection.IsInitializing);
                 }
 
                 _connection._eventsLogger.LogAndPublish(new ConnectionSentMessagesEvent(_connection.ConnectionId, _requestIds.Value, bufferLength, networkDuration, _serializationDuration, EventContext.OperationId));

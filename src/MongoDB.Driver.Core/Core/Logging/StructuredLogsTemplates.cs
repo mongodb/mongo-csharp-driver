@@ -136,20 +136,20 @@ namespace MongoDB.Driver.Core.Logging
                 return new object[] { connectionId.ServerId.ClusterId.Value, connectionId.LocalValue, host, port, arg1, arg2, arg3, arg4, arg5, arg6, arg7, ommitableParam };
         }
 
-        private static void AddTemplateProvider<TEvent>(LogLevel logLevel, string template, Func<TEvent, object[]> extractor) where TEvent : struct, IEvent =>
+        private static void AddTemplateProvider<TEvent>(LogLevel logLevel, string template, Func<TEvent, EventsLogsFormattingOptions, object[]> extractor) where TEvent : struct, IEvent =>
             AddTemplateProvider<TEvent>(new LogsTemplateProvider(
                 logLevel,
                 new[] { template },
                 extractor));
 
-        private static void AddTemplateProvider<TEvent>(LogLevel logLevel, string[] templates, Func<TEvent, object[]> extractor, Func<TEvent, LogsTemplateProvider, string> templateExtractor) where TEvent : struct, IEvent =>
+        private static void AddTemplateProvider<TEvent>(LogLevel logLevel, string[] templates, Func<TEvent, EventsLogsFormattingOptions, object[]> extractor, Func<TEvent, LogsTemplateProvider, string> templateExtractor) where TEvent : struct, IEvent =>
             AddTemplateProvider<TEvent>(new LogsTemplateProvider(
                 logLevel,
                 templates,
                 extractor,
                 templateExtractor));
 
-        private static void AddTemplate<TEvent, TArg>(LogLevel logLevel, string template, Func<TEvent, TArg, object[]> extractor) where TEvent : struct, IEvent =>
+        private static void AddTemplate<TEvent, TArg>(LogLevel logLevel, string template, Func<TEvent, EventsLogsFormattingOptions, TArg, object[]> extractor) where TEvent : struct, IEvent =>
             AddTemplateProvider<TEvent>(new LogsTemplateProvider(
                 logLevel,
                 new[] { template },
@@ -161,7 +161,7 @@ namespace MongoDB.Driver.Core.Logging
 
             if (__eventsTemplates[index] != null)
             {
-                throw new InvalidOperationException($"Template already registered for {typeof(TEvent)} event");
+                throw new InvalidOperationException($"Template already registered for {typeof(TEvent)} event.");
             }
 
             __eventsTemplates[index] = templateProvider;
@@ -191,11 +191,11 @@ namespace MongoDB.Driver.Core.Logging
             public string GetTemplate<TEvent>(TEvent @event) where TEvent : struct, IEvent =>
                 TemplateExtractor != null ? ((Func<TEvent, LogsTemplateProvider, string>)TemplateExtractor)(@event, this) : Templates.First();
 
-            public object[] GetParams<TEvent>(TEvent @event) where TEvent : struct, IEvent =>
-                (ParametersExtractor as Func<TEvent, object[]>)(@event);
+            public object[] GetParams<TEvent>(TEvent @event, EventsLogsFormattingOptions eventsLogsFormattingOptions) where TEvent : struct, IEvent =>
+                (ParametersExtractor as Func<TEvent, EventsLogsFormattingOptions, object[]>)(@event, eventsLogsFormattingOptions);
 
-            public object[] GetParams<TEvent, TArg>(TEvent @event, TArg arg) where TEvent : struct, IEvent =>
-                (ParametersExtractor as Func<TEvent, TArg, object[]>)(@event, arg);
+            public object[] GetParams<TEvent, TArg>(TEvent @event, EventsLogsFormattingOptions eventsLogsFormattingOptions, TArg arg) where TEvent : struct, IEvent =>
+                (ParametersExtractor as Func<TEvent, EventsLogsFormattingOptions, TArg, object[]>)(@event, eventsLogsFormattingOptions, arg);
         }
     }
 }

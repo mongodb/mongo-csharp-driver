@@ -25,7 +25,6 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.ConnectionPools;
 using MongoDB.Driver.Core.Connections;
-using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Misc;
 
@@ -60,9 +59,8 @@ namespace MongoDB.Driver.Core.Servers
             EndPoint endPoint,
             IConnectionPoolFactory connectionPoolFactory,
             IServerMonitorFactory monitorFactory,
-            IEventSubscriber eventSubscriber,
             ServerApi serverApi,
-            ILogger<LogCategories.SDAM> logger)
+            EventsLogger<LogCategories.SDAM> eventsLogger)
             : base(
                   clusterId,
                   clusterClock,
@@ -72,9 +70,8 @@ namespace MongoDB.Driver.Core.Servers
                   settings,
                   endPoint,
                   connectionPoolFactory,
-                  eventSubscriber,
                   serverApi,
-                  logger)
+                  eventsLogger)
         {
             _monitor = Ensure.IsNotNull(monitorFactory, nameof(monitorFactory)).Create(ServerId, endPoint);
             _baseDescription = _currentDescription = new ServerDescription(ServerId, endPoint, reasonChanged: "ServerInitialDescription", heartbeatInterval: settings.HeartbeatInterval);

@@ -21,6 +21,7 @@ using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using MongoDB.Driver.Core.Configuration;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -57,7 +58,7 @@ namespace MongoDB.Driver.SmokeTests.Sdk
             using (var loggerFactory = GetLoggerFactory(logsTracer, categories))
             {
                 var settings = GetMongoClientSettings();
-                settings.LoggerFactory = loggerFactory;
+                settings.LoggingSettings = new LoggingSettings(loggerFactory);
                 var mongoClient = new MongoClient(settings);
 
                 try

@@ -14,6 +14,7 @@
 */
 
 using Microsoft.Extensions.Logging;
+using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Logging
@@ -21,11 +22,15 @@ namespace MongoDB.Driver.Core.Logging
     internal sealed class LoggerFactoryCategoryDecorator : ILoggerFactory
     {
         private readonly ILoggerFactory _loggerFactory;
+        private readonly LoggingSettings _loggingSettings;
 
-        public LoggerFactoryCategoryDecorator(ILoggerFactory loggerFactory)
+        public LoggerFactoryCategoryDecorator(ILoggerFactory loggerFactory, LoggingSettings loggingSettings)
         {
             _loggerFactory = Ensure.IsNotNull(loggerFactory, nameof(loggerFactory));
+            _loggingSettings = Ensure.IsNotNull(loggingSettings, nameof(loggingSettings));
         }
+
+        public LoggingSettings LoggingSettings => _loggingSettings;
 
         public void AddProvider(ILoggerProvider provider) => _loggerFactory.AddProvider(provider);
 

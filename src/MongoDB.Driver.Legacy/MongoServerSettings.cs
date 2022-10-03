@@ -1209,7 +1209,7 @@ namespace MongoDB.Driver
                 _ipv6,
                 loadBalanced: false, // not supported for legacy, so turn it off
                 _localThreshold,
-                loggerFactory: null,
+                loggingSettings: null,
                 maxConnecting: MongoInternalDefaults.ConnectionPool.MaxConnecting,
                 _maxConnectionIdleTime,
                 _maxConnectionLifeTime,

@@ -68,7 +68,7 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
                     settings.MaxConnectionPoolSize = 1;
                     settings.ClusterConfigurator = c => c.Subscribe(eventCapturer);
                 },
-                LoggerFactory);
+                LoggingSettings);
 
             var database = client.GetDatabase("test");
 
@@ -202,7 +202,7 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
                     settings.MaxConnectionPoolSize = 1;
                     settings.ClusterConfigurator = c => c.Subscribe(eventCapturer);
                 },
-                LoggerFactory);
+                LoggingSettings);
 
             var database = client.GetDatabase("test");
             database.DropCollection("inventory");

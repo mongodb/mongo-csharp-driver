@@ -1,4 +1,4 @@
-/* Copyright 2021-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,18 +13,17 @@
 * limitations under the License.
 */
 
-namespace MongoDB.Driver
-{
-    internal static class MongoInternalDefaults
-    {
-        public static class Logging
-        {
-            public const int MaxDocumentSize = 1000;
-        }
+using MongoDB.Driver.Core.Misc;
 
-        public static class ConnectionPool
+namespace MongoDB.Driver.Core.Logging
+{
+    internal sealed class EventsLogsFormattingOptions
+    {
+        public int MaxDocumentSize { get; }
+
+        public EventsLogsFormattingOptions(int maxCommandDocumentSize)
         {
-            public const int MaxConnecting = 2;
+            MaxDocumentSize = Ensure.IsGreaterThanOrEqualToZero(maxCommandDocumentSize, nameof(maxCommandDocumentSize));
         }
     }
 }

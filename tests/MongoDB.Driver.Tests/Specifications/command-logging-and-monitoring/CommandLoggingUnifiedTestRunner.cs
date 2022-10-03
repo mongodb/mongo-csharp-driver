@@ -48,6 +48,7 @@ namespace MongoDB.Driver.Tests.Specifications.command_logging_and_monitoring
             {
                 foreach (var testCase in base.CreateTestCases(document))
                 {
+                    // .NET driver has a fallback logic to get a server connectionId based on an additional getLastError call which is not expected by the spec.
                     if (testCase.Name.Contains("pre-42-server-connection-id"))
                     {
                         continue;

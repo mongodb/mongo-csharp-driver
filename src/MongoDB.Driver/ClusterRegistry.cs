@@ -62,7 +62,7 @@ namespace MongoDB.Driver
                 .ConfigureConnection(settings => ConfigureConnection(settings, clusterKey))
                 .ConfigureTcp(settings => ConfigureTcp(settings, clusterKey))
                 .ConfigureSdamLogging(settings => ConfigureSdamLogging(settings, clusterKey))
-                .ConfigureLoggingFactory(_ => clusterKey.LoggerFactory);
+                .ConfigureLoggingSettings(_ => clusterKey.LoggingSettings);
 #pragma warning restore CS0618 // Type or member is obsolete
 
             if (clusterKey.UseTls)
