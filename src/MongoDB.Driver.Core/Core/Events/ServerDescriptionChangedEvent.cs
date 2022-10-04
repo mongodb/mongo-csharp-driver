@@ -22,7 +22,7 @@ namespace MongoDB.Driver.Core.Events
     /// <summary>
     /// Occurs after a server's description has changed.
     /// </summary>
-    public struct ServerDescriptionChangedEvent
+    public struct ServerDescriptionChangedEvent : IEvent
     {
         private readonly ServerDescription _oldDescription;
         private readonly ServerDescription _newDescription;
@@ -79,5 +79,8 @@ namespace MongoDB.Driver.Core.Events
         {
             get { return _timestamp; }
         }
+
+        // explicit interface implementations
+        EventType IEvent.Type => EventType.ServerDescriptionChanged;
     }
 }

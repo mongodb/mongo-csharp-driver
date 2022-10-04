@@ -176,7 +176,11 @@ namespace MongoDB.Driver.Core.Servers
                     lastUpdateTimestamp: DateTime.UtcNow,
                     topologyVersion: topologyVersion);
 
-            EventsLogger.LogDebug("Invalidating {Description}", newDescription);
+            EventsLogger.Logger?.LogDebug(
+                StructuredLogsTemplates.ServerId_Message_Description,
+                ServerId,
+                newDescription,
+                "Invalidating description");
 
             SetDescription(newDescription, clearConnectionPool);
             // TODO: make the heartbeat request conditional so we adhere to this part of the spec

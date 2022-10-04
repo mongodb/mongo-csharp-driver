@@ -391,6 +391,7 @@ namespace MongoDB.Driver.Core.Servers
             mockConnection.Setup(c => c.OpenAsync(It.IsAny<CancellationToken>())).ThrowsAsync(openConnectionException);
 
             var connectionFactory = new Mock<IConnectionFactory>();
+            connectionFactory.Setup(f => f.ConnectionSettings).Returns(() => new ConnectionSettings());
             connectionFactory.Setup(cf => cf.CreateConnection(serverId, _endPoint)).Returns(mockConnection.Object);
 
             var mockExceptionHandler = new Mock<IConnectionExceptionHandler>();

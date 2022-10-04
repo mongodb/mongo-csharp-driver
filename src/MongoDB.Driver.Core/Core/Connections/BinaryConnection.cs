@@ -85,8 +85,8 @@ namespace MongoDB.Driver.Core.Connections
             _state = new InterlockedInt32(State.Initial);
 
             _compressorSource = new CompressorSource(settings.Compressors);
-            _eventsLogger = loggerFactory.CreateEventsLogger<LogCategories.Connection>(eventSubscriber, ConnectionId);
-            _commandEventHelper = new CommandEventHelper(loggerFactory.CreateEventsLogger<LogCategories.Command>(eventSubscriber, ConnectionId));
+            _eventsLogger = loggerFactory.CreateEventsLogger<LogCategories.Connection>(eventSubscriber);
+            _commandEventHelper = new CommandEventHelper(loggerFactory.CreateEventsLogger<LogCategories.Command>(eventSubscriber));
         }
 
         // properties

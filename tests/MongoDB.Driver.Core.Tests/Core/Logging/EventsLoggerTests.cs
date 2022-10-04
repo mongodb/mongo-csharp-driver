@@ -19,7 +19,10 @@ using System.Linq;
 using System.Net;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
+using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
+using MongoDB.Driver.Core.Servers;
 using Moq;
 using Xunit;
 
@@ -35,6 +38,7 @@ namespace MongoDB.Driver.Core.Logging
             bool isHandlerRegistered,
             bool isLoggingEnabled)
             where TEventCategory : LogCategories.EventCategory
+            where TEvent : struct, IEvent
         {
             object eventCaptured = null;
             Mock<IEventSubscriber> eventSubscriber = new Mock<IEventSubscriber>();
@@ -51,13 +55,11 @@ namespace MongoDB.Driver.Core.Logging
             if (isLoggingEnabled)
             {
                 logger = new Mock<ILogger<TEventCategory>>();
-                logger.Setup(l => l.IsEnabled(LogLevel.Information)).Returns(true);
+                logger.Setup(l => l.IsEnabled(LogLevel.Debug)).Returns(true);
             }
 
-            var eventsLogger = new EventsLogger<TEventCategory>(eventSubscriber.Object, logger?.Object, "mockId");
-            var logAndPublishMethodInfo = eventsLogger.GetType().GetMethod(nameof(eventsLogger.LogAndPublish), new[] { typeof(TEvent) });
-
-            logAndPublishMethodInfo.Invoke(eventsLogger, new object[] { @event });
+            var eventsLogger = new EventsLogger<TEventCategory>(eventSubscriber.Object, logger?.Object);
+            eventsLogger.LogAndPublish(@event);
 
             eventSubscriber.Verify(s => s.TryGetEventHandler(out eventHandler), Times.Once);
 
@@ -72,7 +74,7 @@ namespace MongoDB.Driver.Core.Logging
 
             if (isLoggingEnabled)
             {
-                logger.Verify(l => l.Log(LogLevel.Information, It.IsAny<EventId>(), It.IsNotNull<object>(), null, It.IsNotNull<Func<object, Exception, string>>()), Times.Once);
+                logger.Verify(l => l.Log(LogLevel.Debug, It.IsAny<EventId>(), It.IsNotNull<object>(), null, It.IsNotNull<Func<object, Exception, string>>()), Times.Once);
             }
 
             eventsLogger.IsEventTracked<TEvent>().Should().Be(isLoggingEnabled || isHandlerRegistered);
@@ -80,13 +82,19 @@ namespace MongoDB.Driver.Core.Logging
 
         private static IEnumerable<object[]> EventsData()
         {
+            var clusterId = new ClusterId(1);
+            var endPoint = new DnsEndPoint("localhost", 27017);
+            var serverId = new ServerId(clusterId, endPoint);
+            var connectionId = new ConnectionId(serverId, 1);
+            var clusterDescription = new ClusterDescription(clusterId, false, default, default, default);
+
             var eventsData = new (object, object)[]
             {
-                (new LogCategories.Cluster(), new ClusterAddedServerEvent(null, TimeSpan.FromSeconds(1))),
-                (new LogCategories.Command(), new CommandStartedEvent("test", new Bson.BsonDocument(), new DatabaseNamespace("test"), 1, 1, new Connections.ConnectionId(new Servers.ServerId(new Clusters.ClusterId(), new IPEndPoint(1, 1))))),
-                (new LogCategories.Connection(), new ConnectionCreatedEvent(null, null, 1)),
-                (new LogCategories.SDAM(), new ServerHeartbeatStartedEvent(null, true)),
-                (new LogCategories.ServerSelection(), new ClusterSelectedServerEvent())
+                (new LogCategories.Cluster(), new ClusterAddedServerEvent(serverId, TimeSpan.FromSeconds(1))),
+                (new LogCategories.Command(), new CommandStartedEvent("test", new Bson.BsonDocument(), new DatabaseNamespace("test"), 1, 1, connectionId)),
+                (new LogCategories.Connection(), new ConnectionCreatedEvent(connectionId, null, 1)),
+                (new LogCategories.SDAM(), new ServerHeartbeatStartedEvent(connectionId, true)),
+                (new LogCategories.ServerSelection(), new ClusterSelectingServerEvent(clusterDescription, default, default))
             };
 
             var booleanValues = new[] { true, false };

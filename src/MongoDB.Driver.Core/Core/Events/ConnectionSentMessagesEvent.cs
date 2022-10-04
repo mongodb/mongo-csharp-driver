@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Core.Events
     /// <summary>
     /// Occurs after a message has been sent.
     /// </summary>
-    public struct ConnectionSentMessagesEvent
+    public struct ConnectionSentMessagesEvent : IEvent
     {
         private readonly ConnectionId _connectionId;
         private readonly TimeSpan _networkDuration;
@@ -133,5 +133,8 @@ namespace MongoDB.Driver.Core.Events
         {
             get { return _timestamp; }
         }
+
+        // explicit interface implementations
+        EventType IEvent.Type => EventType.ConnectionSentMessages;
     }
 }

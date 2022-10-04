@@ -23,7 +23,7 @@ namespace MongoDB.Driver.Core.Events
     /// <summary>
     /// Occurs before a connection is checked in to the pool.
     /// </summary>
-    public struct ConnectionPoolCheckingInConnectionEvent
+    public struct ConnectionPoolCheckingInConnectionEvent : IEvent
     {
         private readonly ConnectionId _connectionId;
         private readonly long? _operationId;
@@ -80,5 +80,8 @@ namespace MongoDB.Driver.Core.Events
         {
             get { return _timestamp; }
         }
+
+        // explicit interface implementations
+        EventType IEvent.Type => EventType.ConnectionPoolCheckingInConnection;
     }
 }

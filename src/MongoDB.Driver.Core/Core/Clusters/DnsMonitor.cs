@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Core.Clusters
             _service = "_mongodb._tcp." + _lookupDomainName;
             _state = DnsMonitorState.Created;
 
-            _eventsLogger = logger.ToEventsLogger(eventSubscriber, _service);
+            _eventsLogger = logger.ToEventsLogger(eventSubscriber);
         }
 
         // public properties

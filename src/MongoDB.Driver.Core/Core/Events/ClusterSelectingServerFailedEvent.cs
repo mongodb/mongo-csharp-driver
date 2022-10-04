@@ -22,7 +22,7 @@ namespace MongoDB.Driver.Core.Events
     /// <summary>
     /// Occurs when selecting a server fails.
     /// </summary>
-    public struct ClusterSelectingServerFailedEvent
+    public struct ClusterSelectingServerFailedEvent : IEvent
     {
         private readonly ClusterDescription _clusterDescription;
         private readonly Exception _exception;
@@ -93,5 +93,8 @@ namespace MongoDB.Driver.Core.Events
         {
             get { return _timestamp; }
         }
+
+        // explicit interface implementations
+        EventType IEvent.Type => EventType.ClusterSelectingServerFailed;
     }
 }

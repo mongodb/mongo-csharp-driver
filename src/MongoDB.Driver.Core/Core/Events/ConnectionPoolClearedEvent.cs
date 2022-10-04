@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Core.Events
     /// <summary>
     /// Occurs after the pool is cleared.
     /// </summary>
-    public struct ConnectionPoolClearedEvent
+    public struct ConnectionPoolClearedEvent : IEvent
     {
         private readonly ConnectionPoolSettings _connectionPoolSettings;
         private readonly ServerId _serverId;
@@ -95,5 +95,8 @@ namespace MongoDB.Driver.Core.Events
         {
             get { return _timestamp; }
         }
+
+        // explicit interface implementations
+        EventType IEvent.Type => EventType.ConnectionPoolCleared;
     }
 }

@@ -49,6 +49,9 @@ namespace MongoDB.Driver.Core.Connections
             _loggerFactory = loggerFactory;
         }
 
+        // properties
+        public ConnectionSettings ConnectionSettings => _settings;
+
         // methods
         public IConnection CreateConnection(ServerId serverId, EndPoint endPoint)
         {

@@ -27,6 +27,7 @@ namespace MongoDB.Driver.Core.TestHelpers.Logging
         public DateTime Timestamp { get;  }
         public LogLevel LogLevel { get; }
         public string Category { get; }
+        public int ClusterId { get; }
         public IEnumerable<KeyValuePair<string, object>> State { get; }
         public Exception Exception { get; }
         public Func<object, Exception, string> Formatter { get; }
@@ -46,7 +47,12 @@ namespace MongoDB.Driver.Core.TestHelpers.Logging
             Exception = exception;
             Formatter = formatter;
             _message = new Lazy<string>(() => Formatter(State, Exception));
+
+            ClusterId = GetParameter("ClusterId") is int clusterId ? clusterId : -1;
         }
+
+        public object GetParameter(string key) =>
+            State.FirstOrDefault(s => s.Key == key).Value;
 
         public override string ToString() =>
             $"{Timestamp.ToString("hh:mm:ss.FFFFFFF")}_{LogLevel}<{Category}> {FormattedMessage}";

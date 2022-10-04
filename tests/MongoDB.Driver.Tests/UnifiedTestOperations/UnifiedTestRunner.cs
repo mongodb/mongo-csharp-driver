@@ -25,6 +25,7 @@ using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
+using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Tests.UnifiedTestOperations.Matchers;
 using Xunit;
@@ -38,18 +39,18 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         private readonly Dictionary<string, object> _additionalArgs;
         private readonly Dictionary<string, IEventFormatter> _eventFormatters;
         private bool _runHasBeenCalled;
-        private readonly ILoggerFactory _loggerFactory;
+        private ILoggingService _loggingService;
         private readonly ILogger<UnifiedTestRunner> _logger;
 
         public UnifiedTestRunner(
-            ILoggerFactory loggerFactory,
+            ILoggingService loggingService,
             Dictionary<string, object> additionalArgs = null,
             Dictionary<string, IEventFormatter> eventFormatters = null)
         {
             _additionalArgs = additionalArgs; // can be null
             _eventFormatters = eventFormatters; // can be null
-            _loggerFactory = Ensure.IsNotNull(loggerFactory, nameof(loggerFactory));
-            _logger = _loggerFactory.CreateLogger<UnifiedTestRunner>();
+            _loggingService = Ensure.IsNotNull(loggingService, nameof(loggingService));
+            _logger = loggingService.LoggerFactory.CreateLogger<UnifiedTestRunner>();
         }
 
         // public properties
@@ -69,10 +70,11 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             var skipReason = testCase.Test.GetValue("skipReason", null)?.AsString;
             var operations = testCase.Test["operations"].AsBsonArray; // cannot be null
             var expectEvents = testCase.Test.GetValue("expectEvents", null)?.AsBsonArray;
+            var expectedLogs = testCase.Test.GetValue("expectLogMessages", null)?.AsBsonArray;
             var outcome = testCase.Test.GetValue("outcome", null)?.AsBsonArray;
             var async = testCase.Test["async"].AsBoolean; // cannot be null
 
-            Run(schemaVersion, testSetRunOnRequirements, entities, initialData, runOnRequirements, skipReason, operations, expectEvents, outcome, async);
+            Run(schemaVersion, testSetRunOnRequirements, entities, initialData, runOnRequirements, skipReason, operations, expectEvents, expectedLogs, outcome, async);
         }
 
         public void Run(
@@ -84,6 +86,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             string skipReason,
             BsonArray operations,
             BsonArray expectedEvents,
+            BsonArray expectedLogs,
             BsonArray outcome,
             bool async)
         {
@@ -95,7 +98,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
             var schemaSemanticVersion = SemanticVersion.Parse(schemaVersion);
             if (schemaSemanticVersion < new SemanticVersion(1, 0, 0) ||
-                schemaSemanticVersion > new SemanticVersion(1, 8, 0))
+                schemaSemanticVersion > new SemanticVersion(1, 12, 0))
             {
                 throw new FormatException($"Schema version '{schemaVersion}' is not supported.");
             }
@@ -114,7 +117,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
             KillOpenTransactions(DriverTestConfiguration.Client);
 
-            _entityMap = new UnifiedEntityMapBuilder(_eventFormatters, _loggerFactory).Build(entities);
+            _entityMap = new UnifiedEntityMapBuilder(_eventFormatters, _loggingService.LoggerFactory).Build(entities);
 
             if (initialData != null)
             {
@@ -130,6 +133,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             if (expectedEvents != null)
             {
                 AssertEvents(expectedEvents, _entityMap);
+            }
+            if (expectedLogs != null)
+            {
+                AssertLogs(expectedLogs, _entityMap);
             }
             if (outcome != null)
             {
@@ -162,8 +169,6 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             _entityMap?.Dispose();
 
             _logger.LogDebug("Disposed");
-
-            _loggerFactory?.Dispose();
         }
 
         // private methods
@@ -216,6 +221,29 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 var actualEvents = UnifiedEventMatcher.FilterEventsByType(eventCapturer.Events, eventType);
 
                 unifiedEventMatcher.AssertEventsMatch(actualEvents, eventItem["events"].AsBsonArray, ignoreExtraEvents);
+            }
+        }
+
+        private void AssertLogs(BsonArray expectedLogs, UnifiedEntityMap entityMap)
+        {
+            _logger?.LogDebug("Asserting logs");
+
+            var actualLogs = _loggingService.Logs;
+
+            var unifiedLogMatcher = new UnifiedLogMatcher(new UnifiedValueMatcher(entityMap));
+            foreach (var logItem in expectedLogs.Cast<BsonDocument>())
+            {
+                var clientId = logItem["client"].AsString;
+                var clusterId = entityMap.GetClient(clientId).Cluster.ClusterId.Value;
+                var logs = logItem.GetValue("messages", false).AsBsonArray;
+
+                var actualLogsFiltered = UnifiedLogHelper.FilterLogs(
+                    actualLogs,
+                    clientId,
+                    clusterId,
+                    entityMap.LoggingComponents);
+
+                unifiedLogMatcher.AssertLogsMatch(actualLogsFiltered, logs);
             }
         }
 

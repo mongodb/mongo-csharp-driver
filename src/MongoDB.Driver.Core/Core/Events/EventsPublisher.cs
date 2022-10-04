@@ -17,26 +17,27 @@ namespace MongoDB.Driver.Core.Events
             _eventHandlers = new Delegate[__eventTypesCount];
         }
 
-        public bool IsEventTracked<T>()
+        public bool IsEventTracked<TEvent>() where TEvent : IEvent
         {
-            _eventSubscriber.TryGetEventHandler<T>(out var handler);
+            _eventSubscriber.TryGetEventHandler<TEvent>(out var handler);
             return handler != null;
         }
 
-        public void Publish<T>(EventType eventType, T @event)
+        public void Publish<TEvent>(TEvent @event) where TEvent : IEvent
         {
-            var eventHandler = _eventHandlers[(int)eventType];
+            var eventType = (int)@event.Type;
+            var eventHandler = _eventHandlers[eventType];
 
             if (eventHandler == null)
             {
-                _eventSubscriber.TryGetEventHandler<T>(out var registeredHandler);
+                _eventSubscriber.TryGetEventHandler<TEvent>(out var registeredHandler);
                 eventHandler = registeredHandler ?? __eventHandlerNull;
-                _eventHandlers[(int)eventType] = eventHandler;
+                _eventHandlers[eventType] = eventHandler;
             }
 
             if (eventHandler != __eventHandlerNull)
             {
-                var action = (Action<T>)eventHandler;
+                var action = (Action<TEvent>)eventHandler;
                 action(@event);
             }
         }

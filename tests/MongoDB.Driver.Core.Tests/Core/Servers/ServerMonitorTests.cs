@@ -390,6 +390,7 @@ namespace MongoDB.Driver.Core.Servers
                 connection = new MockConnection();
             }
             mockConnectionFactory = new Mock<IConnectionFactory>();
+            mockConnectionFactory.Setup(f => f.ConnectionSettings).Returns(() => new ConnectionSettings());
             mockConnectionFactory
                 .Setup(f => f.CreateConnection(__serverId, __endPoint))
                 .Returns(connection);

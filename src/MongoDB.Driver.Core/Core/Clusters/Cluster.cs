@@ -101,8 +101,8 @@ namespace MongoDB.Driver.Core.Clusters
 
             _serverSessionPool = new CoreServerSessionPool(this);
 
-            _clusterEventsLogger = loggerFactory.CreateEventsLogger<LogCategories.Cluster>(eventSubscriber, _clusterId);
-            _serverSelectionEventsLogger = loggerFactory.CreateEventsLogger<LogCategories.ServerSelection>(eventSubscriber, _clusterId);
+            _clusterEventsLogger = loggerFactory.CreateEventsLogger<LogCategories.Cluster>(eventSubscriber);
+            _serverSelectionEventsLogger = loggerFactory.CreateEventsLogger<LogCategories.ServerSelection>(eventSubscriber);
 
             ClusterDescription CreateInitialDescription()
             {
@@ -166,7 +166,7 @@ namespace MongoDB.Driver.Core.Clusters
         {
             if (_state.TryChange(State.Disposed))
             {
-                _clusterEventsLogger.LogDebug("Disposing");
+                _clusterEventsLogger.Logger?.LogDebug(_clusterId, "Disposing");
 
 #pragma warning disable CS0618 // Type or member is obsolete
                 var connectionModeSwitch = _description.ConnectionModeSwitch;
@@ -188,7 +188,7 @@ namespace MongoDB.Driver.Core.Clusters
                 _rapidHeartbeatTimer.Dispose();
                 _cryptClient?.Dispose();
 
-                _clusterEventsLogger.LogDebug("Disposed");
+                _clusterEventsLogger.Logger?.LogDebug(_clusterId, "Disposed");
             }
         }
 
@@ -224,13 +224,17 @@ namespace MongoDB.Driver.Core.Clusters
             ThrowIfDisposed();
             if (_state.TryChange(State.Initial, State.Open))
             {
-                _clusterEventsLogger.LogDebug("Initialized");
+                _clusterEventsLogger.Logger?.LogDebug(_clusterId, "Initialized");
 
                 if (_settings.CryptClientSettings != null)
                 {
                     _cryptClient = CryptClientCreator.CreateCryptClient(_settings.CryptClientSettings);
 
-                    _clusterEventsLogger.LogDebug("CryptClient created. Configured shared library, version {SharedLibraryVersion}.", _cryptClient.CryptSharedLibraryVersion ?? "None");
+                    _clusterEventsLogger.Logger?.LogDebug(
+                        StructuredLogsTemplates.ClusterId_Message_SharedLibraryVersion,
+                        _clusterId,
+                        "CryptClient created. Configured shared library version: ",
+                        _cryptClient.CryptSharedLibraryVersion ?? "None");
                 }
             }
         }

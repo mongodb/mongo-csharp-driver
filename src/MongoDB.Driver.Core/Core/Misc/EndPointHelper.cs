@@ -157,6 +157,9 @@ namespace MongoDB.Driver.Core.Misc
             return endPoint;
         }
 
+        internal static (string Host, int Port) GetHostAndPort(this EndPoint endPoint) =>
+            (endPoint is DnsEndPoint dnsEndPoint) ? (dnsEndPoint.Host, dnsEndPoint.Port) : default;
+
         /// <summary>
         /// Returns a <see cref="System.String" /> that represents the end point.
         /// </summary>

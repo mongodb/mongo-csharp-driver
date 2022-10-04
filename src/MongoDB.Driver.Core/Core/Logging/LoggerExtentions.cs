@@ -14,30 +14,49 @@
 */
 
 using Microsoft.Extensions.Logging;
-using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Servers;
+using static MongoDB.Driver.Core.Logging.StructuredLogsTemplates;
 
 namespace MongoDB.Driver.Core.Logging
 {
     internal static class LoggerExtentions
     {
-        public static LoggerDecorator<T> Decorate<T>(this ILogger<T> logger, string id) =>
-            new LoggerDecorator<T>(logger, "Id", id);
-
-        public static LoggerDecorator<T> Decorate<T>(this ILogger<T> logger, ServerId serverId) =>
-            Decorate<T>(logger, LoggerIdFormatter.FormatId(serverId));
-
-        public static EventsLogger<T> ToEventsLogger<T>(this ILogger<T> logger, IEventSubscriber eventSubscriber, string id)
-             where T : LogCategories.EventCategory =>
-            new EventsLogger<T>(eventSubscriber, logger, id);
-
-        public static EventsLogger<T> ToEventsLogger<T>(this ILogger<T> logger, IEventSubscriber eventSubscriber, ConnectionId connectionId)
+        public static EventsLogger<T> ToEventsLogger<T>(this ILogger<T> logger, IEventSubscriber eventSubscriber)
             where T : LogCategories.EventCategory =>
-            ToEventsLogger<T>(logger, eventSubscriber, LoggerIdFormatter.FormatId(connectionId));
+            new EventsLogger<T>(eventSubscriber, logger);
 
-        public static EventsLogger<T> ToEventsLogger<T>(this ILogger<T> logger, IEventSubscriber eventSubscriber, ServerId serverId)
-            where T : LogCategories.EventCategory =>
-            ToEventsLogger<T>(logger, eventSubscriber, LoggerIdFormatter.FormatId(serverId));
+        public static void LogDebug<T>(this ILogger<T> logger, ClusterId clusterId, string message)
+        {
+            if (logger.IsEnabled(LogLevel.Debug))
+            {
+                logger.LogDebug(ClusterId_Message, GetParams(clusterId, message));
+            }
+        }
+
+        public static void LogDebug<T>(this ILogger<T> logger, string format, ClusterId clusterId, string message, object arg1)
+        {
+            if (logger.IsEnabled(LogLevel.Debug))
+            {
+                logger.LogDebug(format, GetParams(clusterId, message, arg1));
+            }
+        }
+
+        public static void LogDebug<T>(this ILogger<T> logger, ServerId serverId, string message)
+        {
+            if (logger.IsEnabled(LogLevel.Debug))
+            {
+                logger.LogDebug(ServerId_Message, GetParams(serverId, message));
+            }
+        }
+
+        public static void LogDebug<T>(this ILogger<T> logger, string format, ServerId serverId, string message, object arg1)
+        {
+            if (logger.IsEnabled(LogLevel.Debug))
+            {
+                logger.LogDebug(format, GetParams(serverId, message, arg1));
+            }
+        }
     }
 }

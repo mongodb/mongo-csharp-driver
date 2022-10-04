@@ -13,13 +13,18 @@
 * limitations under the License.
 */
 
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Logging
 {
-    internal static class LogCatergoryHelper
+    internal static class LogCategoryHelper
     {
+        private static readonly IDictionary<Type, string> __catergories = new ConcurrentDictionary<Type, string>();
+
         private static readonly string[] __driverNamespaces = new []
         {
             "MongoDB.Bson",
@@ -61,6 +66,18 @@ namespace MongoDB.Driver.Core.Logging
             {
                 var pathComponents = categoryName.Split('.');
                 result = $"{prefixOverride}.{pathComponents.Last()}";
+            }
+
+            return result;
+        }
+
+        public static string GetCategoryName<T>() where T : LogCategories.EventCategory
+        {
+            var type = typeof(T);
+            if (!__catergories.TryGetValue(type, out var result))
+            {
+                result = DecorateCategoryName(type.FullName.Replace('+', '.'));
+                __catergories.Add(type, result);
             }
 
             return result;

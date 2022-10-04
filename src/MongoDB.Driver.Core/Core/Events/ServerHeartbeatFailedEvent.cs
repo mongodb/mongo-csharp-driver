@@ -23,7 +23,7 @@ namespace MongoDB.Driver.Core.Events
     /// <summary>
     /// Occurs when a heartbeat failed.
     /// </summary>
-    public struct ServerHeartbeatFailedEvent
+    public struct ServerHeartbeatFailedEvent : IEvent
     {
         private readonly bool _awaited;
         private readonly ConnectionId _connectionId;
@@ -88,5 +88,8 @@ namespace MongoDB.Driver.Core.Events
         {
             get { return _timestamp; }
         }
+
+        // explicit interface implementations
+        EventType IEvent.Type => EventType.ServerHeartbeatFailed;
     }
 }

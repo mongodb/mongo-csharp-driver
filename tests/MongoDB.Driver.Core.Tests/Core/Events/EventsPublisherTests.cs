@@ -26,13 +26,13 @@ namespace MongoDB.Driver.Core.Events
     {
         [Theory]
         [MemberData(nameof(EventsData))]
-        internal void Publish_should_publish_event_for_registered_handlers<TEvent>(TEvent @event, EventType eventType)
+        internal void Publish_should_publish_event_for_registered_handlers<TEvent>(TEvent @event) where TEvent : struct, IEvent
         {
             var eventCapturer = new EventCapturer();
             eventCapturer.Capture<TEvent>();
             var eventPublisher = new EventsPublisher(eventCapturer);
 
-            eventPublisher.Publish(eventType, @event);
+            eventPublisher.Publish(@event);
 
             eventCapturer.Events.Should().HaveCount(1);
             eventCapturer.Events[0].Should().Be(@event);
@@ -40,13 +40,13 @@ namespace MongoDB.Driver.Core.Events
 
         [Theory]
         [MemberData(nameof(EventsData))]
-        internal void Publish_should_not_publish_event_for_not_registered_handlers<TEvent>(TEvent @event, EventType eventType)
+        internal void Publish_should_not_publish_event_for_not_registered_handlers<TEvent>(TEvent @event) where TEvent : struct, IEvent
         {
             var eventCapturer = new EventCapturer();
             eventCapturer.Capture<CommandStartedEvent>();
             var eventPublisher = new EventsPublisher(eventCapturer);
 
-            eventPublisher.Publish(eventType, @event);
+            eventPublisher.Publish(@event);
 
             eventCapturer.Events.Should().HaveCount(0);
         }
@@ -69,8 +69,8 @@ namespace MongoDB.Driver.Core.Events
             var @event = new ClusterAddedServerEvent();
             var eventPublisher = new EventsPublisher(eventsSubscriber.Object);
 
-            eventPublisher.Publish(EventType.ClusterAddedServer, @event);
-            eventPublisher.Publish(EventType.ClusterAddedServer, @event);
+            eventPublisher.Publish(@event);
+            eventPublisher.Publish(@event);
 
             var anyDelegate = It.IsAny<Action<object>>();
             eventsSubscriber.Verify(s => s.TryGetEventHandler(out eventHandler), Times.Once());
@@ -98,8 +98,8 @@ namespace MongoDB.Driver.Core.Events
 
         private static IEnumerable<object[]> EventsData()
         {
-            yield return new object[] { new ClusterAddedServerEvent(null, TimeSpan.FromSeconds(1)), EventType.ClusterAddedServer };
-            yield return new object[] { new ConnectionCreatedEvent(null, null, 1), EventType.ConnectionCreated };
+            yield return new object[] { new ClusterAddedServerEvent(null, TimeSpan.FromSeconds(1)) };
+            yield return new object[] { new ConnectionCreatedEvent(null, null, 1) };
         }
     }
 }

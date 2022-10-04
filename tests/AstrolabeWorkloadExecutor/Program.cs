@@ -19,12 +19,12 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using AstrolabeWorkloadExecutor;
-using Microsoft.Extensions.Logging.Abstractions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Tests.UnifiedTestOperations;
 
 namespace WorkloadExecutor
@@ -114,7 +114,7 @@ namespace WorkloadExecutor
                 { "events", new AstrolabeEventFormatter() } // "events" matches to the "storeEventsAsEntities.id" in the driverWorkload document
             };
             using (var runner = new UnifiedTestRunner(
-                NullLoggerFactory.Instance,
+                NullLoggingService.Instance,
                 additionalArgs: additionalArgs,
                 eventFormatters: eventFormatters))
             {

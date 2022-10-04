@@ -1,0 +1,745 @@
+{
+  "description": "redacted-commands",
+  "schemaVersion": "1.12",
+  "runOnRequirements": [
+    {
+      "minServerVersion": "5.0",
+      "auth": false
+    }
+  ],
+  "createEntities": [
+    {
+      "client": {
+        "id": "client",
+        "observeLogMessages": {
+          "command": "debug"
+        }
+      }
+    },
+    {
+      "database": {
+        "id": "database",
+        "client": "client",
+        "databaseName": "logging-redaction-tests"
+      }
+    }
+  ],
+  "tests": [
+    {
+      "description": "authenticate",
+      "operations": [
+        {
+          "name": "runCommand",
+          "object": "database",
+          "arguments": {
+            "commandName": "authenticate",
+            "command": {
+              "authenticate": 1,
+              "mechanism": "MONGODB-X509",
+              "user": "CN=myName,OU=myOrgUnit,O=myOrg,L=myLocality,ST=myState,C=myCountry",
+              "db": "$external"
+            }
+          },
+          "expectError": {
+            "isError": true
+          }
+        }
+      ],
+      "expectLogMessages": [
+        {
+          "client": "client",
+          "messages": [
+            {
+              "level": "debug",
+              "component": "command",
+              "data": {
+                "message": "Command started",
+                "databaseName": "logging-redaction-tests",
+                "commandName": "authenticate",
+                "command": {
+                  "$$matchAsDocument": {}
+                }
+              }
+            },
+            {
+              "level": "debug",
+              "component": "command",
+              "hasFailure": false,
+              "data": {
+                "message": "Command failed",
+                "commandName": "authenticate"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "saslStart",
+      "operations": [
+        {
+          "name": "runCommand",
+          "object": "database",
+          "arguments": {
+            "commandName": "saslStart",
+            "command": {
+              "saslStart": 1,
+              "payload": "definitely-invalid-payload",
+              "db": "admin"
+            }
+          },
+          "expectError": {
+            "isError": true
+          }
+        }
+      ],
+      "expectLogMessages": [
+        {
+          "client": "client",
+          "messages": [
+            {
+              "level": "debug",
+              "component": "command",
+              "data": {
+                "message": "Command started",
+                "databaseName": "logging-redaction-tests",
+                "commandName": "saslStart",
+                "command": {
+                  "$$matchAsDocument": {}
+                }
+              }
+            },
+            {
+              "level": "debug",
+              "component": "command",
+              "hasFailure": false,
+              "data": {
+                "message": "Command failed",
+                "commandName": "saslStart"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "saslContinue",
+      "operations": [
+        {
+          "name": "runCommand",
+          "object": "database",
+          "arguments": {
+            "commandName": "saslContinue",
+            "command": {
+              "saslContinue": 1,
+              "conversationId": 0,
+              "payload": "definitely-invalid-payload"
+            }
+          },
+          "expectError": {
+            "isError": true
+          }
+        }
+      ],
+      "expectLogMessages": [
+        {
+          "client": "client",
+          "messages": [
+            {
+              "level": "debug",
+              "component": "command",
+              "data": {
+                "message": "Command started",
+                "databaseName": "logging-redaction-tests",
+                "commandName": "saslContinue",
+                "command": {
+                  "$$matchAsDocument": {}
+                }
+              }
+            },
+            {
+              "level": "debug",
+              "component": "command",
+              "hasFailure": false,
+              "data": {
+                "message": "Command failed",
+                "commandName": "saslContinue"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "getnonce",
+      "operations": [
+        {
+          "name": "runCommand",
+          "object": "database",
+          "arguments": {
+            "commandName": "getnonce",
+            "command": {
+              "getnonce": 1
+            }
+          }
+        }
+      ],
+      "expectLogMessages": [
+        {
+          "client": "client",
+          "messages": [
+            {
+              "level": "debug",
+              "component": "command",
+              "data": {
+                "message": "Command started",
+                "databaseName": "logging-redaction-tests",
+                "commandName": "getnonce",
+                "command": {
+                  "$$matchAsDocument": {}
+                }
+              }
+            },
+            {
+              "level": "debug",
+              "component": "command",
+              "data": {
+                "message": "Command succeeded",
+                "commandName": "getnonce",
+                "reply": {
+                  "$$matchAsDocument": {}
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "createUser",
+      "operations": [
+        {
+          "name": "runCommand",
+          "object": "database",
+          "arguments": {
+            "commandName": "createUser",
+            "command": {
+              "createUser": "private",
+              "pwd": {},
+              "roles": []
+            }
+          },
+          "expectError": {
+            "isError": true
+          }
+        }
+      ],
+      "expectLogMessages": [
+        {
+          "client": "client",
+          "messages": [
+            {
+              "level": "debug",
+              "component": "command",
+              "data": {
+                "message": "Command started",
+                "databaseName": "logging-redaction-tests",
+                "commandName": "createUser",
+                "command": {
+                  "$$matchAsDocument": {}
+                }
+              }
+            },
+            {
+              "level": "debug",
+              "component": "command",
+              "hasFailure": false,
+              "data": {
+                "message": "Command failed",
+                "commandName": "createUser"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "updateUser",
+      "operations": [
+        {
+          "name": "runCommand",
+          "object": "database",
+          "arguments": {
+            "commandName": "updateUser",
+            "command": {
+              "updateUser": "private",
+              "pwd": {},
+              "roles": []
+            }
+          },
+          "expectError": {
+            "isError": true
+          }
+        }
+      ],
+      "expectLogMessages": [
+        {
+          "client": "client",
+          "messages": [
+            {
+              "level": "debug",
+              "component": "command",
+              "data": {
+                "message": "Command started",
+                "databaseName": "logging-redaction-tests",
+                "commandName": "updateUser",
+                "command": {
+                  "$$matchAsDocument": {}
+                }
+              }
+            },
+            {
+              "level": "debug",
+              "component": "command",
+              "hasFailure": false,
+              "data": {
+                "message": "Command failed",
+                "commandName": "updateUser"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "copydbgetnonce",
+      "operations": [
+        {
+          "name": "runCommand",
+          "object": "database",
+          "arguments": {
+            "commandName": "copydbgetnonce",
+            "command": {
+              "copydbgetnonce": "private"
+            }
+          },
+          "expectError": {
+            "isError": true
+          }
+        }
+      ],
+      "expectLogMessages": [
+        {
+          "client": "client",
+          "messages": [
+            {
+              "level": "debug",
+              "component": "command",
+              "data": {
+                "message": "Command started",
+                "databaseName": "logging-redaction-tests",
+                "commandName": "copydbgetnonce",
+                "command": {
+                  "$$matchAsDocument": {}
+                }
+              }
+            },
+            {
+              "level": "debug",
+              "component": "command",
+              "hasFailure": false,
+              "data": {
+                "message": "Command failed",
+                "commandName": "copydbgetnonce"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "copydbsaslstart",
+      "operations": [
+        {
+          "name": "runCommand",
+          "object": "database",
+          "arguments": {
+            "commandName": "copydbsaslstart",
+            "command": {
+              "copydbsaslstart": "private"
+            }
+          },
+          "expectError": {
+            "isError": true
+          }
+        }
+      ],
+      "expectLogMessages": [
+        {
+          "client": "client",
+          "messages": [
+            {
+              "level": "debug",
+              "component": "command",
+              "data": {
+                "message": "Command started",
+                "databaseName": "logging-redaction-tests",
+                "commandName": "copydbsaslstart",
+                "command": {
+                  "$$matchAsDocument": {}
+                }
+              }
+            },
+            {
+              "level": "debug",
+              "component": "command",
+              "hasFailure": false,
+              "data": {
+                "message": "Command failed",
+                "commandName": "copydbsaslstart"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "copydb",
+      "operations": [
+        {
+          "name": "runCommand",
+          "object": "database",
+          "arguments": {
+            "commandName": "copydb",
+            "command": {
+              "copydb": "private"
+            }
+          },
+          "expectError": {
+            "isError": true
+          }
+        }
+      ],
+      "expectLogMessages": [
+        {
+          "client": "client",
+          "messages": [
+            {
+              "level": "debug",
+              "component": "command",
+              "data": {
+                "message": "Command started",
+                "databaseName": "logging-redaction-tests",
+                "commandName": "copydb",
+                "command": {
+                  "$$matchAsDocument": {}
+                }
+              }
+            },
+            {
+              "level": "debug",
+              "component": "command",
+              "hasFailure": false,
+              "data": {
+                "message": "Command failed",
+                "commandName": "copydb"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "hello with speculative authenticate",
+      "runOnRequirements": [
+        {
+          "minServerVersion": "4.9"
+        }
+      ],
+      "operations": [
+        {
+          "name": "runCommand",
+          "object": "database",
+          "arguments": {
+            "commandName": "hello",
+            "command": {
+              "hello": 1,
+              "speculativeAuthenticate": {
+                "saslStart": 1
+              }
+            }
+          }
+        }
+      ],
+      "expectLogMessages": [
+        {
+          "client": "client",
+          "messages": [
+            {
+              "level": "debug",
+              "component": "command",
+              "data": {
+                "message": "Command started",
+                "databaseName": "logging-redaction-tests",
+                "commandName": "hello",
+                "command": {
+                  "$$matchAsDocument": {}
+                }
+              }
+            },
+            {
+              "level": "debug",
+              "component": "command",
+              "data": {
+                "message": "Command succeeded",
+                "commandName": "hello",
+                "reply": {
+                  "$$matchAsDocument": {}
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "legacy hello with speculative authenticate",
+      "operations": [
+        {
+          "name": "runCommand",
+          "object": "database",
+          "arguments": {
+            "commandName": "ismaster",
+            "command": {
+              "ismaster": 1,
+              "speculativeAuthenticate": {
+                "saslStart": 1
+              }
+            }
+          }
+        },
+        {
+          "name": "runCommand",
+          "object": "database",
+          "arguments": {
+            "commandName": "isMaster",
+            "command": {
+              "isMaster": 1,
+              "speculativeAuthenticate": {
+                "saslStart": 1
+              }
+            }
+          }
+        }
+      ],
+      "expectLogMessages": [
+        {
+          "client": "client",
+          "messages": [
+            {
+              "level": "debug",
+              "component": "command",
+              "data": {
+                "message": "Command started",
+                "databaseName": "logging-redaction-tests",
+                "commandName": "ismaster",
+                "command": {
+                  "$$matchAsDocument": {}
+                }
+              }
+            },
+            {
+              "level": "debug",
+              "component": "command",
+              "data": {
+                "message": "Command succeeded",
+                "commandName": "ismaster",
+                "reply": {
+                  "$$matchAsDocument": {}
+                }
+              }
+            },
+            {
+              "level": "debug",
+              "component": "command",
+              "data": {
+                "message": "Command started",
+                "databaseName": "logging-redaction-tests",
+                "commandName": "isMaster",
+                "command": {
+                  "$$matchAsDocument": {}
+                }
+              }
+            },
+            {
+              "level": "debug",
+              "component": "command",
+              "data": {
+                "message": "Command succeeded",
+                "commandName": "isMaster",
+                "reply": {
+                  "$$matchAsDocument": {}
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "hello without speculative authenticate is not redacted",
+      "runOnRequirements": [
+        {
+          "minServerVersion": "4.9"
+        }
+      ],
+      "operations": [
+        {
+          "name": "runCommand",
+          "object": "database",
+          "arguments": {
+            "commandName": "hello",
+            "command": {
+              "hello": 1
+            }
+          }
+        }
+      ],
+      "expectLogMessages": [
+        {
+          "client": "client",
+          "messages": [
+            {
+              "level": "debug",
+              "component": "command",
+              "data": {
+                "message": "Command started",
+                "databaseName": "logging-redaction-tests",
+                "commandName": "hello",
+                "command": {
+                  "$$matchAsDocument": {
+                    "$$matchAsRoot": {
+                      "hello": 1
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "level": "debug",
+              "component": "command",
+              "data": {
+                "message": "Command succeeded",
+                "commandName": "hello",
+                "reply": {
+                  "$$matchAsDocument": {
+                    "$$matchAsRoot": {
+                      "ok": 1,
+                      "isWritablePrimary": true
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "legacy hello without speculative authenticate is not redacted",
+      "operations": [
+        {
+          "name": "runCommand",
+          "object": "database",
+          "arguments": {
+            "commandName": "ismaster",
+            "command": {
+              "ismaster": 1
+            }
+          }
+        },
+        {
+          "name": "runCommand",
+          "object": "database",
+          "arguments": {
+            "commandName": "isMaster",
+            "command": {
+              "isMaster": 1
+            }
+          }
+        }
+      ],
+      "expectLogMessages": [
+        {
+          "client": "client",
+          "messages": [
+            {
+              "level": "debug",
+              "component": "command",
+              "data": {
+                "message": "Command started",
+                "databaseName": "logging-redaction-tests",
+                "commandName": "ismaster",
+                "command": {
+                  "$$matchAsDocument": {
+                    "$$matchAsRoot": {
+                      "ismaster": 1
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "level": "debug",
+              "component": "command",
+              "data": {
+                "message": "Command succeeded",
+                "commandName": "ismaster",
+                "reply": {
+                  "$$matchAsDocument": {
+                    "$$matchAsRoot": {
+                      "ok": 1,
+                      "ismaster": true
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "level": "debug",
+              "component": "command",
+              "data": {
+                "message": "Command started",
+                "databaseName": "logging-redaction-tests",
+                "commandName": "isMaster",
+                "command": {
+                  "$$matchAsDocument": {
+                    "$$matchAsRoot": {
+                      "isMaster": 1
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "level": "debug",
+              "component": "command",
+              "data": {
+                "message": "Command succeeded",
+                "commandName": "isMaster",
+                "reply": {
+                  "$$matchAsDocument": {
+                    "$$matchAsRoot": {
+                      "ok": 1,
+                      "ismaster": true
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -13,17 +13,13 @@
 * limitations under the License.
 */
 
-using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Connections;
-using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.Servers;
+using Microsoft.Extensions.Logging;
 
-namespace MongoDB.Driver.Core.Logging
+namespace MongoDB.Driver.Core.TestHelpers.Logging
 {
-    internal static class LoggerIdFormatter
+    public interface ILoggingService
     {
-        public static string FormatId(ConnectionId connectionId) => $"{connectionId.LocalValue}";
-        public static string FormatId(ServerId serverId) => $"{serverId.ClusterId.Value}_{EndPointHelper.ToString(serverId.EndPoint)}";
-        public static string FormatId(ClusterId clusterId) => clusterId.ToString();
+        public ILoggerFactory LoggerFactory { get; }
+        public LogEntry[] Logs { get; }
     }
 }

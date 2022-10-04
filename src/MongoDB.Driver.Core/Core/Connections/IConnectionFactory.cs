@@ -13,13 +13,8 @@
 * limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
+using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Connections
@@ -29,6 +24,12 @@ namespace MongoDB.Driver.Core.Connections
     /// </summary>
     public interface IConnectionFactory
     {
+        // properties
+        /// <summary>
+        /// Gets the connection settings.
+        /// </summary>
+        ConnectionSettings ConnectionSettings { get; }
+
         // methods
         /// <summary>
         /// Creates the connection.

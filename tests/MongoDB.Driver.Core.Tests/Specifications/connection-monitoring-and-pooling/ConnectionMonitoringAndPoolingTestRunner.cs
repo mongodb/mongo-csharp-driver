@@ -636,7 +636,7 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
 
                 var connectionFactory = new Mock<IConnectionFactory>();
                 var connectionExceptionHandler = new Mock<IConnectionExceptionHandler>();
-
+                connectionFactory.Setup(f => f.ConnectionSettings).Returns(() => new ConnectionSettings());
                 connectionFactory
                     .Setup(c => c.CreateConnection(serverId, endPoint))
                     .Returns(() =>
@@ -744,6 +744,7 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
 
             var connectionFactory = new Mock<IConnectionFactory>();
             var exceptionHandler = new Mock<IConnectionExceptionHandler>();
+            connectionFactory.Setup(f => f.ConnectionSettings).Returns(() => new ConnectionSettings());
             connectionFactory
                 .Setup(c => c.CreateConnection(serverId, endPoint))
                 .Returns(() =>

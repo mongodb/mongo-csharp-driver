@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Core.Servers
         private Thread _roundTripTimeMonitorThread;
         private readonly ServerApi _serverApi;
         private readonly ServerId _serverId;
-        private readonly LoggerDecorator<RoundTripTimeMonitor> _logger;
+        private readonly ILogger<RoundTripTimeMonitor> _logger;
 
         public RoundTripTimeMonitor(
             IConnectionFactory connectionFactory,
@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Core.Servers
             _cancellationTokenSource = new CancellationTokenSource();
             _cancellationToken = _cancellationTokenSource.Token;
 
-            _logger = logger.Decorate(_serverId);
+            _logger = logger;
         }
 
         public TimeSpan Average
@@ -83,7 +83,7 @@ namespace MongoDB.Driver.Core.Servers
         {
             if (!_disposed)
             {
-                _logger.LogDebug("Disposing");
+                _logger?.LogDebug(_serverId, "Disposing");
 
                 _disposed = true;
                 _cancellationTokenSource.Cancel();
@@ -91,7 +91,7 @@ namespace MongoDB.Driver.Core.Servers
 
                 try { _roundTripTimeConnection?.Dispose(); } catch { }
 
-                _logger.LogDebug("Disposed");
+                _logger?.LogDebug(_serverId, "Disposed");
             }
         }
 
@@ -116,7 +116,7 @@ namespace MongoDB.Driver.Core.Servers
         // private methods
         private void MonitorServer()
         {
-            _logger.LogDebug("Monitoring started");
+            _logger?.LogDebug(_serverId, "Monitoring started");
 
             var helloOk = false;
             while (!_cancellationToken.IsCancellationRequested)
@@ -150,7 +150,7 @@ namespace MongoDB.Driver.Core.Servers
                     var connectionId = toDispose?.ConnectionId;
                     toDispose?.Dispose();
 
-                    _logger.LogDebug(ex, StructuredLogsTemplates.Message_ConnectionId, "Monitoring exception", connectionId);
+                    _logger?.LogDebug(ex, StructuredLogsTemplates.DriverConnectionId_Message, connectionId?.LocalValue, "Monitoring exception");
                 }
                 ThreadHelper.Sleep(_heartbeatInterval, _cancellationToken);
             }

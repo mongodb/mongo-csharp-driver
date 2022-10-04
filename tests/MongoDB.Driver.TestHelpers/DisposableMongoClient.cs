@@ -29,13 +29,12 @@ namespace MongoDB.Driver.TestHelpers
     public class DisposableMongoClient : IMongoClient, IDisposable
     {
         private readonly IMongoClient wrapped;
-        private readonly LoggerDecorator<DisposableMongoClient> _logger;
+        private readonly ILogger<DisposableMongoClient> _logger;
 
         public DisposableMongoClient(IMongoClient wrapped, ILogger<DisposableMongoClient> logger)
         {
             this.wrapped = wrapped;
-
-            _logger = logger.Decorate($"_cluster:{wrapped.Cluster.ClusterId}");
+            _logger = logger;
         }
 
         public ICluster Cluster => wrapped.Cluster;
@@ -243,11 +242,11 @@ namespace MongoDB.Driver.TestHelpers
 
         public void Dispose()
         {
-            _logger.LogDebug("Disposing");
+            _logger?.LogDebug(wrapped.Cluster.ClusterId, "Disposing");
 
             ClusterRegistry.Instance.UnregisterAndDisposeCluster(wrapped.Cluster);
 
-            _logger.LogDebug("Cluster unregistered and disposed");
+            _logger?.LogDebug("Cluster unregistered and disposed");
 
             if (wrapped is MongoClient mongoClient)
             {
@@ -261,7 +260,7 @@ namespace MongoDB.Driver.TestHelpers
                 }
             }
 
-            _logger.LogDebug("Disposed");
+            _logger?.LogDebug(wrapped.Cluster.ClusterId, "Disposed");
         }
     }
 }

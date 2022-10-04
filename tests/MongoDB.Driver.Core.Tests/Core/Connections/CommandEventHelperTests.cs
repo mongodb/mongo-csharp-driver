@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Core.Connections
             [Values(false, true)] bool captureCommandFailed)
         {
             var mockLogger = new Mock<ILogger<LogCategories.Command>>();
-            mockLogger.Setup(m => m.IsEnabled(LogLevel.Information)).Returns(logCommands);
+            mockLogger.Setup(m => m.IsEnabled(LogLevel.Debug)).Returns(logCommands);
 
             var eventCapturer = new EventCapturer();
             // Capture unrelated event, so events filtering is enabled.
@@ -74,7 +74,7 @@ namespace MongoDB.Driver.Core.Connections
                 eventCapturer.Capture<CommandFailedEvent>(_ => true);
             }
 
-            var eventLogger = new EventsLogger<LogCategories.Command>(eventCapturer, mockLogger.Object, "dummy");
+            var eventLogger = new EventsLogger<LogCategories.Command>(eventCapturer, mockLogger.Object);
             var commandHelper = new CommandEventHelper(eventLogger);
 
             commandHelper._shouldTrackState().Should().Be(logCommands || captureCommandSucceeded || captureCommandFailed);

@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Core.Logging
         public void AddProvider(ILoggerProvider provider) => _loggerFactory.AddProvider(provider);
 
         public ILogger CreateLogger(string categoryName) =>
-            _loggerFactory.CreateLogger(LogCatergoryHelper.DecorateCategoryName(categoryName));
+            _loggerFactory.CreateLogger(LogCategoryHelper.DecorateCategoryName(categoryName));
 
         public void Dispose() => _loggerFactory.Dispose();
     }

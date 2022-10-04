@@ -36,7 +36,7 @@ namespace MongoDB.Driver.Tests.Specifications.command_monitoring
         [ClassData(typeof(TestCaseFactory))]
         public void Run(JsonDrivenTestCase testCase)
         {
-            using (var runner = new UnifiedTestRunner(loggerFactory: LoggerFactory))
+            using (var runner = new UnifiedTestRunner(loggingService: this))
             {
                 runner.Run(testCase);
             }

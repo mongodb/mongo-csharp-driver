@@ -207,6 +207,7 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
             Action<Mock<IConnectionFactory>> connectionFactoryConfigurator = null)
         {
             var mockConnectionFactory = new Mock<IConnectionFactory>();
+            mockConnectionFactory.Setup(f => f.ConnectionSettings).Returns(() => new ConnectionSettings());
             if (connectionFactoryConfigurator == null)
             {
                 mockConnectionFactory

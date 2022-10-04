@@ -79,6 +79,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
                 replicaSetConfig: new ReplicaSetConfig(new[] { __endPoint1 }, "rs", __endPoint1, null));
 
             var serverMock = new Mock<IClusterableServer>();
+            serverMock.Setup(s => s.ServerId).Returns(__serverId1);
             serverMock.Setup(s => s.EndPoint).Returns(__endPoint1);
             serverMock.Setup(s => s.IsInitialized).Returns(true);
             serverMock.Setup(s => s.Description).Returns(serverDescription);
@@ -220,6 +221,7 @@ namespace MongoDB.Driver.Core.Tests.Jira
             params (ServerId ServerId, EndPoint Endpoint)[] serverInfoCollection)
         {
             var mockConnectionFactory = new Mock<IConnectionFactory>();
+            mockConnectionFactory.Setup(f => f.ConnectionSettings).Returns(() => new ConnectionSettings());
 
             foreach (var serverInfo in serverInfoCollection)
             {

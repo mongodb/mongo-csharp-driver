@@ -1,0 +1,460 @@
+description: "redacted-commands"
+
+schemaVersion: "1.12"
+
+runOnRequirements:
+  - minServerVersion: "5.0"
+    auth: false
+
+createEntities:
+  - client:
+      id: &client client
+      observeLogMessages:
+        command: debug
+  - database:
+      id: &database database
+      client: *client
+      databaseName: &databaseName logging-redaction-tests
+
+tests:
+  - description: "authenticate"
+    operations:
+      - name: runCommand
+        object: *database
+        arguments:
+          commandName: authenticate
+          command:
+            authenticate: 1
+            mechanism: "MONGODB-X509"
+            user: "CN=myName,OU=myOrgUnit,O=myOrg,L=myLocality,ST=myState,C=myCountry"
+            db: "$external"
+        # An authentication error is expected, but we want to check that the
+        # CommandStartedEvent is redacted
+        expectError:
+          isError: true
+    expectLogMessages:
+      - client: *client
+        messages:
+          - level: debug
+            component: command
+            data:
+              message: "Command started"
+              databaseName: *databaseName
+              commandName: authenticate
+              command:
+                $$matchAsDocument: {}
+          - level: debug
+            component: command
+            hasFailure: false
+            data:
+              message: "Command failed"
+              commandName: authenticate
+
+  - description: "saslStart"
+    operations:
+      - name: runCommand
+        object: *database
+        arguments:
+          commandName: saslStart
+          command:
+            saslStart: 1
+            payload: "definitely-invalid-payload"
+            db: "admin"
+        expectError:
+          isError: true
+    expectLogMessages:
+      - client: *client
+        messages:
+          - level: debug
+            component: command
+            data:
+              message: "Command started"
+              databaseName: *databaseName
+              commandName: saslStart
+              command:
+                $$matchAsDocument: {}
+          - level: debug
+            component: command
+            hasFailure: false
+            data:
+              message: "Command failed"
+              commandName: saslStart
+
+  - description: "saslContinue"
+    operations:
+      - name: runCommand
+        object: *database
+        arguments:
+          commandName: saslContinue
+          command:
+            saslContinue: 1
+            conversationId: 0
+            payload: "definitely-invalid-payload"
+        expectError:
+          isError: true
+    expectLogMessages:
+      - client: *client
+        messages:
+          - level: debug
+            component: command
+            data:
+              message: "Command started"
+              databaseName: *databaseName
+              commandName: saslContinue
+              command:
+                $$matchAsDocument: {}
+          - level: debug
+            component: command
+            hasFailure: false
+            data:
+              message: "Command failed"
+              commandName: saslContinue
+
+  - description: "getnonce"
+    operations:
+      - name: runCommand
+        object: *database
+        arguments:
+          commandName: getnonce
+          command:
+            getnonce: 1
+    expectLogMessages:
+      - client: *client
+        messages:
+          - level: debug
+            component: command
+            data:
+              message: "Command started"
+              databaseName: *databaseName
+              commandName: getnonce
+              command:
+                $$matchAsDocument: {}
+          - level: debug
+            component: command
+            data:
+              message: "Command succeeded"
+              commandName: getnonce
+              reply:
+                $$matchAsDocument: {}
+
+  - description: "createUser"
+    operations:
+      - name: runCommand
+        object: *database
+        arguments:
+          commandName: createUser
+          command:
+            createUser: "private"
+            # Passing an object is prohibited and we want to trigger a command
+            # failure
+            pwd: {}
+            roles: []
+        expectError:
+          isError: true
+    expectLogMessages:
+      - client: *client
+        messages:
+          - level: debug
+            component: command
+            data:
+              message: "Command started"
+              databaseName: *databaseName
+              commandName: createUser
+              command:
+                $$matchAsDocument: {}
+          - level: debug
+            component: command
+            hasFailure: false
+            data:
+              message: "Command failed"
+              commandName: createUser
+
+  - description: "updateUser"
+    operations:
+      - name: runCommand
+        object: *database
+        arguments:
+          commandName: updateUser
+          command:
+            updateUser: "private"
+            pwd: {}
+            roles: []
+        expectError:
+          isError: true
+    expectLogMessages:
+      - client: *client
+        messages:
+          - level: debug
+            component: command
+            data:
+              message: "Command started"
+              databaseName: *databaseName
+              commandName: updateUser
+              command:
+                $$matchAsDocument: {}
+          - level: debug
+            component: command
+            hasFailure: false
+            data:
+              message: "Command failed"
+              commandName: updateUser
+
+  - description: "copydbgetnonce"
+    operations:
+      - name: runCommand
+        object: *database
+        arguments:
+          commandName: copydbgetnonce
+          command:
+            copydbgetnonce: "private"
+        expectError:
+          isError: true
+    expectLogMessages:
+      - client: *client
+        messages:
+          - level: debug
+            component: command
+            data:
+              message: "Command started"
+              databaseName: *databaseName
+              commandName: copydbgetnonce
+              command:
+                $$matchAsDocument: {}
+          - level: debug
+            component: command
+            hasFailure: false
+            data:
+              message: "Command failed"
+              commandName: copydbgetnonce
+
+  - description: "copydbsaslstart"
+    operations:
+      - name: runCommand
+        object: *database
+        arguments:
+          commandName: copydbsaslstart
+          command:
+            copydbsaslstart: "private"
+        expectError:
+          isError: true
+    expectLogMessages:
+      - client: *client
+        messages:
+          - level: debug
+            component: command
+            data:
+              message: "Command started"
+              databaseName: *databaseName
+              commandName: copydbsaslstart
+              command:
+                $$matchAsDocument: {}
+          - level: debug
+            component: command
+            hasFailure: false
+            data:
+              message: "Command failed"
+              commandName: copydbsaslstart
+
+  - description: "copydb"
+    operations:
+      - name: runCommand
+        object: *database
+        arguments:
+          commandName: copydb
+          command:
+            copydb: "private"
+        expectError:
+          isError: true
+    expectLogMessages:
+      - client: *client
+        messages:
+          - level: debug
+            component: command
+            data:
+              message: "Command started"
+              databaseName: *databaseName
+              commandName: copydb
+              command:
+                $$matchAsDocument: {}
+          - level: debug
+            component: command
+            hasFailure: false
+            data:
+              message: "Command failed"
+              commandName: copydb
+
+  - description: "hello with speculative authenticate"
+    runOnRequirements:
+      - minServerVersion: "4.9"
+    operations:
+      - name: runCommand
+        object: *database
+        arguments:
+          commandName: hello
+          command:
+            hello: 1
+            speculativeAuthenticate:
+              saslStart: 1
+    expectLogMessages:
+      - client: *client
+        messages:
+          - level: debug
+            component: command
+            data:
+              message: "Command started"
+              databaseName: *databaseName
+              commandName: hello
+              command:
+                $$matchAsDocument: {}
+          - level: debug
+            component: command
+            data:
+              message: "Command succeeded"
+              commandName: hello
+              reply:
+                $$matchAsDocument: {}
+
+  - description: "legacy hello with speculative authenticate"
+    operations:
+      - name: runCommand
+        object: *database
+        arguments:
+          commandName: ismaster
+          command:
+            ismaster: 1
+            speculativeAuthenticate:
+              saslStart: 1
+      - name: runCommand
+        object: *database
+        arguments:
+          commandName: isMaster
+          command:
+            isMaster: 1
+            speculativeAuthenticate:
+              saslStart: 1
+    expectLogMessages:
+      - client: *client
+        messages:
+          - level: debug
+            component: command
+            data:
+              message: "Command started"
+              databaseName: *databaseName
+              commandName: ismaster
+              command:
+                $$matchAsDocument: {}
+          - level: debug
+            component: command
+            data:
+              message: "Command succeeded"
+              commandName: ismaster
+              reply:
+                $$matchAsDocument: {}
+          - level: debug
+            component: command
+            data:
+              message: "Command started"
+              databaseName: *databaseName
+              commandName: isMaster
+              command:
+                $$matchAsDocument: {}
+          - level: debug
+            component: command
+            data:
+              message: "Command succeeded"
+              commandName: isMaster
+              reply:
+                $$matchAsDocument: {}
+
+  - description: "hello without speculative authenticate is not redacted"
+    runOnRequirements:
+      - minServerVersion: "4.9"
+    operations:
+      - name: runCommand
+        object: *database
+        arguments:
+          commandName: hello
+          command:
+            hello: 1
+    
+    expectLogMessages:
+      - client: *client
+        messages:
+          - level: debug
+            component: command
+            data:
+              message: "Command started"
+              databaseName: *databaseName
+              commandName: hello
+              command:
+                $$matchAsDocument:
+                  $$matchAsRoot:
+                    hello: 1
+          - level: debug
+            component: command
+            data:
+              message: "Command succeeded"
+              commandName: hello
+              reply:
+                $$matchAsDocument:
+                  $$matchAsRoot:
+                    ok: 1
+                    isWritablePrimary: true
+ 
+  - description: "legacy hello without speculative authenticate is not redacted"
+    operations:
+      - name: runCommand
+        object: *database
+        arguments:
+          commandName: ismaster
+          command:
+            ismaster: 1
+      - name: runCommand
+        object: *database
+        arguments:
+          commandName: isMaster
+          command:
+            isMaster: 1
+    expectLogMessages:
+      - client: *client
+        messages:
+          - level: debug
+            component: command
+            data:
+              message: "Command started"
+              databaseName: *databaseName
+              commandName: ismaster
+              command:
+                $$matchAsDocument:
+                  $$matchAsRoot:
+                    ismaster: 1
+          - level: debug
+            component: command
+            data:
+              message: "Command succeeded"
+              commandName: ismaster
+              reply:
+                $$matchAsDocument:
+                  $$matchAsRoot:
+                    ok: 1
+                    ismaster: true
+          - level: debug
+            component: command
+            data:
+              message: "Command started"
+              databaseName: *databaseName
+              commandName: isMaster
+              command:
+                  $$matchAsDocument:
+                    $$matchAsRoot:
+                      isMaster: 1
+          - level: debug
+            component: command
+            data:
+              message: "Command succeeded"
+              commandName: isMaster
+              reply:
+                $$matchAsDocument:
+                  $$matchAsRoot:
+                    ok: 1
+                    ismaster: true

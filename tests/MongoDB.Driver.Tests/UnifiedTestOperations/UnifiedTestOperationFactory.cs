@@ -47,9 +47,11 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     "assertSessionPinned" => new UnifiedAssertSessionPinnedOperationBuilder(_entityMap).Build(operationArguments),
                     "assertSessionTransactionState" => new UnifiedAssertSessionTransactionStateOperationBuilder(_entityMap).Build(operationArguments),
                     "assertSessionUnpinned" => new UnifiedAssertSessionUnpinnedOperationBuilder(_entityMap).Build(operationArguments),
+                    "createEntities" => new UnifiedCreateEntitiesOperationBuilder(_entityMap).Build(operationArguments),
                     "failPoint" => new UnifiedFailPointOperationBuilder(_entityMap).Build(operationArguments),
                     "loop" => new UnifiedLoopOperationBuilder(_entityMap, _additionalArgs).Build(operationArguments),
                     "targetedFailPoint" => new UnifiedTargetedFailPointOperationBuilder(_entityMap).Build(operationArguments),
+                    "waitForEvent" => new UnifiedWaitForEventOperationBuilder(_entityMap).Build(operationArguments),
                     _ => throw new FormatException($"Invalid method name: '{operationName}'."),
                 },
                 _ when _entityMap.HasBucket(targetEntityId) => operationName switch
@@ -67,6 +69,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 },
                 _ when _entityMap.HasClient(targetEntityId) => operationName switch
                 {
+                    "close" => new UnifiedCloseClientOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "createChangeStream" => new UnifiedCreateChangeStreamOnClientOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "listDatabases" => new UnifiedListDatabasesOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     _ => throw new FormatException($"Invalid method name: '{operationName}'."),

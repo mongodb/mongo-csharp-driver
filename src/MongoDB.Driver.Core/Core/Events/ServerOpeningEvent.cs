@@ -23,7 +23,7 @@ namespace MongoDB.Driver.Core.Events
     /// <summary>
     /// Occurs before a server is opened.
     /// </summary>
-    public struct ServerOpeningEvent
+    public struct ServerOpeningEvent : IEvent
     {
         private readonly ServerId _serverId;
         private readonly ServerSettings _serverSettings;
@@ -72,5 +72,8 @@ namespace MongoDB.Driver.Core.Events
         {
             get { return _timestamp; }
         }
+
+        // explicit interface implementations
+        EventType IEvent.Type => EventType.ServerOpening;
     }
 }

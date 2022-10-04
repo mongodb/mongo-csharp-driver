@@ -91,7 +91,7 @@ namespace MongoDB.Driver.Core.Servers
             _serverApi = serverApi;
             _outstandingOperationsCount = 0;
 
-            _eventsLogger = logger.ToEventsLogger(eventSubscriber, _serverId);
+            _eventsLogger = logger.ToEventsLogger(eventSubscriber);
         }
 
         // events

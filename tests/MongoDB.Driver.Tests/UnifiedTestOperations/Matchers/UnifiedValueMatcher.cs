@@ -69,6 +69,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                         AssertExpectedType(actual, operatorValue);
                         break;
                     case "$$matchesHexBytes":
+                    case "$$matchAsRoot":
                         AssertValuesMatch(actual, operatorValue, true);
                         break;
                     case "$$unsetOrMatches":
@@ -118,6 +119,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                             case "$$type":
                                 actualDocument.Names.Should().Contain(expectedName);
                                 AssertExpectedType(actualDocument[expectedName], operatorValue);
+                                continue;
+                            case "$$matchAsDocument":
+                                var parsedDocument = BsonDocument.Parse(actualDocument[expectedName].AsString);
+                                AssertValuesMatch(parsedDocument, operatorValue, false);
                                 continue;
                             case "$$matchesEntity":
                                 var resultId = operatorValue.AsString;
