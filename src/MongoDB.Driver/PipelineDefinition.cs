@@ -86,7 +86,7 @@ namespace MongoDB.Driver
         /// <returns>A <see cref="RenderedPipelineDefinition{TOutput}"/></returns>
         public virtual RenderedPipelineDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            return Render(inputSerializer, serializerRegistry, LinqProvider.V2);
+            return Render(inputSerializer, serializerRegistry, LinqProvider.V3);
         }
 
         /// <summary>
@@ -101,7 +101,7 @@ namespace MongoDB.Driver
         /// <inheritdoc/>
         public override string ToString()
         {
-            return ToString(LinqProvider.V2);
+            return ToString(LinqProvider.V3);
         }
 
         /// <summary>
@@ -128,7 +128,7 @@ namespace MongoDB.Driver
         /// </returns>
         public string ToString(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            return ToString(inputSerializer, serializerRegistry, LinqProvider.V2);
+            return ToString(inputSerializer, serializerRegistry, LinqProvider.V3);
         }
 
         /// <summary>

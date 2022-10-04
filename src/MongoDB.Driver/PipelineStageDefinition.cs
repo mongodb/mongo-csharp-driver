@@ -188,7 +188,7 @@ namespace MongoDB.Driver
         /// <returns>A <see cref="RenderedPipelineStageDefinition{TOutput}" /></returns>
         public virtual RenderedPipelineStageDefinition<TOutput> Render(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            return Render(inputSerializer, serializerRegistry, LinqProvider.V2);
+            return Render(inputSerializer, serializerRegistry, LinqProvider.V3);
         }
 
         /// <summary>
@@ -218,7 +218,7 @@ namespace MongoDB.Driver
         /// </returns>
         public string ToString(IBsonSerializer<TInput> inputSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            return ToString(inputSerializer, serializerRegistry, LinqProvider.V2);
+            return ToString(inputSerializer, serializerRegistry, LinqProvider.V3);
         }
 
         /// <summary>
@@ -283,7 +283,7 @@ namespace MongoDB.Driver
         /// <inheritdoc />
         IRenderedPipelineStageDefinition IPipelineStageDefinition.Render(IBsonSerializer inputSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            return Render((IBsonSerializer<TInput>)inputSerializer, serializerRegistry, LinqProvider.V2);
+            return Render((IBsonSerializer<TInput>)inputSerializer, serializerRegistry, LinqProvider.V3);
         }
 
         /// <inheritdoc />
