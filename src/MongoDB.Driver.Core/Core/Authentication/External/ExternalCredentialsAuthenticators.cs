@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Net.Http;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Authentication.External
@@ -38,7 +37,7 @@ namespace MongoDB.Driver.Core.Authentication.External
         internal ExternalCredentialsAuthenticators(HttpClientHelper httpClientHelper)
         {
             _httpClientHelper = Ensure.IsNotNull(httpClientHelper, nameof(httpClientHelper));
-            _awsExternalAuthenticationCredentialsProvider = new Lazy<IExternalAuthenticationCredentialsProvider<AwsCredentials>>(() => new AwsAuthenticationCredentialsProvider(_httpClientHelper), isThreadSafe: true);
+            _awsExternalAuthenticationCredentialsProvider = new Lazy<IExternalAuthenticationCredentialsProvider<AwsCredentials>>(() => new CacheableCredentialsProvider<AwsCredentials>(new AwsAuthenticationCredentialsProvider(_httpClientHelper)), isThreadSafe: true);
             _gcpExternalAuthenticationCredentialsProvider = new Lazy<IExternalAuthenticationCredentialsProvider<GcpCredentials>>(() => new GcpAuthenticationCredentialsProvider(_httpClientHelper), isThreadSafe: true);
         }
 

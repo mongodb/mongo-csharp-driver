@@ -514,6 +514,7 @@ functions:
           cat <<'EOF' > "${PROJECT_DIRECTORY}/prepare_mongodb_aws.sh"
             MONGODB_URI="mongodb://localhost"
           EOF
+          export AWS_EC2_ENABLED=true
           PROJECT_DIRECTORY=${PROJECT_DIRECTORY} evergreen/run-mongodb-aws-test.sh
 
   run-aws-auth-test-with-aws-credentials-as-environment-variables:
@@ -987,7 +988,7 @@ tasks:
         - func: run-aws-auth-test-with-aws-credentials-as-environment-variables
         - func: run-aws-auth-test-with-aws-credentials-and-session-token-as-environment-variables
         - func: run-aws-auth-test-with-aws-EC2-credentials
-        # ECS test is skipped untill testing on Linux becomes possible
+        # ECS test is skipped until testing on Linux becomes possible
 
     - name: stable-api-tests-net472
       commands:

@@ -25,20 +25,27 @@ namespace MongoDB.Driver.Core.Authentication.External
 {
     internal class AwsCredentials : IExternalCredentials
     {
+        // credentials are considered expired when: Expiration - now > 5 mins
+        private static readonly TimeSpan __overlapWhenExpired = TimeSpan.FromMinutes(5);
+
         private readonly string _accessKeyId;
+        private readonly DateTime? _expiration;
         private readonly SecureString _secretAccessKey;
         private readonly string _sessionToken;
 
-        public AwsCredentials(string accessKeyId, SecureString secretAccessKey, string sessionToken)
+        public AwsCredentials(string accessKeyId, SecureString secretAccessKey, string sessionToken, string expiration)
         {
             _accessKeyId = Ensure.IsNotNull(accessKeyId, nameof(accessKeyId));
+            _expiration = expiration != null ? DateTime.Parse(expiration) : null;
             _secretAccessKey = Ensure.IsNotNull(secretAccessKey, nameof(secretAccessKey));
             _sessionToken = sessionToken; // can be null
         }
 
         public string AccessKeyId => _accessKeyId;
+        public DateTime? Expiration => _expiration;
         public SecureString SecretAccessKey => _secretAccessKey;
         public string SessionToken => _sessionToken;
+        public bool IsExpired => _expiration.HasValue ? (_expiration.Value - DateTime.UtcNow) < __overlapWhenExpired : false;
 
         public BsonDocument GetKmsCredentials()
             => new BsonDocument
@@ -93,7 +100,7 @@ namespace MongoDB.Driver.Core.Authentication.External
                 throw new InvalidOperationException($"When using AWS authentication if a session token is provided via environment variables then an access key ID and a secret access key must be provided also.");
             }
 
-            return new AwsCredentials(accessKeyId, SecureStringHelper.ToSecureString(secretAccessKey), sessionToken);
+            return new AwsCredentials(accessKeyId, SecureStringHelper.ToSecureString(secretAccessKey), sessionToken, expiration: null);
         }
 
         private async Task<AwsCredentials> CreateAwsCredentialsFromEcsResponseAsync(CancellationToken cancellationToken)
@@ -116,12 +123,23 @@ namespace MongoDB.Driver.Core.Authentication.External
 
         private AwsCredentials CreateAwsCreadentialsFromAwsResponse(string awsResponse)
         {
+            // Response template:
+            //{
+            //    "Code": "Success",
+            //    "LastUpdated": "..",
+            //    "Type": "AWS-HMAC",
+            //    "AccessKeyId": "..",
+            //    "SecretAccessKey": "..",
+            //    "Token": "",
+            //    "Expiration": "YYYY-mm-ddThh:mm:ssZ"
+            //}
             var parsedResponse = BsonDocument.Parse(awsResponse);
             var accessKeyId = parsedResponse.GetValue("AccessKeyId", null)?.AsString;
             var secretAccessKey = parsedResponse.GetValue("SecretAccessKey", null)?.AsString;
             var sessionToken = parsedResponse.GetValue("Token", null)?.AsString;
+            var expiration = parsedResponse.GetValue("Expiration", null)?.AsString;
 
-            return new AwsCredentials(accessKeyId, SecureStringHelper.ToSecureString(secretAccessKey), sessionToken);
+            return new AwsCredentials(accessKeyId, SecureStringHelper.ToSecureString(secretAccessKey), sessionToken, expiration);
         }
 
         // nested types

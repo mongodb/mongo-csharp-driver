@@ -75,7 +75,7 @@ namespace MongoDB.Driver.Core.Authentication
 
         // methods
         /// <inheritdoc/>
-        public void Authenticate(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
+        public virtual void Authenticate(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, nameof(connection));
             Ensure.IsNotNull(description, nameof(description));
@@ -114,7 +114,7 @@ namespace MongoDB.Driver.Core.Authentication
         }
 
         /// <inheritdoc/>
-        public async Task AuthenticateAsync(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
+        public virtual async Task AuthenticateAsync(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, nameof(connection));
             Ensure.IsNotNull(description, nameof(description));
