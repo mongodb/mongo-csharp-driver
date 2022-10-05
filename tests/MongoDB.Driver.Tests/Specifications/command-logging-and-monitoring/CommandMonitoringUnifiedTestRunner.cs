@@ -1,4 +1,4 @@
-﻿/* Copyright 2020-present MongoDB Inc.
+﻿/* Copyright 2021-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,42 +14,55 @@
 */
 
 using System.Collections.Generic;
+using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
-using MongoDB.Driver.Tests.Specifications.Runner;
+using MongoDB.Driver.Core.TestHelpers.Logging;
+using MongoDB.Driver.Tests.UnifiedTestOperations;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace MongoDB.Driver.Tests.Specifications.read_write_concern
+namespace MongoDB.Driver.Tests.Specifications.command_logging_and_monitoring
 {
-    public class OperationTestRunner : MongoClientJsonDrivenTestRunnerBase
+    public class CommandMonitoringUnifiedTestRunner : LoggableTestClass
     {
-        protected override string[] ExpectedTestColumns => new[] { "description", "operations", "outcome", "expectations", "async" };
-
-        public OperationTestRunner(ITestOutputHelper testOutputHelper)
+        // public constructors
+        public CommandMonitoringUnifiedTestRunner(ITestOutputHelper testOutputHelper)
             : base(testOutputHelper)
         {
-            DefaultCommandsToNotCapture.Add("find");
         }
 
-        // public methods
         [SkippableTheory]
         [ClassData(typeof(TestCaseFactory))]
         public void Run(JsonDrivenTestCase testCase)
         {
-            SetupAndRunTest(testCase);
+            using (var runner = new UnifiedTestRunner(loggingService: this))
+            {
+                runner.Run(testCase);
+            }
         }
 
         // nested types
         public class TestCaseFactory : JsonDrivenTestCaseFactory
         {
+            #region static
+            private static readonly string[] __ignoreTests =
+            {
+                // CSHARP-3823
+                "hello with speculative authenticate",
+                "hello without speculative authenticate",
+                "legacy hello with speculative authenticate",
+                "legacy hello without speculative authenticate"
+            };
+            #endregion
+
             // protected properties
-            protected override string PathPrefix => "MongoDB.Driver.Tests.Specifications.read_write_concern.tests.operation.";
+            protected override string PathPrefix => "MongoDB.Driver.Tests.Specifications.command_logging_and_monitoring.tests.unified.";
 
             // protected methods
             protected override IEnumerable<JsonDrivenTestCase> CreateTestCases(BsonDocument document)
             {
-                foreach (var testCase in base.CreateTestCases(document))
+                foreach (var testCase in base.CreateTestCases(document).Where(c => !__ignoreTests.Any(i => c.Name.Contains(i))))
                 {
                     foreach (var async in new[] { false, true })
                     {

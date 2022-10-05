@@ -606,6 +606,9 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
                 "MongoDB.Driver.Core.Tests.Specifications.server_discovery_and_monitoring.tests.legacy_hello.monitoring."
             };
 
+            // Integration tests are run by ServerDiscoveryAndMonitoringIntegrationTestRunner in MongoDB.Driver.Tests
+            private const string IntegrationTestPrefix = "MongoDB.Driver.Core.Tests.Specifications.server_discovery_and_monitoring.tests.integration.";
+
             protected override string PathPrefix => "MongoDB.Driver.Core.Tests.Specifications.server_discovery_and_monitoring.tests.";
 
             protected override IEnumerable<JsonDrivenTestCase> CreateTestCases(BsonDocument document)
@@ -616,10 +619,9 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
 
             protected override bool ShouldReadJsonDocument(string path)
             {
-                var loadBalancerTestDirectory = $"{Path.PathSeparator}load-balanced{Path.PathSeparator}";
                 return base.ShouldReadJsonDocument(path) &&
                        !MonitoringPrefixes.Any(prefix => path.StartsWith(prefix)) &&
-                       !path.Contains(loadBalancerTestDirectory);  // load balancer support not yet implemented
+                       !path.StartsWith(IntegrationTestPrefix);
             }
         }
     }

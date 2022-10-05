@@ -1,4 +1,4 @@
-﻿/* Copyright 2020-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,41 +16,43 @@
 using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
-using MongoDB.Driver.Tests.Specifications.Runner;
+using MongoDB.Driver.Core.TestHelpers.Logging;
+using MongoDB.Driver.Tests.UnifiedTestOperations;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace MongoDB.Driver.Tests.Specifications.read_write_concern
+namespace MongoDB.Driver.Tests.Specifications.command_logging_and_monitoring
 {
-    public class OperationTestRunner : MongoClientJsonDrivenTestRunnerBase
+    public class CommandLoggingUnifiedTestRunner : LoggableTestClass
     {
-        protected override string[] ExpectedTestColumns => new[] { "description", "operations", "outcome", "expectations", "async" };
-
-        public OperationTestRunner(ITestOutputHelper testOutputHelper)
-            : base(testOutputHelper)
+        public CommandLoggingUnifiedTestRunner(ITestOutputHelper testOutputHelper)
+            : base(testOutputHelper, true)
         {
-            DefaultCommandsToNotCapture.Add("find");
         }
 
-        // public methods
         [SkippableTheory]
         [ClassData(typeof(TestCaseFactory))]
         public void Run(JsonDrivenTestCase testCase)
         {
-            SetupAndRunTest(testCase);
+            using (var runner = new UnifiedTestRunner(loggingService: this))
+            {
+                runner.Run(testCase);
+            }
         }
 
-        // nested types
         public class TestCaseFactory : JsonDrivenTestCaseFactory
         {
-            // protected properties
-            protected override string PathPrefix => "MongoDB.Driver.Tests.Specifications.read_write_concern.tests.operation.";
+            protected override string PathPrefix => "MongoDB.Driver.Tests.Specifications.command_logging_and_monitoring.tests.logging.";
 
-            // protected methods
             protected override IEnumerable<JsonDrivenTestCase> CreateTestCases(BsonDocument document)
             {
                 foreach (var testCase in base.CreateTestCases(document))
                 {
+                    if (testCase.Name.Contains("pre-42-server-connection-id"))
+                    {
+                        continue;
+                    }
+
                     foreach (var async in new[] { false, true })
                     {
                         var name = $"{testCase.Name}:async={async}";
