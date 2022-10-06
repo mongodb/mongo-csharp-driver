@@ -25,18 +25,18 @@ namespace MongoDB.Driver.Core.Authentication.External
 {
     internal class AwsCredentials : IExternalCredentials
     {
-        // credentials are considered expired when: Expiration - now > 5 mins
-        private static readonly TimeSpan __overlapWhenExpired = TimeSpan.FromMinutes(5);
+        // credentials are considered expired when: Expiration - now < 5 mins
+        private static readonly TimeSpan __overlapWhereExpired = TimeSpan.FromMinutes(5);
 
         private readonly string _accessKeyId;
         private readonly DateTime? _expiration;
         private readonly SecureString _secretAccessKey;
         private readonly string _sessionToken;
 
-        public AwsCredentials(string accessKeyId, SecureString secretAccessKey, string sessionToken, string expiration)
+        public AwsCredentials(string accessKeyId, SecureString secretAccessKey, string sessionToken, DateTime? expiration)
         {
             _accessKeyId = Ensure.IsNotNull(accessKeyId, nameof(accessKeyId));
-            _expiration = expiration != null ? DateTime.Parse(expiration) : null;
+            _expiration = expiration; // can be null
             _secretAccessKey = Ensure.IsNotNull(secretAccessKey, nameof(secretAccessKey));
             _sessionToken = sessionToken; // can be null
         }
@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Core.Authentication.External
         public DateTime? Expiration => _expiration;
         public SecureString SecretAccessKey => _secretAccessKey;
         public string SessionToken => _sessionToken;
-        public bool IsExpired => _expiration.HasValue ? (_expiration.Value - DateTime.UtcNow) < __overlapWhenExpired : false;
+        public bool IsExpired => _expiration.HasValue ? (_expiration.Value - DateTime.UtcNow) < __overlapWhereExpired : false;
 
         public BsonDocument GetKmsCredentials()
             => new BsonDocument
@@ -112,16 +112,16 @@ namespace MongoDB.Driver.Core.Authentication.External
             }
 
             var response = await _awsHttpClientHelper.GetECSResponseAsync(relativeUri, cancellationToken).ConfigureAwait(false);
-            return CreateAwsCreadentialsFromAwsResponse(response);
+            return CreateAwsCredentialsFromAwsResponse(response);
         }
 
         private async Task<AwsCredentials> CreateAwsCredentialsFromEc2ResponseAsync(CancellationToken cancellationToken)
         {
             var response = await _awsHttpClientHelper.GetEC2ResponseAsync(cancellationToken).ConfigureAwait(false);
-            return CreateAwsCreadentialsFromAwsResponse(response);
+            return CreateAwsCredentialsFromAwsResponse(response);
         }
 
-        private AwsCredentials CreateAwsCreadentialsFromAwsResponse(string awsResponse)
+        private AwsCredentials CreateAwsCredentialsFromAwsResponse(string awsResponse)
         {
             // Response template:
             //{
@@ -138,8 +138,26 @@ namespace MongoDB.Driver.Core.Authentication.External
             var secretAccessKey = parsedResponse.GetValue("SecretAccessKey", null)?.AsString;
             var sessionToken = parsedResponse.GetValue("Token", null)?.AsString;
             var expiration = parsedResponse.GetValue("Expiration", null)?.AsString;
+            if (!TryParseDateTime(expiration, out var expirationDateTime))
+            {
+                if (expiration != null)
+                {
+                    throw new InvalidOperationException($"Expiration in AWS response is in invalid datetime format: {expiration}.");
+                }
+            }
 
-            return new AwsCredentials(accessKeyId, SecureStringHelper.ToSecureString(secretAccessKey), sessionToken, expiration);
+            return new AwsCredentials(accessKeyId, SecureStringHelper.ToSecureString(secretAccessKey), sessionToken, expirationDateTime);
+
+            bool TryParseDateTime(string value, out DateTime? result)
+            {
+                result = null;
+                if (DateTime.TryParse(value, out var dateTime))
+                {
+                    result = dateTime;
+                    return true;
+                }
+                return false;
+            }
         }
 
         // nested types
