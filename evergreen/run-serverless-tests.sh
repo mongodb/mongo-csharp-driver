@@ -11,6 +11,7 @@ set -o errexit # Exit the script with error if any of the commands fail
 #   SERVERLESS_ATLAS_PASSWORD           Authentiction password, must be set
 #   SERVERLESS_URI                      Single atlas proxy serverless uri, must be set
 #   SSL                                 TLS connection flag, must be "ssl"
+#   CRYPT_SHARED_LIB_PATH               The path to crypt_shared library
 # Modified/exported environment variables:
 #   MONGODB_URI                         MONGODB_URI for single host with auth details and TLS and compressor parameters
 #   MONGODB_URI_WITH_MULTIPLE_MONGOSES  MONGODB_URI with auth details and TLS and compressor parameters
@@ -19,6 +20,8 @@ set -o errexit # Exit the script with error if any of the commands fail
 ############################################
 #            Main Program                  #
 ############################################
+
+echo "CRYPT_SHARED_LIB_PATH: ${CRYPT_SHARED_LIB_PATH}"
 
 if [[ "$AUTH" != "auth" ]]; then
   echo "Serverless tests require AUTH to be enabled"

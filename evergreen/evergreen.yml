@@ -675,12 +675,15 @@ functions:
       params:
         working_dir: mongo-csharp-driver
         script: |
+          ${PREPARE_SHELL}
+          ${PREPARE_CSFLE}
           AUTH=${AUTH} \
           FRAMEWORK=${FRAMEWORK} \
           SERVERLESS_ATLAS_USER="${SERVERLESS_ATLAS_USER}" \
           SERVERLESS_ATLAS_PASSWORD="${SERVERLESS_ATLAS_PASSWORD}" \
           SERVERLESS_URI="${SERVERLESS_URI}" \
           SSL=${SSL} \
+          CRYPT_SHARED_LIB_PATH=${CRYPT_SHARED_LIB_PATH} \
             evergreen/run-serverless-tests.sh
 
   run-smoke-tests:
@@ -718,6 +721,7 @@ functions:
     - command: expansions.update
       params:
         file: serverless-expansion.yml
+      # Load the expansion file to make an evergreen variable with the current unique version
 
   delete-serverless-instance-if-configured:
     - command: shell.exec
@@ -1049,6 +1053,7 @@ tasks:
     - name: test-serverless-net472
       exec_timeout_secs: 2700 # 45 minutes: 15 for setup + 30 for tests
       commands:
+        - func: bootstrap-mongo-orchestration
         - func: create-serverless-instance
         - func: run-serverless-tests
           vars:
@@ -1057,6 +1062,7 @@ tasks:
     - name: test-serverless-netstandard20
       exec_timeout_secs: 2700 # 45 minutes: 15 for setup + 30 for tests
       commands:
+        - func: bootstrap-mongo-orchestration
         - func: create-serverless-instance
         - func: run-serverless-tests
           vars:
@@ -1065,6 +1071,7 @@ tasks:
     - name: test-serverless-netstandard21
       exec_timeout_secs: 2700 # 45 minutes: 15 for setup + 30 for tests
       commands:
+        - func: bootstrap-mongo-orchestration
         - func: create-serverless-instance
         - func: run-serverless-tests
           vars:
