@@ -675,6 +675,10 @@ functions:
       params:
         working_dir: mongo-csharp-driver
         script: |
+          # NOTES:
+          # 1. PREPARE_SHELL is almost no-op for serverless. The only goal to call it is to fill MONGO_ORCHESTRATION_HOME
+          # 2. The reason why we need running bootstrap-mongo-orchestration is to download and configure CSFLE shared_library
+          # local server binaries won't be used
           ${PREPARE_SHELL}
           ${PREPARE_CSFLE}
           AUTH=${AUTH} \
