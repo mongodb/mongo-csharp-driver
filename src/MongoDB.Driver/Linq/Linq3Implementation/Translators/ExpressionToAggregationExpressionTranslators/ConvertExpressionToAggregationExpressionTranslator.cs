@@ -46,8 +46,20 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     }
                 }
 
-                var ast = AstExpression.Convert(operandTranslation.Ast, expressionType);
-                var serializer = context.KnownSerializersRegistry.GetSerializer(expression);
+                var ast = operandTranslation.Ast;
+                IBsonSerializer serializer;
+                if (expressionType.IsInterface)
+                {
+                    // when an expression is cast to an interface it's a no-op as far as we're concerned
+                    // and we can just use the serializer for the concrete type and members not defined in the interface will just be ignored
+                    serializer = operandTranslation.Serializer;
+                }
+                else
+                {
+                    ast = AstExpression.Convert(ast, expressionType);
+                    serializer = context.KnownSerializersRegistry.GetSerializer(expression);
+                }
+
                 return new AggregationExpression(expression, ast, serializer);
             }
 
