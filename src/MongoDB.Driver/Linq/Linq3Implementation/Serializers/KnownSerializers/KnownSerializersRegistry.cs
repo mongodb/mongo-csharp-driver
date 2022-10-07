@@ -42,11 +42,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers.KnownSerializers
             _registry.Add(expression, knownSerializers);
         }
 
-        public void AddKnownSerializer(Expression expression, IBsonSerializer knownSerializer, bool allowPropagation = true)
+        public void SetNodeSerializer(Expression expression, IBsonSerializer nodeSerializer)
         {
-            if (knownSerializer.ValueType != expression.Type)
+            if (nodeSerializer.ValueType != expression.Type)
             {
-                throw new ArgumentException($"Serializer value type {knownSerializer.ValueType} does not match expresion type {expression.Type}.", nameof(knownSerializer));
+                throw new ArgumentException($"Serializer value type {nodeSerializer.ValueType} does not match expresion type {expression.Type}.", nameof(nodeSerializer));
             }
 
             if (!_registry.TryGetValue(expression, out var knownSerializers))
@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers.KnownSerializers
                 throw new InvalidOperationException("KnownSerializersNode does not exist yet for expression: {expression}.");
             }
 
-            knownSerializers.AddKnownSerializer(expression.Type, knownSerializer, allowPropagation);
+            knownSerializers.SetNodeSerializer(nodeSerializer);
         }
 
         public IBsonSerializer GetSerializer(Expression expression, IBsonSerializer defaultSerializer = null)
@@ -72,6 +72,18 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers.KnownSerializers
                 1 => possibleSerializers.First(),
                 _ => throw new InvalidOperationException($"More than one possible serializer found for {type} in {expression}.")
             };
+        }
+
+        public IBsonSerializer GetSerializerAtThisLevel(Expression expression)
+        {
+            var expressionType = expression is LambdaExpression lambdaExpression ? lambdaExpression.ReturnType : expression.Type;
+            return GetSerializerAtThisLevel(expression, expressionType);
+        }
+
+        public IBsonSerializer GetSerializerAtThisLevel(Expression expression, Type type)
+        {
+            var possibleSerializers = _registry.TryGetValue(expression, out var knownSerializers) ? knownSerializers.GetPossibleSerializers(type) : new HashSet<IBsonSerializer>();
+            return possibleSerializers.Count == 1 ? possibleSerializers.Single() : null;
         }
 
         private IBsonSerializer LookupSerializer(Expression expression, Type type)
