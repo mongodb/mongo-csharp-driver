@@ -332,6 +332,7 @@ functions:
           ${PREPARE_CSFLE}
           export KMS_MOCK_SERVERS_ENABLED=true
           export GCE_METADATA_HOST="localhost:5000"
+          export AZURE_IMDS_MOCK_ENDPOINT="localhost:8080"
           ${PREPARE_SHELL}
           set +o xtrace
           OS=${OS} \
@@ -799,6 +800,21 @@ functions:
           export GOOGLE_APPLICATION_CREDENTIALS=${DRIVERS_TOOLS}/tmp/testgcpkms_key_file.json
           $PYTHON -u mock_server.py
 
+  start-kms-mock-azure-imds-server:
+    - command: shell.exec
+      params:
+        script: |
+          ${PREPARE_SHELL}
+          cd ${DRIVERS_TOOLS}/.evergreen/csfle
+          . ./activate_venv.sh
+    - command: shell.exec
+      params:
+        background: true
+        script: |
+          PYTHON=$(Venv="${DRIVERS_TOOLS}/.evergreen/csfle/kmstlsvenv" OS=${OS} ${PROJECT_DIRECTORY}/evergreen/get-python-path.sh);
+          cd ${DRIVERS_TOOLS}/.evergreen/csfle
+          $PYTHON bottle.py fake_azure:imds
+
   cleanup:
     - command: shell.exec
       params:
@@ -919,6 +935,7 @@ tasks:
         - func: start-kms-mock-servers
         - func: start-kms-mock-kmip-server
         - func: start-kms-mock-gcp-server
+        - func: start-kms-mock-azure-imds-server
         - func: bootstrap-mongo-orchestration
         - func: run-csfle-with-mocked-kms-tests
           vars:
@@ -929,6 +946,7 @@ tasks:
         - func: start-kms-mock-servers
         - func: start-kms-mock-kmip-server
         - func: start-kms-mock-gcp-server
+        - func: start-kms-mock-azure-imds-server
         - func: bootstrap-mongo-orchestration
         - func: run-csfle-with-mocked-kms-tests
           vars:
@@ -939,6 +957,7 @@ tasks:
         - func: start-kms-mock-servers
         - func: start-kms-mock-kmip-server
         - func: start-kms-mock-gcp-server
+        - func: start-kms-mock-azure-imds-server
         - func: bootstrap-mongo-orchestration
         - func: run-csfle-with-mocked-kms-tests
           vars:

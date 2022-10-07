@@ -26,11 +26,11 @@ using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Microsoft.Diagnostics.Runtime;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
+using MongoDB.Driver.Core.Authentication.External;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Events;
@@ -1668,7 +1668,111 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                     default: throw new Exception($"Unexpected kms provider: {kmsProvider}.");
                 }
             }
-        }  
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public async Task OnDemandAzureIMDSCredentialsUnitTest(
+            [Range(1, 6)] int testCase,
+            [Values(false, true)] bool async)
+        {
+            RequireEnvironment
+                .Check()
+                .EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED")
+                .EnvironmentVariable("AZURE_IMDS_MOCK_ENDPOINT");
+
+            switch (testCase)
+            {
+                case 1: // Case 1: Success
+                    {
+                        var createHttpRequestMessageFactory = CreateHttpRequestMessageFactory((request) => { });
+                        var azureProvider = new AzureAuthenticationCredentialsProvider(ExternalCredentialsAuthenticators.Instance.HttpClientHelper, createHttpRequestMessageFactory);
+                        var result = async
+                            ? await azureProvider.CreateCredentialsFromExternalSourceAsync(CancellationToken.None)
+                            : azureProvider.CreateCredentialsFromExternalSource(CancellationToken.None);
+                        result.AccessToken.Should().Be("magic-cookie");
+                        // < 70 && >= 50 seconds
+                        (result.Expiration - DateTime.UtcNow).Should().BeCloseTo(nearbyTime: TimeSpan.FromSeconds(60), precision: (int)TimeSpan.FromSeconds(10).TotalMilliseconds);
+                    }
+                    break;
+                case 2: // Case 2: Empty JSON
+                    {
+                        var createHttpRequestMessageFactory = CreateHttpRequestMessageFactory((request) => request.Headers.Add("X-MongoDB-HTTP-TestParams", "case=empty-json"));
+                        var azureProvider = new AzureAuthenticationCredentialsProvider(ExternalCredentialsAuthenticators.Instance.HttpClientHelper, createHttpRequestMessageFactory);
+                        var exception = async
+                            ? await Record.ExceptionAsync(() => azureProvider.CreateCredentialsFromExternalSourceAsync(CancellationToken.None))
+                            : Record.Exception(() => azureProvider.CreateCredentialsFromExternalSource(CancellationToken.None));
+                        exception.Should().BeOfType<InvalidOperationException>().Which.Message.Should().Be("Azure IMDS response must contain access_token.");
+                    }
+                    break;
+                case 3: // Case 3: Bad JSON
+                    {
+                        var createHttpRequestMessageFactory = CreateHttpRequestMessageFactory((request) => request.Headers.Add("X-MongoDB-HTTP-TestParams", "case=bad-json"));
+                        var azureProvider = new AzureAuthenticationCredentialsProvider(ExternalCredentialsAuthenticators.Instance.HttpClientHelper, createHttpRequestMessageFactory);
+                        var exception = async
+                            ? await Record.ExceptionAsync(() => azureProvider.CreateCredentialsFromExternalSourceAsync(CancellationToken.None))
+                            : Record.Exception(() => azureProvider.CreateCredentialsFromExternalSource(CancellationToken.None));
+                        exception.Should().BeOfType<InvalidOperationException>().Which.Message.Should().Be("Azure IMDS response must be in Json format.");
+                    }
+                    break;
+                case 4: // Case 4: HTTP 404
+                    {
+                        var createHttpRequestMessageFactory = CreateHttpRequestMessageFactory((request) => request.Headers.Add("X-MongoDB-HTTP-TestParams", "case=404"));
+                        var azureProvider = new AzureAuthenticationCredentialsProvider(ExternalCredentialsAuthenticators.Instance.HttpClientHelper, createHttpRequestMessageFactory);
+                        var exception = async
+                            ? await Record.ExceptionAsync(() => azureProvider.CreateCredentialsFromExternalSourceAsync(CancellationToken.None))
+                            : Record.Exception(() => azureProvider.CreateCredentialsFromExternalSource(CancellationToken.None));
+                        exception
+                            .Should().BeOfType<MongoClientException>().Which.InnerException
+                            .Should().BeOfType<HttpRequestException>().Which.Message
+                            .Should().Be("Response status code does not indicate success: 404 (Not Found).");
+                    }
+                    break;
+                case 5: // Case 5: HTTP 500
+                    {
+                        var createHttpRequestMessageFactory = CreateHttpRequestMessageFactory((request) => request.Headers.Add("X-MongoDB-HTTP-TestParams", "case=500"));
+                        var azureProvider = new AzureAuthenticationCredentialsProvider(ExternalCredentialsAuthenticators.Instance.HttpClientHelper, createHttpRequestMessageFactory);
+                        var exception = async
+                            ? await Record.ExceptionAsync(() => azureProvider.CreateCredentialsFromExternalSourceAsync(CancellationToken.None))
+                            : Record.Exception(() => azureProvider.CreateCredentialsFromExternalSource(CancellationToken.None));
+                        exception
+                            .Should().BeOfType<MongoClientException>().Which.InnerException
+                            .Should().BeOfType<HttpRequestException>().Which.Message
+                            .Should().Be("Response status code does not indicate success: 500 (Internal Server Error).");
+                    }
+                    break;
+                case 6: // Case 6: Slow Response
+                    {
+                        var createHttpRequestMessageFactory = CreateHttpRequestMessageFactory((request) => request.Headers.Add("X-MongoDB-HTTP-TestParams", "case=slow"));
+                        var azureProvider = new AzureAuthenticationCredentialsProvider(ExternalCredentialsAuthenticators.Instance.HttpClientHelper, createHttpRequestMessageFactory);
+                        var exception = async
+                            ? await Record.ExceptionAsync(() => azureProvider.CreateCredentialsFromExternalSourceAsync(CancellationToken.None))
+                            : Record.Exception(() => azureProvider.CreateCredentialsFromExternalSource(CancellationToken.None));
+                        exception
+                            .Should().BeOfType<MongoClientException>().Which.InnerException
+                            .Should().BeAssignableTo<OperationCanceledException>();
+                    }
+                    break;
+            }
+
+            IExternalCredentialsHttpRequestMessageFactory CreateHttpRequestMessageFactory(Action<HttpRequestMessage> modifyAction)
+            {
+                var imdsMockEndpoint = Environment.GetEnvironmentVariable("AZURE_IMDS_MOCK_ENDPOINT") ?? throw new Exception("AZURE_IMDS_MOCK_ENDPOINT must be configured.");
+                var defaultAzureFactory = new AzureHttpRequestMessageFactory();
+                Action<HttpRequestMessage> withReplacedEndpoint =
+                    (httpRequestMessage) =>
+                    {
+                        modifyAction(httpRequestMessage);
+                        var uriBuilder = new UriBuilder(httpRequestMessage.RequestUri);
+                        var mockUri = new Uri($"http://{imdsMockEndpoint}");
+                        uriBuilder.Scheme = mockUri.Scheme;
+                        uriBuilder.Host = mockUri.Host;
+                        uriBuilder.Port = mockUri.Port;
+                        httpRequestMessage.RequestUri = uriBuilder.Uri;
+                    };
+                return new ExternalCredentialsHttpRequestMessageWrapperFactory(defaultAzureFactory, withReplacedEndpoint);
+            }
+        }
 
         public void RewrapTest(
             [Values("local", "aws", "azure", "gcp", "kmip")] string srcProvider,
@@ -2443,6 +2547,27 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 {
                     document.RemoveElement(ignored);
                 }
+            }
+        }
+
+        private class ExternalCredentialsHttpRequestMessageWrapperFactory : IExternalCredentialsHttpRequestMessageFactory
+        {
+            private readonly IExternalCredentialsHttpRequestMessageFactory _externalCredentialsHttpRequestMessageFactory;
+            private readonly Action<HttpRequestMessage> _modifyAction;
+
+            public ExternalCredentialsHttpRequestMessageWrapperFactory(
+                IExternalCredentialsHttpRequestMessageFactory externalCredentialsHttpRequestMessageFactory,
+                Action<HttpRequestMessage> modifyAction)
+            {
+                _externalCredentialsHttpRequestMessageFactory = Ensure.IsNotNull(externalCredentialsHttpRequestMessageFactory, nameof(externalCredentialsHttpRequestMessageFactory));
+                _modifyAction = Ensure.IsNotNull(modifyAction, nameof(modifyAction));
+            }
+
+            public HttpRequestMessage CreateRequest()
+            {
+                var message = _externalCredentialsHttpRequestMessageFactory.CreateRequest();
+                _modifyAction(message);
+                return message;
             }
         }
     }

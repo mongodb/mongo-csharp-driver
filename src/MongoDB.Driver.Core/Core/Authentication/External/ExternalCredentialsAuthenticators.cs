@@ -28,6 +28,7 @@ namespace MongoDB.Driver.Core.Authentication.External
 
         private readonly HttpClientHelper _httpClientHelper;
         private readonly Lazy<IExternalAuthenticationCredentialsProvider<AwsCredentials>> _awsExternalAuthenticationCredentialsProvider;
+        private readonly Lazy<IExternalAuthenticationCredentialsProvider<AzureCredentials>> _azureExternalAuthenticationCredentialsProvider;
         private readonly Lazy<IExternalAuthenticationCredentialsProvider<GcpCredentials>> _gcpExternalAuthenticationCredentialsProvider;
 
         internal ExternalCredentialsAuthenticators() : this(new HttpClientHelper())
@@ -38,10 +39,14 @@ namespace MongoDB.Driver.Core.Authentication.External
         {
             _httpClientHelper = Ensure.IsNotNull(httpClientHelper, nameof(httpClientHelper));
             _awsExternalAuthenticationCredentialsProvider = new Lazy<IExternalAuthenticationCredentialsProvider<AwsCredentials>>(() => new CacheableCredentialsProvider<AwsCredentials>(new AwsAuthenticationCredentialsProvider(_httpClientHelper)), isThreadSafe: true);
+            _azureExternalAuthenticationCredentialsProvider = new Lazy<IExternalAuthenticationCredentialsProvider<AzureCredentials>>(() => new CacheableCredentialsProvider<AzureCredentials>(new AzureAuthenticationCredentialsProvider(_httpClientHelper)), isThreadSafe: true);
             _gcpExternalAuthenticationCredentialsProvider = new Lazy<IExternalAuthenticationCredentialsProvider<GcpCredentials>>(() => new GcpAuthenticationCredentialsProvider(_httpClientHelper), isThreadSafe: true);
         }
 
         public IExternalAuthenticationCredentialsProvider<AwsCredentials> Aws => _awsExternalAuthenticationCredentialsProvider.Value;
+        public IExternalAuthenticationCredentialsProvider<AzureCredentials> Azure => _azureExternalAuthenticationCredentialsProvider.Value;
         public IExternalAuthenticationCredentialsProvider<GcpCredentials> Gcp => _gcpExternalAuthenticationCredentialsProvider.Value;
+
+        internal HttpClientHelper HttpClientHelper => _httpClientHelper;
     }
 }
