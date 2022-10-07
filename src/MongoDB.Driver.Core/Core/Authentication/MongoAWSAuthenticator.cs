@@ -17,6 +17,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security;
+using System.Threading;
+using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Authentication.External;
@@ -51,6 +53,7 @@ namespace MongoDB.Driver.Core.Authentication
             UsernamePasswordCredential credential,
             IEnumerable<KeyValuePair<string, string>> properties,
             IRandomByteGenerator randomByteGenerator,
+            IExternalAuthenticationCredentialsProvider<AwsCredentials> externalAuthenticationCredentialsProvider,
             IClock clock)
         {
             if (credential.Source != "$external")
@@ -58,7 +61,7 @@ namespace MongoDB.Driver.Core.Authentication
                 throw new ArgumentException("MONGODB-AWS authentication may only use the $external source.", nameof(credential));
             }
 
-            return CreateMechanism(credential.Username, credential.Password, properties, randomByteGenerator, clock);
+            return CreateMechanism(credential.Username, credential.Password, properties, randomByteGenerator, externalAuthenticationCredentialsProvider, clock);
         }
 
         private static MongoAWSMechanism CreateMechanism(
@@ -66,11 +69,12 @@ namespace MongoDB.Driver.Core.Authentication
             SecureString password,
             IEnumerable<KeyValuePair<string, string>> properties,
             IRandomByteGenerator randomByteGenerator,
+            IExternalAuthenticationCredentialsProvider<AwsCredentials> externalAuthenticationCredentialsProvider,
             IClock clock)
         {
             var awsCredentials =
                 CreateAwsCredentialsFromMongoCredentials(username, password, properties) ??
-                ExternalCredentialsAuthenticators.Instance.Aws.CreateCredentialsFromExternalSource();
+                externalAuthenticationCredentialsProvider.CreateCredentialsFromExternalSource();
 
             return new MongoAWSMechanism(awsCredentials, randomByteGenerator, clock);
         }
@@ -97,7 +101,7 @@ namespace MongoDB.Driver.Core.Authentication
                 throw new InvalidOperationException("When using MONGODB-AWS authentication if a session token is provided via settings then a username and password must be provided also.");
             }
 
-            return new AwsCredentials(accessKeyId: username, secretAccessKey: password, sessionToken);
+            return new AwsCredentials(accessKeyId: username, secretAccessKey: password, sessionToken, expiration: null);
         }
 
         private static string ExtractSessionTokenFromMechanismProperties(IEnumerable<KeyValuePair<string, string>> properties)
@@ -131,40 +135,26 @@ namespace MongoDB.Driver.Core.Authentication
         }
         #endregion
 
+        private readonly ICredentialsCache<AwsCredentials> _credentialsCache;
+
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="MongoAWSAuthenticator"/> class.
         /// </summary>
         /// <param name="credential">The credentials.</param>
         /// <param name="properties">The properties.</param>
-        [Obsolete("Use the newest overload instead.")]
-        public MongoAWSAuthenticator(UsernamePasswordCredential credential, IEnumerable<KeyValuePair<string, string>> properties)
-            : this(credential, properties, serverApi: null)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MongoAWSAuthenticator"/> class.
-        /// </summary>
-        /// <param name="credential">The credentials.</param>
-        /// <param name="properties">The properties.</param>
         /// <param name="serverApi">The server API.</param>
         public MongoAWSAuthenticator(
             UsernamePasswordCredential credential,
             IEnumerable<KeyValuePair<string, string>> properties,
             ServerApi serverApi)
-            : this(credential, properties, new DefaultRandomByteGenerator(), SystemClock.Instance, serverApi)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MongoAWSAuthenticator"/> class.
-        /// </summary>
-        /// <param name="username">The username.</param>
-        /// <param name="properties">The properties.</param>
-        [Obsolete("Use the newest overload instead.")]
-        public MongoAWSAuthenticator(string username, IEnumerable<KeyValuePair<string, string>> properties)
-            : this(username, properties, serverApi: null)
+            : this(
+                  credential,
+                  properties,
+                  new DefaultRandomByteGenerator(),
+                  ExternalCredentialsAuthenticators.Instance.Aws,
+                  SystemClock.Instance,
+                  serverApi)
         {
         }
 
@@ -178,7 +168,13 @@ namespace MongoDB.Driver.Core.Authentication
             string username,
             IEnumerable<KeyValuePair<string, string>> properties,
             ServerApi serverApi)
-            : this(username, properties, new DefaultRandomByteGenerator(), SystemClock.Instance, serverApi)
+            : this(
+                  username,
+                  properties,
+                  new DefaultRandomByteGenerator(),
+                  ExternalCredentialsAuthenticators.Instance.Aws,
+                  SystemClock.Instance,
+                  serverApi)
         {
         }
 
@@ -186,26 +182,58 @@ namespace MongoDB.Driver.Core.Authentication
             UsernamePasswordCredential credential,
             IEnumerable<KeyValuePair<string, string>> properties,
             IRandomByteGenerator randomByteGenerator,
+            IExternalAuthenticationCredentialsProvider<AwsCredentials> externalAuthenticationCredentialsProvider,
             IClock clock,
             ServerApi serverApi)
-            : base(CreateMechanism(credential, properties, randomByteGenerator, clock), serverApi)
+            : base(CreateMechanism(credential, properties, randomByteGenerator, externalAuthenticationCredentialsProvider, clock), serverApi)
         {
+            _credentialsCache = externalAuthenticationCredentialsProvider as ICredentialsCache<AwsCredentials>; // can be null
         }
 
         internal MongoAWSAuthenticator(
             string username,
             IEnumerable<KeyValuePair<string, string>> properties,
             IRandomByteGenerator randomByteGenerator,
+            IExternalAuthenticationCredentialsProvider<AwsCredentials> externalAuthenticationCredentialsProvider,
             IClock clock,
             ServerApi serverApi)
-            : base(CreateMechanism(username, null, properties, randomByteGenerator, clock), serverApi)
+            : base(CreateMechanism(username, null, properties, randomByteGenerator, externalAuthenticationCredentialsProvider, clock), serverApi)
         {
+            _credentialsCache = externalAuthenticationCredentialsProvider as ICredentialsCache<AwsCredentials>; // can be null
         }
 
         /// <inheritdoc/>
         public override string DatabaseName
         {
             get { return "$external"; }
+        }
+
+        /// <inheritdoc/>
+        public override void Authenticate(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
+        {
+            try
+            {
+                base.Authenticate(connection, description, cancellationToken);
+            }
+            catch
+            {
+                _credentialsCache?.Clear();
+                throw;
+            }
+        }
+
+        /// <inheritdoc/>
+        public override async Task AuthenticateAsync(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
+        {
+            try
+            {
+                await base.AuthenticateAsync(connection, description, cancellationToken).ConfigureAwait(false);
+            }
+            catch
+            {
+                _credentialsCache?.Clear();
+                throw;
+            }
         }
 
         // nested classes

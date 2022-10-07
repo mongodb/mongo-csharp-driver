@@ -30,6 +30,10 @@ namespace MongoDB.Driver.Core.Authentication.External
 
         public string AccessToken => _accessToken;
 
+        public DateTime? Expiration => null;
+
+        public bool IsExpired => false;
+
         public BsonDocument GetKmsCredentials() => new BsonDocument("accessToken", _accessToken);
     }
 
