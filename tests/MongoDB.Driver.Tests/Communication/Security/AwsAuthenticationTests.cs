@@ -67,8 +67,8 @@ namespace MongoDB.Driver.Tests.Communication.Security
             // 3. Ensure that a find operation adds credentials to the cache..
             GetCache().Should().NotBeNull();
 
-            // 4. Override the cached credentials with an "Expiration" that is within thirty seconds of the current UTC time.
-            SetCache(date: DateTime.UtcNow.AddSeconds(30));
+            // 4. Override the cached credentials with an "Expiration" that is within one minute of the current UTC time.
+            SetCache(date: DateTime.UtcNow.AddMinutes(1));
 
             // 5. Create a new client.
             using var client2 = DriverTestConfiguration.CreateDisposableClient();
