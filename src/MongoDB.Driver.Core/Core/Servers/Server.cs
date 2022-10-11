@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Core.Servers
         private readonly ServerSettings _settings;
         private readonly InterlockedInt32 _state;
         private readonly ServerApi _serverApi;
-        private readonly EventsLogger<LogCategories.SDAM> _eventsLogger;
+        private readonly EventLogger<LogCategories.SDAM> _eventsLogger;
 
         private int _outstandingOperationsCount;
 
@@ -71,7 +71,7 @@ namespace MongoDB.Driver.Core.Servers
             EndPoint endPoint,
             IConnectionPoolFactory connectionPoolFactory,
             ServerApi serverApi,
-            EventsLogger<LogCategories.SDAM> eventsLogger)
+            EventLogger<LogCategories.SDAM> eventsLogger)
         {
             ClusterConnectionModeHelper.EnsureConnectionModeValuesAreValid(clusterConnectionMode, connectionModeSwitch, directConnection);
 
@@ -101,7 +101,7 @@ namespace MongoDB.Driver.Core.Servers
         public EndPoint EndPoint => _endPoint;
         public bool IsInitialized => _state.Value != State.Initial;
         public ServerId ServerId => _serverId;
-        protected EventsLogger<LogCategories.SDAM> EventsLogger => _eventsLogger;
+        protected EventLogger<LogCategories.SDAM> EventsLogger => _eventsLogger;
 
         int IClusterableServer.OutstandingOperationsCount => Interlocked.CompareExchange(ref _outstandingOperationsCount, 0, 0);
 

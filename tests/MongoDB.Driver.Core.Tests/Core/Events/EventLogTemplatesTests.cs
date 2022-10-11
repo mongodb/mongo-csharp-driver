@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Core.Events
         {
             foreach (var eventType in Enum.GetValues(typeof(EventType)).Cast<EventType>())
             {
-                var template = StructuredLogsTemplates.GetTemplateProvider(eventType);
+                var template = StructuredLogTemplateProviders.GetTemplateProvider(eventType);
 
                 template.Templates.Count().Should().BeGreaterThan(0);
                 template.Templates.First().Should().NotBeNull("Missing template for {0}", eventType);

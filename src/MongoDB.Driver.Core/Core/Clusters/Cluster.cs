@@ -71,8 +71,8 @@ namespace MongoDB.Driver.Core.Clusters
         private TaskCompletionSource<bool> _descriptionChangedTaskCompletionSource;
         private readonly object _descriptionLock = new object();
         private readonly LatencyLimitingServerSelector _latencyLimitingServerSelector;
-        protected readonly EventsLogger<LogCategories.Cluster> _clusterEventsLogger;
-        protected readonly EventsLogger<LogCategories.ServerSelection> _serverSelectionEventsLogger;
+        protected readonly EventLogger<LogCategories.Cluster> _clusterEventsLogger;
+        protected readonly EventLogger<LogCategories.ServerSelection> _serverSelectionEventsLogger;
         private Timer _rapidHeartbeatTimer;
         private readonly object _serverSelectionWaitQueueLock = new object();
         private int _serverSelectionWaitQueueSize;
@@ -231,7 +231,7 @@ namespace MongoDB.Driver.Core.Clusters
                     _cryptClient = CryptClientCreator.CreateCryptClient(_settings.CryptClientSettings);
 
                     _clusterEventsLogger.Logger?.LogDebug(
-                        StructuredLogsTemplates.ClusterId_Message_SharedLibraryVersion,
+                        StructuredLogTemplateProviders.ClusterId_Message_SharedLibraryVersion,
                         _clusterId,
                         "CryptClient created. Configured shared library version: ",
                         _cryptClient.CryptSharedLibraryVersion ?? "None");

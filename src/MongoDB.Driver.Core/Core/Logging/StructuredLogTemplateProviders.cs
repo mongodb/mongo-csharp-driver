@@ -25,7 +25,7 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Core.Logging
 {
-    internal static partial class StructuredLogsTemplates
+    internal static partial class StructuredLogTemplateProviders
     {
         public const string ClusterId = nameof(ClusterId);
         public const string Command = nameof(Command);
@@ -58,12 +58,12 @@ namespace MongoDB.Driver.Core.Logging
         public const string ServerId_Message_Description = $"{{{ClusterId}}} {{{ServerHost}}} {{{ServerPort}}} {{{Message}}} {{{Description}}}";
         public const string ClusterId_Message_SharedLibraryVersion = $"{{{ClusterId}}} {{{Message}}} {{{SharedLibraryVersion}}}";
 
-        private readonly static LogsTemplateProvider[] __eventsTemplates;
+        private readonly static LogTemplateProvider[] __eventsTemplates;
 
-        static StructuredLogsTemplates()
+        static StructuredLogTemplateProviders()
         {
             var eventTypesCount = Enum.GetValues(typeof(EventType)).Length;
-            __eventsTemplates = new LogsTemplateProvider[eventTypesCount];
+            __eventsTemplates = new LogTemplateProvider[eventTypesCount];
 
             AddClusterTemplates();
             AddCmapTemplates();
@@ -72,7 +72,7 @@ namespace MongoDB.Driver.Core.Logging
             AddSdamTemplates();
         }
 
-        public static LogsTemplateProvider GetTemplateProvider(EventType eventType) => __eventsTemplates[(int)eventType];
+        public static LogTemplateProvider GetTemplateProvider(EventType eventType) => __eventsTemplates[(int)eventType];
 
         public static object[] GetParams(ClusterId clusterId, object arg1)
         {
@@ -136,26 +136,26 @@ namespace MongoDB.Driver.Core.Logging
                 return new object[] { connectionId.ServerId.ClusterId.Value, connectionId.LocalValue, host, port, arg1, arg2, arg3, arg4, arg5, arg6, arg7, ommitableParam };
         }
 
-        private static void AddTemplateProvider<TEvent>(LogLevel logLevel, string template, Func<TEvent, EventsLogsFormattingOptions, object[]> extractor) where TEvent : struct, IEvent =>
-            AddTemplateProvider<TEvent>(new LogsTemplateProvider(
+        private static void AddTemplateProvider<TEvent>(LogLevel logLevel, string template, Func<TEvent, EventLogsFormattingOptions, object[]> extractor) where TEvent : struct, IEvent =>
+            AddTemplateProvider<TEvent>(new LogTemplateProvider(
                 logLevel,
                 new[] { template },
                 extractor));
 
-        private static void AddTemplateProvider<TEvent>(LogLevel logLevel, string[] templates, Func<TEvent, EventsLogsFormattingOptions, object[]> extractor, Func<TEvent, LogsTemplateProvider, string> templateExtractor) where TEvent : struct, IEvent =>
-            AddTemplateProvider<TEvent>(new LogsTemplateProvider(
+        private static void AddTemplateProvider<TEvent>(LogLevel logLevel, string[] templates, Func<TEvent, EventLogsFormattingOptions, object[]> extractor, Func<TEvent, LogTemplateProvider, string> templateExtractor) where TEvent : struct, IEvent =>
+            AddTemplateProvider<TEvent>(new LogTemplateProvider(
                 logLevel,
                 templates,
                 extractor,
                 templateExtractor));
 
-        private static void AddTemplate<TEvent, TArg>(LogLevel logLevel, string template, Func<TEvent, EventsLogsFormattingOptions, TArg, object[]> extractor) where TEvent : struct, IEvent =>
-            AddTemplateProvider<TEvent>(new LogsTemplateProvider(
+        private static void AddTemplate<TEvent, TArg>(LogLevel logLevel, string template, Func<TEvent, EventLogsFormattingOptions, TArg, object[]> extractor) where TEvent : struct, IEvent =>
+            AddTemplateProvider<TEvent>(new LogTemplateProvider(
                 logLevel,
                 new[] { template },
                 extractor));
 
-        private static void AddTemplateProvider<TEvent>(LogsTemplateProvider templateProvider) where TEvent : struct, IEvent
+        private static void AddTemplateProvider<TEvent>(LogTemplateProvider templateProvider) where TEvent : struct, IEvent
         {
             var index = (int)(new TEvent().Type);
 
@@ -173,14 +173,14 @@ namespace MongoDB.Driver.Core.Logging
         private static string Concat(string[] parameters, params string[] additionalParameters) =>
             string.Join(" ", parameters.Concat(additionalParameters).Select(p => $"{{{p}}}"));
 
-        internal sealed class LogsTemplateProvider
+        internal sealed class LogTemplateProvider
         {
             public LogLevel LogLevel { get; }
             public string[] Templates { get; }
             public Delegate ParametersExtractor { get; }
             public Delegate TemplateExtractor { get; }
 
-            public LogsTemplateProvider(LogLevel logLevel, string[] templates, Delegate parametersExtractor, Delegate templateExtractor = null)
+            public LogTemplateProvider(LogLevel logLevel, string[] templates, Delegate parametersExtractor, Delegate templateExtractor = null)
             {
                 LogLevel = logLevel;
                 Templates = templates;
@@ -189,13 +189,13 @@ namespace MongoDB.Driver.Core.Logging
             }
 
             public string GetTemplate<TEvent>(TEvent @event) where TEvent : struct, IEvent =>
-                TemplateExtractor != null ? ((Func<TEvent, LogsTemplateProvider, string>)TemplateExtractor)(@event, this) : Templates.First();
+                TemplateExtractor != null ? ((Func<TEvent, LogTemplateProvider, string>)TemplateExtractor)(@event, this) : Templates.First();
 
-            public object[] GetParams<TEvent>(TEvent @event, EventsLogsFormattingOptions eventsLogsFormattingOptions) where TEvent : struct, IEvent =>
-                (ParametersExtractor as Func<TEvent, EventsLogsFormattingOptions, object[]>)(@event, eventsLogsFormattingOptions);
+            public object[] GetParams<TEvent>(TEvent @event, EventLogsFormattingOptions eventsLogsFormattingOptions) where TEvent : struct, IEvent =>
+                (ParametersExtractor as Func<TEvent, EventLogsFormattingOptions, object[]>)(@event, eventsLogsFormattingOptions);
 
-            public object[] GetParams<TEvent, TArg>(TEvent @event, EventsLogsFormattingOptions eventsLogsFormattingOptions, TArg arg) where TEvent : struct, IEvent =>
-                (ParametersExtractor as Func<TEvent, EventsLogsFormattingOptions, TArg, object[]>)(@event, eventsLogsFormattingOptions, arg);
+            public object[] GetParams<TEvent, TArg>(TEvent @event, EventLogsFormattingOptions eventsLogsFormattingOptions, TArg arg) where TEvent : struct, IEvent =>
+                (ParametersExtractor as Func<TEvent, EventLogsFormattingOptions, TArg, object[]>)(@event, eventsLogsFormattingOptions, arg);
         }
     }
 }

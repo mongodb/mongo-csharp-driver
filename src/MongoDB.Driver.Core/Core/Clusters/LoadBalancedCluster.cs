@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Core.Clusters
         private readonly ICoreServerSessionPool _serverSessionPool;
         private readonly ClusterSettings _settings;
         private readonly InterlockedInt32 _state;
-        private readonly EventsLogger<LogCategories.Cluster> _eventsLogger;
+        private readonly EventLogger<LogCategories.Cluster> _eventsLogger;
 
         public LoadBalancedCluster(
             ClusterSettings settings,

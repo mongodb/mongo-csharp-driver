@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         private readonly SemaphoreSlimSignalable _maxConnectingQueue;
         private readonly IConnectionExceptionHandler _connectionExceptionHandler;
 
-        private readonly EventsLogger<LogCategories.Connection> _eventsLogger;
+        private readonly EventLogger<LogCategories.Connection> _eventsLogger;
 
         // constructors
         public ExclusiveConnectionPool(
@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             ConnectionPoolSettings settings,
             IConnectionFactory connectionFactory,
             IConnectionExceptionHandler connectionExceptionHandler,
-            EventsLogger<LogCategories.Connection> eventsLogger)
+            EventLogger<LogCategories.Connection> eventsLogger)
         {
             _serverId = Ensure.IsNotNull(serverId, nameof(serverId));
             _endPoint = Ensure.IsNotNull(endPoint, nameof(endPoint));

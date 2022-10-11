@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Core.Servers
             IConnectionPoolFactory connectionPoolFactory,
             IServerMonitorFactory monitorFactory,
             ServerApi serverApi,
-            EventsLogger<LogCategories.SDAM> eventsLogger)
+            EventLogger<LogCategories.SDAM> eventsLogger)
             : base(
                   clusterId,
                   clusterClock,
@@ -174,7 +174,7 @@ namespace MongoDB.Driver.Core.Servers
                     topologyVersion: topologyVersion);
 
             EventsLogger.Logger?.LogDebug(
-                StructuredLogsTemplates.ServerId_Message_Description,
+                StructuredLogTemplateProviders.ServerId_Message_Description,
                 ServerId,
                 newDescription,
                 "Invalidating description");

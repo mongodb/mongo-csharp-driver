@@ -58,7 +58,7 @@ namespace MongoDB.Driver.Core.Logging
                 logger.Setup(l => l.IsEnabled(LogLevel.Debug)).Returns(true);
             }
 
-            var eventsLogger = new EventsLogger<TEventCategory>(eventSubscriber.Object, logger?.Object);
+            var eventsLogger = new EventLogger<TEventCategory>(eventSubscriber.Object, logger?.Object);
             eventsLogger.LogAndPublish(@event);
 
             eventSubscriber.Verify(s => s.TryGetEventHandler(out eventHandler), Times.Once);

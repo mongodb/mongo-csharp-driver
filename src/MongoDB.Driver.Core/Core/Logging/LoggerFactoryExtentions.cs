@@ -20,13 +20,13 @@ namespace MongoDB.Driver.Core.Logging
 {
     internal static class LoggerFactoryExtentions
     {
-        public static EventsLogger<T> CreateEventsLogger<T>(this ILoggerFactory loggerFactory, IEventSubscriber eventSubscriber)
+        public static EventLogger<T> CreateEventsLogger<T>(this ILoggerFactory loggerFactory, IEventSubscriber eventSubscriber)
             where T : LogCategories.EventCategory
         {
             var loggingSettings = (loggerFactory as LoggerFactoryCategoryDecorator)?.LoggingSettings;
-            var eventLogFormattingOptions = loggingSettings != null ? new EventsLogsFormattingOptions(loggingSettings.MaxDocumentSize) : null;
+            var eventLogFormattingOptions = loggingSettings != null ? new EventLogsFormattingOptions(loggingSettings.MaxDocumentSize) : null;
 
-            return new EventsLogger<T>(eventSubscriber, loggerFactory?.CreateLogger<T>(), eventLogFormattingOptions);
+            return new EventLogger<T>(eventSubscriber, loggerFactory?.CreateLogger<T>(), eventLogFormattingOptions);
         }
     }
 }

@@ -3,7 +3,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Events
 {
-    internal sealed class EventsPublisher
+    internal sealed class EventPublisher
     {
         private static readonly Delegate __eventHandlerNull = new Action(() => { });
         private static readonly int __eventTypesCount = Enum.GetValues(typeof(EventType)).Length;
@@ -11,7 +11,7 @@ namespace MongoDB.Driver.Core.Events
         private readonly Delegate[] _eventHandlers;
         private readonly IEventSubscriber _eventSubscriber;
 
-        public EventsPublisher(IEventSubscriber eventSubscriber)
+        public EventPublisher(IEventSubscriber eventSubscriber)
         {
             _eventSubscriber = Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
             _eventHandlers = new Delegate[__eventTypesCount];

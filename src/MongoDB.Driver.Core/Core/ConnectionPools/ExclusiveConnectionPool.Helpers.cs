@@ -654,9 +654,9 @@ namespace MongoDB.Driver.Core.ConnectionPools
             private readonly object _lockInUse = new object();
             private readonly List<PooledConnection> _connections;
             private readonly List<PooledConnection> _connectionsInUse;
-            private readonly EventsLogger<LogCategories.Connection> _eventsLogger;
+            private readonly EventLogger<LogCategories.Connection> _eventsLogger;
 
-            public ListConnectionHolder(EventsLogger<LogCategories.Connection> eventsLogger, SemaphoreSlimSignalable semaphoreSlimSignalable)
+            public ListConnectionHolder(EventLogger<LogCategories.Connection> eventsLogger, SemaphoreSlimSignalable semaphoreSlimSignalable)
             {
                 _semaphoreSlimSignalable = semaphoreSlimSignalable;
                 _connections = new List<PooledConnection>();

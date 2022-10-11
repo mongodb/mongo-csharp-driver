@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         private Mock<IConnectionExceptionHandler> _mockConnectionExceptionHandler;
         private DnsEndPoint _endPoint;
         private EventCapturer _capturedEvents;
-        private EventsLogger<LogCategories.Connection> _eventsLoggger;
+        private EventLogger<LogCategories.Connection> _eventsLoggger;
         private ServerId _serverId;
         private ConnectionPoolSettings _settings;
         private ExclusiveConnectionPool _subject;

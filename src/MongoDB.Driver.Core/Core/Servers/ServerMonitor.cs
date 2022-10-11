@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Core.Servers
         private readonly EndPoint _endPoint;
         private HeartbeatDelay _heartbeatDelay;
         private readonly object _lock = new object();
-        private readonly EventsLogger<LogCategories.SDAM> _eventsLoggerSdam;
+        private readonly EventLogger<LogCategories.SDAM> _eventsLoggerSdam;
         private readonly ILogger<IServerMonitor> _logger;
         private readonly CancellationToken _monitorCancellationToken; // used to cancel the entire monitor
         private readonly CancellationTokenSource _monitorCancellationTokenSource; // used to cancel the entire monitor

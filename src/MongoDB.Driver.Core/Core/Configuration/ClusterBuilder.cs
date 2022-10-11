@@ -240,7 +240,7 @@ namespace MongoDB.Driver.Core.Configuration
                 _clusterSettings,
                 serverFactory,
                 _eventAggregator,
-                _loggingSettings?.ToInternalLoggingFactory());
+                _loggingSettings?.ToInternalLoggerFactory());
         }
 
         private IConnectionPoolFactory CreateConnectionPoolFactory()
@@ -252,7 +252,7 @@ namespace MongoDB.Driver.Core.Configuration
                 streamFactory,
                 _eventAggregator,
                 _clusterSettings.ServerApi,
-                _loggingSettings.ToInternalLoggingFactory());
+                _loggingSettings.ToInternalLoggerFactory());
 
             var connectionPoolSettings = _connectionPoolSettings.WithInternal(isPausable: !_connectionSettings.LoadBalanced);
 
@@ -260,7 +260,7 @@ namespace MongoDB.Driver.Core.Configuration
                 connectionPoolSettings,
                 connectionFactory,
                 _eventAggregator,
-                _loggingSettings.ToInternalLoggingFactory());
+                _loggingSettings.ToInternalLoggerFactory());
         }
 
         private ServerFactory CreateServerFactory()
@@ -283,7 +283,7 @@ namespace MongoDB.Driver.Core.Configuration
                 serverMonitorFactory,
                 _eventAggregator,
                 _clusterSettings.ServerApi,
-                _loggingSettings.ToInternalLoggingFactory());
+                _loggingSettings.ToInternalLoggerFactory());
         }
 
         private IServerMonitorFactory CreateServerMonitorFactory()
@@ -325,7 +325,7 @@ namespace MongoDB.Driver.Core.Configuration
                 serverMonitorConnectionFactory,
                 _eventAggregator,
                 _clusterSettings.ServerApi,
-                _loggingSettings.ToInternalLoggingFactory());
+                _loggingSettings.ToInternalLoggerFactory());
         }
 
         private IStreamFactory CreateTcpStreamFactory(TcpStreamSettings tcpStreamSettings)

@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Core.Logging
         {
             var underlyingFactory = new Mock<ILoggerFactory>();
             var loggingSettings = new LoggingSettings(underlyingFactory.Object);
-            var decoratedFactory = loggingSettings.ToInternalLoggingFactory();
+            var decoratedFactory = loggingSettings.ToInternalLoggerFactory();
 
             decoratedFactory.CreateLogger(providedCategory);
             underlyingFactory.Verify(f => f.CreateLogger(expectedCatergory), Times.Once);

@@ -61,7 +61,7 @@ namespace MongoDB.Driver.Core.Connections
         private readonly InterlockedInt32 _state;
         private Stream _stream;
         private readonly IStreamFactory _streamFactory;
-        private readonly EventsLogger<LogCategories.Connection> _eventsLogger;
+        private readonly EventLogger<LogCategories.Connection> _eventsLogger;
 
         // constructors
         public BinaryConnection(ServerId serverId,

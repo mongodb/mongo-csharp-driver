@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Core.Clusters
         private DnsMonitorState _state;
         private Exception _unhandledException;
 
-        private readonly EventsLogger<LogCategories.SDAM> _eventsLogger;
+        private readonly EventLogger<LogCategories.SDAM> _eventsLogger;
 
         // constructors
         public DnsMonitor(IDnsMonitoringCluster cluster,

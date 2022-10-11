@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Core.Connections
 {
     internal class CommandEventHelper
     {
-        private readonly EventsLogger<LogCategories.Command> _eventsLogger;
+        private readonly EventLogger<LogCategories.Command> _eventsLogger;
         private readonly ConcurrentDictionary<int, CommandState> _state;
 
         private readonly bool _shouldProcessRequestMessages;
@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Core.Connections
         private readonly bool _shouldTrackFailed;
         private readonly bool _shouldTrackSucceeded;
 
-        public CommandEventHelper(EventsLogger<LogCategories.Command> eventsLogger)
+        public CommandEventHelper(EventLogger<LogCategories.Command> eventsLogger)
         {
             _eventsLogger = eventsLogger;
             _shouldTrackSucceeded = _eventsLogger.IsEventTracked<CommandSucceededEvent>();

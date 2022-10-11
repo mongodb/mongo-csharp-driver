@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Core.Servers
         private Mock<IConnectionPoolFactory> _mockConnectionPoolFactory;
         private EndPoint _endPoint;
         private EventCapturer _capturedEvents;
-        private EventsLogger<LogCategories.SDAM> _eventsLoggger;
+        private EventLogger<LogCategories.SDAM> _eventsLoggger;
         private Mock<IServerMonitor> _mockServerMonitor;
         private Mock<IServerMonitorFactory> _mockServerMonitorFactory;
         private ServerApi _serverApi;

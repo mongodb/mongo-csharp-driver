@@ -19,19 +19,19 @@ using MongoDB.Driver.Core.Events;
 
 namespace MongoDB.Driver.Core.Logging
 {
-    internal sealed class EventsLogger<T> where T : LogCategories.EventCategory
+    internal sealed class EventLogger<T> where T : LogCategories.EventCategory
     {
-        private readonly EventsPublisher _eventsPublisher;
+        private readonly EventPublisher _eventsPublisher;
         private readonly ILogger<T> _logger;
-        private readonly EventsLogsFormattingOptions _eventsLogsFormattingOptions;
+        private readonly EventLogsFormattingOptions _eventsLogsFormattingOptions;
 
-        public static EventsLogger<T> Empty { get; } = new EventsLogger<T>(null, null);
+        public static EventLogger<T> Empty { get; } = new EventLogger<T>(null, null);
 
-        public EventsLogger(IEventSubscriber eventSubscriber, ILogger<T> logger, EventsLogsFormattingOptions eventsLogsFormattingOptions = null)
+        public EventLogger(IEventSubscriber eventSubscriber, ILogger<T> logger, EventLogsFormattingOptions eventsLogsFormattingOptions = null)
         {
             _logger = logger;
-            _eventsPublisher = eventSubscriber != null ? new EventsPublisher(eventSubscriber) : null;
-            _eventsLogsFormattingOptions = eventsLogsFormattingOptions ?? new EventsLogsFormattingOptions(0);
+            _eventsPublisher = eventSubscriber != null ? new EventPublisher(eventSubscriber) : null;
+            _eventsLogsFormattingOptions = eventsLogsFormattingOptions ?? new EventLogsFormattingOptions(0);
         }
 
         public ILogger<T> Logger => _logger;
@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Core.Logging
             _eventsPublisher?.IsEventTracked<TEvent>() == true;
 
         private LogLevel GetEventVerbosity<TEvent>() where TEvent : struct, IEvent =>
-            StructuredLogsTemplates.GetTemplateProvider(new TEvent().Type).LogLevel;
+            StructuredLogTemplateProviders.GetTemplateProvider(new TEvent().Type).LogLevel;
 
         public void LogAndPublish<TEvent>(TEvent @event, bool skipLogging = false) where TEvent : struct, IEvent
           => LogAndPublish(null, @event, skipLogging);
@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Core.Logging
         {
             if (!skipLogging)
             {
-                var eventTemplateProvider = StructuredLogsTemplates.GetTemplateProvider(@event.Type);
+                var eventTemplateProvider = StructuredLogTemplateProviders.GetTemplateProvider(@event.Type);
 
                 if (_logger?.IsEnabled(eventTemplateProvider.LogLevel) == true)
                 {
@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Core.Logging
 
         public void LogAndPublish<TEvent, TArg>(TEvent @event, TArg arg) where TEvent : struct, IEvent
         {
-            var eventTemplateProvider = StructuredLogsTemplates.GetTemplateProvider(@event.Type);
+            var eventTemplateProvider = StructuredLogTemplateProviders.GetTemplateProvider(@event.Type);
 
             if (_logger?.IsEnabled(eventTemplateProvider.LogLevel) == true)
             {

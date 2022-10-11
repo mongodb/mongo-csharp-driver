@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Core.Servers
             EndPoint endPoint,
             IConnectionPoolFactory connectionPoolFactory,
             ServerApi serverApi,
-            EventsLogger<LogCategories.SDAM> eventsLogger)
+            EventLogger<LogCategories.SDAM> eventsLogger)
             : base(
                   clusterId,
                   clusterClock,
