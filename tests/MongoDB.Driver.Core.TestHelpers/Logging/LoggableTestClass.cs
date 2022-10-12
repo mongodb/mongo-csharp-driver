@@ -58,8 +58,8 @@ namespace MongoDB.Driver.Core.TestHelpers.Logging
         public LogEntry[] Logs => Accumulator.Logs;
 
         protected ILogger<TCategory> CreateLogger<TCategory>() => LoggerFactory.CreateLogger<TCategory>();
-        private protected EventLogger<TCategory> CreateEventsLogger<TCategory>(IEventSubscriber eventSubscriber) where TCategory : LogCategories.EventCategory =>
-            LoggerFactory.CreateEventsLogger<TCategory>(eventSubscriber);
+        private protected EventLogger<TCategory> CreateEventLogger<TCategory>(IEventSubscriber eventSubscriber) where TCategory : LogCategories.EventCategory =>
+            LoggerFactory.CreateEventLogger<TCategory>(eventSubscriber);
 
         protected virtual void DisposeInternal() { }
 

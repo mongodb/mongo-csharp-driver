@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Core.Connections
 {
     internal class CommandEventHelper
     {
-        private readonly EventLogger<LogCategories.Command> _eventsLogger;
+        private readonly EventLogger<LogCategories.Command> _eventLogger;
         private readonly ConcurrentDictionary<int, CommandState> _state;
 
         private readonly bool _shouldProcessRequestMessages;
@@ -41,13 +41,13 @@ namespace MongoDB.Driver.Core.Connections
         private readonly bool _shouldTrackFailed;
         private readonly bool _shouldTrackSucceeded;
 
-        public CommandEventHelper(EventLogger<LogCategories.Command> eventsLogger)
+        public CommandEventHelper(EventLogger<LogCategories.Command> eventLogger)
         {
-            _eventsLogger = eventsLogger;
-            _shouldTrackSucceeded = _eventsLogger.IsEventTracked<CommandSucceededEvent>();
-            _shouldTrackFailed = _eventsLogger.IsEventTracked<CommandFailedEvent>();
+            _eventLogger = eventLogger;
+            _shouldTrackSucceeded = _eventLogger.IsEventTracked<CommandSucceededEvent>();
+            _shouldTrackFailed = _eventLogger.IsEventTracked<CommandFailedEvent>();
             _shouldTrackState = _shouldTrackSucceeded || _shouldTrackFailed;
-            _shouldProcessRequestMessages = _eventsLogger.IsEventTracked<CommandStartedEvent>() || _shouldTrackState;
+            _shouldProcessRequestMessages = _eventLogger.IsEventTracked<CommandStartedEvent>() || _shouldTrackState;
 
             if (_shouldTrackState)
             {
@@ -114,7 +114,7 @@ namespace MongoDB.Driver.Core.Connections
 
                     if (_shouldTrackSucceeded)
                     {
-                        _eventsLogger.LogAndPublish(new CommandSucceededEvent(
+                        _eventLogger.LogAndPublish(new CommandSucceededEvent(
                             state.CommandName,
                             new BsonDocument("ok", 1),
                             state.OperationId,
@@ -137,7 +137,7 @@ namespace MongoDB.Driver.Core.Connections
                 if (_state.TryRemove(message.RequestId, out state))
                 {
                     state.Stopwatch.Stop();
-                    _eventsLogger.LogAndPublish(new CommandFailedEvent(
+                    _eventLogger.LogAndPublish(new CommandFailedEvent(
                         state.CommandName,
                         exception,
                         state.OperationId,
@@ -180,7 +180,7 @@ namespace MongoDB.Driver.Core.Connections
 
             state.Stopwatch.Stop();
 
-            _eventsLogger.LogAndPublish(new CommandFailedEvent(
+            _eventLogger.LogAndPublish(new CommandFailedEvent(
                 state.CommandName,
                 exception,
                 state.OperationId,
@@ -205,7 +205,7 @@ namespace MongoDB.Driver.Core.Connections
                 if (_state.TryRemove(requestId, out state))
                 {
                     state.Stopwatch.Stop();
-                    _eventsLogger.LogAndPublish(new CommandFailedEvent(
+                    _eventLogger.LogAndPublish(new CommandFailedEvent(
                         state.CommandName,
                         exception,
                         state.OperationId,
@@ -264,7 +264,7 @@ namespace MongoDB.Driver.Core.Connections
                     command = new BsonDocument();
                 }
 
-                _eventsLogger.LogAndPublish(new CommandStartedEvent(
+                _eventLogger.LogAndPublish(new CommandStartedEvent(
                     commandName,
                     command,
                     databaseNamespace,
@@ -310,7 +310,7 @@ namespace MongoDB.Driver.Core.Connections
 
             if (ok.ToBoolean())
             {
-                _eventsLogger.LogAndPublish(new CommandSucceededEvent(
+                _eventLogger.LogAndPublish(new CommandSucceededEvent(
                     state.CommandName,
                     reply,
                     state.OperationId,
@@ -324,7 +324,7 @@ namespace MongoDB.Driver.Core.Connections
             {
                 if (_shouldTrackFailed)
                 {
-                    _eventsLogger.LogAndPublish(new CommandFailedEvent(
+                    _eventLogger.LogAndPublish(new CommandFailedEvent(
                         state.CommandName,
                         new MongoCommandException(
                             connectionId,
@@ -375,7 +375,7 @@ namespace MongoDB.Driver.Core.Connections
                     }
                 }
 
-                _eventsLogger.LogAndPublish(new CommandStartedEvent(
+                _eventLogger.LogAndPublish(new CommandStartedEvent(
                     commandName,
                     command,
                     decodedMessage.CollectionNamespace.DatabaseNamespace,
@@ -444,7 +444,7 @@ namespace MongoDB.Driver.Core.Connections
 
                     if (_shouldTrackFailed)
                     {
-                        _eventsLogger.LogAndPublish(new CommandFailedEvent(
+                        _eventLogger.LogAndPublish(new CommandFailedEvent(
                             state.CommandName,
                             new MongoCommandException(
                                 connectionId,
@@ -500,7 +500,7 @@ namespace MongoDB.Driver.Core.Connections
             {
                 if (_shouldTrackFailed)
                 {
-                    _eventsLogger.LogAndPublish(new CommandFailedEvent(
+                    _eventLogger.LogAndPublish(new CommandFailedEvent(
                         state.CommandName,
                         new MongoCommandException(
                             connectionId,
@@ -516,7 +516,7 @@ namespace MongoDB.Driver.Core.Connections
             }
             else
             {
-                _eventsLogger.LogAndPublish(new CommandSucceededEvent(
+                _eventLogger.LogAndPublish(new CommandSucceededEvent(
                     state.CommandName,
                     reply,
                     state.OperationId,
@@ -552,7 +552,7 @@ namespace MongoDB.Driver.Core.Connections
                     };
                 }
 
-                _eventsLogger.LogAndPublish(new CommandSucceededEvent(
+                _eventLogger.LogAndPublish(new CommandSucceededEvent(
                     state.CommandName,
                     reply,
                     state.OperationId,

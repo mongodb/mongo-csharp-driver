@@ -22,7 +22,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Core.Events
 {
-    public class EventsPublisherTests
+    public class EventPublisherTests
     {
         [Theory]
         [MemberData(nameof(EventsData))]

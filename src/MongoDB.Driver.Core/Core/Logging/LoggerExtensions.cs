@@ -23,11 +23,11 @@ namespace MongoDB.Driver.Core.Logging
 {
     internal static class LoggerExtensions
     {
-        public static EventLogger<T> ToEventsLogger<T>(this ILogger<T> logger, IEventSubscriber eventSubscriber)
+        public static EventLogger<T> ToEventLogger<T>(this ILogger<T> logger, IEventSubscriber eventSubscriber)
             where T : LogCategories.EventCategory =>
             new EventLogger<T>(eventSubscriber, logger);
 
-        public static EventLogger<T> ToEventsLogger<T>(this IEventSubscriber eventSubscriber)
+        public static EventLogger<T> ToEventLogger<T>(this IEventSubscriber eventSubscriber)
             where T : LogCategories.EventCategory =>
             new EventLogger<T>(eventSubscriber, null);
 

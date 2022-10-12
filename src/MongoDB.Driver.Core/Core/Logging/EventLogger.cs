@@ -21,24 +21,24 @@ namespace MongoDB.Driver.Core.Logging
 {
     internal sealed class EventLogger<T> where T : LogCategories.EventCategory
     {
-        private readonly EventPublisher _eventsPublisher;
+        private readonly EventPublisher _eventPublisher;
         private readonly ILogger<T> _logger;
-        private readonly EventLogsFormattingOptions _eventsLogsFormattingOptions;
+        private readonly EventLogFormattingOptions _eventLogFormattingOptions;
 
         public static EventLogger<T> Empty { get; } = new EventLogger<T>(null, null);
 
-        public EventLogger(IEventSubscriber eventSubscriber, ILogger<T> logger, EventLogsFormattingOptions eventsLogsFormattingOptions = null)
+        public EventLogger(IEventSubscriber eventSubscriber, ILogger<T> logger, EventLogFormattingOptions eventLogFormattingOptions = null)
         {
             _logger = logger;
-            _eventsPublisher = eventSubscriber != null ? new EventPublisher(eventSubscriber) : null;
-            _eventsLogsFormattingOptions = eventsLogsFormattingOptions ?? new EventLogsFormattingOptions(0);
+            _eventPublisher = eventSubscriber != null ? new EventPublisher(eventSubscriber) : null;
+            _eventLogFormattingOptions = eventLogFormattingOptions ?? new EventLogFormattingOptions(0);
         }
 
         public ILogger<T> Logger => _logger;
 
         public bool IsEventTracked<TEvent>() where TEvent : struct, IEvent =>
             Logger?.IsEnabled(GetEventVerbosity<TEvent>()) == true ||
-            _eventsPublisher?.IsEventTracked<TEvent>() == true;
+            _eventPublisher?.IsEventTracked<TEvent>() == true;
 
         private LogLevel GetEventVerbosity<TEvent>() where TEvent : struct, IEvent =>
             StructuredLogTemplateProviders.GetTemplateProvider(new TEvent().Type).LogLevel;
@@ -54,14 +54,14 @@ namespace MongoDB.Driver.Core.Logging
 
                 if (_logger?.IsEnabled(eventTemplateProvider.LogLevel) == true)
                 {
-                    var @params = eventTemplateProvider.GetParams(@event, _eventsLogsFormattingOptions);
+                    var @params = eventTemplateProvider.GetParams(@event, _eventLogFormattingOptions);
                     var template = eventTemplateProvider.GetTemplate(@event);
 
                     Log(eventTemplateProvider.LogLevel, template, exception, @params);
                 }
             }
 
-            _eventsPublisher?.Publish(@event);
+            _eventPublisher?.Publish(@event);
         }
 
         public void LogAndPublish<TEvent, TArg>(TEvent @event, TArg arg) where TEvent : struct, IEvent
@@ -70,13 +70,13 @@ namespace MongoDB.Driver.Core.Logging
 
             if (_logger?.IsEnabled(eventTemplateProvider.LogLevel) == true)
             {
-                var @params = eventTemplateProvider.GetParams(@event, _eventsLogsFormattingOptions, arg);
+                var @params = eventTemplateProvider.GetParams(@event, _eventLogFormattingOptions, arg);
                 var template = eventTemplateProvider.GetTemplate(@event);
 
                 Log(eventTemplateProvider.LogLevel, template, exception: null, @params);
             }
 
-            _eventsPublisher?.Publish(@event);
+            _eventPublisher?.Publish(@event);
         }
 
         private void Log(LogLevel logLevel, string template, Exception exception, object[] @params)

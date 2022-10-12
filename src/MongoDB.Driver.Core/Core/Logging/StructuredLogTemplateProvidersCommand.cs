@@ -90,17 +90,17 @@ namespace MongoDB.Driver.Core.Logging
                 (e, s) => e.ServiceId == null ? s.Templates[0] : s.Templates[1]);
         }
 
-        private static string CommandDocumentToString(BsonDocument document, EventLogsFormattingOptions eventsLogsFormattingOptions)
+        private static string CommandDocumentToString(BsonDocument document, EventLogFormattingOptions eventLogFormattingOptions)
         {
             if (document == null)
             {
                 return null;
             }
 
-            return TruncateIfNeeded(document.ToString(), eventsLogsFormattingOptions.MaxDocumentSize);
+            return TruncateIfNeeded(document.ToString(), eventLogFormattingOptions.MaxDocumentSize);
         }
 
-        private static string FormatCommandException(Exception exception, EventLogsFormattingOptions eventsLogsFormattingOptions)
+        private static string FormatCommandException(Exception exception, EventLogFormattingOptions eventLogFormattingOptions)
         {
             if (exception == null)
             {
@@ -119,7 +119,7 @@ namespace MongoDB.Driver.Core.Logging
                 result = exception.ToString();
             }
 
-            return TruncateIfNeeded(result, eventsLogsFormattingOptions.MaxDocumentSize);
+            return TruncateIfNeeded(result, eventLogFormattingOptions.MaxDocumentSize);
         }
 
         private static string TruncateIfNeeded(string str, int length) =>

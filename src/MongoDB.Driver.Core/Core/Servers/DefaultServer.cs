@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Core.Servers
             IConnectionPoolFactory connectionPoolFactory,
             IServerMonitorFactory monitorFactory,
             ServerApi serverApi,
-            EventLogger<LogCategories.SDAM> eventsLogger)
+            EventLogger<LogCategories.SDAM> eventLogger)
             : base(
                   clusterId,
                   clusterClock,
@@ -71,7 +71,7 @@ namespace MongoDB.Driver.Core.Servers
                   endPoint,
                   connectionPoolFactory,
                   serverApi,
-                  eventsLogger)
+                  eventLogger)
         {
             _monitor = Ensure.IsNotNull(monitorFactory, nameof(monitorFactory)).Create(ServerId, endPoint);
             _baseDescription = _currentDescription = new ServerDescription(ServerId, endPoint, reasonChanged: "ServerInitialDescription", heartbeatInterval: settings.HeartbeatInterval);
@@ -173,7 +173,7 @@ namespace MongoDB.Driver.Core.Servers
                     lastUpdateTimestamp: DateTime.UtcNow,
                     topologyVersion: topologyVersion);
 
-            EventsLogger.Logger?.LogDebug(
+            EventLogger.Logger?.LogDebug(
                 StructuredLogTemplateProviders.ServerId_Message_Description,
                 ServerId,
                 newDescription,

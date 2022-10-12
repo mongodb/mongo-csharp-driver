@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             Ensure.IsNotNull(serverId, nameof(serverId));
             Ensure.IsNotNull(endPoint, nameof(endPoint));
 
-            return new ExclusiveConnectionPool(serverId, endPoint, _settings, _connectionFactory, connectionExceptionHandler, _loggerFactory.CreateEventsLogger<LogCategories.Connection>(_eventSubscriber));
+            return new ExclusiveConnectionPool(serverId, endPoint, _settings, _connectionFactory, connectionExceptionHandler, _loggerFactory.CreateEventLogger<LogCategories.Connection>(_eventSubscriber));
         }
     }
 }

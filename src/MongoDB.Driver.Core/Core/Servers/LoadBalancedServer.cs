@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Core.Servers
             EndPoint endPoint,
             IConnectionPoolFactory connectionPoolFactory,
             ServerApi serverApi,
-            EventLogger<LogCategories.SDAM> eventsLogger)
+            EventLogger<LogCategories.SDAM> eventLogger)
             : base(
                   clusterId,
                   clusterClock,
@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Core.Servers
                   endPoint,
                   connectionPoolFactory,
                   serverApi,
-                  eventsLogger)
+                  eventLogger)
         {
             _baseDescription = _currentDescription = new ServerDescription(ServerId, endPoint, reasonChanged: "ServerInitialDescription");
         }

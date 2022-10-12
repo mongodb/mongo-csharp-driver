@@ -13,17 +13,20 @@
 * limitations under the License.
 */
 
-using MongoDB.Driver.Core.Misc;
+using Microsoft.Extensions.Logging;
+using MongoDB.Driver.Core.Events;
 
 namespace MongoDB.Driver.Core.Logging
 {
-    internal sealed class EventLogsFormattingOptions
+    internal static class LoggerFactoryExtensions
     {
-        public int MaxDocumentSize { get; }
-
-        public EventLogsFormattingOptions(int maxCommandDocumentSize)
+        public static EventLogger<T> CreateEventLogger<T>(this ILoggerFactory loggerFactory, IEventSubscriber eventSubscriber)
+            where T : LogCategories.EventCategory
         {
-            MaxDocumentSize = Ensure.IsGreaterThanOrEqualToZero(maxCommandDocumentSize, nameof(maxCommandDocumentSize));
+            var loggingSettings = (loggerFactory as LoggerFactoryCategoryDecorator)?.LoggingSettings;
+            var eventLogFormattingOptions = loggingSettings != null ? new EventLogFormattingOptions(loggingSettings.MaxDocumentSize) : null;
+
+            return new EventLogger<T>(eventSubscriber, loggerFactory?.CreateLogger<T>(), eventLogFormattingOptions);
         }
     }
 }

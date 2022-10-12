@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         private readonly SemaphoreSlimSignalable _maxConnectingQueue;
         private readonly IConnectionExceptionHandler _connectionExceptionHandler;
 
-        private readonly EventLogger<LogCategories.Connection> _eventsLogger;
+        private readonly EventLogger<LogCategories.Connection> _eventLogger;
 
         // constructors
         public ExclusiveConnectionPool(
@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             ConnectionPoolSettings settings,
             IConnectionFactory connectionFactory,
             IConnectionExceptionHandler connectionExceptionHandler,
-            EventLogger<LogCategories.Connection> eventsLogger)
+            EventLogger<LogCategories.Connection> eventLogger)
         {
             _serverId = Ensure.IsNotNull(serverId, nameof(serverId));
             _endPoint = Ensure.IsNotNull(endPoint, nameof(endPoint));
@@ -62,14 +62,14 @@ namespace MongoDB.Driver.Core.ConnectionPools
             _connectionFactory = Ensure.IsNotNull(connectionFactory, nameof(connectionFactory));
             _connectionExceptionHandler = Ensure.IsNotNull(connectionExceptionHandler, nameof(connectionExceptionHandler));
 
-            _eventsLogger = Ensure.IsNotNull(eventsLogger, nameof(eventsLogger));
+            _eventLogger = Ensure.IsNotNull(eventLogger, nameof(eventLogger));
 
             _maintenanceHelper = new MaintenanceHelper(this, _settings.MaintenanceInterval);
             _poolState = new PoolState(EndPointHelper.ToString(_endPoint));
             _checkOutReasonCounter = new CheckOutReasonCounter();
 
             _maxConnectingQueue = new SemaphoreSlimSignalable(settings.MaxConnecting);
-            _connectionHolder = new ListConnectionHolder(_eventsLogger, _maxConnectingQueue);
+            _connectionHolder = new ListConnectionHolder(_eventLogger, _maxConnectingQueue);
             _maxConnectionsQueue = new SemaphoreSlimSignalable(settings.MaxConnections);
 
             _serviceStates = new ServiceStates();
@@ -160,7 +160,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
                 if (_poolState.TransitionState(State.Paused))
                 {
-                    _eventsLogger.LogAndPublish(new ConnectionPoolClearingEvent(_serverId, _settings));
+                    _eventLogger.LogAndPublish(new ConnectionPoolClearingEvent(_serverId, _settings));
 
                     int? maxGenerationToReap = closeInUseConnections ? _generation : null;
                     _generation++;
@@ -169,7 +169,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     _maxConnectionsQueue.Signal();
                     _maxConnectingQueue.Signal();
 
-                    _eventsLogger.LogAndPublish(new ConnectionPoolClearedEvent(_serverId, _settings));
+                    _eventLogger.LogAndPublish(new ConnectionPoolClearedEvent(_serverId, _settings));
                 }
             }
         }
@@ -184,11 +184,11 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             // generation increment can happen outside lock, as _serviceStates is threadsafe
             // and currently we allow dispose to start during generation increment.
-            _eventsLogger.LogAndPublish(new ConnectionPoolClearingEvent(_serverId, _settings, serviceId));
+            _eventLogger.LogAndPublish(new ConnectionPoolClearingEvent(_serverId, _settings, serviceId));
 
             _serviceStates.IncrementGeneration(serviceId);
 
-            _eventsLogger.LogAndPublish(new ConnectionPoolClearedEvent(_serverId, _settings, serviceId));
+            _eventLogger.LogAndPublish(new ConnectionPoolClearedEvent(_serverId, _settings, serviceId));
         }
 
         private PooledConnection CreateNewConnection()
@@ -196,7 +196,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             var connection = _connectionFactory.CreateConnection(_serverId, _endPoint);
             var pooledConnection = new PooledConnection(this, connection);
 
-            _eventsLogger.LogAndPublish(new ConnectionCreatedEvent(connection.ConnectionId, connection.Settings, EventContext.OperationId));
+            _eventLogger.LogAndPublish(new ConnectionCreatedEvent(connection.ConnectionId, connection.Settings, EventContext.OperationId));
 
             return pooledConnection;
         }
@@ -207,8 +207,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
             {
                 if (_poolState.TransitionState(State.Paused))
                 {
-                    _eventsLogger.LogAndPublish(new ConnectionPoolOpeningEvent(_serverId, _settings), _connectionFactory.ConnectionSettings);
-                    _eventsLogger.LogAndPublish(new ConnectionPoolOpenedEvent(_serverId, _settings), _connectionFactory.ConnectionSettings);
+                    _eventLogger.LogAndPublish(new ConnectionPoolOpeningEvent(_serverId, _settings), _connectionFactory.ConnectionSettings);
+                    _eventLogger.LogAndPublish(new ConnectionPoolOpenedEvent(_serverId, _settings), _connectionFactory.ConnectionSettings);
                 }
             }
         }
@@ -223,7 +223,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 {
                     _maxConnectionsQueue.Reset();
 
-                    _eventsLogger.LogAndPublish(new ConnectionPoolReadyEvent(_serverId, _settings));
+                    _eventLogger.LogAndPublish(new ConnectionPoolReadyEvent(_serverId, _settings));
 
                     _maintenanceHelper.Start();
                 }
@@ -241,13 +241,13 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             if (dispose)
             {
-                _eventsLogger.LogAndPublish(new ConnectionPoolClosingEvent(_serverId));
+                _eventLogger.LogAndPublish(new ConnectionPoolClosingEvent(_serverId));
 
                 _maintenanceHelper.Dispose();
                 _connectionHolder.Clear();
                 _maxConnectionsQueue.Dispose();
                 _maxConnectingQueue.Dispose();
-                _eventsLogger.LogAndPublish(new ConnectionPoolClosedEvent(_serverId));
+                _eventLogger.LogAndPublish(new ConnectionPoolClosedEvent(_serverId));
             }
         }
 
@@ -272,8 +272,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
         // private methods
         private void ReleaseConnection(PooledConnection connection)
         {
-            _eventsLogger.LogAndPublish(new ConnectionPoolCheckingInConnectionEvent(connection.ConnectionId, EventContext.OperationId));
-            _eventsLogger.LogAndPublish(new ConnectionPoolCheckedInConnectionEvent(connection.ConnectionId, TimeSpan.Zero, EventContext.OperationId));
+            _eventLogger.LogAndPublish(new ConnectionPoolCheckingInConnectionEvent(connection.ConnectionId, EventContext.OperationId));
+            _eventLogger.LogAndPublish(new ConnectionPoolCheckedInConnectionEvent(connection.ConnectionId, TimeSpan.Zero, EventContext.OperationId));
 
             _checkOutReasonCounter.Decrement(connection.CheckOutReason);
 

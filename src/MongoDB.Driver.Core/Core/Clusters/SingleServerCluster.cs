@@ -53,18 +53,18 @@ namespace MongoDB.Driver.Core.Clusters
             {
                 if (disposing)
                 {
-                    _clusterEventsLogger.LogAndPublish(new ClusterClosingEvent(ClusterId));
+                    _clusterEventLogger.LogAndPublish(new ClusterClosingEvent(ClusterId));
 
                     stopwatch = Stopwatch.StartNew();
 
                     if (_server != null)
                     {
-                        _clusterEventsLogger.LogAndPublish(new ClusterRemovingServerEvent(_server.ServerId, "Removing server."));
+                        _clusterEventLogger.LogAndPublish(new ClusterRemovingServerEvent(_server.ServerId, "Removing server."));
 
                         _server.DescriptionChanged -= ServerDescriptionChanged;
                         _server.Dispose();
 
-                        _clusterEventsLogger.LogAndPublish(new ClusterRemovedServerEvent(_server.ServerId, "Server removed.", stopwatch.Elapsed));
+                        _clusterEventLogger.LogAndPublish(new ClusterRemovedServerEvent(_server.ServerId, "Server removed.", stopwatch.Elapsed));
                     }
                     stopwatch.Stop();
                 }
@@ -74,7 +74,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             if (stopwatch != null)
             {
-                _clusterEventsLogger.LogAndPublish(new ClusterClosedEvent(ClusterId, stopwatch.Elapsed));
+                _clusterEventLogger.LogAndPublish(new ClusterClosedEvent(ClusterId, stopwatch.Elapsed));
             }
         }
 
@@ -83,7 +83,7 @@ namespace MongoDB.Driver.Core.Clusters
             base.Initialize();
             if (_state.TryChange(State.Initial, State.Open))
             {
-                _clusterEventsLogger.LogAndPublish(new ClusterOpeningEvent(ClusterId, Settings));
+                _clusterEventLogger.LogAndPublish(new ClusterOpeningEvent(ClusterId, Settings));
 
                 var stopwatch = Stopwatch.StartNew();
                 _server = CreateServer(Settings.EndPoints[0]);
@@ -91,18 +91,18 @@ namespace MongoDB.Driver.Core.Clusters
                     .WithType(Settings.GetInitialClusterType())
                     .WithServerDescription(_server.Description);
 
-                _clusterEventsLogger.LogAndPublish(new ClusterAddingServerEvent(ClusterId, _server.EndPoint));
+                _clusterEventLogger.LogAndPublish(new ClusterAddingServerEvent(ClusterId, _server.EndPoint));
 
                 _server.DescriptionChanged += ServerDescriptionChanged;
                 stopwatch.Stop();
 
-                _clusterEventsLogger.LogAndPublish(new ClusterAddedServerEvent(_server.ServerId, stopwatch.Elapsed));
+                _clusterEventLogger.LogAndPublish(new ClusterAddedServerEvent(_server.ServerId, stopwatch.Elapsed));
 
                 UpdateClusterDescription(newClusterDescription);
 
                 _server.Initialize();
 
-                _clusterEventsLogger.LogAndPublish(new ClusterOpenedEvent(ClusterId, Settings, stopwatch.Elapsed));
+                _clusterEventLogger.LogAndPublish(new ClusterOpenedEvent(ClusterId, Settings, stopwatch.Elapsed));
             }
         }
 

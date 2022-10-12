@@ -28,7 +28,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Core.Logging
 {
-    public class EventsLoggerTests
+    public class EventLoggerTests
     {
         [Theory]
         [MemberData(nameof(EventsData))]
@@ -58,8 +58,8 @@ namespace MongoDB.Driver.Core.Logging
                 logger.Setup(l => l.IsEnabled(LogLevel.Debug)).Returns(true);
             }
 
-            var eventsLogger = new EventLogger<TEventCategory>(eventSubscriber.Object, logger?.Object);
-            eventsLogger.LogAndPublish(@event);
+            var eventLogger = new EventLogger<TEventCategory>(eventSubscriber.Object, logger?.Object);
+            eventLogger.LogAndPublish(@event);
 
             eventSubscriber.Verify(s => s.TryGetEventHandler(out eventHandler), Times.Once);
 
@@ -77,7 +77,7 @@ namespace MongoDB.Driver.Core.Logging
                 logger.Verify(l => l.Log(LogLevel.Debug, It.IsAny<EventId>(), It.IsNotNull<object>(), null, It.IsNotNull<Func<object, Exception, string>>()), Times.Once);
             }
 
-            eventsLogger.IsEventTracked<TEvent>().Should().Be(isLoggingEnabled || isHandlerRegistered);
+            eventLogger.IsEventTracked<TEvent>().Should().Be(isLoggingEnabled || isHandlerRegistered);
         }
 
         private static IEnumerable<object[]> EventsData()

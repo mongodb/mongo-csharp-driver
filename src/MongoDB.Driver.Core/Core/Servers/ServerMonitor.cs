@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Core.Servers
         private readonly EndPoint _endPoint;
         private HeartbeatDelay _heartbeatDelay;
         private readonly object _lock = new object();
-        private readonly EventLogger<LogCategories.SDAM> _eventsLoggerSdam;
+        private readonly EventLogger<LogCategories.SDAM> _eventLoggerSdam;
         private readonly ILogger<IServerMonitor> _logger;
         private readonly CancellationToken _monitorCancellationToken; // used to cancel the entire monitor
         private readonly CancellationTokenSource _monitorCancellationTokenSource; // used to cancel the entire monitor
@@ -104,7 +104,7 @@ namespace MongoDB.Driver.Core.Servers
             _heartbeatCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(_monitorCancellationToken);
 
             _logger = loggerFactory?.CreateLogger<IServerMonitor>();
-            _eventsLoggerSdam = loggerFactory.CreateEventsLogger<LogCategories.SDAM>(eventSubscriber);
+            _eventLoggerSdam = loggerFactory.CreateEventLogger<LogCategories.SDAM>(eventSubscriber);
         }
 
         public ServerDescription Description => Interlocked.CompareExchange(ref _currentDescription, null, null);
@@ -247,7 +247,7 @@ namespace MongoDB.Driver.Core.Servers
                     catch (Exception unexpectedException)
                     {
                         // if we catch an exception here it's because of a bug in the driver (but we need to defend ourselves against that)
-                        _eventsLoggerSdam.LogAndPublish(new SdamInformationEvent(
+                        _eventLoggerSdam.LogAndPublish(new SdamInformationEvent(
                                 "Unexpected exception in ServerMonitor.MonitorServer: {0}",
                                 unexpectedException),
                             unexpectedException);
@@ -426,7 +426,7 @@ namespace MongoDB.Driver.Core.Servers
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            _eventsLoggerSdam.LogAndPublish(new ServerHeartbeatStartedEvent(connection.ConnectionId, connection.Description.HelloResult.TopologyVersion != null));
+            _eventLoggerSdam.LogAndPublish(new ServerHeartbeatStartedEvent(connection.ConnectionId, connection.Description.HelloResult.TopologyVersion != null));
 
             try
             {
@@ -434,13 +434,13 @@ namespace MongoDB.Driver.Core.Servers
                 var helloResult = HelloHelper.GetResult(connection, helloProtocol, cancellationToken);
                 stopwatch.Stop();
 
-                _eventsLoggerSdam.LogAndPublish(new ServerHeartbeatSucceededEvent(connection.ConnectionId, stopwatch.Elapsed, connection.Description.HelloResult.TopologyVersion != null));
+                _eventLoggerSdam.LogAndPublish(new ServerHeartbeatSucceededEvent(connection.ConnectionId, stopwatch.Elapsed, connection.Description.HelloResult.TopologyVersion != null));
 
                 return helloResult;
             }
             catch (Exception ex)
             {
-                _eventsLoggerSdam.LogAndPublish(new ServerHeartbeatFailedEvent(connection.ConnectionId, ex, connection.Description.HelloResult.TopologyVersion != null));
+                _eventLoggerSdam.LogAndPublish(new ServerHeartbeatFailedEvent(connection.ConnectionId, ex, connection.Description.HelloResult.TopologyVersion != null));
 
                 throw;
             }
