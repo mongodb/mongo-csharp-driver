@@ -1706,7 +1706,6 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 case 4: // Case 4: HTTP 404
                     {
                         var exception = await Record.ExceptionAsync(() => CreateTestCase((request) => request.Headers.Add("X-MongoDB-HTTP-TestParams", "case=404")));
-                        exception.Should().BeOfType<InvalidOperationException>().Which.Message.Should().Be("Azure IMDS response must be in Json format.");
                         exception
                             .Should().BeOfType<MongoClientException>().Which.InnerException
                             .Should().BeOfType<HttpRequestException>().Which.Message
