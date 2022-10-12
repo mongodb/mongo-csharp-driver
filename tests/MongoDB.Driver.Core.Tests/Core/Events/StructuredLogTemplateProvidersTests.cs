@@ -21,7 +21,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Core.Events
 {
-    public class EventLogTemplatesTests
+    public class StructuredLogTemplateProvidersTests
     {
         [Fact]
         public void All_events_should_have_template()

@@ -58,12 +58,12 @@ namespace MongoDB.Driver.Core.Logging
         public const string ServerId_Message_Description = $"{{{ClusterId}}} {{{ServerHost}}} {{{ServerPort}}} {{{Message}}} {{{Description}}}";
         public const string ClusterId_Message_SharedLibraryVersion = $"{{{ClusterId}}} {{{Message}}} {{{SharedLibraryVersion}}}";
 
-        private readonly static LogTemplateProvider[] __eventsTemplates;
+        private readonly static LogTemplateProvider[] __eventTemplateProviders;
 
         static StructuredLogTemplateProviders()
         {
             var eventTypesCount = Enum.GetValues(typeof(EventType)).Length;
-            __eventsTemplates = new LogTemplateProvider[eventTypesCount];
+            __eventTemplateProviders = new LogTemplateProvider[eventTypesCount];
 
             AddClusterTemplates();
             AddCmapTemplates();
@@ -72,7 +72,7 @@ namespace MongoDB.Driver.Core.Logging
             AddSdamTemplates();
         }
 
-        public static LogTemplateProvider GetTemplateProvider(EventType eventType) => __eventsTemplates[(int)eventType];
+        public static LogTemplateProvider GetTemplateProvider(EventType eventType) => __eventTemplateProviders[(int)eventType];
 
         public static object[] GetParams(ClusterId clusterId, object arg1)
         {
@@ -159,12 +159,12 @@ namespace MongoDB.Driver.Core.Logging
         {
             var index = (int)(new TEvent().Type);
 
-            if (__eventsTemplates[index] != null)
+            if (__eventTemplateProviders[index] != null)
             {
                 throw new InvalidOperationException($"Template already registered for {typeof(TEvent)} event.");
             }
 
-            __eventsTemplates[index] = templateProvider;
+            __eventTemplateProviders[index] = templateProvider;
         }
 
         private static string Concat(params string[] parameters) =>
