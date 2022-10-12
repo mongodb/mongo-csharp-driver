@@ -1753,6 +1753,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                             .Should().BeAssignableTo<OperationCanceledException>();
                     }
                     break;
+                default: throw new Exception($"Unexpected test case: {testCase}.");
             }
 
             IExternalCredentialsHttpRequestMessageFactory CreateHttpRequestMessageFactory(Action<HttpRequestMessage> modifyAction)
