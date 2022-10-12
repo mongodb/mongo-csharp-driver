@@ -48,7 +48,7 @@ namespace MongoDB.Driver.Tests
                             c.ConfigureCluster(s => s.With(postServerSelector: customServerSelector));
                             c.Subscribe(eventCapturer);
                         },
-                 LoggerFactory))
+                 LoggingSettings))
             {
                 var collection = client
                     .GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName)

@@ -54,6 +54,9 @@ namespace MongoDB.Driver.Core.TestHelpers.Logging
         public object GetParameter(string key) =>
             State.FirstOrDefault(s => s.Key == key).Value;
 
+        public T GetParameter<T>(string key) where T : class =>
+            GetParameter(key) as T;
+
         public override string ToString() =>
             $"{Timestamp.ToString("hh:mm:ss.FFFFFFF")}_{LogLevel}<{Category}> {FormattedMessage}";
     }

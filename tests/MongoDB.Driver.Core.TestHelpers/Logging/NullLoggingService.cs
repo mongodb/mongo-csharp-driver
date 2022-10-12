@@ -13,8 +13,8 @@
 * limitations under the License.
 */
 
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using MongoDB.Driver.Core.Configuration;
 
 namespace MongoDB.Driver.Core.TestHelpers.Logging
 {
@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Core.TestHelpers.Logging
 
         private NullLoggingService() { }
 
-        public ILoggerFactory LoggerFactory { get; } = NullLoggerFactory.Instance;
+        public LoggingSettings LoggingSettings { get; } = new LoggingSettings(NullLoggerFactory.Instance);
         public LogEntry[] Logs { get; } = new LogEntry[0];
     }
 }

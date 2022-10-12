@@ -59,12 +59,12 @@ namespace MongoDB.Driver.Core.Clusters
 
                     if (_server != null)
                     {
-                        _clusterEventsLogger.LogAndPublish(new ClusterRemovingServerEvent(_server.ServerId, "Cluster is closing."));
+                        _clusterEventsLogger.LogAndPublish(new ClusterRemovingServerEvent(_server.ServerId, "Removing server."));
 
                         _server.DescriptionChanged -= ServerDescriptionChanged;
                         _server.Dispose();
 
-                        _clusterEventsLogger.LogAndPublish(new ClusterRemovedServerEvent(_server.ServerId, "Cluster is closing.", stopwatch.Elapsed));
+                        _clusterEventsLogger.LogAndPublish(new ClusterRemovedServerEvent(_server.ServerId, "Server removed.", stopwatch.Elapsed));
                     }
                     stopwatch.Stop();
                 }

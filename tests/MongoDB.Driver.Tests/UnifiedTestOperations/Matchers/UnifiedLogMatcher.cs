@@ -16,9 +16,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
-using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
-using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
@@ -34,52 +32,22 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
 
         public void AssertLogsMatch(LogEntry[] actualLogs, BsonArray expectedLogs)
         {
-            actualLogs.Length.Should().BeGreaterOrEqualTo(expectedLogs.Count);
+            actualLogs.Length.Should().Be(expectedLogs.Count);
 
-            var actualLogIndex = 0;
             for (int i = 0; i < expectedLogs.Count; i++)
             {
                 var expectedLogDocument = expectedLogs[i].AsBsonDocument;
+                var actualLog = actualLogs[i];
+
                 var expectedCategory = UnifiedLogHelper.ParseCategory(expectedLogDocument["component"].AsString);
                 var expectedLogLevel = UnifiedLogHelper.ParseLogLevel(expectedLogDocument["level"].AsString);
 
-                var matchFound = false;
-                for (; actualLogIndex < actualLogs.Length && !matchFound; actualLogIndex++)
-                {
-                    var logEntry = actualLogs[actualLogIndex];
+                actualLog.Category.Should().Be(expectedCategory);
+                actualLog.LogLevel.Should().Be(expectedLogLevel);
 
-                    if (PreMatchLog(logEntry, expectedLogDocument, expectedCategory, expectedLogLevel))
-                    {
-                        var logDataDocument = new BsonDocument(logEntry.State.Select(ToBsonElement));
-
-                        try
-                        {
-                            _valueMatcher.AssertValuesMatch(logDataDocument, expectedLogDocument["data"]);
-                            matchFound = true;
-                        }
-                        catch { }
-                    }
-                }
-
-                matchFound.Should().BeTrue("Log message not found {0}", expectedLogDocument);
+                var actualLogDocument = new BsonDocument(actualLog.State.Select(ToBsonElement));
+                _valueMatcher.AssertValuesMatch(actualLogDocument, expectedLogDocument["data"]);
             }
-        }
-
-        private static bool PreMatchLog(LogEntry actualLog, BsonDocument expectedLog, string expectedCategory, LogLevel expectedLogLevel)
-        {
-            if (actualLog.LogLevel != expectedLogLevel ||
-                actualLog.Category != expectedCategory)
-            {
-                return false;
-            }
-
-            if (expectedCategory == LogCategoryHelper.GetCategoryName<LogCategories.Command>() &&
-                actualLog.GetParameter(StructuredLogsTemplates.CommandName)?.ToString() != expectedLog["data"]["commandName"].AsString)
-            {
-                return false;
-            }
-
-            return true;
         }
 
         private static BsonElement ToBsonElement(KeyValuePair<string, object> pair) =>

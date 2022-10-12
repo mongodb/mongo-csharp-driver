@@ -46,6 +46,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         private Mock<IConnectionExceptionHandler> _mockConnectionExceptionHandler;
         private DnsEndPoint _endPoint;
         private EventCapturer _capturedEvents;
+        private EventsLogger<LogCategories.Connection> _eventsLoggger;
         private ServerId _serverId;
         private ConnectionPoolSettings _settings;
         private ExclusiveConnectionPool _subject;
@@ -56,6 +57,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             _mockConnectionExceptionHandler = new Mock<IConnectionExceptionHandler>();
             _endPoint = new DnsEndPoint("localhost", 27017);
             _capturedEvents = new EventCapturer();
+            _eventsLoggger = _capturedEvents.ToEventsLogger<LogCategories.Connection>();
             _serverId = new ServerId(new ClusterId(), _endPoint);
 
             _mockConnectionFactory.Setup(f => f.ConnectionSettings).Returns(() => new ConnectionSettings());
@@ -78,7 +80,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         [Fact]
         public void Constructor_should_throw_when_serverId_is_null()
         {
-            Action act = () => new ExclusiveConnectionPool(null, _endPoint, _settings, _mockConnectionFactory.Object, _capturedEvents, _mockConnectionExceptionHandler.Object, null);
+            Action act = () => new ExclusiveConnectionPool(null, _endPoint, _settings, _mockConnectionFactory.Object, _mockConnectionExceptionHandler.Object, _eventsLoggger);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -86,7 +88,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         [Fact]
         public void Constructor_should_throw_when_endPoint_is_null()
         {
-            Action act = () => new ExclusiveConnectionPool(_serverId, null, _settings, _mockConnectionFactory.Object, _capturedEvents, _mockConnectionExceptionHandler.Object, null);
+            Action act = () => new ExclusiveConnectionPool(_serverId, null, _settings, _mockConnectionFactory.Object, _mockConnectionExceptionHandler.Object, _eventsLoggger);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -94,7 +96,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         [Fact]
         public void Constructor_should_throw_when_settings_is_null()
         {
-            Action act = () => new ExclusiveConnectionPool(_serverId, _endPoint, null, _mockConnectionFactory.Object, _capturedEvents, _mockConnectionExceptionHandler.Object, null);
+            Action act = () => new ExclusiveConnectionPool(_serverId, _endPoint, null, _mockConnectionFactory.Object, _mockConnectionExceptionHandler.Object, _eventsLoggger);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -102,15 +104,15 @@ namespace MongoDB.Driver.Core.ConnectionPools
         [Fact]
         public void Constructor_should_throw_when_connectionFactory_is_null()
         {
-            Action act = () => new ExclusiveConnectionPool(_serverId, _endPoint, _settings, null, _capturedEvents, _mockConnectionExceptionHandler.Object, null);
+            Action act = () => new ExclusiveConnectionPool(_serverId, _endPoint, _settings, null, _mockConnectionExceptionHandler.Object, _eventsLoggger);
 
             act.ShouldThrow<ArgumentNullException>();
         }
 
         [Fact]
-        public void Constructor_should_throw_when_eventSubscriber_is_null()
+        public void Constructor_should_throw_when_eventLogger_is_null()
         {
-            Action act = () => new ExclusiveConnectionPool(_serverId, _endPoint, _settings, _mockConnectionFactory.Object, null, _mockConnectionExceptionHandler.Object, null);
+            Action act = () => new ExclusiveConnectionPool(_serverId, _endPoint, _settings, _mockConnectionFactory.Object, _mockConnectionExceptionHandler.Object, null);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -207,7 +209,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         [Fact]
         public void Constructor_should_throw_when_exceptionHandler_is_null()
         {
-            Action act = () => new ExclusiveConnectionPool(_serverId, _endPoint, _settings, _mockConnectionFactory.Object, _capturedEvents, null, null);
+            Action act = () => new ExclusiveConnectionPool(_serverId, _endPoint, _settings, _mockConnectionFactory.Object, null, _eventsLoggger);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -1705,9 +1707,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 _endPoint,
                 connectionPoolSettings ?? _settings,
                 connectionFactory ?? _mockConnectionFactory.Object,
-                eventCapturer ?? _capturedEvents,
                 connectionExceptionHandler ?? _mockConnectionExceptionHandler.Object,
-                CreateLogger<LogCategories.Connection>());
+                (eventCapturer ?? _capturedEvents).ToEventsLogger<LogCategories.Connection>());
         }
 
         private void InitializeAndWait(ExclusiveConnectionPool pool = null, ConnectionPoolSettings poolSettings = null)

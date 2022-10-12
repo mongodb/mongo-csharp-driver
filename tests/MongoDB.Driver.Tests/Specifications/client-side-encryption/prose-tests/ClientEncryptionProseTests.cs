@@ -33,6 +33,7 @@ using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
@@ -2188,7 +2189,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 mongoClientSettings.AutoEncryptionOptions = autoEncryptionOptions;
             }
 
-            mongoClientSettings.LoggerFactory = LoggerFactory;
+            mongoClientSettings.LoggingSettings = LoggingSettings;
 
             return mongoClientSettings;
         }

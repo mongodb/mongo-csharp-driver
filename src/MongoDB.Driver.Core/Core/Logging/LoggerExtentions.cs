@@ -27,6 +27,10 @@ namespace MongoDB.Driver.Core.Logging
             where T : LogCategories.EventCategory =>
             new EventsLogger<T>(eventSubscriber, logger);
 
+        public static EventsLogger<T> ToEventsLogger<T>(this IEventSubscriber eventSubscriber)
+            where T : LogCategories.EventCategory =>
+            new EventsLogger<T>(eventSubscriber, null);
+
         public static void LogDebug<T>(this ILogger<T> logger, ClusterId clusterId, string message)
         {
             if (logger.IsEnabled(LogLevel.Debug))

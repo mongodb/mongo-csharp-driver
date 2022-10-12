@@ -23,11 +23,15 @@ namespace MongoDB.Driver.Core.Logging
     {
         private readonly EventsPublisher _eventsPublisher;
         private readonly ILogger<T> _logger;
+        private readonly EventsLogsFormattingOptions _eventsLogsFormattingOptions;
 
-        public EventsLogger(IEventSubscriber eventSubscriber, ILogger<T> logger)
+        public static EventsLogger<T> Empty { get; } = new EventsLogger<T>(null, null);
+
+        public EventsLogger(IEventSubscriber eventSubscriber, ILogger<T> logger, EventsLogsFormattingOptions eventsLogsFormattingOptions = null)
         {
             _logger = logger;
             _eventsPublisher = eventSubscriber != null ? new EventsPublisher(eventSubscriber) : null;
+            _eventsLogsFormattingOptions = eventsLogsFormattingOptions ?? new EventsLogsFormattingOptions(0);
         }
 
         public ILogger<T> Logger => _logger;
@@ -39,19 +43,22 @@ namespace MongoDB.Driver.Core.Logging
         private LogLevel GetEventVerbosity<TEvent>() where TEvent : struct, IEvent =>
             StructuredLogsTemplates.GetTemplateProvider(new TEvent().Type).LogLevel;
 
-        public void LogAndPublish<TEvent>(TEvent @event) where TEvent : struct, IEvent
-            => LogAndPublish(null, @event);
+        public void LogAndPublish<TEvent>(TEvent @event, bool skipLogging = false) where TEvent : struct, IEvent
+          => LogAndPublish(null, @event, skipLogging);
 
-        public void LogAndPublish<TEvent>(Exception exception, TEvent @event) where TEvent : struct, IEvent
+        public void LogAndPublish<TEvent>(Exception exception, TEvent @event, bool skipLogging = false) where TEvent : struct, IEvent
         {
-            var eventTemplateProvider = StructuredLogsTemplates.GetTemplateProvider(@event.Type);
-
-            if (_logger?.IsEnabled(eventTemplateProvider.LogLevel) == true)
+            if (!skipLogging)
             {
-                var @params = eventTemplateProvider.GetParams(@event);
-                var template = eventTemplateProvider.GetTemplate(@event);
+                var eventTemplateProvider = StructuredLogsTemplates.GetTemplateProvider(@event.Type);
 
-                Log(eventTemplateProvider.LogLevel, template, exception, @params);
+                if (_logger?.IsEnabled(eventTemplateProvider.LogLevel) == true)
+                {
+                    var @params = eventTemplateProvider.GetParams(@event, _eventsLogsFormattingOptions);
+                    var template = eventTemplateProvider.GetTemplate(@event);
+
+                    Log(eventTemplateProvider.LogLevel, template, exception, @params);
+                }
             }
 
             _eventsPublisher?.Publish(@event);
@@ -63,7 +70,7 @@ namespace MongoDB.Driver.Core.Logging
 
             if (_logger?.IsEnabled(eventTemplateProvider.LogLevel) == true)
             {
-                var @params = eventTemplateProvider.GetParams(@event, arg);
+                var @params = eventTemplateProvider.GetParams(@event, _eventsLogsFormattingOptions, arg);
                 var template = eventTemplateProvider.GetTemplate(@event);
 
                 Log(eventTemplateProvider.LogLevel, template, exception: null, @params);

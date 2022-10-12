@@ -181,7 +181,7 @@ namespace MongoDB.Bson
         /// <param name="obj">The object.</param>
         /// <param name="writerSettings">The JsonWriter settings.</param>
         /// <param name="serializer">The serializer.</param>
-        /// <param name="configurator">The serializastion context configurator.</param>
+        /// <param name="configurator">The serialization context configurator.</param>
         /// <param name="args">The serialization args.</param>
         /// <returns>
         /// A JSON string.

@@ -96,7 +96,7 @@ namespace MongoDB.Driver.Tests
                 ipv6: true,
                 loadBalanced: false,
                 localThreshold: TimeSpan.FromSeconds(4),
-                loggerFactory: null,
+                loggingSettings: null,
                 maxConnecting: 3,
                 maxConnectionIdleTime: TimeSpan.FromSeconds(5),
                 maxConnectionLifeTime: TimeSpan.FromSeconds(6),

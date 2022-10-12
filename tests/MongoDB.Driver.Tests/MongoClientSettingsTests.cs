@@ -25,7 +25,6 @@ using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
-using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
@@ -936,21 +935,20 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
-        public void TestLoggerFactory()
+        public void TestLoggingSettings()
         {
             var settings = new MongoClientSettings();
-            Assert.Equal(null, settings.LoggerFactory);
+            Assert.Equal(null, settings.LoggingSettings);
 
-            settings.LoggerFactory = null;
-            Assert.Equal(null, settings.LoggerFactory);
+            settings.LoggingSettings = null;
+            Assert.Equal(null, settings.LoggingSettings);
 
             var loggerFactory = new Mock<ILoggerFactory>();
-            settings.LoggerFactory = loggerFactory.Object;
-            Assert.IsType<LoggerFactoryCategoryDecorator>(settings.LoggerFactory);
+            settings.LoggingSettings = new LoggingSettings(loggerFactory.Object);
+            Assert.Equal(loggerFactory.Object, settings.LoggingSettings.LoggerFactory);
 
             settings.Freeze();
-            Assert.IsType<LoggerFactoryCategoryDecorator>(settings.LoggerFactory);
-            Assert.Throws<InvalidOperationException>(() => { settings.LoggerFactory = loggerFactory.Object; });
+            Assert.Throws<InvalidOperationException>(() => { settings.LoggingSettings = new LoggingSettings(loggerFactory.Object); });
         }
 
         [Fact]
@@ -1437,7 +1435,7 @@ namespace MongoDB.Driver.Tests
                 HeartbeatTimeout = TimeSpan.FromSeconds(8),
                 IPv6 = true,
                 LocalThreshold = TimeSpan.FromMilliseconds(20),
-                LoggerFactory = new Mock<ILoggerFactory>().Object,
+                LoggingSettings = new LoggingSettings(),
                 MaxConnecting = 3,
                 MaxConnectionIdleTime = TimeSpan.FromSeconds(2),
                 MaxConnectionLifeTime = TimeSpan.FromSeconds(3),
@@ -1486,7 +1484,7 @@ namespace MongoDB.Driver.Tests
             result.HeartbeatTimeout.Should().Be(subject.HeartbeatTimeout);
             result.IPv6.Should().Be(subject.IPv6);
             result.LocalThreshold.Should().Be(subject.LocalThreshold);
-            result.LoggerFactory.Should().Be(subject.LoggerFactory);
+            result.LoggingSettings.Should().Be(subject.LoggingSettings);
             result.MaxConnecting.Should().Be(subject.MaxConnecting);
             result.MaxConnectionIdleTime.Should().Be(subject.MaxConnectionIdleTime);
             result.MaxConnectionLifeTime.Should().Be(subject.MaxConnectionLifeTime);
