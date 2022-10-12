@@ -22,7 +22,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Authentication.External
 {
-    internal class GcpCredentials : IExternalCredentials
+    internal sealed class GcpCredentials : IExternalCredentials
     {
         private readonly string _accessToken;
 

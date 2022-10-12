@@ -23,7 +23,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Authentication.External
 {
-    internal class AwsCredentials : IExternalCredentials
+    internal sealed class AwsCredentials : IExternalCredentials
     {
         // credentials are considered expired when: Expiration - now < 5 mins
         private static readonly TimeSpan __overlapWhereExpired = TimeSpan.FromMinutes(5);

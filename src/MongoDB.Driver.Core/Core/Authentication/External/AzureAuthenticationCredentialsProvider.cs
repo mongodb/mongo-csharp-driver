@@ -22,7 +22,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Authentication.External
 {
-    internal class AzureCredentials : IExternalCredentials
+    internal sealed class AzureCredentials : IExternalCredentials
     {
         // credentials are considered expired when: Expiration - now < 1 mins
         private static readonly TimeSpan __overlapWhereExpired = TimeSpan.FromMinutes(1);
@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Core.Authentication.External
                 RequestUri = __IMDSRequestUri,
                 Method = HttpMethod.Get
             };
-            credentialsRequest.Headers.Add("Metadata", true.ToString());
+            credentialsRequest.Headers.Add("Metadata", "true");
             credentialsRequest.Headers.Add("Accept", "application/json");
 
             return credentialsRequest;
@@ -88,22 +88,15 @@ namespace MongoDB.Driver.Core.Authentication.External
 
         public async Task<AzureCredentials> CreateCredentialsFromExternalSourceAsync(CancellationToken cancellationToken)
         {
-            return 
-                (await CreateAzureCredentialsFromIMDSResponseAsync(cancellationToken).ConfigureAwait(false)) ??
-                throw new InvalidOperationException($"Unable to find credentials for Azure authentication.");
-        }
-
-        private async Task<AzureCredentials> CreateAzureCredentialsFromIMDSResponseAsync(CancellationToken cancellationToken)
-        {
             var request = _azureCredentialsHttpRequestMessageFactory.CreateRequest();
             var startTime = DateTime.UtcNow;
             var response = await _httpClientHelper.GetHttpContentAsync(request, "Failed to acquire IMDS access token.", cancellationToken).ConfigureAwait(false);
             return CreateAzureCredentialsFromAzureIMDSResponse(response, startTime);
         }
 
-        private AzureCredentials CreateAzureCredentialsFromAzureIMDSResponse(string awsResponse, DateTime startTime)
+        private AzureCredentials CreateAzureCredentialsFromAzureIMDSResponse(string azureResponse, DateTime startTime)
         {
-            if (!BsonDocument.TryParse(awsResponse, out var parsedResponse))
+            if (!BsonDocument.TryParse(azureResponse, out var parsedResponse))
             {
                 throw new InvalidOperationException("Azure IMDS response must be in Json format.");
             }
@@ -115,8 +108,8 @@ namespace MongoDB.Driver.Core.Authentication.External
             var expiresIn = parsedResponse.GetValue("expires_in", null)?.AsString;
             if (expiresIn == null || !int.TryParse(expiresIn, out var expiresInSeconds))
             {
-                string messageDetails = expiresIn != null ? $", but was {expiresIn}" : "";
-                throw new InvalidOperationException($"Azure IMDS response must contain expires_in seconds in int format{messageDetails}.");
+                var messageDetails = expiresIn?.ToString() ?? "null";
+                throw new InvalidOperationException($"Azure IMDS response must contain 'expires_in' integer, but was {messageDetails}.");
             }
             var expirationDateTime = startTime.AddSeconds(expiresInSeconds);
 

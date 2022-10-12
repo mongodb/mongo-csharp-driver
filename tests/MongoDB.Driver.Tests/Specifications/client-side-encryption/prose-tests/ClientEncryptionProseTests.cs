@@ -1685,43 +1685,28 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             {
                 case 1: // Case 1: Success
                     {
-                        var createHttpRequestMessageFactory = CreateHttpRequestMessageFactory((request) => { });
-                        var azureProvider = new AzureAuthenticationCredentialsProvider(ExternalCredentialsAuthenticators.Instance.HttpClientHelper, createHttpRequestMessageFactory);
-                        var result = async
-                            ? await azureProvider.CreateCredentialsFromExternalSourceAsync(CancellationToken.None)
-                            : azureProvider.CreateCredentialsFromExternalSource(CancellationToken.None);
+                        var result = await CreateTestCase(request => { });
                         result.AccessToken.Should().Be("magic-cookie");
-                        // < 70 && >= 50 seconds
-                        (result.Expiration - DateTime.UtcNow).Should().BeCloseTo(nearbyTime: TimeSpan.FromSeconds(60), precision: (int)TimeSpan.FromSeconds(10).TotalMilliseconds);
+                        // < 70 && >= 60 seconds
+                        result.Expiration.Should().BeCloseTo(DateTime.UtcNow + TimeSpan.FromSeconds(65), (int)TimeSpan.FromSeconds(5).TotalMilliseconds);
                     }
                     break;
                 case 2: // Case 2: Empty JSON
                     {
-                        var createHttpRequestMessageFactory = CreateHttpRequestMessageFactory((request) => request.Headers.Add("X-MongoDB-HTTP-TestParams", "case=empty-json"));
-                        var azureProvider = new AzureAuthenticationCredentialsProvider(ExternalCredentialsAuthenticators.Instance.HttpClientHelper, createHttpRequestMessageFactory);
-                        var exception = async
-                            ? await Record.ExceptionAsync(() => azureProvider.CreateCredentialsFromExternalSourceAsync(CancellationToken.None))
-                            : Record.Exception(() => azureProvider.CreateCredentialsFromExternalSource(CancellationToken.None));
+                        var exception = await Record.ExceptionAsync(() => CreateTestCase((request) => request.Headers.Add("X-MongoDB-HTTP-TestParams", "case=empty-json")));
                         exception.Should().BeOfType<InvalidOperationException>().Which.Message.Should().Be("Azure IMDS response must contain access_token.");
                     }
                     break;
                 case 3: // Case 3: Bad JSON
                     {
-                        var createHttpRequestMessageFactory = CreateHttpRequestMessageFactory((request) => request.Headers.Add("X-MongoDB-HTTP-TestParams", "case=bad-json"));
-                        var azureProvider = new AzureAuthenticationCredentialsProvider(ExternalCredentialsAuthenticators.Instance.HttpClientHelper, createHttpRequestMessageFactory);
-                        var exception = async
-                            ? await Record.ExceptionAsync(() => azureProvider.CreateCredentialsFromExternalSourceAsync(CancellationToken.None))
-                            : Record.Exception(() => azureProvider.CreateCredentialsFromExternalSource(CancellationToken.None));
+                        var exception = await Record.ExceptionAsync(() => CreateTestCase((request) => request.Headers.Add("X-MongoDB-HTTP-TestParams", "case=bad-json")));
                         exception.Should().BeOfType<InvalidOperationException>().Which.Message.Should().Be("Azure IMDS response must be in Json format.");
                     }
                     break;
                 case 4: // Case 4: HTTP 404
                     {
-                        var createHttpRequestMessageFactory = CreateHttpRequestMessageFactory((request) => request.Headers.Add("X-MongoDB-HTTP-TestParams", "case=404"));
-                        var azureProvider = new AzureAuthenticationCredentialsProvider(ExternalCredentialsAuthenticators.Instance.HttpClientHelper, createHttpRequestMessageFactory);
-                        var exception = async
-                            ? await Record.ExceptionAsync(() => azureProvider.CreateCredentialsFromExternalSourceAsync(CancellationToken.None))
-                            : Record.Exception(() => azureProvider.CreateCredentialsFromExternalSource(CancellationToken.None));
+                        var exception = await Record.ExceptionAsync(() => CreateTestCase((request) => request.Headers.Add("X-MongoDB-HTTP-TestParams", "case=404")));
+                        exception.Should().BeOfType<InvalidOperationException>().Which.Message.Should().Be("Azure IMDS response must be in Json format.");
                         exception
                             .Should().BeOfType<MongoClientException>().Which.InnerException
                             .Should().BeOfType<HttpRequestException>().Which.Message
@@ -1730,11 +1715,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                     break;
                 case 5: // Case 5: HTTP 500
                     {
-                        var createHttpRequestMessageFactory = CreateHttpRequestMessageFactory((request) => request.Headers.Add("X-MongoDB-HTTP-TestParams", "case=500"));
-                        var azureProvider = new AzureAuthenticationCredentialsProvider(ExternalCredentialsAuthenticators.Instance.HttpClientHelper, createHttpRequestMessageFactory);
-                        var exception = async
-                            ? await Record.ExceptionAsync(() => azureProvider.CreateCredentialsFromExternalSourceAsync(CancellationToken.None))
-                            : Record.Exception(() => azureProvider.CreateCredentialsFromExternalSource(CancellationToken.None));
+                        var exception = await Record.ExceptionAsync(() => CreateTestCase((request) => request.Headers.Add("X-MongoDB-HTTP-TestParams", "case=500")));
                         exception
                             .Should().BeOfType<MongoClientException>().Which.InnerException
                             .Should().BeOfType<HttpRequestException>().Which.Message
@@ -1743,17 +1724,22 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                     break;
                 case 6: // Case 6: Slow Response
                     {
-                        var createHttpRequestMessageFactory = CreateHttpRequestMessageFactory((request) => request.Headers.Add("X-MongoDB-HTTP-TestParams", "case=slow"));
-                        var azureProvider = new AzureAuthenticationCredentialsProvider(ExternalCredentialsAuthenticators.Instance.HttpClientHelper, createHttpRequestMessageFactory);
-                        var exception = async
-                            ? await Record.ExceptionAsync(() => azureProvider.CreateCredentialsFromExternalSourceAsync(CancellationToken.None))
-                            : Record.Exception(() => azureProvider.CreateCredentialsFromExternalSource(CancellationToken.None));
+                        var exception = await Record.ExceptionAsync(() => CreateTestCase((request) => request.Headers.Add("X-MongoDB-HTTP-TestParams", "case=slow")));
                         exception
                             .Should().BeOfType<MongoClientException>().Which.InnerException
                             .Should().BeAssignableTo<OperationCanceledException>();
                     }
                     break;
                 default: throw new Exception($"Unexpected test case: {testCase}.");
+            }
+
+            async Task<AzureCredentials> CreateTestCase(Action<HttpRequestMessage> modifyAction)
+            {
+                var createHttpRequestMessageFactory = CreateHttpRequestMessageFactory(modifyAction);
+                var azureProvider = new AzureAuthenticationCredentialsProvider(ExternalCredentialsAuthenticators.Instance.HttpClientHelper, createHttpRequestMessageFactory);
+                return async
+                    ? await azureProvider.CreateCredentialsFromExternalSourceAsync(default)
+                    : azureProvider.CreateCredentialsFromExternalSource(default);
             }
 
             IExternalCredentialsHttpRequestMessageFactory CreateHttpRequestMessageFactory(Action<HttpRequestMessage> modifyAction)
