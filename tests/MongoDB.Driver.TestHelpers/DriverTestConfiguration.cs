@@ -171,7 +171,7 @@ namespace MongoDB.Driver.Tests
 
             var client = CreateClient(compositeClientSettingsConfigurator, useMultipleShardRouters);
 
-            return new DisposableMongoClient(client, loggingSettings.ToInternalLoggingFactory()?.CreateLogger<DisposableMongoClient>());
+            return new DisposableMongoClient(client, loggingSettings.ToInternalLoggerFactory()?.CreateLogger<DisposableMongoClient>());
         }
 
         public static DisposableMongoClient CreateDisposableClient(EventCapturer capturer, LoggingSettings loggingSettings = null)
@@ -183,7 +183,7 @@ namespace MongoDB.Driver.Tests
         {
             EnsureUniqueCluster(settings);
 
-            return new DisposableMongoClient(new MongoClient(settings), settings.LoggingSettings.ToInternalLoggingFactory()?.CreateLogger<DisposableMongoClient>());
+            return new DisposableMongoClient(new MongoClient(settings), settings.LoggingSettings.ToInternalLoggerFactory()?.CreateLogger<DisposableMongoClient>());
         }
 
         private static MongoClient CreateLinq3Client()

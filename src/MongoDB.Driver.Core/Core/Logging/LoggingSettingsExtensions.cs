@@ -18,9 +18,9 @@ using MongoDB.Driver.Core.Configuration;
 
 namespace MongoDB.Driver.Core.Logging
 {
-    internal static class LoggingSettingsExtentions
+    internal static class LoggingSettingsExtensions
     {
-        public static ILoggerFactory ToInternalLoggingFactory(this LoggingSettings loggingSettings) =>
+        public static ILoggerFactory ToInternalLoggerFactory(this LoggingSettings loggingSettings) =>
             loggingSettings?.LoggerFactory switch
             {
                 _ when loggingSettings?.LoggerFactory != null => new LoggerFactoryCategoryDecorator(loggingSettings.LoggerFactory, loggingSettings),

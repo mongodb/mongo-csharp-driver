@@ -71,8 +71,8 @@ namespace MongoDB.Driver.Core.Clusters
         private TaskCompletionSource<bool> _descriptionChangedTaskCompletionSource;
         private readonly object _descriptionLock = new object();
         private readonly LatencyLimitingServerSelector _latencyLimitingServerSelector;
-        protected readonly EventsLogger<LogCategories.Cluster> _clusterEventsLogger;
-        protected readonly EventsLogger<LogCategories.ServerSelection> _serverSelectionEventsLogger;
+        protected readonly EventLogger<LogCategories.Cluster> _clusterEventLogger;
+        protected readonly EventLogger<LogCategories.ServerSelection> _serverSelectionEventLogger;
         private Timer _rapidHeartbeatTimer;
         private readonly object _serverSelectionWaitQueueLock = new object();
         private int _serverSelectionWaitQueueSize;
@@ -101,8 +101,8 @@ namespace MongoDB.Driver.Core.Clusters
 
             _serverSessionPool = new CoreServerSessionPool(this);
 
-            _clusterEventsLogger = loggerFactory.CreateEventsLogger<LogCategories.Cluster>(eventSubscriber);
-            _serverSelectionEventsLogger = loggerFactory.CreateEventsLogger<LogCategories.ServerSelection>(eventSubscriber);
+            _clusterEventLogger = loggerFactory.CreateEventLogger<LogCategories.Cluster>(eventSubscriber);
+            _serverSelectionEventLogger = loggerFactory.CreateEventLogger<LogCategories.ServerSelection>(eventSubscriber);
 
             ClusterDescription CreateInitialDescription()
             {
@@ -166,7 +166,7 @@ namespace MongoDB.Driver.Core.Clusters
         {
             if (_state.TryChange(State.Disposed))
             {
-                _clusterEventsLogger.Logger?.LogDebug(_clusterId, "Disposing");
+                _clusterEventLogger.Logger?.LogDebug(_clusterId, "Disposing");
 
 #pragma warning disable CS0618 // Type or member is obsolete
                 var connectionModeSwitch = _description.ConnectionModeSwitch;
@@ -188,7 +188,7 @@ namespace MongoDB.Driver.Core.Clusters
                 _rapidHeartbeatTimer.Dispose();
                 _cryptClient?.Dispose();
 
-                _clusterEventsLogger.Logger?.LogDebug(_clusterId, "Disposed");
+                _clusterEventLogger.Logger?.LogDebug(_clusterId, "Disposed");
             }
         }
 
@@ -224,14 +224,14 @@ namespace MongoDB.Driver.Core.Clusters
             ThrowIfDisposed();
             if (_state.TryChange(State.Initial, State.Open))
             {
-                _clusterEventsLogger.Logger?.LogDebug(_clusterId, "Initialized");
+                _clusterEventLogger.Logger?.LogDebug(_clusterId, "Initialized");
 
                 if (_settings.CryptClientSettings != null)
                 {
                     _cryptClient = CryptClientCreator.CreateCryptClient(_settings.CryptClientSettings);
 
-                    _clusterEventsLogger.Logger?.LogDebug(
-                        StructuredLogsTemplates.ClusterId_Message_SharedLibraryVersion,
+                    _clusterEventLogger.Logger?.LogDebug(
+                        StructuredLogTemplateProviders.ClusterId_Message_SharedLibraryVersion,
                         _clusterId,
                         "CryptClient created. Configured shared library version: ",
                         _cryptClient.CryptSharedLibraryVersion ?? "None");
@@ -267,7 +267,7 @@ namespace MongoDB.Driver.Core.Clusters
         {
             if (shouldClusterDescriptionChangedEventBePublished)
             {
-                _clusterEventsLogger.LogAndPublish(new ClusterDescriptionChangedEvent(oldDescription, newDescription));
+                _clusterEventLogger.LogAndPublish(new ClusterDescriptionChangedEvent(oldDescription, newDescription));
             }
 
             DescriptionChanged?.Invoke(this, new ClusterDescriptionChangedEventArgs(oldDescription, newDescription));
@@ -468,7 +468,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             public void HandleException(Exception exception)
             {
-                _cluster._serverSelectionEventsLogger.LogAndPublish(new ClusterSelectingServerFailedEvent(
+                _cluster._serverSelectionEventLogger.LogAndPublish(new ClusterSelectingServerFailedEvent(
                     _description,
                     _selector,
                     exception,
@@ -486,7 +486,7 @@ namespace MongoDB.Driver.Core.Clusters
                 if (!_serverSelectionWaitQueueEntered)
                 {
                     // this is our first time through...
-                    _cluster._serverSelectionEventsLogger.LogAndPublish(new ClusterSelectingServerEvent(
+                    _cluster._serverSelectionEventLogger.LogAndPublish(new ClusterSelectingServerEvent(
                         _description,
                         _selector,
                         EventContext.OperationId));
@@ -526,7 +526,7 @@ namespace MongoDB.Driver.Core.Clusters
                 {
                     _stopwatch.Stop();
 
-                    _cluster._serverSelectionEventsLogger.LogAndPublish(new ClusterSelectedServerEvent(
+                    _cluster._serverSelectionEventLogger.LogAndPublish(new ClusterSelectedServerEvent(
                         _description,
                         _selector,
                         selectedServer.Description,

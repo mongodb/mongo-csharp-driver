@@ -21,7 +21,7 @@ using MongoDB.Driver.Core.Events;
 
 namespace MongoDB.Driver.Core.Logging
 {
-    internal static partial class StructuredLogsTemplates
+    internal static partial class StructuredLogTemplateProviders
     {
         private static string[] __commandCommonParams = new[]
         {
@@ -90,17 +90,17 @@ namespace MongoDB.Driver.Core.Logging
                 (e, s) => e.ServiceId == null ? s.Templates[0] : s.Templates[1]);
         }
 
-        private static string CommandDocumentToString(BsonDocument document, EventsLogsFormattingOptions eventsLogsFormattingOptions)
+        private static string CommandDocumentToString(BsonDocument document, EventLogFormattingOptions eventLogFormattingOptions)
         {
             if (document == null)
             {
                 return null;
             }
 
-            return TruncateIfNeeded(document.ToString(), eventsLogsFormattingOptions.MaxDocumentSize);
+            return TruncateIfNeeded(document.ToString(), eventLogFormattingOptions.MaxDocumentSize);
         }
 
-        private static string FormatCommandException(Exception exception, EventsLogsFormattingOptions eventsLogsFormattingOptions)
+        private static string FormatCommandException(Exception exception, EventLogFormattingOptions eventLogFormattingOptions)
         {
             if (exception == null)
             {
@@ -119,7 +119,7 @@ namespace MongoDB.Driver.Core.Logging
                 result = exception.ToString();
             }
 
-            return TruncateIfNeeded(result, eventsLogsFormattingOptions.MaxDocumentSize);
+            return TruncateIfNeeded(result, eventLogFormattingOptions.MaxDocumentSize);
         }
 
         private static string TruncateIfNeeded(string str, int length) =>

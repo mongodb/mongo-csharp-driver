@@ -17,11 +17,11 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Logging
 {
-    internal sealed class EventsLogsFormattingOptions
+    internal sealed class EventLogFormattingOptions
     {
         public int MaxDocumentSize { get; }
 
-        public EventsLogsFormattingOptions(int maxCommandDocumentSize)
+        public EventLogFormattingOptions(int maxCommandDocumentSize)
         {
             MaxDocumentSize = Ensure.IsGreaterThanOrEqualToZero(maxCommandDocumentSize, nameof(maxCommandDocumentSize));
         }

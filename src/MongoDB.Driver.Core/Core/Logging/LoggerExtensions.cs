@@ -17,19 +17,19 @@ using Microsoft.Extensions.Logging;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Servers;
-using static MongoDB.Driver.Core.Logging.StructuredLogsTemplates;
+using static MongoDB.Driver.Core.Logging.StructuredLogTemplateProviders;
 
 namespace MongoDB.Driver.Core.Logging
 {
-    internal static class LoggerExtentions
+    internal static class LoggerExtensions
     {
-        public static EventsLogger<T> ToEventsLogger<T>(this ILogger<T> logger, IEventSubscriber eventSubscriber)
+        public static EventLogger<T> ToEventLogger<T>(this ILogger<T> logger, IEventSubscriber eventSubscriber)
             where T : LogCategories.EventCategory =>
-            new EventsLogger<T>(eventSubscriber, logger);
+            new EventLogger<T>(eventSubscriber, logger);
 
-        public static EventsLogger<T> ToEventsLogger<T>(this IEventSubscriber eventSubscriber)
+        public static EventLogger<T> ToEventLogger<T>(this IEventSubscriber eventSubscriber)
             where T : LogCategories.EventCategory =>
-            new EventsLogger<T>(eventSubscriber, null);
+            new EventLogger<T>(eventSubscriber, null);
 
         public static void LogDebug<T>(this ILogger<T> logger, ClusterId clusterId, string message)
         {

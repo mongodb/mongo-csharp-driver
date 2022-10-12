@@ -19,7 +19,7 @@ using MongoDB.Driver.Core.Events;
 
 namespace MongoDB.Driver.Core.Logging
 {
-    internal static partial class StructuredLogsTemplates
+    internal static partial class StructuredLogTemplateProviders
     {
         private static string[] __cmapCommonParams = new[]
         {

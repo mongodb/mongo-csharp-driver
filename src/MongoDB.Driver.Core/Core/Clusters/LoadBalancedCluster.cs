@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Core.Clusters
         private readonly ICoreServerSessionPool _serverSessionPool;
         private readonly ClusterSettings _settings;
         private readonly InterlockedInt32 _state;
-        private readonly EventsLogger<LogCategories.Cluster> _eventsLogger;
+        private readonly EventLogger<LogCategories.Cluster> _eventLogger;
 
         public LoadBalancedCluster(
             ClusterSettings settings,
@@ -109,7 +109,7 @@ namespace MongoDB.Driver.Core.Clusters
 #pragma warning restore CS0618 // Type or member is obsolete
                 null);
 
-            _eventsLogger = loggerFactory.CreateEventsLogger<LogCategories.Cluster>(eventSubscriber);
+            _eventLogger = loggerFactory.CreateEventLogger<LogCategories.Cluster>(eventSubscriber);
         }
 
         public ClusterId ClusterId => _clusterId;
@@ -143,7 +143,7 @@ namespace MongoDB.Driver.Core.Clusters
                     _dnsMonitorCancellationTokenSource.Cancel();
                     _dnsMonitorCancellationTokenSource.Dispose();
 
-                    _eventsLogger.LogAndPublish(new ClusterClosingEvent(ClusterId));
+                    _eventLogger.LogAndPublish(new ClusterClosingEvent(ClusterId));
 
                     var stopwatch = Stopwatch.StartNew();
                     if (_server != null)
@@ -151,7 +151,7 @@ namespace MongoDB.Driver.Core.Clusters
                         _server.DescriptionChanged -= ServerDescriptionChangedHandler;
                         _server.Dispose();
                     }
-                    _eventsLogger.LogAndPublish(new ClusterClosedEvent(ClusterId, stopwatch.Elapsed));
+                    _eventLogger.LogAndPublish(new ClusterClosedEvent(ClusterId, stopwatch.Elapsed));
                 }
             }
         }
@@ -163,7 +163,7 @@ namespace MongoDB.Driver.Core.Clusters
             if (_state.TryChange(State.Initial, State.Open))
             {
                 var stopwatch = Stopwatch.StartNew();
-                _eventsLogger.LogAndPublish(new ClusterOpeningEvent(ClusterId, Settings));
+                _eventLogger.LogAndPublish(new ClusterOpeningEvent(ClusterId, Settings));
 
                 if (_settings.CryptClientSettings != null)
                 {
@@ -185,7 +185,7 @@ namespace MongoDB.Driver.Core.Clusters
                     _dnsMonitorThread = monitor.Start();
                 }
 
-                _eventsLogger.LogAndPublish(new ClusterOpenedEvent(ClusterId, Settings, stopwatch.Elapsed));
+                _eventLogger.LogAndPublish(new ClusterOpenedEvent(ClusterId, Settings, stopwatch.Elapsed));
             }
         }
 
@@ -258,7 +258,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             void OnClusterDescriptionChanged(ClusterDescription oldDescription, ClusterDescription newDescription)
             {
-                _eventsLogger.LogAndPublish(new ClusterDescriptionChangedEvent(oldDescription, newDescription));
+                _eventLogger.LogAndPublish(new ClusterDescriptionChangedEvent(oldDescription, newDescription));
 
                 // used only in tests and legacy
                 var handler = DescriptionChanged;

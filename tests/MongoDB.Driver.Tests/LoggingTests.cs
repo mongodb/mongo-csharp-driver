@@ -125,11 +125,11 @@ namespace MongoDB.Driver.Tests
             var commandCategory = LogCategoryHelper.GetCategoryName<LogCategories.Command>();
             var commands = Logs.Where(l => l.Category == commandCategory).ToArray();
 
-            GetCommandParameter(commands, "insert", "Command started", StructuredLogsTemplates.Command)
+            GetCommandParameter(commands, "insert", "Command started", StructuredLogTemplateProviders.Command)
                 .Length.Should().Be(expectedMaxSize);
-            GetCommandParameter(commands, "insert", "Command succeeded", StructuredLogsTemplates.Reply)
+            GetCommandParameter(commands, "insert", "Command succeeded", StructuredLogTemplateProviders.Reply)
                 .Length.Should().BeLessOrEqualTo(expectedMaxSize);
-            GetCommandParameter(commands, "find", "Command succeeded", StructuredLogsTemplates.Reply)
+            GetCommandParameter(commands, "find", "Command succeeded", StructuredLogTemplateProviders.Reply)
                 .Length.Should().Be(expectedMaxSize);
         }
 
@@ -154,11 +154,11 @@ namespace MongoDB.Driver.Tests
             var commandCategory = LogCategoryHelper.GetCategoryName<LogCategories.Command>();
             var commands = Logs.Where(l => l.Category == commandCategory).ToArray();
 
-            GetCommandParameter(commands, "hello", "Command started", StructuredLogsTemplates.Command)
+            GetCommandParameter(commands, "hello", "Command started", StructuredLogTemplateProviders.Command)
                 .Length.Should().Be(maxDocumentSize);
-            GetCommandParameter(commands, "hello", "Command succeeded", StructuredLogsTemplates.Reply)
+            GetCommandParameter(commands, "hello", "Command succeeded", StructuredLogTemplateProviders.Reply)
                 .Length.Should().Be(maxDocumentSize);
-            GetCommandParameter(commands, "notARealCommand", "Command failed", StructuredLogsTemplates.Failure)
+            GetCommandParameter(commands, "notARealCommand", "Command failed", StructuredLogTemplateProviders.Failure)
                 .Length.Should().Be(maxDocumentSize);
         }
 
@@ -184,8 +184,8 @@ namespace MongoDB.Driver.Tests
         private string GetCommandParameter(LogEntry[] commandLogs, string commandName, string message, string parameter)
         {
             var command = commandLogs.Single(c =>
-                c.GetParameter<string>(StructuredLogsTemplates.CommandName) == commandName &&
-                c.GetParameter<string>(StructuredLogsTemplates.Message) == message);
+                c.GetParameter<string>(StructuredLogTemplateProviders.CommandName) == commandName &&
+                c.GetParameter<string>(StructuredLogTemplateProviders.Message) == message);
 
             return command.GetParameter<string>(parameter);
         }

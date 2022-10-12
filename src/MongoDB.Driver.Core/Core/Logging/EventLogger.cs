@@ -19,29 +19,29 @@ using MongoDB.Driver.Core.Events;
 
 namespace MongoDB.Driver.Core.Logging
 {
-    internal sealed class EventsLogger<T> where T : LogCategories.EventCategory
+    internal sealed class EventLogger<T> where T : LogCategories.EventCategory
     {
-        private readonly EventsPublisher _eventsPublisher;
+        private readonly EventPublisher _eventPublisher;
         private readonly ILogger<T> _logger;
-        private readonly EventsLogsFormattingOptions _eventsLogsFormattingOptions;
+        private readonly EventLogFormattingOptions _eventLogFormattingOptions;
 
-        public static EventsLogger<T> Empty { get; } = new EventsLogger<T>(null, null);
+        public static EventLogger<T> Empty { get; } = new EventLogger<T>(null, null);
 
-        public EventsLogger(IEventSubscriber eventSubscriber, ILogger<T> logger, EventsLogsFormattingOptions eventsLogsFormattingOptions = null)
+        public EventLogger(IEventSubscriber eventSubscriber, ILogger<T> logger, EventLogFormattingOptions eventLogFormattingOptions = null)
         {
             _logger = logger;
-            _eventsPublisher = eventSubscriber != null ? new EventsPublisher(eventSubscriber) : null;
-            _eventsLogsFormattingOptions = eventsLogsFormattingOptions ?? new EventsLogsFormattingOptions(0);
+            _eventPublisher = eventSubscriber != null ? new EventPublisher(eventSubscriber) : null;
+            _eventLogFormattingOptions = eventLogFormattingOptions ?? new EventLogFormattingOptions(0);
         }
 
         public ILogger<T> Logger => _logger;
 
         public bool IsEventTracked<TEvent>() where TEvent : struct, IEvent =>
             Logger?.IsEnabled(GetEventVerbosity<TEvent>()) == true ||
-            _eventsPublisher?.IsEventTracked<TEvent>() == true;
+            _eventPublisher?.IsEventTracked<TEvent>() == true;
 
         private LogLevel GetEventVerbosity<TEvent>() where TEvent : struct, IEvent =>
-            StructuredLogsTemplates.GetTemplateProvider(new TEvent().Type).LogLevel;
+            StructuredLogTemplateProviders.GetTemplateProvider(new TEvent().Type).LogLevel;
 
         public void LogAndPublish<TEvent>(TEvent @event, bool skipLogging = false) where TEvent : struct, IEvent
           => LogAndPublish(null, @event, skipLogging);
@@ -50,33 +50,33 @@ namespace MongoDB.Driver.Core.Logging
         {
             if (!skipLogging)
             {
-                var eventTemplateProvider = StructuredLogsTemplates.GetTemplateProvider(@event.Type);
+                var eventTemplateProvider = StructuredLogTemplateProviders.GetTemplateProvider(@event.Type);
 
                 if (_logger?.IsEnabled(eventTemplateProvider.LogLevel) == true)
                 {
-                    var @params = eventTemplateProvider.GetParams(@event, _eventsLogsFormattingOptions);
+                    var @params = eventTemplateProvider.GetParams(@event, _eventLogFormattingOptions);
                     var template = eventTemplateProvider.GetTemplate(@event);
 
                     Log(eventTemplateProvider.LogLevel, template, exception, @params);
                 }
             }
 
-            _eventsPublisher?.Publish(@event);
+            _eventPublisher?.Publish(@event);
         }
 
         public void LogAndPublish<TEvent, TArg>(TEvent @event, TArg arg) where TEvent : struct, IEvent
         {
-            var eventTemplateProvider = StructuredLogsTemplates.GetTemplateProvider(@event.Type);
+            var eventTemplateProvider = StructuredLogTemplateProviders.GetTemplateProvider(@event.Type);
 
             if (_logger?.IsEnabled(eventTemplateProvider.LogLevel) == true)
             {
-                var @params = eventTemplateProvider.GetParams(@event, _eventsLogsFormattingOptions, arg);
+                var @params = eventTemplateProvider.GetParams(@event, _eventLogFormattingOptions, arg);
                 var template = eventTemplateProvider.GetTemplate(@event);
 
                 Log(eventTemplateProvider.LogLevel, template, exception: null, @params);
             }
 
-            _eventsPublisher?.Publish(@event);
+            _eventPublisher?.Publish(@event);
         }
 
         private void Log(LogLevel logLevel, string template, Exception exception, object[] @params)

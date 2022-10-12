@@ -130,7 +130,7 @@ namespace MongoDB.Driver.Core.Helpers
                             endPoint,
                             connectionPoolFactory,
                             serverApi: null,
-                            _loggerFactory.CreateEventsLogger<LogCategories.SDAM>(_eventSubscriber));
+                            _loggerFactory.CreateEventLogger<LogCategories.SDAM>(_eventSubscriber));
                     default:
                         return new DefaultServer(
                             clusterId,
@@ -145,7 +145,7 @@ namespace MongoDB.Driver.Core.Helpers
                             connectionPoolFactory,
                             serverMonitorFactory,
                             serverApi: null,
-                            _loggerFactory.CreateEventsLogger<LogCategories.SDAM>(_eventSubscriber));
+                            _loggerFactory.CreateEventLogger<LogCategories.SDAM>(_eventSubscriber));
                 }
             }
         }

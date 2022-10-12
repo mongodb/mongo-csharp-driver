@@ -22,7 +22,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Core.Events
 {
-    public class EventsPublisherTests
+    public class EventPublisherTests
     {
         [Theory]
         [MemberData(nameof(EventsData))]
@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Core.Events
         {
             var eventCapturer = new EventCapturer();
             eventCapturer.Capture<TEvent>();
-            var eventPublisher = new EventsPublisher(eventCapturer);
+            var eventPublisher = new EventPublisher(eventCapturer);
 
             eventPublisher.Publish(@event);
 
@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Core.Events
         {
             var eventCapturer = new EventCapturer();
             eventCapturer.Capture<CommandStartedEvent>();
-            var eventPublisher = new EventsPublisher(eventCapturer);
+            var eventPublisher = new EventPublisher(eventCapturer);
 
             eventPublisher.Publish(@event);
 
@@ -67,7 +67,7 @@ namespace MongoDB.Driver.Core.Events
             }
 
             var @event = new ClusterAddedServerEvent();
-            var eventPublisher = new EventsPublisher(eventsSubscriber.Object);
+            var eventPublisher = new EventPublisher(eventsSubscriber.Object);
 
             eventPublisher.Publish(@event);
             eventPublisher.Publish(@event);
@@ -92,7 +92,7 @@ namespace MongoDB.Driver.Core.Events
                     .Returns(true);
             }
 
-            var eventPublisher = new EventsPublisher(eventsSubscriber.Object);
+            var eventPublisher = new EventPublisher(eventsSubscriber.Object);
             eventPublisher.IsEventTracked<ClusterAddedServerEvent>().Should().Be(isEventTracked);
         }
 
