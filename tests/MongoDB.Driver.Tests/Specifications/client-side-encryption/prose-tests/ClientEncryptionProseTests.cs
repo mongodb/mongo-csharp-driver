@@ -1734,14 +1734,14 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
             async Task<AzureCredentials> CreateTestCase(Action<HttpRequestMessage> modifyAction)
             {
-                var httpClientHelperWithWrappedRequest = CreateHttpClientWrapperWithWrappedRequest(modifyAction);
-                var azureProvider = new AzureAuthenticationCredentialsProvider(httpClientHelperWithWrappedRequest);
+                var httpClientWrapperWithModifiedRequest = CreateHttpClientWrapperWithModifiedRequest(modifyAction);
+                var azureProvider = new AzureAuthenticationCredentialsProvider(httpClientWrapperWithModifiedRequest);
                 return async
                     ? await azureProvider.CreateCredentialsFromExternalSourceAsync(default)
                     : azureProvider.CreateCredentialsFromExternalSource(default);
             }
 
-            HttpClientWrapperWithWrappedRequest CreateHttpClientWrapperWithWrappedRequest(Action<HttpRequestMessage> modifyAction)
+            HttpClientWrapperWithModifiedRequest CreateHttpClientWrapperWithModifiedRequest(Action<HttpRequestMessage> modifyAction)
             {
                 var imdsMockEndpoint = Environment.GetEnvironmentVariable("AZURE_IMDS_MOCK_ENDPOINT") ?? throw new Exception("AZURE_IMDS_MOCK_ENDPOINT must be configured.");
                 var httpClientHelper = ExternalCredentialsAuthenticators.Instance.HttpClientWrapper;
@@ -1756,7 +1756,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                         uriBuilder.Port = mockUri.Port;
                         httpRequestMessage.RequestUri = uriBuilder.Uri;
                     };
-                return new HttpClientWrapperWithWrappedRequest(httpClientHelper, withReplacedEndpoint);
+                return new HttpClientWrapperWithModifiedRequest(httpClientHelper, withReplacedEndpoint);
             }
         }
 
@@ -2536,12 +2536,12 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             }
         }
 
-        private class HttpClientWrapperWithWrappedRequest : IHttpClientWrapper
+        private class HttpClientWrapperWithModifiedRequest : IHttpClientWrapper
         {
             private readonly IHttpClientWrapper _httpClientWrapper;
             private readonly Action<HttpRequestMessage> _modifyAction;
 
-            public HttpClientWrapperWithWrappedRequest(
+            public HttpClientWrapperWithModifiedRequest(
                 IHttpClientWrapper httpClientWrapper,
                 Action<HttpRequestMessage> modifyAction)
             {
