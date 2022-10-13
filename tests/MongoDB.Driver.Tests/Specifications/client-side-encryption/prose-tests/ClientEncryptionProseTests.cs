@@ -1745,17 +1745,16 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             {
                 var imdsMockEndpoint = Environment.GetEnvironmentVariable("AZURE_IMDS_MOCK_ENDPOINT") ?? throw new Exception("AZURE_IMDS_MOCK_ENDPOINT must be configured.");
                 var httpClientHelper = ExternalCredentialsAuthenticators.Instance.HttpClientWrapper;
-                Action<HttpRequestMessage> withReplacedEndpoint =
-                    (httpRequestMessage) =>
-                    {
-                        modifyAction(httpRequestMessage);
-                        var uriBuilder = new UriBuilder(httpRequestMessage.RequestUri);
-                        var mockUri = new Uri($"http://{imdsMockEndpoint}");
-                        uriBuilder.Scheme = mockUri.Scheme;
-                        uriBuilder.Host = mockUri.Host;
-                        uriBuilder.Port = mockUri.Port;
-                        httpRequestMessage.RequestUri = uriBuilder.Uri;
-                    };
+                var withReplacedEndpoint = (HttpRequestMessage httpRequestMessage) =>
+                {
+                    modifyAction(httpRequestMessage);
+                    var uriBuilder = new UriBuilder(httpRequestMessage.RequestUri);
+                    var mockUri = new Uri($"http://{imdsMockEndpoint}");
+                    uriBuilder.Scheme = mockUri.Scheme;
+                    uriBuilder.Host = mockUri.Host;
+                    uriBuilder.Port = mockUri.Port;
+                    httpRequestMessage.RequestUri = uriBuilder.Uri;
+                };
                 return new HttpClientWrapperWithModifiedRequest(httpClientHelper, withReplacedEndpoint);
             }
         }
