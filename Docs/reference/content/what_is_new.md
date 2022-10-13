@@ -8,6 +8,16 @@ title = "What's New"
   pre = "<i class='fa fa-star'></i>"
 +++
 
+## What's New in 2.18.0
+
+The main new features in 2.18.0 include:
+
+* Snappy compression now uses a managed implementation
+* ZStandard compression now uses a managed implementation
+* Cache AWS credentials when possible
+* New cross driver standard logging support
+* Support for $documents aggregation pipeline stage
+
 ## What's New in 2.17.0
 
 The main new features in 2.17.0 include:
