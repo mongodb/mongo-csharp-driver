@@ -15,6 +15,7 @@
 
 using System;
 using FluentAssertions;
+using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
@@ -32,7 +33,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Misc
 
             var isOverlaped = WireVersion.SupportedWireVersionRange.Overlaps(new Range<int>(serverMaxWireVersion, serverMaxWireVersion));
 
-            isOverlaped.Should().BeTrue();
+            isOverlaped.Should().BeTrue($"Server MaxWireVersion: {serverMaxWireVersion} is not in supported range for the driver: {Cluster.SupportedWireVersionRange}");
         }
 
         [Theory]
@@ -46,7 +47,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Misc
         [Fact]
         public void SupportedWireRange_should_be_correct()
         {
-            WireVersion.SupportedWireVersionRange.Should().Be(new Range<int>(6, 17));
+            WireVersion.SupportedWireVersionRange.Should().Be(new Range<int>(6, 18));
         }
 
         [Fact]
