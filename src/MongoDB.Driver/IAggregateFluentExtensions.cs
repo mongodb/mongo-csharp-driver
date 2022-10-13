@@ -162,6 +162,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Appends a $documents stage to the pipeline.
         /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
         /// <param name="aggregate">The aggregate.</param>
         /// <param name="documents">The documents.</param>
         /// <param name="documentSerializer">The document serializer.</param>
@@ -178,6 +179,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Appends a $documents stage to the pipeline.
         /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
         /// <param name="aggregate">The aggregate.</param>
         /// <param name="documents">The documents.</param>
         /// <param name="documentSerializer">The document serializer.</param>
