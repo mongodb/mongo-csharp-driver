@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Core.Authentication.External
         public AzureCredentials(string accessToken, DateTime? expiration)
         {
             _accessToken = Ensure.IsNotNull(accessToken, nameof(accessToken));
-            _expiration = Ensure.HasValue(expiration, nameof(expiration));
+            _expiration = expiration; // can be null
         }
 
         public string AccessToken => _accessToken;
@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Core.Authentication.External
         public BsonDocument GetKmsCredentials() => new BsonDocument("accessToken", _accessToken);
     }
 
-    internal class AzureHttpRequestMessageFactory : IExternalCredentialsHttpRequestMessageFactory
+    internal sealed class AzureHttpRequestMessageFactory : IExternalCredentialsHttpRequestMessageFactory
     {
         private static readonly Uri __IMDSRequestUri = new Uri(
             baseUri: new Uri("http://169.254.169.254"),
@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Core.Authentication.External
         }
     }
 
-    internal class AzureAuthenticationCredentialsProvider : IExternalAuthenticationCredentialsProvider<AzureCredentials>
+    internal sealed class AzureAuthenticationCredentialsProvider : IExternalAuthenticationCredentialsProvider<AzureCredentials>
     {
         private readonly IExternalCredentialsHttpRequestMessageFactory _azureCredentialsHttpRequestMessageFactory;
         private readonly HttpClientHelper _httpClientHelper;
@@ -102,7 +102,7 @@ namespace MongoDB.Driver.Core.Authentication.External
                 throw new InvalidOperationException("Azure IMDS response must contain access_token.");
             }
             var expiresIn = parsedResponse.GetValue("expires_in", null)?.AsString;
-            if (expiresIn == null || !int.TryParse(expiresIn, out var expiresInSeconds))
+            if (!int.TryParse(expiresIn, out var expiresInSeconds))
             {
                 var messageDetails = expiresIn?.ToString() ?? "null";
                 throw new InvalidOperationException($"Azure IMDS response must contain 'expires_in' integer, but was {messageDetails}.");

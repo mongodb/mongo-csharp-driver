@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Core.Authentication.External
             };
     }
 
-    internal class AwsAuthenticationCredentialsProvider : IExternalAuthenticationCredentialsProvider<AwsCredentials>
+    internal sealed class AwsAuthenticationCredentialsProvider : IExternalAuthenticationCredentialsProvider<AwsCredentials>
     {
         private readonly AwsHttpClientHelper _awsHttpClientHelper;
         private readonly HttpClientHelper _httpClientHelper;

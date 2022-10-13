@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Core.Authentication.External
         public BsonDocument GetKmsCredentials() => new BsonDocument("accessToken", _accessToken);
     }
 
-    internal class GcpAuthenticationCredentialsProvider : IExternalAuthenticationCredentialsProvider<GcpCredentials>
+    internal sealed class GcpAuthenticationCredentialsProvider : IExternalAuthenticationCredentialsProvider<GcpCredentials>
     {
         private readonly GcpHttpClientHelper _gcpHttpClientHelper;
         private readonly HttpClientHelper _httpClientHelper;

@@ -21,7 +21,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Authentication.External
 {
-    internal class HttpClientHelper
+    internal sealed class HttpClientHelper
     {
         #region static
         public static HttpClient CreateHttpClient() => new HttpClient() { Timeout = TimeSpan.FromSeconds(10) };
