@@ -43,50 +43,19 @@ namespace MongoDB.Driver.Core.Authentication.External
         public BsonDocument GetKmsCredentials() => new BsonDocument("accessToken", _accessToken);
     }
 
-    internal sealed class AzureHttpRequestMessageFactory : IExternalCredentialsHttpRequestMessageFactory
-    {
-        private static readonly Uri __IMDSRequestUri = new Uri(
-            baseUri: new Uri("http://169.254.169.254"),
-            relativeUri: "metadata/identity/oauth2/token?api-version=2018-02-01&resource=https://vault.azure.net");
-
-        public HttpRequestMessage CreateRequest()
-        {
-            var credentialsRequest = new HttpRequestMessage
-            {
-                RequestUri = __IMDSRequestUri,
-                Method = HttpMethod.Get
-            };
-            credentialsRequest.Headers.Add("Metadata", "true");
-            credentialsRequest.Headers.Add("Accept", "application/json");
-
-            return credentialsRequest;
-        }
-    }
-
     internal sealed class AzureAuthenticationCredentialsProvider : IExternalAuthenticationCredentialsProvider<AzureCredentials>
     {
-        private readonly IExternalCredentialsHttpRequestMessageFactory _azureCredentialsHttpRequestMessageFactory;
-        private readonly HttpClientHelper _httpClientHelper;
+        private readonly AzureHttpClientHelper _azureHttpClientHelper;
 
-        public AzureAuthenticationCredentialsProvider(HttpClientHelper httpClientHelper)
-            : this(httpClientHelper, new AzureHttpRequestMessageFactory())
-        {
-        }
-
-        public AzureAuthenticationCredentialsProvider(HttpClientHelper httpClientHelper, IExternalCredentialsHttpRequestMessageFactory azureCredentialsHttpRequestMessageFactory)
-        {
-            _azureCredentialsHttpRequestMessageFactory = Ensure.IsNotNull(azureCredentialsHttpRequestMessageFactory, nameof(azureCredentialsHttpRequestMessageFactory));
-            _httpClientHelper = Ensure.IsNotNull(httpClientHelper, nameof(httpClientHelper));
-        }
+        public AzureAuthenticationCredentialsProvider(IHttpClientWrapper httpClientWrapper) => _azureHttpClientHelper = new AzureHttpClientHelper(httpClientWrapper);
 
         public AzureCredentials CreateCredentialsFromExternalSource(CancellationToken cancellationToken) =>
             CreateCredentialsFromExternalSourceAsync(cancellationToken).GetAwaiter().GetResult();
 
         public async Task<AzureCredentials> CreateCredentialsFromExternalSourceAsync(CancellationToken cancellationToken)
         {
-            var request = _azureCredentialsHttpRequestMessageFactory.CreateRequest();
             var startTime = DateTime.UtcNow;
-            var response = await _httpClientHelper.GetHttpContentAsync(request, "Failed to acquire IMDS access token.", cancellationToken).ConfigureAwait(false);
+            var response = await _azureHttpClientHelper.GetIMDSesponseAsync(cancellationToken).ConfigureAwait(false);
             return CreateAzureCredentialsFromAzureIMDSResponse(response, startTime);
         }
 
@@ -110,6 +79,33 @@ namespace MongoDB.Driver.Core.Authentication.External
             var expirationDateTime = startTime.AddSeconds(expiresInSeconds);
 
             return new AzureCredentials(accessToken, expirationDateTime);
+        }
+
+        // nested types
+        private class AzureHttpClientHelper
+        {
+            #region static
+            private static readonly Uri __IMDSRequestUri = new Uri(
+                baseUri: new Uri("http://169.254.169.254"),
+                relativeUri: "metadata/identity/oauth2/token?api-version=2018-02-01&resource=https://vault.azure.net");
+            #endregion
+
+            private readonly IHttpClientWrapper _httpClientWrapper;
+
+            public AzureHttpClientHelper(IHttpClientWrapper httpClientWrapper) => _httpClientWrapper = Ensure.IsNotNull(httpClientWrapper, nameof(httpClientWrapper));
+
+            public async Task<string> GetIMDSesponseAsync(CancellationToken cancellationToken)
+            {
+                var credentialsRequest = new HttpRequestMessage
+                {
+                    RequestUri = __IMDSRequestUri,
+                    Method = HttpMethod.Get
+                };
+                credentialsRequest.Headers.Add("Metadata", "true");
+                credentialsRequest.Headers.Add("Accept", "application/json");
+
+                return await _httpClientWrapper.GetHttpContentAsync(credentialsRequest, "Failed to acquire IMDS access token.", cancellationToken).ConfigureAwait(false);
+            }
         }
     }
 }

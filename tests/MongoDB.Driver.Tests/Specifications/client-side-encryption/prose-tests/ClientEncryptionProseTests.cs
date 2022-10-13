@@ -1734,17 +1734,17 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
             async Task<AzureCredentials> CreateTestCase(Action<HttpRequestMessage> modifyAction)
             {
-                var createHttpRequestMessageFactory = CreateHttpRequestMessageFactory(modifyAction);
-                var azureProvider = new AzureAuthenticationCredentialsProvider(ExternalCredentialsAuthenticators.Instance.HttpClientHelper, createHttpRequestMessageFactory);
+                var httpClientHelperWithWrappedRequest = CreateHttpClientWrapperWithWrappedRequest(modifyAction);
+                var azureProvider = new AzureAuthenticationCredentialsProvider(httpClientHelperWithWrappedRequest);
                 return async
                     ? await azureProvider.CreateCredentialsFromExternalSourceAsync(default)
                     : azureProvider.CreateCredentialsFromExternalSource(default);
             }
 
-            IExternalCredentialsHttpRequestMessageFactory CreateHttpRequestMessageFactory(Action<HttpRequestMessage> modifyAction)
+            HttpClientWrapperWithWrappedRequest CreateHttpClientWrapperWithWrappedRequest(Action<HttpRequestMessage> modifyAction)
             {
                 var imdsMockEndpoint = Environment.GetEnvironmentVariable("AZURE_IMDS_MOCK_ENDPOINT") ?? throw new Exception("AZURE_IMDS_MOCK_ENDPOINT must be configured.");
-                var defaultAzureFactory = new AzureHttpRequestMessageFactory();
+                var httpClientHelper = ExternalCredentialsAuthenticators.Instance.HttpClientWrapper;
                 Action<HttpRequestMessage> withReplacedEndpoint =
                     (httpRequestMessage) =>
                     {
@@ -1756,7 +1756,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                         uriBuilder.Port = mockUri.Port;
                         httpRequestMessage.RequestUri = uriBuilder.Uri;
                     };
-                return new ExternalCredentialsHttpRequestMessageWrapperFactory(defaultAzureFactory, withReplacedEndpoint);
+                return new HttpClientWrapperWithWrappedRequest(httpClientHelper, withReplacedEndpoint);
             }
         }
 
@@ -2536,24 +2536,23 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             }
         }
 
-        private class ExternalCredentialsHttpRequestMessageWrapperFactory : IExternalCredentialsHttpRequestMessageFactory
+        private class HttpClientWrapperWithWrappedRequest : IHttpClientWrapper
         {
-            private readonly IExternalCredentialsHttpRequestMessageFactory _externalCredentialsHttpRequestMessageFactory;
+            private readonly IHttpClientWrapper _httpClientWrapper;
             private readonly Action<HttpRequestMessage> _modifyAction;
 
-            public ExternalCredentialsHttpRequestMessageWrapperFactory(
-                IExternalCredentialsHttpRequestMessageFactory externalCredentialsHttpRequestMessageFactory,
+            public HttpClientWrapperWithWrappedRequest(
+                IHttpClientWrapper httpClientWrapper,
                 Action<HttpRequestMessage> modifyAction)
             {
-                _externalCredentialsHttpRequestMessageFactory = Ensure.IsNotNull(externalCredentialsHttpRequestMessageFactory, nameof(externalCredentialsHttpRequestMessageFactory));
+                _httpClientWrapper = Ensure.IsNotNull(httpClientWrapper, nameof(httpClientWrapper));
                 _modifyAction = Ensure.IsNotNull(modifyAction, nameof(modifyAction));
             }
 
-            public HttpRequestMessage CreateRequest()
+            public Task<string> GetHttpContentAsync(HttpRequestMessage request, string exceptionMessage, CancellationToken cancellationToken)
             {
-                var message = _externalCredentialsHttpRequestMessageFactory.CreateRequest();
-                _modifyAction(message);
-                return message;
+                _modifyAction(request);
+                return _httpClientWrapper.GetHttpContentAsync(request, exceptionMessage, cancellationToken);
             }
         }
     }

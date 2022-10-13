@@ -21,7 +21,12 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Authentication.External
 {
-    internal sealed class HttpClientHelper
+    internal interface IHttpClientWrapper
+    {
+        Task<string> GetHttpContentAsync(HttpRequestMessage request, string exceptionMessage, CancellationToken cancellationToken);
+    }
+
+    internal sealed class HttpClientWrapper : IHttpClientWrapper
     {
         #region static
         public static HttpClient CreateHttpClient() => new HttpClient() { Timeout = TimeSpan.FromSeconds(10) };
@@ -29,10 +34,10 @@ namespace MongoDB.Driver.Core.Authentication.External
 
         private readonly HttpClient _httpClient;
 
-        public HttpClientHelper() : this(CreateHttpClient())
+        public HttpClientWrapper() : this(CreateHttpClient())
         { }
 
-        internal HttpClientHelper(HttpClient httpClient)
+        internal HttpClientWrapper(HttpClient httpClient)
         {
             _httpClient = Ensure.IsNotNull(httpClient, nameof(httpClient));
         }
