@@ -197,6 +197,7 @@ Task("TestAwsAuthentication")
                     NoBuild = true,
                     NoRestore = true,
                     Configuration = configuration,
+                    Loggers = CreateLoggers(),
                     ArgumentCustomization = args => args.Append($"-- RunConfiguration.TargetPlatform={buildConfig.TargetPlatform}"),
                     Framework = buildConfig.Framework,
                     Filter = "Category=\"AwsMechanism\""
