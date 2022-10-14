@@ -328,8 +328,8 @@ namespace MongoDB.Driver.Core.Clusters
         [Theory]
         [InlineData(0, 0, false)]
         [InlineData(0, 0, true)]
-        [InlineData(18, 19, false)]
-        [InlineData(18, 19, true)]
+        [InlineData(19, 20, false)]
+        [InlineData(19, 20, true)]
         public void SelectServer_should_throw_if_any_servers_are_incompatible(int min, int max, bool async)
         {
             var subject = CreateSubject();
