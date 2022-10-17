@@ -1,6 +1,6 @@
 {
   "description": "pre-42-server-connection-id",
-  "schemaVersion": "1.12",
+  "schemaVersion": "1.13",
   "runOnRequirements": [
     {
       "maxServerVersion": "4.0.99"
