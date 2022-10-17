@@ -1,6 +1,6 @@
 {
   "description": "driver-connection-id",
-  "schemaVersion": "1.12",
+  "schemaVersion": "1.13",
   "createEntities": [
     {
       "client": {
@@ -65,7 +65,6 @@
                 "commandName": "ping",
                 "driverConnectionId": {
                   "$$type": [
-                    "double",
                     "int",
                     "long"
                   ]
@@ -80,7 +79,6 @@
                 "commandName": "ping",
                 "driverConnectionId": {
                   "$$type": [
-                    "double",
                     "int",
                     "long"
                   ]

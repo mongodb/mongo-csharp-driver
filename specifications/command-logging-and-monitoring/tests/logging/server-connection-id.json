@@ -1,6 +1,6 @@
 {
   "description": "server-connection-id",
-  "schemaVersion": "1.12",
+  "schemaVersion": "1.13",
   "runOnRequirements": [
     {
       "minServerVersion": "4.2"
