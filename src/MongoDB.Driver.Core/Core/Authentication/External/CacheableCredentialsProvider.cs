@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Core.Authentication.External
         void Clear();
     }
 
-    internal class CacheableCredentialsProvider<TCredentials> : IExternalAuthenticationCredentialsProvider<TCredentials>, ICredentialsCache<TCredentials>
+    internal sealed class CacheableCredentialsProvider<TCredentials> : IExternalAuthenticationCredentialsProvider<TCredentials>, ICredentialsCache<TCredentials>
         where TCredentials : IExternalCredentials
     {
         private TCredentials _cachedCredentials;

@@ -24,7 +24,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
-using MongoDB.Driver.Core.Authentication;
 using MongoDB.Driver.Core.Authentication.External;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
@@ -271,6 +270,7 @@ namespace MongoDB.Driver.Encryption
                 IExternalCredentials credentialsBody = kmsProvider.Key switch
                 {
                     "aws"  => await ExternalCredentialsAuthenticators.Instance.Aws.CreateCredentialsFromExternalSourceAsync(cancellationToken).ConfigureAwait(false),
+                    "azure" => await ExternalCredentialsAuthenticators.Instance.Azure.CreateCredentialsFromExternalSourceAsync(cancellationToken).ConfigureAwait(false),
                     "gcp" => await ExternalCredentialsAuthenticators.Instance.Gcp.CreateCredentialsFromExternalSourceAsync(cancellationToken).ConfigureAwait(false),
                     _ => null,
                 };

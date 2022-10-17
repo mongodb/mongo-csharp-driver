@@ -26,11 +26,11 @@ using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Microsoft.Diagnostics.Runtime;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
+using MongoDB.Driver.Core.Authentication.External;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
@@ -1669,7 +1669,96 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                     default: throw new Exception($"Unexpected kms provider: {kmsProvider}.");
                 }
             }
-        }  
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public async Task OnDemandAzureIMDSCredentialsUnitTest(
+            [Range(1, 6)] int testCase,
+            [Values(false, true)] bool async)
+        {
+            RequireEnvironment
+                .Check()
+                .EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED")
+                .EnvironmentVariable("AZURE_IMDS_MOCK_ENDPOINT");
+
+            switch (testCase)
+            {
+                case 1: // Case 1: Success
+                    {
+                        var result = await CreateTestCase(request => { });
+                        result.AccessToken.Should().Be("magic-cookie");
+                        // < 70 && >= 60 seconds
+                        result.Expiration.Should().BeCloseTo(DateTime.UtcNow + TimeSpan.FromSeconds(65), (int)TimeSpan.FromSeconds(5).TotalMilliseconds);
+                    }
+                    break;
+                case 2: // Case 2: Empty JSON
+                    {
+                        var exception = await Record.ExceptionAsync(() => CreateTestCase((request) => request.Headers.Add("X-MongoDB-HTTP-TestParams", "case=empty-json")));
+                        exception.Should().BeOfType<InvalidOperationException>().Which.Message.Should().Be("Azure IMDS response must contain access_token.");
+                    }
+                    break;
+                case 3: // Case 3: Bad JSON
+                    {
+                        var exception = await Record.ExceptionAsync(() => CreateTestCase((request) => request.Headers.Add("X-MongoDB-HTTP-TestParams", "case=bad-json")));
+                        exception.Should().BeOfType<InvalidOperationException>().Which.Message.Should().Be("Azure IMDS response must be in Json format.");
+                    }
+                    break;
+                case 4: // Case 4: HTTP 404
+                    {
+                        var exception = await Record.ExceptionAsync(() => CreateTestCase((request) => request.Headers.Add("X-MongoDB-HTTP-TestParams", "case=404")));
+                        exception
+                            .Should().BeOfType<MongoClientException>().Which.InnerException
+                            .Should().BeOfType<HttpRequestException>().Which.Message
+                            .Should().Be("Response status code does not indicate success: 404 (Not Found).");
+                    }
+                    break;
+                case 5: // Case 5: HTTP 500
+                    {
+                        var exception = await Record.ExceptionAsync(() => CreateTestCase((request) => request.Headers.Add("X-MongoDB-HTTP-TestParams", "case=500")));
+                        exception
+                            .Should().BeOfType<MongoClientException>().Which.InnerException
+                            .Should().BeOfType<HttpRequestException>().Which.Message
+                            .Should().Be("Response status code does not indicate success: 500 (Internal Server Error).");
+                    }
+                    break;
+                case 6: // Case 6: Slow Response
+                    {
+                        var exception = await Record.ExceptionAsync(() => CreateTestCase((request) => request.Headers.Add("X-MongoDB-HTTP-TestParams", "case=slow")));
+                        exception
+                            .Should().BeOfType<MongoClientException>().Which.InnerException
+                            .Should().BeAssignableTo<OperationCanceledException>();
+                    }
+                    break;
+                default: throw new Exception($"Unexpected test case: {testCase}.");
+            }
+
+            async Task<AzureCredentials> CreateTestCase(Action<HttpRequestMessage> modifyAction)
+            {
+                var httpClientWrapperWithModifiedRequest = CreateHttpClientWrapperWithModifiedRequest(modifyAction);
+                var azureProvider = new AzureAuthenticationCredentialsProvider(httpClientWrapperWithModifiedRequest);
+                return async
+                    ? await azureProvider.CreateCredentialsFromExternalSourceAsync(default)
+                    : azureProvider.CreateCredentialsFromExternalSource(default);
+            }
+
+            HttpClientWrapperWithModifiedRequest CreateHttpClientWrapperWithModifiedRequest(Action<HttpRequestMessage> modifyAction)
+            {
+                var imdsMockEndpoint = Environment.GetEnvironmentVariable("AZURE_IMDS_MOCK_ENDPOINT") ?? throw new Exception("AZURE_IMDS_MOCK_ENDPOINT must be configured.");
+                var httpClientHelper = ExternalCredentialsAuthenticators.Instance.HttpClientWrapper;
+                var withReplacedEndpoint = (HttpRequestMessage httpRequestMessage) =>
+                {
+                    modifyAction(httpRequestMessage);
+                    var uriBuilder = new UriBuilder(httpRequestMessage.RequestUri);
+                    var mockUri = new Uri($"http://{imdsMockEndpoint}");
+                    uriBuilder.Scheme = mockUri.Scheme;
+                    uriBuilder.Host = mockUri.Host;
+                    uriBuilder.Port = mockUri.Port;
+                    httpRequestMessage.RequestUri = uriBuilder.Uri;
+                };
+                return new HttpClientWrapperWithModifiedRequest(httpClientHelper, withReplacedEndpoint);
+            }
+        }
 
         public void RewrapTest(
             [Values("local", "aws", "azure", "gcp", "kmip")] string srcProvider,
@@ -2444,6 +2533,26 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 {
                     document.RemoveElement(ignored);
                 }
+            }
+        }
+
+        private class HttpClientWrapperWithModifiedRequest : IHttpClientWrapper
+        {
+            private readonly IHttpClientWrapper _httpClientWrapper;
+            private readonly Action<HttpRequestMessage> _modifyAction;
+
+            public HttpClientWrapperWithModifiedRequest(
+                IHttpClientWrapper httpClientWrapper,
+                Action<HttpRequestMessage> modifyAction)
+            {
+                _httpClientWrapper = Ensure.IsNotNull(httpClientWrapper, nameof(httpClientWrapper));
+                _modifyAction = Ensure.IsNotNull(modifyAction, nameof(modifyAction));
+            }
+
+            public Task<string> GetHttpContentAsync(HttpRequestMessage request, string exceptionMessage, CancellationToken cancellationToken)
+            {
+                _modifyAction(request);
+                return _httpClientWrapper.GetHttpContentAsync(request, exceptionMessage, cancellationToken);
             }
         }
     }

@@ -22,7 +22,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Authentication.External
 {
-    internal class GcpCredentials : IExternalCredentials
+    internal sealed class GcpCredentials : IExternalCredentials
     {
         private readonly string _accessToken;
 
@@ -37,16 +37,11 @@ namespace MongoDB.Driver.Core.Authentication.External
         public BsonDocument GetKmsCredentials() => new BsonDocument("accessToken", _accessToken);
     }
 
-    internal class GcpAuthenticationCredentialsProvider : IExternalAuthenticationCredentialsProvider<GcpCredentials>
+    internal sealed class GcpAuthenticationCredentialsProvider : IExternalAuthenticationCredentialsProvider<GcpCredentials>
     {
         private readonly GcpHttpClientHelper _gcpHttpClientHelper;
-        private readonly HttpClientHelper _httpClientHelper;
 
-        public GcpAuthenticationCredentialsProvider(HttpClientHelper httpClientHelper)
-        {
-            _httpClientHelper = Ensure.IsNotNull(httpClientHelper, nameof(httpClientHelper));
-            _gcpHttpClientHelper = new GcpHttpClientHelper(_httpClientHelper);
-        }
+        public GcpAuthenticationCredentialsProvider(IHttpClientWrapper httpClientWrapper) => _gcpHttpClientHelper = new GcpHttpClientHelper(httpClientWrapper);
 
         public GcpCredentials CreateCredentialsFromExternalSource(CancellationToken cancellationToken) =>
             CreateCredentialsFromExternalSourceAsync(cancellationToken).GetAwaiter().GetResult();
@@ -62,9 +57,9 @@ namespace MongoDB.Driver.Core.Authentication.External
         {
             // private static
             private static readonly string __defaultGceMetadataHost = "metadata.google.internal";
-            private readonly HttpClientHelper _httpClientHelper;
+            private readonly IHttpClientWrapper _httpClientWrapper;
 
-            public GcpHttpClientHelper(HttpClientHelper httpClientHelper) => _httpClientHelper = httpClientHelper;
+            public GcpHttpClientHelper(IHttpClientWrapper httpClientWrapper) => _httpClientWrapper = Ensure.IsNotNull(httpClientWrapper, nameof(httpClientWrapper));
 
             public async Task<string> GetAccessTokenAsync(CancellationToken cancellationToken)
             {
@@ -77,7 +72,7 @@ namespace MongoDB.Driver.Core.Authentication.External
                 };
                 tokenRequest.Headers.Add("Metadata-Flavor", "Google");
 
-                var response = await _httpClientHelper.GetHttpContentAsync(tokenRequest, "Failed to acquire gce metadata credentials.", cancellationToken).ConfigureAwait(false);
+                var response = await _httpClientWrapper.GetHttpContentAsync(tokenRequest, "Failed to acquire gce metadata credentials.", cancellationToken).ConfigureAwait(false);
                 if (string.IsNullOrEmpty(response))
                 {
                     throw new MongoClientException($"The metadata host response is empty.");
