@@ -1532,22 +1532,23 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             }
         }
 
+        [Trait("Category", "CsfleAZUREKMS")]
         [Trait("Category", "CsfleGCPKMS")]
         [SkippableTheory]
         [ParameterAttributeData]
         public void OnDemandCredentialsTest(
-            [Values("aws", "gcp")] string kmsProvider,
+            [Values("aws", "azure", "gcp")] string kmsProvider,
             [Values(false, true)] bool expectedEnvironment,
             [Values(false, true)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
 
-            ValidateEnvironment();
+            EnsureEnvironmentConfigured(out var masterKey);
 
             using (var client = ConfigureClient(clearCollections: true))
             using (var clientEncryption = ConfigureClientEncryption(client, kmsDocument: new BsonDocument(kmsProvider, new BsonDocument())))
             {
-                var datakeyOptions = CreateDataKeyOptions(kmsProvider);
+                var datakeyOptions = CreateDataKeyOptions(kmsProvider, customMasterKey: masterKey);
                 var ex = Record.Exception(() => CreateDataKey(clientEncryption, kmsProvider, datakeyOptions, async));
                 if (expectedEnvironment)
                 {
@@ -1612,6 +1613,32 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
                             }
                             break;
+                        case "azure":
+                            {
+                                switch (currentOperatingSystem)
+                                {
+                                    case OperatingSystemPlatform.Windows:
+                                    case OperatingSystemPlatform.Linux:
+                                        {
+                                            AssertInnerEncryptionException<HttpRequestException>(ex, "Failed to acquire IMDS access token.");
+                                        }
+                                        break;
+                                    case OperatingSystemPlatform.MacOS:
+                                        {
+                                            try
+                                            {
+                                                AssertInnerEncryptionException<TaskCanceledException>(ex, "Failed to acquire IMDS access token.");
+                                            }
+                                            catch (XunitException)
+                                            {
+                                                AssertInnerEncryptionException<HttpRequestException>(ex, "Failed to acquire IMDS access token.");
+                                            }
+                                        }
+                                        break;
+                                    default: throw new Exception($"Unexpected OS: {currentOperatingSystem}");
+                                }
+                            }
+                            break;
                         case "gcp":
                             AssertInnerEncryptionException<HttpRequestException>(ex, "Failed to acquire gce metadata credentials.");
                             break;
@@ -1620,8 +1647,9 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 }
             }
 
-            void ValidateEnvironment()
+            void EnsureEnvironmentConfigured(out BsonDocument customMasterKey)
             {
+                customMasterKey = null;
                 var requireEnvironmentCheck = RequireEnvironment.Check();
                 switch (kmsProvider)
                 {
@@ -1630,7 +1658,32 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                         // mocked env doesn't configure aws_temp credentials with AWS_ACCESS_KEY_ID
                         requireEnvironmentCheck.EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: !expectedEnvironment);
                         break;
-                    case "gcp":                        
+                    case "azure":
+                        {
+                            if (Environment.GetEnvironmentVariable("CSFLE_AZURE_KMS_TESTS_ENABLED") != null)
+                            {
+                                // azure env
+                                if (!expectedEnvironment)
+                                {
+                                    throw new SkipException("Test skipped, because current env should not be Azure.");
+                                }
+                            }
+                            else
+                            {
+                                // It can work everywhere, but limit running these tests here since a single test run can take up to 10 seconds
+                                requireEnvironmentCheck
+                                    .EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true)
+                                    .EnvironmentVariable("CSFLE_AZURE_KMS_TESTS_ENABLED", isDefined: expectedEnvironment);
+                            }
+
+                            customMasterKey = new BsonDocument
+                            {
+                                { "keyVaultEndpoint", "https://keyvault-drivers-2411.vault.azure.net/keys/" },
+                                { "keyName", "KEY-NAME" }
+                            };
+                        }
+                        break;
+                    case "gcp":
                         if (Environment.GetEnvironmentVariable("CSFLE_GCP_KMS_TESTS_ENABLED") != null)
                         {
                             // gcp env
@@ -1970,7 +2023,14 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 }
             }
 
-            e.Should().BeOfType(exType);
+            if (e is OperationCanceledException or TaskCanceledException)
+            {
+                e.Should().BeAssignableTo<OperationCanceledException>();
+            }
+            else
+            {
+                e.Should().BeOfType(exType);
+            }
             return e;
         }
 
@@ -2460,7 +2520,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
         public class JsonFileReader : EmbeddedResourceJsonFileReader
         {
-#region static
+            #region static
             // private static fields
             private static readonly string[] __ignoreKeyNames =
             {
@@ -2470,7 +2530,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
             // public static properties
             public static JsonFileReader Instance => __instance.Value;
-#endregion
+            #endregion
 
             private readonly IReadOnlyDictionary<string, BsonDocument> _documents;
 

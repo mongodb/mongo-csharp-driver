@@ -461,6 +461,29 @@ Task("TestCsfleWithMongocryptdNetStandard20").IsDependentOn("TestCsfleWithMongoc
 Task("TestCsfleWithMongocryptdNetStandard21").IsDependentOn("TestCsfleWithMongocryptd");
 Task("TestCsfleWithMongocryptdNet60").IsDependentOn("TestCsfleWithMongocryptd");
 
+Task("TestCsfleWithAzureKms")
+    .IsDependentOn("Build")
+    .DoesForEach(
+        items: GetFiles("./**/*.Tests.csproj"),
+        action: (BuildConfig buildConfig, Path testProject) =>
+    {
+        var settings = new DotNetTestSettings
+        {
+            NoBuild = true,
+            NoRestore = true,
+            Configuration = configuration,
+            Loggers = CreateLoggers(),
+            ArgumentCustomization = args => args.Append($"-- RunConfiguration.TargetPlatform={buildConfig.TargetPlatform}"),
+            Filter = "Category=\"CsfleAZUREKMS\"",
+            Framework = buildConfig.Framework
+        };
+
+        DotNetTest(
+            testProject.FullPath,
+            settings
+        );
+    });
+
 Task("TestCsfleWithGcpKms")
     .IsDependentOn("Build")
     .DoesForEach(
