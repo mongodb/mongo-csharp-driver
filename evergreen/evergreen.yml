@@ -1567,12 +1567,6 @@ axes:
         variables:
           OS: "ubuntu-1804"
         run_on: ubuntu1804-test
-      # do not use this os if ubuntu is an option  
-      - id: "debian11"
-        display_name: "debian 11"
-        variables:
-          OS: "debian-11"
-        run_on: debian11-small
       - id: "macos-1100"
         display_name: "macOS 11.00"
         variables:
@@ -1974,7 +1968,7 @@ buildvariants:
     - name: test-csfle-with-mongocryptd-netstandard21
 
 - matrix_name: "csfle-with-azure-kms-tests-linux"
-  matrix_spec: { ssl: "nossl", os: "debian11" }
+  matrix_spec: { ssl: "nossl", os: "ubuntu-1804" }
   display_name: "CSFLE with AZURE KMS ${os}"
   batchtime: 20160 # 14 days
   tasks:
