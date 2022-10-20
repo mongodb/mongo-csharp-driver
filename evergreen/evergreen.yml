@@ -1567,6 +1567,7 @@ axes:
         variables:
           OS: "ubuntu-1804"
         run_on: ubuntu1804-test
+      # do not use this os if ubuntu is an option  
       - id: "debian11"
         display_name: "debian 11"
         variables:
