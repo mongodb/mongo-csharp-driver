@@ -12,6 +12,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.2" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\MongoDB.Bson\MongoDB.Bson.csproj" />
     <ProjectReference Include="..\MongoDB.Driver\MongoDB.Driver.csproj" />
     <ProjectReference Include="..\MongoDB.Driver.Core\MongoDB.Driver.Core.csproj" />
