@@ -2023,7 +2023,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 }
             }
 
-            if (e is OperationCanceledException or TaskCanceledException)
+            if (typeof(OperationCanceledException).IsAssignableFrom(exType))
             {
                 e.Should().BeAssignableTo<OperationCanceledException>();
             }
