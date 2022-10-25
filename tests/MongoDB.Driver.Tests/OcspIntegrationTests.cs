@@ -24,6 +24,7 @@ using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests
 {
+    [Trait("Category", "OCSP")]
     public class OcspIntegrationTests : LoggableTestClass
     {
         private static readonly string _shouldSucceedEnvironmentVariableName = "OCSP_TLS_SHOULD_SUCCEED";

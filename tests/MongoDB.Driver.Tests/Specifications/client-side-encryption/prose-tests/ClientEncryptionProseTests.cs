@@ -1640,7 +1640,9 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                             }
                             break;
                         case "gcp":
-                            AssertInnerEncryptionException<HttpRequestException>(ex, "Failed to acquire gce metadata credentials.");
+                            {
+                                AssertInnerEncryptionException<HttpRequestException>(ex, "Failed to acquire gce metadata credentials.");
+                            }
                             break;
                         default: throw new Exception($"Unexpected kms provider: {kmsProvider}.");
                     }
@@ -1654,9 +1656,11 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 switch (kmsProvider)
                 {
                     case "aws":
-                        requireEnvironmentCheck.EnvironmentVariable("AWS_ACCESS_KEY_ID", isDefined: expectedEnvironment);
-                        // mocked env doesn't configure aws_temp credentials with AWS_ACCESS_KEY_ID
-                        requireEnvironmentCheck.EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: !expectedEnvironment);
+                        {
+                            requireEnvironmentCheck.EnvironmentVariable("AWS_ACCESS_KEY_ID", isDefined: expectedEnvironment);
+                            // mocked env doesn't configure aws_temp credentials with AWS_ACCESS_KEY_ID
+                            requireEnvironmentCheck.EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: !expectedEnvironment);
+                        }
                         break;
                     case "azure":
                         {
@@ -1684,38 +1688,40 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                         }
                         break;
                     case "gcp":
-                        if (Environment.GetEnvironmentVariable("CSFLE_GCP_KMS_TESTS_ENABLED") != null)
                         {
-                            // gcp env
-                            if (!expectedEnvironment)
+                            if (Environment.GetEnvironmentVariable("CSFLE_GCP_KMS_TESTS_ENABLED") != null)
                             {
-                                throw new SkipException("Test skipped, because current env should not be GCP.");
-                            }
-                        }
-                        else
-                        {
-                            // mocked env
-                            // gcp mocked server fails on non windows env
-                            RequirePlatform
-                                .Check()
-                                .SkipWhen(SupportedOperatingSystem.Linux)
-                                .SkipWhen(SupportedOperatingSystem.MacOS);
-
-                            if (expectedEnvironment)
-                            {
-                                requireEnvironmentCheck
-                                    .EnvironmentVariable("CSFLE_GCP_KMS_TESTS_ENABLED", isDefined: false)
-                                    // mocked env
-                                    .EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true)
-                                    .EnvironmentVariable("GCE_METADATA_HOST", isDefined: expectedEnvironment)
-                                    // required mock server
-                                    .HostReachable((DnsEndPoint)EndPointHelper.Parse(Environment.GetEnvironmentVariable("GCE_METADATA_HOST")));
+                                // gcp env
+                                if (!expectedEnvironment)
+                                {
+                                    throw new SkipException("Test skipped, because current env should not be GCP.");
+                                }
                             }
                             else
                             {
-                                requireEnvironmentCheck
-                                    .EnvironmentVariable("CSFLE_GCP_KMS_TESTS_ENABLED", isDefined: false)
-                                    .EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: false);
+                                // mocked env
+                                // gcp mocked server fails on non windows env
+                                RequirePlatform
+                                    .Check()
+                                    .SkipWhen(SupportedOperatingSystem.Linux)
+                                    .SkipWhen(SupportedOperatingSystem.MacOS);
+
+                                if (expectedEnvironment)
+                                {
+                                    requireEnvironmentCheck
+                                        .EnvironmentVariable("CSFLE_GCP_KMS_TESTS_ENABLED", isDefined: false)
+                                        // mocked env
+                                        .EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true)
+                                        .EnvironmentVariable("GCE_METADATA_HOST", isDefined: expectedEnvironment)
+                                        // required mock server
+                                        .HostReachable((DnsEndPoint)EndPointHelper.Parse(Environment.GetEnvironmentVariable("GCE_METADATA_HOST")));
+                                }
+                                else
+                                {
+                                    requireEnvironmentCheck
+                                        .EnvironmentVariable("CSFLE_GCP_KMS_TESTS_ENABLED", isDefined: false)
+                                        .EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: false);
+                                }
                             }
                         }
                         break;
@@ -2025,6 +2031,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
             if (typeof(OperationCanceledException).IsAssignableFrom(exType))
             {
+                // handles OperationCanceledException and TaskCanceledException.
+                // At least in macOS these exceptions can be triggered from the same code path in some cases 
                 e.Should().BeAssignableTo<OperationCanceledException>();
             }
             else
