@@ -18,7 +18,6 @@ using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq.Linq3Implementation;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecutableQueryTranslators;
@@ -62,10 +61,22 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests
 
         public static List<BsonDocument> Translate<TDocument, TResult>(IQueryable<TResult> queryable)
         {
-            var provider = (MongoQueryProvider<TDocument>)queryable.Provider;
-            var executableQuery = ExpressionToExecutableQueryTranslator.Translate<TDocument, TResult>(provider, queryable.Expression);
-            var stages = executableQuery.Pipeline.Stages;
-            return stages.Select(s => s.Render().AsBsonDocument).ToList();
+            var provider = queryable.Provider;
+            if (provider is MongoDB.Driver.Linq.Linq2Implementation.MongoQueryProviderImpl<TDocument> linq2Provider)
+            {
+                var executionModel = linq2Provider.GetExecutionModel(queryable.Expression);
+                var executionModelType = executionModel.GetType();
+                var stagesPropertyInfo = executionModelType.GetProperty("Stages");
+                var stages = (IEnumerable<BsonDocument>)stagesPropertyInfo.GetValue(executionModel);
+                return stages.ToList();
+            }
+            else
+            {
+                var linq3Provider = (MongoQueryProvider<TDocument>)provider;
+                var executableQuery = ExpressionToExecutableQueryTranslator.Translate<TDocument, TResult>(linq3Provider, queryable.Expression);
+                var stages = executableQuery.Pipeline.Stages;
+                return stages.Select(s => s.Render().AsBsonDocument).ToList();
+            }
         }
     }
 }
