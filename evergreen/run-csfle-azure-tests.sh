@@ -5,8 +5,8 @@ set -o errexit  # Exit the script with error if any of the commands fail
 
 # Environment variables used as input:
 #       MONGODB_URI             Set the URI, including an optional username/password to use to connect to the server
-#       KEY_NAME                
-#       KEY_VAULT_ENDPOINT      Set azure kms settings.
+#       KEY_NAME                Set azure kms key name
+#       KEY_VAULT_ENDPOINT      Set azure kms key vault endpoint
 #
 # Environment variables produced as output
 #       DOTNET_SYSTEM_GLOBALIZATION_INVARIANT   Workaround for the https://github.com/dotnet/core/issues/2186 issue.
