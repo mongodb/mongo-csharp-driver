@@ -19,8 +19,8 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecutableQueryTranslators;
+using MongoDB.Driver.Support;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation
 {
@@ -77,7 +77,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
         // public methods
         public override IQueryable CreateQuery(Expression expression)
         {
-            throw new NotImplementedException();
+            var outputType = expression.Type.GetSequenceElementType();
+            var queryType = typeof(MongoQuery<,>).MakeGenericType(typeof(TDocument), outputType);
+            return (IQueryable)Activator.CreateInstance(queryType, new object[] { this, expression });
         }
 
         public override IQueryable<TOutput> CreateQuery<TOutput>(Expression expression)
