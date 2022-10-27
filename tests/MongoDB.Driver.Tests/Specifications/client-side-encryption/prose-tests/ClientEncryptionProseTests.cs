@@ -1532,22 +1532,23 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             }
         }
 
+        [Trait("Category", "CsfleAZUREKMS")]
         [Trait("Category", "CsfleGCPKMS")]
         [SkippableTheory]
         [ParameterAttributeData]
         public void OnDemandCredentialsTest(
-            [Values("aws", "gcp")] string kmsProvider,
+            [Values("aws", "azure", "gcp")] string kmsProvider,
             [Values(false, true)] bool expectedEnvironment,
             [Values(false, true)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
 
-            ValidateEnvironment();
+            EnsureEnvironmentConfigured(out var masterKey);
 
             using (var client = ConfigureClient(clearCollections: true))
             using (var clientEncryption = ConfigureClientEncryption(client, kmsDocument: new BsonDocument(kmsProvider, new BsonDocument())))
             {
-                var datakeyOptions = CreateDataKeyOptions(kmsProvider);
+                var datakeyOptions = CreateDataKeyOptions(kmsProvider, customMasterKey: masterKey);
                 var ex = Record.Exception(() => CreateDataKey(clientEncryption, kmsProvider, datakeyOptions, async));
                 if (expectedEnvironment)
                 {
@@ -1612,57 +1613,115 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
                             }
                             break;
+                        case "azure":
+                            {
+                                switch (currentOperatingSystem)
+                                {
+                                    case OperatingSystemPlatform.Windows:
+                                    case OperatingSystemPlatform.Linux:
+                                        {
+                                            AssertInnerEncryptionException<HttpRequestException>(ex, "Failed to acquire IMDS access token.");
+                                        }
+                                        break;
+                                    case OperatingSystemPlatform.MacOS:
+                                        {
+                                            try
+                                            {
+                                                AssertInnerEncryptionException<TaskCanceledException>(ex, "Failed to acquire IMDS access token.");
+                                            }
+                                            catch (XunitException)
+                                            {
+                                                AssertInnerEncryptionException<HttpRequestException>(ex, "Failed to acquire IMDS access token.");
+                                            }
+                                        }
+                                        break;
+                                    default: throw new Exception($"Unexpected OS: {currentOperatingSystem}");
+                                }
+                            }
+                            break;
                         case "gcp":
-                            AssertInnerEncryptionException<HttpRequestException>(ex, "Failed to acquire gce metadata credentials.");
+                            {
+                                AssertInnerEncryptionException<HttpRequestException>(ex, "Failed to acquire gce metadata credentials.");
+                            }
                             break;
                         default: throw new Exception($"Unexpected kms provider: {kmsProvider}.");
                     }
                 }
             }
 
-            void ValidateEnvironment()
+            void EnsureEnvironmentConfigured(out BsonDocument customMasterKey)
             {
+                customMasterKey = null;
                 var requireEnvironmentCheck = RequireEnvironment.Check();
                 switch (kmsProvider)
                 {
                     case "aws":
-                        requireEnvironmentCheck.EnvironmentVariable("AWS_ACCESS_KEY_ID", isDefined: expectedEnvironment);
-                        // mocked env doesn't configure aws_temp credentials with AWS_ACCESS_KEY_ID
-                        requireEnvironmentCheck.EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: !expectedEnvironment);
-                        break;
-                    case "gcp":                        
-                        if (Environment.GetEnvironmentVariable("CSFLE_GCP_KMS_TESTS_ENABLED") != null)
                         {
-                            // gcp env
-                            if (!expectedEnvironment)
-                            {
-                                throw new SkipException("Test skipped, because current env should not be GCP.");
-                            }
+                            requireEnvironmentCheck.EnvironmentVariable("AWS_ACCESS_KEY_ID", isDefined: expectedEnvironment);
+                            // mocked env doesn't configure aws_temp credentials with AWS_ACCESS_KEY_ID
+                            requireEnvironmentCheck.EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: !expectedEnvironment);
                         }
-                        else
+                        break;
+                    case "azure":
                         {
-                            // mocked env
-                            // gcp mocked server fails on non windows env
-                            RequirePlatform
-                                .Check()
-                                .SkipWhen(SupportedOperatingSystem.Linux)
-                                .SkipWhen(SupportedOperatingSystem.MacOS);
-
-                            if (expectedEnvironment)
+                            if (Environment.GetEnvironmentVariable("CSFLE_AZURE_KMS_TESTS_ENABLED") != null)
                             {
-                                requireEnvironmentCheck
-                                    .EnvironmentVariable("CSFLE_GCP_KMS_TESTS_ENABLED", isDefined: false)
-                                    // mocked env
-                                    .EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true)
-                                    .EnvironmentVariable("GCE_METADATA_HOST", isDefined: expectedEnvironment)
-                                    // required mock server
-                                    .HostReachable((DnsEndPoint)EndPointHelper.Parse(Environment.GetEnvironmentVariable("GCE_METADATA_HOST")));
+                                // azure env
+                                if (!expectedEnvironment)
+                                {
+                                    throw new SkipException("Test skipped, because current env should not be Azure.");
+                                }
                             }
                             else
                             {
+                                // It can work everywhere, but limit running these tests here since a single test run can take up to 10 seconds
                                 requireEnvironmentCheck
-                                    .EnvironmentVariable("CSFLE_GCP_KMS_TESTS_ENABLED", isDefined: false)
-                                    .EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: false);
+                                    .EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true)
+                                    .EnvironmentVariable("CSFLE_AZURE_KMS_TESTS_ENABLED", isDefined: expectedEnvironment);
+                            }
+
+                            customMasterKey = new BsonDocument
+                            {
+                                { "keyVaultEndpoint", "https://keyvault-drivers-2411.vault.azure.net/keys/" },
+                                { "keyName", "KEY-NAME" }
+                            };
+                        }
+                        break;
+                    case "gcp":
+                        {
+                            if (Environment.GetEnvironmentVariable("CSFLE_GCP_KMS_TESTS_ENABLED") != null)
+                            {
+                                // gcp env
+                                if (!expectedEnvironment)
+                                {
+                                    throw new SkipException("Test skipped, because current env should not be GCP.");
+                                }
+                            }
+                            else
+                            {
+                                // mocked env
+                                // gcp mocked server fails on non windows env
+                                RequirePlatform
+                                    .Check()
+                                    .SkipWhen(SupportedOperatingSystem.Linux)
+                                    .SkipWhen(SupportedOperatingSystem.MacOS);
+
+                                if (expectedEnvironment)
+                                {
+                                    requireEnvironmentCheck
+                                        .EnvironmentVariable("CSFLE_GCP_KMS_TESTS_ENABLED", isDefined: false)
+                                        // mocked env
+                                        .EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true)
+                                        .EnvironmentVariable("GCE_METADATA_HOST", isDefined: expectedEnvironment)
+                                        // required mock server
+                                        .HostReachable((DnsEndPoint)EndPointHelper.Parse(Environment.GetEnvironmentVariable("GCE_METADATA_HOST")));
+                                }
+                                else
+                                {
+                                    requireEnvironmentCheck
+                                        .EnvironmentVariable("CSFLE_GCP_KMS_TESTS_ENABLED", isDefined: false)
+                                        .EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: false);
+                                }
                             }
                         }
                         break;
@@ -1970,7 +2029,16 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 }
             }
 
-            e.Should().BeOfType(exType);
+            if (typeof(OperationCanceledException).IsAssignableFrom(exType))
+            {
+                // handles OperationCanceledException and TaskCanceledException.
+                // At least in macOS these exceptions can be triggered from the same code path in some cases 
+                e.Should().BeAssignableTo<OperationCanceledException>();
+            }
+            else
+            {
+                e.Should().BeOfType(exType);
+            }
             return e;
         }
 
@@ -2460,7 +2528,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
         public class JsonFileReader : EmbeddedResourceJsonFileReader
         {
-#region static
+            #region static
             // private static fields
             private static readonly string[] __ignoreKeyNames =
             {
@@ -2470,7 +2538,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
             // public static properties
             public static JsonFileReader Instance => __instance.Value;
-#endregion
+            #endregion
 
             private readonly IReadOnlyDictionary<string, BsonDocument> _documents;
 
