@@ -51,7 +51,6 @@ Task("Default")
 
 Task("Release")
     .IsDependentOn("Build")
-    .IsDependentOn("Test")
     .IsDependentOn("Docs")
     .IsDependentOn("Package");
 
