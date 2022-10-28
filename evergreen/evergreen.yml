@@ -1057,7 +1057,6 @@ tasks:
     - name: test-serverless-net472
       exec_timeout_secs: 2700 # 45 minutes: 15 for setup + 30 for tests
       commands:
-        - func: bootstrap-mongo-orchestration
         - func: create-serverless-instance
         - func: run-serverless-tests
           vars:
@@ -1066,7 +1065,6 @@ tasks:
     - name: test-serverless-netstandard20
       exec_timeout_secs: 2700 # 45 minutes: 15 for setup + 30 for tests
       commands:
-        - func: bootstrap-mongo-orchestration
         - func: create-serverless-instance
         - func: run-serverless-tests
           vars:
@@ -1075,7 +1073,6 @@ tasks:
     - name: test-serverless-netstandard21
       exec_timeout_secs: 2700 # 45 minutes: 15 for setup + 30 for tests
       commands:
-        - func: bootstrap-mongo-orchestration
         - func: create-serverless-instance
         - func: run-serverless-tests
           vars:
