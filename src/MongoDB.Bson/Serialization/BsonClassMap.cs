@@ -1312,6 +1312,15 @@ namespace MongoDB.Bson.Serialization
             classMapInitializer(this);
         }
 
+        /// <summary>
+        /// Initializes a new instance of the BsonClassMap class.
+        /// </summary>
+        /// <param name="baseClassMap">The base class map.</param>
+        public BsonClassMap(BsonClassMap baseClassMap)
+            : base(typeof(TClass), baseClassMap)
+        {
+        }
+
         // public methods
         /// <summary>
         /// Creates an instance.
