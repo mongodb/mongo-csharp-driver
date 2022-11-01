@@ -34,13 +34,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             {
                 var argument = arguments[0];
                 var argumentType = argument.Type;
-                if (argumentType.IsConstructedGenericType && argumentType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                if (argumentType.IsConstructedGenericType && argumentType.GetGenericTypeDefinition().Implements(typeof(IEnumerable<>)))
                 {
-                    var argumentItemType = argumentType.GetGenericArguments()[0];
+                    var enumerableInterface = argumentType.GetIEnumerableGenericInterface();
+                    var argumentItemType = enumerableInterface.GetGenericArguments()[0];
                     if (argumentItemType == listItemType)
                     {
                         var collectionExpression = argument;
-                        var collectionTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, collectionExpression);
+                        var collectionTranslation = ExpressionToAggregationExpressionTranslator.TranslateEnumerable(context, collectionExpression);
                         var listSerializerType = typeof(EnumerableInterfaceImplementerSerializer<,>).MakeGenericType(listType, listItemType);
                         var listItemSerializer = ArraySerializerHelper.GetItemSerializer(collectionTranslation.Serializer);
                         var listSerializer = (IBsonSerializer)Activator.CreateInstance(listSerializerType, listItemSerializer);
