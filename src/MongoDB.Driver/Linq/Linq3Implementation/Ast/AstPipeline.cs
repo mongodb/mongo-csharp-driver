@@ -72,6 +72,15 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast
             return new AstPipeline(stages, newOutputSerializer);
         }
 
+        public AstPipeline ReplaceStagesAtEnd(
+            IBsonSerializer newOutputSerializer,
+            int numberOfStagesToReplace,
+            params AstStage[] newStages)
+        {
+            var stages = _stages.Take(_stages.Count - numberOfStagesToReplace).Concat(newStages);
+            return new AstPipeline(stages, newOutputSerializer);
+        }
+
         public AstPipeline Update(IEnumerable<AstStage> stages)
         {
             if (stages == _stages)
