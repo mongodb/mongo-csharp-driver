@@ -15,6 +15,7 @@
 
 using System.Linq;
 using FluentAssertions;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
 using Xunit;
 
@@ -22,9 +23,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
 {
     public class CSharp4244Tests : Linq3IntegrationTest
     {
-        [Fact]
+        [SkippableFact]
         public void Where_with_root_should_work()
         {
+            RequireServer.Check().VersionGreaterThanOrEqualTo("6.0");
+
             var collection = CreateCollection();
             var person = new Person { Id = 2, Name = "Jane Doe" };
 
