@@ -17,6 +17,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Driver.Linq;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -162,7 +163,7 @@ namespace MongoDB.Driver.Tests
         {
             var filter = __subject.Where(x => x.E == value);
 
-            filter.Render(__serializer, __registry).Should().Be(expectedFilter);
+            filter.Render(__serializer, __registry, LinqProvider.V2).Should().Be(expectedFilter);
         }
 
         [Theory]
@@ -172,7 +173,7 @@ namespace MongoDB.Driver.Tests
         {
             var filter = __subject.Where(x => x.E > value);
 
-            filter.Render(__serializer, __registry).Should().Be(expectedFilter);
+            filter.Render(__serializer, __registry, LinqProvider.V2).Should().Be(expectedFilter);
         }
 
         [Theory]
@@ -182,7 +183,7 @@ namespace MongoDB.Driver.Tests
         {
             var filter = __subject.Where(x => x.E >= value);
 
-            filter.Render(__serializer, __registry).Should().Be(expectedFilter);
+            filter.Render(__serializer, __registry, LinqProvider.V2).Should().Be(expectedFilter);
         }
 
         [Theory]
@@ -192,7 +193,7 @@ namespace MongoDB.Driver.Tests
         {
             var filter = __subject.Where(x => x.E < value);
 
-            filter.Render(__serializer, __registry).Should().Be(expectedFilter);
+            filter.Render(__serializer, __registry, LinqProvider.V2).Should().Be(expectedFilter);
         }
 
         [Theory]
@@ -202,7 +203,7 @@ namespace MongoDB.Driver.Tests
         {
             var filter = __subject.Where(x => x.E <= value);
 
-            filter.Render(__serializer, __registry).Should().Be(expectedFilter);
+            filter.Render(__serializer, __registry, LinqProvider.V2).Should().Be(expectedFilter);
         }
 
         [Theory]
@@ -212,7 +213,7 @@ namespace MongoDB.Driver.Tests
         {
             var filter = __subject.Where(x => x.E != value);
 
-            filter.Render(__serializer, __registry).Should().Be(expectedFilter);
+            filter.Render(__serializer, __registry, LinqProvider.V2).Should().Be(expectedFilter);
         }
     }
 }

@@ -110,7 +110,7 @@ namespace MongoDB.Driver
             _heartbeatInterval = ServerSettings.DefaultHeartbeatInterval;
             _heartbeatTimeout = ServerSettings.DefaultHeartbeatTimeout;
             _ipv6 = false;
-            _linqProvider = LinqProvider.V2;
+            _linqProvider = LinqProvider.V3;
             _loadBalanced = false;
             _localThreshold = MongoDefaults.LocalThreshold;
             _maxConnecting = MongoInternalDefaults.ConnectionPool.MaxConnecting;
@@ -958,7 +958,7 @@ namespace MongoDB.Driver
             clientSettings.HeartbeatInterval = url.HeartbeatInterval;
             clientSettings.HeartbeatTimeout = url.HeartbeatTimeout;
             clientSettings.IPv6 = url.IPv6;
-            clientSettings.LinqProvider = LinqProvider.V2;
+            clientSettings.LinqProvider = LinqProvider.V3;
             clientSettings.LoadBalanced = url.LoadBalanced;
             clientSettings.LocalThreshold = url.LocalThreshold;
             clientSettings.MaxConnecting = url.MaxConnecting;

@@ -35,7 +35,7 @@ namespace MongoDB.Driver
         /// <returns>A <see cref="BsonDocument"/>.</returns>
         public virtual BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            return Render(documentSerializer, serializerRegistry, LinqProvider.V2);
+            return Render(documentSerializer, serializerRegistry, LinqProvider.V3);
         }
 
         /// <summary>

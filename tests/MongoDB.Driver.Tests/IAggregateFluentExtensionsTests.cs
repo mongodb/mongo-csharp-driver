@@ -19,6 +19,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Linq;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -621,7 +622,7 @@ namespace MongoDB.Driver.Tests
         private void AssertLast<TDocument>(IAggregateFluent<TDocument> fluent, BsonDocument expectedLast)
         {
             var pipeline = new PipelineStagePipelineDefinition<Person, TDocument>(fluent.Stages);
-            var renderedPipeline = pipeline.Render(BsonSerializer.SerializerRegistry.GetSerializer<Person>(), BsonSerializer.SerializerRegistry);
+            var renderedPipeline = pipeline.Render(BsonSerializer.SerializerRegistry.GetSerializer<Person>(), BsonSerializer.SerializerRegistry, LinqProvider.V2);
 
             var last = renderedPipeline.Documents.Last();
             Assert.Equal(expectedLast, last);
@@ -637,6 +638,7 @@ namespace MongoDB.Driver.Tests
         {
             var mockClient = new Mock<IMongoClient>();
             var settings = new MongoClientSettings();
+            settings.LinqProvider = LinqProvider.V2;
             mockClient.SetupGet(x => x.Settings).Returns(settings);
             return mockClient.Object;
         }

@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Tests.Samples
 
         public bool OneTimeSetup()
         {
-            var client = DriverTestConfiguration.Client;
+            var client = DriverTestConfiguration.Linq2Client;
             var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
             db.DropCollection(DriverTestConfiguration.CollectionNamespace.CollectionName);
             __collection = db.GetCollection<ZipEntry>(DriverTestConfiguration.CollectionNamespace.CollectionName);
@@ -94,7 +94,7 @@ namespace MongoDB.Driver.Tests.Samples
         [InlineData(LinqProvider.V3)]
         public void States_with_pops_over_20000_queryable_syntax(LinqProvider linqProvider)
         {
-            var client = linqProvider == LinqProvider.V2 ? DriverTestConfiguration.Client : DriverTestConfiguration.Linq3Client;
+            var client = linqProvider == LinqProvider.V2 ? DriverTestConfiguration.Linq2Client : DriverTestConfiguration.Linq3Client;
             var database = client.GetDatabase(__collection.CollectionNamespace.DatabaseNamespace.DatabaseName);
             var collection = database.GetCollection<ZipEntry>(__collection.CollectionNamespace.CollectionName);
 

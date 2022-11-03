@@ -36,7 +36,7 @@ namespace MongoDB.Driver
         /// <returns>A <see cref="BsonValue"/>.</returns>
         public virtual BsonValue Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            return Render(documentSerializer, serializerRegistry, LinqProvider.V2);
+            return Render(documentSerializer, serializerRegistry, LinqProvider.V3);
         }
 
         /// <summary>
@@ -151,7 +151,7 @@ namespace MongoDB.Driver
         /// </returns>
         public string ToString(IBsonSerializer<TDocument> inputSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            return ToString(inputSerializer, serializerRegistry, LinqProvider.V2);
+            return ToString(inputSerializer, serializerRegistry, LinqProvider.V3);
         }
 
         /// <summary>

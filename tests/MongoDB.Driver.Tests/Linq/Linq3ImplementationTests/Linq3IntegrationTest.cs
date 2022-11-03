@@ -62,7 +62,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests
         {
             return linqProvider switch
             {
-                LinqProvider.V2 => DriverTestConfiguration.Client,
+                LinqProvider.V2 => DriverTestConfiguration.Linq2Client,
                 LinqProvider.V3 => DriverTestConfiguration.Linq3Client,
                 _ => throw new ArgumentException($"Invalid linqProvider: {linqProvider}.", nameof(linqProvider))
             };

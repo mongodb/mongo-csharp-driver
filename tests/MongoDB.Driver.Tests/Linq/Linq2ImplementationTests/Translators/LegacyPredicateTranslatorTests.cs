@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests.Translators
 
         public bool OneTimeSetup()
         {
-            __database = DriverTestConfiguration.Client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
+            __database = DriverTestConfiguration.Linq2Client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
             __collection = __database.GetCollection<C>(DriverTestConfiguration.CollectionNamespace.CollectionName);
 
             // documents inserted deliberately out of order to test sorting
