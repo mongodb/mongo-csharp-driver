@@ -99,6 +99,12 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests
             return Translate<TDocument, TResult>(queryable);
         }
 
+        // in this overload the collection argument is used only to infer the TDocument type
+        protected List<BsonDocument> Translate<TDocument, TResult>(IMongoCollection<TDocument> collection, IQueryable<TResult> queryable, out IBsonSerializer<TResult> outputSerializer)
+        {
+            return Translate<TDocument, TResult>(queryable, out outputSerializer);
+        }
+
         protected static List<BsonDocument> Translate<TResult>(IMongoDatabase database, IAggregateFluent<TResult> aggregate)
         {
             var pipelineDefinition = ((AggregateFluent<NoPipelineInput, TResult>)aggregate).Pipeline;
@@ -108,9 +114,15 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests
 
         protected List<BsonDocument> Translate<TDocument, TResult>(IQueryable<TResult> queryable)
         {
+            return Translate<TDocument, TResult>(queryable, out _);
+        }
+
+        protected List<BsonDocument> Translate<TDocument, TResult>(IQueryable<TResult> queryable, out IBsonSerializer<TResult> outputSerializer)
+        {
             var provider = (MongoQueryProvider<TDocument>)queryable.Provider;
             var executableQuery = ExpressionToExecutableQueryTranslator.Translate<TDocument, TResult>(provider, queryable.Expression);
             var stages = executableQuery.Pipeline.Stages;
+            outputSerializer = (IBsonSerializer<TResult>)executableQuery.Pipeline.OutputSerializer;
             return stages.Select(s => s.Render().AsBsonDocument).ToList();
         }
 
