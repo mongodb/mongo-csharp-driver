@@ -240,26 +240,34 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
 
         public static AstExpression Convert(AstExpression input, AstExpression to, AstExpression onError = null, AstExpression onNull = null)
         {
-            return new AstConvertExpression(input, to, onError, onNull);
-        }
+            Ensure.IsNotNull(input, nameof(input));
+            Ensure.IsNotNull(to, nameof(to));
 
-        public static AstExpression Convert(AstExpression input, Type toType, AstExpression onError = null, AstExpression onNull = null)
-        {
-            Ensure.IsNotNull(toType, nameof(toType));
-            var to = toType.FullName switch
+            if (to is AstConstantExpression toConstantExpression &&
+                (toConstantExpression.Value as BsonString)?.Value is string toValue &&
+                toValue != null &&
+                onError == null &&
+                onNull == null)
             {
-                "MongoDB.Bson.ObjectId" => "objectId",
-                "System.Boolean" => "bool",
-                "System.DateTime" => "date",
-                "System.Decimal" => "decimal",
-                "System.Double" => "double",
-                "System.Int32" => "int",
-                "System.Int64" => "long",
-                "System.String" => "string",
-                _ => throw new ArgumentException($"Invalid toType: {toType.FullName}.", nameof(toType))
-            };
+                var unaryOperator = toValue switch
+                {
+                    "bool" => AstUnaryOperator.ToBool,
+                    "date" => AstUnaryOperator.ToDate,
+                    "decimal" => AstUnaryOperator.ToDecimal,
+                    "double" => AstUnaryOperator.ToDouble,
+                    "int" => AstUnaryOperator.ToInt,
+                    "long" => AstUnaryOperator.ToLong,
+                    "objectId" => AstUnaryOperator.ToObjectId,
+                    "string" => AstUnaryOperator.ToString,
+                    _ => (AstUnaryOperator?)null
+                };
+                if (unaryOperator.HasValue)
+                {
+                    return AstExpression.Unary(unaryOperator.Value, input);
+                }
+            }
 
-            return AstExpression.Convert(input, to, onError, onNull);
+            return new AstConvertExpression(input, to, onError, onNull);
         }
 
         public static AstExpression DateAdd(
@@ -832,6 +840,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
         public static AstExpression Trunc(AstExpression arg)
         {
             return new AstUnaryExpression(AstUnaryOperator.Trunc, arg);
+        }
+
+        public static AstExpression Unary(AstUnaryOperator @operator, AstExpression arg)
+        {
+            return new AstUnaryExpression(@operator, arg);
         }
 
         public static AstAccumulatorExpression UnaryAccumulator(AstUnaryAccumulatorOperator @operator, AstExpression arg)

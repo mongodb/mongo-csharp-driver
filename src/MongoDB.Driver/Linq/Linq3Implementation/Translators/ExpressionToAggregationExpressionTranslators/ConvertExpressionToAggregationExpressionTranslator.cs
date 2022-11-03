@@ -63,7 +63,20 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 }
                 else
                 {
-                    ast = AstExpression.Convert(ast, expressionType);
+                    var to = expressionType.FullName switch
+                    {
+                        "MongoDB.Bson.ObjectId" => "objectId",
+                        "System.Boolean" => "bool",
+                        "System.DateTime" => "date",
+                        "System.Decimal" => "decimal",
+                        "System.Double" => "double",
+                        "System.Int32" => "int",
+                        "System.Int64" => "long",
+                        "System.String" => "string",
+                        _ => throw new ExpressionNotSupportedException(expression, because: $"conversion to {expressionType} is not supported")
+                    };
+
+                    ast = AstExpression.Convert(ast, to);
                     serializer = context.KnownSerializersRegistry.GetSerializer(expression);
                 }
 
