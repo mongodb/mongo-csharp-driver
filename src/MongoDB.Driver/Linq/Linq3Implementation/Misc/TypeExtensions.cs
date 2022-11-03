@@ -32,10 +32,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 
         public static bool Implements(this Type type, Type @interface)
         {
-            Type interfaceDefinition = null;
-            if (@interface.IsGenericType())
+            if (type == @interface)
             {
-                interfaceDefinition = @interface.GetGenericTypeDefinition();
+                return true;
+            }
+
+            if (type.IsGenericType() && type.GetGenericTypeDefinition() == @interface)
+            {
+                return true;
             }
 
             foreach (var implementedInterface in type.GetInterfaces())
@@ -45,7 +49,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
                     return true;
                 }
 
-                if (implementedInterface.IsGenericType() && implementedInterface.GetGenericTypeDefinition() == interfaceDefinition)
+                if (implementedInterface.IsGenericType() && implementedInterface.GetGenericTypeDefinition() == @interface)
                 {
                     return true;
                 }
@@ -104,6 +108,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 
         public static bool TryGetIEnumerableGenericInterface(this Type type, out Type ienumerableGenericInterface)
         {
+            if (type.IsGenericType() && type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+            {
+                ienumerableGenericInterface = type;
+                return true;
+            }
+
             foreach (var interfaceType in type.GetInterfaces())
             {
                 if (interfaceType.IsGenericType() && interfaceType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
