@@ -55,7 +55,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication
 
         [Theory]
         [ParameterAttributeData]
-        public async Task Cache_should_not_be_in_play_when_expiration_data_is_null([Values(false, true)] bool async)
+        public async Task Cache_should_not_be_in_play_when_expiration_date_is_null([Values(false, true)] bool async)
         {
             DateTime? expiredDate = null;
             Func<DateTime?> expiredDateFunc = () => expiredDate;
@@ -90,7 +90,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication
         private readonly Guid _id;
         private readonly Func<bool> _isExpiredFunc;
 
-        public DummyCredentials(Func<bool> isExpiredFunc,Func<DateTime?> expirationDateFunc)
+        public DummyCredentials(Func<bool> isExpiredFunc, Func<DateTime?> expirationDateFunc)
         {
             _expirationDateFunc = expirationDateFunc; // can be null
             _id = Guid.NewGuid();
