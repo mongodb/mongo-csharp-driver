@@ -99,7 +99,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Authentication
 
         public DateTime? Expiration => _expirationDateFunc();
 
-        public bool IsExpired => _isExpiredFunc();
+        public bool ShouldBeRefreshed => _isExpiredFunc();
 
         public Guid Id => _id;
 

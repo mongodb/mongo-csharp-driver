@@ -93,7 +93,7 @@ namespace MongoDB.Driver.Core.Authentication.External
         }
 
         // private methods
-        private bool IsValidCache(TCredentials credentials) => credentials != null && !credentials.IsExpired;
+        private bool IsValidCache(TCredentials credentials) => credentials != null && !credentials.ShouldBeRefreshed;
         public void Clear() => _cachedCredentials = default;
     }
 }
