@@ -173,9 +173,12 @@ namespace MongoDB.Driver.Core.Servers
                     lastUpdateTimestamp: DateTime.UtcNow,
                     topologyVersion: topologyVersion);
 
+            var (host, port) = ServerId.EndPoint.GetHostAndPort();
             EventLogger.Logger?.LogDebug(
                 StructuredLogTemplateProviders.ServerId_Message_Description,
-                ServerId,
+                ServerId.ClusterId.Value,
+                host,
+                port,
                 newDescription,
                 "Invalidating description");
 

@@ -98,32 +98,31 @@ namespace MongoDB.Driver.SmokeTests.Sdk
         {
             return new[]
             {
-                Cluster("Description changed"),
+                SDAM("Description changed"),
                 SDAM("Server opening"),
                 Connection("Connection pool opening"),
                 Connection("Connection pool created"),
                 SDAM("Server opened"),
-                Cluster("Cluster opened"),
+                SDAM("Cluster opened"),
                 Connection("Connection checkout started"),
                 Connection("Connection created"),
                 Connection("Connection added"),
                 Connection("Connection ready"),
                 Connection("Connection checked out"),
-                Cluster("Cluster closing"),
-                Cluster("Removing server"),
+                SDAM("Cluster closing"),
+                SDAM("Removing server"),
                 SDAM("Server closing"),
                 Connection("Connection closing"),
                 Connection("Connection closed"),
                 Connection("Connection pool closed"),
                 SDAM("Server closed"),
-                Cluster("Removed server"),
-                Cluster("Disposing"),
-                Cluster("Description changed"),
-                Cluster("Disposed"),
-                Cluster("Cluster closed")
+                SDAM("Removed server"),
+                SDAM("Disposing"),
+                SDAM("Description changed"),
+                SDAM("Disposed"),
+                SDAM("Cluster closed")
             };
 
-            LogEntry Cluster(string message) => new LogEntry(LogLevel.Debug, "MongoDB.Cluster", message);
             LogEntry Connection(string message) => new LogEntry(LogLevel.Debug, "MongoDB.Connection", message);
             LogEntry SDAM(string message) => new LogEntry(LogLevel.Debug, "MongoDB.SDAM", message);
         }

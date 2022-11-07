@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Core.Clusters
         private readonly ICoreServerSessionPool _serverSessionPool;
         private readonly ClusterSettings _settings;
         private readonly InterlockedInt32 _state;
-        private readonly EventLogger<LogCategories.Cluster> _eventLogger;
+        private readonly EventLogger<LogCategories.SDAM> _eventLogger;
 
         public LoadBalancedCluster(
             ClusterSettings settings,
@@ -109,7 +109,7 @@ namespace MongoDB.Driver.Core.Clusters
 #pragma warning restore CS0618 // Type or member is obsolete
                 null);
 
-            _eventLogger = loggerFactory.CreateEventLogger<LogCategories.Cluster>(eventSubscriber);
+            _eventLogger = loggerFactory.CreateEventLogger<LogCategories.SDAM>(eventSubscriber);
         }
 
         public ClusterId ClusterId => _clusterId;

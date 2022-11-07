@@ -90,7 +90,6 @@ namespace MongoDB.Driver.Core.Logging
 
             var eventsData = new (object, object)[]
             {
-                (new LogCategories.Cluster(), new ClusterAddedServerEvent(serverId, TimeSpan.FromSeconds(1))),
                 (new LogCategories.Command(), new CommandStartedEvent("test", new Bson.BsonDocument(), new DatabaseNamespace("test"), 1, 1, connectionId)),
                 (new LogCategories.Connection(), new ConnectionCreatedEvent(connectionId, null, 1)),
                 (new LogCategories.SDAM(), new ServerHeartbeatStartedEvent(connectionId, true)),
