@@ -116,7 +116,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __speculativeAuthentication = new Feature("SpeculativeAuthentication", WireVersion.Server44);
         private static readonly Feature __streamingHello = new Feature("StreamingHello", WireVersion.Server44);
         private static readonly Feature __tailableCursor = new Feature("TailableCursor", WireVersion.Server32);
-        private static readonly Feature __toStringOperator = new Feature("ToStringOperator", WireVersion.Server40);
+        private static readonly Feature __toConversionOperators = new Feature("ToConversionOperators", WireVersion.Server40);
         private static readonly Feature __trigOperators = new Feature("TrigOperators", WireVersion.Server42);
         private static readonly Feature __transactions = new Feature("Transactions", WireVersion.Server40);
         private static readonly Feature __updateWithAggregationPipeline = new Feature("UpdateWithAggregationPipeline", WireVersion.Server42);
@@ -650,9 +650,9 @@ namespace MongoDB.Driver.Core.Misc
         public static Feature TailableCursor => __tailableCursor;
 
         /// <summary>
-        /// Gets the $toString operator feature.
+        /// Gets the $toXyz conversion operators feature ($toDouble etc.).
         /// </summary>
-        public static Feature ToStringOperator => __toStringOperator;
+        public static Feature ToConversionOperators => __toConversionOperators;
 
         /// <summary>
         /// Gets the transactions feature.

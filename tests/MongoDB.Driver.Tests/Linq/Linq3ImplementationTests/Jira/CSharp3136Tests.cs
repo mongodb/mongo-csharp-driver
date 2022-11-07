@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [SkippableFact]
         public void DateTime_ToString_with_no_arguments_should_work()
         {
-            RequireServer.Check().Supports(Feature.ToStringOperator);
+            RequireServer.Check().Supports(Feature.ToConversionOperators);
 
             var collection = CreateCollection();
 
@@ -134,7 +134,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [SkippableFact]
         public void NullableDateTime_ToString_with_no_arguments_should_work()
         {
-            RequireServer.Check().Supports(Feature.ToStringOperator);
+            RequireServer.Check().Supports(Feature.ToConversionOperators);
 
             var collection = CreateCollection();
 

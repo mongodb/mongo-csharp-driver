@@ -16,6 +16,8 @@
 using System;
 using System.Linq;
 using FluentAssertions;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
 using Xunit;
 
@@ -23,9 +25,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
 {
     public class CSharp2472Tests : Linq3IntegrationTest
     {
-        [Fact]
-        public void Projection_of_ArrayOfDocuments_dictionary_keys_and_values_should_work()
+        [SkippableFact]
+        public void Numeric_casts_should_work()
         {
+            RequireServer.Check().Supports(Feature.ToConversionOperators);
             var collection = CreateCollection();
             var equipmentId = 1;
             var startDate = new DateTime(2022, 01, 01, 0, 0, 0, DateTimeKind.Utc);
