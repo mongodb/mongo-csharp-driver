@@ -17,6 +17,8 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using FluentAssertions;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
 using Xunit;
 
@@ -24,7 +26,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
 {
     public class CSharp2471Tests : Linq3IntegrationTest
     {
-        [Theory]
+        [SkippableTheory]
         [InlineData("$acos", 1.0, 0.0)]
 #if NETCOREAPP3_1_OR_GREATER
         [InlineData("$acosh", 1.0, 0.0)]
@@ -47,6 +49,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [InlineData("$tanh", 0.0, 0.0)]
         public void Trig_method_should_work(string trigOperator, double x, double expectedResult)
         {
+            RequireServer.Check().Supports(Feature.TrigOperators);
             var collection = CreateCollection(x);
 
             Expression<Func<C, double>> projection = trigOperator switch
@@ -85,9 +88,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             result.Should().Be(expectedResult);
         }
 
-        [Fact]
+        [SkippableFact]
         public void Atan2_should_work()
         {
+            RequireServer.Check().Supports(Feature.TrigOperators);
             var collection = CreateCollection(0.0);
 
             var queryable = collection

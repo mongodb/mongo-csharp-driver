@@ -117,6 +117,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __streamingHello = new Feature("StreamingHello", WireVersion.Server44);
         private static readonly Feature __tailableCursor = new Feature("TailableCursor", WireVersion.Server32);
         private static readonly Feature __toStringOperator = new Feature("ToStringOperator", WireVersion.Server40);
+        private static readonly Feature __trigOperators = new Feature("TrigOperators", WireVersion.Server42);
         private static readonly Feature __transactions = new Feature("Transactions", WireVersion.Server40);
         private static readonly Feature __updateWithAggregationPipeline = new Feature("UpdateWithAggregationPipeline", WireVersion.Server42);
         private static readonly Feature __userManagementCommands = new Feature("UserManagementCommands", WireVersion.Server26);
@@ -657,6 +658,11 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the transactions feature.
         /// </summary>
         public static Feature Transactions => __transactions;
+
+        /// <summary>
+        /// Gets the trig operators feature.
+        /// </summary>
+        public static Feature TrigOperators => __trigOperators;
 
         /// <summary>
         /// Gets the user management commands feature.
