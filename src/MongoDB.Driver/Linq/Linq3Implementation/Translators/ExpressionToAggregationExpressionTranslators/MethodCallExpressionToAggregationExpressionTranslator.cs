@@ -73,6 +73,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 case "ToList": return ToListMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "ToString": return ToStringMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Truncate": return TruncateMethodToAggregationExpressionTranslator.Translate(context, expression);
+                case "Week": return WeekMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Where": return WhereMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Union": return UnionMethodToAggregationExpressionTranslator.Translate(context, expression);
                 case "Zip": return ZipMethodToAggregationExpressionTranslator.Translate(context, expression);
