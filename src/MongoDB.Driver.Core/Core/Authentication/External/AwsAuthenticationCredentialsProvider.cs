@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Core.Authentication.External
         public DateTime? Expiration => _expiration;
         public SecureString SecretAccessKey => _secretAccessKey;
         public string SessionToken => _sessionToken;
-        public bool IsExpired => _expiration.HasValue ? (_expiration.Value - DateTime.UtcNow) < __overlapWhereExpired : false;
+        public bool ShouldBeRefreshed => _expiration.HasValue ? (_expiration.Value - DateTime.UtcNow) < __overlapWhereExpired : true;
 
         public BsonDocument GetKmsCredentials() =>
             new BsonDocument
@@ -59,10 +59,12 @@ namespace MongoDB.Driver.Core.Authentication.External
     internal sealed class AwsAuthenticationCredentialsProvider : IExternalAuthenticationCredentialsProvider<AwsCredentials>
     {
         private readonly AwsHttpClientHelper _awsHttpClientHelper;
+        private readonly IEnvironmentVariableProvider _environmentVariableProvider;
 
-        public AwsAuthenticationCredentialsProvider(IHttpClientWrapper httpClientWrapper)
+        public AwsAuthenticationCredentialsProvider(IHttpClientWrapper httpClientWrapper, IEnvironmentVariableProvider environmentVariableProvider)
         {
             _awsHttpClientHelper = new AwsHttpClientHelper(httpClientWrapper);
+            _environmentVariableProvider = Ensure.IsNotNull(environmentVariableProvider, nameof(environmentVariableProvider));
         }
 
         public AwsCredentials CreateCredentialsFromExternalSource(CancellationToken cancellationToken) =>
@@ -77,9 +79,9 @@ namespace MongoDB.Driver.Core.Authentication.External
 
         private AwsCredentials CreateAwsCredentialsFromEnvironmentVariables()
         {
-            var accessKeyId = Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID");
-            var secretAccessKey = Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY");
-            var sessionToken = Environment.GetEnvironmentVariable("AWS_SESSION_TOKEN");
+            var accessKeyId = _environmentVariableProvider.GetEnvironmentVariable("AWS_ACCESS_KEY_ID");
+            var secretAccessKey = _environmentVariableProvider.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY");
+            var sessionToken = _environmentVariableProvider.GetEnvironmentVariable("AWS_SESSION_TOKEN");
 
             if (accessKeyId == null && secretAccessKey == null && sessionToken == null)
             {
@@ -103,7 +105,7 @@ namespace MongoDB.Driver.Core.Authentication.External
 
         private async Task<AwsCredentials> CreateAwsCredentialsFromEcsResponseAsync(CancellationToken cancellationToken)
         {
-            var relativeUri = Environment.GetEnvironmentVariable("AWS_CONTAINER_CREDENTIALS_RELATIVE_URI");
+            var relativeUri = _environmentVariableProvider.GetEnvironmentVariable("AWS_CONTAINER_CREDENTIALS_RELATIVE_URI");
             if (relativeUri == null)
             {
                 return null;

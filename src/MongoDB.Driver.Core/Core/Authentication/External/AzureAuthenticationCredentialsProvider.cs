@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Core.Authentication.External
 
         public string AccessToken => _accessToken;
         public DateTime? Expiration => _expiration;
-        public bool IsExpired => _expiration.HasValue ? (_expiration.Value - DateTime.UtcNow) < __overlapWhereExpired : false;
+        public bool ShouldBeRefreshed => _expiration.HasValue ? (_expiration.Value - DateTime.UtcNow) < __overlapWhereExpired : true;
 
         public BsonDocument GetKmsCredentials() => new BsonDocument("accessToken", _accessToken);
     }

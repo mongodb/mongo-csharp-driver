@@ -14,14 +14,19 @@
 */
 
 using System;
-using MongoDB.Bson;
 
-namespace MongoDB.Driver.Core.Authentication.External
+namespace MongoDB.Driver.Core.Misc
 {
-    internal interface IExternalCredentials
+    internal interface IEnvironmentVariableProvider
     {
-        DateTime? Expiration { get; }
-        bool ShouldBeRefreshed { get; }
-        BsonDocument GetKmsCredentials();
+        string GetEnvironmentVariable(string name);
+    }
+
+    internal class EnvironmentVariableProvider : IEnvironmentVariableProvider
+    {
+        private static readonly IEnvironmentVariableProvider __instance = new EnvironmentVariableProvider();
+        public static IEnvironmentVariableProvider Instance => __instance;
+
+        public string GetEnvironmentVariable(string name) => Environment.GetEnvironmentVariable(name);
     }
 }

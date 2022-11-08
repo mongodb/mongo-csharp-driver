@@ -14,12 +14,18 @@
 */
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Authentication.External;
+using MongoDB.Driver.Core.Misc;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Communication.Security
@@ -101,7 +107,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
             {
                 var cachebleProvider = (CacheableCredentialsProvider<AwsCredentials>)ExternalCredentialsAuthenticators.Instance.Aws;
 
-                var currentCache = cachebleProvider._cachedCredentials();
+                var currentCache = cachebleProvider.Credentials;
                 if (date.HasValue)
                 {
                     currentCache._expiration(date);
@@ -120,7 +126,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
                 }
             }
 
-            AwsCredentials GetCache() => ((CacheableCredentialsProvider<AwsCredentials>)ExternalCredentialsAuthenticators.Instance.Aws)._cachedCredentials();
+            AwsCredentials GetCache() => ((CacheableCredentialsProvider<AwsCredentials>)ExternalCredentialsAuthenticators.Instance.Aws).Credentials;
 
             async Task Find(IMongoClient client)
             {
@@ -131,12 +137,120 @@ namespace MongoDB.Driver.Tests.Communication.Security
                 cursor.ToList();
             }
         }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public async Task Aws_external_credentials_caching_prose_unit_test([Values(false, true)] bool async)
+        {
+            var ecsResponseTemplate = new BsonDocument
+            {
+                { "AccessKeyId", "keyId" },
+                { "SecretAccessKey", "accessKey" },
+                { "Token", "token" }
+            };
+
+            var values = new Func<string>[]
+            {
+                // run 1
+                () => null,  // AWS_ACCESS_KEY_ID 
+                () => null,  // AWS_SECRET_ACCESS_KEY
+                () => null,  // AWS_SESSION_TOKEN
+                () => ecsResponseTemplate
+                    .DeepClone()
+                    .AsBsonDocument
+                    .Add(new BsonElement("Expiration", DateTime.UtcNow.AddDays(1).ToString("yyyy-MM-ddThh:mm:ssZ"))) // not expired
+                    .ToString(),
+
+                // run 2
+                () => ecsResponseTemplate["AccessKeyId"].ToString(),
+                () => ecsResponseTemplate["SecretAccessKey"].ToString(),
+                () => ecsResponseTemplate["Token"].ToString(),
+
+                // run 3
+                () => throw new Exception("Spec step 6: Set the AWS environment variables to invalid values."),
+
+                // run 4
+                () => null,  // AWS_ACCESS_KEY_ID 
+                () => null,  // AWS_SECRET_ACCESS_KEY
+                () => null,  // AWS_SESSION_TOKEN
+                () => ecsResponseTemplate
+                    .DeepClone()
+                    .AsBsonDocument
+                    .Add(new BsonElement("Expiration", DateTime.UtcNow.AddDays(1).ToString("yyyy-MM-ddThh:mm:ssZ"))) // not expired
+                    .ToString(),
+
+                // run 5
+                () => throw new Exception("Spec step 10: Set the AWS environment variables to invalid values."), // no op exception
+            };
+            var valuesQueue = new Queue<Func<string>>(values);
+            var environmentVariableProviderMock = new Mock<IEnvironmentVariableProvider>(MockBehavior.Strict);
+            environmentVariableProviderMock
+                .Setup(p => p.GetEnvironmentVariable(It.Is<string>(v => !v.Contains("AWS_CONTAINER_CREDENTIALS_RELATIVE_URI"))))
+                .Returns(() => valuesQueue.Dequeue()());
+            environmentVariableProviderMock
+                .Setup(p => p.GetEnvironmentVariable("AWS_CONTAINER_CREDENTIALS_RELATIVE_URI"))
+                // this needs to turn on ecs code path that is easier to mock
+                .Returns("dummy");
+
+            var httpClientWrapperMock = new Mock<IHttpClientWrapper>(MockBehavior.Strict);
+            httpClientWrapperMock
+                .Setup(h => h.GetHttpContentAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .Returns(() => Task.FromResult(valuesQueue.Dequeue()()));
+
+            var subject = CreateCacheableProvider(environmentVariableProviderMock.Object, httpClientWrapperMock.Object);
+
+            // Spec step 1: Ignore
+
+            // Spec step 2: Ensure that a find operation adds credentials to the cache.
+            var credentials = await GetCredentials();
+            subject.Credentials.Should().NotBeNull();
+
+            // Spec step 3: Set the AWS environment variables based on the cached credentials. => mocked behavior
+
+            // Spec step 4: Clear the cache.
+            subject.Clear();
+
+            // Spec step 5: Ensure that a find operation succeeds and does not add credentials to the cache.
+            credentials = await GetCredentials();
+            subject.Credentials.Should().BeNull();
+
+            // Spec step 6: Set the AWS environment variables to invalid values. => mocked behavior
+
+            // Spec step 7. Ensure that a find operation results in an error.
+            var exception = await Record.ExceptionAsync(() => GetCredentials());
+            exception.Message.Should().StartWith("Spec step 6");
+            subject.Credentials.Should().BeNull();
+
+            // Spec step 8: Create a new client.
+            subject.Clear(); // emulate client creation
+
+            // Spec step 9: Ensure that a find operation adds credentials to the cache.
+            credentials = await GetCredentials();
+            credentials.Should().NotBeNull();
+            subject.Credentials.Should().NotBeNull();
+
+            // Spec step 10: Set the AWS environment variables to invalid values. => mocked behavior
+
+            // Spec step 11: Ensure that a find operation succeeds.
+            credentials = await GetCredentials();
+
+            valuesQueue.Count.Should().Be(1); // contains only no op exception
+
+            async Task<AwsCredentials> GetCredentials() => async ? await subject.CreateCredentialsFromExternalSourceAsync(default) : subject.CreateCredentialsFromExternalSource(default);   
+        }
+
+        private CacheableCredentialsProvider<AwsCredentials> CreateCacheableProvider(
+            IEnvironmentVariableProvider environmentVariableProvider,
+            IHttpClientWrapper httpClientWrapper)
+        {
+            var awsProvider = new AwsAuthenticationCredentialsProvider(httpClientWrapper, environmentVariableProvider);
+            return new CacheableCredentialsProvider<AwsCredentials>(awsProvider);
+        }
     }
 
     internal static class CacheableCredentialsProviderReflector
     {
         public static void _cachedCredentials(this CacheableCredentialsProvider<AwsCredentials> provider, AwsCredentials credentials) => Reflector.SetFieldValue(provider, nameof(_cachedCredentials), credentials);
-        public static AwsCredentials _cachedCredentials(this CacheableCredentialsProvider<AwsCredentials> provider) => (AwsCredentials)Reflector.GetFieldValue(provider, nameof(_cachedCredentials));
     }
 
     internal static class AwsCredentialsReflector
