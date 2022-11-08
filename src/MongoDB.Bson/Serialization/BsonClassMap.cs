@@ -446,7 +446,7 @@ namespace MongoDB.Bson.Serialization
         /// <returns>false if already registered</returns>
         public static bool TryRegisterClassMap(BsonClassMap classMap)
         {
-            var registered = false;
+            var isRegistered = false;
 
             if (classMap == null)
             {
@@ -461,7 +461,7 @@ namespace MongoDB.Bson.Serialization
                 {
                     __classMaps.Add(classMap.ClassType, classMap);
                     BsonSerializer.RegisterDiscriminator(classMap.ClassType, classMap.Discriminator);
-                    registered = true;
+                    isRegistered = true;
                 }
             }
             finally
@@ -469,7 +469,7 @@ namespace MongoDB.Bson.Serialization
                 BsonSerializer.ConfigLock.ExitWriteLock();
             }
 
-            return registered;
+            return isRegistered;
         }
 
         // public methods
