@@ -379,6 +379,16 @@ namespace MongoDB.Bson.Serialization
         }
 
         /// <summary>
+        /// Creates and attempts to register a class map.
+        /// </summary>
+        /// <typeparam name="TClass">The class.</typeparam>
+        /// <returns>The class map.</returns>
+        public static BsonClassMap<TClass> TryRegisterClassMap<TClass>()
+        {
+            return TryRegisterClassMap<TClass>(cm => { cm.AutoMap(); });
+        }
+
+        /// <summary>
         /// Creates and registers a class map.
         /// </summary>
         /// <typeparam name="TClass">The class.</typeparam>
@@ -388,6 +398,19 @@ namespace MongoDB.Bson.Serialization
         {
             var classMap = new BsonClassMap<TClass>(classMapInitializer);
             RegisterClassMap(classMap);
+            return classMap;
+        }
+
+        /// <summary>
+        /// Creates and attempts to register a class map.
+        /// </summary>
+        /// <typeparam name="TClass">The class.</typeparam>
+        /// <param name="classMapInitializer">The class map initializer.</param>
+        /// <returns>The class map.</returns>
+        public static BsonClassMap<TClass> TryRegisterClassMap<TClass>(Action<BsonClassMap<TClass>> classMapInitializer)
+        {
+            var classMap = new BsonClassMap<TClass>(classMapInitializer);
+            TryRegisterClassMap(classMap);
             return classMap;
         }
 
@@ -408,6 +431,33 @@ namespace MongoDB.Bson.Serialization
                 // note: class maps can NOT be replaced (because derived classes refer to existing instance)
                 __classMaps.Add(classMap.ClassType, classMap);
                 BsonSerializer.RegisterDiscriminator(classMap.ClassType, classMap.Discriminator);
+            }
+            finally
+            {
+                BsonSerializer.ConfigLock.ExitWriteLock();
+            }
+        }
+
+        /// <summary>
+        /// Attempts to register a class map.
+        /// </summary>
+        /// <param name="classMap">The class map.</param>
+        public static void TryRegisterClassMap(BsonClassMap classMap)
+        {
+            if (classMap == null)
+            {
+                throw new ArgumentNullException("classMap");
+            }
+
+            BsonSerializer.ConfigLock.EnterWriteLock();
+            try
+            {
+                // note: class maps can NOT be replaced (because derived classes refer to existing instance)
+                if (!__classMaps.ContainsKey(classMap.ClassType))
+                {
+                    __classMaps.Add(classMap.ClassType, classMap);
+                    BsonSerializer.RegisterDiscriminator(classMap.ClassType, classMap.Discriminator);
+                }
             }
             finally
             {
