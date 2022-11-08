@@ -382,7 +382,8 @@ namespace MongoDB.Bson.Serialization
         /// Creates and attempts to register a class map.
         /// </summary>
         /// <typeparam name="TClass">The class.</typeparam>
-        /// <returns>The class map.</returns>
+        /// <param name="classMap">The registered class map.</param>
+        /// <returns>false if already registered</returns>
         public static bool TryRegisterClassMap<TClass>(out BsonClassMap<TClass> classMap)
         {
             return TryRegisterClassMap(cm => { cm.AutoMap(); }, out classMap);
@@ -442,6 +443,7 @@ namespace MongoDB.Bson.Serialization
         /// Attempts to register a class map.
         /// </summary>
         /// <param name="classMap">The class map.</param>
+        /// <returns>false if already registered</returns>
         public static bool TryRegisterClassMap(BsonClassMap classMap)
         {
             var registered = false;
