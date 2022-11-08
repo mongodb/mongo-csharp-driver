@@ -383,9 +383,9 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         /// <typeparam name="TClass">The class.</typeparam>
         /// <returns>The class map.</returns>
-        public static BsonClassMap<TClass> TryRegisterClassMap<TClass>()
+        public static bool TryRegisterClassMap<TClass>(out BsonClassMap<TClass> classMap)
         {
-            return TryRegisterClassMap<TClass>(cm => { cm.AutoMap(); });
+            return TryRegisterClassMap(cm => { cm.AutoMap(); }, out classMap);
         }
 
         /// <summary>
@@ -406,12 +406,12 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         /// <typeparam name="TClass">The class.</typeparam>
         /// <param name="classMapInitializer">The class map initializer.</param>
-        /// <returns>The class map.</returns>
-        public static BsonClassMap<TClass> TryRegisterClassMap<TClass>(Action<BsonClassMap<TClass>> classMapInitializer)
+        /// <param name="classMap">The registered class map.</param>
+        /// <returns>false if already registered</returns>
+        public static bool TryRegisterClassMap<TClass>(Action<BsonClassMap<TClass>> classMapInitializer, out BsonClassMap<TClass> classMap)
         {
-            var classMap = new BsonClassMap<TClass>(classMapInitializer);
-            TryRegisterClassMap(classMap);
-            return classMap;
+            classMap = new BsonClassMap<TClass>(classMapInitializer);
+            return TryRegisterClassMap(classMap);
         }
 
         /// <summary>
@@ -442,8 +442,10 @@ namespace MongoDB.Bson.Serialization
         /// Attempts to register a class map.
         /// </summary>
         /// <param name="classMap">The class map.</param>
-        public static void TryRegisterClassMap(BsonClassMap classMap)
+        public static bool TryRegisterClassMap(BsonClassMap classMap)
         {
+            var registered = false;
+
             if (classMap == null)
             {
                 throw new ArgumentNullException("classMap");
@@ -457,12 +459,15 @@ namespace MongoDB.Bson.Serialization
                 {
                     __classMaps.Add(classMap.ClassType, classMap);
                     BsonSerializer.RegisterDiscriminator(classMap.ClassType, classMap.Discriminator);
+                    registered = true;
                 }
             }
             finally
             {
                 BsonSerializer.ConfigLock.ExitWriteLock();
             }
+
+            return registered;
         }
 
         // public methods
