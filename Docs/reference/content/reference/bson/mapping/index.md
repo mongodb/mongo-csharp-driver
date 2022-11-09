@@ -335,7 +335,7 @@ Some of these Id generators are used automatically for commonly used `Id` types:
 
 - [`GuidGenerator`]({{< apiref "T_MongoDB_Bson_Serialization_IdGenerators_GuidGenerator" >}}) is used for a [`Guid`]({{< msdnref "system.guid" >}})
 - [`ObjectIdGenerator`]({{< apiref "T_MongoDB_Bson_Serialization_IdGenerators_ObjectIdGenerator" >}}) is used for an [`ObjectId`]({{< apiref "T_MongoDB_Bson_ObjectId" >}})
-- [`StringObjectIdGenerator`]({{< apiref "T_MongoDB_Bson_Serialization_IdGenerators_StringObjectIdGenerator" >}}) is used for a [`string`]({{< msdnref "system.string" >}}) represented externally as [`ObjectId`]({{< apiref "T_MongoDB_Bson_ObjectId" >}})
+- [`StringObjectIdGenerator`]({{< apiref "T_MongoDB_Bson_Serialization_IdGenerators_StringObjectIdGenerator" >}}) is used for a [`string`]({{< msdnref "system.string" >}}) represented externally as [`ObjectId`]({{< apiref "T_MongoDB_Bson_ObjectId" >}}) via `[BsonRepresentation(BsonType.ObjectId)] public string Id { get; set; }`
 
 To specify the Id generator via an attribute:
 
