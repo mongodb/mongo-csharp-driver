@@ -525,7 +525,7 @@ functions:
     - command: shell.exec
       type: test
       params:
-        #silent: true
+        silent: true
         working_dir: mongo-csharp-driver
         script: |
           ${PREPARE_SHELL}
@@ -557,10 +557,6 @@ functions:
         silent: true
         working_dir: mongo-csharp-driver
         script: |
-          if [ "${skip_ECS_auth_test}" = "true" ]; then
-             echo "This platform does not support the ECS auth test, skipping..."
-             exit 0
-          fi
           # DO NOT ECHO WITH XTRACE (which PREPARE_SHELL does)
           cat <<'EOF' > "${PROJECT_DIRECTORY}/prepare_mongodb_aws.sh"
             export AWS_ACCESS_KEY_ID=${iam_auth_ecs_account}
