@@ -1548,6 +1548,7 @@ axes:
         display_name: "Windows 64-bit"
         variables:
           OS: "windows-64"
+          skip_ECS_auth_test: true
         run_on: windows-64-vs2017-test
       - id: "ubuntu-1804"
         display_name: "Ubuntu 18.04"
