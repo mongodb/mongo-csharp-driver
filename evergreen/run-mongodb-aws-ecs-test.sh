@@ -3,6 +3,14 @@
 # Don't trace since the URI contains a password that shouldn't show up in the logs
 set -o errexit  # Exit the script with error if any of the commands fail
 
+# Environment variables used as input:
+#       MONGODB_URI             Set the URI, including username/password to use to connect to the server via MONGODBAWS authentication mechanism
+#       ASSERT_NO_URI_CREDS     Determines whether we need assert existence credentials in connection string or not
+#
+# Environment variables used as output:
+#       AWS_TESTS_ENABLED       Allows runnings AWS tests
+#       AWS_ECS_TEST            Allows runnings EVS tests
+#
 ############################################
 #            Main Program                  #
 ############################################
@@ -22,6 +30,8 @@ set -o xtrace
 export AWS_TESTS_ENABLED=true
 export AWS_ECS_TEST=true
 
-cd mongo-csharp-driver
+# EG scripts for ECS assume that a root folder is "src" and all driver side scripts are placed in ".evergreen" folder. 
+# So that script is copied into "src/.evergreen" before running
+cd src
 
 ./build.sh --target=TestAwsAuthentication

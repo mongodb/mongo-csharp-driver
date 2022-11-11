@@ -502,7 +502,6 @@ functions:
              echo "This platform does not support the EC2 auth test, skipping..."
              exit 0
           fi
-          # The aws_e2e_assume_role script requires python3 with boto3.
           cd ${DRIVERS_TOOLS}/.evergreen/auth_aws
           . ./activate_venv.sh
           mongo aws_e2e_ec2.js
@@ -520,7 +519,7 @@ functions:
             MONGODB_URI="mongodb://localhost"
           EOF
           export AWS_EC2_ENABLED=true
-          PROJECT_DIRECTORY=${PROJECT_DIRECTORY} OS=$OS evergreen/run-mongodb-aws-test.sh
+          PROJECT_DIRECTORY=${PROJECT_DIRECTORY} ASSERT_NO_URI_CREDS=true OS=$OS evergreen/run-mongodb-aws-test.sh
 
   run-aws-auth-test-with-aws-ECS-credentials:
     - command: shell.exec
@@ -536,10 +535,17 @@ functions:
           fi
           cd ${DRIVERS_TOOLS}/.evergreen/auth_aws
           . ./activate_venv.sh
-          echo "Project Directory: $project_dir"
+          echo "Project Directory: $PROJECT_DIRECTORY"
+          # SRC_DIRECTORY is workaround since EG_TOOLS expects "src" folder as a root
+          SRC_DIRECTORY=$(dirname $PROJECT_DIRECTORY)/src
+          echo "Src Directory: $SRC_DIRECTORY"
+          cp -r $PROJECT_DIRECTORY $SRC_DIRECTORY
+          # Workaround. EG_TOOLS scripts for ECS assume that a folder with EG scripts in the driver is named ".evergreen"
+          mkdir $SRC_DIRECTORY/.evergreen
+          cp -r $SRC_DIRECTORY/evergreen/run-mongodb-aws-ecs-test.sh $SRC_DIRECTORY/.evergreen/run-mongodb-aws-ecs-test.sh
           cat <<EOF > setup.js
           const mongo_binaries = "$MONGODB_BINARIES";
-          const project_dir = "$PROJECT_DIRECTORY"
+          const project_dir = "$SRC_DIRECTORY"
           EOF
           mongo --nodb setup.js aws_e2e_ecs.js
           cd -
@@ -567,7 +573,7 @@ functions:
         working_dir: mongo-csharp-driver
         script: |
           ${PREPARE_SHELL}
-          OS="${OS}" evergreen/run-mongodb-aws-test.sh
+          OS="${OS}" ASSERT_NO_URI_CREDS=true evergreen/run-mongodb-aws-test.sh
 
   run-aws-auth-test-with-aws-credentials-and-session-token-as-environment-variables:
     - command: shell.exec
@@ -590,7 +596,7 @@ functions:
         working_dir: mongo-csharp-driver
         script: |
           ${PREPARE_SHELL}
-          OS=${OS} evergreen/run-mongodb-aws-test.sh
+          OS=${OS} ASSERT_NO_URI_CREDS=true evergreen/run-mongodb-aws-test.sh
 
   run-atlas-data-lake-test:
     - command: shell.exec
@@ -1036,11 +1042,8 @@ tasks:
             TOPOLOGY: "server"
         - func: add-aws-auth-variables-to-file
         # This step also creates test related users, so don't avoid this step in order to run other tests
-        # all env variables are not set
         - func: run-aws-auth-test-with-regular-aws-credentials
-        # all env variables are not set
         - func: run-aws-auth-test-with-assume-role-credentials
-        # use env variables: ENVIRONMENT_VARIABLE_ACCESSKEY and ENVIRONMENT_VARIABLE_SECRETKEY
         - func: run-aws-auth-test-with-aws-credentials-as-environment-variables
         # This step requires running run-aws-auth-test-with-assume-role-credentials before to explicitly set up instance profile
         - func: run-aws-auth-test-with-aws-credentials-and-session-token-as-environment-variables

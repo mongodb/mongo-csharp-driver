@@ -6,6 +6,7 @@ set -o errexit  # Exit the script with error if any of the commands fail
 # Supported/used environment variables:
 #       MONGODB_URI             Set the URI, including username/password to use to connect to the server via MONGODBAWS authentication mechanism
 #       OS                      Current operation system
+#       ASSERT_NO_URI_CREDS     Determines whether we need assert existence credentials in connection string or not
 
 ############################################
 #            Main Program                  #
@@ -38,6 +39,13 @@ MONGODB_URI="${MONGODB_URI}/aws?authMechanism=MONGODB-AWS"
 if [[ -n ${SESSION_TOKEN} ]]; then
     MONGODB_URI="${MONGODB_URI}&authMechanismProperties=AWS_SESSION_TOKEN:${SESSION_TOKEN}"
 fi
+if [ "$ASSERT_NO_URI_CREDS" = "true" ]; then
+    if echo "$MONGODB_URI" | grep -q "@"; then
+        echo "MONGODB_URI unexpectedly contains user credentials!";
+        exit 1
+    fi
+fi
+
 export MONGODB_URI
 export AWS_TESTS_ENABLED=true
 
