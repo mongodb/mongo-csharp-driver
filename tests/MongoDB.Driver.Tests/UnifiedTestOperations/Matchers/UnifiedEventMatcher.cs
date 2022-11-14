@@ -226,6 +226,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                         }
                     }
                     break;
+                case "poolReadyEvent":
+                    actualEvent.Should().BeOfType<ConnectionPoolReadyEvent>();
+                    expectedEventValue.ElementCount.Should().Be(0); // empty document
+                    break;
                 case "serverDescriptionChangedEvent":
                     var serverDescriptionChangedEvent = actualEvent.Should().BeOfType<ServerDescriptionChangedEvent>().Subject;
                     if (expectedEventValue.Elements.Any())

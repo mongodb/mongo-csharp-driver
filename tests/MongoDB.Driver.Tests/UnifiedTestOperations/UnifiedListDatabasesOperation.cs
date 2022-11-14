@@ -23,13 +23,16 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
     public class UnifiedListDatabasesOperation : IUnifiedEntityTestOperation
     {
         private readonly IMongoClient _client;
+        private readonly ListDatabasesOptions _options = null;
         private readonly IClientSessionHandle _session = null;
 
         public UnifiedListDatabasesOperation(
             IMongoClient client,
+            ListDatabasesOptions options,
             IClientSessionHandle session)
         {
             _client = client;
+            _options = options;
             _session = session;
         }
 
@@ -38,8 +41,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             try
             {
                 using var cursor = _session == null
-                    ? _client.ListDatabases(cancellationToken)
-                    : _client.ListDatabases(_session, cancellationToken);
+                    ? _client.ListDatabases(_options, cancellationToken)
+                    : _client.ListDatabases(_session, _options, cancellationToken);
 
                 var result = cursor.ToList(cancellationToken);
 
@@ -56,8 +59,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             try
             {
                 using var cursor = _session == null
-                    ? await _client.ListDatabasesAsync(cancellationToken)
-                    : await _client.ListDatabasesAsync(_session, cancellationToken);
+                    ? await _client.ListDatabasesAsync(_options, cancellationToken)
+                    : await _client.ListDatabasesAsync(_session, _options, cancellationToken);
 
                 var result = await cursor.ToListAsync(cancellationToken);
 
@@ -82,6 +85,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         public UnifiedListDatabasesOperation Build(string targetClientId, BsonDocument arguments)
         {
             var client = _entityMap.GetClient(targetClientId);
+            ListDatabasesOptions options = null;
             IClientSessionHandle session = null;
 
             if (arguments != null)
@@ -90,6 +94,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 {
                     switch (argument.Name)
                     {
+                        case "filter":
+                            options ??= new ListDatabasesOptions();
+                            options.Filter = new BsonDocumentFilterDefinition<BsonDocument>(argument.Value.AsBsonDocument);
+                            break;
                         case "session":
                             session = _entityMap.GetSession(argument.Value.AsString);
                             break;
@@ -99,7 +107,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 }
             }
 
-            return new UnifiedListDatabasesOperation(client, session);
+            return new UnifiedListDatabasesOperation(client, options, session);
         }
     }
 }

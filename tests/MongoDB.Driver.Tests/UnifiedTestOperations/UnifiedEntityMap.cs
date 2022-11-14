@@ -454,7 +454,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             string clientId = null;
             var commandNamesToSkipInEvents = new List<string>();
             List<(string Key, IEnumerable<string> Events, List<string> CommandNotToCapture)> eventTypesToCapture = new ();
+            int? heartbeatFrequencyMS = null;
             bool? loadBalanced = null;
+            int? maxConnecting = null;
+            TimeSpan? maxIdleTime = null;
             int? maxPoolSize = null;
             int? minPoolSize = null;
             bool? observeSensitiveCommands = null;
@@ -462,6 +465,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             var retryReads = true;
             var retryWrites = true;
             var useMultipleShardRouters = false;
+            int? waitQueueSize = null;
             TimeSpan? waitQueueTimeout = null;
             var writeConcern = WriteConcern.Acknowledged;
             var serverApi = CoreTestConfiguration.ServerApi;
@@ -481,8 +485,17 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                                 case "appname":
                                     appName = option.Value.ToString();
                                     break;
+                                case "heartbeatFrequencyMS":
+                                    heartbeatFrequencyMS = option.Value.ToInt32();
+                                    break;
                                 case "loadBalanced":
                                     loadBalanced = option.Value.ToBoolean();
+                                    break;
+                                case "maxConnecting":
+                                    maxConnecting = option.Value.ToInt32();
+                                    break;
+                                case "maxIdleTimeMS":
+                                    maxIdleTime = TimeSpan.FromMilliseconds(option.Value.ToInt32());
                                     break;
                                 case "minPoolSize":
                                     minPoolSize = option.Value.ToInt32();
@@ -503,6 +516,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                                     break;
                                 case "w":
                                     writeConcern = new WriteConcern(option.Value.AsInt32);
+                                    break;
+                                case "waitQueueSize":
+                                    waitQueueSize = option.Value.ToInt32();
                                     break;
                                 case "waitQueueTimeoutMS":
                                     waitQueueTimeout = TimeSpan.FromMilliseconds(option.Value.ToInt32());
@@ -626,14 +642,19 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 {
                     settings.ApplicationName = appName;
                     settings.LoadBalanced = loadBalanced.GetValueOrDefault(defaultValue: settings.LoadBalanced);
+                    settings.MaxConnecting = maxConnecting.GetValueOrDefault(defaultValue: settings.MaxConnecting);
+                    settings.MaxConnectionIdleTime = maxIdleTime.GetValueOrDefault(defaultValue: settings.MaxConnectionIdleTime);
                     settings.MaxConnectionPoolSize = maxPoolSize.GetValueOrDefault(defaultValue: settings.MaxConnectionPoolSize);
                     settings.MinConnectionPoolSize = minPoolSize.GetValueOrDefault(defaultValue: settings.MinConnectionPoolSize);
                     settings.RetryReads = retryReads;
                     settings.RetryWrites = retryWrites;
                     settings.ReadConcern = readConcern;
+#pragma warning disable CS0618 // Type or member is obsolete
+                    settings.WaitQueueSize = waitQueueSize.GetValueOrDefault(defaultValue: settings.WaitQueueSize);
+#pragma warning restore CS0618 // Type or member is obsolete
                     settings.WaitQueueTimeout = waitQueueTimeout.GetValueOrDefault(defaultValue: settings.WaitQueueTimeout);
                     settings.WriteConcern = writeConcern;
-                    settings.HeartbeatInterval = TimeSpan.FromMilliseconds(5); // the default value for spec tests
+                    settings.HeartbeatInterval = TimeSpan.FromMilliseconds(heartbeatFrequencyMS ?? 5); // the default value for spec tests
                     settings.ServerApi = serverApi;
                     if (eventCapturers.Length > 0)
                     {

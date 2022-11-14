@@ -24,11 +24,17 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
     public static class UnifiedLogHelper
     {
-        public static LogEntry[] FilterLogs(LogEntry[] logs, string clientId, int clusterId, Dictionary<string, Dictionary<string, LogLevel>> componentsVerbosity)
+        public static LogEntry[] FilterLogs(
+            LogEntry[] logs,
+            string clientId,
+            int clusterId,
+            Dictionary<string, Dictionary<string, LogLevel>> componentsVerbosity,
+            Predicate<LogEntry> filter = null)
         {
             var clientConfiguration = componentsVerbosity[clientId];
 
             var result = logs.Where(l =>
+                filter?.Invoke(l) != false &&
                 l.ClusterId == clusterId &&
                 clientConfiguration.TryGetValue(l.Category, out var logLevel) &&
                 l.LogLevel >= logLevel)
