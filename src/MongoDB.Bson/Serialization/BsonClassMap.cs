@@ -403,6 +403,58 @@ namespace MongoDB.Bson.Serialization
         }
 
         /// <summary>
+        /// Registers a class map if it is not already registered.
+        /// </summary>
+        /// <typeparam name="TClass">The class.</typeparam>
+        /// <param name="classMapInitializer">The class map initializer.</param>
+        public static void RegisterClassMapIfNotAlreadyRegistered<TClass>(Action<BsonClassMap<TClass>> classMapInitializer)
+        {
+            if (classMapInitializer == null)
+            {
+                throw new ArgumentNullException("classMapInitializer");
+            }
+
+            BsonSerializer.ConfigLock.EnterReadLock();
+            try
+            {
+                BsonClassMap classMap;
+                if (__classMaps.TryGetValue(typeof(TClass), out classMap))
+                {
+                    if (classMap.IsFrozen)
+                    {
+                        return;
+                    }
+                }
+            }
+            finally
+            {
+                BsonSerializer.ConfigLock.ExitReadLock();
+            }
+
+            BsonSerializer.ConfigLock.EnterWriteLock();
+            try
+            {
+                BsonClassMap classMap;
+                if (!__classMaps.TryGetValue(typeof(TClass), out classMap))
+                {
+                    // create a classMap for TClass and register it
+                    var classMapDefinition = typeof(BsonClassMap<>);
+                    var classMapType = classMapDefinition.MakeGenericType(typeof(TClass));
+                    classMap = (BsonClassMap)Activator.CreateInstance(classMapType);
+                    classMap.AutoMap();
+                    classMapInitializer((BsonClassMap<TClass>)classMap);
+                    RegisterClassMap(classMap);
+                }
+                classMap.Freeze();
+                return;
+            }
+            finally
+            {
+                BsonSerializer.ConfigLock.ExitWriteLock();
+            }
+        }
+
+        /// <summary>
         /// Creates and attempts to register a class map.
         /// </summary>
         /// <typeparam name="TClass">The class.</typeparam>
