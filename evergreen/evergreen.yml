@@ -676,12 +676,15 @@ functions:
       params:
         working_dir: mongo-csharp-driver
         script: |
+          ${PREPARE_SHELL}
+          ${PREPARE_CSFLE}
           AUTH=${AUTH} \
           FRAMEWORK=${FRAMEWORK} \
           SERVERLESS_ATLAS_USER="${SERVERLESS_ATLAS_USER}" \
           SERVERLESS_ATLAS_PASSWORD="${SERVERLESS_ATLAS_PASSWORD}" \
           SERVERLESS_URI="${SERVERLESS_URI}" \
           SSL=${SSL} \
+          CRYPT_SHARED_LIB_PATH=${CRYPT_SHARED_LIB_PATH} \
             evergreen/run-serverless-tests.sh
 
   run-smoke-tests:
