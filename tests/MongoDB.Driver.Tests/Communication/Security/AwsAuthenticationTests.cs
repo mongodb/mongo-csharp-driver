@@ -132,12 +132,12 @@ namespace MongoDB.Driver.Tests.Communication.Security
             }
         }
 
-        [SkippableFact]
+        [Fact]
         public void Ecs_should_fill_AWS_CONTAINER_CREDENTIALS_RELATIVE_URI()
         {
             var isEcs = Environment.GetEnvironmentVariable("AWS_ECS_TEST") != null;
             var awsContainerRelativeUri = Environment.GetEnvironmentVariable("AWS_CONTAINER_CREDENTIALS_RELATIVE_URI");
-            awsContainerRelativeUri.Should().Match(v => isEcs ? v != null : v == null);
+            (awsContainerRelativeUri != null).Should().Be(isEcs);
         }
     }
 

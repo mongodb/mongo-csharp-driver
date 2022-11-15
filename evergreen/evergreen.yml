@@ -569,7 +569,7 @@ functions:
         working_dir: mongo-csharp-driver
         script: |
           ${PREPARE_SHELL}
-          OS="${OS}" ASSERT_NO_URI_CREDS=true evergreen/run-mongodb-aws-test.sh
+          OS=${OS} ASSERT_NO_URI_CREDS=true evergreen/run-mongodb-aws-test.sh
 
   run-aws-auth-test-with-aws-credentials-and-session-token-as-environment-variables:
     - command: shell.exec
