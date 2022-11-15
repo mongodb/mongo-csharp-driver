@@ -1,14 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <IsWindows Condition="$([MSBuild]::IsOSPlatform('Windows'))">true</IsWindows>
-  </PropertyGroup>
-
-  <PropertyGroup>
     <TargetFrameworks>netcoreapp2.1;netcoreapp3.1;net6.0;net472</TargetFrameworks>
     <TargetFrameworks Condition="'$(IsWindows)'!='true'">netcoreapp2.1;netcoreapp3.1;net6.0</TargetFrameworks>
-    <LangVersion>10.0</LangVersion>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <WarningsAsErrors />
     <IsPackable>false</IsPackable>
     <CodeAnalysisRuleSet>..\..\MongoDBTest.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
@@ -16,17 +9,11 @@
   <PropertyGroup>
     <AssemblyTitle>MongoDB.Driver.Tests</AssemblyTitle>
     <Product>MongoDB.Driver.Tests</Product>
-    <Company>MongoDB Inc.</Company>
-    <Copyright>Copyright © 2010-present MongoDB Inc.</Copyright>
     <Description>MongoDB.Driver tests.</Description>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Version)'==''">
     <Version>0.0.0-local</Version>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -40,10 +27,6 @@
       xUnit2004; <!--Do not use equality check to test for boolean conditions (https://xunit.github.io/xunit.analyzers/rules/xUnit2004.html)-->
       xUnit2013 <!--Do not use equality check to check for collection size. (https://xunit.github.io/xunit.analyzers/rules/xUnit2013.html)-->
     </NoWarn>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(IsWindows)'=='true'">
-    <DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

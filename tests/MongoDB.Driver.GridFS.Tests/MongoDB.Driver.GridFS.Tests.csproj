@@ -1,14 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <IsWindows Condition="$([MSBuild]::IsOSPlatform('Windows'))">true</IsWindows>
-  </PropertyGroup>
 
   <PropertyGroup>
     <TargetFrameworks>netcoreapp2.1;netcoreapp3.1;net6.0;net472</TargetFrameworks>
     <TargetFrameworks Condition="'$(IsWindows)'!='true'">netcoreapp2.1;netcoreapp3.1;net6.0</TargetFrameworks>
-    <LangVersion>10.0</LangVersion>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <WarningsAsErrors />
     <IsPackable>false</IsPackable>
     <CodeAnalysisRuleSet>..\..\MongoDBTest.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
@@ -16,17 +10,11 @@
   <PropertyGroup>
     <AssemblyTitle>MongoDB.Driver.GridFS.Tests</AssemblyTitle>
     <Product>MongoDB.Driver.GridFS.Tests</Product>
-    <Company>MongoDB Inc.</Company>
-    <Copyright>Copyright © 2010-present MongoDB Inc.</Copyright>
     <Description>MongoDB.Driver.GridFS tests.</Description>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Version)'==''">
     <Version>0.0.0-local</Version>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup>

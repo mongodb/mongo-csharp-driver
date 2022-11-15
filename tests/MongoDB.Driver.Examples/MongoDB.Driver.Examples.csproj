@@ -6,9 +6,6 @@
   <PropertyGroup>
     <TargetFrameworks>netcoreapp2.1;netcoreapp3.1;net472</TargetFrameworks>
     <TargetFrameworks Condition="'$(IsWindows)'!='true'">netcoreapp2.1;netcoreapp3.1</TargetFrameworks>
-    <LangVersion>10.0</LangVersion>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <WarningsAsErrors />
     <IsPackable>false</IsPackable>
     <CodeAnalysisRuleSet>..\..\MongoDBTest.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
@@ -16,8 +13,6 @@
   <PropertyGroup>
     <AssemblyTitle>MongoDB.Driver.Examples</AssemblyTitle>
     <Product>MongoDB.Driver.Examples</Product>
-    <Company>MongoDB Inc.</Company>
-    <Copyright>Copyright © 2010-present MongoDB Inc.</Copyright>
     <Description>MongoDB.Driver examples.</Description>
   </PropertyGroup>
 
@@ -27,10 +22,6 @@
 
   <PropertyGroup Condition="'$(Version)'==''">
     <Version>0.0.0-local</Version>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
