@@ -68,7 +68,42 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers.KnownSerializers
 
             var result = base.Visit(node);
             _registry.Add(node, _currentKnownSerializersNode);
-            _currentKnownSerializersNode = _currentKnownSerializersNode.Parent;
+
+            var parent = _currentKnownSerializersNode.Parent;
+            if (ShouldPropagateKnownSerializersToParent(parent))
+            {
+                parent.AddKnownSerializersFromChild(_currentKnownSerializersNode);
+            }
+            _currentKnownSerializersNode = parent;
+
+            return result;
+        }
+
+        protected override Expression VisitConditional(ConditionalExpression node)
+        {
+            var result = base.VisitConditional(node);
+
+            if (_currentKnownSerializersNode.KnownSerializers.TryGetValue(node.Type, out var resultSerializers) &&
+                resultSerializers.Count > 1)
+            {
+                var ifTrueSerializer = _registry.GetSerializerAtThisLevel(node.IfTrue);
+                var ifFalseSerializer = _registry.GetSerializerAtThisLevel(node.IfFalse);
+
+                if (ifTrueSerializer != null && ifFalseSerializer != null && !ifTrueSerializer.Equals(ifFalseSerializer))
+                {
+                    throw new ExpressionNotSupportedException(node, because: "IfTrue and IfFalse expressions have different serializers");
+                }
+
+                if (ifTrueSerializer != null)
+                {
+                    _currentKnownSerializersNode.SetKnownSerializerForType(node.Type, ifTrueSerializer);
+                }
+                else if (ifFalseSerializer != null)
+                {
+                    _currentKnownSerializersNode.SetKnownSerializerForType(node.Type, ifFalseSerializer);
+                }
+            }
+
             return result;
         }
 
@@ -87,14 +122,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers.KnownSerializers
                     {
                         var rightExpressionSerializer = _registry.GetSerializer(rightExpression);
                         var leftExpressionSerializer = EnumUnderlyingTypeSerializer.Create(rightExpressionSerializer);
-                        _registry.AddKnownSerializer(leftExpression, leftExpressionSerializer, allowPropagation: false);
+                        _registry.SetNodeSerializer(leftExpression, leftExpressionSerializer);
                     }
 
                     if (rightExpression is ConstantExpression rightConstantExpression)
                     {
                         var leftExpressionSerializer = _registry.GetSerializer(leftExpression);
                         var rightExpressionSerializer = EnumUnderlyingTypeSerializer.Create(leftExpressionSerializer);
-                        _registry.AddKnownSerializer(rightExpression, rightExpressionSerializer, allowPropagation: false);
+                        _registry.SetNodeSerializer(rightExpression, rightExpressionSerializer);
                     }
                 }
             }
@@ -201,6 +236,21 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers.KnownSerializers
             }
 
             return result;
+        }
+
+        private bool ShouldPropagateKnownSerializersToParent(KnownSerializersNode parent)
+        {
+            if (parent == null)
+            {
+                return false;
+            }
+
+            return parent.Expression.NodeType switch
+            {
+                ExpressionType.MemberInit => false,
+                ExpressionType.New => false,
+                _ => true
+            };
         }
     }
 }

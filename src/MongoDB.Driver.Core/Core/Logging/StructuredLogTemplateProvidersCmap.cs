@@ -19,7 +19,7 @@ using MongoDB.Driver.Core.Events;
 
 namespace MongoDB.Driver.Core.Logging
 {
-    internal static partial class StructuredLogsTemplates
+    internal static partial class StructuredLogTemplateProviders
     {
         private static string[] __cmapCommonParams = new[]
         {
@@ -36,47 +36,47 @@ namespace MongoDB.Driver.Core.Logging
             AddTemplateProvider<ConnectionPoolAddingConnectionEvent>(
                 LogLevel.Debug,
                 CmapCommonParams(),
-                e => GetParams(e.ServerId, "Connection adding"));
+                (e, _) => GetParams(e.ServerId, "Connection adding"));
 
             AddTemplateProvider<ConnectionPoolCheckingInConnectionEvent>(
-                 LogLevel.Debug,
-                 ConnectionCommonParams(),
-                 e => GetParams(e.ConnectionId, "Connection checking in"));
+                LogLevel.Debug,
+                ConnectionCommonParams(),
+                (e, _) => GetParams(e.ConnectionId, "Connection checking in"));
 
             AddTemplateProvider<ConnectionPoolCheckedInConnectionEvent>(
                 LogLevel.Debug,
                 ConnectionCommonParams(),
-                e => GetParams(e.ConnectionId, "Connection checked in"));
+                (e, _) => GetParams(e.ConnectionId, "Connection checked in"));
 
             AddTemplateProvider<ConnectionPoolCheckingOutConnectionEvent>(
                 LogLevel.Debug,
                 CmapCommonParams(),
-                e => GetParams(e.ServerId, "Connection checkout started"));
+                (e, _) => GetParams(e.ServerId, "Connection checkout started"));
 
             AddTemplateProvider<ConnectionPoolCheckedOutConnectionEvent>(
                 LogLevel.Debug,
                 ConnectionCommonParams(),
-                e => GetParams(e.ConnectionId, "Connection checked out"));
+                (e, _) => GetParams(e.ConnectionId, "Connection checked out"));
 
             AddTemplateProvider<ConnectionPoolCheckingOutConnectionFailedEvent>(
                 LogLevel.Debug,
                 CmapCommonParams(Reason),
-                e => GetParams(e.ServerId, "Connection checkout failed", e.Reason));
+                (e, _) => GetParams(e.ServerId, "Connection checkout failed", e.Reason));
 
             AddTemplateProvider<ConnectionPoolRemovingConnectionEvent>(
                 LogLevel.Debug,
                 CmapCommonParams(),
-                e => GetParams(e.ServerId, "Connection removing"));
+                (e, _) => GetParams(e.ServerId, "Connection removing"));
 
             AddTemplateProvider<ConnectionPoolRemovedConnectionEvent>(
                 LogLevel.Debug,
                 CmapCommonParams(),
-                e => GetParams(e.ServerId, "Connection removed"));
+                (e, _) => GetParams(e.ServerId, "Connection removed"));
 
             AddTemplate<ConnectionPoolOpeningEvent, ConnectionSettings>(
                 LogLevel.Debug,
                 CmapCommonParams(MaxIdleTimeMS, WaitQueueTimeoutMS, MinPoolSize, MaxPoolSize, MaxConnecting),
-                (e, s) => GetParams(
+                (e, _, s) => GetParams(
                     e.ServerId,
                     "Connection pool opening",
                     s.MaxIdleTime.TotalMilliseconds,
@@ -88,7 +88,7 @@ namespace MongoDB.Driver.Core.Logging
             AddTemplate<ConnectionPoolOpenedEvent, ConnectionSettings>(
                 LogLevel.Debug,
                 CmapCommonParams(MaxIdleTimeMS, WaitQueueTimeoutMS, MinPoolSize, MaxPoolSize, MaxConnecting),
-                (e, s) => GetParams(
+                (e, _, s) => GetParams(
                     e.ServerId,
                     "Connection pool created",
                     s.MaxIdleTime.TotalMilliseconds,
@@ -100,27 +100,27 @@ namespace MongoDB.Driver.Core.Logging
             AddTemplateProvider<ConnectionPoolReadyEvent>(
                 LogLevel.Debug,
                 CmapCommonParams(),
-                e => GetParams(e.ServerId, "Connection pool ready"));
+                (e, _) => GetParams(e.ServerId, "Connection pool ready"));
 
             AddTemplateProvider<ConnectionPoolClearingEvent>(
                 LogLevel.Debug,
                 CmapCommonParams(ServiceId),
-                e => GetParams(e.ServerId, "Connection pool clearing", e.ServiceId));
+                (e, _) => GetParams(e.ServerId, "Connection pool clearing", e.ServiceId));
 
             AddTemplateProvider<ConnectionPoolClearedEvent>(
                 LogLevel.Debug,
                 CmapCommonParams(ServiceId),
-                e => GetParams(e.ServerId, "Connection pool cleared", e.ServiceId));
+                (e, _) => GetParams(e.ServerId, "Connection pool cleared", e.ServiceId));
 
             AddTemplateProvider<ConnectionPoolClosingEvent>(
                 LogLevel.Debug,
                 CmapCommonParams(),
-                e => GetParams(e.ServerId, "Connection pool closing"));
+                (e, _) => GetParams(e.ServerId, "Connection pool closing"));
 
             AddTemplateProvider<ConnectionPoolClosedEvent>(
                 LogLevel.Debug,
                 CmapCommonParams(),
-                e => GetParams(e.ServerId, "Connection pool closed"));
+                (e, _) => GetParams(e.ServerId, "Connection pool closed"));
         }
     }
 }

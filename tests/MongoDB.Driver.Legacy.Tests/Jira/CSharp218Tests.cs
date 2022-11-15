@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp218
         }
 
         [Fact]
-        public void TestDeserializeClassWithStructPropertyFails()
+        public void TestDeserializeClassWithStructPropertyWithoutConstructorFails()
         {
             _collection.RemoveAll();
             var c = new C { Id = ObjectId.GenerateNewId(), P = new P { X = 1, Y = 2 } };
@@ -61,7 +61,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp218
             }
             catch (Exception ex)
             {
-                var expectedMessage = "An error occurred while deserializing the P field of class MongoDB.Driver.Tests.Jira.CSharp218.CSharp218Tests+C: Value class MongoDB.Driver.Tests.Jira.CSharp218.CSharp218Tests+P cannot be deserialized.";
+                var expectedMessage = "An error occurred while deserializing the P field of class MongoDB.Driver.Tests.Jira.CSharp218.CSharp218Tests+C: Value class MongoDB.Driver.Tests.Jira.CSharp218.CSharp218Tests+P cannot be deserialized without a constructor.";
                 Assert.IsType<FormatException>(ex);
                 Assert.IsType<BsonSerializationException>(ex.InnerException);
                 Assert.Equal(expectedMessage, ex.Message);

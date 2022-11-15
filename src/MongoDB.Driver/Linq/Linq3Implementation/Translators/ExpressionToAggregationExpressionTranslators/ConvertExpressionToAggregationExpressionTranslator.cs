@@ -15,10 +15,12 @@
 
 using System;
 using System.Linq.Expressions;
+using System.Text.RegularExpressions;
+using System.Xml.Schema;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
-using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators
 {
@@ -28,10 +30,15 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
         {
             if (expression.NodeType == ExpressionType.Convert)
             {
+                var expressionType = expression.Type;
+                if (expressionType == typeof(BsonValue))
+                {
+                    return TranslateConvertToBsonValue(context, expression, expression.Operand);
+                }
+
                 var operandExpression = expression.Operand;
                 var operandTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, operandExpression);
 
-                var expressionType = expression.Type;
                 if (expressionType.IsConstructedGenericType && expressionType.GetGenericTypeDefinition() == typeof(Nullable<>))
                 {
                     var valueType = expressionType.GetGenericArguments()[0];
@@ -56,7 +63,20 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 }
                 else
                 {
-                    ast = AstExpression.Convert(ast, expressionType);
+                    var to = expressionType.FullName switch
+                    {
+                        "MongoDB.Bson.ObjectId" => "objectId",
+                        "System.Boolean" => "bool",
+                        "System.DateTime" => "date",
+                        "System.Decimal" => "decimal",
+                        "System.Double" => "double",
+                        "System.Int32" => "int",
+                        "System.Int64" => "long",
+                        "System.String" => "string",
+                        _ => throw new ExpressionNotSupportedException(expression, because: $"conversion to {expressionType} is not supported")
+                    };
+
+                    ast = AstExpression.Convert(ast, to);
                     serializer = context.KnownSerializersRegistry.GetSerializer(expression);
                 }
 
@@ -64,6 +84,21 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             }
 
             throw new ExpressionNotSupportedException(expression);
+        }
+
+        private static AggregationExpression TranslateConvertToBsonValue(TranslationContext context, UnaryExpression expression, Expression operand)
+        {
+            // handle double conversions like `(BsonValue)(object)x.Anything`
+            if (operand is UnaryExpression unaryExpression &&
+                unaryExpression.NodeType == ExpressionType.Convert &&
+                unaryExpression.Type == typeof(object))
+            {
+                operand = unaryExpression.Operand;
+            }
+
+            var operandTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, operand);
+
+            return new AggregationExpression(expression, operandTranslation.Ast, BsonValueSerializer.Instance);
         }
     }
 }

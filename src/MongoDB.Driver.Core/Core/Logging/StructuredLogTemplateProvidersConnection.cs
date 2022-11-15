@@ -18,7 +18,7 @@ using MongoDB.Driver.Core.Events;
 
 namespace MongoDB.Driver.Core.Logging
 {
-    internal static partial class StructuredLogsTemplates
+    internal static partial class StructuredLogTemplateProviders
     {
         private static string[] __connectionCommonParams = new[]
         {
@@ -36,72 +36,72 @@ namespace MongoDB.Driver.Core.Logging
             AddTemplateProvider<ConnectionPoolAddedConnectionEvent>(
                 LogLevel.Debug,
                 ConnectionCommonParams(),
-                e => GetParams(e.ConnectionId, "Connection added"));
+                (e, _) => GetParams(e.ConnectionId, "Connection added"));
 
             AddTemplateProvider<ConnectionOpenedEvent>(
                  LogLevel.Debug,
                  ConnectionCommonParams(),
-                 e => GetParams(e.ConnectionId, "Connection ready"));
+                 (e, _) => GetParams(e.ConnectionId, "Connection ready"));
 
             AddTemplateProvider<ConnectionOpeningEvent>(
                 LogLevel.Debug,
                 ConnectionCommonParams(),
-                e => GetParams(e.ConnectionId, "Connection added"));
+                (e, _) => GetParams(e.ConnectionId, "Connection added"));
 
             AddTemplateProvider<ConnectionOpeningFailedEvent>(
                  LogLevel.Debug,
                  ConnectionCommonParams(Reason),
-                 e => GetParams(e.ConnectionId, "Connection opening failed", e.Exception?.ToString()));
+                 (e, _) => GetParams(e.ConnectionId, "Connection opening failed", e.Exception?.ToString()));
 
             AddTemplateProvider<ConnectionCreatedEvent>(
                 LogLevel.Debug,
                 ConnectionCommonParams(),
-                e => GetParams(e.ConnectionId, "Connection created"));
+                (e, _) => GetParams(e.ConnectionId, "Connection created"));
 
             AddTemplateProvider<ConnectionFailedEvent>(
                 LogLevel.Debug,
                 ConnectionCommonParams(Reason),
-                e => GetParams(e.ConnectionId, "Connection failed", e.Exception?.ToString()));
+                (e, _) => GetParams(e.ConnectionId, "Connection failed", e.Exception?.ToString()));
 
             AddTemplateProvider<ConnectionClosingEvent>(
                  LogLevel.Debug,
                  ConnectionCommonParams(Reason),
-                 e => GetParams(e.ConnectionId, "Connection closing", "Unknown"));
+                 (e, _) => GetParams(e.ConnectionId, "Connection closing", "Unknown"));
 
             AddTemplateProvider<ConnectionClosedEvent>(
                 LogLevel.Debug,
                 ConnectionCommonParams(Reason),
-                e => GetParams(e.ConnectionId, "Connection closed", "Unknown"));
+                (e, _) => GetParams(e.ConnectionId, "Connection closed", "Unknown"));
 
             AddTemplateProvider<ConnectionReceivedMessageEvent>(
                 LogLevel.Trace,
                 ConnectionCommonParams(),
-                e => GetParams(e.ConnectionId, "Received"));
+                (e, _) => GetParams(e.ConnectionId, "Received"));
 
             AddTemplateProvider<ConnectionReceivingMessageEvent>(
                  LogLevel.Trace,
                  ConnectionCommonParams(),
-                 e => GetParams(e.ConnectionId, "Receiving"));
+                 (e, _) => GetParams(e.ConnectionId, "Receiving"));
 
             AddTemplateProvider<ConnectionReceivingMessageFailedEvent>(
                  LogLevel.Trace,
                  ConnectionCommonParams(Reason),
-                 e => GetParams(e.ConnectionId, "Receiving failed", e.Exception?.ToString()));
+                 (e, _) => GetParams(e.ConnectionId, "Receiving failed", e.Exception?.ToString()));
 
             AddTemplateProvider<ConnectionSendingMessagesEvent>(
                  LogLevel.Trace,
                  ConnectionCommonParams(),
-                 e => GetParams(e.ConnectionId, "Sending"));
+                 (e, _) => GetParams(e.ConnectionId, "Sending"));
 
             AddTemplateProvider<ConnectionSendingMessagesFailedEvent>(
                  LogLevel.Trace,
                  ConnectionCommonParams(Reason),
-                 e => GetParams(e.ConnectionId, "Sending failed", e.Exception?.ToString()));
+                 (e, _) => GetParams(e.ConnectionId, "Sending failed", e.Exception?.ToString()));
 
             AddTemplateProvider<ConnectionSentMessagesEvent>(
                  LogLevel.Trace,
                  ConnectionCommonParams(),
-                 e => GetParams(e.ConnectionId, "Sent"));
+                 (e, _) => GetParams(e.ConnectionId, "Sent"));
         }
     }
 }

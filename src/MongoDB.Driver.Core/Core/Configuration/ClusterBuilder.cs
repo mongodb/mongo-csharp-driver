@@ -17,7 +17,6 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
-using Microsoft.Extensions.Logging;
 using MongoDB.Driver.Core.Authentication;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.ConnectionPools;
@@ -43,7 +42,7 @@ namespace MongoDB.Driver.Core.Configuration
         private ClusterSettings _clusterSettings;
         private ConnectionPoolSettings _connectionPoolSettings;
         private ConnectionSettings _connectionSettings;
-        private ILoggerFactory _loggerFactory;
+        private LoggingSettings _loggingSettings;
 #pragma warning disable CS0618 // Type or member is obsolete
         private SdamLoggingSettings _sdamLoggingSettings;
 #pragma warning restore CS0618 // Type or member is obsolete
@@ -121,16 +120,16 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         /// <summary>
-        /// Configures the logging factory.
+        /// Configures the logging settings.
         /// </summary>
-        /// <param name="configurator">The logging factory configurator delegate.</param>
+        /// <param name="configurator">The logging settings configurator delegate.</param>
         /// <returns>A reconfigured cluster builder.</returns>
         [CLSCompliant(false)]
-        public ClusterBuilder ConfigureLoggingFactory(Func<ILoggerFactory, ILoggerFactory> configurator)
+        public ClusterBuilder ConfigureLoggingSettings(Func<LoggingSettings, LoggingSettings> configurator)
         {
             Ensure.IsNotNull(configurator, nameof(configurator));
 
-            _loggerFactory = configurator(_loggerFactory).DecorateCategories();
+            _loggingSettings = configurator(_loggingSettings);
             return this;
         }
 
@@ -139,7 +138,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// </summary>
         /// <param name="configurator">The SDAM logging settings configurator delegate.</param>
         /// <returns>A reconfigured cluster builder.</returns>
-        [Obsolete("Use ConfigureLoggingFactory instead.")]
+        [Obsolete("Use ConfigureLoggingSettings instead.")]
         public ClusterBuilder ConfigureSdamLogging(Func<SdamLoggingSettings, SdamLoggingSettings> configurator)
         {
             _sdamLoggingSettings = configurator(_sdamLoggingSettings);
@@ -241,7 +240,7 @@ namespace MongoDB.Driver.Core.Configuration
                 _clusterSettings,
                 serverFactory,
                 _eventAggregator,
-                _loggerFactory);
+                _loggingSettings?.ToInternalLoggerFactory());
         }
 
         private IConnectionPoolFactory CreateConnectionPoolFactory()
@@ -253,7 +252,7 @@ namespace MongoDB.Driver.Core.Configuration
                 streamFactory,
                 _eventAggregator,
                 _clusterSettings.ServerApi,
-                _loggerFactory);
+                _loggingSettings.ToInternalLoggerFactory());
 
             var connectionPoolSettings = _connectionPoolSettings.WithInternal(isPausable: !_connectionSettings.LoadBalanced);
 
@@ -261,7 +260,7 @@ namespace MongoDB.Driver.Core.Configuration
                 connectionPoolSettings,
                 connectionFactory,
                 _eventAggregator,
-                _loggerFactory);
+                _loggingSettings.ToInternalLoggerFactory());
         }
 
         private ServerFactory CreateServerFactory()
@@ -284,7 +283,7 @@ namespace MongoDB.Driver.Core.Configuration
                 serverMonitorFactory,
                 _eventAggregator,
                 _clusterSettings.ServerApi,
-                _loggerFactory);
+                _loggingSettings.ToInternalLoggerFactory());
         }
 
         private IServerMonitorFactory CreateServerMonitorFactory()
@@ -326,7 +325,7 @@ namespace MongoDB.Driver.Core.Configuration
                 serverMonitorConnectionFactory,
                 _eventAggregator,
                 _clusterSettings.ServerApi,
-                _loggerFactory);
+                _loggingSettings.ToInternalLoggerFactory());
         }
 
         private IStreamFactory CreateTcpStreamFactory(TcpStreamSettings tcpStreamSettings)

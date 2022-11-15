@@ -124,7 +124,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                         case "Minute": datePart = AstDatePart.Minute; break;
                         case "Month": datePart = AstDatePart.Month; break;
                         case "Second": datePart = AstDatePart.Second; break;
-                        case "Week": datePart = AstDatePart.Week; break;
                         case "Year": datePart = AstDatePart.Year; break;
                         default: return false;
                     }

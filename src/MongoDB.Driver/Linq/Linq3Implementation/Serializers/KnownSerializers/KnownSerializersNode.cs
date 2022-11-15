@@ -27,6 +27,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers.KnownSerializers
         // private fields
         private readonly Expression _expression;
         private readonly Dictionary<Type, HashSet<IBsonSerializer>> _knownSerializers = new Dictionary<Type, HashSet<IBsonSerializer>>();
+        private IBsonSerializer _nodeSerializer; // a serializer used only for this node (not propagated upwards)
         private readonly KnownSerializersNode _parent;
 
         // constructors
@@ -42,7 +43,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers.KnownSerializers
         public KnownSerializersNode Parent => _parent;
 
         // public methods
-        public void AddKnownSerializer(Type type, IBsonSerializer serializer, bool allowPropagation = true)
+        public void AddKnownSerializersFromChild(KnownSerializersNode child)
+        {
+            foreach (var type in child.KnownSerializers.Keys)
+            foreach (var serializer in child.KnownSerializers[type])
+            {
+                AddKnownSerializer(type, serializer);
+            }
+        }
+
+        public void AddKnownSerializer(Type type, IBsonSerializer serializer)
         {
             if (!_knownSerializers.TryGetValue(type, out var set))
             {
@@ -51,15 +61,35 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers.KnownSerializers
             }
 
             set.Add(serializer);
+        }
 
-            if (allowPropagation && ShouldPropagateKnownSerializerToParent())
+        public void SetKnownSerializerForType(Type type, IBsonSerializer serializer)
+        {
+            if (serializer.ValueType != type)
             {
-                _parent.AddKnownSerializer(type, serializer);
+                throw new ArgumentException($"Serializer value type {serializer.ValueType} does not match expected type {type}.");
             }
+
+            _knownSerializers[type] = new HashSet<IBsonSerializer> { serializer };
+        }
+
+        public void SetNodeSerializer(IBsonSerializer serializer)
+        {
+            if (serializer.ValueType != _expression.Type)
+            {
+                throw new ArgumentException($"Serializer value type {serializer.ValueType} does not match expression type {_expression.Type}.");
+            }
+
+            _nodeSerializer = serializer;
         }
 
         public HashSet<IBsonSerializer> GetPossibleSerializers(Type type)
         {
+            if (_nodeSerializer != null && _nodeSerializer.ValueType == type)
+            {
+                return new HashSet<IBsonSerializer> { _nodeSerializer };
+            }
+
             var possibleSerializers = GetPossibleSerializersAtThisLevel(type);
             if (possibleSerializers.Count > 0)
             {
@@ -114,21 +144,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers.KnownSerializers
             }
 
             return possibleSerializers;
-        }
-
-        private bool ShouldPropagateKnownSerializerToParent()
-        {
-            if (_parent == null)
-            {
-                return false;
-            }
-
-            return _parent.Expression.NodeType switch
-            {
-                ExpressionType.MemberInit => false,
-                ExpressionType.New => false,
-                _ => true
-            };
         }
     }
 }

@@ -13,14 +13,67 @@
 * limitations under the License.
 */
 
+using System;
+using System.Linq;
+using System.Linq.Expressions;
+using FluentAssertions;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Linq.Linq3Implementation;
+using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests
 {
     public class MongoQueryProviderTests
     {
-        // TODO: implement MongoQueryProviderTests
+        [Fact]
+        public void CreateQuery_non_generic_should_return_expected_result()
+        {
+            var (subject, expression) = CreateSubject();
+
+            var result = subject.CreateQuery(expression);
+
+            result.ElementType.Should().Be(typeof(int));
+            result.Expression.Should().BeSameAs(expression);
+            result.Provider.Should().BeOfType<MongoQueryProvider<C>>();
+        }
+
+        [Fact]
+        public void CreateQuery_generic_should_return_expected_result()
+        {
+            var (subject, expression) = CreateSubject();
+
+            var result = subject.CreateQuery<int>(expression);
+
+            result.ElementType.Should().Be(typeof(int));
+            result.Expression.Should().BeSameAs(expression);
+            result.Provider.Should().BeOfType<MongoQueryProvider<C>>();
+        }
+
+        private (IQueryProvider, Expression) CreateSubject()
+        {
+            var client = DriverTestConfiguration.Linq3Client;
+            var database = client.GetDatabase("test");
+            var collection = database.GetCollection<C>("test");
+            var provider = new MongoQueryProvider<C>(collection, session: null, options: null);
+            var queryable = collection.AsQueryable();
+            var parameter = Expression.Parameter(typeof(C), "x");
+            var expression =
+                Expression.Call(
+                    QueryableMethod.Select.MakeGenericMethod(typeof(C), typeof(int)),
+                    Expression.Constant(queryable, typeof(IQueryable<C>)),
+                    Expression.Quote(
+                        Expression.Lambda<Func<C, int>>(
+                            Expression.Property(parameter, "X"),
+                            parameter)));
+            return (provider, expression);
+        }
+
+        public class C
+        {
+            public int Id { get; set; }
+            public int X { get; set; }
+        }
     }
 
     internal static class MongoQueryProviderExtensions

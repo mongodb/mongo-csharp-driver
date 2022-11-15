@@ -27,6 +27,7 @@ using MongoDB.Driver.Core.ConnectionPools;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Helpers;
+using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Servers;
 using Moq;
 using Xunit;
@@ -224,9 +225,8 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
                 __endPoint,
                 new ConnectionPoolSettings(maintenanceInterval: maintenanceInterval.GetValueOrDefault(defaultValue: __dummyInterval), minConnections: minPoolSize),
                 mockConnectionFactory.Object,
-                eventCapturer ?? Mock.Of<IEventSubscriber>(),
                 Mock.Of<IConnectionExceptionHandler>(),
-                null);
+                eventCapturer.ToEventLogger<LogCategories.Connection>());
 
             exclusiveConnectionPool.Initialize();
             exclusiveConnectionPool.SetReady(); // MaintenanceHelper is started

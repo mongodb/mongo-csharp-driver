@@ -280,6 +280,18 @@ namespace MongoDB.Driver.Linq
         }
 
         /// <summary>
+        /// Converts a DateTime value to a string.
+        /// </summary>
+        /// <param name="this">The DateTime value.</param>
+        /// <param name="format">The format string (optional, can be null).</param>
+        /// <param name="timezone">The timezone to use in the returned string (optional, can be null).</param>
+        /// <returns>The DateTime value converted to a string.</returns>
+        public static string ToString(this DateTime @this, string format, string timezone)
+        {
+            throw new InvalidOperationException("This DateTime.ToString method is only intended to be used in LINQ queries.");
+        }
+
+        /// <summary>
         /// Truncates a DateTime value to the specified unit.
         /// </summary>
         /// <param name="this">The original DateTime.</param>
@@ -314,6 +326,27 @@ namespace MongoDB.Driver.Linq
         public static DateTime Truncate(this DateTime @this, DateTimeUnit unit, long binSize, string timezone)
         {
             throw new InvalidOperationException("This DateTime.Truncate method is only intended to be used in LINQ queries.");
+        }
+
+        /// <summary>
+        /// Returns the week number of a specified DateTime value.
+        /// </summary>
+        /// <param name="this">The DateTime value.</param>
+        /// <returns>The week number of a specified DateTime value.</returns>
+        public static int Week(this DateTime @this)
+        {
+            throw new InvalidOperationException("This DateTime.Week method is only intended to be used in LINQ queries.");
+        }
+
+        /// <summary>
+        /// Returns the week number of a specified DateTime value.
+        /// </summary>
+        /// <param name="this">The DateTime value.</param>
+        /// <param name="timezone">The timezone to use (optional, can be null).</param>
+        /// <returns>The week number of a specified DateTime value.</returns>
+        public static int Week(this DateTime @this, string timezone)
+        {
+            throw new InvalidOperationException("This DateTime.Week method is only intended to be used in LINQ queries.");
         }
     }
 }

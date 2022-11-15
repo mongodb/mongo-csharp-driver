@@ -14,6 +14,7 @@
 */
 
 using Microsoft.Extensions.Logging;
+using MongoDB.Driver.Core.Configuration;
 using Moq;
 using Xunit;
 
@@ -42,7 +43,8 @@ namespace MongoDB.Driver.Core.Logging
         internal void DecorateCategories_should_return_correct_category(string providedCategory, string expectedCatergory)
         {
             var underlyingFactory = new Mock<ILoggerFactory>();
-            var decoratedFactory = underlyingFactory.Object.DecorateCategories();
+            var loggingSettings = new LoggingSettings(underlyingFactory.Object);
+            var decoratedFactory = loggingSettings.ToInternalLoggerFactory();
 
             decoratedFactory.CreateLogger(providedCategory);
             underlyingFactory.Verify(f => f.CreateLogger(expectedCatergory), Times.Once);

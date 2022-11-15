@@ -501,7 +501,7 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
                         settings.ClusterConfigurator = c => c.Subscribe(eventCapturer);
                     }
                 },
-                LoggerFactory,
+                LoggingSettings,
                 useMultipleShardRouters);
         }
 

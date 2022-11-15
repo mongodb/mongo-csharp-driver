@@ -74,7 +74,7 @@ namespace MongoDB.Driver.Core.Connections
                 eventCapturer.Capture<CommandFailedEvent>(_ => true);
             }
 
-            var eventLogger = new EventsLogger<LogCategories.Command>(eventCapturer, mockLogger.Object);
+            var eventLogger = new EventLogger<LogCategories.Command>(eventCapturer, mockLogger.Object);
             var commandHelper = new CommandEventHelper(eventLogger);
 
             commandHelper._shouldTrackState().Should().Be(logCommands || captureCommandSucceeded || captureCommandFailed);

@@ -262,7 +262,7 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
                     ConfigureClientSettings(settings, test);
                     settings.ClusterConfigurator = c => c.Subscribe(eventCapturer);
                 },
-                LoggerFactory,
+                LoggingSettings,
                 useMultipleShardRouters);
         }
 

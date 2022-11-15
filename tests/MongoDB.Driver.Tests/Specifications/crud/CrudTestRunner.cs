@@ -145,7 +145,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud
                         c.ConfigureServer(ss => ss.With(heartbeatInterval: Timeout.InfiniteTimeSpan));
                     };
                 },
-                LoggerFactory);
+                LoggingSettings);
         }
 
         private void ExecuteOperation(IMongoClient client, IMongoDatabase database, IMongoCollection<BsonDocument> collection, BsonDocument operation, BsonDocument outcome, bool async)

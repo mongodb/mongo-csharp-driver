@@ -18,18 +18,15 @@ using MongoDB.Driver.Core.Events;
 
 namespace MongoDB.Driver.Core.Logging
 {
-    internal static class LoggerFactoryExtentions
+    internal static class LoggerFactoryExtensions
     {
-        public static ILoggerFactory DecorateCategories(this ILoggerFactory loggerFactory) =>
-            loggerFactory switch
-            {
-                LoggerFactoryCategoryDecorator => loggerFactory,
-                _ when loggerFactory != null => new LoggerFactoryCategoryDecorator(loggerFactory),
-                _ => null
-            };
+        public static EventLogger<T> CreateEventLogger<T>(this ILoggerFactory loggerFactory, IEventSubscriber eventSubscriber)
+            where T : LogCategories.EventCategory
+        {
+            var loggingSettings = (loggerFactory as LoggerFactoryCategoryDecorator)?.LoggingSettings;
+            var eventLogFormattingOptions = loggingSettings != null ? new EventLogFormattingOptions(loggingSettings.MaxDocumentSize) : null;
 
-        public static EventsLogger<T> CreateEventsLogger<T>(this ILoggerFactory loggerFactory, IEventSubscriber eventSubscriber)
-            where T : LogCategories.EventCategory =>
-            new EventsLogger<T>(eventSubscriber, loggerFactory?.CreateLogger<T>());
+            return new EventLogger<T>(eventSubscriber, loggerFactory?.CreateLogger<T>(), eventLogFormattingOptions);
+        }
     }
 }

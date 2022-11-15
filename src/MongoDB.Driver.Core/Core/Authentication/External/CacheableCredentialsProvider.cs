@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Core.Authentication.External
         void Clear();
     }
 
-    internal class CacheableCredentialsProvider<TCredentials> : IExternalAuthenticationCredentialsProvider<TCredentials>, ICredentialsCache<TCredentials>
+    internal sealed class CacheableCredentialsProvider<TCredentials> : IExternalAuthenticationCredentialsProvider<TCredentials>, ICredentialsCache<TCredentials>
         where TCredentials : IExternalCredentials
     {
         private TCredentials _cachedCredentials;
@@ -51,7 +51,10 @@ namespace MongoDB.Driver.Core.Authentication.External
                 try
                 {
                     cachedCredentials = _provider.CreateCredentialsFromExternalSource(cancellationToken);
-                    _cachedCredentials = cachedCredentials;
+                    if (cachedCredentials.Expiration.HasValue) // allows caching
+                    {
+                        _cachedCredentials = cachedCredentials;
+                    }
                     return cachedCredentials;
                 }
                 catch
@@ -75,7 +78,10 @@ namespace MongoDB.Driver.Core.Authentication.External
                 try
                 {
                     cachedCredentials = await _provider.CreateCredentialsFromExternalSourceAsync(cancellationToken).ConfigureAwait(false);
-                    _cachedCredentials = cachedCredentials;
+                    if (cachedCredentials.Expiration.HasValue) // allows caching
+                    {
+                        _cachedCredentials = cachedCredentials;
+                    }
                     return cachedCredentials;
                 }
                 catch
@@ -87,7 +93,7 @@ namespace MongoDB.Driver.Core.Authentication.External
         }
 
         // private methods
-        private bool IsValidCache(TCredentials credentials) => credentials != null && !credentials.IsExpired;
+        private bool IsValidCache(TCredentials credentials) => credentials != null && !credentials.ShouldBeRefreshed;
         public void Clear() => _cachedCredentials = default;
     }
 }

@@ -17,8 +17,11 @@ using System;
 using System.Linq;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
+using MongoDB.Bson;
+using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.TestHelpers.Logging;
+using MongoDB.Driver.Linq;
 using MongoDB.Driver.TestHelpers;
 using Xunit;
 using Xunit.Abstractions;
@@ -34,7 +37,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void MongoClient_should_log()
         {
-            using (var client = DriverTestConfiguration.CreateDisposableClient(LoggerFactory))
+            using (var client = DriverTestConfiguration.CreateDisposableClient(LoggingSettings))
             {
                 client.ListDatabases(new ListDatabasesOptions());
             }
@@ -81,12 +84,82 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void MongoClient_should_not_throw_when_factory_is_null()
         {
-            using (var client = DriverTestConfiguration.CreateDisposableClient(loggerFactory: null))
+            using (var client = DriverTestConfiguration.CreateDisposableClient(loggingSettings: null))
             {
                 client.ListDatabases(new ListDatabasesOptions());
             }
 
             Logs.Any().Should().BeFalse();
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData(100)]
+        public void Prose_tests_truncation_limit_1(int? maxDocumentSize)
+        {
+            var expectedMaxSize = (maxDocumentSize ?? 1000) + 3; // 3 to account for '...'
+            const string collectionName = "proseLogTests";
+
+            var documents = Enumerable.Range(0, 100).Select(_ => new BsonDocument() { { "x", "y" } }).ToArray();
+
+            var loggingSettings = maxDocumentSize == null
+                ? new LoggingSettings(LoggerFactory)
+                : new LoggingSettings(LoggerFactory, maxDocumentSize.Value);
+            using (var client = DriverTestConfiguration.CreateDisposableClient(loggingSettings))
+            {
+                
+                var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
+
+                try
+                {
+                    var collection = db.GetCollection<BsonDocument>(collectionName);
+                    collection.InsertMany(documents);
+                    _ = collection.Find(FilterDefinition<BsonDocument>.Empty).ToList();
+                }
+                finally
+                {
+                    db.DropCollection(collectionName);
+                }
+            }
+
+            var commandCategory = LogCategoryHelper.GetCategoryName<LogCategories.Command>();
+            var commands = Logs.Where(l => l.Category == commandCategory).ToArray();
+
+            GetCommandParameter(commands, "insert", "Command started", StructuredLogTemplateProviders.Command)
+                .Length.Should().Be(expectedMaxSize);
+            GetCommandParameter(commands, "insert", "Command succeeded", StructuredLogTemplateProviders.Reply)
+                .Length.Should().BeLessOrEqualTo(expectedMaxSize);
+            GetCommandParameter(commands, "find", "Command succeeded", StructuredLogTemplateProviders.Reply)
+                .Length.Should().Be(expectedMaxSize);
+        }
+
+        [Fact]
+        public void Prose_tests_truncation_limit_2()
+        {
+            const int truncationSize = 5;
+            const int maxDocumentSize = truncationSize + 3; // 3 to account for '...'
+            var loggingSettings = new LoggingSettings(LoggerFactory, truncationSize);
+            using (var client = DriverTestConfiguration.CreateDisposableClient(loggingSettings))
+            {
+                var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
+
+                try
+                {
+                    db.RunCommand<BsonDocument>(new BsonDocument() { { "hello", "true" } });
+                    db.RunCommand<BsonDocument>(new BsonDocument() { { "notARealCommand", "true" } });
+                }
+                catch (MongoCommandException) { }
+            }
+
+            var commandCategory = LogCategoryHelper.GetCategoryName<LogCategories.Command>();
+            var commands = Logs.Where(l => l.Category == commandCategory).ToArray();
+
+            GetCommandParameter(commands, "hello", "Command started", StructuredLogTemplateProviders.Command)
+                .Length.Should().Be(maxDocumentSize);
+            GetCommandParameter(commands, "hello", "Command succeeded", StructuredLogTemplateProviders.Reply)
+                .Length.Should().Be(maxDocumentSize);
+            GetCommandParameter(commands, "notARealCommand", "Command failed", StructuredLogTemplateProviders.Failure)
+                .Length.Should().Be(maxDocumentSize);
         }
 
         private void AssertLogs((LogLevel logLevel, string categorySubString, string messageSubString)[] expectedLogs, LogEntry[] actualLogs)
@@ -106,6 +179,15 @@ namespace MongoDB.Driver.Tests
                     logEntry.Category?.Contains(categorySubString) == true &&
                     logEntry.FormattedMessage?.Contains(messageSubString) == true;
             }
+        }
+
+        private string GetCommandParameter(LogEntry[] commandLogs, string commandName, string message, string parameter)
+        {
+            var command = commandLogs.Single(c =>
+                c.GetParameter<string>(StructuredLogTemplateProviders.CommandName) == commandName &&
+                c.GetParameter<string>(StructuredLogTemplateProviders.Message) == message);
+
+            return command.GetParameter<string>(parameter);
         }
     }
 }

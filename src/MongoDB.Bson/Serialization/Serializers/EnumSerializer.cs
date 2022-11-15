@@ -102,6 +102,20 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
         }
 
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            return
+                obj is EnumSerializer<TEnum> other &&
+                _representation == other.Representation;
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode()
+        {
+            return _representation.GetHashCode();
+        }
+
         /// <summary>
         /// Serializes a value.
         /// </summary>

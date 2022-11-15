@@ -27,17 +27,25 @@ namespace MongoDB.Bson.Serialization
     public static class TypeNameDiscriminator
     {
         // private static fields
-        private static Assembly[] __wellKnownAssemblies;
+        private static readonly HashSet<Assembly> __wellKnownAssemblies = new HashSet<Assembly>();
 
         // static constructor
         static TypeNameDiscriminator()
         {
-            __wellKnownAssemblies = new Assembly[]
+            var representativeTypes = new Type[]
             {
-                typeof(object).GetTypeInfo().Assembly, // mscorlib
-                typeof(Queue<>).GetTypeInfo().Assembly, // System
-                typeof(HashSet<>).GetTypeInfo().Assembly // System.Core
+                // the actual locations of these types varies depending on the target framework
+                typeof(object),
+                typeof(Queue<>),
+                typeof(HashSet<>),
+                typeof(SortedSet<>)
             };
+
+            foreach (var type in representativeTypes)
+            {
+                var assembly = type.GetTypeInfo().Assembly;
+                __wellKnownAssemblies.Add(assembly);
+            }
         }
 
         // public static methods

@@ -2,7 +2,7 @@
 # together bulk writes.
 description: "operation-id"
 
-schemaVersion: "1.12"
+schemaVersion: "1.13"
 
 createEntities:
   - client:

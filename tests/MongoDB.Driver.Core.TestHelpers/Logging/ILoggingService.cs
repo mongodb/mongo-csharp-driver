@@ -13,13 +13,13 @@
 * limitations under the License.
 */
 
-using Microsoft.Extensions.Logging;
+using MongoDB.Driver.Core.Configuration;
 
 namespace MongoDB.Driver.Core.TestHelpers.Logging
 {
     public interface ILoggingService
     {
-        public ILoggerFactory LoggerFactory { get; }
+        public LoggingSettings LoggingSettings { get; }
         public LogEntry[] Logs { get; }
     }
 }

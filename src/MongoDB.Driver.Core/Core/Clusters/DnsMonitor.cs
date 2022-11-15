@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Core.Clusters
         private DnsMonitorState _state;
         private Exception _unhandledException;
 
-        private readonly EventsLogger<LogCategories.SDAM> _eventsLogger;
+        private readonly EventLogger<LogCategories.SDAM> _eventLogger;
 
         // constructors
         public DnsMonitor(IDnsMonitoringCluster cluster,
@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Core.Clusters
             _service = "_mongodb._tcp." + _lookupDomainName;
             _state = DnsMonitorState.Created;
 
-            _eventsLogger = logger.ToEventsLogger(eventSubscriber);
+            _eventLogger = logger.ToEventLogger(eventSubscriber);
         }
 
         // public properties
@@ -101,7 +101,7 @@ namespace MongoDB.Driver.Core.Clusters
             {
                 _unhandledException = exception;
 
-                _eventsLogger.LogAndPublish(exception, new SdamInformationEvent("Unhandled exception in DnsMonitor: {0}.", exception));
+                _eventLogger.LogAndPublish(exception, new SdamInformationEvent("Unhandled exception in DnsMonitor: {0}.", exception));
 
                 _state = DnsMonitorState.Failed;
                 return;
@@ -146,7 +146,7 @@ namespace MongoDB.Driver.Core.Clusters
                 }
                 else
                 {
-                    _eventsLogger.LogAndPublish(new SdamInformationEvent("Invalid host returned by DNS SRV lookup: {0}.", host));
+                    _eventLogger.LogAndPublish(new SdamInformationEvent("Invalid host returned by DNS SRV lookup: {0}.", host));
                 }
             }
 
@@ -190,7 +190,7 @@ namespace MongoDB.Driver.Core.Clusters
                     }
                     else
                     {
-                        _eventsLogger.LogAndPublish(new SdamInformationEvent("A DNS SRV query on \"{0}\" returned no valid hosts.", _service));
+                        _eventLogger.LogAndPublish(new SdamInformationEvent("A DNS SRV query on \"{0}\" returned no valid hosts.", _service));
                     }
                 }
 

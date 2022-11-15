@@ -23,6 +23,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
+using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.Logging;
@@ -50,7 +51,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             _additionalArgs = additionalArgs; // can be null
             _eventFormatters = eventFormatters; // can be null
             _loggingService = Ensure.IsNotNull(loggingService, nameof(loggingService));
-            _logger = loggingService.LoggerFactory.CreateLogger<UnifiedTestRunner>();
+            _logger = loggingService.LoggingSettings.CreateLogger<UnifiedTestRunner>();
         }
 
         // public properties
@@ -98,7 +99,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
             var schemaSemanticVersion = SemanticVersion.Parse(schemaVersion);
             if (schemaSemanticVersion < new SemanticVersion(1, 0, 0) ||
-                schemaSemanticVersion > new SemanticVersion(1, 12, 0))
+                schemaSemanticVersion > new SemanticVersion(1, 13, 0))
             {
                 throw new FormatException($"Schema version '{schemaVersion}' is not supported.");
             }
@@ -117,7 +118,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
             KillOpenTransactions(DriverTestConfiguration.Client);
 
-            _entityMap = new UnifiedEntityMapBuilder(_eventFormatters, _loggingService.LoggerFactory).Build(entities);
+            _entityMap = new UnifiedEntityMapBuilder(_eventFormatters, _loggingService.LoggingSettings).Build(entities);
 
             if (initialData != null)
             {

@@ -138,7 +138,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes
                     settings.HeartbeatInterval = TimeSpan.FromMilliseconds(5); // the default value for spec tests
                     ParseClientOptions(settings, clientOptions);
                 },
-                LoggerFactory,
+                LoggingSettings,
                 useMultipleShardRouters);
         }
 

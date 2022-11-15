@@ -1,6 +1,6 @@
 description: "redacted-commands"
 
-schemaVersion: "1.12"
+schemaVersion: "1.13"
 
 runOnRequirements:
   - minServerVersion: "5.0"
@@ -9,15 +9,19 @@ runOnRequirements:
 createEntities:
   - client:
       id: &client client
+      useMultipleMongoses: false
       observeLogMessages:
         command: debug
+  - client:
+      id: &failPointClient failPointClient
+      useMultipleMongoses: false
   - database:
       id: &database database
       client: *client
       databaseName: &databaseName logging-redaction-tests
 
 tests:
-  - description: "authenticate"
+  - description: "authenticate command and resulting server-generated error are redacted"
     operations:
       - name: runCommand
         object: *database
@@ -31,7 +35,7 @@ tests:
         # An authentication error is expected, but we want to check that the
         # CommandStartedEvent is redacted
         expectError:
-          isError: true
+          isClientError: false
     expectLogMessages:
       - client: *client
         messages:
@@ -45,12 +49,54 @@ tests:
                 $$matchAsDocument: {}
           - level: debug
             component: command
-            hasFailure: false
+            failureIsRedacted: true
             data:
               message: "Command failed"
               commandName: authenticate
+              failure: { $$exists: true }
 
-  - description: "saslStart"
+  - description: "network error in response to authenticate is not redacted"
+    operations:
+      - name: failPoint
+        object: testRunner
+        arguments:
+          client: *failPointClient
+          failPoint:
+            configureFailPoint: failCommand
+            mode: { times: 1 }
+            data:
+              failCommands: ["authenticate"]
+              closeConnection: true
+      - name: runCommand
+        object: *database
+        arguments:
+          commandName: authenticate
+          command:
+            authenticate: 1
+            mechanism: "MONGODB-X509"
+            user: "CN=myName,OU=myOrgUnit,O=myOrg,L=myLocality,ST=myState,C=myCountry"
+        expectError:
+          isClientError: true
+    expectLogMessages:
+      - client: *client
+        messages:
+          - level: debug
+            component: command
+            data:
+              message: "Command started"
+              databaseName: *databaseName
+              commandName: authenticate
+              command:
+                $$matchAsDocument: {}
+          - level: debug
+            component: command
+            failureIsRedacted: false
+            data:
+              message: "Command failed"
+              commandName: authenticate
+              failure: { $$exists: true }
+
+  - description: "saslStart command and resulting server-generated error are redacted"
     operations:
       - name: runCommand
         object: *database
@@ -61,7 +107,7 @@ tests:
             payload: "definitely-invalid-payload"
             db: "admin"
         expectError:
-          isError: true
+          isClientError: false
     expectLogMessages:
       - client: *client
         messages:
@@ -75,12 +121,54 @@ tests:
                 $$matchAsDocument: {}
           - level: debug
             component: command
-            hasFailure: false
+            failureIsRedacted: true
             data:
               message: "Command failed"
               commandName: saslStart
+              failure: { $$exists: true }
 
-  - description: "saslContinue"
+  - description: "network error in response to saslStart is not redacted"
+    operations:
+      - name: failPoint
+        object: testRunner
+        arguments:
+          client: *failPointClient
+          failPoint:
+            configureFailPoint: failCommand
+            mode: { times: 1 }
+            data:
+              failCommands: ["saslStart"]
+              closeConnection: true
+      - name: runCommand
+        object: *database
+        arguments:
+          commandName: saslStart
+          command:
+            saslStart: 1
+            payload: ZmFrZXNhc2xwYXlsb2Fk
+            mechanism: MONGODB-X509
+        expectError:
+          isClientError: true
+    expectLogMessages:
+      - client: *client
+        messages:
+          - level: debug
+            component: command
+            data:
+              message: "Command started"
+              databaseName: *databaseName
+              commandName: saslStart
+              command:
+                $$matchAsDocument: {}
+          - level: debug
+            component: command
+            failureIsRedacted: false
+            data:
+              message: "Command failed"
+              commandName: saslStart
+              failure: { $$exists: true }
+
+  - description: "saslContinue command and resulting server-generated error are redacted"
     operations:
       - name: runCommand
         object: *database
@@ -91,7 +179,7 @@ tests:
             conversationId: 0
             payload: "definitely-invalid-payload"
         expectError:
-          isError: true
+          isClientError: false
     expectLogMessages:
       - client: *client
         messages:
@@ -105,12 +193,54 @@ tests:
                 $$matchAsDocument: {}
           - level: debug
             component: command
-            hasFailure: false
+            failureIsRedacted: true
             data:
               message: "Command failed"
               commandName: saslContinue
+              failure: { $$exists: true }
 
-  - description: "getnonce"
+  - description: "network error in response to saslContinue is not redacted"
+    operations:
+      - name: failPoint
+        object: testRunner
+        arguments:
+          client: *failPointClient
+          failPoint:
+            configureFailPoint: failCommand
+            mode: { times: 1 }
+            data:
+              failCommands: ["saslContinue"]
+              closeConnection: true
+      - name: runCommand
+        object: *database
+        arguments:
+          commandName: saslContinue
+          command:
+            saslContinue: 1
+            conversationId: 0
+            payload: ZmFrZXNhc2xwYXlsb2Fk
+        expectError:
+          isClientError: true
+    expectLogMessages:
+      - client: *client
+        messages:
+          - level: debug
+            component: command
+            data:
+              message: "Command started"
+              databaseName: *databaseName
+              commandName: saslContinue
+              command:
+                $$matchAsDocument: {}
+          - level: debug
+            component: command
+            failureIsRedacted: false
+            data:
+              message: "Command failed"
+              commandName: saslContinue
+              failure: { $$exists: true }
+
+  - description: "getnonce command and server reply are redacted"
     operations:
       - name: runCommand
         object: *database
@@ -137,7 +267,46 @@ tests:
               reply:
                 $$matchAsDocument: {}
 
-  - description: "createUser"
+  - description: "network error in response to getnonce is not redacted"
+    operations:
+      - name: failPoint
+        object: testRunner
+        arguments:
+          client: *failPointClient
+          failPoint:
+            configureFailPoint: failCommand
+            mode: { times: 1 }
+            data:
+              failCommands: ["getnonce"]
+              closeConnection: true
+      - name: runCommand
+        object: *database
+        arguments:
+          commandName: getnonce
+          command:
+            getnonce: 1
+        expectError:
+          isClientError: true
+    expectLogMessages:
+      - client: *client
+        messages:
+          - level: debug
+            component: command
+            data:
+              message: "Command started"
+              databaseName: *databaseName
+              commandName: getnonce
+              command:
+                $$matchAsDocument: {}
+          - level: debug
+            component: command
+            failureIsRedacted: false
+            data:
+              message: "Command failed"
+              commandName: getnonce
+              failure: { $$exists: true }
+
+  - description: "createUser command and resulting server-generated error are redacted"
     operations:
       - name: runCommand
         object: *database
@@ -150,7 +319,7 @@ tests:
             pwd: {}
             roles: []
         expectError:
-          isError: true
+          isClientError: false
     expectLogMessages:
       - client: *client
         messages:
@@ -164,12 +333,54 @@ tests:
                 $$matchAsDocument: {}
           - level: debug
             component: command
-            hasFailure: false
+            failureIsRedacted: true
             data:
               message: "Command failed"
               commandName: createUser
+              failure: { $$exists: true }
 
-  - description: "updateUser"
+  - description: "network error in response to createUser is not redacted"
+    operations:
+      - name: failPoint
+        object: testRunner
+        arguments:
+          client: *failPointClient
+          failPoint:
+            configureFailPoint: failCommand
+            mode: { times: 1 }
+            data:
+              failCommands: ["createUser"]
+              closeConnection: true
+      - name: runCommand
+        object: *database
+        arguments:
+          commandName: createUser
+          command:
+            createUser: "private"
+            pwd: "pwd"
+            roles: []
+        expectError:
+          isClientError: true
+    expectLogMessages:
+      - client: *client
+        messages:
+          - level: debug
+            component: command
+            data:
+              message: "Command started"
+              databaseName: *databaseName
+              commandName: createUser
+              command:
+                $$matchAsDocument: {}
+          - level: debug
+            component: command
+            failureIsRedacted: false
+            data:
+              message: "Command failed"
+              commandName: createUser
+              failure: { $$exists: true }
+
+  - description: "updateUser command and resulting server-generated error are redacted"
     operations:
       - name: runCommand
         object: *database
@@ -180,7 +391,7 @@ tests:
             pwd: {}
             roles: []
         expectError:
-          isError: true
+          isClientError: false
     expectLogMessages:
       - client: *client
         messages:
@@ -194,12 +405,54 @@ tests:
                 $$matchAsDocument: {}
           - level: debug
             component: command
-            hasFailure: false
+            failureIsRedacted: true
             data:
               message: "Command failed"
               commandName: updateUser
+              failure: { $$exists: true }
 
-  - description: "copydbgetnonce"
+  - description: "network error in response to updateUser is not redacted"
+    operations:
+      - name: failPoint
+        object: testRunner
+        arguments:
+          client: *failPointClient
+          failPoint:
+            configureFailPoint: failCommand
+            mode: { times: 1 }
+            data:
+              failCommands: ["updateUser"]
+              closeConnection: true
+      - name: runCommand
+        object: *database
+        arguments:
+          commandName: updateUser
+          command:
+            updateUser: "private"
+            pwd: "pwd"
+            roles: []
+        expectError:
+          isClientError: true
+    expectLogMessages:
+      - client: *client
+        messages:
+          - level: debug
+            component: command
+            data:
+              message: "Command started"
+              databaseName: *databaseName
+              commandName: updateUser
+              command:
+                $$matchAsDocument: {}
+          - level: debug
+            component: command
+            failureIsRedacted: false
+            data:
+              message: "Command failed"
+              commandName: updateUser
+              failure: { $$exists: true }
+
+  - description: "copydbgetnonce command and resulting server-generated error are redacted"
     operations:
       - name: runCommand
         object: *database
@@ -208,7 +461,7 @@ tests:
           command:
             copydbgetnonce: "private"
         expectError:
-          isError: true
+          isClientError: false
     expectLogMessages:
       - client: *client
         messages:
@@ -222,12 +475,54 @@ tests:
                 $$matchAsDocument: {}
           - level: debug
             component: command
-            hasFailure: false
+            failureIsRedacted: true
             data:
               message: "Command failed"
               commandName: copydbgetnonce
+              failure: { $$exists: true }
 
-  - description: "copydbsaslstart"
+  - description: "network error in response to copydbgetnonce is not redacted"
+    runOnRequirements:
+      - maxServerVersion: "4.0.99" # this commmand was removed in MongoDB 4.2 and the server returns CommandNotFound before hitting the failpoint
+    operations:
+      - name: failPoint
+        object: testRunner
+        arguments:
+          client: *failPointClient
+          failPoint:
+            configureFailPoint: failCommand
+            mode: { times: 1 }
+            data:
+              failCommands: ["copydbgetnonce"]
+              closeConnection: true
+      - name: runCommand
+        object: *database
+        arguments:
+          commandName: copydbgetnonce
+          command:
+            copydbgetnonce: "private"
+        expectError:
+          isClientError: true
+    expectLogMessages:
+      - client: *client
+        messages:
+          - level: debug
+            component: command
+            data:
+              message: "Command started"
+              databaseName: *databaseName
+              commandName: copydbgetnonce
+              command:
+                $$matchAsDocument: {}
+          - level: debug
+            component: command
+            failureIsRedacted: false
+            data:
+              message: "Command failed"
+              commandName: copydbgetnonce
+              failure: { $$exists: true }
+
+  - description: "copydbsaslstart command and resulting server-generated error are redacted"
     operations:
       - name: runCommand
         object: *database
@@ -236,7 +531,7 @@ tests:
           command:
             copydbsaslstart: "private"
         expectError:
-          isError: true
+          isClientError: false
     expectLogMessages:
       - client: *client
         messages:
@@ -250,12 +545,54 @@ tests:
                 $$matchAsDocument: {}
           - level: debug
             component: command
-            hasFailure: false
+            failureIsRedacted: true
             data:
               message: "Command failed"
               commandName: copydbsaslstart
+              failure: { $$exists: true }
 
-  - description: "copydb"
+  - description: "network error in response to copydbsaslstart is not redacted"
+    runOnRequirements:
+    - maxServerVersion: "4.0.99"  # this commmand was removed in MongoDB 4.2 and the server returns CommandNotFound before hitting the failpoint
+    operations:
+      - name: failPoint
+        object: testRunner
+        arguments:
+          client: *failPointClient
+          failPoint:
+            configureFailPoint: failCommand
+            mode: { times: 1 }
+            data:
+              failCommands: ["copydbsaslstart"]
+              closeConnection: true
+      - name: runCommand
+        object: *database
+        arguments:
+          commandName: copydbsaslstart
+          command:
+            copydbsaslstart: "private"
+        expectError:
+          isClientError: true
+    expectLogMessages:
+      - client: *client
+        messages:
+          - level: debug
+            component: command
+            data:
+              message: "Command started"
+              databaseName: *databaseName
+              commandName: copydbgetnonce
+              command:
+                $$matchAsDocument: {}
+          - level: debug
+            component: command
+            failureIsRedacted: false
+            data:
+              message: "Command failed"
+              commandName: copydbgetnonce
+              failure: { $$exists: true }
+
+  - description: "copydb command and resulting server-generated error are redacted"
     operations:
       - name: runCommand
         object: *database
@@ -264,7 +601,7 @@ tests:
           command:
             copydb: "private"
         expectError:
-          isError: true
+          isClientError: false
     expectLogMessages:
       - client: *client
         messages:
@@ -278,12 +615,54 @@ tests:
                 $$matchAsDocument: {}
           - level: debug
             component: command
-            hasFailure: false
+            failureIsRedacted: true
             data:
               message: "Command failed"
               commandName: copydb
+              failure: { $$exists: true }
 
-  - description: "hello with speculative authenticate"
+  - description: "network error in response to copydb is not redacted"
+    runOnRequirements:
+    - maxServerVersion: "4.0.99"  # this commmand was removed in MongoDB 4.2 and the server returns CommandNotFound before hitting the failpoint
+    operations:
+      - name: failPoint
+        object: testRunner
+        arguments:
+          client: *failPointClient
+          failPoint:
+            configureFailPoint: failCommand
+            mode: { times: 1 }
+            data:
+              failCommands: ["copydb"]
+              closeConnection: true
+      - name: runCommand
+        object: *database
+        arguments:
+          commandName: copydb
+          command:
+            copydb: "private"
+        expectError:
+          isClientError: true
+    expectLogMessages:
+      - client: *client
+        messages:
+          - level: debug
+            component: command
+            data:
+              message: "Command started"
+              databaseName: *databaseName
+              commandName: copydb
+              command:
+                $$matchAsDocument: {}
+          - level: debug
+            component: command
+            failureIsRedacted: false
+            data:
+              message: "Command failed"
+              commandName: copydb
+              failure: { $$exists: true }
+
+  - description: "hello with speculative authenticate command and server reply are redacted"
     runOnRequirements:
       - minServerVersion: "4.9"
     operations:
@@ -314,7 +693,8 @@ tests:
               reply:
                 $$matchAsDocument: {}
 
-  - description: "legacy hello with speculative authenticate"
+
+  - description: "legacy hello with speculative authenticate command and server reply are redacted"
     operations:
       - name: runCommand
         object: *database
@@ -366,7 +746,7 @@ tests:
               reply:
                 $$matchAsDocument: {}
 
-  - description: "hello without speculative authenticate is not redacted"
+  - description: "hello without speculative authenticate command and server reply are not redacted"
     runOnRequirements:
       - minServerVersion: "4.9"
     operations:
@@ -401,7 +781,7 @@ tests:
                     ok: 1
                     isWritablePrimary: true
  
-  - description: "legacy hello without speculative authenticate is not redacted"
+  - description: "legacy hello without speculative authenticate command and server reply are not redacted"
     operations:
       - name: runCommand
         object: *database

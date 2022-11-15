@@ -1,7 +1,7 @@
 # This is a separate test so that drivers that do not implement CMAP can easily skip it.
 description: "driver-connection-id"
 
-schemaVersion: "1.12"
+schemaVersion: "1.13"
 
 createEntities:
   - client:
@@ -40,14 +40,14 @@ tests:
               message: "Command started"
               databaseName: *databaseName
               commandName: *commandName
-              driverConnectionId: { $$type: [double, int, long] }
+              driverConnectionId: { $$type: [int, long] }
 
           - level: debug
             component: command
             data:
               message: "Command succeeded"
               commandName: *commandName
-              driverConnectionId: { $$type: [double, int, long] }
+              driverConnectionId: { $$type: [int, long] }
         
   - description: "A failed command"
     operations:

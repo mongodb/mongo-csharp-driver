@@ -23,7 +23,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Authentication.External
 {
-    internal class AwsCredentials : IExternalCredentials
+    internal sealed class AwsCredentials : IExternalCredentials
     {
         // credentials are considered expired when: Expiration - now < 5 mins
         private static readonly TimeSpan __overlapWhereExpired = TimeSpan.FromMinutes(5);
@@ -45,10 +45,10 @@ namespace MongoDB.Driver.Core.Authentication.External
         public DateTime? Expiration => _expiration;
         public SecureString SecretAccessKey => _secretAccessKey;
         public string SessionToken => _sessionToken;
-        public bool IsExpired => _expiration.HasValue ? (_expiration.Value - DateTime.UtcNow) < __overlapWhereExpired : false;
+        public bool ShouldBeRefreshed => _expiration.HasValue ? (_expiration.Value - DateTime.UtcNow) < __overlapWhereExpired : true;
 
-        public BsonDocument GetKmsCredentials()
-            => new BsonDocument
+        public BsonDocument GetKmsCredentials() =>
+            new BsonDocument
             {
                 { "accessKeyId", _accessKeyId },
                 { "secretAccessKey", SecureStringHelper.ToInsecureString(_secretAccessKey) },
@@ -56,15 +56,15 @@ namespace MongoDB.Driver.Core.Authentication.External
             };
     }
 
-    internal class AwsAuthenticationCredentialsProvider : IExternalAuthenticationCredentialsProvider<AwsCredentials>
+    internal sealed class AwsAuthenticationCredentialsProvider : IExternalAuthenticationCredentialsProvider<AwsCredentials>
     {
         private readonly AwsHttpClientHelper _awsHttpClientHelper;
-        private readonly HttpClientHelper _httpClientHelper;
+        private readonly IEnvironmentVariableProvider _environmentVariableProvider;
 
-        public AwsAuthenticationCredentialsProvider(HttpClientHelper httpClientHelper)
+        public AwsAuthenticationCredentialsProvider(IHttpClientWrapper httpClientWrapper, IEnvironmentVariableProvider environmentVariableProvider)
         {
-            _httpClientHelper = Ensure.IsNotNull(httpClientHelper, nameof(httpClientHelper));
-            _awsHttpClientHelper = new AwsHttpClientHelper(_httpClientHelper);
+            _awsHttpClientHelper = new AwsHttpClientHelper(httpClientWrapper);
+            _environmentVariableProvider = Ensure.IsNotNull(environmentVariableProvider, nameof(environmentVariableProvider));
         }
 
         public AwsCredentials CreateCredentialsFromExternalSource(CancellationToken cancellationToken) =>
@@ -79,9 +79,9 @@ namespace MongoDB.Driver.Core.Authentication.External
 
         private AwsCredentials CreateAwsCredentialsFromEnvironmentVariables()
         {
-            var accessKeyId = Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID");
-            var secretAccessKey = Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY");
-            var sessionToken = Environment.GetEnvironmentVariable("AWS_SESSION_TOKEN");
+            var accessKeyId = _environmentVariableProvider.GetEnvironmentVariable("AWS_ACCESS_KEY_ID");
+            var secretAccessKey = _environmentVariableProvider.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY");
+            var sessionToken = _environmentVariableProvider.GetEnvironmentVariable("AWS_SESSION_TOKEN");
 
             if (accessKeyId == null && secretAccessKey == null && sessionToken == null)
             {
@@ -105,7 +105,7 @@ namespace MongoDB.Driver.Core.Authentication.External
 
         private async Task<AwsCredentials> CreateAwsCredentialsFromEcsResponseAsync(CancellationToken cancellationToken)
         {
-            var relativeUri = Environment.GetEnvironmentVariable("AWS_CONTAINER_CREDENTIALS_RELATIVE_URI");
+            var relativeUri = _environmentVariableProvider.GetEnvironmentVariable("AWS_CONTAINER_CREDENTIALS_RELATIVE_URI");
             if (relativeUri == null)
             {
                 return null;
@@ -167,20 +167,20 @@ namespace MongoDB.Driver.Core.Authentication.External
             private static readonly Uri __ec2BaseUri = new Uri("http://169.254.169.254");
             private static readonly Uri __ecsBaseUri = new Uri("http://169.254.170.2");
 
-            private readonly HttpClientHelper _httpClientHelper;
+            private readonly IHttpClientWrapper _httpClientWrapper;
 
-            public AwsHttpClientHelper(HttpClientHelper httpClientHelper) => _httpClientHelper = httpClientHelper;
+            public AwsHttpClientHelper(IHttpClientWrapper httpClientWrapper) => _httpClientWrapper = Ensure.IsNotNull(httpClientWrapper, nameof(httpClientWrapper));
 
             public async Task<string> GetEC2ResponseAsync(CancellationToken cancellationToken)
             {
                 var tokenRequest = CreateTokenRequest(__ec2BaseUri);
-                var token = await _httpClientHelper.GetHttpContentAsync(tokenRequest, "Failed to acquire EC2 token.", cancellationToken).ConfigureAwait(false);
+                var token = await _httpClientWrapper.GetHttpContentAsync(tokenRequest, "Failed to acquire EC2 token.", cancellationToken).ConfigureAwait(false);
 
                 var roleRequest = CreateRoleRequest(__ec2BaseUri, token);
-                var roleName = await _httpClientHelper.GetHttpContentAsync(roleRequest, "Failed to acquire EC2 role name.", cancellationToken).ConfigureAwait(false);
+                var roleName = await _httpClientWrapper.GetHttpContentAsync(roleRequest, "Failed to acquire EC2 role name.", cancellationToken).ConfigureAwait(false);
 
                 var credentialsRequest = CreateCredentialsRequest(__ec2BaseUri, roleName, token);
-                var credentials = await _httpClientHelper.GetHttpContentAsync(credentialsRequest, "Failed to acquire EC2 credentials.", cancellationToken).ConfigureAwait(false);
+                var credentials = await _httpClientWrapper.GetHttpContentAsync(credentialsRequest, "Failed to acquire EC2 credentials.", cancellationToken).ConfigureAwait(false);
 
                 return credentials;
             }
@@ -193,7 +193,7 @@ namespace MongoDB.Driver.Core.Authentication.External
                     Method = HttpMethod.Get
                 };
 
-                return await _httpClientHelper.GetHttpContentAsync(credentialsRequest, "Failed to acquire ECS credentials.", cancellationToken).ConfigureAwait(false);
+                return await _httpClientWrapper.GetHttpContentAsync(credentialsRequest, "Failed to acquire ECS credentials.", cancellationToken).ConfigureAwait(false);
             }
 
             // private static methods

@@ -18,6 +18,8 @@ using System.Diagnostics;
 using System.Linq;
 using Microsoft.Diagnostics.Runtime;
 using Microsoft.Extensions.Logging;
+using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Misc;
 using Xunit.Abstractions;
@@ -40,7 +42,8 @@ namespace MongoDB.Driver.Core.TestHelpers.Logging
             Accumulator = new XUnitOutputAccumulator(logCategoriesToExclude);
             MinLogLevel = LogLevel.Warning;
 
-            LoggerFactory = new XUnitLoggerFactory(Accumulator).DecorateCategories();
+            LoggingSettings = new LoggingSettings(new XUnitLoggerFactory(Accumulator), 10000); // Spec test require larger truncation default
+            LoggerFactory = LoggingSettings.ToInternalLoggerFactory();
             Logger = LoggerFactory.CreateLogger<LoggableTestClass>();
         }
 
@@ -51,9 +54,12 @@ namespace MongoDB.Driver.Core.TestHelpers.Logging
         protected LogLevel MinLogLevel { get; set; }
 
         public ILoggerFactory LoggerFactory { get; }
+        public LoggingSettings LoggingSettings { get; }
         public LogEntry[] Logs => Accumulator.Logs;
 
         protected ILogger<TCategory> CreateLogger<TCategory>() => LoggerFactory.CreateLogger<TCategory>();
+        private protected EventLogger<TCategory> CreateEventLogger<TCategory>(IEventSubscriber eventSubscriber) where TCategory : LogCategories.EventCategory =>
+            LoggerFactory.CreateEventLogger<TCategory>(eventSubscriber);
 
         protected virtual void DisposeInternal() { }
 

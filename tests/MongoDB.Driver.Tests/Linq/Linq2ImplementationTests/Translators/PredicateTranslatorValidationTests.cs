@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests.Translators
 
         public void Setup()
         {
-            var client = DriverTestConfiguration.Client;
+            var client = DriverTestConfiguration.Linq2Client;
             var database = client.GetDatabase("test");
             _collection = database.GetCollection<TestObject>("testObject");
             database.DropCollection("testObject");

@@ -1,6 +1,6 @@
 description: "no-handshake-command-logs"
 
-schemaVersion: "1.12"
+schemaVersion: "1.13"
 
 tests:
   - description: "Handshake commands should not generate log messages"

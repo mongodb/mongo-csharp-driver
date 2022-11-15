@@ -38,6 +38,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters
                 // normally an ExpressionNotSupported should have been thrown before reaching here
                 throw new ArgumentException($"Field must be represented as a string for regex filter operations: {field.Path}", nameof(field));
             }
+
+            if (_field.Path == "@<current>")
+            {
+                throw new ExpressionNotSupportedException("Field path cannot be \"@<current>\" in AstFieldOperationFilter.");
+            }
         }
 
         public new AstFilterField Field => _field;

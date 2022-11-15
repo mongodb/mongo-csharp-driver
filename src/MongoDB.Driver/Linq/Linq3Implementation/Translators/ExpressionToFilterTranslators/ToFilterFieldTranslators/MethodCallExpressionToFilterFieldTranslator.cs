@@ -30,6 +30,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 case "First": return FirstMethodToFilterFieldTranslator.Translate(context, expression);
                 case "FirstMatchingElement": return FirstMatchingElementMethodToFilterFieldTranslator.Translate(context, expression);
                 case "get_Item": return GetItemMethodToFilterFieldTranslator.Translate(context, expression);
+                case "Select": return SelectMethodToFilterFieldTranslator.Translate(context, expression);
             }
 
             throw new ExpressionNotSupportedException(expression);

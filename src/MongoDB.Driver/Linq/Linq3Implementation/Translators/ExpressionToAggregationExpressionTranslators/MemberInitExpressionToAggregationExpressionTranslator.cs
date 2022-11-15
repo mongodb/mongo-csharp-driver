@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -26,51 +27,97 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
     {
         public static AggregationExpression Translate(TranslationContext context, MemberInitExpression expression)
         {
-            var classSerializer = BsonSerializer.LookupSerializer(expression.Type);
-            if (classSerializer is IBsonDocumentSerializer documentSerializer)
+            var computedFields = new List<AstComputedField>();
+            var classMap = CreateClassMap(expression.Type);
+
+            var newExpression = expression.NewExpression;
+            var constructorParameters = newExpression.Constructor.GetParameters();
+            var constructorArguments = newExpression.Arguments;
+            for (var i = 0; i < constructorParameters.Length; i++)
             {
-                var computedFields = new List<AstComputedField>();
+                var constructorParameter = constructorParameters[i];
+                var memberMap = FindMatchingMemberMap(expression, classMap, constructorParameter);
 
-                var newExpression = expression.NewExpression;
-                var constructorParameters = newExpression.Constructor.GetParameters();
-                var constructorArguments = newExpression.Arguments;
-                for (var i = 0; i < constructorParameters.Length; i++)
-                {
-                    var constructorParameter = constructorParameters[i];
-                    var argumentExpression = constructorArguments[i];
-                    var fieldName = GetFieldName(constructorParameter);
-                    var argumentTanslation = ExpressionToAggregationExpressionTranslator.Translate(context, argumentExpression);
-                    computedFields.Add(AstExpression.ComputedField(fieldName, argumentTanslation.Ast));
-                }
+                var argumentExpression = constructorArguments[i];
+                var argumentTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, argumentExpression);
+                computedFields.Add(AstExpression.ComputedField(memberMap.ElementName, argumentTranslation.Ast));
 
-                foreach (var binding in expression.Bindings)
-                {
-                    var memberAssignment = (MemberAssignment)binding;
-                    var member = memberAssignment.Member;
-                    if (!(documentSerializer.TryGetMemberSerializationInfo(member.Name, out var memberSerializationInfo)))
-                    {
-                        throw new ExpressionNotSupportedException(expression);
-                    }
-                    var elementName = memberSerializationInfo.ElementName;
-                    var valueExpression = memberAssignment.Expression;
-                    var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
-                    computedFields.Add(AstExpression.ComputedField(elementName, valueTranslation.Ast));
-                }
-
-                var ast = AstExpression.ComputedDocument(computedFields);
-                var serializer = context.KnownSerializersRegistry.GetSerializer(expression);
-                return new AggregationExpression(expression, ast, serializer);
+                memberMap.SetSerializer(argumentTranslation.Serializer);
             }
 
-            throw new ExpressionNotSupportedException(expression);
+            foreach (var binding in expression.Bindings)
+            {
+                var memberAssignment = (MemberAssignment)binding;
+                var member = memberAssignment.Member;
+                var memberMap = FindMemberMap(expression, classMap, member.Name);
+
+                var valueExpression = memberAssignment.Expression;
+                var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
+                computedFields.Add(AstExpression.ComputedField(memberMap.ElementName, valueTranslation.Ast));
+
+                memberMap.SetSerializer(valueTranslation.Serializer);
+            }
+
+            var ast = AstExpression.ComputedDocument(computedFields);
+
+            classMap.Freeze();
+            var serializerType = typeof(BsonClassMapSerializer<>).MakeGenericType(expression.Type);
+            var serializer = (IBsonSerializer)Activator.CreateInstance(serializerType, classMap);
+
+            return new AggregationExpression(expression, ast, serializer);
         }
 
-        private static string GetFieldName(ParameterInfo parameter)
+        private static BsonClassMap CreateClassMap(Type classType)
         {
-            // TODO: implement properly
-            var parameterName = parameter.Name;
-            var fieldName = parameterName.Substring(0, 1).ToUpper() + parameterName.Substring(1);
-            return fieldName;
+            BsonClassMap baseClassMap = null;
+            if (classType.BaseType  != null)
+            {
+                baseClassMap = CreateClassMap(classType.BaseType);
+            }
+
+            var classMapType = typeof(BsonClassMap<>).MakeGenericType(classType);
+            var constructorInfo = classMapType.GetConstructor(new Type[] { typeof(BsonClassMap) });
+            var classMap = (BsonClassMap)constructorInfo.Invoke(new object[] { baseClassMap });
+            classMap.AutoMap();
+            classMap.IdMemberMap?.SetElementName("_id"); // normally happens when Freeze is called but we need it sooner here
+
+            return classMap;
+        }
+
+        private static BsonMemberMap FindMatchingMemberMap(Expression expression, BsonClassMap classMap, ParameterInfo parameterInfo)
+        {
+            foreach (var memberMap in classMap.DeclaredMemberMaps)
+            {
+                if (memberMap.MemberType == parameterInfo.ParameterType && memberMap.MemberName.Equals(parameterInfo.Name, StringComparison.OrdinalIgnoreCase))
+                {
+                    return memberMap;
+                }
+            }
+
+            if (classMap.BaseClassMap != null)
+            {
+                return FindMatchingMemberMap(expression, classMap.BaseClassMap, parameterInfo);
+            }
+
+            throw new ExpressionNotSupportedException(expression, because: $"can't find matching property for constructor parameter : {parameterInfo.Name}");
+        }
+
+        private static BsonMemberMap FindMemberMap(Expression expression, BsonClassMap classMap, string memberName)
+        {
+            foreach (var memberMap in classMap.DeclaredMemberMaps)
+            {
+                if (memberMap.MemberName == memberName)
+                {
+                    return memberMap;
+                }
+            }
+
+            if (classMap.BaseClassMap != null)
+            {
+                return FindMemberMap(expression, classMap.BaseClassMap, memberName);
+            }
+
+            throw new ExpressionNotSupportedException(expression, because: $"can't find member map: {memberName}");
         }
     }
 }

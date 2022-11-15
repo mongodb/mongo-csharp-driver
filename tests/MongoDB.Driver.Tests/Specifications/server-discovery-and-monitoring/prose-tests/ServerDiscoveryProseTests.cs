@@ -21,6 +21,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers.Logging;
@@ -66,7 +67,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring.pr
             var dnsEndpoint = (DnsEndPoint)secondary.EndPoint;
             var replicaSetName = secondary.ReplicaSetConfig.Name;
             var settings = MongoClientSettings.FromConnectionString(CreateConnectionString(dnsEndpoint, directConnection, replicaSetName));
-            settings.LoggerFactory = LoggerFactory;
+            settings.LoggingSettings = LoggingSettings;
 
             using (var client = new DisposableMongoClient(new MongoClient(settings), CreateLogger<DisposableMongoClient>()))
             {

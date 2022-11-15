@@ -19,7 +19,6 @@ using System.Diagnostics;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
@@ -55,7 +54,7 @@ namespace MongoDB.Driver.Core.Servers
         private readonly ServerSettings _settings;
         private readonly InterlockedInt32 _state;
         private readonly ServerApi _serverApi;
-        private readonly EventsLogger<LogCategories.SDAM> _eventsLogger;
+        private readonly EventLogger<LogCategories.SDAM> _eventLogger;
 
         private int _outstandingOperationsCount;
 
@@ -71,9 +70,8 @@ namespace MongoDB.Driver.Core.Servers
             ServerSettings settings,
             EndPoint endPoint,
             IConnectionPoolFactory connectionPoolFactory,
-            IEventSubscriber eventSubscriber,
             ServerApi serverApi,
-            ILogger<LogCategories.SDAM> logger)
+            EventLogger<LogCategories.SDAM> eventLogger)
         {
             ClusterConnectionModeHelper.EnsureConnectionModeValuesAreValid(clusterConnectionMode, connectionModeSwitch, directConnection);
 
@@ -83,7 +81,6 @@ namespace MongoDB.Driver.Core.Servers
             _directConnection = directConnection;
             _settings = Ensure.IsNotNull(settings, nameof(settings));
             _endPoint = Ensure.IsNotNull(endPoint, nameof(endPoint));
-            Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
 
             _serverId = new ServerId(clusterId, endPoint);
             _connectionPool = Ensure.IsNotNull(connectionPoolFactory, nameof(connectionPoolFactory)).CreateConnectionPool(_serverId, endPoint, this);
@@ -91,7 +88,7 @@ namespace MongoDB.Driver.Core.Servers
             _serverApi = serverApi;
             _outstandingOperationsCount = 0;
 
-            _eventsLogger = logger.ToEventsLogger(eventSubscriber);
+            _eventLogger = Ensure.IsNotNull(eventLogger, nameof(eventLogger));
         }
 
         // events
@@ -104,7 +101,7 @@ namespace MongoDB.Driver.Core.Servers
         public EndPoint EndPoint => _endPoint;
         public bool IsInitialized => _state.Value != State.Initial;
         public ServerId ServerId => _serverId;
-        protected EventsLogger<LogCategories.SDAM> EventsLogger => _eventsLogger;
+        protected EventLogger<LogCategories.SDAM> EventLogger => _eventLogger;
 
         int IClusterableServer.OutstandingOperationsCount => Interlocked.CompareExchange(ref _outstandingOperationsCount, 0, 0);
 
@@ -113,7 +110,7 @@ namespace MongoDB.Driver.Core.Servers
         {
             if (_state.TryChange(State.Disposed))
             {
-                _eventsLogger.LogAndPublish(new ServerClosingEvent(_serverId));
+                _eventLogger.LogAndPublish(new ServerClosingEvent(_serverId));
 
                 var stopwatch = Stopwatch.StartNew();
 
@@ -122,7 +119,7 @@ namespace MongoDB.Driver.Core.Servers
                 _connectionPool.Dispose();
                 stopwatch.Stop();
 
-                _eventsLogger.LogAndPublish(new ServerClosedEvent(_serverId, stopwatch.Elapsed));
+                _eventLogger.LogAndPublish(new ServerClosedEvent(_serverId, stopwatch.Elapsed));
             }
         }
 
@@ -170,14 +167,14 @@ namespace MongoDB.Driver.Core.Servers
         {
             if (_state.TryChange(State.Initial, State.Open))
             {
-                _eventsLogger.LogAndPublish(new ServerOpeningEvent(_serverId, _settings));
+                _eventLogger.LogAndPublish(new ServerOpeningEvent(_serverId, _settings));
 
                 var stopwatch = Stopwatch.StartNew();
                 _connectionPool.Initialize();
                 InitializeSubClass();
                 stopwatch.Stop();
 
-                _eventsLogger.LogAndPublish(new ServerOpenedEvent(_serverId, _settings, stopwatch.Elapsed));
+                _eventLogger.LogAndPublish(new ServerOpenedEvent(_serverId, _settings, stopwatch.Elapsed));
             }
         }
 
@@ -227,7 +224,7 @@ namespace MongoDB.Driver.Core.Servers
         {
             if (!e.OldServerDescription.SdamEquals(e.NewServerDescription))
             {
-                _eventsLogger.LogAndPublish(new ServerDescriptionChangedEvent(e.OldServerDescription, e.NewServerDescription));
+                _eventLogger.LogAndPublish(new ServerDescriptionChangedEvent(e.OldServerDescription, e.NewServerDescription));
             }
 
             var handler = DescriptionChanged;

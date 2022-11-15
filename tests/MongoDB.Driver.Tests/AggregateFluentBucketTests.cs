@@ -23,6 +23,7 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Linq;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -39,7 +40,7 @@ namespace MongoDB.Driver.Tests
         static AggregateFluentBucketTests()
         {
             var databaseNamespace = DriverTestConfiguration.DatabaseNamespace;
-            __database = DriverTestConfiguration.Client.GetDatabase(databaseNamespace.DatabaseName);
+            __database = DriverTestConfiguration.Linq2Client.GetDatabase(databaseNamespace.DatabaseName);
             __collectionNamespace = DriverTestConfiguration.CollectionNamespace;
             __ensureTestData = new Lazy<bool>(CreateTestData);
         }
@@ -155,7 +156,7 @@ namespace MongoDB.Driver.Tests
             var stage = result.Stages.Single();
             var serializerRegistry = BsonSerializer.SerializerRegistry;
             var exhibitSerializer = serializerRegistry.GetSerializer<Exhibit>();
-            var renderedStage = stage.Render(exhibitSerializer, serializerRegistry);
+            var renderedStage = stage.Render(exhibitSerializer, serializerRegistry, LinqProvider.V2);
             renderedStage.Document.Should().Be("{ $bucket : { groupBy : \"$year\", boundaries : [ 1900, 1920, 1950 ], default : \"Unknown\" } }");
         }
 
@@ -195,7 +196,7 @@ namespace MongoDB.Driver.Tests
             var stage = result.Stages.Single();
             var serializerRegistry = BsonSerializer.SerializerRegistry;
             var exhibitSerializer = serializerRegistry.GetSerializer<Exhibit>();
-            var renderedStage = stage.Render(exhibitSerializer, serializerRegistry);
+            var renderedStage = stage.Render(exhibitSerializer, serializerRegistry, LinqProvider.V2);
             renderedStage.Document.Should().Be("{ $bucket : { groupBy : \"$year\", boundaries : [ 1900, 1920, 1950 ], default : \"Unknown\", output : { Years : { $push : \"$year\" }, Count : { $sum : 1 } } } }");
         }
 

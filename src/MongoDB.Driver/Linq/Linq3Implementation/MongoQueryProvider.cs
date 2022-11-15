@@ -18,9 +18,10 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecutableQueryTranslators;
+using MongoDB.Driver.Support;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation
 {
@@ -52,12 +53,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
         public abstract object Execute(Expression expression);
         public abstract TResult Execute<TResult>(Expression expression);
         public abstract Task<TResult> ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken);
+        public abstract BsonDocument[] GetMostRecentPipelineStages();
     }
 
     internal sealed class MongoQueryProvider<TDocument> : MongoQueryProvider
     {
         // private fields
         private readonly IMongoCollection<TDocument> _collection;
+        private ExecutableQuery<TDocument> _mostRecentExecutableQuery;
 
         // constructors
         public MongoQueryProvider(
@@ -77,7 +80,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
         // public methods
         public override IQueryable CreateQuery(Expression expression)
         {
-            throw new NotImplementedException();
+            var outputType = expression.Type.GetSequenceElementType();
+            var queryType = typeof(MongoQuery<,>).MakeGenericType(typeof(TDocument), outputType);
+            return (IQueryable)Activator.CreateInstance(queryType, new object[] { this, expression });
         }
 
         public override IQueryable<TOutput> CreateQuery<TOutput>(Expression expression)
@@ -98,13 +103,22 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
         public override TResult Execute<TResult>(Expression expression)
         {
             var executableQuery = ExpressionToExecutableQueryTranslator.TranslateScalar<TDocument, TResult>(this, expression);
+            _mostRecentExecutableQuery = executableQuery;
             return executableQuery.Execute(_session, CancellationToken.None);
         }
 
         public override Task<TResult> ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken)
         {
             var executableQuery = ExpressionToExecutableQueryTranslator.TranslateScalar<TDocument, TResult>(this, expression);
+            _mostRecentExecutableQuery = executableQuery;
             return executableQuery.ExecuteAsync(_session, cancellationToken);
+        }
+
+        public override BsonDocument[] GetMostRecentPipelineStages()
+        {
+            var pipeline = _mostRecentExecutableQuery.Pipeline;
+            var renderedPipeline = (BsonArray)pipeline.Render();
+            return renderedPipeline.Cast<BsonDocument>().ToArray();
         }
     }
 }

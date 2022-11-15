@@ -32,7 +32,7 @@ namespace MongoDB.Driver
             MessageEncoderSettings messageEncoderSettings,
             bool retryRequested)
         {
-            return CreateChangeStreamOperation(pipeline, LinqProvider.V2, options, readConcern, messageEncoderSettings, retryRequested);
+            return CreateChangeStreamOperation(pipeline, LinqProvider.V3, options, readConcern, messageEncoderSettings, retryRequested);
         }
 
         public static ChangeStreamOperation<TResult> CreateChangeStreamOperation<TResult>(
@@ -65,7 +65,7 @@ namespace MongoDB.Driver
             MessageEncoderSettings messageEncoderSettings,
             bool retryRequested)
         {
-            return CreateChangeStreamOperation(database, pipeline, LinqProvider.V2, options, readConcern, messageEncoderSettings, retryRequested);
+            return CreateChangeStreamOperation(database, pipeline, LinqProvider.V3, options, readConcern, messageEncoderSettings, retryRequested);
         }
 
         public static ChangeStreamOperation<TResult> CreateChangeStreamOperation<TResult>(
@@ -101,7 +101,7 @@ namespace MongoDB.Driver
             MessageEncoderSettings messageEncoderSettings,
             bool retryRequested)
         {
-            return CreateChangeStreamOperation(collection, pipeline, documentSerializer, LinqProvider.V2, options, readConcern, messageEncoderSettings, retryRequested);
+            return CreateChangeStreamOperation(collection, pipeline, documentSerializer, LinqProvider.V3, options, readConcern, messageEncoderSettings, retryRequested);
         }
 
         public static ChangeStreamOperation<TResult> CreateChangeStreamOperation<TResult, TDocument>(

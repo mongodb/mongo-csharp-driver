@@ -46,13 +46,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
 
     internal abstract class ExecutableQuery<TDocument>
     {
+        public abstract AstPipeline Pipeline { get; }
+        public abstract AstPipeline UnoptimizedPipeline { get; }
     }
 
     internal abstract class ExecutableQuery<TDocument, TResult> : ExecutableQuery<TDocument>
     {
-        public abstract AstPipeline Pipeline { get; }
-        public abstract AstPipeline UnoptimizedPipeline { get; }
-
         public abstract TResult Execute(IClientSessionHandle session, CancellationToken cancellation);
         public abstract Task<TResult> ExecuteAsync(IClientSessionHandle session, CancellationToken cancellation);
     }

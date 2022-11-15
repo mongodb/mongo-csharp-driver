@@ -1728,7 +1728,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests
                 RequireServer.Check().Supports(Feature.ShardedTransactions);
             }
 
-            using (var session = DriverTestConfiguration.Client.StartSession())
+            using (var session = DriverTestConfiguration.Linq2Client.StartSession())
             {
                 session.StartTransaction();
                 try

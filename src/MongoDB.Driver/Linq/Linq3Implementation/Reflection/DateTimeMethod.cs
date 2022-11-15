@@ -53,9 +53,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __subtractWithTimeSpanAndTimezone;
         private static readonly MethodInfo __subtractWithUnit;
         private static readonly MethodInfo __subtractWithUnitAndTimezone;
+        private static readonly MethodInfo __toStringWithFormat;
+        private static readonly MethodInfo __toStringWithFormatAndTimezone;
         private static readonly MethodInfo __truncate;
         private static readonly MethodInfo __truncateWithBinSize;
         private static readonly MethodInfo __truncateWithBinSizeAndTimezone;
+        private static readonly MethodInfo __week;
+        private static readonly MethodInfo __weekWithTimezone;
 
         // static constructor
         static DateTimeMethod()
@@ -92,9 +96,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __subtractWithTimeSpanAndTimezone = ReflectionInfo.Method((DateTime @this, TimeSpan value, string timezone) => @this.Subtract(value, timezone));
             __subtractWithUnit = ReflectionInfo.Method((DateTime @this, long value, DateTimeUnit unit) => @this.Subtract(value, unit));
             __subtractWithUnitAndTimezone = ReflectionInfo.Method((DateTime @this, long value, DateTimeUnit unit, string timezone) => @this.Subtract(value, unit, timezone));
+            __toStringWithFormat = ReflectionInfo.Method((DateTime @this, string format) => @this.ToString(format));
+            __toStringWithFormatAndTimezone = ReflectionInfo.Method((DateTime @this, string format, string timezone) => @this.ToString(format, timezone));
             __truncate = ReflectionInfo.Method((DateTime @this, DateTimeUnit unit) => @this.Truncate(unit));
             __truncateWithBinSize = ReflectionInfo.Method((DateTime @this, DateTimeUnit unit, long binSize) => @this.Truncate(unit, binSize));
             __truncateWithBinSizeAndTimezone = ReflectionInfo.Method((DateTime @this, DateTimeUnit unit, long binSize, string timezone) => @this.Truncate(unit, binSize, timezone));
+            __week = ReflectionInfo.Method((DateTime @this) => @this.Week());
+            __weekWithTimezone = ReflectionInfo.Method((DateTime @this, string timezone) => @this.Week(timezone));
         }
 
         // public properties
@@ -130,8 +138,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo SubtractWithTimeSpanAndTimezone => __subtractWithTimeSpanAndTimezone;
         public static MethodInfo SubtractWithUnit => __subtractWithUnit;
         public static MethodInfo SubtractWithUnitAndTimezone => __subtractWithUnitAndTimezone;
+        public static MethodInfo ToStringWithFormat => __toStringWithFormat;
+        public static MethodInfo ToStringWithFormatAndTimezone => __toStringWithFormatAndTimezone;
         public static MethodInfo Truncate => __truncate;
         public static MethodInfo TruncateWithBinSize => __truncateWithBinSize;
         public static MethodInfo TruncateWithBinSizeAndTimezone => __truncateWithBinSizeAndTimezone;
+        public static MethodInfo Week => __week;
+        public static MethodInfo WeekWithTimezone => __weekWithTimezone;
     }
 }

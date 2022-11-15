@@ -51,7 +51,6 @@ Task("Default")
 
 Task("Release")
     .IsDependentOn("Build")
-    .IsDependentOn("Test")
     .IsDependentOn("Docs")
     .IsDependentOn("Package");
 
@@ -118,6 +117,7 @@ Task("BuildArtifacts")
                     fileNames.Add("DnsClient.dll");
                     fileNames.Add("MongoDB.Libmongocrypt.dll");
                     fileNames.Add("SharpCompress.dll");
+                    fileNames.Add("Microsoft.Extensions.Logging.Abstractions.dll");
                 }
 
                 foreach (var fileName in fileNames)
@@ -163,20 +163,7 @@ Task("Test")
             Console.WriteLine($"MONGO_X509_CLIENT_CERTIFICATE_PASSWORD={mongoX509ClientCertificatePassword}");
         }
 
-        var settings = new DotNetTestSettings
-        {
-            NoBuild = true,
-            NoRestore = true,
-            Configuration = configuration,
-            Loggers = CreateLoggers(),
-            ArgumentCustomization = args => args.Append($"-- RunConfiguration.TargetPlatform={buildConfig.TargetPlatform}"),
-            Framework = buildConfig.Framework
-        };
-
-        DotNetTest(
-            testProject.FullPath,
-            settings
-        );
+        RunTests(buildConfig, testProject);
     })
     .DeferOnError();
 
@@ -190,39 +177,14 @@ Task("TestAwsAuthentication")
     .DoesForEach(
         items: GetFiles("./**/MongoDB.Driver.Tests.csproj"),
         action: (BuildConfig buildConfig, Path testProject) =>
-        {
-            DotNetTest(
-                testProject.FullPath,
-                new DotNetTestSettings {
-                    NoBuild = true,
-                    NoRestore = true,
-                    Configuration = configuration,
-                    Loggers = CreateLoggers(),
-                    ArgumentCustomization = args => args.Append($"-- RunConfiguration.TargetPlatform={buildConfig.TargetPlatform}"),
-                    Framework = buildConfig.Framework,
-                    Filter = "Category=\"AwsMechanism\""
-                }
-            );
-        });
+            RunTests(buildConfig, testProject, filter: "Category=\"AwsMechanism\""));
 
 Task("TestPlainAuthentication")
     .IsDependentOn("Build")
     .DoesForEach(
         items: GetFiles("./**/MongoDB.Driver.Tests.csproj"),
-        action: (BuildConfig buildConfig, Path testProject) =>
-        {
-            DotNetTest(
-                testProject.FullPath,
-                new DotNetTestSettings {
-                    NoBuild = true,
-                    NoRestore = true,
-                    Configuration = configuration,
-                    ArgumentCustomization = args => args.Append($"-- RunConfiguration.TargetPlatform={buildConfig.TargetPlatform}"),
-                    Framework = buildConfig.Framework,
-                    Filter = "Category=\"PlainMechanism\""
-                }
-            );
-        });
+        action: (BuildConfig buildConfig, Path testProject) => 
+            RunTests(buildConfig, testProject, filter: "Category=\"PlainMechanism\""));
 
 // currently we are not running this Task on Evergreen (only locally occassionally)
 Task("TestAllGuidRepresentations")
@@ -250,21 +212,17 @@ Task("TestAllGuidRepresentations")
             Console.WriteLine($"TEST_WITH_DEFAULT_GUID_REPRESENTATION_MODE={testWithGuidRepresentationMode}");
             Console.WriteLine($"TEST_WITH_DEFAULT_GUID_REPRESENTATION={testWithGuidRepresentation}");
 
-            DotNetTest(
-                testProject.FullPath,
-                new DotNetTestSettings {
-                    NoBuild = true,
-                    NoRestore = true,
-                    Configuration = configuration,
-                    ArgumentCustomization = args => args.Append($"-- RunConfiguration.TargetPlatform={buildConfig.TargetPlatform}"),
-                    Framework = buildConfig.Framework,
-                    EnvironmentVariables = new Dictionary<string, string>
+            RunTests(
+                buildConfig, 
+                testProject,
+                settings =>
+                {
+                    settings.EnvironmentVariables = new Dictionary<string, string>
                     {
                         { "TEST_WITH_DEFAULT_GUID_REPRESENTATION_MODE", testWithGuidRepresentationMode },
                         { "TEST_WITH_DEFAULT_GUID_REPRESENTATION", testWithGuidRepresentation }
-                    }
-                }
-            );
+                    };
+                });
         }
     });
 
@@ -272,80 +230,28 @@ Task("TestAtlasConnectivity")
     .IsDependentOn("Build")
     .DoesForEach(
         items: GetFiles("./**/AtlasConnectivity.Tests.csproj"),
-        action: (BuildConfig buildConfig, Path testProject) =>
-{
-    DotNetTest(
-        testProject.FullPath,
-        new DotNetTestSettings {
-            NoBuild = true,
-            NoRestore = true,
-            Configuration = configuration,
-            ArgumentCustomization = args => args.Append($"-- RunConfiguration.TargetPlatform={buildConfig.TargetPlatform}"),
-            Framework = buildConfig.Framework
-        }
-    );
-});
+        action: (BuildConfig buildConfig, Path testProject) => RunTests(buildConfig, testProject));
 
 Task("TestAtlasDataLake")
     .IsDependentOn("Build")
     .DoesForEach(
         items: GetFiles("./**/MongoDB.Driver.Tests.csproj"),
         action: (BuildConfig buildConfig, Path testProject) =>
-        {
-            DotNetTest(
-                testProject.FullPath,
-                new DotNetTestSettings {
-                    NoBuild = true,
-                    NoRestore = true,
-                    Configuration = configuration,
-                    ArgumentCustomization = args => args.Append($"-- RunConfiguration.TargetPlatform={buildConfig.TargetPlatform}"),
-                    Framework = buildConfig.Framework,
-                    Filter = "Category=\"AtlasDataLake\""
-                }
-            );
-        });
+           RunTests(buildConfig, testProject, filter: "Category=\"AtlasDataLake\""));
 
 Task("TestOcsp")
     .IsDependentOn("Build")
     .DoesForEach(
         items: GetFiles("./**/MongoDB.Driver.Tests.csproj"),
         action: (BuildConfig buildConfig, Path testProject) =>
-{
-    DotNetTest(
-        testProject.FullPath,
-        new DotNetTestSettings {
-            NoBuild = true,
-            NoRestore = true,
-            Configuration = configuration,
-            ArgumentCustomization = args => args
-                .Append("--filter FullyQualifiedName~OcspIntegrationTests")
-                .Append($"-- RunConfiguration.TargetPlatform={buildConfig.TargetPlatform}"),
-            Framework = buildConfig.Framework
-        }
-    );
-});
+            RunTests(buildConfig, testProject, filter: "Category=\"OCSP\""));
 
 Task("TestGssapi")
     .IsDependentOn("Build")
     .DoesForEach(
         items: GetFiles("./**/MongoDB.Driver.Tests.csproj"),
-        action: (BuildConfig buildConfig, Path testProject) =>
-    {
-        var settings = new DotNetTestSettings
-        {
-            NoBuild = true,
-            NoRestore = true,
-            Configuration = configuration,
-            ArgumentCustomization = args => args.Append($"-- RunConfiguration.TargetPlatform={buildConfig.TargetPlatform}"),
-            Filter = "Category=\"GssapiMechanism\"",
-            Framework = buildConfig.Framework
-        };
-
-        DotNetTest(
-            testProject.FullPath,
-            settings
-        );
-    });
+        action: (BuildConfig buildConfig, Path testProject) =>       
+           RunTests(buildConfig, testProject, filter: "Category=\"GssapiMechanism\""));
 
 Task("TestGssapiNet472").IsDependentOn("TestGssapi");
 Task("TestGssapiNetStandard20").IsDependentOn("TestGssapi");
@@ -357,22 +263,7 @@ Task("TestServerless")
     .DoesForEach(
         items: GetFiles("./**/MongoDB.Driver.Tests.csproj"),
         action: (BuildConfig buildConfig, Path testProject) =>
-        {
-            var settings = new DotNetTestSettings
-            {
-                NoBuild = true,
-                NoRestore = true,
-                Configuration = configuration,
-                ArgumentCustomization = args => args.Append($"-- RunConfiguration.TargetPlatform={buildConfig.TargetPlatform}"),
-                Filter = "Category=\"Serverless\"",
-                Framework = buildConfig.Framework
-            };
-
-            DotNetTest(
-                testProject.FullPath,
-                settings
-            );
-        });
+            RunTests(buildConfig, testProject, filter: "Category=\"Serverless\""));
 
 Task("TestServerlessNet472").IsDependentOn("TestServerless");
 Task("TestServerlessNetStandard20").IsDependentOn("TestServerless");
@@ -384,22 +275,7 @@ Task("TestLoadBalanced")
     .DoesForEach(
         items: GetFiles("./**/*.Tests.csproj"),
         action: (BuildConfig buildConfig, Path testProject) =>
-     {
-        var settings = new DotNetTestSettings
-        {
-            NoBuild = true,
-            NoRestore = true,
-            Configuration = configuration,
-            ArgumentCustomization = args => args.Append($"-- RunConfiguration.TargetPlatform={buildConfig.TargetPlatform}"),
-            Filter = "Category=\"SupportLoadBalancing\"",
-            Framework = buildConfig.Framework
-        };
-
-        DotNetTest(
-            testProject.FullPath,
-            settings
-        );
-     });
+            RunTests(buildConfig, testProject, filter: "Category=\"SupportLoadBalancing\""));
 
 Task("TestLoadBalancedNetStandard20").IsDependentOn("TestLoadBalanced");
 Task("TestLoadBalancedNetStandard21").IsDependentOn("TestLoadBalanced");
@@ -410,23 +286,7 @@ Task("TestCsfleWithMockedKms")
     .DoesForEach(
         items: GetFiles("./**/*.Tests.csproj"),
         action: (BuildConfig buildConfig, Path testProject) =>
-    {
-        var settings = new DotNetTestSettings
-        {
-            NoBuild = true,
-            NoRestore = true,
-            Configuration = configuration,
-            Loggers = CreateLoggers(),
-            ArgumentCustomization = args => args.Append($"-- RunConfiguration.TargetPlatform={buildConfig.TargetPlatform}"),
-            Filter = "Category=\"CSFLE\"",
-            Framework = buildConfig.Framework
-        };
-
-        DotNetTest(
-            testProject.FullPath,
-            settings
-        );
-    });
+            RunTests(buildConfig, testProject, filter: "Category=\"CSFLE\""));
 
 Task("TestCsfleWithMockedKmsNet472").IsDependentOn("TestCsfleWithMockedKms");
 Task("TestCsfleWithMockedKmsNetStandard20").IsDependentOn("TestCsfleWithMockedKms");
@@ -438,51 +298,26 @@ Task("TestCsfleWithMongocryptd")
     .DoesForEach(
         items: GetFiles("./**/*.Tests.csproj"),
         action: (BuildConfig buildConfig, Path testProject) =>
-    {
-        var settings = new DotNetTestSettings
-        {
-            NoBuild = true,
-            NoRestore = true,
-            Configuration = configuration,
-            Loggers = CreateLoggers(),
-            ArgumentCustomization = args => args.Append($"-- RunConfiguration.TargetPlatform={buildConfig.TargetPlatform}"),
-            Filter = "Category=\"CSFLE\"",
-            Framework = buildConfig.Framework
-        };
-
-        DotNetTest(
-            testProject.FullPath,
-            settings
-        );
-    });
+            RunTests(buildConfig, testProject, filter: "Category=\"CSFLE\""));
 
 Task("TestCsfleWithMongocryptdNet472").IsDependentOn("TestCsfleWithMongocryptd");
 Task("TestCsfleWithMongocryptdNetStandard20").IsDependentOn("TestCsfleWithMongocryptd");
 Task("TestCsfleWithMongocryptdNetStandard21").IsDependentOn("TestCsfleWithMongocryptd");
 Task("TestCsfleWithMongocryptdNet60").IsDependentOn("TestCsfleWithMongocryptd");
 
+Task("TestCsfleWithAzureKms")
+    .IsDependentOn("Build")
+    .DoesForEach(
+        items: GetFiles("./**/*.Tests.csproj"),
+        action: (BuildConfig buildConfig, Path testProject) =>
+            RunTests(buildConfig, testProject, filter: "Category=\"CsfleAZUREKMS\""));
+
 Task("TestCsfleWithGcpKms")
     .IsDependentOn("Build")
     .DoesForEach(
         items: GetFiles("./**/*.Tests.csproj"),
         action: (BuildConfig buildConfig, Path testProject) =>
-    {
-        var settings = new DotNetTestSettings
-        {
-            NoBuild = true,
-            NoRestore = true,
-            Configuration = configuration,
-            Loggers = CreateLoggers(),
-            ArgumentCustomization = args => args.Append($"-- RunConfiguration.TargetPlatform={buildConfig.TargetPlatform}"),
-            Filter = "Category=\"CsfleGCPKMS\"",
-            Framework = buildConfig.Framework
-        };
-
-        DotNetTest(
-            testProject.FullPath,
-            settings
-        );
-    });
+            RunTests(buildConfig, testProject, filter: "Category=\"CsfleGCPKMS\""));
 
 Task("Docs")
     .IsDependentOn("ApiDocs")
@@ -638,22 +473,8 @@ Task("TestsPackagingProjectReference")
     .IsDependentOn("Build")
     .DoesForEach(
         items: GetFiles("./**/*.Tests.csproj"),
-        action: (BuildConfig buildConfig, Path testProject) =>
-     {
-        var settings = new DotNetTestSettings
-        {
-            NoBuild = true,
-            NoRestore = true,
-            Configuration = configuration,
-            ArgumentCustomization = args => args.Append($"-- RunConfiguration.TargetPlatform={buildConfig.TargetPlatform}"),
-            Filter = "Category=\"Packaging\""
-        };
-
-        DotNetTest(
-            testProject.FullPath,
-            settings
-        );
-     });
+        action: (BuildConfig buildConfig, Path testProject) => 
+            RunTests(buildConfig, testProject, filter: "Category=\"Packaging\""));
 
 Task("SmokeTests")
     .IsDependentOn("PackageNugetPackages")
@@ -665,18 +486,7 @@ Task("SmokeTests")
         {
            { "SmokeTestsPackageSha", gitVersion.Sha }
         };
-        
-        var settings = new DotNetTestSettings
-        {
-            NoBuild = false,
-            NoRestore = false,
-            Configuration = configuration,
-            ArgumentCustomization = args => args.Append($"-- RunConfiguration.TargetPlatform={buildConfig.TargetPlatform}"),
-            Framework = buildConfig.Framework,
-            EnvironmentVariables = environmentVariables,
-            Loggers = CreateLoggers()
-        };
-        
+
         var toolSettings = new DotNetToolSettings { EnvironmentVariables = environmentVariables };
 
         Information($"Updating MongoDB package: {buildConfig.PackageVersion} sha: {gitVersion.Sha}");
@@ -687,9 +497,15 @@ Task("SmokeTests")
             $"--version [{buildConfig.PackageVersion}]",
             toolSettings);
 
-        DotNetTest(
-            testProject.FullPath,
-            settings);
+        RunTests(
+            buildConfig, 
+            testProject, 
+            settings =>
+            {
+                settings.NoBuild = false;
+                settings.NoRestore = false;
+                settings.EnvironmentVariables = environmentVariables;
+            });
      });
 
 Task("SmokeTestsNet472").IsDependentOn("SmokeTests");
@@ -923,7 +739,8 @@ Setup<BuildConfig>(
         var packageVersion = lowerTarget.StartsWith("smoketests") ? gitVersion.FullSemVer.Replace('+', '-') : gitVersion.LegacySemVer;
 
         Console.WriteLine($"Framework: {framework ?? "null (not set)"}, TargetPlatform: {targetPlatform}, IsReleaseMode: {isReleaseMode}, PackageVersion: {packageVersion}");
-        return new BuildConfig(isReleaseMode, framework, targetPlatform, packageVersion);
+        var loggers = CreateLoggers();
+        return new BuildConfig(isReleaseMode, framework, targetPlatform, packageVersion, loggers);
     });
 
 RunTarget(target);
@@ -934,13 +751,15 @@ public class BuildConfig
     public string Framework { get; }
     public string PackageVersion { get; }
     public string TargetPlatform { get; }
+    public string[] Loggers { get; }
 
-    public BuildConfig(bool isReleaseMode, string framework, string targetPlatform, string packageVersion)
+    public BuildConfig(bool isReleaseMode, string framework, string targetPlatform, string packageVersion, string[] loggers)
     {
         IsReleaseMode = isReleaseMode;
         Framework = framework;
         TargetPlatform = targetPlatform;
         PackageVersion = packageVersion;
+        Loggers = loggers;
     }
 }
 
@@ -951,4 +770,26 @@ string[] CreateLoggers()
     var junitLogger = $"junit;LogFilePath={testResultsFile};FailureBodyFormat=Verbose";
     var consoleLogger = "console;verbosity=detailed";
     return new []{ junitLogger, consoleLogger };
+}
+
+void RunTests(BuildConfig buildConfig, Path path, string filter = null)
+{
+    RunTests(buildConfig, path, settings => settings.Filter = filter);
+}
+
+void RunTests(BuildConfig buildConfig, Path path, Action<DotNetTestSettings> settingsAction)
+{
+    var settings = new DotNetTestSettings
+    {
+        NoBuild = true,
+        NoRestore = true,
+        Configuration = configuration,
+        Loggers = buildConfig.Loggers,
+        ArgumentCustomization = args => args.Append($"-- RunConfiguration.TargetPlatform={buildConfig.TargetPlatform}"),
+        Framework = buildConfig.Framework
+    };
+    
+    settingsAction?.Invoke(settings);
+
+    DotNetTest(path.FullPath, settings);
 }

@@ -20,6 +20,7 @@ using System.Linq;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver.Core;
+using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
@@ -50,7 +51,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         private readonly Dictionary<string, IClientSessionHandle> _sessions;
         private readonly Dictionary<string, BsonDocument> _sessionIds;
         private readonly Dictionary<string, long> _successCounts;
-        private readonly ILoggerFactory _loggerFactory;
+        private readonly LoggingSettings _loggingSettings;
 
         // public constructors
         public UnifiedEntityMap(
@@ -70,7 +71,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             Dictionary<string, IClientSessionHandle> sessions,
             Dictionary<string, BsonDocument> sessionIds,
             Dictionary<string, long> successCounts,
-            ILoggerFactory loggerFactory)
+            LoggingSettings loggingSettings)
         {
             _buckets = buckets;
             _changeStreams = changeStreams;
@@ -88,7 +89,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             _sessions = sessions;
             _sessionIds = sessionIds;
             _successCounts = successCounts;
-            _loggerFactory = loggerFactory;
+            _loggingSettings = loggingSettings;
         }
 
         // public properties
@@ -164,12 +165,12 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             }
         }
 
-        public ILoggerFactory LoggerFactory
+        public LoggingSettings LoggingSettings
         {
             get
             {
                 ThrowIfDisposed();
-                return _loggerFactory;
+                return _loggingSettings;
             }
         }
 
@@ -305,12 +306,12 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
     public class UnifiedEntityMapBuilder
     {
         private readonly Dictionary<string, IEventFormatter> _eventFormatters;
-        private readonly ILoggerFactory _loggerFactory;
+        private readonly LoggingSettings _loggingSettings;
 
-        public UnifiedEntityMapBuilder(Dictionary<string, IEventFormatter> eventFormatters, ILoggerFactory loggerFactory)
+        public UnifiedEntityMapBuilder(Dictionary<string, IEventFormatter> eventFormatters, LoggingSettings loggingSettings)
         {
             _eventFormatters = eventFormatters ?? new();
-            _loggerFactory = loggerFactory;
+            _loggingSettings = loggingSettings;
         }
 
         public UnifiedEntityMap Build(BsonArray entitiesArray)
@@ -409,7 +410,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 sessions,
                 sessionIds,
                 successCounts,
-                _loggerFactory);
+                _loggingSettings);
 
             void EnsureIsNotHandled<TEntity>(Dictionary<string, TEntity> dictionary, string key)
             {
@@ -645,7 +646,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         };
                     }
                 },
-                _loggerFactory,
+                _loggingSettings,
                 useMultipleShardRouters);
 
             return (client, clientEventCapturers, loggingComponents);

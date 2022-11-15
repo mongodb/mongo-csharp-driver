@@ -19,6 +19,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Serializers.KnownSerializers;
 using Xunit;
@@ -161,13 +162,13 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Serializers.KnownSe
         [Fact]
         public void Conditional_expression_with_different_enum_representations_should_throw()
         {
-            Expression<Func<C, E>> expression = x => x.Ei == E.A ? E.B : x.Es;
+            Expression<Func<C, E>> expression = x => x.Ei == E.A ? x.Ei : x.Es;
             var collectionSerializer = GetCollectionSerializer();
 
-            var result = KnownSerializerFinder.FindKnownSerializers(expression, collectionSerializer);
+            var exception = Record.Exception(() => KnownSerializerFinder.FindKnownSerializers(expression, collectionSerializer));
 
-            var conditionalExpression = (ConditionalExpression)expression.Body;
-            Assert.Throws<InvalidOperationException>(() => result.GetSerializer(conditionalExpression.IfTrue));
+            var notSupportedExpression = exception.Should().BeOfType<ExpressionNotSupportedException>().Subject;
+            notSupportedExpression.Message.Should().Contain("because IfTrue and IfFalse expressions have different serializers");
         }
 
         [Fact]
@@ -182,23 +183,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Serializers.KnownSe
             collectionSerializer.TryGetMemberSerializationInfo(nameof(C.A), out var aSerializationInfo).Should().BeTrue();
             ((BsonClassMapSerializer<A>)aSerializationInfo.Serializer).TryGetMemberSerializationInfo(nameof(A.B), out var bSerializationInfo).Should().BeTrue();
             serializer.Should().Be(bSerializationInfo.Serializer);
-        }
-
-        [Fact]
-        public void Two_property_chains_should_each_return_correct_nested_serializer()
-        {
-            Expression<Func<C, E>> expression = x => x.A.B == null ? x.Ei : x.Es;
-            var collectionSerializer = GetCollectionSerializer();
-
-            var result = KnownSerializerFinder.FindKnownSerializers(expression, collectionSerializer);
-
-            var conditionalExpression = (ConditionalExpression)expression.Body;
-            var trueBranchSerializer = result.GetSerializer(conditionalExpression.IfTrue);
-            collectionSerializer.TryGetMemberSerializationInfo(nameof(C.Ei), out var eiSerializationInfo).Should().BeTrue();
-            trueBranchSerializer.Should().Be(eiSerializationInfo.Serializer);
-            var falseBranchSerializer = result.GetSerializer(conditionalExpression.IfFalse);
-            collectionSerializer.TryGetMemberSerializationInfo(nameof(C.Es), out var esSerializationInfo).Should().BeTrue();
-            falseBranchSerializer.Should().Be(esSerializationInfo.Serializer);
         }
 
         [Fact]
