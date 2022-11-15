@@ -71,7 +71,7 @@ namespace MongoDB.Driver.Core.Clusters
         private TaskCompletionSource<bool> _descriptionChangedTaskCompletionSource;
         private readonly object _descriptionLock = new object();
         private readonly LatencyLimitingServerSelector _latencyLimitingServerSelector;
-        protected readonly EventLogger<LogCategories.Cluster> _clusterEventLogger;
+        protected readonly EventLogger<LogCategories.SDAM> _clusterEventLogger;
         protected readonly EventLogger<LogCategories.ServerSelection> _serverSelectionEventLogger;
         private Timer _rapidHeartbeatTimer;
         private readonly object _serverSelectionWaitQueueLock = new object();
@@ -101,7 +101,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             _serverSessionPool = new CoreServerSessionPool(this);
 
-            _clusterEventLogger = loggerFactory.CreateEventLogger<LogCategories.Cluster>(eventSubscriber);
+            _clusterEventLogger = loggerFactory.CreateEventLogger<LogCategories.SDAM>(eventSubscriber);
             _serverSelectionEventLogger = loggerFactory.CreateEventLogger<LogCategories.ServerSelection>(eventSubscriber);
 
             ClusterDescription CreateInitialDescription()
