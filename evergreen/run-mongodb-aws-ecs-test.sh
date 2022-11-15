@@ -8,8 +8,8 @@ set -o errexit  # Exit the script with error if any of the commands fail
 #       ASSERT_NO_URI_CREDS     Determines whether we need assert existence credentials in connection string or not
 #
 # Environment variables used as output:
-#       AWS_TESTS_ENABLED       Allows runnings AWS tests
-#       AWS_ECS_ENABLED         Allows runnings ECS tests
+#       AWS_TESTS_ENABLED       Allows running AWS tests
+#       AWS_ECS_ENABLED         Allows running ECS tests
 #
 ############################################
 #            Main Program                  #

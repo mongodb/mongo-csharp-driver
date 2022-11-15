@@ -25,6 +25,7 @@ using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
+using Amazon.Runtime;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
@@ -1568,49 +1569,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                         // AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY must not be configured
                         case "aws":
                             {
-                                switch (currentOperatingSystem)
-                                {
-                                    case OperatingSystemPlatform.Windows:
-                                    case OperatingSystemPlatform.Linux:
-                                        {
-                                            try
-                                            {
-                                                // unlike EG, local running fails on first aws EC2 step with acquiring a token
-                                                AssertInnerEncryptionException<HttpRequestException>(ex, "Failed to acquire EC2 token.");
-                                            }
-                                            catch (XunitException)
-                                            {
-                                                // EG allows successful sending aws token request to the aws env, so error happens on get rolename step
-                                                AssertInnerEncryptionException<HttpRequestException>(ex, "Failed to acquire EC2 role name.");
-                                            }
-                                        }
-                                        break;
-                                    case OperatingSystemPlatform.MacOS:
-                                        {
-                                            // httpClient throws 2 different exceptions from the same code on macos
-                                            try
-                                            {
-                                                // --->MongoDB.Driver.MongoClientException: Failed to acquire EC2 token.
-                                                // --->System.Threading.Tasks.TaskCanceledException: A task was canceled.
-                                                // at System.Net.Http.HttpClient.FinishSendAsyncBuffered(Task`1 sendTask, HttpRequestMessage request, CancellationTokenSource cts, Boolean disposeCts)
-                                                AssertInnerEncryptionException<TaskCanceledException>(ex, "Failed to acquire EC2 token.");
-                                            }
-                                            catch (XunitException)
-                                            {
-                                                //--->MongoDB.Driver.MongoClientException: Failed to acquire EC2 token.
-                                                //--->System.Net.Http.HttpRequestException: An error occurred while sending the request.
-                                                //--->System.Net.Http.CurlException: Couldn't connect to server
-                                                //at System.Net.Http.CurlHandler.ThrowIfCURLEError(CURLcode error)
-                                                //at System.Net.Http.CurlHandler.MultiAgent.FinishRequest(StrongToWeakReference`1 easyWrapper, CURLcode messageResult)
-                                                //-- - End of inner exception stack trace-- -
-                                                //at System.Net.Http.HttpClient.FinishSendAsyncBuffered(Task`1 sendTask, HttpRequestMessage request, CancellationTokenSource cts, Boolean disposeCts)
-                                                AssertInnerEncryptionException<HttpRequestException>(ex, "Failed to acquire EC2 token.");
-                                            }
-                                        }
-                                        break;
-                                    default: throw new Exception($"Unexpected OS: {currentOperatingSystem}");
-                                }
-
+                                AssertInnerEncryptionException<AmazonServiceException>(ex, "Unable to get IAM security credentials from EC2 Instance Metadata Service.");
                             }
                             break;
                         case "azure":

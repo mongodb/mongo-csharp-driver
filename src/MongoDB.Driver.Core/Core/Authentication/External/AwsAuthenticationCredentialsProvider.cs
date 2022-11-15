@@ -67,15 +67,15 @@ namespace MongoDB.Driver.Core.Authentication.External
         public AwsCredentials CreateCredentialsFromExternalSource(CancellationToken cancellationToken)
         {
             var creds = FallbackCredentialsFactory.GetCredentials();
-            var immutableCredentias = creds.GetCredentials();
-            return CreateAwsCredentials(immutableCredentias);
+            var immutableCredentials = creds.GetCredentials();
+            return CreateAwsCredentials(immutableCredentials);
         }
 
         public async Task<AwsCredentials> CreateCredentialsFromExternalSourceAsync(CancellationToken cancellationToken)
         {
             var creds = FallbackCredentialsFactory.GetCredentials();
-            var immutableCredentias = await creds.GetCredentialsAsync().ConfigureAwait(false);
-            return CreateAwsCredentials(immutableCredentias);
+            var immutableCredentials = await creds.GetCredentialsAsync().ConfigureAwait(false);
+            return CreateAwsCredentials(immutableCredentials);
         }
 
         private AwsCredentials CreateAwsCredentials(ImmutableCredentials immutableCredentials)
