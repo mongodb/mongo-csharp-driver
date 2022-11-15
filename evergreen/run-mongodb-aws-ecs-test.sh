@@ -9,7 +9,7 @@ set -o errexit  # Exit the script with error if any of the commands fail
 #
 # Environment variables used as output:
 #       AWS_TESTS_ENABLED       Allows runnings AWS tests
-#       AWS_ECS_TEST            Allows runnings EVS tests
+#       AWS_ECS_ENABLED         Allows runnings ECS tests
 #
 ############################################
 #            Main Program                  #
@@ -28,7 +28,7 @@ fi
 # Now we can safely enable xtrace
 set -o xtrace
 export AWS_TESTS_ENABLED=true
-export AWS_ECS_TEST=true
+export AWS_ECS_ENABLED=true
 
 # EG scripts for ECS assume that a root folder is "src" and all driver side scripts are placed in ".evergreen" folder. 
 # So that script is copied into "src/.evergreen" before running

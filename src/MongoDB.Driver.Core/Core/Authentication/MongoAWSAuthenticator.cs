@@ -101,7 +101,7 @@ namespace MongoDB.Driver.Core.Authentication
                 throw new InvalidOperationException("When using MONGODB-AWS authentication if a session token is provided via settings then a username and password must be provided also.");
             }
 
-            return new AwsCredentials(accessKeyId: username, secretAccessKey: password, sessionToken, expiration: null);
+            return new AwsCredentials(accessKeyId: username, secretAccessKey: password, sessionToken);
         }
 
         private static string ExtractSessionTokenFromMechanismProperties(IEnumerable<KeyValuePair<string, string>> properties)

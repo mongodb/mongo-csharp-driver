@@ -21,7 +21,6 @@ namespace MongoDB.Driver.Core.Authentication.External
 {
     internal interface ICredentialsCache<TCredentials> where TCredentials : IExternalCredentials
     {
-        TCredentials Credentials { get; }
         void Clear();
     }
 
