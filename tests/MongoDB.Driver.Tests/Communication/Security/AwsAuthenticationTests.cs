@@ -138,6 +138,14 @@ namespace MongoDB.Driver.Tests.Communication.Security
             }
         }
 
+        [Fact]
+        public void Ecs_should_fill_AWS_CONTAINER_CREDENTIALS_RELATIVE_URI()
+        {
+            var isEcs = Environment.GetEnvironmentVariable("AWS_ECS_TEST") != null;
+            var awsContainerRelativeUri = Environment.GetEnvironmentVariable("AWS_CONTAINER_CREDENTIALS_RELATIVE_URI");
+            (awsContainerRelativeUri != null).Should().Be(isEcs);
+        }
+
         [SkippableTheory]
         [ParameterAttributeData]
         public async Task Aws_external_credentials_caching_prose_unit_test([Values(false, true)] bool async)
