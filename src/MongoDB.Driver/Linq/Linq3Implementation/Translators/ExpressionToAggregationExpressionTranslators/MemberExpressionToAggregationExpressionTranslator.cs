@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             if (containerTranslation.Serializer is IWrappedValueSerializer wrappedValueSerializer)
             {
                 var unwrappedValueAst = AstExpression.GetField(containerTranslation.Ast, wrappedValueSerializer.FieldName);
-                containerTranslation = new AggregationExpression(expression, unwrappedValueAst, wrappedValueSerializer.ValueSerializer);
+                containerTranslation = new AggregationExpression(containerExpression, unwrappedValueAst, wrappedValueSerializer.ValueSerializer);
             }
 
             if (!DocumentSerializerHelper.HasFieldInfo(containerTranslation.Serializer, member.Name))
