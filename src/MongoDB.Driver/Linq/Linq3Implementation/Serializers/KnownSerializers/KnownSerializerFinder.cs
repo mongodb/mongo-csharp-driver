@@ -107,36 +107,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers.KnownSerializers
             return result;
         }
 
-        protected override Expression VisitBinary(BinaryExpression node)
-        {
-            var result = base.VisitBinary(node);
-
-            if (result is BinaryExpression binaryExpression)
-            {
-                if (BinaryExpressionToAggregationExpressionTranslator.IsEnumComparisonExpression(binaryExpression))
-                {
-                    var leftExpression = ConvertHelper.RemoveConvertToEnumUnderlyingType(binaryExpression.Left);
-                    var rightExpression = ConvertHelper.RemoveConvertToEnumUnderlyingType(binaryExpression.Right);
-
-                    if (leftExpression is ConstantExpression leftConstantExpression)
-                    {
-                        var rightExpressionSerializer = _registry.GetSerializer(rightExpression);
-                        var leftExpressionSerializer = EnumUnderlyingTypeSerializer.Create(rightExpressionSerializer);
-                        _registry.SetNodeSerializer(leftExpression, leftExpressionSerializer);
-                    }
-
-                    if (rightExpression is ConstantExpression rightConstantExpression)
-                    {
-                        var leftExpressionSerializer = _registry.GetSerializer(leftExpression);
-                        var rightExpressionSerializer = EnumUnderlyingTypeSerializer.Create(leftExpressionSerializer);
-                        _registry.SetNodeSerializer(rightExpression, rightExpressionSerializer);
-                    }
-                }
-            }
-
-            return result;
-        }
-
         protected override Expression VisitMember(MemberExpression node)
         {
             var result = base.VisitMember(node);

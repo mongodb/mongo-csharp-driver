@@ -15,12 +15,12 @@
 
 using System;
 using System.Linq.Expressions;
-using System.Text.RegularExpressions;
-using System.Xml.Schema;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
+using MongoDB.Driver.Linq.Linq3Implementation.Misc;
+using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators
 {
@@ -38,6 +38,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
                 var operandExpression = expression.Operand;
                 var operandTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, operandExpression);
+
+                if (IsConvertEnumToUnderlyingType(expression))
+                {
+                    return TranslateConvertEnumToUnderlyingType(expression, operandTranslation);
+                }
+
+                if (IsConvertUnderlyingTypeToEnum(expression))
+                {
+                    return TranslateConvertUnderlyingTypeToEnum(expression, operandTranslation);
+                }
 
                 if (expressionType.IsConstructedGenericType && expressionType.GetGenericTypeDefinition() == typeof(Nullable<>))
                 {
@@ -86,6 +96,26 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             throw new ExpressionNotSupportedException(expression);
         }
 
+        private static bool IsConvertEnumToUnderlyingType(UnaryExpression expression)
+        {
+            var sourceType = expression.Operand.Type;
+            var targetType = expression.Type;
+
+            return
+                sourceType.IsEnumOrNullableEnum(out _, out var underlyingType) &&
+                targetType.IsSameAsOrNullableOf(underlyingType);
+        }
+
+        private static bool IsConvertUnderlyingTypeToEnum(UnaryExpression expression)
+        {
+            var sourceType = expression.Operand.Type;
+            var targetType = expression.Type;
+
+            return
+                targetType.IsEnumOrNullableEnum(out _, out var underlyingType) &&
+                sourceType.IsSameAsOrNullableOf(underlyingType);
+        }
+
         private static AggregationExpression TranslateConvertToBsonValue(TranslationContext context, UnaryExpression expression, Expression operand)
         {
             // handle double conversions like `(BsonValue)(object)x.Anything`
@@ -99,6 +129,66 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var operandTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, operand);
 
             return new AggregationExpression(expression, operandTranslation.Ast, BsonValueSerializer.Instance);
+        }
+
+        private static AggregationExpression TranslateConvertEnumToUnderlyingType(UnaryExpression expression, AggregationExpression operandTranslation)
+        {
+            var sourceType = expression.Operand.Type;
+            var targetType = expression.Type;
+
+            IBsonSerializer enumSerializer;
+            if (sourceType.IsNullable())
+            {
+                var nullableSerializer = (INullableSerializer)operandTranslation.Serializer;
+                enumSerializer = nullableSerializer.ValueSerializer;
+            }
+            else
+            {
+                enumSerializer = operandTranslation.Serializer;
+            }
+
+            IBsonSerializer targetSerializer;
+            var enumUnderlyingTypeSerializer = EnumUnderlyingTypeSerializer.Create(enumSerializer);
+            if (targetType.IsNullable())
+            {
+                targetSerializer = NullableSerializer.Create(enumUnderlyingTypeSerializer);
+            }
+            else
+            {
+                targetSerializer = enumUnderlyingTypeSerializer;
+            }
+
+            return new AggregationExpression(expression, operandTranslation.Ast, targetSerializer);
+        }
+
+        private static AggregationExpression TranslateConvertUnderlyingTypeToEnum(UnaryExpression expression, AggregationExpression operandTranslation)
+        {
+            var sourceType = expression.Operand.Type;
+            var targetType = expression.Type;
+
+            IBsonSerializer enumUnderlyingTypeSerializer;
+            if (sourceType.IsNullable())
+            {
+                var nullableSerializer = (INullableSerializer)operandTranslation.Serializer;
+                enumUnderlyingTypeSerializer = nullableSerializer.ValueSerializer;
+            }
+            else
+            {
+                enumUnderlyingTypeSerializer = operandTranslation.Serializer;
+            }
+
+            IBsonSerializer targetSerializer;
+            var enumSerializer = ((IEnumUnderlyingTypeSerializer)enumUnderlyingTypeSerializer).EnumSerializer;
+            if (targetType.IsNullableEnum())
+            {
+                targetSerializer = NullableSerializer.Create(enumSerializer);
+            }
+            else
+            {
+                targetSerializer = enumSerializer;
+            }
+
+            return new AggregationExpression(expression, operandTranslation.Ast, targetSerializer);
         }
     }
 }

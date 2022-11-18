@@ -14,18 +14,46 @@
 */
 
 using System;
-using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization.Attributes;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
+    /// <summary>
+    /// An interface used by the LINQ3 translators to access the value serializer without needing to use reflection.
+    /// </summary>
+    public interface INullableSerializer
+    {
+        /// <summary>
+        /// Gets the value serializer.
+        /// </summary>
+        IBsonSerializer ValueSerializer { get; }
+    }
+
+    /// <summary>
+    /// Static factory class for NullableSerializers.
+    /// </summary>
+    public static class NullableSerializer
+    {
+        /// <summary>
+        /// Creates a NullableSerializer.
+        /// </summary>
+        /// <param name="valueSerializer">The value serializer.</param>
+        /// <returns>A NullableSerializer</returns>
+        public static IBsonSerializer Create(IBsonSerializer valueSerializer)
+        {
+            var valueType = valueSerializer.ValueType;
+            var nullableSerializerType = typeof(NullableSerializer<>).MakeGenericType(valueType);
+            return (IBsonSerializer)Activator.CreateInstance(nullableSerializerType, valueSerializer);
+        }
+    }
+
     /// <summary>
     /// Represents a serializer for nullable values.
     /// </summary>
     /// <typeparam name="T">The underlying type.</typeparam>
     public class NullableSerializer<T> :
         SerializerBase<Nullable<T>>,
-        IChildSerializerConfigurable
+        IChildSerializerConfigurable,
+        INullableSerializer
             where T : struct
     {
         // private fields
@@ -68,6 +96,15 @@ namespace MongoDB.Bson.Serialization.Serializers
             _lazySerializer = new Lazy<IBsonSerializer<T>>(() => serializerRegistry.GetSerializer<T>());
         }
 
+        // public properties
+        /// <summary>
+        /// Gets the value serializer.
+        /// </summary>
+        public IBsonSerializer<T> ValueSerializer => _lazySerializer.Value;
+
+        // explicitly implemented properties
+        IBsonSerializer INullableSerializer.ValueSerializer => ValueSerializer;
+
         // public methods
         /// <summary>
         /// Deserializes a value.
@@ -90,6 +127,17 @@ namespace MongoDB.Bson.Serialization.Serializers
                 return _lazySerializer.Value.Deserialize(context);
             }
         }
+
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            return
+                obj is NullableSerializer<T> other &&
+                ValueSerializer.Equals(other.ValueSerializer);
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode() => ValueSerializer.GetHashCode();
 
         /// <summary>
         /// Serializes a value.

@@ -18,16 +18,19 @@ namespace MongoDB.Bson.Serialization
     /// <summary>
     /// Represents a serializer that has a Representation property.
     /// </summary>
-    public interface IRepresentationConfigurable
+    public interface IHasRepresentationSerializer
     {
         /// <summary>
         /// Gets the representation.
         /// </summary>
-        /// <value>
-        /// The representation.
-        /// </value>
         BsonType Representation { get; }
+    }
 
+    /// <summary>
+    /// Represents a serializer whose representation can be configured.
+    /// </summary>
+    public interface IRepresentationConfigurable : IHasRepresentationSerializer
+    {
         /// <summary>
         /// Returns a serializer that has been reconfigured with the specified representation.
         /// </summary>

@@ -91,20 +91,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Serializers.KnownSe
         }
 
         [Fact]
-        public void Enum_comparison_expression_should_use_underlying_type_serializer_for_constant_represented_as_int()
-        {
-            Expression<Func<C, bool>> expression = x => x.Ei == E.A;
-            var collectionSerializer = GetCollectionSerializer();
-
-            var result = KnownSerializerFinder.FindKnownSerializers(expression, collectionSerializer);
-
-            var equalsExpression = (BinaryExpression)expression.Body;
-            var leftSerializer = result.GetSerializer(equalsExpression.Left);
-            var rightSerializer = (EnumUnderlyingTypeSerializer<E, int>)result.GetSerializer(equalsExpression.Right);
-            rightSerializer.EnumSerializer.Should().BeSameAs(leftSerializer);
-        }
-
-        [Fact]
         public void Enum_property_expression_should_return_enum_serializer_with_string_representation()
         {
             Expression<Func<C, E>> expression = x => x.Es;
@@ -115,20 +101,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Serializers.KnownSe
             var serializer = result.GetSerializer(expression.Body);
             collectionSerializer.TryGetMemberSerializationInfo(nameof(C.Es), out var expectedPropertySerializationInfo).Should().BeTrue();
             serializer.Should().Be(expectedPropertySerializationInfo.Serializer);
-        }
-
-        [Fact]
-        public void Enum_comparison_expression_should_use_underlying_type_serializer_for_constant_represented_as_string()
-        {
-            Expression<Func<C, bool>> expression = x => x.Es == E.A;
-            var collectionSerializer = GetCollectionSerializer();
-
-            var result = KnownSerializerFinder.FindKnownSerializers(expression, collectionSerializer);
-
-            var equalsExpression = (BinaryExpression)expression.Body;
-            var leftSerializer = result.GetSerializer(equalsExpression.Left);
-            var rightSerializer = (EnumUnderlyingTypeSerializer<E, int>)result.GetSerializer(equalsExpression.Right);
-            rightSerializer.EnumSerializer.Should().BeSameAs(leftSerializer);
         }
 
         [Fact]

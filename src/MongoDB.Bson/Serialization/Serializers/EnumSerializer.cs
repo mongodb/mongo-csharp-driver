@@ -65,6 +65,11 @@ namespace MongoDB.Bson.Serialization.Serializers
                 throw new BsonSerializationException(message);
             }
 
+            if (representation == 0)
+            {
+                representation = GetRepresentationForUnderlyingType();
+            }
+
             _representation = representation;
             _underlyingTypeCode = Type.GetTypeCode(Enum.GetUnderlyingType(typeof(TEnum)));
         }
@@ -128,16 +133,6 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             switch (_representation)
             {
-                case 0:
-                    if (_underlyingTypeCode == TypeCode.Int64 || _underlyingTypeCode == TypeCode.UInt64)
-                    {
-                        goto case BsonType.Int64;
-                    }
-                    else
-                    {
-                        goto case BsonType.Int32;
-                    }
-
                 case BsonType.Int32:
                     bsonWriter.WriteInt32(ConvertEnumToInt32(value));
                     break;
@@ -162,6 +157,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <returns>The reconfigured serializer.</returns>
         public EnumSerializer<TEnum> WithRepresentation(BsonType representation)
         {
+            if (representation == 0)
+            {
+                representation = GetRepresentationForUnderlyingType();
+            }
+
             if (representation == _representation)
             {
                 return this;
@@ -255,6 +255,12 @@ namespace MongoDB.Bson.Serialization.Serializers
                 case TypeCode.UInt64: var uint64Value = (ulong)value; return Unsafe.As<ulong, TEnum>(ref uint64Value);
                 default: throw new InvalidOperationException($"Unexpected underlying type code: {_underlyingTypeCode}.");
             }
+        }
+
+        private BsonType GetRepresentationForUnderlyingType()
+        {
+            var underlyingType = Enum.GetUnderlyingType(typeof(TEnum));
+            return (underlyingType == typeof(long) || underlyingType == typeof(ulong)) ? BsonType.Int64 : BsonType.Int32;
         }
 
         private TEnum ConvertStringToEnum(string value)

@@ -122,7 +122,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers.KnownSerializers
             foreach (var serializer in _knownSerializers.Values.SelectMany(hashset => hashset))
             {
                 var valueType = serializer.ValueType;
-                if (valueType == type || valueType.IsEnum() && Enum.GetUnderlyingType(valueType) == type)
+                if (valueType == type || valueType.IsEnum && Enum.GetUnderlyingType(valueType) == type)
                 {
                     possibleSerializers.Add(serializer);
                 }
