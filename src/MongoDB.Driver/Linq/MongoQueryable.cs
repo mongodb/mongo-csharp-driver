@@ -21,6 +21,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Search;
 
 namespace MongoDB.Driver.Linq
 {
@@ -921,6 +922,33 @@ namespace MongoDB.Driver.Linq
                     GetMethodInfo(Sample, source, count),
                     Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
                     Expression.Constant(count)));
+        }
+
+        /// <summary>
+        /// Appends a $search stage to the LINQ pipeline
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">A sequence of values.</param>
+        /// <param name="searchDefinition">The search definition.</param>
+        /// <param name="highlight">The highlight options.</param>
+        /// <param name="indexName">The index name.</param>
+        /// <param name="count">The count options.</param>
+        /// <param name="returnStoredSource">
+        /// Flag that specifies whether to perform a full document lookup on the backend database
+        /// or return only stored source fields directly from Atlas Search.
+        /// </param>
+        /// <returns>The fluent aggregate interface.</returns>
+        public static IMongoQueryable<TSource> Search<TSource>(
+            this IMongoQueryable<TSource> source,
+            SearchDefinition<TSource> searchDefinition,
+            HighlightOptions<TSource> highlight = null,
+            string indexName = null,
+            SearchCountOptions count = null,
+            bool returnStoredSource = false)
+        {
+            return AppendStage(
+                source,
+                PipelineStageDefinitionBuilder.Search(searchDefinition, highlight, indexName, count, returnStoredSource));
         }
 
         /// <summary>
