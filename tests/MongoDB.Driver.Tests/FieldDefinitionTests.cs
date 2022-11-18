@@ -231,7 +231,7 @@ namespace MongoDB.Driver.Tests
             var renderedField = subject.Render(BsonSerializer.SerializerRegistry.GetSerializer<Person>(), BsonSerializer.SerializerRegistry);
 
             renderedField.FieldName.Should().Be("gs");
-            renderedField.UnderlyingSerializer.Should().BeOfType<ImpliedImplementationInterfaceSerializer<IEnumerable<Gender>, List<Gender>>>();
+            renderedField.UnderlyingSerializer.Should().BeOfType<IEnumerableDeserializingAsCollectionSerializer<IEnumerable<Gender>, Gender, List<Gender>>>();
             renderedField.FieldSerializer.Should().BeSameAs(renderedField.UnderlyingSerializer);
             renderedField.ValueSerializer.Should().BeSameAs(renderedField.FieldSerializer);
 
@@ -245,7 +245,7 @@ namespace MongoDB.Driver.Tests
             var renderedField = subject.Render(BsonSerializer.SerializerRegistry.GetSerializer<Person>(), BsonSerializer.SerializerRegistry);
 
             renderedField.FieldName.Should().Be("gs");
-            renderedField.UnderlyingSerializer.Should().BeOfType<ImpliedImplementationInterfaceSerializer<IEnumerable<Gender>, List<Gender>>>();
+            renderedField.UnderlyingSerializer.Should().BeOfType<IEnumerableDeserializingAsCollectionSerializer<IEnumerable<Gender>, Gender, List<Gender>>>();
             renderedField.FieldSerializer.Should().BeSameAs(renderedField.UnderlyingSerializer);
             renderedField.ValueSerializer.Should().BeSameAs(renderedField.FieldSerializer);
 
@@ -259,7 +259,7 @@ namespace MongoDB.Driver.Tests
             var renderedField = subject.Render(BsonSerializer.SerializerRegistry.GetSerializer<Person>(), BsonSerializer.SerializerRegistry, allowScalarValueForArrayField: true);
 
             renderedField.FieldName.Should().Be("gs");
-            renderedField.UnderlyingSerializer.Should().BeOfType<ImpliedImplementationInterfaceSerializer<IEnumerable<Gender>, List<Gender>>>();
+            renderedField.UnderlyingSerializer.Should().BeOfType<IEnumerableDeserializingAsCollectionSerializer<IEnumerable<Gender>, Gender, List<Gender>>>();
             renderedField.FieldSerializer.Should().BeNull();
             renderedField.ValueSerializer.Should().BeOfType<EnumSerializer<Gender>>();
 
@@ -273,7 +273,7 @@ namespace MongoDB.Driver.Tests
             var renderedField = subject.Render(BsonSerializer.SerializerRegistry.GetSerializer<Person>(), BsonSerializer.SerializerRegistry, allowScalarValueForArrayField: false);
 
             renderedField.FieldName.Should().Be("gs");
-            renderedField.UnderlyingSerializer.Should().BeOfType<ImpliedImplementationInterfaceSerializer<IEnumerable<Gender>, List<Gender>>>();
+            renderedField.UnderlyingSerializer.Should().BeOfType<IEnumerableDeserializingAsCollectionSerializer<IEnumerable<Gender>, Gender, List<Gender>>>();
             renderedField.FieldSerializer.Should().BeNull();
             renderedField.ValueSerializer.ValueType.Should().Be(typeof(Gender));
             renderedField.ValueSerializer.GetType().Name.Should().Be("ConvertIfPossibleSerializer`2");
