@@ -26,7 +26,8 @@ namespace MongoDB.Driver.Tests.Specifications.command_logging_and_monitoring
 {
     public class CmapUnifiedTestRunner : LoggableTestClass
     {
-        private static readonly HashSet<string> __ignoredLogsMessages = new HashSet<string>(new[]
+        private static readonly HashSet<string> __ignoredLogsMessages = new HashSet<string>(
+            new[]
             {
                "Connection pool opening",
                "Connection adding",
