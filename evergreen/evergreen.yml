@@ -684,6 +684,15 @@ functions:
           ${PREPARE_SHELL}
           evergreen/run-atlas-data-lake-test.sh
 
+  run-atlas-search-test:
+    - command: shell.exec
+      type: test
+      params:
+        working_dir: mongo-csharp-driver
+        script: |
+          ${PREPARE_SHELL}
+          ATLAS_SEARCH="${ATLAS_SEARCH}" evergreen/run-atlas-search-test.sh
+
   run-ocsp-test:
     - command: shell.exec
       type: test
@@ -1201,6 +1210,10 @@ tasks:
       commands:
         - func: bootstrap-mongohoused
         - func: run-atlas-data-lake-test
+
+    - name: atlas-search-test
+      commands:
+        - func: run-atlas-search-test
 
     - name: test-serverless-net472
       exec_timeout_secs: 2700 # 45 minutes: 15 for setup + 30 for tests
@@ -2067,6 +2080,13 @@ buildvariants:
     - windows-64-vs2017-test
   tasks:
     - name: atlas-data-lake-test
+
+- name: atlas-search-test
+  display_name: "Atlas Search Tests"
+  run_on:
+    - windows-64-vs2017-test
+  tasks:
+    - name: atlas-search-test
 
 - name: gssapi-auth-tests-windows
   run_on:

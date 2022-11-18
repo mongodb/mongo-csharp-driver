@@ -13,13 +13,14 @@
 * limitations under the License.
 */
 
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Core.Misc;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Search;
 
 namespace MongoDB.Driver
 {
@@ -236,6 +237,24 @@ namespace MongoDB.Driver
         public override IAggregateFluent<TNewResult> ReplaceWith<TNewResult>(AggregateExpressionDefinition<TResult, TNewResult> newRoot)
         {
             return WithPipeline(_pipeline.ReplaceWith(newRoot));
+        }
+
+        public override IAggregateFluent<TResult> Search(
+            SearchDefinition<TResult> searchDefinition,
+            SearchHighlightOptions<TResult> highlight = null,
+            string indexName = null,
+            SearchCountOptions count = null,
+            bool returnStoredSource = false)
+        {
+            return WithPipeline(_pipeline.Search(searchDefinition, highlight, indexName, count, returnStoredSource));
+        }
+
+        public override IAggregateFluent<SearchMetaResult> SearchMeta(
+            SearchDefinition<TResult> searchDefinition,
+            string indexName = null,
+            SearchCountOptions count = null)
+        {
+            return WithPipeline(_pipeline.SearchMeta(searchDefinition, indexName, count));
         }
 
         public override IAggregateFluent<BsonDocument> SetWindowFields<TWindowFields>(
