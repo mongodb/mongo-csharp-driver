@@ -1310,6 +1310,57 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Creates a $search stage.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <param name="query">The search definition.</param>
+        /// <param name="highlight">The highlight options.</param>
+        /// <param name="indexName">The index name.</param>
+        /// <param name="count">The count options.</param>
+        /// <param name="returnStoredSource">
+        /// Flag that specifies whether to perform a full document lookup on the backend database
+        /// or return only stored source fields directly from Atlas Search.
+        /// </param>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<TInput, TInput> Search<TInput>(
+            SearchDefinition<TInput> query,
+            HighlightOptions<TInput> highlight = null,
+            string indexName = null,
+            SearchCountOptions count = null,
+            bool returnStoredSource = false)
+        {
+            Ensure.IsNotNull(query, nameof(query));
+
+            const string operatorName = "$search";
+            var stage = new DelegatedPipelineStageDefinition<TInput, TInput>(
+                operatorName,
+                (s, sr, linqProvider) =>
+                {
+                    var renderedQuery = query.Render(s, sr);
+                    if (highlight != null)
+                    {
+                        renderedQuery.Add("highlight", highlight.Render(s, sr));
+                    }
+                    if (count != null)
+                    {
+                        renderedQuery.Add("count", count.Render());
+                    }
+                    if (indexName != null)
+                    {
+                        renderedQuery.Add("index", indexName);
+                    }
+                    if (returnStoredSource)
+                    {
+                        renderedQuery.Add("returnStoredSource", returnStoredSource);
+                    }
+                    var document = new BsonDocument(operatorName, renderedQuery);
+                    return new RenderedPipelineStageDefinition<TInput>(operatorName, document, s);
+                });
+
+            return stage;
+        }
+
+        /// <summary>
         /// Creates a $replaceRoot stage.
         /// </summary>
         /// <typeparam name="TInput">The type of the input documents.</typeparam>
