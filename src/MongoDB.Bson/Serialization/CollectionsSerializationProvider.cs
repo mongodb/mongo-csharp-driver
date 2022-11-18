@@ -204,10 +204,9 @@ namespace MongoDB.Bson.Serialization
 
                 if (typeInfo.IsInterface)
                 {
-                    var hashSetDefinition = typeof(HashSet<>);
-                    var hashSetType = hashSetDefinition.MakeGenericType(itemType);
-                    var serializerDefinition = typeof(ImpliedImplementationInterfaceSerializer<,>);
-                    return CreateGenericSerializer(serializerDefinition, new[] { type, hashSetType }, serializerRegistry);
+                    var serializerDefinition = typeof(IEnumerableDeserializingAsCollectionSerializer<,,>);
+                    var collectionType = typeof(HashSet<>).MakeGenericType(itemType);
+                    return CreateGenericSerializer(serializerDefinition, new[] { type, itemType, collectionType }, serializerRegistry);
                 }
                 else
                 {
@@ -232,12 +231,12 @@ namespace MongoDB.Bson.Serialization
                 }
                 else if (typeInfo.IsInterface)
                 {
-                    var listDefinition = typeof(List<>);
-                    var listType = listDefinition.MakeGenericType(itemType);
+                    var listType = typeof(List<>).MakeGenericType(itemType);
                     if (typeInfo.IsAssignableFrom(listType))
                     {
-                        var serializerDefinition = typeof(ImpliedImplementationInterfaceSerializer<,>);
-                        return CreateGenericSerializer(serializerDefinition, new[] { type, listType }, serializerRegistry);
+                        var serializerDefinition = typeof(IEnumerableDeserializingAsCollectionSerializer<,,>);
+                        var collectionType = typeof(List<>).MakeGenericType(itemType);
+                        return CreateGenericSerializer(serializerDefinition, new[] { type, itemType, collectionType }, serializerRegistry);
                     }
                 }
 
