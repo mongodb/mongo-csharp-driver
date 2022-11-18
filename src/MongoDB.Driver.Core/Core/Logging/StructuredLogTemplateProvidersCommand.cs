@@ -108,21 +108,9 @@ namespace MongoDB.Driver.Core.Logging
             }
 
             var serverResult = (exception as MongoCommandException)?.Result;
-            var result = exception.ToString();
-
-            if (serverResult != null)
-            {
-                result = $"{exception} server reply: {result}";
-            }
-            else
-            {
-                result = exception.ToString();
-            }
+            var result = serverResult != null ? $"{exception} server reply: {serverResult}" : exception.ToString();
 
             return TruncateIfNeeded(result, eventLogFormattingOptions.MaxDocumentSize);
         }
-
-        private static string TruncateIfNeeded(string str, int length) =>
-             str.Length > length ? str.Substring(0, length) + "..." : str;
     }
 }

@@ -58,7 +58,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
         public UnifiedCloseClientOperation Build(string targetClientId, BsonDocument arguments)
         {
-            if (arguments.ElementCount > 0)
+            if (arguments?.ElementCount > 0)
             {
                 throw new FormatException($"{nameof(UnifiedCloseClientOperationBuilder)} does not expected any arguments.");
             }

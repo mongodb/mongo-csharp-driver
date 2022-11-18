@@ -77,6 +77,7 @@
     <EmbeddedResource LinkBase="Specifications\client-side-encryption" Include="..\..\specifications\client-side-encryption\**\*.json" />
     <EmbeddedResource LinkBase="Specifications\collection-management" Include="..\..\specifications\collection-management\**\*.json" />
     <EmbeddedResource LinkBase="Specifications\command-logging-and-monitoring" Include="..\..\specifications\command-logging-and-monitoring\**\*.json" />
+    <EmbeddedResource LinkBase="Specifications\connection-monitoring-and-pooling\tests\logging" Include="..\..\specifications\connection-monitoring-and-pooling\tests\logging\*.json" />
     <EmbeddedResource LinkBase="Specifications\crud" Include="..\..\specifications\crud\**\*.json" />
     <EmbeddedResource LinkBase="Specifications\load-balancers" Include="..\..\specifications\load-balancers\**\*.json" />
     <EmbeddedResource LinkBase="Specifications\read-write-concern" Include="..\..\specifications\read-write-concern\**\*.json" />
