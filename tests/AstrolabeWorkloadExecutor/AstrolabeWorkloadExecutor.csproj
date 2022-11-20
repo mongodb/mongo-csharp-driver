@@ -1,9 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>netcoreapp2.1;netcoreapp3.1;net6.0;net472</TargetFrameworks>
-    <TargetFrameworks Condition="'$(IsWindows)'!='true'">netcoreapp2.1;netcoreapp3.1;net6.0</TargetFrameworks>
-    <IsPackable>false</IsPackable>
     <AssemblyName>workload-executor</AssemblyName>
     <CodeAnalysisRuleSet>..\..\MongoDBTest.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
@@ -16,12 +13,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" PrivateAssets="All" Version="1.0.0" />
-    <PackageReference Include="JunitXml.TestLogger" Version="2.1.81" />
-  </ItemGroup>
-
-  <PropertyGroup Condition="'$(Version)'==''">
-    <Version>0.0.0-local</Version>
-  </PropertyGroup>
+  </ItemGroup>  
 
   <ItemGroup>
     <ProjectReference Include="../MongoDB.Driver.Tests/MongoDB.Driver.Tests.csproj" />

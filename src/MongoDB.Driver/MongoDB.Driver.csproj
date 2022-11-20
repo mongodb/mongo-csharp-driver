@@ -9,7 +9,6 @@
     <Product>MongoDB.Driver</Product>
     <Description>Official MongoDB supported driver for MongoDB. See https://www.mongodb.com/docs/drivers/csharp/ for more details.</Description>
     <PackageDescription>Official .NET driver for MongoDB.</PackageDescription>
-    <PackageTags>mongodb;mongo;nosql</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

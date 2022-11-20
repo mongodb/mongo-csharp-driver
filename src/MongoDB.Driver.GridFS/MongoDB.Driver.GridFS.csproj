@@ -9,7 +9,7 @@
     <Product>MongoDB.Driver.GridFS</Product>
     <Description>Official MongoDB supported driver for MongoDB GridFS implementation. See https://www.mongodb.com/docs/drivers/csharp/ for more details.</Description>
     <PackageDescription>GridFS Component of the Official MongoDB .NET Driver.</PackageDescription>
-    <PackageTags>mongodb;mongo;nosql;gridfs</PackageTags>
+    <PackageTags>$(PackageTags);gridfs</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,18 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>netcoreapp2.1;netcoreapp3.1;net6.0;net472</TargetFrameworks>
-    <TargetFrameworks Condition="'$(IsWindows)'!='true'">netcoreapp2.1;netcoreapp3.1;net6.0</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup>
     <AssemblyTitle>MongoDB.Driver.TestConsoleApplication</AssemblyTitle>
     <Product>MongoDB.Driver.TestConsoleApplication</Product>
     <Description>MongoDB.Driver test console application.</Description>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Version)'==''">
-    <Version>0.0.0-local</Version>
   </PropertyGroup>
 
   <ItemGroup>

@@ -8,7 +8,6 @@
     <Product>MongoDB.Driver.Core</Product>
     <Description>Official MongoDB supported Driver Core library. See https://www.mongodb.com/docs/drivers/csharp/ for more details.</Description>
     <PackageDescription>Core Component of the Official MongoDB .NET Driver.</PackageDescription>
-    <PackageTags>mongodb;mongo;nosql</PackageTags>
   </PropertyGroup>
 
   <PropertyGroup>
