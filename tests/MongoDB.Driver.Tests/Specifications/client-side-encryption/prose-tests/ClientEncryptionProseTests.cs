@@ -33,7 +33,6 @@ using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Authentication.External;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
@@ -84,6 +83,69 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         }
 
         // public methods
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void AutomaticDataEncryptionKeys(
+            [Range(1, 3)] int testCase,
+            [Values(false, true)] bool async)
+        {
+            RequireServer.Check().Supports(Feature.Csfle2);
+
+            var kmsProvider = "local";
+            using (var client = ConfigureClient())
+            using (var clientEncryption = ConfigureClientEncryption(client, kmsProviderFilter: kmsProvider))
+            {
+                var encryptedFields = BsonDocument.Parse($@"
+                {{
+                    fields:
+                    [
+                    {{
+                        path: ""ssn"",
+                        bsonType: ""string"",
+                        keyId: null
+                    }}
+                    ]
+                }}");
+
+                DropCollection(__collCollectionNamespace, encryptedFields);
+
+                RunTestCase(testCase);
+
+                void RunTestCase(int testCase)
+                {
+                    switch (testCase)
+                    {
+                        case 1: // Case 1: Simple Creation and Validation
+                            {
+                                var collection = CreateEncryptedCollection(client, clientEncryption, __collCollectionNamespace, encryptedFields, kmsProvider, async).Collection;
+
+                                var exception = Record.Exception(() => Insert(collection, async, new BsonDocument("ssn", "123-45-6789")));
+                                exception.Should().BeOfType<MongoBulkWriteException<BsonDocument>>().Which.Message.Should().Contain("Document failed validation");
+                            }
+                            break;
+                        case 2: // Case 2: Missing ``encryptedFields``
+                            {
+                                var exception = Record.Exception(() => CreateEncryptedCollection(client, clientEncryption, __collCollectionNamespace, encryptedFields: null, kmsProvider, async).Collection);
+
+                                exception.Should().BeOfType<InvalidOperationException>().Which.Message.Should().Contain("There are no encrypted fields defined for the collection.") ;
+                            }
+                            break;
+                        case 3: // Case 3: Invalid ``keyId``
+                            {
+                                var effectiveEncryptedFields = encryptedFields.DeepClone();
+                                effectiveEncryptedFields["fields"].AsBsonArray[0].AsBsonDocument["keyId"] = true;
+                                var collection = CreateEncryptedCollection(client, clientEncryption, __collCollectionNamespace, encryptedFields, kmsProvider, async).Collection;
+
+                                var exception = Record.Exception(() => Insert(collection, async, new BsonDocument("ssn", "123-45-6789")));
+                                exception.Should().BeOfType<MongoBulkWriteException<BsonDocument>>().Which.Message.Should().Contain("Document failed validation");
+                            }
+                            break;
+                        default: throw new Exception($"Unexpected test case {testCase}.");
+                    }
+                }
+            }
+        }
+
         [SkippableTheory]
         [ParameterAttributeData]
         public void BsonSizeLimitAndBatchSizeSplittingTest(
@@ -1025,6 +1087,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                             reply["cursor"]["firstBatch"].AsBsonArray.Single()["encrypted"].AsBsonBinaryData.SubType.Should().Be(BsonBinarySubType.Encrypted);
                         }
                         break;
+                    default: throw new Exception($"Unexpected test case {testCase}.");
                 }
             }
 
@@ -1873,7 +1936,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             using (var client = ConfigureClient(false))
             using (var clientEncrypted = ConfigureClientEncrypted(kmsProviderFilter: "local"))
             {
-                DropView(viewName);
+                DropCollection(viewName);
                 client
                     .GetDatabase(viewName.DatabaseNamespace.DatabaseName)
                     .CreateView(
@@ -2201,6 +2264,16 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                     });
         }
 
+        private (IMongoCollection<BsonDocument> Collection, BsonDocument EncryptedFields) CreateEncryptedCollection(IMongoClient client, ClientEncryption clientEncryption, CollectionNamespace collectionNamespace, BsonDocument encryptedFields, string kmsProvider, bool async)
+        {
+            var createCollectionOptions = new CreateCollectionOptions { EncryptedFields = encryptedFields };
+            var datakeyOptions = CreateDataKeyOptions(kmsProvider);
+
+            return async
+                ? clientEncryption.CreateEncryptedCollectionAsync<BsonDocument>(collectionNamespace, createCollectionOptions, kmsProvider, datakeyOptions, cancellationToken: default).GetAwaiter().GetResult()
+                : clientEncryption.CreateEncryptedCollection<BsonDocument>(collectionNamespace, createCollectionOptions, kmsProvider, datakeyOptions, cancellationToken: default);
+        }
+
         private Guid CreateDataKey(
             ClientEncryption clientEncryption,
             string kmsProvider,
@@ -2351,9 +2424,9 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             return mongoClientSettings;
         }
 
-        private void DropView(CollectionNamespace viewNamespace)
+        private void DropCollection(CollectionNamespace viewNamespace, BsonDocument encryptedFields = null)
         {
-            var operation = new DropCollectionOperation(viewNamespace, CoreTestConfiguration.MessageEncoderSettings);
+            var operation = DropCollectionOperation.CreateEncryptedDropCollectionOperationIfConfigured(viewNamespace, encryptedFields, CoreTestConfiguration.MessageEncoderSettings, configureDropCollectionConfigurator: null);
             using (var session = CoreTestConfiguration.StartSession(_cluster))
             using (var binding = new WritableServerBinding(_cluster, session.Fork()))
             using (var bindingHandle = new ReadWriteBindingHandle(binding))
