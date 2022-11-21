@@ -62,19 +62,37 @@ namespace MongoDB.Driver.Core.Authentication.External
 
     internal class AwsAuthenticationCredentialsProvider : IExternalAuthenticationCredentialsProvider<AwsCredentials>, ICredentialsCache<AwsCredentials>
     {
-        public void Clear() => FallbackCredentialsFactory.Reset();
+        private readonly object _lock = new object();
+
+        public void Clear()
+        {
+            lock (_lock)
+            {
+                FallbackCredentialsFactory.Reset();
+            }
+        }
 
         public AwsCredentials CreateCredentialsFromExternalSource(CancellationToken cancellationToken)
         {
-            var creds = FallbackCredentialsFactory.GetCredentials();
-            var immutableCredentials = creds.GetCredentials();
+            AWSCredentials credentialsSource;
+            lock (_lock)
+            {
+                // returns cached credentials source immediately. Only if cached source unavailable, makes quite heavy steps
+                credentialsSource = FallbackCredentialsFactory.GetCredentials();
+            }
+            var immutableCredentials = credentialsSource.GetCredentials();
             return CreateAwsCredentials(immutableCredentials);
         }
 
         public async Task<AwsCredentials> CreateCredentialsFromExternalSourceAsync(CancellationToken cancellationToken)
         {
-            var creds = FallbackCredentialsFactory.GetCredentials();
-            var immutableCredentials = await creds.GetCredentialsAsync().ConfigureAwait(false);
+            AWSCredentials credentialsSource;
+            lock (_lock)
+            {
+                // returns cached credentials source immediately. Only if cached source unavailable, makes quite heavy steps
+                credentialsSource = FallbackCredentialsFactory.GetCredentials();
+            }
+            var immutableCredentials = await credentialsSource.GetCredentialsAsync().ConfigureAwait(false);
             return CreateAwsCredentials(immutableCredentials);
         }
 
