@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Core.Authentication.External
         public string AccessKeyId => _accessKeyId;
 
         /// <summary>
-        /// Expiration and caching related logic happens on AWS.SDK side
+        /// Expiration and caching related logic happens on AWS.SDK side.
         /// </summary>
         public DateTime? Expiration => (DateTime?)null;
         public SecureString SecretAccessKey => _secretAccessKey;

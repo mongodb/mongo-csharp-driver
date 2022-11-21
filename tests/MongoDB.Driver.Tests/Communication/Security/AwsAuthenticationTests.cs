@@ -75,7 +75,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
             if (Type.GetType("Amazon.Runtime.AppConfigAWSCredentials, AWSSDK.Core", throwOnError: false) != null) // app.config/web.config does not present on windows
             {
                 var appConfigAWSCredentialsException = Record.Exception(() => RunTestCase());
-                // app.config/web.config case based on ConfigurationManager. This is not configured for this test
+                // app.config/web.config case is based on ConfigurationManager. This is not configured for this test
                 appConfigAWSCredentialsException.Message.Should().Contain("The app.config/web.config files for the application did not contain credential information");
             }
 
