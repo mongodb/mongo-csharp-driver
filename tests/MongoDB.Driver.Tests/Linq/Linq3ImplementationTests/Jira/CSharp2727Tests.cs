@@ -18,6 +18,8 @@ using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
 using Xunit;
 
@@ -25,9 +27,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
 {
     public class CSharp2727Tests : Linq3IntegrationTest
     {
-        [Fact]
+        [SkippableFact]
         public void Find_with_predicate_on_Body_should_work()
         {
+            RequireServer.Check().Supports(Feature.AggregateToString);
             var collection = CreateCollection();
             var filter = new ExpressionFilterDefinition<Entity>(x => new[] { "Test1", "Test2" }.Contains((string)x.Body["name"]));
 
@@ -61,9 +64,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             results.Select(x => x.Id).Should().Equal(1, 2);
         }
 
-        [Fact]
+        [SkippableFact]
         public void Where_with_predicate_on_Body_should_work()
         {
+            RequireServer.Check().Supports(Feature.AggregateToString);
             var collection = CreateCollection();
 
             var queryable = collection
