@@ -31,14 +31,14 @@ namespace MongoDB.Driver.Core.Authentication.External
         private readonly Lazy<IExternalAuthenticationCredentialsProvider<AzureCredentials>> _azureExternalAuthenticationCredentialsProvider;
         private readonly Lazy<IExternalAuthenticationCredentialsProvider<GcpCredentials>> _gcpExternalAuthenticationCredentialsProvider;
 
-        internal ExternalCredentialsAuthenticators() : this(new HttpClientWrapper(), EnvironmentVariableProvider.Instance)
+        internal ExternalCredentialsAuthenticators() : this(new HttpClientWrapper())
         {
         }
 
-        internal ExternalCredentialsAuthenticators(IHttpClientWrapper httpClientWrapper, IEnvironmentVariableProvider environmentVariableProvider)
+        internal ExternalCredentialsAuthenticators(IHttpClientWrapper httpClientWrapper)
         {
             _httpClientWrapper = Ensure.IsNotNull(httpClientWrapper, nameof(httpClientWrapper));
-            _awsExternalAuthenticationCredentialsProvider = new Lazy<IExternalAuthenticationCredentialsProvider<AwsCredentials>>(() => new CacheableCredentialsProvider<AwsCredentials>(new AwsAuthenticationCredentialsProvider(_httpClientWrapper, environmentVariableProvider)), isThreadSafe: true);
+            _awsExternalAuthenticationCredentialsProvider = new Lazy<IExternalAuthenticationCredentialsProvider<AwsCredentials>>(() => new AwsAuthenticationCredentialsProvider(), isThreadSafe: true);
             _azureExternalAuthenticationCredentialsProvider = new Lazy<IExternalAuthenticationCredentialsProvider<AzureCredentials>>(() => new CacheableCredentialsProvider<AzureCredentials>(new AzureAuthenticationCredentialsProvider(_httpClientWrapper)), isThreadSafe: true);
             _gcpExternalAuthenticationCredentialsProvider = new Lazy<IExternalAuthenticationCredentialsProvider<GcpCredentials>>(() => new GcpAuthenticationCredentialsProvider(_httpClientWrapper), isThreadSafe: true);
         }

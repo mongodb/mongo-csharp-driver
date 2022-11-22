@@ -14,22 +14,26 @@
 */
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
+using Amazon.Runtime;
+using Amazon.Runtime.CredentialManagement;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Core.Authentication.External;
-using MongoDB.Driver.Core.Misc;
-using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Communication.Security
 {
+    /// <summary>
+    /// AWS.SDK notes:
+    /// 1. run-aws-auth-test-with-regular-aws-credentials: only driver side logic
+    /// 2. run-aws-auth-test-with-assume-role-credentials: only driver side logic
+    /// The below use AWS.SDK calls
+    /// 3. run-aws-auth-test-with-aws-credentials-as-environment-variables: EnvironmentVariablesAWSCredentials
+    /// 4. run-aws-auth-test-with-aws-credentials-and-session-token-as-environment-variables: EnvironmentVariablesAWSCredentials
+    /// 5. run-aws-auth-test-with-aws-EC2-credentials: DefaultInstanceProfileAWSCredentials.Instance (EC2)
+    /// 6. run-aws-auth-test-with-aws-ECS-credentials: ECSTaskCredentials
+    /// 7. run-aws-auth-test-with-aws-web-identity-credentials: AssumeRoleWithWebIdentityCredentials.FromEnvironmentVariables
+    /// </summary>
     [Trait("Category", "Authentication")]
     [Trait("Category", "AwsMechanism")]
     public class AwsAuthenticationTests
@@ -53,217 +57,110 @@ namespace MongoDB.Driver.Tests.Communication.Security
             }
         }
 
-        [SkippableTheory]
-        [ParameterAttributeData]
-        public async Task Aws_external_credentials_caching_prose_test([Values(false, true)] bool async)
-        {
-            RequireEnvironment
-                .Check()
-                .EnvironmentVariable("AWS_TESTS_ENABLED")
-                .EnvironmentVariable("AWS_EC2_ENABLED");
-
-            // 1. Clear the cache.
-            SetCache(date: null);
-            // 2. Create a new client.
-            using var client = DriverTestConfiguration.CreateDisposableClient();
-            var cache = GetCache();
-            cache.Should().BeNull();
-
-            await Find(client);
-            // 3. Ensure that a find operation adds credentials to the cache..
-            GetCache().Should().NotBeNull();
-
-            // 4. Override the cached credentials with an "Expiration" that is within one minute of the current UTC time.
-            SetCache(date: DateTime.UtcNow.AddMinutes(1));
-
-            // 5. Create a new client.
-            using var client2 = DriverTestConfiguration.CreateDisposableClient();
-            GetCache().Should().NotBeNull();
-
-            await Find(client2);
-            // 6. Ensure that a find operation updates the credentials in the cache.
-            var cache2 = GetCache();
-            cache2.Should().NotBeNull().And.Should().NotBeSameAs(cache);
-            // 7. Poison the cache with garbage content.
-            SetCache(awsKeyId: "garbage");
-            GetCache().AccessKeyId.Should().Be("garbage");
-            // 8. Create a new client.
-            using var client3 = DriverTestConfiguration.CreateDisposableClient();
-            // 9. Ensure that a find operation results in an error.
-            var exception = await Record.ExceptionAsync(() => Find(client3));
-            exception.Should().NotBeNull();
-
-            // 10. Ensure that the cache has been cleared.
-            GetCache().Should().BeNull();
-            // 11. Ensure that a subsequent find operation succeeds.
-            await Find(client3);
-            // 12. Ensure that the cache has been set.
-            var cache3 = GetCache();
-            cache3.Should().NotBeNull();
-            // reset cache
-            SetCache(date: null);
-
-            void SetCache(DateTime? date = null, string awsKeyId = null)
-            {
-                var cachebleProvider = (CacheableCredentialsProvider<AwsCredentials>)ExternalCredentialsAuthenticators.Instance.Aws;
-
-                var currentCache = cachebleProvider.Credentials;
-                if (date.HasValue)
-                {
-                    currentCache._expiration(date);
-                }
-                else
-                {
-                    if (awsKeyId == null)
-                    {
-                        cachebleProvider._cachedCredentials(null);
-                    }
-                }
-
-                if (awsKeyId != null)
-                {
-                    currentCache._accessKeyId(awsKeyId);
-                }
-            }
-
-            AwsCredentials GetCache() => ((CacheableCredentialsProvider<AwsCredentials>)ExternalCredentialsAuthenticators.Instance.Aws).Credentials;
-
-            async Task Find(IMongoClient client)
-            {
-                var collection = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName).GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName); ;
-                using var cursor = async
-                    ? await collection.FindAsync(FilterDefinition<BsonDocument>.Empty)
-                    : collection.FindSync(FilterDefinition<BsonDocument>.Empty);
-                cursor.ToList();
-            }
-        }
-
         [Fact]
         public void Ecs_should_fill_AWS_CONTAINER_CREDENTIALS_RELATIVE_URI()
         {
-            var isEcs = Environment.GetEnvironmentVariable("AWS_ECS_TEST") != null;
-            var awsContainerRelativeUri = Environment.GetEnvironmentVariable("AWS_CONTAINER_CREDENTIALS_RELATIVE_URI");
-            (awsContainerRelativeUri != null).Should().Be(isEcs);
+            var isEcs = Environment.GetEnvironmentVariable("AWS_ECS_ENABLED") != null;
+            var awsContainerUri = Environment.GetEnvironmentVariable("AWS_CONTAINER_CREDENTIALS_RELATIVE_URI") ?? Environment.GetEnvironmentVariable("AWS_CONTAINER_CREDENTIALS_FULL_URI");
+            (awsContainerUri != null).Should().Be(isEcs);
         }
 
-        [SkippableTheory]
-        [ParameterAttributeData]
-        public async Task Aws_external_credentials_caching_prose_unit_test([Values(false, true)] bool async)
+        [SkippableFact]
+        public void AwsSdk_should_support_all_required_handlers()
         {
-            var ecsResponseTemplate = new BsonDocument
+            var credentialsGeneratorsDelegatesEnumerator = FallbackCredentialsFactory.CredentialsGenerators.GetEnumerator();
+
+            // AppConfigAWSCredentials
+            AWSCredentials credentials = null;
+            if (Type.GetType("Amazon.Runtime.AppConfigAWSCredentials, AWSSDK.Core", throwOnError: false) != null) // app.config/web.config does not present on windows
             {
-                { "AccessKeyId", "keyId" },
-                { "SecretAccessKey", "accessKey" },
-                { "Token", "token" }
-            };
+                var appConfigAWSCredentialsException = Record.Exception(() => RunTestCase());
+                // app.config/web.config case is based on ConfigurationManager. This is not configured for this test
+                appConfigAWSCredentialsException.Message.Should().Contain("The app.config/web.config files for the application did not contain credential information");
+            }
 
-            var values = new Func<string>[]
+            // AssumeRoleWithWebIdentityCredentials.FromEnvironmentVariables()
+            var exception = Record.Exception(() => RunTestCase());
+            if (Environment.GetEnvironmentVariable("AWS_WEB_IDENTITY_TOKEN_FILE") != null)
             {
-                // run 1
-                () => null,  // AWS_ACCESS_KEY_ID 
-                () => null,  // AWS_SECRET_ACCESS_KEY
-                () => null,  // AWS_SESSION_TOKEN
-                () => ecsResponseTemplate
-                    .DeepClone()
-                    .AsBsonDocument
-                    .Add(new BsonElement("Expiration", DateTime.UtcNow.AddDays(1).ToString("yyyy-MM-ddThh:mm:ssZ"))) // not expired
-                    .ToString(),
+                // aws-web-identity-credentials is configured
+                exception.Should().BeNull();
+                credentials.Should().BeOfType<AssumeRoleWithWebIdentityCredentials>();
+            }
+            else
+            {
+                // otherwise fail
+                exception.Message.Should().Contain("webIdentityTokenFile");
+            }
 
-                // run 2
-                () => ecsResponseTemplate["AccessKeyId"].ToString(),
-                () => ecsResponseTemplate["SecretAccessKey"].ToString(),
-                () => ecsResponseTemplate["Token"].ToString(),
+            // GetAWSCredentials (Profile)
+            exception = Record.Exception(() => RunTestCase());
+            if (IsWithAwsProfileOnMachine())
+            {
+                // current machine contains configured aws profile
+                exception.Should().BeNull();
+                credentials.Should().BeOfType<SessionAWSCredentials>();
+            }
+            else
+            {
+                // otherwise fail
+                exception.Message.Should().Contain("Credential").And.Subject.Should().Contain("profile");
+            }
 
-                // run 3
-                () => throw new Exception("Spec step 6: Set the AWS environment variables to invalid values."),
+            // EnvironmentVariablesAWSCredentials
+            exception = Record.Exception(() => RunTestCase());
+            if (Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID") != null && Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY") != null)
+            {
+                // environment variables code path
+                exception.Should().BeNull();
+                credentials.Should().BeOfType<EnvironmentVariablesAWSCredentials>();
+            }
+            else
+            {
+                // otherwise fail
+                exception.Message.Should().Contain("The environment variables").And.Subject.Contains("were not set with AWS credentials");
+            }
 
-                // run 4
-                () => null,  // AWS_ACCESS_KEY_ID 
-                () => null,  // AWS_SECRET_ACCESS_KEY
-                () => null,  // AWS_SESSION_TOKEN
-                () => ecsResponseTemplate
-                    .DeepClone()
-                    .AsBsonDocument
-                    .Add(new BsonElement("Expiration", DateTime.UtcNow.AddDays(1).ToString("yyyy-MM-ddThh:mm:ssZ"))) // not expired
-                    .ToString(),
+            // ECSEC2CredentialsWrapper
+            exception = Record.Exception(() => RunTestCase());
+            if (Environment.GetEnvironmentVariable("AWS_CONTAINER_CREDENTIALS_RELATIVE_URI") != null || Environment.GetEnvironmentVariable("AWS_CONTAINER_CREDENTIALS_FULL_URI") != null)
+            {
+                exception.Should().BeNull();
+                credentials.Should().BeOfType<ECSTaskCredentials>();
+            }
+            else
+            {
+                exception.Should().BeNull();
+                credentials.GetType().Name.Should().Contain("DefaultInstanceProfileAWSCredentials"); // EC2 case
+            }
 
-                // run 5
-                () => throw new Exception("Spec step 10: Set the AWS environment variables to invalid values."), // no op exception
-            };
-            var valuesQueue = new Queue<Func<string>>(values);
-            var environmentVariableProviderMock = new Mock<IEnvironmentVariableProvider>(MockBehavior.Strict);
-            environmentVariableProviderMock
-                .Setup(p => p.GetEnvironmentVariable(It.Is<string>(v => !v.Contains("AWS_CONTAINER_CREDENTIALS_RELATIVE_URI"))))
-                .Returns(() => valuesQueue.Dequeue()());
-            environmentVariableProviderMock
-                .Setup(p => p.GetEnvironmentVariable("AWS_CONTAINER_CREDENTIALS_RELATIVE_URI"))
-                // this needs to turn on ecs code path that is easier to mock
-                .Returns("dummy");
+            credentialsGeneratorsDelegatesEnumerator.MoveNext().Should().BeFalse(); // no more handlers
 
-            var httpClientWrapperMock = new Mock<IHttpClientWrapper>(MockBehavior.Strict);
-            httpClientWrapperMock
-                .Setup(h => h.GetHttpContentAsync(It.IsAny<HttpRequestMessage>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-                .Returns(() => Task.FromResult(valuesQueue.Dequeue()()));
+            bool IsWithAwsProfileOnMachine()
+            {
+                var credentialProfileChain = new CredentialProfileStoreChain();
+                if (credentialProfileChain.TryGetProfile(Environment.GetEnvironmentVariable("AWS_PROFILE") ?? "default", out var profile))
+                {
+                    try
+                    {
+                        _ = profile.GetAWSCredentials(credentialProfileChain);
+                        return true;
+                    }
+                    catch
+                    {
+                        return false;
+                    }
+                }
 
-            var subject = CreateCacheableProvider(environmentVariableProviderMock.Object, httpClientWrapperMock.Object);
+                return false;
+            }
 
-            // Spec step 1: Ignore
-
-            // Spec step 2: Ensure that a find operation adds credentials to the cache.
-            var credentials = await GetCredentials();
-            subject.Credentials.Should().NotBeNull();
-
-            // Spec step 3: Set the AWS environment variables based on the cached credentials. => mocked behavior
-
-            // Spec step 4: Clear the cache.
-            subject.Clear();
-
-            // Spec step 5: Ensure that a find operation succeeds and does not add credentials to the cache.
-            credentials = await GetCredentials();
-            subject.Credentials.Should().BeNull();
-
-            // Spec step 6: Set the AWS environment variables to invalid values. => mocked behavior
-
-            // Spec step 7. Ensure that a find operation results in an error.
-            var exception = await Record.ExceptionAsync(() => GetCredentials());
-            exception.Message.Should().StartWith("Spec step 6");
-            subject.Credentials.Should().BeNull();
-
-            // Spec step 8: Create a new client.
-            subject.Clear(); // emulate client creation
-
-            // Spec step 9: Ensure that a find operation adds credentials to the cache.
-            credentials = await GetCredentials();
-            credentials.Should().NotBeNull();
-            subject.Credentials.Should().NotBeNull();
-
-            // Spec step 10: Set the AWS environment variables to invalid values. => mocked behavior
-
-            // Spec step 11: Ensure that a find operation succeeds.
-            credentials = await GetCredentials();
-
-            valuesQueue.Count.Should().Be(1); // contains only no op exception
-
-            async Task<AwsCredentials> GetCredentials() => async ? await subject.CreateCredentialsFromExternalSourceAsync(default) : subject.CreateCredentialsFromExternalSource(default);   
+            void RunTestCase()
+            {
+                credentials = null;
+                credentialsGeneratorsDelegatesEnumerator.MoveNext().Should().BeTrue();
+                credentials = credentialsGeneratorsDelegatesEnumerator.Current();
+            }
         }
-
-        private CacheableCredentialsProvider<AwsCredentials> CreateCacheableProvider(
-            IEnvironmentVariableProvider environmentVariableProvider,
-            IHttpClientWrapper httpClientWrapper)
-        {
-            var awsProvider = new AwsAuthenticationCredentialsProvider(httpClientWrapper, environmentVariableProvider);
-            return new CacheableCredentialsProvider<AwsCredentials>(awsProvider);
-        }
-    }
-
-    internal static class CacheableCredentialsProviderReflector
-    {
-        public static void _cachedCredentials(this CacheableCredentialsProvider<AwsCredentials> provider, AwsCredentials credentials) => Reflector.SetFieldValue(provider, nameof(_cachedCredentials), credentials);
-    }
-
-    internal static class AwsCredentialsReflector
-    {
-        public static void _accessKeyId(this AwsCredentials awsCredentials, string value) => Reflector.SetFieldValue(awsCredentials, nameof(_accessKeyId), value);
-        public static void _expiration(this AwsCredentials awsCredentials, DateTime? value) => Reflector.SetFieldValue(awsCredentials, nameof(_expiration), value);
     }
 }

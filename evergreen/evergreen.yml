@@ -432,7 +432,12 @@ functions:
               "iam_auth_assume_role_name" : "${iam_auth_assume_role_name}",
               "iam_auth_ec2_instance_account" : "${iam_auth_ec2_instance_account}",
               "iam_auth_ec2_instance_secret_access_key" : "${iam_auth_ec2_instance_secret_access_key}",
-              "iam_auth_ec2_instance_profile" : "${iam_auth_ec2_instance_profile}"
+              "iam_auth_ec2_instance_profile" : "${iam_auth_ec2_instance_profile}",
+              "iam_auth_assume_web_role_name": "${iam_auth_assume_web_role_name}",
+              "iam_web_identity_issuer": "${iam_web_identity_issuer}",
+              "iam_web_identity_rsa_key": "${iam_web_identity_rsa_key}",
+              "iam_web_identity_jwks_uri": "${iam_web_identity_jwks_uri}",
+              "iam_web_identity_token_file": "${iam_web_identity_token_file}"
           }
           EOF
 
@@ -550,6 +555,76 @@ functions:
           EOF
           mongo --nodb setup.js aws_e2e_ecs.js
           cd -
+
+  run-aws-auth-test-with-aws-web-identity-credentials:
+    - command: shell.exec
+      type: test
+      params:
+        working_dir: mongo-csharp-driver
+        script: |
+          ${PREPARE_SHELL}
+          if [ "${skip_web_identity_auth_test}" = "true" ]; then
+             echo "This platform does not support the web identity auth test, skipping..."
+             exit 0
+          fi
+          cd ${DRIVERS_TOOLS}/.evergreen/auth_aws
+          . ./activate_venv.sh
+          mongo aws_e2e_web_identity.js
+    - command: shell.exec
+      type: test
+      params:
+        working_dir: mongo-csharp-driver
+        silent: true
+        script: |
+          if [ "${skip_web_identity_auth_test}" = "true" ]; then
+             echo "This platform does not support the web identity auth test, skipping..."
+             exit 0
+          fi        
+          # DO NOT ECHO WITH XTRACE (which PREPARE_SHELL does)
+          cat <<'EOF' > "${PROJECT_DIRECTORY}/prepare_mongodb_aws.sh"
+            export AWS_ROLE_ARN="${iam_auth_assume_web_role_name}"
+            export AWS_WEB_IDENTITY_TOKEN_FILE="${iam_web_identity_token_file}"
+            export MONGODB_URI="mongodb://localhost"
+          EOF
+    - command: shell.exec
+      type: test
+      params:
+        working_dir: mongo-csharp-driver
+        script: |
+          ${PREPARE_SHELL}
+          if [ "${skip_web_identity_auth_test}" = "true" ]; then
+             echo "This platform does not support the web identity auth test, skipping..."
+             exit 0
+          fi
+          PROJECT_DIRECTORY=${PROJECT_DIRECTORY} OS=$OS ASSERT_NO_URI_CREDS=true evergreen/run-mongodb-aws-test.sh
+    - command: shell.exec
+      type: test
+      params:
+        working_dir: mongo-csharp-driver
+        silent: true
+        script: |
+          if [ "${skip_EC2_auth_test}" = "true" ]; then
+             echo "This platform does not support the web identity auth test, skipping..."
+             exit 0
+          fi        
+          # DO NOT ECHO WITH XTRACE (which PREPARE_SHELL does)
+          cat <<'EOF' > "${PROJECT_DIRECTORY}/prepare_mongodb_aws.sh"
+            export AWS_ROLE_ARN="${iam_auth_assume_web_role_name}"
+            export AWS_WEB_IDENTITY_TOKEN_FILE="${iam_web_identity_token_file}"
+            export AWS_ROLE_SESSION_NAME="test"
+            export MONGODB_URI="mongodb://localhost"
+          EOF
+    - command: shell.exec
+      type: test
+      params:
+        working_dir: mongo-csharp-driver
+        script: |
+          ${PREPARE_SHELL}
+          if [ "${skip_web_identity_auth_test}" = "true" ]; then
+             echo "This platform does not support the web identity auth test, skipping..."
+             exit 0
+          fi
+          PROJECT_DIRECTORY=${PROJECT_DIRECTORY} OS=$OS  ASSERT_NO_URI_CREDS=true evergreen/run-mongodb-aws-test.sh
 
   run-aws-auth-test-with-aws-credentials-as-environment-variables:
     - command: shell.exec
@@ -1067,6 +1142,7 @@ tasks:
         - func: run-aws-auth-test-with-aws-credentials-and-session-token-as-environment-variables
         - func: run-aws-auth-test-with-aws-EC2-credentials
         - func: run-aws-auth-test-with-aws-ECS-credentials
+        - func: run-aws-auth-test-with-aws-web-identity-credentials
 
     - name: stable-api-tests-net472
       commands:
@@ -1599,6 +1675,7 @@ axes:
         variables:
           OS: "windows-64"
           skip_ECS_auth_test: true
+          skip_web_identity_auth_test: true
         run_on: windows-64-vs2017-test
       - id: "ubuntu-1804"
         display_name: "Ubuntu 18.04"
@@ -1611,6 +1688,7 @@ axes:
           OS: "macos-1100"
           skip_EC2_auth_test: true
           skip_ECS_auth_test: true
+          skip_web_identity_auth_test: true
         run_on: macos-1100
       - id: "macos-1100-arm64"
         display_name: "macOS 11.00 M1"
@@ -1618,6 +1696,7 @@ axes:
           OS: "macos-1100-arm64"
           skip_EC2_auth_test: true
           skip_ECS_auth_test: true
+          skip_web_identity_auth_test: true
         run_on: macos-1100-arm64
 
   - id: topology
