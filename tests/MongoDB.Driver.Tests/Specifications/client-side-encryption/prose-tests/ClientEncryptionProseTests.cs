@@ -89,7 +89,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             [Range(1, 3)] int testCase,
             [Values(false, true)] bool async)
         {
-            RequireServer.Check().Supports(Feature.Csfle2);
+            RequireServer.Check().Supports(Feature.Csfle2).ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced);
 
             var kmsProvider = "local";
             using (var client = ConfigureClient())
