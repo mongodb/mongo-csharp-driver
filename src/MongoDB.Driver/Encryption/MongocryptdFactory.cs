@@ -20,23 +20,24 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Encryption
 {
-    internal static class EncryptionExtraOptionsValidator
+    internal static class EncryptionExtraOptionsHelper
     {
-        #region static
         private static readonly Dictionary<string, Type[]> __supportedExtraOptions = new Dictionary<string, Type[]>
         {
             { "cryptSharedLibPath", new [] { typeof(string) } },
+            { "cryptSharedRequired", new [] { typeof(bool) } },
+            // this key is obsoleted and has the same goal as "cryptSharedRequired" which is correct name. Leave this one for backward compatibility
             { "cryptSharedLibRequired", new [] { typeof(bool) } },
             { "mongocryptdURI", new [] { typeof(string) } },
             { "mongocryptdBypassSpawn", new [] { typeof(bool) } },
             { "mongocryptdSpawnPath", new [] { typeof(string) } },
             { "mongocryptdSpawnArgs", new [] { typeof(string), typeof(IEnumerable<string>) } }
         };
-        #endregion
 
         public static void EnsureThatExtraOptionsAreValid(IReadOnlyDictionary<string, object> extraOptions)
         {
@@ -63,6 +64,14 @@ namespace MongoDB.Driver.Encryption
                 }
             }
         }
+
+        public static string ExtractCryptSharedLibPath(IReadOnlyDictionary<string, object> dict) =>
+            dict.GetValueOrDefault<string, string, object>("cryptSharedLibPath");
+
+        public static bool? ExtractCryptSharedRequired(IReadOnlyDictionary<string, object> dict) =>
+            dict.GetValueOrDefault<bool?, string, object>("cryptSharedRequired") ??
+            dict.GetValueOrDefault<bool?, string, object>("cryptSharedLibRequired");
+
     }
 
     internal class MongocryptdFactory

@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -271,10 +272,6 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 kmsProviderFilter: "local",
                 extraOptions: extraOptions))
             {
-                var datakeys = GetCollection(client, __keyVaultCollectionNamespace);
-                var externalKey = JsonFileReader.Instance.Documents["external.external-key.json"];
-                Insert(datakeys, async, externalKey);
-
                 var coll = GetCollection(clientEncrypted, __collCollectionNamespace);
                 var exception = Record.Exception(() => Insert(coll, async, new BsonDocument("encrypted", "test")));
 
@@ -282,25 +279,21 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             }
         }
 
+        public enum BypassSpawningMongocryptd
+        {
+            BypassAutoEncryption,
+            BypassQueryAnalysis,
+            SharedLibrary
+        }
+
         [SkippableTheory]
         [ParameterAttributeData]
         public void BypassSpawningMongocryptdTest(
-            [Values(false, true)] bool bypassAutoEncryption, // true - BypassAutoEncryption, false - BypassQueryAnalysis
+            [Values(BypassSpawningMongocryptd.BypassQueryAnalysis, BypassSpawningMongocryptd.BypassAutoEncryption, BypassSpawningMongocryptd.SharedLibrary)] BypassSpawningMongocryptd bypassSpawning,
             [Values(false, true)] bool async)
         {
-            RequireServer.Check().Supports(Feature.ClientSideEncryption);
-            RequireEnvironment.Check().EnvironmentVariable("CRYPT_SHARED_LIB_PATH", isDefined: false);
-
-            var extraOptions = new Dictionary<string, object>
-            {
-                { "mongocryptdSpawnArgs", new [] { "--pidfilepath=bypass-spawning-mongocryptd.pid", "--port=27021" } },
-            };
-            using (var mongocryptdClient = new DisposableMongoClient(new MongoClient("mongodb://localhost:27021/?serverSelectionTimeoutMS=10000"), CreateLogger<DisposableMongoClient>()))
-            using (var clientEncrypted = ConfigureClientEncrypted(
-                kmsProviderFilter: "local",
-                bypassAutoEncryption: bypassAutoEncryption, // bypass options are mutually exclusive for this test
-                bypassQueryAnalysis: !bypassAutoEncryption,
-                extraOptions: extraOptions))
+            using (var clientEncrypted = EnsureEnvironmentAndConfigureTestClientEncrypted())
+            using (var mongocryptdClient = new DisposableMongoClient(new MongoClient("mongodb://localhost:27021/?serverSelectionTimeoutMS=1000"), CreateLogger<DisposableMongoClient>()))
             {
                 var coll = GetCollection(clientEncrypted, __collCollectionNamespace);
                 Insert(coll, async, new BsonDocument("unencrypted", "test"));
@@ -310,7 +303,43 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 var exception = Record.Exception(() => adminDatabase.RunCommand<BsonDocument>(legacyHelloCommand));
 
                 exception.Should().BeOfType<TimeoutException>();
-                exception.Message.Should().Contain("A timeout occurred after 10000ms selecting a server");
+                exception.Message.Should().Contain("A timeout occurred after 1000ms selecting a server").And.Contain("localhost:27021");
+            }
+
+            DisposableMongoClient EnsureEnvironmentAndConfigureTestClientEncrypted()
+            {
+                var extraOptions = new Dictionary<string, object>
+                {
+                    { "mongocryptdSpawnArgs", new [] { "--pidfilepath=bypass-spawning-mongocryptd.pid", "--port=27021" } },
+                };
+                var kmsProvider = "local";
+                switch (bypassSpawning)
+                {
+                    case BypassSpawningMongocryptd.BypassAutoEncryption:
+                        RequireServer.Check().Supports(Feature.ClientSideEncryption);
+                        RequireEnvironment.Check().EnvironmentVariable("CRYPT_SHARED_LIB_PATH", isDefined: false);
+                        return ConfigureClientEncrypted(kmsProviderFilter: kmsProvider, bypassAutoEncryption: true, extraOptions: extraOptions);
+                    case BypassSpawningMongocryptd.BypassQueryAnalysis:
+                        RequireServer.Check().Supports(Feature.ClientSideEncryption);
+                        RequireEnvironment.Check().EnvironmentVariable("CRYPT_SHARED_LIB_PATH", isDefined: false);
+                        return ConfigureClientEncrypted(kmsProviderFilter: kmsProvider, bypassQueryAnalysis: true, extraOptions: extraOptions);
+                    case BypassSpawningMongocryptd.SharedLibrary:
+                        {
+                            RequireServer.Check().Supports(Feature.Csfle2).ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced);
+                            RequireEnvironment.Check().EnvironmentVariable("CRYPT_SHARED_LIB_PATH", isDefined: true);
+                            var clientEncryptedSchema = new BsonDocument("db.coll", JsonFileReader.Instance.Documents["external.external-schema.json"]);
+                            var cryptSharedPath = CoreTestConfiguration.GetCryptSharedLibPath();
+                            Ensure.That(File.Exists(cryptSharedPath), $"Shared library path {cryptSharedPath} is not valid.");
+                            var effectiveExtraOptions = new Dictionary<string, object>(extraOptions)
+                            {
+                                { "mongocryptdURI", "mongodb://localhost:27021/db?serverSelectionTimeoutMS=1000" },
+                                { "cryptSharedLibPath", cryptSharedPath },
+                                { "cryptSharedRequired", true }
+                            };
+                            return ConfigureClientEncrypted(kmsProviderFilter: kmsProvider, schemaMap: clientEncryptedSchema, extraOptions: extraOptions);
+                        }
+                    default: throw new Exception($"Invalid bypass mongocryptd {bypassSpawning} option.");
+                }
             }
         }
 
