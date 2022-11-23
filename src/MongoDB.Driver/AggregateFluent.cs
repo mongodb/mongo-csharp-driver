@@ -238,6 +238,16 @@ namespace MongoDB.Driver
             return WithPipeline(_pipeline.ReplaceWith(newRoot));
         }
 
+        public override IAggregateFluent<TResult> Search(
+            SearchDefinition<TResult> query,
+            HighlightOptions<TResult> highlight = null,
+            string indexName = null,
+            SearchCountOptions count = null,
+            bool returnStoredSource = false)
+        {
+            return AppendStage(PipelineStageDefinitionBuilder.Search(query, highlight, indexName, count, returnStoredSource));
+        }
+
         public override IAggregateFluent<BsonDocument> SetWindowFields<TWindowFields>(
             AggregateExpressionDefinition<ISetWindowFieldsPartition<TResult>, TWindowFields> output)
         {
