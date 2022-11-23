@@ -20,3 +20,4 @@ The MongoDB .NET Driver is mostly just a wrapper around [MongoDB.Driver.Core]({{
 - [Definitions and Builders]({{< relref "reference\driver\definitions.md" >}})
 - [CRUD Operations]({{< relref "reference\driver\crud\index.md" >}})
 - [Error Handling]({{< relref "reference\driver\error_handling.md" >}})
+- [Logging]({{< relref "reference\driver\logging.md" >}})
