@@ -118,6 +118,7 @@ Task("BuildArtifacts")
                     fileNames.Add("MongoDB.Libmongocrypt.dll");
                     fileNames.Add("SharpCompress.dll");
                     fileNames.Add("Microsoft.Extensions.Logging.Abstractions.dll");
+                    fileNames.Add("AWSSDK.Core.dll");
                 }
 
                 foreach (var fileName in fileNames)
