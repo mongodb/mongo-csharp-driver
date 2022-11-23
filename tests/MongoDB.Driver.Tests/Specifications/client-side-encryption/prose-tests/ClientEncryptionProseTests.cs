@@ -35,7 +35,6 @@ using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Authentication.External;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
@@ -326,7 +325,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                     case BypassSpawningMongocryptd.SharedLibrary:
                         {
                             RequireServer.Check().Supports(Feature.Csfle2).ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced);
-                            RequireEnvironment.Check().EnvironmentVariable("CRYPT_SHARED_LIB_PATH", isDefined: true);
+                            RequireEnvironment.Check().EnvironmentVariable("CRYPT_SHARED_LIB_PATH", isDefined: true, allowEmpty: false);
                             var clientEncryptedSchema = new BsonDocument("db.coll", JsonFileReader.Instance.Documents["external.external-schema.json"]);
                             var cryptSharedPath = CoreTestConfiguration.GetCryptSharedLibPath();
                             Ensure.That(File.Exists(cryptSharedPath), $"Shared library path {cryptSharedPath} is not valid.");
