@@ -115,6 +115,7 @@ namespace MongoDB.Driver
             return new("boost", document);
         }
     }
+    
     internal sealed class ConstantScoreDefinition<TDocument> : ScoreDefinition<TDocument>
     {
         private readonly double _value;

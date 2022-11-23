@@ -83,7 +83,7 @@ namespace MongoDB.Driver.Core.Misc
         }
 
         /// <summary>
-        /// Ensures that the value of a parameter is greater than or equal to a comparand.
+        /// Ensures that the value of a parameter is greater than a comparand.
         /// </summary>
         /// <typeparam name="T">Type type of the value.</typeparam>
         /// <param name="value">The value of the parameter.</param>
@@ -94,7 +94,7 @@ namespace MongoDB.Driver.Core.Misc
         {
             if (value.CompareTo(comparand) <= 0)
             {
-                var message = $"Value is not greater than or equal to {comparand}: {value}.";
+                var message = $"Value is not greater than {comparand}: {value}.";
                 throw new ArgumentOutOfRangeException(paramName, message);
             }
             return value;
