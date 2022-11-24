@@ -100,12 +100,13 @@ namespace MongoDB.Driver.GridFS
 
         public override void Flush()
         {
-            throw new NotSupportedException();
+            // CSHARP-4377: Flush on read-only stream should be a NOP
         }
 
         public override Task FlushAsync(CancellationToken cancellationToken)
         {
-            throw new NotSupportedException();
+            // CSHARP-4377: Flush on read-only stream should be a NOP
+            return Task.CompletedTask;
         }
 
         public override void SetLength(long value)
