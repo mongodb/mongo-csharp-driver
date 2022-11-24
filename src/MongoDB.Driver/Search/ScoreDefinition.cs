@@ -15,7 +15,7 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 
-namespace MongoDB.Driver
+namespace MongoDB.Driver.Search
 {
     /// <summary>
     /// Base class for search score modifiers.

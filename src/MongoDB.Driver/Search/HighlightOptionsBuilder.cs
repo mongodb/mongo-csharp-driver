@@ -15,7 +15,7 @@
 using System;
 using System.Linq.Expressions;
 
-namespace MongoDB.Driver
+namespace MongoDB.Driver.Search
 {
     /// <summary>
     /// A build for highlighting options.

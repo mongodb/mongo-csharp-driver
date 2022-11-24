@@ -15,7 +15,7 @@
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 
-namespace MongoDB.Driver
+namespace MongoDB.Driver.Search
 {
     /// <summary>
     /// Options for fuzzy search.

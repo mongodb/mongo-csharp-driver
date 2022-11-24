@@ -16,7 +16,7 @@ using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 
-namespace MongoDB.Driver
+namespace MongoDB.Driver.Search
 {
     /// <summary>
     /// Base class for search queries.
