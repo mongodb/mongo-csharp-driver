@@ -6,8 +6,123 @@
     <description>Recent content on MongoDB .NET Driver</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 11 Jul 2022 16:56:14 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 22 Nov 2022 15:36:56 +0000</lastBuildDate>
     <atom:link href="/mongo-csharp-driver/2.18/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Logging</title>
+      <link>/mongo-csharp-driver/2.18/reference/driver/logging/</link>
+      <pubDate>Tue, 22 Nov 2022 15:36:56 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.18/reference/driver/logging/</guid>
+      <description>
+
+&lt;h2 id=&#34;logging&#34;&gt;Logging&lt;/h2&gt;
+
+&lt;p&gt;Starting in version 2.18, the .NET/C# driver uses the standard  &lt;a href=&#34;https://learn.microsoft.com/en-us/dotnet/core/extensions/logging?tabs=command-line&#34;&gt;.NET logging API&lt;/a&gt;. The &lt;a href=&#34;https://github.com/mongodb/specifications/blob/master/source/logging/logging.rst&#34;&gt;MongoDB logging specification&lt;/a&gt; defines the components, structure, and verbosity of the logs. On this page, you can learn how to set up and configure logging for your application.&lt;/p&gt;
+
+&lt;p&gt;You can configure logging using the &lt;a href=&#34;/mongo-csharp-driver/2.18/mongo-csharp-driver/2.18/apidocs/html/T_MongoDB_Driver_Core_Configuration_LoggingSettings.htm
+&#34;&gt;&lt;code&gt;LoggingSettings&lt;/code&gt;&lt;/a&gt;. &lt;code&gt;LoggingSettings&lt;/code&gt; contains the following properties:&lt;/p&gt;
+
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Property&lt;/th&gt;
+&lt;th&gt;Description&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;LoggerFactory&lt;/td&gt;
+&lt;td&gt;The &lt;a href=&#34;https://learn.microsoft.com/en-us/dotnet/api/microsoft.extensions.logging.iloggerfactory?view=dotnet-plat-ext-6.0&#34;&gt;ILoggerFactory&lt;/a&gt; object that will create an &lt;a href=&#34;https://learn.microsoft.com/en-us/dotnet/api/microsoft.extensions.logging.ilogger?view=dotnet-plat-ext-6.0&#34;&gt;ILogger&lt;/a&gt;.&lt;br&gt;&lt;br&gt;&lt;strong&gt;Data Type:&lt;/strong&gt; ILoggerFactory&lt;br&gt;&lt;strong&gt;Default:&lt;/strong&gt; null&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;MaxDocumentSize&lt;/td&gt;
+&lt;td&gt;Maximum number of characters for extended JSON documents in logged messages&lt;br&gt;&lt;br&gt;For example, when the driver logs the &lt;a href=&#34;https://github.com/mongodb/specifications/blob/master/source/command-logging-and-monitoring/command-logging-and-monitoring.rst#command-started-message&#34;&gt;CommandStarted&lt;/a&gt; event, it truncates the Command field to the specified character limit.&lt;br&gt;&lt;br&gt;&lt;strong&gt;Data Type:&lt;/strong&gt; int&lt;br&gt;&lt;strong&gt;Default:&lt;/strong&gt; 1000&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;The following code example creates a MongoClient that logs debug messages to the console. To do so, the code performs the following steps:
+- Creates a LoggerFactory, which specifies the logging destination and level
+- Creates a LoggingSettings object, passing the LoggerFactory object as a parameter to the constructor
+- Creates a MongoClient object, passing the LoggingSettings object as a parameter to the constructor&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt; using var loggerFactory = LoggerFactory.Create(b =&amp;gt;
+ {
+    b.AddSimpleConsole();
+    b.SetMinimumLevel(LogLevel.Debug);
+ });
+ 
+ var settings = MongoClientSettings.FromConnectionString(...);
+ settings.LoggingSettings = new LoggingSettings(loggerFactory);
+ var client = new MongoClient(settings);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;.NET/C# driver log category naming:&lt;/p&gt;
+
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Property&lt;/th&gt;
+&lt;th&gt;Description&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;MongoDB.Command&lt;/td&gt;
+&lt;td&gt;command&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;MongoDB.SDAM&lt;/td&gt;
+&lt;td&gt;topology&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;MongoDB.ServerSelection&lt;/td&gt;
+&lt;td&gt;serverSelection&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;MongoDB.Connection&lt;/td&gt;
+&lt;td&gt;connection&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;MongoDB.Internal.*&lt;/td&gt;
+&lt;td&gt;Prefix for all .NET/C# Driver internal components not described by spec&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;How to configure log categories verbosity example:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var categoriesConfiguration = new Dictionary&amp;lt;string, string&amp;gt;
+{
+    // Output all logs from all categories with Error and higher level
+    { &amp;quot;LogLevel:Default&amp;quot;, &amp;quot;Error&amp;quot; },
+    // Output SDAM logs with Debug and higher level
+    { &amp;quot;LogLevel:MongoDB.SDAM&amp;quot;, &amp;quot;Debug&amp;quot; }
+};
+var config = new ConfigurationBuilder()
+   .AddInMemoryCollection(categoriesConfiguration)
+   .Build();
+using var loggerFactory = LoggerFactory.Create(b =&amp;gt;
+{
+    b.AddConfiguration(config);
+    b.AddSimpleConsole();
+});
+
+var settings = MongoClientSettings.FromConnectionString(&amp;quot;mongodb://localhost:27017&amp;quot;);
+settings.LoggingSettings = new LoggingSettings(loggerFactory);
+var client = new MongoClient(settings);
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
     
     <item>
       <title>Frequently Encountered Issues</title>
@@ -222,37 +337,6 @@ encountering errors.&lt;/p&gt;
     </item>
     
     <item>
-      <title>Background</title>
-      <link>/mongo-csharp-driver/2.18/reference/bson/guidserialization/background/</link>
-      <pubDate>Thu, 23 Jul 2020 00:00:00 +0000</pubDate>
-      
-      <guid>/mongo-csharp-driver/2.18/reference/bson/guidserialization/background/</guid>
-      <description>
-
-&lt;h2 id=&#34;background-information&#34;&gt;Background information&lt;/h2&gt;
-
-&lt;p&gt;Guids were originally represented in BSON as BsonBinaryData values of subtype 3. Unfortunately, different drivers
-inadvertently used different byte orders when converting a Guid to a 16 byte binary value. To standardize on a
-single canonical representation BsonBinaryData subtype 4 was created with a well defined byte order.&lt;/p&gt;
-
-&lt;p&gt;The C# driver&amp;rsquo;s support for Guids was originally based on the premise that all Guids in a single collection must
-be represented the same way (i.e. using the same BsonBinaryData sub type and byte order). In order to accomplish this
-the representation of Guids is enforced at the BSON reader and writer levels (because a single reader or writer is
-used to read or write an entire document from or to the collection).&lt;/p&gt;
-
-&lt;p&gt;However, this original premise has not stood the test of time.&lt;/p&gt;
-
-&lt;p&gt;The first issue we ran into was that the server
-started returning UUIDs (i.e. Guids) in metadata using standard subtype 4. If a collection was configured to use
-subtype 3 (which it usually was since that is the default) the driver could not deserialize the Guids in the metadata
-without throwing an exception. We worked around this by temporarily reconfiguring the BSON reader while reading the metadata.&lt;/p&gt;
-
-&lt;p&gt;The second issue is that the original premise was too strict. There are valid reasons why a single collection might
-have a mix of Guid representations, and we need to allow that.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
       <title>GuidRepresentationMode</title>
       <link>/mongo-csharp-driver/2.18/reference/bson/guidserialization/guidrepresentationmode/guidrepresentationmode/</link>
       <pubDate>Thu, 23 Jul 2020 00:00:00 +0000</pubDate>
@@ -297,6 +381,37 @@ not possible to mix use of both modes in the same application.&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;BsonDefaults.GuidRepresentationMode = GuidRepresentationMode.V3;
 &lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Background</title>
+      <link>/mongo-csharp-driver/2.18/reference/bson/guidserialization/background/</link>
+      <pubDate>Thu, 23 Jul 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.18/reference/bson/guidserialization/background/</guid>
+      <description>
+
+&lt;h2 id=&#34;background-information&#34;&gt;Background information&lt;/h2&gt;
+
+&lt;p&gt;Guids were originally represented in BSON as BsonBinaryData values of subtype 3. Unfortunately, different drivers
+inadvertently used different byte orders when converting a Guid to a 16 byte binary value. To standardize on a
+single canonical representation BsonBinaryData subtype 4 was created with a well defined byte order.&lt;/p&gt;
+
+&lt;p&gt;The C# driver&amp;rsquo;s support for Guids was originally based on the premise that all Guids in a single collection must
+be represented the same way (i.e. using the same BsonBinaryData sub type and byte order). In order to accomplish this
+the representation of Guids is enforced at the BSON reader and writer levels (because a single reader or writer is
+used to read or write an entire document from or to the collection).&lt;/p&gt;
+
+&lt;p&gt;However, this original premise has not stood the test of time.&lt;/p&gt;
+
+&lt;p&gt;The first issue we ran into was that the server
+started returning UUIDs (i.e. Guids) in metadata using standard subtype 4. If a collection was configured to use
+subtype 3 (which it usually was since that is the default) the driver could not deserialize the Guids in the metadata
+without throwing an exception. We worked around this by temporarily reconfiguring the BSON reader while reading the metadata.&lt;/p&gt;
+
+&lt;p&gt;The second issue is that the original premise was too strict. There are valid reasons why a single collection might
+have a mix of Guid representations, and we need to allow that.&lt;/p&gt;
 </description>
     </item>
     
@@ -394,25 +509,6 @@ can opt-in to the new way of serializing Guids by setting the GuidRepresentation
     </item>
     
     <item>
-      <title>Serializer changes</title>
-      <link>/mongo-csharp-driver/2.18/reference/bson/guidserialization/serializerchanges/serializerchanges/</link>
-      <pubDate>Thu, 23 Jul 2020 00:00:00 +0000</pubDate>
-      
-      <guid>/mongo-csharp-driver/2.18/reference/bson/guidserialization/serializerchanges/serializerchanges/</guid>
-      <description>
-
-&lt;h1 id=&#34;serializer-changes&#34;&gt;Serializer changes&lt;/h1&gt;
-
-&lt;p&gt;The following sections describe changes to the two serializers to handle Guids differently:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;- &lt;a href=&#34;/mongo-csharp-driver/2.18/mongo-csharp-driver/2.18/reference/bson/guidserialization/serializerchanges/guidserializerchanges/&#34;&gt;GuidSerializer changes&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;- &lt;a href=&#34;/mongo-csharp-driver/2.18/mongo-csharp-driver/2.18/reference/bson/guidserialization/serializerchanges/objectserializerchanges/&#34;&gt;ObjectSerializer changes&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-</description>
-    </item>
-    
-    <item>
       <title>GuidSerializer changes</title>
       <link>/mongo-csharp-driver/2.18/reference/bson/guidserialization/serializerchanges/guidserializerchanges/</link>
       <pubDate>Thu, 23 Jul 2020 00:00:00 +0000</pubDate>
@@ -492,6 +588,25 @@ serializer will be globally used whenever an object serializer is needed and has
 var objectSerializer = new ObjectSerializer(objectDiscriminatorConvention, GuidRepresentation.Standard);
 BsonSerializer.RegisterSerializer(objectSerializer);
 &lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Serializer changes</title>
+      <link>/mongo-csharp-driver/2.18/reference/bson/guidserialization/serializerchanges/serializerchanges/</link>
+      <pubDate>Thu, 23 Jul 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/mongo-csharp-driver/2.18/reference/bson/guidserialization/serializerchanges/serializerchanges/</guid>
+      <description>
+
+&lt;h1 id=&#34;serializer-changes&#34;&gt;Serializer changes&lt;/h1&gt;
+
+&lt;p&gt;The following sections describe changes to the two serializers to handle Guids differently:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;- &lt;a href=&#34;/mongo-csharp-driver/2.18/mongo-csharp-driver/2.18/reference/bson/guidserialization/serializerchanges/guidserializerchanges/&#34;&gt;GuidSerializer changes&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;- &lt;a href=&#34;/mongo-csharp-driver/2.18/mongo-csharp-driver/2.18/reference/bson/guidserialization/serializerchanges/objectserializerchanges/&#34;&gt;ObjectSerializer changes&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
 </description>
     </item>
     
@@ -1103,198 +1218,6 @@ your application. This differs from previous guidance which stated that it didn&
 
 &lt;p&gt;The &lt;a href=&#34;/mongo-csharp-driver/2.18/mongo-csharp-driver/2.18/apidocs/html/T_MongoDB_Driver_Core_Events_ServerOpeningEvent.htm
 &#34;&gt;&lt;code&gt;ServerOpeningEvent&lt;/code&gt;&lt;/a&gt; is raised before a server is opened.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Change Streams</title>
-      <link>/mongo-csharp-driver/2.18/reference/driver/change_streams/</link>
-      <pubDate>Mon, 02 Jul 2018 20:36:00 +0000</pubDate>
-      
-      <guid>/mongo-csharp-driver/2.18/reference/driver/change_streams/</guid>
-      <description>
-
-&lt;h2 id=&#34;change-streams&#34;&gt;Change Streams&lt;/h2&gt;
-
-&lt;p&gt;Change streams allow an application to receive a stream of events representing changes to documents in:&lt;/p&gt;
-
-&lt;ol&gt;
-&lt;li&gt;A single collection&lt;/li&gt;
-&lt;li&gt;All collections in a single database&lt;/li&gt;
-&lt;li&gt;All collections in all databases&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;An application starts watching a change stream by calling one of the Watch methods.&lt;/p&gt;
-
-&lt;h3 id=&#34;watching-changes-in-a-single-collection&#34;&gt;Watching changes in a single collection&lt;/h3&gt;
-
-&lt;p&gt;To watch changes in a single collection call the Watch or WatchAsync method of IMongoCollection.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var cursor = collection.Watch())
-{
-    foreach (var change in cursor.ToEnumerable())
-    {
-        // process change event
-    }
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;or&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var cursor = await collection.WatchAsync())
-{
-    await cursor.ForEachAsync(change =&amp;gt;
-    {
-        // process change event
-    });
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;watching-changes-in-all-collections-in-a-single-database&#34;&gt;Watching changes in all collections in a single database&lt;/h3&gt;
-
-&lt;p&gt;To watch changes in all collections in a single database call the Watch or WatchAsync method of IMongoDatabase.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var cursor = database.Watch())
-{
-    foreach (var change in cursor.ToEnumerable())
-    {
-        // process change event
-    }
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;or&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var cursor = await database.WatchAsync())
-{
-    await cursor.ForEachAsync(change =&amp;gt;
-    {
-        // process change event
-    });
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;watching-changes-in-all-collections-in-all-databases&#34;&gt;Watching changes in all collections in all databases&lt;/h3&gt;
-
-&lt;p&gt;To watch changes in all collections in all databases call the Watch or WatchAsync method of IMongoClient.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var cursor = client.Watch())
-{
-    foreach (var change in cursor.ToEnumerable())
-    {
-        // process change event
-    }
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;or&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;using (var cursor = await client.WatchAsync())
-{
-    await cursor.ForEachAsync(change =&amp;gt;
-    {
-        // process change event
-    });
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;strongly-typed-changestreamdocument-lt-tdocument-gt-class&#34;&gt;Strongly typed ChangeStreamDocument&amp;lt;TDocument&amp;gt; class&lt;/h3&gt;
-
-&lt;p&gt;The cursor returned from the Watch methods returns the change stream events wrapped in a strongly typed C# class called ChangeStreamDocument&amp;lt;TDocument&amp;gt; (unless you used a pipeline that changed the shape of the results). The underlying change stream events are documented in the server documentation &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/change-events/&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;public class ChangeStreamDocument&amp;lt;TDocument&amp;gt;
-{
-    public BsonDocument ClusterTime { get; }
-    public CollectionNamespace CollectionNamespace { get; }
-    public BsonDocument DocumentKey { get; }
-    public TDocument FullDocument { get; }
-    public ChangeStreamOperationType OperationType { get; }
-    public BsonDocument ResumeToken { get; }
-    public ChangeStreamUpdateDescription UpdateDescription { get; }
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;ClusterTime is the timestamp from the oplog entry associated with the event.&lt;/p&gt;
-
-&lt;p&gt;CollectionNamespace is the full namespace of the collection containing the changed document.&lt;/p&gt;
-
-&lt;p&gt;DocumentKey contains the _id of the document created or modified by the operation. For sharded collections it also contains the shard key of the document.&lt;/p&gt;
-
-&lt;p&gt;For Insert and Replace operations,  FullDocument is the new document created by the operation. For Delete operations FullDocument is null as the document no longer exists. For Update operations FullDocument is only present if you set the FullDocument option in the options passed to Watch to ChangeStreamFullDocumentOption.UpdateLookup, in which case it contains the most current majority-committed version of the document modified by the Update operation (see the server documentation for fullDocument &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/change-events/&#34;&gt;here&lt;/a&gt; for details).&lt;/p&gt;
-
-&lt;p&gt;OperationType is one of: Insert, Update, Replace, Delete or Invalidate.&lt;/p&gt;
-
-&lt;p&gt;ResumeToken is metadata identifying the change stream event. It can be passed to Watch in the ResumeAfter option to start a new change stream that will resume with the next change event after this one. This is useful when your application needs to restart a change stream after a network outage.&lt;/p&gt;
-
-&lt;p&gt;UpdateDescription is only present when the OperationType is Update. It describes the fields that were updated or removed by the Update operation.&lt;/p&gt;
-
-&lt;h3 id=&#34;using-an-optional-pipeline&#34;&gt;Using an optional pipeline&lt;/h3&gt;
-
-&lt;p&gt;All the Watch and WatchAsync methods have overloads that take a pipeline argument. An application can pass in a pipeline to filter or modify the change stream in some way.&lt;/p&gt;
-
-&lt;p&gt;Only certain modifications are valid in a change stream pipeline. See the server documentation &lt;a href=&#34;https://www.mongodb.com/docs/manual/changeStreams/#modify-change-stream-output&#34;&gt;here&lt;/a&gt; for details.&lt;/p&gt;
-
-&lt;p&gt;For example, if you are only interested in monitoring inserted documents, you could use a pipeline to filter the change stream to only include insert operations.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var pipeline = 
-    new EmptyPipelineDefinition&amp;lt;ChangeStreamDocument&amp;lt;BsonDocument&amp;gt;&amp;gt;()
-    .Match(x =&amp;gt; x.OperationType == ChangeStreamOperationType.Insert);
-using (var cursor = collection.Watch(pipeline))
-{
-    foreach (var change in cursor.ToEnumerable())
-    {
-        // process insert change event
-    }
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;&lt;div class=&#34;admonition note&#34;&gt;
-&lt;h5 class=&#34;admonition-title&#34;&gt;Note&lt;/h5&gt;
-&lt;p&gt;The implementation of Watch depends on the presence of a &amp;ldquo;resume token&amp;rdquo; in the change stream. The resume token is the value of the &amp;ldquo;_id&amp;rdquo; field in the change stream documents (represented as the ResumeToken property of the ChangeStreamDocument class). If you use a pipeline and the pipeline changes the shape of the change stream documents, the pipeline MUST preserve the presence of the &amp;ldquo;_id&amp;rdquo; field, and it MUST NOT change its value.&lt;/p&gt;
-
-&lt;/div&gt;
-&lt;/p&gt;
-
-&lt;h3 id=&#34;passing-options-to-the-watch-and-watchasync-methods&#34;&gt;Passing options to the Watch and WatchAsync methods&lt;/h3&gt;
-
-&lt;p&gt;You can pass options to the Watch and WatchAsync methods in the optional options argument, which is of type ChangeStreamOptions.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;public class ChangeStreamOptions
-{
-    public int? BatchSize { get; set; }
-    public Collation Collation { get; set; }
-    public ChangeStreamFullDocumentOption FullDocument { get; set; }
-    public TimeSpan? MaxAwaitTime { get; set; }
-    public BsonDocument ResumeAfter { get; set; }
-    public BsonTimestamp StartAtOperationTime { get; set; }
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;BatchSize determines the maximum number of change events the server will return at one time. The server might return fewer.&lt;/p&gt;
-
-&lt;p&gt;FullDocument can be set to ChangeStreamFullDocumentOption.UpdateLookup if you want the change stream event for Update operations to include a copy of the full document (the full document might include additional changes that are the result of subsequent change events, see the server documentation &lt;a href=&#34;https://www.mongodb.com/docs/manual/reference/change-events/#update-event&#34;&gt;here&lt;/a&gt;).&lt;/p&gt;
-
-&lt;p&gt;ResumeAfter and StartAtOperationTime are useful when you want to resume or start a change stream from some point in time.&lt;/p&gt;
-
-&lt;p&gt;For example, if you want to monitor only updates, and you want each change event to include the full document, you would write:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-csharp&#34;&gt;var pipeline = 
-    new EmptyPipelineDefinition&amp;lt;ChangeStreamDocument&amp;lt;BsonDocument&amp;gt;&amp;gt;()
-    .Match(x =&amp;gt; x.OperationType == ChangeStreamOperationType.Update);
-
-var changeStreamOptions = new ChangeStreamOptions
-{
-    FullDocument = ChangeStreamFullDocumentOption.UpdateLookup
-};
-
-using (var cursor = collection.Watch(pipeline, changeStreamOptions))
-{
-    foreach (var change in cursor.ToEnumerable())
-    {
-        // process updated document in change.FullDocument
-    }
-}
-&lt;/code&gt;&lt;/pre&gt;
 </description>
     </item>
     

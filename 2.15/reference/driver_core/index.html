@@ -3212,7 +3212,13 @@
 
 <h3 id="server-monitoring">Server Monitoring</h3>
 
-<p>Each server that is discovered is monitored. By default, this monitoring happens every 10 seconds and consists of a <code>{ hello: 1 }</code> (or legacy hello) call followed by a <code>{ buildInfo: 1 }</code> call. When servers go down, the frequency of these calls will be increased to 500 milliseconds. See the <a href="https://github.com/mongodb/specifications/blob/master/source/server-discovery-and-monitoring/server-discovery-and-monitoring-summary.rst">Server Discovery and Monitoring Specification</a> for more information.</p>
+<p>Each server that is discovered is monitored.</p>
+
+<p>MongoDB 4.4 or later: The <code>MongoClient</code> establishes an exhaust cursor to each discovered cluster node using <code>{ hello: 1 }</code> (or legacy hello). Cluster nodes push topology updates to <code>MongoClient</code>.</p>
+
+<p>MongoDB 4.2 or ealier: The <code>MongoClient</code> polls each discovered cluster node every <a href="https://www.mongodb.com/docs/manual/reference/connection-string/#mongodb-urioption-urioption.heartbeatFrequencyMS">heartbeatFrequencyMS</a> (default 10 seconds, MongoDB Atlas 5 seconds) using <code>{ hello: 1 }</code> (or legacy hello).</p>
+
+<p>When servers go down, the frequency of these calls will be increased to 500 milliseconds. See the <a href="https://github.com/mongodb/specifications/blob/master/source/server-discovery-and-monitoring/server-discovery-and-monitoring-summary.rst">Server Discovery and Monitoring Specification</a> for more information.</p>
 
 <h3 id="server-selection">Server Selection</h3>
 
