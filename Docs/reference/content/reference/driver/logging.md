@@ -22,6 +22,7 @@ You can configure logging using the [`LoggingSettings`]({{< apiref "T_MongoDB_Dr
 
 
 The following code example creates a MongoClient that logs debug messages to the console. To do so, the code performs the following steps:
+
 - Creates a LoggerFactory, which specifies the logging destination and level
 - Creates a LoggingSettings object, passing the LoggerFactory object as a parameter to the constructor
 - Creates a MongoClient object, passing the LoggingSettings object as a parameter to the constructor
