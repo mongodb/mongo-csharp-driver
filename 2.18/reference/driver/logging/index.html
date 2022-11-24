@@ -2929,10 +2929,13 @@
 </tbody>
 </table>
 
-<p>The following code example creates a MongoClient that logs debug messages to the console. To do so, the code performs the following steps:
-- Creates a LoggerFactory, which specifies the logging destination and level
-- Creates a LoggingSettings object, passing the LoggerFactory object as a parameter to the constructor
-- Creates a MongoClient object, passing the LoggingSettings object as a parameter to the constructor</p>
+<p>The following code example creates a MongoClient that logs debug messages to the console. To do so, the code performs the following steps:</p>
+
+<ul>
+  <li>Creates a LoggerFactory, which specifies the logging destination and level</li>
+  <li>Creates a LoggingSettings object, passing the LoggerFactory object as a parameter to the constructor</li>
+  <li>Creates a MongoClient object, passing the LoggingSettings object as a parameter to the constructor</li>
+</ul>
 
 <pre><code class="language-csharp"> using var loggerFactory = LoggerFactory.Create(b =&gt;
  {
