@@ -291,7 +291,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                         // this exception sometimes won't be thrown. In all such cases the spent time in listenerThread.Join is higher
                         // or really close to timeout. So it's unclear why Join doesn't throw in that cases, but that logic is unrelated
                         // to the driver and csfle in particular. We rely on the fact that even if we break this logic,
-                        // we run this test more than 1 times
+                        // we run this test more than once.
                         throw new Exception($"Listener accepted a tcp call for moncgocryptd during {timeout}.");
                     }
                 }
