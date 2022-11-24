@@ -309,7 +309,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                     tcpListener.Start();
                     using var client = tcpListener.AcceptTcpClient();
                     // Perform a blocking call to accept requests.
-                    // if we're here, than something queries port 27030
+                    // if we're here, then something queries port 27030.
                 }
                 catch (SocketException)
                 {
