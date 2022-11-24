@@ -97,9 +97,11 @@ namespace MongoDB.Driver.Tests.Communication.Security
             exception = Record.Exception(() => RunTestCase());
             if (IsWithAwsProfileOnMachine())
             {
-                // current machine contains configured aws profile
+                // current machine contains configured aws profile, which may include:
+                // 1. BasicAWSCredentials (aws_access_key_id and aws_secret_access_key)
+                // 2. SessionAWSCredentials (aws_access_key_id, aws_secret_access_key, aws_session_token)
                 exception.Should().BeNull();
-                credentials.Should().BeOfType<SessionAWSCredentials>();
+                credentials.Should().Match(x => x is BasicAWSCredentials || x is SessionAWSCredentials);
             }
             else
             {
