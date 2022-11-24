@@ -26,11 +26,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
     {
         [Theory]
         [ParameterAttributeData]
-        public void AppendStage_should_work([Values(false, true)] bool resultSerializerExists)
+        public void AppendStage_should_work([Values(false, true)] bool useResultSerializer)
         {
             var collection = CreateProductsCollection();
             var textStage = "{ $match : { $text : { $search : 'apples' } } }";
-            var resultSerializer = resultSerializerExists ? collection.DocumentSerializer : null;
+            var resultSerializer = useResultSerializer ? collection.DocumentSerializer : null;
 
             var queryable = collection
                 .AsQueryable()
