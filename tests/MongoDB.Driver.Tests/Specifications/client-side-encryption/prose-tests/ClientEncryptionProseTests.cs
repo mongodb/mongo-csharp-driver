@@ -133,11 +133,9 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                         case 3: // Case 3: Invalid ``keyId``
                             {
                                 var effectiveEncryptedFields = encryptedFields.DeepClone();
-                                effectiveEncryptedFields["fields"].AsBsonArray[0].AsBsonDocument["keyId"] = true;
-                                var collection = CreateEncryptedCollection(client, clientEncryption, __collCollectionNamespace, encryptedFields, kmsProvider, async).Collection;
-
-                                var exception = Record.Exception(() => Insert(collection, async, new BsonDocument("ssn", "123-45-6789")));
-                                exception.Should().BeOfType<MongoBulkWriteException<BsonDocument>>().Which.Message.Should().Contain("Document failed validation");
+                                effectiveEncryptedFields["fields"].AsBsonArray[0].AsBsonDocument["keyId"] = false;
+                                var exception = Record.Exception(() => CreateEncryptedCollection(client, clientEncryption, __collCollectionNamespace, effectiveEncryptedFields.AsBsonDocument, kmsProvider, async));
+                                exception.Should().BeOfType<MongoCommandException>().Which.Message.Should().Contain("BSON field 'create.encryptedFields.fields.keyId' is the wrong type 'bool', expected type 'binData'");
                             }
                             break;
                         default: throw new Exception($"Unexpected test case {testCase}.");

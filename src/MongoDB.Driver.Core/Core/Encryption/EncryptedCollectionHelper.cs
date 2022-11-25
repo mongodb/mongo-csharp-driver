@@ -85,24 +85,14 @@ namespace MongoDB.Driver.Encryption
 
             if (storedEncryptedFields.TryGetValue("fields", out var fields) && fields is BsonArray fieldsArray)
             {
-                foreach (var field in fieldsArray)
+                foreach (var field in fieldsArray.OfType<BsonDocument>()) // If `F` is not a document element, skip it.
                 {
-                    if (field is BsonDocument fieldDocument)
+                    if (field.TryGetElement("keyId", out var keyId) && keyId.Value == BsonNull.Value)
                     {
-                        if (fieldDocument.TryGetElement("keyId", out var keyId) && keyId.Value == BsonNull.Value)
-                        {
-                            yield return fieldDocument;
-                        }
-                    }
-                    else
-                    {
-                        // If `F` is not a document element, skip it.
-                        continue;
+                        yield return field;
                     }
                 }
             }
-
-            yield break;
         }
 
         public static void ModifyEndryptedFields(BsonDocument fieldDocument, Guid dataKey)
