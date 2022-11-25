@@ -34,7 +34,6 @@ using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Authentication.External;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
@@ -247,6 +246,75 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 exception.Should().BeNull();
                 eventCapturer.Count.Should().Be(1);
                 eventCapturer.Clear();
+            }
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void BypassMongocryptdClientWhenSharedLibraryTest(
+            [Values(false, true)] bool async)
+        {
+            RequireServer.Check().Supports(Feature.ClientSideEncryption);
+            RequireEnvironment.Check().EnvironmentVariable("CRYPT_SHARED_LIB_PATH", isDefined: true, allowEmpty: false);
+            // socket.Close can hang on non windows OS. Might be related to this issue: https://github.com/dotnet/runtime/issues/47342
+            RequirePlatform
+                .Check()
+                .SkipWhen(SupportedOperatingSystem.Linux)
+                .SkipWhen(SupportedOperatingSystem.MacOS);
+
+            const int mongocryptPort = 27030;
+            var timeout = TimeSpan.FromSeconds(3);
+            var extraOptions = new Dictionary<string, object>
+            {
+                { "mongocryptdURI", $"mongodb://localhost:{mongocryptPort}" }
+            };
+
+            var mongocryptdIpAddress = IPAddress.Parse("127.0.0.1");
+            TcpListener tcpListener = null;
+            try
+            {
+                tcpListener = new TcpListener(mongocryptdIpAddress, port: mongocryptPort);
+                var listenerThread = new Thread(new ParameterizedThreadStart(ThreadStart)) { IsBackground = true };
+
+                using (var clientEncrypted = ConfigureClientEncrypted(kmsProviderFilter: "local", extraOptions: extraOptions))
+                {
+                    var coll = GetCollection(clientEncrypted, __collCollectionNamespace);
+
+                    listenerThread.Start(tcpListener);
+
+                    _ = Record.Exception(() => Insert(coll, async, new BsonDocument("unencrypted", "test")));
+
+                    if (listenerThread.Join(timeout))
+                    {
+                        // This exception is never thrown when mognocryptd mongoClient is not spawned which is expected behavior.
+                        // However, if we intentionally break that logic to spawn mongocryptd mongoClient regardless of shared library,
+                        // this exception sometimes won't be thrown. In all such cases the spent time in listenerThread.Join is higher
+                        // or really close to timeout. So it's unclear why Join doesn't throw in that cases, but that logic is unrelated
+                        // to the driver and csfle in particular. We rely on the fact that even if we break this logic,
+                        // we run this test more than once.
+                        throw new Exception($"Listener accepted a tcp call for moncgocryptd during {timeout}.");
+                    }
+                }
+            }
+            finally
+            {
+                tcpListener?.Stop();
+            }
+
+            void ThreadStart(object param)
+            {
+                try
+                {
+                    var tcpListener = (TcpListener)param;
+                    tcpListener.Start();
+                    using var client = tcpListener.AcceptTcpClient();
+                    // Perform a blocking call to accept requests.
+                    // if we're here, then something queries port 27030.
+                }
+                catch (SocketException)
+                {
+                    // listener stopped outside thread
+                }
             }
         }
 
