@@ -335,7 +335,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                 { "cryptSharedLibPath", cryptSharedPath },
                                 { "cryptSharedRequired", true }
                             };
-                            return ConfigureClientEncrypted(kmsProviderFilter: kmsProvider, schemaMap: clientEncryptedSchema, extraOptions: extraOptions);
+                            return ConfigureClientEncrypted(kmsProviderFilter: kmsProvider, schemaMap: clientEncryptedSchema, extraOptions: effectiveExtraOptions);
                         }
                     default: throw new Exception($"Invalid bypass mongocryptd {bypassSpawning} option.");
                 }
