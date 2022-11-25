@@ -73,23 +73,23 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         [Fact]
-        public void LocalValues_of_2_ids_should_not_be_the_same_when_automatically_constructed()
+        public void LongLocalValues_of_2_ids_should_not_be_the_same_when_automatically_constructed()
         {
             var subject = new ConnectionId(__serverId);
             var subject2 = new ConnectionId(__serverId);
 
-            subject.LocalValue.Should().NotBe(subject2.LocalValue);
+            subject.LongLocalValue.Should().NotBe(subject2.LongLocalValue);
         }
 
         [Theory]
         [InlineData(0)]
         [InlineData(int.MaxValue)]
         [InlineData((long)int.MaxValue+1)]
-        public void LocalValue_should_be_what_was_specified_in_the_constructor(long localValue)
+        public void LongLocalValue_should_be_what_was_specified_in_the_constructor(long localValue)
         {
             var subject = new ConnectionId(__serverId, localValue);
 
-            subject.LocalValue.Should().Be(localValue);
+            subject.LongLocalValue.Should().Be(localValue);
         }
 
         [Theory]
@@ -101,8 +101,8 @@ namespace MongoDB.Driver.Core.Connections
             var subject = new ConnectionId(__serverId, 10)
                 .WithServerValue(serverValue);
 
-            subject.LocalValue.Should().Be(10);
-            subject.ServerValue.Should().Be(serverValue);
+            subject.LongLocalValue.Should().Be(10);
+            subject.LongServerValue.Should().Be(serverValue);
         }
     }
 }

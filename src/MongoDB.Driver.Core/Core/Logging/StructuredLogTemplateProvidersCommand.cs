@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Core.Logging
                 CommandCommonParams(DatabaseName, Command),
                 (e, o) => GetParamsOmitNull(
                     e.ConnectionId,
-                    e.ConnectionId.ServerValue,
+                    e.ConnectionId.LongServerValue,
                     e.RequestId,
                     e.OperationId,
                     "Command started",
@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Core.Logging
                 CommandCommonParams(DurationMS, Reply),
                 (e, o) => GetParamsOmitNull(
                     e.ConnectionId,
-                    e.ConnectionId.ServerValue,
+                    e.ConnectionId.LongServerValue,
                     e.RequestId,
                     e.OperationId,
                     "Command succeeded",
@@ -79,7 +79,7 @@ namespace MongoDB.Driver.Core.Logging
                 CommandCommonParams(DurationMS, Failure),
                 (e, o) => GetParamsOmitNull(
                     e.ConnectionId,
-                    e.ConnectionId.ServerValue,
+                    e.ConnectionId.LongServerValue,
                     e.RequestId,
                     e.OperationId,
                     "Command failed",

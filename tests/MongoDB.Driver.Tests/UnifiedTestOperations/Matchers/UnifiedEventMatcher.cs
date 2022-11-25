@@ -248,7 +248,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                 // So even though servers less than 4.2 don't provide connectionId, we still have this value through getLastError, so don't assert hasServerConnectionId=false.
                 if (value)
                 {
-                    connectionId.ServerValue.Should().HaveValue();
+                    connectionId.LongServerValue.Should().HaveValue();
                 }
             }
         }

@@ -35,7 +35,7 @@ namespace MongoDB.Driver
                 "Cursor {0} not found on server {1} using connection {2}.",
                 cursorId,
                 EndPointHelper.ToString(connectionId.ServerId.EndPoint),
-                connectionId.ServerValue);
+                connectionId.LongServerValue);
         }
         #endregion
 

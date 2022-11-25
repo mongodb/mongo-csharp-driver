@@ -210,7 +210,7 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
                 }
                 else
                 {
-                    actualEvent.ConnectionId().LocalValue.Should().Be(expectedConnectionId);
+                    actualEvent.ConnectionId().LongLocalValue.Should().Be(expectedConnectionId);
                 }
             }
 
@@ -693,7 +693,7 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
 
                         var connectionIdsToIgnore = new HashSet<long>(eventCapturer.Events
                             .OfType<ConnectionCreatedEvent>()
-                            .Select(c => c.ConnectionId.LocalValue)
+                            .Select(c => c.ConnectionId.LongLocalValue)
                             .ToList());
 
                         eventsFilter = o =>
@@ -704,7 +704,7 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
                                 or ConnectionFailedEvent)
                             {
                                 var connectionId = o.ConnectionId();
-                                return !connectionIdsToIgnore.Contains(connectionId.LocalValue) &&
+                                return !connectionIdsToIgnore.Contains(connectionId.LongLocalValue) &&
                                     EndPointHelper.Equals(connectionId.ServerId.EndPoint, server.EndPoint);
                             }
 

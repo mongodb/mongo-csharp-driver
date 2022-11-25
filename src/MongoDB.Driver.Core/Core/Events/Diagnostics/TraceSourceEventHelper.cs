@@ -50,11 +50,11 @@ namespace MongoDB.Driver.Core.Events.Diagnostics
 
         public static string Format(ConnectionId id)
         {
-            if (id.ServerValue.HasValue)
+            if (id.LongServerValue.HasValue)
             {
-                return id.LocalValue.ToString() + "-" + id.ServerValue.Value.ToString();
+                return id.LongLocalValue.ToString() + "-" + id.LongServerValue.Value.ToString();
             }
-            return id.LocalValue.ToString();
+            return id.LongLocalValue.ToString();
         }
 
         public static string Format(ServerId serverId)
