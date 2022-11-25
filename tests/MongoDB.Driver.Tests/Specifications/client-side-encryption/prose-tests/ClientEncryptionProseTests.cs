@@ -2422,9 +2422,9 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             return mongoClientSettings;
         }
 
-        private void DropCollection(CollectionNamespace viewNamespace, BsonDocument encryptedFields = null)
+        private void DropCollection(CollectionNamespace collectionNamespace, BsonDocument encryptedFields = null)
         {
-            var operation = DropCollectionOperation.CreateEncryptedDropCollectionOperationIfConfigured(viewNamespace, encryptedFields, CoreTestConfiguration.MessageEncoderSettings, configureDropCollectionConfigurator: null);
+            var operation = DropCollectionOperation.CreateEncryptedDropCollectionOperationIfConfigured(collectionNamespace, encryptedFields, CoreTestConfiguration.MessageEncoderSettings, configureDropCollectionConfigurator: null);
             using (var session = CoreTestConfiguration.StartSession(_cluster))
             using (var binding = new WritableServerBinding(_cluster, session.Fork()))
             using (var bindingHandle = new ReadWriteBindingHandle(binding))
