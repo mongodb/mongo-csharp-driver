@@ -50,13 +50,12 @@ namespace MongoDB.Bson.TestHelpers.JsonDrivenTests
         {
             var shared = document;
 
-            if (shared.Contains("tests"))
+            if (shared.TryGetValue("tests", out var testsValue) &&
+                testsValue is BsonArray tests)
             {
-                var tests = shared["tests"].AsBsonArray.Select(item => item.AsBsonDocument).ToList();
-
-                for (var i = 0; i < tests.Count; i++)
+                for (int i = 0; i < tests.Count; i++)
                 {
-                    var test = tests[i];
+                    var test = tests[i].AsBsonDocument;
                     var name = GetTestCaseName(shared, test, i);
                     yield return new JsonDrivenTestCase(name, shared, test);
                 }
@@ -76,9 +75,9 @@ namespace MongoDB.Bson.TestHelpers.JsonDrivenTests
 
         protected virtual string GetTestName(BsonDocument test, int index)
         {
-            if (test.Contains("description"))
+            if (test.TryGetValue("description", out var description))
             {
-                return test["description"].AsString;
+                return description.AsString;
             }
             else
             {
