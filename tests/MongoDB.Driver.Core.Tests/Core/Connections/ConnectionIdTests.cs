@@ -17,7 +17,6 @@ using System;
 using System.Net;
 using FluentAssertions;
 using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Servers;
 using Xunit;
 
@@ -74,7 +73,7 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         [Fact]
-        public void LocalValues_of_2_ids_should_not_be_the_same_when_automically_constructed()
+        public void LocalValues_of_2_ids_should_not_be_the_same_when_automatically_constructed()
         {
             var subject = new ConnectionId(__serverId);
             var subject2 = new ConnectionId(__serverId);
@@ -82,22 +81,28 @@ namespace MongoDB.Driver.Core.Connections
             subject.LocalValue.Should().NotBe(subject2.LocalValue);
         }
 
-        [Fact]
-        public void LocalValue_should_be_what_was_specified_in_the_constructor()
+        [Theory]
+        [InlineData(0)]
+        [InlineData(int.MaxValue)]
+        [InlineData((long)int.MaxValue+1)]
+        public void LocalValue_should_be_what_was_specified_in_the_constructor(long localValue)
         {
-            var subject = new ConnectionId(__serverId, 10);
+            var subject = new ConnectionId(__serverId, localValue);
 
-            subject.LocalValue.Should().Be(10);
+            subject.LocalValue.Should().Be(localValue);
         }
 
-        [Fact]
-        public void WithServerValue_should_set_the_server_value_and_leave_the_LocalValue_alone()
+        [Theory]
+        [InlineData(0)]
+        [InlineData(int.MaxValue)]
+        [InlineData((long)int.MaxValue+1)]
+        public void WithServerValue_should_set_the_server_value_and_leave_the_LocalValue_alone(long serverValue)
         {
             var subject = new ConnectionId(__serverId, 10)
-                .WithServerValue(11);
+                .WithServerValue(serverValue);
 
             subject.LocalValue.Should().Be(10);
-            subject.ServerValue.Should().Be(11);
+            subject.ServerValue.Should().Be(serverValue);
         }
     }
 }

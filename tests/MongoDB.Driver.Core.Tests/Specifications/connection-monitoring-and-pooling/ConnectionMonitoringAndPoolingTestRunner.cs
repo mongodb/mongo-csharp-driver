@@ -691,7 +691,7 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
                     {
                         eventCapturer.WaitForOrThrowIfTimeout(events => events.Any(e => e is ConnectionCreatedEvent), TimeSpan.FromMilliseconds(500));
 
-                        var connectionIdsToIgnore = new HashSet<int>(eventCapturer.Events
+                        var connectionIdsToIgnore = new HashSet<long>(eventCapturer.Events
                             .OfType<ConnectionCreatedEvent>()
                             .Select(c => c.ConnectionId.LocalValue)
                             .ToList());

@@ -1343,7 +1343,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             subject.Clear(true);
 
             capturedEvents.WaitForOrThrowIfTimeout(events => events.Count() >= connectionsToBeRemovedCount, TimeSpan.FromSeconds(5));
-            var removedConnections = new HashSet<int>(
+            var removedConnections = new HashSet<long>(
                 capturedEvents
                     .Events
                     .OfType<ConnectionPoolRemovedConnectionEvent>()

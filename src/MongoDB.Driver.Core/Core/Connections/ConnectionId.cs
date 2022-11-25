@@ -28,8 +28,8 @@ namespace MongoDB.Driver.Core.Connections
     {
         // fields
         private readonly ServerId _serverId;
-        private readonly int _localValue;
-        private readonly int? _serverValue;
+        private readonly long _localValue;
+        private readonly long? _serverValue;
         private readonly int _hashCode;
 
         // constructors
@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Core.Connections
         /// </summary>
         /// <param name="serverId">The server identifier.</param>
         public ConnectionId(ServerId serverId)
-            : this(serverId, IdGenerator<ConnectionId>.GetNextId())
+            : this(serverId, LongIdGenerator<ConnectionId>.GetNextId())
         {
         }
 
@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Core.Connections
         /// </summary>
         /// <param name="serverId">The server identifier.</param>
         /// <param name="localValue">The local value.</param>
-        public ConnectionId(ServerId serverId, int localValue)
+        public ConnectionId(ServerId serverId, long localValue)
         {
             _serverId = Ensure.IsNotNull(serverId, nameof(serverId));
             _localValue = Ensure.IsGreaterThanOrEqualToZero(localValue, nameof(localValue));
@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Core.Connections
                 .GetHashCode();
         }
 
-        private ConnectionId(ServerId serverId, int localValue, int serverValue)
+        private ConnectionId(ServerId serverId, long localValue, long serverValue)
             : this(serverId, localValue)
         {
             _serverValue = Ensure.IsGreaterThanOrEqualToZero(serverValue, nameof(serverValue));
@@ -81,7 +81,7 @@ namespace MongoDB.Driver.Core.Connections
         /// <value>
         /// The local value.
         /// </value>
-        public int LocalValue
+        public long LocalValue
         {
             get { return _localValue; }
         }
@@ -92,7 +92,7 @@ namespace MongoDB.Driver.Core.Connections
         /// <value>
         /// The server value.
         /// </value>
-        public int? ServerValue
+        public long? ServerValue
         {
             get { return _serverValue; }
         }
@@ -159,7 +159,7 @@ namespace MongoDB.Driver.Core.Connections
         /// </summary>
         /// <param name="serverValue">The server value.</param>
         /// <returns>A ConnectionId.</returns>
-        public ConnectionId WithServerValue(int serverValue)
+        public ConnectionId WithServerValue(long serverValue)
         {
             return new ConnectionId(_serverId, _localValue, serverValue);
         }
