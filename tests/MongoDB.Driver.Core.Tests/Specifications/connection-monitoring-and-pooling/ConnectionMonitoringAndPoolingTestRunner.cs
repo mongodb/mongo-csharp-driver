@@ -618,7 +618,7 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
 
         private void ResetConnectionId()
         {
-            IdGeneratorReflector.__lastId(0);
+            LongIdGeneratorReflector.__lastId(0);
         }
 
         private (IConnectionPool, FailPoint, ICluster, Func<object, bool>) SetupConnectionData(BsonDocument test, EventCapturer eventCapturer, bool isUnit)
@@ -844,9 +844,9 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
         }
     }
 
-    internal static class IdGeneratorReflector
+    internal static class LongIdGeneratorReflector
     {
-        public static void __lastId(int value) => Reflector.SetStaticFieldValue(typeof(IdGenerator<ConnectionId>), nameof(__lastId), value);
+        public static void __lastId(int value) => Reflector.SetStaticFieldValue(typeof(LongIdGenerator<ConnectionId>), nameof(__lastId), value);
     }
 
     internal static class IServerReflector
