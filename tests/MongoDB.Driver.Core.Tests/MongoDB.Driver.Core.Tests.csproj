@@ -1,5 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\TestsProps\Directory.Build.props" />
+  <Import Project="..\BuildProps\Tests.Build.props" />
 
   <PropertyGroup>
     <CodeAnalysisRuleSet>..\..\MongoDBTest.ruleset</CodeAnalysisRuleSet>
