@@ -333,7 +333,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                             {
                                 { "mongocryptdURI", "mongodb://localhost:27021/db?serverSelectionTimeoutMS=1000" },
                                 { "cryptSharedLibPath", cryptSharedPath },
-                                { "cryptSharedRequired", true }
+                                { "cryptSharedLibRequired", true }
                             };
                             return ConfigureClientEncrypted(kmsProviderFilter: kmsProvider, schemaMap: clientEncryptedSchema, extraOptions: effectiveExtraOptions);
                         }
