@@ -30,8 +30,6 @@ namespace MongoDB.Driver.Encryption
         private static readonly Dictionary<string, Type[]> __supportedExtraOptions = new Dictionary<string, Type[]>
         {
             { "cryptSharedLibPath", new [] { typeof(string) } },
-            { "cryptSharedRequired", new [] { typeof(bool) } },
-            // this key is obsoleted and has the same goal as "cryptSharedRequired" which is correct name. Leave this one for backward compatibility
             { "cryptSharedLibRequired", new [] { typeof(bool) } },
             { "mongocryptdURI", new [] { typeof(string) } },
             { "mongocryptdBypassSpawn", new [] { typeof(bool) } },
@@ -68,8 +66,7 @@ namespace MongoDB.Driver.Encryption
         public static string ExtractCryptSharedLibPath(IReadOnlyDictionary<string, object> dict) =>
             dict.GetValueOrDefault<string, string, object>("cryptSharedLibPath");
 
-        public static bool? ExtractCryptSharedRequired(IReadOnlyDictionary<string, object> dict) =>
-            dict.GetValueOrDefault<bool?, string, object>("cryptSharedRequired") ??
+        public static bool? ExtractCryptSharedLibRequired(IReadOnlyDictionary<string, object> dict) =>
             dict.GetValueOrDefault<bool?, string, object>("cryptSharedLibRequired");
 
     }

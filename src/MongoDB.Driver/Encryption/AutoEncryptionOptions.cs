@@ -276,7 +276,7 @@ namespace MongoDB.Driver.Encryption
                 EncryptionExtraOptionsHelper.ExtractCryptSharedLibPath(ExtraOptions),
                 cryptSharedLibSearchPath: _bypassAutoEncryption ? null : "$SYSTEM",
                 _encryptedFieldsMap,
-                EncryptionExtraOptionsHelper.ExtractCryptSharedRequired(ExtraOptions),
+                EncryptionExtraOptionsHelper.ExtractCryptSharedLibRequired(ExtraOptions),
                 _kmsProviders,
                 _schemaMap);
 
