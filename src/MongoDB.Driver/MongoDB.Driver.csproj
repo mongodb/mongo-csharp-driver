@@ -1,69 +1,24 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <IsWindows Condition="$([MSBuild]::IsOSPlatform('Windows'))">true</IsWindows>
-  </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;netstandard2.1;net472</TargetFrameworks>
-    <TargetFrameworks Condition="'$(IsWindows)'!='true'">netstandard2.0;netstandard2.1</TargetFrameworks>
-    <LangVersion>10.0</LangVersion>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <WarningsAsErrors />
     <CodeAnalysisRuleSet>..\..\MongoDB.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
   <PropertyGroup>
     <AssemblyTitle>MongoDB.Driver</AssemblyTitle>
     <Product>MongoDB.Driver</Product>
-    <Company>MongoDB Inc.</Company>
-    <Copyright>Copyright © 2010-present MongoDB Inc.</Copyright>
     <Description>Official MongoDB supported driver for MongoDB. See https://www.mongodb.com/docs/drivers/csharp/ for more details.</Description>
-    <Authors>MongoDB Inc.</Authors>
-    <PackageIcon>packageIcon.png</PackageIcon>
-    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageDescription>Official .NET driver for MongoDB.</PackageDescription>
-    <PackageProjectUrl>https://www.mongodb.com/docs/drivers/csharp/</PackageProjectUrl>
-    <PackageLicenseFile>License.txt</PackageLicenseFile>
-    <PackageTags>mongodb;mongo;nosql</PackageTags>
-    <PackageLanguage>en-US</PackageLanguage>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Version)'==''">
-    <Version>0.0.0-local</Version>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" PrivateAssets="All" Version="1.0.0" />
-  </ItemGroup>
-
-  <PropertyGroup>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-  </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.2" PrivateAssets="All" />
     <PackageReference Include="MongoDB.Libmongocrypt" Version="1.6.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.0.0" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\MongoDB.Bson\MongoDB.Bson.csproj" />
     <ProjectReference Include="..\MongoDB.Driver.Core\MongoDB.Driver.Core.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="..\..\License.txt" Pack="true" PackagePath="$(PackageLicenseFile)" />
-    <None Include="..\..\packageIcon.png" Pack="true" PackagePath="" />
   </ItemGroup>
 
 </Project>

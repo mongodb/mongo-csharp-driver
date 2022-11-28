@@ -1,42 +1,19 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <IsWindows Condition="$([MSBuild]::IsOSPlatform('Windows'))">true</IsWindows>
-  </PropertyGroup>
+  <Import Project="..\BuildProps\Tests.Build.props" />
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;netstandard2.1;net472</TargetFrameworks>
-    <TargetFrameworks Condition="'$(IsWindows)'!='true'">netstandard2.0;netstandard2.1</TargetFrameworks>
-    <LangVersion>10.0</LangVersion>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <WarningsAsErrors />
-    <IsPackable>false</IsPackable>
+    <TargetFrameworks>$(StandardTargetFrameworks)</TargetFrameworks>
     <CodeAnalysisRuleSet>..\..\MongoDBLegacyTest.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
   <PropertyGroup>
     <AssemblyTitle>MongoDB.Driver.Legacy.TestHelpers</AssemblyTitle>
     <Product>MongoDB.Driver.Legacy.TestHelpers</Product>
-    <Company>MongoDB Inc.</Company>
-    <Copyright>Copyright © 2010-present MongoDB Inc.</Copyright>
     <Description>MongoDB.Driver.Legacy test helpers.</Description>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Version)'==''">
-    <Version>0.0.0-local</Version>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" PrivateAssets="All" Version="1.0.0" />
-  </ItemGroup>
-
-  <PropertyGroup>
-    <DefineConstants>TRACE</DefineConstants>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="FluentAssertions" Version="4.12.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.2" />
-    <PackageReference Include="JunitXml.TestLogger" Version="2.1.81" />
   </ItemGroup>
 
   <ItemGroup>

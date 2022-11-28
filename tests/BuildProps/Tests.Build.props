@@ -1,0 +1,52 @@
+<Project>
+  <PropertyGroup>
+    <IsWindows Condition="$([MSBuild]::IsOSPlatform('Windows'))">true</IsWindows>
+    <IsLinux Condition="$([MSBuild]::IsOSPlatform('Linux'))">true</IsLinux>
+    <IsOSX Condition="$([MSBuild]::IsOSPlatform('OSX'))">true</IsOSX>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp2.1;netcoreapp3.1;net6.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(IsWindows)'=='true'">$(TargetFrameworks);net472</TargetFrameworks>
+    <StandardTargetFrameworks>netstandard2.0;netstandard2.1</StandardTargetFrameworks>
+    <StandardTargetFrameworks Condition="'$(IsWindows)'=='true'">$(StandardTargetFrameworks);net472</StandardTargetFrameworks>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  
+  <PropertyGroup>
+    <LangVersion>10</LangVersion>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Version)'==''">
+    <Version>0.0.0-local</Version>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Company>MongoDB Inc.</Company>
+    <Copyright>Copyright © 2010-present MongoDB Inc.</Copyright>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <DefineConstants>TRACE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(IsWindows)'=='true'">
+    <DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(IsLinux)'=='true'">
+    <DefineConstants>$(DefineConstants);LINUX</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(IsOSX)'=='true'">
+    <DefineConstants>$(DefineConstants);MACOS</DefineConstants>
+  </PropertyGroup>
+
+
+  <ItemGroup>
+    <PackageReference Include="FluentAssertions" Version="4.12.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.2" />
+    <PackageReference Include="Moq" Version="4.9.0" />
+    <PackageReference Include="xunit" Version="2.4.0" />
+    <PackageReference Include="Xunit.SkippableFact" Version="1.4.13" />
+    <PackageReference Include="JunitXml.TestLogger" Version="2.1.81" />
+  </ItemGroup>
+</Project>

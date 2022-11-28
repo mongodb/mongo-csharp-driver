@@ -1,11 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30011.22
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31919.166
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{D2012971-32BB-4C5F-BFC4-30A9994AB152}"
+	ProjectSection(SolutionItems) = preProject
+		src\Directory.Build.props = src\Directory.Build.props
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{E472BDF5-61F1-461D-872B-9F53BB3ACA80}"
+	ProjectSection(SolutionItems) = preProject
+		tests\Directory.Build.props = tests\Directory.Build.props
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MongoDB.Bson", "src\MongoDB.Bson\MongoDB.Bson.csproj", "{9FCB42A5-3BC6-492B-8EA0-53EF32E9F8CD}"
 EndProject
@@ -54,7 +60,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MongoDB.Driver.TestConsoleA
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AstrolabeWorkloadExecutor", "tests\AstrolabeWorkloadExecutor\AstrolabeWorkloadExecutor.csproj", "{B90F025F-89D3-436A-AD78-6AA304A6E240}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDB.Driver.SmokeTests.Sdk", "tests\SmokeTests\MongoDB.Driver.SmokeTests.Sdk\MongoDB.Driver.SmokeTests.Sdk.csproj", "{B711A69F-A337-452C-95E1-A6B15C727CBA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MongoDB.Driver.SmokeTests.Sdk", "tests\SmokeTests\MongoDB.Driver.SmokeTests.Sdk\MongoDB.Driver.SmokeTests.Sdk.csproj", "{B711A69F-A337-452C-95E1-A6B15C727CBA}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SmokeTests", "SmokeTests", "{F64BF86A-1EF1-4596-84A6-6B4AB766CD77}"
 EndProject

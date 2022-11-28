@@ -87,6 +87,7 @@ Please see our [guidelines](CONTRIBUTING.md) for contributing to the driver.
 * Bar Arnon                 https://github.com/I3arnon
 * Wan Bachtiar              https://github.com/sindbach
 * Mark Benvenuto            https://github.com/markbenvenuto
+* Brian Buvinghausen        https://github.com/buvinghausen
 * Bit Diffusion Limited     code@bitdiff.com
 * Jimmy Bogard              https://github.com/jbogard
 * Ross Buggins              https://github.com/rbugginsvia
@@ -105,12 +106,15 @@ Please see our [guidelines](CONTRIBUTING.md) for contributing to the driver.
 * Ken Egozi                 mail@kenegozi.com
 * Alexander Endris          https://github.com/AlexEndris
 * Daniel Goldman            daniel@stackwave.com
+* David Golub               https://github.com/dgolub
 * Simon Green               simon@captaincodeman.com
 * Bouke Haarsma             https://github.com/Bouke
 * James Hadwen              james.hadwen@sociustec.com
 * Nuri Halperin             https://github.com/nurih
+* Daniel Hegener            daniel.hegener@fisglobal.com
 * Nikola Irinchev           https://github.com/nirinchev
 * Jacob Jewell              jacobjewell@eflexsystems.com
+* Vincent Kam               https://github.com/vincentkam
 * Danny Kendrick            https://github.com/dkendrick
 * Ruslan Khasanbaev         https://github.com/flaksirus
 * Konstantin Khitrykh       https://github.com/KonH
@@ -123,6 +127,7 @@ Please see our [guidelines](CONTRIBUTING.md) for contributing to the driver.
 * Maksim Krautsou           https://github.com/MaKCbIMKo
 * Richard Kreuter           richard@10gen.com
 * Daniel Lee                https://github.com/dlee148
+* Ming Yau Lee              https://github.com/mingyaulee
 * Kevin Lewis               kevin.l.lewis@gmail.com
 * Dow Liu                   redforks@gmail.com
 * Chuck Lu                  https://github.com/chucklu
@@ -133,6 +138,7 @@ Please see our [guidelines](CONTRIBUTING.md) for contributing to the driver.
 * Alexander Nagy            optimiz3@gmail.com
 * Sridhar Nanjundeswaran    https://github.com/sridharn
 * Nathan                    https://github.com/terakilobyte
+* Adelin Owona              https://github.com/adelinowona
 * Rachelle Palmer           https://github.com/techbelle
 * Rich Quackenbush          rich.quackenbush@captiveaire.com
 * Carl Reinke               https://github.com/mindless2112
@@ -142,24 +148,19 @@ Please see our [guidelines](CONTRIBUTING.md) for contributing to the driver.
 * Ed Rooth                  edward.rooth@wallstreetjapan.com
 * Katie Sadoff              https://github.com/ksadoff
 * Sam558                    https://github.com/Sam558
+* Vladimir Setyaev          setyaev_v@pgstudio.io
 * Sergey Shushlyapin        https://github.com/sergeyshushlyapin
 * Alexey Skalozub           pieceofsummer@gmail.com
 * Kevin Smith               https://github.com/kevbite
 * Pete Smith                roysvork@gmail.com
+* Matteo Spreafico          https://github.com/MatteoSp
 * staywellandy              https://github.com/staywellandy
 * Vyacheslav Stroy          https://github.com/kreig
 * Jake Sta. Teresa          https://github.com/JakeStaTeresa
 * Testo                     test1@doramail.com
 * TimTim                    https://github.com/wegylexy
+* Craig Wilson              https://github.com/craiggwilson
 * Zhmayev Yaroslav          https://github.com/salaros
 * Aristarkh Zagorodnikov    https://github.com/onyxmaster
-* Vincent Kam               https://github.com/vincentkam
-* Craig Wilson              https://github.com/craiggwilson
-* Ming Yau Lee              https://github.com/mingyaulee
-* Daniel Hegener            daniel.hegener@fisglobal.com
-* Vladimir Setyaev          setyaev_v@pgstudio.io
-* Matteo Spreafico          https://github.com/MatteoSp
-* Adelin Owona              https://github.com/adelinowona
-* David Golub               https://github.com/dgolub
 
 If you have contributed and we have neglected to add you to this list please contact one of the maintainers to be added to the list (with apologies).
