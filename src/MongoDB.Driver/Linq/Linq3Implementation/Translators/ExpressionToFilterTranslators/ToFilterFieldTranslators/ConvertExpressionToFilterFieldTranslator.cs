@@ -35,14 +35,33 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 var fieldType = fieldSerializer.ValueType;
                 var targetType = expression.Type;
 
-                if (fieldType.IsEnum())
+                if (fieldType.IsEnumOrNullableEnum(out _, out var underlyingType))
                 {
-                    var enumType = fieldType;
-                    var enumUnderlyingType = enumType.GetEnumUnderlyingType();
-                    if (targetType == enumUnderlyingType)
+                    if (targetType.IsSameAsOrNullableOf(underlyingType))
                     {
-                        var enumUnderlyingTypeSerializer = EnumUnderlyingTypeSerializer.Create(fieldSerializer);
-                        return AstFilter.Field(field.Path, enumUnderlyingTypeSerializer);
+                        IBsonSerializer enumSerializer;
+                        if (fieldType.IsNullable())
+                        {
+                            var nullableSerializer = (INullableSerializer)fieldSerializer;
+                            enumSerializer = nullableSerializer.ValueSerializer;
+                        }
+                        else
+                        {
+                            enumSerializer = fieldSerializer;
+                        }
+
+                        IBsonSerializer targetSerializer;
+                        var enumUnderlyingTypeSerializer = EnumUnderlyingTypeSerializer.Create(enumSerializer);
+                        if (targetType.IsNullable())
+                        {
+                            targetSerializer = NullableSerializer.Create(enumUnderlyingTypeSerializer);
+                        }
+                        else
+                        {
+                            targetSerializer = enumUnderlyingTypeSerializer;
+                        }
+
+                        return AstFilter.Field(field.Path, targetSerializer);
                     }
                 }
 
@@ -94,7 +113,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                         fieldType.GetGenericTypeDefinition() == typeof(Nullable<>))
                     {
                         var fieldValueType = fieldType.GetGenericArguments()[0];
-                        if (fieldValueType.IsEnum())
+                        if (fieldValueType.IsEnum)
                         {
                             var enumUnderlyingType = fieldValueType.GetEnumUnderlyingType();
                             if (nullableValueType == enumUnderlyingType)

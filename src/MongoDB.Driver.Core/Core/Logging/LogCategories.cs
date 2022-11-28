@@ -19,8 +19,6 @@ namespace MongoDB.Driver.Core.Logging
     {
         public abstract class EventCategory { }
 
-        public sealed class Cluster : EventCategory { }
-
         public sealed class Command : EventCategory { }
 
         public sealed class Connection : EventCategory { }

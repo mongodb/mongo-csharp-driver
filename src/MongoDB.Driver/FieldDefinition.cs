@@ -143,7 +143,7 @@ namespace MongoDB.Driver
         /// <returns>A <see cref="String"/>.</returns>
         public virtual RenderedFieldDefinition Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            return Render(documentSerializer, serializerRegistry, LinqProvider.V2);
+            return Render(documentSerializer, serializerRegistry, LinqProvider.V3);
         }
 
         /// <summary>
@@ -188,7 +188,7 @@ namespace MongoDB.Driver
         /// <returns>A <see cref="RenderedFieldDefinition{TField}"/>.</returns>
         public virtual RenderedFieldDefinition<TField> Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            return Render(documentSerializer, serializerRegistry, LinqProvider.V2);
+            return Render(documentSerializer, serializerRegistry, LinqProvider.V3);
         }
 
         /// <summary>
@@ -203,7 +203,7 @@ namespace MongoDB.Driver
             IBsonSerializerRegistry serializerRegistry,
             bool allowScalarValueForArrayField)
         {
-            return Render(documentSerializer, serializerRegistry, LinqProvider.V2, allowScalarValueForArrayField);
+            return Render(documentSerializer, serializerRegistry, LinqProvider.V3, allowScalarValueForArrayField);
         }
 
         /// <summary>

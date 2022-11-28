@@ -432,7 +432,12 @@ functions:
               "iam_auth_assume_role_name" : "${iam_auth_assume_role_name}",
               "iam_auth_ec2_instance_account" : "${iam_auth_ec2_instance_account}",
               "iam_auth_ec2_instance_secret_access_key" : "${iam_auth_ec2_instance_secret_access_key}",
-              "iam_auth_ec2_instance_profile" : "${iam_auth_ec2_instance_profile}"
+              "iam_auth_ec2_instance_profile" : "${iam_auth_ec2_instance_profile}",
+              "iam_auth_assume_web_role_name": "${iam_auth_assume_web_role_name}",
+              "iam_web_identity_issuer": "${iam_web_identity_issuer}",
+              "iam_web_identity_rsa_key": "${iam_web_identity_rsa_key}",
+              "iam_web_identity_jwks_uri": "${iam_web_identity_jwks_uri}",
+              "iam_web_identity_token_file": "${iam_web_identity_token_file}"
           }
           EOF
 
@@ -445,6 +450,7 @@ functions:
         script: |
           ${PREPARE_SHELL}
           cd ${DRIVERS_TOOLS}/.evergreen/auth_aws
+          . ./activate_venv.sh
           mongo aws_e2e_regular_aws.js
     - command: shell.exec
       type: test
@@ -457,7 +463,7 @@ functions:
             PASS=$(urlencode "${iam_auth_ecs_secret_access_key}")
             MONGODB_URI="mongodb://$USER:$PASS@localhost"
           EOF
-          PROJECT_DIRECTORY=${PROJECT_DIRECTORY} evergreen/run-mongodb-aws-test.sh
+          PROJECT_DIRECTORY=${PROJECT_DIRECTORY} OS=${OS} evergreen/run-mongodb-aws-test.sh
 
   run-aws-auth-test-with-assume-role-credentials:
     - command: shell.exec
@@ -468,10 +474,8 @@ functions:
         script: |
           ${PREPARE_SHELL}
           # The aws_e2e_assume_role script requires python3 with boto3.
-          virtualenv -p C:/python/Python38/python.exe mongovenv
-          . mongovenv/Scripts/activate
-          pip install boto3
           cd ${DRIVERS_TOOLS}/.evergreen/auth_aws
+          . ./activate_venv.sh
           mongo aws_e2e_assume_role.js
     - command: shell.exec
       type: test
@@ -490,7 +494,7 @@ functions:
             SESSION_TOKEN=$(urlencode $SESSION_TOKEN)
             MONGODB_URI="mongodb://$USER:$PASS@localhost"
           EOF
-          PROJECT_DIRECTORY=${PROJECT_DIRECTORY} DRIVERS_TOOLS=${DRIVERS_TOOLS} evergreen/run-mongodb-aws-test.sh
+          PROJECT_DIRECTORY=${PROJECT_DIRECTORY} DRIVERS_TOOLS=${DRIVERS_TOOLS} OS=${OS} evergreen/run-mongodb-aws-test.sh
 
   run-aws-auth-test-with-aws-EC2-credentials:
     - command: shell.exec
@@ -500,23 +504,127 @@ functions:
         working_dir: mongo-csharp-driver
         script: |
           ${PREPARE_SHELL}
-          # The aws_e2e_assume_role script requires python3 with boto3.
-          virtualenv -p C:/python/Python38/python.exe mongovenv
-          . mongovenv/Scripts/activate
-          pip install boto3
+          if [ "${skip_EC2_auth_test}" = "true" ]; then
+             echo "This platform does not support the EC2 auth test, skipping..."
+             exit 0
+          fi
           cd ${DRIVERS_TOOLS}/.evergreen/auth_aws
+          . ./activate_venv.sh
           mongo aws_e2e_ec2.js
     - command: shell.exec
       type: test
       params:
         working_dir: mongo-csharp-driver
         script: |
+          if [ "${skip_EC2_auth_test}" = "true" ]; then
+             echo "This platform does not support the EC2 auth test, skipping..."
+             exit 0
+          fi
           # DO NOT ECHO WITH XTRACE (which PREPARE_SHELL does)
           cat <<'EOF' > "${PROJECT_DIRECTORY}/prepare_mongodb_aws.sh"
             MONGODB_URI="mongodb://localhost"
           EOF
           export AWS_EC2_ENABLED=true
-          PROJECT_DIRECTORY=${PROJECT_DIRECTORY} evergreen/run-mongodb-aws-test.sh
+          PROJECT_DIRECTORY=${PROJECT_DIRECTORY} ASSERT_NO_URI_CREDS=true OS=$OS evergreen/run-mongodb-aws-test.sh
+
+  run-aws-auth-test-with-aws-ECS-credentials:
+    - command: shell.exec
+      type: test
+      params:
+        silent: true
+        working_dir: mongo-csharp-driver
+        script: |
+          ${PREPARE_SHELL}
+          if [ "${skip_ECS_auth_test}" = "true" ]; then
+             echo "This platform does not support the ECS auth test, skipping..."
+             exit 0
+          fi
+          cd ${DRIVERS_TOOLS}/.evergreen/auth_aws
+          . ./activate_venv.sh
+          echo "Project Directory: $PROJECT_DIRECTORY"
+          # SRC_DIRECTORY is workaround since EG_TOOLS expects "src" folder as a root
+          SRC_DIRECTORY=$(dirname $PROJECT_DIRECTORY)/src
+          echo "Src Directory: $SRC_DIRECTORY"
+          cp -r $PROJECT_DIRECTORY $SRC_DIRECTORY
+          # Workaround. EG_TOOLS scripts for ECS assume that a folder with EG scripts in the driver is named ".evergreen"
+          mkdir $SRC_DIRECTORY/.evergreen
+          cp -r $SRC_DIRECTORY/evergreen/run-mongodb-aws-ecs-test.sh $SRC_DIRECTORY/.evergreen/run-mongodb-aws-ecs-test.sh
+          cat <<EOF > setup.js
+          const mongo_binaries = "$MONGODB_BINARIES";
+          const project_dir = "$SRC_DIRECTORY"
+          EOF
+          mongo --nodb setup.js aws_e2e_ecs.js
+          cd -
+
+  run-aws-auth-test-with-aws-web-identity-credentials:
+    - command: shell.exec
+      type: test
+      params:
+        working_dir: mongo-csharp-driver
+        script: |
+          ${PREPARE_SHELL}
+          if [ "${skip_web_identity_auth_test}" = "true" ]; then
+             echo "This platform does not support the web identity auth test, skipping..."
+             exit 0
+          fi
+          cd ${DRIVERS_TOOLS}/.evergreen/auth_aws
+          . ./activate_venv.sh
+          mongo aws_e2e_web_identity.js
+    - command: shell.exec
+      type: test
+      params:
+        working_dir: mongo-csharp-driver
+        silent: true
+        script: |
+          if [ "${skip_web_identity_auth_test}" = "true" ]; then
+             echo "This platform does not support the web identity auth test, skipping..."
+             exit 0
+          fi        
+          # DO NOT ECHO WITH XTRACE (which PREPARE_SHELL does)
+          cat <<'EOF' > "${PROJECT_DIRECTORY}/prepare_mongodb_aws.sh"
+            export AWS_ROLE_ARN="${iam_auth_assume_web_role_name}"
+            export AWS_WEB_IDENTITY_TOKEN_FILE="${iam_web_identity_token_file}"
+            export MONGODB_URI="mongodb://localhost"
+          EOF
+    - command: shell.exec
+      type: test
+      params:
+        working_dir: mongo-csharp-driver
+        script: |
+          ${PREPARE_SHELL}
+          if [ "${skip_web_identity_auth_test}" = "true" ]; then
+             echo "This platform does not support the web identity auth test, skipping..."
+             exit 0
+          fi
+          PROJECT_DIRECTORY=${PROJECT_DIRECTORY} OS=$OS ASSERT_NO_URI_CREDS=true evergreen/run-mongodb-aws-test.sh
+    - command: shell.exec
+      type: test
+      params:
+        working_dir: mongo-csharp-driver
+        silent: true
+        script: |
+          if [ "${skip_EC2_auth_test}" = "true" ]; then
+             echo "This platform does not support the web identity auth test, skipping..."
+             exit 0
+          fi        
+          # DO NOT ECHO WITH XTRACE (which PREPARE_SHELL does)
+          cat <<'EOF' > "${PROJECT_DIRECTORY}/prepare_mongodb_aws.sh"
+            export AWS_ROLE_ARN="${iam_auth_assume_web_role_name}"
+            export AWS_WEB_IDENTITY_TOKEN_FILE="${iam_web_identity_token_file}"
+            export AWS_ROLE_SESSION_NAME="test"
+            export MONGODB_URI="mongodb://localhost"
+          EOF
+    - command: shell.exec
+      type: test
+      params:
+        working_dir: mongo-csharp-driver
+        script: |
+          ${PREPARE_SHELL}
+          if [ "${skip_web_identity_auth_test}" = "true" ]; then
+             echo "This platform does not support the web identity auth test, skipping..."
+             exit 0
+          fi
+          PROJECT_DIRECTORY=${PROJECT_DIRECTORY} OS=$OS  ASSERT_NO_URI_CREDS=true evergreen/run-mongodb-aws-test.sh
 
   run-aws-auth-test-with-aws-credentials-as-environment-variables:
     - command: shell.exec
@@ -537,7 +645,7 @@ functions:
         working_dir: mongo-csharp-driver
         script: |
           ${PREPARE_SHELL}
-          evergreen/run-mongodb-aws-test.sh
+          OS=${OS} ASSERT_NO_URI_CREDS=true evergreen/run-mongodb-aws-test.sh
 
   run-aws-auth-test-with-aws-credentials-and-session-token-as-environment-variables:
     - command: shell.exec
@@ -560,7 +668,7 @@ functions:
         working_dir: mongo-csharp-driver
         script: |
           ${PREPARE_SHELL}
-          evergreen/run-mongodb-aws-test.sh
+          OS=${OS} ASSERT_NO_URI_CREDS=true evergreen/run-mongodb-aws-test.sh
 
   run-atlas-data-lake-test:
     - command: shell.exec
@@ -676,12 +784,15 @@ functions:
       params:
         working_dir: mongo-csharp-driver
         script: |
+          ${PREPARE_SHELL}
+          ${PREPARE_CSFLE}
           AUTH=${AUTH} \
           FRAMEWORK=${FRAMEWORK} \
           SERVERLESS_ATLAS_USER="${SERVERLESS_ATLAS_USER}" \
           SERVERLESS_ATLAS_PASSWORD="${SERVERLESS_ATLAS_PASSWORD}" \
           SERVERLESS_URI="${SERVERLESS_URI}" \
           SSL=${SSL} \
+          CRYPT_SHARED_LIB_PATH=${CRYPT_SHARED_LIB_PATH} \
             evergreen/run-serverless-tests.sh
 
   run-smoke-tests:
@@ -1023,12 +1134,15 @@ tasks:
             ORCHESTRATION_FILE: "auth-aws.json"
             TOPOLOGY: "server"
         - func: add-aws-auth-variables-to-file
+        # This step also creates test related users, so don't avoid this step in order to run other tests
         - func: run-aws-auth-test-with-regular-aws-credentials
         - func: run-aws-auth-test-with-assume-role-credentials
         - func: run-aws-auth-test-with-aws-credentials-as-environment-variables
+        # This step requires running run-aws-auth-test-with-assume-role-credentials before to explicitly set up instance profile
         - func: run-aws-auth-test-with-aws-credentials-and-session-token-as-environment-variables
         - func: run-aws-auth-test-with-aws-EC2-credentials
-        # ECS test is skipped until testing on Linux becomes possible
+        - func: run-aws-auth-test-with-aws-ECS-credentials
+        - func: run-aws-auth-test-with-aws-web-identity-credentials
 
     - name: stable-api-tests-net472
       commands:
@@ -1560,6 +1674,8 @@ axes:
         display_name: "Windows 64-bit"
         variables:
           OS: "windows-64"
+          skip_ECS_auth_test: true
+          skip_web_identity_auth_test: true
         run_on: windows-64-vs2017-test
       - id: "ubuntu-1804"
         display_name: "Ubuntu 18.04"
@@ -1570,11 +1686,17 @@ axes:
         display_name: "macOS 11.00"
         variables:
           OS: "macos-1100"
+          skip_EC2_auth_test: true
+          skip_ECS_auth_test: true
+          skip_web_identity_auth_test: true
         run_on: macos-1100
       - id: "macos-1100-arm64"
         display_name: "macOS 11.00 M1"
         variables:
           OS: "macos-1100-arm64"
+          skip_EC2_auth_test: true
+          skip_ECS_auth_test: true
+          skip_web_identity_auth_test: true
         run_on: macos-1100-arm64
 
   - id: topology
@@ -1840,11 +1962,27 @@ buildvariants:
   tasks:
     - name: ".ocsp"
 
-- matrix_name: aws-auth-tests
+- matrix_name: aws-auth-tests-windows
   matrix_spec: { version: ["4.4", "5.0", "6.0", "rapid", "latest"], topology: "standalone", os: "windows-64" }
   display_name: "MONGODB-AWS Auth test ${version} ${os}"
   run_on:
     - windows-64-vs2017-test
+  tasks:
+    - name: aws-auth-tests
+
+- matrix_name: aws-auth-tests-linux
+  matrix_spec: { version: ["6.0", "rapid", "latest"], topology: "standalone", os: "ubuntu-1804" }
+  display_name: "MONGODB-AWS Auth test ${version} ${os}"
+  run_on:
+    - ubuntu1804-test
+  tasks:
+    - name: aws-auth-tests
+
+- matrix_name: aws-auth-tests-macos
+  matrix_spec: { version: ["6.0", "rapid", "latest"], topology: "standalone", os: "macos-1100" }
+  display_name: "MONGODB-AWS Auth test ${version} ${os}"
+  run_on:
+    - macos-1100
   tasks:
     - name: aws-auth-tests
 
@@ -1925,7 +2063,7 @@ buildvariants:
     - name: test-gssapi-netstandard21
 
 - matrix_name: "csfle-with-mocked-kms-tests-windows"
-  matrix_spec: { os: "windows-64", ssl: "nossl", version: [ "5.0", "6.0", "rapid", "latest" ], topology: ["standalone"] }
+  matrix_spec: { os: "windows-64", ssl: "nossl", version: [ "5.0", "6.0", "rapid", "latest" ], topology: ["replicaset"] }
   display_name: "CSFLE Mocked KMS ${version} ${os}"
   tasks:
     - name: test-csfle-with-mocked-kms-tls-net472
@@ -1933,14 +2071,14 @@ buildvariants:
     - name: test-csfle-with-mocked-kms-tls-netstandard21
 
 - matrix_name: "csfle-with-mocked-kms-tests-linux"
-  matrix_spec: { os: "ubuntu-1804", ssl: "nossl", version: [ "5.0", "6.0", "rapid", "latest" ], topology: ["standalone"] }
+  matrix_spec: { os: "ubuntu-1804", ssl: "nossl", version: [ "5.0", "6.0", "rapid", "latest" ], topology: ["replicaset"] }
   display_name: "CSFLE Mocked KMS ${version} ${os}"
   tasks:
     - name: test-csfle-with-mocked-kms-tls-netstandard20
     - name: test-csfle-with-mocked-kms-tls-netstandard21
 
 - matrix_name: "csfle-with-mocked-kms-tests-macOS"
-  matrix_spec: { os: [ "macos-1100", "macos-1100-arm64" ], ssl: "nossl", version: [ "5.0", "6.0", "rapid", "latest" ], topology: ["standalone"] }
+  matrix_spec: { os: [ "macos-1100", "macos-1100-arm64" ], ssl: "nossl", version: [ "5.0", "6.0", "rapid", "latest" ], topology: ["replicaset"] }
   display_name: "CSFLE Mocked KMS ${version} ${os}"
   tasks:
     - name: test-csfle-with-mocked-kms-tls-netstandard21

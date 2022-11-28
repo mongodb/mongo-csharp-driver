@@ -18,6 +18,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.Tests.Linq.Linq3ImplementationTests;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Samples
@@ -38,7 +39,7 @@ namespace MongoDB.Driver.Tests.Samples
 
         public bool OneTimeSetup()
         {
-            var client = DriverTestConfiguration.Client;
+            var client = DriverTestConfiguration.Linq2Client;
             var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
             db.DropCollection(DriverTestConfiguration.CollectionNamespace.CollectionName);
             __collection = db.GetCollection<ZipEntry>(DriverTestConfiguration.CollectionNamespace.CollectionName);
@@ -88,16 +89,38 @@ namespace MongoDB.Driver.Tests.Samples
         }
 
 #if !MONO
-        [Fact]
-        public async Task States_with_pops_over_20000_queryable_syntax()
+        [Theory]
+        [InlineData(LinqProvider.V2)]
+        [InlineData(LinqProvider.V3)]
+        public void States_with_pops_over_20000_queryable_syntax(LinqProvider linqProvider)
         {
-            var pipeline = from z in __collection.AsQueryable()
+            var client = linqProvider == LinqProvider.V2 ? DriverTestConfiguration.Linq2Client : DriverTestConfiguration.Linq3Client;
+            var database = client.GetDatabase(__collection.CollectionNamespace.DatabaseNamespace.DatabaseName);
+            var collection = database.GetCollection<ZipEntry>(__collection.CollectionNamespace.CollectionName);
+
+            var queryable = from z in collection.AsQueryable()
                            group z by z.State into g
                            where g.Sum(x => x.Population) > 20000
                            select new { State = g.Key, TotalPopulation = g.Sum(x => x.Population) };
 
-            var result = await pipeline.ToListAsync();
+            var stages = Linq3TestHelpers.Translate(collection, queryable);
+            var expectedStages = linqProvider == LinqProvider.V2 ?
+                new[]
+                {
+                    "{ $group : { _id : '$state', __agg0 : { $sum : '$pop' } } }",
+                    "{ $match : { __agg0 : { $gt : 20000 } } }",
+                    "{ $project : { State : '$_id', TotalPopulation : '$__agg0', _id : 0 } }"
+                }
+                :
+                new[]
+                {
+                    "{ $group : { _id : '$state', __agg0 : { $sum : '$pop' } } }",
+                    "{ $match : { $expr : { $gt : ['$__agg0', 20000] } } }",
+                    "{ $project : { State : '$_id', TotalPopulation : '$__agg0', _id : 0 } }"
+                };
+            Linq3TestHelpers.AssertStages(stages, expectedStages);
 
+            var result = queryable.ToList();
             result.Count.Should().Be(1);
         }
 #endif

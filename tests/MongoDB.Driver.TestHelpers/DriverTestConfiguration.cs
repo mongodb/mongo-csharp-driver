@@ -34,24 +34,24 @@ namespace MongoDB.Driver.Tests
     public static class DriverTestConfiguration
     {
         // private static fields
-        private static Lazy<MongoClient> __client;
         private static Lazy<MongoClient> __clientWithMultipleShardRouters;
         private static CollectionNamespace __collectionNamespace;
         private static DatabaseNamespace __databaseNamespace;
         private static Lazy<IReadOnlyList<IMongoClient>> __directClientsToShardRouters;
+        private static Lazy<MongoClient> __linq2Client;
         private static Lazy<MongoClient> __linq3Client;
 
         // static constructor
         static DriverTestConfiguration()
         {
-            __client = new Lazy<MongoClient>(() => new MongoClient(GetClientSettings()), true);
+            __linq2Client = new Lazy<MongoClient>(CreateLinq2Client, isThreadSafe: true);
+            __linq3Client = new Lazy<MongoClient>(CreateLinq3Client, isThreadSafe: true);
             __clientWithMultipleShardRouters = new Lazy<MongoClient>(() => CreateClient(useMultipleShardRouters: true), true);
             __databaseNamespace = CoreTestConfiguration.DatabaseNamespace;
             __directClientsToShardRouters = new Lazy<IReadOnlyList<IMongoClient>>(
                 () => CreateDirectClientsToHostsInConnectionString(CoreTestConfiguration.ConnectionStringWithMultipleShardRouters).ToList().AsReadOnly(),
                 isThreadSafe: true);
             __collectionNamespace = new CollectionNamespace(__databaseNamespace, "testcollection");
-            __linq3Client = new Lazy<MongoClient>(CreateLinq3Client, isThreadSafe: true);
         }
 
         // public static properties
@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Tests
         /// </summary>
         public static MongoClient Client
         {
-            get { return __client.Value; }
+            get { return Linq3Client; }
         }
 
         /// <summary>
@@ -99,6 +99,14 @@ namespace MongoDB.Driver.Tests
         public static DatabaseNamespace DatabaseNamespace
         {
             get { return __databaseNamespace; }
+        }
+
+        /// <summary>
+        /// Gets the LINQ2 test client.
+        /// </summary>
+        public static MongoClient Linq2Client
+        {
+            get { return __linq2Client.Value; }
         }
 
         /// <summary>
@@ -186,9 +194,16 @@ namespace MongoDB.Driver.Tests
             return new DisposableMongoClient(new MongoClient(settings), settings.LoggingSettings.ToInternalLoggerFactory()?.CreateLogger<DisposableMongoClient>());
         }
 
+        private static MongoClient CreateLinq2Client()
+        {
+            var linq2ClientSettings = GetClientSettings();
+            linq2ClientSettings.LinqProvider = LinqProvider.V2;
+            return new MongoClient(linq2ClientSettings);
+        }
+
         private static MongoClient CreateLinq3Client()
         {
-            var linq3ClientSettings = Client.Settings.Clone();
+            var linq3ClientSettings = GetClientSettings();
             linq3ClientSettings.LinqProvider = LinqProvider.V3;
             return new MongoClient(linq3ClientSettings);
         }

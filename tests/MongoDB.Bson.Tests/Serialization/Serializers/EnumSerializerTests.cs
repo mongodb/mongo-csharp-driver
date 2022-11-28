@@ -119,7 +119,8 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         {
             var subject = new EnumSerializer<TEnum>();
 
-            subject.Representation.Should().Be((BsonType)0);
+            var expectedRepresentation = GetExpectedRepresentation<TEnum>(0);
+            subject.Representation.Should().Be((BsonType)expectedRepresentation);
         }
 
         [Theory]
@@ -133,7 +134,8 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         {
             var subject = new EnumSerializer<TEnum>(representation);
 
-            subject.Representation.Should().Be(representation);
+            var expectedRepresentation = GetExpectedRepresentation<TEnum>(representation);
+            subject.Representation.Should().Be(expectedRepresentation);
         }
 
         [Theory]
@@ -488,14 +490,17 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var result = subject.WithRepresentation(newRepresentation);
 
-            if (newRepresentation == originalRepresentation)
+            var effectiveOriginalRepresentation = GetExpectedRepresentation<TEnum>(originalRepresentation);
+            var expectedRepresentation = GetExpectedRepresentation<TEnum>(newRepresentation);
+
+            if (expectedRepresentation == effectiveOriginalRepresentation)
             {
                 result.Should().BeSameAs(subject);
             }
             else
             {
                 result.Should().NotBeSameAs(subject);
-                result.Representation.Should().Be(newRepresentation);
+                result.Representation.Should().Be(expectedRepresentation);
             }
         }
 
@@ -511,6 +516,19 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
                 var value = serializer.Deserialize(context);
                 reader.ReadEndDocument();
                 return value;
+            }
+        }
+
+        private BsonType GetExpectedRepresentation<TEnum>(BsonType representation)
+        {
+            if (representation == 0)
+            {
+                var underlyingType = Enum.GetUnderlyingType(typeof(TEnum));
+                return (underlyingType == typeof(long) || underlyingType == typeof(ulong)) ? BsonType.Int64 : BsonType.Int32;
+            }
+            else
+            {
+                return representation;
             }
         }
 

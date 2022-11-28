@@ -1343,18 +1343,18 @@ namespace MongoDB.Driver.Core.ConnectionPools
             subject.Clear(true);
 
             capturedEvents.WaitForOrThrowIfTimeout(events => events.Count() >= connectionsToBeRemovedCount, TimeSpan.FromSeconds(5));
-            var removedConnections = new HashSet<int>(
+            var removedConnections = new HashSet<long>(
                 capturedEvents
                     .Events
                     .OfType<ConnectionPoolRemovedConnectionEvent>()
-                    .Select(c => c.ConnectionId.LocalValue));
+                    .Select(c => c.ConnectionId.LongLocalValue));
 
             foreach (var connection in allConnections)
             {
                 connection.IsExpired.Should().BeTrue();
 
                 removedConnections
-                    .Contains(connection.ConnectionId.LocalValue)
+                    .Contains(connection.ConnectionId.LongLocalValue)
                     .Should().Be(connection.Generation <= maxExpiredGeneration);
             }
 
@@ -1446,14 +1446,14 @@ namespace MongoDB.Driver.Core.ConnectionPools
             _capturedEvents.Events
                 .Take(connectionsCount * 2)
                 .OfType<ConnectionPoolRemovingConnectionEvent>()
-                .Select(e => e.ConnectionId.LocalValue)
-                .ShouldBeEquivalentTo(connectionsExpired.Select(c => c.LocalValue));
+                .Select(e => e.ConnectionId.LongLocalValue)
+                .ShouldBeEquivalentTo(connectionsExpired.Select(c => c.LongLocalValue));
 
             _capturedEvents.Events
                 .Take(connectionsCount * 2)
                 .OfType<ConnectionPoolRemovedConnectionEvent>()
-                .Select(e => e.ConnectionId.LocalValue)
-                .ShouldAllBeEquivalentTo(connectionsExpired.Select(c => c.LocalValue));
+                .Select(e => e.ConnectionId.LongLocalValue)
+                .ShouldAllBeEquivalentTo(connectionsExpired.Select(c => c.LongLocalValue));
         }
 
         [Theory]

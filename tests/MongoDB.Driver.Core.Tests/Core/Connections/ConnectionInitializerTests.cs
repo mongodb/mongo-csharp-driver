@@ -130,7 +130,7 @@ namespace MongoDB.Driver.Core.Connections
 
             var sentMessages = connection.GetSentMessages();
             sentMessages.Should().HaveCount(1);
-            result.ConnectionId.ServerValue.Should().Be(1);
+            result.ConnectionId.LongServerValue.Should().Be(1);
         }
 
         [Theory]
@@ -148,7 +148,7 @@ namespace MongoDB.Driver.Core.Connections
 
             var sentMessages = connection.GetSentMessages();
             sentMessages.Should().HaveCount(1);
-            result.ConnectionId.ServerValue.Should().Be(1);
+            result.ConnectionId.LongServerValue.Should().Be(1);
         }
 
         [Theory]
@@ -204,7 +204,7 @@ namespace MongoDB.Driver.Core.Connections
 
             var result = InitializeConnection(subject, connection, async, CancellationToken.None);
 
-            result.ConnectionId.ServerValue.Should().Be(1);
+            result.ConnectionId.LongServerValue.Should().Be(1);
 
             SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(5)).Should().BeTrue();
 
@@ -231,7 +231,7 @@ namespace MongoDB.Driver.Core.Connections
 
             var result = InitializeConnection(subject, connection, async, CancellationToken.None);
 
-            result.ConnectionId.ServerValue.Should().Be(1);
+            result.ConnectionId.LongServerValue.Should().Be(1);
 
             SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(5)).Should().BeTrue();
 
@@ -264,7 +264,7 @@ namespace MongoDB.Driver.Core.Connections
             var result = InitializeConnection(subject, connection, async, CancellationToken.None);
 
             result.MaxWireVersion.Should().Be(6);
-            result.ConnectionId.ServerValue.Should().Be(10);
+            result.ConnectionId.LongServerValue.Should().Be(10);
             result.AvailableCompressors.Count.Should().Be(1);
             result.AvailableCompressors.Should().Contain(ToCompressorTypeEnum(compressorType));
 

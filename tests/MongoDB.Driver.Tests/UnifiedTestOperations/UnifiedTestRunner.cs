@@ -40,16 +40,19 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         private readonly Dictionary<string, object> _additionalArgs;
         private readonly Dictionary<string, IEventFormatter> _eventFormatters;
         private bool _runHasBeenCalled;
-        private ILoggingService _loggingService;
         private readonly ILogger<UnifiedTestRunner> _logger;
+        private readonly Predicate<LogEntry> _loggingFilter;
+        private readonly ILoggingService _loggingService;
 
         public UnifiedTestRunner(
             ILoggingService loggingService,
             Dictionary<string, object> additionalArgs = null,
-            Dictionary<string, IEventFormatter> eventFormatters = null)
+            Dictionary<string, IEventFormatter> eventFormatters = null,
+            Predicate<LogEntry> loggingFilter = null)
         {
             _additionalArgs = additionalArgs; // can be null
             _eventFormatters = eventFormatters; // can be null
+            _loggingFilter = loggingFilter; // can be null
             _loggingService = Ensure.IsNotNull(loggingService, nameof(loggingService));
             _logger = loggingService.LoggingSettings.CreateLogger<UnifiedTestRunner>();
         }
@@ -242,7 +245,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     actualLogs,
                     clientId,
                     clusterId,
-                    entityMap.LoggingComponents);
+                    entityMap.LoggingComponents,
+                    _loggingFilter);
 
                 unifiedLogMatcher.AssertLogsMatch(actualLogsFiltered, logs);
             }

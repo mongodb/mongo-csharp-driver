@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Core.Logging
             AddTemplateProvider<ConnectionOpeningEvent>(
                 LogLevel.Debug,
                 ConnectionCommonParams(),
-                (e, _) => GetParams(e.ConnectionId, "Connection added"));
+                (e, _) => GetParams(e.ConnectionId, "Connection opening"));
 
             AddTemplateProvider<ConnectionOpeningFailedEvent>(
                  LogLevel.Debug,

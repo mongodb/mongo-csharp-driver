@@ -13,11 +13,11 @@
 * limitations under the License.
 */
 
+using System;
 using System.Linq;
 using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
-using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilterTranslators.ExpressionTranslators;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilterTranslators.MethodTranslators;
@@ -48,10 +48,23 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             return filter;
         }
 
-        public static AstFilter TranslateLambda(TranslationContext context, LambdaExpression lambdaExpression, IBsonSerializer parameterSerializer)
+        public static AstFilter TranslateLambda(
+            TranslationContext context,
+            LambdaExpression lambdaExpression,
+            IBsonSerializer parameterSerializer,
+            bool asRoot = false)
         {
             var parameterExpression = lambdaExpression.Parameters.Single();
-            var parameterSymbol = context.CreateSymbol(parameterExpression, parameterSerializer, isCurrent: true);
+            if (parameterSerializer.ValueType != parameterExpression.Type)
+            {
+                throw new ArgumentException($"ValueType '{parameterSerializer.ValueType.FullName}' of parameterSerializer does not match parameter type '{parameterExpression.Type.FullName}'.", nameof(parameterSerializer));
+            }
+
+            var parameterSymbol =
+                asRoot ?
+                    context.CreateSymbolWithVarName(parameterExpression, varName: "ROOT", parameterSerializer, isCurrent: true) :
+                    context.CreateSymbol(parameterExpression, parameterSerializer, isCurrent: true);
+
             var lambdaContext = context.WithSymbol(parameterSymbol);
             return Translate(lambdaContext, lambdaExpression.Body);
         }

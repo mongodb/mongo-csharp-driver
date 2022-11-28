@@ -90,6 +90,10 @@ namespace MongoDB.Bson.Serialization.Serializers
             var bsonType = reader.GetCurrentBsonType();
             switch (bsonType)
             {
+                case BsonType.Null:
+                    reader.ReadNull();
+                    return null;
+
                 case BsonType.RegularExpression:
                     return reader.ReadRegularExpression().ToRegex();
 
@@ -110,6 +114,12 @@ namespace MongoDB.Bson.Serialization.Serializers
         public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, Regex value)
         {
             var writer = context.Writer;
+
+            if (value == null)
+            {
+                writer.WriteNull();
+                return;
+            }
 
             switch (_representation)
             {

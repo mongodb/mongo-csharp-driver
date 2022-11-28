@@ -14,18 +14,22 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
 using System.Security.Authentication;
+using System.Text;
 using System.Threading;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Encryption;
 using Moq;
 using Xunit;
 
@@ -550,6 +554,27 @@ namespace MongoDB.Driver.Tests
             clone.SdamLogFilename = "garbage";
 #pragma warning restore CS0618 // Type or member is obsolete
             Assert.False(clone.Equals(settings));
+
+            // set non default values
+            settings.AutoEncryptionOptions = new AutoEncryptionOptions(CollectionNamespace.FromFullName("encryption.__keyVault"), new Dictionary<string, IReadOnlyDictionary<string, object>>());
+            settings.LoggingSettings = new LoggingSettings(null, 123);
+            settings.ReadConcern = ReadConcern.Majority;
+            settings.ReadEncoding = new UTF8Encoding(false, false);
+            settings.ServerApi = new ServerApi(ServerApiVersion.V1);
+            settings.WriteConcern = WriteConcern.W2;
+            settings.WriteEncoding = new UTF8Encoding(false, false);
+
+            clone = settings.Clone();
+            clone.AutoEncryptionOptions = clone.AutoEncryptionOptions.With(bypassAutoEncryption: settings.AutoEncryptionOptions.BypassAutoEncryption);
+            clone.LoggingSettings = new LoggingSettings(null, settings.LoggingSettings.MaxDocumentSize);
+            clone.ReadConcern = ReadConcern.FromBsonDocument(settings.ReadConcern.ToBsonDocument());
+            clone.ReadEncoding = new UTF8Encoding(false, false);
+            clone.ReadPreference = clone.ReadPreference.With(settings.ReadPreference.ReadPreferenceMode);
+            clone.ServerApi = new ServerApi(settings.ServerApi.Version);
+            clone.WriteConcern = WriteConcern.FromBsonDocument(settings.WriteConcern.ToBsonDocument());
+            clone.WriteEncoding = new UTF8Encoding(false, false);
+
+            Assert.True(clone.Equals(settings));
         }
 
         [Fact]

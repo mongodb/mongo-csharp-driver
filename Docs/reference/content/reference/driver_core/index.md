@@ -23,7 +23,13 @@ Connection pooling is provided for every server that is discovered. There are a 
 
 ### Server Monitoring
 
-Each server that is discovered is monitored. By default, this monitoring happens every 10 seconds and consists of a `{ hello: 1 }` (or legacy hello) call followed by a `{ buildInfo: 1 }` call. When servers go down, the frequency of these calls will be increased to 500 milliseconds. See the [Server Discovery and Monitoring Specification](https://github.com/mongodb/specifications/blob/master/source/server-discovery-and-monitoring/server-discovery-and-monitoring-summary.rst) for more information.
+Each server that is discovered is monitored.
+
+MongoDB 4.4 or later: The `MongoClient` establishes an exhaust cursor to each discovered cluster node using `{ hello: 1 }` (or legacy hello). Cluster nodes push topology updates to `MongoClient`.
+
+MongoDB 4.2 or ealier: The `MongoClient` polls each discovered cluster node every [heartbeatFrequencyMS](https://www.mongodb.com/docs/manual/reference/connection-string/#mongodb-urioption-urioption.heartbeatFrequencyMS) (default 10 seconds, MongoDB Atlas 5 seconds) using `{ hello: 1 }` (or legacy hello).
+
+When servers go down, the frequency of these calls will be increased to 500 milliseconds. See the [Server Discovery and Monitoring Specification](https://github.com/mongodb/specifications/blob/master/source/server-discovery-and-monitoring/server-discovery-and-monitoring-summary.rst) for more information.
 
 ### Server Selection
 

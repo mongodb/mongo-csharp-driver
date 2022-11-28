@@ -35,6 +35,7 @@ namespace MongoDB.Driver.Core.Logging
         public const string DriverConnectionId = nameof(DriverConnectionId);
         public const string DurationMS = nameof(DurationMS);
         public const string Failure = nameof(Failure);
+        public const string Error = nameof(Error);
         public const string MaxConnecting = nameof(MaxConnecting);
         public const string MaxIdleTimeMS = nameof(MaxIdleTimeMS);
         public const string MaxPoolSize = nameof(MaxPoolSize);
@@ -105,6 +106,13 @@ namespace MongoDB.Driver.Core.Logging
             return new object[] { serverId.ClusterId.Value, host, port, arg1, arg2 };
         }
 
+        public static object[] GetParams(ServerId serverId, object arg1, object arg2, object arg3)
+        {
+            var (host, port) = serverId.EndPoint.GetHostAndPort();
+
+            return new object[] { serverId.ClusterId.Value, host, port, arg1, arg2, arg3 };
+        }
+
         public static object[] GetParams(ServerId serverId, object arg1, object arg2, object arg3, object arg4, object arg5, object arg6)
         {
             var (host, port) = serverId.EndPoint.GetHostAndPort();
@@ -112,18 +120,25 @@ namespace MongoDB.Driver.Core.Logging
             return new object[] { serverId.ClusterId.Value, host, port, arg1, arg2, arg3, arg4, arg5, arg6 };
         }
 
+        public static object[] GetParams(ServerId serverId, object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object arg7)
+        {
+            var (host, port) = serverId.EndPoint.GetHostAndPort();
+
+            return new object[] { serverId.ClusterId.Value, host, port, arg1, arg2, arg3, arg4, arg5, arg6, arg7 };
+        }
+
         public static object[] GetParams(ConnectionId connectionId, object arg1)
         {
             var (host, port) = connectionId.ServerId.EndPoint.GetHostAndPort();
 
-            return new object[] { connectionId.ServerId.ClusterId.Value, connectionId.LocalValue, host, port, arg1};
+            return new object[] { connectionId.ServerId.ClusterId.Value, connectionId.LongLocalValue, host, port, arg1};
         }
 
         public static object[] GetParams(ConnectionId connectionId, object arg1, object arg2)
         {
             var (host, port) = connectionId.ServerId.EndPoint.GetHostAndPort();
 
-            return new object[] { connectionId.ServerId.ClusterId.Value, connectionId.LocalValue, host, port, arg1, arg2 };
+            return new object[] { connectionId.ServerId.ClusterId.Value, connectionId.LongLocalValue, host, port, arg1, arg2 };
         }
 
         public static object[] GetParamsOmitNull(ConnectionId connectionId, object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object arg7, object ommitableParam)
@@ -131,9 +146,9 @@ namespace MongoDB.Driver.Core.Logging
             var (host, port) = connectionId.ServerId.EndPoint.GetHostAndPort();
 
             if (ommitableParam == null)
-                return new object[] { connectionId.ServerId.ClusterId.Value, connectionId.LocalValue, host, port, arg1, arg2, arg3, arg4, arg5, arg6, arg7, };
+                return new object[] { connectionId.ServerId.ClusterId.Value, connectionId.LongLocalValue, host, port, arg1, arg2, arg3, arg4, arg5, arg6, arg7, };
             else
-                return new object[] { connectionId.ServerId.ClusterId.Value, connectionId.LocalValue, host, port, arg1, arg2, arg3, arg4, arg5, arg6, arg7, ommitableParam };
+                return new object[] { connectionId.ServerId.ClusterId.Value, connectionId.LongLocalValue, host, port, arg1, arg2, arg3, arg4, arg5, arg6, arg7, ommitableParam };
         }
 
         private static void AddTemplateProvider<TEvent>(LogLevel logLevel, string template, Func<TEvent, EventLogFormattingOptions, object[]> extractor) where TEvent : struct, IEvent =>
@@ -172,6 +187,19 @@ namespace MongoDB.Driver.Core.Logging
 
         private static string Concat(string[] parameters, params string[] additionalParameters) =>
             string.Join(" ", parameters.Concat(additionalParameters).Select(p => $"{{{p}}}"));
+
+        private static string FormatException(Exception exception, EventLogFormattingOptions eventLogFormattingOptions)
+        {
+            if (exception == null)
+            {
+                return null;
+            }
+
+            return TruncateIfNeeded(exception.ToString(), eventLogFormattingOptions.MaxDocumentSize);
+        }
+
+        private static string TruncateIfNeeded(string str, int length) =>
+             str.Length > length ? str.Substring(0, length) + "..." : str;
 
         internal sealed class LogTemplateProvider
         {

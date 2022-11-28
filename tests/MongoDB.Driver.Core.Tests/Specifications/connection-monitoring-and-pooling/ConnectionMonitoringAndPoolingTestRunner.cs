@@ -210,7 +210,7 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
                 }
                 else
                 {
-                    actualEvent.ConnectionId().LocalValue.Should().Be(expectedConnectionId);
+                    actualEvent.ConnectionId().LongLocalValue.Should().Be(expectedConnectionId);
                 }
             }
 
@@ -618,7 +618,7 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
 
         private void ResetConnectionId()
         {
-            IdGeneratorReflector.__lastId(0);
+            LongIdGeneratorReflector.__lastId(0);
         }
 
         private (IConnectionPool, FailPoint, ICluster, Func<object, bool>) SetupConnectionData(BsonDocument test, EventCapturer eventCapturer, bool isUnit)
@@ -691,9 +691,9 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
                     {
                         eventCapturer.WaitForOrThrowIfTimeout(events => events.Any(e => e is ConnectionCreatedEvent), TimeSpan.FromMilliseconds(500));
 
-                        var connectionIdsToIgnore = new HashSet<int>(eventCapturer.Events
+                        var connectionIdsToIgnore = new HashSet<long>(eventCapturer.Events
                             .OfType<ConnectionCreatedEvent>()
-                            .Select(c => c.ConnectionId.LocalValue)
+                            .Select(c => c.ConnectionId.LongLocalValue)
                             .ToList());
 
                         eventsFilter = o =>
@@ -704,7 +704,7 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
                                 or ConnectionFailedEvent)
                             {
                                 var connectionId = o.ConnectionId();
-                                return !connectionIdsToIgnore.Contains(connectionId.LocalValue) &&
+                                return !connectionIdsToIgnore.Contains(connectionId.LongLocalValue) &&
                                     EndPointHelper.Equals(connectionId.ServerId.EndPoint, server.EndPoint);
                             }
 
@@ -810,7 +810,7 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
         // nested types
         private class TestCaseFactory : JsonDrivenTestCaseFactory
         {
-            protected override string PathPrefix => "MongoDB.Driver.Core.Tests.Specifications.connection_monitoring_and_pooling.tests.";
+            protected override string PathPrefix => "MongoDB.Driver.Core.Tests.Specifications.connection_monitoring_and_pooling.tests.cmap_format.";
 
             protected override IEnumerable<JsonDrivenTestCase> CreateTestCases(BsonDocument document)
             {
@@ -844,9 +844,9 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
         }
     }
 
-    internal static class IdGeneratorReflector
+    internal static class LongIdGeneratorReflector
     {
-        public static void __lastId(int value) => Reflector.SetStaticFieldValue(typeof(IdGenerator<ConnectionId>), nameof(__lastId), value);
+        public static void __lastId(int value) => Reflector.SetStaticFieldValue(typeof(LongIdGenerator<ConnectionId>), nameof(__lastId), value);
     }
 
     internal static class IServerReflector

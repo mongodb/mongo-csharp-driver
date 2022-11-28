@@ -20,7 +20,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
     internal enum AstBinaryOperator
     {
         ArrayElemAt,
-        ATan2,
+        Atan2,
         Cmp,
         Divide,
         Eq,
@@ -50,7 +50,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             return @operator switch
             {
                 AstBinaryOperator.ArrayElemAt => "$arrayElemAt",
-                AstBinaryOperator.ATan2 => "$atan2",
+                AstBinaryOperator.Atan2 => "$atan2",
                 AstBinaryOperator.Cmp => "$cmp",
                 AstBinaryOperator.Divide => "$divide",
                 AstBinaryOperator.Eq => "$eq",

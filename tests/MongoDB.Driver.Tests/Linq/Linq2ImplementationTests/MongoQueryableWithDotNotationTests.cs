@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
+using MongoDB.Driver.Linq;
 using MongoDB.Driver.TestHelpers;
 using Xunit;
 
@@ -98,6 +99,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests
         private DisposableMongoClient CreateDisposableClient()
         {
             var mongoClientSettings = MongoClientSettings.FromConnectionString("mongodb://hostnotneeded");
+            mongoClientSettings.LinqProvider = LinqProvider.V2;
             return DriverTestConfiguration.CreateDisposableClient(mongoClientSettings);
         }
 

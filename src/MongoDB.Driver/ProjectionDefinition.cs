@@ -73,7 +73,7 @@ namespace MongoDB.Driver
         /// <returns>A <see cref="BsonDocument"/>.</returns>
         public virtual BsonDocument Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            return Render(sourceSerializer, serializerRegistry, LinqProvider.V2);
+            return Render(sourceSerializer, serializerRegistry, LinqProvider.V3);
         }
 
         /// <summary>
@@ -135,7 +135,7 @@ namespace MongoDB.Driver
         /// <returns>A <see cref="RenderedProjectionDefinition{TProjection}"/>.</returns>
         public virtual RenderedProjectionDefinition<TProjection> Render(IBsonSerializer<TSource> sourceSerializer, IBsonSerializerRegistry serializerRegistry)
         {
-            return Render(sourceSerializer, serializerRegistry, LinqProvider.V2);
+            return Render(sourceSerializer, serializerRegistry, LinqProvider.V3);
         }
 
         /// <summary>

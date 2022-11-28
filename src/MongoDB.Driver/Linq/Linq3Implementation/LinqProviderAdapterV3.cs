@@ -120,7 +120,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
         {
             expression = (Expression<Func<TDocument, bool>>)PartialEvaluator.EvaluatePartially(expression);
             var context = TranslationContext.Create(expression, documentSerializer);
-            var filter = ExpressionToFilterTranslator.TranslateLambda(context, expression, documentSerializer);
+            var filter = ExpressionToFilterTranslator.TranslateLambda(context, expression, documentSerializer, asRoot: true);
             filter = AstSimplifier.SimplifyAndConvert(filter);
 
             return filter.Render().AsBsonDocument;

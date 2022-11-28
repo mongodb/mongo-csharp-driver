@@ -15,10 +15,13 @@
 
 using System;
 using System.Linq.Expressions;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
+using MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
+using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 using MongoDB.Driver.Support;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators
@@ -40,10 +43,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 rightExpression = ConvertHelper.RemoveWideningConvert(rightExpression);
             }
 
-            if (IsEnumComparisonExpression(expression))
+            if (IsEnumExpression(expression))
             {
-                leftExpression = ConvertHelper.RemoveConvertToEnumUnderlyingType(leftExpression);
-                rightExpression = ConvertHelper.RemoveConvertToEnumUnderlyingType(rightExpression);
+                return TranslateEnumExpression(context, expression);
             }
 
             var leftTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, leftExpression);
@@ -94,6 +96,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             return new AggregationExpression(expression, ast, serializer);
         }
 
+        private static bool IsAddOrSubtractExpression(Expression expression)
+        {
+            return expression.NodeType switch
+            {
+                ExpressionType.Add => true,
+                ExpressionType.Subtract => true,
+                _ => false
+            };
+        }
+
         private static bool IsArithmeticExpression(BinaryExpression expression)
         {
             return expression.Type.IsNumeric() && IsArithmeticOperator(expression.NodeType);
@@ -113,9 +125,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             };
         }
 
-        private static bool IsComparisonOperator(ExpressionType nodeType)
+        private static bool IsComparisonExpression(Expression expression)
         {
-            return nodeType switch
+            return expression.NodeType switch
             {
                 ExpressionType.Equal => true,
                 ExpressionType.GreaterThan => true,
@@ -127,24 +139,31 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             };
         }
 
-        internal static bool IsEnumComparisonExpression(BinaryExpression expression)
+        static bool IsConvertEnumToUnderlyingType(Expression expression)
         {
-            return
-                IsComparisonOperator(expression.NodeType) &&
-                (IsConvertToEnumUnderlyingType(expression.Left) || IsConvertToEnumUnderlyingType(expression.Right));
-
-            static bool IsConvertToEnumUnderlyingType(Expression expression)
+            if (expression.NodeType == ExpressionType.Convert)
             {
-                if (expression.NodeType == ExpressionType.Convert)
-                {
-                    var convertExpression = (UnaryExpression)expression;
-                    var sourceType = convertExpression.Operand.Type;
-                    var targetType = convertExpression.Type;
-                    return sourceType.IsEnum() && targetType == Enum.GetUnderlyingType(sourceType);
-                }
+                var convertExpression = (UnaryExpression)expression;
+                var sourceType = convertExpression.Operand.Type;
+                var targetType = convertExpression.Type;
 
-                return false;
+                return
+                    sourceType.IsEnumOrNullableEnum(out _, out var underlyingType) &&
+                    targetType.IsSameAsOrNullableOf(underlyingType);
             }
+
+            return false;
+        }
+
+        internal static bool IsEnumExpression(BinaryExpression expression)
+        {
+            return IsEnumOrConvertEnumToUnderlyingType(expression.Left) || IsEnumOrConvertEnumToUnderlyingType(expression.Right);
+
+        }
+
+        static bool IsEnumOrConvertEnumToUnderlyingType(Expression expression)
+        {
+            return expression.Type.IsEnum || IsConvertEnumToUnderlyingType(expression);
         }
 
         private static bool IsStringConcatenationExpression(BinaryExpression expression)
@@ -154,6 +173,113 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 expression.Type == typeof(string) &&
                 expression.Left.Type == typeof(string) &&
                 expression.Right.Type == typeof(string);
+        }
+
+        private static AstBinaryOperator ToBinaryOperator(ExpressionType nodeType)
+        {
+            return nodeType switch
+            {
+                ExpressionType.Equal => AstBinaryOperator.Eq,
+                ExpressionType.NotEqual => AstBinaryOperator.Ne,
+                ExpressionType.LessThan => AstBinaryOperator.Lt,
+                ExpressionType.LessThanOrEqual => AstBinaryOperator.Lte,
+                ExpressionType.GreaterThan => AstBinaryOperator.Gt,
+                ExpressionType.GreaterThanOrEqual => AstBinaryOperator.Gte,
+                ExpressionType.Subtract => AstBinaryOperator.Subtract,
+                _ => throw new Exception($"Unexpected expression type: {nodeType}.")
+            };
+        }
+
+        private static AggregationExpression TranslateEnumExpression(TranslationContext context, BinaryExpression expression)
+        {
+            var leftExpression = expression.Left;
+            var rightExpression = expression.Right;
+
+            AggregationExpression leftTranslation;
+            AggregationExpression rightTranslation;
+            IBsonSerializer serializer;
+
+            if (IsComparisonExpression(expression))
+            {
+                if (leftExpression.NodeType == ExpressionType.Constant)
+                {
+                    rightTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, rightExpression);
+                    leftTranslation = TranslateEnumConstant(expression, leftExpression, rightTranslation.Serializer);
+                }
+                else if (rightExpression.NodeType == ExpressionType.Constant)
+                {
+                    leftTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, leftExpression);
+                    rightTranslation = TranslateEnumConstant(expression, rightExpression, leftTranslation.Serializer);
+                }
+                else
+                {
+                    leftTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, leftExpression);
+                    rightTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, rightExpression);
+                }
+
+                if (!leftTranslation.Serializer.Equals(rightTranslation.Serializer))
+                {
+                    throw new ExpressionNotSupportedException(expression, because: "the two enums being compared are serialized using different serializers");
+                }
+
+                serializer = BooleanSerializer.Instance;
+            }
+            else if (IsAddOrSubtractExpression(expression))
+            {
+                leftTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, leftExpression);
+                rightTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, rightExpression);
+
+                if (IsEnumOrConvertEnumToUnderlyingType(leftExpression))
+                {
+                    serializer = leftTranslation.Serializer;
+                }
+                else
+                {
+                    serializer = rightTranslation.Serializer;
+                }
+
+                var representation = BsonType.Int32; // assume an integer representation unless we can determine otherwise
+                var valueSerializer = serializer;
+                if (valueSerializer is INullableSerializer nullableSerializer)
+                {
+                    valueSerializer = nullableSerializer.ValueSerializer;
+                }
+                if (valueSerializer is IEnumUnderlyingTypeSerializer enumUnderlyingTypeSerializer &&
+                    enumUnderlyingTypeSerializer.EnumSerializer is IHasRepresentationSerializer withRepresentationSerializer)
+                {
+                    representation = withRepresentationSerializer.Representation;
+                }
+
+                if (representation != BsonType.Int32 && representation != BsonType.Int64)
+                {
+                    throw new ExpressionNotSupportedException(expression, because: "arithmetic on enums is only allowed when the enum is represented as an integer");
+                }
+            }
+            else
+            {
+                throw new ExpressionNotSupportedException(expression);
+            }
+
+            AstExpression ast;
+            if (expression.NodeType == ExpressionType.Add)
+            {
+                ast = AstExpression.Add(leftTranslation.Ast, rightTranslation.Ast);
+            }
+            else
+            {
+                var binaryOperator = ToBinaryOperator(expression.NodeType);
+                ast = AstExpression.Binary(binaryOperator, leftTranslation.Ast, rightTranslation.Ast);
+            }
+
+            return new AggregationExpression(expression, ast, serializer);
+
+            static AggregationExpression TranslateEnumConstant(Expression expression, Expression constantExpression, IBsonSerializer serializer)
+            {
+                var value = constantExpression.GetConstantValue<object>(expression);
+                var serializedValue = SerializationHelper.SerializeValue(serializer, value);
+                var ast = AstExpression.Constant(serializedValue);
+                return new AggregationExpression(constantExpression, ast, serializer);
+            }
         }
     }
 }

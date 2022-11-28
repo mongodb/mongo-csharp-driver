@@ -327,5 +327,26 @@ namespace MongoDB.Driver.Linq
         {
             throw new InvalidOperationException("This DateTime.Truncate method is only intended to be used in LINQ queries.");
         }
+
+        /// <summary>
+        /// Returns the week number of a specified DateTime value.
+        /// </summary>
+        /// <param name="this">The DateTime value.</param>
+        /// <returns>The week number of a specified DateTime value.</returns>
+        public static int Week(this DateTime @this)
+        {
+            throw new InvalidOperationException("This DateTime.Week method is only intended to be used in LINQ queries.");
+        }
+
+        /// <summary>
+        /// Returns the week number of a specified DateTime value.
+        /// </summary>
+        /// <param name="this">The DateTime value.</param>
+        /// <param name="timezone">The timezone to use (optional, can be null).</param>
+        /// <returns>The week number of a specified DateTime value.</returns>
+        public static int Week(this DateTime @this, string timezone)
+        {
+            throw new InvalidOperationException("This DateTime.Week method is only intended to be used in LINQ queries.");
+        }
     }
 }

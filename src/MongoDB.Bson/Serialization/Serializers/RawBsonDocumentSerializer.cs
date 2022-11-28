@@ -19,7 +19,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <summary>
     /// Represents a serializer for RawBsonDocuments.
     /// </summary>
-    public class RawBsonDocumentSerializer : BsonValueSerializerBase<RawBsonDocument>
+    public class RawBsonDocumentSerializer : BsonValueSerializerBase<RawBsonDocument>, IBsonDocumentSerializer
     {
         // private static fields
         private static readonly RawBsonDocumentSerializer __instance = new RawBsonDocumentSerializer();
@@ -69,6 +69,16 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             var bsonWriter = context.Writer;
             bsonWriter.WriteRawBsonDocument(value.Slice);
+        }
+
+        /// <inheritdoc/>
+        public bool TryGetMemberSerializationInfo(string memberName, out BsonSerializationInfo serializationInfo)
+        {
+            serializationInfo = new BsonSerializationInfo(
+                memberName,
+                BsonValueSerializer.Instance,
+                typeof(BsonValue));
+            return true;
         }
     }
 }

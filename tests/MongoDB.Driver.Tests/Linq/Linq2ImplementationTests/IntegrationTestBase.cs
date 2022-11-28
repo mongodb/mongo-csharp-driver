@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests
 
         private bool OneTimeSetup(Type type)
         {
-            var client = DriverTestConfiguration.Client;
+            var client = DriverTestConfiguration.Linq2Client;
             var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
             __collection = db.GetCollection<Root>(DriverTestConfiguration.CollectionNamespace.CollectionName);
             __otherCollection = db.GetCollection<Other>(DriverTestConfiguration.CollectionNamespace.CollectionName + "_other");

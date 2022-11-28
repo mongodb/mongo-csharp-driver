@@ -226,6 +226,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                         }
                     }
                     break;
+                case "poolReadyEvent":
+                    actualEvent.Should().BeOfType<ConnectionPoolReadyEvent>();
+                    expectedEventValue.ElementCount.Should().Be(0); // empty document
+                    break;
                 case "serverDescriptionChangedEvent":
                     var serverDescriptionChangedEvent = actualEvent.Should().BeOfType<ServerDescriptionChangedEvent>().Subject;
                     if (expectedEventValue.Elements.Any())
@@ -244,7 +248,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                 // So even though servers less than 4.2 don't provide connectionId, we still have this value through getLastError, so don't assert hasServerConnectionId=false.
                 if (value)
                 {
-                    connectionId.ServerValue.Should().HaveValue();
+                    connectionId.LongServerValue.Should().HaveValue();
                 }
             }
         }

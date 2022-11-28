@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -25,6 +26,7 @@ using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
+using Amazon.Runtime;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
@@ -33,7 +35,6 @@ using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Authentication.External;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
@@ -251,6 +252,75 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
         [SkippableTheory]
         [ParameterAttributeData]
+        public void BypassMongocryptdClientWhenSharedLibraryTest(
+            [Values(false, true)] bool async)
+        {
+            RequireServer.Check().Supports(Feature.ClientSideEncryption);
+            RequireEnvironment.Check().EnvironmentVariable("CRYPT_SHARED_LIB_PATH", isDefined: true, allowEmpty: false);
+            // socket.Close can hang on non windows OS. Might be related to this issue: https://github.com/dotnet/runtime/issues/47342
+            RequirePlatform
+                .Check()
+                .SkipWhen(SupportedOperatingSystem.Linux)
+                .SkipWhen(SupportedOperatingSystem.MacOS);
+
+            const int mongocryptPort = 27030;
+            var timeout = TimeSpan.FromSeconds(3);
+            var extraOptions = new Dictionary<string, object>
+            {
+                { "mongocryptdURI", $"mongodb://localhost:{mongocryptPort}" }
+            };
+
+            var mongocryptdIpAddress = IPAddress.Parse("127.0.0.1");
+            TcpListener tcpListener = null;
+            try
+            {
+                tcpListener = new TcpListener(mongocryptdIpAddress, port: mongocryptPort);
+                var listenerThread = new Thread(new ParameterizedThreadStart(ThreadStart)) { IsBackground = true };
+
+                using (var clientEncrypted = ConfigureClientEncrypted(kmsProviderFilter: "local", extraOptions: extraOptions))
+                {
+                    var coll = GetCollection(clientEncrypted, __collCollectionNamespace);
+
+                    listenerThread.Start(tcpListener);
+
+                    _ = Record.Exception(() => Insert(coll, async, new BsonDocument("unencrypted", "test")));
+
+                    if (listenerThread.Join(timeout))
+                    {
+                        // This exception is never thrown when mognocryptd mongoClient is not spawned which is expected behavior.
+                        // However, if we intentionally break that logic to spawn mongocryptd mongoClient regardless of shared library,
+                        // this exception sometimes won't be thrown. In all such cases the spent time in listenerThread.Join is higher
+                        // or really close to timeout. So it's unclear why Join doesn't throw in that cases, but that logic is unrelated
+                        // to the driver and csfle in particular. We rely on the fact that even if we break this logic,
+                        // we run this test more than once.
+                        throw new Exception($"Listener accepted a tcp call for moncgocryptd during {timeout}.");
+                    }
+                }
+            }
+            finally
+            {
+                tcpListener?.Stop();
+            }
+
+            void ThreadStart(object param)
+            {
+                try
+                {
+                    var tcpListener = (TcpListener)param;
+                    tcpListener.Start();
+                    using var client = tcpListener.AcceptTcpClient();
+                    // Perform a blocking call to accept requests.
+                    // if we're here, then something queries port 27030.
+                }
+                catch (SocketException)
+                {
+                    // listener stopped outside thread
+                }
+            }
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void BypassSpawningMongocryptdViaMongocryptdBypassSpawnTest(
             [Values(false, true)] bool async)
         {
@@ -270,10 +340,6 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 kmsProviderFilter: "local",
                 extraOptions: extraOptions))
             {
-                var datakeys = GetCollection(client, __keyVaultCollectionNamespace);
-                var externalKey = JsonFileReader.Instance.Documents["external.external-key.json"];
-                Insert(datakeys, async, externalKey);
-
                 var coll = GetCollection(clientEncrypted, __collCollectionNamespace);
                 var exception = Record.Exception(() => Insert(coll, async, new BsonDocument("encrypted", "test")));
 
@@ -281,25 +347,21 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             }
         }
 
+        public enum BypassSpawningMongocryptd
+        {
+            BypassAutoEncryption,
+            BypassQueryAnalysis,
+            SharedLibrary
+        }
+
         [SkippableTheory]
         [ParameterAttributeData]
         public void BypassSpawningMongocryptdTest(
-            [Values(false, true)] bool bypassAutoEncryption, // true - BypassAutoEncryption, false - BypassQueryAnalysis
+            [Values(BypassSpawningMongocryptd.BypassQueryAnalysis, BypassSpawningMongocryptd.BypassAutoEncryption, BypassSpawningMongocryptd.SharedLibrary)] BypassSpawningMongocryptd bypassSpawning,
             [Values(false, true)] bool async)
         {
-            RequireServer.Check().Supports(Feature.ClientSideEncryption);
-            RequireEnvironment.Check().EnvironmentVariable("CRYPT_SHARED_LIB_PATH", isDefined: false);
-
-            var extraOptions = new Dictionary<string, object>
-            {
-                { "mongocryptdSpawnArgs", new [] { "--pidfilepath=bypass-spawning-mongocryptd.pid", "--port=27021" } },
-            };
-            using (var mongocryptdClient = new DisposableMongoClient(new MongoClient("mongodb://localhost:27021/?serverSelectionTimeoutMS=10000"), CreateLogger<DisposableMongoClient>()))
-            using (var clientEncrypted = ConfigureClientEncrypted(
-                kmsProviderFilter: "local",
-                bypassAutoEncryption: bypassAutoEncryption, // bypass options are mutually exclusive for this test
-                bypassQueryAnalysis: !bypassAutoEncryption,
-                extraOptions: extraOptions))
+            using (var clientEncrypted = EnsureEnvironmentAndConfigureTestClientEncrypted())
+            using (var mongocryptdClient = new DisposableMongoClient(new MongoClient("mongodb://localhost:27021/?serverSelectionTimeoutMS=1000"), CreateLogger<DisposableMongoClient>()))
             {
                 var coll = GetCollection(clientEncrypted, __collCollectionNamespace);
                 Insert(coll, async, new BsonDocument("unencrypted", "test"));
@@ -309,7 +371,43 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 var exception = Record.Exception(() => adminDatabase.RunCommand<BsonDocument>(legacyHelloCommand));
 
                 exception.Should().BeOfType<TimeoutException>();
-                exception.Message.Should().Contain("A timeout occurred after 10000ms selecting a server");
+                exception.Message.Should().Contain("A timeout occurred after 1000ms selecting a server").And.Contain("localhost:27021");
+            }
+
+            DisposableMongoClient EnsureEnvironmentAndConfigureTestClientEncrypted()
+            {
+                var extraOptions = new Dictionary<string, object>
+                {
+                    { "mongocryptdSpawnArgs", new [] { "--pidfilepath=bypass-spawning-mongocryptd.pid", "--port=27021" } },
+                };
+                var kmsProvider = "local";
+                switch (bypassSpawning)
+                {
+                    case BypassSpawningMongocryptd.BypassAutoEncryption:
+                        RequireServer.Check().Supports(Feature.ClientSideEncryption);
+                        RequireEnvironment.Check().EnvironmentVariable("CRYPT_SHARED_LIB_PATH", isDefined: false);
+                        return ConfigureClientEncrypted(kmsProviderFilter: kmsProvider, bypassAutoEncryption: true, extraOptions: extraOptions);
+                    case BypassSpawningMongocryptd.BypassQueryAnalysis:
+                        RequireServer.Check().Supports(Feature.ClientSideEncryption);
+                        RequireEnvironment.Check().EnvironmentVariable("CRYPT_SHARED_LIB_PATH", isDefined: false);
+                        return ConfigureClientEncrypted(kmsProviderFilter: kmsProvider, bypassQueryAnalysis: true, extraOptions: extraOptions);
+                    case BypassSpawningMongocryptd.SharedLibrary:
+                        {
+                            RequireServer.Check().Supports(Feature.Csfle2).ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced);
+                            RequireEnvironment.Check().EnvironmentVariable("CRYPT_SHARED_LIB_PATH", isDefined: true, allowEmpty: false);
+                            var clientEncryptedSchema = new BsonDocument("db.coll", JsonFileReader.Instance.Documents["external.external-schema.json"]);
+                            var cryptSharedPath = CoreTestConfiguration.GetCryptSharedLibPath();
+                            Ensure.That(File.Exists(cryptSharedPath), $"Shared library path {cryptSharedPath} is not valid.");
+                            var effectiveExtraOptions = new Dictionary<string, object>(extraOptions)
+                            {
+                                { "mongocryptdURI", "mongodb://localhost:27021/db?serverSelectionTimeoutMS=1000" },
+                                { "cryptSharedLibPath", cryptSharedPath },
+                                { "cryptSharedLibRequired", true }
+                            };
+                            return ConfigureClientEncrypted(kmsProviderFilter: kmsProvider, schemaMap: clientEncryptedSchema, extraOptions: effectiveExtraOptions);
+                        }
+                    default: throw new Exception($"Invalid bypass mongocryptd {bypassSpawning} option.");
+                }
             }
         }
 
@@ -1568,49 +1666,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                         // AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY must not be configured
                         case "aws":
                             {
-                                switch (currentOperatingSystem)
-                                {
-                                    case OperatingSystemPlatform.Windows:
-                                    case OperatingSystemPlatform.Linux:
-                                        {
-                                            try
-                                            {
-                                                // unlike EG, local running fails on first aws EC2 step with acquiring a token
-                                                AssertInnerEncryptionException<HttpRequestException>(ex, "Failed to acquire EC2 token.");
-                                            }
-                                            catch (XunitException)
-                                            {
-                                                // EG allows successful sending aws token request to the aws env, so error happens on get rolename step
-                                                AssertInnerEncryptionException<HttpRequestException>(ex, "Failed to acquire EC2 role name.");
-                                            }
-                                        }
-                                        break;
-                                    case OperatingSystemPlatform.MacOS:
-                                        {
-                                            // httpClient throws 2 different exceptions from the same code on macos
-                                            try
-                                            {
-                                                // --->MongoDB.Driver.MongoClientException: Failed to acquire EC2 token.
-                                                // --->System.Threading.Tasks.TaskCanceledException: A task was canceled.
-                                                // at System.Net.Http.HttpClient.FinishSendAsyncBuffered(Task`1 sendTask, HttpRequestMessage request, CancellationTokenSource cts, Boolean disposeCts)
-                                                AssertInnerEncryptionException<TaskCanceledException>(ex, "Failed to acquire EC2 token.");
-                                            }
-                                            catch (XunitException)
-                                            {
-                                                //--->MongoDB.Driver.MongoClientException: Failed to acquire EC2 token.
-                                                //--->System.Net.Http.HttpRequestException: An error occurred while sending the request.
-                                                //--->System.Net.Http.CurlException: Couldn't connect to server
-                                                //at System.Net.Http.CurlHandler.ThrowIfCURLEError(CURLcode error)
-                                                //at System.Net.Http.CurlHandler.MultiAgent.FinishRequest(StrongToWeakReference`1 easyWrapper, CURLcode messageResult)
-                                                //-- - End of inner exception stack trace-- -
-                                                //at System.Net.Http.HttpClient.FinishSendAsyncBuffered(Task`1 sendTask, HttpRequestMessage request, CancellationTokenSource cts, Boolean disposeCts)
-                                                AssertInnerEncryptionException<HttpRequestException>(ex, "Failed to acquire EC2 token.");
-                                            }
-                                        }
-                                        break;
-                                    default: throw new Exception($"Unexpected OS: {currentOperatingSystem}");
-                                }
-
+                                AssertInnerEncryptionException<AmazonServiceException>(ex, "Unable to get IAM security credentials from EC2 Instance Metadata Service.");
                             }
                             break;
                         case "azure":

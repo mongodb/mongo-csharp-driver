@@ -60,8 +60,12 @@ namespace MongoDB.Driver.Core.Logging
 
             AddTemplateProvider<ConnectionPoolCheckingOutConnectionFailedEvent>(
                 LogLevel.Debug,
-                CmapCommonParams(Reason),
-                (e, _) => GetParams(e.ServerId, "Connection checkout failed", e.Reason));
+                CmapCommonParams(Reason, Error),
+                (e, o) => GetParams(
+                    e.ServerId,
+                    "Connection checkout failed",
+                    GetCheckoutFailedReason(e.Reason),
+                    FormatException(e.Exception, o)));
 
             AddTemplateProvider<ConnectionPoolRemovingConnectionEvent>(
                 LogLevel.Debug,
@@ -73,29 +77,34 @@ namespace MongoDB.Driver.Core.Logging
                 CmapCommonParams(),
                 (e, _) => GetParams(e.ServerId, "Connection removed"));
 
+#pragma warning disable CS0618 // Type or member is obsolete
             AddTemplate<ConnectionPoolOpeningEvent, ConnectionSettings>(
                 LogLevel.Debug,
-                CmapCommonParams(MaxIdleTimeMS, WaitQueueTimeoutMS, MinPoolSize, MaxPoolSize, MaxConnecting),
+                CmapCommonParams(MaxIdleTimeMS, MinPoolSize, MaxPoolSize, MaxConnecting, WaitQueueTimeoutMS, WaitQueueSize),
                 (e, _, s) => GetParams(
                     e.ServerId,
                     "Connection pool opening",
                     s.MaxIdleTime.TotalMilliseconds,
-                    e.ConnectionPoolSettings.WaitQueueTimeout.TotalMilliseconds,
                     e.ConnectionPoolSettings.MinConnections,
                     e.ConnectionPoolSettings.MaxConnections,
-                    e.ConnectionPoolSettings.MaxConnecting));
+                    e.ConnectionPoolSettings.MaxConnecting,
+                    e.ConnectionPoolSettings.WaitQueueTimeout.TotalMilliseconds,
+                    e.ConnectionPoolSettings.WaitQueueSize));
 
             AddTemplate<ConnectionPoolOpenedEvent, ConnectionSettings>(
                 LogLevel.Debug,
-                CmapCommonParams(MaxIdleTimeMS, WaitQueueTimeoutMS, MinPoolSize, MaxPoolSize, MaxConnecting),
+                CmapCommonParams(MaxIdleTimeMS, MinPoolSize, MaxPoolSize, MaxConnecting, WaitQueueTimeoutMS, WaitQueueSize),
                 (e, _, s) => GetParams(
                     e.ServerId,
                     "Connection pool created",
                     s.MaxIdleTime.TotalMilliseconds,
-                    e.ConnectionPoolSettings.WaitQueueTimeout.TotalMilliseconds,
                     e.ConnectionPoolSettings.MinConnections,
                     e.ConnectionPoolSettings.MaxConnections,
-                    e.ConnectionPoolSettings.MaxConnecting));
+                    e.ConnectionPoolSettings.MaxConnecting,
+                    e.ConnectionPoolSettings.WaitQueueTimeout.TotalMilliseconds,
+                    e.ConnectionPoolSettings.WaitQueueSize));
+
+#pragma warning restore CS0618 // Type or member is obsolete
 
             AddTemplateProvider<ConnectionPoolReadyEvent>(
                 LogLevel.Debug,
@@ -122,5 +131,14 @@ namespace MongoDB.Driver.Core.Logging
                 CmapCommonParams(),
                 (e, _) => GetParams(e.ServerId, "Connection pool closed"));
         }
+
+        private static string GetCheckoutFailedReason(ConnectionCheckOutFailedReason connectionCheckOutFailedReason) =>
+            connectionCheckOutFailedReason switch
+            {
+                ConnectionCheckOutFailedReason.ConnectionError => "An error occurred while trying to establish a new connection",
+                ConnectionCheckOutFailedReason.PoolClosed => "Connection pool was closed",
+                ConnectionCheckOutFailedReason.Timeout => "Wait queue timeout elapsed without a connection becoming available",
+                _ => null
+            };
     }
 }

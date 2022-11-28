@@ -16,6 +16,7 @@
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
 using Xunit;
 
@@ -23,12 +24,13 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
 {
     public class CSharp4234Tests : Linq3IntegrationTest
     {
-        [Fact]
-        public void AppendStage_should_work()
+        [Theory]
+        [ParameterAttributeData]
+        public void AppendStage_should_work([Values(false, true)] bool useResultSerializer)
         {
             var collection = CreateProductsCollection();
             var textStage = "{ $match : { $text : { $search : 'apples' } } }";
-            var resultSerializer = collection.DocumentSerializer;
+            var resultSerializer = useResultSerializer ? collection.DocumentSerializer : null;
 
             var queryable = collection
                 .AsQueryable()

@@ -21,6 +21,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Linq;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -682,7 +683,7 @@ namespace MongoDB.Driver.Tests
         private BsonValue Render<TDocument>(UpdateDefinition<TDocument> update)
         {
             var documentSerializer = BsonSerializer.SerializerRegistry.GetSerializer<TDocument>();
-            return update.Render(documentSerializer, BsonSerializer.SerializerRegistry);
+            return update.Render(documentSerializer, BsonSerializer.SerializerRegistry, LinqProvider.V2);
         }
 
         private class Person

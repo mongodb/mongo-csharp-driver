@@ -220,7 +220,7 @@ namespace MongoDB.Driver.GridFS.Tests
 
         [Theory]
         [ParameterAttributeData]
-        public void Flush_should_throw(
+        public void Flush_should_not_throw(
             [Values(false, true)] bool async)
         {
             var bucket = CreateBucket(128);
@@ -238,7 +238,7 @@ namespace MongoDB.Driver.GridFS.Tests
                 action = () => subject.Flush();
             }
 
-            action.ShouldThrow<NotSupportedException>();
+            action.ShouldNotThrow<NotSupportedException>();
         }
 
         [Fact]

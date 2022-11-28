@@ -46,36 +46,35 @@ namespace MongoDB.Driver.Tests
 
             AssertLogs(new[]
             {
-                Cluster("Description changed"),
+                SDAM("Description changed"),
                 SDAM("Server opening"),
                 Connection("Connection pool opening"),
                 Connection("Connection pool created"),
                 SDAM("Server opened"),
-                Cluster("Cluster opened"),
+                SDAM("Cluster opened"),
                 Connection("Connection checkout started"),
                 Connection("Connection created"),
-                Connection("Connection added"),
                 Connection("Connection ready"),
+                Connection("Connection added"),
                 Connection("Connection checked out"),
                 TestsDebug<DisposableMongoClient>("Disposing"),
-                Cluster("Cluster closing"),
-                Cluster("Removing server"),
+                SDAM("Cluster closing"),
+                SDAM("Removing server"),
                 SDAM("Server closing"),
                 Connection("Connection closing"),
                 Connection("Connection closed"),
                 Connection("Connection pool closed"),
                 SDAM("Server closed"),
-                Cluster("Removed server"),
-                Cluster("Disposing"),
-                Cluster("Description changed"),
-                Cluster("Disposed"),
-                Cluster("Cluster closed"),
+                SDAM("Removed server"),
+                SDAM("Disposing"),
+                SDAM("Description changed"),
+                SDAM("Disposed"),
+                SDAM("Cluster closed"),
                 TestsDebug<DisposableMongoClient>("Cluster unregistered and disposed"),
                 TestsDebug<DisposableMongoClient>("Disposed")
             },
             logs);
 
-            (LogLevel, string, string) Cluster(string message) => (LogLevel.Debug, LogCategoryHelper.GetCategoryName<LogCategories.Cluster>(), message);
             (LogLevel, string, string) Connection(string message) => (LogLevel.Debug, LogCategoryHelper.GetCategoryName<LogCategories.Connection>(), message);
             (LogLevel, string, string) SDAM(string message) => (LogLevel.Debug, LogCategoryHelper.GetCategoryName<LogCategories.SDAM>(), message);
             (LogLevel, string, string) TestsDebug<T>(string message) => (LogLevel.Debug, $"MongoDB.Tests.{typeof(T).Name}", message);
