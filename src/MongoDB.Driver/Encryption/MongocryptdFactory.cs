@@ -20,13 +20,13 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Encryption
 {
-    internal static class EncryptionExtraOptionsValidator
+    internal static class EncryptionExtraOptionsHelper
     {
-        #region static
         private static readonly Dictionary<string, Type[]> __supportedExtraOptions = new Dictionary<string, Type[]>
         {
             { "cryptSharedLibPath", new [] { typeof(string) } },
@@ -36,7 +36,6 @@ namespace MongoDB.Driver.Encryption
             { "mongocryptdSpawnPath", new [] { typeof(string) } },
             { "mongocryptdSpawnArgs", new [] { typeof(string), typeof(IEnumerable<string>) } }
         };
-        #endregion
 
         public static void EnsureThatExtraOptionsAreValid(IReadOnlyDictionary<string, object> extraOptions)
         {
@@ -63,6 +62,13 @@ namespace MongoDB.Driver.Encryption
                 }
             }
         }
+
+        public static string ExtractCryptSharedLibPath(IReadOnlyDictionary<string, object> dict) =>
+            dict.GetValueOrDefault<string, string, object>("cryptSharedLibPath");
+
+        public static bool? ExtractCryptSharedLibRequired(IReadOnlyDictionary<string, object> dict) =>
+            dict.GetValueOrDefault<bool?, string, object>("cryptSharedLibRequired");
+
     }
 
     internal class MongocryptdFactory

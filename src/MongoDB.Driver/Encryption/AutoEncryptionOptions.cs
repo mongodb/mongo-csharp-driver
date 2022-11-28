@@ -77,7 +77,7 @@ namespace MongoDB.Driver.Encryption
             _tlsOptions = tlsOptions.WithDefault(new Dictionary<string, SslSettings>());
             _encryptedFieldsMap = encryptedFieldsMap.WithDefault(null);
 
-            EncryptionExtraOptionsValidator.EnsureThatExtraOptionsAreValid(_extraOptions);
+            EncryptionExtraOptionsHelper.EnsureThatExtraOptionsAreValid(_extraOptions);
             KmsProvidersHelper.EnsureKmsProvidersAreValid(_kmsProviders);
             KmsProvidersHelper.EnsureKmsProvidersTlsSettingsAreValid(_tlsOptions);
             EncryptedCollectionHelper.EnsureCollectionsValid(_schemaMap, _encryptedFieldsMap);
@@ -273,10 +273,10 @@ namespace MongoDB.Driver.Encryption
         internal CryptClientSettings ToCryptClientSettings() =>
             new CryptClientSettings(
                 _bypassQueryAnalysis,
-                ExtraOptions.GetValueOrDefault<string, string, object>("cryptSharedLibPath"),
+                EncryptionExtraOptionsHelper.ExtractCryptSharedLibPath(ExtraOptions),
                 cryptSharedLibSearchPath: _bypassAutoEncryption ? null : "$SYSTEM",
                 _encryptedFieldsMap,
-                ExtraOptions.GetValueOrDefault<bool?, string, object>("cryptSharedLibRequired"),
+                EncryptionExtraOptionsHelper.ExtractCryptSharedLibRequired(ExtraOptions),
                 _kmsProviders,
                 _schemaMap);
 
