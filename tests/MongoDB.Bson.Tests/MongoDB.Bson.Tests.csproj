@@ -1,4 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\TestsProps\Directory.Build.props" />
+
   <PropertyGroup>
     <CodeAnalysisRuleSet>..\..\MongoDBLegacyTest.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
