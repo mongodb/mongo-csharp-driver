@@ -1094,7 +1094,7 @@ namespace MongoDB.Driver
                 _minConnectionPoolSize == rhs._minConnectionPoolSize &&
                 object.Equals(_readEncoding, rhs._readEncoding) &&
                 object.Equals(_readConcern, rhs._readConcern) &&
-                _readPreference == rhs._readPreference &&
+                object.Equals(_readPreference, rhs._readPreference) &&
                 _replicaSetName == rhs._replicaSetName &&
                 _retryReads == rhs._retryReads &&
                 _retryWrites == rhs._retryWrites &&
@@ -1109,7 +1109,7 @@ namespace MongoDB.Driver
                 _useTls == rhs._useTls &&
                 _waitQueueSize == rhs._waitQueueSize &&
                 _waitQueueTimeout == rhs._waitQueueTimeout &&
-                _writeConcern == rhs._writeConcern &&
+                object.Equals(_writeConcern, rhs._writeConcern) &&
                 object.Equals(_writeEncoding, rhs._writeEncoding);
         }
 
