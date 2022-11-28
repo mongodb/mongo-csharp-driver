@@ -121,7 +121,7 @@ namespace AstrolabeWorkloadExecutor
 
         private BsonDocument CreateCmapEventDocument(string eventName, DateTime timestamp, ConnectionId connectionId) =>
             CreateCmapEventDocument(eventName, timestamp, connectionId.ServerId)
-            .Add("connectionId", connectionId.LocalValue);
+            .Add("connectionId", connectionId.LongLocalValue);
 
         private BsonDocument CreateCommandEventDocument(string eventName, DateTime timestamp, string commandName, int requestId) =>
             new BsonDocument

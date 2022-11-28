@@ -131,14 +131,14 @@ namespace MongoDB.Driver.Core.Logging
         {
             var (host, port) = connectionId.ServerId.EndPoint.GetHostAndPort();
 
-            return new object[] { connectionId.ServerId.ClusterId.Value, connectionId.LocalValue, host, port, arg1};
+            return new object[] { connectionId.ServerId.ClusterId.Value, connectionId.LongLocalValue, host, port, arg1};
         }
 
         public static object[] GetParams(ConnectionId connectionId, object arg1, object arg2)
         {
             var (host, port) = connectionId.ServerId.EndPoint.GetHostAndPort();
 
-            return new object[] { connectionId.ServerId.ClusterId.Value, connectionId.LocalValue, host, port, arg1, arg2 };
+            return new object[] { connectionId.ServerId.ClusterId.Value, connectionId.LongLocalValue, host, port, arg1, arg2 };
         }
 
         public static object[] GetParamsOmitNull(ConnectionId connectionId, object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object arg7, object ommitableParam)
@@ -146,9 +146,9 @@ namespace MongoDB.Driver.Core.Logging
             var (host, port) = connectionId.ServerId.EndPoint.GetHostAndPort();
 
             if (ommitableParam == null)
-                return new object[] { connectionId.ServerId.ClusterId.Value, connectionId.LocalValue, host, port, arg1, arg2, arg3, arg4, arg5, arg6, arg7, };
+                return new object[] { connectionId.ServerId.ClusterId.Value, connectionId.LongLocalValue, host, port, arg1, arg2, arg3, arg4, arg5, arg6, arg7, };
             else
-                return new object[] { connectionId.ServerId.ClusterId.Value, connectionId.LocalValue, host, port, arg1, arg2, arg3, arg4, arg5, arg6, arg7, ommitableParam };
+                return new object[] { connectionId.ServerId.ClusterId.Value, connectionId.LongLocalValue, host, port, arg1, arg2, arg3, arg4, arg5, arg6, arg7, ommitableParam };
         }
 
         private static void AddTemplateProvider<TEvent>(LogLevel logLevel, string template, Func<TEvent, EventLogFormattingOptions, object[]> extractor) where TEvent : struct, IEvent =>

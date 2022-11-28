@@ -159,7 +159,7 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
 
                 var maitenanceInPlayTimeout = TimeSpan.FromMilliseconds(50);
                 eventCapturer.WaitForEventOrThrowIfTimeout<ConnectionPoolAddedConnectionEvent>(maitenanceInPlayTimeout);
-                eventCapturer.Next().Should().BeOfType<ConnectionPoolAddedConnectionEvent>().Which.ConnectionId.LocalValue.Should().Be(1);  // minPoolSize has been enrolled
+                eventCapturer.Next().Should().BeOfType<ConnectionPoolAddedConnectionEvent>().Which.ConnectionId.LongLocalValue.Should().Be(1);  // minPoolSize has been enrolled
                 eventCapturer.Any().Should().BeFalse();
 
                 SpinWait.SpinUntil(() => pool.ConnectionHolder._connections().Count > 0, TimeSpan.FromSeconds(1)).Should().BeTrue(); // wait until connection 1 has been returned to the pool after minPoolSize logic
@@ -168,7 +168,7 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
                 if (checkOutConnection)
                 {
                     acquiredConnection = pool.AcquireConnection(CancellationToken.None);
-                    acquiredConnection.ConnectionId.LocalValue.Should().Be(1);
+                    acquiredConnection.ConnectionId.LongLocalValue.Should().Be(1);
                 }
 
                 IncrementGeneration(pool);
