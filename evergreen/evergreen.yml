@@ -114,7 +114,7 @@ functions:
             # If this was a patch build, doing a fresh clone would not actually test the patch
             cp -R ${PROJECT_DIRECTORY}/ $DRIVERS_TOOLS
           else
-            git clone https://github.com/mongodb-labs/drivers-evergreen-tools.git $DRIVERS_TOOLS
+            git clone https://github.com/DmitryLukyanov/drivers-evergreen-tools.git --branch D2465 $DRIVERS_TOOLS
           fi
           echo "{ \"releases\": { \"default\": \"$MONGODB_BINARIES\" }}" > $MONGO_ORCHESTRATION_HOME/orchestration.config
 
@@ -229,6 +229,7 @@ functions:
           SSL=${SSL} \
           STORAGE_ENGINE=${STORAGE_ENGINE} \
           ORCHESTRATION_FILE=${ORCHESTRATION_FILE} \
+          FORCE_CONFIGURE_SHARED_VERSION=${FORCE_CONFIGURE_SHARED_VERSION} \
             sh ${DRIVERS_TOOLS}/.evergreen/run-orchestration.sh
     # run-orchestration generates expansion file with the MONGODB_URI for the cluster
     - command: expansions.update
@@ -1048,6 +1049,8 @@ tasks:
         - func: start-kms-mock-gcp-server
         - func: start-kms-mock-azure-imds-server
         - func: bootstrap-mongo-orchestration
+          vars:
+            FORCE_CONFIGURE_SHARED_VERSION: "YES"
         - func: run-csfle-with-mocked-kms-tests
           vars:
             FRAMEWORK: net472
@@ -1059,6 +1062,8 @@ tasks:
         - func: start-kms-mock-gcp-server
         - func: start-kms-mock-azure-imds-server
         - func: bootstrap-mongo-orchestration
+          vars:
+            FORCE_CONFIGURE_SHARED_VERSION: "YES"
         - func: run-csfle-with-mocked-kms-tests
           vars:
             FRAMEWORK: netstandard20
@@ -1070,6 +1075,8 @@ tasks:
         - func: start-kms-mock-gcp-server
         - func: start-kms-mock-azure-imds-server
         - func: bootstrap-mongo-orchestration
+          vars:
+            FORCE_CONFIGURE_SHARED_VERSION: "YES"
         - func: run-csfle-with-mocked-kms-tests
           vars:
             FRAMEWORK: netstandard21
@@ -2063,45 +2070,30 @@ buildvariants:
     - name: test-gssapi-netstandard21
 
 - matrix_name: "csfle-with-mocked-kms-tests-windows"
-  matrix_spec: { os: "windows-64", ssl: "nossl", version: [ "5.0", "6.0", "rapid", "latest" ], topology: ["replicaset"] }
+  matrix_spec: { os: "windows-64", ssl: "nossl", version: [ "4.2", "4.4", "5.0", "6.0", "rapid", "latest" ], topology: ["replicaset"] }
   display_name: "CSFLE Mocked KMS ${version} ${os}"
   tasks:
     - name: test-csfle-with-mocked-kms-tls-net472
     - name: test-csfle-with-mocked-kms-tls-netstandard20
     - name: test-csfle-with-mocked-kms-tls-netstandard21
-
-- matrix_name: "csfle-with-mocked-kms-tests-linux"
-  matrix_spec: { os: "ubuntu-1804", ssl: "nossl", version: [ "5.0", "6.0", "rapid", "latest" ], topology: ["replicaset"] }
-  display_name: "CSFLE Mocked KMS ${version} ${os}"
-  tasks:
-    - name: test-csfle-with-mocked-kms-tls-netstandard20
-    - name: test-csfle-with-mocked-kms-tls-netstandard21
-
-- matrix_name: "csfle-with-mocked-kms-tests-macOS"
-  matrix_spec: { os: [ "macos-1100", "macos-1100-arm64" ], ssl: "nossl", version: [ "5.0", "6.0", "rapid", "latest" ], topology: ["replicaset"] }
-  display_name: "CSFLE Mocked KMS ${version} ${os}"
-  tasks:
-    - name: test-csfle-with-mocked-kms-tls-netstandard21
-
-- matrix_name: "csfle-with-mongocryptd-windows"
-  matrix_spec: { os: "windows-64", ssl: "nossl", version: [ "4.2", "4.4", "5.0", "6.0", "latest" ], topology: ["replicaset"] }
-  display_name: "CSFLE with mongocryptd ${version} ${os}"
-  tasks:
     - name: test-csfle-with-mongocryptd-net472
     - name: test-csfle-with-mongocryptd-netstandard20
     - name: test-csfle-with-mongocryptd-netstandard21
 
-- matrix_name: "csfle-with-mongocryptd-linux"
-  matrix_spec: { os: "ubuntu-1804", ssl: "nossl", version: [ "4.2", "4.4", "5.0", "6.0", "latest" ], topology: ["replicaset"] }
-  display_name: "CSFLE with mongocryptd ${version} ${os}"
+- matrix_name: "csfle-with-mocked-kms-tests-linux"
+  matrix_spec: { os: "ubuntu-1804", ssl: "nossl", version: [ "4.2", "4.4", "5.0", "6.0", "rapid", "latest" ], topology: ["replicaset"] }
+  display_name: "CSFLE Mocked KMS ${version} ${os}"
   tasks:
+    - name: test-csfle-with-mocked-kms-tls-netstandard20
+    - name: test-csfle-with-mocked-kms-tls-netstandard21
     - name: test-csfle-with-mongocryptd-netstandard20
     - name: test-csfle-with-mongocryptd-netstandard21
 
-- matrix_name: "csfle-with-mongocryptd-macOS"
-  matrix_spec: { os: ["macos-1100", "macos-1100-arm64"], ssl: "nossl", version: [ "4.2", "4.4", "5.0", "6.0", "latest" ], topology: ["replicaset"] }
-  display_name: "CSFLE with mongocryptd ${version} ${os}"
+- matrix_name: "csfle-with-mocked-kms-tests-macOS"
+  matrix_spec: { os: [ "macos-1100", "macos-1100-arm64" ], ssl: "nossl", version: [ "4.2", "4.4", "5.0", "6.0", "rapid", "latest" ], topology: ["replicaset"] }
+  display_name: "CSFLE Mocked KMS ${version} ${os}"
   tasks:
+    - name: test-csfle-with-mocked-kms-tls-netstandard21
     - name: test-csfle-with-mongocryptd-netstandard21
 
 - matrix_name: "csfle-with-azure-kms-tests-linux"
