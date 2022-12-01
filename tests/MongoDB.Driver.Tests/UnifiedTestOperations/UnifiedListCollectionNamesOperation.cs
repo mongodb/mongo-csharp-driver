@@ -1,4 +1,4 @@
-﻿/* Copyright 2021-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,15 +21,15 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
-    public class UnifiedListCollectionsOperation : IUnifiedEntityTestOperation
+    public class UnifiedListCollectionNamesOperation : IUnifiedEntityTestOperation
     {
         private readonly IMongoDatabase _database;
-        private readonly ListCollectionsOptions _options;
+        private readonly ListCollectionNamesOptions _options;
         private readonly IClientSessionHandle _session;
 
-        public UnifiedListCollectionsOperation(
+        public UnifiedListCollectionNamesOperation(
             IMongoDatabase database,
-            ListCollectionsOptions options,
+            ListCollectionNamesOptions options,
             IClientSessionHandle session)
         {
             _database = Ensure.IsNotNull(database, nameof(database));
@@ -42,8 +42,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             try
             {
                 using var cursor = _session == null
-                    ? _database.ListCollections(_options, cancellationToken)
-                    : _database.ListCollections(_session, _options, cancellationToken);
+                    ? _database.ListCollectionNames(_options, cancellationToken)
+                    : _database.ListCollectionNames(_session, _options, cancellationToken);
 
                 var collections = cursor.ToList(cancellationToken);
 
@@ -60,8 +60,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             try
             {
                 using var cursor = _session == null
-                    ? await _database.ListCollectionsAsync(_options, cancellationToken)
-                    : await _database.ListCollectionsAsync(_session, _options, cancellationToken);
+                    ? await _database.ListCollectionNamesAsync(_options, cancellationToken)
+                    : await _database.ListCollectionNamesAsync(_session, _options, cancellationToken);
 
                 var collections = await cursor.ToListAsync(cancellationToken);
 
@@ -74,20 +74,20 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         }
     }
 
-    public class UnifiedListCollectionsOperationBuilder
+    public class UnifiedListCollectionNamesOperationBuilder
     {
         private readonly UnifiedEntityMap _entityMap;
 
-        public UnifiedListCollectionsOperationBuilder(UnifiedEntityMap entityMap)
+        public UnifiedListCollectionNamesOperationBuilder(UnifiedEntityMap entityMap)
         {
             _entityMap = entityMap;
         }
 
-        public UnifiedListCollectionsOperation Build(string targetDatabaseId, BsonDocument arguments)
+        public UnifiedListCollectionNamesOperation Build(string targetDatabaseId, BsonDocument arguments)
         {
             var database = _entityMap.GetDatabase(targetDatabaseId);
 
-            var listCollectionsOptions = new ListCollectionsOptions();
+            var listCollectionsOptions = new ListCollectionNamesOptions();
             IClientSessionHandle session = null;
 
             if (arguments != null)
@@ -99,19 +99,16 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         case "filter":
                             listCollectionsOptions.Filter = argument.Value.AsBsonDocument;
                             break;
-                        case "batchSize":
-                            listCollectionsOptions.BatchSize = argument.Value.ToInt32();
-                            break;
                         case "session":
                             session = _entityMap.GetSession(argument.Value.AsString);
                             break;
                         default:
-                            throw new FormatException($"Invalid {nameof(UnifiedListCollectionsOperation)} argument name: '{argument.Name}'.");
+                            throw new FormatException($"Invalid {nameof(UnifiedListCollectionNamesOperation)} argument name: '{argument.Name}'.");
                     }
                 }
             }
 
-            return new UnifiedListCollectionsOperation(database, listCollectionsOptions, session);
+            return new UnifiedListCollectionNamesOperation(database, listCollectionsOptions, session);
         }
     }
 }

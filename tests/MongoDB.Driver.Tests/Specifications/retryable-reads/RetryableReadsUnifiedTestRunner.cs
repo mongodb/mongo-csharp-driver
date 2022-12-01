@@ -14,6 +14,7 @@
 */
 
 using System.Collections.Generic;
+using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Core.TestHelpers.Logging;
@@ -27,6 +28,13 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
     [Trait("Category", "Serverless")]
     public sealed class RetryableReadsUnifiedTestRunner : LoggableTestClass
     {
+        private readonly static string[] __operationsToSkip =
+            new[]
+            {
+                "findOne",
+                "listIndexNames"
+            };
+
         // public constructors
         public RetryableReadsUnifiedTestRunner(ITestOutputHelper testOutputHelper)
             : base(testOutputHelper)
@@ -55,6 +63,11 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
             {
                 foreach (var testCase in base.CreateTestCases(document))
                 {
+                    if (__operationsToSkip.Any(testCase.Name.Contains))
+                    {
+                        continue;
+                    }
+
                     foreach (var async in new[] { false, true })
                     {
                         var name = $"{testCase.Name}:async={async}";
