@@ -39,12 +39,13 @@ namespace MongoDB.Driver.Search
         public HighlightOptions<TDocument> Options(
             PathDefinition<TDocument> path,
             int? maxCharsToExamine = null,
-            int? maxNumPassages = null) => new()
-        {
-            Path = path,
-            MaxCharsToExamine = maxCharsToExamine,
-            MaxNumPassages = maxNumPassages
-        };
+            int? maxNumPassages = null)
+            => new()
+            {
+                Path = path,
+                MaxCharsToExamine = maxCharsToExamine,
+                MaxNumPassages = maxNumPassages
+            };
 
         /// <summary>
         /// Creates highlighting options.

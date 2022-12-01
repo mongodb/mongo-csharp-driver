@@ -55,11 +55,12 @@ namespace MongoDB.Driver.Search
             set => _maxExpansions = Ensure.IsNullOrGreaterThanZero(value, nameof(value));
         }
 
-        internal BsonDocument Render() => new()
-        {
-            { "maxEdits", _maxEdits, _maxEdits != null },
-            { "prefixLength", _prefixLength, _prefixLength != null },
-            { "maxExpansions", _maxExpansions, _maxExpansions != null }
-        };
+        internal BsonDocument Render()
+            => new()
+            {
+                { "maxEdits", _maxEdits, _maxEdits != null },
+                { "prefixLength", _prefixLength, _prefixLength != null },
+                { "maxExpansions", _maxExpansions, _maxExpansions != null }
+            };
     }
 }

@@ -246,7 +246,7 @@ namespace MongoDB.Driver
             SearchCountOptions count = null,
             bool returnStoredSource = false)
         {
-            return AppendStage(PipelineStageDefinitionBuilder.Search(query, highlight, indexName, count, returnStoredSource));
+            return WithPipeline(_pipeline.Search(query, highlight, indexName, count, returnStoredSource));
         }
 
         public override IAggregateFluent<BsonDocument> SetWindowFields<TWindowFields>(

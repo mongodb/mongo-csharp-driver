@@ -44,10 +44,11 @@ namespace MongoDB.Driver.Search
             set => _threshold = Ensure.IsNullOrGreaterThanZero(value, nameof(value));
         }
 
-        internal BsonDocument Render() => new()
-        {
-            { "type", _type.ToCamelCase(), _type != SearchCountType.LowerBound },
-            { "threshold", _threshold, _threshold != null }
-        };
+        internal BsonDocument Render()
+            => new()
+            {
+                { "type", _type.ToCamelCase(), _type != SearchCountType.LowerBound },
+                { "threshold", _threshold, _threshold != null }
+            };
     }
 }

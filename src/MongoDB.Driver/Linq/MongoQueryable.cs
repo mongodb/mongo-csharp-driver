@@ -929,7 +929,7 @@ namespace MongoDB.Driver.Linq
         /// </summary>
         /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
         /// <param name="source">A sequence of values.</param>
-        /// <param name="query">The search definition.</param>
+        /// <param name="searchDefinition">The search definition.</param>
         /// <param name="highlight">The highlight options.</param>
         /// <param name="indexName">The index name.</param>
         /// <param name="count">The count options.</param>
@@ -940,7 +940,7 @@ namespace MongoDB.Driver.Linq
         /// <returns>The fluent aggregate interface.</returns>
         public static IMongoQueryable<TSource> Search<TSource>(
             this IMongoQueryable<TSource> source,
-            SearchDefinition<TSource> query,
+            SearchDefinition<TSource> searchDefinition,
             HighlightOptions<TSource> highlight = null,
             string indexName = null,
             SearchCountOptions count = null,
@@ -948,8 +948,7 @@ namespace MongoDB.Driver.Linq
         {
             return AppendStage(
                 source,
-                PipelineStageDefinitionBuilder.Search(query, highlight, indexName, count, returnStoredSource),
-                BsonSerializer.SerializerRegistry.GetSerializer<TSource>());
+                PipelineStageDefinitionBuilder.Search(searchDefinition, highlight, indexName, count, returnStoredSource));
         }
 
         /// <summary>

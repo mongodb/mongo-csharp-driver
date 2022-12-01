@@ -87,10 +87,11 @@ namespace MongoDB.Driver.Search
             _value = Ensure.IsGreaterThanZero(value, nameof(value));
         }
 
-        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry) => new()
-        {
-            { "boost",  new BsonDocument("value", _value) }
-        };
+        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+            => new()
+            {
+                { "boost",  new BsonDocument("value", _value) }
+            };
     }
 
     internal class BoostPathScoreDefinition<TDocument> : ScoreDefinition<TDocument>

@@ -296,7 +296,7 @@ namespace MongoDB.Driver.Core.Misc
         {
             if (value != null)
             {
-                Ensure.IsBetween(value.Value, min, max, paramName);
+                IsBetween(value.Value, min, max, paramName);
             }
             return value;
         }

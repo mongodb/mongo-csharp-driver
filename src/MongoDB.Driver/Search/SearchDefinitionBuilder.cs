@@ -79,18 +79,19 @@ namespace MongoDB.Driver.Search
             _score = score;
         }
 
-        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry) => new()
-        {
+        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+            => new()
             {
-                "text",
-                new BsonDocument()
                 {
-                    { "query", _query.Render() },
-                    { "path", _path.Render(documentSerializer, serializerRegistry) },
-                    { "fuzzy", () => _fuzzy.Render(), _fuzzy != null },
-                    { "score", () => _score.Render(documentSerializer, serializerRegistry), _score != null }
+                    "text",
+                    new BsonDocument()
+                    {
+                        { "query", _query.Render() },
+                        { "path", _path.Render(documentSerializer, serializerRegistry) },
+                        { "fuzzy", () => _fuzzy.Render(), _fuzzy != null },
+                        { "score", () => _score.Render(documentSerializer, serializerRegistry), _score != null }
+                    }
                 }
-            }
-        };
+            };
     }
 }

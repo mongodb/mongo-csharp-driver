@@ -1313,7 +1313,7 @@ namespace MongoDB.Driver
         /// Creates a $search stage.
         /// </summary>
         /// <typeparam name="TInput">The type of the input documents.</typeparam>
-        /// <param name="query">The search definition.</param>
+        /// <param name="searchDefinition">The search definition.</param>
         /// <param name="highlight">The highlight options.</param>
         /// <param name="indexName">The index name.</param>
         /// <param name="count">The count options.</param>
@@ -1323,37 +1323,26 @@ namespace MongoDB.Driver
         /// </param>
         /// <returns>The stage.</returns>
         public static PipelineStageDefinition<TInput, TInput> Search<TInput>(
-            SearchDefinition<TInput> query,
+            SearchDefinition<TInput> searchDefinition,
             HighlightOptions<TInput> highlight = null,
             string indexName = null,
             SearchCountOptions count = null,
             bool returnStoredSource = false)
         {
-            Ensure.IsNotNull(query, nameof(query));
+            Ensure.IsNotNull(searchDefinition, nameof(searchDefinition));
 
             const string operatorName = "$search";
             var stage = new DelegatedPipelineStageDefinition<TInput, TInput>(
                 operatorName,
                 (s, sr, linqProvider) =>
                 {
-                    var renderedQuery = query.Render(s, sr);
-                    if (highlight != null)
-                    {
-                        renderedQuery.Add("highlight", highlight.Render(s, sr));
-                    }
-                    if (count != null)
-                    {
-                        renderedQuery.Add("count", count.Render());
-                    }
-                    if (indexName != null)
-                    {
-                        renderedQuery.Add("index", indexName);
-                    }
-                    if (returnStoredSource)
-                    {
-                        renderedQuery.Add("returnStoredSource", returnStoredSource);
-                    }
-                    var document = new BsonDocument(operatorName, renderedQuery);
+                    var renderedSearchDefinition = searchDefinition.Render(s, sr);
+                    renderedSearchDefinition.Add("highlight", () => highlight.Render(s, sr), highlight != null);
+                    renderedSearchDefinition.Add("count", () => count.Render(), count != null);
+                    renderedSearchDefinition.Add("index", indexName, indexName != null);
+                    renderedSearchDefinition.Add("returnStoredSource", returnStoredSource, returnStoredSource);
+
+                    var document = new BsonDocument(operatorName, renderedSearchDefinition);
                     return new RenderedPipelineStageDefinition<TInput>(operatorName, document, s);
                 });
 

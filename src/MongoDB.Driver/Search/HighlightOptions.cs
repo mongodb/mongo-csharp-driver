@@ -63,11 +63,12 @@ namespace MongoDB.Driver.Search
         /// <param name="documentSerializer">The document serializer.</param>
         /// <param name="serializerRegistry">The serializer registry.</param>
         /// <returns>A <see cref="BsonDocument"/>.</returns>
-        public BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry) => new()
-        {
-            { "path", _path.Render(documentSerializer, serializerRegistry) },
-            { "maxCharsToExamine", _maxCharsToExamine, _maxCharsToExamine != null},
-            { "maxNumPassages", _maxNumPassages, _maxNumPassages != null }
-        };
+        public BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+            => new()
+            {
+                { "path", _path.Render(documentSerializer, serializerRegistry) },
+                { "maxCharsToExamine", _maxCharsToExamine, _maxCharsToExamine != null},
+                { "maxNumPassages", _maxNumPassages, _maxNumPassages != null }
+            };
     }
 }
