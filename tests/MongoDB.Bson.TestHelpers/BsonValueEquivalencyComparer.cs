@@ -22,7 +22,7 @@ namespace MongoDB.Bson.TestHelpers
         #region static
         public static BsonValueEquivalencyComparer Instance { get; } = new BsonValueEquivalencyComparer();
 
-        public static bool Compare(BsonValue a, BsonValue b, bool allowTypesMismathcing = true)
+        public static bool Compare(BsonValue a, BsonValue b, bool allowTypesMismatching = true)
         {
             if (a.BsonType == BsonType.Document && b.BsonType == BsonType.Document)
             {
@@ -36,11 +36,11 @@ namespace MongoDB.Bson.TestHelpers
             {
                 return a.Equals(b);
             }
-            else if (IsNumber(a) && IsNumber(b) && allowTypesMismathcing)
+            else if (IsNumber(a) && IsNumber(b) && allowTypesMismatching)
             {
                 return a.ToDouble() == b.ToDouble();
             }
-            else if (CouldBeBoolean(a) && CouldBeBoolean(b) && allowTypesMismathcing)
+            else if (CouldBeBoolean(a) && CouldBeBoolean(b) && allowTypesMismatching)
             {
                 return a.ToBoolean() == b.ToBoolean();
             }
