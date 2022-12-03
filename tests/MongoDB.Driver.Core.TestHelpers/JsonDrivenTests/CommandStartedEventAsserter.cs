@@ -153,7 +153,7 @@ namespace MongoDB.Driver.Core.TestHelpers.JsonDrivenTests
             var namesToUseOrderInsensitiveComparisonWith = new[] { "writeConcern", "maxTimeMS", "updates", "indexes", "getMore", "deletes", "compactionTokens", "encryptionInformation" };
             var useOrderInsensitiveComparison = namesToUseOrderInsensitiveComparisonWith.Contains(name);
 
-            if (!(useOrderInsensitiveComparison ? BsonValueEquivalencyComparer.Compare(actualValue, expectedValue, allowTypesMismathcing: name != "encryptionInformation") : actualValue.Equals(expectedValue)))
+            if (!(useOrderInsensitiveComparison ? BsonValueEquivalencyComparer.Compare(actualValue, expectedValue, allowTypesMismatching: name != "encryptionInformation") : actualValue.Equals(expectedValue)))
             {
                 switch (name)
                 {
