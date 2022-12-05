@@ -31,7 +31,6 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.8.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
-    <PackageReference Include="AWSSDK.SecurityToken" Version="3.7.100.14" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup>
