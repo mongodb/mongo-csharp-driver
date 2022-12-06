@@ -34,8 +34,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
             var pipeline = ExpressionToPipelineTranslator.Translate(context, expression);
 
             return ExecutableQuery.Create(
-                provider.Collection,
-                provider.Options,
+                provider,
                 pipeline,
                 IdentityFinalizer<TOutput>.Instance);
         }

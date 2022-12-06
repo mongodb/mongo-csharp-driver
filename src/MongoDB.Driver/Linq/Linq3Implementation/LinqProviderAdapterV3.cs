@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
 using MongoDB.Bson;
@@ -36,6 +37,15 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
         {
             var provider = new MongoQueryProvider<TDocument>(collection, session, options);
             return new MongoQuery<TDocument, TDocument>(provider);
+        }
+
+        internal override IMongoQueryable<NoPipelineInput> AsQueryable(
+            IMongoDatabase database,
+            IClientSessionHandle session,
+            AggregateOptions options)
+        {
+            var provider = new MongoQueryProvider<NoPipelineInput>(database, session, options);
+            return new MongoQuery<NoPipelineInput, NoPipelineInput>(provider);
         }
 
         public override string ToString() => "V3";
