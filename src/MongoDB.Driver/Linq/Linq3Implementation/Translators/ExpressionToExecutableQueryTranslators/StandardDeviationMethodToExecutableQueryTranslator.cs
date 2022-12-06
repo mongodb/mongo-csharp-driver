@@ -297,8 +297,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
                 var finalizer = method.IsOneOf(__standardDeviationNullableMethods) ? __singleOrDefaultFinalizer : __singleFinalizer;
 
                 return ExecutableQuery.Create(
-                    provider.Collection,
-                    provider.Options,
+                    provider,
                     pipeline,
                     finalizer);
             }

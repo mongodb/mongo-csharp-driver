@@ -60,6 +60,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
     {
         // private fields
         private readonly IMongoCollection<TDocument> _collection;
+        private readonly IMongoDatabase _database;
         private ExecutableQuery<TDocument> _mostRecentExecutableQuery;
 
         // constructors
@@ -72,10 +73,20 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
             _collection = collection;
         }
 
+        public MongoQueryProvider(
+            IMongoDatabase database,
+            IClientSessionHandle session,
+            AggregateOptions options)
+            : base(session, options)
+        {
+            _database = database;
+        }
+
         // public properties
         public IMongoCollection<TDocument> Collection => _collection;
         public override CollectionNamespace CollectionNamespace => _collection.CollectionNamespace;
         public override IBsonSerializer CollectionDocumentSerializer => _collection.DocumentSerializer;
+        public IMongoDatabase Database => _database;
 
         // public methods
         public override IQueryable CreateQuery(Expression expression)

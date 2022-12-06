@@ -48,8 +48,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
                     AstStage.Limit(1));
 
                 return ExecutableQuery.Create(
-                    provider.Collection,
-                    provider.Options,
+                    provider,
                     pipeline,
                     __finalizer);
             }

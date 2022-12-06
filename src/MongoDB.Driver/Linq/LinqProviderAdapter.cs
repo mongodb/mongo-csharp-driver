@@ -35,6 +35,11 @@ namespace MongoDB.Driver.Linq
             IClientSessionHandle session,
             AggregateOptions options);
 
+        internal abstract IMongoQueryable<NoPipelineInput> AsQueryable(
+            IMongoDatabase database,
+            IClientSessionHandle session,
+            AggregateOptions options);
+
         internal abstract BsonValue TranslateExpressionToAggregateExpression<TSource, TResult>(
             Expression<Func<TSource, TResult>> expression,
             IBsonSerializer<TSource> sourceSerializer,

@@ -36,6 +36,14 @@ namespace MongoDB.Driver.Linq.Linq2Implementation
             return new MongoQueryableImpl<TDocument, TDocument>(provider);
         }
 
+        internal override IMongoQueryable<NoPipelineInput> AsQueryable(
+            IMongoDatabase database,
+            IClientSessionHandle session,
+            AggregateOptions options)
+        {
+            throw new InvalidOperationException("LINQ2 does not support AsQueryable against a database.");
+        }
+
         public override string ToString() => "V2";
 
         internal override BsonValue TranslateExpressionToAggregateExpression<TSource, TResult>(

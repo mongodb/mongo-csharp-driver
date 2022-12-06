@@ -97,8 +97,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
                     AstStage.ReplaceRoot(AstExpression.GetField(root, "_max")));
 
                 return ExecutableQuery.Create(
-                    provider.Collection,
-                    provider.Options,
+                    provider,
                     pipeline,
                     __finalizer);
             }
