@@ -86,11 +86,12 @@ namespace MongoDB.Driver.Encryption
         /// <param name="kmsProvider">The kms provider.</param>
         /// <param name="dataKeyOptions">The datakey options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        public (IMongoCollection<TCollection> Collection, BsonDocument EncryptedFields) CreateEncryptedCollection<TCollection>(CollectionNamespace collectionNamespace, CreateCollectionOptions createCollectionOptions, string kmsProvider, DataKeyOptions dataKeyOptions, CancellationToken cancellationToken = default)
+        /// <remarks>
+        /// if EncryptionFields contains a keyId with a null value, a data key will be automatically generated and assigned to keyId value.
+        /// </remarks>
+        public void CreateEncryptedCollection<TCollection>(CollectionNamespace collectionNamespace, CreateCollectionOptions createCollectionOptions, string kmsProvider, DataKeyOptions dataKeyOptions, CancellationToken cancellationToken = default)
         {
-            var effectiveEncryptedFields = createCollectionOptions?.EncryptedFields?.DeepClone()?.AsBsonDocument;
-
-            foreach (var fieldDocument in EncryptedCollectionHelper.IterateEmptyKeyIds(collectionNamespace, effectiveEncryptedFields))
+            foreach (var fieldDocument in EncryptedCollectionHelper.IterateEmptyKeyIds(collectionNamespace, createCollectionOptions.EncryptedFields))
             {
                 var dataKey = CreateDataKey(kmsProvider, dataKeyOptions, cancellationToken);
                 EncryptedCollectionHelper.ModifyEncryptedFields(fieldDocument, dataKey);
@@ -98,13 +99,7 @@ namespace MongoDB.Driver.Encryption
 
             var database = _libMongoCryptController.KeyVaultClient.GetDatabase(collectionNamespace.DatabaseNamespace.DatabaseName);
 
-            createCollectionOptions.EncryptedFields = effectiveEncryptedFields;
-
             database.CreateCollection(collectionNamespace.CollectionName, createCollectionOptions, cancellationToken);
-
-            var collection = database.GetCollection<TCollection>(collectionNamespace.CollectionName);
-
-            return (collection, effectiveEncryptedFields);
         }
 
         /// <summary>
@@ -115,11 +110,12 @@ namespace MongoDB.Driver.Encryption
         /// <param name="kmsProvider">The kms provider.</param>
         /// <param name="dataKeyOptions">The datakey options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        public async Task<(IMongoCollection<TCollection> Collection, BsonDocument EncryptedFields)> CreateEncryptedCollectionAsync<TCollection>(CollectionNamespace collectionNamespace, CreateCollectionOptions createCollectionOptions, string kmsProvider, DataKeyOptions dataKeyOptions, CancellationToken cancellationToken = default)
+        /// <remarks>
+        /// if EncryptionFields contains a keyId with a null value, a data key will be automatically generated and assigned to keyId value.
+        /// </remarks>
+        public async Task CreateEncryptedCollectionAsync<TCollection>(CollectionNamespace collectionNamespace, CreateCollectionOptions createCollectionOptions, string kmsProvider, DataKeyOptions dataKeyOptions, CancellationToken cancellationToken = default)
         {
-            var effectiveEncryptedFields = createCollectionOptions?.EncryptedFields?.DeepClone()?.AsBsonDocument;
-
-            foreach (var fieldDocument in EncryptedCollectionHelper.IterateEmptyKeyIds(collectionNamespace, effectiveEncryptedFields))
+            foreach (var fieldDocument in EncryptedCollectionHelper.IterateEmptyKeyIds(collectionNamespace, createCollectionOptions.EncryptedFields))
             {
                 var dataKey = await CreateDataKeyAsync(kmsProvider, dataKeyOptions, cancellationToken).ConfigureAwait(false);
                 EncryptedCollectionHelper.ModifyEncryptedFields(fieldDocument, dataKey);
@@ -127,13 +123,7 @@ namespace MongoDB.Driver.Encryption
 
             var database = _libMongoCryptController.KeyVaultClient.GetDatabase(collectionNamespace.DatabaseNamespace.DatabaseName);
 
-            createCollectionOptions.EncryptedFields = effectiveEncryptedFields;
-
             await database.CreateCollectionAsync(collectionNamespace.CollectionName, createCollectionOptions, cancellationToken).ConfigureAwait(false);
-
-            var collection = database.GetCollection<TCollection>(collectionNamespace.CollectionName);
-
-            return (collection, effectiveEncryptedFields);
         }
 
         /// <summary>

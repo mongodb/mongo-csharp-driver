@@ -117,7 +117,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                     {
                         case 1: // Case 1: Simple Creation and Validation
                             {
-                                var collection = CreateEncryptedCollection(client, clientEncryption, __collCollectionNamespace, encryptedFields, kmsProvider, async).Collection;
+                                var collection = CreateEncryptedCollection(client, clientEncryption, __collCollectionNamespace, encryptedFields, kmsProvider, async);
 
                                 var exception = Record.Exception(() => Insert(collection, async, new BsonDocument("ssn", "123-45-6789")));
                                 exception.Should().BeOfType<MongoBulkWriteException<BsonDocument>>().Which.Message.Should().Contain("Document failed validation");
@@ -125,7 +125,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                             break;
                         case 2: // Case 2: Missing ``encryptedFields``
                             {
-                                var exception = Record.Exception(() => CreateEncryptedCollection(client, clientEncryption, __collCollectionNamespace, encryptedFields: null, kmsProvider, async).Collection);
+                                var exception = Record.Exception(() => CreateEncryptedCollection(client, clientEncryption, __collCollectionNamespace, encryptedFields: null, kmsProvider, async));
 
                                 exception.Should().BeOfType<InvalidOperationException>().Which.Message.Should().Contain("There are no encrypted fields defined for the collection.") ;
                             }
@@ -2264,14 +2264,21 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                     });
         }
 
-        private (IMongoCollection<BsonDocument> Collection, BsonDocument EncryptedFields) CreateEncryptedCollection(IMongoClient client, ClientEncryption clientEncryption, CollectionNamespace collectionNamespace, BsonDocument encryptedFields, string kmsProvider, bool async)
+        private IMongoCollection<BsonDocument> CreateEncryptedCollection(IMongoClient client, ClientEncryption clientEncryption, CollectionNamespace collectionNamespace, BsonDocument encryptedFields, string kmsProvider, bool async)
         {
             var createCollectionOptions = new CreateCollectionOptions { EncryptedFields = encryptedFields };
             var datakeyOptions = CreateDataKeyOptions(kmsProvider);
 
-            return async
-                ? clientEncryption.CreateEncryptedCollectionAsync<BsonDocument>(collectionNamespace, createCollectionOptions, kmsProvider, datakeyOptions, cancellationToken: default).GetAwaiter().GetResult()
-                : clientEncryption.CreateEncryptedCollection<BsonDocument>(collectionNamespace, createCollectionOptions, kmsProvider, datakeyOptions, cancellationToken: default);
+            if (async)
+            {
+                clientEncryption.CreateEncryptedCollectionAsync<BsonDocument>(collectionNamespace, createCollectionOptions, kmsProvider, datakeyOptions, cancellationToken: default).GetAwaiter().GetResult();
+            }
+            else
+            { 
+                clientEncryption.CreateEncryptedCollection<BsonDocument>(collectionNamespace, createCollectionOptions, kmsProvider, datakeyOptions, cancellationToken: default);
+            }
+
+            return client.GetDatabase(collectionNamespace.DatabaseNamespace.DatabaseName).GetCollection<BsonDocument>(collectionNamespace.CollectionName);
         }
 
         private Guid CreateDataKey(
