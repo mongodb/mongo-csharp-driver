@@ -19,12 +19,13 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using FluentAssertions;
+using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using Xunit;
 
-namespace MongoDB.Bson.Specifications.bson_decimal128
+namespace MongoDB.Driver.Tests.Specifications.bson_decimal128
 {
     public class TestRunner
     {
@@ -158,7 +159,7 @@ namespace MongoDB.Bson.Specifications.bson_decimal128
         {
             public IEnumerator<object[]> GetEnumerator()
             {
-                const string prefix = "MongoDB.Bson.Tests.Specifications.bson_decimal128.tests.";
+                const string prefix = "MongoDB.Driver.Tests.Specifications.bson_decimal128.tests.";
                 var executingAssembly = typeof(TestCaseFactory).GetTypeInfo().Assembly;
                 var enumerable = executingAssembly
                     .GetManifestResourceNames()

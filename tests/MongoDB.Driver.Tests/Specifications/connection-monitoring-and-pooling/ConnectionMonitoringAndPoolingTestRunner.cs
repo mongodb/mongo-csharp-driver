@@ -42,7 +42,7 @@ using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
 
-namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
+namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
 {
     [Trait("Category", "Pool")]
     public class ConnectionMonitoringAndPoolingTestRunner
@@ -810,7 +810,7 @@ namespace MongoDB.Driver.Specifications.connection_monitoring_and_pooling
         // nested types
         private class TestCaseFactory : JsonDrivenTestCaseFactory
         {
-            protected override string PathPrefix => "MongoDB.Driver.Core.Tests.Specifications.connection_monitoring_and_pooling.tests.cmap_format.";
+            protected override string PathPrefix => "MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling.tests.cmap_format.";
 
             protected override IEnumerable<JsonDrivenTestCase> CreateTestCases(BsonDocument document)
             {

@@ -249,14 +249,6 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
         }
     }
 
-    internal static class ServerReflector
-    {
-        public static IServerMonitor _monitor(this IServer server)
-        {
-            return (IServerMonitor)Reflector.GetFieldValue(server, nameof(_monitor));
-        }
-    }
-
     internal static class ServerMonitorReflector
     {
         public static IRoundTripTimeMonitor _roundTripTimeMonitor(this IServerMonitor serverMonitor)

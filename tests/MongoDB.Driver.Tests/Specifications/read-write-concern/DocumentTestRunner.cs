@@ -20,7 +20,7 @@ using Xunit;
 using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 
-namespace MongoDB.Driver.Specifications.read_write_concern.tests
+namespace MongoDB.Driver.Tests.Specifications.read_write_concern.tests
 {
     public class DocumentTestRunner
     {
@@ -135,7 +135,7 @@ namespace MongoDB.Driver.Specifications.read_write_concern.tests
 
         private class TestCaseFactory : JsonDrivenTestCaseFactory
         {
-            protected override string PathPrefix => "MongoDB.Driver.Core.Tests.Specifications.read_write_concern.tests.document.";
+            protected override string PathPrefix => "MongoDB.Driver.Tests.Specifications.read_write_concern.tests.document.";
         }
     }
 }

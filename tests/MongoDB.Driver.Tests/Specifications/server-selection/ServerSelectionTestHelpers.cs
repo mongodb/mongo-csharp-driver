@@ -22,7 +22,7 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 
-namespace MongoDB.Driver.Specifications.server_selection
+namespace MongoDB.Driver.Tests.Specifications.server_selection
 {
     internal static class ServerSelectionTestHelper
     {

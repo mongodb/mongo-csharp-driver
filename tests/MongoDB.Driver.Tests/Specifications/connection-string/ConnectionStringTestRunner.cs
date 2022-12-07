@@ -28,7 +28,7 @@ using MongoDB.Driver.Core.TestHelpers.Logging;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace MongoDB.Driver.Specifications.connection_string
+namespace MongoDB.Driver.Tests.Specifications.connection_string
 {
     public class ConnectionStringTestRunner : LoggableTestClass
     {
@@ -411,8 +411,8 @@ namespace MongoDB.Driver.Specifications.connection_string
             protected override string[] PathPrefixes =>
                 new[]
                 {
-                    "MongoDB.Driver.Core.Tests.Specifications.connection_string.tests.",
-                    "MongoDB.Driver.Core.Tests.Specifications.uri_options.tests."
+                    "MongoDB.Driver.Tests.Specifications.connection_string.tests.",
+                    "MongoDB.Driver.Tests.Specifications.uri_options.tests."
                 };
 
             protected override IEnumerable<JsonDrivenTestCase> CreateTestCases(BsonDocument document)
