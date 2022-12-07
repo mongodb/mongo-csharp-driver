@@ -30,7 +30,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 case ExpressionType.MemberAccess: return MemberExpressionToFilterFieldTranslator.Translate(context, (MemberExpression)expression);
                 case ExpressionType.Call: return MethodCallExpressionToFilterFieldTranslator.Translate(context, (MethodCallExpression)expression);
                 case ExpressionType.Parameter: return ParameterExpressionToFilterFieldTranslator.Translate(context, (ParameterExpression)expression);
-                case ExpressionType.Convert: return ConvertExpressionToFilterFieldTranslator.Translate(context, (UnaryExpression)expression);
+
+                case ExpressionType.Convert:
+                case ExpressionType.TypeAs:
+                    return ConvertExpressionToFilterFieldTranslator.Translate(context, (UnaryExpression)expression);
             }
 
             throw new ExpressionNotSupportedException(expression);
