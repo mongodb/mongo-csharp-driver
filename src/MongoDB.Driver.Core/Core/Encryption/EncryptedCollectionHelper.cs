@@ -95,7 +95,7 @@ namespace MongoDB.Driver.Encryption
             }
         }
 
-        public static void ModifyEndryptedFields(BsonDocument fieldDocument, Guid dataKey)
+        public static void ModifyEncryptedFields(BsonDocument fieldDocument, Guid dataKey)
         {
             fieldDocument["keyId"] = new BsonBinaryData(dataKey, GuidRepresentation.Standard);
         }

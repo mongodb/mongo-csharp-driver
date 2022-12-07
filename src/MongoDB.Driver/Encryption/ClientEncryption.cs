@@ -93,7 +93,7 @@ namespace MongoDB.Driver.Encryption
             foreach (var fieldDocument in EncryptedCollectionHelper.IterateEmptyKeyIds(collectionNamespace, effectiveEncryptedFields))
             {
                 var dataKey = CreateDataKey(kmsProvider, dataKeyOptions, cancellationToken);
-                EncryptedCollectionHelper.ModifyEndryptedFields(fieldDocument, dataKey);
+                EncryptedCollectionHelper.ModifyEncryptedFields(fieldDocument, dataKey);
             }
 
             var database = _libMongoCryptController.KeyVaultClient.GetDatabase(collectionNamespace.DatabaseNamespace.DatabaseName);
@@ -122,7 +122,7 @@ namespace MongoDB.Driver.Encryption
             foreach (var fieldDocument in EncryptedCollectionHelper.IterateEmptyKeyIds(collectionNamespace, effectiveEncryptedFields))
             {
                 var dataKey = await CreateDataKeyAsync(kmsProvider, dataKeyOptions, cancellationToken).ConfigureAwait(false);
-                EncryptedCollectionHelper.ModifyEndryptedFields(fieldDocument, dataKey);
+                EncryptedCollectionHelper.ModifyEncryptedFields(fieldDocument, dataKey);
             }
 
             var database = _libMongoCryptController.KeyVaultClient.GetDatabase(collectionNamespace.DatabaseNamespace.DatabaseName);
