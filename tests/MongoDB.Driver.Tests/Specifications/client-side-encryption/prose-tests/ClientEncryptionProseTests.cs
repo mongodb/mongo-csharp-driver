@@ -1880,6 +1880,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             }
         }
 
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void RewrapTest(
             [Values("local", "aws", "azure", "gcp", "kmip")] string srcProvider,
             [Values("local", "aws", "azure", "gcp", "kmip")] string dstProvider,
