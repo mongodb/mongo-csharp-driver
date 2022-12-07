@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -595,11 +596,11 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<Message>();
 
-            Assert(subject.Set(x => ((SmsMessage)x).PhoneNumber, "1234567890"), "{$set: {pn: '1234567890'}}");
+            Assert(subject.Set(x => ((SmsMessage)x).PhoneNumber, "1234567890"), "{$set: {pn: '1234567890'}}", LinqProvider.V3);
 
             var subject2 = CreateSubject<Person>();
 
-            Assert(subject2.Set(x => ((SmsMessage)x.Message).PhoneNumber, "1234567890"), "{$set: {'m.pn': '1234567890'}}");
+            Assert(subject2.Set(x => ((SmsMessage)x.Message).PhoneNumber, "1234567890"), "{$set: {'m.pn': '1234567890'}}", LinqProvider.V3);
         }
 
         [Fact]
@@ -607,11 +608,11 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<Message>();
 
-            Assert(subject.Set(x => (x as SmsMessage).PhoneNumber, "1234567890"), "{$set: {pn: '1234567890'}}");
+            Assert(subject.Set(x => (x as SmsMessage).PhoneNumber, "1234567890"), "{$set: {pn: '1234567890'}}", LinqProvider.V3);
 
             var subject2 = CreateSubject<Person>();
 
-            Assert(subject2.Set(x => (x.Message as SmsMessage).PhoneNumber, "1234567890"), "{$set: {'m.pn': '1234567890'}}");
+            Assert(subject2.Set(x => (x.Message as SmsMessage).PhoneNumber, "1234567890"), "{$set: {'m.pn': '1234567890'}}", LinqProvider.V3);
         }
 
         [Fact]
@@ -650,7 +651,12 @@ namespace MongoDB.Driver.Tests
 
         private void Assert<TDocument>(UpdateDefinition<TDocument> update, BsonDocument expected)
         {
-            var renderedUpdate = Render(update).AsBsonDocument;
+            Assert(update, expected, LinqProvider.V2);
+        }
+
+        private void Assert<TDocument>(UpdateDefinition<TDocument> update, BsonDocument expected, LinqProvider linqProvider)
+        {
+            var renderedUpdate = Render(update, linqProvider).AsBsonDocument;
 
             renderedUpdate.Should().Be(expected);
         }
@@ -665,7 +671,12 @@ namespace MongoDB.Driver.Tests
 
         private void Assert<TDocument>(UpdateDefinition<TDocument> update, string expected)
         {
-            Assert(update, BsonDocument.Parse(expected));
+            Assert(update, expected, LinqProvider.V2);
+        }
+
+        private void Assert<TDocument>(UpdateDefinition<TDocument> update, string expected, LinqProvider linqProvider)
+        {
+            Assert(update, BsonDocument.Parse(expected), linqProvider);
         }
 
         private void AssertThrow<TDocument, TException>(UpdateDefinition<TDocument> update, string errorMessage) where TException : Exception
@@ -682,8 +693,13 @@ namespace MongoDB.Driver.Tests
 
         private BsonValue Render<TDocument>(UpdateDefinition<TDocument> update)
         {
+            return Render(update, LinqProvider.V2);
+        }
+
+        private BsonValue Render<TDocument>(UpdateDefinition<TDocument> update, LinqProvider linqProvider)
+        {
             var documentSerializer = BsonSerializer.SerializerRegistry.GetSerializer<TDocument>();
-            return update.Render(documentSerializer, BsonSerializer.SerializerRegistry, LinqProvider.V2);
+            return update.Render(documentSerializer, BsonSerializer.SerializerRegistry, linqProvider);
         }
 
         private class Person

@@ -28,113 +28,59 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
     {
         public static AstFilterField Translate(TranslationContext context, UnaryExpression expression)
         {
-            if (expression.NodeType == ExpressionType.Convert)
+            if (expression.NodeType == ExpressionType.Convert || expression.NodeType == ExpressionType.TypeAs)
             {
                 var field = ExpressionToFilterFieldTranslator.Translate(context, expression.Operand);
-                var fieldSerializer = field.Serializer;
-                var fieldType = fieldSerializer.ValueType;
+                var fieldType = field.Serializer.ValueType;
                 var targetType = expression.Type;
 
-                if (fieldType.IsEnumOrNullableEnum(out _, out var underlyingType))
+                if (IsConvertEnumToUnderlyingType(fieldType, targetType))
                 {
-                    if (targetType.IsSameAsOrNullableOf(underlyingType))
-                    {
-                        IBsonSerializer enumSerializer;
-                        if (fieldType.IsNullable())
-                        {
-                            var nullableSerializer = (INullableSerializer)fieldSerializer;
-                            enumSerializer = nullableSerializer.ValueSerializer;
-                        }
-                        else
-                        {
-                            enumSerializer = fieldSerializer;
-                        }
-
-                        IBsonSerializer targetSerializer;
-                        var enumUnderlyingTypeSerializer = EnumUnderlyingTypeSerializer.Create(enumSerializer);
-                        if (targetType.IsNullable())
-                        {
-                            targetSerializer = NullableSerializer.Create(enumUnderlyingTypeSerializer);
-                        }
-                        else
-                        {
-                            targetSerializer = enumUnderlyingTypeSerializer;
-                        }
-
-                        return AstFilter.Field(field.Path, targetSerializer);
-                    }
+                    return TranslateConvertEnumToUnderlyingType(field, targetType);
                 }
 
-                if (IsNumericType(targetType))
+                if (IsNumericConversion(fieldType, targetType))
                 {
-                    IBsonSerializer targetTypeSerializer = expression.Type switch
-                    {
-                        Type t when t == typeof(byte) => new ByteSerializer(),
-                        Type t when t == typeof(short) => new Int16Serializer(),
-                        Type t when t == typeof(ushort) => new UInt16Serializer(),
-                        Type t when t == typeof(int) => new Int32Serializer(),
-                        Type t when t == typeof(uint) => new UInt32Serializer(),
-                        Type t when t == typeof(long) => new Int64Serializer(),
-                        Type t when t == typeof(ulong) => new UInt64Serializer(),
-                        Type t when t == typeof(float) => new SingleSerializer(),
-                        Type t when t == typeof(double) => new DoubleSerializer(),
-                        Type t when t == typeof(decimal) => new DecimalSerializer(),
-                        _ => throw new ExpressionNotSupportedException(expression)
-                    };
-                    if (fieldSerializer is IRepresentationConfigurable representationConfigurableFieldSerializer &&
-                        targetTypeSerializer is IRepresentationConfigurable representationConfigurableTargetTypeSerializer)
-                    {
-                        var fieldRepresentation = representationConfigurableFieldSerializer.Representation;
-                        if (fieldRepresentation == BsonType.String)
-                        {
-                            targetTypeSerializer = representationConfigurableTargetTypeSerializer.WithRepresentation(fieldRepresentation);
-                        }
-                    }
-                    if (fieldSerializer is IRepresentationConverterConfigurable converterConfigurableFieldSerializer &&
-                        targetTypeSerializer is IRepresentationConverterConfigurable converterConfigurableTargetTypeSerializer)
-                    {
-                        targetTypeSerializer = converterConfigurableTargetTypeSerializer.WithConverter(converterConfigurableFieldSerializer.Converter);
-                    }
-                    return AstFilter.Field(field.Path, targetTypeSerializer);
+                    return TranslateNumericConversion(field, targetType);
                 }
 
-                if (targetType.IsConstructedGenericType &&
-                    targetType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                if (IsConvertToNullable(fieldType, targetType))
                 {
-                    var nullableValueType = targetType.GetGenericArguments()[0];
-                    if (nullableValueType == fieldType)
-                    {
-                        var nullableSerializerType = typeof(NullableSerializer<>).MakeGenericType(nullableValueType);
-                        var nullableSerializer = (IBsonSerializer)Activator.CreateInstance(nullableSerializerType, fieldSerializer);
-                        return AstFilter.Field(field.Path, nullableSerializer);
-                    }
+                    return TranslateConvertToNullable(field);
+                }
 
-                    if (fieldType.IsConstructedGenericType &&
-                        fieldType.GetGenericTypeDefinition() == typeof(Nullable<>))
-                    {
-                        var fieldValueType = fieldType.GetGenericArguments()[0];
-                        if (fieldValueType.IsEnum)
-                        {
-                            var enumUnderlyingType = fieldValueType.GetEnumUnderlyingType();
-                            if (nullableValueType == enumUnderlyingType)
-                            {
-                                var fieldSerializerType = fieldSerializer.GetType();
-                                if (fieldSerializerType.IsConstructedGenericType &&
-                                    fieldSerializerType.GetGenericTypeDefinition() == typeof(NullableSerializer<>))
-                                {
-                                    var enumSerializer = ((IChildSerializerConfigurable)fieldSerializer).ChildSerializer;
-                                    var enumUnderlyingTypeSerializer = EnumUnderlyingTypeSerializer.Create(enumSerializer);
-                                    var nullableSerializerType = typeof(NullableSerializer<>).MakeGenericType(nullableValueType);
-                                    var nullableSerializer = (IBsonSerializer)Activator.CreateInstance(nullableSerializerType, enumUnderlyingTypeSerializer);
-                                    return AstFilter.Field(field.Path, nullableSerializer);
-                                }
-                            }
-                        }
-                    }
+                if (IsConvertToDerivedType(fieldType, targetType))
+                {
+                    return TranslateConvertToDerivedType(field, targetType);
                 }
             }
 
             throw new ExpressionNotSupportedException(expression);
+        }
+
+        private static bool IsConvertEnumToUnderlyingType(Type fieldType, Type targetType)
+        {
+            return
+                fieldType.IsEnumOrNullableEnum(out _, out var underlyingType) &&
+                targetType.IsSameAsOrNullableOf(underlyingType);
+        }
+
+        private static bool IsConvertToDerivedType(Type fieldType, Type targetType)
+        {
+            return targetType.IsSubclassOf(fieldType);
+        }
+
+        private static bool IsConvertToNullable(Type fieldType, Type targetType)
+        {
+            return
+                targetType.IsConstructedGenericType &&
+                targetType.GetGenericTypeDefinition() == typeof(Nullable<>) &&
+                targetType.GetGenericArguments()[0] == fieldType;
+        }
+
+        private static bool IsNumericConversion(Type fieldType, Type targetType)
+        {
+            return IsNumericType(fieldType) && IsNumericType(targetType);
         }
 
         private static bool IsNumericType(Type type)
@@ -147,6 +93,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 case TypeCode.Int16:
                 case TypeCode.Int32:
                 case TypeCode.Int64:
+                case TypeCode.SByte:
                 case TypeCode.Single:
                 case TypeCode.UInt16:
                 case TypeCode.UInt32:
@@ -156,6 +103,82 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 default:
                     return false;
             }
+        }
+
+        private static AstFilterField TranslateConvertEnumToUnderlyingType(AstFilterField field, Type targetType)
+        {
+            var fieldSerializer = field.Serializer;
+            var fieldType = fieldSerializer.ValueType;
+
+            IBsonSerializer enumSerializer;
+            if (fieldType.IsNullable())
+            {
+                var nullableSerializer = (INullableSerializer)fieldSerializer;
+                enumSerializer = nullableSerializer.ValueSerializer;
+            }
+            else
+            {
+                enumSerializer = fieldSerializer;
+            }
+
+            IBsonSerializer targetSerializer;
+            var enumUnderlyingTypeSerializer = EnumUnderlyingTypeSerializer.Create(enumSerializer);
+            if (targetType.IsNullable())
+            {
+                targetSerializer = NullableSerializer.Create(enumUnderlyingTypeSerializer);
+            }
+            else
+            {
+                targetSerializer = enumUnderlyingTypeSerializer;
+            }
+
+            return AstFilter.Field(field.Path, targetSerializer);
+        }
+
+        private static AstFilterField TranslateConvertToDerivedType(AstFilterField field, Type targetType)
+        {
+            var targetSerializer = BsonSerializer.LookupSerializer(targetType);
+            return AstFilter.Field(field.Path, targetSerializer);
+        }
+
+        private static AstFilterField TranslateConvertToNullable(AstFilterField field)
+        {
+            var nullableSerializer = NullableSerializer.Create(field.Serializer);
+            return AstFilter.Field(field.Path, nullableSerializer);
+        }
+
+        private static AstFilterField TranslateNumericConversion(AstFilterField field, Type targetType)
+        {
+            IBsonSerializer targetTypeSerializer = targetType switch
+            {
+                Type t when t == typeof(byte) => new ByteSerializer(),
+                Type t when t == typeof(sbyte) => new SByteSerializer(),
+                Type t when t == typeof(short) => new Int16Serializer(),
+                Type t when t == typeof(ushort) => new UInt16Serializer(),
+                Type t when t == typeof(int) => new Int32Serializer(),
+                Type t when t == typeof(uint) => new UInt32Serializer(),
+                Type t when t == typeof(long) => new Int64Serializer(),
+                Type t when t == typeof(ulong) => new UInt64Serializer(),
+                Type t when t == typeof(float) => new SingleSerializer(),
+                Type t when t == typeof(double) => new DoubleSerializer(),
+                Type t when t == typeof(decimal) => new DecimalSerializer(),
+                _ => throw new Exception($"Unexpected target type: {targetType}.")
+            };
+            if (field.Serializer is IRepresentationConfigurable representationConfigurableFieldSerializer &&
+                targetTypeSerializer is IRepresentationConfigurable representationConfigurableTargetTypeSerializer)
+            {
+                var fieldRepresentation = representationConfigurableFieldSerializer.Representation;
+                if (fieldRepresentation == BsonType.String)
+                {
+                    targetTypeSerializer = representationConfigurableTargetTypeSerializer.WithRepresentation(fieldRepresentation);
+                }
+            }
+            if (field.Serializer is IRepresentationConverterConfigurable converterConfigurableFieldSerializer &&
+                targetTypeSerializer is IRepresentationConverterConfigurable converterConfigurableTargetTypeSerializer)
+            {
+                targetTypeSerializer = converterConfigurableTargetTypeSerializer.WithConverter(converterConfigurableFieldSerializer.Converter);
+            }
+            return AstFilter.Field(field.Path, targetTypeSerializer);
         }
     }
 }
