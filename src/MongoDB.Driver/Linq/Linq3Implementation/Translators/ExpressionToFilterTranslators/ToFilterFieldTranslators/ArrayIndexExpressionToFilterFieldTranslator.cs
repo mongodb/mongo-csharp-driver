@@ -14,6 +14,7 @@
 */
 
 using System.Linq.Expressions;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
 using MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
@@ -27,25 +28,31 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             if (expression.NodeType == ExpressionType.ArrayIndex)
             {
                 var arrayExpression = expression.Left;
-                var arrayField = ExpressionToFilterFieldTranslator.Translate(context, arrayExpression);
                 var indexExpression = expression.Right;
-                var index = indexExpression.GetConstantValue<int>(containingExpression: expression);
 
-                if (index < 0)
-                {
-                    var reason = "negative indexes are not valid";
-                    if (index == -1)
-                    {
-                        reason += ". To use the positional operator $ use FirstMatchingElement instead of an index value of -1"; // closing period is added by exception
-                    }
-                    throw new ExpressionNotSupportedException(expression, because: reason);
-                }
-
-                var itemSerializer = ArraySerializerHelper.GetItemSerializer(arrayField.Serializer);
-                return arrayField.SubField(index.ToString(), itemSerializer);
+                return Translate(context, expression, fieldExpression: arrayExpression, indexExpression);
             }
 
             throw new ExpressionNotSupportedException(expression);
+        }
+
+        public static AstFilterField Translate(TranslationContext context, Expression expression, Expression fieldExpression, Expression indexExpression)
+        {
+            var field = ExpressionToFilterFieldTranslator.TranslateEnumerable(context, fieldExpression);
+            var index = indexExpression.GetConstantValue<int>(containingExpression: expression);
+            var itemSerializer = ArraySerializerHelper.GetItemSerializer(fieldExpression, field.Serializer);
+
+            if (index < 0)
+            {
+                var reason = "negative indexes are not valid";
+                if (index == -1)
+                {
+                    reason += ". To use the positional operator $ use FirstMatchingElement instead of an index value of -1"; // closing period is added by exception
+                }
+                throw new ExpressionNotSupportedException(expression, because: reason);
+            }
+
+            return field.SubField(index.ToString(), itemSerializer);
         }
     }
 }

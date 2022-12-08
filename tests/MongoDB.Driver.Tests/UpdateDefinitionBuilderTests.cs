@@ -244,13 +244,13 @@ namespace MongoDB.Driver.Tests
         public void Incorrect_index_should_throw_expected_exception_with_set()
         {
             var subject = CreateSubject<Person>();
-            string expectedErrorMessage = "Array indexes must be greater than or equal to -1.";
+            string expectedErrorMessage = "because negative indexes are not valid";
 
 #pragma warning disable 251
-            AssertThrow<Person, IndexOutOfRangeException>(subject.Set(x => x.FavoriteColors[-2], "yellow"), expectedErrorMessage);
+            AssertThrow<Person, ExpressionNotSupportedException>(subject.Set(x => x.FavoriteColors[-2], "yellow"), expectedErrorMessage, LinqProvider.V3);
 #pragma warning restore
-            AssertThrow<Person, IndexOutOfRangeException>(subject.Set(x => x.Pets[-2].Name, "Fluffencutters"), expectedErrorMessage);
-            AssertThrow<Person, IndexOutOfRangeException>(subject.Set(x => x.Pets.ElementAt(-2).Name, "Fluffencutters"), expectedErrorMessage);
+            AssertThrow<Person, ExpressionNotSupportedException>(subject.Set(x => x.Pets[-2].Name, "Fluffencutters"), expectedErrorMessage, LinqProvider.V3);
+            AssertThrow<Person, ExpressionNotSupportedException>(subject.Set(x => x.Pets.ElementAt(-2).Name, "Fluffencutters"), expectedErrorMessage, LinqProvider.V3);
         }
 
         [Fact]
@@ -681,9 +681,14 @@ namespace MongoDB.Driver.Tests
 
         private void AssertThrow<TDocument, TException>(UpdateDefinition<TDocument> update, string errorMessage) where TException : Exception
         {
-            var exception = Record.Exception(() => { Render(update); });
+            AssertThrow<TDocument, TException>(update, errorMessage, LinqProvider.V2);
+        }
+
+        private void AssertThrow<TDocument, TException>(UpdateDefinition<TDocument> update, string errorMessage, LinqProvider linqProvider) where TException : Exception
+        {
+            var exception = Record.Exception(() => { Render(update, linqProvider); });
             exception.Should().BeOfType<TException>();
-            exception.Message.Should().Be(errorMessage);
+            exception.Message.Should().Contain(errorMessage);
         }
 
         private UpdateDefinitionBuilder<TDocument> CreateSubject<TDocument>()
