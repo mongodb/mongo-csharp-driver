@@ -32,7 +32,6 @@ using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.Logging;
-using MongoDB.Driver.Specifications.connection_monitoring_and_pooling;
 using Moq;
 using Xunit;
 using Xunit.Abstractions;

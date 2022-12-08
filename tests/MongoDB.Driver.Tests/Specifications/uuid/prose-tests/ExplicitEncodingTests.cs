@@ -15,10 +15,11 @@
 
 using System;
 using FluentAssertions;
+using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
 using Xunit;
 
-namespace MongoDB.Bson.Tests.Specifications.uuid.prose_tests
+namespace MongoDB.Driver.Tests.Specifications.uuid.prose_tests
 {
     public class ExplicitEncodingTests
     {

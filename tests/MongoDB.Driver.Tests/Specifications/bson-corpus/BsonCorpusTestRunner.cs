@@ -19,13 +19,14 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using FluentAssertions;
+using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using Xunit;
 
-namespace MongoDB.Bson.Tests.Specifications.bson_corpus
+namespace MongoDB.Driver.Tests.Specifications.bson_corpus
 {
     public class BsonCorpusTestRunner
     {
@@ -300,7 +301,7 @@ namespace MongoDB.Bson.Tests.Specifications.bson_corpus
             #endregion
 
             // protected properties
-            protected override string PathPrefix => "MongoDB.Bson.Tests.Specifications.bson_corpus.tests.";
+            protected override string PathPrefix => "MongoDB.Driver.Tests.Specifications.bson_corpus.tests.";
 
             // protected methods
             protected override IEnumerable<JsonDrivenTestCase> CreateTestCases(BsonDocument document)

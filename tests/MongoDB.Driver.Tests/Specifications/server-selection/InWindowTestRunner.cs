@@ -31,7 +31,7 @@ using Moq;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace MongoDB.Driver.Specifications.server_selection
+namespace MongoDB.Driver.Tests.Specifications.server_selection
 {
     public sealed class InWindowTestRunner : LoggableTestClass
     {
@@ -137,7 +137,7 @@ namespace MongoDB.Driver.Specifications.server_selection
         {
             protected override string[] PathPrefixes => new[]
             {
-                "MongoDB.Driver.Core.Tests.Specifications.server_selection.tests.in_window.",
+                "MongoDB.Driver.Tests.Specifications.server_selection.tests.in_window.",
             };
 
             protected override IEnumerable<JsonDrivenTestCase> CreateTestCases(BsonDocument document)
