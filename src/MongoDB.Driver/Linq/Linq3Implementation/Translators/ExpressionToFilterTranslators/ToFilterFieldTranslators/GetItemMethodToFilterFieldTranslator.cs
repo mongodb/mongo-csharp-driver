@@ -21,7 +21,6 @@ using MongoDB.Bson.Serialization.Options;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
 using MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods;
-using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilterTranslators.ToFilterFieldTranslators
 {
@@ -42,40 +41,22 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
 
                 if (indexExpression.Type == typeof(int))
                 {
-                    var index = indexExpression.GetConstantValue<int>(containingExpression: expression);
-                    return TranslateWithIntIndex(context, expression, method, fieldExpression, index);
+                    return ArrayIndexExpressionToFilterFieldTranslator.Translate(context, expression, fieldExpression, indexExpression);
                 }
 
                 if (indexExpression.Type == typeof(string))
                 {
-                    var key = indexExpression.GetConstantValue<string>(containingExpression: expression);
-                    return TranslateWithStringIndex(context, expression, method, fieldExpression, key);
+                    return TranslateWithStringIndex(context, expression, method, fieldExpression, indexExpression);
                 }
             }
 
             throw new ExpressionNotSupportedException(expression);
         }
 
-        private static AstFilterField TranslateWithIntIndex(TranslationContext context, MethodCallExpression expression, MethodInfo method, Expression fieldExpression, int index)
-        {
-            var field = ExpressionToFilterFieldTranslator.TranslateEnumerable(context, fieldExpression);
-
-            if (field.Serializer is IBsonArraySerializer arraySerializer &&
-                arraySerializer.TryGetItemSerializationInfo(out var itemSerializationInfo))
-            {
-                var itemSerializer = itemSerializationInfo.Serializer;
-                if (method.ReturnType.IsAssignableFrom(itemSerializer.ValueType))
-                {
-                    return field.SubField(index.ToString(), itemSerializer);
-                }
-            }
-
-            throw new ExpressionNotSupportedException(expression);
-        }
-
-        private static AstFilterField TranslateWithStringIndex(TranslationContext context, MethodCallExpression expression, MethodInfo method, Expression fieldExpression, string key)
+        private static AstFilterField TranslateWithStringIndex(TranslationContext context, MethodCallExpression expression, MethodInfo method, Expression fieldExpression, Expression indexExpression)
         {
             var field = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
+            var key = indexExpression.GetConstantValue<string>(containingExpression: expression);
 
             if (typeof(BsonValue).IsAssignableFrom(field.Serializer.ValueType))
             {
