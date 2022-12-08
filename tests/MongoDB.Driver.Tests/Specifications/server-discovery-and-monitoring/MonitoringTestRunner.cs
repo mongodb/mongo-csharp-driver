@@ -27,14 +27,14 @@ using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
-using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
+using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace MongoDB.Driver.Specifications.sdam_monitoring
+namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
 {
     public class MonitoringTestRunner : LoggableTestClass
     {
@@ -365,7 +365,7 @@ namespace MongoDB.Driver.Specifications.sdam_monitoring
         // nested types
         private class TestCaseFactory : JsonDrivenTestCaseFactory
         {
-            protected override string PathPrefix => "MongoDB.Driver.Core.Tests.Specifications.server_discovery_and_monitoring.tests.monitoring.";
+            protected override string PathPrefix => "MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring.tests.monitoring.";
 
             protected override IEnumerable<JsonDrivenTestCase> CreateTestCases(BsonDocument document)
             {

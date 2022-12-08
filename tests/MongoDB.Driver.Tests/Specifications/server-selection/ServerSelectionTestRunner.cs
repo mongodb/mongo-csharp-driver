@@ -25,7 +25,7 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using Xunit;
 
-namespace MongoDB.Driver.Specifications.server_selection
+namespace MongoDB.Driver.Tests.Specifications.server_selection
 {
     public class ServerSelectionTestRunner
     {
@@ -150,8 +150,8 @@ namespace MongoDB.Driver.Specifications.server_selection
         {
             protected override string[] PathPrefixes => new[]
             {
-                "MongoDB.Driver.Core.Tests.Specifications.server_selection.tests.server_selection.",
-                "MongoDB.Driver.Core.Tests.Specifications.max_staleness.tests."
+                "MongoDB.Driver.Tests.Specifications.server_selection.tests.server_selection.",
+                "MongoDB.Driver.Tests.Specifications.max_staleness.tests."
             };
 
             protected override IEnumerable<JsonDrivenTestCase> CreateTestCases(BsonDocument document)

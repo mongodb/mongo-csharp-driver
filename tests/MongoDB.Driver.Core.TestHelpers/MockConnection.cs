@@ -27,7 +27,7 @@ using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
-namespace MongoDB.Driver.Core.Helpers
+namespace MongoDB.Driver.Core.TestHelpers
 {
     public class MockConnection : IConnection
     {

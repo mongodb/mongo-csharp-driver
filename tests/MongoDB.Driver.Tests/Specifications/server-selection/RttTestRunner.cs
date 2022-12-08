@@ -24,7 +24,7 @@ using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 using Xunit;
 
-namespace MongoDB.Driver.Specifications.server_selection
+namespace MongoDB.Driver.Tests.Specifications.server_selection
 {
     public class RttTestRunner
     {
@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Specifications.server_selection
         {
             public IEnumerator<object[]> GetEnumerator()
             {
-                const string prefix = "MongoDB.Driver.Core.Tests.Specifications.server_selection.tests.rtt.";
+                const string prefix = "MongoDB.Driver.Tests.Specifications.server_selection.tests.rtt.";
                 var executingAssembly = typeof(TestCaseFactory).GetTypeInfo().Assembly;
                 var enumerable = executingAssembly
                     .GetManifestResourceNames()

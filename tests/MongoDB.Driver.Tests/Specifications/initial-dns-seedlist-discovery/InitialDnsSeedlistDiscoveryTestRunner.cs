@@ -28,7 +28,7 @@ using System.Collections;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
 
-namespace MongoDB.Driver.Specifications.initial_dns_seedlist_discovery
+namespace MongoDB.Driver.Tests.Specifications.initial_dns_seedlist_discovery
 {
     [Trait("Category", "ConnectionString")]
     [Trait("Category", "SupportLoadBalancing")]
@@ -166,7 +166,7 @@ namespace MongoDB.Driver.Specifications.initial_dns_seedlist_discovery
         {
             public IEnumerator<object[]> GetEnumerator()
             {
-                const string prefix = "MongoDB.Driver.Core.Tests.Specifications.initial_dns_seedlist_discovery.tests.";
+                const string prefix = "MongoDB.Driver.Tests.Specifications.initial_dns_seedlist_discovery.tests.";
                 var executingAssembly = typeof(TestCaseFactory).GetTypeInfo().Assembly;
                 return executingAssembly
                     .GetManifestResourceNames()

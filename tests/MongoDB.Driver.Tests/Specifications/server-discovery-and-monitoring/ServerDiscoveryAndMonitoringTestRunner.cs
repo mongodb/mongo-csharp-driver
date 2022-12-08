@@ -15,7 +15,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using FluentAssertions;
@@ -28,7 +27,6 @@ using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.ConnectionPools;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
-using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers;
@@ -37,7 +35,7 @@ using Moq;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
+namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
 {
     public class ServerDiscoveryAndMonitoringTestRunner : LoggableTestClass
     {
@@ -602,14 +600,14 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
             // private constants
             private readonly string[] MonitoringPrefixes =
             {
-                "MongoDB.Driver.Core.Tests.Specifications.server_discovery_and_monitoring.tests.monitoring.",
-                "MongoDB.Driver.Core.Tests.Specifications.server_discovery_and_monitoring.tests.legacy_hello.monitoring."
+                "MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring.tests.monitoring.",
+                "MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring.tests.legacy_hello.monitoring."
             };
 
             // Integration tests are run by ServerDiscoveryAndMonitoringIntegrationTestRunner in MongoDB.Driver.Tests
-            private const string IntegrationTestPrefix = "MongoDB.Driver.Core.Tests.Specifications.server_discovery_and_monitoring.tests.integration.";
+            private const string IntegrationTestPrefix = "MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring.tests.integration.";
 
-            protected override string PathPrefix => "MongoDB.Driver.Core.Tests.Specifications.server_discovery_and_monitoring.tests.";
+            protected override string PathPrefix => "MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring.tests.";
 
             protected override IEnumerable<JsonDrivenTestCase> CreateTestCases(BsonDocument document)
             {
@@ -651,6 +649,11 @@ namespace MongoDB.Driver.Specifications.server_discovery_and_monitoring
         public static IConnectionPool _connectionPool(this Server server)
         {
             return (IConnectionPool)Reflector.GetFieldValue(server, nameof(_connectionPool));
+        }
+
+        public static IServerMonitor _monitor(this IServer server)
+        {
+            return (IServerMonitor)Reflector.GetFieldValue(server, nameof(_monitor));
         }
 
         public static void HandleBeforeHandshakeCompletesException(this Server server, Exception ex)
