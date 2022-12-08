@@ -446,11 +446,12 @@ functions:
       type: test
       params:
         silent: true
+        shell: "bash"
         working_dir: mongo-csharp-driver
         script: |
           ${PREPARE_SHELL}
           cd ${DRIVERS_TOOLS}/.evergreen/auth_aws
-          . ./activate_venv.sh
+          . ./activate-authawsvenv.sh
           mongo aws_e2e_regular_aws.js
     - command: shell.exec
       type: test
@@ -470,12 +471,13 @@ functions:
       type: test
       params:
         silent: true
+        shell: "bash"
         working_dir: mongo-csharp-driver
         script: |
           ${PREPARE_SHELL}
           # The aws_e2e_assume_role script requires python3 with boto3.
           cd ${DRIVERS_TOOLS}/.evergreen/auth_aws
-          . ./activate_venv.sh
+          . ./activate-authawsvenv.sh
           mongo aws_e2e_assume_role.js
     - command: shell.exec
       type: test
@@ -501,6 +503,7 @@ functions:
       type: test
       params:
         silent: true
+        shell: "bash"
         working_dir: mongo-csharp-driver
         script: |
           ${PREPARE_SHELL}
@@ -509,7 +512,7 @@ functions:
              exit 0
           fi
           cd ${DRIVERS_TOOLS}/.evergreen/auth_aws
-          . ./activate_venv.sh
+          . ./activate-authawsvenv.sh
           mongo aws_e2e_ec2.js
     - command: shell.exec
       type: test
@@ -532,6 +535,7 @@ functions:
       type: test
       params:
         silent: true
+        shell: "bash"
         working_dir: mongo-csharp-driver
         script: |
           ${PREPARE_SHELL}
@@ -540,7 +544,7 @@ functions:
              exit 0
           fi
           cd ${DRIVERS_TOOLS}/.evergreen/auth_aws
-          . ./activate_venv.sh
+          . ./activate-authawsvenv.sh
           echo "Project Directory: $PROJECT_DIRECTORY"
           # SRC_DIRECTORY is workaround since EG_TOOLS expects "src" folder as a root
           SRC_DIRECTORY=$(dirname $PROJECT_DIRECTORY)/src
@@ -560,6 +564,7 @@ functions:
     - command: shell.exec
       type: test
       params:
+        shell: "bash"
         working_dir: mongo-csharp-driver
         script: |
           ${PREPARE_SHELL}
@@ -568,7 +573,7 @@ functions:
              exit 0
           fi
           cd ${DRIVERS_TOOLS}/.evergreen/auth_aws
-          . ./activate_venv.sh
+          . ./activate-authawsvenv.sh
           mongo aws_e2e_web_identity.js
     - command: shell.exec
       type: test
@@ -708,10 +713,12 @@ functions:
     - command: shell.exec
       params:
         background: true
+        shell: "bash"
         script: |
           set -o xtrace
           cd ${DRIVERS_TOOLS}/.evergreen/ocsp
-          nohup ./venv/Scripts/python ocsp_mock.py \
+          . ./activate-ocspvenv.sh
+          nohup python ocsp_mock.py \
             --ca_file ${OCSP_ALGORITHM}/ca.pem \
             --ocsp_responder_cert ${OCSP_ALGORITHM}/ca.crt \
             --ocsp_responder_key ${OCSP_ALGORITHM}/ca.key \
@@ -727,10 +734,12 @@ functions:
     - command: shell.exec
       params:
         background: true
+        shell: "bash"
         script: |
           set -o xtrace
           cd ${DRIVERS_TOOLS}/.evergreen/ocsp
-          nohup ./venv/Scripts/python ocsp_mock.py \
+          . ./activate-ocspvenv.sh
+          nohup python ocsp_mock.py \
             --ca_file ${OCSP_ALGORITHM}/ca.pem \
             --ocsp_responder_cert ${OCSP_ALGORITHM}/ocsp-responder.crt \
             --ocsp_responder_key ${OCSP_ALGORITHM}/ocsp-responder.key \
@@ -746,10 +755,12 @@ functions:
     - command: shell.exec
       params:
         background: true
+        shell: "bash"
         script: |
           set -o xtrace
           cd ${DRIVERS_TOOLS}/.evergreen/ocsp
-          nohup ./venv/Scripts/python.exe ocsp_mock.py \
+          . ./activate-ocspvenv.sh
+          nohup python ocsp_mock.py \
             --ca_file ${OCSP_ALGORITHM}/ca.pem \
             --ocsp_responder_cert ${OCSP_ALGORITHM}/ca.crt \
             --ocsp_responder_key ${OCSP_ALGORITHM}/ca.key \
@@ -767,10 +778,12 @@ functions:
     - command: shell.exec
       params:
         background: true
+        shell: "bash"
         script: |
           set -o xtrace
           cd ${DRIVERS_TOOLS}/.evergreen/ocsp
-          nohup ./venv/Scripts/python.exe ocsp_mock.py \
+          . ./activate-ocspvenv.sh
+          nohup python ocsp_mock.py \
             --ca_file ${OCSP_ALGORITHM}/ca.pem \
             --ocsp_responder_cert ${OCSP_ALGORITHM}/ocsp-responder.crt \
             --ocsp_responder_key ${OCSP_ALGORITHM}/ocsp-responder.key \
@@ -848,83 +861,93 @@ functions:
   start-kms-mock-servers:
     - command: shell.exec
       params:
+        shell: "bash"
         script: |
           ${PREPARE_SHELL}
           cd ${DRIVERS_TOOLS}/.evergreen/csfle
-          . ./activate_venv.sh
+          . ./activate-kmstlsvenv.sh
     - command: shell.exec
       params:
         background: true
+        shell: "bash"
         script: |
           #expired client cert
-          PYTHON=$(Venv="${DRIVERS_TOOLS}/.evergreen/csfle/kmstlsvenv" OS=${OS} ${PROJECT_DIRECTORY}/evergreen/get-python-path.sh);
           cd ${DRIVERS_TOOLS}/.evergreen/csfle
-          $PYTHON -u kms_http_server.py -v --ca_file ../x509gen/ca.pem --cert_file ../x509gen/expired.pem --port 8000
+          . ./activate-kmstlsvenv.sh
+          python -u kms_http_server.py -v --ca_file ../x509gen/ca.pem --cert_file ../x509gen/expired.pem --port 8000
     - command: shell.exec
       params:
         background: true
+        shell: "bash"
         script: |
           #wrong-host client cert
-          PYTHON=$(Venv="${DRIVERS_TOOLS}/.evergreen/csfle/kmstlsvenv" OS=${OS} ${PROJECT_DIRECTORY}/evergreen/get-python-path.sh);
           cd ${DRIVERS_TOOLS}/.evergreen/csfle
-          $PYTHON -u kms_http_server.py -v --ca_file ../x509gen/ca.pem --cert_file ../x509gen/wrong-host.pem --port 8001
+          . ./activate-kmstlsvenv.sh
+          python -u kms_http_server.py -v --ca_file ../x509gen/ca.pem --cert_file ../x509gen/wrong-host.pem --port 8001
     - command: shell.exec
       params:
         background: true
+        shell: "bash"
         script: |
           #server.pem client cert
-          PYTHON=$(Venv="${DRIVERS_TOOLS}/.evergreen/csfle/kmstlsvenv" OS=${OS} ${PROJECT_DIRECTORY}/evergreen/get-python-path.sh);
           cd ${DRIVERS_TOOLS}/.evergreen/csfle
-          $PYTHON -u kms_http_server.py -v --ca_file ../x509gen/ca.pem --cert_file ../x509gen/server.pem --port 8002 --require_client_cert
+          . ./activate-kmstlsvenv.sh
+          python -u kms_http_server.py -v --ca_file ../x509gen/ca.pem --cert_file ../x509gen/server.pem --port 8002 --require_client_cert
 
   start-kms-mock-kmip-server:
     - command: shell.exec
       params:
+        shell: "bash"
         script: |
           ${PREPARE_SHELL}
           cd ${DRIVERS_TOOLS}/.evergreen/csfle
-          . ./activate_venv.sh
+          . ./activate-kmstlsvenv.sh
     - command: shell.exec
       params:
+        shell: "bash"
         background: true
         script: |
-          PYTHON=$(Venv="${DRIVERS_TOOLS}/.evergreen/csfle/kmstlsvenv" OS=${OS} ${PROJECT_DIRECTORY}/evergreen/get-python-path.sh);
           cd ${DRIVERS_TOOLS}/.evergreen/csfle
-          $PYTHON -u kms_kmip_server.py
+          . ./activate-kmstlsvenv.sh
+          python -u kms_kmip_server.py
 
   start-kms-mock-gcp-server:
     - command: shell.exec
       params:
+        shell: "bash"
         script: |
           ${PREPARE_SHELL}
           cd ${DRIVERS_TOOLS}/.evergreen/csfle
-          . ./activate_venv.sh
+          . ./activate-kmstlsvenv.sh
     - command: shell.exec
       params:
         background: true
+        shell: "bash"
         script: |
-          PYTHON=$(Venv="${DRIVERS_TOOLS}/.evergreen/csfle/kmstlsvenv" OS=${OS} ${PROJECT_DIRECTORY}/evergreen/get-python-path.sh);
           cd ${DRIVERS_TOOLS}/.evergreen/csfle/gcpkms
-          $PYTHON -m pip install PyJWT
+          . ./activate-kmstlsvenv.sh
+          python -m pip install PyJWT
           mkdir ${DRIVERS_TOOLS}/tmp
           echo '${GOOGLE_APPLICATION_CREDENTIALS_CONTENT}' > ${DRIVERS_TOOLS}/tmp/testgcpkms_key_file.json
           export GOOGLE_APPLICATION_CREDENTIALS=${DRIVERS_TOOLS}/tmp/testgcpkms_key_file.json
-          $PYTHON -u mock_server.py
+          python -u mock_server.py
 
   start-kms-mock-azure-imds-server:
     - command: shell.exec
       params:
+        shell: "bash"
         script: |
           ${PREPARE_SHELL}
           cd ${DRIVERS_TOOLS}/.evergreen/csfle
-          . ./activate_venv.sh
+          . ./activate-kmstlsvenv.sh
     - command: shell.exec
       params:
         background: true
+        shell: "bash"
         script: |
-          PYTHON=$(Venv="${DRIVERS_TOOLS}/.evergreen/csfle/kmstlsvenv" OS=${OS} ${PROJECT_DIRECTORY}/evergreen/get-python-path.sh);
           cd ${DRIVERS_TOOLS}/.evergreen/csfle
-          $PYTHON bottle.py fake_azure:imds
+          . ./activate-kmstlsvenv.sh
+          python bottle.py fake_azure:imds
 
   cleanup:
     - command: shell.exec
