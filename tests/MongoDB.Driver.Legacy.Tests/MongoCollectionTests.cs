@@ -26,7 +26,7 @@ using MongoDB.Driver.Core;
 using MongoDB.Driver.GeoJsonObjectModel;
 using FluentAssertions;
 using Xunit;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
@@ -140,7 +140,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(2, dictionary[3]);
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestAggregateExplain()
         {
             RequireServer.Check().Supports(Feature.LegacyWireProtocol);
@@ -184,7 +184,7 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void TestAggregateOutputToCollection(
             [Values("$out", "$merge")] string lastStageName,
@@ -259,7 +259,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(2, dictionary[3]);
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestAggregateWriteConcern()
         {
             RequireServer.Check().ClusterType(ClusterType.ReplicaSet);
@@ -441,7 +441,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(0, count);
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestCountUsesImplicitSession()
         {
             RequireServer.Check();
@@ -484,7 +484,7 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestCountWithMaxTimeFromFind()
         {
             RequireServer.Check();
@@ -509,7 +509,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(1, count);
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestCountWithReadPreferenceFromFind()
         {
             RequireServer.Check().ClusterType(ClusterType.ReplicaSet);
@@ -525,7 +525,7 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestCountWithHint()
         {
             RequireServer.Check();
@@ -542,7 +542,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(1, count);
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestCountWithHintFromFind()
         {
             RequireServer.Check();
@@ -554,7 +554,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(1, count);
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestCountWithHintAndLimitFromFind()
         {
             RequireServer.Check();
@@ -576,7 +576,7 @@ namespace MongoDB.Driver.Tests
             Assert.True(collection.Exists());
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void TestCreateCollectionSetAutoIndexId(
             [Values(false, true)]
@@ -596,7 +596,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(expectedIndexCount, indexCount);
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestCreateCollectionSetCappedSetMaxDocuments()
         {
             RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet).StorageEngine("mmapv1");
@@ -612,7 +612,7 @@ namespace MongoDB.Driver.Tests
             Assert.True(stats.MaxDocuments == 1000);
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestCreateCollectionSetCappedSetMaxSize()
         {
             RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet).StorageEngine("mmapv1");
@@ -627,7 +627,7 @@ namespace MongoDB.Driver.Tests
             Assert.True(stats.StorageSize >= 10000);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void TestCreateCollectionSetNoPadding(
             [Values(false, true)]
@@ -648,7 +648,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(userFlags, stats.UserFlags);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void TestCreateCollectionSetUsePowerOf2Sizes(
             [Values(false, true)]
@@ -764,7 +764,7 @@ namespace MongoDB.Driver.Tests
             Assert.True(indexes[1].Version >= 0);
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestCreateIndexWithStorageEngine()
         {
             RequireServer.Check().StorageEngine("wiredTiger");
@@ -780,7 +780,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(2, result.Count);
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestCreateIndexWriteConcern()
         {
             RequireServer.Check().ClusterType(ClusterType.ReplicaSet);
@@ -917,7 +917,7 @@ namespace MongoDB.Driver.Tests
             _collection.IndexExistsByName("x_1").Should().BeFalse();
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestDropIndexWriteConcern()
         {
             RequireServer.Check().ClusterType(ClusterType.ReplicaSet);
@@ -949,7 +949,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(TimeSpan.FromHours(1), indexes[1].TimeToLive);
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestExplain()
         {
             RequireServer.Check().Supports(Feature.LegacyWireProtocol);
@@ -1098,7 +1098,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(1, result.ModifiedDocument["count"].AsInt32);
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestFindAndModifyReplaceWithWriteConcernError()
         {
             RequireServer.Check().ClusterType(ClusterType.ReplicaSet);
@@ -1125,7 +1125,7 @@ namespace MongoDB.Driver.Tests
             modifiedDocument.Should().Be("{ _id : 1, x : 2 }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestFindAndModifyUpdateWithWriteConcernError()
         {
             RequireServer.Check().ClusterType(ClusterType.ReplicaSet);
@@ -1248,7 +1248,7 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestFindAndRemoveWithWriteConcernError()
         {
             RequireServer.Check().ClusterType(ClusterType.ReplicaSet);
@@ -1547,7 +1547,7 @@ namespace MongoDB.Driver.Tests
             // note: the hits are unordered
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestFindWithMaxScan()
         {
             RequireServer.Check().VersionLessThan("4.1.0-");
@@ -1588,7 +1588,7 @@ namespace MongoDB.Driver.Tests
         }
 #pragma warning restore
 
-        [SkippableFact]
+        [Fact]
         public void TestGeoHaystackSearch()
         {
             RequireServer.Check().VersionLessThan("4.8.0");
@@ -1625,7 +1625,7 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestGeoHaystackSearchWithMaxTime()
         {
             RequireServer.Check().VersionLessThan("4.8.0");
@@ -1659,7 +1659,7 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestGeoHaystackSearch_Typed()
         {
             RequireServer.Check().VersionLessThan("4.8.0");
@@ -1695,7 +1695,7 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestGeoNear()
         {
             RequireServer.Check().Supports(Feature.GeoNearCommand);
@@ -1742,7 +1742,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal("Coffee", place.Type);
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestGeoNearGeneric()
         {
             RequireServer.Check().Supports(Feature.GeoNearCommand);
@@ -1789,7 +1789,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal("Coffee", place.Type);
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestGeoNearSphericalFalse()
         {
             RequireServer.Check().Supports(Feature.GeoNearCommand);
@@ -1845,7 +1845,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal("Coffee", hit2.RawDocument["Type"].AsString);
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestGeoNearSphericalTrue()
         {
             RequireServer.Check().Supports(Feature.GeoNearCommand);
@@ -1901,7 +1901,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal("Coffee", hit2.RawDocument["Type"].AsString);
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestGeoNearWithGeoJsonPoints()
         {
             RequireServer.Check().Supports(Feature.GeoNearCommand);
@@ -1939,7 +1939,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal("Coffee", hit2.Type);
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestGeoNearWithMaxTime()
         {
             RequireServer.Check().Supports(Feature.GeoNearCommand);
@@ -2032,7 +2032,7 @@ namespace MongoDB.Driver.Tests
             _collection.FindAll().ToList();
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestGroupWithFinalizeFunction()
         {
             RequireServer.Check().Supports(Feature.GroupCommand);
@@ -2062,7 +2062,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(-3, results[2]["count"].ToInt32());
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestGroupWithKeyFields()
         {
             RequireServer.Check().Supports(Feature.GroupCommand);
@@ -2091,7 +2091,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(3, results[2]["count"].ToInt32());
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestGroupWithKeyFunction()
         {
             RequireServer.Check().Supports(Feature.GroupCommand);
@@ -2120,7 +2120,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(3, results[2]["count"].ToInt32());
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestGroupWithMaxTime()
         {
             RequireServer.Check().Supports(Feature.GroupCommand);
@@ -2147,7 +2147,7 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestGroupWithQuery()
         {
             RequireServer.Check().Supports(Feature.GroupCommand);
@@ -2256,7 +2256,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(3, collection.Count());
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void TestInsertBatchMultipleBatchesWriteConcernDisabledContinueOnErrorFalse(
             [Values(false, true)] bool retryWrites)
@@ -2297,7 +2297,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(0, collection.Count(Query.EQ("_id", 5)));
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void TestInsertBatchMultipleBatchesWriteConcernDisabledContinueOnErrorTrue(
             [Values(false, true)] bool retryWrites)
@@ -2496,7 +2496,7 @@ namespace MongoDB.Driver.Tests
             CheckExpectedResult(expectedResult, result);
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestInsertWithWriteConcernError()
         {
             RequireServer.Check().ClusterType(ClusterType.ReplicaSet);
@@ -2870,7 +2870,7 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestMapReduceWriteConcern()
         {
             RequireServer.Check().ClusterType(ClusterType.ReplicaSet);
@@ -3023,7 +3023,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(0, _collection.Count());
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void TestRemoveUnacknowledeged(
             [Values(false, true)] bool retryWrites)
@@ -3044,7 +3044,7 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestRemoveWithWriteConcernError()
         {
             RequireServer.Check().ClusterType(ClusterType.ReplicaSet);
@@ -3126,7 +3126,7 @@ namespace MongoDB.Driver.Tests
             _collection.GetStats();
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestGetStatsNoPadding()
         {
             RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet).StorageEngine("mmapv1");
@@ -3144,7 +3144,7 @@ namespace MongoDB.Driver.Tests
             Assert.True((stats.UserFlags & CollectionUserFlags.NoPadding) != 0);
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestGetStatsUsePowerOf2Sizes()
         {
             RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet).StorageEngine("mmapv1");
@@ -3297,7 +3297,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(2, _collection.Count());
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void TestUpdateUnacknowledged(
             [Values(false, true)] bool retryWrites)
@@ -3321,7 +3321,7 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestUpdateWithWriteConcernError()
         {
             RequireServer.Check().ClusterType(ClusterType.ReplicaSet);
@@ -3395,7 +3395,7 @@ namespace MongoDB.Driver.Tests
             });
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestValidate()
         {
             RequireServer.Check().StorageEngine("mmapv1");

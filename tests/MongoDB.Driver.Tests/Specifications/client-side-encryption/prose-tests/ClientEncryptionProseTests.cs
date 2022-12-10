@@ -30,7 +30,7 @@ using Amazon.Runtime;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Authentication.External;
 using MongoDB.Driver.Core.Bindings;
@@ -85,7 +85,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         }
 
         // public methods
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void BsonSizeLimitAndBatchSizeSplittingTest(
             [Values(false, true)] bool async)
@@ -250,7 +250,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void BypassMongocryptdClientWhenSharedLibraryTest(
             [Values(false, true)] bool async)
@@ -319,7 +319,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void BypassSpawningMongocryptdViaMongocryptdBypassSpawnTest(
             [Values(false, true)] bool async)
@@ -354,7 +354,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             SharedLibrary
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void BypassSpawningMongocryptdTest(
             [Values(BypassSpawningMongocryptd.BypassQueryAnalysis, BypassSpawningMongocryptd.BypassAutoEncryption, BypassSpawningMongocryptd.SharedLibrary)] BypassSpawningMongocryptd bypassSpawning,
@@ -411,7 +411,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void CorpusTest(
             [Values(false, true)] bool useLocalSchema,
@@ -581,7 +581,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             };
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void CreateDataKeyAndDoubleEncryptionTest(
             [Values("local", "aws", "azure", "gcp", "kmip")] string kmsProvider,
@@ -657,7 +657,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         // aws
         [InlineData("aws", null, null, null)]
         [InlineData("aws", "kms.us-east-1.amazonaws.com", null, null)]
@@ -819,7 +819,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [MemberData(nameof(DeadlockTest_MemberData))]
         public void DeadlockTest(
             string _,
@@ -1022,7 +1022,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void DecryptionEvents(
             [Range(1, 4)] int testCase,
@@ -1135,7 +1135,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void ExplicitEncryptionTest(
             [Range(1, 5)] int testCase,
@@ -1264,7 +1264,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void ExternalKeyVaultTest(
             [Values(false, true)] bool withExternalKeyVault,
@@ -1315,7 +1315,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void KmsTlsOptionsTest(
             [Values("aws", "azure", "gcp", "kmip")] string kmsProvider,
@@ -1632,7 +1632,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
         [Trait("Category", "CsfleAZUREKMS")]
         [Trait("Category", "CsfleGCPKMS")]
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void OnDemandCredentialsTest(
             [Values("aws", "azure", "gcp")] string kmsProvider,
@@ -1786,7 +1786,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public async Task OnDemandAzureIMDSCredentialsUnitTest(
             [Range(1, 6)] int testCase,
@@ -1919,7 +1919,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void ViewAreProhibitedTest([Values(false, true)] bool async)
         {
@@ -1947,7 +1947,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void UniqueIndexOnKeyAltNames(
             [Range(1, 2)] int testCase,
@@ -2016,7 +2016,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         }
 
         // NOTE: this test is not presented in the prose tests
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void UnsupportedPlatformsTests(
             [Values("gcp")] string kmsProvider, // the rest kms providers are supported on all supported TFs

@@ -26,7 +26,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
 {
     public class CSharp2471Tests : Linq3IntegrationTest
     {
-        [SkippableTheory]
+        [Theory]
         [InlineData("$acos", 1.0, 0.0)]
 #if NETCOREAPP3_1_OR_GREATER
         [InlineData("$acosh", 1.0, 0.0)]
@@ -88,7 +88,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             result.Should().Be(expectedResult);
         }
 
-        [SkippableFact]
+        [Fact]
         public void Atan2_should_work()
         {
             RequireServer.Check().Supports(Feature.TrigOperators);

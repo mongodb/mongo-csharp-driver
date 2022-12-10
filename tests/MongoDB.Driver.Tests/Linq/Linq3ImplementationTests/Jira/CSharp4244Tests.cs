@@ -23,7 +23,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
 {
     public class CSharp4244Tests : Linq3IntegrationTest
     {
-        [SkippableFact]
+        [Fact]
         public void Where_with_root_should_work()
         {
             RequireServer.Check().VersionGreaterThanOrEqualTo("6.0");

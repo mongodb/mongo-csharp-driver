@@ -19,7 +19,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
 
@@ -123,7 +123,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(value);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_return_the_expected_result(
             [Values(false, true)]
@@ -141,7 +141,7 @@ namespace MongoDB.Driver.Core.Operations
             list.Select(c => c["name"].AsString).Where(n => n != "system.indexes").Should().BeEquivalentTo(expectedNames);
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData("{ name : \"regular\" }", "regular", false)]
         [InlineData("{ name : \"regular\" }", "regular", true)]
         [InlineData("{ \"options.capped\" : true }", "capped", false)]
@@ -163,7 +163,7 @@ namespace MongoDB.Driver.Core.Operations
             list[0]["name"].AsString.Should().Be(expectedName);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_return_the_expected_result_when_batchSize_is_used([Values(false, true)] bool async)
         {
@@ -181,7 +181,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_return_the_expected_result_when_the_database_does_not_exist(
             [Values(false, true)]
@@ -197,7 +197,7 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(0);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_send_session_id_when_supported(
             [Values(false, true)] bool async)

@@ -18,7 +18,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
@@ -132,7 +132,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_with_hint_should_throw_when_hint_is_not_supported(
             [Values(0, 1)] int w,
@@ -427,7 +427,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_throw_when_maxTime_is_exceeded(
             [Values(false, true)] bool async)
@@ -445,7 +445,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_result(
             [Values(false, true)]
@@ -462,7 +462,7 @@ namespace MongoDB.Driver.Core.Operations
             ReadAllFromCollection().Should().HaveCount(1);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_result_when_Collation_is_set(
             [Values(false, true)]
@@ -483,7 +483,7 @@ namespace MongoDB.Driver.Core.Operations
             ReadAllFromCollection().Should().HaveCount(1);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_result_when_Let_is_set(
             [Values(false, true)] bool async)
@@ -503,7 +503,7 @@ namespace MongoDB.Driver.Core.Operations
             ReadAllFromCollection().Should().HaveCount(1);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_throw_when_there_is_a_write_concern_error(
             [Values(false, true)] bool async)
@@ -526,7 +526,7 @@ namespace MongoDB.Driver.Core.Operations
             ReadAllFromCollection().Should().HaveCount(1);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_when_document_does_not_exist(
             [Values(false, true)]

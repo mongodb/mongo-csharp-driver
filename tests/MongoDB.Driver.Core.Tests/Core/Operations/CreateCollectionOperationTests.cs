@@ -18,7 +18,7 @@ using System.Linq;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
@@ -594,7 +594,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_create_collection(
             [Values(false, true)]
@@ -614,7 +614,7 @@ namespace MongoDB.Driver.Core.Operations
             info["name"].AsString.Should().Be(_collectionNamespace.CollectionName);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_create_collection_when_AutoIndexId_is_set(
             [Values(false, true)]
@@ -641,7 +641,7 @@ namespace MongoDB.Driver.Core.Operations
             info["options"]["autoIndexId"].ToBoolean().Should().Be(autoIndexId);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_create_collection_when_Capped_is_set(
             [Values(false, true)]
@@ -672,7 +672,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_create_collection_when_Collation_is_set(
             [Values(false, true)]
@@ -695,7 +695,7 @@ namespace MongoDB.Driver.Core.Operations
             info["options"]["collation"]["locale"].AsString.Should().Be("en_US");
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_create_collection_when_IndexOptionDefaults_is_set(
             [Values(false, true)]
@@ -723,7 +723,7 @@ namespace MongoDB.Driver.Core.Operations
             info["options"]["indexOptionDefaults"].Should().Be(indexOptionDefaults);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_create_collection_when_MaxDocuments_is_set(
             [Values(1L, 2L)]
@@ -750,7 +750,7 @@ namespace MongoDB.Driver.Core.Operations
             info["options"]["max"].ToInt64().Should().Be(maxDocuments);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_create_collection_when_MaxSize_is_set(
             [Values(10000L, 20000L)]
@@ -776,7 +776,7 @@ namespace MongoDB.Driver.Core.Operations
             info["options"]["size"].ToInt64().Should().BeGreaterOrEqualTo(maxSize); // server rounds maxSize up
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_create_collection_when_NoPadding_is_set(
             [Values(false, true)]
@@ -801,7 +801,7 @@ namespace MongoDB.Driver.Core.Operations
             info["options"]["flags"].Should().Be(noPadding ? 2 : 0);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_create_collection_when_StorageEngine_is_set(
             [Values("abc", "def")]
@@ -830,7 +830,7 @@ namespace MongoDB.Driver.Core.Operations
             info["options"]["storageEngine"].Should().Be(storageEngine);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_create_collection_when_UsePowerOf2Sizes_is_set(
             [Values(false, true)]
@@ -855,7 +855,7 @@ namespace MongoDB.Driver.Core.Operations
             info["options"]["flags"].Should().Be(usePowerOf2Sizes ? 1 : 0);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_create_collection_when_Validator_is_set(
             [Values(false, true)]
@@ -883,7 +883,7 @@ namespace MongoDB.Driver.Core.Operations
             info["options"]["validationAction"].AsString.Should().Be("error");
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_throw_when_a_write_concern_error_occurs(
             [Values(false, true)]
@@ -907,7 +907,7 @@ namespace MongoDB.Driver.Core.Operations
             exception.Should().BeOfType<MongoWriteConcernException>();
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_send_session_id_when_supported(
             [Values(false, true)] bool async)

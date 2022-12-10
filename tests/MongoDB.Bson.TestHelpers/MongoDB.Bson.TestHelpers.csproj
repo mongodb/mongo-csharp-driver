@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\MongoDB.Bson\MongoDB.Bson.csproj" />
+    <ProjectReference Include="..\MongoDB.TestHelpers\MongoDB.TestHelpers.csproj" />
   </ItemGroup>
 
 </Project>

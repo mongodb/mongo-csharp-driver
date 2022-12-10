@@ -17,7 +17,7 @@ using System;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
@@ -143,7 +143,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(value);
         }
 
-        [SkippableFact]
+        [Fact]
         public void CreateCommand_should_return_expected_result()
         {
             var subject = new EstimatedDocumentCountOperation(_collectionNamespace, _messageEncoderSettings);
@@ -217,7 +217,7 @@ namespace MongoDB.Driver.Core.Operations
             AssertCommandDocument(result, readConcern: expectedReadConcernDocument);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_result([Values(false, true)] bool async)
         {
@@ -231,7 +231,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(2);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_throw_when_maxTime_is_exceeded([Values(false, true)] bool async)
         {
@@ -247,7 +247,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_result_when_MaxTime_is_set(
             [Values(null, 1000L)] long? milliseconds,
@@ -266,7 +266,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(2);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_result_when_ReadConcern_is_set(
             [Values(null, ReadConcernLevel.Local)] ReadConcernLevel? level,
@@ -286,7 +286,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(2);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_send_session_id_when_supported([Values(false, true)] bool async)
         {

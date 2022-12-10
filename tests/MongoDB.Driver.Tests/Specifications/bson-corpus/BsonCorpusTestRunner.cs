@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Tests.Specifications.bson_corpus
 {
     public class BsonCorpusTestRunner
     {
-        [SkippableTheory]
+        [Theory]
         [ClassData(typeof(TestCaseFactory))]
         public void RunTestDefinition(JsonDrivenTestCase testCase)
         {

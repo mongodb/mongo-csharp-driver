@@ -18,6 +18,7 @@ using System.Diagnostics;
 using System.Linq;
 using Microsoft.Diagnostics.Runtime;
 using Microsoft.Extensions.Logging;
+using MongoDB.TestHelpers.XunitExtensions.TimeoutEnforcing;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Logging;
@@ -28,7 +29,7 @@ using Xunit.Sdk;
 namespace MongoDB.Driver.Core.TestHelpers.Logging
 {
     [DebuggerStepThrough]
-    public abstract class LoggableTestClass : IDisposable, ILoggingService
+    public abstract class LoggableTestClass : IDisposable, ILoggingService, ITestExceptionHandler
     {
         public LoggableTestClass(ITestOutputHelper output, bool includeAllCategories = false)
         {
@@ -62,28 +63,6 @@ namespace MongoDB.Driver.Core.TestHelpers.Logging
             LoggerFactory.CreateEventLogger<TCategory>(eventSubscriber);
 
         protected virtual void DisposeInternal() { }
-
-        public void OnException(Exception ex)
-        {
-            TestOutput.WriteLine("Formatted exception: {0}", FormatException(ex));
-
-            if (ex is TestTimeoutException)
-            {
-                try
-                {
-                    LogStackTrace();
-                }
-                catch
-                {
-                    // fail silently
-                }
-            }
-
-            if (MinLogLevel > LogLevel.Debug)
-            {
-                MinLogLevel = LogLevel.Debug;
-            }
-        }
 
         public void Dispose()
         {
@@ -122,6 +101,28 @@ namespace MongoDB.Driver.Core.TestHelpers.Logging
             }
 
             return result;
+        }
+
+        public void HandleException(Exception ex)
+        {
+            TestOutput.WriteLine("Formatted exception: {0}", FormatException(ex));
+
+            if (ex is TestTimeoutException)
+            {
+                try
+                {
+                    LogStackTrace();
+                }
+                catch
+                {
+                    // fail silently
+                }
+            }
+
+            if (MinLogLevel > LogLevel.Debug)
+            {
+                MinLogLevel = LogLevel.Debug;
+            }
         }
 
         private void LogStackTrace()

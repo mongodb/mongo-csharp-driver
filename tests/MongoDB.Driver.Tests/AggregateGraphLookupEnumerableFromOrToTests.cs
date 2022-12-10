@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Tests
     public class AggregateGraphLookupEnumerableFromOrToTests
     {
         // public methods
-        [SkippableFact]
+        [Fact]
         public void GraphLookup_with_many_to_one_parameters_should_return_expected_result()
         {
             RequireServer.Check();
@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Tests
             result[1].ToBsonDocument().Should().Be(expectedResult[1].ToBsonDocument());
         }
 
-        [SkippableFact]
+        [Fact]
         public void GraphLookup_with_one_to_many_parameters_should_return_expected_result()
         {
             RequireServer.Check();
@@ -107,7 +107,7 @@ namespace MongoDB.Driver.Tests
             result[1].ToBsonDocument().Should().Be(expectedResult[1].ToBsonDocument());
         }
 
-        [SkippableFact]
+        [Fact]
         public void GraphLookup_with_one_to_one_parameters_should_return_expected_result()
         {
             RequireServer.Check();

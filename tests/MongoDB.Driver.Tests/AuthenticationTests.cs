@@ -19,7 +19,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Tests
     /// </summary>
     public class AuthenticationTests
     {
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Authentication_fails_when_user_has_Scram_Sha_1_mechanism_and_mechanism_is_Scram_Sha_256(
             [Values(false, true)] bool async)
@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Tests
             AssertAuthenticationFails(settings, async);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Authentication_fails_when_user_has_Scram_Sha_256_mechanism_and_mechanism_is_Scram_Sha_1(
             [Values(false, true)] bool async)
@@ -69,7 +69,7 @@ namespace MongoDB.Driver.Tests
             AssertAuthenticationFails(settings, async);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Authentication_fails_when_user_is_non_extant_and_mechanism_is_not_specified(
             [Values(false, true)] bool async)
@@ -86,7 +86,7 @@ namespace MongoDB.Driver.Tests
             AssertAuthenticationFails(settings, async);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Authentication_succeeds_when_user_has_both_Scram_Sha_mechanisms_and_mechanism_is_not_specified(
             [Values(false, true)] bool async)
@@ -104,7 +104,7 @@ namespace MongoDB.Driver.Tests
             AssertAuthenticationSucceeds(settings, async);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Authentication_succeeds_when_user_has_both_scram_sha_mechanisms_and_mechanism_is_Scram_Sha_256(
             [Values(false, true)] bool async)
@@ -122,7 +122,7 @@ namespace MongoDB.Driver.Tests
             AssertAuthenticationSucceeds(settings, async);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Authentication_succeeds_when_user_has_Scram_Sha_1_Mechanism_and_mechanism_is_not_specified(
             [Values(false, true)] bool async)
@@ -141,7 +141,7 @@ namespace MongoDB.Driver.Tests
             AssertAuthenticationSucceeds(settings, async, speculativeAuthenticatationShouldSucceedIfPossible: false);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Authentication_succeeds_when_user_has_Scram_Sha_256_mechanism_and_mechanism_is_not_specified(
             [Values(false, true)] bool async)
@@ -159,7 +159,7 @@ namespace MongoDB.Driver.Tests
             AssertAuthenticationSucceeds(settings, async);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Authentication_succeeds_when_user_has_Scram_Sha_1_mechanism_and_mechanism_is_Scram_Sha_1(
             [Values(false, true)] bool async)
@@ -178,7 +178,7 @@ namespace MongoDB.Driver.Tests
             AssertAuthenticationSucceeds(settings, async);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Authentication_succeeds_when_user_has_Scram_Sha_256_mechanism_and_mechanism_is_Scram_Sha_256(
             [Values(false, true)] bool async)
@@ -195,7 +195,7 @@ namespace MongoDB.Driver.Tests
             AssertAuthenticationSucceeds(settings, async);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Authentication_succeeds_when_user_has_multiple_credentials_and_mechanism_is_not_specified(
             [Values(false, true)] bool async)
@@ -222,7 +222,7 @@ namespace MongoDB.Driver.Tests
             AssertAuthenticationSucceeds(settings, async);
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData("IX", "IX", "\u2168", "\u2163", false)] // "IX", "IX", Roman numeral nine, Roman numeral four
         [InlineData("IX", "IX", "\u2168", "\u2163", true)] // "IX", "IX", Roman numeral nine, Roman numeral four
         public void Authentication_succeeds_with_Ascii_username_and_Ascii_password_when_SaslPrep_equivalent_username_exists(
@@ -245,7 +245,7 @@ namespace MongoDB.Driver.Tests
             AssertAuthenticationSucceeds(settings, async);
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData("IX", "IX", "I\u00ADX", "\u2168", "\u2163", false)] // "IX", "IX", "I-X", Roman numeral nine, Roman numeral four
         [InlineData("IX", "IX", "I\u00ADX", "\u2168", "\u2163", true)] // "IX", "IX", "I-X", Roman numeral nine, Roman numeral four
         public void Authentication_succeeds_with_Ascii_username_and_nonSaslPrepped_password_when_SaslPrep_equivalent_username_exists(
@@ -269,7 +269,7 @@ namespace MongoDB.Driver.Tests
             AssertAuthenticationSucceeds(settings, async);
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData("IX", "IX", "\u2168", "\u2163", "I\u00ADV", false)] // "IX", "IX", Roman numeral nine, Roman numeral four, I-V
         [InlineData("IX", "IX", "\u2168", "\u2163", "I\u00ADV", true)] // "IX", "IX", Roman numeral nine, Roman numeral four, I-V
         public void Authentication_succeeds_with_Unicode_username_and_nonSaslPrepped_password_when_SaslPrep_equivalent_username_exists(
@@ -293,7 +293,7 @@ namespace MongoDB.Driver.Tests
             AssertAuthenticationSucceeds(settings, async);
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData("IX", "IX", "\u2168", "\u2163", false)] // "IX", "IX", Roman numeral nine, Roman numeral four
         [InlineData("IX", "IX", "\u2168", "\u2163", true)] // "IX", "IX", Roman numeral nine, Roman numeral four
         public void Authentication_succeeds_with_Unicode_username_and_Unicode_password_when_SaslPrep_equivalent_username_exists(
@@ -316,7 +316,7 @@ namespace MongoDB.Driver.Tests
             AssertAuthenticationSucceeds(settings, async);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Authentication_succeeds_with_MONGODB_X509_mechanism(
             [Values(false, true)] bool async)

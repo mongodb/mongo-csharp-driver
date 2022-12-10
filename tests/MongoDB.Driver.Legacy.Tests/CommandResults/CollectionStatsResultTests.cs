@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Tests.CommandResults
             _collection = LegacyTestConfiguration.Collection;
         }
 
-        [SkippableFact]
+        [Fact]
         public void Test()
         {
             RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet).StorageEngine("mmapv1");

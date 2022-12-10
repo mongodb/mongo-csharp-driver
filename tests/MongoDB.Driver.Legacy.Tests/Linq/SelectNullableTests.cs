@@ -17,7 +17,7 @@ using System;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 using Xunit;
@@ -61,7 +61,7 @@ namespace MongoDB.Driver.Tests.Linq
             return true;
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestWhereEEqualsA()
         {
             RequireEnvironment.Check().EnvironmentVariable("MONO"); // Does not pass on Mono 3.2.5. Excluding for now.

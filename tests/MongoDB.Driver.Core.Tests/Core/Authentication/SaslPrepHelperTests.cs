@@ -15,7 +15,7 @@
 
 using FluentAssertions;
 using MongoDB.Bson.TestHelpers;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using System;
 using Xunit;
 

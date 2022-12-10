@@ -18,7 +18,7 @@ using System.Collections.Generic;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
@@ -142,7 +142,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.WriteConcern.Should().Be(WriteConcern.W2);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_insert_a_single_document(
             [Values(false, true)]
@@ -159,7 +159,7 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(1);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_insert_multiple_documents(
             [Values(false, true)]

@@ -25,7 +25,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
@@ -897,7 +897,7 @@ namespace MongoDB.Driver.Core.Servers
 
     public class ServerChannelTests
     {
-        [SkippableTheory]
+        [Theory]
         [InlineData(1, 2, 2)]
         [InlineData(2, 1, 2)]
         public void Command_should_send_the_greater_of_the_session_and_cluster_cluster_times(long sessionTimestamp, long clusterTimestamp, long expectedTimestamp)
@@ -950,7 +950,7 @@ namespace MongoDB.Driver.Core.Servers
             actualClusterTime.Should().Be(expectedClusterTime);
         }
 
-        [SkippableFact]
+        [Fact]
         public void Command_should_update_the_session_and_cluster_cluster_times()
         {
             RequireServer.Check().ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded);
@@ -987,7 +987,7 @@ namespace MongoDB.Driver.Core.Servers
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Command_should_use_serverApi([Values(false, true)] bool async)
         {

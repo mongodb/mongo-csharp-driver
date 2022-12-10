@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Encryption;
@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Tests.Encryption
         private static readonly CollectionNamespace __keyVaultCollectionNamespace = CollectionNamespace.FromFullName("datakeys.keyvault");
         #endregion
 
-        [SkippableFact]
+        [Fact]
         public async Task AddAlternateKeyName_should_correctly_handle_input_arguments()
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Tests.Encryption
             }
         }
 
-        [SkippableFact]
+        [Fact]
         public async Task CreateDataKey_should_correctly_handle_input_arguments()
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
@@ -65,7 +65,7 @@ namespace MongoDB.Driver.Tests.Encryption
         }
 
 
-        [SkippableFact]
+        [Fact]
         public void CryptClient_should_be_initialized()
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
@@ -77,7 +77,7 @@ namespace MongoDB.Driver.Tests.Encryption
             }
         }
 
-        [SkippableFact]
+        [Fact]
         public async Task Decrypt_should_correctly_handle_input_arguments()
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
@@ -89,7 +89,7 @@ namespace MongoDB.Driver.Tests.Encryption
             }
         }
 
-        [SkippableFact]
+        [Fact]
         public async Task Encrypt_should_correctly_handle_input_arguments()
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
@@ -104,7 +104,7 @@ namespace MongoDB.Driver.Tests.Encryption
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public async Task Encryption_should_use_correct_binarySubType([Values(false, true)] bool async)
         {
@@ -125,7 +125,7 @@ namespace MongoDB.Driver.Tests.Encryption
             }
         }
 
-        [SkippableFact]
+        [Fact]
         public async Task GetKeyByAlternateKeyName_should_correctly_handle_input_arguments()
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
@@ -137,7 +137,7 @@ namespace MongoDB.Driver.Tests.Encryption
             }
         }
 
-        [SkippableFact]
+        [Fact]
         public async Task RemoveAlternateKeyName_should_correctly_handle_input_arguments()
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);
@@ -151,7 +151,7 @@ namespace MongoDB.Driver.Tests.Encryption
             }
         }
 
-        [SkippableFact]
+        [Fact]
         public async Task RewrapManyDataKey_should_correctly_handle_input_arguments()
         {
             RequireServer.Check().Supports(Feature.ClientSideEncryption);

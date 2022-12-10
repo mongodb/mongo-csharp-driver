@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Examples.TransactionExamplesForDocs
 {
     public class WithTransactionExample1
     {
-        [SkippableFact]
+        [Fact]
         public void Example1()
         {
             RequireServer.Check().ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded).Supports(Feature.Transactions);

@@ -17,7 +17,7 @@ using System;
 using System.IO;
 using System.Threading;
 using FluentAssertions;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Tests;
 using Xunit;
 

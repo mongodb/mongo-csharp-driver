@@ -96,7 +96,7 @@ namespace MongoDB.Driver.Tests
                 }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void Facet_with_1_facet_should_return_expected_result()
         {
             RequireServer.Check();
@@ -159,7 +159,7 @@ namespace MongoDB.Driver.Tests
                 }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void Facet_with_2_facets_should_return_expected_result()
         {
             RequireServer.Check();
@@ -237,7 +237,7 @@ namespace MongoDB.Driver.Tests
                 }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void Facet_with_3_facets_should_return_expected_result()
         {
             RequireServer.Check();
@@ -310,7 +310,7 @@ namespace MongoDB.Driver.Tests
                 }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void Facet_typed_with_1_facet_should_return_expected_result()
         {
             RequireServer.Check();
@@ -374,7 +374,7 @@ namespace MongoDB.Driver.Tests
                 }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void Facet_typed_with_2_facets_should_return_expected_result()
         {
             RequireServer.Check();
@@ -453,7 +453,7 @@ namespace MongoDB.Driver.Tests
                 }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void Facet_typed_with_3_facets_should_return_expected_result()
         {
             RequireServer.Check();

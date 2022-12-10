@@ -21,7 +21,7 @@ using System.Net;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
@@ -226,7 +226,7 @@ namespace MongoDB.Driver.Core.Bindings
             Mock.Get(subject.ServerSession).Verify(m => m.Dispose(), Times.Once);
         }
 
-        [SkippableFact]
+        [Fact]
         public void StartTransaction_should_throw_when_write_concern_is_unacknowledged()
         {
             RequireServer.Check().ClusterType(ClusterType.ReplicaSet).Supports(Feature.Transactions);

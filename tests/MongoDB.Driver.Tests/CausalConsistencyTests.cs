@@ -19,7 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Tests
 {
     public class CausalConsistencyTests
     {
-        [SkippableFact]
+        [Fact]
         public void OperationTime_should_have_no_value_on_a_newly_created_ClientSession()
         {
             RequireServer.Check().SupportsCausalConsistency();
@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [SkippableFact]
+        [Fact]
         public void AfterClusterTime_should_be_empty_on_the_first_operation()
         {
             RequireServer.Check().SupportsCausalConsistency();
@@ -62,7 +62,7 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [SkippableFact]
+        [Fact]
         public void Session_OperationTime_should_get_updated_after_an_operation()
         {
             RequireServer.Check().SupportsCausalConsistency();
@@ -87,7 +87,7 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [SkippableFact]
+        [Fact]
         public void AfterClusterTime_should_be_sent_after_the_first_read_operation()
         {
             RequireServer.Check().SupportsCausalConsistency();
@@ -117,7 +117,7 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [SkippableFact]
+        [Fact]
         public void AfterClusterTime_should_be_sent_after_the_first_write_operation()
         {
             RequireServer.Check().SupportsCausalConsistency();
@@ -147,7 +147,7 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [SkippableFact]
+        [Fact]
         public void AfterClusterTime_should_not_be_sent_when_the_session_is_not_causally_consistent()
         {
             RequireServer.Check().SupportsCausalConsistency();
@@ -168,7 +168,7 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [SkippableFact]
+        [Fact]
         public void ReadConcern_should_not_include_level_when_using_the_server_default()
         {
             RequireServer.Check().SupportsCausalConsistency();
@@ -194,7 +194,7 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [SkippableFact]
+        [Fact]
         public void ReadConcern_should_include_level_when_not_using_the_server_default()
         {
             RequireServer.Check().SupportsCausalConsistency();

@@ -19,7 +19,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
@@ -566,7 +566,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_result(
             [Values(false, true)]
@@ -605,7 +605,7 @@ namespace MongoDB.Driver.Core.Operations
             argumentNullException.ParamName.Should().Be("binding");
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_throw_when_maxTime_is_exceeded(
             [Values(false, true)] bool async)
@@ -639,7 +639,7 @@ namespace MongoDB.Driver.Core.Operations
             argumentException.ParamName.Should().Be("pipeline");
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_result_when_AllowDiskUse_is_set(
             [Values(null, false, true)]
@@ -661,7 +661,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().HaveCount(1);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_result_when_BatchSize_is_set(
             [Values(null, 1, 10)]
@@ -685,7 +685,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_result_when_Collation_is_set(
             [Values(false, true)]
@@ -708,7 +708,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().HaveCount(caseSensitive ? 1 : 2);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_result_when_Comment_is_set(
             [Values(false, true)]
@@ -735,7 +735,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_result_when_Hint_is_set(
             [Values(false, true)]
@@ -754,7 +754,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().NotBeNull();
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_result_when_Let_is_set_with_match_expression(
             [Values(false, true)]
@@ -777,7 +777,7 @@ namespace MongoDB.Driver.Core.Operations
             });
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_result_when_Let_is_set_with_project(
             [Values(false, true)]
@@ -801,7 +801,7 @@ namespace MongoDB.Driver.Core.Operations
             });
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_result_when_MaxAwaitTime_is_set(
             [Values(null, 1000)]
@@ -825,7 +825,7 @@ namespace MongoDB.Driver.Core.Operations
             cursorMaxTime.Should().Be(maxAwaitTime);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_result_when_MaxTime_is_set(
             [Values(null, 1000)]
@@ -848,7 +848,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().HaveCount(1);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_result_when_ReadConcern_is_set(
             [Values(null, ReadConcernLevel.Local)]
@@ -871,7 +871,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().HaveCount(1);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_result_when_UseCursor_is_set(
             [Values(null, false, true)]
@@ -895,7 +895,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().HaveCount(1);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_send_session_id_when_supported(
             [Values(false, true)] bool async)

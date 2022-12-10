@@ -82,7 +82,7 @@ namespace MongoDB.Driver.Tests
             argumentNullException.ParamName.Should().Be("pipeline");
         }
 
-        [SkippableFact]
+        [Fact]
         public void Lookup_should_throw_when_pipeline_is_null()
         {
             RequireServer.Check();

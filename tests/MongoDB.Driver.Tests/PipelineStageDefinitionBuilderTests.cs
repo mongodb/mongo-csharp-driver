@@ -124,7 +124,7 @@ namespace MongoDB.Driver.Tests
             stage.Document.Should().Be("{ $changeStream : { } }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void GraphLookup_with_many_to_one_parameters_should_return_expected_result()
         {
             RequireServer.Check();
@@ -150,7 +150,7 @@ namespace MongoDB.Driver.Tests
                 }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void GraphLookup_with_one_to_many_parameters_should_return_expected_result()
         {
             RequireServer.Check();
@@ -176,7 +176,7 @@ namespace MongoDB.Driver.Tests
                 }");
         }
         
-        [SkippableFact]
+        [Fact]
         public void GraphLookup_with_one_to_one_parameters_should_return_expected_result()
         {
             RequireServer.Check();
@@ -202,7 +202,7 @@ namespace MongoDB.Driver.Tests
                 }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void Lookup_with_let_should_return_the_expected_result()
         {
             RequireServer.Check();
@@ -261,7 +261,7 @@ namespace MongoDB.Driver.Tests
                 }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void Lookup_without_optional_let_should_return_the_expected_result()
         {
             RequireServer.Check();
@@ -403,7 +403,7 @@ namespace MongoDB.Driver.Tests
             public int Instock { get; set; }
         }
 
-        [SkippableFact]
+        [Fact]
         public void Lookup_with_entity_generic_params_should_return_the_expected_result()
         {
             RequireServer.Check();
@@ -461,7 +461,7 @@ namespace MongoDB.Driver.Tests
                 }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void Lookup_with_empty_required_params_should_throw_expected_exception()
         {
             RequireServer.Check();

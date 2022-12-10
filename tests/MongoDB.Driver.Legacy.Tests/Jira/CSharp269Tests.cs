@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp269
             _database.GridFS.Chunks.Drop();
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestUploadAndDownload()
         {
             RequireServer.Check().ClusterTypes(Core.Clusters.ClusterType.Standalone, Core.Clusters.ClusterType.ReplicaSet);

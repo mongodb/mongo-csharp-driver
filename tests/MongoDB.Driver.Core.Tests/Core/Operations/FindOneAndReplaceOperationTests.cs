@@ -18,7 +18,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
@@ -525,7 +525,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_against_an_existing_document_returning_the_original(
             [Values(false, true)]
@@ -547,7 +547,7 @@ namespace MongoDB.Driver.Core.Operations
             );
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_against_an_existing_document_returning_the_replacement(
             [Values(false, true)]
@@ -569,7 +569,7 @@ namespace MongoDB.Driver.Core.Operations
             );
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_against_a_non_existing_document_returning_the_original(
             [Values(false, true)]
@@ -592,7 +592,7 @@ namespace MongoDB.Driver.Core.Operations
             );
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_against_a_non_existing_document_returning_the_replacement(
             [Values(false, true)]
@@ -615,7 +615,7 @@ namespace MongoDB.Driver.Core.Operations
             );
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_against_a_non_existing_document_returning_the_original_with_upsert(
             [Values(false, true)]
@@ -641,7 +641,7 @@ namespace MongoDB.Driver.Core.Operations
             );
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_against_a_non_existing_document_returning_the_replacement_with_upsert(
             [Values(false, true)]
@@ -667,7 +667,7 @@ namespace MongoDB.Driver.Core.Operations
             );
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_throw_when_maxTime_is_exceeded(
             [Values(false, true)] bool async)
@@ -685,7 +685,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_throw_when_there_is_a_write_concern_error(
             [Values(false, true)]
@@ -710,7 +710,7 @@ namespace MongoDB.Driver.Core.Operations
             );
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_with_hint_should_throw_when_hint_is_not_supported(
             [Values(0, 1)] int w,
@@ -744,7 +744,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_with_let_should_return_correct_results(
             [Values(false, true)] bool async)

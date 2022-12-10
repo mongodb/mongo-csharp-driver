@@ -18,17 +18,16 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Tests;
 using Xunit;
+using Xunit.Sdk;
 
 namespace MongoDB.Driver.GridFS.Tests.Specifications.gridfs
 {
     public class GridFSTestRunner
     {
-        [SkippableTheory]
+        [Theory]
         [ClassData(typeof(TestCaseSource))]
         [Trait("Category", "Specifications_gridfs")]
         public void RunTest(BsonDocument data, BsonDocument testDefinition)

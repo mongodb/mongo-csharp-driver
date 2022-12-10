@@ -16,7 +16,7 @@
 using System;
 using System.Linq;
 using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver;
 using Xunit;
 
@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
             _settings = MongoClientSettings.FromUrl(new MongoUrl(CoreTestConfiguration.ConnectionString.ToString()));
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestNoCredentials()
         {
             RequireEnvironment.Check().EnvironmentVariable("PLAIN_AUTH_TESTS_ENABLED");
@@ -53,7 +53,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
             });
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestSuccessfulAuthentication()
         {
             RequireEnvironment.Check().EnvironmentVariable("PLAIN_AUTH_TESTS_ENABLED");
@@ -68,7 +68,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
             Assert.NotNull(result);
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestBadPassword()
         {
             RequireEnvironment.Check().EnvironmentVariable("PLAIN_AUTH_TESTS_ENABLED");

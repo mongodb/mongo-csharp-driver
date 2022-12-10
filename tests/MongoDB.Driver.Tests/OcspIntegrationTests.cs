@@ -16,7 +16,7 @@
 using System;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.TestHelpers;
 using Xunit;
@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Tests
          * When testing on Windows, the certificate should be added to the trust store prior to each run in order to
          * reduce the chances of Windows pruning the certificate from the trust store prior to the test running.
          */
-        [SkippableFact]
+        [Fact]
         public void MongoClientShouldRespectCertificateStatusAndTlsInsecure()
         {
             /* We cannot call RequireServer.Check() because this would result in a connection being made to the mongod

@@ -17,7 +17,7 @@ using System;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
@@ -162,7 +162,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void CreateCommand_should_return_expected_result_when_AllowDiskUse_is_set(
             [Values(false, true)]
@@ -185,7 +185,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void CreateCommand_should_return_expected_result_when_Collation_is_set(
             [Values("en_US", "fr_CA")]
@@ -283,7 +283,7 @@ namespace MongoDB.Driver.Core.Operations
             result["maxTimeMS"].BsonType.Should().Be(BsonType.Int32);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_result(
             [Values(false, true)]
@@ -297,7 +297,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().NotBeNull();
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_result_when_AllowDiskUse_is_set(
             [Values(false, true)]
@@ -314,7 +314,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().NotBeNull();
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_result_when_Collation_is_set(
             [Values(false, true)]
@@ -331,7 +331,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().NotBeNull();
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_throw_when_maxTime_is_exceeded(
             [Values(false, true)] bool async)
@@ -348,7 +348,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_result_when_Comment_is_set(
             [Values(false, true)]
@@ -372,7 +372,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_result_when_Hint_is_set(
             [Values(false, true)]
@@ -389,7 +389,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().NotBeNull();
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_result_when_MaxTime_is_set(
            [Values(false, true)]
@@ -406,7 +406,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().NotBeNull();
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_send_session_id_when_supported(
             [Values(false, true)] bool async)

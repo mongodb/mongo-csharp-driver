@@ -1,4 +1,4 @@
-﻿/* Copyright 2021-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,18 +17,46 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using MongoDB.Driver.Core.TestHelpers.Logging;
-using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
-namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions.TimeoutEnforcing
+namespace MongoDB.TestHelpers.XunitExtensions.TimeoutEnforcing
 {
     [DebuggerStepThrough]
     internal sealed class TimeoutEnforcingTestInvoker : XunitTestInvoker
     {
+        // This is a copy of MongoDB.Driver.Core.Misc.TaskExtensions.YieldNoContextAwaitable struct
+        // Remove this copy when moving TaskExtensions to BSON level.
+        private struct YieldNoContextAwaitable
+        {
+            public YieldNoContextAwaiter GetAwaiter() { return new YieldNoContextAwaiter(); }
+
+            public struct YieldNoContextAwaiter : ICriticalNotifyCompletion
+            {
+                /// <summary>Gets whether a yield is not required.</summary>
+                /// <remarks>This property is intended for compiler user rather than use directly in code.</remarks>
+                public bool IsCompleted { get { return false; } } // yielding is always required for YieldNoContextAwaiter, hence false
+
+                public void OnCompleted(Action continuation)
+                {
+                    Task.Factory.StartNew(continuation, default, TaskCreationOptions.PreferFairness, TaskScheduler.Default);
+                }
+
+                public void UnsafeOnCompleted(Action continuation)
+                {
+                    Task.Factory.StartNew(continuation, default, TaskCreationOptions.PreferFairness, TaskScheduler.Default);
+                }
+
+                public void GetResult()
+                {
+                    // no op
+                }
+            }
+        }
+
         public TimeoutEnforcingTestInvoker(
             ITest test,
             IMessageBus messageBus,
@@ -45,7 +73,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions.TimeoutEnforcing
 
         private async Task<decimal> InvokeBaseOnTaskScheduler(object testClassInstance)
         {
-            await Misc.TaskExtensions.YieldNoContext();
+            await new YieldNoContextAwaitable();
 
             return await base.InvokeTestMethodAsync(testClassInstance);
         }
@@ -56,10 +84,10 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions.TimeoutEnforcing
             var timeoutMS = xUnitTestCase?.Timeout ?? 0;
             var timeout = Debugger.IsAttached
                 ? Timeout.InfiniteTimeSpan // allow more flexible debugging expirience
-                : timeoutMS <= 0 ? CoreTestConfiguration.DefaultTestTimeout : TimeSpan.FromMilliseconds(timeoutMS);
+                : timeoutMS <= 0 ? XunitExtensionsConstants.DefaultTestTimeout : TimeSpan.FromMilliseconds(timeoutMS);
 
 
-            var testLoggable = testClassInstance as LoggableTestClass;
+            var testExceptionHandler = testClassInstance as ITestExceptionHandler;
 
             decimal result;
             try
@@ -72,13 +100,13 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions.TimeoutEnforcing
                     throw new TestTimeoutException((int)timeout.TotalMilliseconds);
                 }
 
-                if (Aggregator.HasExceptions && testLoggable != null)
+                if (Aggregator.HasExceptions && testExceptionHandler != null)
                 {
                     var exception = Aggregator.ToException();
 
                     if (exception is not SkipException)
                     {
-                        testLoggable.OnException(exception);
+                        testExceptionHandler.HandleException(exception);
                     }
                 }
 
@@ -86,7 +114,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions.TimeoutEnforcing
             }
             catch (Exception exception)
             {
-                testLoggable?.OnException(exception);
+                testExceptionHandler?.HandleException(exception);
 
                 throw;
             }

@@ -25,6 +25,7 @@ using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using Xunit;
+using Xunit.Sdk;
 
 namespace MongoDB.Driver.Tests.Specifications.command_logging_and_monitoring
 {
@@ -97,7 +98,7 @@ namespace MongoDB.Driver.Tests.Specifications.command_logging_and_monitoring
             return true;
         }
 
-        [SkippableTheory]
+        [Theory]
         [ClassData(typeof(TestCaseFactory))]
         public void RunTestDefinition(JsonDrivenTestCase testCase)
         {

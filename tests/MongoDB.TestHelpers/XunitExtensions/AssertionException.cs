@@ -1,4 +1,4 @@
-﻿/* Copyright 2016-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,27 +14,20 @@
 */
 
 using System;
-using Xunit;
+using Xunit.Sdk;
 
-namespace MongoDB.Bson.TestHelpers.XunitExtensions
+namespace MongoDB.TestHelpers.XunitExtensions
 {
-    public class RequireProcess
+    public class AssertionException : XunitException
     {
-        #region static
-        public static RequireProcess Check()
+        public AssertionException(string userMessage)
+            : base(userMessage)
         {
-            return new RequireProcess();
         }
-        #endregion
 
-        public RequireProcess Bits(int bits)
+        public AssertionException(string userMessage, Exception innerException)
+            : base(userMessage, innerException)
         {
-            var actualBits = IntPtr.Size < 8 ? 32 : 64;
-            if (actualBits == bits)
-            {
-                return this;
-            }
-            throw new SkipException($"Test skipped because process is a {actualBits}-bit process and not a {bits}-bit process.");
         }
     }
 }

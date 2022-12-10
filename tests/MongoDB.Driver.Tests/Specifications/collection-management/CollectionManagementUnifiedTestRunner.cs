@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Tests.Specifications.collection_management
         }
 
         // public methods
-        [SkippableTheory]
+        [Theory]
         [ClassData(typeof(TestCaseFactory))]
         public void Run(JsonDrivenTestCase testCase)
         {
