@@ -17,6 +17,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.Tests.Linq.Linq3ImplementationTests;
 using Xunit;
@@ -39,7 +40,7 @@ namespace MongoDB.Driver.Tests.Samples
 
         public bool OneTimeSetup()
         {
-            var client = DriverTestConfiguration.Linq2Client;
+            var client = DriverTestConfiguration.Client;
             var db = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
             db.DropCollection(DriverTestConfiguration.CollectionNamespace.CollectionName);
             __collection = db.GetCollection<ZipEntry>(DriverTestConfiguration.CollectionNamespace.CollectionName);
@@ -60,26 +61,40 @@ namespace MongoDB.Driver.Tests.Samples
             return true;
         }
 
-        [Fact]
-        public async Task States_with_pops_over_20000()
+        [Theory]
+        [ParameterAttributeData]
+        public async Task States_with_pops_over_20000(
+            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var pipeline = __collection.Aggregate()
+            var collection = GetCollection(linqProvider);
+            var pipeline = collection.Aggregate()
                 .Group(x => x.State, g => new { State = g.Key, TotalPopulation = g.Sum(x => x.Population) })
                 .Match(x => x.TotalPopulation > 20000);
 
-            pipeline.ToString().Should().Be("aggregate([" +
-                    "{ \"$group\" : { \"_id\" : \"$state\", \"TotalPopulation\" : { \"$sum\" : \"$pop\" } } }, " +
-                    "{ \"$match\" : { \"TotalPopulation\" : { \"$gt\" : 20000 } } }])");
+            var pipelineTranslation = pipeline.ToString();
+            var expectedTranslation = linqProvider == LinqProvider.V2 ?
+                "aggregate([" +
+                "{ \"$group\" : { \"_id\" : \"$state\", \"TotalPopulation\" : { \"$sum\" : \"$pop\" } } }, " +
+                "{ \"$match\" : { \"TotalPopulation\" : { \"$gt\" : 20000 } } }])"
+                :
+                "aggregate([" +
+                "{ \"$group\" : { \"_id\" : \"$state\", \"__agg0\" : { \"$sum\" : \"$pop\" } } }, " +
+                "{ \"$project\" : { \"State\" : \"$_id\", \"TotalPopulation\" : \"$__agg0\", \"_id\" : 0 } }, " +
+                "{ \"$match\" : { \"TotalPopulation\" : { \"$gt\" : 20000 } } }])";
+            pipelineTranslation.Should().Be(expectedTranslation);
 
             var result = await pipeline.ToListAsync();
 
             result.Count.Should().Be(1);
         }
 
-        [Fact]
-        public async Task States_with_pops_over_20000_queryable_method()
+        [Theory]
+        [ParameterAttributeData]
+        public async Task States_with_pops_over_20000_queryable_method(
+            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var pipeline = __collection.AsQueryable()
+            var collection = GetCollection(linqProvider);
+            var pipeline = collection.AsQueryable()
                 .GroupBy(x => x.State, (k, s) => new { State = k, TotalPopulation = s.Sum(x => x.Population) })
                 .Where(x => x.TotalPopulation > 20000);
 
@@ -94,7 +109,7 @@ namespace MongoDB.Driver.Tests.Samples
         [InlineData(LinqProvider.V3)]
         public void States_with_pops_over_20000_queryable_syntax(LinqProvider linqProvider)
         {
-            var client = linqProvider == LinqProvider.V2 ? DriverTestConfiguration.Linq2Client : DriverTestConfiguration.Linq3Client;
+            var client = DriverTestConfiguration.GetLinqClient(linqProvider);
             var database = client.GetDatabase(__collection.CollectionNamespace.DatabaseNamespace.DatabaseName);
             var collection = database.GetCollection<ZipEntry>(__collection.CollectionNamespace.CollectionName);
 
@@ -125,18 +140,31 @@ namespace MongoDB.Driver.Tests.Samples
         }
 #endif
 
-        [Fact]
-        public async Task Average_city_population_by_state()
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Average_city_population_by_state(
+            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var pipeline = __collection.Aggregate()
+            var collection = GetCollection(linqProvider);
+            var pipeline = collection.Aggregate()
                 .Group(x => new { State = x.State, City = x.City }, g => new { StateAndCity = g.Key, Population = g.Sum(x => x.Population) })
                 .Group(x => x.StateAndCity.State, g => new { State = g.Key, AverageCityPopulation = g.Average(x => x.Population) })
                 .SortBy(x => x.State);
 
-            pipeline.ToString().Should().Be("aggregate([" +
+            var pipelineTranslation = pipeline.ToString();
+            var expectedTranslation = linqProvider == LinqProvider.V2 ?
+                "aggregate([" +
                 "{ \"$group\" : { \"_id\" : { \"State\" : \"$state\", \"City\" : \"$city\" }, \"Population\" : { \"$sum\" : \"$pop\" } } }, " +
                 "{ \"$group\" : { \"_id\" : \"$_id.State\", \"AverageCityPopulation\" : { \"$avg\" : \"$Population\" } } }, " +
-                "{ \"$sort\" : { \"_id\" : 1 } }])");
+                "{ \"$sort\" : { \"_id\" : 1 } }])"
+                :
+                "aggregate([" +
+                "{ \"$group\" : { \"_id\" : { \"State\" : \"$state\", \"City\" : \"$city\" }, \"__agg0\" : { \"$sum\" : \"$pop\" } } }, " +
+                "{ \"$project\" : { \"StateAndCity\" : \"$_id\", \"Population\" : \"$__agg0\", \"_id\" : 0 } }, " +
+                "{ \"$group\" : { \"_id\" : \"$StateAndCity.State\", \"__agg0\" : { \"$avg\" : \"$Population\" } } }, " +
+                "{ \"$project\" : { \"State\" : \"$_id\", \"AverageCityPopulation\" : \"$__agg0\", \"_id\" : 0 } }, " +
+                "{ \"$sort\" : { \"State\" : 1 } }])";
+            pipelineTranslation.Should().Be(expectedTranslation);
 
             var result = await pipeline.ToListAsync();
 
@@ -146,10 +174,13 @@ namespace MongoDB.Driver.Tests.Samples
             result[1].State.Should().Be("MA");
         }
 
-        [Fact]
-        public async Task Largest_and_smallest_cities_by_state()
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Largest_and_smallest_cities_by_state(
+            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var pipeline = __collection.Aggregate()
+            var collection = GetCollection(linqProvider);
+            var pipeline = collection.Aggregate()
                 .Group(x => new { State = x.State, City = x.City }, g => new { StateAndCity = g.Key, Population = g.Sum(x => x.Population) })
                 .SortBy(x => x.Population)
                 .Group(x => x.StateAndCity.State, g => new
@@ -168,12 +199,24 @@ namespace MongoDB.Driver.Tests.Samples
                 })
                 .SortBy(x => x.State);
 
-            pipeline.ToString().Should().Be("aggregate([" +
+            var pipelineTranslation = pipeline.ToString();
+            var expectedTranslation = linqProvider == LinqProvider.V2 ?
+                "aggregate([" +
                 "{ \"$group\" : { \"_id\" : { \"State\" : \"$state\", \"City\" : \"$city\" }, \"Population\" : { \"$sum\" : \"$pop\" } } }, " +
                 "{ \"$sort\" : { \"Population\" : 1 } }, " +
                 "{ \"$group\" : { \"_id\" : \"$_id.State\", \"BiggestCity\" : { \"$last\" : \"$_id.City\" }, \"BiggestPopulation\" : { \"$last\" : \"$Population\" }, \"SmallestCity\" : { \"$first\" : \"$_id.City\" }, \"SmallestPopulation\" : { \"$first\" : \"$Population\" } } }, " +
                 "{ \"$project\" : { \"State\" : \"$_id\", \"BiggestCity\" : { \"Name\" : \"$BiggestCity\", \"Population\" : \"$BiggestPopulation\" }, \"SmallestCity\" : { \"Name\" : \"$SmallestCity\", \"Population\" : \"$SmallestPopulation\" }, \"_id\" : 0 } }, " +
-                "{ \"$sort\" : { \"State\" : 1 } }])");
+                "{ \"$sort\" : { \"State\" : 1 } }])"
+                :
+                "aggregate([" +
+                "{ \"$group\" : { \"_id\" : { \"State\" : \"$state\", \"City\" : \"$city\" }, \"__agg0\" : { \"$sum\" : \"$pop\" } } }, " +
+                "{ \"$project\" : { \"StateAndCity\" : \"$_id\", \"Population\" : \"$__agg0\", \"_id\" : 0 } }, " +
+                "{ \"$sort\" : { \"Population\" : 1 } }, " +
+                "{ \"$group\" : { \"_id\" : \"$StateAndCity.State\", \"__agg0\" : { \"$last\" : \"$$ROOT\" }, \"__agg1\" : { \"$first\" : \"$$ROOT\" } } }, " +
+                "{ \"$project\" : { \"State\" : \"$_id\", \"BiggestCity\" : \"$__agg0.StateAndCity.City\", \"BiggestPopulation\" : \"$__agg0.Population\", \"SmallestCity\" : \"$__agg1.StateAndCity.City\", \"SmallestPopulation\" : \"$__agg1.Population\", \"_id\" : 0 } }, " +
+                "{ \"$project\" : { \"State\" : \"$State\", \"BiggestCity\" : { \"Name\" : \"$BiggestCity\", \"Population\" : \"$BiggestPopulation\" }, \"SmallestCity\" : { \"Name\" : \"$SmallestCity\", \"Population\" : \"$SmallestPopulation\" }, \"_id\" : 0 } }, " +
+                "{ \"$sort\" : { \"State\" : 1 } }])";
+            pipelineTranslation.Should().Be(expectedTranslation);
 
             var result = await pipeline.ToListAsync();
 
@@ -223,6 +266,13 @@ namespace MongoDB.Driver.Tests.Samples
             result[1].SmallestCity.Population.Should().Be(1350);
         }
 #endif
+
+        private IMongoCollection<ZipEntry> GetCollection(LinqProvider linqProvider)
+        {
+            var client = DriverTestConfiguration.GetLinqClient(linqProvider);
+            var database = client.GetDatabase(__collection.Database.DatabaseNamespace.DatabaseName);
+            return database.GetCollection<ZipEntry>(__collection.CollectionNamespace.CollectionName);
+        }
 
         [BsonIgnoreExtraElements]
         private class ZipEntry

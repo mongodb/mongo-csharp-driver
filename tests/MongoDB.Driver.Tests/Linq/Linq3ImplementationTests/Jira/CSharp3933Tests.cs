@@ -258,7 +258,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
 
         private IMongoCollection<TDocument> GetCollection<TDocument>(LinqProvider linqProvider)
         {
-            var client = linqProvider == LinqProvider.V2 ? DriverTestConfiguration.Linq2Client : DriverTestConfiguration.Linq3Client;
+            var client = DriverTestConfiguration.GetLinqClient(linqProvider);
             var database = client.GetDatabase("test");
             return database.GetCollection<TDocument>("test");
         }

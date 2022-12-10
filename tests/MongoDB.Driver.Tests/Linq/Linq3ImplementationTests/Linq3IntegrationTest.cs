@@ -58,16 +58,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests
             CreateCollection(collection, (IEnumerable<TDocument>)documents); ;
         }
 
-        protected IMongoClient GetClient(LinqProvider linqProvider = LinqProvider.V3)
-        {
-            return linqProvider switch
-            {
-                LinqProvider.V2 => DriverTestConfiguration.Linq2Client,
-                LinqProvider.V3 => DriverTestConfiguration.Linq3Client,
-                _ => throw new ArgumentException($"Invalid linqProvider: {linqProvider}.", nameof(linqProvider))
-            };
-        }
-
         protected IMongoCollection<TDocument> GetCollection<TDocument>(string collectionName = null, LinqProvider linqProvider = LinqProvider.V3)
         {
             return GetCollection<TDocument>(databaseName: null, collectionName, linqProvider);
@@ -81,7 +71,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests
 
         protected IMongoDatabase GetDatabase(string databaseName = null, LinqProvider linqProvider = LinqProvider.V3)
         {
-            var client = GetClient(linqProvider);
+            var client = DriverTestConfiguration.GetLinqClient(linqProvider);
             return client.GetDatabase(databaseName ?? DriverTestConfiguration.DatabaseNamespace.DatabaseName);
         }
 
