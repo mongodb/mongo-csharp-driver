@@ -253,16 +253,27 @@ namespace MongoDB.Driver.Tests
             AssertThrow<Person, ExpressionNotSupportedException>(subject.Set(x => x.Pets.ElementAt(-2).Name, "Fluffencutters"), expectedErrorMessage, LinqProvider.V3);
         }
 
-        [Fact]
-        public void Indexed_Positional_Typed()
+        [Theory]
+        [ParameterAttributeData]
+        public void Indexed_Positional_Typed(
+            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
             var subject = CreateSubject<Person>();
 
+            if (linqProvider == LinqProvider.V2)
+            {
 #pragma warning disable
-            Assert(subject.Set(x => x.FavoriteColors[-1], "yellow"), "{$set: {'colors.$': 'yellow'}}");
+                Assert(subject.Set(x => x.FavoriteColors[-1], "yellow"), "{$set: {'colors.$': 'yellow'}}", linqProvider);
 #pragma warning restore
-            Assert(subject.Set(x => x.Pets[-1].Name, "Fluffencutters"), "{$set: {'pets.$.name': 'Fluffencutters'}}");
-            Assert(subject.Set(x => x.Pets.ElementAt(-1).Name, "Fluffencutters"), "{$set: {'pets.$.name': 'Fluffencutters'}}");
+                Assert(subject.Set(x => x.Pets[-1].Name, "Fluffencutters"), "{$set: {'pets.$.name': 'Fluffencutters'}}", linqProvider);
+                Assert(subject.Set(x => x.Pets.ElementAt(-1).Name, "Fluffencutters"), "{$set: {'pets.$.name': 'Fluffencutters'}}", linqProvider);
+            }
+            else
+            {
+                Assert(subject.Set(x => x.FavoriteColors.FirstMatchingElement(), "yellow"), "{$set: {'colors.$': 'yellow'}}", linqProvider);
+                Assert(subject.Set(x => x.Pets.FirstMatchingElement().Name, "Fluffencutters"), "{$set: {'pets.$.name': 'Fluffencutters'}}", linqProvider);
+                Assert(subject.Set(x => x.Pets.FirstMatchingElement().Name, "Fluffencutters"), "{$set: {'pets.$.name': 'Fluffencutters'}}", linqProvider);
+            }
         }
 
         [Fact]
@@ -596,11 +607,11 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<Message>();
 
-            Assert(subject.Set(x => ((SmsMessage)x).PhoneNumber, "1234567890"), "{$set: {pn: '1234567890'}}", LinqProvider.V3);
+            Assert(subject.Set(x => ((SmsMessage)x).PhoneNumber, "1234567890"), "{$set: {pn: '1234567890'}}");
 
             var subject2 = CreateSubject<Person>();
 
-            Assert(subject2.Set(x => ((SmsMessage)x.Message).PhoneNumber, "1234567890"), "{$set: {'m.pn': '1234567890'}}", LinqProvider.V3);
+            Assert(subject2.Set(x => ((SmsMessage)x.Message).PhoneNumber, "1234567890"), "{$set: {'m.pn': '1234567890'}}");
         }
 
         [Fact]
@@ -608,11 +619,11 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<Message>();
 
-            Assert(subject.Set(x => (x as SmsMessage).PhoneNumber, "1234567890"), "{$set: {pn: '1234567890'}}", LinqProvider.V3);
+            Assert(subject.Set(x => (x as SmsMessage).PhoneNumber, "1234567890"), "{$set: {pn: '1234567890'}}");
 
             var subject2 = CreateSubject<Person>();
 
-            Assert(subject2.Set(x => (x.Message as SmsMessage).PhoneNumber, "1234567890"), "{$set: {'m.pn': '1234567890'}}", LinqProvider.V3);
+            Assert(subject2.Set(x => (x.Message as SmsMessage).PhoneNumber, "1234567890"), "{$set: {'m.pn': '1234567890'}}");
         }
 
         [Fact]
@@ -649,12 +660,7 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Unset("Age"), "{$unset: {age: 1}}");
         }
 
-        private void Assert<TDocument>(UpdateDefinition<TDocument> update, BsonDocument expected)
-        {
-            Assert(update, expected, LinqProvider.V2);
-        }
-
-        private void Assert<TDocument>(UpdateDefinition<TDocument> update, BsonDocument expected, LinqProvider linqProvider)
+        private void Assert<TDocument>(UpdateDefinition<TDocument> update, BsonDocument expected, LinqProvider linqProvider = LinqProvider.V3)
         {
             var renderedUpdate = Render(update, linqProvider).AsBsonDocument;
 
@@ -669,22 +675,12 @@ namespace MongoDB.Driver.Tests
             renderedUpdate.Should().Be(bsonArray);
         }
 
-        private void Assert<TDocument>(UpdateDefinition<TDocument> update, string expected)
-        {
-            Assert(update, expected, LinqProvider.V2);
-        }
-
-        private void Assert<TDocument>(UpdateDefinition<TDocument> update, string expected, LinqProvider linqProvider)
+        private void Assert<TDocument>(UpdateDefinition<TDocument> update, string expected, LinqProvider linqProvider = LinqProvider.V3)
         {
             Assert(update, BsonDocument.Parse(expected), linqProvider);
         }
 
-        private void AssertThrow<TDocument, TException>(UpdateDefinition<TDocument> update, string errorMessage) where TException : Exception
-        {
-            AssertThrow<TDocument, TException>(update, errorMessage, LinqProvider.V2);
-        }
-
-        private void AssertThrow<TDocument, TException>(UpdateDefinition<TDocument> update, string errorMessage, LinqProvider linqProvider) where TException : Exception
+        private void AssertThrow<TDocument, TException>(UpdateDefinition<TDocument> update, string errorMessage, LinqProvider linqProvider = LinqProvider.V3) where TException : Exception
         {
             var exception = Record.Exception(() => { Render(update, linqProvider); });
             exception.Should().BeOfType<TException>();
@@ -696,12 +692,7 @@ namespace MongoDB.Driver.Tests
             return new UpdateDefinitionBuilder<TDocument>();
         }
 
-        private BsonValue Render<TDocument>(UpdateDefinition<TDocument> update)
-        {
-            return Render(update, LinqProvider.V2);
-        }
-
-        private BsonValue Render<TDocument>(UpdateDefinition<TDocument> update, LinqProvider linqProvider)
+        private BsonValue Render<TDocument>(UpdateDefinition<TDocument> update, LinqProvider linqProvider = LinqProvider.V3)
         {
             var documentSerializer = BsonSerializer.SerializerRegistry.GetSerializer<TDocument>();
             return update.Render(documentSerializer, BsonSerializer.SerializerRegistry, linqProvider);

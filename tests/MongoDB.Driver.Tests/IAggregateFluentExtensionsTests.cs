@@ -20,6 +20,7 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.Tests.Linq.Linq3ImplementationTests;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -30,7 +31,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
-    public class IAggregateFluentExtensionsTests
+    public class IAggregateFluentExtensionsTests : Linq3IntegrationTest
     {
         // public methods
 #if WINDOWS
@@ -166,15 +167,29 @@ namespace MongoDB.Driver.Tests
             AssertLast(subject, expectedGroup);
         }
 
-        [Fact]
-        public void Group_should_generate_the_correct_document_using_expressions()
+        [Theory]
+        [ParameterAttributeData]
+        public void Group_should_generate_the_correct_document_using_expressions(
+            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var subject = CreateSubject()
+            var collection = GetCollection<Person>(linqProvider: linqProvider);
+            var subject = collection.Aggregate()
                 .Group(x => x.Age, g => new { Name = g.Select(x => x.FirstName + " " + x.LastName).First() });
 
-            var expectedGroup = BsonDocument.Parse("{$group: {_id: '$Age', Name: {'$first': { '$concat': ['$FirstName', ' ', '$LastName']}}}}");
+            var stages = Translate(collection, subject);
+            var expectedStages = linqProvider == LinqProvider.V2 ?
+                new[]
+                {
+                    "{ $group : { _id : '$Age', Name : { $first : { $concat : ['$FirstName', ' ', '$LastName'] } } } }"
+                }
+                :
+                new[]
+                {
+                    "{ $group : { _id : '$Age', __agg0 : { $first : { $concat : ['$FirstName', ' ', '$LastName'] } } } }",
+                    "{ $project : { Name : '$__agg0', _id : 0 } }"
+                };
 
-            AssertLast(subject, expectedGroup);
+            AssertStages(stages, expectedStages);
         }
 
         [Fact]
@@ -622,7 +637,7 @@ namespace MongoDB.Driver.Tests
         private void AssertLast<TDocument>(IAggregateFluent<TDocument> fluent, BsonDocument expectedLast)
         {
             var pipeline = new PipelineStagePipelineDefinition<Person, TDocument>(fluent.Stages);
-            var renderedPipeline = pipeline.Render(BsonSerializer.SerializerRegistry.GetSerializer<Person>(), BsonSerializer.SerializerRegistry, LinqProvider.V2);
+            var renderedPipeline = pipeline.Render(BsonSerializer.SerializerRegistry.GetSerializer<Person>(), BsonSerializer.SerializerRegistry);
 
             var last = renderedPipeline.Documents.Last();
             Assert.Equal(expectedLast, last);
@@ -638,7 +653,6 @@ namespace MongoDB.Driver.Tests
         {
             var mockClient = new Mock<IMongoClient>();
             var settings = new MongoClientSettings();
-            settings.LinqProvider = LinqProvider.V2;
             mockClient.SetupGet(x => x.Settings).Returns(settings);
             return mockClient.Object;
         }
