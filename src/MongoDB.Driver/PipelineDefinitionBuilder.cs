@@ -1193,6 +1193,28 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Appends a $searchMeta stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <param name="query">The search definition.</param>
+        /// <param name="indexName">The index name.</param>
+        /// <param name="count">The count options.</param>
+        /// <returns>
+        /// A new pipeline with an additional stage.
+        /// </returns>
+        public static PipelineDefinition<TInput, SearchMetaResult> SearchMeta<TInput, TOutput>(
+            this PipelineDefinition<TInput, TOutput> pipeline,
+            SearchDefinition<TOutput> query,
+            string indexName = null,
+            SearchCountOptions count = null)
+        {
+            Ensure.IsNotNull(pipeline, nameof(pipeline));
+            return pipeline.AppendStage(PipelineStageDefinitionBuilder.SearchMeta(query, indexName, count));
+        }
+
+        /// <summary>
         /// Create a $setWindowFields stage.
         /// </summary>
         /// <typeparam name="TInput">The type of the input documents.</typeparam>

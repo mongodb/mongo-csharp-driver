@@ -20,7 +20,7 @@ namespace MongoDB.Driver.Search
     /// <summary>
     /// Options for counting the search results.
     /// </summary>
-    public class SearchCountOptions
+    public sealed class SearchCountOptions
     {
         private SearchCountType _type = SearchCountType.LowerBound;
         private int? _threshold;
@@ -44,8 +44,8 @@ namespace MongoDB.Driver.Search
             set => _threshold = Ensure.IsNullOrGreaterThanZero(value, nameof(value));
         }
 
-        internal BsonDocument Render()
-            => new()
+        internal BsonDocument Render() =>
+            new()
             {
                 { "type", _type.ToCamelCase(), _type != SearchCountType.LowerBound },
                 { "threshold", _threshold, _threshold != null }

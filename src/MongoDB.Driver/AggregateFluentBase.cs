@@ -228,6 +228,15 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
+        public virtual IAggregateFluent<SearchMetaResult> SearchMeta(
+            SearchDefinition<TResult> searchDefinition,
+            string indexName = null,
+            SearchCountOptions count = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
         public virtual IAggregateFluent<BsonDocument> SetWindowFields<TWindowFields>(
             AggregateExpressionDefinition<ISetWindowFieldsPartition<TResult>, TWindowFields> output)
         {

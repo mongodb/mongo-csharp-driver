@@ -15,18 +15,19 @@
 namespace MongoDB.Driver.Search
 {
     /// <summary>
-    /// The type of count of the documents in a search result set.
+    /// The order in which to search for tokens in an autocomplete search definition.
     /// </summary>
-    public enum SearchCountType
+    public enum AutocompleteTokenOrder
     {
         /// <summary>
-        /// A lower bound count of the number of documents that match the query.
+        /// Indicates that tokens in the query can appear in any order in the documents.
         /// </summary>
-        LowerBound,
-
+        Any,
+        
         /// <summary>
-        /// An exact count of the number of documents that match the query.
+        /// Indicates that tokens in the query must appear adjacent to each other or in the order
+        /// specified in the query in the documents.
         /// </summary>
-        Total
+        Sequential
     }
 }

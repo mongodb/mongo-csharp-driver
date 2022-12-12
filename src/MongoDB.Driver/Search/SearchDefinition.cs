@@ -102,4 +102,62 @@ namespace MongoDB.Driver.Search
         public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry) =>
             BsonDocument.Parse(Json);
     }
+
+    internal abstract class OperatorSearchDefinition<TDocument> : SearchDefinition<TDocument>
+    {
+        private protected enum OperatorType
+        {
+            Autocomplete,
+            Compound,
+            EmbeddedDocument,
+            Equals,
+            Exists,
+            Facet,
+            GeoShape,
+            GeoWithin,
+            MoreLikeThis,
+            Near,
+            Phrase,
+            QueryString,
+            Range,
+            Regex,
+            Search,
+            Span,
+            Term,
+            Text,
+            Wildcard
+        }
+
+        private readonly PathDefinition<TDocument> _path;
+        private readonly ScoreDefinition<TDocument> _score;
+        private readonly OperatorType _operatorType;
+
+        private protected OperatorSearchDefinition(OperatorType operatorType) : this(operatorType, null)
+        {
+        }
+
+        private protected OperatorSearchDefinition(OperatorType operatorType, ScoreDefinition<TDocument> score)
+        {
+            _operatorType = operatorType;
+            _score = score;
+        }
+
+        private protected OperatorSearchDefinition(OperatorType operatorType, PathDefinition<TDocument> path, ScoreDefinition<TDocument> score)
+        {
+            _operatorType = operatorType;
+            _path = Ensure.IsNotNull(path, nameof(path));
+            _score = score;
+        }
+
+        private protected virtual BsonDocument RenderOperator(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry) => new();
+
+        public sealed override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
+        {
+            var renderedOperator = RenderOperator(documentSerializer, serializerRegistry);
+            renderedOperator.Add("path", () => _path.Render(documentSerializer, serializerRegistry), _path != null);
+            renderedOperator.Add("score", () => _score.Render(documentSerializer, serializerRegistry), _score != null);
+
+            return new(_operatorType.ToCamelCase(), renderedOperator);
+        }
+    }
 }

@@ -15,18 +15,29 @@
 namespace MongoDB.Driver.Search
 {
     /// <summary>
-    /// The type of count of the documents in a search result set.
+    /// The relation of the query shape geometry to the indexed field geometry in a
+    /// geo shape search definition.
     /// </summary>
-    public enum SearchCountType
+    public enum GeoShapeRelation
     {
         /// <summary>
-        /// A lower bound count of the number of documents that match the query.
+        /// Indicates that the indexed geometry contains the query geometry.
         /// </summary>
-        LowerBound,
+        Contains,
 
         /// <summary>
-        /// An exact count of the number of documents that match the query.
+        /// Indicates that both the query and indexed geometries have nothing in common.
         /// </summary>
-        Total
+        Disjoint,
+
+        /// <summary>
+        /// Indicates that both the query and indexed geometries intersect.
+        /// </summary>
+        Intersects,
+
+        /// <summary>
+        /// Indicates that the indexed geometry is within the query geometry.
+        /// </summary>
+        Within
     }
 }

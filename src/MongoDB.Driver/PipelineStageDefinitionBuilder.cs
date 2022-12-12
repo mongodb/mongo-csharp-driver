@@ -1350,6 +1350,40 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Creates a $searchMeta stage.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <param name="searchDefinition">The search definition.</param>
+        /// <param name="indexName">The index name.</param>
+        /// <param name="count">The count options.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<TInput, SearchMetaResult> SearchMeta<TInput>(
+            SearchDefinition<TInput> searchDefinition,
+            string indexName = null,
+            SearchCountOptions count = null)
+        {
+            Ensure.IsNotNull(searchDefinition, nameof(searchDefinition));
+
+            const string operatorName = "$searchMeta";
+            var stage = new DelegatedPipelineStageDefinition<TInput, SearchMetaResult>(
+                operatorName,
+                (s, sr, linqProvider) =>
+                {
+                    var renderedSearchDefinition = searchDefinition.Render(s, sr);
+                    renderedSearchDefinition.Add("count", () => count.Render(), count != null);
+                    renderedSearchDefinition.Add("index", indexName, indexName != null);
+
+                    var document = new BsonDocument(operatorName, renderedSearchDefinition);
+                    return new RenderedPipelineStageDefinition<SearchMetaResult>(
+                        operatorName,
+                        document,
+                        sr.GetSerializer<SearchMetaResult>());
+                });
+
+            return stage;
+        }
+
+        /// <summary>
         /// Creates a $replaceRoot stage.
         /// </summary>
         /// <typeparam name="TInput">The type of the input documents.</typeparam>

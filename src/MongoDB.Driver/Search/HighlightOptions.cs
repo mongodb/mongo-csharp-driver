@@ -28,6 +28,20 @@ namespace MongoDB.Driver.Search
         private int? _maxCharsToExamine;
         private int? _maxNumPassages;
 
+        // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="HighlightOptions{TValue}"/> class.
+        /// </summary>
+        /// <param name="path">The document field to search.</param>
+        /// <param name="maxCharsToExamine">maximum number of characters to examine.</param>
+        /// <param name="maxNumPassages">The number of high-scoring passages.</param>
+        public HighlightOptions(PathDefinition<TDocument> path, int? maxCharsToExamine = null, int? maxNumPassages = null)
+        {
+            _path = Ensure.IsNotNull(path, nameof(path));
+            _maxCharsToExamine = maxCharsToExamine;
+            _maxNumPassages = maxNumPassages;
+        }
+
         /// <summary>
         /// Gets or sets the document field to search.
         /// </summary>

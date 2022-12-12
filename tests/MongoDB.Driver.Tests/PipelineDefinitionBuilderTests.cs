@@ -20,6 +20,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Search;
 using Moq;
 using Xunit;
 
@@ -170,6 +171,140 @@ namespace MongoDB.Driver.Tests
 
             var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
             argumentNullException.ParamName.Should().Be("withCollection");
+        }
+
+        [Fact]
+        public void Search_should_add_expected_stage()
+        {
+            var pipeline = new EmptyPipelineDefinition<BsonDocument>();
+            var builder = new SearchDefinitionBuilder<BsonDocument>();
+            var result = pipeline.Search(builder.Text("foo", "bar"));
+            var stages = RenderStages(result, BsonDocumentSerializer.Instance);
+            stages[0].Should().Be(
+                BsonDocument.Parse("{ $search: { text: { query: 'foo', path: 'bar' } } }"));
+        }
+
+        [Fact]
+        public void Search_should_add_expected_stage_with_highlight()
+        {
+            var pipeline = new EmptyPipelineDefinition<BsonDocument>();
+            var builder = new SearchDefinitionBuilder<BsonDocument>();
+            var result = pipeline.Search(builder.Text("foo", "bar"), new HighlightOptions<BsonDocument>("foo"));
+            var stages = RenderStages(result, BsonDocumentSerializer.Instance);
+            stages[0].Should().BeEquivalentTo(
+                BsonDocument.Parse("{ $search: { text: { query: 'foo', path: 'bar' }, highlight: { path: 'foo' } } }"));
+        }
+
+        [Fact]
+        public void Search_should_add_expected_stage_with_index()
+        {
+            var pipeline = new EmptyPipelineDefinition<BsonDocument>();
+            var builder = new SearchDefinitionBuilder<BsonDocument>();
+            var result = pipeline.Search(builder.Text("foo", "bar"), indexName: "foo");
+            var stages = RenderStages(result, BsonDocumentSerializer.Instance);
+            stages[0].Should().Be(
+                BsonDocument.Parse("{ $search: { text: { query: 'foo', path: 'bar' }, index: 'foo' } }"));
+        }
+
+        [Fact]
+        public void Search_should_add_expected_stage_with_count()
+        {
+            var pipeline = new EmptyPipelineDefinition<BsonDocument>();
+            var builder = new SearchDefinitionBuilder<BsonDocument>();
+            var count = new SearchCountOptions()
+            {
+                Type = SearchCountType.Total
+            };
+            var result = pipeline.Search(builder.Text("foo", "bar"), count: count);
+            var stages = RenderStages(result, BsonDocumentSerializer.Instance);
+            stages[0].Should().Be(
+                BsonDocument.Parse("{ $search: { text: { query: 'foo', path: 'bar' }, count: { type: 'total' } } }"));
+        }
+
+        [Fact]
+        public void Search_should_add_expected_stage_with_return_stored_source()
+        {
+            var pipeline = new EmptyPipelineDefinition<BsonDocument>();
+            var builder = new SearchDefinitionBuilder<BsonDocument>();
+            var result = pipeline.Search(builder.Text("foo", "bar"), returnStoredSource: true);
+            var stages = RenderStages(result, BsonDocumentSerializer.Instance);
+            stages[0].Should().Be(
+                BsonDocument.Parse("{ $search: { text: { query: 'foo', path: 'bar' }, returnStoredSource: true } }"));
+        }
+
+        [Fact]
+        public void Search_should_throw_when_pipeline_is_null()
+        {
+            PipelineDefinition<BsonDocument, BsonDocument> pipeline = null;
+            var builder = new SearchDefinitionBuilder<BsonDocument>();
+            var exception = Record.Exception(() => pipeline.Search(builder.Text("foo", "bar")));
+            exception.Should().BeOfType<ArgumentNullException>()
+                .Which.ParamName.Should().Be("pipeline");
+        }
+
+        [Fact]
+        public void Search_should_throw_when_query_is_null()
+        {
+            var pipeline = new EmptyPipelineDefinition<BsonDocument>();
+            var exception = Record.Exception(() => pipeline.Search(null));
+            exception.Should().BeOfType<ArgumentNullException>()
+                .Which.ParamName.Should().Be("query");
+        }
+
+        [Fact]
+        public void SearchMeta_should_add_expected_stage()
+        {
+            var pipeline = new EmptyPipelineDefinition<BsonDocument>();
+            var builder = new SearchDefinitionBuilder<BsonDocument>();
+            var result = pipeline.SearchMeta(builder.Text("foo", "bar"));
+            var stages = RenderStages(result, BsonDocumentSerializer.Instance);
+            stages[0].Should().Be(
+                BsonDocument.Parse("{ $searchMeta: { text: { query: 'foo', path: 'bar' } } }"));
+        }
+
+        [Fact]
+        public void SearchMeta_should_add_expected_stage_with_index()
+        {
+            var pipeline = new EmptyPipelineDefinition<BsonDocument>();
+            var builder = new SearchDefinitionBuilder<BsonDocument>();
+            var result = pipeline.SearchMeta(builder.Text("foo", "bar"), indexName: "foo");
+            var stages = RenderStages(result, BsonDocumentSerializer.Instance);
+            stages[0].Should().Be(
+                BsonDocument.Parse("{ $searchMeta: { text: { query: 'foo', path: 'bar' }, index: 'foo' } }"));
+        }
+
+        [Fact]
+        public void SearchMeta_should_add_expected_stage_with_count()
+        {
+            var pipeline = new EmptyPipelineDefinition<BsonDocument>();
+            var builder = new SearchDefinitionBuilder<BsonDocument>();
+            var count = new SearchCountOptions()
+            {
+                Type = SearchCountType.Total
+            };
+            var result = pipeline.SearchMeta(builder.Text("foo", "bar"), count: count);
+            var stages = RenderStages(result, BsonDocumentSerializer.Instance);
+            stages[0].Should().Be(
+                BsonDocument.Parse("{ $searchMeta: { text: { query: 'foo', path: 'bar' }, count: { type: 'total' } } }"));
+        }
+
+        [Fact]
+        public void SearchMeta_should_throw_when_pipeline_is_null()
+        {
+            PipelineDefinition<BsonDocument, BsonDocument> pipeline = null;
+            var builder = new SearchDefinitionBuilder<BsonDocument>();
+            var exception = Record.Exception(() => pipeline.SearchMeta(builder.Text("foo", "bar")));
+            exception.Should().BeOfType<ArgumentNullException>()
+                .Which.ParamName.Should().Be("pipeline");
+        }
+
+        [Fact]
+        public void SearchMeta_should_throw_when_query_is_null()
+        {
+            var pipeline = new EmptyPipelineDefinition<BsonDocument>();
+            var exception = Record.Exception(() => pipeline.SearchMeta(null));
+            exception.Should().BeOfType<ArgumentNullException>()
+                .Which.ParamName.Should().Be("query");
         }
 
         // private methods

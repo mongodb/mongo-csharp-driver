@@ -12,21 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+
 namespace MongoDB.Driver.Search
 {
     /// <summary>
-    /// The type of count of the documents in a search result set.
+    /// Base class for search score functions.
     /// </summary>
-    public enum SearchCountType
+    /// <typeparam name="TDocument">The type of the document.</typeparam>
+    public abstract class ScoreFunction<TDocument>
     {
         /// <summary>
-        /// A lower bound count of the number of documents that match the query.
+        /// Renders the score function to a <see cref="BsonDocument"/>.
         /// </summary>
-        LowerBound,
-
-        /// <summary>
-        /// An exact count of the number of documents that match the query.
-        /// </summary>
-        Total
+        /// <param name="documentSerializer">The document serializer.</param>
+        /// <param name="serializerRegistry">The serializer registry.</param>
+        /// <returns>A <see cref="BsonDocument"/>.</returns>
+        public abstract BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry);
     }
 }

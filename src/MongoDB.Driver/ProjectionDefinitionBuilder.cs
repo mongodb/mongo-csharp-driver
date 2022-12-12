@@ -157,6 +157,40 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Combines an existing projection with a search highlights projection.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="projection">The projection.</param>
+        /// <param name="field">The field.</param>
+        /// <returns>
+        /// A combined projection.
+        /// </returns>
+        public static ProjectionDefinition<TDocument> MetaSearchHighlights<TDocument>(
+            this ProjectionDefinition<TDocument> projection,
+            string field)
+        {
+            var builder = Builders<TDocument>.Projection;
+            return builder.Combine(projection, builder.MetaSearchHighlights(field));
+        }
+
+        /// <summary>
+        /// Combines an existing projection with a search score projection.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="projection">The projection.</param>
+        /// <param name="field">The field.</param>
+        /// <returns>
+        /// A combined projection.
+        /// </returns>
+        public static ProjectionDefinition<TDocument> MetaSearchScore<TDocument>(
+            this ProjectionDefinition<TDocument> projection,
+            string field)
+        {
+            var builder = Builders<TDocument>.Projection;
+            return builder.Combine(projection, builder.MetaSearchScore(field));
+        }
+
+        /// <summary>
         /// Combines an existing projection with a text score projection.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
@@ -169,6 +203,40 @@ namespace MongoDB.Driver
         {
             var builder = Builders<TDocument>.Projection;
             return builder.Combine(projection, builder.MetaTextScore(field));
+        }
+
+        /// <summary>
+        /// Combines an existing projection with a search metadata projection.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="projection">The projection.</param>
+        /// <param name="field">The field.</param>
+        /// <returns>
+        /// A combined projection.
+        /// </returns>
+        public static ProjectionDefinition<TDocument> SearchMeta<TDocument>(
+            this ProjectionDefinition<TDocument> projection,
+            FieldDefinition<TDocument> field)
+        {
+            var builder = Builders<TDocument>.Projection;
+            return builder.Combine(projection, builder.SearchMeta(field));
+        }
+
+        /// <summary>
+        /// Combines an existing projection with a search metadata projection.
+        /// </summary>
+        /// <typeparam name="TDocument">The type of the document.</typeparam>
+        /// <param name="projection">The projection.</param>
+        /// <param name="field">The field.</param>
+        /// <returns>
+        /// A combined projection.
+        /// </returns>
+        public static ProjectionDefinition<TDocument> SearchMeta<TDocument>(
+            this ProjectionDefinition<TDocument> projection,
+            Expression<Func<TDocument, object>> field)
+        {
+            var builder = Builders<TDocument>.Projection;
+            return builder.Combine(projection, builder.SearchMeta(field));
         }
 
         /// <summary>
@@ -364,6 +432,30 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Creates a search highlights projection.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <returns>
+        /// A search highlights projection.
+        /// </returns>
+        public ProjectionDefinition<TSource> MetaSearchHighlights(string field)
+        {
+            return Meta(field, "searchHighlights");
+        }
+
+        /// <summary>
+        /// Creates a search score projection.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <returns>
+        /// A search score projection.
+        /// </returns>
+        public ProjectionDefinition<TSource> MetaSearchScore(string field)
+        {
+            return Meta(field, "searchScore");
+        }
+
+        /// <summary>
         /// Creates a text score projection.
         /// </summary>
         /// <param name="field">The field.</param>
@@ -373,6 +465,30 @@ namespace MongoDB.Driver
         public ProjectionDefinition<TSource> MetaTextScore(string field)
         {
             return Meta(field, "textScore");
+        }
+
+        /// <summary>
+        /// Creates a search metadata projection.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <returns>
+        /// A search metadata projection.
+        /// </returns>
+        public ProjectionDefinition<TSource> SearchMeta(FieldDefinition<TSource> field)
+        {
+            return new SingleFieldProjectionDefinition<TSource>(field, new BsonString("$$SEARCH_META"));
+        }
+
+        /// <summary>
+        /// Creates a search metadata projection.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <returns>
+        /// A search metadata projection.
+        /// </returns>
+        public ProjectionDefinition<TSource> SearchMeta(Expression<Func<TSource, object>> field)
+        {
+            return SearchMeta(new ExpressionFieldDefinition<TSource>(field));
         }
 
         /// <summary>

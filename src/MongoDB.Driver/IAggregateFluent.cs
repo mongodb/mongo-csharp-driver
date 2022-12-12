@@ -357,7 +357,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Appends a $search stage to the pipeline.
         /// </summary>
-        /// <param name="query">The search definition.</param>
+        /// <param name="searchDefinition">The search definition.</param>
         /// <param name="highlight">The highlight options.</param>
         /// <param name="indexName">The index name.</param>
         /// <param name="count">The count options.</param>
@@ -367,11 +367,23 @@ namespace MongoDB.Driver
         /// </param>
         /// <returns>The fluent aggregate interface.</returns>
         IAggregateFluent<TResult> Search(
-            SearchDefinition<TResult> query,
+            SearchDefinition<TResult> searchDefinition,
             HighlightOptions<TResult> highlight = null,
             string indexName = null,
             SearchCountOptions count = null,
             bool returnStoredSource = false);
+
+        /// <summary>
+        /// Appends a $searchMeta stage to the pipeline.
+        /// </summary>
+        /// <param name="searchDefinition">The search definition.</param>
+        /// <param name="indexName">The index name.</param>
+        /// <param name="count">The count options.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        IAggregateFluent<SearchMetaResult> SearchMeta(
+            SearchDefinition<TResult> searchDefinition,
+            string indexName = null,
+            SearchCountOptions count = null);
 
         /// <summary>
         /// Appends a $setWindowFields to the pipeline.

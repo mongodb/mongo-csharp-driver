@@ -240,13 +240,21 @@ namespace MongoDB.Driver
         }
 
         public override IAggregateFluent<TResult> Search(
-            SearchDefinition<TResult> query,
+            SearchDefinition<TResult> searchDefinition,
             HighlightOptions<TResult> highlight = null,
             string indexName = null,
             SearchCountOptions count = null,
             bool returnStoredSource = false)
         {
-            return WithPipeline(_pipeline.Search(query, highlight, indexName, count, returnStoredSource));
+            return WithPipeline(_pipeline.Search(searchDefinition, highlight, indexName, count, returnStoredSource));
+        }
+
+        public override IAggregateFluent<SearchMetaResult> SearchMeta(
+            SearchDefinition<TResult> searchDefinition,
+            string indexName = null,
+            SearchCountOptions count = null)
+        {
+            return WithPipeline(_pipeline.SearchMeta(searchDefinition, indexName, count));
         }
 
         public override IAggregateFluent<BsonDocument> SetWindowFields<TWindowFields>(

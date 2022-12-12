@@ -33,7 +33,8 @@ namespace MongoDB.Driver.Search
         /// <returns>
         /// A boost score modifier.
         /// </returns>
-        public ScoreDefinition<TDocument> Boost(double value) => new BoostValueScoreDefinition<TDocument>(value);
+        public ScoreDefinition<TDocument> Boost(double value) =>
+            new BoostValueScoreDefinition<TDocument>(value);
 
         /// <summary>
         /// Creates a score modifier that multiples a result's base score by the value of a numeric
@@ -76,9 +77,19 @@ namespace MongoDB.Driver.Search
         /// </returns>
         public ScoreDefinition<TDocument> Constant(double value) =>
             new ConstantScoreDefinition<TDocument>(value);
+
+        /// <summary>
+        /// Creates a score modifier that computes the final score through an expression.
+        /// </summary>
+        /// <param name="function">The expression used to compute the score.</param>
+        /// <returns>
+        /// A function score modifier.
+        /// </returns>
+        public ScoreDefinition<TDocument> Function(ScoreFunction<TDocument> function) =>
+            new FunctionScoreDefinition<TDocument>(function);
     }
 
-    internal class BoostValueScoreDefinition<TDocument> : ScoreDefinition<TDocument>
+    internal sealed class BoostValueScoreDefinition<TDocument> : ScoreDefinition<TDocument>
     {
         private readonly double _value;
 
@@ -87,14 +98,11 @@ namespace MongoDB.Driver.Search
             _value = Ensure.IsGreaterThanZero(value, nameof(value));
         }
 
-        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
-            => new()
-            {
-                { "boost",  new BsonDocument("value", _value) }
-            };
+        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry) =>
+            new("boost",  new BsonDocument("value", _value));
     }
 
-    internal class BoostPathScoreDefinition<TDocument> : ScoreDefinition<TDocument>
+    internal sealed class BoostPathScoreDefinition<TDocument> : ScoreDefinition<TDocument>
     {
         private readonly PathDefinition<TDocument> _path;
         private readonly double _undefined;
@@ -105,18 +113,14 @@ namespace MongoDB.Driver.Search
             _undefined = undefined;
         }
 
-        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry)
-        {
-            var document = new BsonDocument()
+        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry) =>
+            new("boost", new BsonDocument
             {
                 { "path", _path.Render(documentSerializer, serializerRegistry) },
                 { "undefined", _undefined, _undefined != 0 }
-            };
-
-            return new("boost", document);
-        }
+            });
     }
-    
+
     internal sealed class ConstantScoreDefinition<TDocument> : ScoreDefinition<TDocument>
     {
         private readonly double _value;
@@ -126,9 +130,20 @@ namespace MongoDB.Driver.Search
             _value = Ensure.IsGreaterThanZero(value, nameof(value));
         }
 
-        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry) => new()
+        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry) =>
+            new("constant", new BsonDocument("value", _value));
+    }
+
+    internal sealed class FunctionScoreDefinition<TDocument> : ScoreDefinition<TDocument>
+    {
+        private readonly ScoreFunction<TDocument> _function;
+
+        public FunctionScoreDefinition(ScoreFunction<TDocument> function)
         {
-            { "constant", new BsonDocument("value", _value) }
-        };
+            _function = Ensure.IsNotNull(function, nameof(function));
+        }
+
+        public override BsonDocument Render(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry) =>
+            new("function", _function.Render(documentSerializer, serializerRegistry));
     }
 }
