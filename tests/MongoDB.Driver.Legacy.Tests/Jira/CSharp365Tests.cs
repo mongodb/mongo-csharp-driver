@@ -23,7 +23,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp365
 {
     public class CSharp365Tests
     {
-        [SkippableFact]
+        [Fact]
         public void TestExplainWithFieldsAndCoveredIndex()
         {
             RequireServer.Check().Supports(Feature.LegacyWireProtocol);

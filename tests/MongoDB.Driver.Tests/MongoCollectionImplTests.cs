@@ -24,7 +24,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
@@ -3721,7 +3721,7 @@ namespace MongoDB.Driver
             e.ParamName.Should().Be("pipeline");
         }
 
-        [SkippableFact]
+        [Fact]
         public void Watch_should_support_full_document_with_duplicate_elements()
         {
             RequireServer.Check().ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded);

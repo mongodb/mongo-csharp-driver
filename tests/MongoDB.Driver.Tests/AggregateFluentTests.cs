@@ -18,7 +18,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Moq;
@@ -165,7 +165,7 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Count_should_return_the_expected_result(
             [Values(false, true)]
@@ -196,7 +196,7 @@ namespace MongoDB.Driver.Tests
             result.Should().Be(1);
         }
 
-        [SkippableFact]
+        [Fact]
         public void Function_should_return_expected_result()
         {
             RequireServer.Check().Supports(Feature.AggregateFunction);
@@ -262,7 +262,7 @@ namespace MongoDB.Driver.Tests
             result[2].Should().Be("{ _id : 3, name : 'Mrs. Eppie Delta', scores : [ 9, 8, 8 ], isFound : false, message : 'Hello Mrs. Eppie Delta. Your total score is 25.' }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void Group_with_accumulator_should_return_expected_result()
         {
             RequireServer.Check().Supports(Feature.AggregateAccumulator);
@@ -315,7 +315,7 @@ namespace MongoDB.Driver.Tests
             result[1].Should().Be("{ _id : 'Homer', minCopies : 10, avgCopies : 10.0, maxCopies : 10 }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void Lookup_with_let_and_bsondocuments_params_should_return_the_expected_result()
         {
             RequireServer.Check();
@@ -413,7 +413,7 @@ namespace MongoDB.Driver.Tests
             public int Instock { get; set; }
         }
 
-        [SkippableFact]
+        [Fact]
         public void Lookup_with_let_should_return_the_expected_result()
         {
             RequireServer.Check();
@@ -481,7 +481,7 @@ namespace MongoDB.Driver.Tests
             result[2].Should().Be("{ 'item' : 'cookies', 'price' : 10, 'ordered' : 60, 'stockdata' : [{ 'instock' : 80 }] }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void Lookup_with_let_and_mismatched_pipeline_condition_should_return_the_expected_result()
         {
             RequireServer.Check();
@@ -548,7 +548,7 @@ namespace MongoDB.Driver.Tests
             result[2].Should().Be("{ 'item' : 'cookies', 'price' : 10, 'ordered' : 60, 'stockdata' : [] }");
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Lookup_without_let_should_return_the_expected_result([Values(null, "{}")] string emptyLetValue)
         {
@@ -1229,7 +1229,7 @@ namespace MongoDB.Driver.Tests
             public string Name { get; set; }
         }
 
-        [SkippableFact]
+        [Fact]
         public void UnionWith_with_different_schemas_and_projection_should_return_the_expected_result()
         {
             RequireServer.Check().Supports(Feature.AggregateUnionWith);

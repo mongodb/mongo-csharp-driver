@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Tests
         }
 
         // public methods
-        [SkippableFact]
+        [Fact]
         public void Insert_with_RetryWrites_true_should_work_whether_retryable_writes_are_supported_or_not()
         {
             RequireServer.Check();
@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [SkippableFact]
+        [Fact]
         public void Retryable_write_errorlabel_should_not_be_added_with_retryWrites_false()
         {
             if (CoreTestConfiguration.Cluster.Description.Type == ClusterType.Sharded)
@@ -96,7 +96,7 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [SkippableFact]
+        [Fact]
         public void Retryable_write_operation_should_throw_custom_exception_on_servers_using_mmapv1()
         {
             RequireSupportForRetryableWrites();
@@ -116,7 +116,7 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [SkippableFact]
+        [Fact]
         public void TxnNumber_should_be_included_with_FindOneAndDelete()
         {
             RequireSupportForRetryableWrites();
@@ -135,7 +135,7 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [SkippableFact]
+        [Fact]
         public void TxnNumber_should_be_included_with_FindOneAndReplace()
         {
             RequireSupportForRetryableWrites();
@@ -154,7 +154,7 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [SkippableFact]
+        [Fact]
         public void TxnNumber_should_be_included_with_FindOneAndUpdate()
         {
             RequireSupportForRetryableWrites();
@@ -173,7 +173,7 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [SkippableFact]
+        [Fact]
         public void TxnNumber_should_be_included_with_DeleteOne()
         {
             RequireSupportForRetryableWrites();
@@ -192,7 +192,7 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [SkippableFact]
+        [Fact]
         public void TxnNumber_should_be_included_with_InsertOne()
         {
             RequireSupportForRetryableWrites();
@@ -211,7 +211,7 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [SkippableFact]
+        [Fact]
         public void TxnNumber_should_be_included_with_ReplaceOne()
         {
             RequireSupportForRetryableWrites();
@@ -230,7 +230,7 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [SkippableFact]
+        [Fact]
         public void TxnNumber_should_be_included_with_UpdateOne()
         {
             RequireSupportForRetryableWrites();

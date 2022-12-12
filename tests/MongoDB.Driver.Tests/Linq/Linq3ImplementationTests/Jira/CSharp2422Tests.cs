@@ -16,7 +16,7 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira

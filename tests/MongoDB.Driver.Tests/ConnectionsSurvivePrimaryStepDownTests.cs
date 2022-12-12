@@ -18,7 +18,7 @@ using System.Linq;
 using System.Net;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Tests
         private readonly string _collectionName = "step-down";
         private readonly string _databaseName = "step-down";
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Connection_pool_should_be_cleared_when_Shutdown_exceptions(
             [Values(
@@ -74,7 +74,7 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Connection_pool_should_not_be_cleared_when_replSetStepDown_and_GetMore([Values(false, true)] bool async)
         {
@@ -143,7 +143,7 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [SkippableFact]
+        [Fact]
         public void Connection_pool_should_work_as_expected_when_NonPrimary_exception()
         {
             RequireServer.Check().Supports(Feature.FailPointsFailCommand).ClusterType(ClusterType.ReplicaSet);

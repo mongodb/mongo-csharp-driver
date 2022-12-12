@@ -179,7 +179,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests
             result.Should().Be(0);
         }
 
-        [SkippableFact]
+        [Fact]
         public void Distinct_document_followed_by_where()
         {
             RequireServer.Check();
@@ -193,7 +193,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests
                 "{ $match: { '_id.A': 'Awesome' } }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void Distinct_document_preceded_by_select_where()
         {
             RequireServer.Check();
@@ -209,7 +209,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests
                 "{ $group: { '_id': '$$ROOT' } }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void Distinct_document_preceded_by_where_select()
         {
             RequireServer.Check();
@@ -224,7 +224,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests
                 "{ $group: { '_id': { 'A': '$A', 'B': '$B' } } }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void Distinct_field_preceded_by_where_select()
         {
             RequireServer.Check();
@@ -239,7 +239,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests
                 "{ $group: { '_id': '$A' } }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void Distinct_field_preceded_by_select_where()
         {
             RequireServer.Check();
@@ -473,7 +473,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests
                 "{ $group: { _id: '$A', FirstB: { $first: '$B'} } }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void GroupJoin_method()
         {
             RequireServer.Check();
@@ -489,7 +489,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests
                 "{ $lookup: { from: 'testcollection_other', localField: '_id', foreignField: '_id', as: 'o' } }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void GroupJoinForeignField_method()
         {
             RequireServer.Check();
@@ -505,7 +505,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests
                 "{ $lookup: { from: 'testcollection_other', localField: '_id', foreignField: 'CEF', as: 'o' } }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void GroupJoin_syntax()
         {
             RequireServer.Check();
@@ -519,7 +519,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests
                 "{ $project: { A: '$A', SumCEF: { $sum: '$joined.CEF' }, _id: 0 } }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void GroupJoin_syntax_with_a_transparent_identifier()
         {
             RequireServer.Check();
@@ -535,7 +535,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests
                 "{ $project: { A: '$A', Joined: '$joined', _id: 0 } }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void GroupJoin_syntax_with_select_many()
         {
             RequireServer.Check();
@@ -551,7 +551,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests
                 "{ $project: { A: '$A', CEF: '$joined.CEF', _id: 0 } }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void GroupJoin_syntax_with_select_many_and_DefaultIfEmpty()
         {
             RequireServer.Check();
@@ -568,7 +568,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests
                 "{ $project: { A: '$A', CEF: { $ifNull: ['$joined.CEF', null] }, _id: 0 } }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void Join_method()
         {
             RequireServer.Check();
@@ -585,7 +585,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests
                 "{ $unwind: '$o' }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void JoinForeignField_method()
         {
             RequireServer.Check();
@@ -602,7 +602,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests
                 "{ $unwind: '$o' }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void Join_syntax()
         {
             RequireServer.Check();
@@ -617,7 +617,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests
                 "{ $project: { A: '$A', CEF: '$o.CEF', _id: 0 } }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void Join_syntax_with_a_transparent_identifier()
         {
             RequireServer.Check();
@@ -866,7 +866,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests
             act.ShouldThrow<NotSupportedException>();
         }
 
-        [SkippableFact]
+        [Fact]
         public void Sample()
         {
             RequireServer.Check();
@@ -877,7 +877,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests
                 "{ $sample: { size: 100 } }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void Sample_after_another_function()
         {
             RequireServer.Check();
@@ -934,7 +934,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests
                 "{ $match: { __fld0: 'Awesome Balloon' } }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void Select_method_with_predicated_any()
         {
             RequireServer.Check();
@@ -1056,7 +1056,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests
                 "{ $project: { M: '$M', _id: 0 } }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void Select_method_array_index()
         {
             RequireServer.Check();
@@ -1067,7 +1067,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests
                 "{ $project: { __fld0: { $arrayElemAt: ['$M', 0] }, _id: 0 } }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void Select_syntax_array_index()
         {
             RequireServer.Check();
@@ -1079,7 +1079,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests
                 "{ $project: { __fld0: { $arrayElemAt: ['$M', 0] }, _id: 0 } }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void Select_method_embedded_pipeline()
         {
             RequireServer.Check();
@@ -1090,7 +1090,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests
                 "{ $project: { __fld0: { $arrayElemAt: ['$M', 0] }, _id: 0 } }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void Select_method_computed_array()
         {
             RequireServer.Check();
@@ -1102,7 +1102,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests
                 "{ $project: { __fld0: { $map: { input: '$M', as: 'i', in: { $add: ['$$i', 1] } } }, _id: 0 } }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void Select_syntax_computed_array()
         {
             RequireServer.Check();
@@ -1546,7 +1546,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests
                 "{ $skip: 10 }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void StandardDeviationPopulation()
         {
             RequireServer.Check();
@@ -1556,7 +1556,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests
             result.Should().Be(50);
         }
 
-        [SkippableFact]
+        [Fact]
         public void StandardDeviationPopulation_with_selector()
         {
             RequireServer.Check();
@@ -1566,7 +1566,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests
             result.Should().Be(50);
         }
 
-        [SkippableFact]
+        [Fact]
         public async Task StandardDeviationPopulationAsync()
         {
             RequireServer.Check();
@@ -1576,7 +1576,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests
             result.Should().Be(50);
         }
 
-        [SkippableFact]
+        [Fact]
         public async Task StandardDeviationPopulationAsync_with_selector()
         {
             RequireServer.Check();
@@ -1586,7 +1586,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests
             result.Should().Be(50);
         }
 
-        [SkippableFact]
+        [Fact]
         public void StandardDeviationSample()
         {
             RequireServer.Check();
@@ -1596,7 +1596,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests
             result.Should().BeApproximately(70.7106781186548, .0001);
         }
 
-        [SkippableFact]
+        [Fact]
         public void StandardDeviationSample_with_selector()
         {
             RequireServer.Check();
@@ -1606,7 +1606,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests
             result.Should().BeApproximately(70.7106781186548, .0001);
         }
 
-        [SkippableFact]
+        [Fact]
         public async Task StandardDeviationSampleAsync()
         {
             RequireServer.Check();
@@ -1616,7 +1616,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests
             result.Should().BeApproximately(70.7106781186548, .0001);
         }
 
-        [SkippableFact]
+        [Fact]
         public async Task StandardDeviationSampleAsync_with_selector()
         {
             RequireServer.Check();
@@ -1719,7 +1719,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests
                 "{ $match : { 'G' : { '$elemMatch' : { 'D' : \"Don't\" } } } }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void AsQueryable_in_transaction()
         {
             RequireServer.Check().ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded).Supports(Feature.Transactions);

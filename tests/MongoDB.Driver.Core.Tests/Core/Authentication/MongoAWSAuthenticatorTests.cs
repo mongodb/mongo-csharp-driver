@@ -19,7 +19,7 @@ using System.Net;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Authentication;
 using MongoDB.Driver.Core.Authentication.External;
 using MongoDB.Driver.Core.Clusters;

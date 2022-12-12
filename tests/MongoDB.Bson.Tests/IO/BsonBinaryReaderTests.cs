@@ -21,14 +21,14 @@ using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.TestHelpers;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Bson.Tests.IO
 {
     public class BsonBinaryReaderTests
     {
-        [SkippableFact]
+        [Fact]
         public void BsonBinaryReader_should_support_reading_more_than_2GB()
         {
             RequireEnvironment.Check().EnvironmentVariable("EXPLICIT");

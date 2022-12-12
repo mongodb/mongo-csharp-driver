@@ -20,7 +20,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
@@ -36,7 +36,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
 {
     public class PoolClearRetryability
     {
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public async Task PoolClearedError_write_retryablity_test([Values(false, true)] bool async)
         {

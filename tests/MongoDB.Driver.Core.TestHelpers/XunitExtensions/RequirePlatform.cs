@@ -16,6 +16,7 @@
 using System;
 using System.Linq;
 using Xunit;
+using Xunit.Sdk;
 
 namespace MongoDB.Driver.TestHelpers
 {

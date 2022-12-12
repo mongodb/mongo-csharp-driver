@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Tests.Specifications.transactions_convenient_api
         {
         }
 
-        [SkippableTheory]
+        [Theory]
         [ClassData(typeof(TestCaseFactory))]
         public void Run(JsonDrivenTestCase testCase)
         {

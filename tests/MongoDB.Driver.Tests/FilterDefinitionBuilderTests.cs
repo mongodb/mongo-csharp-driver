@@ -20,7 +20,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.GeoJsonObjectModel;
 using Xunit;
@@ -1244,7 +1244,7 @@ namespace MongoDB.Driver.Tests
         }
         #endregion
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(0U, new[] { 2, 3, 4, 5, 6, 7 }, "{ $or : [ { X : { $gt : 0 } }, { X : { $lt : 0 } } ] }")]
         [InlineData(1U, new[] { 3, 4, 5, 6, 7 }, "{ $or : [ { X : { $gt : 1 } }, { X : { $lt : 0 } } ] }")]
         [InlineData(0x7fffffffU, new[] { 4, 5, 6, 7 }, "{ $or : [ { X : { $gt : 2147483647  } }, { X : { $lt : 0 } } ] }")]
@@ -1265,7 +1265,7 @@ namespace MongoDB.Driver.Tests
             ids.Should().Equal(expectedIds);
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(0U, new[] { 2, 3, 4, 5, 6, 7 }, "{ $or : [ { X : { $gt : 0 } }, { X : { $lt : 0 } } ] }")]
         [InlineData(1U, new[] { 3, 4, 5, 6, 7 }, "{ $or : [ { X : { $gt : 1 } }, { X : { $lt : 0 } } ] }")]
         [InlineData(0x7fffffffU, new[] { 4, 5, 6, 7 }, "{ $or : [ { X : { $gt : 2147483647  } }, { X : { $lt : 0 } } ] }")]
@@ -1286,7 +1286,7 @@ namespace MongoDB.Driver.Tests
             ids.Should().Equal(expectedIds);
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(0U, new[] { 1, 2, 3, 4, 5, 6, 7 }, "{ $or : [ { X : { $gte : 0 } }, { X : { $lt : 0 } } ] }")]
         [InlineData(1U, new[] { 2, 3, 4, 5, 6, 7 }, "{ $or : [ { X : { $gte : 1 } }, { X : { $lt : 0 } } ] }")]
         [InlineData(0x7fffffffU, new[] { 3, 4, 5, 6, 7 }, "{ $or : [ { X : { $gte : 2147483647 } }, { X : { $lt : 0 } } ] }")]
@@ -1307,7 +1307,7 @@ namespace MongoDB.Driver.Tests
             ids.Should().Equal(expectedIds);
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(0U, new[] { 1, 2, 3, 4, 5, 6, 7 }, "{ $or : [ { X : { $gte : 0 } }, { X : { $lt : 0 } } ] }")]
         [InlineData(1U, new[] { 2, 3, 4, 5, 6, 7 }, "{ $or : [ { X : { $gte : 1 } }, { X : { $lt : 0 } } ] }")]
         [InlineData(0x7fffffffU, new[] { 3, 4, 5, 6, 7 }, "{ $or : [ { X : { $gte : 2147483647 } }, { X : { $lt : 0 } } ] }")]
@@ -1328,7 +1328,7 @@ namespace MongoDB.Driver.Tests
             ids.Should().Equal(expectedIds);
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(0U, new int[0], "{ $and : [ { X : { $gte : 0 } }, { X : { $lt : 0 } } ] }")]
         [InlineData(1U, new[] { 1 }, "{ $and : [ { X : { $gte : 0 } }, { X : { $lt : 1 } } ] }")]
         [InlineData(0x7fffffffU, new[] { 1, 2 }, "{ $and : [ { X : { $gte : 0 } }, { X : { $lt : 2147483647 } } ] }")]
@@ -1349,7 +1349,7 @@ namespace MongoDB.Driver.Tests
             ids.Should().Equal(expectedIds);
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(0U, new int[0], "{ $and : [ { X : { $gte : 0 } }, { X : { $lt : 0 } } ] }")]
         [InlineData(1U, new[] { 1 }, "{ $and : [ { X : { $gte : 0 } }, { X : { $lt : 1 } } ] }")]
         [InlineData(0x7fffffffU, new[] { 1, 2 }, "{ $and : [ { X : { $gte : 0 } }, { X : { $lt : 2147483647 } } ] }")]
@@ -1370,7 +1370,7 @@ namespace MongoDB.Driver.Tests
             ids.Should().Equal(expectedIds);
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(0U, new int[] { 1 }, "{ $and : [ { X : { $gte : 0 } }, { X : { $lte : 0 } } ] }")]
         [InlineData(1U, new[] { 1, 2 }, "{ $and : [ { X : { $gte : 0 } }, { X : { $lte : 1 } } ] }")]
         [InlineData(0x7fffffffU, new[] { 1, 2, 3 }, "{ $and : [ { X : { $gte : 0 } }, { X : { $lte : 2147483647 } } ] }")]
@@ -1391,7 +1391,7 @@ namespace MongoDB.Driver.Tests
             ids.Should().Equal(expectedIds);
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(0U, new int[] { 1 }, "{ $and : [ { X : { $gte : 0 } }, { X : { $lte : 0 } } ] }")]
         [InlineData(1U, new[] { 1, 2 }, "{ $and : [ { X : { $gte : 0 } }, { X : { $lte : 1 } } ] }")]
         [InlineData(0x7fffffffU, new[] { 1, 2, 3 }, "{ $and : [ { X : { $gte : 0 } }, { X : { $lte : 2147483647 } } ] }")]
@@ -1465,7 +1465,7 @@ namespace MongoDB.Driver.Tests
         }
         #endregion
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(0UL, new[] { 2, 3, 4, 5, 6, 7 }, "{ $or : [ { X : { $gt : NumberLong(0) } }, { X : { $lt : 0 } } ] }")]
         [InlineData(1UL, new[] { 3, 4, 5, 6, 7 }, "{ $or : [ { X : { $gt : NumberLong(1) } }, { X : { $lt : 0 } } ] }")]
         [InlineData(0x7fffffffffffffffUL, new[] { 4, 5, 6, 7 }, "{ $or : [ { X : { $gt : NumberLong(9223372036854775807) } }, { X : { $lt : 0 } } ] }")]
@@ -1486,7 +1486,7 @@ namespace MongoDB.Driver.Tests
             ids.Should().Equal(expectedIds);
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(0UL, new[] { 2, 3, 4, 5, 6, 7 }, "{ $or : [ { X : { $gt : NumberLong(0) } }, { X : { $lt : 0 } } ] }")]
         [InlineData(1UL, new[] { 3, 4, 5, 6, 7 }, "{ $or : [ { X : { $gt : NumberLong(1) } }, { X : { $lt : 0 } } ] }")]
         [InlineData(0x7fffffffffffffffUL, new[] { 4, 5, 6, 7 }, "{ $or : [ { X : { $gt : NumberLong(9223372036854775807) } }, { X : { $lt : 0 } } ] }")]
@@ -1507,7 +1507,7 @@ namespace MongoDB.Driver.Tests
             ids.Should().Equal(expectedIds);
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(0UL, new[] { 1, 2, 3, 4, 5, 6, 7 }, "{ $or : [ { X : { $gte : NumberLong(0) } }, { X : { $lt : 0 } } ] }")]
         [InlineData(1UL, new[] { 2, 3, 4, 5, 6, 7 }, "{ $or : [ { X : { $gte : NumberLong(1) } }, { X : { $lt : 0 } } ] }")]
         [InlineData(0x7fffffffffffffffUL, new[] { 3, 4, 5, 6, 7 }, "{ $or : [ { X : { $gte : NumberLong(9223372036854775807) } }, { X : { $lt : 0 } } ] }")]
@@ -1528,7 +1528,7 @@ namespace MongoDB.Driver.Tests
             ids.Should().Equal(expectedIds);
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(0UL, new[] { 1, 2, 3, 4, 5, 6, 7 }, "{ $or : [ { X : { $gte : NumberLong(0) } }, { X : { $lt : 0 } } ] }")]
         [InlineData(1UL, new[] { 2, 3, 4, 5, 6, 7 }, "{ $or : [ { X : { $gte : NumberLong(1) } }, { X : { $lt : 0 } } ] }")]
         [InlineData(0x7fffffffffffffffUL, new[] { 3, 4, 5, 6, 7 }, "{ $or : [ { X : { $gte : NumberLong(9223372036854775807) } }, { X : { $lt : 0 } } ] }")]
@@ -1549,7 +1549,7 @@ namespace MongoDB.Driver.Tests
             ids.Should().Equal(expectedIds);
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(0UL, new int[0], "{ $and : [ { X : { $gte : 0 } }, { X : { $lt : NumberLong(0) } } ] }")]
         [InlineData(1UL, new[] { 1 }, "{ $and : [ { X : { $gte : 0 } }, { X : { $lt : NumberLong(1) } } ] }")]
         [InlineData(0x7fffffffffffffffUL, new[] { 1, 2 }, "{ $and : [ { X : { $gte : 0 } }, { X : { $lt : NumberLong(9223372036854775807) } } ] }")]
@@ -1570,7 +1570,7 @@ namespace MongoDB.Driver.Tests
             ids.Should().Equal(expectedIds);
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(0UL, new int[0], "{ $and : [ { X : { $gte : 0 } }, { X : { $lt : NumberLong(0) } } ] }")]
         [InlineData(1UL, new[] { 1 }, "{ $and : [ { X : { $gte : 0 } }, { X : { $lt : NumberLong(1) } } ] }")]
         [InlineData(0x7fffffffffffffffUL, new[] { 1, 2 }, "{ $and : [ { X : { $gte : 0 } }, { X : { $lt : NumberLong(9223372036854775807) } } ] }")]
@@ -1591,7 +1591,7 @@ namespace MongoDB.Driver.Tests
             ids.Should().Equal(expectedIds);
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(0UL, new[] { 1 }, "{ $and : [ { X : { $gte : 0 } }, { X : { $lte : NumberLong(0) } } ] }")]
         [InlineData(1UL, new[] { 1, 2 }, "{ $and : [ { X : { $gte : 0 } }, { X : { $lte : NumberLong(1) } } ] }")]
         [InlineData(0x7fffffffffffffffUL, new[] { 1, 2, 3 }, "{ $and : [ { X : { $gte : 0 } }, { X : { $lte : NumberLong(9223372036854775807) } } ] }")]
@@ -1612,7 +1612,7 @@ namespace MongoDB.Driver.Tests
             ids.Should().Equal(expectedIds);
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(0UL, new[] { 1 }, "{ $and : [ { X : { $gte : 0 } }, { X : { $lte : NumberLong(0) } } ] }")]
         [InlineData(1UL, new[] { 1, 2 }, "{ $and : [ { X : { $gte : 0 } }, { X : { $lte : NumberLong(1) } } ] }")]
         [InlineData(0x7fffffffffffffffUL, new[] { 1, 2, 3 }, "{ $and : [ { X : { $gte : 0 } }, { X : { $lte : NumberLong(9223372036854775807) } } ] }")]

@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
 {
     public class CSharp2727Tests : Linq3IntegrationTest
     {
-        [SkippableFact]
+        [Fact]
         public void Find_with_predicate_on_Body_should_work()
         {
             RequireServer.Check().Supports(Feature.AggregateToString);
@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             results.Select(x => x.Id).Should().Equal(1, 2);
         }
 
-        [SkippableFact]
+        [Fact]
         public void Where_with_predicate_on_Body_should_work()
         {
             RequireServer.Check().Supports(Feature.AggregateToString);

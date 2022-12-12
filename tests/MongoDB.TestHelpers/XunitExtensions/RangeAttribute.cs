@@ -1,4 +1,4 @@
-﻿/* Copyright 2016-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace MongoDB.Bson.TestHelpers.XunitExtensions
+namespace MongoDB.TestHelpers.XunitExtensions
 {
     [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
     public sealed class RangeAttribute : Attribute, IValueGeneratorAttribute

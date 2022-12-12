@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Tests.Specifications.command_logging_and_monitoring
         {
         }
 
-        [SkippableTheory]
+        [Theory]
         [ClassData(typeof(TestCaseFactory))]
         public void Run(JsonDrivenTestCase testCase)
         {

@@ -26,7 +26,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
     public class CSharp3136Tests : Linq3IntegrationTest
     {
 
-        [SkippableFact]
+        [Fact]
         public void DateTime_ToString_with_no_arguments_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
@@ -68,7 +68,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             results.Should().Equal("03:04:05", "03:04:05");
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(null, null, "{ $project : { _v : { $dateToString : { date : '$D' } }, _id : 0 } }", new[] { "2021-01-02T03:04:05.123Z", "2021-01-02T03:04:05.123Z" })]
         [InlineData("%H:%M:%S", null, "{ $project : { _v : { $dateToString : { date : '$D', format : '%H:%M:%S' } }, _id : 0 } }", new[] { "03:04:05", "03:04:05" })]
         [InlineData(null, "-04:00", "{ $project : { _v : { $dateToString : { date : '$D', timezone : '-04:00' } }, _id : 0 } }", new[] { "2021-01-01T23:04:05.123Z", "2021-01-01T23:04:05.123Z" })]
@@ -97,7 +97,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             results.Should().Equal(expectedResults);
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(false, false, "{ $project : { _v : { $dateToString : { date : '$D' } }, _id : 0 } }", new[] { "2021-01-02T03:04:05.123Z", "2021-01-02T03:04:05.123Z" })]
         [InlineData(true, false, "{ $project : { _v : { $dateToString : { date : '$D', format : '$Format' } }, _id : 0 } }", new[] { "03:04:05", "03:04:05" })]
         [InlineData(false, true, "{ $project : { _v : { $dateToString : { date : '$D', timezone : '$Timezone' } }, _id : 0 } }", new[] { "2021-01-01T23:04:05.123Z", "2021-01-01T23:04:05.123Z" })]
@@ -131,7 +131,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             results.Should().Equal(expectedResults);
         }
 
-        [SkippableFact]
+        [Fact]
         public void NullableDateTime_ToString_with_no_arguments_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);
@@ -153,7 +153,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             results.Should().Equal("2021-01-02T03:04:05.123Z", null);
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(null, null, null, "{ $project : { _v : { $dateToString : { date : '$N' } }, _id : 0 } }", new[] { "2021-01-02T03:04:05.123Z", null })]
         [InlineData(null, null, "xx", "{ $project : { _v : { $dateToString : { date : '$N', onNull : 'xx' } }, _id : 0 } }", new[] { "2021-01-02T03:04:05.123Z", "xx" })]
         [InlineData("%H:%M:%S", null, null, "{ $project : { _v : { $dateToString : { date : '$N', format : '%H:%M:%S' } }, _id : 0 } }", new[] { "03:04:05", null })]
@@ -186,7 +186,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             results.Should().Equal(expectedResults);
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(false, false, false, "{ $project : { _v : { $dateToString : { date : '$N' } }, _id : 0 } }", new[] { "2021-01-02T03:04:05.123Z", null })]
         [InlineData(false, false, true, "{ $project : { _v : { $dateToString : { date : '$N', onNull : '$OnNull' } }, _id : 0 } }", new[] { "2021-01-02T03:04:05.123Z", "missing" })]
         [InlineData(false, true, false, "{ $project : { _v : { $dateToString : { date : '$N', timezone : '$Timezone' } }, _id : 0 } }", new[] { "2021-01-01T23:04:05.123Z", null })]

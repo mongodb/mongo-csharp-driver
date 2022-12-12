@@ -18,7 +18,7 @@ using System.IO;
 using System.Net.Sockets;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Tests.Jira
 {
     public class CSharp3188Tests
     {
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Connection_timeout_should_throw_expected_exception([Values(false, true)] bool async)
         {

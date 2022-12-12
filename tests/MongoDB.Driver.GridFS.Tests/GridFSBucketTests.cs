@@ -21,7 +21,7 @@ using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
@@ -327,7 +327,7 @@ namespace MongoDB.Driver.GridFS.Tests
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("filename");
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Drop_should_drop_the_files_and_chunks_collections(
             [Values(false, true)] bool async)
@@ -352,7 +352,7 @@ namespace MongoDB.Driver.GridFS.Tests
             collectionNames.Should().NotContain("fs.chunks");
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Drop_should_throw_when_a_write_concern_error_occurss(
             [Values(false, true)]

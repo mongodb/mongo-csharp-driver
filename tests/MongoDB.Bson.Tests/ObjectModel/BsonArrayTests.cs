@@ -17,6 +17,7 @@ using System;
 using System.Linq;
 using MongoDB.Bson;
 using Xunit;
+using Xunit.Sdk;
 
 namespace MongoDB.Bson.Tests
 {

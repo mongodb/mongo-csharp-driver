@@ -18,7 +18,7 @@ using Amazon.Runtime;
 using Amazon.Runtime.CredentialManagement;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Communication.Security
@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
     [Trait("Category", "AwsMechanism")]
     public class AwsAuthenticationTests
     {
-        [SkippableFact]
+        [Fact]
         public void Aws_authentication_should_should_have_expected_result()
         {
             RequireEnvironment.Check().EnvironmentVariable("AWS_TESTS_ENABLED");
@@ -65,7 +65,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
             (awsContainerUri != null).Should().Be(isEcs);
         }
 
-        [SkippableFact]
+        [Fact]
         public void AwsSdk_should_support_all_required_handlers()
         {
             var credentialsGeneratorsDelegatesEnumerator = FallbackCredentialsFactory.CredentialsGenerators.GetEnumerator();

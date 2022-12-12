@@ -16,7 +16,7 @@
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Tests.Specifications.atlas_data_lake_testing.prose_test
     [Trait("Category", "AtlasDataLake")]
     public class AtlasDataLakeProseTests
     {
-        [SkippableFact]
+        [Fact]
         public void Driver_should_connect_to_AtlasDataLake_without_authentication()
         {
             RequireEnvironment.Check().EnvironmentVariable("ATLAS_DATA_LAKE_TESTS_ENABLED");
@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Tests.Specifications.atlas_data_lake_testing.prose_test
             }
         }
 
-        [SkippableFact]
+        [Fact]
         public void Driver_should_connect_to_AtlasDataLake_with_SCRAM_SHA_1()
         {
             RequireEnvironment.Check().EnvironmentVariable("ATLAS_DATA_LAKE_TESTS_ENABLED");
@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Tests.Specifications.atlas_data_lake_testing.prose_test
             }
         }
 
-        [SkippableFact]
+        [Fact]
         public void Driver_should_connect_to_AtlasDataLake_with_SCRAM_SHA_256()
         {
             RequireEnvironment.Check().EnvironmentVariable("ATLAS_DATA_LAKE_TESTS_ENABLED");
@@ -79,7 +79,7 @@ namespace MongoDB.Driver.Tests.Specifications.atlas_data_lake_testing.prose_test
             }
         }
 
-        [SkippableFact]
+        [Fact]
         public void KillCursors_should_return_expected_result()
         {
             RequireEnvironment.Check().EnvironmentVariable("ATLAS_DATA_LAKE_TESTS_ENABLED");

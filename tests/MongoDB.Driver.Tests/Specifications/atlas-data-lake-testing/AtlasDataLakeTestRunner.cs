@@ -16,7 +16,7 @@
 using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Tests.Specifications.Runner;
 using Xunit;
 using Xunit.Abstractions;
@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Tests.Specifications.atlas_data_lake_testing
         {
         }
 
-        [SkippableTheory]
+        [Theory]
         [ClassData(typeof(TestCaseFactory))]
         public void Run(JsonDrivenTestCase testCase)
         {

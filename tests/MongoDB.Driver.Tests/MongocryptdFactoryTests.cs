@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Tests
             shouldMongocryptdBeSpawned.Should().Be(shouldBeSpawned);
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData("{ mongocryptdBypassSpawn : true }", null, null, false)]
         [InlineData(null, "mongocryptd#extension#", "--idleShutdownTimeoutSecs 60 --logpath #logpath# --logappend", true)]
         [InlineData("{ mongocryptdBypassSpawn : false }", "mongocryptd#extension#", "--idleShutdownTimeoutSecs 60 --logpath #logpath# --logappend", true)]

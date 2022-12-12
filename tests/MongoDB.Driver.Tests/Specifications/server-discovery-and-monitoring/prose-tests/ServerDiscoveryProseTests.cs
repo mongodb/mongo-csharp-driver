@@ -19,7 +19,7 @@ using System.Net;
 using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring.pr
         }
 
         // public methods
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Topology_secondary_discovery_with_directConnection_false_should_work_as_expected([Values(false, true, null)] bool? directConnection)
         {
