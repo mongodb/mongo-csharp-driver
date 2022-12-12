@@ -248,7 +248,7 @@ namespace MongoDB.Driver.Tests
             var pipeline = new EmptyPipelineDefinition<BsonDocument>();
             var exception = Record.Exception(() => pipeline.Search(null));
             exception.Should().BeOfType<ArgumentNullException>()
-                .Which.ParamName.Should().Be("query");
+                .Which.ParamName.Should().Be("searchDefinition");
         }
 
         [Fact]
@@ -304,7 +304,7 @@ namespace MongoDB.Driver.Tests
             var pipeline = new EmptyPipelineDefinition<BsonDocument>();
             var exception = Record.Exception(() => pipeline.SearchMeta(null));
             exception.Should().BeOfType<ArgumentNullException>()
-                .Which.ParamName.Should().Be("query");
+                .Which.ParamName.Should().Be("searchDefinition");
         }
 
         // private methods
