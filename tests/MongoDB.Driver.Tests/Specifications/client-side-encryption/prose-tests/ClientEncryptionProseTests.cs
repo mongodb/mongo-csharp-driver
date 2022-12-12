@@ -1875,6 +1875,287 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             }
         }
 
+        [SkippableTheory]
+        [ParameterAttributeData]
+        public void RangeExplicitEncryptionTest(
+            [Range(1, 8)] int testCase,
+            // test case keys correspond to keys used in test configuration files
+            [Values("DoubleNoPrecision", "DoublePrecision", "Date", "Int", "Long")] string rangeSupportedType,
+            [Values(false, false)] bool async)
+        {
+            RequireServer.Check().Supports(Feature.CsfleRangeExplicitAlgorithm).ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced);
+
+            var encryptedFields = JsonFileReader.Instance.Documents[$"etc.data.range-encryptedFields-{rangeSupportedType}.json"];
+            var key1Document = JsonFileReader.Instance.Documents["etc.data.keys.key1-document.json"];
+            var key1Id = key1Document["_id"].AsGuid;
+            var kmsProvider = "local";
+            var encryptedKeyWithRangeSupportedType = $"encrypted{rangeSupportedType}";
+            var value0 = GetValue(0, rangeSupportedType);
+            var value6 = GetValue(6, rangeSupportedType);
+            var value30 = GetValue(30, rangeSupportedType);
+            var value200 = GetValue(200, rangeSupportedType);
+            var value201 = GetValue(201, rangeSupportedType);
+
+            var explicitEncryption = CollectionNamespace.FromFullName("db.explicit_encryption");
+            var encryptOptions = WithRangeOptions(rangeSupportedType, new EncryptOptions(EncryptionAlgorithm.RangePreview, contentionFactor: 0, keyId: key1Id));
+
+            using (var keyVaultClient = ConfigureClient(clearCollections: true, mainCollectionNamespace: explicitEncryption, encryptedFields: encryptedFields))
+            {
+                var keyVaultCollection = GetCollection(keyVaultClient, __keyVaultCollectionNamespace);
+                Insert(keyVaultCollection, async, key1Document);
+
+                using (var clientEncryption = ConfigureClientEncryption(keyVaultClient, kmsProviderFilter: kmsProvider))
+                using (var encryptedClient = ConfigureClientEncrypted(kmsProviderFilter: kmsProvider, bypassQueryAnalysis: true))
+                {
+                    var encrypted0 = ExplicitEncrypt(clientEncryption, encryptOptions, value0, async);
+                    var encrypted6 = ExplicitEncrypt(clientEncryption, encryptOptions, value6, async);
+                    var encrypted30 = ExplicitEncrypt(clientEncryption, encryptOptions, value30, async);
+                    var encrypted200 = ExplicitEncrypt(clientEncryption, encryptOptions, value200, async);
+
+                    CreateCollection(encryptedClient, explicitEncryption, encryptedFields: encryptedFields);
+                    var encryptedCollection = GetCollection(encryptedClient, explicitEncryption);
+                    // bulk insert is not supported
+                    Insert(
+                        encryptedCollection,
+                        async,
+                        new BsonDocument { { encryptedKeyWithRangeSupportedType, encrypted0 }, { "_id", 0 } });
+                    Insert(
+                        encryptedCollection,
+                        async,
+                        new BsonDocument { { encryptedKeyWithRangeSupportedType, encrypted6 }, { "_id", 1 } });
+                    Insert(
+                        encryptedCollection,
+                        async,
+                        new BsonDocument { { encryptedKeyWithRangeSupportedType, encrypted30 }, { "_id", 2 } });
+                    Insert(
+                        encryptedCollection,
+                        async,
+                        new BsonDocument { { encryptedKeyWithRangeSupportedType, encrypted200 }, { "_id", 3 } });
+
+                    RunTestCase(clientEncryption, encryptedCollection, testCase);
+                }
+            }
+
+            EncryptOptions WithRangeOptions(string rangeSupportedType, EncryptOptions encryptionOptions)
+            {
+                var rangeOptions = rangeSupportedType switch
+                {
+                    "DoubleNoPrecision" => new RangeOptions(sparsity: 1),
+                    "DoublePrecision" => new RangeOptions(
+                        sparsity: 1,
+                        min: new BsonDouble(0),
+                        max: new BsonDouble(200),
+                        precision: 2),
+                    "Date" => new RangeOptions(
+                        sparsity: 1,
+                        min: new BsonDateTime(0),
+                        max: new BsonDateTime(200)),
+                    "Int" => new RangeOptions(
+                        sparsity: 1,
+                        min: new BsonInt32(0),
+                        max: new BsonInt32(200)),
+                    "Long" => new RangeOptions(
+                        sparsity: 1,
+                        min: new BsonInt64(0),
+                        max: new BsonInt64(200)),
+                    _ => throw new Exception($"Unsupported rangeSupportedType {rangeSupportedType}.")
+                };
+
+                return encryptionOptions.With(rangeOptions: rangeOptions);
+            }
+
+
+            void RunTestCase(ClientEncryption clientEncryption, IMongoCollection<BsonDocument> encryptedCollection, int testCase)
+            {
+                switch (testCase)
+                {
+                    case 1: // can decrypt a payload
+                        {
+                            var insertPayload6 = ExplicitEncrypt(clientEncryption, encryptOptions, value6, async);
+                            var decryptedValue = ExplicitDecrypt(clientEncryption, insertPayload6, async);
+                            decryptedValue.Should().Be(BsonValue.Create(value6));
+                            AssertResult(decryptedValue, rangeSupportedType);
+                        }
+                        break;
+                    case 2: // can find encrypted range and return the maximum
+                        {
+                            var findPayload = ExplicitEncryptExpression(
+                                clientEncryption,
+                                encryptOptions.With(queryType: "rangePreview"),
+                                expression: BsonDocument.Parse(@$"
+                                {{
+                                    ""$and"" :
+                                    [
+                                        {{ {encryptedKeyWithRangeSupportedType} : {{ ""$gte"" : {value6.ToJson()} }} }},
+                                        {{ {encryptedKeyWithRangeSupportedType} : {{ ""$lte"" : {value200.ToJson()} }} }}
+                                    ]
+                                }}"),
+                                async);
+
+                            var findResult = Find(encryptedCollection, findPayload, async).ToList().OrderBy((d) => d["_id"]).ToList();
+                            findResult.Should().HaveCount(3);
+
+                            findResult[0][encryptedKeyWithRangeSupportedType].Should().Be(BsonValue.Create(value6));
+                            findResult[1][encryptedKeyWithRangeSupportedType].Should().Be(BsonValue.Create(value30));
+                            findResult[2][encryptedKeyWithRangeSupportedType].Should().Be(BsonValue.Create(value200));
+                        }
+                        break;
+                    case 3: // can find encrypted range and return the minimum
+                        {
+                            var findPayload = ExplicitEncryptExpression(
+                                clientEncryption,
+                                encryptOptions.With(queryType: "rangePreview"),
+                                expression: BsonDocument.Parse(@$"
+                                {{
+                                    ""$and"" :
+                                    [
+                                        {{ {encryptedKeyWithRangeSupportedType} : {{ ""$gte"" : {value0.ToJson()} }} }},
+                                        {{ {encryptedKeyWithRangeSupportedType} : {{ ""$lte"" : {value6.ToJson()} }} }}
+                                    ]
+                                }}"),
+                                async);
+
+                            var findResult = Find(encryptedCollection, findPayload, async).ToList().OrderBy((d) => d["_id"]).ToList();
+                            findResult.Should().HaveCount(2);
+
+                            findResult[0][encryptedKeyWithRangeSupportedType].Should().Be(BsonValue.Create(value0));
+                            findResult[1][encryptedKeyWithRangeSupportedType].Should().Be(BsonValue.Create(value6));
+                        }
+                        break;
+                    case 4: // can find encrypted range with an open range query
+                        {
+                            var findPayload = ExplicitEncryptExpression(
+                                clientEncryption,
+                                encryptOptions.With(queryType: "rangePreview"),
+                                expression: BsonDocument.Parse(@$"
+                                {{
+                                    ""$and"" :
+                                    [
+                                        {{ {encryptedKeyWithRangeSupportedType} : {{ ""$gt"" :  {value30.ToJson()} }} }}
+                                    ]
+                                }}"),
+                                async);
+
+                            var findResult = Find(encryptedCollection, findPayload, async).ToList().OrderBy((d) => d["_id"]).ToList();
+                            findResult.Should().HaveCount(1);
+
+                            findResult[0][encryptedKeyWithRangeSupportedType].Should().Be(BsonValue.Create(value200));
+                        }
+                        break;
+                    case 5: // can run an aggregation expression inside $expr
+                        {
+                            var findPayload = ExplicitEncryptExpression(
+                               clientEncryption,
+                               encryptOptions.With(queryType: "rangePreview"),
+                               expression: BsonDocument.Parse(@$"
+                               {{
+                                    ""$and"" :
+                                    [
+                                        {{ ""$lt"" : [ ""${encryptedKeyWithRangeSupportedType}"", {value30.ToJson()} ] }}
+                                    ]
+                               }}"),
+                               async);
+
+                            var findResult = Find(encryptedCollection, BsonDocument.Parse(@$"{{ ""$expr"" : {findPayload} }}"), async).ToList().OrderBy((d) => d["_id"]).ToList();
+                            findResult.Should().HaveCount(2);
+
+                            findResult[0][encryptedKeyWithRangeSupportedType].Should().Be(BsonValue.Create(value0));
+                            findResult[1][encryptedKeyWithRangeSupportedType].Should().Be(BsonValue.Create(value6));
+                        }
+                        break;
+                    case 6: // encrypting a document greater than the maximum errors
+                        {
+                            if (rangeSupportedType == "DoubleNoPrecision")
+                            {
+                                throw new SkipException("Skip it based on spec requirement.");
+                            }
+
+                            var exception = Record.Exception(() => ExplicitEncrypt(clientEncryption, encryptOptions, value201, async));
+                            AssertInnerEncryptionException<CryptException>(exception, "Value must be greater than or equal to the minimum value and less than or equal to the maximum value, got min: 0, max: 200, value: 201");
+                        }
+                        break;
+                    case 7: // encrypting a document of a different type errors
+                        {
+                            if (rangeSupportedType == "DoubleNoPrecision")
+                            {
+                                throw new SkipException("Skip it based on spec requirement.");
+                            }
+
+                            var exception = Record.Exception(() =>
+                                Insert(
+                                    encryptedCollection,
+                                    async,
+                                    // If the encrypted field is ``encryptedInt`` insert ``{ "encryptedInt": { "$numberDouble": "6" } }``.
+                                    // Otherwise, insert ``{ "encrypted<Type>": { "$numberInt": "6" }``.
+                                    new BsonDocument(encryptedKeyWithRangeSupportedType, rangeSupportedType == "Int" ? GetValue(6, "DoubleNoPrecision") : GetValue(6, "Int"))));
+                            exception.Should().BeOfType<MongoBulkWriteException<BsonDocument>>().Which.Message.Should().Contain("Document failed validation");
+                        }
+                        break;
+                    case 8: // setting precision errors if the type is not a double
+                        {
+                            if (rangeSupportedType == "DoubleNoPrecision" || rangeSupportedType == "DoublePrecision")
+                            {
+                                throw new SkipException("Skip it based on spec requirement.");
+                            }
+
+                            var exception = Record.Exception(() =>
+                                ExplicitEncrypt(
+                                    clientEncryption,
+                                    encryptOptions.With(rangeOptions: new RangeOptions(sparsity: 1, min: BsonValue.Create(0), max: BsonValue.Create(200), precision: 2)),
+                                    value6,
+                                    async));
+                            AssertInnerEncryptionException<CryptException>(exception, "expected 'precision' to be set with double or decimal128 index, but got: INT32 min");
+                        }
+                        break;
+                }
+            }
+
+            void AssertResult(BsonValue result, string rangeSupportedType)
+            {
+                switch (rangeSupportedType)
+                {
+                    case "DoubleNoPrecision":
+                        {
+                            result.Should().BeOfType<BsonDouble>();
+                        }
+                        break;
+                    case "DoublePrecision":
+                        {
+                            result.Should().BeOfType<BsonDouble>();
+                        }
+                        break;
+                    case "Date":
+                        {
+                            result.Should().BeOfType<BsonDateTime>();
+                        }
+                        break;
+                    case "Int":
+                        {
+                            result.Should().BeOfType<BsonInt32>();
+                        }
+                        break;
+                    case "Long":
+                        {
+                            result.Should().BeOfType<BsonInt64>();
+                        }
+                        break;
+                    default: throw new Exception($"Unsupported rangeSupportedType {rangeSupportedType}.");
+                }
+            }
+
+            BsonValue GetValue<TValue>(TValue value, string rangeSupportedType) => rangeSupportedType switch
+            {
+                "DoubleNoPrecision" => new BsonDouble(double.Parse(value.ToString())),
+                "DoublePrecision" => new BsonDouble(double.Parse(value.ToString())),
+                "Date" => new BsonDateTime(millisecondsSinceEpoch: long.Parse(value.ToString())),
+                "Int" => new BsonInt32(int.Parse(value.ToString())),
+                "Long" => new BsonInt64(long.Parse(value.ToString())),
+                _ => throw new Exception($"Unsupported rangeSupportedType {rangeSupportedType}.")
+            };
+        }
+
+        [SkippableTheory]
+        [ParameterAttributeData]
         public void RewrapTest(
             [Values("local", "aws", "azure", "gcp", "kmip")] string srcProvider,
             [Values("local", "aws", "azure", "gcp", "kmip")] string dstProvider,
@@ -2470,6 +2751,15 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
             return encryptedValue;
         }
+
+        private BsonDocument ExplicitEncryptExpression(
+            ClientEncryption clientEncryption,
+            EncryptOptions encryptOptions,
+            BsonDocument expression,
+            bool async) =>
+            async
+                ? clientEncryption.EncryptExpressionAsync(expression, encryptOptions).GetAwaiter().GetResult()
+                : clientEncryption.EncryptExpression(expression, encryptOptions);
 
         private IAsyncCursor<BsonDocument> Find(
             IMongoCollection<BsonDocument> collection,

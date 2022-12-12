@@ -155,7 +155,8 @@ namespace MongoDB.Driver.Encryption
         /// <param name="encryptOptions">The encrypt options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The encrypted value.</returns>
-        public BsonBinaryData Encrypt(BsonValue value, EncryptOptions encryptOptions, CancellationToken cancellationToken = default) => _libMongoCryptController.EncryptField(value, encryptOptions, cancellationToken);
+        public BsonBinaryData Encrypt(BsonValue value, EncryptOptions encryptOptions, CancellationToken cancellationToken = default) =>
+            EnsureEncryptedData<BsonBinaryData>(_libMongoCryptController.EncryptField(value, encryptOptions, expressionMode: false, cancellationToken));
 
         /// <summary>
         /// Encrypts the specified value.
@@ -164,7 +165,48 @@ namespace MongoDB.Driver.Encryption
         /// <param name="encryptOptions">The encrypt options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The encrypted value.</returns>
-        public Task<BsonBinaryData> EncryptAsync(BsonValue value, EncryptOptions encryptOptions, CancellationToken cancellationToken = default) => _libMongoCryptController.EncryptFieldAsync(value, encryptOptions, cancellationToken);
+        public async Task<BsonBinaryData> EncryptAsync(BsonValue value, EncryptOptions encryptOptions, CancellationToken cancellationToken = default) =>
+            EnsureEncryptedData<BsonBinaryData>(await _libMongoCryptController.EncryptFieldAsync(value, encryptOptions, expressionMode: false, cancellationToken).ConfigureAwait(false));
+
+        /// <summary>
+        /// Encrypts a Match Expression or Aggregate Expression to query a range index.
+        /// </summary>
+        /// <param name="expression">The expression that is expected to be a BSON document of one of the following forms:
+        /// 1. A Match Expression of this form:
+        ///   {$and: [{"field": {$gt: "value1"}}, {"field": {$lt: "value2" }}]}
+        /// 2. An Aggregate Expression of this form:
+        ///   {$and: [{$gt: ["fieldpath", "value1"]}, {$lt: ["fieldpath", "value2"]}]
+        /// $gt may also be $gte. $lt may also be $lte.
+        /// </param>
+        /// <param name="encryptOptions">The encryption options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The encrypted expression.</returns>
+        /// <remarks>
+        /// Only supported for queryType "rangePreview"
+        /// The Range algorithm is experimental only. It is not intended for public use. It is subject to breaking changes.
+        /// </remarks>
+        public BsonDocument EncryptExpression(BsonDocument expression, EncryptOptions encryptOptions, CancellationToken cancellationToken = default) =>
+            EnsureEncryptedData<BsonDocument>(_libMongoCryptController.EncryptField(expression, encryptOptions, expressionMode: true, cancellationToken));
+
+        /// <summary>
+        /// Encrypts a Match Expression or Aggregate Expression to query a range index.
+        /// </summary>
+        /// <param name="expression">The expression that is expected to be a BSON document of one of the following forms:
+        /// 1. A Match Expression of this form:
+        ///   {$and: [{"field": {$gt: "value1"}}, {"field": {$lt: "value2" }}]}
+        /// 2. An Aggregate Expression of this form:
+        ///   {$and: [{$gt: ["fieldpath", "value1"]}, {$lt: ["fieldpath", "value2"]}]
+        /// $gt may also be $gte. $lt may also be $lte.
+        /// </param>
+        /// <param name="encryptOptions">The encryption options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>the encrypted expression.</returns>
+        /// <remarks>
+        /// Only supported for queryType "rangePreview"
+        /// The Range algorithm is experimental only. It is not intended for public use. It is subject to breaking changes.
+        /// </remarks>
+        public async Task<BsonDocument> EncryptExpressionAsync(BsonDocument expression, EncryptOptions encryptOptions, CancellationToken cancellationToken = default) =>
+            EnsureEncryptedData<BsonDocument>(await _libMongoCryptController.EncryptFieldAsync(expression, encryptOptions, expressionMode: true, cancellationToken).ConfigureAwait(false));
 
         /// <summary>
         /// Finds a single key document with the given UUID (BSON binary subtype 0x04).
@@ -257,5 +299,20 @@ namespace MongoDB.Driver.Encryption
         /// <returns>The result.</returns>
         public Task<RewrapManyDataKeyResult> RewrapManyDataKeyAsync(FilterDefinition<BsonDocument> filter, RewrapManyDataKeyOptions options, CancellationToken cancellationToken = default) =>
             _libMongoCryptController.RewrapManyDataKeyAsync(filter, options, cancellationToken);
+
+        // private methods
+        private TEncryptedValue EnsureEncryptedData<TEncryptedValue>(BsonValue encryptedValue) where TEncryptedValue : BsonValue
+        {
+            if (encryptedValue is TEncryptedValue convertedValue)
+            {
+                return convertedValue;
+            }
+            else
+            {
+                // should not be reached
+                var butMessage = encryptedValue == null ? " was null" : $"was {encryptedValue.GetType().Name}";
+                throw new InvalidOperationException($"The encrypted data must be {typeof(TEncryptedValue).Name}, but {butMessage}.");
+            }
+        }
     }
 }

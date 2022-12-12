@@ -57,6 +57,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __createIndexCommitQuorum = new Feature("CreateIndexCommitQuorum", WireVersion.Server44);
         private static readonly Feature __createIndexesCommand = new Feature("CreateIndexesCommand", WireVersion.Server26);
         private static readonly Feature __createIndexesUsingInsertOperations = new Feature("CreateIndexesUsingInsertOperations", WireVersion.Zero, WireVersion.Server42);
+        private static readonly Feature __csfleRangeExplicitAlgorithm = new Feature("CsfleRangeExplicitAlgorithm", WireVersion.Server62);
         private static readonly Feature __csfle2 = new Feature("Csfle2", WireVersion.Server60);
         private static readonly Feature __currentOpCommand = new Feature("CurrentOpCommand", WireVersion.Server32);
         private static readonly Feature __dateOperatorsNewIn50 = new Feature("DateOperatorsNewIn50", WireVersion.Server50);
@@ -315,6 +316,11 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the create indexes using insert operations feature.
         /// </summary>
         public static Feature CreateIndexesUsingInsertOperations => __createIndexesUsingInsertOperations;
+
+        /// <summary>
+        /// Gets the csfle range explicit algorithm feature.
+        /// </summary>
+        public static Feature CsfleRangeExplicitAlgorithm => __csfleRangeExplicitAlgorithm;
 
         /// <summary>
         /// Gets the client side field level encryption 2 feature.
