@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
 {
     public class CSharp2472Tests : Linq3IntegrationTest
     {
-        [SkippableFact]
+        [Fact]
         public void Numeric_casts_should_work()
         {
             RequireServer.Check().Supports(Feature.ToConversionOperators);

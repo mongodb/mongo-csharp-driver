@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Tests.Specifications.read_write_concern
         }
 
         // public methods
-        [SkippableTheory]
+        [Theory]
         [ClassData(typeof(TestCaseFactory))]
         public void Run(JsonDrivenTestCase testCase)
         {

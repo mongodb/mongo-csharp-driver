@@ -86,7 +86,7 @@ namespace MongoDB.Driver.Tests
             renderedStage.Document.Should().Be("{ $bucket : { groupBy : \"$year\", boundaries : [ 1900, 1920, 1950 ], default : \"Unknown\" } }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void Bucket_should_return_expected_result()
         {
             RequireServer.Check();
@@ -123,7 +123,7 @@ namespace MongoDB.Driver.Tests
             renderedStage.Document.Should().Be("{ $bucket : { groupBy : \"$year\", boundaries : [ 1900, 1920, 1950 ], default : \"Unknown\", output : { years : { $push : \"$year\" }, count : { $sum : 1 } } } }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void Bucket_with_output_should_return_expected_result()
         {
             RequireServer.Check();
@@ -160,7 +160,7 @@ namespace MongoDB.Driver.Tests
             renderedStage.Document.Should().Be("{ $bucket : { groupBy : \"$year\", boundaries : [ 1900, 1920, 1950 ], default : \"Unknown\" } }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void Bucket_typed_should_return_expected_result()
         {
             RequireServer.Check();
@@ -200,7 +200,7 @@ namespace MongoDB.Driver.Tests
             renderedStage.Document.Should().Be("{ $bucket : { groupBy : \"$year\", boundaries : [ 1900, 1920, 1950 ], default : \"Unknown\", output : { Years : { $push : \"$year\" }, Count : { $sum : 1 } } } }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void Bucket_typed_with_output_should_return_expected_result()
         {
             RequireServer.Check();

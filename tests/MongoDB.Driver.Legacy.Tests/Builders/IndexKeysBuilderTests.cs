@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Tests.Builders
             _primary = _server.Primary;
         }
 
-        [SkippableFact]
+        [Fact]
         public void CreateIndex_with_wildcard_index_should_create_expected_index()
         {
             RequireServer.Check().Supports(Feature.WildcardIndexes);
@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Tests.Builders
             index["key"]["a.$**"].AsInt32.Should().Be(1);
         }
 
-        [SkippableFact]
+        [Fact]
         public void CreateIndex_with_wildcardProjection_should_create_expected_index()
         {
             RequireServer.Check().Supports(Feature.WildcardIndexes);
@@ -248,7 +248,7 @@ namespace MongoDB.Driver.Tests.Builders
             Assert.Equal(expected, key.ToJson());
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestTextIndexCreation()
         {
             RequireServer.Check().VersionGreaterThanOrEqualTo("2.6.0").ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet);

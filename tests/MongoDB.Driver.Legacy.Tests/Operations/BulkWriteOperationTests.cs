@@ -17,7 +17,7 @@ using System;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Tests.Operations
             _collection = LegacyTestConfiguration.Database.GetCollection(GetType().Name);
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestBatchSplittingBySizeWithErrorsOrdered()
         {
             RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
@@ -81,7 +81,7 @@ namespace MongoDB.Driver.Tests.Operations
             Assert.Equal(expectedDocuments, _collection.FindAll());
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestBatchSplittingBySizeWithErrorsUnordered()
         {
             RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
@@ -121,7 +121,7 @@ namespace MongoDB.Driver.Tests.Operations
             _collection.FindAll().Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(-1)]
         [InlineData(0)]
         [InlineData(1)]
@@ -144,7 +144,7 @@ namespace MongoDB.Driver.Tests.Operations
             Assert.Equal(0, _collection.Count());
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(-1)]
         [InlineData(0)]
         [InlineData(1)]
@@ -166,7 +166,7 @@ namespace MongoDB.Driver.Tests.Operations
             Assert.Equal(count, _collection.Count());
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(-1)]
         [InlineData(0)]
         [InlineData(1)]
@@ -191,7 +191,7 @@ namespace MongoDB.Driver.Tests.Operations
             Assert.Equal(count, _collection.Count(Query.EQ("n", 1)));
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestExecuteTwice(bool ordered)
@@ -205,7 +205,7 @@ namespace MongoDB.Driver.Tests.Operations
             Assert.Throws<InvalidOperationException>(() => bulk.Execute());
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(false, 0)]
         [InlineData(false, 1)]
         [InlineData(true, 0)]
@@ -235,7 +235,7 @@ namespace MongoDB.Driver.Tests.Operations
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestExecuteWithNoRequests(bool ordered)
@@ -247,7 +247,7 @@ namespace MongoDB.Driver.Tests.Operations
             Assert.Throws<InvalidOperationException>(() => bulk.Execute());
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestFindAfterExecute(bool ordered)
@@ -261,7 +261,7 @@ namespace MongoDB.Driver.Tests.Operations
             Assert.Throws<InvalidOperationException>(() => bulk.Find(new QueryDocument()));
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestFindWithNullQuery(bool ordered)
@@ -273,7 +273,7 @@ namespace MongoDB.Driver.Tests.Operations
             Assert.Throws<ArgumentNullException>(() => bulk.Find(null));
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestInsertAfterExecute(bool ordered)
@@ -287,7 +287,7 @@ namespace MongoDB.Driver.Tests.Operations
             Assert.Throws<InvalidOperationException>(() => bulk.Insert(new BsonDocument()));
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestInsertDollarPrefixedKeyRejectedPre50(bool ordered)
@@ -301,7 +301,7 @@ namespace MongoDB.Driver.Tests.Operations
             Assert.Throws<MongoBulkWriteException<BsonDocument>>(() => bulk.Execute());
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestInsertDollarPrefixedKeyAcceptedPost50(bool ordered)
@@ -322,7 +322,7 @@ namespace MongoDB.Driver.Tests.Operations
             _collection.FindAll().Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestInsertMultipleDocuments(bool ordered)
@@ -350,7 +350,7 @@ namespace MongoDB.Driver.Tests.Operations
             _collection.FindAll().Should().BeEquivalentTo(documents);
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestInsertOneDocument(bool ordered)
@@ -371,7 +371,7 @@ namespace MongoDB.Driver.Tests.Operations
             _collection.FindAll().Should().BeEquivalentTo(new[] { document });
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestMixedOperationsOrdered()
         {
             RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
@@ -411,7 +411,7 @@ namespace MongoDB.Driver.Tests.Operations
             _collection.FindAll().SetFields(Fields.Exclude("_id")).Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestMixedOperationsUnordered()
         {
             RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
@@ -453,7 +453,7 @@ namespace MongoDB.Driver.Tests.Operations
             _collection.FindAll().SetFields(Fields.Exclude("_id")).Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestMixedUpsertsOrdered()
         {
             RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
@@ -482,7 +482,7 @@ namespace MongoDB.Driver.Tests.Operations
             _collection.FindAll().Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestMixedUpsertsUnordered()
         {
             RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
@@ -511,7 +511,7 @@ namespace MongoDB.Driver.Tests.Operations
             _collection.FindAll().Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestNonDefaultWriteConcern(bool ordered)
@@ -534,7 +534,7 @@ namespace MongoDB.Driver.Tests.Operations
             Assert.Equal(0, _collection.Count());
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestOrderedBatchWithErrors()
         {
             RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
@@ -579,7 +579,7 @@ namespace MongoDB.Driver.Tests.Operations
             _collection.FindAll().SetFields(Fields.Exclude("_id")).Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestRemoveMultiple(bool ordered)
@@ -610,7 +610,7 @@ namespace MongoDB.Driver.Tests.Operations
             _collection.FindAll().Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestRemoveOneOnlyRemovesOneDocument(bool ordered)
@@ -632,7 +632,7 @@ namespace MongoDB.Driver.Tests.Operations
             _collection.FindAll().SetFields(Fields.Exclude("_id")).Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestRemoveWithEmptyQueryRemovesAllDocuments(bool ordered)
@@ -653,7 +653,7 @@ namespace MongoDB.Driver.Tests.Operations
             Assert.Equal(0, _collection.Count());
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestRemoveWithQueryRemovesOnlyMatchingDocuments(bool ordered)
@@ -675,7 +675,7 @@ namespace MongoDB.Driver.Tests.Operations
             _collection.FindAll().SetFields(Fields.Exclude("_id")).Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestReplaceOneKeyValidation(bool ordered)
@@ -692,7 +692,7 @@ namespace MongoDB.Driver.Tests.Operations
             Assert.Throws<BsonSerializationException>(() => bulk.Execute());
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestReplaceOneWithMultipleMatchingDocuments(bool ordered)
@@ -724,7 +724,7 @@ namespace MongoDB.Driver.Tests.Operations
             _collection.FindAll().SetFields(Fields.Exclude("_id")).Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestUnorderedBatchWithErrors()
         {
             RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
@@ -775,7 +775,7 @@ namespace MongoDB.Driver.Tests.Operations
             _collection.FindAll().SetFields(Fields.Exclude("_id")).Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestUpdateChecksThatAllTopLevelFieldNamesAreOperators(bool ordered)
@@ -790,7 +790,7 @@ namespace MongoDB.Driver.Tests.Operations
             Assert.Throws<BsonSerializationException>(() => bulk.Execute());
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestUpdateOneBasic(bool ordered)
@@ -821,7 +821,7 @@ namespace MongoDB.Driver.Tests.Operations
             _collection.FindAll().SetFields(Fields.Exclude("_id")).Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestUpdateOneKeyValidation(bool ordered)
@@ -844,7 +844,7 @@ namespace MongoDB.Driver.Tests.Operations
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestUpdateOnlyAffectsDocumentsThatMatch(bool ordered)
@@ -878,7 +878,7 @@ namespace MongoDB.Driver.Tests.Operations
             _collection.FindAll().SetFields(Fields.Exclude("_id")).Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestUpdateUpdatesAllMatchingDocuments(bool ordered)
@@ -909,7 +909,7 @@ namespace MongoDB.Driver.Tests.Operations
             _collection.FindAll().SetFields(Fields.Exclude("_id")).Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestUpsertOneVeryLargeDocument(bool ordered)
@@ -937,7 +937,7 @@ namespace MongoDB.Driver.Tests.Operations
             _collection.FindAll().Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestUpsertReplaceOneDoesNotAffectNonUpsertsInTheSameOperation(bool ordered)
@@ -963,7 +963,7 @@ namespace MongoDB.Driver.Tests.Operations
             _collection.FindAll().SetFields(Fields.Exclude("_id")).Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestUpsertReplaceOneOnlyReplacesOneMatchingDocument(bool ordered)
@@ -995,7 +995,7 @@ namespace MongoDB.Driver.Tests.Operations
             _collection.FindAll().SetFields(Fields.Exclude("_id")).Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestUpsertUpdateOneDoesNotAffectNonUpsertsInTheSameOperation(bool ordered)
@@ -1036,7 +1036,7 @@ namespace MongoDB.Driver.Tests.Operations
             _collection.FindAll().SetFields(Fields.Exclude("_id")).Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestUpsertUpdateOneOnlyAffectsOneMatchingDocument(bool ordered)
@@ -1067,7 +1067,7 @@ namespace MongoDB.Driver.Tests.Operations
             _collection.FindAll().SetFields(Fields.Exclude("_id")).Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestUpsertUpdateUpsertsAndDoesNotAffectNonUpsertsInTheSameOperation(bool ordered)
@@ -1108,7 +1108,7 @@ namespace MongoDB.Driver.Tests.Operations
             _collection.FindAll().SetFields(Fields.Exclude("_id")).Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestUpsertWithMultipleMatchingDocuments(bool ordered)
@@ -1141,7 +1141,7 @@ namespace MongoDB.Driver.Tests.Operations
             _collection.FindAll().Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestUpsertWithNoMatchingDocument(bool ordered)
@@ -1174,7 +1174,7 @@ namespace MongoDB.Driver.Tests.Operations
             _collection.FindAll().Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestUpsertWithOneMatchingDocument(bool ordered)
@@ -1207,7 +1207,7 @@ namespace MongoDB.Driver.Tests.Operations
             _collection.FindAll().Should().BeEquivalentTo(expectedDocuments);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void TestW0DoesNotReportErrors(
             [Values(false, true)] bool retryWrites,
@@ -1242,7 +1242,7 @@ namespace MongoDB.Driver.Tests.Operations
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(false)]
         [InlineData(true)]
         public void TestW2AgainstStandalone(bool ordered)
@@ -1263,7 +1263,7 @@ namespace MongoDB.Driver.Tests.Operations
             }
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestWTimeoutPlusDuplicateKeyError()
         {
             RequireEnvironment.Check().EnvironmentVariable("EXPLICIT");

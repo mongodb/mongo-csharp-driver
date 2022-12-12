@@ -1,4 +1,4 @@
-﻿/* Copyright 2016-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,24 +13,10 @@
 * limitations under the License.
 */
 
-using System;
-using System.Linq;
-
-namespace MongoDB.Bson.TestHelpers.XunitExtensions
+namespace MongoDB.TestHelpers.XunitExtensions
 {
-    [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
-    public sealed class ValuesAttribute : Attribute, IValueGeneratorAttribute
+    internal interface IValueGeneratorAttribute
     {
-        private readonly object[] _values;
-
-        public ValuesAttribute(params object[] values)
-        {
-            _values = values;
-        }
-
-        public object[] GenerateValues()
-        {
-            return _values;
-        }
+        object[] GenerateValues();
     }
 }

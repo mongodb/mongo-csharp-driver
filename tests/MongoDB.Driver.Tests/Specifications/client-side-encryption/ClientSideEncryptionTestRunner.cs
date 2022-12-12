@@ -19,7 +19,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Encryption;
 using MongoDB.Driver.TestHelpers;
@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
         {
         }
 
-        [SkippableTheory]
+        [Theory]
         [ClassData(typeof(TestCaseFactory))]
         public void Run(JsonDrivenTestCase testCase)
         {

@@ -15,7 +15,7 @@
 
 using System.Linq;
 using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp216
             _adminDatabase = LegacyTestConfiguration.Server.GetDatabase("admin");
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestAmbiguousEvalArguments()
         {
             RequireServer.Check().Supports(Feature.Eval);
@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Tests.Jira.CSharp216
 #pragma warning restore
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestNoLock()
         {
             RequireServer.Check().Supports(Feature.Eval);

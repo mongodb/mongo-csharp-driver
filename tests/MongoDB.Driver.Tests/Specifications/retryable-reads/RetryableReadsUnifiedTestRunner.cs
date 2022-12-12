@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
         }
 
         // public methods
-        [SkippableTheory]
+        [Theory]
         [ClassData(typeof(TestCaseFactory))]
         public void Run(JsonDrivenTestCase testCase)
         {

@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
 {
     public class ServerDiscoveryAndMonitoringProseTests
     {
-        [SkippableFact]
+        [Fact]
         public void Heartbeat_should_work_as_expected()
         {
             var heartbeatSuceededTimestamps = new ConcurrentQueue<DateTime>();
@@ -76,7 +76,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
             }
         }
 
-        [SkippableFact]
+        [Fact]
         public void Monitor_sleep_at_least_minHeartbeatFreqencyMS_between_checks()
         {
             var minVersion = new SemanticVersion(4, 9, 0, "");
@@ -120,7 +120,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
             sw.ElapsedMilliseconds.Should().BeInRange(2000, 3500);
         }
 
-        [SkippableFact]
+        [Fact]
         public void RoundTimeTrip_test()
         {
             RequireServer.Check().Supports(Feature.StreamingHello);
@@ -172,7 +172,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
             }
         }
 
-        [SkippableFact]
+        [Fact]
         public void ConnectionPool_cleared_on_failed_hello()
         {
             var minVersion = new SemanticVersion(4, 9, 0, "");

@@ -1,4 +1,4 @@
-﻿/* Copyright 2020-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,10 +13,15 @@
 * limitations under the License.
 */
 
-namespace MongoDB.Bson.TestHelpers.XunitExtensions
+using System;
+
+namespace MongoDB.TestHelpers.XunitExtensions
 {
-    public interface IValueGenerator
+    public static class XunitExtensionsConstants
     {
-        object[] GenerateValues();
+        public const string TimeoutEnforcingXunitFramework = "MongoDB.TestHelpers.XunitExtensions.TimeoutEnforcing.TimeoutEnforcingXunitTestFramework";
+        public const string TimeoutEnforcingFrameworkAssembly = "MongoDB.TestHelpers";
+
+        public static readonly TimeSpan DefaultTestTimeout = TimeSpan.FromMinutes(3);
     }
 }

@@ -17,7 +17,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
 using Moq;
@@ -203,7 +203,7 @@ namespace MongoDB.Driver.Tests
             AssertLast(subject, expectedLookup);
         }
 
-        [SkippableFact]
+        [Fact]
         public void Lookup_expressive_should_generate_the_correct_lookup_when_using_BsonDocument()
         {
             RequireServer.Check();
@@ -219,7 +219,7 @@ namespace MongoDB.Driver.Tests
             AssertLast(subject, expectedLookup);
         }
 
-        [SkippableFact]
+        [Fact]
         public void Lookup_expressive_should_generate_the_correct_lookup_when_using_lambdas()
         {
             RequireServer.Check();

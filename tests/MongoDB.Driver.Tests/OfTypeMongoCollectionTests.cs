@@ -22,7 +22,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Events;
@@ -1130,7 +1130,7 @@ namespace MongoDB.Driver.Tests
             });
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void UpdateOne_should_match_document_of_right_type(
             [Values(false, true)] bool upsert,

@@ -1,4 +1,4 @@
-﻿/* Copyright 2020-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,27 +14,23 @@
 */
 
 using System;
+using System.Linq;
 
-namespace MongoDB.Bson.TestHelpers.XunitExtensions
+namespace MongoDB.TestHelpers.XunitExtensions
 {
     [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
-    public class ClassValuesAttribute : Attribute, IValueGeneratorAttribute
+    public sealed class ValuesAttribute : Attribute, IValueGeneratorAttribute
     {
-        private readonly Type _classType;
+        private readonly object[] _values;
 
-        public ClassValuesAttribute(Type classType)
+        public ValuesAttribute(params object[] values)
         {
-            _classType = classType;
+            _values = values;
         }
 
         public object[] GenerateValues()
         {
-            var generator = Activator.CreateInstance(_classType) as IValueGenerator;
-            if (generator == null)
-            {
-                throw new ArgumentException($"The type {_classType} must implement the {nameof(IValueGenerator)} interface.");
-            }
-            return generator.GenerateValues();
+            return _values;
         }
     }
 }

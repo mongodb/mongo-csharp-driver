@@ -1,4 +1,4 @@
-﻿/* Copyright 2021-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,17 +17,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
-namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions.TimeoutEnforcing
+namespace MongoDB.TestHelpers.XunitExtensions.TimeoutEnforcing
 {
     [DebuggerStepThrough]
     internal sealed class TimeoutEnforcingXunitTestMethodRunner : XunitTestMethodRunner
     {
-        private static string[] __skippingExceptionNames = new string[] { typeof(SkipException).FullName };
-
         private readonly object[] _constructorArguments;
         private readonly IMessageSink _diagnosticMessageSink;
 
@@ -39,7 +36,7 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions.TimeoutEnforcing
 
         protected override async Task<RunSummary> RunTestCaseAsync(IXunitTestCase originalTestCase)
         {
-            var messageBusInterceptor = new SkippableTestMessageBus(MessageBus, __skippingExceptionNames);
+            var messageBusInterceptor = new SkippableTestMessageBus(MessageBus);
 
             var isTheory = originalTestCase is XunitTheoryTestCase;
             XunitTestCaseRunner testRunner = isTheory ?

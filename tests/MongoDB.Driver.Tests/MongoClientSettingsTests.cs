@@ -24,7 +24,7 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
@@ -1265,7 +1265,7 @@ namespace MongoDB.Driver.Tests
             settings.Servers.Should().HaveCount(2);
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestSocketConfigurator()
         {
             RequireServer.Check();

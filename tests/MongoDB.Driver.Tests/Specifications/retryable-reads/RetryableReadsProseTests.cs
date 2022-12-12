@@ -20,7 +20,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
 {
     public class RetryableReadsProseTests
     {
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public async Task PoolClearedError_read_retryablity_test([Values(true, false)] bool async)
         {

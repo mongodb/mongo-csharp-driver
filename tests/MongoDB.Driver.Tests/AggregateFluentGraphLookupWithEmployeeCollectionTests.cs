@@ -95,7 +95,7 @@ namespace MongoDB.Driver.Tests
                 }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void GraphLookup_should_return_expected_result()
         {
             RequireServer.Check();
@@ -150,7 +150,7 @@ namespace MongoDB.Driver.Tests
                 }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void GraphLookup_with_restrictSearchWithMatch_should_return_expected_result()
         {
             RequireServer.Check();
@@ -205,7 +205,7 @@ namespace MongoDB.Driver.Tests
                 }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void GraphLookup_with_expressions_should_return_expected_result()
         {
             RequireServer.Check();
@@ -252,7 +252,7 @@ namespace MongoDB.Driver.Tests
                 }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void GraphLookup_untyped_based_should_return_expected_result()
         {
             RequireServer.Check();

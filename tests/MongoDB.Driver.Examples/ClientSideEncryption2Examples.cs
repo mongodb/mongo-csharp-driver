@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Examples
         private readonly static CollectionNamespace CollectionNamespace = CollectionNamespace.FromFullName("docsExamples.encrypted");
         private readonly static CollectionNamespace KeyVaultNamespace = CollectionNamespace.FromFullName("keyvault.datakeys");
 
-        [SkippableFact]
+        [Fact]
         public void FLE2AutomaticEncryption()
         {
             RequireServer.Check().Supports(Feature.Csfle2).ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced);

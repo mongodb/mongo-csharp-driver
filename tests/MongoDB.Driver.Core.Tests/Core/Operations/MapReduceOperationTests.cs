@@ -19,7 +19,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
@@ -138,7 +138,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be("{ inline : 1 }");
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_results(
             [Values(false, true)]
@@ -158,7 +158,7 @@ namespace MongoDB.Driver.Core.Operations
                 BsonDocument.Parse("{ _id : 2, value : 4 }"));
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_results_when_Collation_is_set(
             [Values(false, true)]
@@ -201,7 +201,7 @@ namespace MongoDB.Driver.Core.Operations
             results.Should().BeEquivalentTo(expectedResults);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_results_when_Filter_is_set(
             [Values(false, true)]
@@ -225,7 +225,7 @@ namespace MongoDB.Driver.Core.Operations
                 BsonDocument.Parse("{ _id : 2, value : 4 }"));
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_results_when_FinalizeFunction_is_set(
             [Values(false, true)]
@@ -251,7 +251,7 @@ namespace MongoDB.Driver.Core.Operations
 
         // TODO: figure out why test fails when JavaScriptMode = true (server bug?)
 
-        //[SkippableTheory]
+        //[Theory]
         //[ParameterAttributeData]
         //public void Execute_should_return_expected_results_when_JavaScriptMode_is_set(
         //    [Values(null, false, true)]
@@ -275,7 +275,7 @@ namespace MongoDB.Driver.Core.Operations
         //        BsonDocument.Parse("{ _id : 2, value : 4 }"));
         //}
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_results_when_Limit_is_set(
             [Values(1, 2)]
@@ -302,7 +302,7 @@ namespace MongoDB.Driver.Core.Operations
             results.Should().Equal(expectedResults);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_results_when_MaxTime_is_set(
             [Values(null, 1000)]
@@ -329,7 +329,7 @@ namespace MongoDB.Driver.Core.Operations
                 BsonDocument.Parse("{ _id : 2, value : 4 }"));
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_results_when_ReadConcern_is_set(
             [Values(null, ReadConcernLevel.Local)] // only use values that are valid on StandAlone servers
@@ -356,7 +356,7 @@ namespace MongoDB.Driver.Core.Operations
                 BsonDocument.Parse("{ _id : 2, value : 4 }"));
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_results_when_ResultSerializer_is_set(
             [Values(false, true)]
@@ -376,7 +376,7 @@ namespace MongoDB.Driver.Core.Operations
             results.Should().Equal(3, 4);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_results_when_Scope_is_set(
             [Values(false, true)]
@@ -402,7 +402,7 @@ namespace MongoDB.Driver.Core.Operations
                 BsonDocument.Parse("{ _id : 2, value : 4 }"));
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_results_when_Sort_is_set(
             [Values(1, -1)]
@@ -459,7 +459,7 @@ namespace MongoDB.Driver.Core.Operations
             argumentNullException.ParamName.Should().Be("binding");
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_throw_when_maxTime_is_exceeded(
             [Values(false, true)] bool async)
@@ -478,7 +478,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_send_session_id_when_supported(
             [Values(false, true)] bool async)
@@ -492,7 +492,7 @@ namespace MongoDB.Driver.Core.Operations
             VerifySessionIdWasSentWhenSupported(subject, "mapReduce", async);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void CreateCommand_should_return_expected_result_when_ReadConcern_is_set(
             [Values(null, ReadConcernLevel.Linearizable, ReadConcernLevel.Local)]
@@ -521,7 +521,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void CreateCommand_should_return_the_expected_result_when_using_causal_consistency(
             [Values(null, ReadConcernLevel.Linearizable, ReadConcernLevel.Local)]

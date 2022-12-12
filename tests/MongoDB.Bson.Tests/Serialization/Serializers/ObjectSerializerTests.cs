@@ -23,9 +23,11 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
+using Xunit.Sdk;
+using Reflector = MongoDB.Bson.TestHelpers.Reflector;
 
 namespace MongoDB.Bson.Tests.Serialization
 {
@@ -320,7 +322,7 @@ namespace MongoDB.Bson.Tests.Serialization
             e.ParamName.Should().Be("discriminatorConvention");
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         [ResetGuidModeAfterTest]
         public void Deserialize_binary_data_should_return_expected_result_when_guid_representation_is_unspecified_and_mode_is_v2(
@@ -462,7 +464,7 @@ namespace MongoDB.Bson.Tests.Serialization
 #pragma warning restore 618
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         [ResetGuidModeAfterTest]
         public void Serialize_guid_should_have_expected_result_when_guid_representation_is_unspecified_and_mode_is_v2(

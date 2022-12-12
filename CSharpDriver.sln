@@ -10,7 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{D2012971-32B
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{E472BDF5-61F1-461D-872B-9F53BB3ACA80}"
 	ProjectSection(SolutionItems) = preProject
-		tests\Directory.Build.props = tests\Directory.Build.props
+		tests\BuildProps\Tests.Build.props = tests\BuildProps\Tests.Build.props
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MongoDB.Bson", "src\MongoDB.Bson\MongoDB.Bson.csproj", "{9FCB42A5-3BC6-492B-8EA0-53EF32E9F8CD}"
@@ -54,8 +54,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		MongoDBTest.ruleset = MongoDBTest.ruleset
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SkippableTests", "tests\SkippableTests\SkippableTests.csproj", "{D198833A-6AC3-4327-8B02-5095455192D0}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MongoDB.Driver.TestConsoleApplication", "tests\MongoDB.Driver.TestConsoleApplication\MongoDB.Driver.TestConsoleApplication.csproj", "{2E5780D2-29A5-483C-9CA2-844F45A66D0C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AstrolabeWorkloadExecutor", "tests\AstrolabeWorkloadExecutor\AstrolabeWorkloadExecutor.csproj", "{B90F025F-89D3-436A-AD78-6AA304A6E240}"
@@ -63,6 +61,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MongoDB.Driver.SmokeTests.Sdk", "tests\SmokeTests\MongoDB.Driver.SmokeTests.Sdk\MongoDB.Driver.SmokeTests.Sdk.csproj", "{B711A69F-A337-452C-95E1-A6B15C727CBA}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SmokeTests", "SmokeTests", "{F64BF86A-1EF1-4596-84A6-6B4AB766CD77}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MongoDB.TestHelpers", "tests\MongoDB.TestHelpers\MongoDB.TestHelpers.csproj", "{DF888021-744F-4A8B-9324-831DEFC48AB8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -134,10 +134,6 @@ Global
 		{7A015030-6329-4FAD-B6E3-CED5ED53019C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7A015030-6329-4FAD-B6E3-CED5ED53019C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7A015030-6329-4FAD-B6E3-CED5ED53019C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D198833A-6AC3-4327-8B02-5095455192D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D198833A-6AC3-4327-8B02-5095455192D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D198833A-6AC3-4327-8B02-5095455192D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D198833A-6AC3-4327-8B02-5095455192D0}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2E5780D2-29A5-483C-9CA2-844F45A66D0C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2E5780D2-29A5-483C-9CA2-844F45A66D0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2E5780D2-29A5-483C-9CA2-844F45A66D0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -150,6 +146,10 @@ Global
 		{B711A69F-A337-452C-95E1-A6B15C727CBA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B711A69F-A337-452C-95E1-A6B15C727CBA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B711A69F-A337-452C-95E1-A6B15C727CBA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DF888021-744F-4A8B-9324-831DEFC48AB8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF888021-744F-4A8B-9324-831DEFC48AB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF888021-744F-4A8B-9324-831DEFC48AB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF888021-744F-4A8B-9324-831DEFC48AB8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -171,11 +171,11 @@ Global
 		{C50D554C-2771-4CC1-9B2C-BB17FB27F935} = {E472BDF5-61F1-461D-872B-9F53BB3ACA80}
 		{DAB8DFFD-0020-43B3-9C08-7723F5D68E90} = {E472BDF5-61F1-461D-872B-9F53BB3ACA80}
 		{7A015030-6329-4FAD-B6E3-CED5ED53019C} = {E472BDF5-61F1-461D-872B-9F53BB3ACA80}
-		{D198833A-6AC3-4327-8B02-5095455192D0} = {E472BDF5-61F1-461D-872B-9F53BB3ACA80}
 		{2E5780D2-29A5-483C-9CA2-844F45A66D0C} = {E472BDF5-61F1-461D-872B-9F53BB3ACA80}
 		{B90F025F-89D3-436A-AD78-6AA304A6E240} = {E472BDF5-61F1-461D-872B-9F53BB3ACA80}
 		{B711A69F-A337-452C-95E1-A6B15C727CBA} = {F64BF86A-1EF1-4596-84A6-6B4AB766CD77}
 		{F64BF86A-1EF1-4596-84A6-6B4AB766CD77} = {E472BDF5-61F1-461D-872B-9F53BB3ACA80}
+		{DF888021-744F-4A8B-9324-831DEFC48AB8} = {E472BDF5-61F1-461D-872B-9F53BB3ACA80}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {24BEC44B-92B0-43AA-9B15-163459D0C098}

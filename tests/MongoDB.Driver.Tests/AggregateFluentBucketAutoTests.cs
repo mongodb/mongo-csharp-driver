@@ -84,7 +84,7 @@ namespace MongoDB.Driver.Tests
             renderedStage.Document.Should().Be("{ $bucketAuto : { groupBy : \"$year\", buckets : 4 } }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void BucketAuto_should_return_expected_result()
         {
             RequireServer.Check();
@@ -120,7 +120,7 @@ namespace MongoDB.Driver.Tests
             renderedStage.Document.Should().Be("{ $bucketAuto : { groupBy : \"$_id\", buckets : 4, granularity : 'POWERSOF2' } }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void BucketAuto_with_granularity_should_return_expected_result()
         {
             RequireServer.Check();
@@ -156,7 +156,7 @@ namespace MongoDB.Driver.Tests
             renderedStage.Document.Should().Be("{ $bucketAuto : { groupBy : \"$year\", buckets : 4, output : { years : { $push : \"$year\" }, count : { $sum : 1 } } } }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void BucketAuto_with_output_should_return_expected_result()
         {
             RequireServer.Check();
@@ -192,7 +192,7 @@ namespace MongoDB.Driver.Tests
             renderedStage.Document.Should().Be("{ $bucketAuto : { groupBy : \"$year\", buckets : 4 } }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void BucketAuto_typed_should_return_expected_result()
         {
             RequireServer.Check();
@@ -230,7 +230,7 @@ namespace MongoDB.Driver.Tests
             renderedStage.Document.Should().Be("{ $bucketAuto : { groupBy : \"$year\", buckets : 4, output : { Years : { $push : \"$year\" }, Count : { $sum : 1 } } } }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void BucketAuto_typed_with_output_should_return_expected_result()
         {
             RequireServer.Check();

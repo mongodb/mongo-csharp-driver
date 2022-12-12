@@ -106,7 +106,7 @@ namespace MongoDB.Driver.Tests.Linq
             Assert.Equal("{ \"a\" : 1, \"b\" : 3 }", selectQuery.BuildQuery().ToJson());
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestIndexNameHintIsUsedInQuery()
         {
             RequireServer.Check().Supports(Feature.LegacyWireProtocol);
@@ -184,7 +184,7 @@ namespace MongoDB.Driver.Tests.Linq
             Assert.Equal("{ \"a\" : 1, \"b\" : 3 }", selectQuery.BuildQuery().ToJson());
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestIndexDocumentHintIsUsedInQuery()
         {
             RequireServer.Check().Supports(Feature.LegacyWireProtocol);

@@ -22,7 +22,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
@@ -897,7 +897,7 @@ namespace MongoDB.Driver
             op.RetryRequested.Should().BeTrue();
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void ListCollectionNames_should_return_expected_result(
             [Values(0, 1, 2, 10)] int numberOfCollections,

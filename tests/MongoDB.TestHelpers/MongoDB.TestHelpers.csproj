@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\BuildProps\Tests.Build.props" />
+
+  <PropertyGroup>
+    <TargetFrameworks>$(StandardTargetFrameworks)</TargetFrameworks>
+    <CodeAnalysisRuleSet>..\..\MongoDBLegacyTest.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <AssemblyTitle>MongoDB.TestHelpers</AssemblyTitle>
+    <Product>MongoDB.TestHelpers</Product>
+    <Description>Helper classes applicable to all test projects.</Description>
+  </PropertyGroup>
+
+</Project>

@@ -16,7 +16,7 @@
 using System;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
         {
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Write_operation_should_throw_when_retry_writes_is_true_and_storage_engine_is_MMMAPv1(
             [Values(false, true)] bool async)

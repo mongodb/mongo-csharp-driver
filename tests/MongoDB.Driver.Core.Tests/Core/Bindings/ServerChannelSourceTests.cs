@@ -26,7 +26,7 @@ using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.Helpers;
 using Moq;
 using Xunit;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 
 namespace MongoDB.Driver.Core.Bindings
 {

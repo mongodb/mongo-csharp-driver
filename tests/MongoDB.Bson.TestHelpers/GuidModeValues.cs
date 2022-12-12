@@ -13,8 +13,8 @@
 * limitations under the License.
 */
 
-using MongoDB.Bson.TestHelpers.XunitExtensions;
 using System.Linq;
+using MongoDB.TestHelpers.XunitExtensions;
 
 namespace MongoDB.Bson.TestHelpers
 {

@@ -58,7 +58,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
             AddDisposable(failPoint);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ClassData(typeof(TestCaseFactory))]
         public void Run(JsonDrivenTestCase testCase)
         {

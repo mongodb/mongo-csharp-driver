@@ -18,7 +18,7 @@ using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Core;
@@ -82,7 +82,7 @@ namespace MongoDB.Driver.Tests
             Assert.True(_database.CollectionExists(collectionName));
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestCreateCollectionSetIndexOptionDefaults()
         {
             RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet);
@@ -102,7 +102,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(expectedIndexOptionDefaultsDocument, collectionInfo["options"]["indexOptionDefaults"]);
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestCreateCollectionSetStorageEngine()
         {
             RequireServer.Check().VersionGreaterThanOrEqualTo("2.7.0");
@@ -125,7 +125,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(storageEngineOptions, resultCollection["options"]["storageEngine"]);
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestCreateCollectionSetValidator()
         {
             RequireServer.Check();
@@ -146,7 +146,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal("strict", collectionInfo["options"]["validationLevel"].AsString);
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestCreateCollectionWriteConcern()
         {
             RequireServer.Check().ClusterType(ClusterType.ReplicaSet);
@@ -160,7 +160,7 @@ namespace MongoDB.Driver.Tests
             exception.Should().BeOfType<MongoWriteConcernException>();
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestCreateViewWriteConcern()
         {
             RequireServer.Check().ClusterType(ClusterType.ReplicaSet);
@@ -189,7 +189,7 @@ namespace MongoDB.Driver.Tests
             Assert.False(_database.CollectionExists(collectionName));
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestDropCollectionWriteConcern()
         {
             RequireServer.Check().ClusterType(ClusterType.ReplicaSet);
@@ -203,7 +203,7 @@ namespace MongoDB.Driver.Tests
             exception.Should().BeOfType<MongoWriteConcernException>();
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestEvalNoArgs()
         {
             RequireServer.Check().Supports(Feature.Eval);
@@ -217,7 +217,7 @@ namespace MongoDB.Driver.Tests
 #pragma warning restore
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestEvalNoArgsNoLock()
         {
             RequireServer.Check().Supports(Feature.Eval);
@@ -231,7 +231,7 @@ namespace MongoDB.Driver.Tests
 #pragma warning restore
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestEvalWithMaxTime()
         {
             RequireServer.Check().Supports(Feature.Eval);
@@ -255,7 +255,7 @@ namespace MongoDB.Driver.Tests
 #pragma warning restore
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestEvalWithOneArg()
         {
             RequireServer.Check().Supports(Feature.Eval);
@@ -269,7 +269,7 @@ namespace MongoDB.Driver.Tests
 #pragma warning restore
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestEvalWithOneArgNoLock()
         {
             RequireServer.Check().Supports(Feature.Eval);
@@ -283,7 +283,7 @@ namespace MongoDB.Driver.Tests
 #pragma warning restore
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestEvalWithTwoArgs()
         {
             RequireServer.Check().Supports(Feature.Eval);
@@ -297,7 +297,7 @@ namespace MongoDB.Driver.Tests
 #pragma warning restore
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestEvalWithTwoArgsNoLock()
         {
             RequireServer.Check().Supports(Feature.Eval);
@@ -368,7 +368,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(new[] { "a", "b", "c" }, collectionNames.Where(n => n != "system.indexes"));
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestGetCurrentOp()
         {
             RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet);
@@ -452,7 +452,7 @@ namespace MongoDB.Driver.Tests
             Assert.True(_database.CollectionExists(collectionName2));
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestRenameCollectionWriteConcern()
         {
             RequireServer.Check().ClusterType(ClusterType.ReplicaSet);
@@ -505,7 +505,7 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData("user1", "pass1", true)]
         [InlineData("user2", "pass2", false)]
         public void TestUserMethods(string username, string password, bool isReadOnly)

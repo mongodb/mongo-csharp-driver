@@ -21,7 +21,7 @@ using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
@@ -62,7 +62,7 @@ namespace MongoDB.Driver.Tests
         /// Test that starting a new transaction on a pinned ClientSession unpins the
         /// session and normal server selection is performed for the next operation.
         /// </summary>
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void SelectServer_loadbalancing_prose_test([Values(false, true)] bool async)
         {

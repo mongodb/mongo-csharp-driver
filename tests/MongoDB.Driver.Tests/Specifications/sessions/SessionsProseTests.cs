@@ -20,7 +20,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.TestHelpers.Logging;
@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
         {
         }
 
-        [SkippableFact]
+        [Fact]
         public void Snapshot_and_causal_consistent_session_is_not_allowed()
         {
             RequireServer.Check();
@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
             exception.Should().BeOfType<NotSupportedException>();
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public async Task Ensure_server_session_are_allocated_only_on_connection_checkout([Values(true, false)]bool async)
         {
@@ -189,7 +189,7 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
             singleSessionUsed.Should().BeTrue("At least one iteration should use single session");
         }
 
-        [SkippableFact]
+        [Fact]
         public async Task Ensure_server_session_are_allocated_only_on_connection_checkout_deterministic()
         {
             var eventCapturer = new EventCapturer()

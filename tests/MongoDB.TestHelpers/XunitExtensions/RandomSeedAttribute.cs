@@ -1,4 +1,4 @@
-﻿/* Copyright 2021-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,9 +16,8 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
 
-namespace MongoDB.Bson.TestHelpers
+namespace MongoDB.TestHelpers.XunitExtensions
 {
     [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
     public class RandomSeedAttribute : Attribute, IValueGeneratorAttribute

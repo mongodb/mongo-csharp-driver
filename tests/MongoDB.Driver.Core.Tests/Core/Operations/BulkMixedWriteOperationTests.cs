@@ -20,7 +20,7 @@ using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
@@ -281,7 +281,7 @@ namespace MongoDB.Driver.Core.Operations
             exception.Should().BeNull();
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_with_one_delete_and_let([Values(false, true)] bool async)
         {
@@ -310,7 +310,7 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(5);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_with_one_delete_against_a_matching_document(
             [Values(false, true)]
@@ -338,7 +338,7 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(5);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_with_one_delete_against_a_matching_document_with_multi(
             [Values(false, true)]
@@ -366,7 +366,7 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(3);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_with_one_delete_without_matching_a_document(
             [Values(false, true)]
@@ -394,7 +394,7 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(6);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_with_multiple_deletes(
             [Values(false, true)]
@@ -426,7 +426,7 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(4);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_with_multiple_deletes_and_let([Values(false, true)] bool async)
         {
@@ -463,7 +463,7 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(4);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_with_fewer_deletes_than_maxBatchCount(
             [Values(false, true)]
@@ -499,7 +499,7 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(3);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_with_more_deletes_than_maxBatchCount(
             [Values(false, true)]
@@ -535,7 +535,7 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(3);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_with_one_insert(
             [Values(false, true)]
@@ -563,7 +563,7 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(1);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_with_fewer_inserts_than_maxBatchCount(
             [Values(false, true)]
@@ -598,7 +598,7 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(2);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_with_more_inserts_than_maxBatchCount(
             [Values(false, true)]
@@ -635,7 +635,7 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(4);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_with_one_update_against_a_matching_document(
             [Values(false, true)]
@@ -666,7 +666,7 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(6);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_with_one_update_and_let(
             [Values(false, true)] bool async)
@@ -703,7 +703,7 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(6);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_with_one_update_against_a_matching_document_with_multi(
             [Values(false, true)]
@@ -731,7 +731,7 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(6);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_with_one_update_without_matching_a_document(
             [Values(false, true)]
@@ -759,7 +759,7 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(6);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_with_fewer_updates_than_maxBatchCount(
             [Values(false, true)]
@@ -794,7 +794,7 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(6);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_with_more_updates_than_maxBatchCount(
             [Values(false, true)]
@@ -831,7 +831,7 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(6);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_with_a_very_large_upsert(
             [Values(false, true)]
@@ -865,7 +865,7 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(7);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_with_an_upsert_matching_multiple_documents(
             [Values(false, true)]
@@ -896,7 +896,7 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(6);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_with_an_upsert_matching_no_documents(
             [Values(false, true)]
@@ -927,7 +927,7 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(7);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_with_an_upsert_matching_one_document(
             [Values(false, true)]
@@ -958,7 +958,7 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(6);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_with_mixed_requests_and_ordered_is_false(
             [Values(false, true)]
@@ -995,7 +995,7 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(6);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_with_mixed_requests_and_let(
             [Values(false, true)] bool async)
@@ -1041,7 +1041,7 @@ namespace MongoDB.Driver.Core.Operations
             list[4].Should().Be("{ _id : 6, x : 3 }");
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_with_mixed_requests_and_ordered_is_true(
             [Values(false, true)]
@@ -1078,7 +1078,7 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(6);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_with_mixed_upserts_and_ordered_is_false(
             [Values(false, true)]
@@ -1115,7 +1115,7 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(8);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_with_mixed_upserts_and_ordered_is_true(
             [Values(false, true)]
@@ -1152,7 +1152,7 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(8);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_with_an_error_in_the_first_batch_and_ordered_is_false(
             [Values(false, true)]
@@ -1193,7 +1193,7 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(3);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_with_an_error_in_the_first_batch_and_ordered_is_true(
             [Values(false, true)]
@@ -1240,7 +1240,7 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(1);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_with_an_error_in_the_second_batch_and_ordered_is_false(
             [Values(false, true)]
@@ -1282,7 +1282,7 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(4);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_with_an_error_in_the_second_batch_and_ordered_is_true(
             [Values(false, true)]
@@ -1324,7 +1324,7 @@ namespace MongoDB.Driver.Core.Operations
             list.Should().HaveCount(3);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_unacknowledged_with_an_error_in_the_first_batch_and_ordered_is_false(
             [Values(false, true)]
@@ -1365,7 +1365,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_unacknowledged_with_an_error_in_the_first_batch_and_ordered_is_true(
             [Values(false, true)]
@@ -1411,7 +1411,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_unacknowledged_with_an_error_in_the_second_batch_and_ordered_is_false(
             [Values(false, true)]
@@ -1452,7 +1452,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_unacknowledged_with_an_error_in_the_second_batch_and_ordered_is_true(
             [Values(false, true)]
@@ -1493,7 +1493,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_with_delete_should_not_send_session_id_when_unacknowledged_writes(
             [Values(false, true)] bool retryRequested,
@@ -1514,7 +1514,7 @@ namespace MongoDB.Driver.Core.Operations
             VerifySessionIdWasNotSentIfUnacknowledgedWrite(subject, "delete", async, useImplicitSession);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_with_delete_should_send_session_id_when_supported(
             [Values(false, true)] bool async)
@@ -1527,7 +1527,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_with_insert_should_not_send_session_id_when_unacknowledged_writes(
             [Values(false, true)] bool retryRequested,
@@ -1548,7 +1548,7 @@ namespace MongoDB.Driver.Core.Operations
             VerifySessionIdWasNotSentIfUnacknowledgedWrite(subject, "insert", async, useImplicitSession);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_with_insert_should_send_session_id_when_supported(
             [Values(false, true)] bool async)
@@ -1561,7 +1561,7 @@ namespace MongoDB.Driver.Core.Operations
             VerifySessionIdWasSentWhenSupported(subject, "insert", async);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_with_update_should_not_send_session_id_when_unacknowledged_writes(
             [Values(false, true)] bool retryRequested,
@@ -1582,7 +1582,7 @@ namespace MongoDB.Driver.Core.Operations
             VerifySessionIdWasNotSentIfUnacknowledgedWrite(subject, "update", async, useImplicitSession);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_with_update_should_send_session_id_when_supported(
             [Values(false, true)] bool async)
@@ -1594,7 +1594,7 @@ namespace MongoDB.Driver.Core.Operations
             VerifySessionIdWasSentWhenSupported(subject, "update", async);
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(new[] { 1 }, new[] { 1 }, false)]
         [InlineData(new[] { 1, 1 }, new[] { 2 }, false)]
         [InlineData(new[] { 10000000, 10000000, 10000000, 10000000 }, new[] { 4 }, false)]
@@ -1632,7 +1632,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(new[] { 1 }, new[] { 1 }, false)]
         [InlineData(new[] { 1, 1 }, new[] { 2 }, false)]
         [InlineData(new[] { 10000000, 10000000, 10000000, 10000000 }, new[] { 4 }, false)]
@@ -1672,7 +1672,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [InlineData(new[] { 1 }, new[] { 1 }, false)]
         [InlineData(new[] { 1, 1 }, new[] { 2 }, false)]
         [InlineData(new[] { 10000000, 10000000, 10000000, 10000000 }, new[] { 4 }, false)]
