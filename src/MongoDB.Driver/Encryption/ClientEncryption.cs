@@ -20,6 +20,7 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Libmongocrypt;
 
 namespace MongoDB.Driver.Encryption
@@ -91,6 +92,10 @@ namespace MongoDB.Driver.Encryption
         /// </remarks>
         public void CreateEncryptedCollection<TCollection>(CollectionNamespace collectionNamespace, CreateCollectionOptions createCollectionOptions, string kmsProvider, DataKeyOptions dataKeyOptions, CancellationToken cancellationToken = default)
         {
+            Ensure.IsNotNull(createCollectionOptions, nameof(createCollectionOptions));
+            Ensure.IsNotNull(dataKeyOptions, nameof(dataKeyOptions));
+            Ensure.IsNotNull(kmsProvider, nameof(kmsProvider));
+
             foreach (var fieldDocument in EncryptedCollectionHelper.IterateEmptyKeyIds(collectionNamespace, createCollectionOptions.EncryptedFields))
             {
                 var dataKey = CreateDataKey(kmsProvider, dataKeyOptions, cancellationToken);
@@ -115,6 +120,10 @@ namespace MongoDB.Driver.Encryption
         /// </remarks>
         public async Task CreateEncryptedCollectionAsync<TCollection>(CollectionNamespace collectionNamespace, CreateCollectionOptions createCollectionOptions, string kmsProvider, DataKeyOptions dataKeyOptions, CancellationToken cancellationToken = default)
         {
+            Ensure.IsNotNull(createCollectionOptions, nameof(createCollectionOptions));
+            Ensure.IsNotNull(dataKeyOptions, nameof(dataKeyOptions));
+            Ensure.IsNotNull(kmsProvider, nameof(kmsProvider));
+
             foreach (var fieldDocument in EncryptedCollectionHelper.IterateEmptyKeyIds(collectionNamespace, createCollectionOptions.EncryptedFields))
             {
                 var dataKey = await CreateDataKeyAsync(kmsProvider, dataKeyOptions, cancellationToken).ConfigureAwait(false);

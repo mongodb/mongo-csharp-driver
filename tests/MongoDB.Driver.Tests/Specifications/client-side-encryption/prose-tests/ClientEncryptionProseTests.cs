@@ -85,8 +85,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         // public methods
         [SkippableTheory]
         [ParameterAttributeData]
-        public void AutomaticDataEncryptionKeys(
-            [Range(1, 3)] int testCase,
+        public void AutomaticDataEncryptionKeysTest(
+            [Range(1, 4)] int testCase,
             [Values(false, true)] bool async)
         {
             RequireServer.Check().Supports(Feature.Csfle2).ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced);
@@ -136,6 +136,15 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                 effectiveEncryptedFields["fields"].AsBsonArray[0].AsBsonDocument["keyId"] = false;
                                 var exception = Record.Exception(() => CreateEncryptedCollection(client, clientEncryption, __collCollectionNamespace, effectiveEncryptedFields.AsBsonDocument, kmsProvider, async));
                                 exception.Should().BeOfType<MongoCommandException>().Which.Message.Should().Contain("BSON field 'create.encryptedFields.fields.keyId' is the wrong type 'bool', expected type 'binData'");
+                            }
+                            break;
+                       case 4: // Case 4: Insert encrypted value
+                            {
+                                var createCollectionOptions = new CreateCollectionOptions { EncryptedFields = encryptedFields };
+                                var collection = CreateEncryptedCollection(client, clientEncryption, __collCollectionNamespace, createCollectionOptions, kmsProvider, async);
+                                var dataKey = createCollectionOptions.EncryptedFields["fields"].AsBsonArray[0].AsBsonDocument["keyId"].AsGuid; // get generated datakey
+                                var encryptedValue = ExplicitEncrypt(clientEncryption, new EncryptOptions(algorithm: EncryptionAlgorithm.Unindexed, keyId: dataKey), "123-45-6789", async); // use explicit encryption to encrypt data before inserting
+                                Insert(collection, async, new BsonDocument("ssn", encryptedValue));
                             }
                             break;
                         default: throw new Exception($"Unexpected test case {testCase}.");
@@ -2267,6 +2276,11 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         private IMongoCollection<BsonDocument> CreateEncryptedCollection(IMongoClient client, ClientEncryption clientEncryption, CollectionNamespace collectionNamespace, BsonDocument encryptedFields, string kmsProvider, bool async)
         {
             var createCollectionOptions = new CreateCollectionOptions { EncryptedFields = encryptedFields };
+            return CreateEncryptedCollection(client, clientEncryption, collectionNamespace, createCollectionOptions, kmsProvider, async);
+        }
+
+        private IMongoCollection<BsonDocument> CreateEncryptedCollection(IMongoClient client, ClientEncryption clientEncryption, CollectionNamespace collectionNamespace, CreateCollectionOptions createCollectionOptions, string kmsProvider, bool async)
+        {
             var datakeyOptions = CreateDataKeyOptions(kmsProvider);
 
             if (async)
