@@ -215,7 +215,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="limit">The limit.</param>
         /// <returns>The fluent aggregate interface.</returns>
-        IAggregateFluent<TResult> Limit(int limit);
+        IAggregateFluent<TResult> Limit(long limit);
 
         /// <summary>
         /// Appends a lookup stage to the pipeline.
@@ -384,7 +384,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="skip">The number of documents to skip.</param>
         /// <returns>The fluent aggregate interface.</returns>
-        IAggregateFluent<TResult> Skip(int skip);
+        IAggregateFluent<TResult> Skip(long skip);
 
         /// <summary>
         /// Appends a sort stage to the pipeline.
