@@ -1303,6 +1303,27 @@ namespace MongoDB.Driver.Linq
         }
 
         /// <summary>
+        /// Bypasses a specified number of elements in a sequence and then returns the
+        /// remaining elements.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of source</typeparam>
+        /// <param name="source">An <see cref="IMongoQueryable{TSource}"/> to return elements from.</param>
+        /// <param name="count">The number of elements to skip before returning the remaining elements.</param>
+        /// <returns>
+        /// An <see cref="IMongoQueryable{TSource}"/> that contains elements that occur after the
+        /// specified index in the input sequence.
+        /// </returns>
+        public static IMongoQueryable<TSource> Skip<TSource>(this IMongoQueryable<TSource> source, long count)
+        {
+            return (IMongoQueryable<TSource>)source.Provider.CreateQuery<TSource>(
+                Expression.Call(
+                    null,
+                    GetMethodInfo(Skip, source, count),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Constant(count)));
+        }
+
+        /// <summary>
         /// Computes the population standard deviation of a sequence of values.
         /// </summary>
         /// <param name="source">A sequence of values to calculate the population standard deviation of.</param>
@@ -3327,6 +3348,26 @@ namespace MongoDB.Driver.Linq
             Ensure.IsNotNull(source, nameof(source));
 
             return (IMongoQueryable<TSource>)Queryable.Take(source, count);
+        }
+
+        /// <summary>
+        /// Returns a specified number of contiguous elements from the start of a sequence.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+        /// <param name="source">The sequence to return elements from.</param>
+        /// <param name="count">The number of elements to return.</param>
+        /// <returns>
+        /// An <see cref="IMongoQueryable{TSource}"/> that contains the specified number of elements
+        /// from the start of source.
+        /// </returns>
+        public static IMongoQueryable<TSource> Take<TSource>(this IMongoQueryable<TSource> source, long count)
+        {
+            return (IMongoQueryable<TSource>)source.Provider.CreateQuery<TSource>(
+                Expression.Call(
+                    null,
+                    GetMethodInfo(Take, source, count),
+                    Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
+                    Expression.Constant(count)));
         }
 
         /// <summary>

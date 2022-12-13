@@ -898,7 +898,7 @@ namespace MongoDB.Driver
         /// <param name="limit">The limit.</param>
         /// <returns>The stage.</returns>
         public static PipelineStageDefinition<TInput, TInput> Limit<TInput>(
-            int limit)
+            long limit)
         {
             Ensure.IsGreaterThanZero(limit, nameof(limit));
             return new BsonDocumentPipelineStageDefinition<TInput, TInput>(new BsonDocument("$limit", limit));
@@ -1653,7 +1653,7 @@ namespace MongoDB.Driver
         /// <param name="skip">The skip.</param>
         /// <returns>The stage.</returns>
         public static PipelineStageDefinition<TInput, TInput> Skip<TInput>(
-            int skip)
+            long skip)
         {
             Ensure.IsGreaterThanOrEqualToZero(skip, nameof(skip));
             return new BsonDocumentPipelineStageDefinition<TInput, TInput>(new BsonDocument("$skip", skip));
