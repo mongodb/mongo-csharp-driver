@@ -76,6 +76,30 @@ namespace MongoDB.Driver.Encryption
             }
         }
 
+        public static IEnumerable<BsonDocument> IterateEmptyKeyIds(CollectionNamespace collectionNamespace, BsonDocument encryptedFields)
+        {
+            if (!EncryptedCollectionHelper.TryGetEffectiveEncryptedFields(collectionNamespace, encryptedFields, encryptedFieldsMap: null, out var storedEncryptedFields))
+            {
+                throw new InvalidOperationException("There are no encrypted fields defined for the collection.");
+            }
+
+            if (storedEncryptedFields.TryGetValue("fields", out var fields) && fields is BsonArray fieldsArray)
+            {
+                foreach (var field in fieldsArray.OfType<BsonDocument>()) // If `F` is not a document element, skip it.
+                {
+                    if (field.TryGetElement("keyId", out var keyId) && keyId.Value == BsonNull.Value)
+                    {
+                        yield return field;
+                    }
+                }
+            }
+        }
+
+        public static void ModifyEncryptedFields(BsonDocument fieldDocument, Guid dataKey)
+        {
+            fieldDocument["keyId"] = new BsonBinaryData(dataKey, GuidRepresentation.Standard);
+        }
+
         public enum HelperCollectionForEncryption
         {
             Esc,

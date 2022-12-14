@@ -20,6 +20,7 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Libmongocrypt;
 
 namespace MongoDB.Driver.Encryption
@@ -77,6 +78,64 @@ namespace MongoDB.Driver.Encryption
         /// <returns>Returns the previous version of the key document.</returns>
         public Task<BsonDocument> AddAlternateKeyNameAsync(Guid id, string alternateKeyName, CancellationToken cancellationToken = default) =>
             _libMongoCryptController.AddAlternateKeyNameAsync(id, alternateKeyName, cancellationToken);
+
+        /// <summary>
+        /// Create encrypted collection.
+        /// </summary>
+        /// <param name="collectionNamespace">The collection namespace.</param>
+        /// <param name="createCollectionOptions">The create collection options.</param>
+        /// <param name="kmsProvider">The kms provider.</param>
+        /// <param name="dataKeyOptions">The datakey options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <remarks>
+        /// if EncryptionFields contains a keyId with a null value, a data key will be automatically generated and assigned to keyId value.
+        /// </remarks>
+        public void CreateEncryptedCollection<TCollection>(CollectionNamespace collectionNamespace, CreateCollectionOptions createCollectionOptions, string kmsProvider, DataKeyOptions dataKeyOptions, CancellationToken cancellationToken = default)
+        {
+            Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
+            Ensure.IsNotNull(createCollectionOptions, nameof(createCollectionOptions));
+            Ensure.IsNotNull(dataKeyOptions, nameof(dataKeyOptions));
+            Ensure.IsNotNull(kmsProvider, nameof(kmsProvider));
+
+            foreach (var fieldDocument in EncryptedCollectionHelper.IterateEmptyKeyIds(collectionNamespace, createCollectionOptions.EncryptedFields))
+            {
+                var dataKey = CreateDataKey(kmsProvider, dataKeyOptions, cancellationToken);
+                EncryptedCollectionHelper.ModifyEncryptedFields(fieldDocument, dataKey);
+            }
+
+            var database = _libMongoCryptController.KeyVaultClient.GetDatabase(collectionNamespace.DatabaseNamespace.DatabaseName);
+
+            database.CreateCollection(collectionNamespace.CollectionName, createCollectionOptions, cancellationToken);
+        }
+
+        /// <summary>
+        /// Create encrypted collection.
+        /// </summary>
+        /// <param name="collectionNamespace">The collection namespace.</param>
+        /// <param name="createCollectionOptions">The create collection options.</param>
+        /// <param name="kmsProvider">The kms provider.</param>
+        /// <param name="dataKeyOptions">The datakey options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <remarks>
+        /// if EncryptionFields contains a keyId with a null value, a data key will be automatically generated and assigned to keyId value.
+        /// </remarks>
+        public async Task CreateEncryptedCollectionAsync<TCollection>(CollectionNamespace collectionNamespace, CreateCollectionOptions createCollectionOptions, string kmsProvider, DataKeyOptions dataKeyOptions, CancellationToken cancellationToken = default)
+        {
+            Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
+            Ensure.IsNotNull(createCollectionOptions, nameof(createCollectionOptions));
+            Ensure.IsNotNull(dataKeyOptions, nameof(dataKeyOptions));
+            Ensure.IsNotNull(kmsProvider, nameof(kmsProvider));
+
+            foreach (var fieldDocument in EncryptedCollectionHelper.IterateEmptyKeyIds(collectionNamespace, createCollectionOptions.EncryptedFields))
+            {
+                var dataKey = await CreateDataKeyAsync(kmsProvider, dataKeyOptions, cancellationToken).ConfigureAwait(false);
+                EncryptedCollectionHelper.ModifyEncryptedFields(fieldDocument, dataKey);
+            }
+
+            var database = _libMongoCryptController.KeyVaultClient.GetDatabase(collectionNamespace.DatabaseNamespace.DatabaseName);
+
+            await database.CreateCollectionAsync(collectionNamespace.CollectionName, createCollectionOptions, cancellationToken).ConfigureAwait(false);
+        }
 
         /// <summary>
         /// An alias function equivalent to createKey.
