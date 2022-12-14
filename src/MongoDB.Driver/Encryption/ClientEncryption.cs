@@ -92,6 +92,7 @@ namespace MongoDB.Driver.Encryption
         /// </remarks>
         public void CreateEncryptedCollection<TCollection>(CollectionNamespace collectionNamespace, CreateCollectionOptions createCollectionOptions, string kmsProvider, DataKeyOptions dataKeyOptions, CancellationToken cancellationToken = default)
         {
+            Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
             Ensure.IsNotNull(createCollectionOptions, nameof(createCollectionOptions));
             Ensure.IsNotNull(dataKeyOptions, nameof(dataKeyOptions));
             Ensure.IsNotNull(kmsProvider, nameof(kmsProvider));
@@ -120,6 +121,7 @@ namespace MongoDB.Driver.Encryption
         /// </remarks>
         public async Task CreateEncryptedCollectionAsync<TCollection>(CollectionNamespace collectionNamespace, CreateCollectionOptions createCollectionOptions, string kmsProvider, DataKeyOptions dataKeyOptions, CancellationToken cancellationToken = default)
         {
+            Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
             Ensure.IsNotNull(createCollectionOptions, nameof(createCollectionOptions));
             Ensure.IsNotNull(dataKeyOptions, nameof(dataKeyOptions));
             Ensure.IsNotNull(kmsProvider, nameof(kmsProvider));

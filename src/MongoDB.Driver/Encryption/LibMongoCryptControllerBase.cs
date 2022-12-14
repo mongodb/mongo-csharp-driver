@@ -61,7 +61,7 @@ namespace MongoDB.Driver.Encryption
             _tlsOptions = Ensure.IsNotNull(encryptionOptions.TlsOptions, nameof(encryptionOptions.TlsOptions));
         }
 
-        // public proeprties
+        // public properties
         public IMongoClient KeyVaultClient => _keyVaultClient;
 
         // protected methods
