@@ -18,6 +18,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers;
 
@@ -76,7 +77,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
             IExecutableQueryFinalizer<TOutput, TResult> finalizer)
             : this(options, unoptimizedPipeline, pipeline, finalizer)
         {
-            _collection = collection;
+            _collection = Ensure.IsNotNull(collection, nameof(collection));
         }
 
         public ExecutableQuery(
@@ -87,7 +88,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
             IExecutableQueryFinalizer<TOutput, TResult> finalizer)
             : this(options, unoptimizedPipeline, pipeline, finalizer)
         {
-            _database = database;
+            _database = Ensure.IsNotNull(database, nameof(database));
         }
 
         private ExecutableQuery(
@@ -135,6 +136,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecut
 
         public override string ToString()
         {
+            var x = (object)_database?.DatabaseNamespace ?? _collection.CollectionNamespace;
             return $"{(_collection == null ? _database.DatabaseNamespace : _collection.CollectionNamespace)}.Aggregate({_pipeline})";
         }
 

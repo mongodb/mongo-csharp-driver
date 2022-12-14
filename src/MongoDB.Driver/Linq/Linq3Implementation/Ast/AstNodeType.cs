@@ -53,6 +53,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast
         DateTruncExpression,
         DensifyStage,
         DerivativeOrIntegralWindowExpression,
+        DocumentsStage,
         ElemMatchFilterOperation,
         ExistsFilterOperation,
         ExponentialMovingAverageWindowExpression,

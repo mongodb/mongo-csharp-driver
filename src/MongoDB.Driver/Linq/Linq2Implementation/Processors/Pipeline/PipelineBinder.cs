@@ -80,8 +80,8 @@ namespace MongoDB.Driver.Linq.Linq2Implementation.Processors.Pipeline
                 var queryable = (IMongoQueryable)((ConstantExpression)node).Value;
                 var provider = (IMongoQueryProvider)queryable.Provider;
                 return new PipelineExpression(
-                    new CollectionExpression(provider.CollectionNamespace, provider.CollectionDocumentSerializer),
-                    new DocumentExpression(provider.CollectionDocumentSerializer));
+                    new CollectionExpression(provider.CollectionNamespace, provider.PipelineInputSerializer),
+                    new DocumentExpression(provider.PipelineInputSerializer));
             }
 
             var message = string.Format("The expression tree is not supported: {0}",

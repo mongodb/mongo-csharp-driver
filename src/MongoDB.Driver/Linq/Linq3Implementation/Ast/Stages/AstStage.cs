@@ -77,6 +77,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Stages
             return new AstDensifyStage(fieldPath, range, partitionByFieldPaths);
         }
 
+        public static AstStage Documents(
+            AstExpression documents)
+        {
+            return new AstDocumentsStage(documents);
+        }
+
         public static AstStage Facet(IEnumerable<AstFacetStageFacet> facets)
         {
             return new AstFacetStage(facets);
