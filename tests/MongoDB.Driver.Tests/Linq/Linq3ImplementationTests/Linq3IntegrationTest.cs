@@ -112,6 +112,12 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests
             return Translate(pipelineDefinition, NoPipelineInputSerializer.Instance, linqProvider);
         }
 
+        // in this overload the database argument is used only to infer the NoPipelineInput type
+        protected List<BsonDocument> Translate<TResult>(IMongoDatabase database, IQueryable<TResult> queryable)
+        {
+            return Translate<NoPipelineInput, TResult>(queryable);
+        }
+
         protected List<BsonDocument> Translate<TDocument, TResult>(IQueryable<TResult> queryable)
         {
             return Translate<TDocument, TResult>(queryable, out _);

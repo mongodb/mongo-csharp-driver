@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System.Linq;
 using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
 
@@ -24,14 +23,15 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods
         public static (string CollectionName, IBsonSerializer DocumentSerializer) GetCollectionInfo(this Expression innerExpression, Expression containerExpression)
         {
             if (innerExpression is ConstantExpression constantExpression &&
-                constantExpression.Value is IQueryable queryable &&
-                queryable.Provider is MongoQueryProvider queryProvider)
+                constantExpression.Value is IMongoQueryable mongoQueryable &&
+                mongoQueryable.Provider is IMongoQueryProvider mongoQueryProvider &&
+                mongoQueryProvider.CollectionNamespace != null)
             {
-                return (queryProvider.CollectionNamespace.CollectionName, queryProvider.CollectionDocumentSerializer);
+                return (mongoQueryProvider.CollectionNamespace.CollectionName, mongoQueryProvider.PipelineInputSerializer);
             }
 
-            var message = $"Expression inner must be a MongoDB queryable representing a collection: {innerExpression} in {containerExpression}.";
-            throw new ExpressionNotSupportedException(message);
+            var message = $"inner expression is not an IMongoQueryable representing a collection";
+            throw new ExpressionNotSupportedException(innerExpression, containerExpression, because: message);
         }
 
         public static TValue GetConstantValue<TValue>(this Expression expression, Expression containingExpression)

@@ -17,7 +17,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Linq;
 
 namespace MongoDB.Driver

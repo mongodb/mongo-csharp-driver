@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
@@ -50,6 +51,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __countAsync;
         private static readonly MethodInfo __countWithPredicateAsync;
         private static readonly MethodInfo __densifyWithArrayPartitionByFields;
+        private static readonly MethodInfo __documents;
+        private static readonly MethodInfo __documentsWithSerializer;
         private static readonly MethodInfo __firstAsync;
         private static readonly MethodInfo __firstOrDefaultAsync;
         private static readonly MethodInfo __firstOrDefaultWithPredicateAsync;
@@ -195,6 +198,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __countAsync = ReflectionInfo.Method((IMongoQueryable<object> source, CancellationToken cancellationToken) => source.CountAsync(cancellationToken));
             __countWithPredicateAsync = ReflectionInfo.Method((IMongoQueryable<object> source, Expression<Func<object, bool>> predicate, CancellationToken cancellationToken) => source.CountAsync(predicate, cancellationToken));
             __densifyWithArrayPartitionByFields = ReflectionInfo.Method((IMongoQueryable<object> source, Expression<Func<object, object>> field, DensifyRange range, Expression<Func<object, object>>[] partitionByFields) => source.Densify(field, range, partitionByFields));
+            __documents = ReflectionInfo.Method((IMongoQueryable<NoPipelineInput> source, object[] documents) => source.Documents(documents));
+            __documentsWithSerializer = ReflectionInfo.Method((IMongoQueryable<NoPipelineInput> source, IEnumerable<object> documents, IBsonSerializer<object> serializer) => source.Documents(documents, serializer));
             __firstAsync = ReflectionInfo.Method((IMongoQueryable<object> source, CancellationToken cancellationToken) => source.FirstAsync(cancellationToken));
             __firstOrDefaultAsync = ReflectionInfo.Method((IMongoQueryable<object> source, CancellationToken cancellationToken) => source.FirstOrDefaultAsync(cancellationToken));
             __firstOrDefaultWithPredicateAsync = ReflectionInfo.Method((IMongoQueryable<object> source, Expression<Func<object, bool>> predicate, CancellationToken cancellationToken) => source.FirstOrDefaultAsync(predicate, cancellationToken));
@@ -339,6 +344,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo CountAsync => __countAsync;
         public static MethodInfo CountWithPredicateAsync => __countWithPredicateAsync;
         public static MethodInfo DensifyWithArrayPartitionByFields => __densifyWithArrayPartitionByFields;
+        public static MethodInfo Documents => __documents;
+        public static MethodInfo DocumentsWithSerializer => __documentsWithSerializer;
         public static MethodInfo FirstAsync => __firstAsync;
         public static MethodInfo FirstOrDefaultAsync => __firstOrDefaultAsync;
         public static MethodInfo FirstOrDefaultWithPredicateAsync => __firstOrDefaultWithPredicateAsync;
