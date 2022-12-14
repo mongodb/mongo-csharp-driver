@@ -155,7 +155,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void BsonSizeLimitAndBatchSizeSplittingTest(
             [Values(false, true)] bool async)
@@ -1946,7 +1946,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void RewrapTest(
             [Values("local", "aws", "azure", "gcp", "kmip")] string srcProvider,
