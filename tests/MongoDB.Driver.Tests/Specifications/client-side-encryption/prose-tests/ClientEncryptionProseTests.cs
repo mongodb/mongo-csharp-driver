@@ -2339,14 +2339,15 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         private IMongoCollection<BsonDocument> CreateEncryptedCollection(IMongoClient client, ClientEncryption clientEncryption, CollectionNamespace collectionNamespace, CreateCollectionOptions createCollectionOptions, string kmsProvider, bool async)
         {
             var datakeyOptions = CreateDataKeyOptions(kmsProvider);
+            var database = client.GetDatabase(collectionNamespace.DatabaseNamespace.DatabaseName);
 
             if (async)
             {
-                clientEncryption.CreateEncryptedCollectionAsync<BsonDocument>(collectionNamespace, createCollectionOptions, kmsProvider, datakeyOptions, cancellationToken: default).GetAwaiter().GetResult();
+                clientEncryption.CreateEncryptedCollectionAsync(database, collectionNamespace.CollectionName, createCollectionOptions, kmsProvider, datakeyOptions, cancellationToken: default).GetAwaiter().GetResult();
             }
             else
             { 
-                clientEncryption.CreateEncryptedCollection<BsonDocument>(collectionNamespace, createCollectionOptions, kmsProvider, datakeyOptions, cancellationToken: default);
+                clientEncryption.CreateEncryptedCollection(database, collectionNamespace.CollectionName, createCollectionOptions, kmsProvider, datakeyOptions, cancellationToken: default);
             }
 
             return client.GetDatabase(collectionNamespace.DatabaseNamespace.DatabaseName).GetCollection<BsonDocument>(collectionNamespace.CollectionName);
