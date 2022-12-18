@@ -79,7 +79,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
         public UnifiedReplaceOneOperation Build(string targetCollectionId, BsonDocument arguments)
         {
-            var collection = _entityMap.GetCollection(targetCollectionId);
+            var collection = _entityMap.Collections[targetCollectionId];
 
             FilterDefinition<BsonDocument> filter = null;
             ReplaceOptions options = null;

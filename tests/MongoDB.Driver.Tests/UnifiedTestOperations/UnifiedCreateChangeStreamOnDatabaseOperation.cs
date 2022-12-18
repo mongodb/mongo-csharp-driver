@@ -77,9 +77,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             _entityMap = entityMap;
         }
 
-        public UnifiedCreateChangeStreamOnDatabaseOperation Build(string targetClientId, BsonDocument arguments)
+        public UnifiedCreateChangeStreamOnDatabaseOperation Build(string targetDatabaseId, BsonDocument arguments)
         {
-            var database = _entityMap.GetDatabase(targetClientId);
+            var database = _entityMap.Databases[targetDatabaseId];
 
             ChangeStreamOptions options = null;
             BsonDocumentStagePipelineDefinition<ChangeStreamDocument<BsonDocument>, ChangeStreamDocument<BsonDocument>> pipeline = null;

@@ -31,6 +31,7 @@ using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
 {
+    [Trait("Category", "SDAM")]
     public class ServerDiscoveryAndMonitoringIntegrationTestRunner : DisposableJsonDrivenTestRunner, IJsonDrivenTestRunner
     {
         public ICluster FailPointCluster => DriverTestConfiguration.Client.Cluster;
@@ -46,15 +47,13 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
 
         public void ConfigureFailPoint(IServer server, ICoreSessionHandle session, BsonDocument failCommand)
         {
-            ConfigureFailPointCommand(failCommand);
-            var failPoint = FailPoint.Configure(server, session, failCommand);
+            var failPoint = FailPoint.Configure(server, session, failCommand, withAsync: false);
             AddDisposable(failPoint);
         }
 
         public async Task ConfigureFailPointAsync(IServer server, ICoreSessionHandle session, BsonDocument failCommand)
         {
-            ConfigureFailPointCommand(failCommand);
-            var failPoint = await Task.Run(() => FailPoint.Configure(server, session, failCommand)).ConfigureAwait(false);
+            var failPoint = await Task.Run(() => FailPoint.Configure(server, session, failCommand, withAsync: true)).ConfigureAwait(false);
             AddDisposable(failPoint);
         }
 

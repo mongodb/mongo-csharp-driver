@@ -58,7 +58,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 switch (argument.Name)
                 {
                     case "session":
-                        session = _entityMap.GetSession(argument.Value.AsString);
+                        session = _entityMap.Sessions[argument.Value.AsString];
                         break;
                     case "state":
                         coreTransactionState = (CoreTransactionState)Enum.Parse(typeof(CoreTransactionState), argument.Value.AsString, ignoreCase: true);

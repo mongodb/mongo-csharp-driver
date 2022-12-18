@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     _collection.InsertOne(_session, _document, _options, cancellationToken);
                 }
 
-                return OperationResult.FromResult(null);
+                return OperationResult.FromResult(new BsonDocument("insertedId", _document["_id"]));
             }
             catch (Exception exception)
             {
@@ -73,7 +73,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     await _collection.InsertOneAsync(_session, _document, _options, cancellationToken);
                 }
 
-                return OperationResult.FromResult(null);
+                return OperationResult.FromResult(new BsonDocument("insertedId", _document["_id"]));
             }
             catch (Exception exception)
             {
@@ -93,7 +93,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
         public UnifiedInsertOneOperation Build(string targetCollectionId, BsonDocument arguments)
         {
-            var collection = _entityMap.GetCollection(targetCollectionId);
+            var collection = _entityMap.Collections[targetCollectionId];
 
             BsonDocument document = null;
             InsertOneOptions options = null;
@@ -116,7 +116,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         break;
                     case "session":
                         var sessionId = argument.Value.AsString;
-                        session = _entityMap.GetSession(sessionId);
+                        session = _entityMap.Sessions[sessionId];
                         break;
                     default:
                         throw new FormatException($"Invalid InsertOneOperation argument name: '{argument.Name}'.");

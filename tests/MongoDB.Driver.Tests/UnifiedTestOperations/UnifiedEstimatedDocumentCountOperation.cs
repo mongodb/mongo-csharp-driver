@@ -74,7 +74,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
         public UnifiedEstimatedDocumentCountOperation Build(string targetCollectionId, BsonDocument arguments)
         {
-            var collection = _entityMap.GetCollection(targetCollectionId);
+            var collection = _entityMap.Collections[targetCollectionId];
 
             var options = new EstimatedDocumentCountOptions();
             foreach (var argument in arguments ?? Enumerable.Empty<BsonElement>())

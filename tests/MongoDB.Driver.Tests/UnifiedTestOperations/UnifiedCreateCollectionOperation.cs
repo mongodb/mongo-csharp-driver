@@ -162,7 +162,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
         public IUnifiedEntityTestOperation Build(string targetDatabaseId, BsonDocument arguments)
         {
-            var database = _entityMap.GetDatabase(targetDatabaseId);
+            var database = _entityMap.Databases[targetDatabaseId];
 
             string name = null;
             string viewOn = null;
@@ -204,7 +204,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         break;
                     case "session":
                         var sessionId = argument.Value.AsString;
-                        session = _entityMap.GetSession(sessionId);
+                        session = _entityMap.Sessions[sessionId];
                         break;
                     case "timeseries":
                         var timeseries = argument.Value.AsBsonDocument;

@@ -63,7 +63,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 throw new FormatException($"{nameof(UnifiedCloseClientOperationBuilder)} does not expected any arguments.");
             }
 
-            var client = _entityMap.GetClient(targetClientId);
+            var client = _entityMap.Clients[targetClientId];
 
             return new(client);
         }

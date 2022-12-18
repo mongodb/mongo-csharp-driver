@@ -73,7 +73,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
         public UnifiedDropCollectionOperation Build(string targetDatabaseId, BsonDocument arguments)
         {
-            var database = _entityMap.GetDatabase(targetDatabaseId);
+            var database = _entityMap.Databases[targetDatabaseId];
 
             string collectionName = null;
 

@@ -79,7 +79,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
         public UnifiedCreateChangeStreamOnClientOperation Build(string targetClientId, BsonDocument arguments)
         {
-            var client = _entityMap.GetClient(targetClientId);
+            var client = _entityMap.Clients[targetClientId];
 
             ChangeStreamOptions options = null;
             BsonDocumentStagePipelineDefinition<ChangeStreamDocument<BsonDocument>, ChangeStreamDocument<BsonDocument>> pipeline = null;

@@ -88,13 +88,13 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
         // public methods
         public void ConfigureFailPoint(IServer server, ICoreSessionHandle session, BsonDocument failCommand)
         {
-            var failPoint = FailPoint.Configure(server, session, failCommand);
+            var failPoint = FailPoint.Configure(server, session, failCommand, withAsync: false);
             _disposables.Add(failPoint);
         }
 
         public async Task ConfigureFailPointAsync(IServer server, ICoreSessionHandle session, BsonDocument failCommand)
         {
-            var failPoint = await Task.Run(() => FailPoint.Configure(server, session, failCommand)).ConfigureAwait(false);
+            var failPoint = await Task.Run(() => FailPoint.Configure(server, session, failCommand, withAsync: true)).ConfigureAwait(false);
             _disposables.Add(failPoint);
         }
 
@@ -164,8 +164,9 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
             var eventCapturer = new EventCapturer()
                 .Capture<CommandStartedEvent>(e => !__commandsToNotCapture.Contains(e.CommandName));
 
+            var async = test["async"].AsBoolean;
             using (var client = CreateDisposableClient(test, eventCapturer, useMultipleShardRouters))
-            using (ConfigureFailPointOnPrimaryOrShardRoutersIfNeeded(client, test))
+            using (ConfigureFailPointOnPrimaryOrShardRoutersIfNeeded(client, test, async))
             {
                 Dictionary<string, BsonValue> sessionIdMap;
 
@@ -183,7 +184,7 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
                         { "session1", session1.ServerSession.Id }
                     };
 
-                    ExecuteOperations(client, objectMap, test);
+                    ExecuteOperations(client, objectMap, test, async);
                 }
 
                 AssertEvents(eventCapturer, test, sessionIdMap);
@@ -358,7 +359,7 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
             return options;
         }
 
-        private DisposableBundle ConfigureFailPointOnPrimaryOrShardRoutersIfNeeded(IMongoClient client, BsonDocument test)
+        private DisposableBundle ConfigureFailPointOnPrimaryOrShardRoutersIfNeeded(IMongoClient client, BsonDocument test, bool async)
         {
             if (!test.TryGetValue("failPoint", out var failPoint))
             {
@@ -390,12 +391,13 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
             }
 
             var session = NoCoreSession.NewHandle();
-            var failPoints = failPointServers.Select(s => FailPoint.Configure(s, session, failPoint.AsBsonDocument)).ToList();
+
+            var failPoints = failPointServers.Select(s => FailPoint.Configure(s, session, failPoint.AsBsonDocument, withAsync: async)).ToList();
 
             return new DisposableBundle(failPoints);
         }
 
-        private void ExecuteOperations(IMongoClient client, Dictionary<string, object> objectMap, BsonDocument test)
+        private void ExecuteOperations(IMongoClient client, Dictionary<string, object> objectMap, BsonDocument test, bool async)
         {
             var factory = new JsonDrivenTestFactory(this, client, _databaseName, _collectionName, bucketName: null, objectMap);
 
@@ -408,7 +410,7 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
                 Logger.LogDebug("Execution operation {0}", name);
 
                 jsonDrivenTest.Arrange(operation);
-                if (test["async"].AsBoolean)
+                if (async)
                 {
                     jsonDrivenTest.ActAsync(CancellationToken.None).GetAwaiter().GetResult();
                 }

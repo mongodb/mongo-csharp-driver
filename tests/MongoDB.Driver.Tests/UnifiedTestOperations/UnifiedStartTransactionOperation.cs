@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
         public UnifiedStartTransactionOperation Build(string targetSessionId, BsonDocument arguments)
         {
-            var session = _entityMap.GetSession(targetSessionId);
+            var session = _entityMap.Sessions[targetSessionId];
 
             if (arguments != null)
             {

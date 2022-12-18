@@ -87,7 +87,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
         public UnifiedFindOneAndUpdateOperation Build(string targetCollectionId, BsonDocument arguments)
         {
-            var collection = _entityMap.GetCollection(targetCollectionId);
+            var collection = _entityMap.Collections[targetCollectionId];
 
             FilterDefinition<BsonDocument> filter = null;
             FindOneAndUpdateOptions<BsonDocument> options = null;
@@ -118,7 +118,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         options.ReturnDocument = (ReturnDocument)Enum.Parse(typeof(ReturnDocument), argument.Value.AsString);
                         break;
                     case "session":
-                        session = _entityMap.GetSession(argument.Value.AsString);
+                        session = _entityMap.Sessions[argument.Value.AsString];
                         break;
                     case "sort":
                         options ??= new FindOneAndUpdateOptions<BsonDocument>();

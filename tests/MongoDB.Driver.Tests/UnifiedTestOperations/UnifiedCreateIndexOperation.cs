@@ -94,7 +94,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
         public UnifiedCreateIndexOperation Build(string targetCollectionId, BsonDocument arguments)
         {
-            var collection = _entityMap.GetCollection(targetCollectionId);
+            var collection = _entityMap.Collections[targetCollectionId];
 
             BsonDocument keys = null;
             CreateIndexOptions options = null;
@@ -113,7 +113,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         break;
                     case "session":
                         var sessionId = argument.Value.AsString;
-                        session = _entityMap.GetSession(sessionId);
+                        session = _entityMap.Sessions[sessionId];
                         break;
                     default:
                         throw new FormatException($"Invalid CreateIndexOperation argument name: '{argument.Name}'.");

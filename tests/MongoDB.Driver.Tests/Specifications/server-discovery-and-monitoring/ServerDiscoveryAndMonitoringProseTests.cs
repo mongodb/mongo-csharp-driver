@@ -35,6 +35,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
 {
+    [Trait("Category", "SDAM")]
     public class ServerDiscoveryAndMonitoringProseTests
     {
         [Fact]

@@ -1004,9 +1004,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
                 _stopwatch = Stopwatch.StartNew();
 
-                var connection = _pool.CreateNewConnection();
-                _pool.ConnectionHolder.TrackInUseConnection(connection);
-                _connection = connection;
+                _connection = _pool.CreateNewConnection();
             }
 
             private void FinishCreating(ConnectionDescription description)

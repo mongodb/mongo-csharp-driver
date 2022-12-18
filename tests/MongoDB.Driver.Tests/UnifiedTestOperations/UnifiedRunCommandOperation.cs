@@ -25,17 +25,20 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         private readonly IMongoDatabase _database;
         private readonly string _commandName;
         private readonly BsonDocument _command;
+        private readonly ReadPreference _readPreference = null;
         private readonly IClientSessionHandle _session = null;
 
         public UnifiedRunCommandOperation(
             IMongoDatabase database,
             string commandName,
             BsonDocument command,
-            IClientSessionHandle session)
+            IClientSessionHandle session,
+            ReadPreference readPreference)
         {
             _database = database;
             _commandName = commandName;
             _command = command;
+            _readPreference = readPreference;
             _session = session;
         }
 
@@ -44,8 +47,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             try
             {
                 var result = _session == null
-                    ? _database.RunCommand<BsonDocument>(_command, cancellationToken: cancellationToken)
-                    : _database.RunCommand<BsonDocument>(_session, _command, cancellationToken: cancellationToken);
+                    ? _database.RunCommand<BsonDocument>(_command, _readPreference, cancellationToken: cancellationToken)
+                    : _database.RunCommand<BsonDocument>(_session, _command, _readPreference, cancellationToken: cancellationToken);
 
                 return OperationResult.FromResult(result);
             }
@@ -60,8 +63,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             try
             {
                 var result = _session == null
-                    ? await _database.RunCommandAsync<BsonDocument>(_command, cancellationToken: cancellationToken)
-                    : await _database.RunCommandAsync<BsonDocument>(_session, _command, cancellationToken: cancellationToken);
+                    ? await _database.RunCommandAsync<BsonDocument>(_command, _readPreference, cancellationToken: cancellationToken)
+                    : await _database.RunCommandAsync<BsonDocument>(_session, _command, _readPreference, cancellationToken: cancellationToken);
 
                 return OperationResult.FromResult(result);
             }
@@ -83,11 +86,12 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
         public UnifiedRunCommandOperation Build(string targetDatabaseId, BsonDocument arguments)
         {
-            var database = _entityMap.GetDatabase(targetDatabaseId);
+            var database = _entityMap.Databases[targetDatabaseId];
 
             string commandName = null;
             BsonDocument command = null;
             IClientSessionHandle session = null;
+            ReadPreference readPreference = null;
 
             foreach (var argument in arguments)
             {
@@ -99,15 +103,18 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     case "command":
                         command = argument.Value.AsBsonDocument;
                         break;
+                    case "readPreference":
+                        readPreference = ReadPreference.FromBsonDocument(argument.Value.AsBsonDocument);
+                        break;
                     case "session":
-                        session = _entityMap.GetSession(argument.Value.AsString);
+                        session = _entityMap.Sessions[argument.Value.AsString];
                         break;
                     default:
                         throw new FormatException($"Invalid RunCommandOperation argument name: '{argument.Name}'.");
                 }
             }
 
-            return new UnifiedRunCommandOperation(database, commandName, command, session);
+            return new UnifiedRunCommandOperation(database, commandName, command, session, readPreference);
         }
     }
 }

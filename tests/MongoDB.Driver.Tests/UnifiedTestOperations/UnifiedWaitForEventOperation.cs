@@ -14,44 +14,41 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver.Core;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Tests.UnifiedTestOperations.Matchers;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
     public class UnifiedWaitForEventOperation : IUnifiedSpecialTestOperation
     {
-        private readonly int _count;
-        private readonly BsonDocument _eventDocument;
         private readonly EventCapturer _eventCapturer;
-        private readonly UnifiedEventMatcher _unifiedEventMatcher;
+        private readonly int _count;
+        private readonly BsonDocument _event;
 
-        public UnifiedWaitForEventOperation(
-            UnifiedEventMatcher unifiedEventMatcher,
-            EventCapturer eventCapturer,
-            BsonDocument eventDocument,
-            int count)
+        public UnifiedWaitForEventOperation(EventCapturer eventCapturer, BsonDocument @event, int? count)
         {
-            _count = count;
-            _eventCapturer = eventCapturer;
-            _eventDocument = eventDocument;
-            _unifiedEventMatcher = unifiedEventMatcher;
+            _eventCapturer = Ensure.IsNotNull(eventCapturer, nameof(eventCapturer));
+            _event = Ensure.IsNotNull(@event, nameof(@event));
+            _count = Ensure.HasValue(count, nameof(count)).Value;
         }
 
         public void Execute()
         {
-            _eventCapturer.WaitForOrThrowIfTimeout(
-                events => events.Where(DoEventsMatch).Take(_count).Count() == _count,
-                TimeSpan.FromSeconds(10),
-                timeout =>
-                {
-                    var triggeredEventsCount = _eventCapturer.Events.Count(DoEventsMatch);
-                    return $"Waiting for {_count} {_eventDocument} exceeded the timeout {timeout}. The number of triggered events is {triggeredEventsCount}.";
-                });
+            var eventCondition = UnifiedEventMatcher.MapEventNameToCondition(_event);
+            Func<IEnumerable<object>, bool> eventsConditionWithFilterByCount = (events) => events.Count(eventCondition) >= _count;
 
-            bool DoEventsMatch(object @event) => _unifiedEventMatcher.DoEventsMatch(@event, _eventDocument);
+            _eventCapturer.WaitForOrThrowIfTimeout(
+                eventsConditionWithFilterByCount,
+                TimeSpan.FromSeconds(10),
+                (timeout) =>
+                {
+                    var triggeredEventsCount = _eventCapturer.Events.Count(eventCondition);
+                    return $"Waiting for {_count} of {_event.ToString().Replace("{", "#").Replace("}", "#").Replace(@$"""", "'")} exceeded the timeout {timeout}. The number of triggered events is {triggeredEventsCount}.";
+                });
         }
     }
 
@@ -66,19 +63,29 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
         public UnifiedWaitForEventOperation Build(BsonDocument arguments)
         {
-            var clientId = arguments["client"].AsString;
-            var eventObject = arguments["event"].AsBsonDocument;
-            var count = arguments["count"].AsInt32;
+            EventCapturer eventCapturer = null;
+            int? count = null;
+            BsonDocument @event = null;
 
-            if (arguments.ElementCount != 3)
+            foreach (var argument in arguments)
             {
-                throw new FormatException($"Invalid {nameof(UnifiedWaitForEventOperation)} arguments count.");
+                switch (argument.Name)
+                {
+                    case "client":
+                        eventCapturer = _entityMap.EventCapturers[argument.Value.AsString];
+                        break;
+                    case "count":
+                        count = argument.Value.AsInt32;
+                        break;
+                    case "event":
+                        @event = argument.Value.AsBsonDocument;
+                        break;
+                    default:
+                        throw new FormatException($"Invalid {nameof(UnifiedWaitForEventOperation)} argument name: '{argument.Name}'.");
+                }
             }
 
-            var eventCapturer = _entityMap.EventCapturers[clientId];
-            var unifiedEventMatcher = new UnifiedEventMatcher(new UnifiedValueMatcher(_entityMap));
-
-            return new UnifiedWaitForEventOperation(unifiedEventMatcher, eventCapturer, eventObject, count);
+            return new UnifiedWaitForEventOperation(eventCapturer, @event, count);
         }
     }
 }

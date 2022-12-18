@@ -158,15 +158,15 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             _entityMap = entityMap;
         }
 
-        public IUnifiedEntityTestOperation BuildDatabaseOperation(string targetCollectionId, BsonDocument arguments)
+        public IUnifiedEntityTestOperation BuildDatabaseOperation(string targetDatabaseId, BsonDocument arguments)
         {
-            var database = _entityMap.GetDatabase(targetCollectionId);
+            var database = _entityMap.Databases[targetDatabaseId];
             return Build(database, collection: null, arguments);
         }
 
         public IUnifiedEntityTestOperation BuildCollectionOperation(string targetCollectionId, BsonDocument arguments)
         {
-            var collection = _entityMap.GetCollection(targetCollectionId);
+            var collection = _entityMap.Collections[targetCollectionId];
             return Build(collection.Database, collection, arguments);
         }
 
@@ -200,7 +200,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         pipeline = argument.Value.AsBsonArray.Cast<BsonDocument>().ToList();
                         break;
                     case "session":
-                        session = _entityMap.GetSession(argument.Value.AsString);
+                        session = _entityMap.Sessions[argument.Value.AsString];
                         break;
                     default:
                         throw new FormatException($"Invalid AggregateOperation argument name: '{argument.Name}'.");

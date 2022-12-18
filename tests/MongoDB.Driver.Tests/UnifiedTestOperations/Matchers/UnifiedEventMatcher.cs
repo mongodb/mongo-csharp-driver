@@ -16,13 +16,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Xml.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
+using MongoDB.Driver.Core.Servers;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit.Sdk;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
@@ -30,32 +30,84 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
     public class UnifiedEventMatcher
     {
         #region static
-        private static Dictionary<Type, EventType> __eventsMap = new()
+        private static Dictionary<string, (Func<object, object> GetMappedDriverEvent, EventSetType EventSetType)> __eventsMapWithSpec = new()
         {
-            { typeof(CommandStartedEvent), EventType.Command },
-            { typeof(CommandSucceededEvent), EventType.Command },
-            { typeof(CommandFailedEvent), EventType.Command },
+            { "commandStartedEvent", ((e) => e as CommandStartedEvent?,  EventSetType.Command) },
+            { "commandSucceededEvent", ((e) => e as CommandSucceededEvent?, EventSetType.Command) },
+            { "commandFailedEvent", ((e) => e as CommandFailedEvent?, EventSetType.Command) },
 
-            { typeof(ConnectionOpenedEvent), EventType.Cmap },  // connectionReadyEvent
-            { typeof(ConnectionCreatedEvent), EventType.Cmap },
-            { typeof(ConnectionPoolCheckedOutConnectionEvent), EventType.Cmap },
-            { typeof(ConnectionPoolCheckedInConnectionEvent), EventType.Cmap },
-            { typeof(ConnectionClosedEvent), EventType.Cmap },
-            { typeof(ConnectionPoolCheckingOutConnectionEvent), EventType.Cmap },
-            { typeof(ConnectionPoolCheckingOutConnectionFailedEvent), EventType.Cmap },
-            { typeof(ConnectionPoolClearedEvent), EventType.Cmap },
+            { "connectionReadyEvent", ((e) => e as ConnectionOpenedEvent?, EventSetType.Cmap) },
+            { "connectionCheckOutStartedEvent", ((e) => e as ConnectionPoolCheckingOutConnectionEvent?, EventSetType.Cmap) },
+            { "connectionCheckedOutEvent", ((e) => e as ConnectionPoolCheckedOutConnectionEvent?, EventSetType.Cmap) },
+            { "connectionCheckedInEvent", ((e) => e as ConnectionPoolCheckedInConnectionEvent?, EventSetType.Cmap) },
+            { "connectionClosedEvent", ((e) => e as ConnectionClosedEvent?, EventSetType.Cmap) },
+            { "connectionCreatedEvent", ((e) => e as ConnectionCreatedEvent?, EventSetType.Cmap) },
+            { "connectionCheckOutFailedEvent", (e => e as ConnectionPoolCheckingOutConnectionFailedEvent?, EventSetType.Cmap) },
+            { "poolClearedEvent", ((e) => e as ConnectionPoolClearedEvent?, EventSetType.Cmap) },
+            { "poolReadyEvent", ((e) => e as ConnectionPoolReadyEvent?, EventSetType.Cmap) },
+
+            { "serverDescriptionChangedEvent", ((e) => e as ServerDescriptionChangedEvent?, EventSetType.Sdam) }
         };
 
         public static List<object> FilterEventsByType(List<object> events, string eventType)
         {
-            if (!Enum.TryParse<EventType>(eventType, ignoreCase: true, out var eventTypeEnum))
+            if (!Enum.TryParse<EventSetType>(eventType, ignoreCase: true, out var eventTypeEnum))
             {
                 throw new FormatException($"Cannot parse {nameof(eventType)} enum from {eventType}.");
             }
 
             return events
-                .Where(e => __eventsMap[e.GetType()] == eventTypeEnum)
+                .Where(e => __eventsMapWithSpec.Values.Where(v => v.GetMappedDriverEvent(e) != null).Should().ContainSingle("because mapping for driver side events should be unique.").Which.EventSetType == eventTypeEnum)
                 .ToList();
+        }
+
+        public static Func<object, bool> MapEventNameToCondition(BsonDocument expectedEvent)
+        {
+            var elements = expectedEvent.Elements.Single();           
+            var expectedSpecEvent = elements.Name;
+
+            return (actualEvent) =>
+            {
+                var mappedActualEvent = __eventsMapWithSpec[expectedSpecEvent].GetMappedDriverEvent(actualEvent); // null if event is not expected
+                return
+                    mappedActualEvent != null &&
+                    (mappedActualEvent is ServerDescriptionChangedEvent serverDescriptionChangedEvent
+                        ? IsExpectedServerDescriptionChangedEvent(serverDescriptionChangedEvent, elements)
+                        : true); // ignore this for non `ServerDescriptionChangedEvent`s
+            };
+
+            static bool IsExpectedServerDescriptionChangedEvent(ServerDescriptionChangedEvent serverDescriptionChangedEvent, BsonElement elements)
+            {
+                var newDescriptionType = GetServerDescriptionChangedFilter(elements);
+                return
+                    newDescriptionType == null || // no additional filter
+                    serverDescriptionChangedEvent.NewDescription.Type == MapServerType(newDescriptionType);
+            }
+
+            static string GetServerDescriptionChangedFilter(BsonElement elements)
+            {
+                var body = elements.Value;
+                string newDescriptionType = null;
+                var bodyDocument = body.AsBsonDocument;
+                if (bodyDocument.Elements.Count() > 0)
+                {
+                    foreach (var element in bodyDocument.Elements)
+                    {
+                        switch (element.Name)
+                        {
+                            case "newDescription": newDescriptionType = element.Value.AsBsonDocument["type"].AsString; break;
+                            default: throw new Exception($"Unexpected event filter key: {element.Name}.");
+                        }
+                    }
+                }
+                return newDescriptionType;
+            }
+
+            static ServerType MapServerType(string value) => value switch
+            {
+                "Unknown" => ServerType.Unknown,
+                _ => throw new Exception($"Unsupported event filter server type: {value}."),
+            };
         }
         #endregion
 
@@ -80,192 +132,6 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
             }
         }
 
-        public void AssertEventsMatch(object actualEvent, BsonDocument expectedEventDocument)
-        {
-            if (expectedEventDocument.ElementCount != 1)
-            {
-                throw new FormatException("Expected event document model must contain a single element.");
-            }
-            var expectedEventType = expectedEventDocument.GetElement(0).Name;
-            var expectedEventValue = expectedEventDocument[0].AsBsonDocument;
-
-            switch (expectedEventType)
-            {
-                case "commandStartedEvent":
-                    var commandStartedEvent = actualEvent.Should().BeOfType<CommandStartedEvent>().Subject;
-                    foreach (var element in expectedEventValue)
-                    {
-                        switch (element.Name)
-                        {
-                            case "command":
-                                _valueMatcher.AssertValuesMatch(commandStartedEvent.Command, element.Value);
-                                break;
-                            case "commandName":
-                                commandStartedEvent.CommandName.Should().Be(element.Value.AsString);
-                                break;
-                            case "databaseName":
-                                commandStartedEvent.DatabaseNamespace.DatabaseName.Should().Be(element.Value.AsString);
-                                break;
-                            case "hasServiceId":
-                                commandStartedEvent.ServiceId.Should().Match<ObjectId?>(s => s.HasValue == element.Value.ToBoolean());
-                                break;
-                            case "hasServerConnectionId":
-                                AssertHasServerConnectionId(commandStartedEvent.ConnectionId, element.Value.ToBoolean());
-                                break;
-                            default:
-                                throw new FormatException($"Unexpected commandStartedEvent field: '{element.Name}'.");
-                        }
-                    }
-                    break;
-                case "commandSucceededEvent":
-                    var commandSucceededEvent = actualEvent.Should().BeOfType<CommandSucceededEvent>().Subject;
-                    foreach (var element in expectedEventValue)
-                    {
-                        switch (element.Name)
-                        {
-                            case "reply":
-                                _valueMatcher.AssertValuesMatch(commandSucceededEvent.Reply, element.Value);
-                                break;
-                            case "commandName":
-                                commandSucceededEvent.CommandName.Should().Be(element.Value.AsString);
-                                break;
-                            case "hasServiceId":
-                                commandSucceededEvent.ServiceId.Should().Match<ObjectId?>(s => s.HasValue == element.Value.ToBoolean());
-                                break;
-                            case "hasServerConnectionId":
-                                AssertHasServerConnectionId(commandSucceededEvent.ConnectionId, element.Value.ToBoolean());
-                                break;
-                            default:
-                                throw new FormatException($"Unexpected commandStartedEvent field: '{element.Name}'.");
-                        }
-                    }
-                    break;
-                case "commandFailedEvent":
-                    var commandFailedEvent = actualEvent.Should().BeOfType<CommandFailedEvent>().Subject;
-                    foreach (var element in expectedEventValue)
-                    {
-                        switch (element.Name)
-                        {
-                            case "commandName":
-                                commandFailedEvent.CommandName.Should().Be(element.Value.AsString);
-                                break;
-                            case "hasServiceId":
-                                commandFailedEvent.ServiceId.Should().Match<ObjectId?>(s => s.HasValue == element.Value.ToBoolean());
-                                break;
-                            case "hasServerConnectionId":
-                                AssertHasServerConnectionId(commandFailedEvent.ConnectionId, element.Value.ToBoolean());
-                                break;
-                            default:
-                                throw new FormatException($"Unexpected commandStartedEvent field: '{element.Name}'.");
-                        }
-                    }
-                    break;
-                case "connectionReadyEvent":
-                    actualEvent.Should().BeOfType<ConnectionOpenedEvent>();
-                    expectedEventValue.ElementCount.Should().Be(0); // empty document
-                    break;
-                case "connectionCheckOutStartedEvent":
-                    actualEvent.Should().BeOfType<ConnectionPoolCheckingOutConnectionEvent>();
-                    expectedEventValue.ElementCount.Should().Be(0); // empty document
-                    break;
-                case "connectionCheckedOutEvent":
-                    actualEvent.Should().BeOfType<ConnectionPoolCheckedOutConnectionEvent>();
-                    expectedEventValue.ElementCount.Should().Be(0); // empty document
-                    break;
-                case "connectionCheckedInEvent":
-                    actualEvent.Should().BeOfType<ConnectionPoolCheckedInConnectionEvent>();
-                    expectedEventValue.ElementCount.Should().Be(0); // empty document
-                    break;
-                case "connectionClosedEvent":
-                    {
-                        var connectionClosedEvent = actualEvent.Should().BeOfType<ConnectionClosedEvent>().Subject;
-                        foreach (var element in expectedEventValue)
-                        {
-                            switch (element.Name)
-                            {
-                                case "reason":
-                                    //connectionClosedEvent.Reason.Should().Be(reason); // TODO: should be implemented in the scope of CSHARP-3219
-                                    break;
-                                default:
-                                    throw new FormatException($"Unexpected {expectedEventType} field: '{element.Name}'.");
-                            }
-                        }
-                    }
-                    break;
-                case "connectionCreatedEvent":
-                    actualEvent.Should().BeOfType<ConnectionCreatedEvent>();
-                    expectedEventValue.ElementCount.Should().Be(0); // empty document
-                    break;
-                case "connectionCheckOutFailedEvent":
-                    {
-                        var connectionCheckOutFailedEvent = actualEvent.Should().BeOfType<ConnectionPoolCheckingOutConnectionFailedEvent>().Subject;
-                        foreach (var element in expectedEventValue)
-                        {
-                            switch (element.Name)
-                            {
-                                case "reason":
-                                    connectionCheckOutFailedEvent.Reason.ToString().ToLower().Should().Be(element.Value.ToString().ToLower());
-                                    break;
-                                default:
-                                    throw new FormatException($"Unexpected {expectedEventType} field: '{element.Name}'.");
-                            }
-                        }
-                    }
-                    break;
-                case "poolClearedEvent":
-                    var poolClearedEvent = actualEvent.Should().BeOfType<ConnectionPoolClearedEvent>().Subject;
-                    foreach (var element in expectedEventValue)
-                    {
-                        switch (element.Name)
-                        {
-                            case "hasServiceId":
-                                poolClearedEvent.ServiceId.Should().Match<ObjectId?>(s => s.HasValue == element.Value.ToBoolean());
-                                break;
-                            default:
-                                throw new FormatException($"Unexpected {expectedEventType} field: '{element.Name}'.");
-                        }
-                    }
-                    break;
-                case "poolReadyEvent":
-                    actualEvent.Should().BeOfType<ConnectionPoolReadyEvent>();
-                    expectedEventValue.ElementCount.Should().Be(0); // empty document
-                    break;
-                case "serverDescriptionChangedEvent":
-                    var serverDescriptionChangedEvent = actualEvent.Should().BeOfType<ServerDescriptionChangedEvent>().Subject;
-                    if (expectedEventValue.Elements.Any())
-                    {
-                        throw new FormatException($"Unexpected {expectedEventType} fields.");
-                    }
-                    break;
-                    
-                default:
-                    throw new FormatException($"Unrecognized event type: '{expectedEventType}'.");
-            }
-
-            void AssertHasServerConnectionId(ConnectionId connectionId, bool value)
-            {
-                // in c# we have fallback logic to get a server connectionId based on an additional getLastError call which is not expected by the spec.
-                // So even though servers less than 4.2 don't provide connectionId, we still have this value through getLastError, so don't assert hasServerConnectionId=false.
-                if (value)
-                {
-                    connectionId.LongServerValue.Should().HaveValue();
-                }
-            }
-        }
-
-        public bool DoEventsMatch(object actualEvent, BsonDocument expectedEventDocument)
-        {
-            try
-            {
-                AssertEventsMatch(actualEvent, expectedEventDocument);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
         // private methods
         private void AssertEvents(List<object> actualEvents, BsonArray expectedEventsDocuments, bool ignoreExtraEvents)
         {
@@ -282,8 +148,165 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
             {
                 var actualEvent = actualEvents[i];
                 var expectedEventDocument = expectedEventsDocuments[i].AsBsonDocument;
+                if (expectedEventDocument.ElementCount != 1)
+                {
+                    throw new FormatException("Expected event document model must contain a single element.");
+                }
+                var expectedEventType = expectedEventDocument.GetElement(0).Name;
+                var expectedEventValue = expectedEventDocument[0].AsBsonDocument;
+                var expectedDriverEvent = __eventsMapWithSpec[expectedEventType].GetMappedDriverEvent(actualEvent).Should().NotBeNull().And.Subject;
 
-                AssertEventsMatch(actualEvent, expectedEventDocument);
+                switch (expectedDriverEvent)
+                {
+                    case CommandStartedEvent commandStartedEvent:
+                        foreach (var element in expectedEventValue)
+                        {
+                            switch (element.Name)
+                            {
+                                case "command":
+                                    _valueMatcher.AssertValuesMatch(commandStartedEvent.Command, element.Value);
+                                    break;
+                                case "commandName":
+                                    commandStartedEvent.CommandName.Should().Be(element.Value.AsString);
+                                    break;
+                                case "databaseName":
+                                    commandStartedEvent.DatabaseNamespace.DatabaseName.Should().Be(element.Value.AsString);
+                                    break;
+                                case "hasServiceId":
+                                    commandStartedEvent.ServiceId.Should().Match<ObjectId?>(s => s.HasValue == element.Value.ToBoolean());
+                                    break;
+                                case "hasServerConnectionId":
+                                    AssertHasServerConnectionId(commandStartedEvent.ConnectionId, element.Value.ToBoolean());
+                                    break;
+                                default:
+                                    throw new FormatException($"Unexpected commandStartedEvent field: '{element.Name}'.");
+                            }
+                        }
+                        break;
+                    case CommandSucceededEvent commandSucceededEvent:
+                        foreach (var element in expectedEventValue)
+                        {
+                            switch (element.Name)
+                            {
+                                case "reply":
+                                    _valueMatcher.AssertValuesMatch(commandSucceededEvent.Reply, element.Value);
+                                    break;
+                                case "commandName":
+                                    commandSucceededEvent.CommandName.Should().Be(element.Value.AsString);
+                                    break;
+                                case "hasServiceId":
+                                    commandSucceededEvent.ServiceId.Should().Match<ObjectId?>(s => s.HasValue == element.Value.ToBoolean());
+                                    break;
+                                case "hasServerConnectionId":
+                                    AssertHasServerConnectionId(commandSucceededEvent.ConnectionId, element.Value.ToBoolean());
+                                    break;
+                                default:
+                                    throw new FormatException($"Unexpected commandStartedEvent field: '{element.Name}'.");
+                            }
+                        }
+                        break;
+                    case CommandFailedEvent commandFailedEvent:
+                        foreach (var element in expectedEventValue)
+                        {
+                            switch (element.Name)
+                            {
+                                case "commandName":
+                                    commandFailedEvent.CommandName.Should().Be(element.Value.AsString);
+                                    break;
+                                case "hasServiceId":
+                                    commandFailedEvent.ServiceId.Should().Match<ObjectId?>(s => s.HasValue == element.Value.ToBoolean());
+                                    break;
+                                case "hasServerConnectionId":
+                                    AssertHasServerConnectionId(commandFailedEvent.ConnectionId, element.Value.ToBoolean());
+                                    break;
+                                default:
+                                    throw new FormatException($"Unexpected commandStartedEvent field: '{element.Name}'.");
+                            }
+                        }
+                        break;
+                    case ConnectionOpenedEvent:
+                        expectedEventValue.ElementCount.Should().Be(0); // empty document
+                        break;
+                    case ConnectionPoolCheckingOutConnectionEvent:
+                        expectedEventValue.ElementCount.Should().Be(0); // empty document
+                        break;
+                    case ConnectionPoolCheckedOutConnectionEvent:
+                        expectedEventValue.ElementCount.Should().Be(0); // empty document
+                        break;
+                    case ConnectionPoolCheckedInConnectionEvent:
+                        expectedEventValue.ElementCount.Should().Be(0); // empty document
+                        break;
+                    case ConnectionClosedEvent connectionClosedEvent:
+                        {
+                            foreach (var element in expectedEventValue)
+                            {
+                                switch (element.Name)
+                                {
+                                    case "reason":
+                                        //connectionClosedEvent.Reason.Should().Be(reason); // TODO: should be implemented in the scope of CSHARP-3219
+                                        break;
+                                    default:
+                                        throw new FormatException($"Unexpected {expectedEventType} field: '{element.Name}'.");
+                                }
+                            }
+                        }
+                        break;
+                    case ConnectionCreatedEvent:
+                        expectedEventValue.ElementCount.Should().Be(0); // empty document
+                        break;
+                    case ConnectionPoolCheckingOutConnectionFailedEvent connectionCheckOutFailedEvent:
+                        {
+                            foreach (var element in expectedEventValue)
+                            {
+                                switch (element.Name)
+                                {
+                                    case "reason":
+                                        connectionCheckOutFailedEvent.Reason.ToString().ToLower().Should().Be(element.Value.ToString().ToLower());
+                                        break;
+                                    default:
+                                        throw new FormatException($"Unexpected {expectedEventType} field: '{element.Name}'.");
+                                }
+                            }
+                        }
+                        break;
+                    case ConnectionPoolClearedEvent poolClearedEvent:
+                        foreach (var element in expectedEventValue)
+                        {
+                            switch (element.Name)
+                            {
+                                case "hasServiceId":
+                                    poolClearedEvent.ServiceId.Should().Match<ObjectId?>(s => s.HasValue == element.Value.ToBoolean());
+                                    break;
+                                case "interruptInUseConnections":
+                                    poolClearedEvent.CloseInUseConnections.Should().Be(element.Value.ToBoolean());
+                                    break;
+                                default:
+                                    throw new FormatException($"Unexpected {expectedEventType} field: '{element.Name}'.");
+                            }
+                        }
+                        break;
+                    case ConnectionPoolReadyEvent:
+                        expectedEventValue.ElementCount.Should().Be(0); // empty document
+                        break;
+                    case ServerDescriptionChangedEvent serverDescriptionChangedEvent:
+                        if (expectedEventValue.Elements.Any())
+                        {
+                            throw new FormatException($"Unexpected {expectedEventType} fields.");
+                        }
+                        break;
+                    default:
+                        throw new FormatException($"Unrecognized event type: '{expectedEventType}'.");
+                }
+            }
+
+            void AssertHasServerConnectionId(ConnectionId connectionId, bool value)
+            {
+                // in c# we have fallback logic to get a server connectionId based on an additional getLastError call which is not expected by the spec.
+                // So even though servers less than 4.2 don't provide connectionId, we still have this value through getLastError, so don't assert hasServerConnectionId=false.
+                if (value)
+                {
+                    connectionId.LongServerValue.Should().HaveValue();
+                }
             }
         }
 
@@ -301,7 +324,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                         {
                             { "command", commandStartedEvent.Command },
                             { "commandName", commandStartedEvent.CommandName },
-                            { "databaseName", commandStartedEvent.DatabaseNamespace.DatabaseName }
+                            { "databaseName", commandStartedEvent.DatabaseNamespace.DatabaseName },
+                            { "timestamp", commandStartedEvent.Timestamp.ToString("HH:mm:ss.fffffffK") }
                         };
                         actualEventsDocuments.Add(new BsonDocument("commandStartedEvent", commandStartedDocument));
                         break;
@@ -309,14 +333,16 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                         var commandSucceededDocument = new BsonDocument
                         {
                             { "reply", commandSucceededEvent.Reply },
-                            { "commandName", commandSucceededEvent.CommandName }
+                            { "commandName", commandSucceededEvent.CommandName },
+                            { "timestamp", commandSucceededEvent.Timestamp.ToString("HH:mm:ss.fffffffK") }
                         };
                         actualEventsDocuments.Add(new BsonDocument("commandSucceededEvent", commandSucceededDocument));
                         break;
                     case CommandFailedEvent commandFailedEvent:
                         var commandFailedDocument = new BsonDocument
                         {
-                            { "commandName", commandFailedEvent.CommandName }
+                            { "commandName", commandFailedEvent.CommandName },
+                            { "timestamp", commandFailedEvent.Timestamp.ToString("HH:mm:ss.fffffffK") }
                         };
                         actualEventsDocuments.Add(new BsonDocument("commandFailedEvent", commandFailedDocument));
                         break;
@@ -332,10 +358,11 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
         }
 
         // nested types
-        private enum EventType
+        private enum EventSetType
         {
             Command,
-            Cmap
+            Cmap,
+            Sdam
         }
     }
 }

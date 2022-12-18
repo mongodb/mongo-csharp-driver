@@ -16,21 +16,25 @@
 using System;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
     public class UnifiedFailPointOperation : IUnifiedFailPointOperation
     {
+        private readonly bool _async;
         private readonly IMongoClient _client;
         private readonly BsonDocument _failPointCommand;
 
         public UnifiedFailPointOperation(
             IMongoClient client,
-            BsonDocument failPointCommand)
+            BsonDocument failPointCommand,
+            bool async)
         {
-            _client = client;
-            _failPointCommand = failPointCommand;
+            _async = async;
+            _client = Ensure.IsNotNull(client, nameof(client));
+            _failPointCommand = Ensure.IsNotNull(failPointCommand, nameof(failPointCommand));
         }
 
         public void Execute(out FailPoint failPoint)
@@ -38,7 +42,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             var cluster = _client.Cluster;
             var session = NoCoreSession.NewHandle();
 
-            failPoint = FailPoint.Configure(cluster, session, _failPointCommand);
+            failPoint = FailPoint.Configure(cluster, session, _failPointCommand, _async);
         }
     }
 
@@ -61,7 +65,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 switch (argument.Name)
                 {
                     case "client":
-                        client = _entityMap.GetClient(argument.Value.AsString);
+                        client = _entityMap.Clients[argument.Value.AsString];
                         break;
                     case "failPoint":
                         failPointCommand = argument.Value.AsBsonDocument;
@@ -71,7 +75,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 }
             }
 
-            return new UnifiedFailPointOperation(client, failPointCommand);
+            return new UnifiedFailPointOperation(client, failPointCommand, _entityMap.Async);
         }
     }
 }
