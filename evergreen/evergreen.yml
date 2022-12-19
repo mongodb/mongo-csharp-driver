@@ -114,7 +114,7 @@ functions:
             # If this was a patch build, doing a fresh clone would not actually test the patch
             cp -R ${PROJECT_DIRECTORY}/ $DRIVERS_TOOLS
           else
-            git clone https://github.com/DmitryLukyanov/drivers-evergreen-tools.git --branch D2465 $DRIVERS_TOOLS
+            git clone https://github.com/kevinAlbs/drivers-evergreen-tools.git --branch D2465 $DRIVERS_TOOLS
           fi
           echo "{ \"releases\": { \"default\": \"$MONGODB_BINARIES\" }}" > $MONGO_ORCHESTRATION_HOME/orchestration.config
 
@@ -229,7 +229,6 @@ functions:
           SSL=${SSL} \
           STORAGE_ENGINE=${STORAGE_ENGINE} \
           ORCHESTRATION_FILE=${ORCHESTRATION_FILE} \
-          FORCE_CONFIGURE_SHARED_VERSION=${FORCE_CONFIGURE_SHARED_VERSION} \
             sh ${DRIVERS_TOOLS}/.evergreen/run-orchestration.sh
     # run-orchestration generates expansion file with the MONGODB_URI for the cluster
     - command: expansions.update
@@ -1049,8 +1048,6 @@ tasks:
         - func: start-kms-mock-gcp-server
         - func: start-kms-mock-azure-imds-server
         - func: bootstrap-mongo-orchestration
-          vars:
-            FORCE_CONFIGURE_SHARED_VERSION: "YES"
         - func: run-csfle-with-mocked-kms-tests
           vars:
             FRAMEWORK: net472
@@ -1062,8 +1059,6 @@ tasks:
         - func: start-kms-mock-gcp-server
         - func: start-kms-mock-azure-imds-server
         - func: bootstrap-mongo-orchestration
-          vars:
-            FORCE_CONFIGURE_SHARED_VERSION: "YES"
         - func: run-csfle-with-mocked-kms-tests
           vars:
             FRAMEWORK: netstandard20
@@ -1075,8 +1070,6 @@ tasks:
         - func: start-kms-mock-gcp-server
         - func: start-kms-mock-azure-imds-server
         - func: bootstrap-mongo-orchestration
-          vars:
-            FORCE_CONFIGURE_SHARED_VERSION: "YES"
         - func: run-csfle-with-mocked-kms-tests
           vars:
             FRAMEWORK: netstandard21
