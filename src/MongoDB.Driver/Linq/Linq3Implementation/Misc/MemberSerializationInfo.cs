@@ -18,14 +18,14 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 {
-    internal class FieldInfo
+    internal class MemberSerializationInfo
     {
         // private fields
         private readonly string _elementName;
         private readonly IBsonSerializer _serializer;
 
         // constructors
-        public FieldInfo(string elementName, IBsonSerializer serializer)
+        public MemberSerializationInfo(string elementName, IBsonSerializer serializer)
         {
             _elementName = Ensure.IsNotNullOrEmpty(elementName, nameof(elementName));
             _serializer = Ensure.IsNotNull(serializer, nameof(serializer));

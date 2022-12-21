@@ -20,7 +20,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 {
     internal static class DocumentSerializerHelper
     {
-        public static FieldInfo GetFieldInfo(IBsonSerializer serializer, string memberName)
+        public static MemberSerializationInfo GetMemberSerializationInfo(IBsonSerializer serializer, string memberName)
         {
             if (!(serializer is IBsonDocumentSerializer documentSerializer))
             {
@@ -32,10 +32,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
                 throw new InvalidOperationException($"Serializer for {serializer.ValueType} does not have a member named {memberName}.");
             }
 
-            return new FieldInfo(serializationInfo.ElementName, serializationInfo.Serializer);
+            return new MemberSerializationInfo(serializationInfo.ElementName, serializationInfo.Serializer);
         }
 
-        public static bool HasFieldInfo(IBsonSerializer serializer, string memberName)
+        public static bool HasMemberSerializationInfo(IBsonSerializer serializer, string memberName)
         {
             return
                 serializer is IBsonDocumentSerializer documentSerializer &&
