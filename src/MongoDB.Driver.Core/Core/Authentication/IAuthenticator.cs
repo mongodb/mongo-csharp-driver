@@ -54,7 +54,38 @@ namespace MongoDB.Driver.Core.Authentication
         /// Optionally customizes hello or legacy hello command.
         /// </summary>
         /// <param name="helloCommand">Initial command.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>Optionally mutated command.</returns>
-        BsonDocument CustomizeInitialHelloCommand(BsonDocument helloCommand);
+        BsonDocument CustomizeInitialHelloCommand(BsonDocument helloCommand, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Optionally customizes hello or legacy hello command.
+        /// </summary>
+        /// <param name="helloCommand">Initial command.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>Optionally mutated command.</returns>
+        Task<BsonDocument> CustomizeInitialHelloCommandAsync(BsonDocument helloCommand, CancellationToken cancellationToken);
+    }
+
+    /// <summary>
+    /// Represents a base implementation for SASL mechanism.
+    /// </summary>
+    public abstract class AuthenticatorBase : IAuthenticator
+    {
+        /// <inheritdoc/>
+        public abstract string Name { get; }
+
+        /// <inheritdoc/>
+        public abstract void Authenticate(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken);
+
+        /// <inheritdoc/>
+        public abstract Task AuthenticateAsync(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken);
+
+        /// <inheritdoc/>
+        public abstract BsonDocument CustomizeInitialHelloCommand(BsonDocument helloCommand, CancellationToken cancellationToken);
+
+        /// <inheritdoc/>
+        public virtual Task<BsonDocument> CustomizeInitialHelloCommandAsync(BsonDocument helloCommand, CancellationToken cancellationToken) =>
+            Task.FromResult(CustomizeInitialHelloCommand(helloCommand, cancellationToken));
     }
 }

@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Core.Authentication
     /// Else, uses SCRAM-SHA-256 if present in the list of mechanisms. Otherwise, uses
     /// SCRAM-SHA-1 the default, regardless of whether SCRAM-SHA-1 is in the list.
     /// </summary>
-    public class DefaultAuthenticator : IAuthenticator
+    public class DefaultAuthenticator : AuthenticatorBase
     {
         // fields
         private readonly UsernamePasswordCredential _credential;
@@ -71,11 +71,11 @@ namespace MongoDB.Driver.Core.Authentication
 
         // properties
         /// <inheritdoc/>
-        public string Name => "DEFAULT";
+        public override string Name => "DEFAULT";
 
         // methods
         /// <inheritdoc/>
-        public void Authenticate(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
+        public override void Authenticate(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, nameof(connection));
             Ensure.IsNotNull(description, nameof(description));
@@ -86,7 +86,7 @@ namespace MongoDB.Driver.Core.Authentication
             if (!description.HelloResult.HasSaslSupportedMechs
                 && Feature.ScramSha256Authentication.IsSupported(description.MaxWireVersion))
             {
-                var command = CustomizeInitialHelloCommand(HelloHelper.CreateCommand(_serverApi));
+                var command = CustomizeInitialHelloCommand(HelloHelper.CreateCommand(_serverApi), cancellationToken);
                 var helloProtocol = HelloHelper.CreateProtocol(command, _serverApi);
                 var helloResult = HelloHelper.GetResult(connection, helloProtocol, cancellationToken);
                 var mergedHelloResult = new HelloResult(description.HelloResult.Wrapped.Merge(helloResult.Wrapped));
@@ -100,7 +100,7 @@ namespace MongoDB.Driver.Core.Authentication
         }
 
         /// <inheritdoc/>
-        public async Task AuthenticateAsync(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
+        public override async Task AuthenticateAsync(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, nameof(connection));
             Ensure.IsNotNull(description, nameof(description));
@@ -111,7 +111,7 @@ namespace MongoDB.Driver.Core.Authentication
             if (!description.HelloResult.HasSaslSupportedMechs
                 && Feature.ScramSha256Authentication.IsSupported(description.MaxWireVersion))
             {
-                var command = CustomizeInitialHelloCommand(HelloHelper.CreateCommand(_serverApi));
+                var command = CustomizeInitialHelloCommand(HelloHelper.CreateCommand(_serverApi), cancellationToken);
                 var helloProtocol = HelloHelper.CreateProtocol(command, _serverApi);
                 var helloResult = await HelloHelper.GetResultAsync(connection, helloProtocol, cancellationToken).ConfigureAwait(false);
                 var mergedHelloResult = new HelloResult(description.HelloResult.Wrapped.Merge(helloResult.Wrapped));
@@ -125,12 +125,12 @@ namespace MongoDB.Driver.Core.Authentication
         }
 
         /// <inheritdoc/>
-        public BsonDocument CustomizeInitialHelloCommand(BsonDocument helloCommand)
+        public override BsonDocument CustomizeInitialHelloCommand(BsonDocument helloCommand, CancellationToken cancellationToken)
         {
             var saslSupportedMechs = CreateSaslSupportedMechsRequest(_credential.Source, _credential.Username);
             helloCommand = helloCommand.Merge(saslSupportedMechs);
             _speculativeAuthenticator = new ScramSha256Authenticator(_credential, _randomStringGenerator, _serverApi);
-            return _speculativeAuthenticator.CustomizeInitialHelloCommand(helloCommand);
+            return _speculativeAuthenticator.CustomizeInitialHelloCommand(helloCommand, cancellationToken);
         }
 
         private static BsonDocument CreateSaslSupportedMechsRequest(string authenticationDatabaseName, string userName)

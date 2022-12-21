@@ -14,14 +14,13 @@
 */
 
 using System;
+using System.Linq;
 using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
-using MongoDB.Driver.Core.ConnectionPools;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
@@ -32,14 +31,34 @@ namespace MongoDB.Driver.Core.TestHelpers
     public static class FailPointName
     {
         // public constants
+        public const string FailCommand = "failCommand";
         public const string MaxTimeAlwaysTimeout = "maxTimeAlwaysTimeOut";
         public const string OnPrimaryTransactionalWrite = "onPrimaryTransactionalWrite";
     }
 
-
     public sealed class FailPoint : IDisposable
     {
         #region static
+        public static BsonDocument CreateFailPointCommand(
+            int times,
+            int errorCode,
+            string applicationName,
+            params string[] command) =>
+            new BsonDocument
+            {
+                { "configureFailPoint", FailPointName.FailCommand },
+                { "mode", new BsonDocument("times", times) },
+                {
+                    "data",
+                    new BsonDocument
+                    {
+                        { "failCommands", new BsonArray(command.Select(c => new BsonString(c))) },
+                        { "errorCode",  errorCode },
+                        { "appName", applicationName }
+                    }
+                }
+            };
+
         // public static methods
         /// <summary>
         /// Create a FailPoint and executes a configureFailPoint command on the selected server.

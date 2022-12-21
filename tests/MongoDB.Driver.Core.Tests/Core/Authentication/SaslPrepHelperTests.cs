@@ -15,6 +15,7 @@
 
 using FluentAssertions;
 using MongoDB.Bson.TestHelpers;
+using MongoDB.Driver.Core.Authentication.Sasl;
 using MongoDB.TestHelpers.XunitExtensions;
 using System;
 using Xunit;

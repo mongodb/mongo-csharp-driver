@@ -631,6 +631,68 @@ functions:
           fi
           PROJECT_DIRECTORY=${PROJECT_DIRECTORY} OS=$OS  ASSERT_NO_URI_CREDS=true evergreen/run-mongodb-aws-test.sh
 
+  bootstrap-oidc:
+    - command: ec2.assume_role
+      params:
+        role_arn: ${aws_test_secrets_role}
+    - command: shell.exec
+      type: test
+      params:
+        working_dir: mongo-csharp-driver
+        shell: bash
+        script: |
+          ${PREPARE_SHELL}
+          if [ "${skip_EC2_auth_test}" = "true" ]; then
+             echo "This platform does not support the oidc auth test, skipping..."
+             exit 0
+          fi
+          cd ${DRIVERS_TOOLS}/.evergreen/auth_oidc
+          export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+          export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+          export AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}
+          export OIDC_TOKEN_DIR=/tmp/tokens
+          . ./activate-authoidcvenv.sh         
+          python oidc_write_orchestration.py
+          python oidc_get_tokens.py
+
+  run-oidc-auth-test-with-aws-credentials:
+    - command: shell.exec
+      type: test
+      params:
+        working_dir: mongo-csharp-driver
+        shell: bash
+        script: |
+          ${PREPARE_SHELL}
+          if [ "${skip_EC2_auth_test}" = "true" ]; then
+             echo "This platform does not support the oidc auth test, skipping..."
+             exit 0
+          fi
+          cd ${DRIVERS_TOOLS}/.evergreen/auth_oidc
+          . ./activate-authoidcvenv.sh
+          mongosh setup_oidc.js
+    - command: shell.exec
+      type: test
+      params:
+        working_dir: mongo-csharp-driver
+        #silent: true
+        script: |
+          # DO NOT ECHO WITH XTRACE (which PREPARE_SHELL does)
+          cat <<'EOF' > "${PROJECT_DIRECTORY}/prepare_mongodb_oidc.sh"
+            export OIDC_TOKEN_DIR=/tmp/tokens
+          EOF
+    - command: shell.exec
+      type: test
+      params:
+        working_dir: mongo-csharp-driver
+        shell: bash
+        script: |
+          ${PREPARE_SHELL}
+          if [ "${skip_web_identity_auth_test}" = "true" ]; then
+             echo "This platform does not support the oidc auth test, skipping..."
+             exit 0
+          fi
+          evergreen/run-mongodb-oidc-test.sh
+
   run-aws-auth-test-with-aws-credentials-as-environment-variables:
     - command: shell.exec
       type: test
@@ -1167,6 +1229,16 @@ tasks:
         - func: run-aws-auth-test-with-aws-ECS-credentials
         - func: run-aws-auth-test-with-aws-web-identity-credentials
 
+    - name: oidc-auth-tests
+      commands:
+        - func: bootstrap-oidc
+        - func: bootstrap-mongo-orchestration
+          vars:
+            ORCHESTRATION_FILE: "auth-oidc.json"
+        - func: run-oidc-auth-test-with-aws-credentials
+          vars:
+            AWS_WEB_IDENTITY_TOKEN_FILE: /tmp/tokens/test1         
+
     - name: stable-api-tests-net472
       commands:
         - func: bootstrap-mongo-orchestration
@@ -1700,11 +1772,11 @@ axes:
           skip_ECS_auth_test: true
           skip_web_identity_auth_test: true
         run_on: windows-64-vs2017-test
-      - id: "ubuntu-1804"
-        display_name: "Ubuntu 18.04"
+      - id: "ubuntu-2004"
+        display_name: "Ubuntu 20.04"
         variables:
-          OS: "ubuntu-1804"
-        run_on: ubuntu1804-test
+          OS: "ubuntu-2004"
+        run_on: ubuntu2004-test
       - id: "macos-1100"
         display_name: "macOS 11.00"
         variables:
@@ -1901,7 +1973,7 @@ buildvariants:
      - name: test-netstandard21
 
 - matrix_name: "tests-snappy-compression-linux"
-  matrix_spec: { compressor : "snappy", auth: "noauth", ssl: "nossl", version: "*", topology: "standalone", os: "ubuntu-1804" }
+  matrix_spec: { compressor : "snappy", auth: "noauth", ssl: "nossl", version: "*", topology: "standalone", os: "ubuntu-2004" }
   display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
   tags: ["tests-variant"]
   tasks:
@@ -1925,7 +1997,7 @@ buildvariants:
      - name: test-netstandard21
 
 - matrix_name: "tests-zstandard-compression-linux"
-  matrix_spec: { compressor : "zstandard", auth: "noauth", ssl: "nossl", version: "*", topology: "standalone", os: "ubuntu-1804" }
+  matrix_spec: { compressor : "zstandard", auth: "noauth", ssl: "nossl", version: "*", topology: "standalone", os: "ubuntu-2004" }
   display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
   tags: ["tests-variant"]
   tasks:
@@ -1941,7 +2013,7 @@ buildvariants:
 
   # ubuntu 18 does not support SSL until 4.0
 - matrix_name: "secure-tests-linux"
-  matrix_spec: { version: ["4.0", "4.2", "4.4", "5.0", "6.0", "rapid", "latest"], topology: "*", auth: "auth", ssl: "ssl", os: "ubuntu-1804" }
+  matrix_spec: { version: ["4.0", "4.2", "4.4", "5.0", "6.0", "rapid", "latest"], topology: "*", auth: "auth", ssl: "ssl", os: "ubuntu-2004" }
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
   tasks:
@@ -1949,7 +2021,7 @@ buildvariants:
      - name: test-netstandard21
 
 - matrix_name: "unsecure-tests-linux"
-  matrix_spec: { version: "*", topology: "*", auth: "noauth", ssl: "nossl", os: "ubuntu-1804" }
+  matrix_spec: { version: "*", topology: "*", auth: "noauth", ssl: "nossl", os: "ubuntu-2004" }
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
   tasks:
@@ -1971,7 +2043,7 @@ buildvariants:
      - name: test-netstandard21
 
 - matrix_name: "tests-zlib-compression-posix"
-  matrix_spec: { compressor : "zlib", auth: "noauth", ssl: "nossl", version: "*", topology: "standalone", os: "ubuntu-1804" }
+  matrix_spec: { compressor : "zlib", auth: "noauth", ssl: "nossl", version: "*", topology: "standalone", os: "ubuntu-2004" }
   display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
   tags: ["tests-variant"]
   tasks:
@@ -1985,6 +2057,12 @@ buildvariants:
   tasks:
     - name: ".ocsp"
 
+- matrix_name: "oidc-auth-test"
+  matrix_spec: { version: ["latest"], auth: "auth", ssl: "ssl", topology: "replicaset", os: "ubuntu-2004" }
+  display_name: "MONGODB-OIDC Auth ${version} ${os} ${topology}"
+  tasks:
+    - name: oidc-auth-tests
+
 - matrix_name: aws-auth-tests-windows
   matrix_spec: { version: ["4.4", "5.0", "6.0", "rapid", "latest"], topology: "standalone", os: "windows-64" }
   display_name: "MONGODB-AWS Auth test ${version} ${os}"
@@ -1994,10 +2072,10 @@ buildvariants:
     - name: aws-auth-tests
 
 - matrix_name: aws-auth-tests-linux
-  matrix_spec: { version: ["6.0", "rapid", "latest"], topology: "standalone", os: "ubuntu-1804" }
+  matrix_spec: { version: ["6.0", "rapid", "latest"], topology: "standalone", os: "ubuntu-2004" }
   display_name: "MONGODB-AWS Auth test ${version} ${os}"
   run_on:
-    - ubuntu1804-test
+    - ubuntu2004-test
   tasks:
     - name: aws-auth-tests
 
@@ -2026,14 +2104,14 @@ buildvariants:
     - name: plain-auth-tests
 
 - matrix_name: load-balancer-tests
-  matrix_spec: { version: ["5.0", "6.0", "rapid", "latest"], auth: "noauth", ssl: "nossl", topology: "sharded-cluster", os: "ubuntu-1804" }
+  matrix_spec: { version: ["5.0", "6.0", "rapid", "latest"], auth: "noauth", ssl: "nossl", topology: "sharded-cluster", os: "ubuntu-2004" }
   display_name: "Load Balancer ${version} ${auth} ${ssl} ${os}"
   tasks:
     - name: "test-load-balancer-netstandard20"
     - name: "test-load-balancer-netstandard21"
 
 - matrix_name: load-balancer-tests-secure
-  matrix_spec: { version: ["5.0", "6.0", "rapid", "latest"], auth: "auth", ssl: "ssl", topology: "sharded-cluster", os: "ubuntu-1804" }
+  matrix_spec: { version: ["5.0", "6.0", "rapid", "latest"], auth: "auth", ssl: "ssl", topology: "sharded-cluster", os: "ubuntu-2004" }
   display_name: "Load Balancer ${version} ${auth} ${ssl} ${os}"
   tasks:
     - name: "test-load-balancer-netstandard20"
@@ -2048,7 +2126,7 @@ buildvariants:
     - name: test-serverless-netstandard21
 
 - matrix_name: serverless-tests-ubuntu
-  matrix_spec: { auth: "auth", ssl: "ssl", compressor: "zlib", os: "ubuntu-1804" }
+  matrix_spec: { auth: "auth", ssl: "ssl", compressor: "zlib", os: "ubuntu-2004" }
   display_name: "Serverless ${compressor} ${auth} ${ssl} ${os}"
   tasks:
     - name: test-serverless-netstandard20
@@ -2079,7 +2157,7 @@ buildvariants:
 
 - name: gssapi-auth-tests-linux
   run_on:
-    - ubuntu1804-test
+    - ubuntu2004-test
   display_name: "GSSAPI (Kerberos) Auth tests - Linux"
   tasks:
     - name: test-gssapi-netstandard20
@@ -2097,7 +2175,7 @@ buildvariants:
     - name: test-csfle-with-mongocryptd-netstandard21
 
 - matrix_name: "csfle-with-mocked-kms-tests-linux"
-  matrix_spec: { os: "ubuntu-1804", ssl: "nossl", version: [ "4.2", "4.4", "5.0", "6.0", "rapid", "latest" ], topology: ["replicaset"] }
+  matrix_spec: { os: "ubuntu-2004", ssl: "nossl", version: [ "4.2", "4.4", "5.0", "6.0", "rapid", "latest" ], topology: ["replicaset"] }
   display_name: "CSFLE Mocked KMS ${version} ${os}"
   tasks:
     - name: test-csfle-with-mocked-kms-tls-netstandard20
@@ -2113,7 +2191,7 @@ buildvariants:
     - name: test-csfle-with-mongocryptd-netstandard21
 
 - matrix_name: "csfle-with-azure-kms-tests-linux"
-  matrix_spec: { ssl: "nossl", os: "ubuntu-1804" }
+  matrix_spec: { ssl: "nossl", os: "ubuntu-2004" }
   display_name: "CSFLE with AZURE KMS ${os}"
   batchtime: 20160 # 14 days
   tasks:
@@ -2121,7 +2199,7 @@ buildvariants:
     - name: test-csfle-with-mongocryptd-netstandard21
 
 - matrix_name: "csfle-with-gcp-kms-tests-linux"
-  matrix_spec: { ssl: "nossl", os: "ubuntu-1804" }
+  matrix_spec: { ssl: "nossl", os: "ubuntu-2004" }
   display_name: "CSFLE with GCP KMS ${os}"
   batchtime: 20160 # 14 days
   tasks:
@@ -2140,7 +2218,7 @@ buildvariants:
     - name: test-smoke-tests-net60
 
 - matrix_name: "smoke-tests-linux"
-  matrix_spec: { os: "ubuntu-1804", ssl: "nossl", version: [ "5.0", "6.0", "latest" ], topology: ["replicaset"] }
+  matrix_spec: { os: "ubuntu-2004", ssl: "nossl", version: [ "5.0", "6.0", "latest" ], topology: ["replicaset"] }
   display_name: "smoke-tests ${version} ${os}"
   batchtime: 1440 # 1 day
   tasks:

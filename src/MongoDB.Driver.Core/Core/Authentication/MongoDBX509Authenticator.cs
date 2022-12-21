@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Core.Authentication
     /// <summary>
     /// A MongoDB-X509 authenticator.
     /// </summary>
-    public sealed class MongoDBX509Authenticator : IAuthenticator
+    public sealed class MongoDBX509Authenticator : AuthenticatorBase
     {
         // static properties
         /// <summary>
@@ -69,14 +69,14 @@ namespace MongoDB.Driver.Core.Authentication
 
         // properties
         /// <inheritdoc/>
-        public string Name
+        public override string Name
         {
             get { return MechanismName; }
         }
 
         // public methods
         /// <inheritdoc/>
-        public void Authenticate(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
+        public override void Authenticate(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, nameof(connection));
             Ensure.IsNotNull(description, nameof(description));
@@ -98,7 +98,7 @@ namespace MongoDB.Driver.Core.Authentication
         }
 
         /// <inheritdoc/>
-        public async Task AuthenticateAsync(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
+        public override async Task AuthenticateAsync(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, nameof(connection));
             Ensure.IsNotNull(description, nameof(description));
@@ -120,7 +120,7 @@ namespace MongoDB.Driver.Core.Authentication
         }
 
         /// <inheritdoc/>
-        public BsonDocument CustomizeInitialHelloCommand(BsonDocument helloCommand)
+        public override BsonDocument CustomizeInitialHelloCommand(BsonDocument helloCommand, CancellationToken cancellationToken)
         {
             helloCommand.Add("speculativeAuthenticate", CreateAuthenticateCommand());
             return helloCommand;

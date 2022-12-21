@@ -20,8 +20,11 @@ namespace MongoDB.Driver.Core.Authentication.External
 {
     internal interface IExternalCredentials
     {
+        string AccessToken { get; }
         DateTime? Expiration { get; }
         bool ShouldBeRefreshed { get; }
+
         BsonDocument GetKmsCredentials();
+        void Expire();
     }
 }

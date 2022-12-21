@@ -38,26 +38,34 @@ namespace MongoDB.Driver.Core.Connections
     public class ConnectionInitializerTests
     {
         private static readonly ServerId __serverId = new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27017));
+        private static readonly ConnectionDescription __emptyConnectionDescription = new ConnectionDescription(new ConnectionId(__serverId), new HelloResult(new BsonDocument()));
 
         [Theory]
         [ParameterAttributeData]
         public void ConnectionAuthentication_should_throw_an_ArgumentNullException_if_required_arguments_missed(
             [Values(false, true)] bool async)
         {
-            var mockConnectionDescription = new ConnectionDescription(new ConnectionId(__serverId), new HelloResult(new BsonDocument()));
+            var connectionInitializerContext = new ConnectionInitializerContext(__emptyConnectionDescription, new IAuthenticator[0]);
             var subject = CreateSubject();
             if (async)
             {
-                Record.Exception(() => subject.AuthenticateAsync(null, mockConnectionDescription, CancellationToken.None).GetAwaiter().GetResult()).Should().BeOfType<ArgumentNullException>();
+                Record.Exception(() => subject.AuthenticateAsync(null, connectionInitializerContext, CancellationToken.None).GetAwaiter().GetResult()).Should().BeOfType<ArgumentNullException>();
                 Record.Exception(() => subject.AuthenticateAsync(Mock.Of<IConnection>(), null, CancellationToken.None).GetAwaiter().GetResult()).Should().BeOfType<ArgumentNullException>();
             }
             else
             {
-                Record.Exception(() => subject.Authenticate(null, mockConnectionDescription, CancellationToken.None)).Should().BeOfType<ArgumentNullException>();
+                Record.Exception(() => subject.Authenticate(null, connectionInitializerContext, CancellationToken.None)).Should().BeOfType<ArgumentNullException>();
                 Record.Exception(() => subject.Authenticate(Mock.Of<IConnection>(), null, CancellationToken.None)).Should().BeOfType<ArgumentNullException>();
             }
         }
 
+        [Fact]
+        public void ConnectionInitializerContext_should_throw_when_description_is_null()
+        {
+            var emptyAuthenticators = new IAuthenticator[0];
+
+            Record.Exception(() => new ConnectionInitializerContext(null, emptyAuthenticators)).Should().BeOfType<ArgumentNullException>().Which.ParamName.Should().Be("description");
+        }
 
         [Theory]
         [ParameterAttributeData]
@@ -70,7 +78,7 @@ namespace MongoDB.Driver.Core.Connections
             var authenticator = CreateAuthenticator(authenticatorType, credentials);
 
             var subject = CreateSubject();
-            var helloDocument = subject.CreateInitialHelloCommand(new[] { authenticator }, false);
+            var helloDocument = subject.CreateInitialHelloCommand(new[] { authenticator }, false, CancellationToken.None);
 
             helloDocument.Should().Contain(OppressiveLanguageConstants.LegacyHelloCommandName);
             helloDocument.Should().Contain("speculativeAuthenticate");
@@ -93,7 +101,7 @@ namespace MongoDB.Driver.Core.Connections
             var authenticator = CreateAuthenticator(authenticatorType, credentials);
 
             var subject = new ConnectionInitializer("test", new[] { new CompressorConfiguration(CompressorType.Zlib) }, serverApi: new ServerApi(ServerApiVersion.V1));
-            var helloDocument = subject.CreateInitialHelloCommand(new[] { authenticator }, false);
+            var helloDocument = subject.CreateInitialHelloCommand(new[] { authenticator }, false, CancellationToken.None);
 
             helloDocument.Should().Contain("hello");
             helloDocument.Should().Contain("speculativeAuthenticate");
@@ -163,7 +171,7 @@ namespace MongoDB.Driver.Core.Connections
             var credentials = new UsernamePasswordCredential(
                 source: "Voyager", username: "Seven of Nine", password: "Omega-Phi-9-3");
             var authenticator = CreateAuthenticator(authenticatorType, credentials);
-            var connectionSettings = new ConnectionSettings(new[] { new AuthenticatorFactory(() => authenticator) });
+            var connectionSettings = new ConnectionSettings(new[] { new AuthenticatorFactory((endpoint) => authenticator) });
             var connection = new MockConnection(__serverId, connectionSettings, eventSubscriber: null);
             connection.EnqueueReplyMessage(legacyHelloReply);
 
@@ -304,16 +312,16 @@ namespace MongoDB.Driver.Core.Connections
 
         private ConnectionDescription InitializeConnection(ConnectionInitializer connectionInitializer, IConnection connection, bool async, CancellationToken cancellationToken)
         {
-            ConnectionDescription result;
+            ConnectionInitializerContext connectionInitializerContext;
             if (async)
             {
-                result = connectionInitializer.SendHelloAsync(connection, cancellationToken).GetAwaiter().GetResult();
-                return connectionInitializer.AuthenticateAsync(connection, result, cancellationToken).GetAwaiter().GetResult();
+                connectionInitializerContext = connectionInitializer.SendHelloAsync(connection, cancellationToken).GetAwaiter().GetResult();
+                return connectionInitializer.AuthenticateAsync(connection, connectionInitializerContext, cancellationToken).GetAwaiter().GetResult();
             }
             else
             {
-                result = connectionInitializer.SendHello(connection, cancellationToken);
-                return connectionInitializer.Authenticate(connection, result, cancellationToken);
+                connectionInitializerContext = connectionInitializer.SendHello(connection, cancellationToken);
+                return connectionInitializer.Authenticate(connection, connectionInitializerContext, cancellationToken);
             }
         }
     }
@@ -323,7 +331,8 @@ namespace MongoDB.Driver.Core.Connections
         public static BsonDocument CreateInitialHelloCommand(
             this ConnectionInitializer initializer,
             IReadOnlyList<IAuthenticator> authenticators,
-            bool loadBalanced) =>
-                (BsonDocument)Reflector.Invoke(initializer, nameof(CreateInitialHelloCommand), authenticators, loadBalanced);
+            bool loadBalanced,
+            CancellationToken cancellationToken) =>
+                (BsonDocument)Reflector.Invoke(initializer, nameof(CreateInitialHelloCommand), authenticators, loadBalanced, cancellationToken);
     }
 }

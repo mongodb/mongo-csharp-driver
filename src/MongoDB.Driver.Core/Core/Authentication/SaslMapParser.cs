@@ -17,7 +17,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace MongoDB.Driver.Core.Authentication
+namespace MongoDB.Driver.Core.Authentication.Sasl
 {
     /// <summary>
     /// Per RFC5802: https://tools.ietf.org/html/rfc5802

@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Core.Authentication.External
         // credentials are considered expired when: Expiration - now < 1 mins
         private static readonly TimeSpan __overlapWhereExpired = TimeSpan.FromMinutes(1);
 
-        private readonly DateTime? _expiration;
+        private DateTime? _expiration;
         private readonly string _accessToken;
 
         public AzureCredentials(string accessToken, DateTime? expiration)
@@ -40,6 +40,7 @@ namespace MongoDB.Driver.Core.Authentication.External
         public DateTime? Expiration => _expiration;
         public bool ShouldBeRefreshed => _expiration.HasValue ? (_expiration.Value - DateTime.UtcNow) < __overlapWhereExpired : true;
 
+        public void Expire() => _expiration = null;
         public BsonDocument GetKmsCredentials() => new BsonDocument("accessToken", _accessToken);
     }
 

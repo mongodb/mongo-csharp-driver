@@ -16,14 +16,15 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
 using MongoDB.Driver.Core.Authentication;
+using MongoDB.Driver.Core.Authentication.Oidc;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Events.Diagnostics;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Shared;
 
 namespace MongoDB.Driver.Core.Configuration
 {
@@ -159,7 +160,7 @@ namespace MongoDB.Driver.Core.Configuration
             // Connection
             if (connectionString.Username != null)
             {
-                var authenticatorFactory = new AuthenticatorFactory(() => CreateAuthenticator(connectionString, serverApi));
+                var authenticatorFactory = new AuthenticatorFactory((currentEndpoint) => CreateAuthenticator(connectionString, currentEndpoint, serverApi));
                 builder = builder.ConfigureConnection(s => s.With(authenticatorFactories: new[] { authenticatorFactory }));
             }
             if (connectionString.ApplicationName != null)
@@ -265,27 +266,29 @@ namespace MongoDB.Driver.Core.Configuration
         {
             var defaultSource = GetDefaultAuthSource(connectionString);
 
-            if (connectionString.AuthMechanism != null && connectionString.AuthMechanism == MongoAWSAuthenticator.MechanismName)
+            if (connectionString?.AuthMechanism == MongoAWSAuthenticator.MechanismName ||
+                connectionString?.AuthMechanism == MongoOidcAuthenticator.MechanismName)
             {
                 return connectionString.AuthSource ?? defaultSource;
             }
 
             return connectionString.AuthSource ?? connectionString.DatabaseName ?? defaultSource;
-        }
 
-        private static string GetDefaultAuthSource(ConnectionString connectionString)
-        {
-            if (connectionString.AuthMechanism != null && (
-                connectionString.AuthMechanism == GssapiAuthenticator.MechanismName ||
-                connectionString.AuthMechanism == MongoAWSAuthenticator.MechanismName))
+            string GetDefaultAuthSource(ConnectionString connectionString)
             {
-                return "$external";
-            }
+                if (connectionString.AuthMechanism != null && (
+                    connectionString.AuthMechanism == GssapiAuthenticator.MechanismName ||
+                    connectionString.AuthMechanism == MongoAWSAuthenticator.MechanismName ||
+                    connectionString.AuthMechanism == MongoOidcAuthenticator.MechanismName))
+                {
+                    return "$external";
+                }
 
-            return "admin";
+                return "admin";
+            }
         }
 
-        private static IAuthenticator CreateAuthenticator(ConnectionString connectionString, ServerApi serverApi)
+        private static IAuthenticator CreateAuthenticator(ConnectionString connectionString, EndPoint endpoint, ServerApi serverApi)
         {
             if (connectionString.Password != null)
             {
@@ -324,6 +327,10 @@ namespace MongoDB.Driver.Core.Configuration
                 {
                     return new MongoAWSAuthenticator(credential, connectionString.AuthMechanismProperties, serverApi);
                 }
+                else if (connectionString.AuthMechanism == MongoOidcAuthenticator.MechanismName)
+                {
+                    throw new NotSupportedException("OIDC authenticator cannot be constructed with password.");
+                }
             }
             else
             {
@@ -339,9 +346,13 @@ namespace MongoDB.Driver.Core.Configuration
                 {
                     return new MongoAWSAuthenticator(connectionString.Username, connectionString.AuthMechanismProperties, serverApi);
                 }
+                else if (connectionString.AuthMechanism == MongoOidcAuthenticator.MechanismName)
+                {
+                    return MongoOidcAuthenticator.CreateAuthenticator(connectionString.AuthSource, connectionString.Username, connectionString.AuthMechanismProperties, endpoint, serverApi);
+                }
             }
 
-            throw new NotSupportedException("Unable to create an authenticator.");
+            throw new NotSupportedException($"Unable to create a {connectionString.AuthMechanism} authenticator.");
         }
 
 #if NET472

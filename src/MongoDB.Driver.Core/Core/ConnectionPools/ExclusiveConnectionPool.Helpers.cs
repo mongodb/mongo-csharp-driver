@@ -389,6 +389,11 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 get { return _disposed; }
             }
 
+            public bool IsInitialized
+            {
+                get { return _connection.IsInitialized; }
+            }
+
             public bool IsExpired
             {
                 get { return _disposed || _generation < _connectionPool.GetGeneration(_connection.Description?.ServiceId) || _connection.IsExpired; }
@@ -437,6 +442,9 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     throw;
                 }
             }
+
+            public void Reauthenticate(CancellationToken cancellationToken) => _connection.Reauthenticate(cancellationToken);
+            public Task ReauthenticateAsync(CancellationToken cancellationToken) => _connection.ReauthenticateAsync(cancellationToken);
 
             public ResponseMessage ReceiveMessage(int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)
             {
@@ -569,6 +577,11 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 }
             }
 
+            public bool IsInitialized
+            {
+                get { return _reference.Instance.IsInitialized; }
+            }
+
             public ConnectionSettings Settings
             {
                 get { return _reference.Instance.Settings; }
@@ -600,6 +613,18 @@ namespace MongoDB.Driver.Core.ConnectionPools
             {
                 ThrowIfDisposed();
                 return _reference.Instance.OpenAsync(cancellationToken);
+            }
+
+            public void Reauthenticate(CancellationToken cancellationToken)
+            {
+                ThrowIfDisposed();
+                _reference.Instance.Reauthenticate(cancellationToken);
+            }
+
+            public Task ReauthenticateAsync(CancellationToken cancellationToken)
+            {
+                ThrowIfDisposed();
+                return _reference.Instance.ReauthenticateAsync(cancellationToken);
             }
 
             public Task<ResponseMessage> ReceiveMessageAsync(int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings, CancellationToken cancellationToken)

@@ -16,10 +16,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Security;
+using System.Threading;
+using System.Threading.Tasks;
+using MongoDB.Bson;
 using MongoDB.Driver.Core.Authentication;
+using MongoDB.Driver.Core.Authentication.Oidc;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Shared;
+using static MongoDB.Driver.Core.Authentication.Oidc.RequestCallbackProvider;
 
 namespace MongoDB.Driver
 {
@@ -263,6 +269,68 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Creates a credential used with MONGODB-OIDC.
+        /// </summary>
+        /// <param name="principalName">The principal name.</param>
+        /// <param name="providerName">The provider name.</param>
+        /// <param name="requestTokenFunc">The request token callback.</param>
+        /// <param name="requestTokenAsyncFunc">The request token async callback.</param>
+        /// <param name="refreshTokenFunc">The refresh token callback.</param>
+        /// <param name="refreshTokenAsyncFunc">The refresh token async callback.</param>
+        /// <returns>The oidc credential.</returns>
+        public static MongoCredential CreateOidcCredential(
+            string principalName = null,
+            string providerName = null,
+            RequestCallback requestTokenFunc = null,
+            RequestCallbackAsync requestTokenAsyncFunc = null,
+            RefreshCallback refreshTokenFunc = null,
+            RefreshCallbackAsync refreshTokenAsyncFunc = null) =>
+            CreateOidcCredential(
+                RequestCallbackProvider.CreateIfConfigured(requestTokenFunc, requestTokenAsyncFunc),
+                RefreshCallbackProvider.CreateIfConfigured(refreshTokenFunc, refreshTokenAsyncFunc),
+                principalName,
+                providerName);
+
+        /// <summary>
+        /// Creates a credential used with MONGODB-OIDC.
+        /// </summary>
+        /// <param name="requestCallbackProvider">The request callback provider.</param>
+        /// <param name="refreshCallbackProvider">The refresh callback provider.</param>
+        /// <param name="principalName">The principal name.</param>
+        /// <param name="providerName">The device name.</param>
+        /// <returns>The oidc credential.</returns>
+        public static MongoCredential CreateOidcCredential(
+            IRequestCallbackProvider requestCallbackProvider,
+            IRefreshCallbackProvider refreshCallbackProvider = null,
+            string principalName = null,
+            string providerName = null)
+        {
+            var credentials = FromComponents(
+                mechanism: "MONGODB-OIDC",
+                source: "$external",
+                databaseName: null,
+                username: principalName,
+                evidence: new ExternalEvidence());
+
+            if (providerName != null)
+            {
+                credentials = credentials.WithMechanismProperty(MongoOidcAuthenticator.ProviderName, providerName);
+            }
+
+            if (requestCallbackProvider != null)
+            {
+                credentials = credentials.WithMechanismProperty(MongoOidcAuthenticator.RequestCallbackName, requestCallbackProvider);
+            }
+
+            if (refreshCallbackProvider != null)
+            {
+                credentials = credentials.WithMechanismProperty(MongoOidcAuthenticator.RefreshCallbackName, refreshCallbackProvider);
+            }
+
+            return credentials;
+        }
+
+        /// <summary>
         /// Creates a credential used with MONGODB-X509.
         /// </summary>
         /// <param name="username">The username.</param>
@@ -396,7 +464,7 @@ namespace MongoDB.Driver
         }
 
         // internal methods
-        internal IAuthenticator ToAuthenticator(ServerApi serverApi)
+        internal IAuthenticator ToAuthenticator(EndPoint endpoint, ServerApi serverApi)
         {
             var passwordEvidence = _evidence as PasswordEvidence;
             if (passwordEvidence != null)
@@ -443,6 +511,10 @@ namespace MongoDB.Driver
                         _mechanismProperties.Select(x => new KeyValuePair<string, string>(x.Key, x.Value.ToString())),
                         serverApi);
                 }
+                if (_mechanism == MongoOidcAuthenticator.MechanismName)
+                {
+                    throw new NotSupportedException("OIDC authenticator cannot be constructed with password.");
+                }
             }
             else if (_identity.Source == "$external" && _evidence is ExternalEvidence)
             {
@@ -464,9 +536,18 @@ namespace MongoDB.Driver
                         _mechanismProperties.Select(x => new KeyValuePair<string, string>(x.Key, x.Value.ToString())),
                         serverApi);
                 }
+                if (_mechanism == MongoOidcAuthenticator.MechanismName)
+                {
+                    return MongoOidcAuthenticator.CreateAuthenticator(
+                        _identity.Source,
+                        _identity.Username,
+                        _mechanismProperties.Select(x => new KeyValuePair<string, object>(x.Key, x.Value)),
+                        endpoint,
+                        serverApi);
+                }
             }
 
-            throw new NotSupportedException("Unable to create an authenticator.");
+            throw new NotSupportedException($"Unable to create a {_mechanism} authenticator.");
         }
 
         // internal static methods
@@ -481,19 +562,6 @@ namespace MongoDB.Driver
             return FromComponents(mechanism, source, databaseName, username, evidence);
         }
 
-        // private methods
-        private void ValidatePassword(string password)
-        {
-            if (password == null)
-            {
-                throw new ArgumentNullException("password");
-            }
-            if (password.Any(c => (int)c >= 128))
-            {
-                throw new ArgumentException("Password must contain only ASCII characters.");
-            }
-        }
-
         // private static methods
         private static void EnsureNullOrExternalSource(string mechanism, string source)
         {
@@ -503,7 +571,12 @@ namespace MongoDB.Driver
             }
         }
 
-        private static MongoCredential FromComponents(string mechanism, string source, string databaseName, string username, MongoIdentityEvidence evidence)
+        private static MongoCredential FromComponents(
+            string mechanism,
+            string source,
+            string databaseName,
+            string username,
+            MongoIdentityEvidence evidence)
         {
             var defaultedMechanism = (mechanism ?? "DEFAULT").Trim().ToUpperInvariant();
             switch (defaultedMechanism)
@@ -548,6 +621,22 @@ namespace MongoDB.Driver
                         mechanism,
                         new MongoExternalIdentity(username),
                         evidence);
+                case "MONGODB-OIDC":
+                    {
+                        // MUST be "$external". Defaults to $external.
+                        EnsureNullOrExternalSource(mechanism, source);
+
+                        if (evidence == null || (evidence is not ExternalEvidence))
+                        {
+                            throw new ArgumentException("A MONGODB - OIDC does not support a password.");
+                        }
+
+                        // request and refresh callbacks will be set in the following step via WithMechanismProperty calls
+                        return new MongoCredential(
+                            mechanism,
+                            new MongoOidcIdentity(username),
+                            evidence);
+                    }
                 case "MONGODB-X509":
                     // MUST be "$external". Defaults to $external.
                     EnsureNullOrExternalSource(mechanism, source);

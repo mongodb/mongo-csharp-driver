@@ -29,11 +29,13 @@ namespace MongoDB.Driver.Core.Authentication.External
         public GcpCredentials(string accessToken) => _accessToken = accessToken;
 
         public string AccessToken => _accessToken;
-
         public DateTime? Expiration => null;
-
         public bool ShouldBeRefreshed => true;
 
+        public void Expire()
+        {
+            // always expired
+        }
         public BsonDocument GetKmsCredentials() => new BsonDocument("accessToken", _accessToken);
     }
 

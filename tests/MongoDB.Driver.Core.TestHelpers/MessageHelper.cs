@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+﻿/* Copyright 2013-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,12 +17,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders.JsonEncoders;
@@ -103,6 +102,8 @@ namespace MongoDB.Driver.Core.Helpers
                 awaitData: false);
 #pragma warning restore 618
         }
+
+        public static CommandResponseMessage BuildCommandResponse(string command) => BuildCommandResponse(RawBsonDocumentHelper.FromJson(command));
 
         public static CommandResponseMessage BuildCommandResponse(
             RawBsonDocument command,

@@ -50,7 +50,12 @@ namespace MongoDB.Driver.Core.Authentication.External
         public SecureString SecretAccessKey => _secretAccessKey;
         public string SessionToken => _sessionToken;
         public bool ShouldBeRefreshed => true;
+        public string AccessToken => throw new NotSupportedException("Oidc access token is not supported with AWS authentication."); // should not be reached
 
+        public void Expire()
+        {
+            // always expired
+        }
         public BsonDocument GetKmsCredentials() =>
             new BsonDocument
             {
@@ -63,6 +68,8 @@ namespace MongoDB.Driver.Core.Authentication.External
     internal class AwsAuthenticationCredentialsProvider : IExternalAuthenticationCredentialsProvider<AwsCredentials>, ICredentialsCache<AwsCredentials>
     {
         private readonly object _lock = new object();
+
+        public AwsCredentials CachedCredentials => throw new NotSupportedException("The cache logic is done on Aws.SDK side. Use CreateCredentialsFromExternalSource instead.");
 
         public void Clear()
         {

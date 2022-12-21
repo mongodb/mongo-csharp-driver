@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -46,75 +47,83 @@ namespace MongoDB.Driver.Core.Connections
             _serverApi = serverApi;
         }
 
-        public ConnectionDescription Authenticate(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
+        public ConnectionDescription Authenticate(IConnection connection, ConnectionInitializerContext connectionInitializerContext, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, nameof(connection));
-            Ensure.IsNotNull(description, nameof(description));
+            Ensure.IsNotNull(connectionInitializerContext, nameof(connectionInitializerContext));
+            var authenticators = connectionInitializerContext.Authenticators ?? GetAuthenticators(connection.EndPoint, connection.Settings);
+            var description = Ensure.IsNotNull(connectionInitializerContext.Description, nameof(connectionInitializerContext.Description));
 
-            var authenticators = GetAuthenticators(connection.Settings);
             AuthenticationHelper.Authenticate(connection, description, authenticators, cancellationToken);
 
-            var connectionIdServerValue = description.HelloResult.ConnectionIdServerValue;
-            if (connectionIdServerValue.HasValue)
+            if (!description.ConnectionId.LongServerValue.HasValue)
             {
-                description = UpdateConnectionIdWithServerValue(description, connectionIdServerValue.Value);
-            }
-            else if (!description.HelloResult.IsMongocryptd) // mongocryptd doesn't provide ConnectionId
-            {
-                try
+                var connectionIdServerValue = description.HelloResult.ConnectionIdServerValue;
+                if (connectionIdServerValue.HasValue)
                 {
-                    var getLastErrorProtocol = CreateGetLastErrorProtocol(_serverApi);
-                    var getLastErrorResult = getLastErrorProtocol.Execute(connection, cancellationToken);
-
-                    description = UpdateConnectionIdWithServerValue(description, getLastErrorResult);
+                    description = UpdateConnectionIdWithServerValue(description, connectionIdServerValue.Value);
                 }
-                catch
+                else if (!description.HelloResult.IsMongocryptd) // mongocryptd doesn't provide ConnectionId
                 {
-                    // if we couldn't get the server's connection id, so be it.
+                    try
+                    {
+                        var getLastErrorProtocol = CreateGetLastErrorProtocol(_serverApi);
+                        var getLastErrorResult = getLastErrorProtocol.Execute(connection, cancellationToken);
+
+                        description = UpdateConnectionIdWithServerValue(description, getLastErrorResult);
+                    }
+                    catch
+                    {
+                        // if we couldn't get the server's connection id, so be it.
+                    }
                 }
             }
 
             return description;
         }
 
-        public async Task<ConnectionDescription> AuthenticateAsync(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
+        public async Task<ConnectionDescription> AuthenticateAsync(IConnection connection, ConnectionInitializerContext connectionInitializerContext, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, nameof(connection));
-            Ensure.IsNotNull(description, nameof(description));
+            Ensure.IsNotNull(connectionInitializerContext, nameof(connectionInitializerContext));
+            var authenticators = connectionInitializerContext.Authenticators ?? GetAuthenticators(connection.EndPoint, connection.Settings);
+            var description = Ensure.IsNotNull(connectionInitializerContext.Description, nameof(connectionInitializerContext.Description));
 
-            var authenticators = GetAuthenticators(connection.Settings);
             await AuthenticationHelper.AuthenticateAsync(connection, description, authenticators, cancellationToken).ConfigureAwait(false);
 
-            var connectionIdServerValue = description.HelloResult.ConnectionIdServerValue;
-            if (connectionIdServerValue.HasValue)
+            if (!description.ConnectionId.LongServerValue.HasValue)
             {
-                description = UpdateConnectionIdWithServerValue(description, connectionIdServerValue.Value);
-            }
-            else if (!description.HelloResult.IsMongocryptd) // mongocryptd doesn't provide ConnectionId
-            {
-                try
+                var connectionIdServerValue = description.HelloResult.ConnectionIdServerValue;
+                if (connectionIdServerValue.HasValue)
                 {
-                    var getLastErrorProtocol = CreateGetLastErrorProtocol(_serverApi);
-                    var getLastErrorResult = await getLastErrorProtocol
-                        .ExecuteAsync(connection, cancellationToken)
-                        .ConfigureAwait(false);
-
-                    description = UpdateConnectionIdWithServerValue(description, getLastErrorResult);
+                    description = UpdateConnectionIdWithServerValue(description, connectionIdServerValue.Value);
                 }
-                catch
+                else if (!description.HelloResult.IsMongocryptd) // mongocryptd doesn't provide ConnectionId
                 {
-                    // if we couldn't get the server's connection id, so be it.
+                    try
+                    {
+                        var getLastErrorProtocol = CreateGetLastErrorProtocol(_serverApi);
+                        var getLastErrorResult = await getLastErrorProtocol
+                            .ExecuteAsync(connection, cancellationToken)
+                            .ConfigureAwait(false);
+
+                        description = UpdateConnectionIdWithServerValue(description, getLastErrorResult);
+                    }
+                    catch
+                    {
+                        // if we couldn't get the server's connection id, so be it.
+                    }
                 }
             }
 
             return description;
         }
 
-        public ConnectionDescription SendHello(IConnection connection, CancellationToken cancellationToken)
+        public ConnectionInitializerContext SendHello(IConnection connection, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, nameof(connection));
-            var authenticators = GetAuthenticators(connection.Settings);
-            var helloCommand = CreateInitialHelloCommand(authenticators, connection.Settings.LoadBalanced);
+            var authenticators = GetAuthenticators(connection.EndPoint, connection.Settings);
+            var helloCommand = CreateInitialHelloCommand(authenticators, connection.Settings.LoadBalanced, cancellationToken);
             var helloProtocol = HelloHelper.CreateProtocol(helloCommand, _serverApi);
             var helloResult = HelloHelper.GetResult(connection, helloProtocol, cancellationToken);
             if (connection.Settings.LoadBalanced && !helloResult.ServiceId.HasValue)
@@ -122,14 +131,14 @@ namespace MongoDB.Driver.Core.Connections
                 throw new InvalidOperationException("Driver attempted to initialize in load balancing mode, but the server does not support this mode.");
             }
 
-            return new ConnectionDescription(connection.ConnectionId, helloResult);
+            return new (new ConnectionDescription(connection.ConnectionId, helloResult), authenticators);
         }
 
-        public async Task<ConnectionDescription> SendHelloAsync(IConnection connection, CancellationToken cancellationToken)
+        public async Task<ConnectionInitializerContext> SendHelloAsync(IConnection connection, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, nameof(connection));
-            var authenticators = GetAuthenticators(connection.Settings);
-            var helloCommand = CreateInitialHelloCommand(authenticators, connection.Settings.LoadBalanced);
+            var authenticators = GetAuthenticators(connection.EndPoint, connection.Settings);
+            var helloCommand = CreateInitialHelloCommand(authenticators, connection.Settings.LoadBalanced, cancellationToken);
             var helloProtocol = HelloHelper.CreateProtocol(helloCommand, _serverApi);
             var helloResult = await HelloHelper.GetResultAsync(connection, helloProtocol, cancellationToken).ConfigureAwait(false);
             if (connection.Settings.LoadBalanced && !helloResult.ServiceId.HasValue)
@@ -137,7 +146,7 @@ namespace MongoDB.Driver.Core.Connections
                 throw new InvalidOperationException("Driver attempted to initialize in load balancing mode, but the server does not support this mode.");
             }
 
-            return new ConnectionDescription(connection.ConnectionId, helloResult);
+            return new (new ConnectionDescription(connection.ConnectionId, helloResult), authenticators);
         }
 
         // private methods
@@ -154,15 +163,15 @@ namespace MongoDB.Driver.Core.Connections
             return getLastErrorProtocol;
         }
 
-        private BsonDocument CreateInitialHelloCommand(IReadOnlyList<IAuthenticator> authenticators, bool loadBalanced = false)
+        private BsonDocument CreateInitialHelloCommand(IReadOnlyList<IAuthenticator> authenticators, bool loadBalanced = false, CancellationToken cancellationToken = default)
         {
             var command = HelloHelper.CreateCommand(_serverApi, loadBalanced: loadBalanced);
             HelloHelper.AddClientDocumentToCommand(command, _clientDocument);
             HelloHelper.AddCompressorsToCommand(command, _compressors);
-            return HelloHelper.CustomizeCommand(command, authenticators);
+            return HelloHelper.CustomizeCommand(command, authenticators, cancellationToken);
         }
 
-        private List<IAuthenticator> GetAuthenticators(ConnectionSettings settings) => settings.AuthenticatorFactories.Select(f => f.Create()).ToList();
+        private List<IAuthenticator> GetAuthenticators(EndPoint endpoint, ConnectionSettings settings) => settings.AuthenticatorFactories.Select(f => f.Create(endpoint)).ToList();
 
         private ConnectionDescription UpdateConnectionIdWithServerValue(ConnectionDescription description, BsonDocument getLastErrorResult)
         {

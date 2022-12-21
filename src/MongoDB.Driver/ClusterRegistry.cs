@@ -117,7 +117,7 @@ namespace MongoDB.Driver
 
         private ConnectionSettings ConfigureConnection(ConnectionSettings settings, ClusterKey clusterKey)
         {
-            var authenticatorFactories = clusterKey.Credentials.Select(c => new AuthenticatorFactory(() => c.ToAuthenticator(clusterKey.ServerApi)));
+            var authenticatorFactories = clusterKey.Credentials.Select(c => new AuthenticatorFactory((currentEndpoint) => c.ToAuthenticator(currentEndpoint, clusterKey.ServerApi)));
             return settings.With(
                 authenticatorFactories: Optional.Enumerable<IAuthenticatorFactory>(authenticatorFactories),
                 compressors: Optional.Enumerable(clusterKey.Compressors),

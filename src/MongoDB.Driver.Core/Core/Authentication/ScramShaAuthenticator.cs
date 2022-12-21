@@ -16,8 +16,10 @@
 using System;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
+using MongoDB.Driver.Core.Authentication.Sasl;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 
@@ -126,10 +128,10 @@ namespace MongoDB.Driver.Core.Authentication
         public override string DatabaseName => _databaseName;
 
         /// <inheritdoc/>
-        public override BsonDocument CustomizeInitialHelloCommand(BsonDocument helloCommand)
+        public override BsonDocument CustomizeInitialHelloCommand(BsonDocument helloCommand, CancellationToken cancellationToken)
         {
-            helloCommand = base.CustomizeInitialHelloCommand(helloCommand);
-            _speculativeFirstStep = _mechanism.Initialize(connection: null, conversation: null, description: null);
+            helloCommand = base.CustomizeInitialHelloCommand(helloCommand, cancellationToken);
+            _speculativeFirstStep = _mechanism.Initialize(connection: null, conversation: null, description: null, cancellationToken);
             var firstCommand = CreateStartCommand(_speculativeFirstStep);
             firstCommand.Add("db", DatabaseName);
             helloCommand.Add("speculativeAuthenticate", firstCommand);
@@ -144,7 +146,7 @@ namespace MongoDB.Driver.Core.Authentication
         }
 
         // nested classes
-        private class ScramShaMechanism : ISaslMechanism
+        private class ScramShaMechanism : SaslMechanismBase
         {
             private readonly UsernamePasswordCredential _credential;
             private readonly IRandomStringGenerator _randomStringGenerator;
@@ -176,9 +178,9 @@ namespace MongoDB.Driver.Core.Authentication
                 _cache = cache;
             }
 
-            public string Name => _name;
+            public override string Name => _name;
 
-            public ISaslStep Initialize(IConnection connection, SaslConversation conversation, ConnectionDescription description)
+            public override ISaslStep Initialize(IConnection connection, SaslConversation conversation, ConnectionDescription description, CancellationToken cancellationToken)
             {
                 const string gs2Header = "n,,";
                 var username = "n=" + PrepUsername(_credential.Username);
@@ -205,7 +207,7 @@ namespace MongoDB.Driver.Core.Authentication
             }
         }
 
-        private class ClientFirst : ISaslStep
+        private class ClientFirst : SaslStepBase
         {
             private readonly byte[] _bytesToSendToServer;
             private readonly string _clientFirstMessageBare;
@@ -238,11 +240,11 @@ namespace MongoDB.Driver.Core.Authentication
                 _cache = cache;
             }
 
-            public byte[] BytesToSendToServer => _bytesToSendToServer;
+            public override byte[] BytesToSendToServer => _bytesToSendToServer;
 
-            public bool IsComplete => false;
+            public override bool IsComplete => false;
 
-            public ISaslStep Transition(SaslConversation conversation, byte[] bytesReceivedFromServer)
+            public override ISaslStep Transition(SaslConversation conversation, byte[] bytesReceivedFromServer, CancellationToken cancellationToken)
             {
                 var encoding = Utf8Encodings.Strict;
                 var serverFirstMessage = encoding.GetString(bytesReceivedFromServer);
@@ -304,7 +306,7 @@ namespace MongoDB.Driver.Core.Authentication
             }
         }
 
-        private class ClientLast : ISaslStep
+        private class ClientLast : SaslStepBase
         {
             private readonly byte[] _bytesToSendToServer;
             private readonly byte[] _serverSignature64;
@@ -315,11 +317,11 @@ namespace MongoDB.Driver.Core.Authentication
                 _serverSignature64 = serverSignature64;
             }
 
-            public byte[] BytesToSendToServer => _bytesToSendToServer;
+            public override byte[] BytesToSendToServer => _bytesToSendToServer;
 
-            public bool IsComplete => false;
+            public override bool IsComplete => false;
 
-            public ISaslStep Transition(SaslConversation conversation, byte[] bytesReceivedFromServer)
+            public override ISaslStep Transition(SaslConversation conversation, byte[] bytesReceivedFromServer, CancellationToken cancellationToken)
             {
                 var encoding = Utf8Encodings.Strict;
                 var map = SaslMapParser.Parse(encoding.GetString(bytesReceivedFromServer));

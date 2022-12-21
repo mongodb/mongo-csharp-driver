@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Net;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Authentication
@@ -23,21 +24,21 @@ namespace MongoDB.Driver.Core.Authentication
     /// </summary>
     public class AuthenticatorFactory : IAuthenticatorFactory
     {
-        private readonly Func<IAuthenticator> _authenticatorFactoryFunc;
+        private readonly Func<EndPoint, IAuthenticator> _authenticatorFactoryFunc;
 
         /// <summary>
         /// Create an authenticatorFactory.
         /// </summary>
         /// <param name="authenticatorFactoryFunc">The authenticatorFactoryFunc.</param>
-        public AuthenticatorFactory(Func<IAuthenticator> authenticatorFactoryFunc)
+        public AuthenticatorFactory(Func<EndPoint, IAuthenticator> authenticatorFactoryFunc)
         {
             _authenticatorFactoryFunc = Ensure.IsNotNull(authenticatorFactoryFunc, nameof(authenticatorFactoryFunc));
         }
 
         /// <inheritdoc/>
-        public IAuthenticator Create()
+        public IAuthenticator Create(EndPoint endpoint)
         {
-            return _authenticatorFactoryFunc();
+            return _authenticatorFactoryFunc(endpoint);
         }
     }
 }

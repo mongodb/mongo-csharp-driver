@@ -104,45 +104,28 @@ namespace MongoDB.Driver.Core.WireProtocol
         {
             try
             {
-                bool responseExpected;
                 int responseTo;
+                CommandRequestMessage message = null;
+
                 if (_moreToCome)
                 {
-                    responseExpected = true;
                     responseTo = _previousRequestId;
                 }
                 else
                 {
-                    var message = CreateCommandMessage(connection.Description);
+                    message = CreateCommandMessage(connection.Description);
                     message = AutoEncryptFieldsIfNecessary(message, connection, cancellationToken);
-
-                    try
-                    {
-                        connection.SendMessage(message, _messageEncoderSettings, cancellationToken);
-                    }
-                    finally
-                    {
-                        if (message.WasSent)
-                        {
-                            MessageWasProbablySent(message);
-                        }
-                    }
-
-                    responseExpected = message.WrappedMessage.ResponseExpected;
-                    responseTo = message.RequestId;
+                    responseTo = message.WrappedMessage.RequestId;
                 }
 
-                if (responseExpected)
+                try
                 {
-                    var encoderSelector = new CommandResponseMessageEncoderSelector();
-                    var response = (CommandResponseMessage)connection.ReceiveMessage(responseTo, encoderSelector, _messageEncoderSettings, cancellationToken);
-                    SaveResponseInfo(response);
-                    response = AutoDecryptFieldsIfNecessary(response, cancellationToken);
-                    return ProcessResponse(connection.ConnectionId, response.WrappedMessage);
+                    return SendMessage(message, responseTo, connection, cancellationToken);
                 }
-                else
+                catch (MongoCommandException commandException) when (RetryabilityHelper.IsRetryableCommandAuthenticationException(commandException, _command))
                 {
-                    return default(TCommandResult);
+                    connection.Reauthenticate(cancellationToken);
+                    return SendMessage(message, responseTo, connection, cancellationToken);
                 }
             }
             catch (Exception exception)
@@ -158,45 +141,28 @@ namespace MongoDB.Driver.Core.WireProtocol
         {
             try
             {
-                bool responseExpected;
                 int responseTo;
+                CommandRequestMessage message = null;
+
                 if (_moreToCome)
                 {
-                    responseExpected = true;
                     responseTo = _previousRequestId;
                 }
                 else
                 {
-                    var message = CreateCommandMessage(connection.Description);
+                    message = CreateCommandMessage(connection.Description);
                     message = await AutoEncryptFieldsIfNecessaryAsync(message, connection, cancellationToken).ConfigureAwait(false);
-
-                    try
-                    {
-                        await connection.SendMessageAsync(message, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
-                    }
-                    finally
-                    {
-                        if (message.WasSent)
-                        {
-                            MessageWasProbablySent(message);
-                        }
-                    }
-
-                    responseExpected = message.WrappedMessage.ResponseExpected;
-                    responseTo = message.RequestId;
+                    responseTo = message.WrappedMessage.RequestId;
                 }
 
-                if (responseExpected)
+                try
                 {
-                    var encoderSelector = new CommandResponseMessageEncoderSelector();
-                    var response = (CommandResponseMessage)await connection.ReceiveMessageAsync(responseTo, encoderSelector, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
-                    SaveResponseInfo(response);
-                    response = await AutoDecryptFieldsIfNecessaryAsync(response, cancellationToken).ConfigureAwait(false);
-                    return ProcessResponse(connection.ConnectionId, response.WrappedMessage);
+                    return await SendMessageAsync(message, responseTo, connection, cancellationToken).ConfigureAwait(false);
                 }
-                else
+                catch (MongoCommandException commandException) when (RetryabilityHelper.IsRetryableCommandAuthenticationException(commandException, _command))
                 {
-                    return default(TCommandResult);
+                    await connection.ReauthenticateAsync(cancellationToken).ConfigureAwait(false);
+                    return await SendMessageAsync(message, responseTo, connection, cancellationToken).ConfigureAwait(false);
                 }
             }
             catch (Exception exception)
@@ -205,6 +171,75 @@ namespace MongoDB.Driver.Core.WireProtocol
 
                 TransactionHelper.UnpinServerIfNeededOnCommandException(_session, exception);
                 throw;
+            }
+        }
+
+        private TCommandResult SendMessage(CommandRequestMessage message, int responseTo, IConnection connection, CancellationToken cancellationToken)
+        {
+            bool responseExpected = true;
+            if (message != null)
+            {
+                try
+                {
+                    connection.SendMessage(message, _messageEncoderSettings, cancellationToken);
+                }
+                finally
+                {
+                    if (message.WasSent)
+                    {
+                        MessageWasProbablySent(message);
+                    }
+                }
+
+                responseExpected = message.WrappedMessage.ResponseExpected; // mutable, read after sending
+            }
+
+            if (responseExpected)
+            {
+                var encoderSelector = new CommandResponseMessageEncoderSelector();
+                var response = (CommandResponseMessage)connection.ReceiveMessage(responseTo, encoderSelector, _messageEncoderSettings, cancellationToken);
+                response = AutoDecryptFieldsIfNecessary(response, cancellationToken);
+                var result = ProcessResponse(connection.ConnectionId, response.WrappedMessage);
+                SaveResponseInfo(response);
+                return result;
+            }
+            else
+            {
+                return default(TCommandResult);
+            }
+        }
+
+        private async Task<TCommandResult> SendMessageAsync(CommandRequestMessage message, int responseTo, IConnection connection, CancellationToken cancellationToken)
+        {
+            bool responseExpected = true; 
+            if (message != null)
+            {
+                try
+                {
+                    await connection.SendMessageAsync(message, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
+                }
+                finally
+                {
+                    if (message.WasSent)
+                    {
+                        MessageWasProbablySent(message);
+                    }
+                }
+                responseExpected = message.WrappedMessage.ResponseExpected; // mutable, read after sending
+            }
+
+            if (responseExpected)
+            {
+                var encoderSelector = new CommandResponseMessageEncoderSelector();
+                var response = (CommandResponseMessage)await connection.ReceiveMessageAsync(responseTo, encoderSelector, _messageEncoderSettings, cancellationToken).ConfigureAwait(false);
+                response = await AutoDecryptFieldsIfNecessaryAsync(response, cancellationToken).ConfigureAwait(false);
+                var result = ProcessResponse(connection.ConnectionId, response.WrappedMessage);
+                SaveResponseInfo(response);
+                return result;
+            }
+            else
+            {
+                return default(TCommandResult);
             }
         }
 

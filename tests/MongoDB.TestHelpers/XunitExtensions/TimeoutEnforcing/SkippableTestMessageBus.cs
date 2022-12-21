@@ -14,12 +14,14 @@
 */
 
 using System;
+using System.Diagnostics;
 using System.Linq;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
 namespace MongoDB.TestHelpers.XunitExtensions.TimeoutEnforcing
 {
+    [DebuggerStepThrough]
     internal sealed class SkippableTestMessageBus : IMessageBus
     {
         private readonly static string __skippableExceptionName = typeof(SkipException).FullName;

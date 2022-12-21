@@ -130,6 +130,34 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         [Theory]
+        [InlineData("mongodb://localhost/?authMechanism=MONGODB-OIDC", null)]
+        [InlineData("mongodb://localhost/?authMechanism=MONGODB-OIDC&authMechanismProperties=PRINCIPAL_NAME:Name", "PRINCIPAL_NAME:Name")]
+        [InlineData("mongodb://localhost/?authMechanism=MONGODB-OIDC&authMechanismProperties=PROVIDER_NAME:aws", "PROVIDER_NAME:aws")]
+        public void Resolve_against_mongodb_oidc_configuration_should_return_the_expected_output(string connectionStringStr, string expectedAuthProperties)
+        {
+            const string authMechanism = "MONGODB-OIDC";
+
+            var connectionString = new ConnectionString(connectionStringStr);
+
+            var result = connectionString.Resolve();
+
+            result.AuthMechanism.Should().Be(authMechanism);
+            var actualAuthPropeties = result.AuthMechanismProperties.ToList();
+
+            var list = expectedAuthProperties?.Split(';')?.ToList();
+            if (list != null)
+            {
+                for (int i = 0; i < list.Count; i++)
+                {
+                    var expectedKeyValue = list[i].Split(':');
+                    var actualAuthProperty = actualAuthPropeties[i];
+                    actualAuthProperty.Key.Should().Be(expectedKeyValue[0]);
+                    actualAuthProperty.Value.Should().Be(expectedKeyValue[1]);
+                }
+            }
+        }
+
+        [Theory]
         [InlineData("mongodb://test5.test.build.10gen.cc", false, "mongodb://test5.test.build.10gen.cc", false)]
         [InlineData("mongodb://test5.test.build.10gen.cc", false, "mongodb://test5.test.build.10gen.cc", true)]
         [InlineData("mongodb://test5.test.build.10gen.cc", true, "mongodb://test5.test.build.10gen.cc", false)]

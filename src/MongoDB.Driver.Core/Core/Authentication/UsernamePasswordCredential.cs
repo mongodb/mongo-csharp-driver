@@ -16,6 +16,7 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Security;
+using MongoDB.Driver.Core.Authentication.Sasl;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Shared;
 

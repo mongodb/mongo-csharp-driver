@@ -13,8 +13,12 @@
 * limitations under the License.
 */
 
-using System.Linq;
-using MongoDB.Driver;
+using System.Threading;
+using System.Threading.Tasks;
+using FluentAssertions;
+using MongoDB.Bson;
+using MongoDB.Driver.Core.Authentication.Oidc;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -48,6 +52,55 @@ namespace MongoDB.Driver.Tests
             Assert.Equal("MONGODB-X509", credential.Mechanism);
             Assert.Equal(null, credential.Username);
             Assert.IsType<ExternalEvidence>(credential.Evidence);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void CreateOidcCredential_should_initialize_all_required_properties([Values(null, false, true)] bool? onlySyncCallback)
+        {
+            const string providerName = "providerName";
+            const string principalName = "principalName";
+            var requestTokenSyncDocument = new BsonDocument("requestSync", 1);
+            var requestTokenAsyncDocument = new BsonDocument("requestAsync", 1);
+            var refreshTokenSyncDocument = new BsonDocument("refreshSync", 1);
+            var refreshTokenAsyncDocument = new BsonDocument("refreshAsync", 1);
+            RequestCallback requestFunc = (a, b, ct) => requestTokenSyncDocument;
+            RequestCallbackAsync requestAsyncFunc = (a, b, ct) => Task.FromResult(requestTokenAsyncDocument);
+            RefreshCallback refreshFunc = (a, b, c, ct) => refreshTokenSyncDocument;
+            RefreshCallbackAsync refreshAsyncFunc = (a, b, c, ct) => Task.FromResult(refreshTokenAsyncDocument);
+
+            var credential = MongoCredential.CreateOidcCredential(
+                principalName,
+                providerName,
+                requestTokenFunc: onlySyncCallback.GetValueOrDefault(defaultValue: true) ? requestFunc : null,
+                requestTokenAsyncFunc: !onlySyncCallback.GetValueOrDefault() ? requestAsyncFunc : null,
+                refreshTokenFunc: onlySyncCallback.GetValueOrDefault(defaultValue: true) ? refreshFunc : null,
+                refreshTokenAsyncFunc: !onlySyncCallback.GetValueOrDefault() ? refreshAsyncFunc : null);
+
+            credential.Mechanism.Should().Be("MONGODB-OIDC");
+            credential.Username.Should().Be(principalName);
+            credential.Evidence.Should().BeOfType<ExternalEvidence>();
+            credential.GetMechanismProperty<string>(MongoOidcAuthenticator.ProviderName, defaultValue: null).Should().Be(providerName);
+
+            var dummyDocument = new BsonDocument();
+            var requestProvider = credential.GetMechanismProperty<IRequestCallbackProvider>(MongoOidcAuthenticator.RequestCallbackName, defaultValue: null)
+                .Should().BeOfType<RequestCallbackProvider>().Subject;
+            requestProvider.GetTokenResult(principalName, dummyDocument, CancellationToken.None).Should().Be(GetExpectedDocument(isRequest: true, isSync: true));
+            requestProvider.GetTokenResultAsync(principalName, dummyDocument, CancellationToken.None).GetAwaiter().GetResult().Should().Be(GetExpectedDocument(isRequest: true, isSync: false));
+            var refreshProvider = credential.GetMechanismProperty<IRefreshCallbackProvider>(MongoOidcAuthenticator.RefreshCallbackName, defaultValue: null)
+                .Should().BeOfType<RefreshCallbackProvider>().Subject;
+            refreshProvider.GetTokenResult(principalName, dummyDocument, dummyDocument, CancellationToken.None).Should().Be(GetExpectedDocument(isRequest: false, isSync: true));
+            refreshProvider.GetTokenResultAsync(principalName, dummyDocument, dummyDocument, CancellationToken.None).GetAwaiter().GetResult().Should().Be(GetExpectedDocument(isRequest: false, isSync: false));
+
+            BsonDocument GetExpectedDocument(bool isRequest, bool isSync)
+            {
+                switch (onlySyncCallback)
+                {
+                    case true: isSync = true; goto default;
+                    case false: isSync = false; goto default;
+                    default: return isRequest ? (isSync ? requestTokenSyncDocument : requestTokenAsyncDocument) : (isSync ? refreshTokenSyncDocument : refreshTokenAsyncDocument);
+                }
+            }
         }
 
         [Fact]

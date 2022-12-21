@@ -15,7 +15,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Authentication.Sasl;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Operations
@@ -33,6 +35,7 @@ namespace MongoDB.Driver.Core.Operations
         private static readonly HashSet<Type> __retryableWriteExceptions;
         private static readonly HashSet<ServerErrorCode> __retryableReadErrorCodes;
         private static readonly HashSet<ServerErrorCode> __retryableWriteErrorCodes;
+        private static readonly HashSet<string> __saslCommands;
 
         // static constructor
         static RetryabilityHelper()
@@ -85,6 +88,12 @@ namespace MongoDB.Driver.Core.Operations
                 ServerErrorCode.StaleConfig,
                 ServerErrorCode.RetryChangeStream,
                 ServerErrorCode.FailedToSatisfyReadPreference
+            };
+
+            __saslCommands = new HashSet<string>
+            {
+                SaslAuthenticator.SaslStartCommand,
+                SaslAuthenticator.SaslContinueCommand
             };
         }
 
@@ -139,6 +148,32 @@ namespace MongoDB.Driver.Core.Operations
                 return __resumableChangeStreamExceptions.Contains(exception.GetType());
             }
         }
+
+        /// <summary>
+        /// Determines whether the exception requests additional authentication attempt.
+        /// </summary>
+        /// <param name="mongoCommandException">The command exception.</param>
+        /// <param name="command">The command.</param>
+        /// <returns>The flag.</returns>
+        /// <remarks>
+        /// This logic is completely separate from a standard retry mechanism and related only to authentication.
+        /// </remarks>
+        public static bool IsRetryableCommandAuthenticationException(MongoCommandException mongoCommandException, BsonDocument command) =>
+            mongoCommandException.Code == (int)ServerErrorCode.ReauthenticationRequired &&
+            // SASL commands should not be reauthenticated on sending level
+            !command.Names.Any(n => __saslCommands.Contains(n));
+
+        /// <summary>
+        /// Determines whether the exception requests additional authentication attempt.
+        /// </summary>
+        /// <param name="mongoAuthenticationexception">The authentication exception.</param>
+        /// <returns>The flag.</returns>
+        /// <remarks>
+        /// This logic is completely separate from a standard retry mechanism and related only to authentication.
+        /// </remarks>
+        public static bool IsRetryableSaslException(MongoAuthenticationException mongoAuthenticationexception) =>
+            mongoAuthenticationexception.InnerException is MongoCommandException mongoCommandException &&
+            mongoCommandException.Code == (int)ServerErrorCode.ReauthenticationRequired;
 
         public static bool IsRetryableReadException(Exception exception)
         {

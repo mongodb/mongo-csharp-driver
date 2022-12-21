@@ -13,16 +13,31 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Driver.Core.Authentication;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Connections
 {
+    internal sealed class ConnectionInitializerContext
+    {
+        public ConnectionInitializerContext(ConnectionDescription description, IReadOnlyList<IAuthenticator> authenticators)
+        {
+            Description = Ensure.IsNotNull(description, nameof(description));
+            Authenticators = authenticators; // can be null
+        }
+
+        public IReadOnlyList<IAuthenticator> Authenticators { get; }
+        public ConnectionDescription Description { get; }
+    }
+
     internal interface IConnectionInitializer
     {
-        ConnectionDescription Authenticate(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken);
-        Task<ConnectionDescription> AuthenticateAsync(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken);
-        ConnectionDescription SendHello(IConnection connection, CancellationToken cancellationToken);
-        Task<ConnectionDescription> SendHelloAsync(IConnection connection, CancellationToken cancellationToken);
+        ConnectionDescription Authenticate(IConnection connection, ConnectionInitializerContext connectionInitializerContext, CancellationToken cancellationToken);
+        Task<ConnectionDescription> AuthenticateAsync(IConnection connection, ConnectionInitializerContext connectionInitializerContext, CancellationToken cancellationToken);
+        ConnectionInitializerContext SendHello(IConnection connection, CancellationToken cancellationToken);
+        Task<ConnectionInitializerContext> SendHelloAsync(IConnection connection, CancellationToken cancellationToken);
     }
 }

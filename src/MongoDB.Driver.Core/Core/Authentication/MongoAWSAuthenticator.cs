@@ -22,6 +22,7 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Authentication.External;
+using MongoDB.Driver.Core.Authentication.Sasl;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 
@@ -77,60 +78,49 @@ namespace MongoDB.Driver.Core.Authentication
                 externalAuthenticationCredentialsProvider.CreateCredentialsFromExternalSource();
 
             return new MongoAWSMechanism(awsCredentials, randomByteGenerator, clock);
-        }
 
-        private static AwsCredentials CreateAwsCredentialsFromMongoCredentials(string username, SecureString password, IEnumerable<KeyValuePair<string, string>> properties)
-        {
-            ValidateMechanismProperties(properties);
-            var sessionToken = ExtractSessionTokenFromMechanismProperties(properties);
-
-            if (username == null && password == null && sessionToken == null)
+            AwsCredentials CreateAwsCredentialsFromMongoCredentials(string username, SecureString password, IEnumerable<KeyValuePair<string, string>> properties)
             {
+                var sessionToken = ExtractSessionTokenFromMechanismProperties(properties);
+
+                if (username == null && password == null && sessionToken == null)
+                {
+                    return null;
+                }
+                if (password != null && username == null)
+                {
+                    throw new InvalidOperationException("When using MONGODB-AWS authentication if a password is provided via settings then a username must be provided also.");
+                }
+                if (username != null && password == null)
+                {
+                    throw new InvalidOperationException("When using MONGODB-AWS authentication if a username is provided via settings then a password must be provided also.");
+                }
+                if (sessionToken != null && (username == null || password == null))
+                {
+                    throw new InvalidOperationException("When using MONGODB-AWS authentication if a session token is provided via settings then a username and password must be provided also.");
+                }
+
+                return new AwsCredentials(accessKeyId: username, secretAccessKey: password, sessionToken);
+            }
+
+            string ExtractSessionTokenFromMechanismProperties(IEnumerable<KeyValuePair<string, string>> properties)
+            {
+                if (properties != null)
+                {
+                    foreach (var pair in properties)
+                    {
+                        if (pair.Key.ToUpperInvariant() == "AWS_SESSION_TOKEN")
+                        {
+                            return pair.Value;
+                        }
+                        else
+                        {
+                            throw new ArgumentException($"Unknown AWS property '{pair.Key}'.", nameof(properties));
+                        }
+                    }
+                }
+
                 return null;
-            }
-            if (password != null && username == null)
-            {
-                throw new InvalidOperationException("When using MONGODB-AWS authentication if a password is provided via settings then a username must be provided also.");
-            }
-            if (username != null && password == null)
-            {
-                throw new InvalidOperationException("When using MONGODB-AWS authentication if a username is provided via settings then a password must be provided also.");
-            }
-            if (sessionToken != null && (username == null || password == null))
-            {
-                throw new InvalidOperationException("When using MONGODB-AWS authentication if a session token is provided via settings then a username and password must be provided also.");
-            }
-
-            return new AwsCredentials(accessKeyId: username, secretAccessKey: password, sessionToken);
-        }
-
-        private static string ExtractSessionTokenFromMechanismProperties(IEnumerable<KeyValuePair<string, string>> properties)
-        {
-            if (properties != null)
-            {
-                foreach (var pair in properties)
-                {
-                    if (pair.Key.ToUpperInvariant() == "AWS_SESSION_TOKEN")
-                    {
-                        return pair.Value;
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        private static void ValidateMechanismProperties(IEnumerable<KeyValuePair<string, string>> properties)
-        {
-            if (properties != null)
-            {
-                foreach (var pair in properties)
-                {
-                    if (pair.Key.ToUpperInvariant() != "AWS_SESSION_TOKEN")
-                    {
-                        throw new ArgumentException($"Unknown AWS property '{pair.Key}'.", nameof(properties));
-                    }
-                }
             }
         }
         #endregion
@@ -237,7 +227,7 @@ namespace MongoDB.Driver.Core.Authentication
         }
 
         // nested classes
-        private class MongoAWSMechanism : ISaslMechanism
+        private class MongoAWSMechanism : SaslMechanismBase
         {
             private readonly AwsCredentials _awsCredentials;
             private readonly IClock _clock;
@@ -253,12 +243,12 @@ namespace MongoDB.Driver.Core.Authentication
                 _clock = Ensure.IsNotNull(clock, nameof(clock));
             }
 
-            public string Name
+            public override string Name
             {
                 get { return MechanismName; }
             }
 
-            public ISaslStep Initialize(IConnection connection, SaslConversation conversation, ConnectionDescription description)
+            public override ISaslStep Initialize(IConnection connection, SaslConversation conversation, ConnectionDescription description, CancellationToken cancellationToken)
             {
                 Ensure.IsNotNull(connection, nameof(connection));
                 Ensure.IsNotNull(description, nameof(description));
@@ -282,7 +272,7 @@ namespace MongoDB.Driver.Core.Authentication
             }
         }
 
-        private class ClientFirst : ISaslStep
+        private class ClientFirst : SaslStepBase
         {
             private readonly AwsCredentials _awsCredentials;
             private readonly byte[] _bytesToSendToServer;
@@ -301,17 +291,17 @@ namespace MongoDB.Driver.Core.Authentication
                 _clock = clock;
             }
 
-            public byte[] BytesToSendToServer
+            public override byte[] BytesToSendToServer
             {
                 get { return _bytesToSendToServer; }
             }
 
-            public bool IsComplete
+            public override bool IsComplete
             {
                 get { return false; }
             }
 
-            public ISaslStep Transition(SaslConversation conversation, byte[] bytesReceivedFromServer)
+            public override ISaslStep Transition(SaslConversation conversation, byte[] bytesReceivedFromServer, CancellationToken cancellationToken)
             {
                 var serverFirstMessageDocument = BsonSerializer.Deserialize<BsonDocument>(bytesReceivedFromServer);
                 var serverNonce = serverFirstMessageDocument["s"].AsByteArray;
@@ -352,32 +342,7 @@ namespace MongoDB.Driver.Core.Authentication
 
                 var clientSecondMessageBytes = document.ToBson();
 
-                return new ClientLast(clientSecondMessageBytes);
-            }
-        }
-
-        private class ClientLast : ISaslStep
-        {
-            private readonly byte[] _bytesToSendToServer;
-
-            public ClientLast(byte[] bytesToSendToServer)
-            {
-                _bytesToSendToServer = bytesToSendToServer;
-            }
-
-            public byte[] BytesToSendToServer
-            {
-                get { return _bytesToSendToServer; }
-            }
-
-            public bool IsComplete
-            {
-                get { return false; }
-            }
-
-            public ISaslStep Transition(SaslConversation conversation, byte[] bytesReceivedFromServer)
-            {
-                return new CompletedStep();
+                return new NoTransitionClientLast(clientSecondMessageBytes);
             }
         }
     }

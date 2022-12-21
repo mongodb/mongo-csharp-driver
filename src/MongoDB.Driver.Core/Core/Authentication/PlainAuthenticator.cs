@@ -14,7 +14,9 @@
 */
 
 using System;
+using System.Threading;
 using MongoDB.Bson.IO;
+using MongoDB.Driver.Core.Authentication.Sasl;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 
@@ -70,7 +72,7 @@ namespace MongoDB.Driver.Core.Authentication
         }
 
         // nested classes
-        private class PlainMechanism : ISaslMechanism
+        private class PlainMechanism : SaslMechanismBase
         {
             // fields
             private readonly UsernamePasswordCredential _credential;
@@ -82,13 +84,13 @@ namespace MongoDB.Driver.Core.Authentication
             }
 
             // properties
-            public string Name
+            public override string Name
             {
                 get { return MechanismName; }
             }
 
             // methods
-            public ISaslStep Initialize(IConnection connection, SaslConversation conversation, ConnectionDescription description)
+            public override ISaslStep Initialize(IConnection connection, SaslConversation conversation, ConnectionDescription description, CancellationToken cancellationToken)
             {
                 Ensure.IsNotNull(connection, nameof(connection));
                 Ensure.IsNotNull(description, nameof(description));

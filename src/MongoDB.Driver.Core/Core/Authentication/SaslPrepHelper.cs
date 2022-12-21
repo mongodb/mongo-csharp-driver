@@ -34,7 +34,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 
-namespace MongoDB.Driver.Core.Authentication
+namespace MongoDB.Driver.Core.Authentication.Sasl
 {
     /// <summary>
     /// Utility class for Sasl string preparation.

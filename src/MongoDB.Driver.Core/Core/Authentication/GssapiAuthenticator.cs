@@ -18,6 +18,8 @@ using System.Collections.Generic;
 using System.Net;
 using System.Security;
 using System.Text;
+using System.Threading;
+using MongoDB.Driver.Core.Authentication.Sasl;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 
@@ -33,6 +35,14 @@ namespace MongoDB.Driver.Core.Authentication
         private const string __realmPropertyName = "REALM";
         private const string __serviceNamePropertyName = "SERVICE_NAME";
         private const string __serviceRealmPropertyName = "SERVICE_REALM";
+
+        /// <summary>
+        /// Gets the name of the mechanism.
+        /// </summary>
+        /// <value>
+        /// The name of the mechanism.
+        /// </value>
+        public const string MechanismName = "GSSAPI";
 
         // static properties
         /// <summary>
@@ -55,17 +65,6 @@ namespace MongoDB.Driver.Core.Authentication
         public static string DefaultServiceName
         {
             get { return "mongodb"; }
-        }
-
-        /// <summary>
-        /// Gets the name of the mechanism.
-        /// </summary>
-        /// <value>
-        /// The name of the mechanism.
-        /// </value>
-        public static string MechanismName
-        {
-            get { return "GSSAPI"; }
         }
 
         /// <summary>
@@ -201,7 +200,7 @@ namespace MongoDB.Driver.Core.Authentication
         }
 
         // nested classes
-        private class GssapiMechanism : ISaslMechanism
+        private class GssapiMechanism : SaslMechanismBase
         {
             // fields
             private readonly bool _canonicalizeHostName;
@@ -219,12 +218,12 @@ namespace MongoDB.Driver.Core.Authentication
                 _password = password;
             }
 
-            public string Name
+            public override string Name
             {
                 get { return MechanismName; }
             }
 
-            public ISaslStep Initialize(IConnection connection, SaslConversation conversation, ConnectionDescription description)
+            public override ISaslStep Initialize(IConnection connection, SaslConversation conversation, ConnectionDescription description, CancellationToken cancellationToken)
             {
                 Ensure.IsNotNull(connection, nameof(connection));
                 Ensure.IsNotNull(description, nameof(description));
@@ -257,7 +256,7 @@ namespace MongoDB.Driver.Core.Authentication
             }
         }
 
-        private class FirstStep : ISaslStep
+        private class FirstStep : SaslStepBase
         {
             private readonly string _authorizationId;
             private readonly byte[] _bytesToSendToServer;
@@ -286,17 +285,17 @@ namespace MongoDB.Driver.Core.Authentication
                 }
             }
 
-            public byte[] BytesToSendToServer
+            public override byte[] BytesToSendToServer
             {
                 get { return _bytesToSendToServer; }
             }
 
-            public bool IsComplete
+            public override bool IsComplete
             {
                 get { return false; }
             }
 
-            public ISaslStep Transition(SaslConversation conversation, byte[] bytesReceivedFromServer)
+            public override ISaslStep Transition(SaslConversation conversation, byte[] bytesReceivedFromServer, CancellationToken cancellationToken)
             {
                 byte[] bytesToSendToServer;
                 try
@@ -317,7 +316,7 @@ namespace MongoDB.Driver.Core.Authentication
             }
         }
 
-        private class InitializeStep : ISaslStep
+        private class InitializeStep : SaslStepBase
         {
             private readonly string _authorizationId;
             private readonly ISecurityContext _context;
@@ -330,17 +329,17 @@ namespace MongoDB.Driver.Core.Authentication
                 _bytesToSendToServer = bytesToSendToServer ?? new byte[0];
             }
 
-            public byte[] BytesToSendToServer
+            public override byte[] BytesToSendToServer
             {
                 get { return _bytesToSendToServer; }
             }
 
-            public bool IsComplete
+            public override bool IsComplete
             {
                 get { return false; }
             }
 
-            public ISaslStep Transition(SaslConversation conversation, byte[] bytesReceivedFromServer)
+            public override ISaslStep Transition(SaslConversation conversation, byte[] bytesReceivedFromServer, CancellationToken cancellationToken)
             {
                 byte[] bytesToSendToServer;
                 try
@@ -361,7 +360,7 @@ namespace MongoDB.Driver.Core.Authentication
             }
         }
 
-        private class NegotiateStep : ISaslStep
+        private class NegotiateStep : SaslStepBase
         {
             private readonly string _authorizationId;
             private readonly ISecurityContext _context;
@@ -374,17 +373,17 @@ namespace MongoDB.Driver.Core.Authentication
                 _bytesToSendToServer = bytesToSendToServer ?? new byte[0];
             }
 
-            public byte[] BytesToSendToServer
+            public override byte[] BytesToSendToServer
             {
                 get { return _bytesToSendToServer; }
             }
 
-            public bool IsComplete
+            public override bool IsComplete
             {
                 get { return false; }
             }
 
-            public ISaslStep Transition(SaslConversation conversation, byte[] bytesReceivedFromServer)
+            public override ISaslStep Transition(SaslConversation conversation, byte[] bytesReceivedFromServer, CancellationToken cancellationToken)
             {
                 try
                 {

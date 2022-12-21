@@ -25,6 +25,8 @@ namespace MongoDB.Driver
     [Serializable]
     public class MongoAuthenticationException : MongoConnectionException
     {
+        private readonly bool _allowReauthenticationAfterError;
+
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="MongoAuthenticationException"/> class.
@@ -42,9 +44,11 @@ namespace MongoDB.Driver
         /// <param name="connectionId">The connection identifier.</param>
         /// <param name="message">The error message.</param>
         /// <param name="innerException">The inner exception.</param>
-        public MongoAuthenticationException(ConnectionId connectionId, string message, Exception innerException)
+        /// <param name="allowReauthenticationAfterError">Determines whether reauthentication is allowed after error.</param>
+        public MongoAuthenticationException(ConnectionId connectionId, string message, Exception innerException, bool allowReauthenticationAfterError = false)
             : base(connectionId, message, innerException)
         {
+            _allowReauthenticationAfterError = allowReauthenticationAfterError;
         }
 
         /// <summary>
@@ -55,9 +59,23 @@ namespace MongoDB.Driver
         public MongoAuthenticationException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+            _allowReauthenticationAfterError = (bool)info.GetValue(nameof(_allowReauthenticationAfterError), typeof(bool));
         }
 
         /// <inheritdoc/>
         public override bool IsNetworkException => false;
+
+        /// <summary>
+        /// Determines whether authenticator allows calling reautentication calls if configured.
+        /// </summary>
+        public virtual bool AllowReauthenticationAfterError => _allowReauthenticationAfterError;
+
+        // methods
+        /// <inheritdoc/>
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue(nameof(_allowReauthenticationAfterError), _allowReauthenticationAfterError);
+        }
     }
 }

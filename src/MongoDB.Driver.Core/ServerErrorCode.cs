@@ -40,6 +40,7 @@ namespace MongoDB.Driver
         NotPrimaryNoSecondaryOk = 13435,
         NotPrimaryOrSecondary = 13436,
         PrimarySteppedDown = 189,
+        ReauthenticationRequired = 391,
         RetryChangeStream = 234,
         ShutdownInProgress = 91,
         SocketException = 9001,

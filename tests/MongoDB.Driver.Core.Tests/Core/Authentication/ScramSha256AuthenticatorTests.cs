@@ -30,6 +30,7 @@ using MongoDB.Driver.Core.Connections;
 using MongoDB.TestHelpers.XunitExtensions;
 using System.Linq;
 using MongoDB.Driver.Core.TestHelpers;
+using MongoDB.Driver.Core.Authentication.Sasl;
 
 namespace MongoDB.Driver.Core.Authentication
 {
@@ -300,7 +301,7 @@ namespace MongoDB.Driver.Core.Authentication
             {
                 // We must call CustomizeInitialHelloCommand so that the authenticator thinks its started to speculatively
                 // authenticate
-                helloCommand = subject.CustomizeInitialHelloCommand(new BsonDocument { { OppressiveLanguageConstants.LegacyHelloCommandName, 1 } });
+                helloCommand = subject.CustomizeInitialHelloCommand(new BsonDocument { { OppressiveLanguageConstants.LegacyHelloCommandName, 1 } }, CancellationToken.None);
             }
             else
             {

@@ -21,6 +21,8 @@ namespace MongoDB.Driver.Core.Authentication.External
 {
     internal interface ICredentialsCache<TCredentials> where TCredentials : IExternalCredentials
     {
+        TCredentials CachedCredentials { get; }
+
         void Clear();
     }
 
@@ -35,64 +37,68 @@ namespace MongoDB.Driver.Core.Authentication.External
             _provider = Ensure.IsNotNull(provider, nameof(provider));
         }
 
-        public TCredentials Credentials => _cachedCredentials;
+        public TCredentials CachedCredentials => _cachedCredentials;
 
         public TCredentials CreateCredentialsFromExternalSource(CancellationToken cancellationToken = default)
         {
-            var cachedCredentials = _cachedCredentials;
-            if (IsValidCache(cachedCredentials))
-            {
-                return cachedCredentials;
-            }
-            else
+            if (!TryGetCachedCredentials(out var credentials))
             {
                 Clear();
-                try
+                credentials = _provider.CreateCredentialsFromExternalSource(cancellationToken);
+                if (credentials.Expiration.HasValue) // allows caching
                 {
-                    cachedCredentials = _provider.CreateCredentialsFromExternalSource(cancellationToken);
-                    if (cachedCredentials.Expiration.HasValue) // allows caching
-                    {
-                        _cachedCredentials = cachedCredentials;
-                    }
-                    return cachedCredentials;
-                }
-                catch
-                {
-                    Clear();
-                    throw;
+                    _cachedCredentials = credentials;
                 }
             }
+            return credentials;
         }
 
         public async Task<TCredentials> CreateCredentialsFromExternalSourceAsync(CancellationToken cancellationToken = default)
         {
-            var cachedCredentials = _cachedCredentials;
-            if (IsValidCache(cachedCredentials))
-            {
-                return cachedCredentials;
-            }
-            else
+            if (!TryGetCachedCredentials(out var credentials))
             {
                 Clear();
-                try
+                credentials = await _provider.CreateCredentialsFromExternalSourceAsync(cancellationToken).ConfigureAwait(false);
+                if (credentials.Expiration.HasValue) // allows caching
                 {
-                    cachedCredentials = await _provider.CreateCredentialsFromExternalSourceAsync(cancellationToken).ConfigureAwait(false);
-                    if (cachedCredentials.Expiration.HasValue) // allows caching
-                    {
-                        _cachedCredentials = cachedCredentials;
-                    }
-                    return cachedCredentials;
-                }
-                catch
-                {
-                    Clear();
-                    throw;
+                    _cachedCredentials = credentials;
                 }
             }
+            return credentials;
         }
 
         // private methods
-        private bool IsValidCache(TCredentials credentials) => credentials != null && !credentials.ShouldBeRefreshed;
+        private TCredentials GetValidCredentials()
+        {
+            var cache = _cachedCredentials;
+            if (IsValidCache(cache))
+            {
+                return cache;
+            }
+            else
+            {
+                return default;
+            }
+        }
+
         public void Clear() => _cachedCredentials = default;
+
+        // private methods
+        private bool IsValidCache(TCredentials credentials) => credentials != null && !credentials.ShouldBeRefreshed;
+
+        private bool TryGetCachedCredentials(out TCredentials externalCredentials)
+        {
+            var credentials = GetValidCredentials();
+            if (credentials != null)
+            {
+                externalCredentials = credentials;
+                return true;
+            }
+            else
+            {
+                externalCredentials = default;
+                return false;
+            }
+        }
     }
 }

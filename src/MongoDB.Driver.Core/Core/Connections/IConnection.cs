@@ -71,6 +71,14 @@ namespace MongoDB.Driver.Core.Connections
         bool IsExpired { get; }
 
         /// <summary>
+        /// Gets a flag whether the connection fully initialized or no.
+        /// </summary>
+        /// <value>
+        /// The flag.
+        /// </value>
+        bool IsInitialized { get; }
+
+        /// <summary>
         /// Gets the connection settings.
         /// </summary>
         /// <value>
@@ -97,6 +105,19 @@ namespace MongoDB.Driver.Core.Connections
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A Task.</returns>
         Task OpenAsync(CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Reauthenticate the connection.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        void Reauthenticate(CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Reauthenticate the connection.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A task.</returns>
+        Task ReauthenticateAsync(CancellationToken cancellationToken);
 
         /// <summary>
         /// Receives a message.
