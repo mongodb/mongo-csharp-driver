@@ -241,6 +241,8 @@ tests:
               failure: { $$exists: true }
 
   - description: "getnonce command and server reply are redacted"
+    runOnRequirements:
+      - maxServerVersion: 6.1.99 # getnonce removed as of 6.2 via SERVER-71007
     operations:
       - name: runCommand
         object: *database
@@ -268,6 +270,8 @@ tests:
                 $$matchAsDocument: {}
 
   - description: "network error in response to getnonce is not redacted"
+    runOnRequirements:
+      - maxServerVersion: 6.1.99 # getnonce removed as of 6.2 via SERVER-71007
     operations:
       - name: failPoint
         object: testRunner
@@ -453,6 +457,8 @@ tests:
               failure: { $$exists: true }
 
   - description: "copydbgetnonce command and resulting server-generated error are redacted"
+    runOnRequirements:
+      - maxServerVersion: 3.6.99 # copydbgetnonce was removed as of 4.0 via SERVER-32276
     operations:
       - name: runCommand
         object: *database
@@ -483,7 +489,7 @@ tests:
 
   - description: "network error in response to copydbgetnonce is not redacted"
     runOnRequirements:
-      - maxServerVersion: "4.0.99" # this commmand was removed in MongoDB 4.2 and the server returns CommandNotFound before hitting the failpoint
+      - maxServerVersion: 3.6.99 # copydbgetnonce was removed as of 4.0 via SERVER-32276
     operations:
       - name: failPoint
         object: testRunner
@@ -523,6 +529,8 @@ tests:
               failure: { $$exists: true }
 
   - description: "copydbsaslstart command and resulting server-generated error are redacted"
+    runOnRequirements:
+    - maxServerVersion: 4.0.99 # copydbsaslstart was removed as of 4.2 via SERVER-36211
     operations:
       - name: runCommand
         object: *database
@@ -553,7 +561,7 @@ tests:
 
   - description: "network error in response to copydbsaslstart is not redacted"
     runOnRequirements:
-    - maxServerVersion: "4.0.99"  # this commmand was removed in MongoDB 4.2 and the server returns CommandNotFound before hitting the failpoint
+    - maxServerVersion: 4.0.99 # copydbsaslstart was removed as of 4.2 via SERVER-36211
     operations:
       - name: failPoint
         object: testRunner
@@ -593,6 +601,8 @@ tests:
               failure: { $$exists: true }
 
   - description: "copydb command and resulting server-generated error are redacted"
+    runOnRequirements:
+    - maxServerVersion: 4.0.99 # copydb was removed as of 4.2 via SERVER-36257
     operations:
       - name: runCommand
         object: *database
@@ -623,7 +633,7 @@ tests:
 
   - description: "network error in response to copydb is not redacted"
     runOnRequirements:
-    - maxServerVersion: "4.0.99"  # this commmand was removed in MongoDB 4.2 and the server returns CommandNotFound before hitting the failpoint
+    - maxServerVersion: 4.0.99 # copydb was removed as of 4.2 via SERVER-36257
     operations:
       - name: failPoint
         object: testRunner
