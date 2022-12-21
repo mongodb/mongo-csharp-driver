@@ -407,7 +407,7 @@ namespace MongoDB.Bson
                     }
                     else
                     {
-                        var message = string.Format("A BsonDocument can't be mapped to a {0}.", BsonUtils.GetFriendlyTypeName(options.MapBsonArrayTo));
+                        var message = string.Format("A BsonDocument can't be mapped to a {0}.", BsonUtils.GetFriendlyTypeName(options.MapBsonDocumentTo));
                         throw new NotSupportedException(message);
                     }
                 case BsonType.Double:
