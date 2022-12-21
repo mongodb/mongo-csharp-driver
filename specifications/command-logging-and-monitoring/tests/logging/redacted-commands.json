@@ -398,6 +398,11 @@
     },
     {
       "description": "getnonce command and server reply are redacted",
+      "runOnRequirements": [
+        {
+          "maxServerVersion": "6.1.99"
+        }
+      ],
       "operations": [
         {
           "name": "runCommand",
@@ -443,6 +448,11 @@
     },
     {
       "description": "network error in response to getnonce is not redacted",
+      "runOnRequirements": [
+        {
+          "maxServerVersion": "6.1.99"
+        }
+      ],
       "operations": [
         {
           "name": "failPoint",
@@ -753,6 +763,11 @@
     },
     {
       "description": "copydbgetnonce command and resulting server-generated error are redacted",
+      "runOnRequirements": [
+        {
+          "maxServerVersion": "3.6.99"
+        }
+      ],
       "operations": [
         {
           "name": "runCommand",
@@ -804,7 +819,7 @@
       "description": "network error in response to copydbgetnonce is not redacted",
       "runOnRequirements": [
         {
-          "maxServerVersion": "4.0.99"
+          "maxServerVersion": "3.6.99"
         }
       ],
       "operations": [
@@ -875,6 +890,11 @@
     },
     {
       "description": "copydbsaslstart command and resulting server-generated error are redacted",
+      "runOnRequirements": [
+        {
+          "maxServerVersion": "4.0.99"
+        }
+      ],
       "operations": [
         {
           "name": "runCommand",
@@ -997,6 +1017,11 @@
     },
     {
       "description": "copydb command and resulting server-generated error are redacted",
+      "runOnRequirements": [
+        {
+          "maxServerVersion": "4.0.99"
+        }
+      ],
       "operations": [
         {
           "name": "runCommand",
