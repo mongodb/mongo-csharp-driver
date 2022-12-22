@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
+using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
@@ -40,6 +42,27 @@ namespace MongoDB.Driver.Search
             _path = Ensure.IsNotNull(path, nameof(path));
             _maxCharsToExamine = maxCharsToExamine;
             _maxNumPassages = maxNumPassages;
+        }
+
+        /// <summary>
+        /// Creates highlighting options.
+        /// </summary>
+        /// <param name="path">The document field to search.</param>
+        /// <param name="maxCharsToExamine">
+        /// The maximum number of characters to examine on a document when performing highlighting
+        /// for a field.
+        /// </param>
+        /// <param name="maxNumPassages">
+        /// The number of high-scoring passages to return per document in the highlighting results
+        /// for each field.
+        /// </param>
+        /// <returns>Highlighting options.</returns>
+        public HighlightOptions(
+            Expression<Func<TDocument, object>> path,
+            int? maxCharsToExamine = null,
+            int? maxNumPassages = null) :
+            this(new ExpressionFieldDefinition<TDocument>(path), maxCharsToExamine, maxNumPassages)
+        {
         }
 
         /// <summary>
