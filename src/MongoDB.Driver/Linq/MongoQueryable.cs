@@ -96,7 +96,7 @@ namespace MongoDB.Driver.Linq
                     GetMethodInfo(AppendStage, source, stage, resultSerializer),
                     Expression.Convert(source.Expression, typeof(IMongoQueryable<TSource>)),
                     Expression.Constant(stage),
-                    Expression.Constant(resultSerializer, typeof(IBsonSerializer<TSource>))));
+                    Expression.Constant(resultSerializer, typeof(IBsonSerializer<TResult>))));
         }
 
         /// <summary>
