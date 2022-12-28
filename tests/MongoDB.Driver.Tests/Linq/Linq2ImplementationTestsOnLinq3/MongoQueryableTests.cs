@@ -1537,8 +1537,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3
                 4,
                 "{ $project : { _v : '$G', _id : 0 } }",
                 "{ $unwind : '$_v' }",
-                "{ $group : { _id : '$_v.D', _elements : { $push : '$_v' } } }",
-                "{ $project : { Key : '$_id', SumF : { $sum : '$_elements.E.F' }, _id : 0 } }");
+                "{ $group : { _id : '$_v.D', __agg0 : { $sum : '$_v.E.F' } } }",
+                "{ $project : { Key : '$_id', SumF : '$__agg0', _id : 0 } }");
         }
 
         [Fact]
@@ -1567,8 +1567,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3
                 "{ $unwind : '$_v' }",
                 "{ $project : { '_v' : '$_v.S', '_id' : 0 } }",
                 "{ $unwind : '$_v' }",
-                "{ $group : { _id : '$_v.D', _elements : { $push : '$_v' } } }",
-                "{ $project : { Key : '$_id', SumF : { $sum : '$_elements.E.F' }, _id : 0 } }");
+                "{ $group : { _id : '$_v.D', __agg0 : { $sum : '$_v.E.F' } } }",
+                "{ $project : { Key : '$_id', SumF : '$__agg0', _id : 0 } }");
         }
 
         [Fact]
