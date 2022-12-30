@@ -59,9 +59,9 @@ namespace MongoDB.Driver.Tests
         [ParameterAttributeData]
         public void AsQueryable_should_return_expected_result(
             [Values(false, true)] bool withSession,
-            [Values(2, 3)] int linqVersion)
+            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var collection = CreateMockCollection(linqVersion).Object;
+            var collection = CreateMockCollection(linqProvider).Object;
             var session = withSession ? Mock.Of<IClientSessionHandle>() : null;
             var options = new AggregateOptions();
 
@@ -75,7 +75,7 @@ namespace MongoDB.Driver.Tests
                 result = collection.AsQueryable(options);
             }
 
-            if (linqVersion == 2)
+            if (linqProvider == LinqProvider.V2)
             {
                 var queryable = result.Should().BeOfType<Driver.Linq.Linq2Implementation.MongoQueryableImpl<Person, Person>>().Subject;
                 var provider = queryable.Provider.Should().BeOfType<Driver.Linq.Linq2Implementation.MongoQueryProviderImpl<Person>>().Subject;
@@ -83,8 +83,7 @@ namespace MongoDB.Driver.Tests
                 provider._options().Should().BeSameAs(options);
                 provider._session().Should().BeSameAs(session);
             }
-
-            if (linqVersion == 3)
+            else
             {
                 var queryable = result.Should().BeOfType<Driver.Linq.Linq3Implementation.MongoQuery<Person, Person>>().Subject;
                 var provider = queryable.Provider.Should().BeOfType<Driver.Linq.Linq3Implementation.MongoQueryProvider<Person>>().Subject;
@@ -1234,15 +1233,9 @@ namespace MongoDB.Driver.Tests
             }
         }
 
-        private Mock<IMongoCollection<Person>> CreateMockCollection(int linqVersion = 2)
+        private Mock<IMongoCollection<Person>> CreateMockCollection(LinqProvider linqProvider = LinqProvider.V2)
         {
             var mockClient = new Mock<IMongoClient>();
-            var linqProvider = linqVersion switch
-            {
-                2 => LinqProvider.V2,
-                3 => LinqProvider.V3,
-                _ => throw new ArgumentException($"Invalid linqVersion: {linqVersion}.", nameof(linqVersion))
-            };
             var clientSettings = new MongoClientSettings { LinqProvider = linqProvider };
             mockClient.SetupGet(c => c.Settings).Returns(clientSettings);
 

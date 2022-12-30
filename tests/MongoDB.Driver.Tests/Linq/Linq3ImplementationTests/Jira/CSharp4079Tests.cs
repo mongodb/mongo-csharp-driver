@@ -28,15 +28,14 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Theory]
         [ParameterAttributeData]
         public void Positional_operator_with_negative_one_array_index_should_work_or_throw_depending_on_Linq_provider(
-            [Values(false, true)] bool useLinq2)
+            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var linqProvider = useLinq2 ? LinqProvider.V2 : LinqProvider.V3;
             var collection = GetCollection<C>();
 
             var negativeOne = -1;
             var update = Builders<C>.Update.Set(x => x.A[negativeOne], 0); // using -1 constant is a compile time error
 
-            if (useLinq2)
+            if (linqProvider == LinqProvider.V2)
             {
                 var rendered = Render(update, linqProvider);
                 rendered.Should().Be("{ $set : { 'A.$' : 0 } }");
@@ -51,14 +50,13 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         [Theory]
         [ParameterAttributeData]
         public void Positional_operator_with_negative_one_ElementAt_should_work_or_throw_depending_on_Linq_provider(
-            [Values(false, true)] bool useLinq2)
+            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
-            var linqProvider = useLinq2 ? LinqProvider.V2 : LinqProvider.V3;
             var collection = GetCollection<C>();
 
             var update = Builders<C>.Update.Set(x => x.A.ElementAt(-1), 0);
 
-            if (useLinq2)
+            if (linqProvider == LinqProvider.V2)
             {
                 var rendered = Render(update, linqProvider);
                 rendered.Should().Be("{ $set : { 'A.$' : 0 } }");

@@ -105,9 +105,9 @@ namespace MongoDB.Driver.Tests.Samples
 
 #if !MONO
         [Theory]
-        [InlineData(LinqProvider.V2)]
-        [InlineData(LinqProvider.V3)]
-        public void States_with_pops_over_20000_queryable_syntax(LinqProvider linqProvider)
+        [ParameterAttributeData]
+        public void States_with_pops_over_20000_queryable_syntax(
+            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
             var client = DriverTestConfiguration.GetLinqClient(linqProvider);
             var database = client.GetDatabase(__collection.CollectionNamespace.DatabaseNamespace.DatabaseName);

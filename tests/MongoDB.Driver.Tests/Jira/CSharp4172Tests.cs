@@ -22,6 +22,7 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.Tests.Linq.Linq3ImplementationTests;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira
@@ -29,9 +30,9 @@ namespace MongoDB.Driver.Tests.Jira
     public class CSharp4172Tests : Linq3IntegrationTest
     {
         [Theory]
-        [InlineData(LinqProvider.V2)]
-        [InlineData(LinqProvider.V3)]
-        public void Find_uses_the_expected_serializer(LinqProvider linqProvider)
+        [ParameterAttributeData]
+        public void Find_uses_the_expected_serializer(
+            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
             var collection = GetCollection<Order>(null, null, linqProvider);
 
@@ -43,9 +44,9 @@ namespace MongoDB.Driver.Tests.Jira
         }
 
         [Theory]
-        [InlineData(LinqProvider.V2)]
-        [InlineData(LinqProvider.V3)]
-        public void Aggregate_uses_the_expected_serializer(LinqProvider linqProvider)
+        [ParameterAttributeData]
+        public void Aggregate_uses_the_expected_serializer(
+            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
             var collection = GetCollection<Order>(null, null, linqProvider);
 
