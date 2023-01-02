@@ -20,6 +20,7 @@ using MongoDB.Bson;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Tests.UnifiedTestOperations.Matchers;
+using MongoDB.TestHelpers;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
@@ -47,7 +48,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 (timeout) =>
                 {
                     var triggeredEventsCount = _eventCapturer.Events.Count(eventCondition);
-                    return $"Waiting for {_count} of {_event.ToString().Replace("{", "#").Replace("}", "#").Replace(@$"""", "'")} exceeded the timeout {timeout}. The number of triggered events is {triggeredEventsCount}.";
+                    return $"Waiting for {_count} of {FluentAssertionsHelper.EnsureCorrectBecauseFormatting(_event.ToString())} exceeded the timeout {timeout}. The number of triggered events is {triggeredEventsCount}.";
                 });
         }
     }

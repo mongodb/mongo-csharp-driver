@@ -20,6 +20,7 @@ using MongoDB.Bson;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Tests.UnifiedTestOperations.Matchers;
+using MongoDB.TestHelpers;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
@@ -43,7 +44,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 .Events
                 .Count(eventCondition);
 
-            var becauseMessage = $"{_event.ToString().Replace("{", "#").Replace("}", "#").Replace(@$"""", "'")} must be triggered exactly {_count} times";
+            var becauseMessage = $"{FluentAssertionsHelper.EnsureCorrectBecauseFormatting(_event.ToString())} must be triggered exactly {_count} times";
             actualEventsCount.Should().Be(_count, becauseMessage);
         }
     }
