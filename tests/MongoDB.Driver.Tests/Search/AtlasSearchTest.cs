@@ -1,16 +1,17 @@
-﻿// Copyright 2010-present MongoDB Inc.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+﻿/* Copyright 2010-present MongoDB Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 using System;
 using System.Collections.Generic;
@@ -34,6 +35,8 @@ namespace MongoDB.Driver.Tests.Search
     [Trait("Category", "AtlasSearch")]
     public class AtlasSearchTest : LoggableTestClass
     {
+        #region static
+
         private static readonly GeoJsonPolygon<GeoJson2DGeographicCoordinates> __testPolygon =
             new(new(new(new GeoJson2DGeographicCoordinates[]
             {
@@ -50,6 +53,8 @@ namespace MongoDB.Driver.Tests.Search
         private static readonly GeoWithinCircle<GeoJson2DGeographicCoordinates> __testCircle =
             new(new(new(-8.61308, 41.1413)), 273);
 
+        #endregion
+
         private readonly DisposableMongoClient _disposableMongoClient;
 
         public AtlasSearchTest(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
@@ -62,8 +67,7 @@ namespace MongoDB.Driver.Tests.Search
             _disposableMongoClient = new(new MongoClient(atlasSearchUri), CreateLogger<DisposableMongoClient>());
         }
 
-        protected override void DisposeInternal() =>
-            _disposableMongoClient.Dispose();
+        protected override void DisposeInternal() => _disposableMongoClient.Dispose();
 
         [Fact]
         public void Autocomplete()
@@ -103,8 +107,9 @@ namespace MongoDB.Driver.Tests.Search
         [Fact]
         public void Exists()
         {
-            var result = SearchSingle(Builders.Search.Compound()
-                .Must(Builders.Search.Text("life, liberty, and the pursuit of happiness", x => x.Body),
+            var result = SearchSingle(
+                Builders.Search.Compound().Must(
+                    Builders.Search.Text("life, liberty, and the pursuit of happiness", x => x.Body),
                     Builders.Search.Exists(x => x.Title)));
 
             result.Title.Should().Be("Declaration of Independence");
@@ -113,9 +118,10 @@ namespace MongoDB.Driver.Tests.Search
         [Fact]
         public void Filter()
         {
-            var result = SearchSingle(Builders.Search.Compound().Filter(
-                Builders.Search.Phrase("life, liberty", x => x.Body),
-                Builders.Search.Wildcard("happ*", x => x.Body, true)));
+            var result = SearchSingle(
+                Builders.Search.Compound().Filter(
+                    Builders.Search.Phrase("life, liberty", x => x.Body),
+                    Builders.Search.Wildcard("happ*", x => x.Body, true)));
 
             result.Title.Should().Be("Declaration of Independence");
         }
@@ -158,10 +164,11 @@ namespace MongoDB.Driver.Tests.Search
         [Fact]
         public void GeoShape()
         {
-            var results = GeoSearch(GeoBuilders.Search.GeoShape(
-                __testPolygon,
-                x => x.Address.Location,
-                GeoShapeRelation.Intersects));
+            var results = GeoSearch(
+                GeoBuilders.Search.GeoShape(
+                    __testPolygon,
+                    x => x.Address.Location,
+                    GeoShapeRelation.Intersects));
 
             results.Count.Should().Be(25);
             results.First().Name.Should().Be("Ribeira Charming Duplex");
@@ -203,9 +210,10 @@ namespace MongoDB.Driver.Tests.Search
         [Fact]
         public void Must()
         {
-            var result = SearchSingle(Builders.Search.Compound().Must(
-                Builders.Search.Phrase("life, liberty", x => x.Body),
-                Builders.Search.Wildcard("happ*", x => x.Body, true)));
+            var result = SearchSingle(
+                Builders.Search.Compound().Must(
+                    Builders.Search.Phrase("life, liberty", x => x.Body),
+                    Builders.Search.Wildcard("happ*", x => x.Body, true)));
 
             result.Title.Should().Be("Declaration of Independence");
         }
@@ -213,9 +221,9 @@ namespace MongoDB.Driver.Tests.Search
         [Fact]
         public void MustNot()
         {
-            var result = SearchSingle(Builders.Search.Compound()
-                .MustNot(Builders.Search.Phrase("life, liberty", x => x.Body)));
-
+            var result = SearchSingle(
+                Builders.Search.Compound().MustNot(
+                    Builders.Search.Phrase("life, liberty", x => x.Body)));
             result.Title.Should().Be("US Constitution");
         }
 
@@ -269,9 +277,10 @@ namespace MongoDB.Driver.Tests.Search
         [Fact]
         public void PhraseMultiPath()
         {
-            var result = SearchSingle(Builders.Search.Phrase(
-                "life, liberty, and the pursuit of happiness",
-                Builders.Path.Multi(x => x.Title, x => x.Body)));
+            var result = SearchSingle(
+                Builders.Search.Phrase(
+                    "life, liberty, and the pursuit of happiness",
+                    Builders.Path.Multi(x => x.Title, x => x.Body)));
 
             result.Title.Should().Be("Declaration of Independence");
         }
@@ -279,9 +288,10 @@ namespace MongoDB.Driver.Tests.Search
         [Fact]
         public void PhraseAnalyzerPath()
         {
-            var result = SearchSingle(Builders.Search.Phrase(
-                "life, liberty, and the pursuit of happiness",
-                Builders.Path.Analyzer(x => x.Body, "english")));
+            var result = SearchSingle(
+                Builders.Search.Phrase(
+                    "life, liberty, and the pursuit of happiness",
+                    Builders.Path.Analyzer(x => x.Body, "english")));
 
             result.Title.Should().Be("Declaration of Independence");
         }
@@ -289,9 +299,10 @@ namespace MongoDB.Driver.Tests.Search
         [Fact]
         public void PhraseWildcardPath()
         {
-            var result = SearchSingle(Builders.Search.Phrase(
-                "life, liberty, and the pursuit of happiness",
-                Builders.Path.Wildcard("b*")));
+            var result = SearchSingle(
+                Builders.Search.Phrase(
+                    "life, liberty, and the pursuit of happiness",
+                    Builders.Path.Wildcard("b*")));
 
             result.Title.Should().Be("Declaration of Independence");
         }
@@ -307,9 +318,10 @@ namespace MongoDB.Driver.Tests.Search
         [Fact]
         public void Range()
         {
-            var results = GeoSearch(GeoBuilders.Search.Compound().Must(
-                GeoBuilders.Search.Range(SearchRangeBuilder.Gt(2).Lt(4), x => x.Bedrooms),
-                GeoBuilders.Search.Range(SearchRangeBuilder.Gte(14).Lte(14), x => x.Beds)));
+            var results = GeoSearch(
+                GeoBuilders.Search.Compound().Must(
+                    GeoBuilders.Search.Range(SearchRangeBuilder.Gt(2).Lt(4), x => x.Bedrooms),
+                    GeoBuilders.Search.Range(SearchRangeBuilder.Gte(14).Lte(14), x => x.Beds)));
 
             results.Should().ContainSingle().Which.Name.Should().Be("House close to station & direct to opera house....");
         }
@@ -376,8 +388,9 @@ namespace MongoDB.Driver.Tests.Search
         [Fact]
         public void Should()
         {
-            var result = SearchSingle(Builders.Search.Compound()
-                .Should(Builders.Search.Phrase("life, liberty", x => x.Body),
+            var result = SearchSingle(
+                Builders.Search.Compound().Should(
+                    Builders.Search.Phrase("life, liberty", x => x.Body),
                     Builders.Search.Wildcard("happ*", x => x.Body, true))
                 .MinimumShouldMatch(2));
             result.Title.Should().Be("Declaration of Independence");
@@ -425,10 +438,12 @@ namespace MongoDB.Driver.Tests.Search
             GetGeoTestCollection().Aggregate().Search(searchDefintion).ToList();
 
         private HistoricalDocument SearchSingle(SearchDefinition<HistoricalDocument> searchDefintion) =>
-            GetTestCollection().Aggregate().Search(searchDefintion)
-            .Limit(1)
-            .ToList()
-            .Single();
+            GetTestCollection()
+                .Aggregate()
+                .Search(searchDefintion)
+                .Limit(1)
+                .ToList()
+                .Single();
 
         private IMongoCollection<HistoricalDocument> GetTestCollection() => _disposableMongoClient
             .GetDatabase("sample_training")
