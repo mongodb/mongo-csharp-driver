@@ -22,18 +22,17 @@ namespace MongoDB.Driver.Examples.Aws
 {
     /// <summary>
     /// Atlas preconditions for local run:
-    /// 1. Get your AWS_* (aws_access_key_id, aws_secret_access_key, aws_session_token (optional, but Pay attention that the value should be regenerated from time to time.)) credentials.
-    /// You may use `Command line or programming access` page on ..aws.amazon.com
-    /// 2. Configure credentials folder here: c:\Users\{user_name}\.aws\
+    /// 1. Configure AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and optionally AWS_SESSION_TOKEN. If used, AWS_SESSION_TOKEN should be regenerated periodically.
+    /// You may use `Command line or programmatic access` page on awsapps.com
+    /// 2. Configure credentials folder here: c:\Users\{user}\.aws\
     /// 3. Get your arn via `get-caller-identity`:
     /// ./aws sts get-caller-identity
     ///{
-    ///    "UserId": "blablabla:[user_name@mongodb.com](mailto:user_name@mongodb.com)",
+    ///    "UserId": "%ID%:[user@example.com]",
     ///    "Account": "%ID_VALUE%",
-    ///    "Arn": "arn:aws:sts::%ID_VALUE%:assumed-role/%ROLE_NAME%/[user_name@mongodb.com](mailto:user_name@mongodb.com)"
+    ///    "Arn": "arn:aws:sts::%ID_VALUE%:assumed-role/%ROLE_NAME%/[user@example.com]"
     /// }
     /// pay attention on %ROLE_NAME%.
-    /// </summary>
     /// 4. list all roles via:.
     /// $ ./aws iam list-roles
     /// {
@@ -45,7 +44,7 @@ namespace MongoDB.Driver.Examples.Aws
     ///        ...
     ///  in the provided roles, search for a record with a RoleName equal to %ROLE_NAME% and record his arn.
     ///  5. In your atlas cluster, create a new user with AWS authentication and set AWS IAM Role ARN from #4.
-    ///  6. Then configure a mongoClient in the same way as it's done in these examples with MONGODB-AWS auth credentials.
+    ///  6. Then configure a MongoClient in the same way as it's done in these examples with MONGODB-AWS auth credentials.
     ///
     /// Additional notes:
     /// 1. To work with authentications that are not based on env vars credentials configuration, make sure that AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY and AWS_SESSION_TOKEN are not set
@@ -53,6 +52,7 @@ namespace MongoDB.Driver.Examples.Aws
     /// 3. To work with ECS container credentials make sure that AWS_CONTAINER_CREDENTIALS_RELATIVE_URI or AWS_CONTAINER_CREDENTIALS_FULL_URI has appropriate value
     /// 4. To work with EC2 container credentials from EC2 instance metadata make sure a test is launched on EC2 env and AWS_CONTAINER_CREDENTIALS_* is not set
     /// 5. To work with Aws WebIdentityToken make sure that AWS_WEB_IDENTITY_TOKEN_FILE, AWS_ROLE_ARN and AWS_ROLE_SESSION_NAME are configured
+    /// </summary>
     public class AwsAuthenticationExamples
     {
         private static readonly string __connectionStringHosts = "<host_address>";
