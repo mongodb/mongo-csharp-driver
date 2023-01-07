@@ -48,7 +48,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 method.ReturnParameter.ParameterType == typeof(int) &&
                 method.Name == "CompareTo" &&
                 parameters.Length == 1 &&
-                parameters[0].ParameterType == method.DeclaringType;
+                parameters[0].ParameterType == method.DeclaringType || parameters[0].ParameterType == typeof(object);
         }
     }
 }

@@ -588,14 +588,14 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         public void EndsWith_with_string_field_and_string_value_and_ignoreCase_and_invalid_culture_should_throw(bool ignoreCase)
         {
             var collection = GetCollection<Test>();
-            var notCurrentCulture = GetACultureThatIsNotTheCurrentCulture();
+            var notCurrentCulture = CultureInfoHelper.GetNotCurrentCulture();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = x.S.EndsWith("aBc", ignoreCase, notCurrentCulture) });
 
             var exception = Record.Exception(() => Translate(collection, queryable));
 
             exception.Should().BeOfType<ExpressionNotSupportedException>();
-            exception.Message.Should().Contain($"the supplied culture is not the current culture");
+            exception.Message.Should().Contain($"culture must be CultureInfo.CurrentCulture");
         }
 
         [Theory]
@@ -906,14 +906,14 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
         public void StartsWith_with_string_field_and_string_value_and_ignoreCase_and_invalid_culture_should_throw(bool ignoreCase)
         {
             var collection = GetCollection<Test>();
-            var notCurrentCulture = GetACultureThatIsNotTheCurrentCulture();
+            var notCurrentCulture = CultureInfoHelper.GetNotCurrentCulture();
             var queryable = collection.AsQueryable()
                 .Select(x => new { R = x.S.StartsWith("aBc", ignoreCase, notCurrentCulture) });
 
             var exception = Record.Exception(() => Translate(collection, queryable));
 
             exception.Should().BeOfType<ExpressionNotSupportedException>();
-            exception.Message.Should().Contain($"the supplied culture is not the current culture");
+            exception.Message.Should().Contain($"culture must be CultureInfo.CurrentCulture");
         }
 
         [Theory]
@@ -1022,16 +1022,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
 
             exception.Should().BeOfType<ExpressionNotSupportedException>();
             exception.Message.Should().Contain($"{comparisonType} is not supported");
-        }
-
-        private CultureInfo GetACultureThatIsNotTheCurrentCulture()
-        {
-            var notCurrentCulture = CultureInfo.GetCultureInfo("zu-ZA");
-            if (notCurrentCulture.Equals(CultureInfo.CurrentCulture))
-            {
-                notCurrentCulture = CultureInfo.GetCultureInfo("yo-NG");
-            }
-            return notCurrentCulture;
         }
 
         public class Test

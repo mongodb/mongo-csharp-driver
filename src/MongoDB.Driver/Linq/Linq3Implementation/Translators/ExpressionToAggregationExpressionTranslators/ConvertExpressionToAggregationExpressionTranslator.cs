@@ -65,9 +65,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
                 var ast = operandTranslation.Ast;
                 IBsonSerializer serializer;
-                if (expressionType.IsInterface)
+                if (expressionType == typeof(object) || expressionType.IsInterface)
                 {
-                    // when an expression is cast to an interface it's a no-op as far as we're concerned
+                    // when an expression is cast to object or to an interface it's a no-op as far as we're concerned
                     // and we can just use the serializer for the concrete type and members not defined in the interface will just be ignored
                     serializer = operandTranslation.Serializer;
                 }

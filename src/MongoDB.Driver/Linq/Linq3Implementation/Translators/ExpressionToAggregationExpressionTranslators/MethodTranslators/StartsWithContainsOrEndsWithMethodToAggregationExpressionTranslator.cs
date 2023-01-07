@@ -259,9 +259,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var ignoreCase = ignoreCaseExpression.GetConstantValue<bool>(containingExpression: expression);
                 var culture = cultureExpression.GetConstantValue<CultureInfo>(containingExpression: expression);
 
-                if (culture != CultureInfo.CurrentCulture)
+                if (!culture.Equals(CultureInfo.CurrentCulture))
                 {
-                    throw new ExpressionNotSupportedException(cultureExpression, expression, because: "the supplied culture is not the current culture");
+                    throw new ExpressionNotSupportedException(expression, because: "culture must be CultureInfo.CurrentCulture");
                 }
 
                 return ignoreCase;

@@ -594,7 +594,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             var exception = Record.Exception(() => Translate(collection, queryable));
 
             exception.Should().BeOfType<ExpressionNotSupportedException>();
-            exception.Message.Should().Contain($"the supplied culture is not the current culture");
+            exception.Message.Should().Contain($"culture must be CultureInfo.CurrentCulture");
         }
 
         [Theory]
@@ -912,7 +912,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             var exception = Record.Exception(() => Translate(collection, queryable));
 
             exception.Should().BeOfType<ExpressionNotSupportedException>();
-            exception.Message.Should().Contain($"the supplied culture is not the current culture");
+            exception.Message.Should().Contain($"culture must be CultureInfo.CurrentCulture");
         }
 
         [Theory]

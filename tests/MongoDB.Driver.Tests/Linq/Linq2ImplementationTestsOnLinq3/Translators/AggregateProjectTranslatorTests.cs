@@ -1515,7 +1515,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
         [Fact]
         public void Should_translate_string_equals_using_comparison()
         {
-            var result = Project(x => new { Result = x.B.Equals("Balloon", StringComparison.Ordinal) });
+            var result = Project(x => new { Result = x.B.Equals("Balloon", StringComparison.CurrentCulture) });
 
             result.Projection.Should().Be("{ Result: { \"$eq\": [\"$B\", \"Balloon\"] }, _id: 0 }");
 
@@ -1525,7 +1525,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
         [Fact]
         public void Should_translate_string_case_insensitive_equals()
         {
-            var result = Project(x => new { Result = x.B.Equals("balloon", StringComparison.OrdinalIgnoreCase) });
+            var result = Project(x => new { Result = x.B.Equals("balloon", StringComparison.CurrentCultureIgnoreCase) });
 
             result.Projection.Should().Be("{ Result: { \"$eq\": [{ \"$strcasecmp\": [\"$B\", \"balloon\"] }, 0] }, _id: 0 }");
 

@@ -95,36 +95,38 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 }
             }
 
-            StringComparison comparisonType = StringComparison.Ordinal;
+            var ignoreCase = false;
             if (comparisonTypeExpression != null)
             {
-                comparisonType = comparisonTypeExpression.GetConstantValue<StringComparison>(containingExpression: expression);
+                ignoreCase = GetIgnoreCaseFromComparisonType(expression, comparisonTypeExpression);
             }
 
             var lhsTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, lhsExpression);
             var rhsTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, rhsExpression);
 
-            AstExpression ast;
-            switch (comparisonType)
-            {
-                case StringComparison.CurrentCulture:
-                case StringComparison.Ordinal:
-                    ast = AstExpression.Eq(lhsTranslation.Ast, rhsTranslation.Ast);
-                    break;
-
-                case StringComparison.CurrentCultureIgnoreCase:
-                case StringComparison.OrdinalIgnoreCase:
-                    ast = AstExpression.Eq(AstExpression.StrCaseCmp(lhsTranslation.Ast, rhsTranslation.Ast), 0);
-                    break;
-
-                default:
-                    goto notSupported;
-            }
+            var ast = ignoreCase ?
+                AstExpression.Eq(AstExpression.StrCaseCmp(lhsTranslation.Ast, rhsTranslation.Ast), 0) :
+                AstExpression.Eq(lhsTranslation.Ast, rhsTranslation.Ast);
 
             return new AggregationExpression(expression, ast, new BooleanSerializer());
+        }
 
-        notSupported:
-            throw new ExpressionNotSupportedException(expression);
+        private static bool GetIgnoreCaseFromComparisonType(Expression expression, Expression comparisonTypeExpression)
+        {
+            if (comparisonTypeExpression is ConstantExpression constantExpression)
+            {
+                var comparisonType = (StringComparison)constantExpression.Value;
+                return comparisonType switch
+                {
+                    StringComparison.CurrentCulture => false,
+                    StringComparison.CurrentCultureIgnoreCase => true,
+                    _ => throw new ExpressionNotSupportedException(comparisonTypeExpression, expression, because: "comparisonType must be StringComparison.CurrentCulture or StringComparison.CurrentCultureIgnoreCase")
+                };
+            }
+            else
+            {
+                throw new ExpressionNotSupportedException(comparisonTypeExpression, expression, because: "comparisonType must be a constant");
+            }
         }
     }
 }

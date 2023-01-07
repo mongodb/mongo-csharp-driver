@@ -16,7 +16,6 @@
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
-using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
 {
@@ -83,6 +82,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         }
 
         public static MethodInfo Method<T1, T2, T3, T4, T5, TResult>(Expression<Func<T1, T2, T3, T4, T5, TResult>> lambda)
+        {
+            return ExtractMethodInfoFromLambda(lambda);
+        }
+
+        public static MethodInfo Method<T1, T2, T3, T4, T5, T6, TResult>(Expression<Func<T1, T2, T3, T4, T5, T6, TResult>> lambda)
+        {
+            return ExtractMethodInfoFromLambda(lambda);
+        }
+
+        public static MethodInfo Method<T1, T2, T3, T4, T5, T6, T7, TResult>(Expression<Func<T1, T2, T3, T4, T5, T6, T7, TResult>> lambda)
         {
             return ExtractMethodInfoFromLambda(lambda);
         }
