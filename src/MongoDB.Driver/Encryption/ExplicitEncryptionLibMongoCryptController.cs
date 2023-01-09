@@ -213,7 +213,7 @@ namespace MongoDB.Driver.Encryption
         public BsonValue EncryptField(
             BsonValue value,
             EncryptOptions encryptOptions,
-            bool expressionMode,
+            bool isExpressionMode,
             CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(value, nameof(value));
@@ -231,7 +231,7 @@ namespace MongoDB.Driver.Encryption
                     encryptOptions.Algorithm,
                     wrappedValueBytes,
                     ToBsonIfNotNull(encryptOptions?.RangeOptions?.CreateDocument()),
-                    expressionMode);
+                    isExpressionMode);
 
                 using (context)
                 {
@@ -248,7 +248,7 @@ namespace MongoDB.Driver.Encryption
         public async Task<BsonValue> EncryptFieldAsync(
             BsonValue value,
             EncryptOptions encryptOptions,
-            bool expressionMode,
+            bool isExpressionMode,
             CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(value, nameof(value));
@@ -266,7 +266,7 @@ namespace MongoDB.Driver.Encryption
                     encryptOptions.Algorithm,
                     wrappedValueBytes,
                     ToBsonIfNotNull(encryptOptions?.RangeOptions?.CreateDocument()),
-                    expressionMode);
+                    isExpressionMode);
 
                 using (context)
                 {

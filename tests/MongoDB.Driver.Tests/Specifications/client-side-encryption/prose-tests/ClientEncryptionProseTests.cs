@@ -1880,24 +1880,24 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         public void RangeExplicitEncryptionTest(
             [Range(1, 8)] int testCase,
             // test case keys correspond to keys used in test configuration files
-            [Values("DoubleNoPrecision", "DoublePrecision", "Date", "Int", "Long")] string rangeSupportedType,
+            [Values("DoubleNoPrecision", "DoublePrecision", "Date", "Int", "Long")] string rangeType,
             [Values(false, false)] bool async)
         {
-            RequireServer.Check().Supports(Feature.CsfleRangeExplicitAlgorithm).ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced);
+            RequireServer.Check().Supports(Feature.CsfleRangeAlgorithm).ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced);
 
-            var encryptedFields = JsonFileReader.Instance.Documents[$"etc.data.range-encryptedFields-{rangeSupportedType}.json"];
+            var encryptedFields = JsonFileReader.Instance.Documents[$"etc.data.range-encryptedFields-{rangeType}.json"];
             var key1Document = JsonFileReader.Instance.Documents["etc.data.keys.key1-document.json"];
             var key1Id = key1Document["_id"].AsGuid;
             var kmsProvider = "local";
-            var encryptedKeyWithRangeSupportedType = $"encrypted{rangeSupportedType}";
-            var value0 = GetValue(0, rangeSupportedType);
-            var value6 = GetValue(6, rangeSupportedType);
-            var value30 = GetValue(30, rangeSupportedType);
-            var value200 = GetValue(200, rangeSupportedType);
-            var value201 = GetValue(201, rangeSupportedType);
+            var encryptedKeyWithRangeSupportedType = $"encrypted{rangeType}";
+            var value0 = GetValue(0, rangeType);
+            var value6 = GetValue(6, rangeType);
+            var value30 = GetValue(30, rangeType);
+            var value200 = GetValue(200, rangeType);
+            var value201 = GetValue(201, rangeType);
 
             var explicitEncryption = CollectionNamespace.FromFullName("db.explicit_encryption");
-            var encryptOptions = WithRangeOptions(rangeSupportedType, new EncryptOptions(EncryptionAlgorithm.RangePreview, contentionFactor: 0, keyId: key1Id));
+            var encryptOptions = WithRangeOptions(rangeType, new EncryptOptions(EncryptionAlgorithm.RangePreview, contentionFactor: 0, keyId: key1Id));
 
             using (var keyVaultClient = ConfigureClient(clearCollections: true, mainCollectionNamespace: explicitEncryption, encryptedFields: encryptedFields))
             {
@@ -1936,9 +1936,9 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 }
             }
 
-            EncryptOptions WithRangeOptions(string rangeSupportedType, EncryptOptions encryptionOptions)
+            EncryptOptions WithRangeOptions(string rangeType, EncryptOptions encryptionOptions)
             {
-                var rangeOptions = rangeSupportedType switch
+                var rangeOptions = rangeType switch
                 {
                     "DoubleNoPrecision" => new RangeOptions(sparsity: 1),
                     "DoublePrecision" => new RangeOptions(
@@ -1958,7 +1958,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                         sparsity: 1,
                         min: new BsonInt64(0),
                         max: new BsonInt64(200)),
-                    _ => throw new Exception($"Unsupported rangeSupportedType {rangeSupportedType}.")
+                    _ => throw new Exception($"Unsupported rangeSupportedType {rangeType}.")
                 };
 
                 return encryptionOptions.With(rangeOptions: rangeOptions);
@@ -1973,8 +1973,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                         {
                             var insertPayload6 = ExplicitEncrypt(clientEncryption, encryptOptions, value6, async);
                             var decryptedValue = ExplicitDecrypt(clientEncryption, insertPayload6, async);
-                            decryptedValue.Should().Be(BsonValue.Create(value6));
-                            AssertResult(decryptedValue, rangeSupportedType);
+                            decryptedValue.Should().Be(value6);
                         }
                         break;
                     case 2: // can find encrypted range and return the maximum
@@ -2065,7 +2064,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                         break;
                     case 6: // encrypting a document greater than the maximum errors
                         {
-                            if (rangeSupportedType == "DoubleNoPrecision")
+                            if (rangeType == "DoubleNoPrecision")
                             {
                                 throw new SkipException("Skip it based on spec requirement.");
                             }
@@ -2076,7 +2075,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                         break;
                     case 7: // encrypting a document of a different type errors
                         {
-                            if (rangeSupportedType == "DoubleNoPrecision")
+                            if (rangeType == "DoubleNoPrecision")
                             {
                                 throw new SkipException("Skip it based on spec requirement.");
                             }
@@ -2087,13 +2086,13 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                     async,
                                     // If the encrypted field is ``encryptedInt`` insert ``{ "encryptedInt": { "$numberDouble": "6" } }``.
                                     // Otherwise, insert ``{ "encrypted<Type>": { "$numberInt": "6" }``.
-                                    new BsonDocument(encryptedKeyWithRangeSupportedType, rangeSupportedType == "Int" ? GetValue(6, "DoubleNoPrecision") : GetValue(6, "Int"))));
+                                    new BsonDocument(encryptedKeyWithRangeSupportedType, rangeType == "Int" ? GetValue(6, "DoubleNoPrecision") : GetValue(6, "Int"))));
                             exception.Should().BeOfType<MongoBulkWriteException<BsonDocument>>().Which.Message.Should().Contain("Document failed validation");
                         }
                         break;
                     case 8: // setting precision errors if the type is not a double
                         {
-                            if (rangeSupportedType == "DoubleNoPrecision" || rangeSupportedType == "DoublePrecision")
+                            if (rangeType == "DoubleNoPrecision" || rangeType == "DoublePrecision")
                             {
                                 throw new SkipException("Skip it based on spec requirement.");
                             }
@@ -2110,46 +2109,13 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 }
             }
 
-            void AssertResult(BsonValue result, string rangeSupportedType)
+            BsonValue GetValue(int value, string rangeSupportedType) => rangeSupportedType switch
             {
-                switch (rangeSupportedType)
-                {
-                    case "DoubleNoPrecision":
-                        {
-                            result.Should().BeOfType<BsonDouble>();
-                        }
-                        break;
-                    case "DoublePrecision":
-                        {
-                            result.Should().BeOfType<BsonDouble>();
-                        }
-                        break;
-                    case "Date":
-                        {
-                            result.Should().BeOfType<BsonDateTime>();
-                        }
-                        break;
-                    case "Int":
-                        {
-                            result.Should().BeOfType<BsonInt32>();
-                        }
-                        break;
-                    case "Long":
-                        {
-                            result.Should().BeOfType<BsonInt64>();
-                        }
-                        break;
-                    default: throw new Exception($"Unsupported rangeSupportedType {rangeSupportedType}.");
-                }
-            }
-
-            BsonValue GetValue<TValue>(TValue value, string rangeSupportedType) => rangeSupportedType switch
-            {
-                "DoubleNoPrecision" => new BsonDouble(double.Parse(value.ToString())),
-                "DoublePrecision" => new BsonDouble(double.Parse(value.ToString())),
-                "Date" => new BsonDateTime(millisecondsSinceEpoch: long.Parse(value.ToString())),
-                "Int" => new BsonInt32(int.Parse(value.ToString())),
-                "Long" => new BsonInt64(long.Parse(value.ToString())),
+                "DoubleNoPrecision" => new BsonDouble(value),
+                "DoublePrecision" => new BsonDouble(value),
+                "Date" => new BsonDateTime(millisecondsSinceEpoch: value),
+                "Int" => new BsonInt32(value),
+                "Long" => new BsonInt64(value),
                 _ => throw new Exception($"Unsupported rangeSupportedType {rangeSupportedType}.")
             };
         }

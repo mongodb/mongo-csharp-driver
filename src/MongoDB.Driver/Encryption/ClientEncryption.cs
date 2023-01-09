@@ -156,7 +156,7 @@ namespace MongoDB.Driver.Encryption
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The encrypted value.</returns>
         public BsonBinaryData Encrypt(BsonValue value, EncryptOptions encryptOptions, CancellationToken cancellationToken = default) =>
-            EnsureEncryptedData<BsonBinaryData>(_libMongoCryptController.EncryptField(value, encryptOptions, expressionMode: false, cancellationToken));
+            EnsureEncryptedData<BsonBinaryData>(_libMongoCryptController.EncryptField(value, encryptOptions, isExpressionMode: false, cancellationToken));
 
         /// <summary>
         /// Encrypts the specified value.
@@ -166,7 +166,7 @@ namespace MongoDB.Driver.Encryption
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The encrypted value.</returns>
         public async Task<BsonBinaryData> EncryptAsync(BsonValue value, EncryptOptions encryptOptions, CancellationToken cancellationToken = default) =>
-            EnsureEncryptedData<BsonBinaryData>(await _libMongoCryptController.EncryptFieldAsync(value, encryptOptions, expressionMode: false, cancellationToken).ConfigureAwait(false));
+            EnsureEncryptedData<BsonBinaryData>(await _libMongoCryptController.EncryptFieldAsync(value, encryptOptions, isExpressionMode: false, cancellationToken).ConfigureAwait(false));
 
         /// <summary>
         /// Encrypts a Match Expression or Aggregate Expression to query a range index.
@@ -186,7 +186,7 @@ namespace MongoDB.Driver.Encryption
         /// The Range algorithm is experimental only. It is not intended for public use. It is subject to breaking changes.
         /// </remarks>
         public BsonDocument EncryptExpression(BsonDocument expression, EncryptOptions encryptOptions, CancellationToken cancellationToken = default) =>
-            EnsureEncryptedData<BsonDocument>(_libMongoCryptController.EncryptField(expression, encryptOptions, expressionMode: true, cancellationToken));
+            EnsureEncryptedData<BsonDocument>(_libMongoCryptController.EncryptField(expression, encryptOptions, isExpressionMode: true, cancellationToken));
 
         /// <summary>
         /// Encrypts a Match Expression or Aggregate Expression to query a range index.
@@ -206,7 +206,7 @@ namespace MongoDB.Driver.Encryption
         /// The Range algorithm is experimental only. It is not intended for public use. It is subject to breaking changes.
         /// </remarks>
         public async Task<BsonDocument> EncryptExpressionAsync(BsonDocument expression, EncryptOptions encryptOptions, CancellationToken cancellationToken = default) =>
-            EnsureEncryptedData<BsonDocument>(await _libMongoCryptController.EncryptFieldAsync(expression, encryptOptions, expressionMode: true, cancellationToken).ConfigureAwait(false));
+            EnsureEncryptedData<BsonDocument>(await _libMongoCryptController.EncryptFieldAsync(expression, encryptOptions, isExpressionMode: true, cancellationToken).ConfigureAwait(false));
 
         /// <summary>
         /// Finds a single key document with the given UUID (BSON binary subtype 0x04).
@@ -310,8 +310,7 @@ namespace MongoDB.Driver.Encryption
             else
             {
                 // should not be reached
-                var butMessage = encryptedValue == null ? " was null" : $"was {encryptedValue.GetType().Name}";
-                throw new InvalidOperationException($"The encrypted data must be {typeof(TEncryptedValue).Name}, but {butMessage}.");
+                throw new InvalidOperationException($"The encrypted data must be {typeof(TEncryptedValue).Name}, but was {encryptedValue?.GetType()?.Name ?? "null"}.");
             }
         }
     }

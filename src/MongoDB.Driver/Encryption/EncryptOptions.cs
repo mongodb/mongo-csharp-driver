@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Encryption
     /// For double and decimal128, min/max/precision must all be set, or all be unset.
     /// RangeOptions only applies when algorithm is "rangePreview".
     /// </remarks>
-    public class RangeOptions
+    public sealed class RangeOptions
     {
         private readonly BsonValue _max;
         private readonly BsonValue _min;
@@ -40,27 +40,28 @@ namespace MongoDB.Driver.Encryption
         /// Initializes a new instance of the <see cref="RangeOptions"/> class.
         /// </summary>
         /// <param name="sparsity">The sparsity.</param>
-        /// <param name="max">The max range.</param>
         /// <param name="min">The min range.</param>
+        /// <param name="max">The max range.</param>
         /// <param name="precision">The precision range.</param>
-        public RangeOptions(long sparsity, Optional<BsonValue> max = default, Optional<BsonValue> min = default, Optional<int?> precision = default)
+        public RangeOptions(long sparsity, Optional<BsonValue> min = default, Optional<BsonValue> max = default, Optional<int?> precision = default)
         {
             _sparsity = sparsity;
-            _max = max.WithDefault(null);
             _min = min.WithDefault(null);
+            _max = max.WithDefault(null);
             _precision = precision.WithDefault(null);
         }
 
-        /// <summary>
-        /// Max range.
-        /// </summary>
-        /// <remarks>Maz is required if precision is set.</remarks>
-        public BsonValue Max => _max;
+        // public properties
         /// <summary>
         /// Min range.
         /// </summary>
         /// <remarks>Min is required if precision is set.</remarks>
         public BsonValue Min => _min;
+        /// <summary>
+        /// Maximum value.
+        /// </summary>
+        /// <remarks>Max is required if precision is set.</remarks>
+        public BsonValue Max => _max;
         /// <summary>
         /// Gets the precision.
         /// </summary>
