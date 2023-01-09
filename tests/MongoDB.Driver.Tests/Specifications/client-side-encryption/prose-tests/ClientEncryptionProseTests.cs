@@ -1879,7 +1879,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         [ParameterAttributeData]
         public void RangeExplicitEncryptionTest(
             [Range(1, 8)] int testCase,
-            // test case keys correspond to keys used in test configuration files
+            // test case rangeType values correspond to keys used in test configuration files
             [Values("DoubleNoPrecision", "DoublePrecision", "Date", "Int", "Long")] string rangeType,
             [Values(false, false)] bool async)
         {
@@ -1973,7 +1973,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                         {
                             var insertPayload6 = ExplicitEncrypt(clientEncryption, encryptOptions, value6, async);
                             var decryptedValue = ExplicitDecrypt(clientEncryption, insertPayload6, async);
-                            decryptedValue.Should().Be(value6);
+                            decryptedValue.Should().Be(value6); // asserts types too
                         }
                         break;
                     case 2: // can find encrypted range and return the maximum
