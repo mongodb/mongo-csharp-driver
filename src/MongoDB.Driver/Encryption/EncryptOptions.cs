@@ -53,7 +53,7 @@ namespace MongoDB.Driver.Encryption
 
         // public properties
         /// <summary>
-        /// Min range.
+        /// Minimum value.
         /// </summary>
         /// <remarks>Min is required if precision is set.</remarks>
         public BsonValue Min => _min;
