@@ -1994,9 +1994,9 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                             var findResult = Find(encryptedCollection, findPayload, async).ToList().OrderBy((d) => d["_id"]).ToList();
                             findResult.Should().HaveCount(3);
 
-                            findResult[0][encryptedKeyWithRangeSupportedType].Should().Be(BsonValue.Create(value6));
-                            findResult[1][encryptedKeyWithRangeSupportedType].Should().Be(BsonValue.Create(value30));
-                            findResult[2][encryptedKeyWithRangeSupportedType].Should().Be(BsonValue.Create(value200));
+                            findResult[0][encryptedKeyWithRangeSupportedType].Should().Be(value6);
+                            findResult[1][encryptedKeyWithRangeSupportedType].Should().Be(value30);
+                            findResult[2][encryptedKeyWithRangeSupportedType].Should().Be(value200);
                         }
                         break;
                     case 3: // can find encrypted range and return the minimum
@@ -2017,8 +2017,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                             var findResult = Find(encryptedCollection, findPayload, async).ToList().OrderBy((d) => d["_id"]).ToList();
                             findResult.Should().HaveCount(2);
 
-                            findResult[0][encryptedKeyWithRangeSupportedType].Should().Be(BsonValue.Create(value0));
-                            findResult[1][encryptedKeyWithRangeSupportedType].Should().Be(BsonValue.Create(value6));
+                            findResult[0][encryptedKeyWithRangeSupportedType].Should().Be(value0);
+                            findResult[1][encryptedKeyWithRangeSupportedType].Should().Be(value6);
                         }
                         break;
                     case 4: // can find encrypted range with an open range query
@@ -2038,7 +2038,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                             var findResult = Find(encryptedCollection, findPayload, async).ToList().OrderBy((d) => d["_id"]).ToList();
                             findResult.Should().HaveCount(1);
 
-                            findResult[0][encryptedKeyWithRangeSupportedType].Should().Be(BsonValue.Create(value200));
+                            findResult[0][encryptedKeyWithRangeSupportedType].Should().Be(value200);
                         }
                         break;
                     case 5: // can run an aggregation expression inside $expr
@@ -2058,8 +2058,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                             var findResult = Find(encryptedCollection, BsonDocument.Parse(@$"{{ ""$expr"" : {findPayload} }}"), async).ToList().OrderBy((d) => d["_id"]).ToList();
                             findResult.Should().HaveCount(2);
 
-                            findResult[0][encryptedKeyWithRangeSupportedType].Should().Be(BsonValue.Create(value0));
-                            findResult[1][encryptedKeyWithRangeSupportedType].Should().Be(BsonValue.Create(value6));
+                            findResult[0][encryptedKeyWithRangeSupportedType].Should().Be(value0);
+                            findResult[1][encryptedKeyWithRangeSupportedType].Should().Be(value6);
                         }
                         break;
                     case 6: // encrypting a document greater than the maximum errors
