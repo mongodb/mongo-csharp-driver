@@ -140,8 +140,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
             IBsonSerializer<TSource> sourceSerializer,
             IBsonSerializerRegistry serializerRegistry)
         {
-            // TODO: implement using LINQ3 instead of falling back to LINQ2
-            return LinqProviderAdapter.V2.TranslateExpressionToFindProjection(expression, sourceSerializer, serializerRegistry);
+            return TranslateExpressionToProjection(expression, sourceSerializer, serializerRegistry, translationOptions: null);
         }
 
         internal override RenderedProjectionDefinition<TOutput> TranslateExpressionToGroupProjection<TInput, TKey, TOutput>(

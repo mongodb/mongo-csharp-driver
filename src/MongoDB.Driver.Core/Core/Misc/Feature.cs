@@ -74,6 +74,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __findAllowDiskUse = new Feature("FindAllowDiskUse", WireVersion.Server44);
         private static readonly Feature __findAndModifyWriteConcern = new Feature("FindAndModifyWriteConcern", WireVersion.Server32);
         private static readonly Feature __findCommand = new Feature("FindCommand", WireVersion.Server32);
+        private static readonly Feature __findProjectionExpressions = new Feature("FindProjectionExpressions", WireVersion.Server44);
         private static readonly Feature __geoNearCommand = new Feature("GeoNearCommand", WireVersion.Zero, WireVersion.Server42);
         private static readonly Feature __getField = new Feature("GetField", WireVersion.Server50);
         private static readonly Feature __getMoreComment = new Feature("GetMoreComment", WireVersion.Server44);
@@ -408,6 +409,11 @@ namespace MongoDB.Driver.Core.Misc
         /// </summary>
         [Obsolete("This property will be removed in a later release.")]
         public static Feature FindCommand => __findCommand;
+
+        /// <summary>
+        /// Gets the find projection expressions feature.
+        /// </summary>
+        public static Feature FindProjectionExpressions => __findProjectionExpressions;
 
         /// <summary>
         /// Gets the geoNear command feature.
