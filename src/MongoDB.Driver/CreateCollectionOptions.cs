@@ -196,6 +196,29 @@ namespace MongoDB.Driver
             get { return _validationLevel; }
             set { _validationLevel = value; }
         }
+
+        internal virtual CreateCollectionOptions Clone()
+        {
+            var clone = new CreateCollectionOptions();
+            clone._autoIndexId = _autoIndexId;
+            clone._capped = _capped;
+            clone._changeStreamPreAndPostImagesOptions = _changeStreamPreAndPostImagesOptions;
+            clone._collation = _collation;
+            clone._encryptedFields = _encryptedFields;
+            clone._expireAfter = _expireAfter;
+            clone._indexOptionDefaults = _indexOptionDefaults;
+            clone._maxDocuments = _maxDocuments;
+            clone._maxSize = _maxSize;
+            clone._noPadding = _noPadding;
+            clone._serializerRegistry = _serializerRegistry;
+            clone._storageEngine = _storageEngine;
+            clone._timeSeriesOptions = _timeSeriesOptions;
+            clone._usePowerOf2Sizes = _usePowerOf2Sizes;
+            clone._validationAction = _validationAction;
+            clone._validationLevel = _validationLevel;
+
+            return clone;
+        }
     }
 
     /// <summary>
@@ -281,6 +304,35 @@ namespace MongoDB.Driver
         {
             get { return _validator; }
             set { _validator = value; }
+        }
+
+        internal override CreateCollectionOptions Clone()
+        {
+            var clone = new CreateCollectionOptions<TDocument>();
+#pragma warning disable CS0618 // Type or member is obsolete
+            clone.AutoIndexId = base.AutoIndexId;
+#pragma warning restore CS0618 // Type or member is obsolete
+            clone.Capped = base.Capped;
+            clone.ChangeStreamPreAndPostImagesOptions = base.ChangeStreamPreAndPostImagesOptions;
+            clone.Collation = base.Collation;
+            clone.EncryptedFields = base.EncryptedFields;
+            clone.ExpireAfter = base.ExpireAfter;
+            clone.IndexOptionDefaults = base.IndexOptionDefaults;
+            clone.MaxDocuments = base.MaxDocuments;
+            clone.MaxSize = base.MaxSize;
+            clone.NoPadding = base.NoPadding;
+            clone.SerializerRegistry = base.SerializerRegistry;
+            clone.StorageEngine = base.StorageEngine;
+            clone.TimeSeriesOptions = base.TimeSeriesOptions;
+            clone.UsePowerOf2Sizes = base.UsePowerOf2Sizes;
+            clone.ValidationAction = base.ValidationAction;
+            clone.ValidationLevel = base.ValidationLevel;
+
+            clone._clusteredIndex = _clusteredIndex;
+            clone._documentSerializer = _documentSerializer;
+            clone._validator = _validator;
+
+            return clone;
         }
     }
 }

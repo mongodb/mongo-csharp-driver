@@ -1,4 +1,4 @@
-﻿/* Copyright 2019-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 
 using System;
 using System.Runtime.Serialization;
+using MongoDB.Bson;
 
 namespace MongoDB.Driver.Encryption
 {
@@ -22,33 +23,34 @@ namespace MongoDB.Driver.Encryption
     /// Represents an encryption exception.
     /// </summary>
     [Serializable]
-    public class MongoEncryptionException : MongoClientException
+    public class MongoEncryptionCreateCollectionException : MongoEncryptionException
     {
-        #region static
-        private static string FormatErrorMessage(string errorMessage)
-        {
-            errorMessage = $"Encryption related exception: {errorMessage}";
-            return errorMessage.EndsWith(".") ? errorMessage : $"{errorMessage}.";
-        }
-        #endregion
+        private readonly BsonDocument _encryptedFields;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MongoEncryptionException"/> class.
         /// </summary>
         /// <param name="innerException">The inner exception.</param>
-        public MongoEncryptionException(Exception innerException)
-            : base(FormatErrorMessage(innerException.Message), innerException)
+        /// <param name="encryptedFields">The encrypted fields.</param>
+        public MongoEncryptionCreateCollectionException(Exception innerException, BsonDocument encryptedFields)
+            : base(innerException)
+        {
+            _encryptedFields = encryptedFields;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MongoEncryptionCreateCollectionException"/> class (this overload used by deserialization).
+        /// </summary>
+        /// <param name="info">The SerializationInfo.</param>
+        /// <param name="context">The StreamingContext.</param>
+        protected MongoEncryptionCreateCollectionException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MongoEncryptionException"/> class (this overload used by deserialization).
+        /// The encrypted fields.
         /// </summary>
-        /// <param name="info">The SerializationInfo.</param>
-        /// <param name="context">The StreamingContext.</param>
-        protected MongoEncryptionException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-        }
+        public BsonDocument EncryptedFields => _encryptedFields;
     }
 }

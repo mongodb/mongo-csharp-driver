@@ -124,17 +124,22 @@ namespace MongoDB.Driver.Tests.Encryption
             {
                 var createCollectionOptions = new CreateCollectionOptions() { EncryptedFields = BsonDocument.Parse(encryptedFieldsStr) };
                 var exception = Record.Exception(() => subject.CreateEncryptedCollection(database, collectionName, createCollectionOptions, kmsProvider, dataKeyOptions));
-                AssertResults(exception.InnerException, createCollectionOptions);
+                AssertResults(exception, createCollectionOptions);
 
                 createCollectionOptions = new CreateCollectionOptions() { EncryptedFields = BsonDocument.Parse(encryptedFieldsStr) };
                 exception = await Record.ExceptionAsync(() => subject.CreateEncryptedCollectionAsync(database, collectionName, createCollectionOptions, kmsProvider, dataKeyOptions));
-                AssertResults(exception.InnerException, createCollectionOptions);
+                AssertResults(exception, createCollectionOptions);
             }
 
             void AssertResults(Exception ex, CreateCollectionOptions createCollectionOptions)
             {
-                ex.Should().BeOfType<Exception>().Which.Message.Should().Be("test");
-                var fields = createCollectionOptions.EncryptedFields["fields"].AsBsonArray;
+                var createCollectionException = ex.Should().BeOfType<MongoEncryptionCreateCollectionException>().Subject;
+                createCollectionException
+                    .InnerException
+                    .Should().BeOfType<MongoEncryptionException>().Subject.InnerException
+                    .Should().BeOfType<Exception>().Which.Message
+                    .Should().Be("test");
+                var fields = createCollectionException.EncryptedFields["fields"].AsBsonArray;
                 fields[0].AsBsonDocument["keyId"].Should().BeOfType<BsonBinaryData>(); // pass
                 /*
                     - If generating `D` resulted in an error `E`, the entire
@@ -170,36 +175,43 @@ namespace MongoDB.Driver.Tests.Encryption
                 if (BsonDocument.TryParse(expectedResult, out var encryptedFields))
                 {
                     var createCollectionOptions = new CreateCollectionOptions() { EncryptedFields = encryptedFieldsStr != null ? BsonDocument.Parse(encryptedFieldsStr) : null };
-                    subject.CreateEncryptedCollection(database, collectionName: collectionName, createCollectionOptions, kmsProvider: kmsProvider, dataKeyOptions);
-                    createCollectionOptions.EncryptedFields.WithComparer(new EncryptedFieldsComparer()).Should().Be(encryptedFields.DeepClone());
+                    var effectiveEncryptedFields = subject.CreateEncryptedCollection(database, collectionName, createCollectionOptions, kmsProvider, dataKeyOptions);
+                    effectiveEncryptedFields.EncryptedFields.WithComparer(new EncryptedFieldsComparer()).Should().Be(encryptedFields.DeepClone());
 
                     createCollectionOptions = new CreateCollectionOptions() { EncryptedFields = encryptedFieldsStr != null ? BsonDocument.Parse(encryptedFieldsStr) : null };
-                    await subject.CreateEncryptedCollectionAsync(database, collectionName: collectionName, createCollectionOptions, kmsProvider: kmsProvider, dataKeyOptions);
-                    createCollectionOptions.EncryptedFields.WithComparer(new EncryptedFieldsComparer()).Should().Be(encryptedFields.DeepClone());
+                    effectiveEncryptedFields = await subject.CreateEncryptedCollectionAsync(database, collectionName, createCollectionOptions, kmsProvider, dataKeyOptions);
+                    effectiveEncryptedFields.EncryptedFields.WithComparer(new EncryptedFieldsComparer()).Should().Be(encryptedFields.DeepClone());
                 }
                 else
                 {
                     var createCollectionOptions = new CreateCollectionOptions() { EncryptedFields = encryptedFieldsStr != null ? BsonDocument.Parse(encryptedFieldsStr) : null };
-                    AssertInvalidOperationException(Record.Exception(() => subject.CreateEncryptedCollection(database, collectionName: collectionName, createCollectionOptions, kmsProvider: kmsProvider, dataKeyOptions)), expectedResult);
+                    AssertInvalidOperationException(Record.Exception(() => subject.CreateEncryptedCollection(database, collectionName, createCollectionOptions, kmsProvider, dataKeyOptions)), expectedResult);
 
                     createCollectionOptions = new CreateCollectionOptions() { EncryptedFields = encryptedFieldsStr != null ? BsonDocument.Parse(encryptedFieldsStr) : null };
-                    AssertInvalidOperationException(await Record.ExceptionAsync(() => subject.CreateEncryptedCollectionAsync(database, collectionName: collectionName, createCollectionOptions, kmsProvider: kmsProvider, dataKeyOptions)), expectedResult);
+                    AssertInvalidOperationException(await Record.ExceptionAsync(() => subject.CreateEncryptedCollectionAsync(database, collectionName, createCollectionOptions, kmsProvider, dataKeyOptions)), expectedResult);
                 }
             }
 
-            void AssertInvalidOperationException(Exception ex, string message) => ex.Should().BeOfType<InvalidOperationException>().Which.Message.Should().Be(message);
+            void AssertInvalidOperationException(Exception ex, string message) =>
+                ex
+                .Should().BeOfType<MongoEncryptionCreateCollectionException>().Subject.InnerException
+                .Should().BeOfType<InvalidOperationException>().Which.Message.Should().Be(message);
         }
 
-        private class EncryptedFieldsComparer : IEqualityComparer<BsonDocument>
+        private sealed class EncryptedFieldsComparer : IEqualityComparer<BsonDocument>
         {
-            public bool Equals(BsonDocument x, BsonDocument y) => BsonValueEquivalencyComparer.Compare(x, y, (a, b) =>
-            {
-                if (a is BsonDocument aDocument && aDocument.TryGetValue("keyId", out var aKeyId) && aKeyId.IsBsonBinaryData &&
-                    b is BsonDocument bDocument && bDocument.TryGetValue("keyId", out var bKeyId) && bKeyId == "#binary_generated#")
-                {
-                    bDocument["keyId"] = aDocument["keyId"];
-                }
-            });
+            public bool Equals(BsonDocument x, BsonDocument y) =>
+                BsonValueEquivalencyComparer.Compare(
+                    x, y,
+                    massageAction: (a, b) =>
+                    {
+                        if (a is BsonDocument aDocument && aDocument.TryGetValue("keyId", out var aKeyId) && aKeyId.IsBsonBinaryData &&
+                            b is BsonDocument bDocument && bDocument.TryGetValue("keyId", out var bKeyId) && bKeyId == "#binary_generated#")
+                        {
+                            bDocument["keyId"] = aDocument["keyId"];
+                        }
+                    });
+
             public int GetHashCode(BsonDocument obj) => obj.GetHashCode();
         }
 

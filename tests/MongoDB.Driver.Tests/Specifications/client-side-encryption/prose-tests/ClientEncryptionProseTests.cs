@@ -2343,11 +2343,11 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
             if (async)
             {
-                clientEncryption.CreateEncryptedCollectionAsync(database, collectionNamespace.CollectionName, createCollectionOptions, kmsProvider, datakeyOptions, cancellationToken: default).GetAwaiter().GetResult();
+                _ = clientEncryption.CreateEncryptedCollectionAsync(database, collectionNamespace.CollectionName, createCollectionOptions, kmsProvider, datakeyOptions, cancellationToken: default).GetAwaiter().GetResult();
             }
             else
             { 
-                clientEncryption.CreateEncryptedCollection(database, collectionNamespace.CollectionName, createCollectionOptions, kmsProvider, datakeyOptions, cancellationToken: default);
+                _ = clientEncryption.CreateEncryptedCollection(database, collectionNamespace.CollectionName, createCollectionOptions, kmsProvider, datakeyOptions, cancellationToken: default);
             }
 
             return client.GetDatabase(collectionNamespace.DatabaseNamespace.DatabaseName).GetCollection<BsonDocument>(collectionNamespace.CollectionName);
