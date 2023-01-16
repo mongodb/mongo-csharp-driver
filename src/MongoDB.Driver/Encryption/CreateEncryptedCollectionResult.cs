@@ -20,7 +20,7 @@ namespace MongoDB.Driver.Encryption
     /// <summary>
     /// Represents the result of a create encrypted collection.
     /// </summary>
-    public class CreateEncryptedCollectionResult
+    public sealed class CreateEncryptedCollectionResult
     {
         private readonly BsonDocument _encryptedFields;
 
