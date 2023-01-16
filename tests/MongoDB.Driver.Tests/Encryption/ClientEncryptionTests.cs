@@ -126,7 +126,6 @@ namespace MongoDB.Driver.Tests.Encryption
                 var exception = Record.Exception(() => subject.CreateEncryptedCollection(database, collectionName, createCollectionOptions, kmsProvider, dataKeyOptions));
                 AssertResults(exception, createCollectionOptions);
 
-                createCollectionOptions = new CreateCollectionOptions() { EncryptedFields = BsonDocument.Parse(encryptedFieldsStr) };
                 exception = await Record.ExceptionAsync(() => subject.CreateEncryptedCollectionAsync(database, collectionName, createCollectionOptions, kmsProvider, dataKeyOptions));
                 AssertResults(exception, createCollectionOptions);
             }
