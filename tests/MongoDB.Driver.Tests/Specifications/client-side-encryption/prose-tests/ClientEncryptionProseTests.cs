@@ -119,7 +119,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                     {
                         case 1: // Case 1: Simple Creation and Validation
                             {
-                                var collection = CreateEncryptedCollection(client, clientEncryption, __collCollectionNamespace, encryptedFields, kmsProvider, async);
+                                var collection = CreateEncryptedCollection(client, clientEncryption, __collCollectionNamespace, encryptedFields, kmsProvider, async, out _);
 
                                 var exception = Record.Exception(() => Insert(collection, async, new BsonDocument("ssn", "123-45-6789")));
                                 exception.Should().BeOfType<MongoBulkWriteException<BsonDocument>>().Which.Message.Should().Contain("Document failed validation");
@@ -127,24 +127,28 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                             break;
                         case 2: // Case 2: Missing ``encryptedFields``
                             {
-                                var exception = Record.Exception(() => CreateEncryptedCollection(client, clientEncryption, __collCollectionNamespace, encryptedFields: null, kmsProvider, async));
+                                var exception = Record.Exception(() => CreateEncryptedCollection(client, clientEncryption, __collCollectionNamespace, encryptedFields: null, kmsProvider, async, out _));
 
-                                exception.Should().BeOfType<InvalidOperationException>().Which.Message.Should().Contain("There are no encrypted fields defined for the collection.") ;
+                                exception
+                                    .Should().BeOfType<MongoEncryptionCreateCollectionException>().Which.InnerException
+                                    .Should().BeOfType<InvalidOperationException>().Which.Message.Should().Contain("There are no encrypted fields defined for the collection.") ;
                             }
                             break;
                         case 3: // Case 3: Invalid ``keyId``
                             {
                                 var effectiveEncryptedFields = encryptedFields.DeepClone();
                                 effectiveEncryptedFields["fields"].AsBsonArray[0].AsBsonDocument["keyId"] = false;
-                                var exception = Record.Exception(() => CreateEncryptedCollection(client, clientEncryption, __collCollectionNamespace, effectiveEncryptedFields.AsBsonDocument, kmsProvider, async));
-                                exception.Should().BeOfType<MongoCommandException>().Which.Message.Should().Contain("BSON field 'create.encryptedFields.fields.keyId' is the wrong type 'bool', expected type 'binData'");
+                                var exception = Record.Exception(() => CreateEncryptedCollection(client, clientEncryption, __collCollectionNamespace, effectiveEncryptedFields.AsBsonDocument, kmsProvider, async, out _));
+                                exception
+                                    .Should().BeOfType<MongoEncryptionCreateCollectionException>().Which.InnerException
+                                    .Should().BeOfType<MongoCommandException>().Which.Message.Should().Contain("BSON field 'create.encryptedFields.fields.keyId' is the wrong type 'bool', expected type 'binData'");
                             }
                             break;
                        case 4: // Case 4: Insert encrypted value
                             {
                                 var createCollectionOptions = new CreateCollectionOptions { EncryptedFields = encryptedFields };
-                                var collection = CreateEncryptedCollection(client, clientEncryption, __collCollectionNamespace, createCollectionOptions, kmsProvider, async);
-                                var dataKey = createCollectionOptions.EncryptedFields["fields"].AsBsonArray[0].AsBsonDocument["keyId"].AsGuid; // get generated datakey
+                                var collection = CreateEncryptedCollection(client, clientEncryption, __collCollectionNamespace, createCollectionOptions, kmsProvider, async, out var effectiveEncryptedFields);
+                                var dataKey = effectiveEncryptedFields["fields"].AsBsonArray[0].AsBsonDocument["keyId"].AsGuid; // get generated datakey
                                 var encryptedValue = ExplicitEncrypt(clientEncryption, new EncryptOptions(algorithm: EncryptionAlgorithm.Unindexed, keyId: dataKey), "123-45-6789", async); // use explicit encryption to encrypt data before inserting
                                 Insert(collection, async, new BsonDocument("ssn", encryptedValue));
                             }
@@ -2330,25 +2334,23 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                     });
         }
 
-        private IMongoCollection<BsonDocument> CreateEncryptedCollection(IMongoClient client, ClientEncryption clientEncryption, CollectionNamespace collectionNamespace, BsonDocument encryptedFields, string kmsProvider, bool async)
+        private IMongoCollection<BsonDocument> CreateEncryptedCollection(IMongoClient client, ClientEncryption clientEncryption, CollectionNamespace collectionNamespace, BsonDocument encryptedFields, string kmsProvider, bool async, out BsonDocument effectiveEncryptedFields)
         {
             var createCollectionOptions = new CreateCollectionOptions { EncryptedFields = encryptedFields };
-            return CreateEncryptedCollection(client, clientEncryption, collectionNamespace, createCollectionOptions, kmsProvider, async);
+            return CreateEncryptedCollection(client, clientEncryption, collectionNamespace, createCollectionOptions, kmsProvider, async, out effectiveEncryptedFields);
         }
 
-        private IMongoCollection<BsonDocument> CreateEncryptedCollection(IMongoClient client, ClientEncryption clientEncryption, CollectionNamespace collectionNamespace, CreateCollectionOptions createCollectionOptions, string kmsProvider, bool async)
+        private IMongoCollection<BsonDocument> CreateEncryptedCollection(IMongoClient client, ClientEncryption clientEncryption, CollectionNamespace collectionNamespace, CreateCollectionOptions createCollectionOptions, string kmsProvider, bool async, out BsonDocument effectiveEncryptedFields)
         {
             var datakeyOptions = CreateDataKeyOptions(kmsProvider);
             var database = client.GetDatabase(collectionNamespace.DatabaseNamespace.DatabaseName);
 
-            if (async)
-            {
-                _ = clientEncryption.CreateEncryptedCollectionAsync(database, collectionNamespace.CollectionName, createCollectionOptions, kmsProvider, datakeyOptions, cancellationToken: default).GetAwaiter().GetResult();
-            }
-            else
-            { 
-                _ = clientEncryption.CreateEncryptedCollection(database, collectionNamespace.CollectionName, createCollectionOptions, kmsProvider, datakeyOptions, cancellationToken: default);
-            }
+
+            var result = async
+                ? clientEncryption.CreateEncryptedCollectionAsync(database, collectionNamespace.CollectionName, createCollectionOptions, kmsProvider, datakeyOptions, cancellationToken: default).GetAwaiter().GetResult()
+                : clientEncryption.CreateEncryptedCollection(database, collectionNamespace.CollectionName, createCollectionOptions, kmsProvider, datakeyOptions, cancellationToken: default);
+
+            effectiveEncryptedFields = result.EncryptedFields;
 
             return client.GetDatabase(collectionNamespace.DatabaseNamespace.DatabaseName).GetCollection<BsonDocument>(collectionNamespace.CollectionName);
         }
