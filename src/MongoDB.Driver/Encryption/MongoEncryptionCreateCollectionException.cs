@@ -46,11 +46,24 @@ namespace MongoDB.Driver.Encryption
         protected MongoEncryptionCreateCollectionException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+            _encryptedFields = (BsonDocument)info.GetValue("_encryptedFields", typeof(BsonDocument));
         }
 
         /// <summary>
         /// The encrypted fields.
         /// </summary>
         public BsonDocument EncryptedFields => _encryptedFields;
+
+        // public methods
+        /// <summary>
+        /// Gets the object data.
+        /// </summary>
+        /// <param name="info">The information.</param>
+        /// <param name="context">The context.</param>
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("_encryptedFields", _encryptedFields);
+        }
     }
 }
