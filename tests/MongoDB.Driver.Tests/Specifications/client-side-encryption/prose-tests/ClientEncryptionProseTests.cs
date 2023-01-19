@@ -2130,7 +2130,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 "Date" => new BsonDateTime(millisecondsSinceEpoch: value),
                 "Int" => new BsonInt32(value),
                 "Long" => new BsonInt64(value),
-                _ => throw new Exception($"Unsupported {nameof(rangeSupportedType)} {rangeSupportedType}.")
+                _ => throw new ArgumentException($"Unsupported {nameof(rangeSupportedType)} {rangeSupportedType}.")
             };
         }
 
