@@ -1575,6 +1575,76 @@
           ]
         }
       ]
+    },
+    {
+      "description": "Wrong type: Insert Int",
+      "clientOptions": {
+        "autoEncryptOpts": {
+          "kmsProviders": {
+            "local": {
+              "key": {
+                "$binary": {
+                  "base64": "Mng0NCt4ZHVUYUJCa1kxNkVyNUR1QURhZ2h2UzR2d2RrZzh0cFBwM3R6NmdWMDFBMUN3YkQ5aXRRMkhGRGdQV09wOGVNYUMxT2k3NjZKelhaQmRCZGJkTXVyZG9uSjFk",
+                  "subType": "00"
+                }
+              }
+            }
+          }
+        }
+      },
+      "operations": [
+        {
+          "name": "insertOne",
+          "arguments": {
+            "document": {
+              "_id": 0,
+              "encryptedDoublePrecision": {
+                "$numberInt": "0"
+              }
+            }
+          },
+          "result": {
+            "errorContains": "cannot encrypt element"
+          }
+        }
+      ]
+    },
+    {
+      "description": "Wrong type: Find Int",
+      "clientOptions": {
+        "autoEncryptOpts": {
+          "kmsProviders": {
+            "local": {
+              "key": {
+                "$binary": {
+                  "base64": "Mng0NCt4ZHVUYUJCa1kxNkVyNUR1QURhZ2h2UzR2d2RrZzh0cFBwM3R6NmdWMDFBMUN3YkQ5aXRRMkhGRGdQV09wOGVNYUMxT2k3NjZKelhaQmRCZGJkTXVyZG9uSjFk",
+                  "subType": "00"
+                }
+              }
+            }
+          }
+        }
+      },
+      "operations": [
+        {
+          "name": "find",
+          "arguments": {
+            "filter": {
+              "encryptedDoublePrecision": {
+                "$gte": {
+                  "$numberInt": "0"
+                }
+              }
+            },
+            "sort": {
+              "_id": 1
+            }
+          },
+          "result": {
+            "errorContains": "field type is not supported"
+          }
+        }
+      ]
     }
   ]
 }

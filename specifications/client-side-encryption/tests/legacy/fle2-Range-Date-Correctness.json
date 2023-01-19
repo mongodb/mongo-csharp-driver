@@ -1770,6 +1770,73 @@
           ]
         }
       ]
+    },
+    {
+      "description": "Wrong type: Insert Double",
+      "clientOptions": {
+        "autoEncryptOpts": {
+          "kmsProviders": {
+            "local": {
+              "key": {
+                "$binary": {
+                  "base64": "Mng0NCt4ZHVUYUJCa1kxNkVyNUR1QURhZ2h2UzR2d2RrZzh0cFBwM3R6NmdWMDFBMUN3YkQ5aXRRMkhGRGdQV09wOGVNYUMxT2k3NjZKelhaQmRCZGJkTXVyZG9uSjFk",
+                  "subType": "00"
+                }
+              }
+            }
+          }
+        }
+      },
+      "operations": [
+        {
+          "name": "insertOne",
+          "arguments": {
+            "document": {
+              "_id": 0,
+              "encryptedDate": {
+                "$numberDouble": "0"
+              }
+            }
+          },
+          "result": {
+            "errorContains": "cannot encrypt element"
+          }
+        }
+      ]
+    },
+    {
+      "description": "Wrong type: Find Double",
+      "clientOptions": {
+        "autoEncryptOpts": {
+          "kmsProviders": {
+            "local": {
+              "key": {
+                "$binary": {
+                  "base64": "Mng0NCt4ZHVUYUJCa1kxNkVyNUR1QURhZ2h2UzR2d2RrZzh0cFBwM3R6NmdWMDFBMUN3YkQ5aXRRMkhGRGdQV09wOGVNYUMxT2k3NjZKelhaQmRCZGJkTXVyZG9uSjFk",
+                  "subType": "00"
+                }
+              }
+            }
+          }
+        }
+      },
+      "operations": [
+        {
+          "name": "find",
+          "arguments": {
+            "filter": {
+              "encryptedDate": {
+                "$gte": {
+                  "$numberDouble": "0"
+                }
+              }
+            }
+          },
+          "result": {
+            "errorContains": "value type is a date"
+          }
+        }
+      ]
     }
   ]
 }

@@ -1880,10 +1880,16 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         public void RangeExplicitEncryptionTest(
             [Range(1, 8)] int testCase,
             // test case rangeType values correspond to keys used in test configuration files
-            [Values("DoubleNoPrecision", "DoublePrecision", "Date", "Int", "Long")] string rangeType,
+            [Values("DecimalNoPrecision", "DecimalPrecision", "DoubleNoPrecision", "DoublePrecision", "Date", "Int", "Long")] string rangeType,
             [Values(false, false)] bool async)
         {
             RequireServer.Check().Supports(Feature.CsfleRangeAlgorithm).ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced);
+            if (rangeType == "DecimalNoPrecision")
+            {
+                // Tests for ``DecimalNoPrecision`` must only run against a replica set.
+                // ``DecimalNoPrecision`` queries are expected to take a long time and may exceed the default mongos timeout.
+                RequireServer.Check().ClusterTypes(ClusterType.ReplicaSet);
+            }
 
             var encryptedFields = JsonFileReader.Instance.Documents[$"etc.data.range-encryptedFields-{rangeType}.json"];
             var key1Document = JsonFileReader.Instance.Documents["etc.data.keys.key1-document.json"];
@@ -1940,6 +1946,12 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             {
                 var rangeOptions = rangeType switch
                 {
+                    "DecimalNoPrecision" => new RangeOptions(sparsity: 1),
+                    "DecimalPrecision" => new RangeOptions(
+                        sparsity: 1,
+                        precision: 2,
+                        min: new BsonDecimal128(0),
+                        max: new BsonDecimal128(200)),
                     "DoubleNoPrecision" => new RangeOptions(sparsity: 1),
                     "DoublePrecision" => new RangeOptions(
                         sparsity: 1,
@@ -2064,18 +2076,18 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                         break;
                     case 6: // encrypting a document greater than the maximum errors
                         {
-                            if (rangeType == "DoubleNoPrecision")
+                            if (rangeType == "DoubleNoPrecision" || rangeType == "DecimalNoPrecision")
                             {
                                 throw new SkipException("Skip it based on spec requirement.");
                             }
 
                             var exception = Record.Exception(() => ExplicitEncrypt(clientEncryption, encryptOptions, value201, async));
-                            AssertInnerEncryptionException<CryptException>(exception, "Value must be greater than or equal to the minimum value and less than or equal to the maximum value, got min: 0, max: 200, value: 201");
+                            AssertInnerEncryptionException<CryptException>(exception, "Value must be greater than or equal to the minimum value and less than or equal to the maximum value");
                         }
                         break;
                     case 7: // encrypting a document of a different type errors
                         {
-                            if (rangeType == "DoubleNoPrecision")
+                            if (rangeType == "DoubleNoPrecision" || rangeType == "DecimalNoPrecision")
                             {
                                 throw new SkipException("Skip it based on spec requirement.");
                             }
@@ -2092,7 +2104,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                         break;
                     case 8: // setting precision errors if the type is not a double
                         {
-                            if (rangeType == "DoubleNoPrecision" || rangeType == "DoublePrecision")
+                            if (rangeType == "DoubleNoPrecision" || rangeType == "DoublePrecision" || rangeType == "DecimalPrecision" || rangeType == "DecimalNoPrecision")
                             {
                                 throw new SkipException("Skip it based on spec requirement.");
                             }
@@ -2111,6 +2123,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
             BsonValue GetValue(int value, string rangeSupportedType) => rangeSupportedType switch
             {
+                "DecimalNoPrecision" => new BsonDecimal128(value),
+                "DecimalPrecision" => new BsonDecimal128(value),
                 "DoubleNoPrecision" => new BsonDouble(value),
                 "DoublePrecision" => new BsonDouble(value),
                 "Date" => new BsonDateTime(millisecondsSinceEpoch: value),
