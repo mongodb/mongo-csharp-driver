@@ -1877,7 +1877,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
         [SkippableTheory]
         [ParameterAttributeData]
-        public void RangeExplicitEncryptionTest(
+        public async Task RangeExplicitEncryptionTest(
             [Range(1, 8)] int testCase,
             // test case rangeType values correspond to keys used in test configuration files
             [Values("DecimalNoPrecision", "DecimalPrecision", "DoubleNoPrecision", "DoublePrecision", "Date", "Int", "Long")] string rangeType,
@@ -1938,7 +1938,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                         async,
                         new BsonDocument { { encryptedKeyWithRangeSupportedType, encrypted200 }, { "_id", 3 } });
 
-                    RunTestCase(clientEncryption, encryptedCollection, testCase);
+                    await RunTestCase(clientEncryption, encryptedCollection, testCase);
                 }
             }
 
@@ -1977,7 +1977,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             }
 
 
-            void RunTestCase(ClientEncryption clientEncryption, IMongoCollection<BsonDocument> encryptedCollection, int testCase)
+            async Task RunTestCase(ClientEncryption clientEncryption, IMongoCollection<BsonDocument> encryptedCollection, int testCase)
             {
                 switch (testCase)
                 {
@@ -1990,7 +1990,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                         break;
                     case 2: // can find encrypted range and return the maximum
                         {
-                            var findPayload = ExplicitEncryptExpression(
+                            var findPayload = await ExplicitEncryptExpression(
                                 clientEncryption,
                                 encryptOptions.With(queryType: "rangePreview"),
                                 expression: BsonDocument.Parse(@$"
@@ -2013,7 +2013,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                         break;
                     case 3: // can find encrypted range and return the minimum
                         {
-                            var findPayload = ExplicitEncryptExpression(
+                            var findPayload = await ExplicitEncryptExpression(
                                 clientEncryption,
                                 encryptOptions.With(queryType: "rangePreview"),
                                 expression: BsonDocument.Parse(@$"
@@ -2035,7 +2035,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                         break;
                     case 4: // can find encrypted range with an open range query
                         {
-                            var findPayload = ExplicitEncryptExpression(
+                            var findPayload = await ExplicitEncryptExpression(
                                 clientEncryption,
                                 encryptOptions.With(queryType: "rangePreview"),
                                 expression: BsonDocument.Parse(@$"
@@ -2055,7 +2055,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                         break;
                     case 5: // can run an aggregation expression inside $expr
                         {
-                            var findPayload = ExplicitEncryptExpression(
+                            var findPayload = await ExplicitEncryptExpression(
                                clientEncryption,
                                encryptOptions.With(queryType: "rangePreview"),
                                expression: BsonDocument.Parse(@$"
@@ -2732,13 +2732,13 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             return encryptedValue;
         }
 
-        private BsonDocument ExplicitEncryptExpression(
+        private async Task<BsonDocument> ExplicitEncryptExpression(
             ClientEncryption clientEncryption,
             EncryptOptions encryptOptions,
             BsonDocument expression,
             bool async) =>
             async
-                ? clientEncryption.EncryptExpressionAsync(expression, encryptOptions).GetAwaiter().GetResult()
+                ? await clientEncryption.EncryptExpressionAsync(expression, encryptOptions)
                 : clientEncryption.EncryptExpression(expression, encryptOptions);
 
         private IAsyncCursor<BsonDocument> Find(
