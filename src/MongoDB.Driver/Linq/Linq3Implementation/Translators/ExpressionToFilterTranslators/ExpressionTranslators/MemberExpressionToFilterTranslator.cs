@@ -29,6 +29,15 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
         {
             var memberInfo = expression.Member;
 
+            if (memberInfo is FieldInfo fieldInfo)
+            {
+                if (fieldInfo.FieldType == typeof(bool))
+                {
+                    var field = ExpressionToFilterFieldTranslator.Translate(context, expression);
+                    return AstFilter.Eq(field, true);
+                }
+            }
+
             if (memberInfo is PropertyInfo propertyInfo)
             {
                 if (propertyInfo.Is(NullableProperty.HasValue))

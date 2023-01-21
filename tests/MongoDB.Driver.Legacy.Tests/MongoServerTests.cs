@@ -18,7 +18,7 @@ using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
@@ -109,7 +109,7 @@ namespace MongoDB.Driver.Tests
             Assert.False(databaseNames.Contains(database.Name));
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestDropDatabaseWriteConcern()
         {
             RequireServer.Check().ClusterType(ClusterType.ReplicaSet);
@@ -212,7 +212,7 @@ namespace MongoDB.Driver.Tests
             Assert.True(instance.IsPrimary);
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestReconnect()
         {
             RequireEnvironment.Check().EnvironmentVariable("EXPLICIT");

@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Tests.Jira
 {
     public class CSharp2564Tests
     {
-        [SkippableFact]
+        [Fact]
         public async Task Misbehaved_async_method_should_not_deadlock_server_selection()
         {
             RequireServer.Check().ClusterType(ClusterType.ReplicaSet);

@@ -250,7 +250,7 @@ namespace MongoDB.Driver.Tests.Linq
             Assert.Equal(1, Consume(query));
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestWhereBTypeEqualsB()
         {
             RequireServer.Check().VersionGreaterThanOrEqualTo("2.0.0");

@@ -19,6 +19,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Search;
 
 namespace MongoDB.Driver
 {
@@ -141,7 +142,7 @@ namespace MongoDB.Driver
         public abstract IAggregateFluent<TNewResult> Group<TNewResult>(ProjectionDefinition<TResult, TNewResult> group);
 
         /// <inheritdoc />
-        public abstract IAggregateFluent<TResult> Limit(int limit);
+        public abstract IAggregateFluent<TResult> Limit(long limit);
 
         /// <inheritdoc />
         public virtual IAggregateFluent<TNewResult> Lookup<TForeignDocument, TNewResult>(string foreignCollectionName, FieldDefinition<TResult> localField, FieldDefinition<TForeignDocument> foreignField, FieldDefinition<TNewResult> @as, AggregateLookupOptions<TForeignDocument, TNewResult> options)
@@ -216,6 +217,26 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
+        public virtual IAggregateFluent<TResult> Search(
+            SearchDefinition<TResult> searchDefinition,
+            SearchHighlightOptions<TResult> highlight = null,
+            string indexName = null,
+            SearchCountOptions count = null,
+            bool returnStoredSource = false)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public virtual IAggregateFluent<SearchMetaResult> SearchMeta(
+            SearchDefinition<TResult> searchDefinition,
+            string indexName = null,
+            SearchCountOptions count = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
         public virtual IAggregateFluent<BsonDocument> SetWindowFields<TWindowFields>(
             AggregateExpressionDefinition<ISetWindowFieldsPartition<TResult>, TWindowFields> output)
         {
@@ -240,7 +261,7 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public abstract IAggregateFluent<TResult> Skip(int skip);
+        public abstract IAggregateFluent<TResult> Skip(long skip);
 
         /// <inheritdoc />
         public abstract IAggregateFluent<TResult> Sort(SortDefinition<TResult> sort);

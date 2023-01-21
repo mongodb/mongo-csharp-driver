@@ -19,6 +19,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Core;
 using Xunit;
+using Xunit.Sdk;
 
 namespace MongoDB.Driver.Tests.JsonDrivenTests
 {

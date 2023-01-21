@@ -20,7 +20,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Authentication;
 using Xunit;
 
@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Tests.Specifications.auth
 {
     public class AuthTestRunner
     {
-        [SkippableTheory]
+        [Theory]
         [ClassData(typeof(TestCaseFactory))]
         public void RunTestDefinition(JsonDrivenTestCase testCase)
         {

@@ -38,6 +38,15 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
             return new MongoQuery<TDocument, TDocument>(provider);
         }
 
+        internal override IMongoQueryable<NoPipelineInput> AsQueryable(
+            IMongoDatabase database,
+            IClientSessionHandle session,
+            AggregateOptions options)
+        {
+            var provider = new MongoQueryProvider<NoPipelineInput>(database, session, options);
+            return new MongoQuery<NoPipelineInput, NoPipelineInput>(provider);
+        }
+
         public override string ToString() => "V3";
 
         internal override BsonValue TranslateExpressionToAggregateExpression<TSource, TResult>(
@@ -131,8 +140,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
             IBsonSerializer<TSource> sourceSerializer,
             IBsonSerializerRegistry serializerRegistry)
         {
-            // TODO: implement using LINQ3 instead of falling back to LINQ2
-            return LinqProviderAdapter.V2.TranslateExpressionToFindProjection(expression, sourceSerializer, serializerRegistry);
+            return TranslateExpressionToProjection(expression, sourceSerializer, serializerRegistry, translationOptions: null);
         }
 
         internal override RenderedProjectionDefinition<TOutput> TranslateExpressionToGroupProjection<TInput, TKey, TOutput>(

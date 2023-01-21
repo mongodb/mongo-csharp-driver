@@ -21,7 +21,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
@@ -128,7 +128,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().BeSameAs(value);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_create_view(
             [Values("a", "b")]
@@ -152,7 +152,7 @@ namespace MongoDB.Driver.Core.Operations
             options["pipeline"].AsBsonArray.Cast<BsonDocument>().Should().Equal(_pipeline);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_create_view_when_Collation_is_set(
             [Values(null, "en_US")]
@@ -188,7 +188,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_create_view_when_WriteConcern_is_set(
             [Values("a", "b")]
@@ -215,7 +215,7 @@ namespace MongoDB.Driver.Core.Operations
             options["pipeline"].AsBsonArray.Cast<BsonDocument>().Should().Equal(_pipeline);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_throw_when_a_write_concern_error_occurs(
             [Values(false, true)]
@@ -233,7 +233,7 @@ namespace MongoDB.Driver.Core.Operations
             exception.Should().BeOfType<MongoWriteConcernException>();
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_send_session_id_when_supported(
             [Values(false, true)] bool async)

@@ -18,7 +18,7 @@ using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 using Xunit;
@@ -258,7 +258,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
 
         private IMongoCollection<TDocument> GetCollection<TDocument>(LinqProvider linqProvider)
         {
-            var client = linqProvider == LinqProvider.V2 ? DriverTestConfiguration.Linq2Client : DriverTestConfiguration.Linq3Client;
+            var client = DriverTestConfiguration.GetLinqClient(linqProvider);
             var database = client.GetDatabase("test");
             return database.GetCollection<TDocument>("test");
         }

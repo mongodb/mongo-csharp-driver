@@ -31,7 +31,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// The serializer for NoPipelineInput.
     /// </summary>
-    internal sealed class NoPipelineInputSerializer : IBsonSerializer<NoPipelineInput>
+    internal sealed class NoPipelineInputSerializer : IBsonSerializer<NoPipelineInput>, IBsonDocumentSerializer
     {
         #region static
         // private static fields
@@ -69,6 +69,13 @@ namespace MongoDB.Driver
         public void Serialize(BsonSerializationContext context, BsonSerializationArgs args, NoPipelineInput value)
         {
             throw new NotSupportedException();
+        }
+
+        /// <inheritdoc/>
+        public bool TryGetMemberSerializationInfo(string memberName, out BsonSerializationInfo serializationInfo)
+        {
+            serializationInfo = null;
+            return false;
         }
     }
 }

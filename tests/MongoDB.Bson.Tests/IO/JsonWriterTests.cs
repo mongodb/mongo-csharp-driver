@@ -22,7 +22,7 @@ using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.TestHelpers;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Bson.Tests.IO
@@ -213,7 +213,7 @@ namespace MongoDB.Bson.Tests.IO
             }
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestDoubleRoundTripOn64BitProcess()
         {
             RequireProcess.Check().Bits(64);

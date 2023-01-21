@@ -162,6 +162,11 @@
     },
     {
       "description": "getnonce",
+      "runOnRequirements": [
+        {
+          "maxServerVersion": "6.1.99"
+        }
+      ],
       "operations": [
         {
           "name": "runCommand",

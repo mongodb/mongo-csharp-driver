@@ -44,24 +44,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource LinkBase="Specifications\atlas-data-lake-testing" Include="..\..\specifications\atlas-data-lake-testing\**\*.json" />
-    <EmbeddedResource LinkBase="Specifications\auth" Include="..\..\specifications\auth\**\*.json" />
-    <EmbeddedResource LinkBase="Specifications\change-streams" Include="..\..\specifications\change-streams\**\*.json" />
-    <EmbeddedResource LinkBase="Specifications\client-side-encryption" Include="..\..\specifications\client-side-encryption\**\*.json" />
-    <EmbeddedResource LinkBase="Specifications\collection-management" Include="..\..\specifications\collection-management\**\*.json" />
-    <EmbeddedResource LinkBase="Specifications\command-logging-and-monitoring" Include="..\..\specifications\command-logging-and-monitoring\**\*.json" />
-    <EmbeddedResource LinkBase="Specifications\connection-monitoring-and-pooling\tests\logging" Include="..\..\specifications\connection-monitoring-and-pooling\tests\logging\*.json" />
-    <EmbeddedResource LinkBase="Specifications\crud" Include="..\..\specifications\crud\**\*.json" />
-    <EmbeddedResource LinkBase="Specifications\load-balancers" Include="..\..\specifications\load-balancers\**\*.json" />
-    <EmbeddedResource LinkBase="Specifications\read-write-concern" Include="..\..\specifications\read-write-concern\**\*.json" />
-    <EmbeddedResource LinkBase="Specifications\retryable-reads" Include="..\..\specifications\retryable-reads\**\*.json" />
-    <EmbeddedResource LinkBase="Specifications\retryable-writes" Include="..\..\specifications\retryable-writes\**\*.json" />
-    <EmbeddedResource LinkBase="Specifications\server-discovery-and-monitoring" Include="..\..\specifications\server-discovery-and-monitoring\**\*.json" />
-    <EmbeddedResource LinkBase="Specifications\sessions" Include="..\..\specifications\sessions\**\*.json" />
-    <EmbeddedResource LinkBase="Specifications\transactions" Include="..\..\specifications\transactions\**\*.json" />
-    <EmbeddedResource LinkBase="Specifications\transactions-convenient-api" Include="..\..\specifications\transactions-convenient-api\**\*.json" />
-    <EmbeddedResource LinkBase="Specifications\unified-test-format" Include="..\..\specifications\unified-test-format\**\*.json" />
-    <EmbeddedResource LinkBase="Specifications\versioned-api" Include="..\..\specifications\versioned-api\**\*.json" />
+    <EmbeddedResource LinkBase="Specifications\" Include="..\..\specifications\**\*.json" />
   </ItemGroup>
 
   <ItemGroup>

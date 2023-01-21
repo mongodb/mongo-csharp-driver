@@ -26,6 +26,7 @@ using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.TestHelpers;
 using Xunit;
 using Xunit.Abstractions;
+using Xunit.Sdk;
 
 namespace MongoDB.Driver.Tests.Specifications.retryable_writes
 {
@@ -43,7 +44,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes
         }
 
         // public methods
-        [SkippableTheory]
+        [Theory]
         [ClassData(typeof(TestCaseFactory))]
         public void RunTestDefinition(TestCase testCase)
         {

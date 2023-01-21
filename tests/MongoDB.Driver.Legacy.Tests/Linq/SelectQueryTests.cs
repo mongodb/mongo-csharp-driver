@@ -4456,7 +4456,7 @@ namespace MongoDB.Driver.Tests.Linq
             Assert.Equal(1, Consume(query));
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestWhereSASub0ContainsONot()
         {
             var query = from c in __collection.AsQueryable<C>()
@@ -4502,7 +4502,7 @@ namespace MongoDB.Driver.Tests.Linq
             Assert.Equal(1, Consume(query));
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestWhereSASub0EndsWithMNot()
         {
             var query = from c in __collection.AsQueryable<C>()
@@ -4549,7 +4549,7 @@ namespace MongoDB.Driver.Tests.Linq
             Assert.Equal(1, Consume(query));
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestWhereSASub0IsMatchNot()
         {
             var regex = new Regex(@"^T");
@@ -4596,7 +4596,7 @@ namespace MongoDB.Driver.Tests.Linq
             Assert.Equal(1, Consume(query));
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestWhereSASub0IsMatchStaticNot()
         {
             var query = from c in __collection.AsQueryable<C>()
@@ -4665,7 +4665,7 @@ namespace MongoDB.Driver.Tests.Linq
             Assert.Equal(1, Consume(query));
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestWhereSASub0StartsWithTNot()
         {
             var query = from c in __collection.AsQueryable<C>()

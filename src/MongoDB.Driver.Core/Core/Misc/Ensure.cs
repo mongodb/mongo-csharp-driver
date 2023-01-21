@@ -28,6 +28,22 @@ namespace MongoDB.Driver.Core.Misc
     public static class Ensure
     {
         /// <summary>
+        /// Ensures that the value of a parameter is not null.
+        /// </summary>
+        /// <typeparam name="T">Type type of the value.</typeparam>
+        /// <param name="value">The value of the parameter.</param>
+        /// <param name="paramName">The name of the parameter.</param>
+        /// <returns>The value of the parameter.</returns>
+        public static Nullable<T> HasValue<T>(Nullable<T> value, string paramName) where T : struct
+        {
+            if (!value.HasValue)
+            {
+                throw new ArgumentException("The Nullable parameter must have a value.", paramName);
+            }
+            return value;
+        }
+
+        /// <summary>
         /// Ensures that the value of a parameter is between a minimum and a maximum value.
         /// </summary>
         /// <typeparam name="T">Type type of the value.</typeparam>
@@ -65,6 +81,24 @@ namespace MongoDB.Driver.Core.Misc
         }
 
         /// <summary>
+        /// Ensures that the value of a parameter is greater than a comparand.
+        /// </summary>
+        /// <typeparam name="T">Type type of the value.</typeparam>
+        /// <param name="value">The value of the parameter.</param>
+        /// <param name="comparand">The comparand.</param>
+        /// <param name="paramName">The name of the parameter.</param>
+        /// <returns>The value of the parameter.</returns>
+        public static T IsGreaterThan<T>(T value, T comparand, string paramName) where T : IComparable<T>
+        {
+            if (value.CompareTo(comparand) <= 0)
+            {
+                var message = $"Value is not greater than {comparand}: {value}.";
+                throw new ArgumentOutOfRangeException(paramName, message);
+            }
+            return value;
+        }
+
+        /// <summary>
         /// Ensures that the value of a parameter is greater than or equal to a comparand.
         /// </summary>
         /// <typeparam name="T">Type type of the value.</typeparam>
@@ -88,15 +122,8 @@ namespace MongoDB.Driver.Core.Misc
         /// <param name="value">The value of the parameter.</param>
         /// <param name="paramName">The name of the parameter.</param>
         /// <returns>The value of the parameter.</returns>
-        public static int IsGreaterThanOrEqualToZero(int value, string paramName)
-        {
-            if (value < 0)
-            {
-                var message = string.Format("Value is not greater than or equal to 0: {0}.", value);
-                throw new ArgumentOutOfRangeException(paramName, message);
-            }
-            return value;
-        }
+        public static int IsGreaterThanOrEqualToZero(int value, string paramName) =>
+            IsGreaterThanOrEqualTo(value, 0, paramName);
 
         /// <summary>
         /// Ensures that the value of a parameter is greater than or equal to zero.
@@ -104,15 +131,8 @@ namespace MongoDB.Driver.Core.Misc
         /// <param name="value">The value of the parameter.</param>
         /// <param name="paramName">The name of the parameter.</param>
         /// <returns>The value of the parameter.</returns>
-        public static long IsGreaterThanOrEqualToZero(long value, string paramName)
-        {
-            if (value < 0)
-            {
-                var message = string.Format("Value is not greater than or equal to 0: {0}.", value);
-                throw new ArgumentOutOfRangeException(paramName, message);
-            }
-            return value;
-        }
+        public static long IsGreaterThanOrEqualToZero(long value, string paramName) =>
+            IsGreaterThanOrEqualTo(value, 0, paramName);
 
         /// <summary>
         /// Ensures that the value of a parameter is greater than or equal to zero.
@@ -120,15 +140,8 @@ namespace MongoDB.Driver.Core.Misc
         /// <param name="value">The value of the parameter.</param>
         /// <param name="paramName">The name of the parameter.</param>
         /// <returns>The value of the parameter.</returns>
-        public static TimeSpan IsGreaterThanOrEqualToZero(TimeSpan value, string paramName)
-        {
-            if (value < TimeSpan.Zero)
-            {
-                var message = string.Format("Value is not greater than or equal to zero: {0}.", TimeSpanParser.ToString(value));
-                throw new ArgumentOutOfRangeException(paramName, message);
-            }
-            return value;
-        }
+        public static TimeSpan IsGreaterThanOrEqualToZero(TimeSpan value, string paramName) =>
+            IsGreaterThanOrEqualTo(value, TimeSpan.Zero, paramName);
 
         /// <summary>
         /// Ensures that the value of a parameter is greater than zero.
@@ -136,15 +149,8 @@ namespace MongoDB.Driver.Core.Misc
         /// <param name="value">The value of the parameter.</param>
         /// <param name="paramName">The name of the parameter.</param>
         /// <returns>The value of the parameter.</returns>
-        public static int IsGreaterThanZero(int value, string paramName)
-        {
-            if (value <= 0)
-            {
-                var message = string.Format("Value is not greater than zero: {0}.", value);
-                throw new ArgumentOutOfRangeException(paramName, message);
-            }
-            return value;
-        }
+        public static int IsGreaterThanZero(int value, string paramName) =>
+            IsGreaterThan(value, 0, paramName);
 
         /// <summary>
         /// Ensures that the value of a parameter is greater than zero.
@@ -152,15 +158,8 @@ namespace MongoDB.Driver.Core.Misc
         /// <param name="value">The value of the parameter.</param>
         /// <param name="paramName">The name of the parameter.</param>
         /// <returns>The value of the parameter.</returns>
-        public static long IsGreaterThanZero(long value, string paramName)
-        {
-            if (value <= 0)
-            {
-                var message = string.Format("Value is not greater than zero: {0}.", value);
-                throw new ArgumentOutOfRangeException(paramName, message);
-            }
-            return value;
-        }
+        public static long IsGreaterThanZero(long value, string paramName) =>
+            IsGreaterThan(value, 0, paramName);
 
         /// <summary>
         /// Ensures that the value of a parameter is greater than zero.
@@ -168,15 +167,17 @@ namespace MongoDB.Driver.Core.Misc
         /// <param name="value">The value of the parameter.</param>
         /// <param name="paramName">The name of the parameter.</param>
         /// <returns>The value of the parameter.</returns>
-        public static TimeSpan IsGreaterThanZero(TimeSpan value, string paramName)
-        {
-            if (value <= TimeSpan.Zero)
-            {
-                var message = string.Format("Value is not greater than zero: {0}.", value);
-                throw new ArgumentOutOfRangeException(paramName, message);
-            }
-            return value;
-        }
+        public static double IsGreaterThanZero(double value, string paramName) =>
+            IsGreaterThan(value, 0, paramName);
+
+        /// <summary>
+        /// Ensures that the value of a parameter is greater than zero.
+        /// </summary>
+        /// <param name="value">The value of the parameter.</param>
+        /// <param name="paramName">The name of the parameter.</param>
+        /// <returns>The value of the parameter.</returns>
+        public static TimeSpan IsGreaterThanZero(TimeSpan value, string paramName) =>
+            IsGreaterThan(value, TimeSpan.Zero, paramName);
 
         /// <summary>
         /// Ensures that the value of a parameter is infinite or greater than or equal to zero.
@@ -248,22 +249,6 @@ namespace MongoDB.Driver.Core.Misc
         }
 
         /// <summary>
-        /// Ensures that the value of a parameter is not null.
-        /// </summary>
-        /// <typeparam name="T">Type type of the value.</typeparam>
-        /// <param name="value">The value of the parameter.</param>
-        /// <param name="paramName">The name of the parameter.</param>
-        /// <returns>The value of the parameter.</returns>
-        public static Nullable<T> HasValue<T>(Nullable<T> value, string paramName) where T : struct
-        {
-            if (!value.HasValue)
-            {
-                throw new ArgumentException("The Nullable parameter must have a value.", paramName);
-            }
-            return value;
-        }
-
-        /// <summary>
         /// Ensures that the value of a parameter is not null or empty.
         /// </summary>
         /// <param name="value">The value of the parameter.</param>
@@ -294,6 +279,24 @@ namespace MongoDB.Driver.Core.Misc
             if (value != null)
             {
                 throw new ArgumentNullException(paramName, "Value must be null.");
+            }
+            return value;
+        }
+
+        /// <summary>
+        /// Ensures that the value of a parameter is null or is between a minimum and a maximum value.
+        /// </summary>
+        /// <typeparam name="T">Type type of the value.</typeparam>
+        /// <param name="value">The value of the parameter.</param>
+        /// <param name="min">The minimum value.</param>
+        /// <param name="max">The maximum value.</param>
+        /// <param name="paramName">The name of the parameter.</param>
+        /// <returns>The value of the parameter.</returns>
+        public static T? IsNullOrBetween<T>(T? value, T min, T max, string paramName) where T : struct, IComparable<T>
+        {
+            if (value != null)
+            {
+                IsBetween(value.Value, min, max, paramName);
             }
             return value;
         }

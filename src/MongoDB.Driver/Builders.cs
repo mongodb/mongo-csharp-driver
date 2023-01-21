@@ -13,6 +13,8 @@
 * limitations under the License.
 */
 
+using MongoDB.Driver.Search;
+
 namespace MongoDB.Driver
 {
     /// <summary>
@@ -21,50 +23,38 @@ namespace MongoDB.Driver
     /// <typeparam name="TDocument">The type of the document.</typeparam>
     public static class Builders<TDocument>
     {
-        private static FilterDefinitionBuilder<TDocument> __filter = new FilterDefinitionBuilder<TDocument>();
-        private static IndexKeysDefinitionBuilder<TDocument> __index = new IndexKeysDefinitionBuilder<TDocument>();
-        private static ProjectionDefinitionBuilder<TDocument> __projection = new ProjectionDefinitionBuilder<TDocument>();
-        private static SortDefinitionBuilder<TDocument> __sort = new SortDefinitionBuilder<TDocument>();
-        private static UpdateDefinitionBuilder<TDocument> __update = new UpdateDefinitionBuilder<TDocument>();
+        /// <summary>Gets a <see cref="FilterDefinitionBuilder{TDocument}"/>.</summary>
+        public static FilterDefinitionBuilder<TDocument> Filter { get; } = new FilterDefinitionBuilder<TDocument>();
 
-        /// <summary>
-        /// Gets a <see cref="FilterDefinitionBuilder{TDocument}"/>.
-        /// </summary>
-        public static FilterDefinitionBuilder<TDocument> Filter
-        {
-            get { return __filter; }
-        }
+        /// <summary>Gets an <see cref="IndexKeysDefinitionBuilder{TDocument}"/>.</summary>
+        public static IndexKeysDefinitionBuilder<TDocument> IndexKeys { get; } = new IndexKeysDefinitionBuilder<TDocument>();
 
-        /// <summary>
-        /// Gets an <see cref="IndexKeysDefinitionBuilder{TDocument}"/>.
-        /// </summary>
-        public static IndexKeysDefinitionBuilder<TDocument> IndexKeys
-        {
-            get { return __index; }
-        }
+        /// <summary>Gets a <see cref="ProjectionDefinitionBuilder{TDocument}"/>.</summary>
+        public static ProjectionDefinitionBuilder<TDocument> Projection { get; } = new ProjectionDefinitionBuilder<TDocument>();
 
-        /// <summary>
-        /// Gets a <see cref="ProjectionDefinitionBuilder{TDocument}"/>.
-        /// </summary>
-        public static ProjectionDefinitionBuilder<TDocument> Projection
-        {
-            get { return __projection; }
-        }
+        /// <summary>Gets a <see cref="SortDefinitionBuilder{TDocument}"/>.</summary>
+        public static SortDefinitionBuilder<TDocument> Sort { get; } = new SortDefinitionBuilder<TDocument>();
 
-        /// <summary>
-        /// Gets a <see cref="SortDefinitionBuilder{TDocument}"/>.
-        /// </summary>
-        public static SortDefinitionBuilder<TDocument> Sort
-        {
-            get { return __sort; }
-        }
+        /// <summary>Gets an <see cref="UpdateDefinitionBuilder{TDocument}"/>.</summary>
+        public static UpdateDefinitionBuilder<TDocument> Update { get; } = new UpdateDefinitionBuilder<TDocument>();
 
-        /// <summary>
-        /// Gets an <see cref="UpdateDefinitionBuilder{TDocument}"/>.
-        /// </summary>
-        public static UpdateDefinitionBuilder<TDocument> Update
-        {
-            get { return __update; }
-        }
+        // Search builders
+        /// <summary>Gets a <see cref="SearchFacetBuilder{TDocument}"/>.</summary>
+        public static SearchFacetBuilder<TDocument> SearchFacet { get; } = new SearchFacetBuilder<TDocument>();
+
+        /// <summary>Gets a <see cref="SearchPathDefinition{TDocument}"/>.</summary>
+        public static SearchPathDefinitionBuilder<TDocument> SearchPath { get; } = new SearchPathDefinitionBuilder<TDocument>();
+
+        /// <summary>Gets a <see cref="SearchScoreDefinitionBuilder{TDocument}"/>.</summary>
+        public static SearchScoreDefinitionBuilder<TDocument> SearchScore { get; } = new SearchScoreDefinitionBuilder<TDocument>();
+
+        /// <summary>Gets a <see cref="SearchScoreFunctionBuilder{TDocument}"/>.</summary>
+        public static SearchScoreFunctionBuilder<TDocument> SearchScoreFunction { get; } = new SearchScoreFunctionBuilder<TDocument>();
+
+        /// <summary>Gets a <see cref="SearchDefinitionBuilder{TDocument}"/>.</summary>
+        public static SearchDefinitionBuilder<TDocument> Search { get; } = new SearchDefinitionBuilder<TDocument>();
+
+        /// <summary> Gets a <see cref="SearchSpanDefinitionBuilder{TDocument}"/>.</summary>
+        public static SearchSpanDefinitionBuilder<TDocument> SearchSpan { get; } = new SearchSpanDefinitionBuilder<TDocument>();
     }
 }

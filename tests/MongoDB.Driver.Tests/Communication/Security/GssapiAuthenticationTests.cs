@@ -16,7 +16,7 @@
 using System;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Communication.Security
@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
     {
         private static readonly string __collectionName = "test";
 
-        [SkippableFact]
+        [Fact]
         public void TestNoCredentials()
         {
             RequireEnvironment.Check().EnvironmentVariable("GSSAPI_TESTS_ENABLED");
@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
         }
 
 
-        [SkippableFact]
+        [Fact]
         public void TestSuccessfulAuthentication()
         {
             RequireEnvironment.Check().EnvironmentVariable("GSSAPI_TESTS_ENABLED");
@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
             result.Should().NotBeNull();
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestBadPassword()
         {
             RequireEnvironment.Check().EnvironmentVariable("GSSAPI_TESTS_ENABLED");

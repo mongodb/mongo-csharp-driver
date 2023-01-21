@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Tests.Linq
             _collection = LegacyTestConfiguration.Collection;
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestExplainFromLinqQueryEqualsExplainFromCursor()
         {
             RequireServer.Check().Supports(Feature.LegacyWireProtocol);
@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Tests.Linq
             }
         }
 
-        [SkippableFact]
+        [Fact]
         public void TestVerboseExplainFromLinqQueryEqualsVerboseExplainFromCursor()
         {
             RequireServer.Check().Supports(Feature.LegacyWireProtocol);

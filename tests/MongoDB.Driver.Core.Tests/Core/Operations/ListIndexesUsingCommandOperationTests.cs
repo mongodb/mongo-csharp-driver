@@ -17,7 +17,7 @@ using System;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
@@ -68,7 +68,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(batchSize);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_result(
             [Values(false, true)]
@@ -84,7 +84,7 @@ namespace MongoDB.Driver.Core.Operations
             list.Select(index => index["name"].AsString).Should().BeEquivalentTo("_id_");
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_return_the_expected_result_when_batchSize_is_used([Values(false, true)] bool async)
         {
@@ -102,7 +102,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_result_when_collection_does_not_exist(
             [Values(false, true)]
@@ -118,7 +118,7 @@ namespace MongoDB.Driver.Core.Operations
             list.Count.Should().Be(0);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_result_when_database_does_not_exist(
             [Values(false, true)]
@@ -148,7 +148,7 @@ namespace MongoDB.Driver.Core.Operations
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("binding");
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_send_session_id_when_supported(
             [Values(false, true)] bool async)

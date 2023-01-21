@@ -16,7 +16,7 @@
 using System;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Tests
         private string _roleName = $"listDatabases{Guid.NewGuid()}";
         private string _userName = $"authorizedDatabases{Guid.NewGuid()}";
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_return_the_expected_result_when_AuthorizedDatabases_is_used(
             [Values(null, false, true)] bool? authorizedDatabases)

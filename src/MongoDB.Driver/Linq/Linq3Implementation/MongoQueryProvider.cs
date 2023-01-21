@@ -20,6 +20,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToExecutableQueryTranslators;
 using MongoDB.Driver.Support;
 
@@ -41,9 +42,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
         }
 
         // public properties
-        public abstract IBsonSerializer CollectionDocumentSerializer { get; }
         public abstract CollectionNamespace CollectionNamespace { get; }
         public AggregateOptions Options => _options;
+        public abstract IBsonSerializer PipelineInputSerializer { get; }
         public IClientSessionHandle Session => _session;
 
         // public methods
@@ -60,6 +61,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
     {
         // private fields
         private readonly IMongoCollection<TDocument> _collection;
+        private readonly IMongoDatabase _database;
         private ExecutableQuery<TDocument> _mostRecentExecutableQuery;
 
         // constructors
@@ -69,13 +71,23 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
             AggregateOptions options)
             : base(session, options)
         {
-            _collection = collection;
+            _collection = Ensure.IsNotNull(collection, nameof(collection));
+        }
+
+        public MongoQueryProvider(
+            IMongoDatabase database,
+            IClientSessionHandle session,
+            AggregateOptions options)
+            : base(session, options)
+        {
+            _database = Ensure.IsNotNull(database, nameof(database));
         }
 
         // public properties
         public IMongoCollection<TDocument> Collection => _collection;
-        public override CollectionNamespace CollectionNamespace => _collection.CollectionNamespace;
-        public override IBsonSerializer CollectionDocumentSerializer => _collection.DocumentSerializer;
+        public override CollectionNamespace CollectionNamespace => _collection == null ? null : _collection.CollectionNamespace;
+        public IMongoDatabase Database => _database;
+        public override IBsonSerializer PipelineInputSerializer => _collection == null ? NoPipelineInputSerializer.Instance : _collection.DocumentSerializer;
 
         // public methods
         public override IQueryable CreateQuery(Expression expression)

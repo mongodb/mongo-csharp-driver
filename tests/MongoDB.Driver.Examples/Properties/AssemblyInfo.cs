@@ -14,8 +14,11 @@
 */
 
 using System.Runtime.InteropServices;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 [assembly: ComVisible(false)]
 
 [assembly: CollectionBehavior(DisableTestParallelization = true)]
+
+[assembly: TestFramework(XunitExtensionsConstants.TimeoutEnforcingXunitFramework, XunitExtensionsConstants.TimeoutEnforcingFrameworkAssembly)]

@@ -19,6 +19,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Search;
 
 namespace MongoDB.Driver
 {
@@ -215,7 +216,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="limit">The limit.</param>
         /// <returns>The fluent aggregate interface.</returns>
-        IAggregateFluent<TResult> Limit(int limit);
+        IAggregateFluent<TResult> Limit(long limit);
 
         /// <summary>
         /// Appends a lookup stage to the pipeline.
@@ -354,6 +355,37 @@ namespace MongoDB.Driver
             AggregateExpressionDefinition<ISetWindowFieldsPartition<TResult>, TWindowFields> output);
 
         /// <summary>
+        /// Appends a $search stage to the pipeline.
+        /// </summary>
+        /// <param name="searchDefinition">The search definition.</param>
+        /// <param name="highlight">The highlight options.</param>
+        /// <param name="indexName">The index name.</param>
+        /// <param name="count">The count options.</param>
+        /// <param name="returnStoredSource">
+        /// Flag that specifies whether to perform a full document lookup on the backend database
+        /// or return only stored source fields directly from Atlas Search.
+        /// </param>
+        /// <returns>The fluent aggregate interface.</returns>
+        IAggregateFluent<TResult> Search(
+            SearchDefinition<TResult> searchDefinition,
+            SearchHighlightOptions<TResult> highlight = null,
+            string indexName = null,
+            SearchCountOptions count = null,
+            bool returnStoredSource = false);
+
+        /// <summary>
+        /// Appends a $searchMeta stage to the pipeline.
+        /// </summary>
+        /// <param name="searchDefinition">The search definition.</param>
+        /// <param name="indexName">The index name.</param>
+        /// <param name="count">The count options.</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        IAggregateFluent<SearchMetaResult> SearchMeta(
+            SearchDefinition<TResult> searchDefinition,
+            string indexName = null,
+            SearchCountOptions count = null);
+
+        /// <summary>
         /// Appends a $setWindowFields to the pipeline.
         /// </summary>
         /// <typeparam name="TPartitionBy">The type of the value to partition by.</typeparam>
@@ -384,7 +416,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="skip">The number of documents to skip.</param>
         /// <returns>The fluent aggregate interface.</returns>
-        IAggregateFluent<TResult> Skip(int skip);
+        IAggregateFluent<TResult> Skip(long skip);
 
         /// <summary>
         /// Appends a sort stage to the pipeline.

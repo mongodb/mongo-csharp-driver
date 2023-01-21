@@ -18,7 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
@@ -69,7 +69,7 @@ namespace MongoDB.Driver.Core.Operations
             argumentNullException.ParamName.Should().Be("messageEncoderSettings");
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void CommitQuorum_get_and_set_should_work(
             [Values(null, 1, 2)] int? w)
@@ -245,7 +245,7 @@ namespace MongoDB.Driver.Core.Operations
             exception.Should().BeOfType<NotSupportedException>();
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_throw_when_maxTime_is_exceeded(
             [Values(false, true)] bool async)
@@ -262,7 +262,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_work_when_background_is_true(
             [Values(false, true)]
@@ -280,7 +280,7 @@ namespace MongoDB.Driver.Core.Operations
             index["background"].ToBoolean().Should().BeTrue();
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_work_when_commitQuorum_is_specified(
             [Values(1, "majority", "votingMembers")] object commitQuorumCase,
@@ -315,7 +315,7 @@ namespace MongoDB.Driver.Core.Operations
             indexes.Select(index => index["name"].AsString).Should().BeEquivalentTo(new[] { "_id_", "x_1" });
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_work_when_creating_one_index(
             [Values(false, true)]
@@ -332,7 +332,7 @@ namespace MongoDB.Driver.Core.Operations
             indexes.Select(index => index["name"].AsString).Should().BeEquivalentTo(new[] { "_id_", "x_1" });
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_work_when_creating_two_indexes(
             [Values(false, true)]
@@ -353,7 +353,7 @@ namespace MongoDB.Driver.Core.Operations
             indexes.Select(index => index["name"].AsString).Should().BeEquivalentTo(new[] { "_id_", "x_1", "y_1" });
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_work_when_partialFilterExpression_has_value(
             [Values(false, true)]
@@ -371,7 +371,7 @@ namespace MongoDB.Driver.Core.Operations
             index["partialFilterExpression"].AsBsonDocument.Should().Be(requests[0].PartialFilterExpression);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_work_when_sparse_is_true(
             [Values(false, true)]
@@ -389,7 +389,7 @@ namespace MongoDB.Driver.Core.Operations
             index["sparse"].ToBoolean().Should().BeTrue();
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_work_when_Collation_has_value(
             [Values("en_US", "fr_CA")]
@@ -410,7 +410,7 @@ namespace MongoDB.Driver.Core.Operations
             index["collation"]["locale"].AsString.Should().Be(locale);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_work_when_expireAfter_has_value(
             [Values(false, true)]
@@ -429,7 +429,7 @@ namespace MongoDB.Driver.Core.Operations
             index["expireAfterSeconds"].ToDouble().Should().Be(expireAfter.TotalSeconds);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_work_when_hidden_has_value(
             [Values(null, false, true)] bool? hidden,
@@ -454,7 +454,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_work_when_unique_is_true(
             [Values(false, true)]
@@ -472,7 +472,7 @@ namespace MongoDB.Driver.Core.Operations
             index["unique"].ToBoolean().Should().BeTrue();
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_throw_when_a_write_concern_error_occurs(
            [Values(false, true)]
@@ -491,7 +491,7 @@ namespace MongoDB.Driver.Core.Operations
             exception.Should().BeOfType<MongoWriteConcernException>();
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_send_session_id_when_supported(
             [Values(false, true)] bool async)

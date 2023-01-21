@@ -225,6 +225,11 @@ namespace MongoDB.Driver.Tests
             return clientSettings;
         }
 
+        public static MongoClient GetLinqClient(LinqProvider linqProvider)
+        {
+            return linqProvider == LinqProvider.V2 ? Linq2Client : Linq3Client;
+        }
+
         public static bool IsReplicaSet(IMongoClient client)
         {
             var clusterTypeIsKnown = SpinWait.SpinUntil(() => client.Cluster.Description.Type != ClusterType.Unknown, TimeSpan.FromSeconds(10));

@@ -25,7 +25,7 @@ using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Misc;
 using Xunit;
 using MongoDB.Driver.Core.Connections;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using System.Linq;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.WireProtocol.Messages;

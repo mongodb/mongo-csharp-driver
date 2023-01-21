@@ -96,7 +96,7 @@ namespace MongoDB.Driver.Linq.Linq2Implementation.Processors
                 var provider = (IMongoQueryProvider)queryable.Provider;
                 return new CollectionExpression(
                     provider.CollectionNamespace,
-                    provider.CollectionDocumentSerializer);
+                    provider.PipelineInputSerializer);
             }
 
             return base.VisitConstant(node);

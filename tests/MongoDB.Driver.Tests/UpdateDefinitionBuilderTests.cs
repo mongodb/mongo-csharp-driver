@@ -16,11 +16,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
 using Xunit;
 
@@ -243,25 +244,36 @@ namespace MongoDB.Driver.Tests
         public void Incorrect_index_should_throw_expected_exception_with_set()
         {
             var subject = CreateSubject<Person>();
-            string expectedErrorMessage = "Array indexes must be greater than or equal to -1.";
+            string expectedErrorMessage = "because negative indexes are not valid";
 
 #pragma warning disable 251
-            AssertThrow<Person, IndexOutOfRangeException>(subject.Set(x => x.FavoriteColors[-2], "yellow"), expectedErrorMessage);
+            AssertThrow<Person, ExpressionNotSupportedException>(subject.Set(x => x.FavoriteColors[-2], "yellow"), expectedErrorMessage, LinqProvider.V3);
 #pragma warning restore
-            AssertThrow<Person, IndexOutOfRangeException>(subject.Set(x => x.Pets[-2].Name, "Fluffencutters"), expectedErrorMessage);
-            AssertThrow<Person, IndexOutOfRangeException>(subject.Set(x => x.Pets.ElementAt(-2).Name, "Fluffencutters"), expectedErrorMessage);
+            AssertThrow<Person, ExpressionNotSupportedException>(subject.Set(x => x.Pets[-2].Name, "Fluffencutters"), expectedErrorMessage, LinqProvider.V3);
+            AssertThrow<Person, ExpressionNotSupportedException>(subject.Set(x => x.Pets.ElementAt(-2).Name, "Fluffencutters"), expectedErrorMessage, LinqProvider.V3);
         }
 
-        [Fact]
-        public void Indexed_Positional_Typed()
+        [Theory]
+        [ParameterAttributeData]
+        public void Indexed_Positional_Typed(
+            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
             var subject = CreateSubject<Person>();
 
+            if (linqProvider == LinqProvider.V2)
+            {
 #pragma warning disable
-            Assert(subject.Set(x => x.FavoriteColors[-1], "yellow"), "{$set: {'colors.$': 'yellow'}}");
+                Assert(subject.Set(x => x.FavoriteColors[-1], "yellow"), "{$set: {'colors.$': 'yellow'}}", linqProvider);
 #pragma warning restore
-            Assert(subject.Set(x => x.Pets[-1].Name, "Fluffencutters"), "{$set: {'pets.$.name': 'Fluffencutters'}}");
-            Assert(subject.Set(x => x.Pets.ElementAt(-1).Name, "Fluffencutters"), "{$set: {'pets.$.name': 'Fluffencutters'}}");
+                Assert(subject.Set(x => x.Pets[-1].Name, "Fluffencutters"), "{$set: {'pets.$.name': 'Fluffencutters'}}", linqProvider);
+                Assert(subject.Set(x => x.Pets.ElementAt(-1).Name, "Fluffencutters"), "{$set: {'pets.$.name': 'Fluffencutters'}}", linqProvider);
+            }
+            else
+            {
+                Assert(subject.Set(x => x.FavoriteColors.FirstMatchingElement(), "yellow"), "{$set: {'colors.$': 'yellow'}}", linqProvider);
+                Assert(subject.Set(x => x.Pets.FirstMatchingElement().Name, "Fluffencutters"), "{$set: {'pets.$.name': 'Fluffencutters'}}", linqProvider);
+                Assert(subject.Set(x => x.Pets.FirstMatchingElement().Name, "Fluffencutters"), "{$set: {'pets.$.name': 'Fluffencutters'}}", linqProvider);
+            }
         }
 
         [Fact]
@@ -648,9 +660,9 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Unset("Age"), "{$unset: {age: 1}}");
         }
 
-        private void Assert<TDocument>(UpdateDefinition<TDocument> update, BsonDocument expected)
+        private void Assert<TDocument>(UpdateDefinition<TDocument> update, BsonDocument expected, LinqProvider linqProvider = LinqProvider.V3)
         {
-            var renderedUpdate = Render(update).AsBsonDocument;
+            var renderedUpdate = Render(update, linqProvider).AsBsonDocument;
 
             renderedUpdate.Should().Be(expected);
         }
@@ -663,16 +675,16 @@ namespace MongoDB.Driver.Tests
             renderedUpdate.Should().Be(bsonArray);
         }
 
-        private void Assert<TDocument>(UpdateDefinition<TDocument> update, string expected)
+        private void Assert<TDocument>(UpdateDefinition<TDocument> update, string expected, LinqProvider linqProvider = LinqProvider.V3)
         {
-            Assert(update, BsonDocument.Parse(expected));
+            Assert(update, BsonDocument.Parse(expected), linqProvider);
         }
 
-        private void AssertThrow<TDocument, TException>(UpdateDefinition<TDocument> update, string errorMessage) where TException : Exception
+        private void AssertThrow<TDocument, TException>(UpdateDefinition<TDocument> update, string errorMessage, LinqProvider linqProvider = LinqProvider.V3) where TException : Exception
         {
-            var exception = Record.Exception(() => { Render(update); });
+            var exception = Record.Exception(() => { Render(update, linqProvider); });
             exception.Should().BeOfType<TException>();
-            exception.Message.Should().Be(errorMessage);
+            exception.Message.Should().Contain(errorMessage);
         }
 
         private UpdateDefinitionBuilder<TDocument> CreateSubject<TDocument>()
@@ -680,10 +692,10 @@ namespace MongoDB.Driver.Tests
             return new UpdateDefinitionBuilder<TDocument>();
         }
 
-        private BsonValue Render<TDocument>(UpdateDefinition<TDocument> update)
+        private BsonValue Render<TDocument>(UpdateDefinition<TDocument> update, LinqProvider linqProvider = LinqProvider.V3)
         {
             var documentSerializer = BsonSerializer.SerializerRegistry.GetSerializer<TDocument>();
-            return update.Render(documentSerializer, BsonSerializer.SerializerRegistry, LinqProvider.V2);
+            return update.Render(documentSerializer, BsonSerializer.SerializerRegistry, linqProvider);
         }
 
         private class Person

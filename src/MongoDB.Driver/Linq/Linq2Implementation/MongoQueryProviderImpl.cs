@@ -21,7 +21,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq.Linq2Implementation.Processors;
 using MongoDB.Driver.Linq.Linq2Implementation.Processors.Pipeline;
 using MongoDB.Driver.Linq.Linq2Implementation.Translators;
@@ -44,7 +43,7 @@ namespace MongoDB.Driver.Linq.Linq2Implementation
 
         public CollectionNamespace CollectionNamespace => _collection.CollectionNamespace;
 
-        public IBsonSerializer CollectionDocumentSerializer => _collection.DocumentSerializer;
+        public IBsonSerializer PipelineInputSerializer => _collection.DocumentSerializer;
 
         public IQueryable<TElement> CreateQuery<TElement>(Expression expression)
         {

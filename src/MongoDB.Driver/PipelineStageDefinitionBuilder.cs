@@ -22,9 +22,9 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq;
-using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators;
+using MongoDB.Driver.Search;
 
 namespace MongoDB.Driver
 {
@@ -898,7 +898,7 @@ namespace MongoDB.Driver
         /// <param name="limit">The limit.</param>
         /// <returns>The stage.</returns>
         public static PipelineStageDefinition<TInput, TInput> Limit<TInput>(
-            int limit)
+            long limit)
         {
             Ensure.IsGreaterThanZero(limit, nameof(limit));
             return new BsonDocumentPipelineStageDefinition<TInput, TInput>(new BsonDocument("$limit", limit));
@@ -1310,6 +1310,80 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Creates a $search stage.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <param name="searchDefinition">The search definition.</param>
+        /// <param name="highlight">The highlight options.</param>
+        /// <param name="indexName">The index name.</param>
+        /// <param name="count">The count options.</param>
+        /// <param name="returnStoredSource">
+        /// Flag that specifies whether to perform a full document lookup on the backend database
+        /// or return only stored source fields directly from Atlas Search.
+        /// </param>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<TInput, TInput> Search<TInput>(
+            SearchDefinition<TInput> searchDefinition,
+            SearchHighlightOptions<TInput> highlight = null,
+            string indexName = null,
+            SearchCountOptions count = null,
+            bool returnStoredSource = false)
+        {
+            Ensure.IsNotNull(searchDefinition, nameof(searchDefinition));
+
+            const string operatorName = "$search";
+            var stage = new DelegatedPipelineStageDefinition<TInput, TInput>(
+                operatorName,
+                (s, sr, linqProvider) =>
+                {
+                    var renderedSearchDefinition = searchDefinition.Render(s, sr);
+                    renderedSearchDefinition.Add("highlight", () => highlight.Render(s, sr), highlight != null);
+                    renderedSearchDefinition.Add("count", () => count.Render(), count != null);
+                    renderedSearchDefinition.Add("index", indexName, indexName != null);
+                    renderedSearchDefinition.Add("returnStoredSource", returnStoredSource, returnStoredSource);
+
+                    var document = new BsonDocument(operatorName, renderedSearchDefinition);
+                    return new RenderedPipelineStageDefinition<TInput>(operatorName, document, s);
+                });
+
+            return stage;
+        }
+
+        /// <summary>
+        /// Creates a $searchMeta stage.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <param name="searchDefinition">The search definition.</param>
+        /// <param name="indexName">The index name.</param>
+        /// <param name="count">The count options.</param>
+        /// <returns>The stage.</returns>
+        public static PipelineStageDefinition<TInput, SearchMetaResult> SearchMeta<TInput>(
+            SearchDefinition<TInput> searchDefinition,
+            string indexName = null,
+            SearchCountOptions count = null)
+        {
+            Ensure.IsNotNull(searchDefinition, nameof(searchDefinition));
+
+            const string operatorName = "$searchMeta";
+            var stage = new DelegatedPipelineStageDefinition<TInput, SearchMetaResult>(
+                operatorName,
+                (s, sr, linqProvider) =>
+                {
+                    var renderedSearchDefinition = searchDefinition.Render(s, sr);
+                    renderedSearchDefinition.Add("count", () => count.Render(), count != null);
+                    renderedSearchDefinition.Add("index", indexName, indexName != null);
+
+                    var document = new BsonDocument(operatorName, renderedSearchDefinition);
+                    return new RenderedPipelineStageDefinition<SearchMetaResult>(
+                        operatorName,
+                        document,
+                        sr.GetSerializer<SearchMetaResult>());
+                });
+
+            return stage;
+        }
+
+        /// <summary>
         /// Creates a $replaceRoot stage.
         /// </summary>
         /// <typeparam name="TInput">The type of the input documents.</typeparam>
@@ -1579,7 +1653,7 @@ namespace MongoDB.Driver
         /// <param name="skip">The skip.</param>
         /// <returns>The stage.</returns>
         public static PipelineStageDefinition<TInput, TInput> Skip<TInput>(
-            int skip)
+            long skip)
         {
             Ensure.IsGreaterThanOrEqualToZero(skip, nameof(skip));
             return new BsonDocumentPipelineStageDefinition<TInput, TInput>(new BsonDocument("$skip", skip));

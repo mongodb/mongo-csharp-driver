@@ -40,7 +40,7 @@ namespace MongoDB.Driver.Tests
         static AggregateFluentBucketTests()
         {
             var databaseNamespace = DriverTestConfiguration.DatabaseNamespace;
-            __database = DriverTestConfiguration.Linq2Client.GetDatabase(databaseNamespace.DatabaseName);
+            __database = DriverTestConfiguration.Client.GetDatabase(databaseNamespace.DatabaseName);
             __collectionNamespace = DriverTestConfiguration.CollectionNamespace;
             __ensureTestData = new Lazy<bool>(CreateTestData);
         }
@@ -86,7 +86,7 @@ namespace MongoDB.Driver.Tests
             renderedStage.Document.Should().Be("{ $bucket : { groupBy : \"$year\", boundaries : [ 1900, 1920, 1950 ], default : \"Unknown\" } }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void Bucket_should_return_expected_result()
         {
             RequireServer.Check();
@@ -123,7 +123,7 @@ namespace MongoDB.Driver.Tests
             renderedStage.Document.Should().Be("{ $bucket : { groupBy : \"$year\", boundaries : [ 1900, 1920, 1950 ], default : \"Unknown\", output : { years : { $push : \"$year\" }, count : { $sum : 1 } } } }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void Bucket_with_output_should_return_expected_result()
         {
             RequireServer.Check();
@@ -156,11 +156,11 @@ namespace MongoDB.Driver.Tests
             var stage = result.Stages.Single();
             var serializerRegistry = BsonSerializer.SerializerRegistry;
             var exhibitSerializer = serializerRegistry.GetSerializer<Exhibit>();
-            var renderedStage = stage.Render(exhibitSerializer, serializerRegistry, LinqProvider.V2);
+            var renderedStage = stage.Render(exhibitSerializer, serializerRegistry);
             renderedStage.Document.Should().Be("{ $bucket : { groupBy : \"$year\", boundaries : [ 1900, 1920, 1950 ], default : \"Unknown\" } }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void Bucket_typed_should_return_expected_result()
         {
             RequireServer.Check();
@@ -196,11 +196,11 @@ namespace MongoDB.Driver.Tests
             var stage = result.Stages.Single();
             var serializerRegistry = BsonSerializer.SerializerRegistry;
             var exhibitSerializer = serializerRegistry.GetSerializer<Exhibit>();
-            var renderedStage = stage.Render(exhibitSerializer, serializerRegistry, LinqProvider.V2);
+            var renderedStage = stage.Render(exhibitSerializer, serializerRegistry);
             renderedStage.Document.Should().Be("{ $bucket : { groupBy : \"$year\", boundaries : [ 1900, 1920, 1950 ], default : \"Unknown\", output : { Years : { $push : \"$year\" }, Count : { $sum : 1 } } } }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void Bucket_typed_with_output_should_return_expected_result()
         {
             RequireServer.Check();

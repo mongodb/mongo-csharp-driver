@@ -479,7 +479,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
                 "{ M : { $elemMatch : { $gt : 2, $lt : 6 } } }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void Any_with_a_predicate_on_scalars()
         {
             RequireServer.Check();
@@ -551,7 +551,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
             exception.Should().BeOfType<ExpressionNotSupportedException>();
         }
 
-        [SkippableFact]
+        [Fact]
         public void BitsAllClear_with_bitwise_operators()
         {
             RequireServer.Check();
@@ -562,7 +562,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
                 "{'C.E.F': { $bitsAllClear: 20 } }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void BitsAllSet_with_bitwise_operators()
         {
             RequireServer.Check();
@@ -573,7 +573,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
                 "{'C.E.F': { $bitsAllSet: 7 } }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void BitsAllSet_with_HasFlag()
         {
             RequireServer.Check();
@@ -584,7 +584,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
                 "{Q: { $bitsAllSet: 1 } }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void BitsAnyClear_with_bitwise_operators()
         {
             RequireServer.Check();
@@ -595,7 +595,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
                 "{'C.E.F': { $bitsAnyClear: 7 } }");
         }
 
-        [SkippableFact]
+        [Fact]
         public void BitsAnySet_with_bitwise_operators()
         {
             RequireServer.Check();

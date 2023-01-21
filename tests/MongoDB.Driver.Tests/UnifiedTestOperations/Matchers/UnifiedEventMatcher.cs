@@ -20,7 +20,7 @@ using System.Xml.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using Xunit.Sdk;

@@ -20,6 +20,7 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Libmongocrypt;
 
 namespace MongoDB.Driver.Encryption
@@ -77,6 +78,90 @@ namespace MongoDB.Driver.Encryption
         /// <returns>Returns the previous version of the key document.</returns>
         public Task<BsonDocument> AddAlternateKeyNameAsync(Guid id, string alternateKeyName, CancellationToken cancellationToken = default) =>
             _libMongoCryptController.AddAlternateKeyNameAsync(id, alternateKeyName, cancellationToken);
+
+        /// <summary>
+        /// Create encrypted collection.
+        /// </summary>
+        /// <param name="database">The database.</param>
+        /// <param name="collectionName">The collection name.</param>
+        /// <param name="createCollectionOptions">The create collection options.</param>
+        /// <param name="kmsProvider">The kms provider.</param>
+        /// <param name="dataKeyOptions">The datakey options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The operation result.</returns>
+        /// <remarks>
+        /// if EncryptionFields contains a keyId with a null value, a data key will be automatically generated and assigned to keyId value.
+        /// </remarks>
+        public CreateEncryptedCollectionResult CreateEncryptedCollection(IMongoDatabase database, string collectionName, CreateCollectionOptions createCollectionOptions, string kmsProvider, DataKeyOptions dataKeyOptions, CancellationToken cancellationToken = default)
+        {
+            Ensure.IsNotNull(database, nameof(database));
+            Ensure.IsNotNull(collectionName, nameof(collectionName));
+            Ensure.IsNotNull(createCollectionOptions, nameof(createCollectionOptions));
+            Ensure.IsNotNull(dataKeyOptions, nameof(dataKeyOptions));
+            Ensure.IsNotNull(kmsProvider, nameof(kmsProvider));
+
+            var encryptedFields = createCollectionOptions.EncryptedFields?.DeepClone()?.AsBsonDocument;
+            try
+            {
+                foreach (var fieldDocument in EncryptedCollectionHelper.IterateEmptyKeyIds(new CollectionNamespace(database.DatabaseNamespace.DatabaseName, collectionName), encryptedFields))
+                {
+                    var dataKey = CreateDataKey(kmsProvider, dataKeyOptions, cancellationToken);
+                    EncryptedCollectionHelper.ModifyEncryptedFields(fieldDocument, dataKey);
+                }
+
+                var effectiveCreateEncryptionOptions = createCollectionOptions.Clone();
+                effectiveCreateEncryptionOptions.EncryptedFields = encryptedFields;
+                database.CreateCollection(collectionName, effectiveCreateEncryptionOptions, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                throw new MongoEncryptionCreateCollectionException(ex, encryptedFields);
+            }
+
+            return new CreateEncryptedCollectionResult(encryptedFields);
+        }
+
+        /// <summary>
+        /// Create encrypted collection.
+        /// </summary>
+        /// <param name="database">The database.</param>
+        /// <param name="collectionName">The collection name.</param>
+        /// <param name="createCollectionOptions">The create collection options.</param>
+        /// <param name="kmsProvider">The kms provider.</param>
+        /// <param name="dataKeyOptions">The datakey options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The operation result.</returns>
+        /// <remarks>
+        /// if EncryptionFields contains a keyId with a null value, a data key will be automatically generated and assigned to keyId value.
+        /// </remarks>
+        public async Task<CreateEncryptedCollectionResult> CreateEncryptedCollectionAsync(IMongoDatabase database, string collectionName, CreateCollectionOptions createCollectionOptions, string kmsProvider, DataKeyOptions dataKeyOptions, CancellationToken cancellationToken = default)
+        {
+            Ensure.IsNotNull(database, nameof(database));
+            Ensure.IsNotNull(collectionName, nameof(collectionName));
+            Ensure.IsNotNull(createCollectionOptions, nameof(createCollectionOptions));
+            Ensure.IsNotNull(dataKeyOptions, nameof(dataKeyOptions));
+            Ensure.IsNotNull(kmsProvider, nameof(kmsProvider));
+
+            var encryptedFields = createCollectionOptions.EncryptedFields?.DeepClone()?.AsBsonDocument;
+            try
+            {
+                foreach (var fieldDocument in EncryptedCollectionHelper.IterateEmptyKeyIds(new CollectionNamespace(database.DatabaseNamespace.DatabaseName, collectionName), encryptedFields))
+                {
+                    var dataKey = await CreateDataKeyAsync(kmsProvider, dataKeyOptions, cancellationToken).ConfigureAwait(false);
+                    EncryptedCollectionHelper.ModifyEncryptedFields(fieldDocument, dataKey);
+                }
+
+                var effectiveCreateEncryptionOptions = createCollectionOptions.Clone();
+                effectiveCreateEncryptionOptions.EncryptedFields = encryptedFields;
+                await database.CreateCollectionAsync(collectionName, effectiveCreateEncryptionOptions, cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                throw new MongoEncryptionCreateCollectionException(ex, encryptedFields);
+            }
+
+            return new CreateEncryptedCollectionResult(encryptedFields);
+        }
 
         /// <summary>
         /// An alias function equivalent to createKey.

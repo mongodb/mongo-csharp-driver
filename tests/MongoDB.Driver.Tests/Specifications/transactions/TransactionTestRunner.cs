@@ -38,6 +38,7 @@ using MongoDB.Driver.TestHelpers;
 using MongoDB.Driver.Tests.JsonDrivenTests;
 using Xunit;
 using Xunit.Abstractions;
+using Xunit.Sdk;
 
 namespace MongoDB.Driver.Tests.Specifications.transactions
 {
@@ -97,7 +98,7 @@ namespace MongoDB.Driver.Tests.Specifications.transactions
             _disposables.Add(failPoint);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ClassData(typeof(TestCaseFactory))]
         public void Run(JsonDrivenTestCase testCase)
         {

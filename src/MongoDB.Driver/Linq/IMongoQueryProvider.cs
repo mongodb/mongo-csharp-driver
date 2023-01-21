@@ -32,9 +32,9 @@ namespace MongoDB.Driver.Linq
         CollectionNamespace CollectionNamespace { get; }
 
         /// <summary>
-        /// Gets the collection document serializer.
+        /// Gets the pipeline input serializer (the DocumentSerializer for collection queries and NoPipelineInputSerializer for database queries).
         /// </summary>
-        IBsonSerializer CollectionDocumentSerializer { get; }
+        IBsonSerializer PipelineInputSerializer { get; }
 
         /// <summary>
         /// Gets the execution model.

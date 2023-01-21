@@ -415,6 +415,112 @@ namespace MongoDB.Bson.Serialization
             }
         }
 
+        /// <summary>
+        /// Registers a class map if it is not already registered.
+        /// </summary>
+        /// <typeparam name="TClass">The class.</typeparam>
+        /// <returns>True if this call registered the class map, false if the class map was already registered.</returns>
+        public static bool TryRegisterClassMap<TClass>()
+        {
+            return TryRegisterClassMap(ClassMapFactory);
+
+            static BsonClassMap<TClass> ClassMapFactory()
+            {
+                var classMap = new BsonClassMap<TClass>();
+                classMap.AutoMap();
+                return classMap;
+            }
+        }
+
+        /// <summary>
+        /// Registers a class map if it is not already registered.
+        /// </summary>
+        /// <typeparam name="TClass">The class.</typeparam>
+        /// <param name="classMap">The class map.</param>
+        /// <returns>True if this call registered the class map, false if the class map was already registered.</returns>
+        public static bool TryRegisterClassMap<TClass>(BsonClassMap<TClass> classMap)
+        {
+            if (classMap == null)
+            {
+                throw new ArgumentNullException(nameof(classMap));
+            }
+
+            return TryRegisterClassMap(ClassMapFactory);
+
+            BsonClassMap<TClass> ClassMapFactory()
+            {
+                return classMap;
+            }
+        }
+
+        /// <summary>
+        /// Registers a class map if it is not already registered.
+        /// </summary>
+        /// <typeparam name="TClass">The class.</typeparam>
+        /// <param name="classMapInitializer">The class map initializer (only called if the class map is not already registered).</param>
+        /// <returns>True if this call registered the class map, false if the class map was already registered.</returns>
+        public static bool TryRegisterClassMap<TClass>(Action<BsonClassMap<TClass>> classMapInitializer)
+        {
+            if (classMapInitializer == null)
+            {
+                throw new ArgumentNullException(nameof(classMapInitializer));
+            }
+
+            return TryRegisterClassMap(ClassMapFactory);
+
+            BsonClassMap<TClass> ClassMapFactory()
+            {
+                return new BsonClassMap<TClass>(classMapInitializer);
+            }
+        }
+
+        /// <summary>
+        /// Registers a class map if it is not already registered.
+        /// </summary>
+        /// <typeparam name="TClass">The class.</typeparam>
+        /// <param name="classMapFactory">The class map factory (only called if the class map is not already registered).</param>
+        /// <returns>True if this call registered the class map, false if the class map was already registered.</returns>
+        public static bool TryRegisterClassMap<TClass>(Func<BsonClassMap<TClass>> classMapFactory)
+        {
+            if (classMapFactory == null)
+            {
+                throw new ArgumentNullException(nameof(classMapFactory));
+            }
+
+            BsonSerializer.ConfigLock.EnterReadLock();
+            try
+            {
+                if (__classMaps.ContainsKey(typeof(TClass)))
+                {
+                    return false;
+                }
+            }
+            finally
+            {
+                BsonSerializer.ConfigLock.ExitReadLock();
+            }
+
+            BsonSerializer.ConfigLock.EnterWriteLock();
+            try
+            {
+                if (__classMaps.ContainsKey(typeof(TClass)))
+                {
+                    return false;
+                }
+                else
+                {
+                    // create a classMap for TClass and register it
+                    var classMap = classMapFactory();
+                    RegisterClassMap(classMap);
+                    return true;
+                }
+            }
+            finally
+            {
+                BsonSerializer.ConfigLock.ExitWriteLock();
+            }
+        }
+
         // public methods
         /// <summary>
         /// Automaps the class.

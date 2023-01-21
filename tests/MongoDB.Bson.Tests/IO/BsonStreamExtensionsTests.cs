@@ -19,7 +19,7 @@ using System.Linq;
 using System.Reflection;
 using FluentAssertions;
 using MongoDB.Bson.IO;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
 

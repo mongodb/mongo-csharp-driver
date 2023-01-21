@@ -311,8 +311,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             var stages = Translate(collection, queryable);
             var expectedStages = new[]
             {
-                "{ $group : { _id : '$_id', _elements : { $push: '$X' } } }", // MQL could be optimized further
-                "{ $project : { Id : '$_id', Result : { $allElementsTrue : { $map : { input : '$_elements', as : 'e', in : { $gt : ['$$e', 0] } } } }, _id : 0 } }",
+                "{ $group : { _id : '$_id', __agg0 : { $push: { $gt : ['$X', 0] } } } }", // MQL could be optimized further
+                "{ $project : { Id : '$_id', Result : { $allElementsTrue : '$__agg0' }, _id : 0 } }",
                 "{ $sort : { Id : 1 } }"
             };
             AssertStages(stages, expectedStages);
@@ -361,8 +361,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             var stages = Translate(collection, queryable);
             var expectedStages = new[]
             {
-                "{ $group : { _id : '$_id', _elements : { $push : '$X' } } }", // MQL could be optimized further
-                "{ $project : { Id : '$_id', Result : { $gt : [{ $size : '$_elements' }, 0] }, _id : 0 } }",
+                "{ $group : { _id : '$_id', __agg0 : { $sum : 1 } } }",
+                "{ $project : { Id : '$_id', Result : { $gt : ['$__agg0', 0] }, _id : 0 } }",
                 "{ $sort : { Id : 1 } }"
             };
             AssertStages(stages, expectedStages);
@@ -411,8 +411,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             var stages = Translate(collection, queryable);
             var expectedStages = new[]
             {
-                "{ $group : { _id : '$_id', _elements : { $push : '$X' } } }", // MQL could be optimized further
-                "{ $project : { Id : '$_id', Result : { $anyElementTrue : { $map : { input : '$_elements', as : 'e', in : { $gt : ['$$e', 0] } } } }, _id : 0 } }",
+                "{ $group : { _id : '$_id', __agg0 : { $push : { $gt : ['$X', 0] } } } }", // MQL could be optimized further
+                "{ $project : { Id : '$_id', Result : { $anyElementTrue : '$__agg0' }, _id : 0 } }",
                 "{ $sort : { Id : 1 } }"
             };
             AssertStages(stages, expectedStages);
@@ -461,8 +461,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             var stages = Translate(collection, queryable);
             var expectedStages = new[]
             {
-                "{ $group : { _id : '$_id', _elements : { $push : '$X' } } }", // MQL could be optimized further
-                "{ $project : { Id : '$_id', Result : { $avg : '$_elements' }, _id : 0 } }",
+                "{ $group : { _id : '$_id', __agg0 : { $avg : '$X' } } }",
+                "{ $project : { Id : '$_id', Result : '$__agg0', _id : 0 } }",
                 "{ $sort : { Id : 1 } }"
             };
             AssertStages(stages, expectedStages);
@@ -511,8 +511,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             var stages = Translate(collection, queryable);
             var expectedStages = new[]
             {
-                "{ $group : { _id : '$_id', _elements : { $push : '$X' } } }", // MQL could be optimized further
-                "{ $project : { Id : '$_id', Result : { $avg : { $map : { input : '$_elements', as : 'e', in : '$$e' } } }, _id : 0 } }",
+                "{ $group : { _id : '$_id', __agg0 : { $avg : '$X' } } }",
+                "{ $project : { Id : '$_id', Result : '$__agg0', _id : 0 } }",
                 "{ $sort : { Id : 1 } }"
             };
             AssertStages(stages, expectedStages);
@@ -661,8 +661,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             var stages = Translate(collection, queryable);
             var expectedStages = new[]
             {
-                "{ $group : { _id : '$_id', _elements : { $push : '$X' } } }", // MQL could be optimized further
-                "{ $project : { Id : '$_id', Result : { $size : '$_elements' }, _id : 0 } }",
+                "{ $group : { _id : '$_id', __agg0 : { $sum : 1 } } }",
+                "{ $project : { Id : '$_id', Result : '$__agg0', _id : 0 } }",
                 "{ $sort : { Id : 1 } }"
             };
             AssertStages(stages, expectedStages);
@@ -989,8 +989,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             var stages = Translate(collection, queryable);
             var expectedStages = new[]
             {
-                "{ $group : { _id : '$_id', _elements : { $push : '$X' } } }", // MQL could be optimized further
-                "{ $project : { Id : '$_id', Result : { $arrayElemAt : ['$_elements', 0] }, _id : 0 } }",
+                "{ $group : { _id : '$_id', __agg0 : { $first : '$X' } } }",
+                "{ $project : { Id : '$_id', Result : '$__agg0', _id : 0 } }",
                 "{ $sort : { Id : 1 } }"
             };
             AssertStages(stages, expectedStages);
@@ -1195,8 +1195,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             var stages = Translate(collection, queryable);
             var expectedStages = new[]
             {
-                "{ $group : { _id : '$_id', _elements : { $push : '$X' } } }", // MQL could be optimized further
-                "{ $project : { Id : '$_id', Result : { $arrayElemAt : ['$_elements', -1] }, _id : 0 } }",
+                "{ $group : { _id : '$_id', __agg0 : { $last : '$X' } } }",
+                "{ $project : { Id : '$_id', Result : '$__agg0', _id : 0 } }",
                 "{ $sort : { Id : 1 } }"
             };
             AssertStages(stages, expectedStages);
@@ -1351,8 +1351,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             var stages = Translate(collection, queryable);
             var expectedStages = new[]
             {
-                "{ $group : { _id : '$_id', _elements : { $push : '$X' } } }", // MQL could be optimized further
-                "{ $project : { Id : '$_id', Result : { $size : '$_elements' }, _id : 0 } }",
+                "{ $group : { _id : '$_id', __agg0 : { $sum : 1 } } }",
+                "{ $project : { Id : '$_id', Result : '$__agg0', _id : 0 } }",
                 "{ $sort : { Id : 1 } }"
             };
             AssertStages(stages, expectedStages);
@@ -1451,8 +1451,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             var stages = Translate(collection, queryable);
             var expectedStages = new[]
             {
-                "{ $group : { _id : '$_id', _elements : { $push : '$X' } } }", // MQL could be optimized further
-                "{ $project : { Id : '$_id', Result : { $max : '$_elements' }, _id : 0 } }",
+                "{ $group : { _id : '$_id', __agg0 : { $max : '$X' } } }",
+                "{ $project : { Id : '$_id', Result : '$__agg0', _id : 0 } }",
                 "{ $sort : { Id : 1 } }"
             };
             AssertStages(stages, expectedStages);
@@ -1501,8 +1501,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             var stages = Translate(collection, queryable);
             var expectedStages = new[]
             {
-                "{ $group : { _id : '$_id', _elements : { $push : '$X' } } }", // MQL could be optimized further
-                "{ $project : { Id : '$_id', Result : { $max : { $map : { input : '$_elements', as : 'e', in : '$$e' } } }, _id : 0 } }",
+                "{ $group : { _id : '$_id', __agg0 : { $max : '$X' } } }",
+                "{ $project : { Id : '$_id', Result : '$__agg0', _id : 0 } }",
                 "{ $sort : { Id : 1 } }"
             };
             AssertStages(stages, expectedStages);
@@ -1551,8 +1551,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             var stages = Translate(collection, queryable);
             var expectedStages = new[]
             {
-                "{ $group : { _id : '$_id', _elements : { $push : '$X' } } }", // MQL could be optimized further
-                "{ $project : { Id : '$_id', Result : { $min : '$_elements' }, _id : 0 } }",
+                "{ $group : { _id : '$_id', __agg0 : { $min : '$X' } } }",
+                "{ $project : { Id : '$_id', Result : '$__agg0', _id : 0 } }",
                 "{ $sort : { Id : 1 } }"
             };
             AssertStages(stages, expectedStages);
@@ -1601,8 +1601,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             var stages = Translate(collection, queryable);
             var expectedStages = new[]
             {
-                "{ $group : { _id : '$_id', _elements : { $push : '$X' } } }", // MQL could be optimized further
-                "{ $project : { Id : '$_id', Result : { $min : { $map : { input : '$_elements', as : 'e', in : '$$e' } } }, _id : 0 } }",
+                "{ $group : { _id : '$_id', __agg0 : { $min : '$X' } } }",
+                "{ $project : { Id : '$_id', Result : '$__agg0', _id : 0 } }",
                 "{ $sort : { Id : 1 } }"
             };
             AssertStages(stages, expectedStages);
@@ -1701,8 +1701,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             var stages = Translate(collection, queryable);
             var expectedStages = new[]
             {
-                "{ $group : { _id : '$_id', _elements : { $push : '$X' } } }",
-                "{ $project : { Id : '$_id', Result : { $map : { input : '$_elements', as : 'e', in : '$$e' } }, _id : 0 } }", // MQL could be optimized further
+                "{ $group : { _id : '$_id', __agg0 : { $push : '$X' } } }",
+                "{ $project : { Id : '$_id', Result : '$__agg0', _id : 0 } }",
                 "{ $sort : { Id : 1 } }"
             };
             AssertStages(stages, expectedStages);
@@ -1751,8 +1751,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             var stages = Translate(collection, queryable);
             var expectedStages = new[]
             {
-                "{ $group : { _id : '$_id', _elements : { $push : '$X' } } }", // MQL could be optimized further
-                "{ $project : { Id : '$_id', Result : { $stdDevPop : '$_elements' }, _id : 0 } }",
+                "{ $group : { _id : '$_id', __agg0 : { $stdDevPop : '$X' } } }",
+                "{ $project : { Id : '$_id', Result : '$__agg0', _id : 0 } }",
                 "{ $sort : { Id : 1 } }"
             };
             AssertStages(stages, expectedStages);
@@ -1801,8 +1801,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             var stages = Translate(collection, queryable);
             var expectedStages = new[]
             {
-                "{ $group : { _id : '$_id', _elements : { $push : '$X' } } }", // MQL could be optimized further
-                "{ $project : { Id : '$_id', Result : { $stdDevPop : { $map : { input : '$_elements', as : 'e', in : '$$e' } } }, _id : 0 } }",
+                "{ $group : { _id : '$_id', __agg0 : { $stdDevPop : '$X' } } }",
+                "{ $project : { Id : '$_id', Result : '$__agg0', _id : 0 } }",
                 "{ $sort : { Id : 1 } }"
             };
             AssertStages(stages, expectedStages);
@@ -1851,8 +1851,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             var stages = Translate(collection, queryable);
             var expectedStages = new[]
             {
-                "{ $group : { _id : '$_id', _elements : { $push : '$X' } } }", // MQL could be optimized further
-                "{ $project : { Id : '$_id', Result : { $stdDevSamp : '$_elements' }, _id : 0 } }",
+                "{ $group : { _id : '$_id', __agg0 : { $stdDevSamp : '$X' } } }",
+                "{ $project : { Id : '$_id', Result : '$__agg0', _id : 0 } }",
                 "{ $sort : { Id : 1 } }"
             };
             AssertStages(stages, expectedStages);
@@ -1901,8 +1901,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             var stages = Translate(collection, queryable);
             var expectedStages = new[]
             {
-                "{ $group : { _id : '$_id', _elements : { $push : '$X' } } }", // MQL could be optimized further
-                "{ $project : { Id : '$_id', Result : { $stdDevSamp : { $map : { input : '$_elements', as : 'e', in : '$$e' } } }, _id : 0 } }",
+                "{ $group : { _id : '$_id', __agg0 : { $stdDevSamp : '$X' } } }",
+                "{ $project : { Id : '$_id', Result : '$__agg0', _id : 0 } }",
                 "{ $sort : { Id : 1 } }"
             };
             AssertStages(stages, expectedStages);
@@ -1951,8 +1951,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             var stages = Translate(collection, queryable);
             var expectedStages = new[]
             {
-                "{ $group : { _id : '$_id', _elements : { $push : '$X' } } }", // MQL could be optimized further
-                "{ $project : { Id : '$_id', Result : { $sum : '$_elements' }, _id : 0 } }",
+                "{ $group : { _id : '$_id', __agg0 : { $sum : '$X' } } }",
+                "{ $project : { Id : '$_id', Result : '$__agg0', _id : 0 } }",
                 "{ $sort : { Id : 1 } }"
             };
             AssertStages(stages, expectedStages);

@@ -106,7 +106,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                             session = _entityMap.GetSession(argument.Value.AsString);
                             break;
                         default:
-                            throw new FormatException($"Invalid AssertIndexNotExistsOperation argument name: '{argument.Name}'.");
+                            throw new FormatException($"Invalid {nameof(UnifiedListCollectionsOperation)} argument name: '{argument.Name}'.");
                     }
                 }
             }

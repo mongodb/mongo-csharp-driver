@@ -19,7 +19,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Servers;
@@ -788,7 +788,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [SkippableFact]
+        [Fact]
         public void CreateCursor_should_use_ns_field_instead_of_namespace_passed_in_constructor()
         {
             var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
@@ -832,7 +832,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(value);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_find_all_the_documents_matching_the_query(
             [Values(false, true)]
@@ -848,7 +848,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().HaveCount(5);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_find_all_the_documents_matching_the_query_when_split_across_batches(
             [Values(false, true)]
@@ -869,7 +869,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_find_documents_matching_options(
             [Values(false, true)] bool withLet,
@@ -906,7 +906,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().HaveCount(1);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_result_when_Collation_is_set(
             [Values(false, true)]
@@ -926,7 +926,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().HaveCount(2);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_throw_when_binding_is_null(
             [Values(false, true)]
@@ -940,7 +940,7 @@ namespace MongoDB.Driver.Core.Operations
             argumentNullException.ParamName.Should().Be("binding");
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_throw_when_maxTime_is_exceeded(
             [Values(false, true)] bool async)
@@ -956,7 +956,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_send_session_id_when_supported(
             [Values(false, true)] bool async)

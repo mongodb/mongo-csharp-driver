@@ -17,7 +17,7 @@ using System;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using Xunit;
 
@@ -58,7 +58,7 @@ namespace MongoDB.Driver.Core.Operations
             subject.RetryRequested.Should().BeFalse();
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_return_true_when_database_exists(
             [Values(false, true)]
@@ -81,7 +81,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_return_false_when_database_does_not_exist(
             [Values(false, true)]

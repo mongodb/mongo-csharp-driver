@@ -72,6 +72,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     "close" => new UnifiedCloseClientOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "createChangeStream" => new UnifiedCreateChangeStreamOnClientOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "listDatabases" => new UnifiedListDatabasesOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    "listDatabaseNames" => new UnifiedListDatabaseNamesOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     _ => throw new FormatException($"Invalid method name: '{operationName}'."),
                 },
                 _ when _entityMap.HasCollection(targetEntityId) => operationName switch
@@ -107,6 +108,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     "createChangeStream" => new UnifiedCreateChangeStreamOnDatabaseOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "dropCollection" => new UnifiedDropCollectionOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "listCollections" => new UnifiedListCollectionsOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
+                    "listCollectionNames" => new UnifiedListCollectionNamesOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "runCommand" => new UnifiedRunCommandOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     _ => throw new FormatException($"Invalid method name: '{operationName}'."),
                 },

@@ -387,7 +387,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsTestsOnLinq3.Transla
             result.Value.Result.Should().Equal(111);
         }
 
-        [SkippableFact]
+        [Fact]
         public void Should_translate_stdDevPop_with_embedded_projector()
         {
             RequireServer.Check();
@@ -402,7 +402,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsTestsOnLinq3.Transla
             result.Value.Result.Should().Be(50);
         }
 
-        [SkippableFact]
+        [Fact]
         public void Should_translate_stdDevPop_with_selected_projector()
         {
             RequireServer.Check();
@@ -417,7 +417,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsTestsOnLinq3.Transla
             result.Value.Result.Should().Be(50);
         }
 
-        [SkippableFact]
+        [Fact]
         public void Should_translate_stdDevSamp_with_embedded_projector()
         {
             RequireServer.Check();
@@ -432,7 +432,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsTestsOnLinq3.Transla
             result.Value.Result.Should().BeApproximately(70.7106781156545, .0001);
         }
 
-        [SkippableFact]
+        [Fact]
         public void Should_translate_stdDevSamp_with_selected_projector()
         {
             RequireServer.Check();

@@ -30,13 +30,19 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.Is(QueryableMethod.Take))
+            if (method.IsOneOf(QueryableMethod.Take, MongoQueryableMethod.TakeWithLong))
             {
                 var sourceExpression = arguments[0];
+                if (method.Is(MongoQueryableMethod.TakeWithLong))
+                {
+                    sourceExpression = ConvertHelper.RemoveConvertToMongoQueryable(arguments[0]);
+                }
                 var pipeline = ExpressionToPipelineTranslator.Translate(context, sourceExpression);
 
                 var countExpression = arguments[1];
-                var count = countExpression.GetConstantValue<int>(containingExpression: expression);
+                var count = method.Is(MongoQueryableMethod.TakeWithLong) ?
+                    countExpression.GetConstantValue<long>(containingExpression: expression) :
+                    countExpression.GetConstantValue<int>(containingExpression: expression);
 
                 pipeline = pipeline.AddStages(
                     pipeline.OutputSerializer,

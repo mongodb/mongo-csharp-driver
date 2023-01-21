@@ -16,7 +16,7 @@
 using System;
 using System.Threading.Tasks;
 using FluentAssertions;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Tests.Operations
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("databaseNamespace");
         }
 
-        [SkippableFact]
+        [Fact]
         public void Execute_should_return_expected_result()
         {
             RequireServer.Check();

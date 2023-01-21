@@ -18,7 +18,7 @@ using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
@@ -361,7 +361,7 @@ namespace MongoDB.Driver.Core.Operations
             result["maxTimeMS"].BsonType.Should().Be(BsonType.Int32);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_result_when_key_is_used(
             [Values(false, true)]
@@ -379,7 +379,7 @@ namespace MongoDB.Driver.Core.Operations
                 BsonDocument.Parse("{ x : 3, count : 3 }"));
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_result_when_keyFunction_is_used(
             [Values(false, true)]
@@ -397,7 +397,7 @@ namespace MongoDB.Driver.Core.Operations
                 BsonDocument.Parse("{ x : 3, count : 3 }"));
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_result_when_Collation_is_set(
             [Values(false, true)]
@@ -437,7 +437,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Equal(expectedResult);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_result_when_FinalizeFunction_is_set(
             [Values(false, true)]
@@ -458,7 +458,7 @@ namespace MongoDB.Driver.Core.Operations
                 BsonDocument.Parse("{ x : 3, count : -3 }"));
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_result_when_MaxTime_is_used(
             [Values(null, 1000)]
@@ -483,7 +483,7 @@ namespace MongoDB.Driver.Core.Operations
                 BsonDocument.Parse("{ x : 3, count : 3 }"));
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_return_expected_result_when_ResultSerializer_is_used(
             [Values(false, true)]
@@ -502,7 +502,7 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Equal(1, 2, 3);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_throw_when_binding_is_null(
             [Values(false, true)]
@@ -526,7 +526,7 @@ namespace MongoDB.Driver.Core.Operations
             argumentNullException.ParamName.Should().Be("binding");
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_send_session_id_when_supported(
             [Values(false, true)] bool async)
@@ -538,7 +538,7 @@ namespace MongoDB.Driver.Core.Operations
             VerifySessionIdWasSentWhenSupported(subject, "group", async);
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Execute_should_throw_when_maxTime_is_exceeded(
             [Values(false, true)] bool async)

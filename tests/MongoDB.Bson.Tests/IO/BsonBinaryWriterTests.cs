@@ -18,9 +18,8 @@ using System.IO;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson.IO;
-using MongoDB.Bson.TestHelpers;
 using MongoDB.Bson.TestHelpers.IO;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Bson.Tests.IO
@@ -53,7 +52,7 @@ namespace MongoDB.Bson.Tests.IO
             }
         }
 
-        [SkippableFact]
+        [Fact]
         public void BsonBinaryWriter_should_support_writing_more_than_2GB()
         {
             RequireProcess.Check().Bits(64);
@@ -78,7 +77,7 @@ namespace MongoDB.Bson.Tests.IO
             }
         }
 
-        [SkippableFact]
+        [Fact]
         public void BackpatchSize_should_throw_when_size_is_larger_than_2GB()
         {
             RequireProcess.Check().Bits(64);

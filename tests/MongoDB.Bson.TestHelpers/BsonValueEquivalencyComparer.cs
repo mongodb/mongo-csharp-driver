@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 
 namespace MongoDB.Bson.TestHelpers
@@ -22,15 +23,17 @@ namespace MongoDB.Bson.TestHelpers
         #region static
         public static BsonValueEquivalencyComparer Instance { get; } = new BsonValueEquivalencyComparer();
 
-        public static bool Compare(BsonValue a, BsonValue b, bool allowTypesMismatching = true)
+        public static bool Compare(BsonValue a, BsonValue b, bool allowTypesMismatching = true, Action<BsonValue, BsonValue> massageAction = null)
         {
+            massageAction?.Invoke(a, b);
+
             if (a.BsonType == BsonType.Document && b.BsonType == BsonType.Document)
             {
-                return CompareDocuments((BsonDocument)a, (BsonDocument)b);
+                return CompareDocuments((BsonDocument)a, (BsonDocument)b, massageAction);
             }
             else if (a.BsonType == BsonType.Array && b.BsonType == BsonType.Array)
             {
-                return CompareArrays((BsonArray)a, (BsonArray)b);
+                return CompareArrays((BsonArray)a, (BsonArray)b, massageAction);
             }
             else if (a.BsonType == b.BsonType)
             {
@@ -50,7 +53,7 @@ namespace MongoDB.Bson.TestHelpers
             }
         }
 
-        private static bool CompareArrays(BsonArray a, BsonArray b)
+        private static bool CompareArrays(BsonArray a, BsonArray b, Action<BsonValue, BsonValue> massageAction = null)
         {
             if (a.Count != b.Count)
             {
@@ -59,7 +62,7 @@ namespace MongoDB.Bson.TestHelpers
 
             for (var i = 0; i < a.Count; i++)
             {
-                if (!Compare(a[i], b[i]))
+                if (!Compare(a[i], b[i], massageAction))
                 {
                     return false;
                 }
@@ -68,7 +71,7 @@ namespace MongoDB.Bson.TestHelpers
             return true;
         }
 
-        private static bool CompareDocuments(BsonDocument a, BsonDocument b)
+        private static bool CompareDocuments(BsonDocument a, BsonDocument b, Action<BsonValue, BsonValue> massageAction = null)
         {
             if (a.ElementCount != b.ElementCount)
             {
@@ -83,7 +86,7 @@ namespace MongoDB.Bson.TestHelpers
                     return false;
                 }
 
-                if (!Compare(aElement.Value, bElement.Value))
+                if (!Compare(aElement.Value, bElement.Value, massageAction))
                 {
                     return false;
                 }

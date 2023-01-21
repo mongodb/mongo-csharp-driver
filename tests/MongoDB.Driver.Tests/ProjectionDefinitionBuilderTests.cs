@@ -19,6 +19,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver.Linq;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -86,13 +87,20 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Include("a.$"), "{'a.$': 1}");
         }
 
-        [Fact]
-        public void ElemMatch_from_filter_Typed()
+        [Theory]
+        [ParameterAttributeData]
+        public void ElemMatch_from_filter_Typed(
+            [Values(LinqProvider.V2, LinqProvider.V3)] LinqProvider linqProvider)
         {
             var subject = CreateSubject<Person>();
 
-            Assert(subject.Include(x => x.Pets.ElementAt(-1)), "{'pets.$': 1}");
-            Assert(subject.Include("Pets.$"), "{'pets.$': 1}");
+            var projection = linqProvider == LinqProvider.V2 ?
+                subject.Include(x => x.Pets.ElementAt(-1)) :
+                subject.Include(x => x.Pets.FirstMatchingElement());
+            Assert(projection, "{ 'pets.$' : 1 }", linqProvider);
+
+            projection = subject.Include("Pets.$");
+            Assert(projection, "{ 'pets.$' : 1 }", linqProvider);
         }
 
         [Fact]
@@ -188,10 +196,10 @@ namespace MongoDB.Driver.Tests
             Assert(subject.Slice("Pets", 10, 20), "{pets: {$slice: [10, 20]}}");
         }
 
-        private void Assert<TDocument>(ProjectionDefinition<TDocument> projection, string expectedJson)
+        private void Assert<TDocument>(ProjectionDefinition<TDocument> projection, string expectedJson, LinqProvider linqProvider = LinqProvider.V3)
         {
             var documentSerializer = BsonSerializer.SerializerRegistry.GetSerializer<TDocument>();
-            var renderedProjection = projection.Render(documentSerializer, BsonSerializer.SerializerRegistry, LinqProvider.V2);
+            var renderedProjection = projection.Render(documentSerializer, BsonSerializer.SerializerRegistry, linqProvider);
 
             renderedProjection.Should().Be(expectedJson);
         }

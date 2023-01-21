@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
@@ -50,6 +51,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __countAsync;
         private static readonly MethodInfo __countWithPredicateAsync;
         private static readonly MethodInfo __densifyWithArrayPartitionByFields;
+        private static readonly MethodInfo __documents;
+        private static readonly MethodInfo __documentsWithSerializer;
         private static readonly MethodInfo __firstAsync;
         private static readonly MethodInfo __firstOrDefaultAsync;
         private static readonly MethodInfo __firstOrDefaultWithPredicateAsync;
@@ -65,6 +68,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __singleOrDefaultAsync;
         private static readonly MethodInfo __singleOrDefaultWithPredicateAsync;
         private static readonly MethodInfo __singleWithPredicateAsync;
+        private static readonly MethodInfo __skipWithLong;
         private static readonly MethodInfo __standardDeviationPopulationDecimal;
         private static readonly MethodInfo __standardDeviationPopulationDecimalAsync;
         private static readonly MethodInfo __standardDeviationPopulationDecimalWithSelector;
@@ -165,6 +169,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __sumNullableSingleWithSelectorAsync;
         private static readonly MethodInfo __sumSingleAsync;
         private static readonly MethodInfo __sumSingleWithSelectorAsync;
+        private static readonly MethodInfo __takeWithLong;
 
         // static constructor
         static MongoQueryableMethod()
@@ -195,6 +200,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __countAsync = ReflectionInfo.Method((IMongoQueryable<object> source, CancellationToken cancellationToken) => source.CountAsync(cancellationToken));
             __countWithPredicateAsync = ReflectionInfo.Method((IMongoQueryable<object> source, Expression<Func<object, bool>> predicate, CancellationToken cancellationToken) => source.CountAsync(predicate, cancellationToken));
             __densifyWithArrayPartitionByFields = ReflectionInfo.Method((IMongoQueryable<object> source, Expression<Func<object, object>> field, DensifyRange range, Expression<Func<object, object>>[] partitionByFields) => source.Densify(field, range, partitionByFields));
+            __documents = ReflectionInfo.Method((IMongoQueryable<NoPipelineInput> source, object[] documents) => source.Documents(documents));
+            __documentsWithSerializer = ReflectionInfo.Method((IMongoQueryable<NoPipelineInput> source, IEnumerable<object> documents, IBsonSerializer<object> serializer) => source.Documents(documents, serializer));
             __firstAsync = ReflectionInfo.Method((IMongoQueryable<object> source, CancellationToken cancellationToken) => source.FirstAsync(cancellationToken));
             __firstOrDefaultAsync = ReflectionInfo.Method((IMongoQueryable<object> source, CancellationToken cancellationToken) => source.FirstOrDefaultAsync(cancellationToken));
             __firstOrDefaultWithPredicateAsync = ReflectionInfo.Method((IMongoQueryable<object> source, Expression<Func<object, bool>> predicate, CancellationToken cancellationToken) => source.FirstOrDefaultAsync(predicate, cancellationToken));
@@ -210,6 +217,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __singleOrDefaultAsync = ReflectionInfo.Method((IMongoQueryable<object> source, CancellationToken cancellationToken) => source.SingleOrDefaultAsync(cancellationToken));
             __singleOrDefaultWithPredicateAsync = ReflectionInfo.Method((IMongoQueryable<object> source, Expression<Func<object, bool>> predicate, CancellationToken cancellationToken) => source.SingleOrDefaultAsync(predicate, cancellationToken));
             __singleWithPredicateAsync = ReflectionInfo.Method((IMongoQueryable<object> source, Expression<Func<object, bool>> predicate, CancellationToken cancellationToken) => source.SingleAsync(predicate, cancellationToken));
+            __skipWithLong = ReflectionInfo.Method((IMongoQueryable<object> source, long count) => source.Skip(count));
             __standardDeviationPopulationDecimal = ReflectionInfo.Method((IMongoQueryable<decimal> source) => source.StandardDeviationPopulation());
             __standardDeviationPopulationDecimalAsync = ReflectionInfo.Method((IMongoQueryable<decimal> source, CancellationToken cancellationToken) => source.StandardDeviationPopulationAsync(cancellationToken));
             __standardDeviationPopulationDecimalWithSelector = ReflectionInfo.Method((IMongoQueryable<object> source, Expression<Func<object, decimal>> selector) => source.StandardDeviationPopulation(selector));
@@ -310,6 +318,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __sumNullableSingleWithSelectorAsync = ReflectionInfo.Method((IMongoQueryable<object> source, Expression<Func<object, float?>> selector, CancellationToken cancellationToken) => source.SumAsync(selector, cancellationToken));
             __sumSingleAsync = ReflectionInfo.Method((IMongoQueryable<float> source, CancellationToken cancellationToken) => source.SumAsync(cancellationToken));
             __sumSingleWithSelectorAsync = ReflectionInfo.Method((IMongoQueryable<object> source, Expression<Func<object, float>> selector, CancellationToken cancellationToken) => source.SumAsync(selector, cancellationToken));
+            __takeWithLong = ReflectionInfo.Method((IMongoQueryable<object> source, long count) => source.Take(count));
         }
 
         // public properties
@@ -339,6 +348,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo CountAsync => __countAsync;
         public static MethodInfo CountWithPredicateAsync => __countWithPredicateAsync;
         public static MethodInfo DensifyWithArrayPartitionByFields => __densifyWithArrayPartitionByFields;
+        public static MethodInfo Documents => __documents;
+        public static MethodInfo DocumentsWithSerializer => __documentsWithSerializer;
         public static MethodInfo FirstAsync => __firstAsync;
         public static MethodInfo FirstOrDefaultAsync => __firstOrDefaultAsync;
         public static MethodInfo FirstOrDefaultWithPredicateAsync => __firstOrDefaultWithPredicateAsync;
@@ -354,6 +365,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo SingleOrDefaultAsync => __singleOrDefaultAsync;
         public static MethodInfo SingleOrDefaultWithPredicateAsync => __singleOrDefaultWithPredicateAsync;
         public static MethodInfo SingleWithPredicateAsync => __singleWithPredicateAsync;
+        public static MethodInfo SkipWithLong => __skipWithLong;
         public static MethodInfo StandardDeviationPopulationDecimal => __standardDeviationPopulationDecimal;
         public static MethodInfo StandardDeviationPopulationDecimalAsync => __standardDeviationPopulationDecimalAsync;
         public static MethodInfo StandardDeviationPopulationDecimalWithSelector => __standardDeviationPopulationDecimalWithSelector;
@@ -454,5 +466,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo SumNullableSingleWithSelectorAsync => __sumNullableSingleWithSelectorAsync;
         public static MethodInfo SumSingleAsync => __sumSingleAsync;
         public static MethodInfo SumSingleWithSelectorAsync => __sumSingleWithSelectorAsync;
+        public static MethodInfo TakeWithLong => __takeWithLong;
     }
 }

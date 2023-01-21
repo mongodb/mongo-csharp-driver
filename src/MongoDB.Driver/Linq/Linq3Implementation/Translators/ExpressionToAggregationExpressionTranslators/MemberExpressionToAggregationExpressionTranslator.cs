@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 containerTranslation = new AggregationExpression(containerExpression, unwrappedValueAst, wrappedValueSerializer.ValueSerializer);
             }
 
-            if (!DocumentSerializerHelper.HasFieldInfo(containerTranslation.Serializer, member.Name))
+            if (!DocumentSerializerHelper.HasMemberSerializationInfo(containerTranslation.Serializer, member.Name))
             {
                 if (member is PropertyInfo propertyInfo  && propertyInfo.Name == "Length")
                 {
@@ -70,9 +70,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 }
             }
 
-            var fieldInfo = DocumentSerializerHelper.GetFieldInfo(containerTranslation.Serializer, member.Name);
-            var ast = AstExpression.GetField(containerTranslation.Ast, fieldInfo.ElementName);
-            return new AggregationExpression(expression, ast, fieldInfo.Serializer);
+            var serializationInfo = DocumentSerializerHelper.GetMemberSerializationInfo(containerTranslation.Serializer, member.Name);
+            var ast = AstExpression.GetField(containerTranslation.Ast, serializationInfo.ElementName);
+            return new AggregationExpression(expression, ast, serializationInfo.Serializer);
         }
 
         private static bool TryTranslateCollectionCountProperty(MemberExpression expression, AggregationExpression container, MemberInfo memberInfo, out AggregationExpression result)

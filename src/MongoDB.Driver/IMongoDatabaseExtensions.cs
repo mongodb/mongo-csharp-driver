@@ -17,7 +17,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.Operations;
+using MongoDB.Driver.Linq;
 
 namespace MongoDB.Driver
 {
@@ -54,6 +54,34 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(session, nameof(session));
             var emptyPipeline = new EmptyPipelineDefinition<NoPipelineInput>(NoPipelineInputSerializer.Instance);
             return new DatabaseAggregateFluent<NoPipelineInput>(session, database, emptyPipeline, options ?? new AggregateOptions());
+        }
+
+        /// <summary>
+        /// Creates a queryable source of documents.
+        /// </summary>
+        /// <param name="database">The database.</param>
+        /// <param name="aggregateOptions">The aggregate options</param>
+        /// <returns>A queryable source of documents.</returns>
+        public static IMongoQueryable<NoPipelineInput> AsQueryable(this IMongoDatabase database, AggregateOptions aggregateOptions = null)
+        {
+            Ensure.IsNotNull(database, nameof(database));
+
+            return AsQueryableHelper(database, session: null, aggregateOptions);
+        }
+
+        /// <summary>
+        /// Creates a queryable source of documents.
+        /// </summary>
+        /// <param name="database">The collection.</param>
+        /// <param name="session">The session.</param>
+        /// <param name="aggregateOptions">The aggregate options</param>
+        /// <returns>A queryable source of documents.</returns>
+        public static IMongoQueryable<NoPipelineInput> AsQueryable(this IMongoDatabase database, IClientSessionHandle session, AggregateOptions aggregateOptions = null)
+        {
+            Ensure.IsNotNull(database, nameof(database));
+            Ensure.IsNotNull(session, nameof(session));
+
+            return AsQueryableHelper(database, session, aggregateOptions);
         }
 
         /// <summary>
@@ -136,6 +164,14 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(session, nameof(session));
             var emptyPipeline = new EmptyPipelineDefinition<ChangeStreamDocument<BsonDocument>>();
             return database.WatchAsync(session, emptyPipeline, options, cancellationToken);
+        }
+
+        // private static methods
+        private static IMongoQueryable<NoPipelineInput> AsQueryableHelper(IMongoDatabase database, IClientSessionHandle session, AggregateOptions aggregateOptions)
+        {
+            var linqProvider = database.Client.Settings.LinqProvider;
+            aggregateOptions = aggregateOptions ?? new AggregateOptions();
+            return linqProvider.GetAdapter().AsQueryable(database, session, aggregateOptions);
         }
     }
 }

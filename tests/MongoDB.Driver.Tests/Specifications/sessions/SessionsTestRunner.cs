@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
         {
         }
 
-        [SkippableTheory]
+        [Theory]
         [ClassData(typeof(TestCaseFactory))]
         public void RunTestDefinition(JsonDrivenTestCase testCase)
         {

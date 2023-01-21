@@ -15,7 +15,6 @@
 
 using System;
 using System.Runtime.Serialization;
-using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Encryption
 {

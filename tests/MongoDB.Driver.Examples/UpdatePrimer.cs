@@ -23,7 +23,7 @@ namespace MongoDB.Driver.Examples
 {
     public class UpdatePrimer : PrimerTestFixture
     {
-        [SkippableFact]
+        [Fact]
         public async Task UpdateTopLevelFields()
         {
             RequireServer.Check();
@@ -74,7 +74,7 @@ namespace MongoDB.Driver.Examples
             // @end: update-embedded-field
         }
 
-        [SkippableFact]
+        [Fact]
         public async Task UpdateMultipleDocuments()
         {
             RequireServer.Check();

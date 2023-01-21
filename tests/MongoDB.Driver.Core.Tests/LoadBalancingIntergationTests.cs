@@ -20,7 +20,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers;
-using MongoDB.Bson.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Core.Tests
             _collectionNamespace = CollectionNamespace.FromFullName("db.coll");
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void BulkWrite_should_pin_connection_as_expected(
             [Values(1, 3)] int attempts,
@@ -91,7 +91,7 @@ namespace MongoDB.Driver.Core.Tests
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void BulkWrite_and_cursor_should_share_pinned_connection_under_the_same_transaction_2(
             [Values(false, true)] bool async)
@@ -163,7 +163,7 @@ namespace MongoDB.Driver.Core.Tests
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void BulkWrite_and_cursor_should_share_pinned_connection_under_the_same_transaction(
             [Values(1, 3)] int attempts,
@@ -229,7 +229,7 @@ namespace MongoDB.Driver.Core.Tests
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Cursor_should_pin_connection_as_expected(
             [Values(1, 3)] int attempts,
@@ -300,7 +300,7 @@ namespace MongoDB.Driver.Core.Tests
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Cursor_should_pin_connection_in_transaction_with_new_sessions_as_expected(
             [Values(1, 3)] int attempts,
@@ -374,7 +374,7 @@ namespace MongoDB.Driver.Core.Tests
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Cursor_should_pin_connection_in_transaction_with_the_same_session_as_expected(
             [Values(1, 4)] int attempts,
@@ -451,7 +451,7 @@ namespace MongoDB.Driver.Core.Tests
             }
         }
 
-        [SkippableTheory]
+        [Theory]
         [ParameterAttributeData]
         public void Cursor_should_unpin_connection_for_operations_under_the_same_transaction_after_abortTransaction_and_cursor_dispose(
             [Values(1, 3)] int attempts,

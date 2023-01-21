@@ -41,17 +41,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource LinkBase="Specifications\connection-monitoring-and-pooling\tests\cmap-format" Include="..\..\specifications\connection-monitoring-and-pooling\tests\cmap-format\*.json" />
-    <EmbeddedResource LinkBase="Specifications\connection-string" Include="..\..\specifications\connection-string\**\*.json" />
-    <EmbeddedResource LinkBase="Specifications\initial-dns-seedlist-discovery" Include="..\..\specifications\initial-dns-seedlist-discovery\**\*.json" />
-    <EmbeddedResource LinkBase="Specifications\max-staleness" Include="..\..\specifications\max-staleness\**\*.json" />
-    <EmbeddedResource LinkBase="Specifications\read-write-concern" Include="..\..\specifications\read-write-concern\**\*.json" />
-    <EmbeddedResource LinkBase="Specifications\server-discovery-and-monitoring" Include="..\..\specifications\server-discovery-and-monitoring\**\*.json" />
-    <EmbeddedResource LinkBase="Specifications\server-selection" Include="..\..\specifications\server-selection\**\*.json" />
-    <EmbeddedResource LinkBase="Specifications\uri-options" Include="..\..\specifications\uri-options\**\*.json" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update="xunit.runner.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
