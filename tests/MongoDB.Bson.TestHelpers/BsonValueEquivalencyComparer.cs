@@ -23,7 +23,7 @@ namespace MongoDB.Bson.TestHelpers
         #region static
         public static BsonValueEquivalencyComparer Instance { get; } = new BsonValueEquivalencyComparer();
 
-        public static bool Compare(BsonValue a, BsonValue b, bool allowTypesMismatching = true, Action<BsonValue, BsonValue> massageAction = null)
+        public static bool Compare(BsonValue a, BsonValue b, Action<BsonValue, BsonValue> massageAction = null, bool allowTypesMismatching = true)
         {
             massageAction?.Invoke(a, b);
 
