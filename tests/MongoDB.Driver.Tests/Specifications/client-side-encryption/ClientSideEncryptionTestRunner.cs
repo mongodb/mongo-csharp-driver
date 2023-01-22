@@ -15,7 +15,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
@@ -65,8 +64,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                 .SkipWhen(
                     () =>
                         // these tests may take too much time and exceed configured `transactionLifetimeLimitSeconds` on macOS
-                        testCase.Name.Contains("fle2-Range-Decimal") ||
-                        testCase.Name.Contains("fle2-Range-Double"),
+                        testCase.Name.Contains("fle2-Range"),
                     SupportedOperatingSystem.MacOS)
                 .SkipWhen(() => testCase.Name.Contains("gcpKMS.json"), SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard20) // gcp is supported starting from netstandard2.1
                 .SkipWhen(() => testCase.Name.Contains("gcpKMS.json"), SupportedOperatingSystem.MacOS, SupportedTargetFramework.NetStandard20); // gcp is supported starting from netstandard2.1
