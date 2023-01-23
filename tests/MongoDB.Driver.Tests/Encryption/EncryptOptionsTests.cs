@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Tests.Encryption
         {
             var exception = Record.Exception(() => new EncryptOptions(algorithm: "test", contentionFactor: 1, keyId: Guid.NewGuid()));
             var e = exception.Should().BeOfType<ArgumentException>().Subject;
-            e.Message.Should().Be("ContentionFactor only applies for Indexed algorithm.");
+            e.Message.Should().Be("ContentionFactor only applies for Indexed or RangePreview algorithm.");
         }
 
         [Fact]
@@ -58,7 +58,15 @@ namespace MongoDB.Driver.Tests.Encryption
         {
             var exception = Record.Exception(() => new EncryptOptions(algorithm: "test", queryType: "equality", keyId: Guid.NewGuid()));
             var e = exception.Should().BeOfType<ArgumentException>().Subject;
-            e.Message.Should().Be("QueryType only applies for Indexed algorithm.");
+            e.Message.Should().Be("QueryType only applies for Indexed or RangePreview algorithm.");
+        }
+
+        [Fact]
+        public void Constructor_should_fail_when_rangeOptions_and_algorithm_is_not_rangePreview()
+        {
+            var exception = Record.Exception(() => new EncryptOptions(algorithm: "test", keyId: Guid.NewGuid(), rangeOptions: new RangeOptions(0)));
+            var e = exception.Should().BeOfType<ArgumentException>().Subject;
+            e.Message.Should().Be("RangeOptions only applies for RangePreview algorithm.");
         }
 
         [Theory]
@@ -75,10 +83,14 @@ namespace MongoDB.Driver.Tests.Encryption
         [InlineData("TEST_random", "TEST_random")]
         // just a random value in enum form
         [InlineData((EncryptionAlgorithm)99, "99")]
+        // indexed algorithm
         [InlineData(EncryptionAlgorithm.Indexed, "Indexed")]
         [InlineData("Indexed", "Indexed")]
         [InlineData(EncryptionAlgorithm.Unindexed, "Unindexed")]
         [InlineData("Unindexed", "Unindexed")]
+        // range preview algorithm
+        [InlineData(EncryptionAlgorithm.RangePreview, "RangePreview")]
+        [InlineData("RangePreview", "RangePreview")]
         public void Constructor_should_support_different_algorithm_representations(object algorithm, string expectedAlgorithmRepresentation)
         {
             var alternateKeyName = "test";
@@ -132,11 +144,18 @@ namespace MongoDB.Driver.Tests.Encryption
             var fle2State = 2;
             subject = CreateConfiguredSubject(state: fle2State);
             subject = subject.With(contentionFactor: newContention);
-            AssertValues(subject, EncryptionAlgorithm.Indexed.ToString(), expectedKeyId: originalKeyId, expectedContentionFactor: newContention);
+            AssertValues(subject, expectedAlgorithm: originalAlgorithm, expectedKeyId: originalKeyId, expectedContentionFactor: newContention);
 
+            newAlgorithm = EncryptionAlgorithm.Indexed.ToString();
             subject = CreateConfiguredSubject(state: fle2State);
             subject = subject.With(queryType: newQueryType);
-            AssertValues(subject, EncryptionAlgorithm.Indexed.ToString(), expectedKeyId: originalKeyId, expectedQueryType: newQueryType);
+            AssertValues(subject, expectedAlgorithm: newAlgorithm, expectedKeyId: originalKeyId, expectedQueryType: newQueryType);
+
+            newQueryType = "rangePreview";
+            newAlgorithm = EncryptionAlgorithm.RangePreview.ToString();
+            subject = CreateConfiguredSubject(state: fle2State);
+            subject = subject.With(algorithm: EncryptionAlgorithm.RangePreview.ToString(), queryType: newQueryType);
+            AssertValues(subject, expectedAlgorithm: newAlgorithm, expectedKeyId: originalKeyId, expectedQueryType: newQueryType);
 
             static void AssertValues(EncryptOptions subject, string expectedAlgorithm, Guid? expectedKeyId = null, string expectedAlternateKeyName = null, string expectedQueryType = null, long? expectedContentionFactor = null)
             {
