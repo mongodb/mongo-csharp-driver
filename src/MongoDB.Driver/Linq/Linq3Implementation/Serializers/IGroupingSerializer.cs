@@ -107,5 +107,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers
             var serializerType = typeof(IGroupingSerializer<,>).MakeGenericType(keyType, elementType);
             return (IBsonSerializer)Activator.CreateInstance(serializerType, keySerializer, elementSerializer);
         }
+
+        public static IBsonSerializer<IGrouping<TKey, TElement>> Create<TKey, TElement>(IBsonSerializer<TKey> keySerializer, IBsonSerializer<TElement> elementSerializer)
+        {
+            return new IGroupingSerializer<TKey, TElement>(keySerializer, elementSerializer);
+        }
     }
 }

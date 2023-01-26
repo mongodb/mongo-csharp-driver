@@ -19,7 +19,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
     {
         public static AstPipeline Optimize(AstPipeline pipeline)
         {
-            pipeline = AstGroupPipelineOptimizer.Optimize(pipeline);
+            pipeline = AstGroupingPipelineOptimizer.Optimize(pipeline);
             pipeline = AstSimplifier.SimplifyAndConvert(pipeline);
             return pipeline;
         }

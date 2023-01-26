@@ -37,10 +37,10 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests
             return rendered.Documents;
         }
 
-        public static BsonDocument Render<TInput, TOutput>(PipelineStageDefinition<TInput, TOutput> stage, IBsonSerializer<TInput> inputSerializer, LinqProvider linqProvider)
+        public static IReadOnlyList<BsonDocument> Render<TInput, TOutput>(PipelineStageDefinition<TInput, TOutput> stage, IBsonSerializer<TInput> inputSerializer, LinqProvider linqProvider)
         {
             var rendered = stage.Render(inputSerializer, BsonSerializer.SerializerRegistry, linqProvider);
-            return rendered.Document;
+            return rendered.Documents;
         }
 
         public static List<BsonDocument> Translate<TDocument, TResult>(IMongoCollection<TDocument> collection, IAggregateFluent<TResult> aggregate)
