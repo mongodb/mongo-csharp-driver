@@ -24,6 +24,7 @@ using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira
 {
+    [Collection(RegisterObjectSerializerFixture.CollectionName)]
     public class CSharp1559Tests
     {
         [Theory]

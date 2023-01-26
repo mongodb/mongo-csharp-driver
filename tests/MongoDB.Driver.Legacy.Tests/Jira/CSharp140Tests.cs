@@ -14,12 +14,14 @@
 */
 
 using MongoDB.Bson;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Wrappers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira.CSharp140
 {
+    [Collection(RegisterObjectSerializerFixture.CollectionName)]
     public class CSharp140Tests
     {
         private class C

@@ -81,7 +81,7 @@ namespace MongoDB.Bson.Serialization.Serializers
 
             _interfaceType = typeof(TInterface);
             _discriminatorConvention = discriminatorConvention;
-            _objectSerializer = new ObjectSerializer(_discriminatorConvention);
+            _objectSerializer = ((ObjectSerializer)BsonSerializer.LookupSerializer<object>()).WithDiscriminatorConvention(_discriminatorConvention);
             _interfaceSerializer = interfaceSerializer;
         }
 

@@ -32,6 +32,7 @@ namespace MongoDB.Bson.Tests.Serialization.CollectionSerializers
         public string P { get; set; }
     }
 
+    [Collection(RegisterObjectSerializerFixture.CollectionName)]
     public class CollectionSerializerTests
     {
         public class T
@@ -274,6 +275,7 @@ namespace MongoDB.Bson.Tests.Serialization.CollectionSerializers
         }
     }
 
+    [Collection(RegisterObjectSerializerFixture.CollectionName)]
     public class CollectionSerializerNominalTypeObjectTests
     {
         public class T

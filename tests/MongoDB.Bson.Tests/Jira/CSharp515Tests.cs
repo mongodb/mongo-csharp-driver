@@ -16,12 +16,13 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Reflection;
-using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira.CSharp515
 {
+    [Collection(RegisterObjectSerializerFixture.CollectionName)]
     public class CSharp515Tests
     {
         public class C

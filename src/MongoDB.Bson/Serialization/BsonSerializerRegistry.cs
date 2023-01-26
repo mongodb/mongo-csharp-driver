@@ -93,17 +93,7 @@ namespace MongoDB.Bson.Serialization
             {
                 throw new ArgumentNullException("serializer");
             }
-            var typeInfo = type.GetTypeInfo();
-            if (typeof(BsonValue).GetTypeInfo().IsAssignableFrom(type))
-            {
-                var message = string.Format("A serializer cannot be registered for type {0} because it is a subclass of BsonValue.", BsonUtils.GetFriendlyTypeName(type));
-                throw new BsonSerializationException(message);
-            }
-            if (typeInfo.IsGenericType && typeInfo.ContainsGenericParameters)
-            {
-                var message = string.Format("Generic type {0} has unassigned type parameters.", BsonUtils.GetFriendlyTypeName(type));
-                throw new ArgumentException(message, "type");
-            }
+            EnsureRegisteringASerializerForThisTypeIsAllowed(type);
 
             if (!_cache.TryAdd(type, serializer))
             {
@@ -125,6 +115,40 @@ namespace MongoDB.Bson.Serialization
             }
 
             _serializationProviders.Push(serializationProvider);
+        }
+
+        /// <summary>
+        /// Tries to register the serializer.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <param name="serializer">The serializer.</param>
+        /// <returns>True if the serializer was registered on this call, false if the same serializer was already registered on a previous call, throws an exception if a different serializer was already registered.</returns>
+        public bool TryRegisterSerializer(Type type, IBsonSerializer serializer)
+        {
+            if (type == null)
+            {
+                throw new ArgumentNullException(nameof(type));
+            }
+            if (serializer == null)
+            {
+                throw new ArgumentNullException(nameof(serializer));
+            }
+            EnsureRegisteringASerializerForThisTypeIsAllowed(type);
+
+            if (_cache.TryAdd(type, serializer))
+            {
+                return true;
+            }
+            else
+            {
+                var existingSerializer = _cache[type];
+                if (!existingSerializer.Equals(serializer))
+                {
+                    var message = $"There is already a different serializer registered for type {BsonUtils.GetFriendlyTypeName(type)}.";
+                    throw new BsonSerializationException(message);
+                }
+                return false;
+            }
         }
 
         // private methods
@@ -152,6 +176,21 @@ namespace MongoDB.Bson.Serialization
 
             var message = string.Format("No serializer found for type {0}.", type.FullName);
             throw new BsonSerializationException(message);
+        }
+
+        private void EnsureRegisteringASerializerForThisTypeIsAllowed(Type type)
+        {
+            var typeInfo = type.GetTypeInfo();
+            if (typeof(BsonValue).GetTypeInfo().IsAssignableFrom(type))
+            {
+                var message = string.Format("A serializer cannot be registered for type {0} because it is a subclass of BsonValue.", BsonUtils.GetFriendlyTypeName(type));
+                throw new BsonSerializationException(message);
+            }
+            if (typeInfo.IsGenericType && typeInfo.ContainsGenericParameters)
+            {
+                var message = string.Format("Generic type {0} has unassigned type parameters.", BsonUtils.GetFriendlyTypeName(type));
+                throw new ArgumentException(message, "type");
+            }
         }
     }
 }

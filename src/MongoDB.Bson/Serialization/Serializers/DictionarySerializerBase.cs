@@ -16,7 +16,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq.Expressions;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Options;
 
@@ -59,7 +58,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="dictionaryRepresentation">The dictionary representation.</param>
         public DictionarySerializerBase(DictionaryRepresentation dictionaryRepresentation)
-            : this(dictionaryRepresentation, new ObjectSerializer(), new ObjectSerializer())
+            : this(dictionaryRepresentation, BsonSerializer.LookupSerializer<object>(), BsonSerializer.LookupSerializer<object>())
         {
         }
 

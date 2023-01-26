@@ -32,6 +32,7 @@ namespace MongoDB.Bson.Tests.Serialization.CollectionSerializersGeneric
         public string P { get; set; }
     }
 
+    [Collection(RegisterObjectSerializerFixture.CollectionName)]
     public class EnumerableSerializerTests
     {
         public class T
@@ -277,6 +278,7 @@ namespace MongoDB.Bson.Tests.Serialization.CollectionSerializersGeneric
     }
 
 #if WINDOWS
+    [Collection(RegisterObjectSerializerFixture.CollectionName)]
     public class EnumerableSerializerNominalTypeObjectTests
     {
         public class T

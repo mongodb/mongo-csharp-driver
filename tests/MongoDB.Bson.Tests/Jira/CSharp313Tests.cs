@@ -14,12 +14,13 @@
 */
 
 using System;
-using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira
 {
+    [Collection(RegisterObjectSerializerFixture.CollectionName)]
     public class CSharp313Tests
     {
         private static object[] __scalarValues = new object[]

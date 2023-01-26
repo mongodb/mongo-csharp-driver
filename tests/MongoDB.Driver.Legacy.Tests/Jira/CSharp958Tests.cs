@@ -13,14 +13,13 @@
 * limitations under the License.
 */
 
-using System;
-using System.Linq;
 using MongoDB.Bson;
-using MongoDB.Driver;
+using MongoDB.Bson.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Jira
 {
+    [Collection(RegisterObjectSerializerFixture.CollectionName)]
     public class CSharp958Tests
     {
         private interface IPerson { }

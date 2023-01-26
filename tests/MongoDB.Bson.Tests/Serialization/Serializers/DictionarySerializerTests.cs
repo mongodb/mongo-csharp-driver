@@ -23,6 +23,8 @@ using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Options;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
@@ -51,8 +53,33 @@ namespace MongoDB.Bson.Tests.Serialization.DictionarySerializers
         }
     }
 
+    [Collection(RegisterObjectSerializerFixture.CollectionName)]
     public class DictionarySerializerTests
     {
+        static DictionarySerializerTests()
+        {
+            _ = new RegisterObjectSerializerFixture(); // ensure correct ObjectSerializer is registered
+
+            var objectSerializer = BsonSerializer.LookupSerializer<object>();
+            var dictionaryRepresentation = DictionaryRepresentation.Document;
+            var keySerializer = objectSerializer;
+            var valueSerializer = objectSerializer;
+            var hashTableSerializer = new DictionaryInterfaceImplementerSerializer<Hashtable>(dictionaryRepresentation, keySerializer, valueSerializer);
+            var iDictionarySerializer = new ImpliedImplementationInterfaceSerializer<IDictionary, Hashtable>(hashTableSerializer);
+            var listDictionarySerializer = new DictionaryInterfaceImplementerSerializer<ListDictionary>(dictionaryRepresentation, keySerializer, valueSerializer);
+            var orderedDictionarySerializer = new DictionaryInterfaceImplementerSerializer<OrderedDictionary>(dictionaryRepresentation, keySerializer, valueSerializer);
+            var sortedListDictionarySerializer = new DictionaryInterfaceImplementerSerializer<SortedList>(dictionaryRepresentation, keySerializer, valueSerializer);
+
+            BsonClassMap.RegisterClassMap<T>(cm =>
+            {
+                cm.MapProperty(t => t.HT).SetSerializer(hashTableSerializer);
+                cm.MapProperty(t => t.ID).SetSerializer(iDictionarySerializer);
+                cm.MapProperty(t => t.LD).SetSerializer(listDictionarySerializer);
+                cm.MapProperty(t => t.OD).SetSerializer(orderedDictionarySerializer);
+                cm.MapProperty(t => t.SL).SetSerializer(sortedListDictionarySerializer);
+            });
+        }
+
         public class T
         {
             public Hashtable HT { get; set; }
