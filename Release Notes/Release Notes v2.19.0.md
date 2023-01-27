@@ -12,6 +12,37 @@ The main new features in 2.19.0 include:
 * Support Azure VM-assigned Managed Identity for Automatic KMS Credentials
 * Native support for AWS IAM Roles
 
+### ObjectSerializer allowed types configuration
+
+The `ObjectSerializer` has been changed to only allow deserialization of types that are considered safe. 
+What types are considered safe is determined by a new configurable AllowedTypes function (of type Func<Type, bool>).
+The default AllowedTypes function is ObjectSerializer.DefaultAllowedTypes which returns true for a number of well-known framework types that we have deemed safe.
+A typical example might be to allow all the default allowed types as well as your own types. This could be accomplished as follows:
+
+```
+var objectSerializer = new ObjectSerializer(type => ObjectSerializer.DefaultAllowedTypes(type) || type.FullName.StartsWith("MyNamespace"));
+BsonSerializer.RegisterSerializer(objectSerializer);
+```
+
+More information about the ObjectSerializer is available at FAQ page at:
+
+https://www.mongodb.com/docs/drivers/csharp/v2.19/
+
+
+### Default LinqProvider changed to LINQ3
+Default LinqProvider has been changed to LINQ3.
+LinqProvider can be changed back to LINQ2 in the following way:
+
+```
+var connectionString = "mongodb://localhost";
+var clientSettings = MongoClientSettings.FromConnectionString(connectionString);
+clientSettings.LinqProvider = LinqProvider.V2;
+var client = new MongoClient(clientSettings);
+```
+If you encounter a bug in LINQ3 provider, please report it at:
+
+https://jira.mongodb.org/projects/CSHARP/issues
+
 An online version of these release notes is available at:
 
 https://github.com/mongodb/mongo-csharp-driver/blob/master/Release%20Notes/Release%20Notes%20v2.19.0.md
