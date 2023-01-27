@@ -26,7 +26,6 @@ BsonSerializer.RegisterSerializer(objectSerializer);
 
 More information about the `ObjectSerializer` is available in [our FAQ](https://www.mongodb.com/docs/drivers/csharp/v2.19/faq).
 
-
 ### Default LinqProvider changed to LINQ3
 Default LinqProvider has been changed to LINQ3.
 LinqProvider can be changed back to LINQ2 in the following way:
@@ -39,15 +38,8 @@ var client = new MongoClient(clientSettings);
 ```
 If you encounter a bug in LINQ3 provider, please report it in [CSHARP JIRA project](https://jira.mongodb.org/projects/CSHARP/issues).
 
+An online version of these release notes is available [here](https://github.com/mongodb/mongo-csharp-driver/blob/master/Release%20Notes/Release%20Notes%20v2.19.0.md).
 
-An online version of these release notes is available at:
+The full list of issues resolved in this release is available at [CSHARP JIRA project](https://jira.mongodb.org/issues/?jql=project%20%3D%20CSHARP%20AND%20fixVersion%20%3D%202.19.0%20ORDER%20BY%20key%20ASC).
 
-https://github.com/mongodb/mongo-csharp-driver/blob/master/Release%20Notes/Release%20Notes%20v2.19.0.md
-
-The full list of JIRA issues resolved in this release is available at:
-
-https://jira.mongodb.org/issues/?jql=project%20%3D%20CSHARP%20AND%20fixVersion%20%3D%202.19.0%20ORDER%20BY%20key%20ASC
-
-Documentation on the .NET driver can be found at:
-
-https://www.mongodb.com/docs/drivers/csharp/v2.19/
+Documentation on the .NET driver can be found [here](https://www.mongodb.com/docs/drivers/csharp/v2.19/).
