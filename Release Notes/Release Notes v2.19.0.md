@@ -15,8 +15,8 @@ The main new features in 2.19.0 include:
 ### ObjectSerializer allowed types configuration
 
 The `ObjectSerializer` has been changed to only allow deserialization of types that are considered safe. 
-What types are considered safe is determined by a new configurable AllowedTypes function (of type Func<Type, bool>).
-The default AllowedTypes function is ObjectSerializer.DefaultAllowedTypes which returns true for a number of well-known framework types that we have deemed safe.
+What types are considered safe is determined by a new configurable `AllowedTypes` function (of type `Func<Type, bool>`).
+The default `AllowedTypes` function is `ObjectSerializer.DefaultAllowedTypes` which returns true for a number of well-known framework types that we have deemed safe.
 A typical example might be to allow all the default allowed types as well as your own types. This could be accomplished as follows:
 
 ```
