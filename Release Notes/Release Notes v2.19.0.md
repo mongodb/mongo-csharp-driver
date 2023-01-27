@@ -24,9 +24,7 @@ var objectSerializer = new ObjectSerializer(type => ObjectSerializer.DefaultAllo
 BsonSerializer.RegisterSerializer(objectSerializer);
 ```
 
-More information about the ObjectSerializer is available at FAQ page at:
-
-https://www.mongodb.com/docs/drivers/csharp/v2.19/
+More information about the `ObjectSerializer` is available in [our FAQ](https://www.mongodb.com/docs/drivers/csharp/v2.19/faq).
 
 
 ### Default LinqProvider changed to LINQ3
@@ -39,9 +37,8 @@ var clientSettings = MongoClientSettings.FromConnectionString(connectionString);
 clientSettings.LinqProvider = LinqProvider.V2;
 var client = new MongoClient(clientSettings);
 ```
-If you encounter a bug in LINQ3 provider, please report it at:
+If you encounter a bug in LINQ3 provider, please report it in [CSHARP JIRA project](https://jira.mongodb.org/projects/CSHARP/issues).
 
-https://jira.mongodb.org/projects/CSHARP/issues
 
 An online version of these release notes is available at:
 
