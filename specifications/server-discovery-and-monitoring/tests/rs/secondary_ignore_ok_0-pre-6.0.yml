@@ -1,4 +1,4 @@
-description: "Secondary ignored when ok is zero"
+description: "Pre 6.0 New primary"
 
 uri: "mongodb://a,b/?replicaSet=rs"
 

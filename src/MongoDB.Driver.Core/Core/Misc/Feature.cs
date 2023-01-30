@@ -65,6 +65,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __documentsStage = new Feature("DocumentsStage", WireVersion.Server51);
         private static readonly Feature __documentValidation = new Feature("DocumentValidation", WireVersion.Server32);
         private static readonly Feature __directConnectionSetting = new Feature("DirectConnectionSetting", WireVersion.Server44);
+        private static readonly Feature __electionIdPriorityInSDAM = new Feature("ElectionIdPriorityInSDAM ", WireVersion.Server60);
         private static readonly Feature __eval = new Feature("Eval", WireVersion.Zero, WireVersion.Server42);
         private static readonly Feature __explainCommand = new Feature("ExplainCommand", WireVersion.Server30);
         private static readonly Feature __failPoints = new Feature("FailPoints", WireVersion.Zero);
@@ -359,6 +360,11 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the directConnection setting feature.
         /// </summary>
         public static Feature DirectConnectionSetting => __directConnectionSetting;
+
+        /// <summary>
+        /// Gets the electionIdPriorityInSDAM feature.
+        /// </summary>
+        public static Feature ElectionIdPriorityInSDAM => __electionIdPriorityInSDAM;
 
         /// <summary>
         /// Gets the eval feature.
