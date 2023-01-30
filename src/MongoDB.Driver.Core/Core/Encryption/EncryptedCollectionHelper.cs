@@ -76,9 +76,9 @@ namespace MongoDB.Driver.Encryption
             }
         }
 
-        public static IEnumerable<BsonDocument> IterateEmptyKeyIds(CollectionNamespace collectionNamespace, BsonDocument encryptedFields)
+        public static IEnumerable<BsonDocument> IterateEmptyKeyIds(CollectionNamespace collectionNamespace, BsonDocument encryptedFields, IReadOnlyDictionary<string, BsonDocument> encryptedFieldsMap)
         {
-            if (!EncryptedCollectionHelper.TryGetEffectiveEncryptedFields(collectionNamespace, encryptedFields, encryptedFieldsMap: null, out var storedEncryptedFields))
+            if (!EncryptedCollectionHelper.TryGetEffectiveEncryptedFields(collectionNamespace, encryptedFields, encryptedFieldsMap, out var storedEncryptedFields))
             {
                 throw new InvalidOperationException("There are no encrypted fields defined for the collection.");
             }

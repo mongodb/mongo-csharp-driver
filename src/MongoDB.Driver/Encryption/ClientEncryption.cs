@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -101,24 +102,28 @@ namespace MongoDB.Driver.Encryption
             Ensure.IsNotNull(kmsProvider, nameof(kmsProvider));
 
             var encryptedFields = createCollectionOptions.EncryptedFields?.DeepClone()?.AsBsonDocument;
+            var encryptedFieldsMap = GetEncryptedFieldsMap(database);
+            var collectionNamespace = new CollectionNamespace(database.DatabaseNamespace.DatabaseName, collectionName);
+            var resultedEncryptedFields = EncryptedCollectionHelper.GetEffectiveEncryptedFields(collectionNamespace, encryptedFields, encryptedFieldsMap);
             try
             {
-                foreach (var fieldDocument in EncryptedCollectionHelper.IterateEmptyKeyIds(new CollectionNamespace(database.DatabaseNamespace.DatabaseName, collectionName), encryptedFields))
+                foreach (var fieldDocument in EncryptedCollectionHelper.IterateEmptyKeyIds(collectionNamespace, encryptedFields, encryptedFieldsMap))
                 {
                     var dataKey = CreateDataKey(kmsProvider, dataKeyOptions, cancellationToken);
                     EncryptedCollectionHelper.ModifyEncryptedFields(fieldDocument, dataKey);
+                    resultedEncryptedFields = EncryptedCollectionHelper.GetEffectiveEncryptedFields(collectionNamespace, encryptedFields, encryptedFieldsMap);
                 }
 
                 var effectiveCreateEncryptionOptions = createCollectionOptions.Clone();
-                effectiveCreateEncryptionOptions.EncryptedFields = encryptedFields;
+                effectiveCreateEncryptionOptions.EncryptedFields = resultedEncryptedFields;
                 database.CreateCollection(collectionName, effectiveCreateEncryptionOptions, cancellationToken);
             }
             catch (Exception ex)
             {
-                throw new MongoEncryptionCreateCollectionException(ex, encryptedFields);
+                throw new MongoEncryptionCreateCollectionException(ex, resultedEncryptedFields);
             }
 
-            return new CreateEncryptedCollectionResult(encryptedFields);
+            return new CreateEncryptedCollectionResult(resultedEncryptedFields);
         }
 
         /// <summary>
@@ -143,24 +148,28 @@ namespace MongoDB.Driver.Encryption
             Ensure.IsNotNull(kmsProvider, nameof(kmsProvider));
 
             var encryptedFields = createCollectionOptions.EncryptedFields?.DeepClone()?.AsBsonDocument;
+            var encryptedFieldsMap = GetEncryptedFieldsMap(database);
+            var collectionNamespace = new CollectionNamespace(database.DatabaseNamespace.DatabaseName, collectionName);
+            var resultedEncryptedFields = EncryptedCollectionHelper.GetEffectiveEncryptedFields(collectionNamespace, encryptedFields, encryptedFieldsMap);
             try
             {
-                foreach (var fieldDocument in EncryptedCollectionHelper.IterateEmptyKeyIds(new CollectionNamespace(database.DatabaseNamespace.DatabaseName, collectionName), encryptedFields))
+                foreach (var fieldDocument in EncryptedCollectionHelper.IterateEmptyKeyIds(collectionNamespace, encryptedFields, encryptedFieldsMap))
                 {
                     var dataKey = await CreateDataKeyAsync(kmsProvider, dataKeyOptions, cancellationToken).ConfigureAwait(false);
                     EncryptedCollectionHelper.ModifyEncryptedFields(fieldDocument, dataKey);
+                    resultedEncryptedFields = EncryptedCollectionHelper.GetEffectiveEncryptedFields(collectionNamespace, encryptedFields, encryptedFieldsMap);
                 }
 
                 var effectiveCreateEncryptionOptions = createCollectionOptions.Clone();
-                effectiveCreateEncryptionOptions.EncryptedFields = encryptedFields;
+                effectiveCreateEncryptionOptions.EncryptedFields = resultedEncryptedFields;
                 await database.CreateCollectionAsync(collectionName, effectiveCreateEncryptionOptions, cancellationToken).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                throw new MongoEncryptionCreateCollectionException(ex, encryptedFields);
+                throw new MongoEncryptionCreateCollectionException(ex, resultedEncryptedFields);
             }
 
-            return new CreateEncryptedCollectionResult(encryptedFields);
+            return new CreateEncryptedCollectionResult(resultedEncryptedFields);
         }
 
         /// <summary>
@@ -398,5 +407,15 @@ namespace MongoDB.Driver.Encryption
                 throw new InvalidOperationException($"The encrypted data must be {typeof(TEncryptedValue).Name}, but was {encryptedValue?.GetType()?.Name ?? "null"}.");
             }
         }
+
+        private IReadOnlyDictionary<string, BsonDocument> GetEncryptedFieldsMap(IMongoDatabase database) =>
+            database
+                .Client
+                .Settings
+                ?.AutoEncryptionOptions
+                ?.EncryptedFieldsMap
+                ?.ToList()
+                ?.Select(i => new KeyValuePair<string, BsonDocument>(i.Key, i.Value.DeepClone().AsBsonDocument))
+                ?.ToDictionary(i => i.Key, v => v.Value);
     }
 }

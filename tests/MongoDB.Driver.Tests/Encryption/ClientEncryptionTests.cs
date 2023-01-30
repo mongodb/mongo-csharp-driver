@@ -97,7 +97,41 @@ namespace MongoDB.Driver.Tests.Encryption
         }
 
         [Fact]
-        public async Task CreateEncryptedCollection_should_handle_save_generated_key_when_second_key_failed()
+        public async Task CreateEncryptedCollection_should_support_encryptionFieldsMap()
+        {
+            const string kmsProvider = "local";
+            var dataKeyOptions = new DataKeyOptions();
+            var collectionNamespace = CollectionNamespace.FromFullName("db.collName");
+            var encryptionFieldsMap = new Dictionary<string, BsonDocument>()
+            {
+                { collectionNamespace.ToString(), BsonDocument.Parse("{ fields : [{ keyId : null }, { keyId : null }] }") }
+            };
+            var clientSettings = new MongoClientSettings()
+            {
+                AutoEncryptionOptions = new AutoEncryptionOptions(
+                    __keyVaultCollectionNamespace,
+                    EncryptionTestHelper.GetKmsProviders(filter: kmsProvider),
+                    encryptedFieldsMap: encryptionFieldsMap)
+            };
+            var database = Mock.Of<IMongoDatabase>(
+                d =>
+                    d.DatabaseNamespace == collectionNamespace.DatabaseNamespace &&
+                    d.Client == Mock.Of<IMongoClient>(c => c.Settings == clientSettings));
+
+            using (var subject = CreateSubject())
+            {
+                var createCollectionOptions = new CreateCollectionOptions();
+
+                var createCollectionResult = subject.CreateEncryptedCollection(database, collectionNamespace.CollectionName, createCollectionOptions, kmsProvider, dataKeyOptions);
+                createCollectionResult.EncryptedFields.WithComparer(new EncryptedFieldsComparer()).Should().Be(BsonDocument.Parse("{ fields: [{ keyId : '#binary_generated#' }, { keyId : '#binary_generated#' }] }"));
+
+                createCollectionResult = await subject.CreateEncryptedCollectionAsync(database, collectionNamespace.CollectionName, createCollectionOptions, kmsProvider, dataKeyOptions);
+                createCollectionResult.EncryptedFields.WithComparer(new EncryptedFieldsComparer()).Should().Be(BsonDocument.Parse("{ fields: [{ keyId : '#binary_generated#' }, { keyId : '#binary_generated#' }] }"));
+            }
+        }
+
+        [Fact]
+        public async Task CreateEncryptedCollection_should_save_generated_key_when_second_key_failed()
         {
             const string kmsProvider = "local";
             const string collectionName = "collName";
