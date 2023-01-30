@@ -71,7 +71,7 @@ namespace MongoDB.Driver.Core.Clusters
             _servers = new List<IClusterableServer>();
             _state = new InterlockedInt32(State.Initial);
             _replicaSetName = settings.ReplicaSetName;
-
+            _maxElectionInfo = new ElectionInfo(null, null);
         }
 
         // methods
@@ -344,105 +344,74 @@ namespace MongoDB.Driver.Core.Clusters
 
             if (args.NewServerDescription.Type == ServerType.ReplicaSetPrimary)
             {
-                if (args.NewServerDescription.ReplicaSetConfig.Version != null)
+                var newElectionId = args.NewServerDescription.ElectionId;
+                var newSetVersion = args.NewServerDescription.ReplicaSetConfig.Version;
+                var maxWireVersion = args.NewServerDescription.MaxWireVersion;
+
+                if (newElectionId != null || newSetVersion != null)
                 {
-                    bool isCurrentPrimaryStale = true;
-                    if (_maxElectionInfo != null)
+                    var newMaxElectionInfo = _maxElectionInfo.Compare(newSetVersion, newElectionId, maxWireVersion);
+
+                    if (newMaxElectionInfo == null) // reported stale primary
                     {
-                        isCurrentPrimaryStale = _maxElectionInfo.IsStale(args.NewServerDescription.ReplicaSetConfig.Version.Value, args.NewServerDescription.ElectionId);
-                        var isReportedPrimaryStale = _maxElectionInfo.IsFresher(
-                            args.NewServerDescription.ReplicaSetConfig.Version.Value,
-                            args.NewServerDescription.ElectionId);
-
-                        if (isReportedPrimaryStale && args.NewServerDescription.ElectionId != null)
+                        // we only invalidate the "newly" reported stale primary if electionId was used.
+                        lock (_serversLock)
                         {
-                            // we only invalidate the "newly" reported stale primary if electionId was used.
-                            lock (_serversLock)
-                            {
-                                var server = _servers.SingleOrDefault(x => EndPointHelper.Equals(args.NewServerDescription.EndPoint, x.EndPoint));
-                                server.Invalidate("ReportedPrimaryIsStale", args.NewServerDescription.TopologyVersion);
+                            var server = _servers.SingleOrDefault(x => EndPointHelper.Equals(args.NewServerDescription.EndPoint, x.EndPoint));
+                            server.Invalidate("ReportedPrimaryIsStale", args.NewServerDescription.TopologyVersion);
 
-                                _clusterEventLogger.LogAndPublish(new SdamInformationEvent(
-                                        @"Invalidating server: Setting ServerType to ""Unknown"" for {0} because it " +
-                                        @"claimed to be the replica set primary for replica set ""{1}"" but sent a " +
-                                        @"(setVersion, electionId) tuple of ({2}, {3}) that was less than than the " +
-                                        @"largest tuple seen, (maxSetVersion, maxElectionId), of ({4}, {5}).",
-                                        args.NewServerDescription.EndPoint,
-                                        args.NewServerDescription.ReplicaSetConfig.Name,
-                                        args.NewServerDescription.ReplicaSetConfig.Version,
-                                        args.NewServerDescription.ElectionId,
-                                        _maxElectionInfo.SetVersion,
-                                        _maxElectionInfo.ElectionId));
+                            _clusterEventLogger.LogAndPublish(new SdamInformationEvent(
+                                @"Invalidating server: Setting ServerType to ""Unknown"" for {0} because it " +
+                                @"claimed to be the replica set primary for replica set ""{1}"" but sent a " +
+                                @"(setVersion, electionId) tuple of ({2}, {3}) that was less than than the " +
+                                @"largest tuple seen, (maxSetVersion, maxElectionId), of ({4}, {5}).",
+                                args.NewServerDescription.EndPoint,
+                                args.NewServerDescription.ReplicaSetConfig.Name,
+                                newSetVersion,
+                                newElectionId,
+                                _maxElectionInfo.SetVersion,
+                                _maxElectionInfo.ElectionId));
 
-                                return clusterDescription.WithServerDescription(
-                                    new ServerDescription(server.ServerId, server.EndPoint, "ReportedPrimaryIsStale"));
-                            }
+                            return clusterDescription.WithServerDescription(
+                                new ServerDescription(server.ServerId, server.EndPoint, "ReportedPrimaryIsStale"));
                         }
                     }
 
-                    if (isCurrentPrimaryStale)
+                    if (!_maxElectionInfo.Equals(newMaxElectionInfo))
                     {
-                        if (_maxElectionInfo == null)
+                        SdamInformationEvent sdamEvent;
+                        if (_maxElectionInfo.SetVersion == null && _maxElectionInfo.ElectionId == null)
                         {
-                            _clusterEventLogger.LogAndPublish(new SdamInformationEvent(
-                                    @"Initializing (maxSetVersion, maxElectionId): Saving tuple " +
-                                    @"(setVersion, electionId) of ({0}, {1}) as (maxSetVersion, maxElectionId) for " +
-                                    @"replica set ""{2}"" because replica set primary {3} sent ({0}, {1}), the first " +
-                                    @"(setVersion, electionId) tuple ever seen for replica set ""{4}"".",
-                                    args.NewServerDescription.ReplicaSetConfig.Version,
-                                    args.NewServerDescription.ElectionId,
-                                    args.NewServerDescription.ReplicaSetConfig.Name,
-                                    args.NewServerDescription.EndPoint,
-                                    args.NewServerDescription.ReplicaSetConfig.Name));
-
-                            _maxElectionInfo = new ElectionInfo(
-                                args.NewServerDescription.ReplicaSetConfig.Version.Value,
-                                args.NewServerDescription.ElectionId);
+                            sdamEvent = new SdamInformationEvent(
+                                @"Initializing (maxSetVersion, maxElectionId): Saving tuple " +
+                                @"(setVersion, electionId) of ({0}, {1}) as (maxSetVersion, maxElectionId) for " +
+                                @"replica set ""{2}"" because replica set primary {3} sent ({0}, {1}), the first " +
+                                @"(setVersion, electionId) tuple ever seen for replica set ""{4}"".",
+                                newMaxElectionInfo.SetVersion,
+                                newMaxElectionInfo.ElectionId,
+                                args.NewServerDescription.ReplicaSetConfig.Name,
+                                args.NewServerDescription.EndPoint,
+                                args.NewServerDescription.ReplicaSetConfig.Name);
                         }
                         else
                         {
-                            if (_maxElectionInfo.SetVersion < args.NewServerDescription.ReplicaSetConfig.Version.Value)
-                            {
-                                var electionId = args.NewServerDescription.ElectionId ?? _maxElectionInfo.ElectionId;
-                                _clusterEventLogger.LogAndPublish(new SdamInformationEvent(
-                                        @"Updating stale setVersion: Updating the current " +
-                                        @"(maxSetVersion, maxElectionId) tuple from ({0}, {1}) to ({2}, {3}) for " +
-                                        @"replica set ""{4}"" because replica set primary {5} sent ({6}, {7})—a larger " +
-                                        @"(setVersion, electionId) tuple then the saved tuple, ({0}, {1}).",
-                                        _maxElectionInfo.SetVersion,
-                                        _maxElectionInfo.ElectionId,
-                                        args.NewServerDescription.ReplicaSetConfig.Version,
-                                        electionId,
-                                        args.NewServerDescription.ReplicaSetConfig.Name,
-                                        args.NewServerDescription.EndPoint,
-                                        args.NewServerDescription.ReplicaSetConfig.Version,
-                                        args.NewServerDescription.ElectionId));
-
-                                _maxElectionInfo = new ElectionInfo(
-                                    args.NewServerDescription.ReplicaSetConfig.Version.Value,
-                                    electionId);
-                            }
-                            else // current primary is stale & setVersion is not stale ⇒ the electionId must be stale
-                            {
-                                _clusterEventLogger.LogAndPublish(new SdamInformationEvent(
-                                        @"Updating stale electionId: Updating the current " +
-                                        @"(maxSetVersion, maxElectionId) tuple from ({0}, {1}) to ({2}, {3}) for " +
-                                        @"replica set ""{4}"" because replica set primary {5} sent ({6}, {7})—" +
-                                        @"a larger (setVersion, electionId) tuple than the saved tuple, ({0}, {1}).",
-                                        _maxElectionInfo.SetVersion,
-                                        _maxElectionInfo.ElectionId,
-                                        args.NewServerDescription.ReplicaSetConfig.Version,
-                                        args.NewServerDescription.ElectionId,
-                                        args.NewServerDescription.ReplicaSetConfig.Name,
-                                        args.NewServerDescription.EndPoint,
-                                        args.NewServerDescription.ReplicaSetConfig.Version,
-                                        args.NewServerDescription.ElectionId));
-
-                                _maxElectionInfo = new ElectionInfo(
-                                    args.NewServerDescription.ReplicaSetConfig.Version.Value,
-                                    args.NewServerDescription.ElectionId);
-                            }
+                            sdamEvent = new SdamInformationEvent(
+                                @"Updating stale electionId and setVersion: Updating the current " +
+                                @"(maxSetVersion, maxElectionId) tuple from ({0}, {1}) to ({2}, {3}) for " +
+                                @"replica set ""{4}"" because replica set primary {5} sent ({6}, {7})—a larger " +
+                                @"(setVersion, electionId) tuple then the saved tuple, ({0}, {1}).",
+                                _maxElectionInfo.SetVersion,
+                                _maxElectionInfo.ElectionId,
+                                newMaxElectionInfo.SetVersion,
+                                newMaxElectionInfo.ElectionId,
+                                args.NewServerDescription.ReplicaSetConfig.Name,
+                                args.NewServerDescription.EndPoint,
+                                args.NewServerDescription.ReplicaSetConfig.Version,
+                                args.NewServerDescription.ElectionId);
                         }
+
+                        _clusterEventLogger.LogAndPublish(sdamEvent);
+                        _maxElectionInfo = newMaxElectionInfo;
                     }
                 }
 
@@ -676,51 +645,89 @@ namespace MongoDB.Driver.Core.Clusters
             public const int Disposed = 2;
         }
 
-        private class ElectionInfo
+        private sealed class ElectionInfo
         {
-            private readonly int _setVersion;
+            private readonly int? _setVersion;
             private readonly ElectionId _electionId;
 
-            public ElectionInfo(int setVersion, ElectionId electionId)
+            public ElectionInfo(int? setVersion, ElectionId electionId)
             {
                 _setVersion = setVersion;
                 _electionId = electionId;
             }
 
-            public int SetVersion => _setVersion;
-
+            public int? SetVersion => _setVersion;
             public ElectionId ElectionId => _electionId;
 
-            public bool IsFresher(int setVersion, ElectionId electionId)
+            public ElectionInfo Compare(int? setVersion, ElectionId electionId, int maxWireVerion)
             {
-                return
-                    _setVersion > setVersion ||
-                    _setVersion == setVersion && _electionId != null && _electionId.CompareTo(electionId) > 0;
+                var newElectionId = _electionId;
+                var newSetVersion = _setVersion;
+
+                if (Feature.ElectionIdPriorityInSDAM.IsSupported(maxWireVerion))
+                {
+                    var electionIdOrder = Compare(electionId);
+                    var isGreaterOrEqual = electionIdOrder < 0 || electionIdOrder == 0 && IsGreaterOrEqual(setVersion, _setVersion);
+
+                    if (isGreaterOrEqual)
+                    {
+                        newElectionId = electionId;
+                        newSetVersion = setVersion;
+                    }
+                    else
+                    {
+                        // stale primary
+                        return null;
+                    }
+                }
+                else
+                {
+                    if (setVersion != null && electionId != null)
+                    {
+                        if (_setVersion != null &&
+                            _electionId != null &&
+                            (_setVersion > setVersion || (_setVersion == setVersion && Compare(electionId) > 0)))
+                        {
+                            // stale primary
+                            return null;
+                        }
+
+                        newElectionId = electionId;
+                    }
+
+                    if (IsGreater(setVersion, _setVersion))
+                    {
+                        newSetVersion = setVersion;
+                    }
+                }
+
+                return new(newSetVersion, newElectionId);
             }
 
-            public bool IsStale(int setVersion, ElectionId electionId)
+            public override bool Equals(object obj)
             {
-                if (_setVersion < setVersion)
-                {
-                    return true;
-                }
-                if (_setVersion > setVersion)
-                {
-                    return false;
-                }
-                // Now it must be that _setVersion == setVersion
+                var other = obj as ElectionInfo;
+
+                return other != null && _setVersion == other.SetVersion && other.ElectionId == _electionId;
+            }
+
+            private int Compare(ElectionId electionId)
+            {
                 if (_electionId == null)
                 {
-                    return true;
+                    return electionId == null ? 0 : -1;
                 }
 
-                return _electionId.CompareTo(electionId) < 0;
-
-                /* above is equivalent to:
-                 * return
-                 *   _setVersion < setVersion
-                 *   || _setVersion == setVersion && (_electionId == null || _electionId.CompareTo(electionId) < 0); */
+                return _electionId.CompareTo(electionId);
             }
+
+            public override int GetHashCode() => base.GetHashCode();
+
+            private bool IsGreater(int? left, int? right) =>
+                (left ?? int.MinValue) > (right ?? int.MinValue); // null is considered less than non null value
+
+            private bool IsGreaterOrEqual(int? left, int? right) =>
+                (left ?? int.MinValue) >= (right ?? int.MinValue); // null is considered less than non null value
         }
     }
 }
