@@ -35,6 +35,7 @@ namespace MongoDB.Driver.Tests.Encryption
     public class ClientEncryptionTests
     {
         #region static
+        private static readonly CollectionNamespace __collectionNamespace = CollectionNamespace.FromFullName("db.collName");
         private static readonly CollectionNamespace __keyVaultCollectionNamespace = CollectionNamespace.FromFullName("datakeys.keyvault");
         #endregion
 
@@ -71,7 +72,6 @@ namespace MongoDB.Driver.Tests.Encryption
         public async Task CreateEncryptedCollection_should_handle_input_arguments()
         {
             const string kmsProvider = "local";
-            const string collectionName = "collName";
             var createCollectionOptions = new CreateCollectionOptions();
             var database = Mock.Of<IMongoDatabase>();
 
@@ -79,20 +79,20 @@ namespace MongoDB.Driver.Tests.Encryption
 
             using (var subject = CreateSubject())
             {
-                ShouldBeArgumentException(Record.Exception(() => subject.CreateEncryptedCollection(database: null, collectionName, createCollectionOptions, kmsProvider, dataKeyOptions)), expectedParamName: "database");
-                ShouldBeArgumentException(await Record.ExceptionAsync(() => subject.CreateEncryptedCollectionAsync(database: null, collectionName, createCollectionOptions, kmsProvider, dataKeyOptions)), expectedParamName: "database");
+                ShouldBeArgumentException(Record.Exception(() => subject.CreateEncryptedCollection(database: null, __collectionNamespace.CollectionName, createCollectionOptions, kmsProvider, dataKeyOptions)), expectedParamName: "database");
+                ShouldBeArgumentException(await Record.ExceptionAsync(() => subject.CreateEncryptedCollectionAsync(database: null, __collectionNamespace.CollectionName, createCollectionOptions, kmsProvider, dataKeyOptions)), expectedParamName: "database");
 
                 ShouldBeArgumentException(Record.Exception(() => subject.CreateEncryptedCollection(database, collectionName: null, createCollectionOptions, kmsProvider, dataKeyOptions)), expectedParamName: "collectionName");
                 ShouldBeArgumentException(await Record.ExceptionAsync(() => subject.CreateEncryptedCollectionAsync(database, collectionName: null, createCollectionOptions, kmsProvider, dataKeyOptions)), expectedParamName: "collectionName");
 
-                ShouldBeArgumentException(Record.Exception(() => subject.CreateEncryptedCollection(database, collectionName: collectionName, createCollectionOptions: null, kmsProvider, dataKeyOptions)), expectedParamName: "createCollectionOptions");
-                ShouldBeArgumentException(await Record.ExceptionAsync(() => subject.CreateEncryptedCollectionAsync(database, collectionName, createCollectionOptions: null, kmsProvider, dataKeyOptions)), expectedParamName: "createCollectionOptions");
+                ShouldBeArgumentException(Record.Exception(() => subject.CreateEncryptedCollection(database, collectionName: __collectionNamespace.CollectionName, createCollectionOptions: null, kmsProvider, dataKeyOptions)), expectedParamName: "createCollectionOptions");
+                ShouldBeArgumentException(await Record.ExceptionAsync(() => subject.CreateEncryptedCollectionAsync(database, __collectionNamespace.CollectionName, createCollectionOptions: null, kmsProvider, dataKeyOptions)), expectedParamName: "createCollectionOptions");
 
-                ShouldBeArgumentException(Record.Exception(() => subject.CreateEncryptedCollection(database, collectionName: collectionName, createCollectionOptions, kmsProvider: null, dataKeyOptions)), expectedParamName: "kmsProvider");
-                ShouldBeArgumentException(await Record.ExceptionAsync(() => subject.CreateEncryptedCollectionAsync(database, collectionName, createCollectionOptions, kmsProvider: null, dataKeyOptions)), expectedParamName: "kmsProvider");
+                ShouldBeArgumentException(Record.Exception(() => subject.CreateEncryptedCollection(database, collectionName: __collectionNamespace.CollectionName, createCollectionOptions, kmsProvider: null, dataKeyOptions)), expectedParamName: "kmsProvider");
+                ShouldBeArgumentException(await Record.ExceptionAsync(() => subject.CreateEncryptedCollectionAsync(database, __collectionNamespace.CollectionName, createCollectionOptions, kmsProvider: null, dataKeyOptions)), expectedParamName: "kmsProvider");
 
-                ShouldBeArgumentException(Record.Exception(() => subject.CreateEncryptedCollection(database, collectionName: collectionName, createCollectionOptions, kmsProvider, dataKeyOptions: null)), expectedParamName: "dataKeyOptions");
-                ShouldBeArgumentException(await Record.ExceptionAsync(() => subject.CreateEncryptedCollectionAsync(database, collectionName, createCollectionOptions, kmsProvider, dataKeyOptions: null)), expectedParamName: "dataKeyOptions");
+                ShouldBeArgumentException(Record.Exception(() => subject.CreateEncryptedCollection(database, collectionName: __collectionNamespace.CollectionName, createCollectionOptions, kmsProvider, dataKeyOptions: null)), expectedParamName: "dataKeyOptions");
+                ShouldBeArgumentException(await Record.ExceptionAsync(() => subject.CreateEncryptedCollectionAsync(database, __collectionNamespace.CollectionName, createCollectionOptions, kmsProvider, dataKeyOptions: null)), expectedParamName: "dataKeyOptions");
             }
         }
 
@@ -101,31 +101,23 @@ namespace MongoDB.Driver.Tests.Encryption
         {
             const string kmsProvider = "local";
             var dataKeyOptions = new DataKeyOptions();
-            var collectionNamespace = CollectionNamespace.FromFullName("db.collName");
-            var encryptionFieldsMap = new Dictionary<string, BsonDocument>()
-            {
-                { collectionNamespace.ToString(), BsonDocument.Parse("{ fields : [{ keyId : null }, { keyId : null }] }") }
-            };
-            var clientSettings = new MongoClientSettings()
-            {
-                AutoEncryptionOptions = new AutoEncryptionOptions(
-                    __keyVaultCollectionNamespace,
-                    EncryptionTestHelper.GetKmsProviders(filter: kmsProvider),
-                    encryptedFieldsMap: encryptionFieldsMap)
-            };
-            var database = Mock.Of<IMongoDatabase>(
-                d =>
-                    d.DatabaseNamespace == collectionNamespace.DatabaseNamespace &&
-                    d.Client == Mock.Of<IMongoClient>(c => c.Settings == clientSettings));
+            var autoEncryptionOptions = new AutoEncryptionOptions(
+                __keyVaultCollectionNamespace,
+                EncryptionTestHelper.GetKmsProviders(filter: kmsProvider),
+                encryptedFieldsMap: new Dictionary<string, BsonDocument>()
+                {
+                    { __collectionNamespace.ToString(), BsonDocument.Parse("{ fields : [{ keyId : null }, { keyId : null }] }") }
+                });
+            var database = CreateDatabase(autoEncryptionOptions);
 
             using (var subject = CreateSubject())
             {
                 var createCollectionOptions = new CreateCollectionOptions();
 
-                var createCollectionResult = subject.CreateEncryptedCollection(database, collectionNamespace.CollectionName, createCollectionOptions, kmsProvider, dataKeyOptions);
+                var createCollectionResult = subject.CreateEncryptedCollection(database, __collectionNamespace.CollectionName, createCollectionOptions, kmsProvider, dataKeyOptions);
                 createCollectionResult.EncryptedFields.WithComparer(new EncryptedFieldsComparer()).Should().Be(BsonDocument.Parse("{ fields: [{ keyId : '#binary_generated#' }, { keyId : '#binary_generated#' }] }"));
 
-                createCollectionResult = await subject.CreateEncryptedCollectionAsync(database, collectionNamespace.CollectionName, createCollectionOptions, kmsProvider, dataKeyOptions);
+                createCollectionResult = await subject.CreateEncryptedCollectionAsync(database, __collectionNamespace.CollectionName, createCollectionOptions, kmsProvider, dataKeyOptions);
                 createCollectionResult.EncryptedFields.WithComparer(new EncryptedFieldsComparer()).Should().Be(BsonDocument.Parse("{ fields: [{ keyId : '#binary_generated#' }, { keyId : '#binary_generated#' }] }"));
             }
         }
@@ -134,9 +126,8 @@ namespace MongoDB.Driver.Tests.Encryption
         public async Task CreateEncryptedCollection_should_save_generated_key_when_second_key_failed()
         {
             const string kmsProvider = "local";
-            const string collectionName = "collName";
             const string encryptedFieldsStr = "{ fields : [{ keyId : null }, { keyId : null }] }";
-            var database = Mock.Of<IMongoDatabase>(d => d.DatabaseNamespace == new DatabaseNamespace("db"));
+            var database = CreateDatabase();
 
             var dataKeyOptions = new DataKeyOptions();
 
@@ -157,10 +148,10 @@ namespace MongoDB.Driver.Tests.Encryption
             using (var subject = CreateSubject(client.Object))
             {
                 var createCollectionOptions = new CreateCollectionOptions() { EncryptedFields = BsonDocument.Parse(encryptedFieldsStr) };
-                var exception = Record.Exception(() => subject.CreateEncryptedCollection(database, collectionName, createCollectionOptions, kmsProvider, dataKeyOptions));
+                var exception = Record.Exception(() => subject.CreateEncryptedCollection(database, __collectionNamespace.CollectionName, createCollectionOptions, kmsProvider, dataKeyOptions));
                 AssertResults(exception, createCollectionOptions);
 
-                exception = await Record.ExceptionAsync(() => subject.CreateEncryptedCollectionAsync(database, collectionName, createCollectionOptions, kmsProvider, dataKeyOptions));
+                exception = await Record.ExceptionAsync(() => subject.CreateEncryptedCollectionAsync(database, __collectionNamespace.CollectionName, createCollectionOptions, kmsProvider, dataKeyOptions));
                 AssertResults(exception, createCollectionOptions);
             }
 
@@ -198,8 +189,7 @@ namespace MongoDB.Driver.Tests.Encryption
         public async Task CreateEncryptedCollection_should_handle_various_encryptedFields(string encryptedFieldsStr, string expectedResult)
         {
             const string kmsProvider = "local";
-            const string collectionName = "collName";
-            var database = Mock.Of<IMongoDatabase>(d => d.DatabaseNamespace == new DatabaseNamespace("db"));
+            var database = CreateDatabase();
 
             var dataKeyOptions = new DataKeyOptions();
 
@@ -209,16 +199,16 @@ namespace MongoDB.Driver.Tests.Encryption
 
                 if (BsonDocument.TryParse(expectedResult, out var encryptedFields))
                 {
-                    var createCollectionResult = subject.CreateEncryptedCollection(database, collectionName, createCollectionOptions, kmsProvider, dataKeyOptions);
+                    var createCollectionResult = subject.CreateEncryptedCollection(database, __collectionNamespace.CollectionName, createCollectionOptions, kmsProvider, dataKeyOptions);
                     createCollectionResult.EncryptedFields.WithComparer(new EncryptedFieldsComparer()).Should().Be(encryptedFields.DeepClone());
 
-                    createCollectionResult = await subject.CreateEncryptedCollectionAsync(database, collectionName, createCollectionOptions, kmsProvider, dataKeyOptions);
+                    createCollectionResult = await subject.CreateEncryptedCollectionAsync(database, __collectionNamespace.CollectionName, createCollectionOptions, kmsProvider, dataKeyOptions);
                     createCollectionResult.EncryptedFields.WithComparer(new EncryptedFieldsComparer()).Should().Be(encryptedFields.DeepClone());
                 }
                 else
                 {
-                    AssertInvalidOperationException(Record.Exception(() => subject.CreateEncryptedCollection(database, collectionName, createCollectionOptions, kmsProvider, dataKeyOptions)), expectedResult);
-                    AssertInvalidOperationException(await Record.ExceptionAsync(() => subject.CreateEncryptedCollectionAsync(database, collectionName, createCollectionOptions, kmsProvider, dataKeyOptions)), expectedResult);
+                    AssertInvalidOperationException(Record.Exception(() => subject.CreateEncryptedCollection(database, __collectionNamespace.CollectionName, createCollectionOptions, kmsProvider, dataKeyOptions)), expectedResult);
+                    AssertInvalidOperationException(await Record.ExceptionAsync(() => subject.CreateEncryptedCollectionAsync(database, __collectionNamespace.CollectionName, createCollectionOptions, kmsProvider, dataKeyOptions)), expectedResult);
                 }
             }
 
@@ -347,6 +337,12 @@ namespace MongoDB.Driver.Tests.Encryption
         }
 
         // private methods
+        private IMongoDatabase CreateDatabase(AutoEncryptionOptions autoEncryptionOptions = null) =>
+            Mock.Of<IMongoDatabase>(
+                d =>
+                    d.DatabaseNamespace == __collectionNamespace.DatabaseNamespace &&
+                    d.Client == Mock.Of<IMongoClient>(c => c.Settings == new MongoClientSettings() { AutoEncryptionOptions = autoEncryptionOptions }));
+
         private ClientEncryption CreateSubject(IMongoClient client = null)
         {
             var clientEncryptionOptions = new ClientEncryptionOptions(
