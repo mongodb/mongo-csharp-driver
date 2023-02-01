@@ -88,12 +88,12 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         [Theory]
         [ParameterAttributeData]
         public void AutomaticDataEncryptionKeysTest(
+            [Values("aws", "local")] string kmsProvider,
             [Range(1, 4)] int testCase,
             [Values(false, true)] bool async)
         {
             RequireServer.Check().Supports(Feature.Csfle2).ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced);
 
-            var kmsProvider = "local";
             using (var client = ConfigureClient())
             using (var clientEncryption = ConfigureClientEncryption(client, kmsProviderFilter: kmsProvider))
             {
@@ -119,6 +119,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                     {
                         case 1: // Case 1: Simple Creation and Validation
                             {
+                                // masterKey will be assigned automatically
                                 var collection = CreateEncryptedCollection(client, clientEncryption, __collCollectionNamespace, encryptedFields, kmsProvider, async, out _);
 
                                 var exception = Record.Exception(() => Insert(collection, async, new BsonDocument("ssn", "123-45-6789")));
@@ -2611,7 +2612,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
         private IMongoCollection<BsonDocument> CreateEncryptedCollection(IMongoClient client, ClientEncryption clientEncryption, CollectionNamespace collectionNamespace, CreateCollectionOptions createCollectionOptions, string kmsProvider, bool async, out BsonDocument effectiveEncryptedFields)
         {
-            var datakeyOptions = CreateDataKeyOptions(kmsProvider);
+            var datakeyOptions = CreateDataKeyOptions(kmsProvider, alternateKeyNames: null);
             var database = client.GetDatabase(collectionNamespace.DatabaseNamespace.DatabaseName);
 
 
@@ -2646,6 +2647,11 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         private DataKeyOptions CreateDataKeyOptions(string kmsProvider, BsonDocument customMasterKey = null)
         {
             var alternateKeyNames = new[] { $"{kmsProvider}_altname" };
+            return CreateDataKeyOptions(kmsProvider, alternateKeyNames, customMasterKey);
+        }
+
+        private DataKeyOptions CreateDataKeyOptions(string kmsProvider, string[] alternateKeyNames, BsonDocument customMasterKey = null)
+        {
             var masterKey = customMasterKey ?? EncryptionTestHelper.CreateMasterKey(kmsProvider);
             return new DataKeyOptions(
                 alternateKeyNames: alternateKeyNames,

@@ -98,6 +98,7 @@ namespace MongoDB.Driver.Encryption
             Ensure.IsNotNull(collectionName, nameof(collectionName));
             Ensure.IsNotNull(createCollectionOptions, nameof(createCollectionOptions));
             Ensure.IsNotNull(dataKeyOptions, nameof(dataKeyOptions));
+            Ensure.That(dataKeyOptions.AlternateKeyNames == null && dataKeyOptions.KeyMaterial == null, $"{nameof(CreateEncryptedCollection)} supports only {nameof(dataKeyOptions.MasterKey)} in {nameof(DataKeyOptions)}.");
             Ensure.IsNotNull(kmsProvider, nameof(kmsProvider));
 
             var encryptedFields = createCollectionOptions.EncryptedFields?.DeepClone()?.AsBsonDocument;
@@ -140,6 +141,7 @@ namespace MongoDB.Driver.Encryption
             Ensure.IsNotNull(collectionName, nameof(collectionName));
             Ensure.IsNotNull(createCollectionOptions, nameof(createCollectionOptions));
             Ensure.IsNotNull(dataKeyOptions, nameof(dataKeyOptions));
+            Ensure.That(dataKeyOptions.AlternateKeyNames == null && dataKeyOptions.KeyMaterial == null, $"{nameof(CreateEncryptedCollection)} supports only {nameof(dataKeyOptions.MasterKey)} in {nameof(DataKeyOptions)}.");
             Ensure.IsNotNull(kmsProvider, nameof(kmsProvider));
 
             var encryptedFields = createCollectionOptions.EncryptedFields?.DeepClone()?.AsBsonDocument;
