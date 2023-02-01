@@ -651,13 +651,23 @@ namespace MongoDB.Bson.Serialization
 
         private void SerializeMember(BsonSerializationContext context, object obj, BsonMemberMap memberMap)
         {
-            if (memberMap != _classMap.ExtraElementsMemberMap)
+            try
             {
-                SerializeNormalMember(context, obj, memberMap);
+                if (memberMap != _classMap.ExtraElementsMemberMap)
+                {
+                    SerializeNormalMember(context, obj, memberMap);
+                }
+                else
+                {
+                    SerializeExtraElements(context, obj, memberMap);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                SerializeExtraElements(context, obj, memberMap);
+                var message = string.Format(
+                    "An error occurred while serializing the {0} {1} of class {2}: {3}", // terminating period provided by nested message
+                    memberMap.MemberName, (memberMap.MemberInfo is FieldInfo) ? "field" : "property", memberMap.ClassMap.ClassType.FullName, ex.Message);
+                throw new BsonSerializationException(message, ex);
             }
         }
 

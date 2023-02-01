@@ -678,6 +678,28 @@ namespace MongoDB.Bson.Serialization
             serializer.Serialize(context, args, value);
         }
 
+        /// <summary>
+        /// Tries to register a serializer for a type.
+        /// </summary>
+        /// <param name="serializer">The serializer.</param>
+        /// <param name="type">The type.</param>
+        /// <returns>True if the serializer was registered on this call, false if the same serializer was already registered on a previous call, throws an exception if a different serializer was already registered.</returns>
+        public static bool TryRegisterSerializer(Type type, IBsonSerializer serializer)
+        {
+            return __serializerRegistry.TryRegisterSerializer(type, serializer);
+        }
+
+        /// <summary>
+        /// Tries to register a serializer for a type.
+        /// </summary>
+        /// <typeparam name="T">The type.</typeparam>
+        /// <param name="serializer">The serializer.</param>
+        /// <returns>True if the serializer was registered on this call, false if the same serializer was already registered on a previous call, throws an exception if a different serializer was already registered.</returns>
+        public static bool TryRegisterSerializer<T>(IBsonSerializer<T> serializer)
+        {
+            return TryRegisterSerializer(typeof(T), serializer);
+        }
+
         // internal static methods
         internal static void EnsureKnownTypesAreRegistered(Type nominalType)
         {

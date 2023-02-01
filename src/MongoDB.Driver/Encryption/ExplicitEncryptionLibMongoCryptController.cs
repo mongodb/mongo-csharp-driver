@@ -210,9 +210,10 @@ namespace MongoDB.Driver.Encryption
             }
         }
 
-        public BsonBinaryData EncryptField(
+        public BsonValue EncryptField(
             BsonValue value,
             EncryptOptions encryptOptions,
+            bool isExpressionMode,
             CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(value, nameof(value));
@@ -228,12 +229,14 @@ namespace MongoDB.Driver.Encryption
                     queryType: encryptOptions.QueryType,
                     contentionFactor: encryptOptions.ContentionFactor,
                     encryptOptions.Algorithm,
-                    wrappedValueBytes);
+                    wrappedValueBytes,
+                    ToBsonIfNotNull(encryptOptions?.RangeOptions?.CreateDocument()),
+                    isExpressionMode);
 
                 using (context)
                 {
                     var wrappedBytes = ProcessStates(context, databaseName: null, cancellationToken);
-                    return UnwrapValue(wrappedBytes).AsBsonBinaryData;
+                    return UnwrapValue(wrappedBytes);
                 }
             }
             catch (Exception ex)
@@ -242,9 +245,10 @@ namespace MongoDB.Driver.Encryption
             }
         }
 
-        public async Task<BsonBinaryData> EncryptFieldAsync(
+        public async Task<BsonValue> EncryptFieldAsync(
             BsonValue value,
             EncryptOptions encryptOptions,
+            bool isExpressionMode,
             CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(value, nameof(value));
@@ -260,12 +264,14 @@ namespace MongoDB.Driver.Encryption
                     queryType: encryptOptions.QueryType,
                     contentionFactor: encryptOptions.ContentionFactor,
                     encryptOptions.Algorithm,
-                    wrappedValueBytes);
+                    wrappedValueBytes,
+                    ToBsonIfNotNull(encryptOptions?.RangeOptions?.CreateDocument()),
+                    isExpressionMode);
 
                 using (context)
                 {
                     var wrappedBytes = await ProcessStatesAsync(context, databaseName: null, cancellationToken).ConfigureAwait(false);
-                    return UnwrapValue(wrappedBytes).AsBsonBinaryData;
+                    return UnwrapValue(wrappedBytes);
                 }
             }
             catch (Exception ex)

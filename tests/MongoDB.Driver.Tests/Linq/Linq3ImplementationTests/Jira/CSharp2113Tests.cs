@@ -15,11 +15,13 @@
 
 using System.Linq;
 using FluentAssertions;
+using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Linq;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
 {
+    [Collection(RegisterObjectSerializerFixture.CollectionName)]
     public class CSharp2113Tests : Linq3IntegrationTest
     {
         [Fact]

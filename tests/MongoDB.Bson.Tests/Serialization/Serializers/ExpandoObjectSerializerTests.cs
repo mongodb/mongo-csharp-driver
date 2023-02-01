@@ -16,16 +16,13 @@
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
-using System.IO;
-using System.Text;
-using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization
 {
+    [Collection(RegisterObjectSerializerFixture.CollectionName)]
     public class ExpandoSerializerTests
     {
         [Fact]

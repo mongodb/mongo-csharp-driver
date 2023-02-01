@@ -62,7 +62,7 @@ foreach(var person in list)
 Documentation
 -------------
 * [MongoDB](https://www.mongodb.com/docs)
-* [Documentation](https://mongodb.github.io/mongo-csharp-driver/)
+* [Documentation](https://www.mongodb.com/docs/drivers/csharp/current/)
 
 Questions/Bug Reports
 ---------------------

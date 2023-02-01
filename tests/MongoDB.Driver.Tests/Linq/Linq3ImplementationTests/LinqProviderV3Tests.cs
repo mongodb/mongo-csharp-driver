@@ -16,7 +16,6 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
@@ -62,7 +61,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests
         }
 
         [Fact]
-        public void TranslateExpressionToBucketOutputProjection_should_return_expected_result()
+        public void TranslateExpressionToBucketOutputProjection_should_throw()
         {
             var subject = LinqProviderAdapter.V3;
             Expression<Func<C, int>> valueExpression = c => c.X;
@@ -71,13 +70,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests
             var documentSerializer = serializerRegistry.GetSerializer<C>();
             var translationOptions = new ExpressionTranslationOptions();
 
-            var result = subject.TranslateExpressionToBucketOutputProjection(valueExpression, outputExpression, documentSerializer, serializerRegistry, translationOptions);
+            var exception = Record.Exception(() => subject.TranslateExpressionToBucketOutputProjection(valueExpression, outputExpression, documentSerializer, serializerRegistry, translationOptions));
 
-            var expectedResult = LinqProviderAdapter.V2.TranslateExpressionToBucketOutputProjection(valueExpression, outputExpression, documentSerializer, serializerRegistry, translationOptions);
-            expectedResult.Document.Should().Be("{ $sum : 1 }");
-            expectedResult.ProjectionSerializer.Should().BeOfType<Int32Serializer>();
-            result.Document.Should().Be(expectedResult.Document);
-            result.ProjectionSerializer.Should().BeOfType(expectedResult.ProjectionSerializer.GetType());
+            exception.Should().BeOfType<InvalidOperationException>();
         }
 
         [Fact]

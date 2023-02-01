@@ -31,6 +31,7 @@ using Reflector = MongoDB.Bson.TestHelpers.Reflector;
 
 namespace MongoDB.Bson.Tests.Serialization
 {
+    [Collection(RegisterObjectSerializerFixture.CollectionName)]
     public class ObjectSerializerTests
     {
         public class C
@@ -294,7 +295,7 @@ namespace MongoDB.Bson.Tests.Serialization
         [Fact]
         public void constructor_with_discriminator_convention_should_throw_when_discriminator_convention_is_null()
         {
-            var exception = Record.Exception(() => new ObjectSerializer(null));
+            var exception = Record.Exception(() => new ObjectSerializer(discriminatorConvention: null));
 
             var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
             e.ParamName.Should().Be("discriminatorConvention");
@@ -363,6 +364,56 @@ namespace MongoDB.Bson.Tests.Serialization
                 result.Should().Be(expectedResult);
             }
 #pragma warning restore 618
+        }
+
+        [Fact]
+        public void Equals_should_return_true_when_instances_are_equal()
+        {
+            var discriminatorConvention = new ScalarDiscriminatorConvention("_t");
+            var subject1 = new ObjectSerializer(discriminatorConvention, GuidRepresentation.Standard, ObjectSerializer.DefaultAllowedTypes);
+            var subject2 = new ObjectSerializer(discriminatorConvention, GuidRepresentation.Standard, ObjectSerializer.DefaultAllowedTypes);
+
+            var result = subject1.Equals(subject2);
+            var hashCode1 = subject1.GetHashCode();
+            var hashCode2 = subject2.GetHashCode();
+
+            result.Should().BeTrue();
+            hashCode2.Should().Be(hashCode1); // required by the contract of Equals
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Equals_should_return_false_when_instances_are_not_equal(
+            [Values("allowedTypes", "discriminatorConvention", "guidRepresentation")]
+            string notEqualFieldName)
+        {
+            IDiscriminatorConvention discriminatorConvention = new ScalarDiscriminatorConvention("_t");
+            var guidRepresentation = GuidRepresentation.Standard;
+            var allowedTypes = ObjectSerializer.DefaultAllowedTypes;
+            var subject1 = new ObjectSerializer(discriminatorConvention, guidRepresentation, allowedTypes);
+
+            switch (notEqualFieldName)
+            {
+                case "allowedTypes": allowedTypes = ObjectSerializer.NoAllowedTypes; break;
+                case "discriminatorConvention": discriminatorConvention = new HierarchicalDiscriminatorConvention("_t"); break;
+                case "guidRepresentation": guidRepresentation = GuidRepresentation.CSharpLegacy; break;
+                default: throw new ArgumentException($"Invalid notEqualFieldName: {notEqualFieldName}.", nameof(notEqualFieldName));
+            }
+            var subject2 = new ObjectSerializer(discriminatorConvention, guidRepresentation, allowedTypes);
+
+            var result = subject1.Equals(subject2);
+            var hashCode1 = subject1.GetHashCode();
+            var hashCode2 = subject2.GetHashCode();
+
+            result.Should().BeFalse();
+            if (notEqualFieldName == "allowedTypes")
+            {
+                hashCode2.Should().Be(hashCode1); // because allowedTypes is not part of the hash code computation
+            }
+            else
+            {
+                hashCode2.Should().NotBe(hashCode1); // not strictly required but desirable
+            }
         }
 
         [Theory]

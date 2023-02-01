@@ -95,7 +95,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Appends a $bucketAuto stage to the pipeline.
+        /// Appends a $bucketAuto stage to the pipeline (this overload can only be used with LINQ3).
         /// </summary>
         /// <typeparam name="TResult">The type of the result.</typeparam>
         /// <typeparam name="TValue">The type of the value.</typeparam>
@@ -110,11 +110,44 @@ namespace MongoDB.Driver
             this IAggregateFluent<TResult> aggregate,
             Expression<Func<TResult, TValue>> groupBy,
             int buckets,
-            Expression<Func<IGrouping<TValue, TResult>, TNewResult>> output,
+            Expression<Func<IGrouping<AggregateBucketAutoResultId<TValue>, TResult>, TNewResult>> output,
             AggregateBucketAutoOptions options = null)
         {
             Ensure.IsNotNull(aggregate, nameof(aggregate));
+            if (aggregate.Database.Client.Settings.LinqProvider != LinqProvider.V3)
+            {
+                throw new InvalidOperationException("This overload of BucketAuto can only be used with LINQ3.");
+            }
+
             return aggregate.AppendStage(PipelineStageDefinitionBuilder.BucketAuto(groupBy, buckets, output, options));
+        }
+
+        /// <summary>
+        /// Appends a $bucketAuto stage to the pipeline (this method can only be used with LINQ2).
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
+        /// <param name="aggregate">The aggregate.</param>
+        /// <param name="groupBy">The expression providing the value to group by.</param>
+        /// <param name="buckets">The number of buckets.</param>
+        /// <param name="output">The output projection.</param>
+        /// <param name="options">The options (optional).</param>
+        /// <returns>The fluent aggregate interface.</returns>
+        public static IAggregateFluent<TNewResult> BucketAutoForLinq2<TResult, TValue, TNewResult>(
+            this IAggregateFluent<TResult> aggregate,
+            Expression<Func<TResult, TValue>> groupBy,
+            int buckets,
+            Expression<Func<IGrouping<TValue, TResult>, TNewResult>> output, // the IGrouping for BucketAuto has been wrong all along, only fixing it for LINQ3
+            AggregateBucketAutoOptions options = null)
+        {
+            Ensure.IsNotNull(aggregate, nameof(aggregate));
+            if (aggregate.Database.Client.Settings.LinqProvider != LinqProvider.V2)
+            {
+                throw new InvalidOperationException("The BucketAutoForLinq2 method can only be used with LINQ2.");
+            }
+
+            return aggregate.AppendStage(PipelineStageDefinitionBuilder.BucketAutoForLinq2(groupBy, buckets, output, options));
         }
 
         /// <summary>
@@ -396,15 +429,7 @@ namespace MongoDB.Driver
         public static IAggregateFluent<TNewResult> Group<TResult, TKey, TNewResult>(this IAggregateFluent<TResult> aggregate, Expression<Func<TResult, TKey>> id, Expression<Func<IGrouping<TKey, TResult>, TNewResult>> group)
         {
             Ensure.IsNotNull(aggregate, nameof(aggregate));
-            if (aggregate.Database.Client.Settings.LinqProvider == LinqProvider.V2)
-            {
-                return aggregate.AppendStage(PipelineStageDefinitionBuilder.Group(id, group));
-            }
-            else
-            {
-                var (groupStage, projectStage) = PipelineStageDefinitionBuilder.GroupForLinq3(id, group);
-                return aggregate.AppendStage(groupStage).AppendStage(projectStage);
-            }
+            return aggregate.AppendStage(PipelineStageDefinitionBuilder.Group(id, group));
         }
 
         /// <summary>

@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Stages
         {
             return new BsonDocument
             {
-                { "$group", new BsonDocument
+                { "$bucketAuto", new BsonDocument
                     {
                         { "groupBy", _groupBy.Render() },
                         { "buckets", _buckets },

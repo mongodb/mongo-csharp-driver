@@ -14,13 +14,14 @@
 */
 
 using System.Linq;
-using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization
 {
+    [Collection(RegisterObjectSerializerFixture.CollectionName)]
     public class DiscriminatorTests
     {
         [BsonDiscriminator("A~")] // make discriminators unique with respect to object

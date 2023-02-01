@@ -19,6 +19,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Search;
 
 namespace MongoDB.Driver
 {
@@ -211,6 +212,26 @@ namespace MongoDB.Driver
 
         /// <inheritdoc />
         public virtual IAggregateFluent<TNewResult> ReplaceWith<TNewResult>(AggregateExpressionDefinition<TResult, TNewResult> newRoot)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public virtual IAggregateFluent<TResult> Search(
+            SearchDefinition<TResult> searchDefinition,
+            SearchHighlightOptions<TResult> highlight = null,
+            string indexName = null,
+            SearchCountOptions count = null,
+            bool returnStoredSource = false)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public virtual IAggregateFluent<SearchMetaResult> SearchMeta(
+            SearchDefinition<TResult> searchDefinition,
+            string indexName = null,
+            SearchCountOptions count = null)
         {
             throw new NotImplementedException();
         }

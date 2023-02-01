@@ -358,9 +358,12 @@ namespace MongoDB.Driver
             {
                 var renderedStage = stage.Render(currentSerializer, serializerRegistry, linqProvider);
                 currentSerializer = renderedStage.OutputSerializer;
-                if (renderedStage.Document.ElementCount > 0)
+                foreach (var document in renderedStage.Documents)
                 {
-                    pipeline.Add(renderedStage.Document);
+                    if (document.ElementCount > 0)
+                    {
+                        pipeline.Add(document);
+                    }
                 }
             }
 

@@ -57,6 +57,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __createIndexCommitQuorum = new Feature("CreateIndexCommitQuorum", WireVersion.Server44);
         private static readonly Feature __createIndexesCommand = new Feature("CreateIndexesCommand", WireVersion.Server26);
         private static readonly Feature __createIndexesUsingInsertOperations = new Feature("CreateIndexesUsingInsertOperations", WireVersion.Zero, WireVersion.Server42);
+        private static readonly Feature __csfleRangeAlgorithm = new Feature("CsfleRangeAlgorithm", WireVersion.Server62);
         private static readonly Feature __csfle2 = new Feature("Csfle2", WireVersion.Server60);
         private static readonly Feature __currentOpCommand = new Feature("CurrentOpCommand", WireVersion.Server32);
         private static readonly Feature __dateOperatorsNewIn50 = new Feature("DateOperatorsNewIn50", WireVersion.Server50);
@@ -64,6 +65,7 @@ namespace MongoDB.Driver.Core.Misc
         private static readonly Feature __documentsStage = new Feature("DocumentsStage", WireVersion.Server51);
         private static readonly Feature __documentValidation = new Feature("DocumentValidation", WireVersion.Server32);
         private static readonly Feature __directConnectionSetting = new Feature("DirectConnectionSetting", WireVersion.Server44);
+        private static readonly Feature __electionIdPriorityInSDAM = new Feature("ElectionIdPriorityInSDAM ", WireVersion.Server60);
         private static readonly Feature __eval = new Feature("Eval", WireVersion.Zero, WireVersion.Server42);
         private static readonly Feature __explainCommand = new Feature("ExplainCommand", WireVersion.Server30);
         private static readonly Feature __failPoints = new Feature("FailPoints", WireVersion.Zero);
@@ -318,6 +320,11 @@ namespace MongoDB.Driver.Core.Misc
         public static Feature CreateIndexesUsingInsertOperations => __createIndexesUsingInsertOperations;
 
         /// <summary>
+        /// Gets the csfle range algorithm feature.
+        /// </summary>
+        public static Feature CsfleRangeAlgorithm => __csfleRangeAlgorithm;
+
+        /// <summary>
         /// Gets the client side field level encryption 2 feature.
         /// </summary>
         public static Feature Csfle2 => __csfle2;
@@ -353,6 +360,11 @@ namespace MongoDB.Driver.Core.Misc
         /// Gets the directConnection setting feature.
         /// </summary>
         public static Feature DirectConnectionSetting => __directConnectionSetting;
+
+        /// <summary>
+        /// Gets the electionIdPriorityInSDAM feature.
+        /// </summary>
+        public static Feature ElectionIdPriorityInSDAM => __electionIdPriorityInSDAM;
 
         /// <summary>
         /// Gets the eval feature.

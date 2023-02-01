@@ -13,12 +13,13 @@
 * limitations under the License.
 */
 
-using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira
 {
+    [Collection(RegisterObjectSerializerFixture.CollectionName)]
     public class CSharp263Tests
     {
         public class C

@@ -14,8 +14,11 @@
 */
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Conventions;
+using MongoDB.Shared;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
@@ -24,10 +27,36 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// </summary>
     public class ObjectSerializer : ClassSerializerBase<object>
     {
+        #region static
         // private static fields
+        private static readonly Func<Type, bool> __allAllowedTypes = t => true;
         private static readonly ObjectSerializer __instance = new ObjectSerializer();
+        private static readonly Func<Type, bool> __noAllowedTypes = t => false;
+
+        // public static properties
+        /// <summary>
+        /// An allowed types function that returns true for all types.
+        /// </summary>
+        public static Func<Type, bool> AllAllowedTypes => __allAllowedTypes;
+
+        /// <summary>
+        /// An allowed types function that returns true for framework types known to be safe.
+        /// </summary>
+        public static Func<Type, bool> DefaultAllowedTypes => DefaultFrameworkAllowedTypes.AllowedTypes;
+
+        /// <summary>
+        /// Gets the standard instance.
+        /// </summary>
+        public static ObjectSerializer Instance => __instance;
+
+        /// <summary>
+        /// An allowed types function that returns false for all types.
+        /// </summary>
+        public static Func<Type, bool> NoAllowedTypes => __noAllowedTypes;
+        #endregion
 
         // private fields
+        private readonly Func<Type, bool> _allowedTypes;
         private readonly IDiscriminatorConvention _discriminatorConvention;
         private readonly GuidRepresentation _guidRepresentation;
         private readonly GuidSerializer _guidSerializer;
@@ -57,27 +86,50 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <param name="discriminatorConvention">The discriminator convention.</param>
         /// <param name="guidRepresentation">The Guid representation.</param>
         public ObjectSerializer(IDiscriminatorConvention discriminatorConvention, GuidRepresentation guidRepresentation)
+            : this(discriminatorConvention, guidRepresentation, DefaultFrameworkAllowedTypes.AllowedTypes)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ObjectSerializer"/> class.
+        /// </summary>
+        /// <param name="allowedTypes">A delegate that determines what types are allowed.</param>
+        public ObjectSerializer(Func<Type, bool> allowedTypes)
+            : this(BsonSerializer.LookupDiscriminatorConvention(typeof(object)), allowedTypes)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ObjectSerializer"/> class.
+        /// </summary>
+        /// <param name="discriminatorConvention">The discriminator convention.</param>
+        /// <param name="allowedTypes">A delegate that determines what types are allowed.</param>
+        public ObjectSerializer(IDiscriminatorConvention discriminatorConvention, Func<Type, bool> allowedTypes)
+            : this(discriminatorConvention, GuidRepresentation.Unspecified, allowedTypes)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ObjectSerializer"/> class.
+        /// </summary>
+        /// <param name="discriminatorConvention">The discriminator convention.</param>
+        /// <param name="guidRepresentation">The Guid representation.</param>
+        /// <param name="allowedTypes">A delegate that determines what types are allowed.</param>
+        public ObjectSerializer(IDiscriminatorConvention discriminatorConvention, GuidRepresentation guidRepresentation, Func<Type, bool> allowedTypes)
         {
             if (discriminatorConvention == null)
             {
                 throw new ArgumentNullException("discriminatorConvention");
             }
+            if (allowedTypes == null)
+            {
+                throw new ArgumentNullException(nameof(allowedTypes));
+            }
 
             _discriminatorConvention = discriminatorConvention;
             _guidRepresentation = guidRepresentation;
             _guidSerializer = new GuidSerializer(_guidRepresentation);
-        }
-
-        // public static properties
-        /// <summary>
-        /// Gets the standard instance.
-        /// </summary>
-        /// <value>
-        /// The standard instance.
-        /// </value>
-        public static ObjectSerializer Instance
-        {
-            get { return __instance; }
+            _allowedTypes = allowedTypes;
         }
 
         // public methods
@@ -164,6 +216,21 @@ namespace MongoDB.Bson.Serialization.Serializers
                     throw new FormatException(message);
             }
         }
+
+        /// <inheritdoc/>
+        public override bool Equals(object obj) =>
+            obj is ObjectSerializer other &&
+            GetType() == other.GetType() &&
+            _allowedTypes.Equals(other._allowedTypes) &&
+            _discriminatorConvention.Equals(other._discriminatorConvention) &&
+            _guidRepresentation == other._guidRepresentation;
+
+        /// <inheritdoc/>
+        public override int GetHashCode() =>
+            new Hasher()
+            .Hash(_discriminatorConvention)
+            .Hash(_guidRepresentation)
+            .GetHashCode();
 
         /// <summary>
         /// Serializes a value.
@@ -264,12 +331,27 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
         }
 
+        /// <summary>
+        /// Returns a new ObjectSerializer configured the same but with the specified discriminator convention.
+        /// </summary>
+        /// <param name="discriminatorConvention">The discriminator convention.</param>
+        /// <returns>An ObjectSerializer with the specified discriminator convention.</returns>
+        public ObjectSerializer WithDiscriminatorConvention(IDiscriminatorConvention discriminatorConvention)
+        {
+            return new ObjectSerializer(discriminatorConvention, _guidRepresentation, _allowedTypes);
+        }
+
         // private methods
         private object DeserializeDiscriminatedValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var bsonReader = context.Reader;
 
             var actualType = _discriminatorConvention.GetActualType(bsonReader, typeof(object));
+            if (!_allowedTypes(actualType))
+            {
+                throw new BsonSerializationException($"Type {actualType.FullName} is not configured as an allowed type for this instance of ObjectSerializer.");
+            }
+
             if (actualType == typeof(object))
             {
                 var type = bsonReader.GetCurrentBsonType();
@@ -333,6 +415,11 @@ namespace MongoDB.Bson.Serialization.Serializers
 
         private void SerializeDiscriminatedValue(BsonSerializationContext context, BsonSerializationArgs args, object value, Type actualType)
         {
+            if (!_allowedTypes(actualType))
+            {
+                throw new BsonSerializationException($"Type {actualType.FullName} is not configured as an allowed type for this instance of ObjectSerializer.");
+            }
+
             var serializer = BsonSerializer.LookupSerializer(actualType);
 
             var polymorphicSerializer = serializer as IBsonPolymorphicSerializer;
@@ -359,6 +446,102 @@ namespace MongoDB.Bson.Serialization.Serializers
                     serializer.Serialize(context, value);
                     bsonWriter.WriteEndDocument();
                 }
+            }
+        }
+
+        // nested types
+        private static class DefaultFrameworkAllowedTypes
+        {
+            private readonly static HashSet<Type> __allowedTypes = new HashSet<Type>
+            {
+                typeof(System.Boolean),
+                typeof(System.Byte),
+                typeof(System.Char),
+                typeof(System.Collections.ArrayList),
+                typeof(System.Collections.BitArray),
+                typeof(System.Collections.Hashtable),
+                typeof(System.Collections.Queue),
+                typeof(System.Collections.SortedList),
+                typeof(System.Collections.Specialized.ListDictionary),
+                typeof(System.Collections.Specialized.OrderedDictionary),
+                typeof(System.Collections.Stack),
+                typeof(System.DateTime),
+                typeof(System.DateTimeOffset),
+                typeof(System.Decimal),
+                typeof(System.Double),
+                typeof(System.Dynamic.ExpandoObject),
+                typeof(System.Guid),
+                typeof(System.Int16),
+                typeof(System.Int32),
+                typeof(System.Int64),
+                typeof(System.Net.DnsEndPoint),
+                typeof(System.Net.EndPoint),
+                typeof(System.Net.IPAddress),
+                typeof(System.Net.IPEndPoint),
+                typeof(System.Net.IPHostEntry),
+                typeof(System.Object),
+                typeof(System.SByte),
+                typeof(System.Single),
+                typeof(System.String),
+                typeof(System.Text.RegularExpressions.Regex),
+                typeof(System.TimeSpan),
+                typeof(System.UInt16),
+                typeof(System.UInt32),
+                typeof(System.UInt64),
+                typeof(System.Uri),
+                typeof(System.Version)
+            };
+
+            private readonly static HashSet<Type> __allowedGenericTypes = new HashSet<Type>
+            {
+                typeof(System.Collections.Generic.Dictionary<,>),
+                typeof(System.Collections.Generic.HashSet<>),
+                typeof(System.Collections.Generic.KeyValuePair<,>),
+                typeof(System.Collections.Generic.LinkedList<>),
+                typeof(System.Collections.Generic.List<>),
+                typeof(System.Collections.Generic.Queue<>),
+                typeof(System.Collections.Generic.SortedDictionary<,>),
+                typeof(System.Collections.Generic.SortedList<,>),
+                typeof(System.Collections.Generic.SortedSet<>),
+                typeof(System.Collections.Generic.Stack<>),
+                typeof(System.Collections.ObjectModel.Collection<>),
+                typeof(System.Collections.ObjectModel.KeyedCollection<,>),
+                typeof(System.Collections.ObjectModel.ObservableCollection<>),
+                typeof(System.Collections.ObjectModel.ReadOnlyCollection<>),
+                typeof(System.Collections.ObjectModel.ReadOnlyDictionary<,>),
+                typeof(System.Collections.ObjectModel.ReadOnlyObservableCollection<>),
+                typeof(System.Nullable<>),
+                typeof(System.Tuple<>),
+                typeof(System.Tuple<,>),
+                typeof(System.Tuple<,,>),
+                typeof(System.Tuple<,,,>),
+                typeof(System.Tuple<,,,,>),
+                typeof(System.Tuple<,,,,,>),
+                typeof(System.Tuple<,,,,,,>),
+                typeof(System.Tuple<,,,,,,,>),
+                typeof(System.ValueTuple<,,,,,,,>),
+                typeof(System.ValueTuple<>),
+                typeof(System.ValueTuple<,>),
+                typeof(System.ValueTuple<,,>),
+                typeof(System.ValueTuple<,,,>),
+                typeof(System.ValueTuple<,,,,>),
+                typeof(System.ValueTuple<,,,,,>),
+                typeof(System.ValueTuple<,,,,,,>),
+                typeof(System.ValueTuple<,,,,,,,>)
+            };
+
+            public static bool AllowedTypes(Type type)
+            {
+                return type.IsConstructedGenericType ? IsAllowedGenericType(type) : IsAllowedType(type);
+
+                static bool IsAllowedType(Type type) =>
+                    __allowedTypes.Contains(type) ||
+                    type.IsArray && AllowedTypes(type.GetElementType()) ||
+                    type.IsEnum;
+
+                static bool IsAllowedGenericType(Type type) =>
+                    __allowedGenericTypes.Contains(type.GetGenericTypeDefinition()) &&
+                    type.GetGenericArguments().All(AllowedTypes);
             }
         }
     }

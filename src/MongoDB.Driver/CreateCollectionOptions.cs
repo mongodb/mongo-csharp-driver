@@ -196,6 +196,27 @@ namespace MongoDB.Driver
             get { return _validationLevel; }
             set { _validationLevel = value; }
         }
+
+        internal virtual CreateCollectionOptions Clone() =>
+            new CreateCollectionOptions
+            {
+                _autoIndexId = _autoIndexId,
+                _capped = _capped,
+                _changeStreamPreAndPostImagesOptions = _changeStreamPreAndPostImagesOptions,
+                _collation = _collation,
+                _encryptedFields = _encryptedFields,
+                _expireAfter = _expireAfter,
+                _indexOptionDefaults = _indexOptionDefaults,
+                _maxDocuments = _maxDocuments,
+                _maxSize = _maxSize,
+                _noPadding = _noPadding,
+                _serializerRegistry = _serializerRegistry,
+                _storageEngine = _storageEngine,
+                _timeSeriesOptions = _timeSeriesOptions,
+                _usePowerOf2Sizes = _usePowerOf2Sizes,
+                _validationAction = _validationAction,
+                _validationLevel = _validationLevel
+            };
     }
 
     /// <summary>
@@ -282,5 +303,32 @@ namespace MongoDB.Driver
             get { return _validator; }
             set { _validator = value; }
         }
+
+        internal override CreateCollectionOptions Clone() =>
+            new CreateCollectionOptions<TDocument>
+            {
+    #pragma warning disable CS0618 // Type or member is obsolete
+                AutoIndexId = base.AutoIndexId,
+    #pragma warning restore CS0618 // Type or member is obsolete
+                Capped = base.Capped,
+                ChangeStreamPreAndPostImagesOptions = base.ChangeStreamPreAndPostImagesOptions,
+                Collation = base.Collation,
+                EncryptedFields = base.EncryptedFields,
+                ExpireAfter = base.ExpireAfter,
+                IndexOptionDefaults = base.IndexOptionDefaults,
+                MaxDocuments = base.MaxDocuments,
+                MaxSize = base.MaxSize,
+                NoPadding = base.NoPadding,
+                SerializerRegistry = base.SerializerRegistry,
+                StorageEngine = base.StorageEngine,
+                TimeSeriesOptions = base.TimeSeriesOptions,
+                UsePowerOf2Sizes = base.UsePowerOf2Sizes,
+                ValidationAction = base.ValidationAction,
+                ValidationLevel = base.ValidationLevel,
+
+                _clusteredIndex = _clusteredIndex,
+                _documentSerializer = _documentSerializer,
+                _validator = _validator
+            };
     }
 }

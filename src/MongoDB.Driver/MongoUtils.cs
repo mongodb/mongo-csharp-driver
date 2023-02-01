@@ -14,8 +14,6 @@
 */
 
 using System;
-using System.Runtime.InteropServices;
-using System.Security;
 using System.Security.Cryptography;
 using System.Text;
 using MongoDB.Bson;
@@ -61,5 +59,8 @@ namespace MongoDB.Driver
         {
             return value.Length == 0 ? "" : value.Substring(0, 1).ToLower() + value.Substring(1);
         }
+
+        internal static string ToCamelCase<TEnum>(this TEnum @enum) where TEnum : Enum =>
+           ToCamelCase(@enum.ToString());
     }
 }

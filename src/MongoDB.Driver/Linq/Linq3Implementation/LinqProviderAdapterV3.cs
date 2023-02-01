@@ -71,8 +71,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
             IBsonSerializerRegistry serializerRegistry,
             ExpressionTranslationOptions translationOptions)
         {
-            // TODO: implement using LINQ3 instead of falling back to LINQ2
-            return LinqProviderAdapter.V2.TranslateExpressionToBucketOutputProjection(valueExpression, outputExpression, documentSerializer, serializerRegistry, translationOptions);
+            throw new InvalidOperationException("TranslateExpressionToBucketOutputProjection can only be used with LINQ2.");
         }
 
         internal override RenderedFieldDefinition TranslateExpressionToField<TDocument>(

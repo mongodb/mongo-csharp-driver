@@ -21,6 +21,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.Search;
 
 namespace MongoDB.Driver
 {
@@ -245,7 +246,7 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Appends a $bucketAuto stage to the pipeline.
+        /// Appends a $bucketAuto stage to the pipeline (this overload can only be used with LINQ3).
         /// </summary>
         /// <typeparam name="TInput">The type of the input documents.</typeparam>
         /// <typeparam name="TIntermediate">The type of the intermediate documents.</typeparam>
@@ -264,12 +265,40 @@ namespace MongoDB.Driver
             this PipelineDefinition<TInput, TIntermediate> pipeline,
             Expression<Func<TIntermediate, TValue>> groupBy,
             int buckets,
-            Expression<Func<IGrouping<TValue, TIntermediate>, TOutput>> output,
+            Expression<Func<IGrouping<AggregateBucketAutoResultId<TValue>, TIntermediate>, TOutput>> output,
             AggregateBucketAutoOptions options = null,
             ExpressionTranslationOptions translationOptions = null)
         {
             Ensure.IsNotNull(pipeline, nameof(pipeline));
             return pipeline.AppendStage(PipelineStageDefinitionBuilder.BucketAuto(groupBy, buckets, output, options, translationOptions));
+        }
+
+        /// <summary>
+        /// Appends a $bucketAuto stage to the pipeline (this method can only be used with LINQ2).
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TIntermediate">The type of the intermediate documents.</typeparam>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <param name="groupBy">The group by expression.</param>
+        /// <param name="buckets">The number of buckets.</param>
+        /// <param name="output">The output projection.</param>
+        /// <param name="options">The options (optional).</param>
+        /// <param name="translationOptions">The translation options.</param>
+        /// <returns>
+        /// The fluent aggregate interface.
+        /// </returns>
+        public static PipelineDefinition<TInput, TOutput> BucketAutoForLinq2<TInput, TIntermediate, TValue, TOutput>(
+            this PipelineDefinition<TInput, TIntermediate> pipeline,
+            Expression<Func<TIntermediate, TValue>> groupBy,
+            int buckets,
+            Expression<Func<IGrouping<TValue, TIntermediate>, TOutput>> output, // the IGrouping for BucketAuto has been wrong all along, only fixing it for LINQ3
+            AggregateBucketAutoOptions options = null,
+            ExpressionTranslationOptions translationOptions = null)
+        {
+            Ensure.IsNotNull(pipeline, nameof(pipeline));
+            return pipeline.AppendStage(PipelineStageDefinitionBuilder.BucketAutoForLinq2(groupBy, buckets, output, options, translationOptions));
         }
 
         /// <summary>
@@ -756,32 +785,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Appends a group stage to the pipeline (this method can only be used with LINQ3).
-        /// </summary>
-        /// <typeparam name="TInput">The type of the input documents.</typeparam>
-        /// <typeparam name="TIntermediate">The type of the intermediate documents.</typeparam>
-        /// <typeparam name="TKey">The type of the key.</typeparam>
-        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
-        /// <param name="pipeline">The pipeline.</param>
-        /// <param name="id">The id.</param>
-        /// <param name="group">The group projection.</param>
-        /// <param name="translationOptions">The translation options.</param>
-        /// <returns>
-        /// The fluent aggregate interface.
-        /// </returns>
-        /// <remarks>This method can only be used with LINQ3 but that can't be verified until Render is called.</remarks>
-        public static PipelineDefinition<TInput, TOutput> GroupForLinq3<TInput, TIntermediate, TKey, TOutput>(
-            this PipelineDefinition<TInput, TIntermediate> pipeline,
-            Expression<Func<TIntermediate, TKey>> id,
-            Expression<Func<IGrouping<TKey, TIntermediate>, TOutput>> group,
-            ExpressionTranslationOptions translationOptions = null)
-        {
-            Ensure.IsNotNull(pipeline, nameof(pipeline));
-            var (groupStage, projectStage) = PipelineStageDefinitionBuilder.GroupForLinq3(id, group, translationOptions);
-            return pipeline.AppendStage(groupStage).AppendStage(projectStage);
-        }
-
-        /// <summary>
         /// Appends a $limit stage to the pipeline.
         /// </summary>
         /// <typeparam name="TInput">The type of the input documents.</typeparam>
@@ -1163,6 +1166,57 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Appends a $search stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <param name="searchDefinition">The search definition.</param>
+        /// <param name="highlight">The highlight options.</param>
+        /// <param name="indexName">The index name.</param>
+        /// <param name="count">The count options.</param>
+        /// <param name="returnStoredSource">
+        /// Flag that specifies whether to perform a full document lookup on the backend database
+        /// or return only stored source fields directly from Atlas Search.
+        /// </param>
+        /// <returns>
+        /// A new pipeline with an additional stage.
+        /// </returns>
+        public static PipelineDefinition<TInput, TOutput> Search<TInput, TOutput>(
+            this PipelineDefinition<TInput, TOutput> pipeline,
+            SearchDefinition<TOutput> searchDefinition,
+            SearchHighlightOptions<TOutput> highlight = null,
+            string indexName = null,
+            SearchCountOptions count = null,
+            bool returnStoredSource = false)
+        {
+            Ensure.IsNotNull(pipeline, nameof(pipeline));
+            return pipeline.AppendStage(PipelineStageDefinitionBuilder.Search(searchDefinition, highlight, indexName, count, returnStoredSource));
+        }
+
+        /// <summary>
+        /// Appends a $searchMeta stage to the pipeline.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input documents.</typeparam>
+        /// <typeparam name="TOutput">The type of the output documents.</typeparam>
+        /// <param name="pipeline">The pipeline.</param>
+        /// <param name="query">The search definition.</param>
+        /// <param name="indexName">The index name.</param>
+        /// <param name="count">The count options.</param>
+        /// <returns>
+        /// A new pipeline with an additional stage.
+        /// </returns>
+        public static PipelineDefinition<TInput, SearchMetaResult> SearchMeta<TInput, TOutput>(
+            this PipelineDefinition<TInput, TOutput> pipeline,
+            SearchDefinition<TOutput> query,
+            string indexName = null,
+            SearchCountOptions count = null)
+        {
+            Ensure.IsNotNull(pipeline, nameof(pipeline));
+            return pipeline.AppendStage(PipelineStageDefinitionBuilder.SearchMeta(query, indexName, count));
+        }
+
+        /// <summary>
         /// Create a $setWindowFields stage.
         /// </summary>
         /// <typeparam name="TInput">The type of the input documents.</typeparam>
@@ -1506,7 +1560,7 @@ namespace MongoDB.Driver
         {
             var renderedPipeline = _pipeline.Render(inputSerializer, serializerRegistry, linqProvider);
             var renderedStage = _stage.Render(renderedPipeline.OutputSerializer, serializerRegistry, linqProvider);
-            var documents = renderedPipeline.Documents.Concat(new[] { renderedStage.Document });
+            var documents = renderedPipeline.Documents.Concat(renderedStage.Documents);
             var outputSerializer = _outputSerializer ?? renderedStage.OutputSerializer;
             return new RenderedPipelineDefinition<TOutput>(documents, outputSerializer);
         }
@@ -1582,7 +1636,7 @@ namespace MongoDB.Driver
         {
             var renderedStage = _stage.Render(inputSerializer, serializerRegistry, linqProvider);
             var renderedPipeline = _pipeline.Render(renderedStage.OutputSerializer, serializerRegistry, linqProvider);
-            var documents = new[] { renderedStage.Document }.Concat(renderedPipeline.Documents);
+            var documents = renderedStage.Documents.Concat(renderedPipeline.Documents);
             var outputSerializer = _outputSerializer ?? renderedPipeline.OutputSerializer;
             return new RenderedPipelineDefinition<TOutput>(documents, outputSerializer);
         }

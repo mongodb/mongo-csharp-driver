@@ -19,11 +19,13 @@ using FluentAssertions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira.CSharp783
 {
 #if WINDOWS
+    [Collection(RegisterObjectSerializerFixture.CollectionName)]
     public class CSharp783DiscriminatedInterfaceTests
     {
         // nested types
@@ -144,6 +146,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp783
     }
 #endif
 
+    [Collection(RegisterObjectSerializerFixture.CollectionName)]
     public class CSharp783ImpliedHashSetImplementationTests
     {
         // nested types
@@ -262,6 +265,7 @@ namespace MongoDB.Bson.Tests.Jira.CSharp783
         }
     }
 
+    [Collection(RegisterObjectSerializerFixture.CollectionName)]
     public class CSharp783ImpliedSortedSetImplementationTests
     {
         // nested types
