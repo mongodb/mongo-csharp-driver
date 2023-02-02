@@ -35,7 +35,7 @@ using MongoDB.Driver.Linq;
 namespace MongoDB.Driver
 {
     /// <inheritdoc/>
-    public class MongoClient : MongoClientBase
+    public class MongoClient : MongoClientBase, IDisposable
     {
         #region static
         // private static methods
@@ -688,6 +688,13 @@ namespace MongoDB.Driver
                 ClusterDescription = cluster;
                 return SelectServersThatDetermineWhetherSessionsAreSupported(cluster, servers);
             }
+        }
+
+        /// <inheritdoc/>
+        public void Dispose()
+        {
+            if (_cluster != null)
+                _cluster.Dispose();
         }
     }
 }
