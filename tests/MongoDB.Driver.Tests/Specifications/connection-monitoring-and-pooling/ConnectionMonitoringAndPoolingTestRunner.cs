@@ -668,7 +668,7 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
                         var data = failPointDocument["data"].AsBsonDocument;
                         if (data.TryGetValue("appName", out var appNameValue))
                         {
-                            data["appName"] = FailPoint.MakeApplicationNameTestable(appNameValue.AsString, async);
+                            data["appName"] = FailPoint.DecorateApplicationName(appNameValue.AsString, async);
                         }
                     }
 

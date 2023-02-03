@@ -25,23 +25,23 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
     public class UnifiedWaitOperation : IUnifiedEntityTestOperation
     {
-        private readonly TimeSpan _ms;
+        private readonly TimeSpan _waitInterval;
 
-        public UnifiedWaitOperation(TimeSpan? ms)
+        public UnifiedWaitOperation(TimeSpan? waitInterval)
         {
-            _ms = Ensure.HasValue(ms, nameof(ms)).Value;
+            _waitInterval = Ensure.HasValue(waitInterval, nameof(waitInterval)).Value;
         }
 
         public OperationResult Execute(CancellationToken cancellationToken)
         {
-            Thread.Sleep(_ms);
+            Thread.Sleep(_waitInterval);
 
             return OperationResult.Empty();
         }
 
         public async Task<OperationResult> ExecuteAsync(CancellationToken cancellationToken)
         {
-            await Task.Delay(_ms);
+            await Task.Delay(_waitInterval);
 
             return OperationResult.Empty();
         }

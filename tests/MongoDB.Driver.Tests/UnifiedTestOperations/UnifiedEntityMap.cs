@@ -315,11 +315,11 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             Merge(_topologyDescriptions, entityMap._topologyDescriptions);
             // _loggingSettings is readonly
 
-            void Merge<TValue>(IDictionary<string, TValue> source, IDictionary<string, TValue> @new)
+            void Merge<TValue>(IDictionary<string, TValue> baseDictionary, IDictionary<string, TValue> dictionaryToAdd)
             {
-                foreach (var newItem in @new)
+                foreach (var newItem in dictionaryToAdd)
                 {
-                    source.Add(newItem.Key, newItem.Value);
+                    baseDictionary.Add(newItem.Key, newItem.Value);
                 }
             }
         }
@@ -693,7 +693,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 var client = DriverTestConfiguration.CreateDisposableClient(
                     settings =>
                     {
-                        settings.ApplicationName = FailPoint.MakeApplicationNameTestable(appName, async);
+                        settings.ApplicationName = FailPoint.DecorateApplicationName(appName, async);
                         settings.ConnectTimeout = connectTimeout.GetValueOrDefault(defaultValue: settings.ConnectTimeout);
                         settings.LoadBalanced = loadBalanced.GetValueOrDefault(defaultValue: settings.LoadBalanced);
                         settings.MaxConnecting = maxConnecting.GetValueOrDefault(defaultValue: settings.MaxConnecting);

@@ -39,19 +39,19 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
         public void Execute(Action<BsonDocument, bool, CancellationToken> createAndRunOperationCallback, CancellationToken cancellationToken)
         {
-            AssignTask(() => Execute(createAndRunOperationCallback, async: false, cancellationToken));
+            AssignTask(() => Execute(createAndRunOperationCallback, async: false, cancellationToken), cancellationToken);
         }
 
         public Task ExecuteAsync(Action<BsonDocument, bool, CancellationToken> createAndRunOperationCallback, CancellationToken cancellationToken)
         {
-            AssignTask(() => Execute(createAndRunOperationCallback, async: true, cancellationToken));
+            AssignTask(() => Execute(createAndRunOperationCallback, async: true, cancellationToken), cancellationToken);
             return Task.CompletedTask;
         }
 
         // private methods
-        private void AssignTask(Action action)
+        private void AssignTask(Action action, CancellationToken cancellationToken)
         {
-            _threads[_threadKey] = TasksUtils.CreateTaskOnOwnThread(action);
+            _threads[_threadKey] = TasksUtils.CreateTaskOnOwnThread(action, cancellationToken);
         }
 
         private void Execute(Action<BsonDocument, bool, CancellationToken> createAndRunOperationCallback, bool async, CancellationToken cancellationToken)

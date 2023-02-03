@@ -353,7 +353,7 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
                     break;
 
                 case "appname":
-                    settings.ApplicationName = FailPoint.MakeApplicationNameTestable($"{option.Value}", _async);
+                    settings.ApplicationName = FailPoint.DecorateApplicationName($"{option.Value}", _async);
                     break;
 
                 case "connectTimeoutMS":

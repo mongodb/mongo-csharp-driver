@@ -39,12 +39,12 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
         public void Execute()
         {
-            var eventCondition = UnifiedEventMatcher.MapEventNameToCondition(_event);
+            var eventCondition = UnifiedEventMatcher.GetEventFilter(_event);
             var actualEventsCount = _eventCapturer
                 .Events
                 .Count(eventCondition);
 
-            var becauseMessage = $"{FluentAssertionsHelper.EnsureCorrectBecauseFormatting(_event.ToString())} must be triggered exactly {_count} times";
+            var becauseMessage = $"{FluentAssertionsHelper.EscapeBraces(_event.ToString())} must be triggered exactly {_count} times";
             actualEventsCount.Should().Be(_count, becauseMessage);
         }
     }

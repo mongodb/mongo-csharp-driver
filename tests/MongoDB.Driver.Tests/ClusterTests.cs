@@ -74,7 +74,7 @@ namespace MongoDB.Driver.Tests
             // temporary disable the test on Auth envs due to operations timings irregularities
             RequireServer.Check().Authentication(false);
 
-            var applicationName = FailPoint.MakeApplicationNameTestable("loadBalancingTest", async);
+            var applicationName = FailPoint.DecorateApplicationName("loadBalancingTest", async);
             const int threadsCount = 10;
             const int commandsFailPointPerThreadCount = 10;
             const int commandsPerThreadCount = 100;

@@ -110,7 +110,7 @@ namespace MongoDB.Driver.Core.TestHelpers
             return Configure(cluster, session, name, args, withAsync);
         }
 
-        public static string MakeApplicationNameTestable(string applicationName, bool async) => $"{applicationName}{ApplicationNameTestableSuffix}{async}";
+        public static string DecorateApplicationName(string applicationName, bool async) => $"{applicationName}{ApplicationNameTestableSuffix}{async}";
 
         // private static methods
         private static IServer GetWriteableServer(ICluster cluster)
@@ -126,7 +126,7 @@ namespace MongoDB.Driver.Core.TestHelpers
                 var dataDocument = dataBsonValue.AsBsonDocument;
                 if (dataDocument.TryGetValue("appName", out var appName) && !appName.AsString.Contains(ApplicationNameTestableSuffix))
                 {
-                    dataDocument["appName"] = MakeApplicationNameTestable(appName.AsString, async);
+                    dataDocument["appName"] = DecorateApplicationName(appName.AsString, async);
                 }
             }
         }

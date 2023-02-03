@@ -23,6 +23,6 @@ namespace MongoDB.TestHelpers
         /// </summary>
         /// <param name="becausePart">The original because message.</param>
         /// <returns>The protected because message.</returns>
-        public static string EnsureCorrectBecauseFormatting(string becausePart) => becausePart.Replace("{", "{{").Replace("}", "}}");
+        public static string EscapeBraces(string becausePart) => becausePart.Replace("{", "{{").Replace("}", "}}");
     }
 }

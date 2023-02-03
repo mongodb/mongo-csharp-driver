@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
         public void Execute()
         {
-            var eventCondition = UnifiedEventMatcher.MapEventNameToCondition(_event);
+            var eventCondition = UnifiedEventMatcher.GetEventFilter(_event);
             Func<IEnumerable<object>, bool> eventsConditionWithFilterByCount = (events) => events.Count(eventCondition) >= _count;
 
             _eventCapturer.WaitForOrThrowIfTimeout(
@@ -48,7 +48,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 (timeout) =>
                 {
                     var triggeredEventsCount = _eventCapturer.Events.Count(eventCondition);
-                    return $"Waiting for {_count} of {FluentAssertionsHelper.EnsureCorrectBecauseFormatting(_event.ToString())} exceeded the timeout {timeout}. The number of triggered events is {triggeredEventsCount}.";
+                    return $"Waiting for {_count} of {FluentAssertionsHelper.EscapeBraces(_event.ToString())} exceeded the timeout {timeout}. The number of triggered events is {triggeredEventsCount}.";
                 });
         }
     }

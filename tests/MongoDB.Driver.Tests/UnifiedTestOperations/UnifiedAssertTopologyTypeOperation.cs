@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             topologyType switch
             {
                 "Single" => clusterDescription.Type == ClusterType.Standalone,
-                "ReplicaSetNoPrimary" => clusterDescription.Type == ClusterType.ReplicaSet && !clusterDescription.Servers.Any(s => s.Type == ServerType.ReplicaSetPrimary),
+                "ReplicaSetNoPrimary" => clusterDescription.Type == ClusterType.ReplicaSet && clusterDescription.Servers.All(s => s.Type != ServerType.ReplicaSetPrimary),
                 "ReplicaSetWithPrimary" => clusterDescription.Type == ClusterType.ReplicaSet && clusterDescription.Servers.Any(s => s.Type == ServerType.ReplicaSetPrimary),
                 "Sharded" => clusterDescription.Type == ClusterType.Sharded,
                 "LoadBalanced" => clusterDescription.Type == ClusterType.LoadBalanced,

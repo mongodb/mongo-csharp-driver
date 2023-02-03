@@ -231,7 +231,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 var ignoreExtraEvents = eventItem.GetValue("ignoreExtraEvents", false).AsBoolean;
                 var eventCapturer = entityMap.EventCapturers[clientId];
                 var eventType = eventItem.GetValue("eventType", defaultValue: "command").AsString;
-                var actualEvents = UnifiedEventMatcher.FilterEventsByType(eventCapturer.Events, eventType);
+                var actualEvents = UnifiedEventMatcher.FilterEventsBySetType(eventCapturer.Events, eventType);
 
                 _eventsMassage?.MassageEvents(actualEvents, eventType);
 

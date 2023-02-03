@@ -49,19 +49,23 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
             { "serverDescriptionChangedEvent", ((e) => e as ServerDescriptionChangedEvent?, EventSetType.Sdam) }
         };
 
-        public static List<object> FilterEventsByType(List<object> events, string eventType)
+        public static List<object> FilterEventsBySetType(List<object> events, string eventSetType)
         {
-            if (!Enum.TryParse<EventSetType>(eventType, ignoreCase: true, out var eventTypeEnum))
+            if (!Enum.TryParse<EventSetType>(eventSetType, ignoreCase: true, out var eventTypeEnum))
             {
-                throw new FormatException($"Cannot parse {nameof(eventType)} enum from {eventType}.");
+                throw new FormatException($"Cannot parse {nameof(eventSetType)} enum from {eventSetType}.");
             }
 
             return events
-                .Where(e => __eventsMapWithSpec.Values.Where(v => v.GetMappedDriverEvent(e) != null).Should().ContainSingle("because mapping for driver side events should be unique.").Which.EventSetType == eventTypeEnum)
+                .Where(e => __eventsMapWithSpec
+                    .Values
+                    .Where(v => v.GetMappedDriverEvent(e) != null)
+                    .Should().ContainSingle("because mapping for driver side events should be unique.")
+                    .Which.EventSetType == eventTypeEnum)
                 .ToList();
         }
 
-        public static Func<object, bool> MapEventNameToCondition(BsonDocument expectedEvent)
+        public static Func<object, bool> GetEventFilter(BsonDocument expectedEvent)
         {
             var elements = expectedEvent.Elements.Single();           
             var expectedSpecEvent = elements.Name;
@@ -86,18 +90,14 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
 
             static string GetServerDescriptionChangedFilter(BsonElement elements)
             {
-                var body = elements.Value;
                 string newDescriptionType = null;
-                var bodyDocument = body.AsBsonDocument;
-                if (bodyDocument.Elements.Count() > 0)
+                var bodyDocument = elements.Value.AsBsonDocument;
+                foreach (var element in bodyDocument.Elements)
                 {
-                    foreach (var element in bodyDocument.Elements)
+                    switch (element.Name)
                     {
-                        switch (element.Name)
-                        {
-                            case "newDescription": newDescriptionType = element.Value.AsBsonDocument["type"].AsString; break;
-                            default: throw new Exception($"Unexpected event filter key: {element.Name}.");
-                        }
+                        case "newDescription": newDescriptionType = element.Value.AsBsonDocument["type"].AsString; break;
+                        default: throw new Exception($"Unexpected event filter key: {element.Name}.");
                     }
                 }
                 return newDescriptionType;
@@ -148,11 +148,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
             {
                 var actualEvent = actualEvents[i];
                 var expectedEventDocument = expectedEventsDocuments[i].AsBsonDocument;
-                if (expectedEventDocument.ElementCount != 1)
-                {
-                    throw new FormatException("Expected event document model must contain a single element.");
-                }
-                var expectedEventType = expectedEventDocument.GetElement(0).Name;
+                var expectedEventType = expectedEventDocument.Elements.Should().ContainSingle().Subject.Name;
                 var expectedEventValue = expectedEventDocument[0].AsBsonDocument;
                 var expectedDriverEvent = __eventsMapWithSpec[expectedEventType].GetMappedDriverEvent(actualEvent).Should().NotBeNull().And.Subject;
 
@@ -179,7 +175,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                                     AssertHasServerConnectionId(commandStartedEvent.ConnectionId, element.Value.ToBoolean());
                                     break;
                                 default:
-                                    throw new FormatException($"Unexpected commandStartedEvent field: '{element.Name}'.");
+                                    throw new FormatException($"Unexpected {expectedEventType} field: '{element.Name}'.");
                             }
                         }
                         break;
@@ -201,7 +197,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                                     AssertHasServerConnectionId(commandSucceededEvent.ConnectionId, element.Value.ToBoolean());
                                     break;
                                 default:
-                                    throw new FormatException($"Unexpected commandStartedEvent field: '{element.Name}'.");
+                                    throw new FormatException($"Unexpected {expectedEventType} field: '{element.Name}'.");
                             }
                         }
                         break;
@@ -220,7 +216,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                                     AssertHasServerConnectionId(commandFailedEvent.ConnectionId, element.Value.ToBoolean());
                                     break;
                                 default:
-                                    throw new FormatException($"Unexpected commandStartedEvent field: '{element.Name}'.");
+                                    throw new FormatException($"Unexpected {expectedEventType} field: '{element.Name}'.");
                             }
                         }
                         break;
