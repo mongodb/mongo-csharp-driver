@@ -39,13 +39,13 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
         public void Execute()
         {
-            SpinWait.SpinUntil(() => IsTopologyChanged(_client, _priorClusterDescription), _timeout).Should().BeTrue($"because cluster topology should be changed during {_timeout}, but it wasn't");
+            SpinWait.SpinUntil(IsTopologyChanged, _timeout).Should().BeTrue($"because cluster topology should be changed during {_timeout}, but it wasn't");
         }
 
-        private bool IsTopologyChanged(IMongoClient client, ClusterDescription priorClusterDescription)
+        private bool IsTopologyChanged()
         {
-            var currentTopology = client.Cluster.Description;
-            return currentTopology.Servers.Any(s => s.Type == ServerType.ReplicaSetPrimary) && !currentTopology.Equals(priorClusterDescription);
+            var currentTopology = _client.Cluster.Description;
+            return currentTopology.Servers.Any(s => s.Type == ServerType.ReplicaSetPrimary) && !currentTopology.Equals(_priorClusterDescription);
         }
     }
 
