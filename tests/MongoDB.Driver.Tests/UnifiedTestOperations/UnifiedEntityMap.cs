@@ -37,8 +37,17 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
     public sealed class UnifiedEntityMap : IDisposable
     {
+        #region static
+        public static UnifiedEntityMap Create(Dictionary<string, IEventFormatter> eventFormatters, LoggingSettings loggingSettings, bool async)
+        {
+            var creator = new UnifiedEntityMapCreator(eventFormatters, loggingSettings);
+            return new UnifiedEntityMap(creator, async);
+        }
+        #endregion
+
         // private fields
         private readonly bool _async;
+        private readonly UnifiedEntityMapCreator _creator;
 
         private readonly Dictionary<string, IGridFSBucket> _buckets;
         private readonly Dictionary<string, IEnumerator<ChangeStreamDocument<BsonDocument>>> _changeStreams;
@@ -53,7 +62,6 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         private readonly Dictionary<string, BsonArray> _failureDocuments;
         private readonly Dictionary<string, long> _iterationCounts;
         private readonly Dictionary<string, Dictionary<string, LogLevel>> _loggingComponents;
-        private readonly LoggingSettings _loggingSettings;
         private readonly Dictionary<string, BsonValue> _results;
         private readonly Dictionary<string, IClientSessionHandle> _sessions;
         private readonly Dictionary<string, BsonDocument> _sessionIds;
@@ -61,52 +69,49 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         private readonly ConcurrentDictionary<string, Task> _threads;
         private readonly Dictionary<string, ClusterDescription> _topologyDescriptions;
 
-        private UnifiedEntityMapCreator _mapCreator;
-
-        // public constructors
-        public UnifiedEntityMap(
-            Dictionary<string, IGridFSBucket> buckets,
-            Dictionary<string, IEnumerator<ChangeStreamDocument<BsonDocument>>> changeStreams,
-            Dictionary<string, DisposableMongoClient> clients,
-            Dictionary<string, ClientEncryption> clientEncryptions,
-            Dictionary<string, EventCapturer> clientEventCapturers,
-            Dictionary<string, Dictionary<string, LogLevel>> loggingComponents,
-            Dictionary<string, IMongoCollection<BsonDocument>> collections,
-            Dictionary<string, IEnumerator<BsonDocument>> cursors,
-            Dictionary<string, IMongoDatabase> databases,
-            Dictionary<string, BsonArray> errorDocuments,
-            Dictionary<string, BsonArray> failureDocuments,
-            Dictionary<string, long> iterationCounts,
-            Dictionary<string, BsonValue> results,
-            Dictionary<string, IClientSessionHandle> sessions,
-            Dictionary<string, BsonDocument> sessionIds,
-            Dictionary<string, long> successCounts,
-            ConcurrentDictionary<string, Task> threads,
-            Dictionary<string, ClusterDescription> topologyDescriptions,
-            LoggingSettings loggingSettings,
-            bool async)
+        private UnifiedEntityMap(
+            UnifiedEntityMapCreator creator,
+            bool async,
+            Dictionary<string, IGridFSBucket> buckets = null,
+            Dictionary<string, IEnumerator<ChangeStreamDocument<BsonDocument>>> changeStreams = null,
+            Dictionary<string, DisposableMongoClient> clients = null,
+            Dictionary<string, ClientEncryption> clientEncryptions = null,
+            Dictionary<string, EventCapturer> clientEventCapturers = null,
+            Dictionary<string, Dictionary<string, LogLevel>> loggingComponents = null,
+            Dictionary<string, IMongoCollection<BsonDocument>> collections = null,
+            Dictionary<string, IEnumerator<BsonDocument>> cursors = null,
+            Dictionary<string, IMongoDatabase> databases = null,
+            Dictionary<string, BsonArray> errorDocuments = null,
+            Dictionary<string, BsonArray> failureDocuments = null,
+            Dictionary<string, long> iterationCounts = null,
+            Dictionary<string, BsonValue> results = null,
+            Dictionary<string, IClientSessionHandle> sessions = null,
+            Dictionary<string, BsonDocument> sessionIds = null,
+            Dictionary<string, long> successCounts = null,
+            ConcurrentDictionary<string, Task> threads = null,
+            Dictionary<string, ClusterDescription> topologyDescriptions = null)
         {
-            _buckets = buckets;
-            _changeStreams = changeStreams;
-            _clients = clients;
-            _clientEncryptions = clientEncryptions;
-            _clientEventCapturers = clientEventCapturers;
-            _loggingComponents = loggingComponents;
-            _loggingSettings = loggingSettings;
-            _collections = collections;
-            _cursors = cursors;
-            _databases = databases;
-            _errorDocuments = errorDocuments;
-            _failureDocuments = failureDocuments;
-            _iterationCounts = iterationCounts;
-            _results = results;
-            _sessions = sessions;
-            _sessionIds = sessionIds;
-            _successCounts = successCounts;
-            _threads = threads;
-            _topologyDescriptions = topologyDescriptions;
+            _buckets = buckets ?? new();
+            _changeStreams = changeStreams ?? new();
+            _clients = clients ?? new();
+            _clientEncryptions = clientEncryptions ?? new();
+            _clientEventCapturers = clientEventCapturers ?? new();
+            _loggingComponents = loggingComponents ?? new();
+            _collections = collections ?? new();
+            _cursors = cursors ?? new();
+            _databases = databases ?? new();
+            _errorDocuments = errorDocuments ?? new();
+            _failureDocuments = failureDocuments ?? new();
+            _iterationCounts = iterationCounts ?? new();
+            _results = results ?? new();
+            _sessions = sessions ?? new();
+            _sessionIds = sessionIds ?? new();
+            _successCounts = successCounts ?? new();
+            _threads = threads ?? new();
+            _topologyDescriptions = topologyDescriptions ?? new();
 
             _async = async;
+            _creator = Ensure.IsNotNull(creator, nameof(creator));
         }
 
         // public properties
@@ -294,7 +299,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
         public void AddRange(BsonArray entities)
         {
-            var entityMap = _mapCreator.Create(entities, _async);
+            var entityMap = _creator.Create(entities, _async);
             Merge(_buckets, entityMap._buckets);
             Merge(_changeStreams, entityMap._changeStreams);
             Merge(_clients, entityMap._clients);
@@ -313,7 +318,6 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             Merge(_successCounts, entityMap._successCounts);
             Merge(_threads, entityMap._threads);
             Merge(_topologyDescriptions, entityMap._topologyDescriptions);
-            // _loggingSettings is readonly
 
             void Merge<TValue>(IDictionary<string, TValue> baseDictionary, IDictionary<string, TValue> dictionaryToAdd)
             {
@@ -333,7 +337,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             }
         }
 
-        internal class UnifiedEntityMapCreator
+        private class UnifiedEntityMapCreator
         {
             private readonly Dictionary<string, IEventFormatter> _eventFormatters;
             private readonly LoggingSettings _loggingSettings;
@@ -430,6 +434,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 }
 
                 return new UnifiedEntityMap(
+                    this,
+                    async,
                     buckets,
                     changeStreams,
                     clients,
@@ -447,12 +453,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     sessionIds,
                     successCounts,
                     threads,
-                    topologyDescriptions,
-                    _loggingSettings,
-                    async)
-                {
-                    _mapCreator = this
-                };
+                    topologyDescriptions);
 
                 void EnsureIsNotHandled<TEntity>(IDictionary<string, TEntity> dictionary, string key)
                 {

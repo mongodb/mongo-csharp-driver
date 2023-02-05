@@ -23,6 +23,7 @@ using MongoDB.Driver.Tests.UnifiedTestOperations;
 using Xunit;
 using Xunit.Sdk;
 using Xunit.Abstractions;
+using FluentAssertions;
 
 namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
 {
@@ -57,7 +58,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
                 throw new SkipException("https://jira.mongodb.org/browse/CSHARP-4459");
             }
 
-            using (var runner = new UnifiedTestRunner(loggingService: this, eventsMassage: new EventsMassage(testCaseName: testCase.Name)))
+            using (var runner = new UnifiedTestRunner(loggingService: this, eventsProcessor: new SdamRunnerEventsProcessor(testCaseName: testCase.Name)))
             {
                 runner.Run(testCase);
             }
@@ -84,16 +85,16 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
             }
         }
 
-        private class EventsMassage : IEventsMassage
+        private class SdamRunnerEventsProcessor : IEventsProcessor
         {
             private readonly string _testCaseName;
 
-            public EventsMassage(string testCaseName)
+            public SdamRunnerEventsProcessor(string testCaseName)
             {
                 _testCaseName = Ensure.IsNotNull(testCaseName, nameof(testCaseName));
             }
 
-            public void MassageEvents(List<object> events, string type)
+            public void PostProcessEvents(List<object> events, string type)
             {
                 // this is workaround. Our current implementation doesn't generate connection closing events in an order expected by the spec.
                 // Spec expected order:
@@ -108,8 +109,9 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
                     var connectionClosedIndex = events.FindLastIndex(p => p is ConnectionClosedEvent);
                     if (clearIndex != -1)
                     {
-                        var clearEvent = events[clearIndex];
-                        var closedEvent = events[connectionClosedIndex];
+                        var clearEvent = events[clearIndex].Should().BeOfType<ConnectionPoolClearedEvent>().Subject;
+                        var closedEvent = events[connectionClosedIndex].Should().BeOfType<ConnectionClosedEvent>().Subject;
+                        events[connectionClosedIndex + 1].Should().BeOfType<ConnectionPoolCheckedInConnectionEvent>();
                         if ((connectionClosedIndex - clearIndex) != 2)
                         {
                             Swap(events, connectionClosedIndex + 1, connectionClosedIndex);
@@ -120,9 +122,9 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
 
             private void Swap<T>(IList<T> list, int indexA, int indexB)
             {
-                T tmp = list[indexA];
+                var temp = list[indexA];
                 list[indexA] = list[indexB];
-                list[indexB] = tmp;
+                list[indexB] = temp;
             }
         }
     }
