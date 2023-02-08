@@ -96,7 +96,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
 
             public void PostProcessEvents(List<object> events, string type)
             {
-                // this is workaround. Our current implementation doesn't generate connection closing events in an order expected by the spec.
+                // This is workaround. Our current implementation doesn't generate connection closing events in the order expected by the spec.
                 // Spec expected order:
                 //      1. PoolClear; 2. CheckIn; 3. ConnectionClosed;
                 // but the currently triggered:

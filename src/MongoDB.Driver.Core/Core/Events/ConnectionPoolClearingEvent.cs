@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Core.Events
     /// </summary>
     public struct ConnectionPoolClearingEvent : IEvent
     {
-        private bool _closeInUseConnections;
+        private readonly bool _closeInUseConnections;
         private readonly ConnectionPoolSettings _connectionPoolSettings;
         private readonly ObjectId? _serviceId;
         private readonly ServerId _serverId;
@@ -82,7 +82,7 @@ namespace MongoDB.Driver.Core.Events
         }
 
         /// <summary>
-        /// Gets whether in use connections should be closed.
+        /// Gets a value indicating whether in use connections should be closed.
         /// </summary>
         public bool CloseInUseConnections => _closeInUseConnections;
 
