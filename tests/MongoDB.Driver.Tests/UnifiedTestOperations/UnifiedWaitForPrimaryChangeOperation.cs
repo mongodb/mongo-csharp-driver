@@ -24,7 +24,7 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
-    public class UnifiedWaitForPrimaryChangeOperation : IUnifiedSpecialTestOperation
+    public sealed class UnifiedWaitForPrimaryChangeOperation : IUnifiedSpecialTestOperation
     {
         private readonly IMongoClient _client;
         private readonly ClusterDescription _priorClusterDescription;
@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         }
     }
 
-    public class UnifiedWaitForPrimaryChangeOperationBuilder
+    public sealed class UnifiedWaitForPrimaryChangeOperationBuilder
     {
         private readonly UnifiedEntityMap _entityMap;
 
