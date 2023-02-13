@@ -80,7 +80,7 @@ namespace MongoDB.Driver.Encryption
             _libMongoCryptController.AddAlternateKeyNameAsync(id, alternateKeyName, cancellationToken);
 
         /// <summary>
-        /// Create encrypted collection.
+        /// [Beta] Create encrypted collection.
         /// </summary>
         /// <param name="database">The database.</param>
         /// <param name="collectionName">The collection name.</param>
@@ -101,7 +101,7 @@ namespace MongoDB.Driver.Encryption
         }
 
         /// <summary>
-        /// Create encrypted collection.
+        /// [Beta] Create encrypted collection.
         /// </summary>
         /// <param name="database">The database.</param>
         /// <param name="collectionName">The collection name.</param>
@@ -142,7 +142,7 @@ namespace MongoDB.Driver.Encryption
         }
 
         /// <summary>
-        /// Create encrypted collection.
+        /// [Beta] Create encrypted collection.
         /// </summary>
         /// <param name="database">The database.</param>
         /// <param name="collectionName">The collection name.</param>
@@ -163,7 +163,7 @@ namespace MongoDB.Driver.Encryption
         }
 
         /// <summary>
-        /// Create encrypted collection.
+        /// [Beta] Create encrypted collection.
         /// </summary>
         /// <param name="database">The database.</param>
         /// <param name="collectionName">The collection name.</param>

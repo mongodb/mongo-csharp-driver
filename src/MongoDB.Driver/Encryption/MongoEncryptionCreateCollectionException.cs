@@ -20,7 +20,7 @@ using MongoDB.Bson;
 namespace MongoDB.Driver.Encryption
 {
     /// <summary>
-    /// Represents an encryption exception.
+    /// [Beta] Represents an encryption exception.
     /// </summary>
     [Serializable]
     public class MongoEncryptionCreateCollectionException : MongoEncryptionException
