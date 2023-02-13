@@ -2617,8 +2617,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
 
             var result = async
-                ? clientEncryption.CreateEncryptedCollectionAsync(database, collectionNamespace.CollectionName, createCollectionOptions, kmsProvider, datakeyOptions, cancellationToken: default).GetAwaiter().GetResult()
-                : clientEncryption.CreateEncryptedCollection(database, collectionNamespace.CollectionName, createCollectionOptions, kmsProvider, datakeyOptions, cancellationToken: default);
+                ? clientEncryption.CreateEncryptedCollectionAsync(database, collectionNamespace.CollectionName, createCollectionOptions, kmsProvider, datakeyOptions.MasterKey, cancellationToken: default).GetAwaiter().GetResult()
+                : clientEncryption.CreateEncryptedCollection(database, collectionNamespace.CollectionName, createCollectionOptions, kmsProvider, datakeyOptions.MasterKey, cancellationToken: default);
 
             effectiveEncryptedFields = result.EncryptedFields;
 
