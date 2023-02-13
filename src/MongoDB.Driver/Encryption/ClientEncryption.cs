@@ -92,7 +92,7 @@ namespace MongoDB.Driver.Encryption
         /// <remarks>
         /// if EncryptionFields contains a keyId with a null value, a data key will be automatically generated and assigned to keyId value.
         /// </remarks>
-        [Obsolete("Use the overload wih masterKey instead.")]
+        [Obsolete("Use the overload with masterKey instead.")]
         public CreateEncryptedCollectionResult CreateEncryptedCollection(IMongoDatabase database, string collectionName, CreateCollectionOptions createCollectionOptions, string kmsProvider, DataKeyOptions dataKeyOptions, CancellationToken cancellationToken = default)
         {
             Ensure.That(dataKeyOptions == null || (dataKeyOptions.AlternateKeyNames == null && dataKeyOptions.KeyMaterial == null), $"{nameof(CreateEncryptedCollection)} supports only {nameof(dataKeyOptions.MasterKey)} in {nameof(DataKeyOptions)}.");
@@ -154,7 +154,7 @@ namespace MongoDB.Driver.Encryption
         /// <remarks>
         /// if EncryptionFields contains a keyId with a null value, a data key will be automatically generated and assigned to keyId value.
         /// </remarks>
-        [Obsolete("Use the overload wih masterKey instead.")]
+        [Obsolete("Use the overload with masterKey instead.")]
         public Task<CreateEncryptedCollectionResult> CreateEncryptedCollectionAsync(IMongoDatabase database, string collectionName, CreateCollectionOptions createCollectionOptions, string kmsProvider, DataKeyOptions dataKeyOptions, CancellationToken cancellationToken = default)
         {
             Ensure.That(dataKeyOptions == null || (dataKeyOptions.AlternateKeyNames == null && dataKeyOptions.KeyMaterial == null), $"{nameof(CreateEncryptedCollection)} supports only {nameof(dataKeyOptions.MasterKey)} in {nameof(DataKeyOptions)}.");
