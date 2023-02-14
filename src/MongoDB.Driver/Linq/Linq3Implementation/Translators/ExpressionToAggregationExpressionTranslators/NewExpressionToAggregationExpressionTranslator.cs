@@ -15,8 +15,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
@@ -49,40 +51,42 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var classMap = (BsonClassMap)Activator.CreateInstance(classMapType);
             var computedFields = new List<AstComputedField>();
 
-            string[] propertyNames;
-            if (members != null)
+            // if Members is not null then trust Members more than the constructor parameter names (which are compiler generated for anonymous types)
+            if (members == null)
             {
-                // if Members is not null then trust Members more than the constructor parameter names (which are compiler generated for anonymous types)
-                propertyNames = members.Select(member => member.Name).ToArray();
-            }
-            else
-            {
-                propertyNames = constructorInfo.GetParameters().Select(p => GetMatchingPropertyName(expression, p.Name)).ToArray();
+                var membersList = constructorInfo.GetParameters().Select(p => GetMatchingMember(expression, p.Name)).ToList();
+                members = new ReadOnlyCollection<MemberInfo>(membersList);
             }
 
             for (var i = 0; i < arguments.Length; i++)
             {
-                var propertyName = propertyNames[i];
                 var valueExpression = arguments[i];
                 var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
-                var valueSerializer = valueTranslation.Serializer ?? BsonSerializer.LookupSerializer(valueExpression.Type);
-                var defaultValue = GetDefaultValue(valueSerializer.ValueType);
-                classMap.MapProperty(propertyName).SetSerializer(valueSerializer).SetDefaultValue(defaultValue);
-                computedFields.Add(AstExpression.ComputedField(propertyName, valueTranslation.Ast));
+                var valueType = valueExpression.Type;
+                var valueSerializer = valueTranslation.Serializer ?? BsonSerializer.LookupSerializer(valueType);
+                var defaultValue = GetDefaultValue(valueType);
+                var memberMap = classMap.MapMember(members[i]).SetSerializer(valueSerializer).SetDefaultValue(defaultValue);
+                computedFields.Add(AstExpression.ComputedField(memberMap.ElementName, valueTranslation.Ast));
             }
 
-            // map any properties that didn't match a constructor argument
-            foreach (var property in expressionType.GetProperties())
+            // map any public fields or properties that didn't match a constructor argument
+            foreach (var member in expressionType.GetFields().Cast<MemberInfo>().Concat(expressionType.GetProperties()))
             {
-                if (!propertyNames.Contains(property.Name))
+                if (!members.Contains(member))
                 {
-                    var valueSerializer = context.KnownSerializersRegistry.GetSerializer(expression, property.PropertyType);
-                    var defaultValue = GetDefaultValue(valueSerializer.ValueType);
-                    classMap.MapProperty(property.Name).SetSerializer(valueSerializer).SetDefaultValue(defaultValue);
+                    var valueType = member switch
+                    {
+                        FieldInfo fieldInfo => fieldInfo.FieldType,
+                        PropertyInfo propertyInfo => propertyInfo.PropertyType,
+                        _ => throw new Exception($"Unexpected member type: {member.MemberType}")
+                    };
+                    var valueSerializer = context.KnownSerializersRegistry.GetSerializer(expression, valueType);
+                    var defaultValue = GetDefaultValue(valueType);
+                    classMap.MapMember(member).SetSerializer(valueSerializer).SetDefaultValue(defaultValue);
                 }
             }
 
-            classMap.MapConstructor(constructorInfo, propertyNames);
+            classMap.MapConstructor(constructorInfo, members.Select(m => m.Name).ToArray());
             classMap.Freeze();
 
             var ast = AstExpression.ComputedDocument(computedFields);
@@ -108,17 +112,25 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             }
         }
 
-        private static string GetMatchingPropertyName(NewExpression expression, string constructorParameterName)
+        private static MemberInfo GetMatchingMember(NewExpression expression, string constructorParameterName)
         {
+            foreach (var field in expression.Type.GetFields())
+            {
+                if (field.Name.Equals(constructorParameterName, StringComparison.OrdinalIgnoreCase))
+                {
+                    return field;
+                }
+            }
+
             foreach (var property in expression.Type.GetProperties())
             {
                 if (property.Name.Equals(constructorParameterName, StringComparison.OrdinalIgnoreCase))
                 {
-                    return property.Name;
+                    return property;
                 }
             }
 
-            throw new ExpressionNotSupportedException(expression, because: $"constructor parameter {constructorParameterName} does not match any property");
+            throw new ExpressionNotSupportedException(expression, because: $"constructor parameter {constructorParameterName} does not match any public field or property");
         }
     }
 }
