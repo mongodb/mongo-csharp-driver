@@ -804,6 +804,9 @@ namespace MongoDB.Bson.IO
                 case BsonType.DateTime:
                     ReadDateTime();
                     break;
+                case BsonType.Decimal128:
+                    ReadDecimal128();
+                    break;
                 case BsonType.Document:
                     ReadStartDocument();
                     while (ReadBsonType() != BsonType.EndOfDocument)

@@ -272,6 +272,10 @@ namespace MongoDB.Bson.Serialization.Serializers
                                 bsonWriter.WriteDateTime(bsonDateTime.MillisecondsSinceEpoch);
                                 return;
 
+                            case TypeCode.Decimal:
+                                bsonWriter.WriteDecimal128((decimal)value);
+                                return;
+
                             case TypeCode.Double:
                                 bsonWriter.WriteDouble((double)value);
                                 return;
