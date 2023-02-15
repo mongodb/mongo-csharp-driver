@@ -49,6 +49,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     return TranslateConvertUnderlyingTypeToEnum(expression, operandTranslation);
                 }
 
+                if (IsConvertToBaseType(sourceType: operandExpression.Type, targetType: expressionType))
+                {
+                    return TranslateConvertToBaseType(expression, operandTranslation);
+                }
+
                 if (expressionType.IsConstructedGenericType && expressionType.GetGenericTypeDefinition() == typeof(Nullable<>))
                 {
                     var valueType = expressionType.GetGenericArguments()[0];
@@ -106,6 +111,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 targetType.IsSameAsOrNullableOf(underlyingType);
         }
 
+        private static bool IsConvertToBaseType(Type sourceType, Type targetType)
+        {
+            return sourceType.IsSubclassOf(targetType);
+        }
+
         private static bool IsConvertUnderlyingTypeToEnum(UnaryExpression expression)
         {
             var sourceType = expression.Operand.Type;
@@ -114,6 +124,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             return
                 targetType.IsEnumOrNullableEnum(out _, out var underlyingType) &&
                 sourceType.IsSameAsOrNullableOf(underlyingType);
+        }
+
+        private static AggregationExpression TranslateConvertToBaseType(UnaryExpression expression, AggregationExpression operandTranslation)
+        {
+            var baseType = expression.Type;
+            var derivedType = expression.Operand.Type;
+            var derivedTypeSerializer = operandTranslation.Serializer;
+            var downcastingSerializer = DowncastingSerializer.Create(baseType, derivedType, derivedTypeSerializer);
+
+            return new AggregationExpression(expression, operandTranslation.Ast, downcastingSerializer);
         }
 
         private static AggregationExpression TranslateConvertToBsonValue(TranslationContext context, UnaryExpression expression, Expression operand)
