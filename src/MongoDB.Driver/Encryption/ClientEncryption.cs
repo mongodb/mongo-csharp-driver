@@ -90,12 +90,12 @@ namespace MongoDB.Driver.Encryption
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The operation result.</returns>
         /// <remarks>
-        /// if EncryptionFields contains a keyId with a null value, a data key will be automatically generated and assigned to keyId value.
+        /// If EncryptionFields contains a keyId with a null value, a data key will be automatically generated and returned in <see cref="CreateEncryptedCollectionResult.EncryptedFields"/>.
         /// </remarks>
         [Obsolete("Use the overload with masterKey instead.")]
         public CreateEncryptedCollectionResult CreateEncryptedCollection(IMongoDatabase database, string collectionName, CreateCollectionOptions createCollectionOptions, string kmsProvider, DataKeyOptions dataKeyOptions, CancellationToken cancellationToken = default)
         {
-            Ensure.That(dataKeyOptions == null || (dataKeyOptions.AlternateKeyNames == null && dataKeyOptions.KeyMaterial == null), $"{nameof(CreateEncryptedCollection)} supports only {nameof(dataKeyOptions.MasterKey)} in {nameof(DataKeyOptions)}.");
+            Ensure.That(dataKeyOptions?.AlternateKeyNames == null && dataKeyOptions?.KeyMaterial == null, $"{nameof(CreateEncryptedCollection)} supports only {nameof(dataKeyOptions.MasterKey)} in {nameof(DataKeyOptions)}.");
 
             return CreateEncryptedCollection(database, collectionName, createCollectionOptions, kmsProvider, dataKeyOptions?.MasterKey, cancellationToken);
         }
@@ -111,7 +111,7 @@ namespace MongoDB.Driver.Encryption
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The operation result.</returns>
         /// <remarks>
-        /// if EncryptionFields contains a keyId with a null value, a data key will be automatically generated and assigned to keyId value.
+        /// If EncryptionFields contains a keyId with a null value, a data key will be automatically generated and returned in <see cref="CreateEncryptedCollectionResult.EncryptedFields"/>.
         /// </remarks>
         public CreateEncryptedCollectionResult CreateEncryptedCollection(IMongoDatabase database, string collectionName, CreateCollectionOptions createCollectionOptions, string kmsProvider, BsonDocument masterKey, CancellationToken cancellationToken = default)
         {
@@ -152,12 +152,12 @@ namespace MongoDB.Driver.Encryption
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The operation result.</returns>
         /// <remarks>
-        /// if EncryptionFields contains a keyId with a null value, a data key will be automatically generated and assigned to keyId value.
+        /// If EncryptionFields contains a keyId with a null value, a data key will be automatically generated and returned in <see cref="CreateEncryptedCollectionResult.EncryptedFields"/>.
         /// </remarks>
         [Obsolete("Use the overload with masterKey instead.")]
         public Task<CreateEncryptedCollectionResult> CreateEncryptedCollectionAsync(IMongoDatabase database, string collectionName, CreateCollectionOptions createCollectionOptions, string kmsProvider, DataKeyOptions dataKeyOptions, CancellationToken cancellationToken = default)
         {
-            Ensure.That(dataKeyOptions == null || (dataKeyOptions.AlternateKeyNames == null && dataKeyOptions.KeyMaterial == null), $"{nameof(CreateEncryptedCollection)} supports only {nameof(dataKeyOptions.MasterKey)} in {nameof(DataKeyOptions)}.");
+            Ensure.That(dataKeyOptions?.AlternateKeyNames == null && dataKeyOptions?.KeyMaterial == null, $"{nameof(CreateEncryptedCollection)} supports only {nameof(dataKeyOptions.MasterKey)} in {nameof(DataKeyOptions)}.");
 
             return CreateEncryptedCollectionAsync(database, collectionName, createCollectionOptions, kmsProvider, dataKeyOptions?.MasterKey, cancellationToken);
         }
@@ -173,7 +173,7 @@ namespace MongoDB.Driver.Encryption
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The operation result.</returns>
         /// <remarks>
-        /// if EncryptionFields contains a keyId with a null value, a data key will be automatically generated and assigned to keyId value.
+        /// If EncryptionFields contains a keyId with a null value, a data key will be automatically generated and returned in <see cref="CreateEncryptedCollectionResult.EncryptedFields"/>.
         /// </remarks>
         public async Task<CreateEncryptedCollectionResult> CreateEncryptedCollectionAsync(IMongoDatabase database, string collectionName, CreateCollectionOptions createCollectionOptions, string kmsProvider, BsonDocument masterKey, CancellationToken cancellationToken = default)
         {
