@@ -61,6 +61,14 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
 
             RequirePlatform
                 .Check()
+                .SkipWhen(
+                    // spec wording requires skipping only "fle2-Range-<type>-Correctness" tests on macos,
+                    // but we see significant performance downgrade with the rest fle2-Range tests too, so skip them as well
+                    () => testCase.Name.Contains("fle2-Range"),
+                    SupportedOperatingSystem.MacOS); ;
+
+            RequirePlatform
+                .Check()
                 .SkipWhen(() => testCase.Name.Contains("gcpKMS.json"), SupportedOperatingSystem.Linux, SupportedTargetFramework.NetStandard20) // gcp is supported starting from netstandard2.1
                 .SkipWhen(() => testCase.Name.Contains("gcpKMS.json"), SupportedOperatingSystem.MacOS, SupportedTargetFramework.NetStandard20); // gcp is supported starting from netstandard2.1
 
