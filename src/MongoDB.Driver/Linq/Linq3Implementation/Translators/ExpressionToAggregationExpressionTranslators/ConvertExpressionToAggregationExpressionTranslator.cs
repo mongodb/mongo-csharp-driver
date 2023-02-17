@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
     {
         public static AggregationExpression Translate(TranslationContext context, UnaryExpression expression)
         {
-            if (expression.NodeType == ExpressionType.Convert)
+            if (expression.NodeType == ExpressionType.Convert || expression.NodeType == ExpressionType.TypeAs)
             {
                 var expressionType = expression.Type;
                 if (expressionType == typeof(BsonValue))
