@@ -44,7 +44,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// </summary>
     /// <typeparam name="TBase">The base type.</typeparam>
     /// <typeparam name="TDerived">The derived type.</typeparam>
-    public class DowncastingSerializer<TBase, TDerived> : SerializerBase<TBase>
+    public class DowncastingSerializer<TBase, TDerived> : SerializerBase<TBase>, IBsonDocumentSerializer
         where TDerived : TBase
     {
         private readonly IBsonSerializer<TDerived> _derivedSerializer;
@@ -69,6 +69,17 @@ namespace MongoDB.Bson.Serialization.Serializers
         public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, TBase value)
         {
             _derivedSerializer.Serialize(context, args, (TDerived)value);
+        }
+
+        /// <inheritdoc/>
+        public bool TryGetMemberSerializationInfo(string memberName, out BsonSerializationInfo serializationInfo)
+        {
+            if (_derivedSerializer is IBsonDocumentSerializer documentSerializer)
+            {
+                return documentSerializer.TryGetMemberSerializationInfo(memberName, out serializationInfo);
+            }
+
+            throw new InvalidOperationException($"The class {_derivedSerializer.GetType().FullName} does not implement IBsonDocumentSerializer.");
         }
     }
 }
