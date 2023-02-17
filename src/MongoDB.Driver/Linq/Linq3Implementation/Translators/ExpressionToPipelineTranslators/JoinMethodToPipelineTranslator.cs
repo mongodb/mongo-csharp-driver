@@ -38,10 +38,23 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
             {
                 var outerExpression = arguments[0];
                 var pipeline = ExpressionToPipelineTranslator.Translate(context, outerExpression);
-                var outerSerializer = pipeline.OutputSerializer;
+
+                AstExpression outerAst;
+                IBsonSerializer outerSerializer;
+                var root = AstExpression.Var("ROOT", isCurrent: true);
+                if (pipeline.OutputSerializer is IWrappedValueSerializer pipelineOutputWrappedSerializer)
+                {
+                    outerAst = AstExpression.GetField(root, pipelineOutputWrappedSerializer.FieldName);
+                    outerSerializer = pipelineOutputWrappedSerializer.ValueSerializer;
+                }
+                else
+                {
+                    outerAst = root;
+                    outerSerializer = pipeline.OutputSerializer;
+                }
 
                 var wrapOuterStage = AstStage.Project(
-                    AstProject.Set("_outer", AstExpression.Var("ROOT")),
+                    AstProject.Set("_outer", outerAst),
                     AstProject.ExcludeId());
                 var wrappedOuterSerializer = WrappedValueSerializer.Create("_outer", outerSerializer);
 
@@ -62,7 +75,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                 var unwindStage = AstStage.Unwind("_inner");
 
                 var resultSelectorLambda = ExpressionHelper.UnquoteLambda(arguments[4]);
-                var root = AstExpression.Var("ROOT", isCurrent: true);
                 var outerParameter = resultSelectorLambda.Parameters[0];
                 var outerField = AstExpression.GetField(root, "_outer");
                 var outerSymbol = context.CreateSymbol(outerParameter, outerField, outerSerializer);
