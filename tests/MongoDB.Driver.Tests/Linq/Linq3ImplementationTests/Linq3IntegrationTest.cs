@@ -159,5 +159,18 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests
             var linqProvider = collection.Database.Client.Settings.LinqProvider;
             return filterDefinition.Render(documentSerializer, serializerRegistry, linqProvider);
         }
+
+        protected BsonDocument TranslateFindProjection<TDocument, TProjection>(
+            IMongoCollection<TDocument> collection,
+            IFindFluent<TDocument, TProjection> find,
+            LinqProvider linqProvider = LinqProvider.V3)
+        {
+            var findOptions = ((FindFluent<TDocument, TProjection>)find).Options;
+            var projection = findOptions.Projection;
+            var documentSerializer = collection.DocumentSerializer;
+            var serializerRegistry = BsonSerializer.SerializerRegistry;
+            var renderedProjection = projection.Render(documentSerializer, serializerRegistry, linqProvider);
+            return renderedProjection.Document;
+        }
     }
 }

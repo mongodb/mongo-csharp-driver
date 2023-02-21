@@ -14,6 +14,7 @@
 */
 
 using System;
+using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
@@ -50,10 +51,18 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers
         // public methods
         public override TValue Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
+            TValue value;
             var reader = context.Reader;
             reader.ReadStartDocument();
-            reader.ReadName(_fieldName);
-            var value = _valueSerializer.Deserialize(context);
+            if (reader.ReadBsonType() == BsonType.EndOfDocument)
+            {
+                value = default;
+            }
+            else
+            {
+                reader.ReadName(_fieldName);
+                value = _valueSerializer.Deserialize(context);
+            }
             reader.ReadEndDocument();
             return value;
         }
