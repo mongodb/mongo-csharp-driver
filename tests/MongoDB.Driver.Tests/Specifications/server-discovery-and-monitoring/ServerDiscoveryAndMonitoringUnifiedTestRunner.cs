@@ -21,9 +21,7 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Tests.UnifiedTestOperations;
 using Xunit;
-using Xunit.Sdk;
 using Xunit.Abstractions;
-using FluentAssertions;
 using System.Linq;
 
 namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
@@ -49,9 +47,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
         // nested types
         public sealed class TestCaseFactory : JsonDrivenTestCaseFactory
         {
-            // protected properties
-            protected override string PathPrefix => "MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring.tests.unified.";
-
+            #region static
             private static readonly string[] __ignoredTestNameKeys =
             {
 #if NET472
@@ -65,6 +61,10 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
                 "Network timeout on Monitor check",
                 "auth-network-timeout-error.json:Reset server and pool after network timeout error during authentication"
             };
+            #endregion
+
+            // protected properties
+            protected override string PathPrefix => "MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring.tests.unified.";
 
             // protected methods
             protected override IEnumerable<JsonDrivenTestCase> CreateTestCases(BsonDocument document)
@@ -80,10 +80,8 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
                 }
             }
 
-            protected override bool ShouldReadJsonDocument(string path)
-            {
-                return base.ShouldReadJsonDocument(path) && !__ignoredTestNameKeys.Any(tc => path.Contains(tc));
-            }
+            protected override bool ShouldReadJsonDocument(string path) =>
+                base.ShouldReadJsonDocument(path) && __ignoredTestNameKeys.Any(tc => path.Contains(tc));
         }
 
         private sealed class SdamRunnerEventsProcessor : IEventsProcessor
