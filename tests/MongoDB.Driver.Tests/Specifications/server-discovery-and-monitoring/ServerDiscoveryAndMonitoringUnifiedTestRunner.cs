@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
                 // https://jira.mongodb.org/browse/CSHARP-4459
                 "Ignore network timeout error on find",
                 "Network timeout on Monitor check",
-                "auth-network-timeout-error.json:Reset server and pool after network timeout error during authentication"
+                "Reset server and pool after network timeout error during authentication"
             };
             #endregion
 
@@ -71,6 +71,11 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
             {
                 foreach (var testCase in base.CreateTestCases(document))
                 {
+                    if (__ignoredTestNameKeys.Any(tc => testCase.Name.Contains(tc)))
+                    {
+                        continue;
+                    }
+
                     foreach (var async in new[] { false, true })
                     {
                         var name = $"{testCase.Name}:async={async}";
@@ -79,9 +84,6 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
                     }
                 }
             }
-
-            protected override bool ShouldReadJsonDocument(string path) =>
-                base.ShouldReadJsonDocument(path) && __ignoredTestNameKeys.Any(tc => path.Contains(tc));
         }
 
         private sealed class SdamRunnerEventsProcessor : IEventsProcessor
