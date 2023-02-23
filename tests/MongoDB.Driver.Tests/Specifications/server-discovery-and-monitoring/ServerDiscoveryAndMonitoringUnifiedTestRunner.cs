@@ -40,25 +40,6 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
         [ClassData(typeof(TestCaseFactory))]
         public void Run(JsonDrivenTestCase testCase)
         {
-#if NET472
-            if (testCase.Name.Contains("InUseConnections"))
-            {
-                throw new SkipException("https://jira.mongodb.org/browse/CSHARP-3165");
-            }
-#endif
-
-            if (testCase.Name.Contains("connectTimeoutMS=0"))
-            {
-                throw new SkipException("Not implemented: https://jira.mongodb.org/browse/CSHARP-3138");
-            }
-
-            if (testCase.Name.Contains("Ignore network timeout error on find") ||
-                testCase.Name.Contains("Network timeout on Monitor check") ||
-                testCase.Name.Contains("auth-network-timeout-error.json:Reset server and pool after network timeout error during authentication"))
-            {
-                throw new SkipException("https://jira.mongodb.org/browse/CSHARP-4459");
-            }
-
             using (var runner = new UnifiedTestRunner(loggingService: this, eventsProcessor: new SdamRunnerEventsProcessor(testCaseName: testCase.Name)))
             {
                 runner.Run(testCase);
