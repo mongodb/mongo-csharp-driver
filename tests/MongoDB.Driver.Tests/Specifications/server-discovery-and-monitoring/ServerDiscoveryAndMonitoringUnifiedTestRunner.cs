@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
         }
 
         // nested types
-        public class TestCaseFactory : JsonDrivenTestCaseFactory
+        public sealed class TestCaseFactory : JsonDrivenTestCaseFactory
         {
             // protected properties
             protected override string PathPrefix => "MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring.tests.unified.";
@@ -105,7 +105,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
             }
         }
 
-        private class SdamRunnerEventsProcessor : IEventsProcessor
+        private sealed class SdamRunnerEventsProcessor : IEventsProcessor
         {
             private readonly string _testCaseName;
 
@@ -121,30 +121,25 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
                 //      1. PoolClear; 2. CheckIn; 3. ConnectionClosed;
                 // but the currently triggered:
                 //      1. PoolClear; 2. ConnectionClosed; 3. CheckIn;
-                // So, below we manually change the events order to match the spec expectations
+                // So, below we manually change the events order for single pair of events for a specific connection to match the spec expectations
                 // See for details: CSHARP-4458
                 if (type == "cmap" && _testCaseName.Contains("InUseConnections"))
                 {
-                    var clearIndex = events.FindIndex(p => p is ConnectionPoolClearedEvent cpc && cpc.CloseInUseConnections);
-                    var connectionClosedIndex = events.FindLastIndex(p => p is ConnectionClosedEvent);
-                    if (clearIndex != -1)
+                    var clearWithCloseInUseIndex = events.FindIndex(p => p is ConnectionPoolClearedEvent cpc && cpc.CloseInUseConnections);
+                    if (clearWithCloseInUseIndex != -1)
                     {
-                        var clearEvent = events[clearIndex].Should().BeOfType<ConnectionPoolClearedEvent>().Subject;
-                        var closedEvent = events[connectionClosedIndex].Should().BeOfType<ConnectionClosedEvent>().Subject;
-                        events[connectionClosedIndex + 1].Should().BeOfType<ConnectionPoolCheckedInConnectionEvent>();
-                        if ((connectionClosedIndex - clearIndex) != 2)
+                        var connectionClosedEventIndex = events.FindIndex(startIndex: clearWithCloseInUseIndex, p => p is ConnectionClosedEvent);
+                        if (connectionClosedEventIndex != -1)
                         {
-                            Swap(events, connectionClosedIndex + 1, connectionClosedIndex);
+                            var connectionClosedEvent = (ConnectionClosedEvent)events[connectionClosedEventIndex];
+                            var relatedCheckedInEventIndex = events.FindIndex(startIndex: connectionClosedEventIndex, p => p is ConnectionPoolCheckedInConnectionEvent checkedInEvent && checkedInEvent.ConnectionId == connectionClosedEvent.ConnectionId);
+                            if (relatedCheckedInEventIndex != -1)
+                            {
+                                (events[relatedCheckedInEventIndex], events[connectionClosedEventIndex]) = (events[connectionClosedEventIndex], events[relatedCheckedInEventIndex]);
+                            }
                         }
                     }
                 }
-            }
-
-            private void Swap<T>(IList<T> list, int indexA, int indexB)
-            {
-                var temp = list[indexA];
-                list[indexA] = list[indexB];
-                list[indexB] = temp;
             }
         }
     }
