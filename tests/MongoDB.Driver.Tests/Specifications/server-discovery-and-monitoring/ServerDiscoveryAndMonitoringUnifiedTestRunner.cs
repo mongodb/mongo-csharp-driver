@@ -24,6 +24,7 @@ using Xunit;
 using Xunit.Sdk;
 using Xunit.Abstractions;
 using FluentAssertions;
+using System.Linq;
 
 namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
 {
@@ -69,7 +70,21 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
         {
             // protected properties
             protected override string PathPrefix => "MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring.tests.unified.";
-            
+
+            private static readonly string[] __ignoredTestNameKeys =
+            {
+#if NET472
+                // https://jira.mongodb.org/browse/CSHARP-3165
+                "InUseConnections",
+#endif
+                // "Not implemented: https://jira.mongodb.org/browse/CSHARP-3138"
+                "connectTimeoutMS=0",
+                // https://jira.mongodb.org/browse/CSHARP-4459
+                "Ignore network timeout error on find",
+                "Network timeout on Monitor check",
+                "auth-network-timeout-error.json:Reset server and pool after network timeout error during authentication"
+            };
+
             // protected methods
             protected override IEnumerable<JsonDrivenTestCase> CreateTestCases(BsonDocument document)
             {
@@ -82,6 +97,11 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
                         yield return new JsonDrivenTestCase(name, testCase.Shared, test);
                     }
                 }
+            }
+
+            protected override bool ShouldReadJsonDocument(string path)
+            {
+                return base.ShouldReadJsonDocument(path) && !__ignoredTestNameKeys.Any(tc => path.Contains(tc));
             }
         }
 

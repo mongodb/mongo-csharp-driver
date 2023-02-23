@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         private readonly Dictionary<string, IClientSessionHandle> _sessions;
         private readonly Dictionary<string, BsonDocument> _sessionIds;
         private readonly Dictionary<string, long> _successCounts;
-        private readonly ConcurrentDictionary<string, Task> _threads;
+        private readonly Dictionary<string, Task> _threads;
         private readonly Dictionary<string, ClusterDescription> _topologyDescriptions;
 
         private UnifiedEntityMap(
@@ -88,7 +88,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             Dictionary<string, IClientSessionHandle> sessions = null,
             Dictionary<string, BsonDocument> sessionIds = null,
             Dictionary<string, long> successCounts = null,
-            ConcurrentDictionary<string, Task> threads = null,
+            Dictionary<string, Task> threads = null,
             Dictionary<string, ClusterDescription> topologyDescriptions = null)
         {
             _buckets = buckets ?? new();
@@ -262,7 +262,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             }
         }
 
-        public ConcurrentDictionary<string, Task> Threads
+        public Dictionary<string, Task> Threads
         {
             get
             {
@@ -358,7 +358,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 var sessions = new Dictionary<string, IClientSessionHandle>();
                 var sessionIds = new Dictionary<string, BsonDocument>();
                 var successCounts = new Dictionary<string, long>();
-                var threads = new ConcurrentDictionary<string, Task>();
+                var threads = new Dictionary<string, Task>();
                 var topologyDescriptions = new Dictionary<string, ClusterDescription>();
 
                 if (entitiesArray != null)
@@ -417,7 +417,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                                 break;
                             case "thread":
                                 EnsureIsNotHandled(threads, id);
-                                threads.TryAdd(id, null);
+                                threads.Add(id, null);
                                 break;
                             default:
                                 throw new FormatException($"Invalid entity type: '{entityType}'.");
