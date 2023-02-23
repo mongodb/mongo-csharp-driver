@@ -24,7 +24,7 @@ using MongoDB.TestHelpers;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
-    public class UnifiedAssertEventCountOperation : IUnifiedSpecialTestOperation
+    public sealed class UnifiedAssertEventCountOperation : IUnifiedSpecialTestOperation
     {
         private readonly EventCapturer _eventCapturer;
         private readonly int _count;
@@ -49,7 +49,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         }
     }
 
-    public class UnifiedAssertEventCountOperationBuilder
+    public sealed class UnifiedAssertEventCountOperationBuilder
     {
         private readonly UnifiedEntityMap _entityMap;
 

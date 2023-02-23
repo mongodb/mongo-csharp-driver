@@ -32,9 +32,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
         #region static
         private static Dictionary<string, (Func<object, object> GetMappedDriverEvent, EventSetType EventSetType)> __eventsMapWithSpec = new()
         {
-            { "commandStartedEvent", ((e) => e as CommandStartedEvent?,  EventSetType.Command) },
-            { "commandSucceededEvent", ((e) => e as CommandSucceededEvent?, EventSetType.Command) },
-            { "commandFailedEvent", ((e) => e as CommandFailedEvent?, EventSetType.Command) },
+            { MongoUtils.ToCamelCase(nameof(CommandStartedEvent)), ((e) => e as CommandStartedEvent?,  EventSetType.Command) },
+            { MongoUtils.ToCamelCase(nameof(CommandSucceededEvent)), ((e) => e as CommandSucceededEvent?, EventSetType.Command) },
+            { MongoUtils.ToCamelCase(nameof(CommandFailedEvent)), ((e) => e as CommandFailedEvent?, EventSetType.Command) },
 
             { "connectionReadyEvent", ((e) => e as ConnectionOpenedEvent?, EventSetType.Cmap) },
             { "connectionCheckOutStartedEvent", ((e) => e as ConnectionPoolCheckingOutConnectionEvent?, EventSetType.Cmap) },
@@ -51,10 +51,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
 
         public static List<object> FilterEventsBySetType(List<object> events, string eventSetType)
         {
-            if (!Enum.TryParse<EventSetType>(eventSetType, ignoreCase: true, out var eventTypeEnum))
-            {
-                throw new FormatException($"Cannot parse {nameof(eventSetType)} enum from {eventSetType}.");
-            }
+            var eventTypeEnum = (EventSetType)Enum.Parse(typeof(EventSetType), eventSetType, ignoreCase: true);
 
             return events
                 .Where(e => __eventsMapWithSpec

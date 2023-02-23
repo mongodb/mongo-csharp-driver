@@ -23,7 +23,7 @@ using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
-    public class UnifiedAssertTopologyTypeOperation : IUnifiedSpecialTestOperation
+    public sealed class UnifiedAssertTopologyTypeOperation : IUnifiedSpecialTestOperation
     {
         private readonly string _expectedTopologyType;
         private readonly ClusterDescription _topologyDescription;
@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             };
     }
 
-    public class UnifiedAssertTopologyTypeOperationBuilder
+    public sealed class UnifiedAssertTopologyTypeOperationBuilder
     {
         private readonly UnifiedEntityMap _entityMap;
 

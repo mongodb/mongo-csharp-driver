@@ -15,7 +15,6 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -24,7 +23,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
-    public class UnifiedRunOnThreadOperation : IUnifiedOperationWithCreateAndRunOperationCallback
+    public sealed class UnifiedRunOnThreadOperation : IUnifiedOperationWithCreateAndRunOperationCallback
     {
         private readonly ConcurrentDictionary<string, Task> _threads;
         private readonly BsonDocument _operation;
@@ -60,7 +59,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         }
     }
 
-    public class UnifiedRunOnThreadOperationBuilder
+    public sealed class UnifiedRunOnThreadOperationBuilder
     {
         private readonly UnifiedEntityMap _entityMap;
 

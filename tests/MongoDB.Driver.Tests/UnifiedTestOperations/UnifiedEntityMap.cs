@@ -300,32 +300,24 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         public void AddRange(BsonArray entities)
         {
             var entityMap = _creator.Create(entities, _async);
-            Merge(_buckets, entityMap._buckets);
-            Merge(_changeStreams, entityMap._changeStreams);
-            Merge(_clients, entityMap._clients);
-            Merge(_clientEncryptions, entityMap._clientEncryptions);
-            Merge(_clientEventCapturers, entityMap._clientEventCapturers);
-            Merge(_collections, entityMap._collections);
-            Merge(_cursors, entityMap._cursors);
-            Merge(_databases, entityMap._databases);
-            Merge(_errorDocuments, entityMap._errorDocuments);
-            Merge(_failureDocuments, entityMap._failureDocuments);
-            Merge(_iterationCounts, entityMap._iterationCounts);
-            Merge(_loggingComponents, entityMap._loggingComponents);
-            Merge(_results, entityMap._results);
-            Merge(_sessions, entityMap._sessions);
-            Merge(_sessionIds, entityMap._sessionIds);
-            Merge(_successCounts, entityMap._successCounts);
-            Merge(_threads, entityMap._threads);
-            Merge(_topologyDescriptions, entityMap._topologyDescriptions);
-
-            void Merge<TValue>(IDictionary<string, TValue> baseDictionary, IDictionary<string, TValue> dictionaryToAdd)
-            {
-                foreach (var newItem in dictionaryToAdd)
-                {
-                    baseDictionary.Add(newItem.Key, newItem.Value);
-                }
-            }
+            _buckets.AddRange(entityMap._buckets);
+            _changeStreams.AddRange(entityMap._changeStreams);
+            _clients.AddRange(entityMap._clients);
+            _clientEncryptions.AddRange(entityMap._clientEncryptions);
+            _clientEventCapturers.AddRange(entityMap._clientEventCapturers);
+            _collections.AddRange(entityMap._collections);
+            _cursors.AddRange(entityMap._cursors);
+            _databases.AddRange(entityMap._databases);
+            _errorDocuments.AddRange(entityMap._errorDocuments);
+            _failureDocuments.AddRange(entityMap._failureDocuments);
+            _iterationCounts.AddRange(entityMap._iterationCounts);
+            _loggingComponents.AddRange(entityMap._loggingComponents);
+            _results.AddRange(entityMap._results);
+            _sessions.AddRange(entityMap._sessions);
+            _sessionIds.AddRange(entityMap._sessionIds);
+            _successCounts.AddRange(entityMap._successCounts);
+            _threads.AddRange(entityMap._threads);
+            _topologyDescriptions.AddRange(entityMap._topologyDescriptions);
         }
 
         // private methods
@@ -337,7 +329,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             }
         }
 
-        private class UnifiedEntityMapCreator
+        private sealed class UnifiedEntityMapCreator
         {
             private readonly Dictionary<string, IEventFormatter> _eventFormatters;
             private readonly LoggingSettings _loggingSettings;
