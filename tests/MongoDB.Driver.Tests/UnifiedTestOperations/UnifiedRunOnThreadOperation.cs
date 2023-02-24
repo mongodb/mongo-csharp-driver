@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -39,24 +38,19 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
         public void Execute(Action<BsonDocument, bool, CancellationToken> createAndRunOperationCallback, CancellationToken cancellationToken)
         {
-            AssignTask(() => Execute(createAndRunOperationCallback, async: false, cancellationToken), cancellationToken);
+            AssignTask(createAndRunOperationCallback, async: false, cancellationToken);
         }
 
         public Task ExecuteAsync(Action<BsonDocument, bool, CancellationToken> createAndRunOperationCallback, CancellationToken cancellationToken)
         {
-            AssignTask(() => Execute(createAndRunOperationCallback, async: true, cancellationToken), cancellationToken);
+            AssignTask(createAndRunOperationCallback, async: true, cancellationToken);
             return Task.CompletedTask;
         }
 
         // private methods
-        private void AssignTask(Action action, CancellationToken cancellationToken)
+        private void AssignTask(Action<BsonDocument, bool, CancellationToken> action, bool async, CancellationToken cancellationToken)
         {
-            _threads[_threadKey] = TasksUtils.CreateTaskOnOwnThread(action, cancellationToken);
-        }
-
-        private void Execute(Action<BsonDocument, bool, CancellationToken> createAndRunOperationCallback, bool async, CancellationToken cancellationToken)
-        {
-            createAndRunOperationCallback(_operation, async, cancellationToken);
+            _threads[_threadKey] = TasksUtils.CreateTaskOnOwnThread(() => action(_operation, async, cancellationToken), cancellationToken);
         }
     }
 

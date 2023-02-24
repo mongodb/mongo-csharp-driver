@@ -19,7 +19,7 @@ namespace MongoDB.TestHelpers
     public static class FluentAssertionsHelper
     {
         /// <summary>
-        /// Needs to workaround issues with inner string.Format logic inside FluentAssertions  and '{' / '}' in the original message.
+        /// Is needed to workaround issues with inner string.Format logic inside FluentAssertions  and '{' / '}' in the original message.
         /// </summary>
         /// <param name="becausePart">The original because message.</param>
         /// <returns>The protected because message.</returns>

@@ -30,13 +30,12 @@ using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Tests.UnifiedTestOperations.Matchers;
 using Xunit.Sdk;
-using MongoDB.Driver.Core.Events;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
     public interface IEventsProcessor
     {
-        public void PostProcessEvents(List<object> events, string type);
+        void PostProcessEvents(List<object> events, string type);
     }
 
     public sealed class UnifiedTestRunner : IDisposable
