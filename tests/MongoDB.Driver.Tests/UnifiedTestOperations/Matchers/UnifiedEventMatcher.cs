@@ -30,52 +30,66 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
     public class UnifiedEventMatcher
     {
         #region static
-        private static Dictionary<string, (Func<object, object> GetMappedDriverEvent, EventSetType EventSetType)> __eventsMapWithSpec = new()
+        private static Dictionary<string, (EventType EventType, EventSetType EventSetType)> __eventsMapWithSpec = new()
         {
-            { MongoUtils.ToCamelCase(nameof(CommandStartedEvent)), ((e) => e as CommandStartedEvent?,  EventSetType.Command) },
-            { MongoUtils.ToCamelCase(nameof(CommandSucceededEvent)), ((e) => e as CommandSucceededEvent?, EventSetType.Command) },
-            { MongoUtils.ToCamelCase(nameof(CommandFailedEvent)), ((e) => e as CommandFailedEvent?, EventSetType.Command) },
+            { MongoUtils.ToCamelCase(nameof(CommandStartedEvent)), (EventType.CommandStarted, EventSetType.Command) },
+            { MongoUtils.ToCamelCase(nameof(CommandSucceededEvent)), (EventType.CommandSucceeded, EventSetType.Command) },
+            { MongoUtils.ToCamelCase(nameof(CommandFailedEvent)), (EventType.CommandFailed, EventSetType.Command) },
 
-            { "connectionReadyEvent", ((e) => e as ConnectionOpenedEvent?, EventSetType.Cmap) },
-            { "connectionCheckOutStartedEvent", ((e) => e as ConnectionPoolCheckingOutConnectionEvent?, EventSetType.Cmap) },
-            { "connectionCheckedOutEvent", ((e) => e as ConnectionPoolCheckedOutConnectionEvent?, EventSetType.Cmap) },
-            { "connectionCheckedInEvent", ((e) => e as ConnectionPoolCheckedInConnectionEvent?, EventSetType.Cmap) },
-            { "connectionClosedEvent", ((e) => e as ConnectionClosedEvent?, EventSetType.Cmap) },
-            { "connectionCreatedEvent", ((e) => e as ConnectionCreatedEvent?, EventSetType.Cmap) },
-            { "connectionCheckOutFailedEvent", (e => e as ConnectionPoolCheckingOutConnectionFailedEvent?, EventSetType.Cmap) },
-            { "poolClearedEvent", ((e) => e as ConnectionPoolClearedEvent?, EventSetType.Cmap) },
-            { "poolReadyEvent", ((e) => e as ConnectionPoolReadyEvent?, EventSetType.Cmap) },
+            { "connectionReadyEvent", (EventType.ConnectionOpened, EventSetType.Cmap) },
+            { "connectionCheckOutStartedEvent", (EventType.ConnectionPoolCheckingOutConnection, EventSetType.Cmap) },
+            { "connectionCheckedOutEvent", (EventType.ConnectionPoolCheckedOutConnection, EventSetType.Cmap) },
+            { "connectionCheckedInEvent", (EventType.ConnectionPoolCheckedInConnection, EventSetType.Cmap) },
+            { "connectionClosedEvent", (EventType.ConnectionClosed, EventSetType.Cmap) },
+            { "connectionCreatedEvent", (EventType.ConnectionCreated, EventSetType.Cmap) },
+            { "connectionCheckOutFailedEvent", (EventType.ConnectionPoolCheckingOutConnectionFailed, EventSetType.Cmap) },
+            { "poolClearedEvent", (EventType.ConnectionPoolCleared, EventSetType.Cmap) },
+            { "poolReadyEvent", (EventType.ConnectionPoolReady, EventSetType.Cmap) },
 
-            { "serverDescriptionChangedEvent", ((e) => e as ServerDescriptionChangedEvent?, EventSetType.Sdam) }
+            { "serverDescriptionChangedEvent", (EventType.ServerDescriptionChanged, EventSetType.Sdam) }
         };
 
-        public static List<object> FilterEventsBySetType(List<object> events, string eventSetType)
+        private static readonly Dictionary<EventSetType, Dictionary<EventType, string>> __eventsMapBySetType;
+
+        static UnifiedEventMatcher()
+        {
+            __eventsMapWithSpec.Values.Select(i => i.EventType).Should().OnlyHaveUniqueItems(); // smoke test for configuration
+            __eventsMapBySetType = __eventsMapWithSpec
+                .ToList()
+                .GroupBy(gi => gi.Value.EventSetType, gi => new { Type = gi.Value.EventType, SpecName = gi.Key})
+                .ToDictionary(dk => dk.Key, dv => dv.ToDictionary(idk => idk.Type, idv => idv.SpecName));
+        }
+
+        internal static List<object> FilterEventsBySetType(IEnumerable<object> events, string eventSetType)
         {
             var eventTypeEnum = (EventSetType)Enum.Parse(typeof(EventSetType), eventSetType, ignoreCase: true);
 
             return events
-                .Where(e => __eventsMapWithSpec
-                    .Values
-                    .Where(v => v.GetMappedDriverEvent(e) != null)
-                    .Should().ContainSingle("because mapping for driver side events should be unique.")
-                    .Which.EventSetType == eventTypeEnum)
+                .OfType<IEvent>()
+                .Where(e => __eventsMapBySetType[eventTypeEnum].ContainsKey(e.Type))
+                .Cast<object>()
                 .ToList();
         }
 
         public static Func<object, bool> GetEventFilter(BsonDocument expectedEvent)
         {
-            var elements = expectedEvent.Elements.Single();           
+            var elements = expectedEvent.Elements.Single();
             var expectedSpecEvent = elements.Name;
 
             return (actualEvent) =>
             {
-                var mappedActualEvent = __eventsMapWithSpec[expectedSpecEvent].GetMappedDriverEvent(actualEvent); // null if event is not expected
+                var @event = actualEvent.Should().BeAssignableTo<IEvent>().Subject;
                 return
-                    mappedActualEvent != null &&
-                    (mappedActualEvent is ServerDescriptionChangedEvent serverDescriptionChangedEvent
-                        ? IsExpectedServerDescriptionChangedEvent(serverDescriptionChangedEvent, elements)
-                        : true); // ignore this for non `ServerDescriptionChangedEvent`s
+                    __eventsMapWithSpec[expectedSpecEvent].EventType == @event.Type &&
+                    MatchIfComplexEvent(@event, elements);
             };
+
+            static bool MatchIfComplexEvent(IEvent @event, BsonElement elements) =>
+                @event switch
+                {
+                    ServerDescriptionChangedEvent serverDescriptionChangedvent => IsExpectedServerDescriptionChangedEvent(serverDescriptionChangedvent, elements),
+                    _ => true,// validate only name in the rest of cases
+                };
 
             static bool IsExpectedServerDescriptionChangedEvent(ServerDescriptionChangedEvent serverDescriptionChangedEvent, BsonElement elements)
             {
@@ -83,28 +97,28 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                 return
                     newDescriptionType == null || // no additional filter
                     serverDescriptionChangedEvent.NewDescription.Type == MapServerType(newDescriptionType);
-            }
 
-            static string GetServerDescriptionChangedFilter(BsonElement elements)
-            {
-                string newDescriptionType = null;
-                var bodyDocument = elements.Value.AsBsonDocument;
-                foreach (var element in bodyDocument.Elements)
+                static string GetServerDescriptionChangedFilter(BsonElement elements)
                 {
-                    switch (element.Name)
+                    string newDescriptionType = null;
+                    var bodyDocument = elements.Value.AsBsonDocument;
+                    foreach (var element in bodyDocument.Elements)
                     {
-                        case "newDescription": newDescriptionType = element.Value.AsBsonDocument["type"].AsString; break;
-                        default: throw new Exception($"Unexpected event filter key: {element.Name}.");
+                        switch (element.Name)
+                        {
+                            case "newDescription": newDescriptionType = element.Value.AsBsonDocument["type"].AsString; break;
+                            default: throw new Exception($"Unexpected event filter key: {element.Name}.");
+                        }
                     }
+                    return newDescriptionType;
                 }
-                return newDescriptionType;
-            }
 
-            static ServerType MapServerType(string value) => value switch
-            {
-                "Unknown" => ServerType.Unknown,
-                _ => throw new Exception($"Unsupported event filter server type: {value}."),
-            };
+                static ServerType MapServerType(string value) => value switch
+                {
+                    "Unknown" => ServerType.Unknown,
+                    _ => throw new Exception($"Unsupported event filter server type: {value}."),
+                };
+            }
         }
         #endregion
 
@@ -143,13 +157,13 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
 
             for (int i = 0; i < expectedEventsDocuments.Count; i++)
             {
-                var actualEvent = actualEvents[i];
+                var actualEvent = actualEvents[i].Should().BeAssignableTo<IEvent>().Subject;
                 var expectedEventDocument = expectedEventsDocuments[i].AsBsonDocument;
                 var expectedEventType = expectedEventDocument.Elements.Should().ContainSingle().Subject.Name;
                 var expectedEventValue = expectedEventDocument[0].AsBsonDocument;
-                var expectedDriverEvent = __eventsMapWithSpec[expectedEventType].GetMappedDriverEvent(actualEvent).Should().NotBeNull().And.Subject;
+                __eventsMapWithSpec[expectedEventType].EventType.Should().Be(actualEvent.Type); // events match
 
-                switch (expectedDriverEvent)
+                switch (actualEvent)
                 {
                     case CommandStartedEvent commandStartedEvent:
                         foreach (var element in expectedEventValue)

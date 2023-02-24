@@ -30,6 +30,7 @@ using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Tests.UnifiedTestOperations.Matchers;
 using Xunit.Sdk;
+using MongoDB.Driver.Core.Events;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
