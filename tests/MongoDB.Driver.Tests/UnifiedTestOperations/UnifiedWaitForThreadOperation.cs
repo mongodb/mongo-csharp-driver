@@ -20,7 +20,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
-    public class UnifiedWaitForThreadOperation : IUnifiedSpecialTestOperation
+    public sealed class UnifiedWaitForThreadOperation : IUnifiedSpecialTestOperation
     {
         private readonly Task _thread;
 
@@ -35,7 +35,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         }
     }
 
-    public class UnifiedWaitForThreadOperationBuilder
+    public sealed class UnifiedWaitForThreadOperationBuilder
     {
         private readonly UnifiedEntityMap _entityMap;
 

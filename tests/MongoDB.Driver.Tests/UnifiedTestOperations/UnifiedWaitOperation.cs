@@ -14,8 +14,6 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -23,7 +21,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
-    public class UnifiedWaitOperation : IUnifiedEntityTestOperation
+    public sealed class UnifiedWaitOperation : IUnifiedEntityTestOperation
     {
         private readonly TimeSpan _waitInterval;
 
@@ -34,20 +32,20 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
         public OperationResult Execute(CancellationToken cancellationToken)
         {
-            Thread.Sleep(_waitInterval);
+            ThreadHelper.Sleep(_waitInterval, cancellationToken);
 
             return OperationResult.Empty();
         }
 
         public async Task<OperationResult> ExecuteAsync(CancellationToken cancellationToken)
         {
-            await Task.Delay(_waitInterval);
+            await Task.Delay(_waitInterval, cancellationToken);
 
             return OperationResult.Empty();
         }
     }
 
-    public class UnifiedWaitOperationBuilder
+    public sealed class UnifiedWaitOperationBuilder
     {
         private readonly UnifiedEntityMap _entityMap;
 
