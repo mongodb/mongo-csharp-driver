@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 
         public string GetParameterName(ParameterExpression parameter)
         {
-            if (parameter.Name != null)
+            if (!string.IsNullOrEmpty(parameter.Name))
             {
                 return parameter.Name;
             }

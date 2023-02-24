@@ -49,6 +49,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                     return TranslateConvertToNullable(field);
                 }
 
+                if (IsConvertToBaseType(fieldType, targetType))
+                {
+                    return TranslateConvertToBaseType(field, targetType);
+                }
+
                 if (IsConvertToDerivedType(fieldType, targetType))
                 {
                     return TranslateConvertToDerivedType(field, targetType);
@@ -63,6 +68,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             return
                 fieldType.IsEnumOrNullableEnum(out _, out var underlyingType) &&
                 targetType.IsSameAsOrNullableOf(underlyingType);
+        }
+
+        private static bool IsConvertToBaseType(Type fieldType, Type targetType)
+        {
+            return fieldType.IsSubclassOf(targetType);
         }
 
         private static bool IsConvertToDerivedType(Type fieldType, Type targetType)
@@ -132,6 +142,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 targetSerializer = enumUnderlyingTypeSerializer;
             }
 
+            return AstFilter.Field(field.Path, targetSerializer);
+        }
+
+        private static AstFilterField TranslateConvertToBaseType(AstFilterField field, Type baseType)
+        {
+            var derivedTypeSerializer = field.Serializer;
+            var derivedType = derivedTypeSerializer.ValueType;
+            var targetSerializer = DowncastingSerializer.Create(baseType, derivedType, derivedTypeSerializer);
             return AstFilter.Field(field.Path, targetSerializer);
         }
 

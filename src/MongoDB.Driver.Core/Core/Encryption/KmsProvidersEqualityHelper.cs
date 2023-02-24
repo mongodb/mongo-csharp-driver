@@ -16,28 +16,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Encryption
 {
     internal static class KmsProvidersEqualityHelper
     {
-        public static void EnsureKmsProvidersAreValid(IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> kmsProviders)
-        {
-            foreach (var kmsProvider in kmsProviders)
-            {
-                foreach (var option in Ensure.IsNotNull(kmsProvider.Value, nameof(kmsProvider)))
-                {
-                    var optionValue = Ensure.IsNotNull(option.Value, "kmsProviderOption");
-                    var isValid = optionValue is byte[] || optionValue is string;
-                    if (!isValid)
-                    {
-                        throw new ArgumentException($"Invalid kms provider option type: {optionValue.GetType().Name}.");
-                    }
-                }
-            }
-        }
-
         public static bool Equals(IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> x, IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> y)
         {
             return x.IsEquivalentTo(y, KmsProviderIsEquivalentTo);

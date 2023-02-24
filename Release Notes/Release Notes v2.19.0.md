@@ -12,6 +12,8 @@ The main new features in 2.19.0 include:
 * Support Azure VM-assigned Managed Identity for Automatic KMS Credentials
 * Native support for AWS IAM Roles
 
+This version addresses [CVE-2022-48282](https://www.cve.org/CVERecord?id=CVE-2022-48282).
+
 ### ObjectSerializer allowed types configuration
 
 The `ObjectSerializer` has been changed to only allow deserialization of types that are considered safe. 

@@ -47,8 +47,8 @@ namespace MongoDB.Driver.Tests.Encryption
 
             using (var subject = CreateSubject())
             {
-                ShouldBeArgumentException(Record.Exception(() => subject.AddAlternateKeyName(id: guid, alternateKeyName: null)), expectedParamName: "alternateKeyName");
-                ShouldBeArgumentException(await Record.ExceptionAsync(() => subject.AddAlternateKeyNameAsync(id: guid, alternateKeyName: null)), expectedParamName: "alternateKeyName");
+                ShouldBeArgumentNullException(Record.Exception(() => subject.AddAlternateKeyName(id: guid, alternateKeyName: null)), expectedParamName: "alternateKeyName");
+                ShouldBeArgumentNullException(await Record.ExceptionAsync(() => subject.AddAlternateKeyNameAsync(id: guid, alternateKeyName: null)), expectedParamName: "alternateKeyName");
             }
         }
 
@@ -59,8 +59,8 @@ namespace MongoDB.Driver.Tests.Encryption
 
             using (var subject = CreateSubject())
             {
-                ShouldBeArgumentException(Record.Exception(() => subject.CreateDataKey(kmsProvider: null, new DataKeyOptions())), expectedParamName: "kmsProvider");
-                ShouldBeArgumentException(await Record.ExceptionAsync(() => subject.CreateDataKeyAsync(kmsProvider: null, new DataKeyOptions())), expectedParamName: "kmsProvider");
+                ShouldBeArgumentNullException(Record.Exception(() => subject.CreateDataKey(kmsProvider: null, new DataKeyOptions())), expectedParamName: "kmsProvider");
+                ShouldBeArgumentNullException(await Record.ExceptionAsync(() => subject.CreateDataKeyAsync(kmsProvider: null, new DataKeyOptions())), expectedParamName: "kmsProvider");
 
                 _ = subject.CreateDataKey(kmsProvider: "local", dataKeyOptions: null);
                 _ = await subject.CreateDataKeyAsync(kmsProvider: "local", dataKeyOptions: null);
@@ -75,36 +75,48 @@ namespace MongoDB.Driver.Tests.Encryption
             var createCollectionOptions = new CreateCollectionOptions();
             var database = Mock.Of<IMongoDatabase>();
 
-            var dataKeyOptions = new DataKeyOptions();
+            var masterKey = new BsonDocument();
 
             using (var subject = CreateSubject())
             {
-                ShouldBeArgumentException(Record.Exception(() => subject.CreateEncryptedCollection(database: null, collectionName, createCollectionOptions, kmsProvider, dataKeyOptions)), expectedParamName: "database");
-                ShouldBeArgumentException(await Record.ExceptionAsync(() => subject.CreateEncryptedCollectionAsync(database: null, collectionName, createCollectionOptions, kmsProvider, dataKeyOptions)), expectedParamName: "database");
+                ShouldBeArgumentNullException(Record.Exception(() => subject.CreateEncryptedCollection(database: null, collectionName, createCollectionOptions, kmsProvider, masterKey)), expectedParamName: "database");
+                ShouldBeArgumentNullException(await Record.ExceptionAsync(() => subject.CreateEncryptedCollectionAsync(database: null, collectionName, createCollectionOptions, kmsProvider, masterKey)), expectedParamName: "database");
 
-                ShouldBeArgumentException(Record.Exception(() => subject.CreateEncryptedCollection(database, collectionName: null, createCollectionOptions, kmsProvider, dataKeyOptions)), expectedParamName: "collectionName");
-                ShouldBeArgumentException(await Record.ExceptionAsync(() => subject.CreateEncryptedCollectionAsync(database, collectionName: null, createCollectionOptions, kmsProvider, dataKeyOptions)), expectedParamName: "collectionName");
+                ShouldBeArgumentNullException(Record.Exception(() => subject.CreateEncryptedCollection(database, collectionName: null, createCollectionOptions, kmsProvider, masterKey)), expectedParamName: "collectionName");
+                ShouldBeArgumentNullException(await Record.ExceptionAsync(() => subject.CreateEncryptedCollectionAsync(database, collectionName: null, createCollectionOptions, kmsProvider, masterKey)), expectedParamName: "collectionName");
 
-                ShouldBeArgumentException(Record.Exception(() => subject.CreateEncryptedCollection(database, collectionName: collectionName, createCollectionOptions: null, kmsProvider, dataKeyOptions)), expectedParamName: "createCollectionOptions");
-                ShouldBeArgumentException(await Record.ExceptionAsync(() => subject.CreateEncryptedCollectionAsync(database, collectionName, createCollectionOptions: null, kmsProvider, dataKeyOptions)), expectedParamName: "createCollectionOptions");
+                ShouldBeArgumentNullException(Record.Exception(() => subject.CreateEncryptedCollection(database, collectionName: collectionName, createCollectionOptions: null, kmsProvider, masterKey)), expectedParamName: "createCollectionOptions");
+                ShouldBeArgumentNullException(await Record.ExceptionAsync(() => subject.CreateEncryptedCollectionAsync(database, collectionName, createCollectionOptions: null, kmsProvider, masterKey)), expectedParamName: "createCollectionOptions");
 
-                ShouldBeArgumentException(Record.Exception(() => subject.CreateEncryptedCollection(database, collectionName: collectionName, createCollectionOptions, kmsProvider: null, dataKeyOptions)), expectedParamName: "kmsProvider");
-                ShouldBeArgumentException(await Record.ExceptionAsync(() => subject.CreateEncryptedCollectionAsync(database, collectionName, createCollectionOptions, kmsProvider: null, dataKeyOptions)), expectedParamName: "kmsProvider");
+                ShouldBeArgumentNullException(Record.Exception(() => subject.CreateEncryptedCollection(database, collectionName: collectionName, createCollectionOptions, kmsProvider: null, masterKey)), expectedParamName: "kmsProvider");
+                ShouldBeArgumentNullException(await Record.ExceptionAsync(() => subject.CreateEncryptedCollectionAsync(database, collectionName, createCollectionOptions, kmsProvider: null, masterKey)), expectedParamName: "kmsProvider");
 
-                ShouldBeArgumentException(Record.Exception(() => subject.CreateEncryptedCollection(database, collectionName: collectionName, createCollectionOptions, kmsProvider, dataKeyOptions: null)), expectedParamName: "dataKeyOptions");
-                ShouldBeArgumentException(await Record.ExceptionAsync(() => subject.CreateEncryptedCollectionAsync(database, collectionName, createCollectionOptions, kmsProvider, dataKeyOptions: null)), expectedParamName: "dataKeyOptions");
+                var invalidDataKeyOptions = new DataKeyOptions(alternateKeyNames: Optional.Create(Mock.Of<IReadOnlyList<string>>()));
+#pragma warning disable CS0618 // Type or member is obsolete
+                Record.Exception(() => subject.CreateEncryptedCollection(database, collectionName: collectionName, createCollectionOptions, kmsProvider, dataKeyOptions: invalidDataKeyOptions))
+                    .Should().BeOfType<ArgumentException>().Which.Message.Should().Be("CreateEncryptedCollection supports only MasterKey in DataKeyOptions.");
+                (await Record.ExceptionAsync(() => subject.CreateEncryptedCollectionAsync(database, collectionName, createCollectionOptions, kmsProvider, dataKeyOptions: invalidDataKeyOptions)))
+                    .Should().BeOfType<ArgumentException>().Which.Message.Should().Be("CreateEncryptedCollection supports only MasterKey in DataKeyOptions.");
+
+                invalidDataKeyOptions = new DataKeyOptions(keyMaterial: new BsonBinaryData(new byte[0]));
+                Record.Exception(() => subject.CreateEncryptedCollection(database, collectionName: collectionName, createCollectionOptions, kmsProvider, dataKeyOptions: invalidDataKeyOptions))
+                    .Should().BeOfType<ArgumentException>().Which.Message.Should().Be("CreateEncryptedCollection supports only MasterKey in DataKeyOptions.");
+                (await Record.ExceptionAsync(() => subject.CreateEncryptedCollectionAsync(database, collectionName, createCollectionOptions, kmsProvider, dataKeyOptions: invalidDataKeyOptions)))
+                    .Should().BeOfType<ArgumentException>().Which.Message.Should().Be("CreateEncryptedCollection supports only MasterKey in DataKeyOptions.");
+#pragma warning restore CS0618 // Type or member is obsolete
             }
+
         }
 
         [Fact]
-        public async Task CreateEncryptedCollection_should_handle_save_generated_key_when_second_key_failed()
+        public async Task CreateEncryptedCollection_should_handle_generated_key_when_second_key_failed()
         {
             const string kmsProvider = "local";
             const string collectionName = "collName";
             const string encryptedFieldsStr = "{ fields : [{ keyId : null }, { keyId : null }] }";
             var database = Mock.Of<IMongoDatabase>(d => d.DatabaseNamespace == new DatabaseNamespace("db"));
 
-            var dataKeyOptions = new DataKeyOptions();
+            var masterKey = new BsonDocument();
 
             var mockCollection = new Mock<IMongoCollection<BsonDocument>>();
             mockCollection
@@ -123,14 +135,14 @@ namespace MongoDB.Driver.Tests.Encryption
             using (var subject = CreateSubject(client.Object))
             {
                 var createCollectionOptions = new CreateCollectionOptions() { EncryptedFields = BsonDocument.Parse(encryptedFieldsStr) };
-                var exception = Record.Exception(() => subject.CreateEncryptedCollection(database, collectionName, createCollectionOptions, kmsProvider, dataKeyOptions));
-                AssertResults(exception, createCollectionOptions);
+                var exception = Record.Exception(() => subject.CreateEncryptedCollection(database, collectionName, createCollectionOptions, kmsProvider, masterKey));
+                AssertResults(exception);
 
-                exception = await Record.ExceptionAsync(() => subject.CreateEncryptedCollectionAsync(database, collectionName, createCollectionOptions, kmsProvider, dataKeyOptions));
-                AssertResults(exception, createCollectionOptions);
+                exception = await Record.ExceptionAsync(() => subject.CreateEncryptedCollectionAsync(database, collectionName, createCollectionOptions, kmsProvider, masterKey));
+                AssertResults(exception);
             }
 
-            void AssertResults(Exception ex, CreateCollectionOptions createCollectionOptions)
+            void AssertResults(Exception ex)
             {
                 var createCollectionException = ex.Should().BeOfType<MongoEncryptionCreateCollectionException>().Subject;
                 createCollectionException
@@ -167,7 +179,7 @@ namespace MongoDB.Driver.Tests.Encryption
             const string collectionName = "collName";
             var database = Mock.Of<IMongoDatabase>(d => d.DatabaseNamespace == new DatabaseNamespace("db"));
 
-            var dataKeyOptions = new DataKeyOptions();
+            var masterKey = new BsonDocument();
 
             using (var subject = CreateSubject())
             {
@@ -175,16 +187,16 @@ namespace MongoDB.Driver.Tests.Encryption
 
                 if (BsonDocument.TryParse(expectedResult, out var encryptedFields))
                 {
-                    var createCollectionResult = subject.CreateEncryptedCollection(database, collectionName, createCollectionOptions, kmsProvider, dataKeyOptions);
+                    var createCollectionResult = subject.CreateEncryptedCollection(database, collectionName, createCollectionOptions, kmsProvider, masterKey);
                     createCollectionResult.EncryptedFields.WithComparer(new EncryptedFieldsComparer()).Should().Be(encryptedFields.DeepClone());
 
-                    createCollectionResult = await subject.CreateEncryptedCollectionAsync(database, collectionName, createCollectionOptions, kmsProvider, dataKeyOptions);
+                    createCollectionResult = await subject.CreateEncryptedCollectionAsync(database, collectionName, createCollectionOptions, kmsProvider, masterKey);
                     createCollectionResult.EncryptedFields.WithComparer(new EncryptedFieldsComparer()).Should().Be(encryptedFields.DeepClone());
                 }
                 else
                 {
-                    AssertInvalidOperationException(Record.Exception(() => subject.CreateEncryptedCollection(database, collectionName, createCollectionOptions, kmsProvider, dataKeyOptions)), expectedResult);
-                    AssertInvalidOperationException(await Record.ExceptionAsync(() => subject.CreateEncryptedCollectionAsync(database, collectionName, createCollectionOptions, kmsProvider, dataKeyOptions)), expectedResult);
+                    AssertInvalidOperationException(Record.Exception(() => subject.CreateEncryptedCollection(database, collectionName, createCollectionOptions, kmsProvider, masterKey)), expectedResult);
+                    AssertInvalidOperationException(await Record.ExceptionAsync(() => subject.CreateEncryptedCollectionAsync(database, collectionName, createCollectionOptions, kmsProvider, masterKey)), expectedResult);
                 }
             }
 
@@ -230,8 +242,8 @@ namespace MongoDB.Driver.Tests.Encryption
 
             using (var subject = CreateSubject())
             {
-                ShouldBeArgumentException(Record.Exception(() => subject.Decrypt(value: null)), expectedParamName: "encryptedValue");
-                ShouldBeArgumentException(await Record.ExceptionAsync(() => subject.DecryptAsync(value: null)), expectedParamName: "encryptedValue");
+                ShouldBeArgumentNullException(Record.Exception(() => subject.Decrypt(value: null)), expectedParamName: "encryptedValue");
+                ShouldBeArgumentNullException(await Record.ExceptionAsync(() => subject.DecryptAsync(value: null)), expectedParamName: "encryptedValue");
             }
         }
 
@@ -242,11 +254,11 @@ namespace MongoDB.Driver.Tests.Encryption
 
             using (var subject = CreateSubject())
             {
-                ShouldBeArgumentException(Record.Exception(() => subject.Encrypt(value: "test", encryptOptions: null)), expectedParamName: "encryptOptions");
-                ShouldBeArgumentException(await Record.ExceptionAsync(() => subject.EncryptAsync(value: "test", encryptOptions: null)), expectedParamName: "encryptOptions");
+                ShouldBeArgumentNullException(Record.Exception(() => subject.Encrypt(value: "test", encryptOptions: null)), expectedParamName: "encryptOptions");
+                ShouldBeArgumentNullException(await Record.ExceptionAsync(() => subject.EncryptAsync(value: "test", encryptOptions: null)), expectedParamName: "encryptOptions");
 
-                ShouldBeArgumentException(Record.Exception(() => subject.Encrypt(value: null, new EncryptOptions(EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic, alternateKeyName: "test"))), expectedParamName: "value");
-                ShouldBeArgumentException(await Record.ExceptionAsync(() => subject.EncryptAsync(value: null, new EncryptOptions(EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic, alternateKeyName: "test"))), expectedParamName: "value");
+                ShouldBeArgumentNullException(Record.Exception(() => subject.Encrypt(value: null, new EncryptOptions(EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic, alternateKeyName: "test"))), expectedParamName: "value");
+                ShouldBeArgumentNullException(await Record.ExceptionAsync(() => subject.EncryptAsync(value: null, new EncryptOptions(EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic, alternateKeyName: "test"))), expectedParamName: "value");
             }
         }
 
@@ -278,8 +290,8 @@ namespace MongoDB.Driver.Tests.Encryption
 
             using (var subject = CreateSubject())
             {
-                ShouldBeArgumentException(Record.Exception(() => subject.GetKeyByAlternateKeyName(alternateKeyName: null)), expectedParamName: "alternateKeyName");
-                ShouldBeArgumentException(await Record.ExceptionAsync(() => subject.GetKeyByAlternateKeyNameAsync(alternateKeyName: null)), expectedParamName: "alternateKeyName");
+                ShouldBeArgumentNullException(Record.Exception(() => subject.GetKeyByAlternateKeyName(alternateKeyName: null)), expectedParamName: "alternateKeyName");
+                ShouldBeArgumentNullException(await Record.ExceptionAsync(() => subject.GetKeyByAlternateKeyNameAsync(alternateKeyName: null)), expectedParamName: "alternateKeyName");
             }
         }
 
@@ -292,8 +304,8 @@ namespace MongoDB.Driver.Tests.Encryption
 
             using (var subject = CreateSubject())
             {
-                ShouldBeArgumentException(Record.Exception(() => subject.RemoveAlternateKeyName(id: guid, alternateKeyName: null)), expectedParamName: "alternateKeyName");
-                ShouldBeArgumentException(await Record.ExceptionAsync(() => subject.RemoveAlternateKeyNameAsync(id: guid, alternateKeyName: null)), expectedParamName: "alternateKeyName");
+                ShouldBeArgumentNullException(Record.Exception(() => subject.RemoveAlternateKeyName(id: guid, alternateKeyName: null)), expectedParamName: "alternateKeyName");
+                ShouldBeArgumentNullException(await Record.ExceptionAsync(() => subject.RemoveAlternateKeyNameAsync(id: guid, alternateKeyName: null)), expectedParamName: "alternateKeyName");
             }
         }
 
@@ -304,8 +316,8 @@ namespace MongoDB.Driver.Tests.Encryption
 
             using (var subject = CreateSubject())
             {
-                ShouldBeArgumentException(Record.Exception(() => subject.RewrapManyDataKey(filter: null, options: new RewrapManyDataKeyOptions("local"))), expectedParamName: "filter");
-                ShouldBeArgumentException(await Record.ExceptionAsync(() => subject.RewrapManyDataKeyAsync(filter: null, options: new RewrapManyDataKeyOptions("local"))), expectedParamName: "filter");
+                ShouldBeArgumentNullException(Record.Exception(() => subject.RewrapManyDataKey(filter: null, options: new RewrapManyDataKeyOptions("local"))), expectedParamName: "filter");
+                ShouldBeArgumentNullException(await Record.ExceptionAsync(() => subject.RewrapManyDataKeyAsync(filter: null, options: new RewrapManyDataKeyOptions("local"))), expectedParamName: "filter");
 
                 _ = subject.RewrapManyDataKey(filter: FilterDefinition<BsonDocument>.Empty, options: null);
                 _ = await subject.RewrapManyDataKeyAsync(filter: FilterDefinition<BsonDocument>.Empty, options: null);
@@ -329,7 +341,7 @@ namespace MongoDB.Driver.Tests.Encryption
         private async ValueTask<BsonBinaryData> ExplicitEncryptAsync(ClientEncryption clientEncryption, EncryptOptions encryptOptions, BsonValue value, bool async) =>
             async? await clientEncryption.EncryptAsync(value, encryptOptions) : clientEncryption.Encrypt(value, encryptOptions);
 
-        private void ShouldBeArgumentException(Exception ex, string expectedParamName) => ex.Should().BeOfType<ArgumentNullException>().Which.ParamName.Should().Be(expectedParamName);
+        private void ShouldBeArgumentNullException(Exception ex, string expectedParamName) => ex.Should().BeOfType<ArgumentNullException>().Which.ParamName.Should().Be(expectedParamName);
     }
 
     internal static class ClientEncryptionReflector

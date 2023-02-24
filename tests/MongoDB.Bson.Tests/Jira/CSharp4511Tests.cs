@@ -21,11 +21,15 @@ using Xunit;
 
 namespace MongoDB.Bson.Tests.Jira
 {
-    public class CSharp4475Tests
+    public class CSharp4511Tests
     {
-        static CSharp4475Tests()
+        static CSharp4511Tests()
         {
-            var objectSerializerWithAllowedTypes = new ObjectSerializer(t => t == typeof(Allowed));
+            var objectSerializerWithAllowedTypes = new ObjectSerializer(
+                BsonSerializer.LookupDiscriminatorConvention(typeof(object)),
+                GuidRepresentation.Standard,
+                t => t == typeof(AllowedToBeDeserialized),
+                t => t == typeof(AllowedToBeSerialized));
 
             BsonClassMap.RegisterClassMap<C>(classMap =>
             {
@@ -37,33 +41,33 @@ namespace MongoDB.Bson.Tests.Jira
         [Fact]
         public void Deserialize_should_return_expected_result_when_deserializing_an_allowed_type()
         {
-            var json = "{ Object : { _t : 'MongoDB.Bson.Tests.Jira.CSharp4475Tests+Allowed, MongoDB.Bson.Tests', X : 1  } }";
+            var json = "{ Object : { _t : 'MongoDB.Bson.Tests.Jira.CSharp4511Tests+AllowedToBeDeserialized, MongoDB.Bson.Tests', X : 1  } }";
 
             var result = BsonSerializer.Deserialize<C>(json);
 
-            var allowed = result.Object.Should().BeOfType<Allowed>().Subject;
+            var allowed = result.Object.Should().BeOfType<AllowedToBeDeserialized>().Subject;
             allowed.X.Should().Be(1);
         }
 
         [Fact]
         public void Deserialize_should_throw_when_deserializing_a_not_allowed_type()
         {
-            var json = "{ Object : { _t : 'MongoDB.Bson.Tests.Jira.CSharp4475Tests+NotAllowed, MongoDB.Bson.Tests', X : 1  } }";
+            var json = "{ Object : { _t : 'MongoDB.Bson.Tests.Jira.CSharp4511Tests+NotAllowed, MongoDB.Bson.Tests', X : 1  } }";
 
             var exception = Record.Exception(() => BsonSerializer.Deserialize<C>(json));
 
             exception.Should().BeOfType<FormatException>();
-            exception.Message.Should().Be("An error occurred while deserializing the Object property of class MongoDB.Bson.Tests.Jira.CSharp4475Tests+C: Type MongoDB.Bson.Tests.Jira.CSharp4475Tests+NotAllowed is not configured as a type that is allowed to be deserialized for this instance of ObjectSerializer.");
+            exception.Message.Should().Be("An error occurred while deserializing the Object property of class MongoDB.Bson.Tests.Jira.CSharp4511Tests+C: Type MongoDB.Bson.Tests.Jira.CSharp4511Tests+NotAllowed is not configured as a type that is allowed to be deserialized for this instance of ObjectSerializer.");
         }
 
         [Fact]
         public void Serialize_should_have_expected_result_when_serializing_an_allowed_type()
         {
-            var c = new C { Object = new Allowed { X = 1 } };
+            var c = new C { Object = new AllowedToBeSerialized { X = 1 } };
 
             var result = c.ToJson();
 
-            result.Should().Be("{ \"Object\" : { \"_t\" : \"Allowed\", \"X\" : 1 } }");
+            result.Should().Be("{ \"Object\" : { \"_t\" : \"AllowedToBeSerialized\", \"X\" : 1 } }");
         }
 
         [Fact]
@@ -74,7 +78,7 @@ namespace MongoDB.Bson.Tests.Jira
             var exception = Record.Exception(() => c.ToJson());
 
             exception.Should().BeOfType<BsonSerializationException>();
-            exception.Message.Should().Be("An error occurred while serializing the Object property of class MongoDB.Bson.Tests.Jira.CSharp4475Tests+C: Type MongoDB.Bson.Tests.Jira.CSharp4475Tests+NotAllowed is not configured as a type that is allowed to be serialized for this instance of ObjectSerializer.");
+            exception.Message.Should().Be("An error occurred while serializing the Object property of class MongoDB.Bson.Tests.Jira.CSharp4511Tests+C: Type MongoDB.Bson.Tests.Jira.CSharp4511Tests+NotAllowed is not configured as a type that is allowed to be serialized for this instance of ObjectSerializer.");
         }
 
         public class C
@@ -82,7 +86,12 @@ namespace MongoDB.Bson.Tests.Jira
             public object Object { get; set; }
         }
 
-        public class Allowed
+        public class AllowedToBeDeserialized
+        {
+            public int X { get; set; }
+        }
+
+        public class AllowedToBeSerialized
         {
             public int X { get; set; }
         }
