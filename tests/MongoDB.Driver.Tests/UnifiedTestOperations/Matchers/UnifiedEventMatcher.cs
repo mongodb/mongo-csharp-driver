@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
     public class UnifiedEventMatcher
     {
         #region static
-        private static Dictionary<string, (EventType EventType, EventSetType EventSetType)> __eventsMapWithSpec = new()
+        private static readonly Dictionary<string, (EventType EventType, EventSetType EventSetType)> __eventsMapWithSpec = new()
         {
             { MongoUtils.ToCamelCase(nameof(CommandStartedEvent)), (EventType.CommandStarted, EventSetType.Command) },
             { MongoUtils.ToCamelCase(nameof(CommandSucceededEvent)), (EventType.CommandSucceeded, EventSetType.Command) },
@@ -55,18 +55,18 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
         {
             __eventsMapWithSpec.Values.Select(i => i.EventType).Should().OnlyHaveUniqueItems(); // smoke test for configuration
             __eventsMapBySetType = __eventsMapWithSpec
-                .ToList()
-                .GroupBy(gi => gi.Value.EventSetType, gi => new { Type = gi.Value.EventType, SpecName = gi.Key})
-                .ToDictionary(dk => dk.Key, dv => dv.ToDictionary(idk => idk.Type, idv => idv.SpecName));
+                .GroupBy(gi => gi.Value.EventSetType)
+                .ToDictionary(dk => dk.Key, dv => dv.ToDictionary(idk => idk.Value.EventType, idv => idv.Key));
         }
 
         internal static List<object> FilterEventsBySetType(IEnumerable<object> events, string eventSetType)
         {
             var eventTypeEnum = (EventSetType)Enum.Parse(typeof(EventSetType), eventSetType, ignoreCase: true);
+            var eventsBySetType = __eventsMapBySetType[eventTypeEnum];
 
             return events
                 .OfType<IEvent>()
-                .Where(e => __eventsMapBySetType[eventTypeEnum].ContainsKey(e.Type))
+                .Where(e => eventsBySetType.ContainsKey(e.Type))
                 .Cast<object>()
                 .ToList();
         }
@@ -88,7 +88,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                 @event switch
                 {
                     ServerDescriptionChangedEvent serverDescriptionChangedvent => IsExpectedServerDescriptionChangedEvent(serverDescriptionChangedvent, elements),
-                    _ => true,// validate only name in the rest of cases
+                    _ => true,// validate only type name in the rest of cases
                 };
 
             static bool IsExpectedServerDescriptionChangedEvent(ServerDescriptionChangedEvent serverDescriptionChangedEvent, BsonElement elements)
