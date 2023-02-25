@@ -74,7 +74,7 @@ namespace MongoDB.Driver.Tests
             // temporary disable the test on Auth envs due to operations timings irregularities
             RequireServer.Check().Authentication(false);
 
-            const string applicationName = "loadBalancingTest";
+            var applicationName = FailPoint.DecorateApplicationName("loadBalancingTest", async);
             const int threadsCount = 10;
             const int commandsFailPointPerThreadCount = 10;
             const int commandsPerThreadCount = 100;
@@ -90,7 +90,7 @@ namespace MongoDB.Driver.Tests
                 var slowServer = client.Cluster.SelectServer(WritableServerSelector.Instance, default);
                 var fastServer = client.Cluster.SelectServer(new DelegateServerSelector((_, servers) => servers.Where(s => s.ServerId != slowServer.ServerId)), default);
 
-                using var failPoint = FailPoint.Configure(slowServer, NoCoreSession.NewHandle(), failCommand);
+                using var failPoint = FailPoint.Configure(slowServer, NoCoreSession.NewHandle(), failCommand, async);
 
                 var database = client.GetDatabase(_databaseName);
                 CreateCollection();

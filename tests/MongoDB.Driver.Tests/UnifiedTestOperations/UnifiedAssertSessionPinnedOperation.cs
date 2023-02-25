@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 switch (argument.Name)
                 {
                     case "session":
-                        session = _entityMap.GetSession(argument.Value.AsString);
+                        session = _entityMap.Sessions[argument.Value.AsString];
                         break;
                     default:
                         throw new FormatException($"Invalid AssertSessionPinnedOperation argument name: '{argument.Name}'.");

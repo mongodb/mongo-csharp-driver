@@ -126,7 +126,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                                 continue;
                             case "$$matchesEntity":
                                 var resultId = operatorValue.AsString;
-                                expectedValue = _entityMap.GetResult(resultId);
+                                expectedValue = _entityMap.Resutls[resultId];
                                 break;
                             case "$$matchesHexBytes":
                                 expectedValue = operatorValue;
@@ -140,7 +140,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                                 break;
                             case "$$sessionLsid":
                                 var sessionId = operatorValue.AsString;
-                                expectedValue = _entityMap.GetSessionId(sessionId);
+                                expectedValue = _entityMap.SessionIds[sessionId];
                                 break;
                             default:
                                 throw new FormatException($"Unrecognized special operator: '{operatorName}'.");

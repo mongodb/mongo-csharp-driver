@@ -17,11 +17,9 @@ using System;
 using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
-using MongoDB.Driver.Core.ConnectionPools;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
@@ -36,9 +34,10 @@ namespace MongoDB.Driver.Core.TestHelpers
         public const string OnPrimaryTransactionalWrite = "onPrimaryTransactionalWrite";
     }
 
-
     public sealed class FailPoint : IDisposable
     {
+        private const string ApplicationNameTestableSuffix = "_async_";
+
         #region static
         // public static methods
         /// <summary>
@@ -48,10 +47,10 @@ namespace MongoDB.Driver.Core.TestHelpers
         /// <param name="session">The session.</param>
         /// <param name="command">The command.</param>
         /// <returns>A FailPoint containing the proper binding.</returns>
-        public static FailPoint Configure(ICluster cluster, ICoreSessionHandle session, BsonDocument command)
+        public static FailPoint Configure(ICluster cluster, ICoreSessionHandle session, BsonDocument command, bool? withAsync = null)
         {
             var server = GetWriteableServer(cluster);
-            return FailPoint.Configure(server, session, command);
+            return FailPoint.Configure(server, session, command, withAsync);
         }
 
         /// <summary>
@@ -61,9 +60,14 @@ namespace MongoDB.Driver.Core.TestHelpers
         /// <param name="session">The session.</param>
         /// <param name="command">The command.</param>
         /// <returns>A FailPoint containing the proper binding.</returns>
-        public static FailPoint Configure(IServer server, ICoreSessionHandle session, BsonDocument command)
+        public static FailPoint Configure(IServer server, ICoreSessionHandle session, BsonDocument command, bool? withAsync = null)
         {
             var binding = new SingleServerReadWriteBinding(server, session.Fork());
+            if (withAsync.HasValue)
+            {
+                MakeFailPointApplicationNameTestableIfConfigured(command, withAsync.Value);
+            }
+
             var failpoint = new FailPoint(server, binding, command);
             try
             {
@@ -85,12 +89,12 @@ namespace MongoDB.Driver.Core.TestHelpers
         /// <param name="name">The name.</param>
         /// <param name="args">The arguments for the FailPoint.</param>
         /// <returns>A FailPoint containing the proper binding.</returns>
-        public static FailPoint Configure(ICluster cluster, ICoreSessionHandle session, string name, BsonDocument args)
+        public static FailPoint Configure(ICluster cluster, ICoreSessionHandle session, string name, BsonDocument args, bool? withAsync = null)
         {
             Ensure.IsNotNull(name, nameof(name));
             Ensure.IsNotNull(args, nameof(args));
             var command = new BsonDocument("configureFailPoint", name).Merge(args, overwriteExistingElements: false);
-            return Configure(cluster, session, command);
+            return Configure(cluster, session, command, withAsync);
         }
 
         /// <summary>
@@ -100,31 +104,31 @@ namespace MongoDB.Driver.Core.TestHelpers
         /// <param name="session">The session.</param>
         /// <param name="name">The name.</param>
         /// <returns>A FailPoint containing the proper binding.</returns>
-        public static FailPoint ConfigureAlwaysOn(ICluster cluster, ICoreSessionHandle session, string name)
+        public static FailPoint ConfigureAlwaysOn(ICluster cluster, ICoreSessionHandle session, string name, bool? withAsync = null)
         {
             var args = new BsonDocument("mode", "alwaysOn");
-            return Configure(cluster, session, name, args);
+            return Configure(cluster, session, name, args, withAsync);
         }
 
-        /// <summary>
-        /// Creates a FailPoint that fails <paramref name="n"/> times.
-        /// </summary>
-        /// <param name="cluster">The cluster.</param>
-        /// <param name="session">The session.</param>
-        /// <param name="name">The name.</param>
-        /// <param name="n">The number of times to fail.</param>
-        /// <returns>A FailPoint containing the proper binding.</returns>
-        public static FailPoint ConfigureTimes(ICluster cluster, ICoreSessionHandle session, string name, int n)
-        {
-            var args = new BsonDocument("mode", new BsonDocument("times", n));
-            return Configure(cluster, session, name, args);
-        }
+        public static string DecorateApplicationName(string applicationName, bool async) => $"{applicationName}{ApplicationNameTestableSuffix}{async}";
 
         // private static methods
         private static IServer GetWriteableServer(ICluster cluster)
         {
             var selector = WritableServerSelector.Instance;
             return cluster.SelectServer(selector, CancellationToken.None);
+        }
+
+        private static void MakeFailPointApplicationNameTestableIfConfigured(BsonDocument command, bool async)
+        {
+            if (command.TryGetValue("data", out var dataBsonValue))
+            {
+                var dataDocument = dataBsonValue.AsBsonDocument;
+                if (dataDocument.TryGetValue("appName", out var appName) && !appName.AsString.Contains(ApplicationNameTestableSuffix))
+                {
+                    dataDocument["appName"] = DecorateApplicationName(appName.AsString, async);
+                }
+            }
         }
         #endregion
 

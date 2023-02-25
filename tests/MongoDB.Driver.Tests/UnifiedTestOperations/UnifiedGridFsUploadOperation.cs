@@ -81,7 +81,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
         public UnifiedGridFsUploadOperation Build(string targetBucketId, BsonDocument arguments)
         {
-            var bucket = _entityMap.GetBucket(targetBucketId);
+            var bucket = _entityMap.Buckets[targetBucketId];
 
             string filename = null;
             GridFSUploadOptions options = null;

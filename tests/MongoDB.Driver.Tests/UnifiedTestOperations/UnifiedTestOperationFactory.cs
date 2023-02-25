@@ -38,6 +38,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     "assertCollectionExists" => new UnifiedAssertCollectionExistsOperationBuilder().Build(operationArguments),
                     "assertCollectionNotExists" => new UnifiedAssertCollectionNotExistsOperationBuilder().Build(operationArguments),
                     "assertDifferentLsidOnLastTwoCommands" => new UnifiedAssertDifferentLsidOnLastTwoCommandsOperationBuilder(_entityMap).Build(operationArguments),
+                    "assertEventCount" => new UnifiedAssertEventCountOperationBuilder(_entityMap).Build(operationArguments),
                     "assertIndexExists" => new UnifiedAssertIndexExistsOperationBuilder().Build(operationArguments),
                     "assertIndexNotExists" => new UnifiedAssertIndexNotExistsOperationBuilder().Build(operationArguments),
                     "assertNumberConnectionsCheckedOut" => new UnifiedAssertNumberConnectionsCheckedOutOperationBuilder(_entityMap).Build(operationArguments),
@@ -47,14 +48,20 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     "assertSessionPinned" => new UnifiedAssertSessionPinnedOperationBuilder(_entityMap).Build(operationArguments),
                     "assertSessionTransactionState" => new UnifiedAssertSessionTransactionStateOperationBuilder(_entityMap).Build(operationArguments),
                     "assertSessionUnpinned" => new UnifiedAssertSessionUnpinnedOperationBuilder(_entityMap).Build(operationArguments),
+                    "assertTopologyType" => new UnifiedAssertTopologyTypeOperationBuilder(_entityMap).Build(operationArguments),
                     "createEntities" => new UnifiedCreateEntitiesOperationBuilder(_entityMap).Build(operationArguments),
                     "failPoint" => new UnifiedFailPointOperationBuilder(_entityMap).Build(operationArguments),
                     "loop" => new UnifiedLoopOperationBuilder(_entityMap, _additionalArgs).Build(operationArguments),
+                    "recordTopologyDescription" => new UnifiedRecordTopologyDescriptionOperationBuilder(_entityMap).Build(operationArguments),
+                    "runOnThread" => new UnifiedRunOnThreadOperationBuilder(_entityMap).Build(operationArguments),
                     "targetedFailPoint" => new UnifiedTargetedFailPointOperationBuilder(_entityMap).Build(operationArguments),
+                    "wait" => new UnifiedWaitOperationBuilder(_entityMap).Build(operationArguments),
                     "waitForEvent" => new UnifiedWaitForEventOperationBuilder(_entityMap).Build(operationArguments),
+                    "waitForThread" => new UnifiedWaitForThreadOperationBuilder(_entityMap).Build(operationArguments),
+                    "waitForPrimaryChange" => new UnifiedWaitForPrimaryChangeOperationBuilder(_entityMap).Build(operationArguments),
                     _ => throw new FormatException($"Invalid method name: '{operationName}'."),
                 },
-                _ when _entityMap.HasBucket(targetEntityId) => operationName switch
+                _ when _entityMap.Buckets.ContainsKey(targetEntityId) => operationName switch
                 {
                     "delete" => new UnifiedGridFsDeleteOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "download" => new UnifiedGridFsDownloadOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
@@ -67,7 +74,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     "close" => new UnifiedCloseCursorOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     _ => throw new FormatException($"Invalid method name: '{operationName}'."),
                 },
-                _ when _entityMap.HasClient(targetEntityId) => operationName switch
+                _ when _entityMap.Clients.ContainsKey(targetEntityId) => operationName switch
                 {
                     "close" => new UnifiedCloseClientOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "createChangeStream" => new UnifiedCreateChangeStreamOnClientOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
@@ -75,7 +82,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     "listDatabaseNames" => new UnifiedListDatabaseNamesOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     _ => throw new FormatException($"Invalid method name: '{operationName}'."),
                 },
-                _ when _entityMap.HasCollection(targetEntityId) => operationName switch
+                _ when _entityMap.Collections.ContainsKey(targetEntityId) => operationName switch
                 {
                     "aggregate" => new UnifiedAggregateOperationBuilder(_entityMap).BuildCollectionOperation(targetEntityId, operationArguments),
                     "bulkWrite" => new UnifiedBulkWriteOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
@@ -101,7 +108,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     "updateOne" => new UnifiedUpdateOneOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     _ => throw new FormatException($"Invalid method name: '{operationName}'."),
                 },
-                _ when _entityMap.HasDatabase(targetEntityId) => operationName switch
+                _ when _entityMap.Databases.ContainsKey(targetEntityId) => operationName switch
                 {
                     "aggregate" => new UnifiedAggregateOperationBuilder(_entityMap).BuildDatabaseOperation(targetEntityId, operationArguments),
                     "createCollection" => new UnifiedCreateCollectionOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
@@ -112,7 +119,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     "runCommand" => new UnifiedRunCommandOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     _ => throw new FormatException($"Invalid method name: '{operationName}'."),
                 },
-                _ when _entityMap.HasSession(targetEntityId) => operationName switch
+                _ when _entityMap.Sessions.ContainsKey(targetEntityId) => operationName switch
                 {
                     "abortTransaction" => new UnifiedAbortTransactionOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "commitTransaction" => new UnifiedCommitTransactionOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),

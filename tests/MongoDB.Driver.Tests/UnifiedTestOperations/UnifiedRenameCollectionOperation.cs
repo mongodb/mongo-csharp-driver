@@ -75,7 +75,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
         public UnifiedRenameCollectionOperation Build(string targetCollectionId, BsonDocument arguments)
         {
-            var collection = _entityMap.GetCollection(targetCollectionId);
+            var collection = _entityMap.Collections[targetCollectionId];
             var database = collection.Database;
             var oldName = collection.CollectionNamespace.CollectionName;
             string newName = null;

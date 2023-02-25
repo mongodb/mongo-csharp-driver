@@ -36,6 +36,7 @@ using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
 {
+    [Trait("Category", "SDAM")]
     public class MonitoringTestRunner : LoggableTestClass
     {
         private ICluster _cluster;

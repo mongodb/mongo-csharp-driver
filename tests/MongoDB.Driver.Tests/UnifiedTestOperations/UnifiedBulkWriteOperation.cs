@@ -97,7 +97,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
         public UnifiedBulkWriteOperation Build(string targetCollectionId, BsonDocument arguments)
         {
-            var collection = _entityMap.GetCollection(targetCollectionId);
+            var collection = _entityMap.Collections[targetCollectionId];
 
             BulkWriteOptions options = null;
             List<WriteModel<BsonDocument>> requests = null;
@@ -123,7 +123,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         requests = argument.Value.AsBsonArray.Cast<BsonDocument>().Select(ParseWriteModel).ToList();
                         break;
                     case "session":
-                        session = _entityMap.GetSession(argument.Value.AsString);
+                        session = _entityMap.Sessions[argument.Value.AsString];
                         break;
                     default:
                         throw new FormatException($"Invalid BulkWriteOperation argument name: '{argument.Name}'.");

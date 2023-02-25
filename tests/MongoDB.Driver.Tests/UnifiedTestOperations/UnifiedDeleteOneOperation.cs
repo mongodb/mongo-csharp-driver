@@ -83,7 +83,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
         public UnifiedDeleteOneOperation Build(string targetCollectionId, BsonDocument arguments)
         {
-            var collection = _entityMap.GetCollection(targetCollectionId);
+            var collection = _entityMap.Collections[targetCollectionId];
 
             FilterDefinition<BsonDocument> filter = null;
             DeleteOptions options = null;
@@ -109,7 +109,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         options.Let = argument.Value.AsBsonDocument;
                         break;
                     case "session":
-                        session = _entityMap.GetSession(argument.Value.AsString);
+                        session = _entityMap.Sessions[argument.Value.AsString];
                         break;
                     default:
                         throw new FormatException($"Invalid DeleteOneOperation argument name: '{argument.Name}'.");

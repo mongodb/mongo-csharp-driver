@@ -84,7 +84,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
         public UnifiedListDatabaseNamesOperation Build(string targetClientId, BsonDocument arguments)
         {
-            var client = _entityMap.GetClient(targetClientId);
+            var client = _entityMap.Clients[targetClientId];
             ListDatabaseNamesOptions options = null;
             IClientSessionHandle session = null;
 
@@ -99,7 +99,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                             options.Filter = new BsonDocumentFilterDefinition<BsonDocument>(argument.Value.AsBsonDocument);
                             break;
                         case "session":
-                            session = _entityMap.GetSession(argument.Value.AsString);
+                            session = _entityMap.Sessions[argument.Value.AsString];
                             break;
                         default:
                             throw new FormatException($"Invalid ListDatabasesOperation argument name: '{argument.Name}'.");

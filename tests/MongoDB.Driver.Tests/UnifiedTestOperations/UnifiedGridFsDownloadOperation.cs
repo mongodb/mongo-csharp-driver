@@ -74,7 +74,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
         public UnifiedGridFsDownloadOperation Build(string targetBucketId, BsonDocument arguments)
         {
-            var bucket = _entityMap.GetBucket(targetBucketId);
+            var bucket = _entityMap.Buckets[targetBucketId];
 
             ObjectId? id = null;
 

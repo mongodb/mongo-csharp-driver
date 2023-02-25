@@ -33,12 +33,18 @@ using Xunit.Sdk;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
+    public interface IEventsProcessor
+    {
+        void PostProcessEvents(List<object> events, string type);
+    }
+
     public sealed class UnifiedTestRunner : IDisposable
     {
         private UnifiedEntityMap _entityMap;
         private readonly List<FailPoint> _failPoints = new List<FailPoint>();
         private readonly Dictionary<string, object> _additionalArgs;
         private readonly Dictionary<string, IEventFormatter> _eventFormatters;
+        private readonly IEventsProcessor _eventsProcessor;
         private bool _runHasBeenCalled;
         private readonly ILogger<UnifiedTestRunner> _logger;
         private readonly Predicate<LogEntry> _loggingFilter;
@@ -48,10 +54,12 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             ILoggingService loggingService,
             Dictionary<string, object> additionalArgs = null,
             Dictionary<string, IEventFormatter> eventFormatters = null,
-            Predicate<LogEntry> loggingFilter = null)
+            Predicate<LogEntry> loggingFilter = null,
+            IEventsProcessor eventsProcessor = null)
         {
             _additionalArgs = additionalArgs; // can be null
             _eventFormatters = eventFormatters; // can be null
+            _eventsProcessor = eventsProcessor; // can be null
             _loggingFilter = loggingFilter; // can be null
             _loggingService = Ensure.IsNotNull(loggingService, nameof(loggingService));
             _logger = loggingService.LoggingSettings.CreateLogger<UnifiedTestRunner>();
@@ -121,7 +129,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
             KillOpenTransactions(DriverTestConfiguration.Client);
 
-            _entityMap = new UnifiedEntityMapBuilder(_eventFormatters, _loggingService.LoggingSettings).Build(entities);
+            _entityMap = UnifiedEntityMap.Create(_eventFormatters, _loggingService.LoggingSettings, async);
+            _entityMap.AddRange(entities);
 
             if (initialData != null)
             {
@@ -222,7 +231,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 var ignoreExtraEvents = eventItem.GetValue("ignoreExtraEvents", false).AsBoolean;
                 var eventCapturer = entityMap.EventCapturers[clientId];
                 var eventType = eventItem.GetValue("eventType", defaultValue: "command").AsString;
-                var actualEvents = UnifiedEventMatcher.FilterEventsByType(eventCapturer.Events, eventType);
+                var actualEvents = UnifiedEventMatcher.FilterEventsBySetType(eventCapturer.Events, eventType);
+
+                _eventsProcessor?.PostProcessEvents(actualEvents, eventType);
 
                 unifiedEventMatcher.AssertEventsMatch(actualEvents, eventItem["events"].AsBsonArray, ignoreExtraEvents);
             }
@@ -238,7 +249,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             foreach (var logItem in expectedLogs.Cast<BsonDocument>())
             {
                 var clientId = logItem["client"].AsString;
-                var clusterId = entityMap.GetClient(clientId).Cluster.ClusterId.Value;
+                var clusterId = entityMap.Clients[clientId].Cluster.ClusterId.Value;
                 var logs = logItem.GetValue("messages", false).AsBsonArray;
 
                 var actualLogsFiltered = UnifiedLogHelper.FilterLogs(
@@ -339,7 +350,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             {
                 if (actualResult.Result != null)
                 {
-                    entityMap.AddResult(saveResultAsEntity.AsString, actualResult.Result);
+                    entityMap.Resutls.Add(saveResultAsEntity.AsString, actualResult.Result);
                 }
                 else if (actualResult.ChangeStream != null)
                 {

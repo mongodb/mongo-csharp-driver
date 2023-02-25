@@ -14,43 +14,29 @@
 */
 
 using System;
-using System.Threading;
-using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
-    public sealed class UnifiedCreateEntitiesOperation : IUnifiedEntityTestOperation
+    public sealed class UnifiedCreateEntitiesOperation : IUnifiedSpecialTestOperation
     {
-        private readonly BsonArray _entitiesArray;
-        private readonly UnifiedEntityMap _entityMap;
+        private readonly BsonArray _entities;
+        private UnifiedEntityMap _entityMap;
 
-        public UnifiedCreateEntitiesOperation(BsonArray entitiesArray, UnifiedEntityMap entityMap)
+        public UnifiedCreateEntitiesOperation(UnifiedEntityMap entityMap, BsonArray entities)
         {
-            _entitiesArray = entitiesArray;
-            _entityMap = entityMap;
+            _entities = Ensure.IsNotNull(entities, nameof(entities));
+            _entityMap = Ensure.IsNotNull(entityMap, nameof(entityMap));
         }
 
-        public OperationResult Execute(CancellationToken cancellationToken)
+        public void Execute()
         {
-            try
-            {
-                var newEntityMap = new UnifiedEntityMapBuilder(null, _entityMap.LoggingSettings).Build(_entitiesArray);
-                _entityMap.AddEntities(newEntityMap);
-
-                return OperationResult.Empty();
-            }
-            catch (Exception exception)
-            {
-                return OperationResult.FromException(exception);
-            }
+            _entityMap.AddRange(_entities);
         }
-
-        public Task<OperationResult> ExecuteAsync(CancellationToken cancellationToken) =>
-           Task.FromResult(Execute(cancellationToken));
     }
 
-    public class UnifiedCreateEntitiesOperationBuilder
+    public sealed class UnifiedCreateEntitiesOperationBuilder
     {
         private readonly UnifiedEntityMap _entityMap;
 
@@ -61,14 +47,20 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
         public UnifiedCreateEntitiesOperation Build(BsonDocument arguments)
         {
-            if (arguments.ElementCount > 1)
+            BsonArray entities = null;
+            foreach (var argument in arguments)
             {
-                throw new FormatException($"{nameof(UnifiedCreateEntitiesOperation)} does not expected any arguments except 'entities'.");
+                switch (argument.Name)
+                {
+                    case "entities":
+                        entities = argument.Value.AsBsonArray;
+                        break;
+                    default:
+                        throw new FormatException($"Invalid {nameof(UnifiedCreateEntitiesOperation)} argument name: '{argument.Name}'.");
+                }
             }
 
-            var entities = arguments["entities"].AsBsonArray;
-
-            return new(entities, _entityMap);
+            return new UnifiedCreateEntitiesOperation(_entityMap, entities);
         }
     }
 }

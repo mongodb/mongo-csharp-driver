@@ -22,13 +22,16 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
     public class UnifiedTargetedFailPointOperation : IUnifiedFailPointOperation
     {
+        private readonly bool _async;
         private readonly BsonDocument _failPointCommand;
         private readonly IClientSessionHandle _session;
 
         public UnifiedTargetedFailPointOperation(
             IClientSessionHandle session,
-            BsonDocument failPointCommand)
+            BsonDocument failPointCommand,
+            bool async)
         {
+            _async = async;
             _session = session;
             _failPointCommand = failPointCommand;
         }
@@ -42,7 +45,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             }
             var session = NoCoreSession.NewHandle();
 
-            failPoint = FailPoint.Configure(pinnedServer, session, _failPointCommand);
+            failPoint = FailPoint.Configure(pinnedServer, session, _failPointCommand, withAsync: _async);
         }
     }
 
@@ -69,14 +72,14 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         break;
                     case "session":
                         var sessionId = argument.Value.AsString;
-                        session = _entityMap.GetSession(sessionId);
+                        session = _entityMap.Sessions[sessionId];
                         break;
                     default:
                         throw new FormatException($"Invalid TargetedFailPointOperation argument name: '{argument.Name}'.");
                 }
             }
 
-            return new UnifiedTargetedFailPointOperation(session, failPointCommand);
+            return new UnifiedTargetedFailPointOperation(session, failPointCommand, _entityMap.Async);
         }
     }
 }

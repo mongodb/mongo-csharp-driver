@@ -353,7 +353,7 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
                     break;
 
                 case "appname":
-                    settings.ApplicationName = $"{option.Value}_async_{_async}";
+                    settings.ApplicationName = FailPoint.DecorateApplicationName($"{option.Value}", _async);
                     break;
 
                 case "connectTimeoutMS":
@@ -438,25 +438,11 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
             }
         }
 
-        protected void ConfigureFailPointCommand(BsonDocument failPointCommand)
-        {
-            if (failPointCommand.TryGetValue("data", out var dataBsonValue))
-            {
-                var dataDocument = dataBsonValue.AsBsonDocument;
-                if (dataDocument.TryGetValue("appName", out var appName))
-                {
-                    dataDocument["appName"] = $"{appName}_async_{_async}";
-                }
-            }
-        }
-
         protected FailPoint ConfigureFailPoint(BsonDocument test, IMongoClient client)
         {
             if (test.TryGetValue(FailPointKey, out var failPoint))
             {
                 Logger.LogDebug("Configuring failpoint");
-
-                ConfigureFailPointCommand(failPoint.AsBsonDocument);
 
                 var cluster = client.Cluster;
 
@@ -481,7 +467,7 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
                 var session = NoCoreSession.NewHandle();
                 var command = failPoint.AsBsonDocument;
 
-                return FailPoint.Configure(_failPointServer, session, command);
+                return FailPoint.Configure(_failPointServer, session, command, _async);
             }
 
             return null;

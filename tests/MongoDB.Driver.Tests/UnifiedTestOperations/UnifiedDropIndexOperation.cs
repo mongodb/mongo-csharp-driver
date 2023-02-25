@@ -90,7 +90,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
         public UnifiedDropIndexOperation Build(string targetCollectionId, BsonDocument arguments)
         {
-            var collection = _entityMap.GetCollection(targetCollectionId);
+            var collection = _entityMap.Collections[targetCollectionId];
             string indexName = null;
             IClientSessionHandle session = null;
 
@@ -103,7 +103,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         break;
                     case "session":
                         var sessionId = argument.Value.AsString;
-                        session = _entityMap.GetSession(sessionId);
+                        session = _entityMap.Sessions[sessionId];
                         break;
                     default:
                         throw new FormatException($"Invalid DropIndexOperation argument name: '{argument.Name}'.");

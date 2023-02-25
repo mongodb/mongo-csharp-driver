@@ -27,6 +27,7 @@ namespace MongoDB.Driver.Core.Events
     /// </summary>
     public struct ConnectionPoolClearingEvent : IEvent
     {
+        private readonly bool _closeInUseConnections;
         private readonly ConnectionPoolSettings _connectionPoolSettings;
         private readonly ObjectId? _serviceId;
         private readonly ServerId _serverId;
@@ -38,7 +39,18 @@ namespace MongoDB.Driver.Core.Events
         /// <param name="serverId">The server identifier.</param>
         /// <param name="connectionPoolSettings">The connection pool settings.</param>
         public ConnectionPoolClearingEvent(ServerId serverId, ConnectionPoolSettings connectionPoolSettings)
-            : this(serverId, connectionPoolSettings, serviceId: null)
+            : this(serverId, connectionPoolSettings, closeInUseConnections: false)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConnectionPoolClearingEvent"/> struct.
+        /// </summary>
+        /// <param name="serverId">The server identifier.</param>
+        /// <param name="connectionPoolSettings">The connection pool settings.</param>
+        /// <param name="closeInUseConnections">Whether in use connections should be closed.</param>
+        public ConnectionPoolClearingEvent(ServerId serverId, ConnectionPoolSettings connectionPoolSettings, bool closeInUseConnections)
+            : this(serverId, connectionPoolSettings, serviceId: null, closeInUseConnections)
         {
         }
 
@@ -49,12 +61,30 @@ namespace MongoDB.Driver.Core.Events
         /// <param name="connectionPoolSettings">The connection pool settings.</param>
         /// <param name="serviceId">The service identifier.</param>
         public ConnectionPoolClearingEvent(ServerId serverId, ConnectionPoolSettings connectionPoolSettings, ObjectId? serviceId)
+            : this(serverId, connectionPoolSettings, serviceId, closeInUseConnections: false)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConnectionPoolClearingEvent"/> struct.
+        /// </summary>
+        /// <param name="serverId">The server identifier.</param>
+        /// <param name="connectionPoolSettings">The connection pool settings.</param>
+        /// <param name="serviceId">The service identifier.</param>
+        /// <param name="closeInUseConnections">Whether in use connections should be closed.</param>
+        public ConnectionPoolClearingEvent(ServerId serverId, ConnectionPoolSettings connectionPoolSettings, ObjectId? serviceId, bool closeInUseConnections)
         {
             _serverId = Ensure.IsNotNull(serverId, nameof(serverId));
             _connectionPoolSettings = connectionPoolSettings; // can be null
-            _timestamp = DateTime.UtcNow;
             _serviceId = serviceId; // can be null
+            _closeInUseConnections = closeInUseConnections;
+            _timestamp = DateTime.UtcNow;
         }
+
+        /// <summary>
+        /// Gets a value indicating whether in use connections should be closed.
+        /// </summary>
+        public bool CloseInUseConnections => _closeInUseConnections;
 
         /// <summary>
         /// Gets the cluster identifier.

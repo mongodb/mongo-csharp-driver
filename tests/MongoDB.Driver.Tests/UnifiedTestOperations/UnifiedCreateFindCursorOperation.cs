@@ -80,9 +80,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             _entityMap = entityMap;
         }
 
-        public UnifiedCreateFindCursorOperation Build(string targetDatabaseId, BsonDocument arguments)
+        public UnifiedCreateFindCursorOperation Build(string targetCollectionId, BsonDocument arguments)
         {
-            var collection = _entityMap.GetCollection(targetDatabaseId);
+            var collection = _entityMap.Collections[targetCollectionId];
 
             IClientSessionHandle session = null;
             BsonDocument filter = null;
@@ -99,7 +99,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         findOptions.BatchSize = argument.Value.AsInt32;
                         break;
                     case "session":
-                        session = _entityMap.GetSession(argument.Value.ToString());
+                        session = _entityMap.Sessions[argument.Value.ToString()];
                         break;
                     default:
                         throw new FormatException($"Invalid {nameof(UnifiedCreateFindCursorOperation)} argument name: '{argument.Name}'.");

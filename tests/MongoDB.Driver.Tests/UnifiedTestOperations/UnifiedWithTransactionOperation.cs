@@ -77,9 +77,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             _entityMap = entityMap;
         }
+
         public UnifiedWithTransactionOperation Build(string targetSessionId, BsonDocument arguments)
         {
-            var session = _entityMap.GetSession(targetSessionId);
+            var session = _entityMap.Sessions[targetSessionId];
 
             BsonArray operations = null;
             TransactionOptions options = null;

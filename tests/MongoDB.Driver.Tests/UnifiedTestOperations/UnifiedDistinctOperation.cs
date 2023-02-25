@@ -90,7 +90,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
         public UnifiedDistinctOperation Build(string targetCollectionId, BsonDocument arguments)
         {
-            var collection = _entityMap.GetCollection(targetCollectionId);
+            var collection = _entityMap.Collections[targetCollectionId];
 
             string fieldName = null;
             FilterDefinition<BsonDocument> filter = null;
@@ -111,7 +111,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         filter = argument.Value.AsBsonDocument;
                         break;
                     case "session":
-                        session = _entityMap.GetSession(argument.Value.AsString);
+                        session = _entityMap.Sessions[argument.Value.AsString];
                         break;
                     default:
                         throw new FormatException($"Invalid DistinctOperation argument name: '{argument.Name}'.");

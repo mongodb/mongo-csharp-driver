@@ -22,25 +22,25 @@ namespace MongoDB.Bson.TestHelpers
 {
     public static class TasksUtils
     {
-        public static Task CreateTaskOnOwnThread(Action action) =>
+        public static Task CreateTaskOnOwnThread(Action action, CancellationToken cancellationToken = default) =>
             Task.Factory.StartNew(
                 action,
-                CancellationToken.None,
+                cancellationToken,
                 TaskCreationOptions.None,
                 new ThreadPerTaskScheduler());
 
-        public static Task<T> CreateTaskOnOwnThread<T>(Func<T> function) =>
+        public static Task<T> CreateTaskOnOwnThread<T>(Func<T> function, CancellationToken cancellationToken = default) =>
             Task.Factory.StartNew(
                 function,
-                CancellationToken.None,
+                cancellationToken,
                 TaskCreationOptions.None,
                 new ThreadPerTaskScheduler());
 
-        public static Task<T>[] CreateTasksOnOwnThread<T>(int count, Func<int, T> function) =>
+        public static Task<T>[] CreateTasksOnOwnThread<T>(int count, Func<int, T> function, CancellationToken cancellationToken = default) =>
             Enumerable.Range(0, count)
             .Select(i => Task.Factory.StartNew(
                 () => function(i),
-                CancellationToken.None,
+                cancellationToken,
                 TaskCreationOptions.None,
                 new ThreadPerTaskScheduler()))
             .ToArray();

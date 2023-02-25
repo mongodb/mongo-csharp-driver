@@ -83,7 +83,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
         public UnifiedCountDocumentsOperation Build(string targetCollectionId, BsonDocument arguments)
         {
-            var collection = _entityMap.GetCollection(targetCollectionId);
+            var collection = _entityMap.Collections[targetCollectionId];
 
             FilterDefinition<BsonDocument> filter = null;
             CountOptions options = null;
@@ -101,7 +101,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         filter = new BsonDocumentFilterDefinition<BsonDocument>(argument.Value.AsBsonDocument);
                         break;
                     case "session":
-                        session = _entityMap.GetSession(argument.Value.AsString);
+                        session = _entityMap.Sessions[argument.Value.AsString];
                         break;
                     default:
                         throw new FormatException($"Invalid CountDocumentsOperation argument name: '{argument.Name}'.");

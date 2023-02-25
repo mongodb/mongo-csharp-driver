@@ -209,7 +209,7 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
                 }
                 else
                 {
-                    actualEvent.ConnectionId().LongLocalValue.Should().Be(expectedConnectionId);
+                    actualEvent.ConnectionId().LongLocalValue.Should().Be(expectedConnectionId, because: "expected connectionId and actual must match");
                 }
             }
 
@@ -223,9 +223,9 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
                 else
                 {
                     var expectedMaxPoolSize = expectedOption["maxPoolSize"].ToInt32();
-                    connectionPoolSettings.MaxConnections.Should().Be(expectedMaxPoolSize);
+                    connectionPoolSettings.MaxConnections.Should().Be(expectedMaxPoolSize, because: "expected maxConnections and actual must match");
                     var expectedMinPoolSize = expectedOption["minPoolSize"].ToInt32();
-                    connectionPoolSettings.MinConnections.Should().Be(expectedMinPoolSize);
+                    connectionPoolSettings.MinConnections.Should().Be(expectedMinPoolSize, because: "expected minConnections and actual must match");
                 }
             }
 
@@ -298,18 +298,6 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
             {
                 RequireServer.Check().RunOn(runOn.AsBsonArray);
             }
-        }
-
-        private FailPoint ConfigureFailPoint(BsonDocument test, ICluster cluster)
-        {
-            if (test.TryGetValue(Schema.Intergration.failPoint, out var failPoint))
-            {
-                var command = failPoint.AsBsonDocument;
-
-                return FailPoint.Configure(cluster, NoCoreSession.NewHandle(), command);
-            }
-
-            return null;
         }
 
         private Task CreateTask(Action action)
@@ -680,7 +668,7 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
                         var data = failPointDocument["data"].AsBsonDocument;
                         if (data.TryGetValue("appName", out var appNameValue))
                         {
-                            data["appName"] = $"{appNameValue}_async_{async}";
+                            data["appName"] = FailPoint.DecorateApplicationName(appNameValue.AsString, async);
                         }
                     }
 
@@ -722,7 +710,7 @@ namespace MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling
                     }
 
                     var failPointServer = CoreTestConfiguration.Cluster.SelectServer(new EndPointServerSelector(server.EndPoint), default);
-                    failPoint = FailPoint.Configure(failPointServer, NoCoreSession.NewHandle(), failPointDocument.AsBsonDocument);
+                    failPoint = FailPoint.Configure(failPointServer, NoCoreSession.NewHandle(), failPointDocument.AsBsonDocument, withAsync: async);
 
                     if (resetPool)
                     {

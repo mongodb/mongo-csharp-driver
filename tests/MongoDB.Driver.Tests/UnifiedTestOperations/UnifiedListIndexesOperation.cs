@@ -85,7 +85,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
         public UnifiedListIndexesOperation Build(string targetCollectionId, BsonDocument arguments)
         {
-            var collection = _entityMap.GetCollection(targetCollectionId);
+            var collection = _entityMap.Collections[targetCollectionId];
 
             var listIndexesOptions = new ListIndexesOptions();
             IClientSessionHandle session = null;
@@ -100,7 +100,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                             listIndexesOptions.BatchSize = argument.Value.ToInt32();
                             break;
                         case "session":
-                            session = _entityMap.GetSession(argument.Value.AsString);
+                            session = _entityMap.Sessions[argument.Value.AsString];
                             break;
                         default:
                             throw new FormatException($"Invalid {nameof(UnifiedListIndexesOperation)} argument name: '{argument.Name}'.");

@@ -37,6 +37,7 @@ using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
 {
+    [Trait("Category", "SDAM")]
     public class ServerDiscoveryAndMonitoringTestRunner : LoggableTestClass
     {
         private ICluster _cluster;
@@ -606,6 +607,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
 
             // Integration tests are run by ServerDiscoveryAndMonitoringIntegrationTestRunner in MongoDB.Driver.Tests
             private const string IntegrationTestPrefix = "MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring.tests.integration.";
+            private const string UnifiedTestPrefix = "MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring.tests.unified.";
 
             protected override string PathPrefix => "MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring.tests.";
 
@@ -618,8 +620,9 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
             protected override bool ShouldReadJsonDocument(string path)
             {
                 return base.ShouldReadJsonDocument(path) &&
-                       !MonitoringPrefixes.Any(prefix => path.StartsWith(prefix)) &&
-                       !path.StartsWith(IntegrationTestPrefix);
+                    !MonitoringPrefixes.Any(prefix => path.StartsWith(prefix)) &&
+                    !path.StartsWith(IntegrationTestPrefix) &&
+                    !path.StartsWith(UnifiedTestPrefix);
             }
         }
     }
