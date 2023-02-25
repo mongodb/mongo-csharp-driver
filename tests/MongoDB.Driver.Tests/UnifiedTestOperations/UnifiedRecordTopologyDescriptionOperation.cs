@@ -19,7 +19,7 @@ using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
-    public class UnifiedRecordTopologyDescriptionOperation : IUnifiedSpecialTestOperation
+    public sealed class UnifiedRecordTopologyDescriptionOperation : IUnifiedSpecialTestOperation
     {
         private readonly IMongoClient _client;
         private readonly UnifiedEntityMap _entityMap;
@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         }
     }
 
-    public class UnifiedRecordTopologyDescriptionOperationBuilder
+    public sealed class UnifiedRecordTopologyDescriptionOperationBuilder
     {
         private readonly UnifiedEntityMap _entityMap;
 

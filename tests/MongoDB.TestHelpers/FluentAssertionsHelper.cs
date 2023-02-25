@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-
 namespace MongoDB.TestHelpers
 {
     public static class FluentAssertionsHelper
@@ -21,8 +20,8 @@ namespace MongoDB.TestHelpers
         /// <summary>
         /// Is needed to workaround issues with inner string.Format logic inside FluentAssertions  and '{' / '}' in the original message.
         /// </summary>
-        /// <param name="becausePart">The original because message.</param>
-        /// <returns>The protected because message.</returns>
-        public static string EscapeBraces(string becausePart) => becausePart.Replace("{", "{{").Replace("}", "}}");
+        /// <param name="stringToEscape">The original message.</param>
+        /// <returns>The escaped message.</returns>
+        public static string EscapeBraces(string stringToEscape) => stringToEscape.Replace("{", "{{").Replace("}", "}}");
     }
 }
