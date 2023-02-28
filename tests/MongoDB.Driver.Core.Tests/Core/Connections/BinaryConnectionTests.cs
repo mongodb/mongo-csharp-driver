@@ -167,7 +167,7 @@ namespace MongoDB.Driver.Core.Connections
             var authenticatorFactoryMock = new Mock<IAuthenticatorFactory>();
             authenticatorFactoryMock
                 .Setup(a => a.Create())
-                .Returns(Mock.Of<IAuthenticator>(a => a.CustomizeInitialHelloCommand(It.IsAny<BsonDocument>()) == new BsonDocument("isMaster", 1)));
+                .Returns(Mock.Of<IAuthenticator>(a => a.CustomizeInitialHelloCommand(It.IsAny<BsonDocument>()) == new BsonDocument(OppressiveLanguageConstants.LegacyHelloCommandName, 1)));
 
             using var subject = new BinaryConnection(
                 serverId: _serverId,
