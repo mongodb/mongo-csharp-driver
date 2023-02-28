@@ -34,6 +34,10 @@ using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using Moq;
 using Xunit;
+using MongoDB.Driver.Core.Authentication;
+using System.Collections.Generic;
+using System.Linq;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders;
 
 namespace MongoDB.Driver.Core.Connections
 {
@@ -41,10 +45,13 @@ namespace MongoDB.Driver.Core.Connections
     {
         private Mock<IConnectionInitializer> _mockConnectionInitializer;
         private ConnectionDescription _connectionDescription;
+        private readonly IReadOnlyList<IAuthenticator> __emptyAuthenticators = Enumerable.Empty<IAuthenticator>().ToList().AsReadOnly();
         private DnsEndPoint _endPoint;
         private EventCapturer _capturedEvents;
         private MessageEncoderSettings _messageEncoderSettings = new MessageEncoderSettings();
         private Mock<IStreamFactory> _mockStreamFactory;
+        private readonly ServerId _serverId;
+
         private BinaryConnection _subject;
 
         public BinaryConnectionTests(Xunit.Abstractions.ITestOutputHelper output) : base(output)
@@ -53,27 +60,27 @@ namespace MongoDB.Driver.Core.Connections
             _mockStreamFactory = new Mock<IStreamFactory>();
 
             _endPoint = new DnsEndPoint("localhost", 27017);
-            var serverId = new ServerId(new ClusterId(), _endPoint);
-            var connectionId = new ConnectionId(serverId);
+            _serverId = new ServerId(new ClusterId(), _endPoint);
+            var connectionId = new ConnectionId(_serverId);
             var helloResult = new HelloResult(new BsonDocument { { "ok", 1 }, { "maxMessageSizeBytes", 48000000 }, { "maxWireVersion", WireVersion.Server36 } });
             _connectionDescription = new ConnectionDescription(connectionId, helloResult);
 
             _mockConnectionInitializer = new Mock<IConnectionInitializer>();
             _mockConnectionInitializer
                 .Setup(i => i.SendHello(It.IsAny<IConnection>(), CancellationToken.None))
-                .Returns(_connectionDescription);
+                .Returns((_connectionDescription, __emptyAuthenticators));
             _mockConnectionInitializer
-                .Setup(i => i.Authenticate(It.IsAny<IConnection>(), It.IsAny<ConnectionDescription>(), CancellationToken.None))
+                .Setup(i => i.Authenticate(It.IsAny<IConnection>(), It.IsAny<(ConnectionDescription, IReadOnlyList<IAuthenticator>)>(), CancellationToken.None))
                 .Returns(_connectionDescription);
             _mockConnectionInitializer
                 .Setup(i => i.SendHelloAsync(It.IsAny<IConnection>(), CancellationToken.None))
-                .ReturnsAsync(_connectionDescription);
+                .ReturnsAsync((_connectionDescription, __emptyAuthenticators));
             _mockConnectionInitializer
-                .Setup(i => i.AuthenticateAsync(It.IsAny<IConnection>(), It.IsAny<ConnectionDescription>(), CancellationToken.None))
+                .Setup(i => i.AuthenticateAsync(It.IsAny<IConnection>(), It.IsAny<(ConnectionDescription, IReadOnlyList<IAuthenticator>)>(), CancellationToken.None))
                 .ReturnsAsync(_connectionDescription);
 
             _subject = new BinaryConnection(
-                serverId: serverId,
+                serverId: _serverId,
                 endPoint: _endPoint,
                 settings: new ConnectionSettings(),
                 streamFactory: _mockStreamFactory.Object,
@@ -94,8 +101,7 @@ namespace MongoDB.Driver.Core.Connections
 
         [Theory]
         [ParameterAttributeData]
-        public void Open_should_always_create_description_if_handshake_was_successful(
-            [Values(false, true)] bool async)
+        public void Open_should_always_create_description_if_handshake_was_successful([Values(false, true)] bool async)
         {
             var serviceId = ObjectId.GenerateNewId();
             var connectionDescription = new ConnectionDescription(
@@ -105,15 +111,15 @@ namespace MongoDB.Driver.Core.Connections
             var socketException = new SocketException();
             _mockConnectionInitializer
                 .Setup(i => i.SendHello(It.IsAny<IConnection>(), CancellationToken.None))
-                .Returns(connectionDescription);
+                .Returns((connectionDescription, __emptyAuthenticators));
             _mockConnectionInitializer
                 .Setup(i => i.SendHelloAsync(It.IsAny<IConnection>(), CancellationToken.None))
-                .ReturnsAsync(connectionDescription);
+                .ReturnsAsync((connectionDescription, __emptyAuthenticators));
             _mockConnectionInitializer
-                .Setup(i => i.Authenticate(It.IsAny<IConnection>(), It.IsAny<ConnectionDescription>(), CancellationToken.None))
+                .Setup(i => i.Authenticate(It.IsAny<IConnection>(), It.IsAny<(ConnectionDescription, IReadOnlyList<IAuthenticator>)>(), CancellationToken.None))
                 .Throws(socketException);
             _mockConnectionInitializer
-                .Setup(i => i.AuthenticateAsync(It.IsAny<IConnection>(), It.IsAny<ConnectionDescription>(), CancellationToken.None))
+                .Setup(i => i.AuthenticateAsync(It.IsAny<IConnection>(), It.IsAny<(ConnectionDescription, IReadOnlyList<IAuthenticator>)>(), CancellationToken.None))
                 .ThrowsAsync(socketException);
 
             Exception exception;
@@ -129,6 +135,68 @@ namespace MongoDB.Driver.Core.Connections
             _subject.Description.Should().Be(connectionDescription);
             var ex = exception.Should().BeOfType<MongoConnectionException>().Subject;
             ex.InnerException.Should().BeOfType<SocketException>();
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Open_should_create_authenticators_only_once(
+            [Values(false, true)] bool async)
+        {
+            var connectionDescription = new ConnectionDescription(
+                new ConnectionId(new ServerId(new ClusterId(), _endPoint)),
+                new HelloResult(new BsonDocument()));
+
+            var memoryStream = new MemoryStream();
+            var clonedMessageEncoderSettings = _messageEncoderSettings.Clone();
+            var encoderFactory = new BinaryMessageEncoderFactory(memoryStream, clonedMessageEncoderSettings, compressorSource: null);
+            var encoder = encoderFactory.GetCommandResponseMessageEncoder();
+            encoder.WriteMessage(CreateResponseMessage());
+            var bytes = memoryStream.ToArray();
+            var mockStreamFactory = new Mock<IStreamFactory>();
+            mockStreamFactory
+                .Setup(s => s.CreateStream(It.IsAny<EndPoint>(), CancellationToken.None))
+                .Returns(new TestStream(bytes));
+            mockStreamFactory
+                .Setup(s => s.CreateStreamAsync(It.IsAny<EndPoint>(), CancellationToken.None))
+                .ReturnsAsync(new TestStream(bytes));
+
+            var connectionInitializer = new ConnectionInitializer(
+                null,
+                new CompressorConfiguration[0],
+                new ServerApi(ServerApiVersion.V1)); // use serverApi to choose command message protocol
+            var authenticatorFactoryMock = new Mock<IAuthenticatorFactory>();
+            authenticatorFactoryMock
+                .Setup(a => a.Create())
+                .Returns(Mock.Of<IAuthenticator>(a => a.CustomizeInitialHelloCommand(It.IsAny<BsonDocument>()) == new BsonDocument("isMaster", 1)));
+
+            using var subject = new BinaryConnection(
+                serverId: _serverId,
+                endPoint: _endPoint,
+                settings: new ConnectionSettings(new[] { authenticatorFactoryMock.Object }),
+                streamFactory: mockStreamFactory.Object,
+                connectionInitializer: connectionInitializer,
+                eventSubscriber: _capturedEvents,
+                LoggerFactory);
+
+            if (async)
+            {
+                await subject.OpenAsync(CancellationToken.None);
+            }
+            else
+            {
+                subject.Open(CancellationToken.None);
+            }
+
+            authenticatorFactoryMock.Verify(f => f.Create(), Times.Once());
+
+            ResponseMessage CreateResponseMessage()
+            {
+                var section0Document = $"{{ {OppressiveLanguageConstants.LegacyHelloResponseIsWritablePrimaryFieldName} : true, topologyVersion : {{ processId : ObjectId('5ee3f0963109d4fe5e71dd28'), counter : NumberLong(0) }}, ok : 1, connectionId : 1 }}";
+                var section0 = new Type0CommandMessageSection<RawBsonDocument>(
+                    new RawBsonDocument(BsonDocument.Parse(section0Document).ToBson()),
+                    RawBsonDocumentSerializer.Instance);
+                return new CommandResponseMessage(new CommandMessage(1, RequestMessage.CurrentGlobalRequestId + 1, new[] { section0 }, false));
+            }
         }
 
         [Theory]
@@ -161,7 +229,7 @@ namespace MongoDB.Driver.Core.Connections
             Action act;
             if (async)
             {
-                var result = new TaskCompletionSource<ConnectionDescription>();
+                var result = new TaskCompletionSource<(ConnectionDescription, IReadOnlyList<IAuthenticator>)>();
                 result.SetException(new SocketException());
                 _mockConnectionInitializer.Setup(i => i.SendHelloAsync(It.IsAny<IConnection>(), It.IsAny<CancellationToken>()))
                     .Returns(result.Task);
@@ -801,6 +869,43 @@ namespace MongoDB.Driver.Core.Connections
                 _capturedEvents.Next().Should().BeOfType<CommandStartedEvent>();
                 _capturedEvents.Next().Should().BeOfType<ConnectionSentMessagesEvent>();
                 _capturedEvents.Any().Should().BeFalse();
+            }
+        }
+
+        // nested type
+        private sealed class TestStream : Stream
+        {
+            private byte[] _messageBytes;
+
+            public TestStream(byte[] messageBytes) => _messageBytes = Ensure.IsNotNull(messageBytes, nameof(messageBytes));
+
+            public override bool CanRead => true;
+
+            public override bool CanSeek => true;
+
+            public override bool CanWrite => true;
+
+            public override long Length => _messageBytes.Length;
+
+            public override long Position { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+            public override void Flush() { }
+            public override int Read(byte[] buffer, int offset, int count)
+            {
+                Array.Copy(_messageBytes.Take(count).ToArray(), buffer, count);
+                return count;
+            }
+            public override long Seek(long offset, SeekOrigin origin)
+            {
+                return 0;
+            }
+            public override void SetLength(long value)
+            {
+                // do nothing
+            }
+            public override void Write(byte[] buffer, int offset, int count)
+            {
+                // do nothing
             }
         }
     }

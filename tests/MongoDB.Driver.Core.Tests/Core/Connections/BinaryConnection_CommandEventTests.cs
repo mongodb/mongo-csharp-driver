@@ -16,12 +16,14 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Core.Authentication;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
@@ -82,16 +84,17 @@ namespace MongoDB.Driver.Core.Connections
 
             _endPoint = new DnsEndPoint("localhost", 27017);
             var serverId = new ServerId(new ClusterId(), _endPoint);
+            Func<ConnectionDescription> connectionDescriptionFunc = () =>
+                new ConnectionDescription(
+                    new ConnectionId(new ServerId(new ClusterId(), _endPoint)),
+                    new HelloResult(new BsonDocument { { "maxWireVersion", WireVersion.Server36 } }));
 
+            IReadOnlyList<IAuthenticator> emptyAuthenticators = Enumerable.Empty<IAuthenticator>().ToList().AsReadOnly();
             _mockConnectionInitializer = new Mock<IConnectionInitializer>();
             _mockConnectionInitializer.Setup(i => i.SendHelloAsync(It.IsAny<IConnection>(), CancellationToken.None))
-                .Returns(() => Task.FromResult(new ConnectionDescription(
-                    new ConnectionId(serverId),
-                    new HelloResult(new BsonDocument { { "maxWireVersion", WireVersion.Server36 } }))));
-            _mockConnectionInitializer.Setup(i => i.AuthenticateAsync(It.IsAny<IConnection>(), It.IsAny<ConnectionDescription>(), CancellationToken.None))
-                .Returns(() => Task.FromResult(new ConnectionDescription(
-                    new ConnectionId(serverId),
-                    new HelloResult(new BsonDocument { { "maxWireVersion", WireVersion.Server36 } }))));
+                .Returns(() => Task.FromResult((connectionDescriptionFunc(), emptyAuthenticators)));
+            _mockConnectionInitializer.Setup(i => i.AuthenticateAsync(It.IsAny<IConnection>(), It.IsAny<(ConnectionDescription, IReadOnlyList<IAuthenticator>)>(), CancellationToken.None))
+                .Returns(() => Task.FromResult(connectionDescriptionFunc()));
 
             _subject = new BinaryConnection(
                 serverId: serverId,

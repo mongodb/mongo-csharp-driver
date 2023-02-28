@@ -32,6 +32,7 @@ using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using Moq;
 using Xunit;
+using System.Threading.Tasks;
 
 namespace MongoDB.Driver.Core.Connections
 {
@@ -48,13 +49,13 @@ namespace MongoDB.Driver.Core.Connections
             var subject = CreateSubject();
             if (async)
             {
-                Record.Exception(() => subject.AuthenticateAsync(null, mockConnectionDescription, CancellationToken.None).GetAwaiter().GetResult()).Should().BeOfType<ArgumentNullException>();
-                Record.Exception(() => subject.AuthenticateAsync(Mock.Of<IConnection>(), null, CancellationToken.None).GetAwaiter().GetResult()).Should().BeOfType<ArgumentNullException>();
+                Record.Exception(() => subject.AuthenticateAsync(null, (mockConnectionDescription, null), CancellationToken.None).GetAwaiter().GetResult()).Should().BeOfType<ArgumentNullException>();
+                Record.Exception(() => subject.AuthenticateAsync(Mock.Of<IConnection>(), (null, null), CancellationToken.None).GetAwaiter().GetResult()).Should().BeOfType<ArgumentNullException>();
             }
             else
             {
-                Record.Exception(() => subject.Authenticate(null, mockConnectionDescription, CancellationToken.None)).Should().BeOfType<ArgumentNullException>();
-                Record.Exception(() => subject.Authenticate(Mock.Of<IConnection>(), null, CancellationToken.None)).Should().BeOfType<ArgumentNullException>();
+                Record.Exception(() => subject.Authenticate(null, (mockConnectionDescription, null), CancellationToken.None)).Should().BeOfType<ArgumentNullException>();
+                Record.Exception(() => subject.Authenticate(Mock.Of<IConnection>(), (null, null), CancellationToken.None)).Should().BeOfType<ArgumentNullException>();
             }
         }
 
@@ -304,7 +305,7 @@ namespace MongoDB.Driver.Core.Connections
 
         private ConnectionDescription InitializeConnection(ConnectionInitializer connectionInitializer, IConnection connection, bool async, CancellationToken cancellationToken)
         {
-            ConnectionDescription result;
+            (ConnectionDescription Description, IReadOnlyList<IAuthenticator> Authenticators) result;
             if (async)
             {
                 result = connectionInitializer.SendHelloAsync(connection, cancellationToken).GetAwaiter().GetResult();

@@ -46,12 +46,12 @@ namespace MongoDB.Driver.Core.Connections
             _serverApi = serverApi;
         }
 
-        public ConnectionDescription Authenticate(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
+        public ConnectionDescription Authenticate(IConnection connection, (ConnectionDescription Description, IReadOnlyList<IAuthenticator> Authenticators) helloResult, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, nameof(connection));
-            Ensure.IsNotNull(description, nameof(description));
+            var authenticators = Ensure.IsNotNull(helloResult.Authenticators, nameof(helloResult.Authenticators));
+            var description = Ensure.IsNotNull(helloResult.Description, nameof(helloResult.Description));
 
-            var authenticators = GetAuthenticators(connection.Settings);
             AuthenticationHelper.Authenticate(connection, description, authenticators, cancellationToken);
 
             var connectionIdServerValue = description.HelloResult.ConnectionIdServerValue;
@@ -77,12 +77,12 @@ namespace MongoDB.Driver.Core.Connections
             return description;
         }
 
-        public async Task<ConnectionDescription> AuthenticateAsync(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
+        public async Task<ConnectionDescription> AuthenticateAsync(IConnection connection, (ConnectionDescription Description, IReadOnlyList<IAuthenticator> Authenticators) helloResult, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, nameof(connection));
-            Ensure.IsNotNull(description, nameof(description));
+            var authenticators = Ensure.IsNotNull(helloResult.Authenticators, nameof(helloResult.Authenticators));
+            var description = Ensure.IsNotNull(helloResult.Description, nameof(helloResult.Description));
 
-            var authenticators = GetAuthenticators(connection.Settings);
             await AuthenticationHelper.AuthenticateAsync(connection, description, authenticators, cancellationToken).ConfigureAwait(false);
 
             var connectionIdServerValue = description.HelloResult.ConnectionIdServerValue;
@@ -110,7 +110,7 @@ namespace MongoDB.Driver.Core.Connections
             return description;
         }
 
-        public ConnectionDescription SendHello(IConnection connection, CancellationToken cancellationToken)
+        public (ConnectionDescription Description, IReadOnlyList<IAuthenticator> Authenticators) SendHello(IConnection connection, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, nameof(connection));
             var authenticators = GetAuthenticators(connection.Settings);
@@ -122,10 +122,10 @@ namespace MongoDB.Driver.Core.Connections
                 throw new InvalidOperationException("Driver attempted to initialize in load balancing mode, but the server does not support this mode.");
             }
 
-            return new ConnectionDescription(connection.ConnectionId, helloResult);
+            return (new ConnectionDescription(connection.ConnectionId, helloResult), authenticators);
         }
 
-        public async Task<ConnectionDescription> SendHelloAsync(IConnection connection, CancellationToken cancellationToken)
+        public async Task<(ConnectionDescription Description, IReadOnlyList<IAuthenticator> Authenticators)> SendHelloAsync(IConnection connection, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, nameof(connection));
             var authenticators = GetAuthenticators(connection.Settings);
@@ -137,7 +137,7 @@ namespace MongoDB.Driver.Core.Connections
                 throw new InvalidOperationException("Driver attempted to initialize in load balancing mode, but the server does not support this mode.");
             }
 
-            return new ConnectionDescription(connection.ConnectionId, helloResult);
+            return (new ConnectionDescription(connection.ConnectionId, helloResult), authenticators);
         }
 
         // private methods

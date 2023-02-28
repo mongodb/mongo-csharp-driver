@@ -267,8 +267,9 @@ namespace MongoDB.Driver.Core.Connections
                 helper.OpeningConnection();
                 _stream = _streamFactory.CreateStream(_endPoint, cancellationToken);
                 helper.InitializingConnection();
-                handshakeDescription = _connectionInitializer.SendHello(this, cancellationToken);
-                _description = _connectionInitializer.Authenticate(this, handshakeDescription, cancellationToken);
+                var helloResult = _connectionInitializer.SendHello(this, cancellationToken);
+                handshakeDescription = helloResult.Description;
+                _description = _connectionInitializer.Authenticate(this, helloResult, cancellationToken);
                 _sendCompressorType = ChooseSendCompressorTypeIfAny(_description);
 
                 helper.OpenedConnection();
@@ -292,8 +293,9 @@ namespace MongoDB.Driver.Core.Connections
                 helper.OpeningConnection();
                 _stream = await _streamFactory.CreateStreamAsync(_endPoint, cancellationToken).ConfigureAwait(false);
                 helper.InitializingConnection();
-                handshakeDescription = await _connectionInitializer.SendHelloAsync(this, cancellationToken).ConfigureAwait(false);
-                _description = await _connectionInitializer.AuthenticateAsync(this, handshakeDescription, cancellationToken).ConfigureAwait(false);
+                var helloResult = await _connectionInitializer.SendHelloAsync(this, cancellationToken).ConfigureAwait(false);
+                handshakeDescription = helloResult.Description;
+                _description = await _connectionInitializer.AuthenticateAsync(this, helloResult, cancellationToken).ConfigureAwait(false);
                 _sendCompressorType = ChooseSendCompressorTypeIfAny(_description);
 
                 helper.OpenedConnection();
