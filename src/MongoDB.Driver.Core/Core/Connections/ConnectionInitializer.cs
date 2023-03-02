@@ -46,12 +46,13 @@ namespace MongoDB.Driver.Core.Connections
             _serverApi = serverApi;
         }
 
-        public ConnectionDescription Authenticate(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
+        public ConnectionDescription Authenticate(IConnection connection, ConnectionInitializerContext connectionInitializerContext, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, nameof(connection));
-            Ensure.IsNotNull(description, nameof(description));
+            Ensure.IsNotNull(connectionInitializerContext, nameof(connectionInitializerContext));
+            var authenticators = Ensure.IsNotNull(connectionInitializerContext.Authenticators, nameof(connectionInitializerContext.Authenticators));
+            var description = Ensure.IsNotNull(connectionInitializerContext.Description, nameof(connectionInitializerContext.Description));
 
-            var authenticators = GetAuthenticators(connection.Settings);
             AuthenticationHelper.Authenticate(connection, description, authenticators, cancellationToken);
 
             var connectionIdServerValue = description.HelloResult.ConnectionIdServerValue;
@@ -77,12 +78,13 @@ namespace MongoDB.Driver.Core.Connections
             return description;
         }
 
-        public async Task<ConnectionDescription> AuthenticateAsync(IConnection connection, ConnectionDescription description, CancellationToken cancellationToken)
+        public async Task<ConnectionDescription> AuthenticateAsync(IConnection connection, ConnectionInitializerContext connectionInitializerContext, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, nameof(connection));
-            Ensure.IsNotNull(description, nameof(description));
+            Ensure.IsNotNull(connectionInitializerContext, nameof(connectionInitializerContext));
+            var authenticators = Ensure.IsNotNull(connectionInitializerContext.Authenticators, nameof(connectionInitializerContext.Authenticators));
+            var description = Ensure.IsNotNull(connectionInitializerContext.Description, nameof(connectionInitializerContext.Description));
 
-            var authenticators = GetAuthenticators(connection.Settings);
             await AuthenticationHelper.AuthenticateAsync(connection, description, authenticators, cancellationToken).ConfigureAwait(false);
 
             var connectionIdServerValue = description.HelloResult.ConnectionIdServerValue;
@@ -110,7 +112,7 @@ namespace MongoDB.Driver.Core.Connections
             return description;
         }
 
-        public ConnectionDescription SendHello(IConnection connection, CancellationToken cancellationToken)
+        public ConnectionInitializerContext SendHello(IConnection connection, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, nameof(connection));
             var authenticators = GetAuthenticators(connection.Settings);
@@ -122,10 +124,10 @@ namespace MongoDB.Driver.Core.Connections
                 throw new InvalidOperationException("Driver attempted to initialize in load balancing mode, but the server does not support this mode.");
             }
 
-            return new ConnectionDescription(connection.ConnectionId, helloResult);
+            return new (new ConnectionDescription(connection.ConnectionId, helloResult), authenticators);
         }
 
-        public async Task<ConnectionDescription> SendHelloAsync(IConnection connection, CancellationToken cancellationToken)
+        public async Task<ConnectionInitializerContext> SendHelloAsync(IConnection connection, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, nameof(connection));
             var authenticators = GetAuthenticators(connection.Settings);
@@ -137,7 +139,7 @@ namespace MongoDB.Driver.Core.Connections
                 throw new InvalidOperationException("Driver attempted to initialize in load balancing mode, but the server does not support this mode.");
             }
 
-            return new ConnectionDescription(connection.ConnectionId, helloResult);
+            return new (new ConnectionDescription(connection.ConnectionId, helloResult), authenticators);
         }
 
         // private methods
