@@ -46,11 +46,12 @@ namespace MongoDB.Driver.Core.Connections
             _serverApi = serverApi;
         }
 
-        public ConnectionDescription Authenticate(IConnection connection, (ConnectionDescription Description, IReadOnlyList<IAuthenticator> Authenticators) helloResult, CancellationToken cancellationToken)
+        public ConnectionDescription Authenticate(IConnection connection, ConnectionInitializerContext connectionInitializerContext, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, nameof(connection));
-            var authenticators = Ensure.IsNotNull(helloResult.Authenticators, nameof(helloResult.Authenticators));
-            var description = Ensure.IsNotNull(helloResult.Description, nameof(helloResult.Description));
+            Ensure.IsNotNull(connectionInitializerContext, nameof(connectionInitializerContext));
+            var authenticators = Ensure.IsNotNull(connectionInitializerContext.Authenticators, nameof(connectionInitializerContext.Authenticators));
+            var description = Ensure.IsNotNull(connectionInitializerContext.Description, nameof(connectionInitializerContext.Description));
 
             AuthenticationHelper.Authenticate(connection, description, authenticators, cancellationToken);
 
@@ -77,11 +78,12 @@ namespace MongoDB.Driver.Core.Connections
             return description;
         }
 
-        public async Task<ConnectionDescription> AuthenticateAsync(IConnection connection, (ConnectionDescription Description, IReadOnlyList<IAuthenticator> Authenticators) helloResult, CancellationToken cancellationToken)
+        public async Task<ConnectionDescription> AuthenticateAsync(IConnection connection, ConnectionInitializerContext connectionInitializerContext, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, nameof(connection));
-            var authenticators = Ensure.IsNotNull(helloResult.Authenticators, nameof(helloResult.Authenticators));
-            var description = Ensure.IsNotNull(helloResult.Description, nameof(helloResult.Description));
+            Ensure.IsNotNull(connectionInitializerContext, nameof(connectionInitializerContext));
+            var authenticators = Ensure.IsNotNull(connectionInitializerContext.Authenticators, nameof(connectionInitializerContext.Authenticators));
+            var description = Ensure.IsNotNull(connectionInitializerContext.Description, nameof(connectionInitializerContext.Description));
 
             await AuthenticationHelper.AuthenticateAsync(connection, description, authenticators, cancellationToken).ConfigureAwait(false);
 
@@ -110,7 +112,7 @@ namespace MongoDB.Driver.Core.Connections
             return description;
         }
 
-        public (ConnectionDescription Description, IReadOnlyList<IAuthenticator> Authenticators) SendHello(IConnection connection, CancellationToken cancellationToken)
+        public ConnectionInitializerContext SendHello(IConnection connection, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, nameof(connection));
             var authenticators = GetAuthenticators(connection.Settings);
@@ -122,10 +124,10 @@ namespace MongoDB.Driver.Core.Connections
                 throw new InvalidOperationException("Driver attempted to initialize in load balancing mode, but the server does not support this mode.");
             }
 
-            return (new ConnectionDescription(connection.ConnectionId, helloResult), authenticators);
+            return new (new ConnectionDescription(connection.ConnectionId, helloResult), authenticators);
         }
 
-        public async Task<(ConnectionDescription Description, IReadOnlyList<IAuthenticator> Authenticators)> SendHelloAsync(IConnection connection, CancellationToken cancellationToken)
+        public async Task<ConnectionInitializerContext> SendHelloAsync(IConnection connection, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(connection, nameof(connection));
             var authenticators = GetAuthenticators(connection.Settings);
@@ -137,7 +139,7 @@ namespace MongoDB.Driver.Core.Connections
                 throw new InvalidOperationException("Driver attempted to initialize in load balancing mode, but the server does not support this mode.");
             }
 
-            return (new ConnectionDescription(connection.ConnectionId, helloResult), authenticators);
+            return new (new ConnectionDescription(connection.ConnectionId, helloResult), authenticators);
         }
 
         // private methods

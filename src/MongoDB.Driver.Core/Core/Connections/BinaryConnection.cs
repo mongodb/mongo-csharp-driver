@@ -267,9 +267,9 @@ namespace MongoDB.Driver.Core.Connections
                 helper.OpeningConnection();
                 _stream = _streamFactory.CreateStream(_endPoint, cancellationToken);
                 helper.InitializingConnection();
-                var helloResult = _connectionInitializer.SendHello(this, cancellationToken);
-                handshakeDescription = helloResult.Description;
-                _description = _connectionInitializer.Authenticate(this, helloResult, cancellationToken);
+                var connectionInitializerContext = _connectionInitializer.SendHello(this, cancellationToken);
+                handshakeDescription = connectionInitializerContext.Description;
+                _description = _connectionInitializer.Authenticate(this, connectionInitializerContext, cancellationToken);
                 _sendCompressorType = ChooseSendCompressorTypeIfAny(_description);
 
                 helper.OpenedConnection();
@@ -293,9 +293,9 @@ namespace MongoDB.Driver.Core.Connections
                 helper.OpeningConnection();
                 _stream = await _streamFactory.CreateStreamAsync(_endPoint, cancellationToken).ConfigureAwait(false);
                 helper.InitializingConnection();
-                var helloResult = await _connectionInitializer.SendHelloAsync(this, cancellationToken).ConfigureAwait(false);
-                handshakeDescription = helloResult.Description;
-                _description = await _connectionInitializer.AuthenticateAsync(this, helloResult, cancellationToken).ConfigureAwait(false);
+                var connectionInitializerContext = await _connectionInitializer.SendHelloAsync(this, cancellationToken).ConfigureAwait(false);
+                handshakeDescription = connectionInitializerContext.Description;
+                _description = await _connectionInitializer.AuthenticateAsync(this, connectionInitializerContext, cancellationToken).ConfigureAwait(false);
                 _sendCompressorType = ChooseSendCompressorTypeIfAny(_description);
 
                 helper.OpenedConnection();

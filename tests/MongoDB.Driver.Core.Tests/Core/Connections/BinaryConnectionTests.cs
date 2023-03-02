@@ -16,7 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -43,6 +42,7 @@ namespace MongoDB.Driver.Core.Connections
 {
     public class BinaryConnectionTests : LoggableTestClass
     {
+        private ConnectionInitializerContext _connectionInitializerContext;
         private Mock<IConnectionInitializer> _mockConnectionInitializer;
         private ConnectionDescription _connectionDescription;
         private readonly IReadOnlyList<IAuthenticator> __emptyAuthenticators = new IAuthenticator[0];
@@ -64,19 +64,20 @@ namespace MongoDB.Driver.Core.Connections
             var connectionId = new ConnectionId(_serverId);
             var helloResult = new HelloResult(new BsonDocument { { "ok", 1 }, { "maxMessageSizeBytes", 48000000 }, { "maxWireVersion", WireVersion.Server36 } });
             _connectionDescription = new ConnectionDescription(connectionId, helloResult);
+            _connectionInitializerContext = new ConnectionInitializerContext(_connectionDescription, __emptyAuthenticators);
 
             _mockConnectionInitializer = new Mock<IConnectionInitializer>();
             _mockConnectionInitializer
                 .Setup(i => i.SendHello(It.IsAny<IConnection>(), CancellationToken.None))
-                .Returns((_connectionDescription, __emptyAuthenticators));
+                .Returns(_connectionInitializerContext);
             _mockConnectionInitializer
-                .Setup(i => i.Authenticate(It.IsAny<IConnection>(), It.IsAny<(ConnectionDescription, IReadOnlyList<IAuthenticator>)>(), CancellationToken.None))
+                .Setup(i => i.Authenticate(It.IsAny<IConnection>(), It.IsAny<ConnectionInitializerContext>(), CancellationToken.None))
                 .Returns(_connectionDescription);
             _mockConnectionInitializer
                 .Setup(i => i.SendHelloAsync(It.IsAny<IConnection>(), CancellationToken.None))
-                .ReturnsAsync((_connectionDescription, __emptyAuthenticators));
+                .ReturnsAsync(_connectionInitializerContext);
             _mockConnectionInitializer
-                .Setup(i => i.AuthenticateAsync(It.IsAny<IConnection>(), It.IsAny<(ConnectionDescription, IReadOnlyList<IAuthenticator>)>(), CancellationToken.None))
+                .Setup(i => i.AuthenticateAsync(It.IsAny<IConnection>(), It.IsAny<ConnectionInitializerContext>(), CancellationToken.None))
                 .ReturnsAsync(_connectionDescription);
 
             _subject = new BinaryConnection(
@@ -111,15 +112,15 @@ namespace MongoDB.Driver.Core.Connections
             var socketException = new SocketException();
             _mockConnectionInitializer
                 .Setup(i => i.SendHello(It.IsAny<IConnection>(), CancellationToken.None))
-                .Returns((connectionDescription, __emptyAuthenticators));
+                .Returns(new ConnectionInitializerContext(connectionDescription, __emptyAuthenticators));
             _mockConnectionInitializer
                 .Setup(i => i.SendHelloAsync(It.IsAny<IConnection>(), CancellationToken.None))
-                .ReturnsAsync((connectionDescription, __emptyAuthenticators));
+                .ReturnsAsync(new ConnectionInitializerContext(connectionDescription, __emptyAuthenticators));
             _mockConnectionInitializer
-                .Setup(i => i.Authenticate(It.IsAny<IConnection>(), It.IsAny<(ConnectionDescription, IReadOnlyList<IAuthenticator>)>(), CancellationToken.None))
+                .Setup(i => i.Authenticate(It.IsAny<IConnection>(), It.IsAny<ConnectionInitializerContext>(), CancellationToken.None))
                 .Throws(socketException);
             _mockConnectionInitializer
-                .Setup(i => i.AuthenticateAsync(It.IsAny<IConnection>(), It.IsAny<(ConnectionDescription, IReadOnlyList<IAuthenticator>)>(), CancellationToken.None))
+                .Setup(i => i.AuthenticateAsync(It.IsAny<IConnection>(), It.IsAny<ConnectionInitializerContext>(), CancellationToken.None))
                 .ThrowsAsync(socketException);
 
             Exception exception;
@@ -228,7 +229,7 @@ namespace MongoDB.Driver.Core.Connections
             Action act;
             if (async)
             {
-                var result = new TaskCompletionSource<(ConnectionDescription, IReadOnlyList<IAuthenticator>)>();
+                var result = new TaskCompletionSource<ConnectionInitializerContext>();
                 result.SetException(new SocketException());
                 _mockConnectionInitializer.Setup(i => i.SendHelloAsync(It.IsAny<IConnection>(), It.IsAny<CancellationToken>()))
                     .Returns(result.Task);

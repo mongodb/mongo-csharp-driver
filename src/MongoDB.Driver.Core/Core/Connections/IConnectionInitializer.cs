@@ -17,14 +17,27 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Authentication;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.Connections
 {
+    internal sealed class ConnectionInitializerContext
+    {
+        public ConnectionInitializerContext(ConnectionDescription description, IReadOnlyList<IAuthenticator> authenticators)
+        {
+            Description = Ensure.IsNotNull(description, nameof(description));
+            Authenticators = Ensure.IsNotNull(authenticators, nameof(authenticators));
+        }
+
+        public IReadOnlyList<IAuthenticator> Authenticators { get; }
+        public ConnectionDescription Description { get; }
+    }
+
     internal interface IConnectionInitializer
     {
-        ConnectionDescription Authenticate(IConnection connection, (ConnectionDescription Description, IReadOnlyList<IAuthenticator> Authenticators) helloResult, CancellationToken cancellationToken);
-        Task<ConnectionDescription> AuthenticateAsync(IConnection connection, (ConnectionDescription Description, IReadOnlyList<IAuthenticator> Authenticators) helloResult, CancellationToken cancellationToken);
-        (ConnectionDescription Description, IReadOnlyList<IAuthenticator> Authenticators) SendHello(IConnection connection, CancellationToken cancellationToken);
-        Task<(ConnectionDescription Description, IReadOnlyList<IAuthenticator> Authenticators)> SendHelloAsync(IConnection connection, CancellationToken cancellationToken);
+        ConnectionDescription Authenticate(IConnection connection, ConnectionInitializerContext connectionInitializerContext, CancellationToken cancellationToken);
+        Task<ConnectionDescription> AuthenticateAsync(IConnection connection, ConnectionInitializerContext connectionInitializerContext, CancellationToken cancellationToken);
+        ConnectionInitializerContext SendHello(IConnection connection, CancellationToken cancellationToken);
+        Task<ConnectionInitializerContext> SendHelloAsync(IConnection connection, CancellationToken cancellationToken);
     }
 }
