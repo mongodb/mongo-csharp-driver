@@ -31,12 +31,12 @@ namespace MongoDB.Driver.Core.Misc
         #endregion
 
         // private fields
-        private readonly LookupClient _lookupClient;
+        private readonly Lazy<LookupClient> _lookupClient;
 
         // constructors
         private DnsClientWrapper()
         {
-            _lookupClient = new LookupClient();
+            _lookupClient = new Lazy<LookupClient>(() => new LookupClient());
         }
 
         // public methods
@@ -44,14 +44,14 @@ namespace MongoDB.Driver.Core.Misc
         {
             Ensure.IsNotNull(service, nameof(service));
             cancellationToken.ThrowIfCancellationRequested();
-            var response = _lookupClient.Query(service, QueryType.SRV, QueryClass.IN);
+            var response = _lookupClient.Value.Query(service, QueryType.SRV, QueryClass.IN);
             return GetSrvRecords(response);
         }
 
         public async Task<List<SrvRecord>> ResolveSrvRecordsAsync(string service, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(service, nameof(service));
-            var response = await _lookupClient.QueryAsync(service, QueryType.SRV, QueryClass.IN, cancellationToken).ConfigureAwait(false);
+            var response = await _lookupClient.Value.QueryAsync(service, QueryType.SRV, QueryClass.IN, cancellationToken).ConfigureAwait(false);
             return GetSrvRecords(response);
         }
 
@@ -59,14 +59,14 @@ namespace MongoDB.Driver.Core.Misc
         {
             Ensure.IsNotNull(domainName, nameof(domainName));
             cancellationToken.ThrowIfCancellationRequested();
-            var response = _lookupClient.Query(domainName, QueryType.TXT, QueryClass.IN);
+            var response = _lookupClient.Value.Query(domainName, QueryType.TXT, QueryClass.IN);
             return GetTxtRecords(response);
         }
 
         public async Task<List<TxtRecord>> ResolveTxtRecordsAsync(string domainName, CancellationToken cancellationToken)
         {
             Ensure.IsNotNull(domainName, nameof(domainName));
-            var response = await _lookupClient.QueryAsync(domainName, QueryType.TXT, QueryClass.IN, cancellationToken).ConfigureAwait(false);
+            var response = await _lookupClient.Value.QueryAsync(domainName, QueryType.TXT, QueryClass.IN, cancellationToken).ConfigureAwait(false);
             return GetTxtRecords(response);
         }
 
