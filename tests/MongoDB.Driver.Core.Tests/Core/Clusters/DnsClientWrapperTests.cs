@@ -29,11 +29,11 @@ namespace MongoDB.Driver.Core.Clusters
     public class DnsClientWrapperTests
     {
         [Fact]
-        public void constructor_should_initialize_instance()
+        public void constructor_should_initialize_lazy_instance()
         {
             var subject = CreateSubject();
 
-            subject._lookupClient().Should().NotBeNull();
+            subject._lookupClient().IsValueCreated.Should().BeFalse();
         }
 
         [Fact]
@@ -186,6 +186,6 @@ namespace MongoDB.Driver.Core.Clusters
 
     internal static class DnsClientWrapperReflector
     {
-        public static LookupClient _lookupClient(this IDnsResolver dnsResolver) => (LookupClient)Reflector.GetFieldValue(dnsResolver, nameof(_lookupClient));
+        public static Lazy<LookupClient> _lookupClient(this IDnsResolver dnsResolver) => (Lazy<LookupClient>)Reflector.GetFieldValue(dnsResolver, nameof(_lookupClient));
     }
 }
