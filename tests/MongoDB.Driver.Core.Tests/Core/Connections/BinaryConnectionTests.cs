@@ -151,14 +151,13 @@ namespace MongoDB.Driver.Core.Connections
             var encoderFactory = new BinaryMessageEncoderFactory(memoryStream, clonedMessageEncoderSettings, compressorSource: null);
             var encoder = encoderFactory.GetCommandResponseMessageEncoder();
             encoder.WriteMessage(CreateResponseMessage());
-            var bytes = memoryStream.ToArray();
             var mockStreamFactory = new Mock<IStreamFactory>();
             mockStreamFactory
                 .Setup(s => s.CreateStream(It.IsAny<EndPoint>(), CancellationToken.None))
-                .Returns(new TestStream(bytes));
+                .Returns(new IgnoreWritesMemoryStream(memoryStream.ToArray()));
             mockStreamFactory
                 .Setup(s => s.CreateStreamAsync(It.IsAny<EndPoint>(), CancellationToken.None))
-                .ReturnsAsync(new TestStream(bytes));
+                .ReturnsAsync(new IgnoreWritesMemoryStream(memoryStream.ToArray()));
 
             var connectionInitializer = new ConnectionInitializer(
                 null,
@@ -191,7 +190,7 @@ namespace MongoDB.Driver.Core.Connections
 
             ResponseMessage CreateResponseMessage()
             {
-                var section0Document = $"{{ {OppressiveLanguageConstants.LegacyHelloResponseIsWritablePrimaryFieldName} : true, topologyVersion : {{ processId : ObjectId('5ee3f0963109d4fe5e71dd28'), counter : NumberLong(0) }}, ok : 1, connectionId : 1 }}";
+                var section0Document = $"{{ {OppressiveLanguageConstants.LegacyHelloResponseIsWritablePrimaryFieldName} : true, ok : 1, connectionId : 1 }}";
                 var section0 = new Type0CommandMessageSection<RawBsonDocument>(
                     new RawBsonDocument(BsonDocument.Parse(section0Document).ToBson()),
                     RawBsonDocumentSerializer.Instance);
@@ -873,39 +872,12 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         // nested type
-        private sealed class TestStream : Stream
+        private sealed class IgnoreWritesMemoryStream : MemoryStream
         {
-            private byte[] _messageBytes;
-
-            public TestStream(byte[] messageBytes) => _messageBytes = Ensure.IsNotNull(messageBytes, nameof(messageBytes));
-
-            public override bool CanRead => true;
-
-            public override bool CanSeek => true;
-
-            public override bool CanWrite => true;
-
-            public override long Length => _messageBytes.Length;
-
-            public override long Position { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-
-            public override void Flush() { }
-            public override int Read(byte[] buffer, int offset, int count)
-            {
-                Array.Copy(_messageBytes.Take(count).ToArray(), buffer, count);
-                return count;
-            }
-            public override long Seek(long offset, SeekOrigin origin)
-            {
-                return 0;
-            }
-            public override void SetLength(long value)
-            {
-                // do nothing
-            }
+            public IgnoreWritesMemoryStream(byte[] bytes) : base(bytes) { }
             public override void Write(byte[] buffer, int offset, int count)
             {
-                // do nothing
+                // Do nothing
             }
         }
     }
