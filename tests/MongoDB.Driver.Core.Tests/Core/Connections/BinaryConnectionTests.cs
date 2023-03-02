@@ -153,12 +153,13 @@ namespace MongoDB.Driver.Core.Connections
             var encoder = encoderFactory.GetCommandResponseMessageEncoder();
             encoder.WriteMessage(CreateResponseMessage());
             var mockStreamFactory = new Mock<IStreamFactory>();
+            using var stream = new IgnoreWritesMemoryStream(memoryStream.ToArray());
             mockStreamFactory
                 .Setup(s => s.CreateStream(It.IsAny<EndPoint>(), CancellationToken.None))
-                .Returns(new IgnoreWritesMemoryStream(memoryStream.ToArray()));
+                .Returns(stream);
             mockStreamFactory
                 .Setup(s => s.CreateStreamAsync(It.IsAny<EndPoint>(), CancellationToken.None))
-                .ReturnsAsync(new IgnoreWritesMemoryStream(memoryStream.ToArray()));
+                .ReturnsAsync(stream);
 
             var connectionInitializer = new ConnectionInitializer(
                 null,
