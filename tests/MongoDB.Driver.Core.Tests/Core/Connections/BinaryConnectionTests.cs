@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,7 +14,9 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -23,6 +25,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.Authentication;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
@@ -32,12 +35,9 @@ using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders;
 using Moq;
 using Xunit;
-using MongoDB.Driver.Core.Authentication;
-using System.Collections.Generic;
-using System.Linq;
-using MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders;
 
 namespace MongoDB.Driver.Core.Connections
 {
@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Core.Connections
     {
         private Mock<IConnectionInitializer> _mockConnectionInitializer;
         private ConnectionDescription _connectionDescription;
-        private readonly IReadOnlyList<IAuthenticator> __emptyAuthenticators = Enumerable.Empty<IAuthenticator>().ToList().AsReadOnly();
+        private readonly IReadOnlyList<IAuthenticator> __emptyAuthenticators = new IAuthenticator[0];
         private DnsEndPoint _endPoint;
         private EventCapturer _capturedEvents;
         private MessageEncoderSettings _messageEncoderSettings = new MessageEncoderSettings();
@@ -146,7 +146,7 @@ namespace MongoDB.Driver.Core.Connections
                 new ConnectionId(new ServerId(new ClusterId(), _endPoint)),
                 new HelloResult(new BsonDocument()));
 
-            var memoryStream = new MemoryStream();
+            using var memoryStream = new MemoryStream();
             var clonedMessageEncoderSettings = _messageEncoderSettings.Clone();
             var encoderFactory = new BinaryMessageEncoderFactory(memoryStream, clonedMessageEncoderSettings, compressorSource: null);
             var encoder = encoderFactory.GetCommandResponseMessageEncoder();
