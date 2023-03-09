@@ -19,33 +19,36 @@ using MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters
 {
-    internal sealed class AstRegexFilterOperation : AstFilterOperation
+    internal sealed class AstImpliedOperationFilterOperation : AstFilterOperation
     {
-        private readonly string _options;
-        private readonly string _pattern;
+        private readonly BsonValue _value;
 
-        public AstRegexFilterOperation(string pattern, string options)
+        public AstImpliedOperationFilterOperation(BsonValue value)
         {
-            _pattern = Ensure.IsNotNull(pattern, nameof(pattern));
-            _options = options;
+            _value = Ensure.IsNotNull(value, nameof(value));
         }
 
-        public override AstNodeType NodeType => AstNodeType.RegexFilterOperation;
-        public string Options => _options;
-        public string Pattern => _pattern;
+        public override AstNodeType NodeType => AstNodeType.ImpliedOperationFilterOperation;
+        public BsonValue Value => _value;
 
         public override AstNode Accept(AstNodeVisitor visitor)
         {
-            return visitor.VisitRegexFilterOperation(this);
+            return visitor.VisitImpliedOperationFilterOperation(this);
         }
 
         public override BsonValue Render()
         {
-            return new BsonDocument
+            return _value;
+        }
+
+        public AstImpliedOperationFilterOperation Update(BsonValue value)
+        {
+            if (value == _value)
             {
-                { "$regex", _pattern },
-                { "$options", _options, _options != null },
-            };
+                return this;
+            }
+
+            return new AstImpliedOperationFilterOperation(value);
         }
     }
 }

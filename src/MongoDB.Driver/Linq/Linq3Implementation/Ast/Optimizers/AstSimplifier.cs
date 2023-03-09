@@ -37,6 +37,205 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
         }
         #endregion
 
+        public override AstNode VisitFieldOperationFilter(AstFieldOperationFilter node)
+        {
+            node = (AstFieldOperationFilter)base.VisitFieldOperationFilter(node);
+
+            if (node.Field.Path != "@<elem>")
+            {
+                // { field : { $eq : value } } => { field : value } where value is not a regex
+                if (IsFieldEqValue(node, out var value))
+                {
+                    var impliedOperation = new AstImpliedOperationFilterOperation(value);
+                    return new AstFieldOperationFilter(node.Field, impliedOperation);
+                }
+
+                // { field : { $regex : "pattern", $options : "options" } } => { field : /pattern/options }
+                if (IsFieldRegex(node, out var regex))
+                {
+                    var impliedOperation = new AstImpliedOperationFilterOperation(regex);
+                    return new AstFieldOperationFilter(node.Field, impliedOperation);
+                }
+
+                // { field : { $not : { $regex : "pattern", $options : "options" } } } => { field : { $not : /pattern/options } }
+                if (IsFieldNotRegex(node, out regex))
+                {
+                    var notImpliedOperation = new AstNotFilterOperation(new AstImpliedOperationFilterOperation(regex));
+                    return new AstFieldOperationFilter(node.Field, notImpliedOperation);
+                }
+
+                // { field : { $elemMatch : { $eq : value } } } => { field : value } where value is not regex
+                if (IsFieldElemMatchEqValue(node, out value))
+                {
+                    var impliedOperation = new AstImpliedOperationFilterOperation(value);
+                    return new AstFieldOperationFilter(node.Field, impliedOperation);
+                }
+
+                // { field : { $elemMatch : { $regex : "pattern", $options : "options" } } } => { field : /pattern/options }
+                if (IsFieldElemMatchRegex(node, out regex))
+                {
+                    var impliedOperation = new AstImpliedOperationFilterOperation(regex);
+                    return new AstFieldOperationFilter(node.Field, impliedOperation);
+                }
+
+                // { field : { $elemMatch : { $not : { $regex : "pattern", $options : "options" } } } } => { field : { $elemMatch : { $not : /pattern/options } } }
+                if (IsFieldElemMatchNotRegex(node, out var elemField, out regex))
+                {
+                    var notRegexOperation = new AstNotFilterOperation(new AstImpliedOperationFilterOperation(regex));
+                    var elemFilter = new AstFieldOperationFilter(elemField, notRegexOperation);
+                    var elemMatchOperation = new AstElemMatchFilterOperation(elemFilter);
+                    return new AstFieldOperationFilter(node.Field, elemMatchOperation);
+                }
+
+                // { field : { $not : { $elemMatch : { $eq : value } } } } => { field : { $ne : value } } where value is not regex
+                if (IsFieldNotElemMatchEqValue(node, out value))
+                {
+                    var impliedOperation = new AstComparisonFilterOperation(AstComparisonFilterOperator.Ne, value);
+                    return new AstFieldOperationFilter(node.Field, impliedOperation);
+                }
+
+                // { field : { $not : { $elemMatch : { $regex : "pattern", $options : "options" } } } } => { field : { $not : /pattern/options } }
+                if (IsFieldNotElemMatchRegex(node, out regex))
+                {
+                    var notImpliedOperation = new AstNotFilterOperation(new AstImpliedOperationFilterOperation(regex));
+                    return new AstFieldOperationFilter(node.Field, notImpliedOperation);
+                }
+            }
+
+            return node;
+
+            static bool IsFieldEqValue(AstFieldOperationFilter node, out BsonValue value)
+            {
+                // { field : { $eq : value } } where value is not a a regex
+                if (node.Operation is AstComparisonFilterOperation comparisonOperation &&
+                    comparisonOperation.Operator == AstComparisonFilterOperator.Eq &&
+                    comparisonOperation.Value.BsonType != BsonType.RegularExpression)
+                {
+                    value = comparisonOperation.Value;
+                    return true;
+                }
+
+                value = null;
+                return false;
+            }
+
+            static bool IsFieldRegex(AstFieldOperationFilter node, out BsonRegularExpression regex)
+            {
+                // { field : { $regex : "pattern", $options : "options" } }
+                if (node.Operation is AstRegexFilterOperation regexOperation)
+                {
+                    regex = new BsonRegularExpression(regexOperation.Pattern, regexOperation.Options);
+                    return true;
+                }
+
+                regex = null;
+                return false;
+            }
+
+            static bool IsFieldNotRegex(AstFieldOperationFilter node, out BsonRegularExpression regex)
+            {
+                // { field : { $not : { $regex : "pattern", $options : "options" } } }
+                if (node.Operation is AstNotFilterOperation notOperation &&
+                    notOperation.Operation is AstRegexFilterOperation regexOperation)
+                {
+                    regex = new BsonRegularExpression(regexOperation.Pattern, regexOperation.Options);
+                    return true;
+                }
+
+                regex = null;
+                return false;
+            }
+
+            static bool IsFieldElemMatchEqValue(AstFieldOperationFilter node, out BsonValue value)
+            {
+                // { field : { $elemMatch : { $eq : value } } } where value is not regex
+                if (node.Operation is AstElemMatchFilterOperation elemMatchOperation &&
+                    elemMatchOperation.Filter is AstFieldOperationFilter elemFilter &&
+                    elemFilter.Field.Path == "@<elem>" &&
+                    elemFilter.Operation is AstComparisonFilterOperation comparisonOperation &&
+                    comparisonOperation.Operator == AstComparisonFilterOperator.Eq &&
+                    comparisonOperation.Value.BsonType != BsonType.RegularExpression)
+                {
+                    value = comparisonOperation.Value;
+                    return true;
+                }
+
+                value = null;
+                return false;
+            }
+
+            static bool IsFieldElemMatchRegex(AstFieldOperationFilter node, out BsonRegularExpression regex)
+            {
+                // { field : { $elemMatch : { $regex : "pattern", $options : "options" } } }
+                if (node.Operation is AstElemMatchFilterOperation elemMatchOperation &&
+                    elemMatchOperation.Filter is AstFieldOperationFilter elemFilter &&
+                    elemFilter.Field.Path == "@<elem>" &&
+                    elemFilter.Operation is AstRegexFilterOperation regexOperation)
+                {
+                    regex = new BsonRegularExpression(regexOperation.Pattern, regexOperation.Options);
+                    return true;
+                }
+
+                regex = null;
+                return false;
+            }
+
+            static bool IsFieldElemMatchNotRegex(AstFieldOperationFilter node, out AstFilterField elemField, out BsonRegularExpression regex)
+            {
+                // { field : { $elemMatch : { $not : { $regex : "pattern", $options : "options" } } } }
+                if (node.Operation is AstElemMatchFilterOperation elemMatch &&
+                    elemMatch.Filter is AstFieldOperationFilter elemFilter &&
+                    elemFilter.Field.Path == "@<elem>" &&
+                    elemFilter.Operation is AstNotFilterOperation notOperation &&
+                    notOperation.Operation is AstRegexFilterOperation regexOperation)
+                {
+                    elemField = elemFilter.Field;
+                    regex = new BsonRegularExpression(regexOperation.Pattern, regexOperation.Options);
+                    return true;
+                }
+
+                elemField = null;
+                regex = null;
+                return false;
+            }
+
+            static bool IsFieldNotElemMatchEqValue(AstFieldOperationFilter node, out BsonValue value)
+            {
+                // { field : { $not : { $elemMatch : { $eq : value } } } } where value is not regex
+                if (node.Operation is AstNotFilterOperation notFilterOperation &&
+                    notFilterOperation.Operation is AstElemMatchFilterOperation elemMatchOperation &&
+                    elemMatchOperation.Filter is AstFieldOperationFilter elemFilter &&
+                    elemFilter.Field.Path == "@<elem>" &&
+                    elemFilter.Operation is AstComparisonFilterOperation comparisonOperation &&
+                    comparisonOperation.Operator == AstComparisonFilterOperator.Eq &&
+                    comparisonOperation.Value.BsonType != BsonType.RegularExpression)
+                {
+                    value = comparisonOperation.Value;
+                    return true;
+                }
+
+                value = null;
+                return false;
+            }
+
+            static bool IsFieldNotElemMatchRegex(AstFieldOperationFilter node, out BsonRegularExpression regex)
+            {
+                // { field : { $not : { $elemMatch : { $regex : "pattern", $options : "options" } } } }
+                if (node.Operation is AstNotFilterOperation notFilterOperation &&
+                    notFilterOperation.Operation is AstElemMatchFilterOperation elemMatchOperation &&
+                    elemMatchOperation.Filter is AstFieldOperationFilter elemFilter &&
+                    elemFilter.Field.Path == "@<elem>" &&
+                    elemFilter.Operation is AstRegexFilterOperation regexOperation)
+                {
+                    regex = new BsonRegularExpression(regexOperation.Pattern, regexOperation.Options);
+                    return true;
+                }
+
+                regex = null;
+                return false;
+            }
+        }
+
         public override AstNode VisitGetFieldExpression(AstGetFieldExpression node)
         {
             if (TrySimplifyAsFieldPath(node, out var simplified))
