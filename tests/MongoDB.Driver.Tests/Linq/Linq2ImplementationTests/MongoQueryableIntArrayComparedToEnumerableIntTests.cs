@@ -43,6 +43,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests
         public void Where_operator_equal_should_render_correctly(IEnumerable<int> value, string expectedFilter)
         {
             var subject = __collection.AsQueryable();
+            value = new List<int>(value); // not an array
 
             var queryable = subject.Where(x => x.A == value);
 
@@ -54,6 +55,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTests
         public void Where_operator_not_equal_should_render_correctly(IEnumerable<int> value, string expectedFilter)
         {
             var subject = __collection.AsQueryable();
+            value = new List<int>(value); // not an array
 
             var queryable = subject.Where(x => x.A != value);
 
