@@ -21,7 +21,9 @@ using FluentAssertions;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver;
+using MongoDB.Driver.Linq.Linq3Implementation.Ast;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
+using MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilterTranslators;
@@ -42,8 +44,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             var symbol = context.CreateSymbol(parameter, documentSerializer, isCurrent: true);
             context = context.WithSymbol(symbol);
             var filter = ExpressionToFilterTranslator.Translate(context, expression.Body, exprOk: false);
+            var simplifiedFilter = AstSimplifier.Simplify(filter);
 
-            var rendered = filter.Render();
+            var rendered = simplifiedFilter.Render();
 
             rendered.Should().Be("{ 'Details.A' : { $elemMatch : { $elemMatch : { DeviceName : /.Name0./ } } } }");
         }
@@ -56,8 +59,9 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
                 AstFilter.ElemMatch(
                     new AstFilterField("@<elem>", BsonValueSerializer.Instance),
                     AstFilter.Regex(new AstFilterField("DeviceName", BsonValueSerializer.Instance), ".Name0.", "")));
+            var simplifiedAst = AstSimplifier.Simplify(ast);
 
-            var rendered = ast.Render();
+            var rendered = simplifiedAst.Render();
 
             rendered.Should().Be("{ 'Details.A' : { $elemMatch : { $elemMatch : { DeviceName : /.Name0./ } } } }");
         }

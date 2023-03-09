@@ -23,6 +23,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
+using MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilterTranslators;
@@ -109,7 +110,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
         [Fact]
         public void TestWhereAContains2Not()
         {
-            Assert<C>(c => !c.A.Contains(2), 4, "{ a : { $not : { $elemMatch : { $eq : 2 } } } }");
+            Assert<C>(c => !c.A.Contains(2), 4, "{ \"a\" : { \"$ne\" : 2 } }");
         }
 
         [Fact]
@@ -303,7 +304,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
         [Fact]
         public void TestWhereEAContainsBNot()
         {
-            Assert<C>(c => !c.EA.Contains(E.B), 4, "{ ea : { $not : { $elemMatch : { $eq : 2 } } } }");
+            Assert<C>(c => !c.EA.Contains(E.B), 4, "{ \"ea\" : { \"$ne\" : 2 } }");
         }
 
         [Fact]
@@ -393,7 +394,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
         [Fact]
         public void TestWhereLContains2Not()
         {
-            Assert<C>(c => !c.L.Contains(2), 4, "{ l : { $not : { $elemMatch : { $eq : 2 } } } }");
+            Assert<C>(c => !c.L.Contains(2), 4, "{ \"l\" : { \"$ne\" : 2 } }");
         }
 
         [Fact]
@@ -1187,7 +1188,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq2ImplementationTestsOnLinq3.Translators
             var symbol = context.CreateSymbol(parameter, serializer, isCurrent: true);
             context = context.WithSymbol(symbol);
             var filterAst = ExpressionToFilterTranslator.Translate(context, expression.Body);
-            var renderedFilter = (BsonDocument)filterAst.Render();
+            var simplifiedFilterAst = AstSimplifier.Simplify(filterAst);
+            var renderedFilter = (BsonDocument)simplifiedFilterAst.Render();
             renderedFilter.Should().Be(expectedFilter);
 
             var filter = new BsonDocumentFilterDefinition<C>(renderedFilter);

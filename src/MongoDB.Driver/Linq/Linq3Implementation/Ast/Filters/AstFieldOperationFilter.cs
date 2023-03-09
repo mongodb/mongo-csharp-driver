@@ -66,31 +66,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters
                 fieldPath = fieldPath.Substring(8);
             }
 
-            if (_operation is AstComparisonFilterOperation comparisonOperation &&
-                comparisonOperation.Operator == AstComparisonFilterOperator.Eq &&
-                comparisonOperation.Value.BsonType != BsonType.RegularExpression)
-            {
-                return new BsonDocument(fieldPath, comparisonOperation.Value); // implied $eq
-            }
-
-            if (
-                _operation is AstElemMatchFilterOperation elemMatchOperation &&
-                elemMatchOperation.Filter is AstFieldOperationFilter fieldOperationFilter &&
-                fieldOperationFilter.Field.Path == "@<elem>")
-            {
-                if (fieldOperationFilter.Operation is AstComparisonFilterOperation elemMatchComparisonOperation &&
-                    elemMatchComparisonOperation.Operator == AstComparisonFilterOperator.Eq &&
-                    elemMatchComparisonOperation.Value.BsonType != BsonType.RegularExpression)
-                {
-                    return new BsonDocument(fieldPath, elemMatchComparisonOperation.Value); // implied $elemMatch with $eq
-                }
-
-                if (fieldOperationFilter.Operation is AstRegexFilterOperation elemMatchRegexOperation)
-                {
-                    return new BsonDocument(fieldPath, elemMatchRegexOperation.Render()); // implied $elemMatch with $regex
-                }
-            }
-
             return new BsonDocument(fieldPath, _operation.Render());
         }
 
