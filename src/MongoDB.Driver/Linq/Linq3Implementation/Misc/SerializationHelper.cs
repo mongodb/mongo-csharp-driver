@@ -14,14 +14,37 @@
 */
 
 using System.Collections;
+using System.Linq.Expressions;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 {
     internal static class SerializationHelper
     {
+        public static BsonValue SerializeValue(IBsonSerializer serializer, ConstantExpression constantExpression, Expression containingExpression)
+        {
+            var value = constantExpression.Value;
+            if (value == null || serializer.ValueType.IsAssignableFrom(value.GetType()))
+            {
+                return SerializeValue(serializer, value);
+            }
+
+            if (value.GetType().ImplementsIEnumerable(out var itemType) &&
+                serializer is IBsonArraySerializer arraySerializer &&
+                arraySerializer.TryGetItemSerializationInfo(out var itemSerializationInfo) &&
+                itemSerializationInfo.Serializer is var itemSerializer &&
+                itemSerializer.ValueType.IsAssignableFrom(itemType))
+            {
+                var ienumerableSerializer = IEnumerableSerializer.Create(itemSerializer);
+                return SerializeValue(ienumerableSerializer, value);
+            }
+
+            throw new ExpressionNotSupportedException(constantExpression, containingExpression, because: "it was not possible to determine how to serialize the constant");
+        }
+
         public static BsonValue SerializeValue(IBsonSerializer serializer, object value)
         {
             var document = new BsonDocument();

@@ -58,6 +58,18 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             return false;
         }
 
+        public static bool ImplementsIEnumerable(this Type type, out Type itemType)
+        {
+            if (TryGetIEnumerableGenericInterface(type, out var ienumerableType))
+            {
+                itemType = ienumerableType.GetGenericArguments()[0];
+                return true;
+            }
+
+            itemType = null;
+            return false;
+        }
+
         public static bool Is(this Type type, Type comparand)
         {
             if (type == comparand)

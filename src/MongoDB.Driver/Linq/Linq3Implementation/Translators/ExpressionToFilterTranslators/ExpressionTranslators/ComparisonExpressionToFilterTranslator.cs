@@ -15,8 +15,8 @@
 
 using System.Linq.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
-using MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
+using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilterTranslators.MethodTranslators;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilterTranslators.ToFilterFieldTranslators;
 
@@ -66,17 +66,26 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 return filter;
             }
 
-            var comparand = rightExpression.GetConstantValue<object>(containingExpression: expression);
+            if (!BinaryExpressionToAggregationExpressionTranslator.AreOperandTypesCompatible(expression, leftExpression, rightExpression))
+            {
+                throw new ExpressionNotSupportedException(expression, because: "operand types are not compatible with each other");
+            }
+
+            var comparandExpression = rightExpression as ConstantExpression;
+            if (comparandExpression == null)
+            {
+                throw new ExpressionNotSupportedException(expression, because: "comparand must be a constant");
+            }
 
             if (leftExpression.Type == typeof(bool) &&
                 (comparisonOperator == AstComparisonFilterOperator.Eq || comparisonOperator == AstComparisonFilterOperator.Ne) &&
                 rightExpression.Type == typeof(bool))
             {
-                return TranslateComparisonToBooleanConstant(context, expression, leftExpression, comparisonOperator, (bool)comparand);
+                return TranslateComparisonToBooleanConstant(context, expression, leftExpression, comparisonOperator, (bool)comparandExpression.Value);
             }
 
             var field = ExpressionToFilterFieldTranslator.Translate(context, leftExpression);
-            var serializedComparand = SerializationHelper.SerializeValue(field.Serializer, comparand);
+            var serializedComparand = SerializationHelper.SerializeValue(field.Serializer, comparandExpression, expression);
             return AstFilter.Compare(field, comparisonOperator, serializedComparand);
         }
 
