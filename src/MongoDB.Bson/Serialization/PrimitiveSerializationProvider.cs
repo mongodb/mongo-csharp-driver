@@ -71,6 +71,14 @@ namespace MongoDB.Bson.Serialization
                 { typeof(UInt32), typeof(UInt32Serializer) },
                 { typeof(UInt64), typeof(UInt64Serializer) },
                 { typeof(Uri), typeof(UriSerializer) },
+                { typeof(ValueTuple<>), typeof(ValueTupleSerializer<>) },
+                { typeof(ValueTuple<,>), typeof(ValueTupleSerializer<,>) },
+                { typeof(ValueTuple<,,>), typeof(ValueTupleSerializer<,,>) },
+                { typeof(ValueTuple<,,,>), typeof(ValueTupleSerializer<,,,>) },
+                { typeof(ValueTuple<,,,,>), typeof(ValueTupleSerializer<,,,,>) },
+                { typeof(ValueTuple<,,,,,>), typeof(ValueTupleSerializer<,,,,,>) },
+                { typeof(ValueTuple<,,,,,,>), typeof(ValueTupleSerializer<,,,,,,>) },
+                { typeof(ValueTuple<,,,,,,,>), typeof(ValueTupleSerializer<,,,,,,,>) },
                 { typeof(Version), typeof(VersionSerializer) }
             };
         }
