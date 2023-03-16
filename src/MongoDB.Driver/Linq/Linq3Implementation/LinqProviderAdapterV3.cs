@@ -79,6 +79,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
             IBsonSerializer<TDocument> documentSerializer,
             IBsonSerializerRegistry serializerRegistry)
         {
+            expression = (LambdaExpression)PartialEvaluator.EvaluatePartially(expression);
             var parameter = expression.Parameters.Single();
             var context = TranslationContext.Create(expression, documentSerializer);
             var symbol = context.CreateSymbol(parameter, documentSerializer, isCurrent: true);
