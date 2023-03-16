@@ -847,6 +847,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             return new AstUnaryExpression(AstUnaryOperator.Trunc, arg);
         }
 
+        public static AstExpression Type(AstExpression arg)
+        {
+            return new AstUnaryExpression(AstUnaryOperator.Type, arg);
+        }
+
         public static AstExpression Unary(AstUnaryOperator @operator, AstExpression arg)
         {
             return new AstUnaryExpression(@operator, arg);
