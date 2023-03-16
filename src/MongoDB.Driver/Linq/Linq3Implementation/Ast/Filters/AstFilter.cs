@@ -100,6 +100,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters
             return new AstFieldOperationFilter(field, new AstComparisonFilterOperation(AstComparisonFilterOperator.Eq, value));
         }
 
+        public static AstFieldOperationFilter Exists(AstFilterField field)
+        {
+            return new AstFieldOperationFilter(field, new AstExistsFilterOperation(exists: true));
+        }
+
         public static AstFilter Expr(AstExpression expression)
         {
             return new AstExprFilter(expression);
