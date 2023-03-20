@@ -91,18 +91,36 @@ namespace MongoDB.Driver.Search
         }
     }
 
-    internal sealed class EqualsSearchDefinition<TDocument> : OperatorSearchDefinition<TDocument>
+    internal sealed class EqualsSearchDefinition<TDocument, TField> : OperatorSearchDefinition<TDocument>
     {
         private readonly BsonValue _value;
 
-        public EqualsSearchDefinition(FieldDefinition<TDocument> path, BsonValue value, SearchScoreDefinition<TDocument> score)
+        public EqualsSearchDefinition(FieldDefinition<TDocument> path, TField value, SearchScoreDefinition<TDocument> score)
             : base(OperatorType.Equals, path, score)
         {
-            _value = value;
+            _value = ToBsonValue(value);
         }
 
         private protected override BsonDocument RenderArguments(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry) =>
             new("value", _value);
+
+        private static BsonValue ToBsonValue(TField value) =>
+            value switch
+            {
+                bool v => (BsonBoolean)v,
+                sbyte v => (BsonInt32)v,
+                byte v => (BsonInt32)v,
+                short v => (BsonInt32)v,
+                ushort v => (BsonInt32)v,
+                int v => (BsonInt32)v,
+                uint v => (BsonInt64)v,
+                long v => (BsonInt64)v,
+                float v => (BsonDouble)v,
+                double v => (BsonDouble)v,
+                DateTime v => (BsonDateTime)v,
+                ObjectId v => (BsonObjectId)v,
+                _ => throw new InvalidCastException()
+            };
     }
 
     internal sealed class ExistsSearchDefinition<TDocument> : OperatorSearchDefinition<TDocument>
