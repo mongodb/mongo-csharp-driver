@@ -212,7 +212,7 @@ namespace MongoDB.Driver.Tests.Search
             new object[] { (ushort)1, "1", Exp(p => p.UInt16), nameof(Person.UInt16) },
             new object[] { (int)1, "1", Exp(p => p.Int32), nameof(Person.Int32) },
             new object[] { (uint)1, "1", Exp(p => p.UInt32), nameof(Person.UInt32) },
-            new object[] { (long)1, "1", Exp(p => p.Int64), nameof(Person.Int64) },
+            new object[] { long.MaxValue, "NumberLong(\"9223372036854775807\")", Exp(p => p.Int64), nameof(Person.Int64) },
             new object[] { (float)1, "1", Exp(p => p.Float), nameof(Person.Float) },
             new object[] { (double)1, "1", Exp(p => p.Double), nameof(Person.Double) },
             new object[] { DateTime.MinValue, "ISODate(\"0001-01-01T00:00:00Z\")", Exp(p => p.Birthday), "dob" },
