@@ -178,7 +178,7 @@ namespace MongoDB.Driver.Tests.Search
         }
 
         [Theory]
-        [MemberData(nameof(EqualsSupporteddTypesTestData))]
+        [MemberData(nameof(EqualsSupportedTypesTestData))]
         public void Equals_should_render_supported_type<T>(
             T value,
             string valueRendered,
@@ -203,7 +203,7 @@ namespace MongoDB.Driver.Tests.Search
                 $"{{ equals: {{ path: '{fieldRendered}', value: {valueRendered} }} }}");
         }
 
-        public static object[][] EqualsSupporteddTypesTestData => new[]
+        public static object[][] EqualsSupportedTypesTestData => new[]
         {
             new object[] { true, "true", Exp(p => p.Retired), "ret" },
             new object[] { (sbyte)1, "1", Exp(p => p.Int8), nameof(Person.Int8), },
