@@ -290,6 +290,8 @@ namespace MongoDB.Driver.Search
         where TField : struct, IComparable<TField>
     {
         private readonly SearchRange<TField> _range;
+        private readonly BsonValue _min;
+        private readonly BsonValue _max;
 
         public RangeSearchDefinition(
             SearchPathDefinition<TDocument> path,
@@ -298,16 +300,18 @@ namespace MongoDB.Driver.Search
                 : base(OperatorType.Range, path, score)
         {
             _range = range;
+            _min = ToBsonValue(_range.Min);
+            _max = ToBsonValue(_range.Max);
         }
 
         private protected override BsonDocument RenderArguments(IBsonSerializer<TDocument> documentSerializer, IBsonSerializerRegistry serializerRegistry) =>
             new()
             {
-                { _range.IsMinInclusive ? "gte" : "gt", () => ToBsonValue(_range.Min.Value), _range.Min != null },
-                { _range.IsMaxInclusive ? "lte" : "lt", () => ToBsonValue(_range.Max.Value), _range.Max != null },
+                { _range.IsMinInclusive ? "gte" : "gt", _min, _min != null },
+                { _range.IsMaxInclusive ? "lte" : "lt", _max, _max != null },
             };
 
-        private static BsonValue ToBsonValue(TField value) =>
+        private static BsonValue ToBsonValue(TField? value) =>
             value switch
             {
                 sbyte v => (BsonInt32)v,
@@ -315,11 +319,13 @@ namespace MongoDB.Driver.Search
                 short v => (BsonInt32)v,
                 ushort v => (BsonInt32)v,
                 int v => (BsonInt32)v,
-                uint v => (BsonInt32)v,
+                uint v => (BsonInt64)v,
                 long v => (BsonInt64)v,
                 float v => (BsonDouble)v,
                 double v => (BsonDouble)v,
                 DateTime v => (BsonDateTime)v,
+                DateTimeOffset v => (BsonDateTime)v.UtcDateTime,
+                null => null,
                 _ => throw new InvalidCastException()
             };
     }
