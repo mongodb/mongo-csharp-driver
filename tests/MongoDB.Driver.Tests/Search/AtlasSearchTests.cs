@@ -80,12 +80,20 @@ namespace MongoDB.Driver.Tests.Search
         [Fact]
         public void Compound()
         {
-            var result = SearchSingle(Builders.Search.Compound()
+            const int score = 42;
+            var searchDefinition = Builders.Search.Compound(Builders.SearchScore.Constant(score))
                 .Must(Builders.Search.Text(x => x.Body, "life"), Builders.Search.Text(x => x.Body, "liberty"))
                 .MustNot(Builders.Search.Text(x => x.Body, "property"))
-                .Must(Builders.Search.Text(x => x.Body, "pursuit of happiness")));
+                .Must(Builders.Search.Text(x => x.Body, "pursuit of happiness"));
 
+            var projectionDefinition = Builders.Projection
+                .Include(x => x.Body)
+                .Include(x => x.Title)
+                .MetaSearchScore("score");
+
+            var result = SearchSingle(searchDefinition, projectionDefinition);
             result.Title.Should().Be("Declaration of Independence");
+            result.Score.Should().Be(score);
         }
 
         [Fact]
@@ -436,13 +444,17 @@ namespace MongoDB.Driver.Tests.Search
         private List<AirbnbListing> GeoSearch(SearchDefinition<AirbnbListing> searchDefintion) =>
             GetGeoTestCollection().Aggregate().Search(searchDefintion).ToList();
 
-        private HistoricalDocument SearchSingle(SearchDefinition<HistoricalDocument> searchDefintion) =>
-            GetTestCollection()
-                .Aggregate()
-                .Search(searchDefintion)
-                .Limit(1)
-                .ToList()
-                .Single();
+        private HistoricalDocument SearchSingle(SearchDefinition<HistoricalDocument> searchDefintion, ProjectionDefinition<HistoricalDocument, HistoricalDocument> projectionDefinition = null)
+        {
+            var fluent = GetTestCollection().Aggregate().Search(searchDefintion);
+
+            if (projectionDefinition != null)
+            {
+                fluent = fluent.Project(projectionDefinition);
+            }
+
+            return fluent.Limit(1).ToList().Single();
+        }
 
         private IMongoCollection<HistoricalDocument> GetTestCollection() => _disposableMongoClient
             .GetDatabase("sample_training")

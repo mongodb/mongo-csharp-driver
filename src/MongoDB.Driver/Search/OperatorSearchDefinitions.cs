@@ -64,8 +64,9 @@ namespace MongoDB.Driver.Search
             List<SearchDefinition<TDocument>> mustNot,
             List<SearchDefinition<TDocument>> should,
             List<SearchDefinition<TDocument>> filter,
-            int minimumShouldMatch)
-                : base(OperatorType.Compound)
+            int minimumShouldMatch,
+            SearchScoreDefinition<TDocument> score)
+                : base(OperatorType.Compound, score)
         {
             // This constructor should always be called from the compound search definition builder that ensures the arguments are valid.
             _must = must;
