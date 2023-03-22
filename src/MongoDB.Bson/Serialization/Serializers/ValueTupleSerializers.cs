@@ -14,15 +14,58 @@
 */
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using MongoDB.Bson.IO;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
     /// <summary>
+    /// A factory class for ValueTupleSerializers.
+    /// </summary>
+    public static class ValueTupleSerializer
+    {
+        /// <summary>
+        /// Creates a ValueTupleSerializer.
+        /// </summary>
+        /// <param name="itemSerializers">The item serializers.</param>
+        /// <returns>A ValueTupleSerializer.</returns>
+        public static IBsonSerializer Create(IEnumerable<IBsonSerializer> itemSerializers)
+        {
+            var itemSerializersArray = itemSerializers.ToArray();
+            var valueTupleSerializerType = CreateValueTupleSerializerType(itemSerializersArray);
+            return (IBsonSerializer)Activator.CreateInstance(valueTupleSerializerType, itemSerializersArray);
+
+            static Type CreateValueTupleSerializerType(IBsonSerializer[] itemSerializersArray)
+            {
+                var itemTypes = itemSerializersArray.Select(s => s.ValueType).ToArray();
+                var valueTupleSerializerTypeDefinition = CreateValueTupleSerializerTypeDefinition(itemTypes.Length);
+                return valueTupleSerializerTypeDefinition.MakeGenericType(itemTypes);
+            }
+
+            static Type CreateValueTupleSerializerTypeDefinition(int itemCount)
+            {
+                return itemCount switch
+                {
+                    1 => typeof(ValueTupleSerializer<>),
+                    2 => typeof(ValueTupleSerializer<,>),
+                    3 => typeof(ValueTupleSerializer<,,>),
+                    4 => typeof(ValueTupleSerializer<,,,>),
+                    5 => typeof(ValueTupleSerializer<,,,,>),
+                    6 => typeof(ValueTupleSerializer<,,,,,>),
+                    7 => typeof(ValueTupleSerializer<,,,,,,>),
+                    8 => typeof(ValueTupleSerializer<,,,,,,,>),
+                    _ => throw new Exception($"Invalid number of ValueTuple items : {itemCount}.")
+                };
+            }
+        }
+    }
+
+    /// <summary>
     /// Represents a serializer for a <see cref="ValueTuple{T1}"/>.
     /// </summary>
     /// <typeparam name="T1">The type of item 1.</typeparam>
-    public sealed class ValueTupleSerializer<T1> : StructSerializerBase<ValueTuple<T1>>
+    public sealed class ValueTupleSerializer<T1> : StructSerializerBase<ValueTuple<T1>>, IBsonTupleSerializer
     {
         // private fields
         private readonly Lazy<IBsonSerializer<T1>> _lazyItem1Serializer;
@@ -43,7 +86,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         public ValueTupleSerializer(
             IBsonSerializer<T1> item1Serializer)
         {
-            if (item1Serializer == null) { throw new ArgumentNullException((nameof(item1Serializer))); }
+            if (item1Serializer == null) { throw new ArgumentNullException(nameof(item1Serializer)); }
 
             _lazyItem1Serializer = new Lazy<IBsonSerializer<T1>>(() => item1Serializer);
         }
@@ -102,6 +145,16 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         /// <inheritdoc/>
+        public IBsonSerializer GetItemSerializer(int itemNumber)
+        {
+            return itemNumber switch
+            {
+                1 => _lazyItem1Serializer.Value,
+                _ => throw new IndexOutOfRangeException(nameof(itemNumber))
+            };
+        }
+
+        /// <inheritdoc/>
         public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, ValueTuple<T1> value)
         {
             context.Writer.WriteStartArray();
@@ -115,7 +168,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// </summary>
     /// <typeparam name="T1">The type of item 1.</typeparam>
     /// <typeparam name="T2">The type of item 2.</typeparam>
-    public sealed class ValueTupleSerializer<T1, T2> : StructSerializerBase<ValueTuple<T1, T2>>
+    public sealed class ValueTupleSerializer<T1, T2> : StructSerializerBase<ValueTuple<T1, T2>>, IBsonTupleSerializer
     {
         // private fields
         private readonly Lazy<IBsonSerializer<T1>> _lazyItem1Serializer;
@@ -139,7 +192,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             IBsonSerializer<T1> item1Serializer,
             IBsonSerializer<T2> item2Serializer)
         {
-            if (item1Serializer == null) { throw new ArgumentNullException((nameof(item1Serializer))); }
+            if (item1Serializer == null) { throw new ArgumentNullException(nameof(item1Serializer)); }
             if (item2Serializer == null) { throw new ArgumentNullException(nameof(item2Serializer)); }
 
             _lazyItem1Serializer = new Lazy<IBsonSerializer<T1>>(() => item1Serializer);
@@ -209,6 +262,17 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         /// <inheritdoc/>
+        public IBsonSerializer GetItemSerializer(int itemNumber)
+        {
+            return itemNumber switch
+            {
+                1 => _lazyItem1Serializer.Value,
+                2 => _lazyItem2Serializer.Value,
+                _ => throw new IndexOutOfRangeException(nameof(itemNumber))
+            };
+        }
+
+        /// <inheritdoc/>
         public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, ValueTuple<T1, T2> value)
         {
             context.Writer.WriteStartArray();
@@ -224,7 +288,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <typeparam name="T1">The type of item 1.</typeparam>
     /// <typeparam name="T2">The type of item 2.</typeparam>
     /// <typeparam name="T3">The type of item 3.</typeparam>
-    public sealed class ValueTupleSerializer<T1, T2, T3> : StructSerializerBase<ValueTuple<T1, T2, T3>>
+    public sealed class ValueTupleSerializer<T1, T2, T3> : StructSerializerBase<ValueTuple<T1, T2, T3>>, IBsonTupleSerializer
     {
         // private fields
         private readonly Lazy<IBsonSerializer<T1>> _lazyItem1Serializer;
@@ -251,7 +315,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             IBsonSerializer<T2> item2Serializer,
             IBsonSerializer<T3> item3Serializer)
         {
-            if (item1Serializer == null) { throw new ArgumentNullException((nameof(item1Serializer))); }
+            if (item1Serializer == null) { throw new ArgumentNullException(nameof(item1Serializer)); }
             if (item2Serializer == null) { throw new ArgumentNullException(nameof(item2Serializer)); }
             if (item3Serializer == null) { throw new ArgumentNullException(nameof(item3Serializer)); }
 
@@ -332,6 +396,18 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         /// <inheritdoc/>
+        public IBsonSerializer GetItemSerializer(int itemNumber)
+        {
+            return itemNumber switch
+            {
+                1 => _lazyItem1Serializer.Value,
+                2 => _lazyItem2Serializer.Value,
+                3 => _lazyItem3Serializer.Value,
+                _ => throw new IndexOutOfRangeException(nameof(itemNumber))
+            };
+        }
+
+        /// <inheritdoc/>
         public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, ValueTuple<T1, T2, T3> value)
         {
             context.Writer.WriteStartArray();
@@ -349,7 +425,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <typeparam name="T2">The type of item 2.</typeparam>
     /// <typeparam name="T3">The type of item 3.</typeparam>
     /// <typeparam name="T4">The type of item 4.</typeparam>
-    public sealed class ValueTupleSerializer<T1, T2, T3, T4> : StructSerializerBase<ValueTuple<T1, T2, T3, T4>>
+    public sealed class ValueTupleSerializer<T1, T2, T3, T4> : StructSerializerBase<ValueTuple<T1, T2, T3, T4>>, IBsonTupleSerializer
     {
         // private fields
         private readonly Lazy<IBsonSerializer<T1>> _lazyItem1Serializer;
@@ -471,6 +547,19 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         /// <inheritdoc/>
+        public IBsonSerializer GetItemSerializer(int itemNumber)
+        {
+            return itemNumber switch
+            {
+                1 => _lazyItem1Serializer.Value,
+                2 => _lazyItem2Serializer.Value,
+                3 => _lazyItem3Serializer.Value,
+                4 => _lazyItem4Serializer.Value,
+                _ => throw new IndexOutOfRangeException(nameof(itemNumber))
+            };
+        }
+
+        /// <inheritdoc/>
         public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, ValueTuple<T1, T2, T3, T4> value)
         {
             context.Writer.WriteStartArray();
@@ -490,7 +579,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <typeparam name="T3">The type of item 3.</typeparam>
     /// <typeparam name="T4">The type of item 4.</typeparam>
     /// <typeparam name="T5">The type of item 5.</typeparam>
-    public sealed class ValueTupleSerializer<T1, T2, T3, T4, T5> : StructSerializerBase<ValueTuple<T1, T2, T3, T4, T5>>
+    public sealed class ValueTupleSerializer<T1, T2, T3, T4, T5> : StructSerializerBase<ValueTuple<T1, T2, T3, T4, T5>>, IBsonTupleSerializer
     {
         // private fields
         private readonly Lazy<IBsonSerializer<T1>> _lazyItem1Serializer;
@@ -626,6 +715,20 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         /// <inheritdoc/>
+        public IBsonSerializer GetItemSerializer(int itemNumber)
+        {
+            return itemNumber switch
+            {
+                1 => _lazyItem1Serializer.Value,
+                2 => _lazyItem2Serializer.Value,
+                3 => _lazyItem3Serializer.Value,
+                4 => _lazyItem4Serializer.Value,
+                5 => _lazyItem5Serializer.Value,
+                _ => throw new IndexOutOfRangeException(nameof(itemNumber))
+            };
+        }
+
+        /// <inheritdoc/>
         public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, ValueTuple<T1, T2, T3, T4, T5> value)
         {
             context.Writer.WriteStartArray();
@@ -647,7 +750,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <typeparam name="T4">The type of item 4.</typeparam>
     /// <typeparam name="T5">The type of item 5.</typeparam>
     /// <typeparam name="T6">The type of item 6.</typeparam>
-    public sealed class ValueTupleSerializer<T1, T2, T3, T4, T5, T6> : StructSerializerBase<ValueTuple<T1, T2, T3, T4, T5, T6>>
+    public sealed class ValueTupleSerializer<T1, T2, T3, T4, T5, T6> : StructSerializerBase<ValueTuple<T1, T2, T3, T4, T5, T6>>, IBsonTupleSerializer
     {
         // private fields
         private readonly Lazy<IBsonSerializer<T1>> _lazyItem1Serializer;
@@ -797,6 +900,21 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         /// <inheritdoc/>
+        public IBsonSerializer GetItemSerializer(int itemNumber)
+        {
+            return itemNumber switch
+            {
+                1 => _lazyItem1Serializer.Value,
+                2 => _lazyItem2Serializer.Value,
+                3 => _lazyItem3Serializer.Value,
+                4 => _lazyItem4Serializer.Value,
+                5 => _lazyItem5Serializer.Value,
+                6 => _lazyItem6Serializer.Value,
+                _ => throw new IndexOutOfRangeException(nameof(itemNumber))
+            };
+        }
+
+        /// <inheritdoc/>
         public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, ValueTuple<T1, T2, T3, T4, T5, T6> value)
         {
             context.Writer.WriteStartArray();
@@ -820,7 +938,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <typeparam name="T5">The type of item 5.</typeparam>
     /// <typeparam name="T6">The type of item 6.</typeparam>
     /// <typeparam name="T7">The type of item 7.</typeparam>
-    public sealed class ValueTupleSerializer<T1, T2, T3, T4, T5, T6, T7> : StructSerializerBase<ValueTuple<T1, T2, T3, T4, T5, T6, T7>>
+    public sealed class ValueTupleSerializer<T1, T2, T3, T4, T5, T6, T7> : StructSerializerBase<ValueTuple<T1, T2, T3, T4, T5, T6, T7>>, IBsonTupleSerializer
     {
         // private fields
         private readonly Lazy<IBsonSerializer<T1>> _lazyItem1Serializer;
@@ -984,6 +1102,22 @@ namespace MongoDB.Bson.Serialization.Serializers
         }
 
         /// <inheritdoc/>
+        public IBsonSerializer GetItemSerializer(int itemNumber)
+        {
+            return itemNumber switch
+            {
+                1 => _lazyItem1Serializer.Value,
+                2 => _lazyItem2Serializer.Value,
+                3 => _lazyItem3Serializer.Value,
+                4 => _lazyItem4Serializer.Value,
+                5 => _lazyItem5Serializer.Value,
+                6 => _lazyItem6Serializer.Value,
+                7 => _lazyItem7Serializer.Value,
+                _ => throw new IndexOutOfRangeException(nameof(itemNumber))
+            };
+        }
+
+        /// <inheritdoc/>
         public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, ValueTuple<T1, T2, T3, T4, T5, T6, T7> value)
         {
             context.Writer.WriteStartArray();
@@ -1009,7 +1143,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <typeparam name="T6">The type of item 6.</typeparam>
     /// <typeparam name="T7">The type of item 7.</typeparam>
     /// <typeparam name="TRest">The type of the rest item.</typeparam>
-    public sealed class ValueTupleSerializer<T1, T2, T3, T4, T5, T6, T7, TRest> : StructSerializerBase<ValueTuple<T1, T2, T3, T4, T5, T6, T7, TRest>>
+    public sealed class ValueTupleSerializer<T1, T2, T3, T4, T5, T6, T7, TRest> : StructSerializerBase<ValueTuple<T1, T2, T3, T4, T5, T6, T7, TRest>>, IBsonTupleSerializer
         where TRest : struct
     {
         // private fields
@@ -1185,6 +1319,23 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
 
             return new ValueTuple<T1, T2, T3, T4, T5, T6, T7, TRest>(item1, item2, item3, item4, item5, item6, item7, rest);
+        }
+
+        /// <inheritdoc/>
+        public IBsonSerializer GetItemSerializer(int itemNumber)
+        {
+            return itemNumber switch
+            {
+                1 => _lazyItem1Serializer.Value,
+                2 => _lazyItem2Serializer.Value,
+                3 => _lazyItem3Serializer.Value,
+                4 => _lazyItem4Serializer.Value,
+                5 => _lazyItem5Serializer.Value,
+                6 => _lazyItem6Serializer.Value,
+                7 => _lazyItem7Serializer.Value,
+                8 => _lazyRestSerializer.Value,
+                _ => throw new IndexOutOfRangeException(nameof(itemNumber))
+            };
         }
 
         /// <inheritdoc/>
