@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -176,40 +177,65 @@ namespace MongoDB.Driver.Tests.Search
                 "{ compound: { must: [{ exists: { path: 'age' } }, { exists: { path: 'fn' } }, { exists: { path: 'ln' } }], mustNot: [{ exists: { path: 'ret' } }, { exists: { path: 'dob' } }] } }");
         }
 
-        [Fact]
-        public void Equals()
+        [Theory]
+        [MemberData(nameof(EqualsSupportedTypesTestData))]
+        public void Equals_should_render_supported_type<T>(
+            T value,
+            string valueRendered,
+            Expression<Func<Person, T>> fieldExpression,
+            string fieldRendered)
+            where T : struct, IComparable<T>
         {
             var subject = CreateSubject<BsonDocument>();
+            var subjectTyped = CreateSubject<Person>();
 
             AssertRendered(
-                subject.Equals("x", true),
-                "{ equals: { path: 'x', value: true } }");
-            AssertRendered(
-                subject.Equals("x", ObjectId.Empty),
-                "{ equals: { path: 'x', value: { $oid: '000000000000000000000000' } } }");
+                subject.Equals("x", value),
+                $"{{ equals: {{ path: 'x', value: {valueRendered} }} }}");
 
             var scoreBuilder = new SearchScoreDefinitionBuilder<BsonDocument>();
             AssertRendered(
-                subject.Equals("x", true, scoreBuilder.Constant(1)),
-                "{ equals: { path: 'x', value: true, score: { constant: { value: 1 } } } }");
+                subject.Equals("x", value, scoreBuilder.Constant(1)),
+                $"{{ equals: {{ path: 'x', value: {valueRendered}, score: {{ constant: {{ value: 1 }} }} }} }}");
+
+            AssertRendered(
+                subjectTyped.Equals(fieldExpression, value),
+                $"{{ equals: {{ path: '{fieldRendered}', value: {valueRendered} }} }}");
         }
 
-        [Fact]
-        public void Equals_typed()
+        public static object[][] EqualsSupportedTypesTestData => new[]
         {
-            var subject = CreateSubject<Person>();
+            new object[] { true, "true", Exp(p => p.Retired), "ret" },
+            new object[] { (sbyte)1, "1", Exp(p => p.Int8), nameof(Person.Int8), },
+            new object[] { (byte)1, "1", Exp(p => p.UInt8), nameof(Person.UInt8), },
+            new object[] { (short)1, "1", Exp(p => p.Int16), nameof(Person.Int16) },
+            new object[] { (ushort)1, "1", Exp(p => p.UInt16), nameof(Person.UInt16) },
+            new object[] { (int)1, "1", Exp(p => p.Int32), nameof(Person.Int32) },
+            new object[] { (uint)1, "1", Exp(p => p.UInt32), nameof(Person.UInt32) },
+            new object[] { long.MaxValue, "NumberLong(\"9223372036854775807\")", Exp(p => p.Int64), nameof(Person.Int64) },
+            new object[] { (float)1, "1", Exp(p => p.Float), nameof(Person.Float) },
+            new object[] { (double)1, "1", Exp(p => p.Double), nameof(Person.Double) },
+            new object[] { DateTime.MinValue, "ISODate(\"0001-01-01T00:00:00Z\")", Exp(p => p.Birthday), "dob" },
+            new object[] { DateTimeOffset.MaxValue, "ISODate(\"9999-12-31T23:59:59.999Z\")", Exp(p => p.DateTimeOffset), nameof(Person.DateTimeOffset) },
+            new object[] { ObjectId.Empty, "{ $oid: '000000000000000000000000' }", Exp(p => p.Id), "_id" }
+        };
 
-            AssertRendered(
-                subject.Equals(x => x.Retired, true),
-                "{ equals: { path: 'ret', value: true } }");
-            AssertRendered(
-                subject.Equals("Retired", true),
-                "{ equals: { path: 'ret', value: true } }");
+        [Theory]
+        [MemberData(nameof(EqualsUnsupporteddTypesTestData))]
+        public void Equals_should_throw_on_unsupported_type<T>(T value, Expression<Func<Person, T>> fieldExpression) where T : struct, IComparable<T>
+        {
+            var subject = CreateSubject<BsonDocument>();
+            Record.Exception(() => subject.Equals("x", value)).Should().BeOfType<InvalidCastException>();
 
-            AssertRendered(
-                subject.Equals(x => x.Id, ObjectId.Empty),
-                "{ equals: { path: '_id', value: { $oid: '000000000000000000000000' } } }");
+            var subjectTyped = CreateSubject<Person>();
+            Record.Exception(() => subjectTyped.Equals(fieldExpression, value)).Should().BeOfType<InvalidCastException>();
         }
+
+        public static object[][] EqualsUnsupporteddTypesTestData => new[]
+        {
+            new object[] { (ulong)1, Exp(p => p.UInt64) },
+            new object[] { TimeSpan.Zero, Exp(p => p.TimeSpan) },
+        };
 
         [Fact]
         public void Exists()
@@ -928,8 +954,24 @@ namespace MongoDB.Driver.Tests.Search
 
         private SearchDefinitionBuilder<TDocument> CreateSubject<TDocument>() => new SearchDefinitionBuilder<TDocument>();
 
-        private class Person : SimplePerson
+        private static Expression<Func<Person, T>> Exp<T>(Expression<Func<Person, T>> expression) => expression;
+
+        public class Person : SimplePerson
         {
+            public byte UInt8 { get; set; }
+            public sbyte Int8 { get; set; }
+            public short Int16 { get; set; }
+            public ushort UInt16 { get; set; }
+            public int Int32 { get; set; }
+            public uint UInt32 { get; set; }
+            public long Int64 { get; set; }
+            public ulong UInt64 { get; set; }
+            public float Float { get; set; }
+            public double Double { get; set; }
+
+            public DateTimeOffset DateTimeOffset { get; set; }
+            public TimeSpan TimeSpan { get; set; }
+
             [BsonElement("age")]
             public int Age { get; set; }
 
@@ -938,6 +980,7 @@ namespace MongoDB.Driver.Tests.Search
 
             [BsonId]
             public ObjectId Id { get; set; }
+
             [BsonElement("location")]
             public GeoJsonPoint<GeoJson2DGeographicCoordinates> Location { get; set; }
 
@@ -945,7 +988,7 @@ namespace MongoDB.Driver.Tests.Search
             public bool Retired { get; set; }
         }
 
-        private class SimplePerson
+        public class SimplePerson
         {
             [BsonElement("fn")]
             public string FirstName { get; set; }
@@ -954,7 +997,7 @@ namespace MongoDB.Driver.Tests.Search
             public string LastName { get; set; }
         }
 
-        private class SimplestPerson
+        public class SimplestPerson
         {
             [BsonElement("fn")]
             public string FirstName { get; set; }
