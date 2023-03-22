@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
                 .Select(x => new Tuple<int>(x.X));
 
             var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $project : { Item1 : '$X', _id : 0 } }");
+            AssertStages(stages, "{ $project : { _v : ['$X'], _id : 0 } }");
 
             var result = queryable.Single();
             result.Should().Be(new Tuple<int>(1));
@@ -48,7 +48,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
                 .Select(x => new Tuple<int, int>(x.X, x.Y));
 
             var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $project : { Item1 : '$X', Item2 : '$Y', _id : 0 } }");
+            AssertStages(stages, "{ $project : { _v : ['$X', '$Y'], _id : 0 } }");
 
             var result = queryable.Single();
             result.Should().Be(new Tuple<int, int>(1, 11));
@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
                 .Select(x => new Tuple<int, int, int>(x.X, x.Y, x.Z));
 
             var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $project : { Item1 : '$X', Item2 : '$Y', Item3 : '$Z', _id : 0 } }");
+            AssertStages(stages, "{ $project : { _v : ['$X', '$Y', '$Z'], _id : 0 } }");
 
             var result = queryable.Single();
             result.Should().Be(new Tuple<int, int, int>(1, 11, 111));
@@ -83,8 +83,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             var stages = Translate(collection, queryable);
             AssertStages(
                 stages,
-                "{ $project : { Item1 : '$X', _id : 0 } }",
-                "{ $match : { Item1 : 1 } }");
+                "{ $project : { _v : ['$X'], _id : 0 } }",
+                "{ $match : { '_v.0' : 1 } }");
 
             var result = queryable.Single();
             result.Should().Be(new Tuple<int>(1));
@@ -103,8 +103,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             var stages = Translate(collection, queryable);
             AssertStages(
                 stages,
-                "{ $project : { Item1 : '$X', Item2 : '$Y', _id : 0 } }",
-                "{ $match : { Item1 : 1, Item2 : 11 } }");
+                "{ $project : { _v : ['$X', '$Y'], _id : 0 } }",
+                "{ $match : { '_v.0' : 1, '_v.1' : 11 } }");
 
             var result = queryable.Single();
             result.Should().Be(new Tuple<int, int>(1, 11));
@@ -123,8 +123,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationTests.Jira
             var stages = Translate(collection, queryable);
             AssertStages(
                 stages,
-                "{ $project : { Item1 : '$X', Item2 : '$Y', Item3: '$Z', _id : 0 } }",
-                "{ $match : { Item1 : 1, Item2 : 11, Item3 : 111 } }");
+                "{ $project : { _v : ['$X', '$Y', '$Z'], _id : 0 } }",
+                "{ $match : { '_v.0' : 1, '_v.1' : 11, '_v.2' : 111 } }");
 
             var result = queryable.Single();
             result.Should().Be(new Tuple<int, int, int>(1, 11, 111));

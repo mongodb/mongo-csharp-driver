@@ -15,11 +15,36 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 {
     internal static class TypeExtensions
     {
+        private static Type[] __tupleTypeDefinitions =
+        {
+            typeof(Tuple<>),
+            typeof(Tuple<,>),
+            typeof(Tuple<,,>),
+            typeof(Tuple<,,,>),
+            typeof(Tuple<,,,,>),
+            typeof(Tuple<,,,,,>),
+            typeof(Tuple<,,,,,,>),
+            typeof(Tuple<,,,,,,,>)
+        };
+
+        private static Type[] __valueTupleTypeDefinitions =
+        {
+            typeof(ValueTuple<>),
+            typeof(ValueTuple<,>),
+            typeof(ValueTuple<,,>),
+            typeof(ValueTuple<,,,>),
+            typeof(ValueTuple<,,,,>),
+            typeof(ValueTuple<,,,,,>),
+            typeof(ValueTuple<,,,,,,>),
+            typeof(ValueTuple<,,,,,,,>)
+        };
+
         public static Type GetIEnumerableGenericInterface(this Type enumerableType)
         {
             if (enumerableType.TryGetIEnumerableGenericInterface(out var ienumerableGenericInterface))
@@ -164,6 +189,29 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         public static bool IsSameAsOrNullableOf(this Type type, Type valueType)
         {
             return type == valueType || type.IsNullableOf(valueType);
+        }
+
+        public static bool IsTuple(this Type type)
+        {
+            return
+                type.IsConstructedGenericType &&
+                type.GetGenericTypeDefinition() is var typeDefinition &&
+                __tupleTypeDefinitions.Contains(typeDefinition);
+
+        }
+
+        public static bool IsTupleOrValueTuple(this Type type)
+        {
+            return IsTuple(type) || IsValueTuple(type);
+        }
+
+        public static bool IsValueTuple(this Type type)
+        {
+            return
+                type.IsConstructedGenericType &&
+                type.GetGenericTypeDefinition() is var typeDefinition &&
+                __valueTupleTypeDefinitions.Contains(typeDefinition);
+
         }
 
         public static bool TryGetIDictionaryGenericInterface(this Type type, out Type idictionaryGenericInterface)

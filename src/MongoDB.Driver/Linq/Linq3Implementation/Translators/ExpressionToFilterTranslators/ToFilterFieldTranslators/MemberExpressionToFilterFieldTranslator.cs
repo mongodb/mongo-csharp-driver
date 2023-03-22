@@ -104,6 +104,24 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 return AstFilter.Field(field.Path, valueSerializer);
             }
 
+            if (fieldExpression.Type.IsTupleOrValueTuple())
+            {
+                if (field.Serializer is IBsonTupleSerializer tupleSerializer)
+                {
+                    var itemName = memberExpression.Member.Name;
+                    if (TupleSerializer.TryParseItemName(itemName, out var itemNumber))
+                    {
+                        var itemPath = $"{field.Path}.{itemNumber - 1}";
+                        var itemSerializer = tupleSerializer.GetItemSerializer(itemNumber);
+                        return AstFilter.Field(itemPath, itemSerializer);
+                    }
+
+                    throw new ExpressionNotSupportedException(memberExpression, because: $"Item name is not valid: {itemName}");
+                }
+
+                throw new ExpressionNotSupportedException(memberExpression, because: $"serializer {field.Serializer.GetType().FullName} does not implement IBsonTupleSerializer");
+            }
+
             throw new ExpressionNotSupportedException(memberExpression);
         }
     }
