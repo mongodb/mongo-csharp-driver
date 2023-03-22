@@ -648,23 +648,21 @@ namespace MongoDB.Driver.Tests.Search
                 "{ range: { path: 'age', gt: 1.5, lt: 2.5 } }");
         }
 
-        [Fact]
-        public void RangeInt32()
+        [Theory]
+        [InlineData(1, null, false, false, "gt: 1")]
+        [InlineData(1, null, true, false, "gte: 1")]
+        [InlineData(null, 1, false, false, "lt: 1")]
+        [InlineData(null, 1, false, true, "lte: 1")]
+        [InlineData(1, 10, false, false, "gt: 1, lt: 10")]
+        [InlineData(1, 10, true, false, "gte: 1, lt: 10")]
+        [InlineData(1, 10, false, true, "gt: 1, lte: 10")]
+        [InlineData(1, 10, true, true, "gte: 1, lte: 10")]
+        public void Range_should_render_correct_operator(int? min, int? max, bool minInclusive, bool maxInclusive, string rangeRendered)
         {
             var subject = CreateSubject<BsonDocument>();
-
             AssertRendered(
-                subject.Range("x", SearchRangeBuilder.Gt(1).Lt(10)),
-                "{ range: { path: 'x', gt: 1, lt: 10 } }");
-            AssertRendered(
-                subject.Range("x", SearchRangeBuilder.Lt(10).Gt(1)),
-                "{ range: { path: 'x', gt: 1, lt: 10 } }");
-            AssertRendered(
-                subject.Range("x", SearchRangeBuilder.Gte(1).Lte(10)),
-                "{ range: { path: 'x', gte: 1, lte: 10 } }");
-            AssertRendered(
-                subject.Range("x", SearchRangeBuilder.Lte(10).Gte(1)),
-                "{ range: { path: 'x', gte: 1, lte: 10 } }");
+                    subject.Range("x", new SearchRange<int>(min, max, minInclusive, maxInclusive)),
+                    $"{{ range: {{ path: 'x', {rangeRendered} }} }}");
         }
 
         [Fact]
@@ -679,6 +677,62 @@ namespace MongoDB.Driver.Tests.Search
                 subject.Range("Age", SearchRangeBuilder.Gte(18).Lt(65)),
                 "{ range: { path: 'age', gte: 18, lt: 65 } }");
         }
+
+        [Theory]
+        [MemberData(nameof(RangeSupportedTypesTestData))]
+        public void Range_should_render_supported_types<T>(
+            T min,
+            T max,
+            string minRendered,
+            string maxRendered,
+            Expression<Func<Person, T>> fieldExpression,
+            string fieldRendered)
+            where T : struct, IComparable<T>
+        {
+            var subject = CreateSubject<BsonDocument>();
+            var subjectTyped = CreateSubject<Person>();
+
+            AssertRendered(
+                subject.Range("age", SearchRangeBuilder.Gte(min).Lt(max)),
+                $"{{ range: {{ path: 'age', gte: {minRendered}, lt: {maxRendered} }} }}");
+
+            AssertRendered(
+                subjectTyped.Range(fieldExpression, SearchRangeBuilder.Gte(min).Lt(max)),
+                $"{{ range: {{ path: '{fieldRendered}', gte: {minRendered}, lt: {maxRendered} }} }}");
+        }
+
+        public static object[][] RangeSupportedTypesTestData => new[]
+        {
+            new object[] { (sbyte)1, (sbyte)2, "1", "2", Exp(p => p.Int8), nameof(Person.Int8) },
+            new object[] { (byte)1, (byte)2, "1", "2", Exp(p => p.UInt8), nameof(Person.UInt8) },
+            new object[] { (short)1, (short)2, "1", "2", Exp(p => p.Int16), nameof(Person.Int16) },
+            new object[] { (ushort)1, (ushort)2, "1", "2", Exp(p => p.UInt16), nameof(Person.UInt16) },
+            new object[] { (int)1, (int)2, "1", "2", Exp(p => p.Int32), nameof(Person.Int32) },
+            new object[] { (uint)1, (uint)2, "1", "2", Exp(p => p.UInt32), nameof(Person.UInt32) },
+            new object[] { long.MinValue, long.MaxValue, "NumberLong(\"-9223372036854775808\")", "NumberLong(\"9223372036854775807\")", Exp(p => p.Int64), nameof(Person.Int64) },
+            new object[] { (float)1, (float)2, "1", "2", Exp(p => p.Float), nameof(Person.Float) },
+            new object[] { (double)1, (double)2, "1", "2", Exp(p => p.Double), nameof(Person.Double) },
+            new object[] { DateTime.MinValue, DateTime.MaxValue, "ISODate(\"0001-01-01T00:00:00Z\")", "ISODate(\"9999-12-31T23:59:59.999Z\")", Exp(p => p.Birthday), "dob" },
+            new object[] { DateTimeOffset.MinValue, DateTimeOffset.MaxValue, "ISODate(\"0001-01-01T00:00:00Z\")", "ISODate(\"9999-12-31T23:59:59.999Z\")", Exp(p => p.DateTimeOffset), nameof(Person.DateTimeOffset) }
+        };
+
+        [Theory]
+        [MemberData(nameof(RangeUnsupportedTypesTestData))]
+        public void Range_should_throw_on_unsupported_types<T>(T value, Expression<Func<Person, T>> fieldExpression)
+            where T : struct, IComparable<T>
+        {
+            var subject = CreateSubject<BsonDocument>();
+            Record.Exception(() => subject.Range("age", SearchRangeBuilder.Gte(value).Lt(value))).Should().BeOfType<InvalidCastException>();
+
+            var subjectTyped = CreateSubject<Person>();
+            Record.Exception(() => subjectTyped.Range(fieldExpression, SearchRangeBuilder.Gte(value).Lt(value))).Should().BeOfType<InvalidCastException>();
+        }
+
+        public static object[][] RangeUnsupportedTypesTestData => new[]
+        {
+            new object[] { (ulong)1, Exp(p => p.UInt64) },
+            new object[] { TimeSpan.Zero, Exp(p => p.TimeSpan) },
+        };
 
         [Fact]
         public void Regex()
