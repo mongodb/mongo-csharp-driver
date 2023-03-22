@@ -118,6 +118,7 @@ namespace MongoDB.Driver.Search
                 float v => (BsonDouble)v,
                 double v => (BsonDouble)v,
                 DateTime v => (BsonDateTime)v,
+                DateTimeOffset v => (BsonDateTime)v.UtcDateTime,
                 ObjectId v => (BsonObjectId)v,
                 _ => throw new InvalidCastException()
             };
