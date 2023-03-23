@@ -157,6 +157,11 @@ namespace MongoDB.Driver.Tests.Search
                     .Must(
                         subject.Exists("z")),
                 "{ compound: { must: [{ exists: { path: 'x' } }, { exists: { path: 'y' } }, { exists: { path: 'z' } }], mustNot: [{ exists: { path: 'foo' } }, { exists: { path: 'bar' } }] } }");
+
+            var scoreBuilder = new SearchScoreDefinitionBuilder<BsonDocument>();
+            AssertRendered<BsonDocument>(
+                    subject.Compound(scoreBuilder.Constant(123)).Must(subject.Exists("x"), subject.Exists("y")),
+                    "{ compound: { must: [{ exists: { path: 'x' } }, { exists: { path: 'y' } } ], score: { constant: { value: 123 } }  } }");
         }
 
         [Fact]
@@ -175,6 +180,11 @@ namespace MongoDB.Driver.Tests.Search
                     .Must(
                         subject.Exists(p => p.LastName)),
                 "{ compound: { must: [{ exists: { path: 'age' } }, { exists: { path: 'fn' } }, { exists: { path: 'ln' } }], mustNot: [{ exists: { path: 'ret' } }, { exists: { path: 'dob' } }] } }");
+
+            var scoreBuilder = new SearchScoreDefinitionBuilder<Person>();
+            AssertRendered<Person>(
+                    subject.Compound(scoreBuilder.Constant(123)).Must(subject.Exists(p => p.Age)),
+                    "{ compound: { must: [{ exists: { path: 'age' } } ], score: { constant: { value: 123 } }  } }");
         }
 
         [Theory]

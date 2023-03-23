@@ -68,7 +68,7 @@ namespace MongoDB.Driver.Search
         /// Creates a builder for a compound search definition.
         /// </summary>
         /// <returns></returns>
-        public CompoundSearchDefinitionBuilder<TDocument> Compound() => new CompoundSearchDefinitionBuilder<TDocument>();
+        public CompoundSearchDefinitionBuilder<TDocument> Compound(SearchScoreDefinition<TDocument> score = null) => new CompoundSearchDefinitionBuilder<TDocument>(score);
 
         /// <summary>
         /// Creates a search definition that queries for documents where an indexed field is equal

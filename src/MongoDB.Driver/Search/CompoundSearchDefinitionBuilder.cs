@@ -29,6 +29,16 @@ namespace MongoDB.Driver.Search
         private List<SearchDefinition<TDocument>> _should;
         private List<SearchDefinition<TDocument>> _filter;
         private int _minimumShouldMatch = 0;
+        private SearchScoreDefinition<TDocument> _score;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CompoundSearchDefinitionBuilder{TDocument}"/> class.
+        /// </summary>
+        /// <param name="score"></param>
+        public CompoundSearchDefinitionBuilder(SearchScoreDefinition<TDocument> score = null)
+        {
+            _score = score;
+        }
 
         /// <summary>
         /// Adds clauses which must match to produce results.
@@ -117,7 +127,7 @@ namespace MongoDB.Driver.Search
         /// </summary>
         /// <returns>A compound search definition.</returns>
         public SearchDefinition<TDocument> ToSearchDefinition() =>
-            new CompoundSearchDefinition<TDocument>(_must, _mustNot, _should, _filter, _minimumShouldMatch);
+            new CompoundSearchDefinition<TDocument>(_must, _mustNot, _should, _filter, _minimumShouldMatch, _score);
 
         /// <summary>
         /// Performs an implicit conversion from a <see cref="CompoundSearchDefinitionBuilder{TDocument}"/>
