@@ -70,15 +70,7 @@ namespace MongoDB.Driver.Tests.Builders
             var index = indexes.RawDocuments.Single(i => i["name"].AsString == "custom");
 
             index["key"]["$**"].AsInt32.Should().Be(1);
-            var serverVersion = CoreTestConfiguration.ServerVersion;
-            if (serverVersion >= new SemanticVersion(4, 5, 0, "") && serverVersion <= new SemanticVersion(6, 2, 0, ""))
-            {
-                index["wildcardProjection"].Should().Be(BsonDocument.Parse("{ _id : true }"));
-            }
-            else
-            {
-                index["wildcardProjection"].Should().Be(BsonDocument.Parse("{ _id : 1 }"));
-            }
+            index["wildcardProjection"].Should().Be(BsonDocument.Parse("{ _id : 1 }"));
         }
 
         [Fact]
